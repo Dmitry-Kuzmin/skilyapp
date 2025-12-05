@@ -1,11 +1,14 @@
 # Результаты PageSpeed Insights после оптимизации
 
-**Отчёт:** https://pagespeed.web.dev/analysis/https-skilyapp-com/gafr8yu13y?form_factor=mobile  
-**Дата:** 5 декабря 2025, 14:08 GMT+1
+**Отчёт 1:** https://pagespeed.web.dev/analysis/https-skilyapp-com/gafr8yu13y?form_factor=mobile  
+**Дата 1:** 5 декабря 2025, 14:08 GMT+1
+
+**Отчёт 2 (после preload):** https://pagespeed.web.dev/analysis/https-skilyapp-com/fwf4ofu4tw?form_factor=mobile  
+**Дата 2:** 5 декабря 2025, 14:18 GMT+1
 
 ## 📊 Общие метрики
 
-**Performance Score: 64** (было 59) ✅ **Улучшение на 5 пунктов!**
+**Performance Score: 65** (было 64, изначально 59) ✅ **Улучшение на 6 пунктов от исходного!**
 
 - **Accessibility: 94** ✅
 - **Best Practices: 100** ✅
@@ -23,7 +26,7 @@
 
 ## 📈 Сравнение "До" и "После"
 
-### До оптимизации:
+### До оптимизации (исходное):
 - Performance: 59
 - FCP: 6.4s
 - LCP: 7.6s
@@ -31,11 +34,17 @@
 - TBT: 130ms
 - CLS: 0
 
-### После оптимизации:
+### После bundle оптимизации:
 - Performance: **64** ✅ (+5 пунктов)
 - TBT: **80ms** ✅ (улучшение с 130ms)
 - CLS: **0** ✅ (без изменений)
 - Speed Index: **6.6s** ⚠️ (без изменений)
+
+### После preload оптимизации (текущее):
+- Performance: **65** ✅ (+1 пункт, всего +6 от исходного)
+- TBT: **80ms** ✅ (стабильно отлично)
+- CLS: **0** ✅ (без изменений)
+- Speed Index: **~6.6s** ⚠️ (нужно уточнить точное значение)
 
 ## ✅ Что сработало (Честная оценка):
 
