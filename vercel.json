@@ -9,6 +9,14 @@
       "destination": "/:file.$1"
     },
     {
+      "source": "/blog",
+      "destination": "/blog.html"
+    },
+    {
+      "source": "/article/:slug",
+      "destination": "/article/:slug.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
