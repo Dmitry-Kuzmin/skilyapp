@@ -1,99 +1,92 @@
-# Прогресс оптимизации производительности
+# 📊 Прогресс оптимизаций
 
-**Дата:** 5 декабря 2025
+**Дата обновления:** 5 декабря 2025
 
-## ✅ Выполненные оптимизации
+## ✅ Завершённые оптимизации
 
-### 1. Bundle оптимизация (vendor chunk)
-- **Статус:** ✅ Выполнено
-- **Результат:** 
-  - Vendor разбит на отдельные chunks (tiptap, xlsx, ui-vendor)
-  - TBT улучшился с 130ms до 80ms
-  - Performance: 59 → 64 (+5 пунктов)
+### 1. SSG (Static Site Generation) ✅
+- **Этап 0:** Исправлены все проблемы с `window` для SSG
+- **Этап 1:** Создан prerender скрипт, генерируются 13 статических HTML файлов
+- **Результат:** Публичные страницы готовы для SEO индексации
 
-### 2. Preload критических chunks
-- **Статус:** ✅ Выполнено
-- **Результат:**
-  - Preload для vendor.js и index.js с fetchpriority="high"
-  - Performance: 64 → 65 (+1 пункт)
-  - Всего: +6 пунктов от исходного
+### 2. Bundle оптимизация ✅
+- Разделение vendor на чанки:
+  - `vendor.js` - 1.17MB (362KB gzip)
+  - `tiptap-vendor.js` - 415KB (126KB gzip)
+  - `xlsx-vendor.js` - 454KB (152KB gzip)
+  - `ui-vendor.js` - 121KB (40KB gzip)
+- Lazy loading тяжёлых компонентов
+- Оптимизированы импорты `lucide-react` (named imports)
 
-### 3. Lazy load Dashboard компонента
-- **Статус:** ✅ Выполнено
-- **Результат:**
-  - Index.js: 670KB → 84.85KB (gzip: 24.06KB) ✅
-  - Dashboard теперь загружается только когда нужен
-  - Убраны неиспользуемые импорты (framer-motion, иконки)
-  - Initial bundle уменьшен на ~585KB (uncompressed)
+### 3. Оптимизация date-fns ✅
+- **Проблема:** Импорты локалей из `date-fns/locale` могли тянуть весь объект локалей
+- **Решение:** Заменены на прямые импорты `from 'date-fns/locale/ru'`
+- **Файлы:**
+  - `src/components/NotificationsPanel.tsx`
+  - `src/components/auth/PasskeyManager.tsx`
+  - `src/pages/admin/AdminSync.tsx`
+  - `src/pages/admin/AdminAIReports.tsx`
+  - `src/components/admin-editor/VersionHistory.tsx`
+- **Результат:** Улучшен tree-shaking, потенциальное уменьшение bundle
 
-### 4. Оптимизация LCP элемента
-- **Статус:** ✅ Выполнено
-- **Результат:**
-  - Preload для noise.svg (hero section background)
-  - fetchpriority="high" для критического изображения
+### 4. Изображения ✅
+- `LazyImage` компонент для lazy loading
+- Поддержка WebP в `imageUtils.ts`
+- Автоматическое определение оптимального размера
+- Кэширование aspect ratio
 
-## 📊 Текущие метрики
+### 5. Шрифты ✅
+- `font-display: swap` в CSS
+- `preconnect` для Google Fonts
 
-### Performance Score:
-- Исходное: 59
-- После bundle оптимизации: 64 (+5)
-- После preload: 65 (+1)
-- После lazy load Dashboard: **Ожидается 66-68** ⏳
+## 🔄 В процессе
 
-### Bundle размеры (gzipped):
-- **index.js:** 84.85KB (было 670KB) ✅
-- **vendor.js:** 362.71KB
-- **Dashboard (lazy):** ~197KB (загружается по требованию)
+### Unused JavaScript (350 KiB)
+- **Статус:** Анализ завершён
+- **Найдено:**
+  - `date-fns` импорты оптимизированы ✅
+  - `lucide-react` импорты оптимизированы ✅
+  - `framer-motion` используется в нескольких компонентах (в ui-vendor chunk)
+- **Следующий шаг:** Проверить, можно ли заменить простые анимации framer-motion на CSS
 
-### Core Web Vitals:
+## 📈 Метрики
+
+### PageSpeed Insights (цель: 90+)
+- **Текущий score:** 64-66
+- **FCP:** ~4.6s (цель: <2.0s)
+- **LCP:** ~4.6s (цель: <2.5s)
 - **TBT:** 80ms ✅ (отлично!)
 - **CLS:** 0 ✅ (отлично!)
-- **FCP/LCP:** ~4.6s ⚠️ (нужно улучшить)
 
-## ⏳ В процессе
+### Bundle размеры
+```
+vendor-Bsft9VLg.js          1,172.25 kB │ gzip: 362.98 kB
+xlsx-vendor-TIS0FDq1.js       454.04 kB │ gzip: 152.65 kB
+tiptap-vendor-BulVzaJv.js    415.67 kB │ gzip: 126.88 kB
+index-bZ720FsX.js            301.85 kB │ gzip: 102.56 kB
+ui-vendor-DSbuKFM-.js        121.29 kB │ gzip:  40.64 kB
+```
 
-### 1. Убрать unused JavaScript (350 KiB)
-- **Статус:** ⏳ В процессе
-- **Действия:**
-  - Запущен bundle analysis (stats.html создан)
-  - Нужно проанализировать результаты
-  - Найти и убрать неиспользуемый код
+## 🎯 Следующие шаги
 
-### 2. Убрать unused CSS (45 KiB)
-- **Статус:** ⏳ Ожидает
-- **Действия:**
-  - Проверить PurgeCSS/Tailwind настройки
-  - Убедиться что неиспользуемые классы удаляются
+### Приоритет 1: Продолжить оптимизацию bundle
+1. Проверить возможность замены framer-motion на CSS transitions для простых анимаций
+2. Анализ unused CSS (45 KiB)
+3. Проверить возможность дальнейшего code splitting
 
-### 3. Оптимизировать изображения
-- **Статус:** ⏳ Ожидает
-- **Действия:**
-  - Конвертировать в WebP
-  - Добавить lazy loading для изображений ниже fold
-  - Responsive images (srcset)
+### Приоритет 2: Оптимизация изображений
+1. Убедиться, что все изображения используют `LazyImage` или `loading="lazy"`
+2. Проверить использование WebP версий в Supabase Storage
+3. Добавить `fetchpriority="high"` для LCP изображений (если нужно)
 
-### 4. Оптимизировать шрифты
-- **Статус:** ⏳ Ожидает
-- **Действия:**
-  - Проверить формат (woff2)
-  - Preload критических шрифтов
-  - font-display: swap
+### Приоритет 3: Тестирование SSG
+1. Задеплоить на production
+2. Проверить SEO метрики (Google Search Console)
+3. Проверить PageSpeed Insights для публичных страниц
 
-## 🎯 Цели
+## 💡 Важные моменты
 
-### Краткосрочные (1-2 недели):
-- **Performance: 70-75** (реалистично)
-- **FCP: 2.5-3.0s** (было ~4.6s)
-- **LCP: 3.0-3.5s** (было ~4.6s)
-
-### Долгосрочные (1-2 месяца):
-- **Performance: 80+** (оптимистично)
-- **FCP: 2.0s** (цель)
-- **LCP: 2.5s** (цель)
-
-## 📝 Заметки
-
-- Lazy load Dashboard дал огромный эффект - уменьшение initial bundle на ~585KB
-- Preload работает и даёт небольшое, но стабильное улучшение
-- TBT уже отличный (80ms) - это главная победа
-- Для Performance 90+ может потребоваться SSR (Next.js)
+1. **Prerender запускается отдельно** - не интегрирован в vite build
+2. **Нужно запускать после билда:** `npm run build && npm run prerender`
+3. **При добавлении новой статьи** - нужно добавить slug в `scripts/prerender.js`
+4. **Vercel автоматически** отдаст статические HTML благодаря rewrite правилам
