@@ -40,17 +40,10 @@ function optimizeCssLoading(): Plugin {
           }
         );
         
-        // Добавляем preload для критических JS chunks (react-vendor и index)
+        // Добавляем preload для критических JS chunks (index и vendor)
         // Находим все modulepreload ссылки и добавляем fetchpriority для критических
-        result = result.replace(
-          /<link rel="modulepreload"([^>]*href="([^"]+react-vendor[^"]+)"[^>]*)>/g,
-          (match, attrs, href) => {
-            if (!match.includes('fetchpriority')) {
-              return match.replace('>', ' fetchpriority="high">');
-            }
-            return match;
-          }
-        );
+        // ПРИМЕЧАНИЕ: react-vendor больше не используется, React в основном vendor chunk
+        // Убрано: preload для react-vendor (больше не существует)
         
         result = result.replace(
           /<link rel="modulepreload"([^>]*href="([^"]+index[^"]+)"[^>]*)>/g,
