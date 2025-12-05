@@ -29,8 +29,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+// ОПТИМИЗАЦИЯ: Импортируем только нужную функцию из date-fns
 import { formatDistanceToNow } from 'date-fns';
-import { ru } from 'date-fns/locale';
+// ОПТИМИЗАЦИЯ: Импортируем только русскую локаль (tree-shaking работает)
+import { ru } from 'date-fns/locale/ru';
 
 // Автогенерация названия устройства
 function getAutoDeviceName(): string {

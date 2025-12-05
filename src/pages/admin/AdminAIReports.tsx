@@ -5,8 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+// ОПТИМИЗАЦИЯ: Импортируем только нужную функцию из date-fns
 import { format } from "date-fns";
-import { ru } from "date-fns/locale";
+// ОПТИМИЗАЦИЯ: Импортируем только русскую локаль (tree-shaking работает)
+import { ru } from "date-fns/locale/ru";
 
 interface AIFeedback {
   id: string;

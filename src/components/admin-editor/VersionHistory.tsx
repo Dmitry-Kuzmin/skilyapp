@@ -7,8 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+// ОПТИМИЗАЦИЯ: Импортируем только нужную функцию из date-fns
 import { format } from "date-fns";
-import { ru } from "date-fns/locale";
+// ОПТИМИЗАЦИЯ: Импортируем только русскую локаль (tree-shaking работает)
+import { ru } from "date-fns/locale/ru";
 
 interface MaterialVersion {
   id: string;

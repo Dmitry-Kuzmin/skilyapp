@@ -5,8 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { Bell, Check, CheckCheck, Swords, Clock, Zap, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useUserContext } from '@/contexts/UserContext';
+// ОПТИМИЗАЦИЯ: Импортируем только нужные функции из date-fns
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, isThisMonth } from 'date-fns';
-import { ru } from 'date-fns/locale';
+// ОПТИМИЗАЦИЯ: Импортируем только русскую локаль (tree-shaking работает)
+import { ru } from 'date-fns/locale/ru';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
