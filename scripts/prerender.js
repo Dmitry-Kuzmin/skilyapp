@@ -6,12 +6,33 @@
  * Запускается автоматически после npm run build
  */
 
-import puppeteer from 'puppeteer';
-import { install } from '@puppeteer/browsers';
+import puppeteerCore from 'puppeteer-core';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { existsSync, mkdirSync, writeFileSync, readdirSync } from 'fs';
 import { execSync } from 'child_process';
+
+// Динамический импорт для Vercel и локальной разработки
+let chromium = null;
+let puppeteer = null;
+
+// На Vercel используем @sparticuz/chromium
+if (process.env.VERCEL || process.env.VERCEL_ENV) {
+  try {
+    chromium = await import('@sparticuz/chromium');
+    console.log('[Prerender] ✅ Loaded @sparticuz/chromium for Vercel');
+  } catch (error) {
+    console.warn('[Prerender] ⚠️ Could not load @sparticuz/chromium:', error.message);
+  }
+} else {
+  // Локально используем полный puppeteer
+  try {
+    puppeteer = await import('puppeteer');
+    console.log('[Prerender] ✅ Loaded puppeteer for local development');
+  } catch (error) {
+    console.warn('[Prerender] ⚠️ Could not load puppeteer:', error.message);
+  }
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
