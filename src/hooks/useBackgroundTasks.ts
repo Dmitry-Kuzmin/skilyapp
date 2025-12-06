@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useContext } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useUserContext } from '@/contexts/UserContext';
+import { UserContext } from '@/contexts/UserContext';
 
 /**
  * ОПТИМИЗАЦИЯ: Фоновые задачи, которые не блокируют рендеринг
@@ -12,12 +12,17 @@ import { useUserContext } from '@/contexts/UserContext';
  * Эти запросы не критичны для первого рендера и не должны блокировать UI
  */
 export function useBackgroundTasks() {
-  const { profileId, supabaseUser } = useUserContext();
+  // КРИТИЧНО: Безопасное получение UserContext - не выбрасывает ошибку если провайдер отсутствует
+  // Это позволяет useBackgroundTasks работать даже если UserProvider еще не загрузился
+  const userContext = useContext(UserContext);
+  const profileId = userContext?.profileId ?? null;
+  const supabaseUser = userContext?.supabaseUser ?? null;
   const hasRegisteredRef = useRef(false);
   const hasSyncedPremiumRef = useRef(false);
 
   useEffect(() => {
-    if (!profileId || !supabaseUser) return;
+    // Если UserProvider еще не готов, просто выходим - задачи запустятся позже
+    if (!userContext || !profileId || !supabaseUser) return;
 
     // ОПТИМИЗАЦИЯ: Запускаем фоновые задачи с задержкой
     // Даем приоритет критичным данным (dashboard, profile)
