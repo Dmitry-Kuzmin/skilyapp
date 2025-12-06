@@ -737,4 +737,5 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
       <ReferralModal open={referralModalOpen} onOpenChange={setReferralModalOpen} />
     </>
   );
+});
 }
