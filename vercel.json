@@ -40,7 +40,7 @@
       ]
     },
     {
-      "source": "/*.html",
+      "source": "/(.*\\.html)",
       "headers": [
         {
           "key": "Content-Type",
@@ -62,7 +62,7 @@
       ]
     },
     {
-      "source": "/(.*\\.(js|css|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|ico|webp|json|map|sw\\.js|workbox-.*\\.js))",
+      "source": "/assets/:path*",
       "headers": [
         {
           "key": "Cache-Control",
