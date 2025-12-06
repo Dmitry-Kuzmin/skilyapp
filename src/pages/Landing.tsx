@@ -20,30 +20,9 @@ const Landing = () => {
   const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
-    // КРИТИЧНО: Предотвращаем бесконечный цикл редиректов
-    if (hasRedirected) return;
-    
-    // КРИТИЧНО: Не делаем редирект если мы уже не на главной странице
-    // Landing должен рендериться только на /, а не на /dashboard
-    const currentPath = location.pathname;
-    if (currentPath !== '/' && currentPath !== '/dashboard') {
-      return; // Не на главной - не проверяем авторизацию
-    }
-    
-    // ОПТИМИЗАЦИЯ: Легкая проверка авторизации БЕЗ Supabase (через localStorage/Telegram)
-    const isAuthenticated = checkAuthFromStorage() || checkTelegramAuth();
-    
-    // Если пользователь авторизован И мы на главной странице, перенаправляем в приложение
-    if (isAuthenticated && currentPath === '/') {
-      setHasRedirected(true);
-      // Очищаем партнерский и реферальный коды (они уже применены при регистрации)
-      sessionStorage.removeItem('partner_code');
-      sessionStorage.removeItem('referral_code');
-      // КРИТИЧНО: Используем navigate вместо window.location.href для предотвращения бесконечного цикла
-      // Перенаправляем в dashboard, а не на главную (которая снова рендерит Landing)
-      navigate('/dashboard', { replace: true });
-      return;
-    }
+    // КРИТИЧНО: Landing НЕ проверяет авторизацию - это делает Index
+    // Landing просто рендерится на /, а Index на /dashboard редиректит на / если не авторизован
+    // Это предотвращает бесконечный цикл редиректов
 
     // ОПТИМИЗАЦИЯ: Проверяем коды, но НЕ блокируем рендер лендинга
     // Лендинг рендерится сразу, а данные загружаются асинхронно когда придут
