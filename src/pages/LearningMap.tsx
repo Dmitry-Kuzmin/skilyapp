@@ -382,13 +382,14 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
     }
   };
 
-  const handleTopicClick = (topicId: string) => {
+  // ОПТИМИЗАЦИЯ: Мемоизируем обработчики событий для предотвращения лишних ре-рендеров
+  const handleTopicClick = useCallback((topicId: string) => {
     navigate(`/topic/${topicId}`);
-  };
+  }, [navigate]);
 
-  const handleSubtopicClick = (subtopicId: string) => {
+  const handleSubtopicClick = useCallback((subtopicId: string) => {
     navigate(`/subtopic/${subtopicId}`);
-  };
+  }, [navigate]);
 
   const [structuredCurriculum, setStructuredCurriculum] = useState<StructuredCurriculumTopic[]>([]);
   const [isBuildingCurriculum, setIsBuildingCurriculum] = useState(false);
