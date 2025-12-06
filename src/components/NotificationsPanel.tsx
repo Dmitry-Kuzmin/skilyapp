@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, ReactNode } from 'react';
+import { useState, useMemo, useEffect, useCallback, ReactNode } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
