@@ -16,8 +16,6 @@ const Landing = () => {
   const [loadingReferrer, setLoadingReferrer] = useState(false);
   const [loadingPartner, setLoadingPartner] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
-  const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
     // КРИТИЧНО: Landing НЕ проверяет авторизацию - это делает Index
