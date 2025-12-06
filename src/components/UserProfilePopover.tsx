@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -109,7 +109,7 @@ const useAvatarData = (profileId: string | null) => {
   });
 };
 
-export function UserProfilePopover({ notificationsApi, onOpenNotifications }: UserProfilePopoverProps) {
+export const UserProfilePopover = memo(function UserProfilePopover({ notificationsApi, onOpenNotifications }: UserProfilePopoverProps) {
   const { user, profileId, logout, supabaseUser, platform } = useUserContext();
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
@@ -121,30 +121,32 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
   const [referralModalOpen, setReferralModalOpen] = useState(false);
   const isMiniApp = isTelegramMiniApp();
   const { unreadCount } = notificationsApi;
-  const hasUnreadNotifications = unreadCount > 0;
+  
+  // ОПТИМИЗАЦИЯ: Мемоизируем вычисления для предотвращения лишних ре-рендеров
+  const hasUnreadNotifications = useMemo(() => unreadCount > 0, [unreadCount]);
   
   // ОПТИМИЗАЦИЯ: Используем React Query для аватара - дедупликация автоматическая!
   const { data: profile, isLoading: loading } = useAvatarData(profileId);
   const showSkeleton = loading && !profile;
 
-  const avatarColor = generateAvatarColor(profileId || '');
-  const initials = getInitials(profile?.first_name || user?.first_name);
+  const avatarColor = useMemo(() => generateAvatarColor(profileId || ''), [profileId]);
+  const initials = useMemo(() => getInitials(profile?.first_name || user?.first_name), [profile?.first_name, user?.first_name]);
   
   // ОПТИМИЗАЦИЯ: Используем useProfileData для XP (не делаем дополнительный запрос)
   const { xp: profileXp } = useProfileData();
   const xp = profileXp || 0;
   const nextLevelXp = 5000;
-  const xpProgress = Math.min((xp % nextLevelXp) / nextLevelXp * 100, 100);
+  const xpProgress = useMemo(() => Math.min((xp % nextLevelXp) / nextLevelXp * 100, 100), [xp, nextLevelXp]);
   const subscription = 'free'; // Убрали subscription_status из запроса
 
-
-  const handleLogout = () => {
+  // ОПТИМИЗАЦИЯ: Мемоизируем обработчики для предотвращения лишних ре-рендеров
+  const handleLogout = useCallback(() => {
     logout();
     setOpen(false);
     toast.success(t('loggedOut') || 'Вы вышли из аккаунта');
-  };
+  }, [logout, t]);
 
-  const handleLanguageChange = async (lang: 'ru' | 'en' | 'es') => {
+  const handleLanguageChange = useCallback(async (lang: 'ru' | 'en' | 'es') => {
     setLanguage(lang);
     
     if (profileId) {
@@ -159,7 +161,7 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
         .eq('id', profileId);
       toast.success(t('languageChanged'));
     }
-  };
+  }, [setLanguage, profileId, profile?.settings, t]);
 
   const quickActions = [
     {

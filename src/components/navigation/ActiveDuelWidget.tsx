@@ -1,3 +1,4 @@
+import { memo, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Swords, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -5,19 +6,25 @@ import { useNavigate } from 'react-router-dom';
 import { useActiveDuel } from '@/hooks/useActiveDuel';
 import { cn } from '@/lib/utils';
 
-export function ActiveDuelWidget() {
+export const ActiveDuelWidget = memo(function ActiveDuelWidget() {
   const navigate = useNavigate();
   const { activeDuel } = useActiveDuel();
 
-  if (!activeDuel) return null;
+  // ОПТИМИЗАЦИЯ: Мемоизируем вычисления для предотвращения лишних ре-рендеров
+  const progress = useMemo(() => {
+    if (!activeDuel) return 0;
+    return activeDuel.totalQuestions > 0 && activeDuel.currentIndex !== undefined
+      ? ((activeDuel.currentIndex + 1) / activeDuel.totalQuestions) * 100 
+      : 0;
+  }, [activeDuel]);
 
-  const progress = activeDuel.totalQuestions > 0 && activeDuel.currentIndex !== undefined
-    ? ((activeDuel.currentIndex + 1) / activeDuel.totalQuestions) * 100 
-    : 0;
-
-  const handleReturnToDuel = () => {
+  // ОПТИМИЗАЦИЯ: Мемоизируем обработчик для предотвращения лишних ре-рендеров
+  const handleReturnToDuel = useCallback(() => {
+    if (!activeDuel) return;
     navigate(`/games/duel?duelId=${activeDuel.duelId}`);
-  };
+  }, [activeDuel, navigate]);
+
+  if (!activeDuel) return null;
 
   return (
     <motion.div
@@ -59,5 +66,5 @@ export function ActiveDuelWidget() {
       </Button>
     </motion.div>
   );
-}
+});
 
