@@ -469,15 +469,25 @@ export default defineConfig(({ mode }) => {
             return 'storage-vendor';
           }
           
-          // КРИТИЧНО: @supabase и @tanstack НЕ разделяем на отдельный chunk
-          // Разделение вызывает проблемы с зависимостями (u is not a function)
-          // Оставляем в основном vendor chunk для стабильности
-          // if (id.includes('node_modules/@supabase') || 
-          //     id.includes('node_modules/@tanstack')) {
-          //   return 'data-vendor';
-          // }
+          // КРИТИЧНО: Выделяем app-vendor (Supabase, Query, Radix) - НЕ грузится на лендинге
+          // Эти библиотеки нужны только в /app/* роутах, где есть AppProviders
+          if (
+            id.includes('node_modules/@supabase') || 
+            id.includes('node_modules/@tanstack') ||
+            id.includes('node_modules/@radix-ui') ||
+            id.includes('node_modules/unified') ||
+            id.includes('node_modules/micromark') ||
+            id.includes('node_modules/vfile') ||
+            id.includes('node_modules/@floating-ui') ||
+            id.includes('node_modules/rollbar') ||
+            id.includes('node_modules/linkifyjs') ||
+            id.includes('node_modules/qr.js')
+          ) {
+            return 'app-vendor';
+          }
           
-          // Всё остальное из node_modules
+          // КРИТИЧНО: React и ReactDOM остаются в core-vendor (нужны везде)
+          // Всё остальное из node_modules тоже в core-vendor
           if (id.includes('node_modules')) {
             return 'vendor';
           }

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
+// ОПТИМИЗАЦИЯ: Убрали статический импорт supabase - он грузится только когда нужен profileId
+// Это критично для лендинга - supabase не должен грузиться на /
 import { UserContext } from "./UserContext";
 import { helpCenterTranslations } from "@/translations/helpCenter";
 
@@ -2722,6 +2723,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      // ОПТИМИЗАЦИЯ: Динамический импорт supabase только когда нужен profileId
+      // На лендинге (где нет profileId) supabase не грузится
+      const { supabase } = await import("@/integrations/supabase/client");
+      
       const { data } = await supabase
         .from('profiles')
         .select('settings')
@@ -2745,6 +2750,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
     // Save to database if user is logged in
     if (profileId) {
+      // ОПТИМИЗАЦИЯ: Динамический импорт supabase только когда нужен profileId
+      // На лендинге (где нет profileId) supabase не грузится
+      const { supabase } = await import("@/integrations/supabase/client");
+      
       const { data: currentProfile } = await supabase
         .from('profiles')
         .select('settings')
