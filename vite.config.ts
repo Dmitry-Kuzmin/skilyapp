@@ -45,15 +45,18 @@ function optimizeCssLoading(): Plugin {
         // КРИТИЧНО: Preload критических JS chunks (vendor и index)
         // Это уменьшает критический путь загрузки на 300-500ms
         
+        // КРИТИЧНО: charset должен быть первым элементом в <head>
+        // Вставляем modulepreload ссылки ПОСЛЕ charset, но перед другими элементами
+        
         // 1. Preload для vendor.js (React, Supabase, TanStack - критично!)
         const vendorJsMatch = result.match(/<script type="module"([^>]*src="([^"]+vendor[^"]+\.js)"[^>]*)>/);
         if (vendorJsMatch && vendorJsMatch[2]) {
           const vendorJsPath = vendorJsMatch[2];
           const hasVendorPreload = result.includes(`href="${vendorJsPath}"`) && result.includes('modulepreload');
           if (!hasVendorPreload) {
-            // Добавляем preload для vendor ПЕРЕД index (vendor должен загрузиться первым)
+            // Вставляем ПОСЛЕ charset (первый элемент в <head>)
             result = result.replace(
-              /(<head[^>]*>)/i,
+              /(<meta\s+charset="[^"]*"\s*\/?>)/i,
               `$1\n    <link rel="modulepreload" href="${vendorJsPath}" crossorigin fetchpriority="high">`
             );
           }
@@ -65,8 +68,9 @@ function optimizeCssLoading(): Plugin {
           const indexJsPath = indexJsMatch[2];
           const hasIndexPreload = result.includes(`href="${indexJsPath}"`) && result.includes('modulepreload');
           if (!hasIndexPreload) {
+            // Вставляем ПОСЛЕ charset (первый элемент в <head>)
             result = result.replace(
-              /(<head[^>]*>)/i,
+              /(<meta\s+charset="[^"]*"\s*\/?>)/i,
               `$1\n    <link rel="modulepreload" href="${indexJsPath}" crossorigin fetchpriority="high">`
             );
           }
