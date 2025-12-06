@@ -124,8 +124,10 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         
         onClose();
         
+        // КРИТИЧНО: Редиректим на /dashboard, а не на /, чтобы UserProvider обновил состояние
+        // На /dashboard UserProvider уже загружен и сможет обработать onAuthStateChange
         setTimeout(() => {
-          navigate('/');
+          navigate('/dashboard', { replace: true });
         }, 300);
       } catch (error) {
         console.error('[AuthModalNew] Telegram login error:', error);
@@ -354,8 +356,10 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
         onClose();
         
+        // КРИТИЧНО: Редиректим на /dashboard, а не на /, чтобы UserProvider обновил состояние
+        // На /dashboard UserProvider уже загружен и сможет обработать onAuthStateChange
         setTimeout(() => {
-          window.location.href = '/';
+          navigate('/dashboard', { replace: true });
         }, 500);
       } else {
         // Вход
@@ -385,8 +389,10 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
         onClose();
         
+        // КРИТИЧНО: Редиректим на /dashboard, а не на /, чтобы UserProvider обновил состояние
+        // На /dashboard UserProvider уже загружен и сможет обработать onAuthStateChange
         setTimeout(() => {
-          navigate('/');
+          navigate('/dashboard', { replace: true });
         }, 300);
       }
     } catch (error) {

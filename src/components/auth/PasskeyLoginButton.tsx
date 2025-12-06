@@ -60,9 +60,10 @@ export function PasskeyLoginButton({ onSuccess }: PasskeyLoginButtonProps) {
 
         onSuccess?.();
 
-        // Редирект на главную
+        // КРИТИЧНО: Редиректим на /dashboard, а не на /, чтобы UserProvider обновил состояние
+        // На /dashboard UserProvider уже загружен и сможет обработать onAuthStateChange
         setTimeout(() => {
-          navigate('/');
+          navigate('/dashboard', { replace: true });
         }, 300);
       } else {
         // Улучшенная обработка ошибок с Recovery подсказками
