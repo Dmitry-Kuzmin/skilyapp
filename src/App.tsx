@@ -1,10 +1,7 @@
-import { lazy, Suspense, useEffect, useState, useMemo } from "react";
-import { QueryClient } from "@tanstack/react-query";
-import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { BrowserRouter, useLocation } from "react-router-dom";
 import { useInitTelegram } from "@/hooks/useInitTelegram";
 import { useBackgroundTasks } from "@/hooks/useBackgroundTasks";
-import { createAsyncStoragePersister } from "@/lib/queryPersister";
 import { useOfflineAnalytics } from "@/utils/offlineAnalytics";
 
 // Lazy load UI components - только тяжелые компоненты
@@ -26,10 +23,14 @@ const HallOfFameModal = lazy(() => import("@/components/HallOfFameModal").then(m
 const DuelPassLeaderboardModal = lazy(() => import("@/components/leaderboard/DuelPassLeaderboardModal").then(m => ({ default: m.DuelPassLeaderboardModal })));
 
 // ОПТИМИЗАЦИЯ: Lazy load некритичных компонентов для уменьшения initial bundle
-// Эти компоненты не нужны для первого рендера и могут загрузиться позже
 const PerformanceMonitor = lazy(() => import("@/components/PerformanceMonitor").then(m => ({ default: m.PerformanceMonitor })));
 const GlobalModalManager = lazy(() => import("@/components/GlobalModalManager").then(m => ({ default: m.GlobalModalManager })));
 const PasskeyOnboardingWrapper = lazy(() => import("@/components/PasskeyOnboardingWrapper").then(m => ({ default: m.PasskeyOnboardingWrapper })));
+
+// ОПТИМИЗАЦИЯ: Lazy load AppProviders и AppRoutes для уменьшения initial bundle
+// Query/Supabase провайдеры загружаются только для приложения, не для лендинга
+const AppProviders = lazy(() => import("@/components/providers/AppProviders").then(m => ({ default: m.AppProviders })));
+const AppRoutes = lazy(() => import("@/components/AppRoutes").then(m => ({ default: m.AppRoutes })));
 
 // Обработка ошибок для lazy loading Index (dashboard)
 const IndexErrorFallback = () => {
@@ -210,29 +211,7 @@ const App = () => {
     checkFirstRun();
   }, []);
   
-  // OFFLINE-FIRST: Создаем QueryClient с длительным кэшированием
-  // Данные хранятся в IndexedDB и доступны даже без сети
-  const queryClient = useMemo(() => {
-    return new QueryClient({
-      defaultOptions: {
-        queries: {
-          staleTime: 5 * 60 * 1000, // 5 минут - данные считаются свежими
-          gcTime: 7 * 24 * 60 * 60 * 1000, // 7 дней - данные хранятся в кэше
-          refetchOnWindowFocus: false, // Не перезапрашиваем при фокусе окна
-          refetchOnMount: false, // Не перезапрашиваем при монтировании, если данные свежие
-          refetchOnReconnect: true, // Перезапрашиваем при восстановлении соединения
-          retry: 1, // Минимум повторных попыток
-          retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-        },
-        mutations: {
-          retry: 1,
-        },
-      },
-    });
-  }, []);
-
-  // OFFLINE-FIRST: Создаём persister на IndexedDB с robust fallback
-  const persister = useMemo(() => createAsyncStoragePersister(), []);
+  // ОПТИМИЗАЦИЯ: QueryClient и persister вынесены в AppProviders для lazy loading
   
   // КРИТИЧЕСКИ ВАЖНО: инициализируем Telegram WebApp в самом начале
   useInitTelegram();
@@ -329,174 +308,41 @@ const App = () => {
   }
 
   return (
-    <PersistQueryClientProvider
-      client={queryClient}
-      persistOptions={{
-        persister,
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
-        dehydrateOptions: {
-          // КРИТИЧНО: Фильтруем что персистим в IndexedDB
-          // Сохраняем только "медленные" данные, НЕ ephemeral/realtime
-          shouldDehydrateQuery: (query) => {
-            // Только успешные запросы
-            if (query.state.status !== 'success') {
-              return false;
-            }
-
-            // КРИТИЧНО: Безопасная проверка типа queryKey
-            // queryKey[0] может быть строка, число, объект
-            const root = String(query.queryKey[0] ?? '');
-            
-            // Пустой key - не сохраняем
-            if (!root) {
-              return false;
-            }
-
-            // ❌ НЕ сохраняем ephemeral/realtime данные (они быстро устаревают)
-            const ephemeralKeys = [
-              'online-players',           // Онлайн игроки (меняется каждую секунду)
-              'duel-notifications',       // Realtime уведомления
-              'live-game-state',          // Состояние активной игры
-              'active-duel',              // Текущая дуэль
-              'duel-players',             // Игроки в дуэли (realtime)
-              'websocket-status',         // WebSocket connection
-              'system-status',            // System health (admin)
-              'active-sessions',          // Активные сессии (admin)
-            ];
-
-            // Точное совпадение для ephemeral
-            if (ephemeralKeys.includes(root)) {
-              return false;
-            }
-
-            // ✅ Сохраняем "медленные" и стабильные данные
-            // ВАЖНО: Используем жёсткий whitelist для предсказуемости
-            const persistentRoots = [
-              'dashboard',                // Dashboard данные
-              'dashboard-complete',       // Полный dashboard
-              'topics',                   // Список тем
-              'subtopics',               // Подтемы
-              'materials',               // Учебные материалы
-              'user-progress',           // Прогресс пользователя
-              'test-questions',          // Вопросы тестов
-              'road-signs',              // Дорожные знаки
-              'sequential-tests',        // Последовательные тесты
-              'premium-status',          // Premium статус
-              'cosmetics',               // Косметика/аватары
-              'inventory',               // Инвентарь
-              'boost-inventory',         // Бусты
-              'challenge-bank-count',    // Challenge bank
-              'exam-readiness',          // Готовность к экзамену
-              'duel-pass-info',          // Duel Pass инфо
-              'partners',                // Партнёры
-              'profile',                 // Профиль пользователя
-              'daily-bonus',             // Daily bonus definitions
-            ];
-
-            // Точное совпадение (предсказуемо, безопасно)
-            return persistentRoots.includes(root);
-          },
-        },
-      }}
-    >
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <OfflineBanner />
-        <OfflineQueueIndicator />
-        <Suspense fallback={null}>
-          <CosmeticsPreviewProvider>
-              <BrowserRouter basename={basename}>
-                <ScrollToTop />
-                <Suspense fallback={null}>
-                  <DeepLinkHandler />
-                </Suspense>
-                <Suspense fallback={<PageLoader />}>
-        <Routes>
-          {/* ОПТИМИЗАЦИЯ: Убрали клиентский редирект - серверный редирект настроен в vercel.json */}
-          {/* Это предотвращает дополнительную переадресацию на стороне клиента */}
-          <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Index />} />
-          <Route path="/learning-map" element={<LearningMap />} />
-          <Route path="/topic/:id" element={<TopicDetail />} />
-          <Route path="/subtopic/:id" element={<SubtopicDetail />} />
-          <Route path="/tests" element={<Tests />} />
-          <Route path="/tests/sequential" element={<SequentialTests />} />
-          <Route path="/tests/challenge-bank" element={<ChallengeBank />} />
-          <Route path="/test/:mode" element={<TestSession />} />
-          <Route path="/test/:mode/:topic" element={<TestSession />} />
-          <Route path="/test/sequential/:testId" element={<TestSession />} />
-          <Route path="/test/challenge-bank" element={<TestSession />} />
-          <Route path="/test/results" element={<TestResults />} />
-          <Route path="/learning" element={<Learning />} />
-          <Route path="/games" element={<Games />} />
-          <Route path="/games/race" element={<RaceGame />} />
-          <Route path="/games/guess-sign" element={<GuessTheSign />} />
-          <Route path="/games/matching" element={<MatchingGame />} />
-          <Route path="/games/duel" element={<Duel />} />
-          <Route path="/games/four-variants" element={<FourVariantsGame />} />
-          <Route path="/games/road-race" element={<RoadRace />} />
-          <Route path="/games/flashcards" element={<FlashCardsGame />} />
-          <Route path="/referrals" element={<Referrals />} />
-                    <Route path="/join/:code" element={<ReferralRedirect />} />
-                    <Route path="/partner/:code" element={<PartnerRedirect />} />
-                    <Route path="/go/:code" element={<PartnerLinkRedirect />} />
-          <Route path="/partner/dashboard" element={<ModernPartnerDashboard />} />
-          <Route path="/partner/dashboard-old" element={<PartnerDashboard />} />
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="reports" element={<AdminQuestionReports />} />
-            <Route path="editor" element={<AdminEditor />} />
-            <Route path="sync" element={<AdminSync />} />
-            <Route path="import" element={<AdminImport />} />
-            <Route path="test-covers" element={<AdminTestCovers />} />
-            <Route path="seasons" element={<AdminSeasonsManagement />} />
-            <Route path="security" element={<AdminSecurityMonitoring />} />
-            <Route path="partners" element={<AdminPartners />} />
-            <Route path="marketing" element={<AdminMarketingMaterials />} />
-          </Route>
-          <Route path="/road-signs" element={<RoadSigns />} />
-          <Route path="/dictionary" element={<Dictionary />} />
-          <Route path="/data-import" element={<DataImport />} />
-          <Route path="/daily-bonus" element={<DailyBonus />} />
-          <Route path="/dgt-tests" element={<DGTTestsSimple />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/subscription-terms" element={<SubscriptionTerms />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/refund-policy" element={<RefundPolicy />} />
-          <Route path="/help" element={<HelpCenter />} />
-          <Route path="/partners" element={<Partners />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:slug" element={<Article />} />
-          <Route path="/duel-leaderboard" element={<DuelLeaderboard />} />
-          <Route path="/inventory" element={<Inventory />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/success" element={<PaymentSuccess />} />
-          <Route path="/cancel" element={<PaymentCancel />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-                </Suspense>
-                {/* Модалки, доступные на всех страницах */}
-                <Suspense fallback={null}>
-                  <HallOfFameModal />
-                  <DuelPassLeaderboardModal />
-                </Suspense>
-                {/* Глобальный менеджер модалок для Instagram-подобного поведения */}
-                <Suspense fallback={null}>
-                  <GlobalModalManager />
-                  <PerformanceMonitor />
-                  <PasskeyOnboardingWrapper />
-                </Suspense>
-                {/* Debug панель Service Worker (только в dev или с localStorage.debug_sw) */}
-                <ServiceWorkerDebug />
-              </BrowserRouter>
-            </CosmeticsPreviewProvider>
-        </Suspense>
-      </TooltipProvider>
-    </PersistQueryClientProvider>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <OfflineBanner />
+      <OfflineQueueIndicator />
+      <Suspense fallback={null}>
+        <CosmeticsPreviewProvider>
+          <BrowserRouter basename={basename}>
+            <ScrollToTop />
+            <Suspense fallback={null}>
+              <DeepLinkHandler />
+            </Suspense>
+            {/* ОПТИМИЗАЦИЯ: AppProviders и AppRoutes lazy loaded - Query/Supabase не попадают в initial bundle */}
+            <Suspense fallback={<PageLoader />}>
+              <AppProviders>
+                <AppRoutes />
+              </AppProviders>
+            </Suspense>
+            {/* Модалки, доступные на всех страницах */}
+            <Suspense fallback={null}>
+              <HallOfFameModal />
+              <DuelPassLeaderboardModal />
+            </Suspense>
+            {/* Глобальный менеджер модалок для Instagram-подобного поведения */}
+            <Suspense fallback={null}>
+              <GlobalModalManager />
+              <PerformanceMonitor />
+              <PasskeyOnboardingWrapper />
+            </Suspense>
+            {/* Debug панель Service Worker (только в dev или с localStorage.debug_sw) */}
+            <ServiceWorkerDebug />
+          </BrowserRouter>
+        </CosmeticsPreviewProvider>
+      </Suspense>
+    </TooltipProvider>
   );
 };
 
