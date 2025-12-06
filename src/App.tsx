@@ -333,7 +333,9 @@ const App = () => {
               <Route path="/*" element={
                 <Suspense fallback={<PageLoader />}>
                   <AppProviders>
-                    <AppRoutes />
+                    <Suspense fallback={<PageLoader />}>
+                      <AppRoutes />
+                    </Suspense>
                   </AppProviders>
                 </Suspense>
               } />

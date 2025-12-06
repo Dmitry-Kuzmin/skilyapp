@@ -95,9 +95,10 @@ const PaymentCancel = lazy(() => import("../pages/PaymentCancel"));
 const InviteLanding = lazy(() => import("../pages/InviteLanding"));
 
 export function AppRoutes() {
+  // КРИТИЧНО: AppRoutes рендерится внутри AppProviders, поэтому UserContext доступен
+  // Все компоненты здесь могут использовать useUserContext()
   return (
-    <Suspense fallback={<PageLoader />}>
-      <Routes>
+    <Routes>
         {/* ОПТИМИЗАЦИЯ: Роут "/" вынесен в App.tsx (рендерится БЕЗ AppProviders) */}
         {/* <Route path="/" element={<Index />} /> */}
         <Route path="/dashboard" element={<Index />} />
@@ -163,7 +164,6 @@ export function AppRoutes() {
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </Suspense>
   );
 }
 
