@@ -10,7 +10,9 @@ import { useCoins } from "@/hooks/useCoins";
 import { DashboardSkeleton } from "@/components/dashboard-new/DashboardSkeleton";
 import { useExamReadiness } from "@/hooks/useExamReadiness";
 import { useDashboardData } from "@/hooks/useDashboardData";
-import Layout from "@/components/Layout";
+// ОПТИМИЗАЦИЯ: Layout lazy-loaded - содержит UserContext, SettingsDrawer, NotificationsPanel, UserProfilePopover
+// Все эти компоненты тянут Supabase/Radix, поэтому Layout не должен быть в initial bundle
+const Layout = lazy(() => import("@/components/Layout").then(m => ({ default: m.default })));
 import { PageLoader } from "@/components/PageLoader";
 
 // КРИТИЧНО: Dashboard НЕ lazy load, так как содержит LCP элемент (hero section)
@@ -485,11 +487,13 @@ const DashboardContent = () => {
       {showWelcome && (
         <WelcomeOverlay onComplete={handleWelcomeComplete} />
       )}
-      <Layout hideNavigation={showWelcome}>
-        <div className={`w-full pb-6 ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
-          {pageContent}
-        </div>
-      </Layout>
+      <Suspense fallback={<PageLoader />}>
+        <Layout hideNavigation={showWelcome}>
+          <div className={`w-full pb-6 ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
+            {pageContent}
+          </div>
+        </Layout>
+      </Suspense>
     </>
   );
 };

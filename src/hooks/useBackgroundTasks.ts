@@ -1,5 +1,6 @@
 import { useEffect, useRef, useContext } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+// ОПТИМИЗАЦИЯ: Динамический импорт Supabase - не попадает в initial bundle для лендинга
+// Это критично для производительности - Supabase не должен грузиться на /
 import { UserContext } from '@/contexts/UserContext';
 
 /**
@@ -26,30 +27,32 @@ export function useBackgroundTasks() {
 
     // ОПТИМИЗАЦИЯ: Запускаем фоновые задачи с задержкой
     // Даем приоритет критичным данным (dashboard, profile)
-    const timer = setTimeout(() => {
-      runBackgroundTasks(profileId, supabaseUser.id);
+    const timer = setTimeout(async () => {
+      // ОПТИМИЗАЦИЯ: Динамический импорт Supabase - не попадает в initial bundle
+      const { supabase } = await import('@/integrations/supabase/client');
+      runBackgroundTasks(profileId, supabaseUser.id, supabase);
     }, 2000); // 2 секунды задержки - UI уже отрисован
 
     return () => clearTimeout(timer);
   }, [profileId, supabaseUser]);
 
-  const runBackgroundTasks = async (profileId: string, userId: string) => {
+  const runBackgroundTasks = async (profileId: string, userId: string, supabase: any) => {
     // Задача 1: Регистрация устройства (только 1 раз за сессию)
     if (!hasRegisteredRef.current) {
-      registerDeviceBackground(profileId, userId);
+      registerDeviceBackground(profileId, userId, supabase);
       hasRegisteredRef.current = true;
     }
 
     // Задача 2: Синхронизация премиум статуса (только 1 раз за сессию)
     if (!hasSyncedPremiumRef.current) {
-      syncPremiumStatusBackground(profileId);
+      syncPremiumStatusBackground(profileId, supabase);
       hasSyncedPremiumRef.current = true;
     }
   };
 }
 
 // Фоновая регистрация устройства
-async function registerDeviceBackground(profileId: string, userId: string) {
+async function registerDeviceBackground(profileId: string, userId: string, supabase: any) {
   try {
     console.log('[BackgroundTasks] 📱 Registering device in background...');
     
@@ -75,7 +78,7 @@ async function registerDeviceBackground(profileId: string, userId: string) {
 }
 
 // Фоновая синхронизация премиум статуса
-async function syncPremiumStatusBackground(profileId: string) {
+async function syncPremiumStatusBackground(profileId: string, supabase: any) {
   try {
     console.log('[BackgroundTasks] 👑 Syncing premium status in background...');
     

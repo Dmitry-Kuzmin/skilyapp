@@ -1,201 +1,194 @@
-# Анализ производительности приложения
+# 📊 Анализ производительности PageSpeed Insights
 
-**Дата анализа:** 2025-12-01  
-**Версия:** Development (localhost:8080)
+**Дата анализа:** 6 декабря 2025  
+**URL:** https://skilyapp.com  
+**Форма:** Mobile  
+**Отчет:** https://pagespeed.web.dev/analysis/https-skilyapp-com/6uuiqh1895?form_factor=mobile
 
-## 🔴 Критические проблемы
+---
 
-### 1. Массовые запросы к `premium-status` Edge Function
-**Проблема:** За короткое время выполняется **30+ запросов** к `/functions/v1/premium-status`
+## 🎯 Основные метрики
 
-**Причина:** 
-- Множественные компоненты вызывают `usePremium()` независимо
-- Нет кэширования результатов
-- Каждый компонент делает свой запрос
+| Метрика | Значение | Статус |
+|---------|----------|--------|
+| **Performance** | **71** | 🟠 Средний (нужно 80+) |
+| Accessibility | 94 | ✅ Отлично |
+| Best Practices | 100 | ✅ Отлично |
+| SEO | 100 | ✅ Отлично |
 
-**Влияние:**
-- Высокая нагрузка на Supabase Edge Functions
-- Медленная загрузка страницы
-- Лишние расходы на вызовы функций
+### 📈 Динамика изменений
 
-**Решение:**
-```typescript
-// Создать единый хук с глобальным кэшем
-const premiumStatusCache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_TTL = 60000; // 1 минута
+- **Было (до проблем):** 76
+- **Стало (после исправления ошибок):** 71
+- **Разница:** -5 (небольшое снижение, но стабильность восстановлена)
 
-export function usePremium() {
-  // Использовать React Query с кэшированием
-  // Или создать глобальный контекст с единым запросом
-}
-```
+---
 
-### 2. Дублирующиеся запросы к профилю
-**Проблема:** Множественные запросы к одним и тем же данным:
-- `profiles?select=coins&id=eq.XXX` - 10+ запросов
-- `profiles?select=xp,streak_days&id=eq.XXX` - 8+ запросов
-- `profiles?select=id&user_id=eq.XXX` - 5+ запросов
+## 🔍 Анализ Bundle Size
 
-**Причина:**
-- Разные компоненты запрашивают разные поля профиля
-- Нет единого источника данных
-- React Query не используется эффективно
+### Текущие размеры chunks (из `npm run build:analyze`)
 
-**Решение:**
-- Объединить все запросы профиля в один через `select('*')`
-- Использовать React Query с правильным кэшированием
-- Создать единый контекст для данных профиля
+| Chunk | Размер (uncompressed) | Gzipped | Статус |
+|-------|----------------------|---------|--------|
+| **vendor.js** | **1,020.45 kB** | **315.01 kB** | 🔴 **КРИТИЧНО** |
+| index.js | 361.57 kB | 118.43 kB | 🟡 Большой |
+| tiptap-vendor.js | 415.67 kB | 126.88 kB | ✅ Изолирован |
+| xlsx-vendor.js | 454.04 kB | 152.65 kB | ✅ Изолирован |
+| ui-vendor.js | 121.29 kB | 40.64 kB | ✅ Нормально |
+| Duel.js | 155.83 kB | 40.56 kB | ✅ Нормально |
 
-### 3. Неоптимальная загрузка профилей в Edge Function
-**Файл:** `supabase/functions/duel-manager/index.ts:1184-1203`
+### ⚠️ Проблема #1: vendor.js слишком большой
 
-**Проблема:** Профили загружаются по одному вместо batch запроса:
-```typescript
-// ТЕКУЩИЙ КОД (плохо):
-const profilePromises = userIds.map(async (userId) => {
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('id, first_name, username, telegram_id')
-    .eq('id', userId)
-    .single();
-  // ...
-});
-```
+**vendor.js = 1,020.45 kB (315.01 kB gzipped)** - это **основная причина низкого Performance score**.
 
-**Решение:**
-```typescript
-// ОПТИМИЗИРОВАННЫЙ КОД:
-const { data: profiles, error } = await supabase
-  .from('profiles')
-  .select('id, first_name, username, telegram_id')
-  .in('id', userIds);
+**Что внутри vendor.js:**
+- React + React DOM (~150-200 kB)
+- Supabase (~200-300 kB) - **НЕ должен быть в initial bundle для лендинга**
+- TanStack Query (~50-100 kB) - **НЕ должен быть в initial bundle для лендинга**
+- Radix UI (~100-150 kB) - **НЕ должен быть в initial bundle для лендинга**
+- Другие зависимости (unified, micromark, rollbar, qr.js, linkifyjs, @floating-ui, zod)
 
-const profilesMap = new Map(
-  (profiles || []).map(p => [p.id, p])
-);
-```
+**Проблема:** Несмотря на lazy loading `AppProviders`, Supabase/Query/Radix всё ещё попадают в `vendor.js`, который загружается на лендинге.
 
-**Экономия:** С 10 запросов → 1 запрос (в 10 раз быстрее)
+---
 
-## ⚠️ Средние проблемы
+## 🚨 Основные проблемы производительности
 
-### 4. Избыточные OPTIONS запросы (CORS preflight)
-**Проблема:** Много OPTIONS запросов перед каждым реальным запросом
+### 1. Большой Initial Bundle (vendor.js)
 
-**Причина:** 
-- Неправильная настройка CORS
-- Отсутствие кэширования preflight запросов
-
-**Решение:**
-- Настроить правильные CORS заголовки на Supabase
-- Добавить `Access-Control-Max-Age` для кэширования preflight
-
-### 5. Множественные подписки на уведомления
-**Проблема:** В консоли видно несколько инициализаций `useNotifications`
+**Проблема:**
+- `vendor.js` = 1MB (315 KB gzipped) загружается на лендинге
+- Supabase, TanStack Query, Radix UI находятся в `vendor.js`
+- Это увеличивает время загрузки и парсинга JavaScript
 
 **Причина:**
-- Компонент монтируется несколько раз
-- Нет проверки на существующую подписку
+- Vite собирает все `node_modules` в один `vendor.js` по умолчанию
+- Несмотря на lazy loading `AppProviders`, статические импорты где-то в цепочке зависимостей тянут Supabase/Query/Radix
 
 **Решение:**
-- Использовать singleton для Realtime подписки
-- Проверять существующую подписку перед созданием новой
+- ✅ Уже сделано: `AppProviders` lazy-loaded
+- ✅ Уже сделано: `LanguageContext` использует динамический импорт Supabase
+- ✅ Уже сделано: `referralService` использует динамический импорт Supabase
+- ⚠️ **Нужно проверить:** Нет ли других статических импортов Supabase/Query/Radix в компонентах, которые грузятся на лендинге
 
-### 6. Загрузка всех уведомлений сразу
-**Проблема:** Загружается 100 уведомлений сразу (`limit=100`)
+### 2. Большой index.js (118 KB gzipped)
+
+**Проблема:**
+- `index.js` = 361 KB (118 KB gzipped) - это основной код приложения
+- Включает `LanguageContext`, `AiStudioLanding`, `HelpCenter`, и другие компоненты
 
 **Решение:**
-- Использовать пагинацию (загружать по 20-30)
-- Ленивая загрузка при скролле
+- ✅ `LanguageContext` уже использует динамический импорт Supabase
+- ⚠️ **Можно оптимизировать:** Разделить `index.js` на более мелкие chunks для лендинга
 
-## 📊 Метрики производительности
+### 3. Отсутствие детальных метрик
 
-### Количество запросов при загрузке страницы:
-- **Supabase REST API:** ~150 запросов
-- **Edge Functions:** ~35 запросов (в основном premium-status)
-- **WebSocket:** 2 соединения (Vite HMR + Supabase Realtime)
+**Проблема:**
+- Не видно конкретных значений LCP, FCP, CLS, TBT, Speed Index
+- Не видно раздела "Opportunities" (возможности оптимизации)
+- Не видно раздела "Diagnostics" (диагностика проблем)
 
-### Время загрузки (приблизительно):
-- **Initial Load:** ~2-3 секунды
-- **First Contentful Paint:** ~1-1.5 секунды
-- **Time to Interactive:** ~3-4 секунды
+**Решение:**
+- Нужно получить детальные метрики через Lighthouse CLI или расширенный отчет PSI
 
-### Размер бандла:
-- Не измерен (нужен production build)
-- Рекомендуется запустить `npm run build:analyze`
+---
 
-## ✅ Рекомендации по оптимизации
+## 💡 Рекомендации по оптимизации
 
-### Приоритет 1 (Критично):
-1. ✅ Объединить запросы `premium-status` в единый хук с кэшем
-2. ✅ Оптимизировать загрузку профилей (один запрос вместо множества)
-3. ✅ Исправить batch загрузку профилей в `duel-manager`
+### Приоритет 1: Уменьшить vendor.js для лендинга
 
-### Приоритет 2 (Важно):
-4. ✅ Настроить правильное кэширование React Query
-5. ✅ Объединить запросы профиля в единый источник данных
-6. ✅ Добавить пагинацию для уведомлений
+**Цель:** Убедиться, что Supabase/Query/Radix НЕ загружаются на лендинге
 
-### Приоритет 3 (Желательно):
-7. ✅ Оптимизировать CORS preflight запросы
-8. ✅ Проверить размер бандла и lazy loading
-9. ✅ Добавить мониторинг производительности
+**Действия:**
+1. ✅ Проверить `src/main.tsx` - нет статических импортов Supabase
+2. ✅ Проверить `src/App.tsx` - `AppProviders` lazy-loaded
+3. ✅ Проверить `src/contexts/LanguageContext.tsx` - динамический импорт
+4. ✅ Проверить `src/components/Layout.tsx` - нет статических импортов
+5. ⚠️ **Проверить:** `src/components/landing/AiStudioLanding.tsx` - нет ли статических импортов тяжелых зависимостей
+6. ⚠️ **Проверить:** Все компоненты, которые импортируются в `Landing.tsx` статически
 
-## 🔧 Быстрые исправления
+**Ожидаемый результат:**
+- `vendor.js` должен уменьшиться до ~500-600 KB (150-200 KB gzipped)
+- Performance score должен улучшиться до 80+
 
-### 1. Кэш для premium-status
-Создать файл `src/hooks/usePremiumCached.ts`:
-```typescript
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+### Приоритет 2: Оптимизировать index.js
 
-const PREMIUM_CACHE_KEY = 'premium-status';
-const CACHE_TIME = 60000; // 1 минута
+**Цель:** Разделить `index.js` на более мелкие chunks
 
-export function usePremiumCached(profileId: string | null) {
-  return useQuery({
-    queryKey: [PREMIUM_CACHE_KEY, profileId],
-    queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('premium-status', {
-        body: { profile_id: profileId }
-      });
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!profileId,
-    staleTime: CACHE_TIME,
-    gcTime: CACHE_TIME * 2,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-  });
-}
-```
+**Действия:**
+1. Сделать `AiStudioLanding` lazy-loaded (если он большой)
+2. Сделать `HelpCenter` lazy-loaded (если он большой)
+3. Проверить другие компоненты в `index.js`
 
-### 2. Batch загрузка профилей
-Исправить в `supabase/functions/duel-manager/index.ts:1180-1221`:
-```typescript
-// Заменить цикл на один запрос
-if (userIds.length > 0) {
-  const { data: profiles, error } = await supabase
-    .from('profiles')
-    .select('id, first_name, username, telegram_id')
-    .in('id', userIds);
+**Ожидаемый результат:**
+- `index.js` должен уменьшиться до ~200-250 KB (70-80 KB gzipped)
 
-  if (error) {
-    console.error('[get_players] Error loading profiles:', error);
-  } else {
-    (profiles || []).forEach(profile => {
-      profilesMap.set(profile.id, profile);
-    });
-  }
-}
-```
+### Приоритет 3: Получить детальные метрики
 
-## 📈 Ожидаемые улучшения
+**Действия:**
+1. Запустить Lighthouse CLI для получения детальных метрик
+2. Проанализировать разделы "Opportunities" и "Diagnostics"
+3. Исправить конкретные проблемы из этих разделов
 
-После исправлений:
-- **Снижение запросов:** с ~150 до ~50-70 (-60%)
-- **Ускорение загрузки:** с 3-4 сек до 1.5-2 сек (-50%)
-- **Снижение нагрузки на Supabase:** -70%
-- **Улучшение UX:** мгновенная загрузка данных профиля
+---
 
+## 📋 Чеклист проверки утечек
+
+### Компоненты лендинга (должны быть проверены)
+
+- [x] `src/pages/Landing.tsx` - нет статических импортов Supabase
+- [x] `src/components/landing/AiStudioLanding.tsx` - нужно проверить
+- [x] `src/components/landing/PartnerInviteBanner.tsx` - нет статических импортов Supabase
+- [ ] `src/components/landing/*` - проверить все компоненты лендинга
+- [ ] `src/contexts/LanguageContext.tsx` - ✅ динамический импорт
+- [ ] `src/services/referralService.ts` - ✅ динамический импорт
+
+### Компоненты, которые НЕ должны грузиться на лендинге
+
+- [x] `src/contexts/UserContext.tsx` - ✅ не импортируется на лендинге
+- [x] `src/components/providers/AppProviders.tsx` - ✅ lazy-loaded
+- [x] `src/components/Layout.tsx` - нужно проверить, используется ли на лендинге
+
+---
+
+## 🎯 Целевые метрики
+
+| Метрика | Текущее | Цель | Приоритет |
+|---------|---------|------|-----------|
+| Performance Score | 71 | 80+ | 🔴 Высокий |
+| vendor.js (gzipped) | 315 KB | <200 KB | 🔴 Высокий |
+| index.js (gzipped) | 118 KB | <80 KB | 🟡 Средний |
+| LCP | ? | <2.5s | 🔴 Высокий |
+| FCP | ? | <1.8s | 🟡 Средний |
+| CLS | ? | <0.1 | 🟡 Средний |
+| TBT | ? | <200ms | 🟡 Средний |
+
+---
+
+## 📝 Следующие шаги
+
+1. **Проверить утечки в компонентах лендинга**
+   - Найти все статические импорты Supabase/Query/Radix
+   - Заменить на динамические импорты или lazy loading
+
+2. **Получить детальные метрики**
+   - Запустить Lighthouse CLI
+   - Проанализировать Opportunities и Diagnostics
+
+3. **Оптимизировать index.js**
+   - Разделить на более мелкие chunks
+   - Lazy load некритичных компонентов
+
+4. **Повторный анализ**
+   - Запустить `npm run build:analyze`
+   - Проверить размеры chunks
+   - Задеплоить и проверить PSI снова
+
+---
+
+## 📚 Полезные ссылки
+
+- [PageSpeed Insights Report](https://pagespeed.web.dev/analysis/https-skilyapp-com/6uuiqh1895?form_factor=mobile)
+- [Web Vitals](https://web.dev/vitals/)
+- [Lighthouse CLI](https://github.com/GoogleChrome/lighthouse#using-the-node-cli)
+- [Vite Bundle Optimization](https://vitejs.dev/guide/build.html#chunking-strategy)

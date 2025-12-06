@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect, useRef, useMemo, useCallback, memo } from "react";
+import { ReactNode, useState, useEffect, useRef, useMemo, useCallback, memo, lazy, Suspense } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Home, FileText, BookOpen, Gamepad2, User, Crown, LogIn, Swords } from "lucide-react";
@@ -7,13 +7,15 @@ import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "./ui/button";
-import { SettingsDrawer } from "./SettingsDrawer";
+// ОПТИМИЗАЦИЯ: Тяжелые компоненты lazy-loaded - не попадают в initial bundle
+// Эти компоненты тянут Supabase/Radix UI, поэтому они должны загружаться только когда Layout рендерится
+const SettingsDrawer = lazy(() => import("./SettingsDrawer").then(m => ({ default: m.SettingsDrawer })));
 import { ProfileModal } from "./ProfileModal";
 import { AuthModalNew as AuthModal } from "./AuthModalNew";
 import { TelegramNavigation } from "./TelegramNavigation";
 import { isTelegramMiniApp, isTelegramMobilePlatformName } from "@/lib/telegram";
-import { NotificationsPanel } from "./NotificationsPanel";
-import { UserProfilePopover } from "./UserProfilePopover";
+const NotificationsPanel = lazy(() => import("./NotificationsPanel").then(m => ({ default: m.NotificationsPanel })));
+const UserProfilePopover = lazy(() => import("./UserProfilePopover").then(m => ({ default: m.UserProfilePopover })));
 import { TelegramSafeAreaDebug } from "./TelegramSafeAreaDebug";
 import { Footer } from "./Footer";
 import { WalletWidget } from "./navigation/WalletWidget";
@@ -411,19 +413,23 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                 </>
               )}
               <div className="flex-shrink-0">
-                <NotificationsPanel
-                  notificationsApi={notificationsApi}
-                  open={notificationsOpen}
-                  onOpenChange={setNotificationsOpen}
-                  renderTrigger={false}
-                />
+                <Suspense fallback={null}>
+                  <NotificationsPanel
+                    notificationsApi={notificationsApi}
+                    open={notificationsOpen}
+                    onOpenChange={setNotificationsOpen}
+                    renderTrigger={false}
+                  />
+                </Suspense>
               </div>
               {isAuthenticated ? (
                 <div className="flex-shrink-0">
-                  <UserProfilePopover
-                    notificationsApi={notificationsApi}
-                    onOpenNotifications={() => setNotificationsOpen(true)}
-                  />
+                  <Suspense fallback={null}>
+                    <UserProfilePopover
+                      notificationsApi={notificationsApi}
+                      onOpenNotifications={() => setNotificationsOpen(true)}
+                    />
+                  </Suspense>
                 </div>
               ) : (
                 <Button 
@@ -499,10 +505,12 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
           {/* Profile/Login Icon */}
           <div className="flex flex-col items-center gap-1 py-2 px-3">
             {isAuthenticated ? (
-              <UserProfilePopover
-                notificationsApi={notificationsApi}
-                onOpenNotifications={handleOpenNotifications}
-              />
+              <Suspense fallback={null}>
+                <UserProfilePopover
+                  notificationsApi={notificationsApi}
+                  onOpenNotifications={handleOpenNotifications}
+                />
+              </Suspense>
             ) : (
               <button
                 onClick={handleOpenAuth}
@@ -524,7 +532,9 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
       )}
 
       {/* Settings Drawer */}
-      <SettingsDrawer open={settingsOpen} onOpenChange={setSettingsOpen} />
+      <Suspense fallback={null}>
+        <SettingsDrawer open={settingsOpen} onOpenChange={setSettingsOpen} />
+      </Suspense>
       
       {/* Auth Modal for Web Platform */}
       <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />

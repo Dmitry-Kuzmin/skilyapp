@@ -4,11 +4,8 @@ import { useInitTelegram } from "@/hooks/useInitTelegram";
 import { useBackgroundTasks } from "@/hooks/useBackgroundTasks";
 import { useOfflineAnalytics } from "@/utils/offlineAnalytics";
 
-// Lazy load UI components - только тяжелые компоненты
-// Легкие компоненты (Toaster, Sonner, TooltipProvider) оставляем синхронными для мгновенного отображения
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+// ОПТИМИЗАЦИЯ: Toaster, Sonner, TooltipProvider перемещены в AppProviders
+// Они тянут Radix UI (@radix-ui/react-toast, @radix-ui/react-tooltip), поэтому не должны грузиться на лендинге
 import { PageLoader } from "@/components/PageLoader";
 // ОПТИМИЗАЦИЯ: ReferralRedirect и PartnerRedirect используют UserContext - делаем lazy
 // Они используются только в AppRoutes, который уже lazy, но для чистоты делаем их lazy здесь тоже
@@ -314,9 +311,7 @@ const App = () => {
   }
 
   return (
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
+    <>
       <OfflineBanner />
       <OfflineQueueIndicator />
       <Suspense fallback={null}>
@@ -358,7 +353,7 @@ const App = () => {
           </BrowserRouter>
         </CosmeticsPreviewProvider>
       </Suspense>
-    </TooltipProvider>
+    </>
   );
 };
 

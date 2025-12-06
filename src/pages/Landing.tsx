@@ -3,11 +3,15 @@ import { useLocation, useNavigate } from "react-router-dom";
 // ОПТИМИЗАЦИЯ: AuthModal lazy loaded - содержит UserContext и Supabase
 const AuthModalNew = lazy(() => import("@/components/AuthModalNew").then(m => ({ default: m.AuthModalNew })));
 import { AiStudioLanding } from "@/components/landing/AiStudioLanding";
-import { PartnerInviteBanner } from "@/components/landing/PartnerInviteBanner";
+// ОПТИМИЗАЦИЯ: PartnerInviteBanner lazy-loaded - использует Button, который тянет Radix UI
+// Это критично для уменьшения initial bundle - Radix UI не должен грузиться на лендинге
+const PartnerInviteBanner = lazy(() => import("@/components/landing/PartnerInviteBanner").then(m => ({ default: m.PartnerInviteBanner })));
 // ОПТИМИЗАЦИЯ: Легкая проверка авторизации БЕЗ Supabase (через localStorage)
 import { checkAuthFromStorage, checkTelegramAuth } from "@/utils/authCheck";
 // ОПТИМИЗАЦИЯ: Убираем статический импорт Supabase - используем сервисные функции с динамическим импортом
 import { loadReferralInfo, loadPartnerInfo, type ReferrerInfo, type PartnerInfo } from "@/services/referralService";
+import { isTelegramMiniApp } from "@/lib/telegram";
+import { initTelegram } from "@/core/TelegramInit";
 
 const Landing = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -16,6 +20,32 @@ const Landing = () => {
   const [loadingReferrer, setLoadingReferrer] = useState(false);
   const [loadingPartner, setLoadingPartner] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // КРИТИЧНО: Проверка Telegram авторизации для автоматического редиректа
+  useEffect(() => {
+    // Проверяем только если мы в Telegram Mini App
+    if (!isTelegramMiniApp()) {
+      return;
+    }
+
+    // Инициализируем Telegram (получаем пользователя)
+    const telegramUser = initTelegram();
+    
+    // Если есть Telegram пользователь, редиректим на dashboard
+    // UserContext там загрузится и обработает авторизацию
+    if (telegramUser && telegramUser.id !== 123456789 && telegramUser.username !== 'test_user') {
+      console.log('[Landing] Telegram user detected, redirecting to dashboard:', telegramUser.first_name);
+      navigate('/dashboard', { replace: true });
+      return;
+    }
+
+    // Также проверяем через checkTelegramAuth (на случай, если initTelegram не сработал)
+    if (checkTelegramAuth()) {
+      console.log('[Landing] Telegram auth detected via checkTelegramAuth, redirecting to dashboard');
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate]);
 
   useEffect(() => {
     // КРИТИЧНО: Landing НЕ проверяет авторизацию - это делает Index
@@ -96,7 +126,11 @@ const Landing = () => {
 
   return (
     <>
-      {partnerInfo && <PartnerInviteBanner />}
+      {partnerInfo && (
+        <Suspense fallback={null}>
+          <PartnerInviteBanner />
+        </Suspense>
+      )}
       <AiStudioLanding 
         onRequestAccess={() => setAuthModalOpen(true)}
         referrerInfo={referrerInfo}
