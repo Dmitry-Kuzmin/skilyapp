@@ -44,7 +44,8 @@ export function NotificationsPanel({
   const [reminderModalOpen, setReminderModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  const toggleNotificationExpansion = (notificationId: string) => {
+  // ОПТИМИЗАЦИЯ: Мемоизируем обработчик для предотвращения лишних ре-рендеров
+  const toggleNotificationExpansion = useCallback((notificationId: string) => {
     setExpandedNotifications(prev => {
       const newSet = new Set(prev);
       if (newSet.has(notificationId)) {
@@ -54,7 +55,7 @@ export function NotificationsPanel({
       }
       return newSet;
     });
-  };
+  }, []);
 
   // Calculate if message should be truncated (more than 3 lines)
   const shouldTruncate = (message: string): boolean => {
