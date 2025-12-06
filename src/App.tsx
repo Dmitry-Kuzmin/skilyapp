@@ -331,16 +331,14 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Landing />} />
               {/* Все остальные роуты - внутри AppProviders (с Supabase/Query) */}
-              {/* КРИТИЧНО: AppProviders загружается ПЕРВЫМ, затем AppRoutes */}
-              {/* Это гарантирует, что UserProvider доступен когда Index использует useUserContext() */}
+              {/* КРИТИЧНО: AppProviders синхронный - UserProvider доступен сразу */}
+              {/* AppRoutes lazy loaded, но UserProvider уже готов когда Index загружается */}
               <Route path="/*" element={
-                <Suspense fallback={<PageLoader />}>
-                  <AppProviders>
-                    <Suspense fallback={<PageLoader />}>
-                      <AppRoutes />
-                    </Suspense>
-                  </AppProviders>
-                </Suspense>
+                <AppProviders>
+                  <Suspense fallback={<PageLoader />}>
+                    <AppRoutes />
+                  </Suspense>
+                </AppProviders>
               } />
             </Routes>
             {/* Модалки, доступные на всех страницах */}
