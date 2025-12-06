@@ -1,5 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 // ОПТИМИЗАЦИЯ: AuthModal lazy loaded - содержит UserContext и Supabase
 const AuthModalNew = lazy(() => import("@/components/AuthModalNew").then(m => ({ default: m.AuthModalNew })));
 import { AiStudioLanding } from "@/components/landing/AiStudioLanding";
@@ -16,18 +16,25 @@ const Landing = () => {
   const [loadingReferrer, setLoadingReferrer] = useState(false);
   const [loadingPartner, setLoadingPartner] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
+    // КРИТИЧНО: Предотвращаем бесконечный цикл редиректов
+    if (hasRedirected) return;
+    
     // ОПТИМИЗАЦИЯ: Легкая проверка авторизации БЕЗ Supabase (через localStorage/Telegram)
     const isAuthenticated = checkAuthFromStorage() || checkTelegramAuth();
     
     // Если пользователь авторизован, перенаправляем в приложение
     if (isAuthenticated) {
+      setHasRedirected(true);
       // Очищаем партнерский и реферальный коды (они уже применены при регистрации)
       sessionStorage.removeItem('partner_code');
       sessionStorage.removeItem('referral_code');
-      // Перенаправляем в приложение (главная страница)
-      window.location.href = '/';
+      // КРИТИЧНО: Используем navigate вместо window.location.href для предотвращения бесконечного цикла
+      // Перенаправляем в dashboard, а не на главную (которая снова рендерит Landing)
+      navigate('/dashboard', { replace: true });
       return;
     }
 
