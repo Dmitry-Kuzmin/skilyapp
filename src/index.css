@@ -13,92 +13,18 @@
 
 /* Enhanced Editor Styles */
 @layer components {
-  /* TinyMCE Editor Styles */
-  .tox-tinymce {
-    @apply border-border rounded-lg;
-  }
-  
-  .tox .tox-edit-area__iframe {
-    @apply bg-background;
-  }
-  
-  .tox .tox-menu {
-    @apply bg-card border-border;
-  }
-  
-  .tox .tox-menubar,
-  .tox .tox-toolbar,
-  .tox .tox-toolbar__primary {
-    @apply bg-card/95 backdrop-blur-sm border-b border-border;
-  }
-  
-  .tox .tox-tbtn {
-    @apply text-foreground hover:bg-muted;
-  }
-  
-  .tox .tox-tbtn--enabled {
-    @apply bg-primary/10 text-primary;
-  }
-  
-  /* Table Styles - для редактора и превью */
-  .mce-content-body table,
+  /* Table Styles - для Tiptap редактора и превью */
   .prose table {
     @apply w-full border-collapse my-4;
   }
   
-  .mce-content-body table td,
-  .mce-content-body table th,
   .prose table td,
   .prose table th {
     @apply border border-border px-4 py-2;
   }
   
-  .mce-content-body table th,
   .prose table th {
     @apply bg-muted font-semibold;
-  }
-  
-  /* Quill Editor Styles */
-  .ql-container {
-    font-family: inherit;
-    font-size: 16px;
-  }
-  
-  .ql-editor {
-    min-height: 400px;
-    color: hsl(var(--foreground));
-    background: hsl(var(--background));
-  }
-  
-  .ql-toolbar {
-    background: hsl(var(--card));
-    border-color: hsl(var(--border));
-  }
-  
-  .ql-snow .ql-stroke {
-    stroke: hsl(var(--foreground));
-  }
-  
-  .ql-snow .ql-fill {
-    fill: hsl(var(--foreground));
-  }
-  
-  .ql-snow .ql-picker-label {
-    color: hsl(var(--foreground));
-  }
-  
-  .ql-snow .ql-picker-options {
-    background: hsl(var(--card));
-    border-color: hsl(var(--border));
-  }
-  
-  .ql-snow .ql-picker-item:hover {
-    background: hsl(var(--muted));
-  }
-  
-  .ql-snow .ql-picker-item.ql-selected {
-    background: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
   }
   
   /* Tiptap Editor Styles */

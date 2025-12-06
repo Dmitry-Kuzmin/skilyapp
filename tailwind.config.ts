@@ -10,24 +10,14 @@ export default {
     "!./node_modules/**/*",
   ],
   prefix: "",
-  // ОПТИМИЗАЦИЯ: Safelist для динамических классов, которые могут не попадать в purge
-  // Это классы, используемые через переменные или template literals
+  // ОПТИМИЗАЦИЯ: Минимальный safelist - только действительно используемые динамические классы
+  // Tailwind JIT mode автоматически генерирует классы при использовании, safelist нужен только для динамических
   safelist: [
-    // Arbitrary values для размеров текста (используются в Dashboard)
-    'text-[8px]', 'text-[9px]', 'text-[10px]', 'text-[11px]',
-    // Arbitrary values для цветов фона (используются в Dashboard и Landing)
-    'bg-[#0f172a]', 'bg-[#f5f6fb]',
-    // Arbitrary values для grid (используются в TestSession)
-    'grid-cols-[1fr_380px]', 'grid-cols-[1fr_420px]', 'grid-cols-[320px_1fr]', 'grid-cols-[350px_1fr]',
-    // Arbitrary values для высоты (используются в админке)
-    'h-[400px]', 'max-h-[400px]',
-    // Arbitrary values для ширины (используются в админке)
-    'w-[200px]', 'w-[100px]', 'w-[120px]', 'w-[150px]', 'w-[80px]',
-    'max-w-[200px]', 'max-w-[250px]', 'max-w-[300px]', 'max-w-[120px]',
-    // Arbitrary values для opacity (используются в Dashboard)
-    'opacity-[0.15]', 'opacity-[0.12]',
-    // Классы для chart компонента
-    'rounded-[2px]', 'border-[--color-border]', 'bg-[--color-bg]',
+    // Только классы, которые используются через template literals или переменные
+    // Остальные классы Tailwind JIT сгенерирует автоматически при использовании
+    {
+      pattern: /^(text|bg|w|h|max-w|max-h|opacity|grid-cols)-\[.+\]$/,
+    },
   ],
   theme: {
     container: {
