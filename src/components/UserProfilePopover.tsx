@@ -738,4 +738,3 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
     </>
   );
 });
-}

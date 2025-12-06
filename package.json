@@ -11,6 +11,7 @@
     "prerender": "node scripts/prerender.js",
     "deploy:prebuilt": "./scripts/deploy-prebuilt.sh",
     "build:analyze": "ANALYZE=true tsc && ANALYZE=true vite build",
+    "deploy:prod": "npm run build && npm run prerender && vercel deploy dist --prod",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
