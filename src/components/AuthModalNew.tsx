@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ScanFace, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react';
 import { Drawer } from 'vaul';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useUserContext } from '@/contexts/UserContext';
+import { UserContext } from '@/contexts/UserContext';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -47,7 +47,10 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   // --- Refs & Context ---
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
-  const { login } = useUserContext();
+  // КРИТИЧНО: Безопасное получение UserContext - не выбрасывает ошибку если провайдер отсутствует
+  // Это позволяет AuthModalNew работать на лендинге (где UserProvider отсутствует)
+  const userContext = useContext(UserContext);
+  const login = userContext?.login;
   const { toast } = useToast();
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -95,6 +98,17 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
       console.log('[AuthModalNew] Telegram auth callback triggered:', user);
       
       try {
+        // КРИТИЧНО: Проверяем наличие login функции перед использованием
+        if (!login) {
+          console.error('[AuthModalNew] login function not available - UserProvider not loaded');
+          toast({
+            title: t('auth.errors.validationError'),
+            description: 'Пожалуйста, обновите страницу',
+            variant: "destructive"
+          });
+          return;
+        }
+        
         await login({
           id: user.id,
           first_name: user.first_name,
