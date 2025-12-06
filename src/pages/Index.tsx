@@ -380,18 +380,18 @@ const DashboardContent = () => {
     }
   };
 
-  // Handle welcome screen completion
-  const handleWelcomeComplete = () => {
+  // ОПТИМИЗАЦИЯ: Мемоизируем обработчики событий для предотвращения лишних ре-рендеров
+  const handleWelcomeComplete = useCallback(() => {
     setShowWelcome(false);
     // Сохраняем флаг, что прелоадер уже был показан
     if (typeof window !== 'undefined') {
       localStorage.setItem('has_seen_welcome', 'true');
     }
-  };
+  }, []);
 
-  const handleStartTest = () => {
+  const handleStartTest = useCallback(() => {
     navigate('/tests');
-  };
+  }, [navigate]);
 
   // Show Welcome Overlay
   const readinessPercent = readiness?.percent || 0;
