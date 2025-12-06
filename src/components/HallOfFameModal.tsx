@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { UnifiedModal } from "@/components/ui/unified-modal";
 import { useModalRoute } from "@/hooks/useModalRoute";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Trophy, Crown, Award, Star, Calendar, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { useUserContext } from "@/contexts/UserContext";
+import { UserContext } from "@/contexts/UserContext";
 import { RankBadge, RankFrame, type RankType } from "@/components/ranking/RankBadge";
 
 interface Champion {
@@ -29,7 +29,9 @@ interface Champion {
 
 export function HallOfFameModal() {
   const { isOpen, closeModal } = useModalRoute('hall-of-fame');
-  const { profileId } = useUserContext();
+  // КРИТИЧНО: Безопасное получение UserContext - не выбрасывает ошибку если провайдер отсутствует
+  const userContext = useContext(UserContext);
+  const profileId = userContext?.profileId ?? null;
   const [champions, setChampions] = useState<Champion[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSeason, setSelectedSeason] = useState<number | null>(null);

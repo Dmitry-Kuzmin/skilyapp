@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Trophy, Crown, Sparkles, Award, Star, TrendingUp, Search, Globe, Users, MapPin, ChevronLeft, ChevronRight, Flame } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { useUserContext } from "@/contexts/UserContext";
+import { UserContext } from "@/contexts/UserContext";
 import { RankBadge, RankIcon, RankFrame, getRankFromLevel, type RankType } from "@/components/ranking/RankBadge";
 import { motion } from "framer-motion";
 import { LeaderboardRewardsModal } from "@/components/leaderboard/LeaderboardRewardsModal";
@@ -232,7 +232,10 @@ const renderAvatarWithCosmetics = (
 };
 
 export function DuelPassLeaderboardModal() {
-  const { profileId, user } = useUserContext();
+  // КРИТИЧНО: Безопасное получение UserContext - не выбрасывает ошибку если провайдер отсутствует
+  const userContext = useContext(UserContext);
+  const profileId = userContext?.profileId ?? null;
+  const user = userContext?.user ?? null;
   const { isOpen, closeModal } = useModalRoute('duel-pass-leaderboard');
   const { openModal: openHallOfFameModal } = useModalRoute('hall-of-fame');
   const { resolvedTheme } = useTheme();

@@ -5,15 +5,19 @@
  * Показывается ОДИН РАЗ для Web пользователей
  */
 
-import { useState, useEffect } from 'react';
-import { useUserContext } from '@/contexts/UserContext';
+import { useState, useEffect, useContext } from 'react';
+import { UserContext } from '@/contexts/UserContext';
 import { isPasskeySupported, isPlatformAuthenticatorAvailable, listPasskeys } from '@/lib/passkey';
 
 const ONBOARDING_KEY = 'passkey_onboarding_shown';
 
 export function usePasskeyOnboarding() {
   const [shouldShow, setShouldShow] = useState(false);
-  const { supabaseUser, platform, isAuthenticated } = useUserContext();
+  // КРИТИЧНО: Безопасное получение UserContext - не выбрасывает ошибку если провайдер отсутствует
+  const userContext = useContext(UserContext);
+  const supabaseUser = userContext?.supabaseUser ?? null;
+  const platform = userContext?.platform ?? 'web';
+  const isAuthenticated = userContext?.isAuthenticated ?? false;
 
   useEffect(() => {
     const checkShouldShow = async () => {
