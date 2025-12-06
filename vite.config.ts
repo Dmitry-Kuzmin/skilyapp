@@ -469,11 +469,11 @@ export default defineConfig(({ mode }) => {
             return 'storage-vendor';
           }
           
-          // КРИТИЧНО: Выделяем app-vendor (Supabase, Query, Radix) - НЕ грузится на лендинге
+          // КРИТИЧНО: Выделяем app-vendor (Supabase, Radix, unified) - НЕ грузится на лендинге
           // Эти библиотеки нужны только в /app/* роутах, где есть AppProviders
+          // ВАЖНО: @tanstack/react-query остается в vendor, так как он легкий и может иметь зависимости
           if (
             id.includes('node_modules/@supabase') || 
-            id.includes('node_modules/@tanstack') ||
             id.includes('node_modules/@radix-ui') ||
             id.includes('node_modules/unified') ||
             id.includes('node_modules/micromark') ||
@@ -485,6 +485,10 @@ export default defineConfig(({ mode }) => {
           ) {
             return 'app-vendor';
           }
+          
+          // КРИТИЧНО: @tanstack/react-query остается в основном vendor
+          // Он относительно легкий (~50KB) и может иметь зависимости от других модулей
+          // Разделение вызывало ошибку "l is not a function" из-за проблем с порядком загрузки
           
           // КРИТИЧНО: React и ReactDOM остаются в core-vendor (нужны везде)
           // Всё остальное из node_modules тоже в core-vendor
