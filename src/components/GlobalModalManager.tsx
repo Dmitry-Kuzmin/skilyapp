@@ -1,28 +1,32 @@
 import { useModalStore, type ModalType, getModalUrlKey } from '@/store/modalStore';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router-dom';
 import React from 'react';
 
-// Импорты всех модалок
+// ОПТИМИЗАЦИЯ: Все модалки lazy-loaded для уменьшения initial bundle
+// Только AuthModal оставляем синхронным, так как он может быть нужен на лендинге
 import { AuthModalNew as AuthModal } from '@/components/AuthModalNew';
-import { ProfileModal } from '@/components/ProfileModal';
-import { BoostShopModal } from '@/components/shop/BoostShopModal';
-import { PaywallModal } from '@/components/monetization/PaywallModal';
-import { DuelPassSeasonModal } from '@/components/monetization/DuelPassSeasonModal';
-import { FlashCardsModal } from '@/components/FlashCardsModal';
-import { TermProgressModal } from '@/components/TermProgressModal';
-import { HallOfFameModal } from '@/components/HallOfFameModal';
-import { DuelPassLeaderboardModal } from '@/components/leaderboard/DuelPassLeaderboardModal';
-import { LeaderboardRewardsModal } from '@/components/leaderboard/LeaderboardRewardsModal';
-import { ReferralModal } from '@/components/ReferralModal';
-import { ActivatePremiumKeyModal } from '@/components/ActivatePremiumKeyModal';
-import { DuelJoinModal } from '@/components/duel/DuelJoinModal';
-import { DuelCreateModal } from '@/components/duel/DuelCreateModal';
-import { HelpFeedbackModal } from '@/components/HelpFeedbackModal';
-import { ReportProblemModal } from '@/components/ReportProblemModal';
-import { ReminderConnectModal } from '@/components/notifications/ReminderConnectModal';
-import { CelebrationModal } from '@/components/dashboard-new/CelebrationModal';
+import { lazy } from 'react';
+
+// Lazy-loaded модалки (загружаются только при открытии)
+const ProfileModal = lazy(() => import('@/components/ProfileModal').then(m => ({ default: m.ProfileModal })));
+const BoostShopModal = lazy(() => import('@/components/shop/BoostShopModal').then(m => ({ default: m.BoostShopModal })));
+const PaywallModal = lazy(() => import('@/components/monetization/PaywallModal').then(m => ({ default: m.PaywallModal })));
+const DuelPassSeasonModal = lazy(() => import('@/components/monetization/DuelPassSeasonModal').then(m => ({ default: m.DuelPassSeasonModal })));
+const FlashCardsModal = lazy(() => import('@/components/FlashCardsModal').then(m => ({ default: m.FlashCardsModal })));
+const TermProgressModal = lazy(() => import('@/components/TermProgressModal').then(m => ({ default: m.TermProgressModal })));
+const HallOfFameModal = lazy(() => import('@/components/HallOfFameModal').then(m => ({ default: m.HallOfFameModal })));
+const DuelPassLeaderboardModal = lazy(() => import('@/components/leaderboard/DuelPassLeaderboardModal').then(m => ({ default: m.DuelPassLeaderboardModal })));
+const LeaderboardRewardsModal = lazy(() => import('@/components/leaderboard/LeaderboardRewardsModal').then(m => ({ default: m.LeaderboardRewardsModal })));
+const ReferralModal = lazy(() => import('@/components/ReferralModal').then(m => ({ default: m.ReferralModal })));
+const ActivatePremiumKeyModal = lazy(() => import('@/components/ActivatePremiumKeyModal').then(m => ({ default: m.ActivatePremiumKeyModal })));
+const DuelJoinModal = lazy(() => import('@/components/duel/DuelJoinModal').then(m => ({ default: m.DuelJoinModal })));
+const DuelCreateModal = lazy(() => import('@/components/duel/DuelCreateModal').then(m => ({ default: m.DuelCreateModal })));
+const HelpFeedbackModal = lazy(() => import('@/components/HelpFeedbackModal').then(m => ({ default: m.HelpFeedbackModal })));
+const ReportProblemModal = lazy(() => import('@/components/ReportProblemModal').then(m => ({ default: m.ReportProblemModal })));
+const ReminderConnectModal = lazy(() => import('@/components/notifications/ReminderConnectModal').then(m => ({ default: m.ReminderConnectModal })));
+const CelebrationModal = lazy(() => import('@/components/dashboard-new/CelebrationModal').then(m => ({ default: m.CelebrationModal })));
 
 /**
  * Маппинг типов модалок на компоненты
@@ -186,6 +190,16 @@ export const GlobalModalManager = () => {
     };
   }
 
+  // ОПТИМИЗАЦИЯ: Все lazy-loaded модалки оборачиваем в Suspense
+  // Только AUTH модалка не lazy, остальные - lazy
+  const ModalContent = topModal.type === 'AUTH' ? (
+    <Component {...modalProps} />
+  ) : (
+    <Suspense fallback={null}>
+      <Component {...modalProps} />
+    </Suspense>
+  );
+
   return createPortal(
     <div
       style={{
@@ -194,7 +208,7 @@ export const GlobalModalManager = () => {
         zIndex: topModal.zIndex || 1000 + stack.length - 1,
       }}
     >
-      <Component {...modalProps} />
+      {ModalContent}
     </div>,
     document.body
   );
