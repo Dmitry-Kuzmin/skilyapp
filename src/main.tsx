@@ -1,9 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "./components/ThemeProvider";
-// ОПТИМИЗАЦИЯ: Используем легкий LandingUserProvider БЕЗ Supabase для уменьшения initial bundle
-// Полный UserProvider загружается lazy только в приложении (через AppProviders)
-import { LandingUserProvider } from "./contexts/LandingUserContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import App from "./App.tsx";
@@ -261,11 +258,9 @@ try {
     <StrictMode>
       <ErrorBoundary>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          <LandingUserProvider>
-            <LanguageProvider>
-              <App />
-            </LanguageProvider>
-          </LandingUserProvider>
+          <LanguageProvider>
+            <App />
+          </LanguageProvider>
         </ThemeProvider>
       </ErrorBoundary>
     </StrictMode>

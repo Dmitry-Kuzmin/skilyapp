@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useLocation } from "react-router-dom";
-import { AuthModalNew as AuthModal } from "@/components/AuthModalNew";
+// ОПТИМИЗАЦИЯ: AuthModal lazy loaded - содержит UserContext и Supabase
+const AuthModalNew = lazy(() => import("@/components/AuthModalNew").then(m => ({ default: m.AuthModalNew })));
 import { AiStudioLanding } from "@/components/landing/AiStudioLanding";
 import { PartnerInviteBanner } from "@/components/landing/PartnerInviteBanner";
-// ОПТИМИЗАЦИЯ: Используем легкий контекст БЕЗ Supabase для лендинга
-import { useLandingUserContext } from "@/contexts/LandingUserContext";
+// ОПТИМИЗАЦИЯ: Легкая проверка авторизации БЕЗ Supabase (через localStorage)
+import { checkAuthFromStorage, checkTelegramAuth } from "@/utils/authCheck";
 // ОПТИМИЗАЦИЯ: Убираем статический импорт Supabase - используем сервисные функции с динамическим импортом
 import { loadReferralInfo, loadPartnerInfo, type ReferrerInfo, type PartnerInfo } from "@/services/referralService";
 
@@ -14,11 +15,12 @@ const Landing = () => {
   const [partnerInfo, setPartnerInfo] = useState<PartnerInfo | null>(null);
   const [loadingReferrer, setLoadingReferrer] = useState(false);
   const [loadingPartner, setLoadingPartner] = useState(false);
-  // ОПТИМИЗАЦИЯ: Используем легкий контекст БЕЗ Supabase (работает только с Telegram)
-  const { isAuthenticated } = useLandingUserContext();
   const location = useLocation();
 
   useEffect(() => {
+    // ОПТИМИЗАЦИЯ: Легкая проверка авторизации БЕЗ Supabase (через localStorage/Telegram)
+    const isAuthenticated = checkAuthFromStorage() || checkTelegramAuth();
+    
     // Если пользователь авторизован, перенаправляем в приложение
     if (isAuthenticated) {
       // Очищаем партнерский и реферальный коды (они уже применены при регистрации)
@@ -99,7 +101,7 @@ const Landing = () => {
         setLoadingReferrer(false);
       }
     })();
-  }, [isAuthenticated, location]);
+  }, [location]);
 
   return (
     <>
@@ -111,7 +113,9 @@ const Landing = () => {
         partnerInfo={partnerInfo}
         loadingPartner={loadingPartner}
       />
-      <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+      <Suspense fallback={null}>
+        <AuthModalNew open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+      </Suspense>
     </>
   );
 };

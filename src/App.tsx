@@ -10,8 +10,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PageLoader } from "@/components/PageLoader";
-import { ReferralRedirect } from "@/components/ReferralRedirect";
-import { PartnerRedirect } from "@/components/PartnerRedirect";
+// ОПТИМИЗАЦИЯ: ReferralRedirect и PartnerRedirect используют UserContext - делаем lazy
+// Они используются только в AppRoutes, который уже lazy, но для чистоты делаем их lazy здесь тоже
+const ReferralRedirect = lazy(() => import("@/components/ReferralRedirect").then(m => ({ default: m.ReferralRedirect })));
+const PartnerRedirect = lazy(() => import("@/components/PartnerRedirect").then(m => ({ default: m.PartnerRedirect })));
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { ServiceWorkerDebug } from "@/components/ServiceWorkerDebug";
 import { OfflineQueueIndicator } from "@/components/OfflineQueueIndicator";

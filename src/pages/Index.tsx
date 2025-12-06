@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, lazy, Suspense, useCallback } from "react";
 import { useUserContext } from "@/contexts/UserContext";
-import { supabase } from "@/integrations/supabase/client";
+// ОПТИМИЗАЦИЯ: Index.tsx lazy loaded, но делаем динамический импорт для чистоты
+// Supabase будет загружаться только когда нужен (в handleClaimBonus)
 import { useToast } from "@/hooks/use-toast";
 import Landing from "./Landing";
 import { usePremium } from "@/hooks/usePremium";
@@ -73,6 +74,10 @@ const DashboardContent = () => {
 
     try {
       setClaimingBonus(true);
+      
+      // ОПТИМИЗАЦИЯ: Динамический импорт Supabase (Index.tsx lazy loaded, но для чистоты делаем динамический импорт)
+      const { supabase } = await import('@/integrations/supabase/client');
+      
       const today = new Date().toISOString().split('T')[0];
       const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
       
@@ -165,9 +170,9 @@ const DashboardContent = () => {
 
       if (Object.keys(updateData).length > 0) {
         const { error: updateError } = await supabase
-        .from('profiles')
+          .from('profiles')
           .update(updateData)
-        .eq('id', profileId);
+          .eq('id', profileId);
 
         if (updateError) {
           console.error('[handleClaimBonus] Error updating profile:', updateError);
