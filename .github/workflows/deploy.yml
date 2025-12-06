@@ -23,11 +23,49 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
+      - name: Install Chrome for prerender
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+          google-chrome --version
+      
       - name: Build application
         run: npm run build
       
       - name: Prerender static pages
-        run: npm run prerender
+        run: |
+          # Запускаем preview сервер в фоне
+          npm run preview > /dev/null 2>&1 &
+          PREVIEW_PID=$!
+          
+          # Ждём запуска сервера
+          echo "Waiting for preview server to start..."
+          timeout=60
+          elapsed=0
+          while ! curl -f http://localhost:4173 > /dev/null 2>&1; do
+            if [ $elapsed -ge $timeout ]; then
+              echo "❌ Server failed to start"
+              kill $PREVIEW_PID 2>/dev/null || true
+              exit 1
+            fi
+            sleep 1
+            elapsed=$((elapsed + 1))
+          done
+          echo "✅ Preview server is ready"
+          
+          # Запускаем prerender
+          npm run prerender
+          
+          # Останавливаем сервер
+          kill $PREVIEW_PID 2>/dev/null || true
+      
+      - name: Build Vercel output
+        run: |
+          npx vercel build --prod --yes
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       
       - name: Deploy to Vercel (prebuilt)
         uses: amondnet/vercel-action@v25
@@ -37,6 +75,4 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prebuilt --prod'
           working-directory: ./
-          # КРИТИЧНО: Используем готовый .vercel/output из предыдущих шагов
-          # Build уже выполнен, prerender тоже - просто деплоим
 
