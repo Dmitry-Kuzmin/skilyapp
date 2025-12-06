@@ -469,26 +469,24 @@ export default defineConfig(({ mode }) => {
             return 'storage-vendor';
           }
           
-          // КРИТИЧНО: Выделяем app-vendor (Supabase, Radix, unified) - НЕ грузится на лендинге
-          // Эти библиотеки нужны только в /app/* роутах, где есть AppProviders
-          // ВАЖНО: @tanstack/react-query остается в vendor, так как он легкий и может иметь зависимости
+          // КРИТИЧНО: Выделяем app-vendor (только Supabase) - НЕ грузится на лендинге
+          // ВАЖНО: @radix-ui остается в vendor, так как используется в Toaster/Sonner которые грузятся синхронно
+          // ВАЖНО: @tanstack/react-query остается в vendor для стабильности
+          // ВАЖНО: unified/micromark могут использоваться в компонентах, которые грузятся раньше
           if (
-            id.includes('node_modules/@supabase') || 
-            id.includes('node_modules/@radix-ui') ||
-            id.includes('node_modules/unified') ||
-            id.includes('node_modules/micromark') ||
-            id.includes('node_modules/vfile') ||
-            id.includes('node_modules/@floating-ui') ||
-            id.includes('node_modules/rollbar') ||
-            id.includes('node_modules/linkifyjs') ||
-            id.includes('node_modules/qr.js')
+            id.includes('node_modules/@supabase')
           ) {
             return 'app-vendor';
           }
           
+          // КРИТИЧНО: @radix-ui остается в основном vendor
+          // Используется в Toaster/Sonner которые импортируются статически в App.tsx
+          // Разделение вызывало ошибку "l is not a function" из-за проблем с порядком загрузки
+          
           // КРИТИЧНО: @tanstack/react-query остается в основном vendor
           // Он относительно легкий (~50KB) и может иметь зависимости от других модулей
-          // Разделение вызывало ошибку "l is not a function" из-за проблем с порядком загрузки
+          
+          // unified/micromark/vfile остаются в vendor - могут использоваться в ранних компонентах
           
           // КРИТИЧНО: React и ReactDOM остаются в core-vendor (нужны везде)
           // Всё остальное из node_modules тоже в core-vendor
