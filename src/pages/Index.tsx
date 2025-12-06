@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect, lazy, Suspense, useCallback } from "react";
-import { useUserContext } from "@/contexts/UserContext";
+import { useState, useEffect, lazy, Suspense, useCallback, useContext } from "react";
+import { UserContext } from "@/contexts/UserContext";
 // ОПТИМИЗАЦИЯ: Index.tsx lazy loaded, но делаем динамический импорт для чистоты
 // Supabase будет загружаться только когда нужен (в handleClaimBonus)
 import { useToast } from "@/hooks/use-toast";
@@ -496,11 +496,15 @@ const DashboardContent = () => {
 
 // Основной компонент Index - проверяет авторизацию и рендерит нужный контент
 const Index = () => {
-  const { isAuthenticated, isLoading } = useUserContext();
+  // КРИТИЧНО: Безопасное получение UserContext - не выбрасывает ошибку если провайдер отсутствует
+  // Это позволяет Index работать даже если UserProvider еще не загрузился
+  const userContext = useContext(UserContext);
+  const isAuthenticated = userContext?.isAuthenticated ?? false;
+  const isLoading = userContext?.isLoading ?? true;
   
-  // КРИТИЧНО: Показываем loader пока идет загрузка авторизации
+  // КРИТИЧНО: Показываем loader пока идет загрузка авторизации или пока UserProvider не готов
   // Это предотвращает белый экран при перезагрузке страницы
-  if (isLoading) {
+  if (isLoading || !userContext) {
     return <PageLoader />;
   }
   
