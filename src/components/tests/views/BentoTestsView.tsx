@@ -1,3 +1,4 @@
+import { memo, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
     BookOpen, Shuffle, Zap, Flame,
@@ -114,7 +115,7 @@ const StatBadge = ({ icon: Icon, label, value, color }: { icon: any, label: stri
     );
 };
 
-export const BentoTestsView = ({
+export const BentoTestsView = memo(function BentoTestsView({
     topics,
     stats,
     challengeBankCount,
@@ -123,14 +124,32 @@ export const BentoTestsView = ({
     handleStartTest,
     handleTopicClick,
     t
-}: BentoTestsViewProps) => {
+}: BentoTestsViewProps) {
     const { isPremium } = usePremium();
     const { resolvedTheme } = useTheme();
     const [hoveredTopic, setHoveredTopic] = useState<string | null>(null);
     const [hasSelectedCount, setHasSelectedCount] = useState(false);
 
-    // Используем ту же логику, что и в Dashboard для определения темной темы
-    const isDark = (resolvedTheme ?? 'dark') !== 'light';
+    // ОПТИМИЗАЦИЯ: Мемоизируем вычисления для предотвращения лишних ре-рендеров
+    const isDark = useMemo(() => (resolvedTheme ?? 'dark') !== 'light', [resolvedTheme]);
+    
+    // ОПТИМИЗАЦИЯ: Мемоизируем обработчики для предотвращения лишних ре-рендеров
+    const handleCountSelect = useCallback((count: number) => {
+        setRandomQuestionCount(count);
+        setHasSelectedCount(true);
+    }, [setRandomQuestionCount]);
+    
+    const handleRandomTestStart = useCallback(() => {
+        handleStartTest(`/test/practice?count=${randomQuestionCount}`);
+    }, [handleStartTest, randomQuestionCount]);
+    
+    const handleTopicHover = useCallback((topicId: string | null) => {
+        setHoveredTopic(topicId);
+    }, []);
+    
+    const handleTopicClickMemo = useCallback((topicId: string) => {
+        handleTopicClick(topicId);
+    }, [handleTopicClick]);
 
     return (
         <div className="w-full flex justify-center pt-8 pb-20 min-h-screen bg-background">
@@ -215,8 +234,7 @@ export const BentoTestsView = ({
                                                         whileTap={{ scale: 0.95 }}
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            setRandomQuestionCount(count);
-                                                            setHasSelectedCount(true);
+                                                            handleCountSelect(count);
                                                         }}
                                                         className={cn(
                                                             "flex-1 px-3 md:px-4 py-2 md:py-2.5 rounded-xl font-bold text-sm md:text-base transition-all",
@@ -247,7 +265,7 @@ export const BentoTestsView = ({
                                                     whileTap={{ scale: 0.98 }}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        handleStartTest(`/test/practice?count=${randomQuestionCount}`);
+                                                        handleRandomTestStart();
                                                     }}
                                                     className={cn(
                                                         "w-full flex items-center justify-center gap-2 px-4 py-3 md:py-3.5 rounded-xl font-bold text-sm md:text-base transition-all shadow-lg",
@@ -443,15 +461,15 @@ export const BentoTestsView = ({
                                     transition={{ delay: i * 0.03 }}
                                     whileHover={{ scale: 1.02, y: -4 }}
                                     whileTap={{ scale: 0.98 }}
-                                    onClick={() => handleTopicClick(topic.id)}
+                                    onClick={() => handleTopicClickMemo(topic.id)}
                                     className={cn(
                                         "group relative overflow-hidden rounded-2xl p-4 md:p-5 cursor-pointer border transition-all h-[160px] md:h-[180px]",
                                         hoveredTopic === topic.id
                                             ? (isDark ? "border-white/30 shadow-xl" : "border-gray-400 shadow-xl")
                                             : (isDark ? "border-white/10 hover:border-white/20" : "border-gray-200 hover:border-gray-300")
                                     )}
-                                    onMouseEnter={() => setHoveredTopic(topic.id)}
-                                    onMouseLeave={() => setHoveredTopic(null)}
+                                    onMouseEnter={() => handleTopicHover(topic.id)}
+                                    onMouseLeave={() => handleTopicHover(null)}
                                     style={{
                                         backgroundImage: hasCoverImage ? `url(${coverImageUrl})` : undefined,
                                         backgroundSize: 'cover',
@@ -546,4 +564,4 @@ export const BentoTestsView = ({
             </motion.div>
         </div>
     );
-};
+});
