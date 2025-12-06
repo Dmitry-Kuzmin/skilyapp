@@ -344,7 +344,7 @@ export default defineConfig(({ mode }) => {
     cssMinify: true,
     // ОПТИМИЗАЦИЯ: Улучшенное tree-shaking и compression
     cssCodeSplit: true, // Разделяем CSS на отдельные файлы для лучшего кэширования
-    sourcemap: false, // Отключаем sourcemaps в production для уменьшения размера
+    sourcemap: true, // ВРЕМЕННО: Включено для отладки ошибки "c is not a function"
     // ОПТИМИЗАЦИЯ: Улучшенное удаление неиспользуемого кода
     cssTarget: 'chrome80', // Оптимизация для современных браузеров
       rollupOptions: {
@@ -469,15 +469,20 @@ export default defineConfig(({ mode }) => {
             return 'storage-vendor';
           }
           
-          // КРИТИЧНО: Более аккуратное разделение - изолируем только то, что нужно
-          // НЕ трогаем React/ReactDOM - пусть Vite сам решает, куда их положить
-          
-          // 1. Изолируем Supabase, TanStack Query, Radix UI (app-vendor)
-          // Эти библиотеки НЕ нужны на лендинге, грузятся только в /app/* роутах
+          // КРИТИЧНО: Разделение для отладки ошибки "c is not a function"
+          // Изолируем Supabase, TanStack Query, Radix UI, unified/micromark в app-vendor
+          // Это поможет локализовать проблемный модуль через sourcemap
           if (
             id.includes('node_modules/@supabase') ||
             id.includes('node_modules/@tanstack') ||
-            id.includes('node_modules/@radix-ui')
+            id.includes('node_modules/@radix-ui') ||
+            id.includes('node_modules/unified') ||
+            id.includes('node_modules/micromark') ||
+            id.includes('node_modules/vfile') ||
+            id.includes('node_modules/@floating-ui') ||
+            id.includes('node_modules/rollbar') ||
+            id.includes('node_modules/linkifyjs') ||
+            id.includes('node_modules/qr.js')
           ) {
             return 'app-vendor';
           }
