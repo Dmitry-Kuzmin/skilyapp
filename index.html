@@ -284,6 +284,11 @@
     <!-- ОПТИМИЗАЦИЯ: Preconnect для шрифтов удалён - используются системные шрифты -->
     <!-- Если в будущем будут добавлены кастомные шрифты, добавить preload здесь -->
     
+    <!-- ОПТИМИЗАЦИЯ LCP: Preload критического изображения для hero section dashboard -->
+    <!-- noise.svg используется в hero section и может быть LCP элементом -->
+    <link rel="preconnect" href="https://grainy-gradients.vercel.app" crossorigin />
+    <link rel="preload" as="image" href="https://grainy-gradients.vercel.app/noise.svg" fetchpriority="high" />
+    
     <!-- Telegram WebApp Scripts - загружаем асинхронно, не блокируя рендеринг -->
     <!-- КРИТИЧНО: telegram-web-app.js нужен для инициализации, загружаем с defer -->
     <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
