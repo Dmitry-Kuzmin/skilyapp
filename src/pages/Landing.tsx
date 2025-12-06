@@ -3,7 +3,8 @@ import { useLocation } from "react-router-dom";
 import { AuthModalNew as AuthModal } from "@/components/AuthModalNew";
 import { AiStudioLanding } from "@/components/landing/AiStudioLanding";
 import { PartnerInviteBanner } from "@/components/landing/PartnerInviteBanner";
-import { useUserContext } from "@/contexts/UserContext";
+// ОПТИМИЗАЦИЯ: Используем легкий контекст БЕЗ Supabase для лендинга
+import { useLandingUserContext } from "@/contexts/LandingUserContext";
 // ОПТИМИЗАЦИЯ: Убираем статический импорт Supabase - используем сервисные функции с динамическим импортом
 import { loadReferralInfo, loadPartnerInfo, type ReferrerInfo, type PartnerInfo } from "@/services/referralService";
 
@@ -13,7 +14,8 @@ const Landing = () => {
   const [partnerInfo, setPartnerInfo] = useState<PartnerInfo | null>(null);
   const [loadingReferrer, setLoadingReferrer] = useState(false);
   const [loadingPartner, setLoadingPartner] = useState(false);
-  const { isAuthenticated } = useUserContext();
+  // ОПТИМИЗАЦИЯ: Используем легкий контекст БЕЗ Supabase (работает только с Telegram)
+  const { isAuthenticated } = useLandingUserContext();
   const location = useLocation();
 
   useEffect(() => {
