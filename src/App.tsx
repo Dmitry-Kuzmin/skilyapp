@@ -29,8 +29,9 @@ const PerformanceMonitor = lazy(() => import("@/components/PerformanceMonitor").
 const GlobalModalManager = lazy(() => import("@/components/GlobalModalManager").then(m => ({ default: m.GlobalModalManager })));
 const PasskeyOnboardingWrapper = lazy(() => import("@/components/PasskeyOnboardingWrapper").then(m => ({ default: m.PasskeyOnboardingWrapper })));
 
-// ОПТИМИЗАЦИЯ: AppProviders НЕ lazy - должен быть доступен ДО AppRoutes
-// Это критично, так как AppRoutes использует useUserContext()
+// КРИТИЧНО: AppProviders НЕ lazy - должен быть доступен ДО AppRoutes
+// Это необходимо, так как Index.tsx использует useUserContext() сразу при загрузке
+// Trade-off: AppProviders попадает в initial bundle, но это необходимо для работы
 import { AppProviders } from "@/components/providers/AppProviders";
 const AppRoutes = lazy(() => import("@/components/AppRoutes").then(m => ({ default: m.AppRoutes })));
 
@@ -330,6 +331,8 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Landing />} />
               {/* Все остальные роуты - внутри AppProviders (с Supabase/Query) */}
+              {/* КРИТИЧНО: AppProviders загружается ПЕРВЫМ, затем AppRoutes */}
+              {/* Это гарантирует, что UserProvider доступен когда Index использует useUserContext() */}
               <Route path="/*" element={
                 <Suspense fallback={<PageLoader />}>
                   <AppProviders>
