@@ -413,7 +413,9 @@ const App = () => {
                 </Suspense>
                 <Suspense fallback={<PageLoader />}>
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* ОПТИМИЗАЦИЯ: Убрали клиентский редирект - серверный редирект настроен в vercel.json */}
+          {/* Это предотвращает дополнительную переадресацию на стороне клиента */}
+          <Route path="/" element={<Index />} />
           <Route path="/dashboard" element={<Index />} />
           <Route path="/learning-map" element={<LearningMap />} />
           <Route path="/topic/:id" element={<TopicDetail />} />
