@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Coins, Trophy, Sparkles } from 'lucide-react';
@@ -15,7 +15,7 @@ interface WalletWidgetProps {
   className?: string;
 }
 
-export function WalletWidget({ className }: WalletWidgetProps) {
+export const WalletWidget = memo(function WalletWidget({ className }: WalletWidgetProps) {
   const { profileId } = useUserContext();
   const { balance, loading: coinsLoading } = useCoins();
   const { t } = useLanguage();
@@ -24,42 +24,54 @@ export function WalletWidget({ className }: WalletWidgetProps) {
   const [duelPassModalOpen, setDuelPassModalOpen] = useState(false);
   const { duelPassData, isPending: duelPassPending } = useDuelPassData(profileId);
 
+  // ОПТИМИЗАЦИЯ: Мемоизируем вычисления для предотвращения лишних ре-рендеров
   const showCoinsSkeleton = coinsLoading;
   const showDuelPassSkeleton = duelPassPending;
-  const hasClaimableReward = Boolean(
+  const hasClaimableReward = useMemo(() => Boolean(
     duelPassData &&
       (duelPassData.hasUnlockedFreeReward ||
         (isPremium && duelPassData.hasUnlockedPremiumReward))
-  );
-  const duelPassRewardLabel = hasClaimableReward ? t('wallet.duelPassRewardReady') : null;
+  ), [duelPassData, isPremium]);
+  const duelPassRewardLabel = useMemo(() => hasClaimableReward ? t('wallet.duelPassRewardReady') : null, [hasClaimableReward, t]);
 
-  const duelPassTooltipMobile = duelPassData
+  const duelPassTooltipMobile = useMemo(() => duelPassData
     ? [
         t('wallet.duelPassTooltipMobile', { level: duelPassData.level, xp: duelPassData.xp }),
         duelPassRewardLabel,
       ]
         .filter(Boolean)
         .join(' · ')
-    : undefined;
+    : undefined, [duelPassData, duelPassRewardLabel, t]);
 
-  const duelPassTooltipDesktop = duelPassData
+  const duelPassTooltipDesktop = useMemo(() => duelPassData
     ? [
         t('wallet.duelPassTooltipDesktop', { level: duelPassData.level }),
         duelPassRewardLabel,
       ]
         .filter(Boolean)
         .join(' · ')
-    : undefined;
+    : undefined, [duelPassData, duelPassRewardLabel, t]);
 
-
-  const getDuelPassButtonClasses = (extra: string) =>
+  // ОПТИМИЗАЦИЯ: Мемоизируем функцию для предотвращения лишних ре-рендеров
+  const getDuelPassButtonClasses = useCallback((extra: string) =>
     cn(
       "rounded-xl border transition-all duration-200",
       extra,
       hasClaimableReward
         ? "bg-gradient-to-r from-amber-50/95 to-orange-50/85 text-foreground shadow-[0_8px_25px_rgba(251,191,36,0.35)] border-amber-200/80 dark:from-[#40320a] dark:via-[#2a1f08] dark:to-[#1f1606] dark:text-white dark:border-amber-400/40"
         : "bg-muted/30 hover:bg-muted/50 border-transparent dark:bg-slate-800/60 dark:hover:bg-slate-700/60"
-    );
+    ), [hasClaimableReward]);
+  
+  // ОПТИМИЗАЦИЯ: Мемоизируем обработчики для предотвращения лишних ре-рендеров
+  const handleDuelPassClick = useCallback(() => {
+    setDuelPassModalOpen(true);
+  }, []);
+  
+  const handleCoinsClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openBoostShop();
+  }, [openBoostShop]);
 
   const RewardBubble = ({ variant }: { variant: "mobile" | "desktop" }) => (
     <span
@@ -91,11 +103,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              openBoostShop();
-            }}
+            onClick={handleCoinsClick}
             onTouchStart={(e) => {
               // КРИТИЧНО: Обработка touch для мгновенной реакции на мобильных
               e.stopPropagation();
@@ -130,9 +138,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
               </>
             )}
             <button
-              onClick={() => {
-                setDuelPassModalOpen(true);
-              }}
+              onClick={handleDuelPassClick}
               className={getDuelPassButtonClasses("flex items-center gap-1.5 px-2 py-1 w-full")}
               title={duelPassTooltipMobile}
               aria-label={duelPassTooltipMobile}
@@ -171,9 +177,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
               </>
             )}
             <button
-              onClick={() => {
-                setDuelPassModalOpen(true);
-              }}
+              onClick={handleDuelPassClick}
               className={getDuelPassButtonClasses("hidden sm:flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1")}
               title={duelPassTooltipDesktop}
               aria-label={duelPassTooltipDesktop}
@@ -196,5 +200,5 @@ export function WalletWidget({ className }: WalletWidgetProps) {
       <DuelPassSeasonModal open={duelPassModalOpen} onOpenChange={setDuelPassModalOpen} />
     </>
   );
-}
+});
 
