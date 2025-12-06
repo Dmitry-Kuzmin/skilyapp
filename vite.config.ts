@@ -344,7 +344,7 @@ export default defineConfig(({ mode }) => {
     cssMinify: true,
     // ОПТИМИЗАЦИЯ: Улучшенное tree-shaking и compression
     cssCodeSplit: true, // Разделяем CSS на отдельные файлы для лучшего кэширования
-    sourcemap: true, // ВРЕМЕННО: Включено для отладки ошибки "c is not a function"
+    sourcemap: false, // Отключаем sourcemaps в production для уменьшения размера
     // ОПТИМИЗАЦИЯ: Улучшенное удаление неиспользуемого кода
     cssTarget: 'chrome80', // Оптимизация для современных браузеров
       rollupOptions: {
@@ -387,108 +387,61 @@ export default defineConfig(({ mode }) => {
         // Это предотвращает проблемы с unstable_scheduleCallback
         preserveModules: false, // Не сохраняем структуру модулей (лучше для React)
         manualChunks: (id) => {
-          // ОПТИМИЗАЦИЯ: Агрессивное разделение bundle для параллельной загрузки
-          // Это ускоряет FCP на медленных сетях (4G Slow)
+          // КРИТИЧНО: Безопасное разделение - только изолированные библиотеки
+          // НЕ трогаем Supabase/Query/Radix - они разделятся автоматически через lazy imports
+          // Принудительное разделение вызывало ошибку "c is not a function" из-за race condition
           
-          // КРИТИЧНО: React и ReactDOM НЕ разделяем на отдельный chunk
-          // Разделение вызывает проблемы с внутренними функциями React
-          // (unstable_scheduleCallback и другие)
-          // React остаётся в основном vendor chunk для стабильности
-          // if (id.includes('node_modules/react') || 
-          //     id.includes('node_modules/react-dom')) {
-          //   return 'react-vendor';
-          // }
-          
-          // React Router может быть отдельно (не критично для загрузки React)
-          // if (id.includes('node_modules/react-router-dom')) {
-          //   return 'react-vendor';
-          // }
-          
-          // КРИТИЧНО: Выделяем @tiptap и prosemirror (используется только в админке, очень тяжелый!)
+          // ✅ Tiptap безопасен для выноса (используется только в админке, изолирован)
           if (id.includes('node_modules/@tiptap') || 
               id.includes('node_modules/prosemirror')) {
             return 'tiptap-vendor';
           }
           
-          // КРИТИЧНО: Выделяем xlsx (используется только при импорте, есть lazy loader)
-          // Исключаем из vendor чтобы не загружать на старте
+          // ✅ XLSX безопасен (используется только при импорте, есть lazy loader)
           if (id.includes('node_modules/xlsx')) {
             return 'xlsx-vendor';
           }
           
-          // Выделяем графики (Recharts очень тяжелый! используется только в админке)
+          // ✅ Recharts безопасен (используется только в админке)
           if (id.includes('node_modules/recharts')) {
             return 'charts';
           }
           
-          // Выделяем тяжелые библиотеки UI
-          if (id.includes('node_modules/@mui') || 
-              id.includes('node_modules/framer-motion')) {
-            return 'ui-vendor';
-          }
-          
-          // КРИТИЧНО: @radix-ui НЕ выделяем в отдельный chunk
-          // Выделение вызывает ошибку "undefined is not an object (evaluating 'a.forwardRef')"
-          // @radix-ui зависит от React и должен быть в том же chunk или загружаться после React
-          // Оставляем в основном vendor chunk для стабильности
-          // if (id.includes('node_modules/@radix-ui')) {
-          //   return 'radix-vendor';
-          // }
-          
-          // ОПТИМИЗАЦИЯ: Выделяем date-fns (может быть тяжелой, используется не везде)
-          if (id.includes('node_modules/date-fns')) {
-            return 'date-vendor';
-          }
-          
-          // ОПТИМИЗАЦИЯ: Выделяем zustand (state management, легкий, но можно отдельно)
-          if (id.includes('node_modules/zustand')) {
-            return 'state-vendor';
-          }
-          
-          // ОПТИМИЗАЦИЯ: Выделяем lucide-react (иконки, используются везде, но можно загрузить параллельно)
-          // lucide-react довольно тяжелый (~200KB), но не критичен для первого рендера
+          // ✅ Иконки безопасны (можно загрузить параллельно)
           if (id.includes('node_modules/lucide-react')) {
             return 'icons-vendor';
           }
           
-          // ОПТИМИЗАЦИЯ: Выделяем react-router-dom (роутинг, не критичен для первого рендера)
-          // react-router-dom может быть загружен параллельно с основным bundle
+          // ✅ Framer Motion безопасен (используется не везде)
+          if (id.includes('node_modules/framer-motion')) {
+            return 'ui-vendor';
+          }
+          
+          // ✅ Остальные библиотеки (date-fns, zustand, router, sonner, idb-keyval)
+          // Можно выделить для параллельной загрузки, но не критично
+          if (id.includes('node_modules/date-fns')) {
+            return 'date-vendor';
+          }
+          
+          if (id.includes('node_modules/zustand')) {
+            return 'state-vendor';
+          }
+          
           if (id.includes('node_modules/react-router')) {
             return 'router-vendor';
           }
           
-          // ОПТИМИЗАЦИЯ: Выделяем sonner (toast notifications, используется не везде)
-          // sonner может быть загружен параллельно с основным bundle
           if (id.includes('node_modules/sonner')) {
             return 'toast-vendor';
           }
           
-          // ОПТИМИЗАЦИЯ: Выделяем idb-keyval (IndexedDB wrapper, используется для кэширования)
-          // idb-keyval легкий, но можно загрузить параллельно
           if (id.includes('node_modules/idb-keyval')) {
             return 'storage-vendor';
           }
           
-          // КРИТИЧНО: Разделение для отладки ошибки "c is not a function"
-          // Изолируем Supabase, TanStack Query, Radix UI, unified/micromark в app-vendor
-          // Это поможет локализовать проблемный модуль через sourcemap
-          if (
-            id.includes('node_modules/@supabase') ||
-            id.includes('node_modules/@tanstack') ||
-            id.includes('node_modules/@radix-ui') ||
-            id.includes('node_modules/unified') ||
-            id.includes('node_modules/micromark') ||
-            id.includes('node_modules/vfile') ||
-            id.includes('node_modules/@floating-ui') ||
-            id.includes('node_modules/rollbar') ||
-            id.includes('node_modules/linkifyjs') ||
-            id.includes('node_modules/qr.js')
-          ) {
-            return 'app-vendor';
-          }
-          
-          // ВАЖНО: React, ReactDOM и остальные node_modules остаются в vendor
-          // Vite сам решит, как их связать - это предотвращает ошибки загрузки модулей
+          // ВАЖНО: Supabase, TanStack Query, Radix UI остаются в vendor
+          // Vite автоматически создаст отдельные chunks для lazy-loaded модулей
+          // Это безопаснее, чем принудительное разделение через manualChunks
           if (id.includes('node_modules')) {
             return 'vendor';
           }
