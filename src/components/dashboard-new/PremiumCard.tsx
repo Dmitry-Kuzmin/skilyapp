@@ -115,5 +115,5 @@ export const PremiumCard: React.FC<PremiumCardProps> = React.memo(({ onGetPremiu
       </div>
     </div>
   );
-};
+});
 
