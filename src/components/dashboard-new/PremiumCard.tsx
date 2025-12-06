@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { Crown, ChevronRight, Sparkles } from 'lucide-react';
 import { usePremium } from '@/hooks/usePremium';
 import { playClickSound } from '@/services/audioService';
@@ -7,10 +7,11 @@ interface PremiumCardProps {
   onGetPremium?: () => void;
 }
 
-export const PremiumCard: React.FC<PremiumCardProps> = ({ onGetPremium }) => {
+export const PremiumCard: React.FC<PremiumCardProps> = React.memo(({ onGetPremium }) => {
   const { isPremium, isLifetime, daysRemaining, loading } = usePremium();
 
-  const handleClick = () => {
+  // ОПТИМИЗАЦИЯ: Мемоизируем обработчик для предотвращения лишних ре-рендеров
+  const handleClick = useCallback(() => {
     playClickSound();
     if (onGetPremium) {
       onGetPremium();
@@ -19,7 +20,7 @@ export const PremiumCard: React.FC<PremiumCardProps> = ({ onGetPremium }) => {
       const event = new CustomEvent('openPaywall');
       window.dispatchEvent(event);
     }
-  };
+  }, [onGetPremium]);
 
   const statusInfo = useMemo(() => {
     if (loading) {

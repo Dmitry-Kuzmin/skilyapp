@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Trophy, Zap, Clock, TrendingUp, ChevronRight } from 'lucide-react';
 import { useModalRoute } from '@/hooks/useModalRoute';
 import { playClickSound } from '@/services/audioService';
@@ -15,7 +15,7 @@ interface DuelPassInfoProps {
  * БЫЛО: 3 запроса при каждом рендере
  * СТАЛО: 1 запрос + кэширование
  */
-export const DuelPassInfo: React.FC<DuelPassInfoProps> = ({ className }) => {
+export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className }) => {
   const { openModal } = useModalRoute('duel-pass-season');
   const { resolvedTheme } = useTheme();
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
@@ -23,11 +23,12 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = ({ className }) => {
   // ОПТИМИЗАЦИЯ: Используем кэшированные данные
   const { data: duelPassData, loading } = useDuelPassInfo();
 
-  const handleClick = () => {
+  // ОПТИМИЗАЦИЯ: Мемоизируем обработчик для предотвращения лишних ре-рендеров
+  const handleClick = useCallback(() => {
     playClickSound();
     // Открываем модалку через useModalRoute
     openModal();
-  };
+  }, [openModal]);
 
   // Цветовые классы для светлой и темной темы
   const containerClass = isDarkTheme
