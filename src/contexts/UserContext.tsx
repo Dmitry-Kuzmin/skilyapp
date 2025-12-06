@@ -25,7 +25,9 @@ const logUserContext = (...args: any[]) => {
   }
 };
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+// КРИТИЧНО: Экспортируем UserContext для безопасного использования в LanguageProvider
+// Это позволяет LanguageProvider работать на лендинге (где UserProvider отсутствует)
+export const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<TelegramUser | null>(null);

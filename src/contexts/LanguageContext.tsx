@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useUserContext } from "./UserContext";
+import { UserContext } from "./UserContext";
 import { helpCenterTranslations } from "@/translations/helpCenter";
 
 export type Language = 'es' | 'en' | 'ru';
@@ -2701,7 +2701,10 @@ const resolveFromObject = (source: Record<string, any> | undefined, key: string)
 };
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const { user, profileId } = useUserContext();
+  // КРИТИЧНО: Безопасное получение UserContext - не выбрасывает ошибку если провайдер отсутствует
+  // Это позволяет LanguageProvider работать на лендинге (где UserProvider отсутствует)
+  const userContext = useContext(UserContext);
+  const profileId = userContext?.profileId ?? null;
   const [language, setLanguageState] = useState<Language>(() => detectPreferredLanguage());
 
   const applyLanguage = useCallback((lang: Language, persist: boolean = true) => {
