@@ -278,7 +278,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   className={themeClasses.xpCardClass}
                 >
                   {/* Hover glow effect */}
-                  <div className={xpOverlayClass} />
+                  <div className={themeClasses.xpOverlayClass} />
                   
                   {/* Shimmer effect - только при hover */}
                   <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/8 to-transparent" />
@@ -308,7 +308,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   className={themeClasses.testsCardClass}
                 >
                   {/* Hover glow effect */}
-                  <div className={testsOverlayClass} />
+                  <div className={themeClasses.testsOverlayClass} />
                   
                   {/* Shimmer effect - только при hover */}
                   <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/8 to-transparent" />
@@ -337,7 +337,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   className={themeClasses.coinsCardClass}
                 >
                   {/* Hover glow effect */}
-                  <div className={coinsOverlayClass} />
+                  <div className={themeClasses.coinsOverlayClass} />
                   
                   {/* Shimmer effect - только при hover */}
                   <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/8 to-transparent" />
