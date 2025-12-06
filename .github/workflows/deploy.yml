@@ -59,20 +59,10 @@ jobs:
           # Останавливаем сервер
           kill $PREVIEW_PID 2>/dev/null || true
       
-      - name: Build Vercel output
+      - name: Summary
         run: |
-          npx vercel build --prod --yes
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-      
-      - name: Deploy to Vercel (prebuilt)
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prebuilt --prod'
-          working-directory: ./
+          echo "✅ Build and prerender completed successfully"
+          echo "📦 Prerendered HTML is in dist/ directory"
+          echo "⚠️  Note: Vercel deploys automatically via GitHub integration"
+          echo "💡 Vercel will run its own build, so prerender is for local/testing only"
 
