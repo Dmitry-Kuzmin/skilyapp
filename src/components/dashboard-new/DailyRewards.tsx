@@ -144,6 +144,9 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // ОПТИМИЗАЦИЯ: Используем более эффективный способ удаления частиц
+    // Вместо filter (создает новый массив) используем in-place удаление
+    let writeIndex = 0;
     for (let i = 0; i < particlesRef.current.length; i++) {
       const p = particlesRef.current[i];
       p.x += p.vx;
@@ -152,13 +155,20 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
       p.life--;
       p.size *= 0.96;
 
-      ctx.fillStyle = p.color;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fill();
+      // Рисуем только живые частицы
+      if (p.life > 0) {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Сохраняем живую частицу
+        particlesRef.current[writeIndex++] = p;
+      }
     }
-
-    particlesRef.current = particlesRef.current.filter((p) => p.life > 0);
+    
+    // Удаляем мертвые частицы (обрезаем массив)
+    particlesRef.current.length = writeIndex;
     animationFrameRef.current = requestAnimationFrame(animateConfetti);
   }, []);
 
