@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 export type LumiMood = "idle" | "happy" | "thinking" | "encouraging" | "celebrating";
@@ -23,6 +23,11 @@ export const LumiCharacter = ({
   className,
   animate = true 
 }: LumiCharacterProps) => {
+  // ОПТИМИЗАЦИЯ: Lazy load animations.css только когда компонент используется
+  useEffect(() => {
+    import("./animations.css");
+  }, []);
+
   const sizeClass = sizeMap[size];
 
   return (

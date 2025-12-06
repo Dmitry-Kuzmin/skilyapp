@@ -6,10 +6,10 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import App from "./App.tsx";
 import "./index.css";
-// ОПТИМИЗАЦИЯ: animations.css загружается асинхронно (не блокирует FCP)
-// Импортируем animations.css - Vite оптимизирует его автоматически
-// Можно было бы lazy load, но Vite уже оптимизирует CSS загрузку
-import "./components/lumi/animations.css";
+// ОПТИМИЗАЦИЯ: animations.css lazy load (не блокирует FCP)
+// Загружаем только когда нужно (при использовании Lumi компонентов)
+// Это уменьшает initial CSS bundle на ~10-20 KB
+// import "./components/lumi/animations.css"; // Lazy loaded when needed
 import { reportWebVitals } from "./utils/webVitals";
 import { performanceMonitor } from "./utils/performance";
 import { registerSW } from 'virtual:pwa-register';
