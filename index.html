@@ -270,9 +270,8 @@
       w.loadCSS=loadCSS})(typeof global!=="undefined"?global:this);
     </script>
     
-    <!-- Preload критических ресурсов для ускорения загрузки -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <!-- ОПТИМИЗАЦИЯ: Preconnect для шрифтов удалён - используются системные шрифты -->
+    <!-- Если в будущем будут добавлены кастомные шрифты, добавить preload здесь -->
     
     <!-- Telegram WebApp Scripts - загружаем асинхронно, не блокируя рендеринг -->
     <!-- КРИТИЧНО: telegram-web-app.js нужен для инициализации, загружаем с defer -->

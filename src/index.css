@@ -389,8 +389,16 @@ All colors MUST be HSL.
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     
-    /* Оптимизация шрифтов - предотвращает блокировку рендеринга */
-    /* font-display: swap применяется только к @font-face, но мы используем системные шрифты */
+    /* ОПТИМИЗАЦИЯ: Системные шрифты уже оптимизированы браузером */
+    /* font-display: swap применяется только к @font-face */
+    /* Если в будущем будут добавлены кастомные шрифты, добавить:
+     * @font-face {
+     *   font-family: 'CustomFont';
+     *   src: url('font.woff2') format('woff2');
+     *   font-display: swap; // Предотвращает блокировку рендеринга
+     *   size-adjust: 100%; // Предотвращает CLS (если шрифт-заглушка Arial)
+     * }
+     */
   }
   
   /* ОПТИМИЗАЦИЯ: Reduce motion для пользователей с предпочтениями */
