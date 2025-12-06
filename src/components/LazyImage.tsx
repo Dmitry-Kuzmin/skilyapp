@@ -15,6 +15,10 @@ interface LazyImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   onLoad?: () => void;
   onError?: () => void;
   priority?: boolean; // Для критических изображений выше fold
+  // КРИТИЧНО: width/height для предотвращения CLS
+  // Если не указаны, используем aspect-ratio через CSS
+  width?: number;
+  height?: number;
 }
 
 export const LazyImage = memo(function LazyImage({
@@ -102,6 +106,14 @@ export const LazyImage = memo(function LazyImage({
       decoding="async"
       loading={priority ? 'eager' : 'lazy'}
       fetchPriority={priority ? 'high' : 'auto'}
+      // КРИТИЧНО: width/height для предотвращения CLS
+      // Если не указаны в props, используем aspect-ratio через CSS
+      width={props.width}
+      height={props.height}
+      style={{
+        ...(props.width && props.height ? {} : { aspectRatio: 'auto' }),
+        ...props.style,
+      }}
       className={cn(
         'transition-opacity duration-300',
         isLoaded ? 'opacity-100' : 'opacity-0',

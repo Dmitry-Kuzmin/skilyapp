@@ -169,16 +169,22 @@ const QuestionImageComponent = memo(({ imageUrl, compact = false }: { imageUrl: 
             className="w-full h-auto object-cover block"
             loading="lazy"
             decoding="async"
-            fetchPriority="auto"
+            // ОПТИМИЗАЦИЯ: fetchPriority для первого изображения вопроса (может быть LCP)
+            fetchPriority={compact ? 'auto' : 'high'}
+            // КРИТИЧНО: width/height для предотвращения CLS
+            // Используем aspect ratio из кэша или стандартные размеры
+            width={imageAspectRatio ? Math.round((compact ? 500 : 800) * imageAspectRatio) : (compact ? 500 : 800)}
+            height={imageAspectRatio ? (compact ? 500 : 800) : Math.round((compact ? 500 : 800) / (imageAspectRatio || 1.5))}
+            style={{
+              aspectRatio: imageAspectRatio ? `${imageAspectRatio}` : 'auto',
+              minHeight: compact ? '200px' : '180px',
+              maxHeight: compact ? '500px' : '288px',
+            }}
             onError={() => {
               if (import.meta.env.DEV) {
               console.error(`[TestSession] Failed to load image: ${imageSrc}`);
               }
               setHasError(true);
-            }}
-            style={{
-              minHeight: compact ? '200px' : '180px',
-              maxHeight: compact ? '500px' : '288px',
             }}
           />
         </div>

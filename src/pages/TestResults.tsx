@@ -106,6 +106,12 @@ const QuestionImageComponent = ({ imageUrl }: { imageUrl: string }) => {
         alt="Pregunta" 
         className="w-full max-h-48 object-contain bg-muted/30"
         loading="lazy"
+        decoding="async"
+        // КРИТИЧНО: width/height для предотвращения CLS
+        // Используем стандартные размеры для вопросов (обычно 800x600)
+        width={800}
+        height={600}
+        style={{ aspectRatio: '4/3' }}
         onError={() => {
           console.error(`[TestResults] Failed to load image: ${imageSrc}`);
           setHasError(true);
