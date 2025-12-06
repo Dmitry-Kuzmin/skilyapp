@@ -5,11 +5,15 @@
  */
 
 import { Clock, Loader2 } from 'lucide-react';
+import { useContext } from 'react';
 import { useOfflineQueue } from '@/hooks/useOfflineQueue';
-import { useUserContext } from '@/contexts/UserContext';
+import { UserContext } from '@/contexts/UserContext';
 
 export function OfflineQueueIndicator() {
-  const { profileId } = useUserContext();
+  // КРИТИЧНО: Безопасное получение UserContext - не выбрасывает ошибку если провайдер отсутствует
+  // Это позволяет OfflineQueueIndicator работать даже если UserProvider еще не загрузился
+  const userContext = useContext(UserContext);
+  const profileId = userContext?.profileId ?? null;
   const { queueSize, isSyncing } = useOfflineQueue(profileId);
 
   // Не показываем если нет действий в очереди
