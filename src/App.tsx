@@ -29,10 +29,9 @@ const PerformanceMonitor = lazy(() => import("@/components/PerformanceMonitor").
 const GlobalModalManager = lazy(() => import("@/components/GlobalModalManager").then(m => ({ default: m.GlobalModalManager })));
 const PasskeyOnboardingWrapper = lazy(() => import("@/components/PasskeyOnboardingWrapper").then(m => ({ default: m.PasskeyOnboardingWrapper })));
 
-// КРИТИЧНО: AppProviders НЕ lazy - должен быть доступен ДО AppRoutes
-// Это необходимо, так как Index.tsx использует useUserContext() сразу при загрузке
-// Trade-off: AppProviders попадает в initial bundle, но это необходимо для работы
-import { AppProviders } from "@/components/providers/AppProviders";
+// ОПТИМИЗАЦИЯ: AppProviders lazy - НЕ попадает в initial bundle для лендинга
+// Это критично для производительности - Supabase/Query грузятся только для /app/*
+const AppProviders = lazy(() => import("@/components/providers/AppProviders").then(m => ({ default: m.AppProviders })));
 const AppRoutes = lazy(() => import("@/components/AppRoutes").then(m => ({ default: m.AppRoutes })));
 
 // ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query)
@@ -331,14 +330,16 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Landing />} />
               {/* Все остальные роуты - внутри AppProviders (с Supabase/Query) */}
-              {/* КРИТИЧНО: AppProviders синхронный - UserProvider доступен сразу */}
-              {/* AppRoutes lazy loaded, но UserProvider уже готов когда Index загружается */}
+              {/* ОПТИМИЗАЦИЯ: AppProviders lazy - НЕ попадает в initial bundle для лендинга */}
+              {/* Это критично для производительности - Supabase/Query грузятся только для /app/* */}
               <Route path="/*" element={
-                <AppProviders>
-                  <Suspense fallback={<PageLoader />}>
-                    <AppRoutes />
-                  </Suspense>
-                </AppProviders>
+                <Suspense fallback={<PageLoader />}>
+                  <AppProviders>
+                    <Suspense fallback={<PageLoader />}>
+                      <AppRoutes />
+                    </Suspense>
+                  </AppProviders>
+                </Suspense>
               } />
             </Routes>
             {/* Модалки, доступные на всех страницах */}
