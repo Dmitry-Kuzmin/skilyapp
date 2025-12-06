@@ -459,6 +459,9 @@ export default defineConfig(({ mode }) => {
     chunkSizeWarningLimit: 1000,
     // ОПТИМИЗАЦИЯ: Показываем сжатый размер для анализа
     reportCompressedSize: true,
+    // ОПТИМИЗАЦИЯ: CSS code splitting для уменьшения initial CSS
+    // Vite автоматически разделяет CSS на отдельные файлы для каждого chunk
+    // Это уменьшает размер initial CSS bundle
   },
   optimizeDeps: {
     esbuildOptions: {

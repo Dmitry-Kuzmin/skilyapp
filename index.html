@@ -257,6 +257,16 @@
       [hidden]{display:none!important}
       /* Предотвращение layout shift */
       svg{display:block;max-width:100%}
+      /* Критические стили для dashboard - предотвращают FOUC */
+      .container{max-width:1280px;margin:0 auto;padding:0 1rem}
+      .grid{display:grid;gap:1rem}
+      .flex{display:flex}
+      .hidden{display:none}
+      /* Критические цвета для темной темы */
+      .bg-zinc-900{background-color:#18181b}
+      .bg-zinc-950{background-color:#09090b}
+      .text-zinc-200{color:#e4e4e7}
+      .text-zinc-300{color:#d4d4d8}
     </style>
     <!-- Polyfill для неблокирующей загрузки CSS в старых браузерах -->
     <script>

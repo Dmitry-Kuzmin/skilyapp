@@ -6,7 +6,9 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import App from "./App.tsx";
 import "./index.css";
+// ОПТИМИЗАЦИЯ: animations.css загружается асинхронно (не блокирует FCP)
 // Импортируем animations.css - Vite оптимизирует его автоматически
+// Можно было бы lazy load, но Vite уже оптимизирует CSS загрузку
 import "./components/lumi/animations.css";
 import { reportWebVitals } from "./utils/webVitals";
 import { performanceMonitor } from "./utils/performance";
