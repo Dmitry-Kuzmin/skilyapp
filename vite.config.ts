@@ -469,19 +469,21 @@ export default defineConfig(({ mode }) => {
             return 'storage-vendor';
           }
           
-          // КРИТИЧНО: Убрали разделение на app-vendor из-за проблем с порядком загрузки модулей
-          // Ошибка "c is not a function" возникала когда vendor пытался использовать код из app-vendor
-          // до того, как app-vendor загрузился
-          // 
-          // Supabase все равно НЕ грузится на лендинге благодаря:
-          // 1. Динамическим импортам в LanguageContext (только когда нужен profileId)
-          // 2. Lazy loading AppProviders (Supabase грузится только в /app/* роутах)
-          // 3. Отсутствию статических импортов supabase на лендинге
-          //
-          // Все node_modules остаются в vendor для стабильности
+          // КРИТИЧНО: Более аккуратное разделение - изолируем только то, что нужно
+          // НЕ трогаем React/ReactDOM - пусть Vite сам решает, куда их положить
           
-          // КРИТИЧНО: React и ReactDOM остаются в core-vendor (нужны везде)
-          // Всё остальное из node_modules тоже в core-vendor
+          // 1. Изолируем Supabase, TanStack Query, Radix UI (app-vendor)
+          // Эти библиотеки НЕ нужны на лендинге, грузятся только в /app/* роутах
+          if (
+            id.includes('node_modules/@supabase') ||
+            id.includes('node_modules/@tanstack') ||
+            id.includes('node_modules/@radix-ui')
+          ) {
+            return 'app-vendor';
+          }
+          
+          // ВАЖНО: React, ReactDOM и остальные node_modules остаются в vendor
+          // Vite сам решит, как их связать - это предотвращает ошибки загрузки модулей
           if (id.includes('node_modules')) {
             return 'vendor';
           }
