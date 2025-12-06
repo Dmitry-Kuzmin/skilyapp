@@ -453,6 +453,18 @@ export default defineConfig(({ mode }) => {
             return 'router-vendor';
           }
           
+          // ОПТИМИЗАЦИЯ: Выделяем sonner (toast notifications, используется не везде)
+          // sonner может быть загружен параллельно с основным bundle
+          if (id.includes('node_modules/sonner')) {
+            return 'toast-vendor';
+          }
+          
+          // ОПТИМИЗАЦИЯ: Выделяем idb-keyval (IndexedDB wrapper, используется для кэширования)
+          // idb-keyval легкий, но можно загрузить параллельно
+          if (id.includes('node_modules/idb-keyval')) {
+            return 'storage-vendor';
+          }
+          
           // КРИТИЧНО: @supabase и @tanstack НЕ разделяем на отдельный chunk
           // Разделение вызывает проблемы с зависимостями (u is not a function)
           // Оставляем в основном vendor chunk для стабильности
