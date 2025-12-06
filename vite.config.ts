@@ -469,24 +469,16 @@ export default defineConfig(({ mode }) => {
             return 'storage-vendor';
           }
           
-          // КРИТИЧНО: Выделяем app-vendor (только Supabase) - НЕ грузится на лендинге
-          // ВАЖНО: @radix-ui остается в vendor, так как используется в Toaster/Sonner которые грузятся синхронно
-          // ВАЖНО: @tanstack/react-query остается в vendor для стабильности
-          // ВАЖНО: unified/micromark могут использоваться в компонентах, которые грузятся раньше
-          if (
-            id.includes('node_modules/@supabase')
-          ) {
-            return 'app-vendor';
-          }
-          
-          // КРИТИЧНО: @radix-ui остается в основном vendor
-          // Используется в Toaster/Sonner которые импортируются статически в App.tsx
-          // Разделение вызывало ошибку "l is not a function" из-за проблем с порядком загрузки
-          
-          // КРИТИЧНО: @tanstack/react-query остается в основном vendor
-          // Он относительно легкий (~50KB) и может иметь зависимости от других модулей
-          
-          // unified/micromark/vfile остаются в vendor - могут использоваться в ранних компонентах
+          // КРИТИЧНО: Убрали разделение на app-vendor из-за проблем с порядком загрузки модулей
+          // Ошибка "c is not a function" возникала когда vendor пытался использовать код из app-vendor
+          // до того, как app-vendor загрузился
+          // 
+          // Supabase все равно НЕ грузится на лендинге благодаря:
+          // 1. Динамическим импортам в LanguageContext (только когда нужен profileId)
+          // 2. Lazy loading AppProviders (Supabase грузится только в /app/* роутах)
+          // 3. Отсутствию статических импортов supabase на лендинге
+          //
+          // Все node_modules остаются в vendor для стабильности
           
           // КРИТИЧНО: React и ReactDOM остаются в core-vendor (нужны везде)
           // Всё остальное из node_modules тоже в core-vendor
