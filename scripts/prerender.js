@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { existsSync, mkdirSync, writeFileSync, readdirSync } from 'fs';
 import { execSync } from 'child_process';
+import { install } from '@puppeteer/browsers';
 
 // КРИТИЧНО: Определяем реальное окружение
 // vercel build локально устанавливает VERCEL=true, но это не реальный Vercel сервер
@@ -153,11 +154,13 @@ async function prerender() {
       ],
     };
     
-    // На Vercel пробуем найти Chrome в стандартных местах
-    if (process.env.VERCEL || process.env.VERCEL_ENV) {
-      console.log('[Prerender] 🔧 Vercel environment detected, searching for Chrome...');
+    // На Vercel или GitHub Actions пробуем найти Chrome в стандартных местах
+    const isCI = process.env.CI || process.env.GITHUB_ACTIONS;
+    if (process.env.VERCEL || process.env.VERCEL_ENV || isCI) {
+      const envName = process.env.VERCEL ? 'Vercel' : (isCI ? 'GitHub Actions' : 'CI');
+      console.log(`[Prerender] 🔧 ${envName} environment detected, searching for Chrome...`);
       try {
-        // Пробуем найти Chrome в стандартных местах Vercel
+        // Пробуем найти Chrome в стандартных местах (Vercel, GitHub Actions, Ubuntu)
         const chromePaths = [
           '/usr/bin/google-chrome-stable',
           '/usr/bin/chromium',
@@ -196,7 +199,7 @@ async function prerender() {
         }
         
         // Если установили через @puppeteer/browsers, используем его
-        if (!launchOptions.executablePath && (process.env.VERCEL || process.env.VERCEL_ENV)) {
+        if (!launchOptions.executablePath && (process.env.VERCEL || process.env.VERCEL_ENV || isCI)) {
           const cacheDir = '/tmp/.cache/puppeteer';
           const chromeDir = join(cacheDir, 'chrome');
           if (existsSync(chromeDir)) {
@@ -224,7 +227,17 @@ async function prerender() {
       }
     }
     
-    const browser = await puppeteer.launch(launchOptions);
+    // КРИТИЧНО: Используем правильный puppeteer в зависимости от окружения
+    let browser;
+    if (puppeteer && puppeteer.default) {
+      // Используем полный puppeteer (локально или GitHub Actions)
+      browser = await puppeteer.default.launch(launchOptions);
+    } else if (puppeteerCore && puppeteerCore.default) {
+      // Используем puppeteer-core (если puppeteer не загрузился)
+      browser = await puppeteerCore.default.launch(launchOptions);
+    } else {
+      throw new Error('Neither puppeteer nor puppeteer-core is available');
+    }
 
     const page = await browser.newPage();
     
