@@ -29,9 +29,9 @@ const PerformanceMonitor = lazy(() => import("@/components/PerformanceMonitor").
 const GlobalModalManager = lazy(() => import("@/components/GlobalModalManager").then(m => ({ default: m.GlobalModalManager })));
 const PasskeyOnboardingWrapper = lazy(() => import("@/components/PasskeyOnboardingWrapper").then(m => ({ default: m.PasskeyOnboardingWrapper })));
 
-// ОПТИМИЗАЦИЯ: Lazy load AppProviders и AppRoutes для уменьшения initial bundle
-// Query/Supabase провайдеры загружаются только для приложения, не для лендинга
-const AppProviders = lazy(() => import("@/components/providers/AppProviders").then(m => ({ default: m.AppProviders })));
+// ОПТИМИЗАЦИЯ: AppProviders НЕ lazy - должен быть доступен ДО AppRoutes
+// Это критично, так как AppRoutes использует useUserContext()
+import { AppProviders } from "@/components/providers/AppProviders";
 const AppRoutes = lazy(() => import("@/components/AppRoutes").then(m => ({ default: m.AppRoutes })));
 
 // ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query)
