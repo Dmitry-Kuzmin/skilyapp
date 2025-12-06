@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { BrowserRouter, useLocation } from "react-router-dom";
+import { BrowserRouter, useLocation, Routes, Route } from "react-router-dom";
 import { useInitTelegram } from "@/hooks/useInitTelegram";
 import { useBackgroundTasks } from "@/hooks/useBackgroundTasks";
 import { useOfflineAnalytics } from "@/utils/offlineAnalytics";
@@ -33,6 +33,10 @@ const PasskeyOnboardingWrapper = lazy(() => import("@/components/PasskeyOnboardi
 // Query/Supabase провайдеры загружаются только для приложения, не для лендинга
 const AppProviders = lazy(() => import("@/components/providers/AppProviders").then(m => ({ default: m.AppProviders })));
 const AppRoutes = lazy(() => import("@/components/AppRoutes").then(m => ({ default: m.AppRoutes })));
+
+// ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query)
+// Это критично для уменьшения initial bundle
+import Landing from "./pages/Landing";
 
 // Обработка ошибок для lazy loading Index (dashboard)
 const IndexErrorFallback = () => {
@@ -322,12 +326,18 @@ const App = () => {
             <Suspense fallback={null}>
               <DeepLinkHandler />
             </Suspense>
-            {/* ОПТИМИЗАЦИЯ: AppProviders и AppRoutes lazy loaded - Query/Supabase не попадают в initial bundle */}
-            <Suspense fallback={<PageLoader />}>
-              <AppProviders>
-                <AppRoutes />
-              </AppProviders>
-            </Suspense>
+            {/* ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query) */}
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              {/* Все остальные роуты - внутри AppProviders (с Supabase/Query) */}
+              <Route path="/*" element={
+                <Suspense fallback={<PageLoader />}>
+                  <AppProviders>
+                    <AppRoutes />
+                  </AppProviders>
+                </Suspense>
+              } />
+            </Routes>
             {/* Модалки, доступные на всех страницах */}
             <Suspense fallback={null}>
               <HallOfFameModal />

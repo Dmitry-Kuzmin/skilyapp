@@ -98,8 +98,8 @@ export function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
-        {/* ОПТИМИЗАЦИЯ: Убрали клиентский редирект - серверный редирект настроен в vercel.json */}
-        <Route path="/" element={<Index />} />
+        {/* ОПТИМИЗАЦИЯ: Роут "/" вынесен в App.tsx (рендерится БЕЗ AppProviders) */}
+        {/* <Route path="/" element={<Index />} /> */}
         <Route path="/dashboard" element={<Index />} />
         <Route path="/learning-map" element={<LearningMap />} />
         <Route path="/topic/:id" element={<TopicDetail />} />
