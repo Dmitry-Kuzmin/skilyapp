@@ -23,11 +23,18 @@ const Landing = () => {
     // КРИТИЧНО: Предотвращаем бесконечный цикл редиректов
     if (hasRedirected) return;
     
+    // КРИТИЧНО: Не делаем редирект если мы уже не на главной странице
+    // Landing должен рендериться только на /, а не на /dashboard
+    const currentPath = location.pathname;
+    if (currentPath !== '/' && currentPath !== '/dashboard') {
+      return; // Не на главной - не проверяем авторизацию
+    }
+    
     // ОПТИМИЗАЦИЯ: Легкая проверка авторизации БЕЗ Supabase (через localStorage/Telegram)
     const isAuthenticated = checkAuthFromStorage() || checkTelegramAuth();
     
-    // Если пользователь авторизован, перенаправляем в приложение
-    if (isAuthenticated) {
+    // Если пользователь авторизован И мы на главной странице, перенаправляем в приложение
+    if (isAuthenticated && currentPath === '/') {
       setHasRedirected(true);
       // Очищаем партнерский и реферальный коды (они уже применены при регистрации)
       sessionStorage.removeItem('partner_code');

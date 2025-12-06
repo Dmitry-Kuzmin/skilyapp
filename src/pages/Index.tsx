@@ -501,6 +501,7 @@ const Index = () => {
   const userContext = useContext(UserContext);
   const isAuthenticated = userContext?.isAuthenticated ?? false;
   const isLoading = userContext?.isLoading ?? true;
+  const navigate = useNavigate();
   
   // КРИТИЧНО: Показываем loader пока идет загрузка авторизации или пока UserProvider не готов
   // Это предотвращает белый экран при перезагрузке страницы
@@ -511,7 +512,12 @@ const Index = () => {
   // КРИТИЧНО: Проверяем авторизацию и рендерим нужный компонент
   // Все хуки вызываются внутри DashboardContent, что соблюдает правила хуков
   if (!isAuthenticated) {
-    return <Landing />;
+    // КРИТИЧНО: Если не авторизован, редиректим на главную (где Landing рендерится напрямую)
+    // НЕ рендерим Landing здесь, чтобы избежать бесконечного цикла
+    useEffect(() => {
+      navigate('/', { replace: true });
+    }, [navigate]);
+    return <PageLoader />;
   }
 
   return <DashboardContent />;
