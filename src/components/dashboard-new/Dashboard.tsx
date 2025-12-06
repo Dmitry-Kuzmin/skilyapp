@@ -82,6 +82,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       ? 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-slate-700/70 bg-slate-900/70 hover:border-emerald-400/60 hover:bg-slate-800/90 transition-all text-[11px] sm:text-xs font-semibold text-slate-200 whitespace-nowrap backdrop-blur-sm'
       : 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-slate-200/80 bg-gradient-to-r from-white/95 to-slate-50/95 hover:border-emerald-300 hover:bg-emerald-50/95 transition-all text-[11px] sm:text-xs font-semibold text-slate-600 whitespace-nowrap shadow-[0_10px_30px_rgba(148,163,184,0.3)] backdrop-blur-sm';
     const statValueClass = isDarkTheme ? 'text-sm sm:text-base md:text-lg font-black text-white' : 'text-sm sm:text-base md:text-lg font-black text-slate-900';
+    const statLabelBase = 'text-[9px] xs:text-[10px] sm:text-xs font-semibold';
     const statStartButtonText = isDarkTheme ? 'text-indigo-300' : 'text-purple-600';
     const onlineTextClass = isDarkTheme ? 'text-emerald-200' : 'text-emerald-700';
     const heroNoiseOpacity = isDarkTheme ? 'opacity-[0.15]' : 'opacity-[0.12]';
@@ -117,6 +118,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       licenseBadgeClass,
       cockpitButtonClass,
       statValueClass,
+      statLabelBase,
       statStartButtonText,
       onlineTextClass,
       heroNoiseOpacity,
@@ -291,7 +293,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     
                     {/* Text content - компактный */}
                     <div className="flex-1 min-w-0 overflow-hidden">
-                      <div className={`${statLabelBase} ${isDarkTheme ? 'text-yellow-100/90' : 'text-yellow-700/90'} truncate`}>
+                      <div className={`${themeClasses.statLabelBase} ${isDarkTheme ? 'text-yellow-100/90' : 'text-yellow-700/90'} truncate`}>
                         {t('dashboard.stats.xp')}
                       </div>
                       <div className={`${themeClasses.statValueClass} leading-tight ${isDarkTheme ? 'group-hover:text-yellow-50' : 'group-hover:text-yellow-700'} transition-colors duration-200 truncate`}>
@@ -321,7 +323,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     
                     {/* Text content - компактный */}
                     <div className="flex-1 min-w-0 overflow-hidden">
-                      <div className={`${statLabelBase} ${isDarkTheme ? 'text-blue-100/90' : 'text-blue-700/90'} truncate`}>
+                      <div className={`${themeClasses.statLabelBase} ${isDarkTheme ? 'text-blue-100/90' : 'text-blue-700/90'} truncate`}>
                         {t('dashboard.stats.tests')}
                       </div>
                       <div className={`${themeClasses.statValueClass} leading-tight ${isDarkTheme ? 'group-hover:text-blue-50' : 'group-hover:text-blue-700'} transition-colors duration-200 truncate`}>
@@ -350,7 +352,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     
                     {/* Text content - компактный */}
                     <div className="flex-1 min-w-0 overflow-hidden">
-                      <div className={`${statLabelBase} ${isDarkTheme ? 'text-amber-100/90' : 'text-amber-700/90'} truncate`}>
+                      <div className={`${themeClasses.statLabelBase} ${isDarkTheme ? 'text-amber-100/90' : 'text-amber-700/90'} truncate`}>
                         {t('dashboard.stats.coins')}
                       </div>
                       <div className={`${themeClasses.statValueClass} leading-tight ${isDarkTheme ? 'group-hover:text-amber-50' : 'group-hover:text-amber-700'} transition-colors duration-200 truncate`}>
