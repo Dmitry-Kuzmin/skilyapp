@@ -423,11 +423,13 @@ export default defineConfig(({ mode }) => {
             return 'ui-vendor';
           }
           
-          // ОПТИМИЗАЦИЯ: Выделяем @radix-ui (тяжелая библиотека UI компонентов)
-          // Используется везде, но можно загружать параллельно
-          if (id.includes('node_modules/@radix-ui')) {
-            return 'radix-vendor';
-          }
+          // КРИТИЧНО: @radix-ui НЕ выделяем в отдельный chunk
+          // Выделение вызывает ошибку "undefined is not an object (evaluating 'a.forwardRef')"
+          // @radix-ui зависит от React и должен быть в том же chunk или загружаться после React
+          // Оставляем в основном vendor chunk для стабильности
+          // if (id.includes('node_modules/@radix-ui')) {
+          //   return 'radix-vendor';
+          // }
           
           // ОПТИМИЗАЦИЯ: Выделяем date-fns (может быть тяжелой, используется не везде)
           if (id.includes('node_modules/date-fns')) {
