@@ -133,12 +133,15 @@ export const AIWidget = ({
       if (gridContainer) {
         const firstChild = gridContainer.firstElementChild as HTMLElement;
         if (firstChild && firstChild !== widgetRef.current.closest('.lg\\:flex')?.parentElement) {
+          // ОПТИМИЗАЦИЯ: Используем requestAnimationFrame для избежания forced layout
           const updateMaxHeight = () => {
-            const blockHeight = firstChild.offsetHeight;
-            if (blockHeight > 0) {
-              console.log('[AIWidget] 📏 Test block height (fallback):', blockHeight);
-              setMaxHeight(blockHeight);
-            }
+            requestAnimationFrame(() => {
+              const blockHeight = firstChild.offsetHeight;
+              if (blockHeight > 0) {
+                console.log('[AIWidget] 📏 Test block height (fallback):', blockHeight);
+                setMaxHeight(blockHeight);
+              }
+            });
           };
           
           updateMaxHeight();
@@ -152,18 +155,23 @@ export const AIWidget = ({
       return;
     }
 
+    // ОПТИМИЗАЦИЯ: Используем requestAnimationFrame для избежания forced layout
     const updateMaxHeight = () => {
-      const blockHeight = testBlock.offsetHeight;
-      if (blockHeight > 0) {
-        console.log('[AIWidget] 📏 Test block height:', blockHeight);
-        setMaxHeight(blockHeight);
-      }
+      // Батчим чтение layout свойств в requestAnimationFrame
+      requestAnimationFrame(() => {
+        const blockHeight = testBlock.offsetHeight;
+        if (blockHeight > 0) {
+          console.log('[AIWidget] 📏 Test block height:', blockHeight);
+          setMaxHeight(blockHeight);
+        }
+      });
     };
 
     // Обновляем высоту при загрузке и изменении размера
     updateMaxHeight();
     
     const resizeObserver = new ResizeObserver(() => {
+      // ResizeObserver уже вызывается в правильное время, но всё равно батчим
       updateMaxHeight();
     });
 

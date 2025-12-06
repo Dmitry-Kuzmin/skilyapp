@@ -129,20 +129,24 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
                 console.log('[DuelPassOnboarding] Overlay not found');
               }
               
+              // ОПТИМИЗАЦИЯ: Кэшируем getBoundingClientRect() чтобы избежать forced layout
               // Прокручиваем страницу к диалогу, если он не в видимой области
               setTimeout(() => {
-                const newRect = dialogElement.getBoundingClientRect();
-                const isInViewport = newRect.top >= 0 && newRect.top < viewportHeight && 
-                                   newRect.left >= 0 && newRect.left < viewportWidth;
+                // Используем requestAnimationFrame для батчинга layout операций
+                requestAnimationFrame(() => {
+                  const newRect = dialogElement.getBoundingClientRect();
+                  const isInViewport = newRect.top >= 0 && newRect.top < viewportHeight && 
+                                     newRect.left >= 0 && newRect.left < viewportWidth;
                 console.log('[DuelPassOnboarding] After positioning - isInViewport:', isInViewport, 'rect:', {
                   top: Math.round(newRect.top),
                   left: Math.round(newRect.left),
                   width: Math.round(newRect.width),
                   height: Math.round(newRect.height),
                 });
-                if (!isInViewport) {
-                  dialogElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
+                  if (!isInViewport) {
+                    dialogElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }
+                });
               }, 50);
               
               console.log('[DuelPassOnboarding] ===== POSITIONING DEBUG =====');

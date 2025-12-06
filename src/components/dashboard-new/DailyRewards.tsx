@@ -173,12 +173,16 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
 
   // Синхронизируем координаты иконки огня с анимацией
   useEffect(() => {
+    // ОПТИМИЗАЦИЯ: Используем requestAnimationFrame для избежания forced layout
     const updateAnchorPosition = () => {
       if (!flameAnchorRef.current) return;
-      const rect = flameAnchorRef.current.getBoundingClientRect();
-      setFlameAnchorPosition({
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
+      // Батчим чтение layout свойств в requestAnimationFrame
+      requestAnimationFrame(() => {
+        const rect = flameAnchorRef.current!.getBoundingClientRect();
+        setFlameAnchorPosition({
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        });
       });
     };
 
@@ -206,12 +210,15 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
     setIsClaiming(true);
     setShowReward(true);
 
+    // ОПТИМИЗАЦИЯ: Используем requestAnimationFrame для избежания forced layout
     // Запускаем confetti из позиции кнопки
     if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      const clickX = rect.left + rect.width / 2;
-      const clickY = rect.top + rect.height / 2;
-      fireConfetti(clickX, clickY);
+      requestAnimationFrame(() => {
+        const rect = buttonRef.current!.getBoundingClientRect();
+        const clickX = rect.left + rect.width / 2;
+        const clickY = rect.top + rect.height / 2;
+        fireConfetti(clickX, clickY);
+      });
     }
 
     // Показываем эффекты победы для всех дней
