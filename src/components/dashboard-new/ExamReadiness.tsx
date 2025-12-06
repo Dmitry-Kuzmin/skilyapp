@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playClickSound } from '@/services/audioService';
 import { Info, X, Rocket, TrendingUp, Target, Award, Sparkles, AlertCircle, Activity, Brain, Calendar, Zap } from 'lucide-react';
@@ -220,21 +220,22 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     };
   }, [averageScore, status, statusText, shortText, description, hasNoData]);
   
-  const handleStartTest = () => {
+  // ОПТИМИЗАЦИЯ: Мемоизируем обработчики событий для предотвращения лишних ре-рендеров
+  const handleStartTest = useCallback(() => {
     playClickSound();
     if (onStartTest) {
       onStartTest();
     } else {
       navigate('/tests');
     }
-  };
+  }, [onStartTest, navigate]);
   
-  const toggleLevels = () => {
+  const toggleLevels = useCallback(() => {
     playClickSound();
     const newState = !showLevels;
     setShowLevels(newState);
     onExpandedChange?.(newState);
-  };
+  }, [showLevels, onExpandedChange]);
   
   // Цветовые классы для светлой и темной темы
   const containerClass = isDarkTheme
