@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, lazy, Suspense, useCallback, useContext } from "react";
-import { UserContext } from "@/contexts/UserContext";
+import { UserContext, useUserContext } from "@/contexts/UserContext";
 // ОПТИМИЗАЦИЯ: Index.tsx lazy loaded, но делаем динамический импорт для чистоты
 // Supabase будет загружаться только когда нужен (в handleClaimBonus)
 import { useToast } from "@/hooks/use-toast";
