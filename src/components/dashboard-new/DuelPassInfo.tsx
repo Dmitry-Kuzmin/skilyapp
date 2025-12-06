@@ -139,5 +139,5 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
       </div>
     </div>
   );
-};
+});
 
