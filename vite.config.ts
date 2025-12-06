@@ -441,6 +441,18 @@ export default defineConfig(({ mode }) => {
             return 'state-vendor';
           }
           
+          // ОПТИМИЗАЦИЯ: Выделяем lucide-react (иконки, используются везде, но можно загрузить параллельно)
+          // lucide-react довольно тяжелый (~200KB), но не критичен для первого рендера
+          if (id.includes('node_modules/lucide-react')) {
+            return 'icons-vendor';
+          }
+          
+          // ОПТИМИЗАЦИЯ: Выделяем react-router-dom (роутинг, не критичен для первого рендера)
+          // react-router-dom может быть загружен параллельно с основным bundle
+          if (id.includes('node_modules/react-router')) {
+            return 'router-vendor';
+          }
+          
           // КРИТИЧНО: @supabase и @tanstack НЕ разделяем на отдельный chunk
           // Разделение вызывает проблемы с зависимостями (u is not a function)
           // Оставляем в основном vendor chunk для стабильности
