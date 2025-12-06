@@ -275,8 +275,38 @@
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     
     <!-- Telegram WebApp Scripts - загружаем асинхронно, не блокируя рендеринг -->
+    <!-- КРИТИЧНО: telegram-web-app.js нужен для инициализации, загружаем с defer -->
     <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
-    <script src="https://telegram.org/js/telegram-widget.js?22" defer></script>
+    <!-- ОПТИМИЗАЦИЯ: telegram-widget.js откладываем до взаимодействия пользователя -->
+    <!-- Загружается только при скролле или через 3 секунды после загрузки страницы -->
+    <script>
+      (function() {
+        let widgetLoaded = false;
+        const loadWidget = () => {
+          if (widgetLoaded) return;
+          widgetLoaded = true;
+          const script = document.createElement('script');
+          script.src = 'https://telegram.org/js/telegram-widget.js?22';
+          script.defer = true;
+          document.head.appendChild(script);
+        };
+        
+        // Загружаем при скролле
+        let scrollTimer;
+        window.addEventListener('scroll', () => {
+          if (!widgetLoaded) {
+            clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(loadWidget, 100);
+          }
+        }, { once: true, passive: true });
+        
+        // Загружаем при клике
+        window.addEventListener('click', loadWidget, { once: true });
+        
+        // Загружаем через 3 секунды (fallback)
+        setTimeout(loadWidget, 3000);
+      })();
+    </script>
     
     <!-- Development: Telegram WebApp Mock - загружаем только на localhost -->
     <script>

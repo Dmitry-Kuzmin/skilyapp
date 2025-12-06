@@ -423,6 +423,22 @@ export default defineConfig(({ mode }) => {
             return 'ui-vendor';
           }
           
+          // ОПТИМИЗАЦИЯ: Выделяем @radix-ui (тяжелая библиотека UI компонентов)
+          // Используется везде, но можно загружать параллельно
+          if (id.includes('node_modules/@radix-ui')) {
+            return 'radix-vendor';
+          }
+          
+          // ОПТИМИЗАЦИЯ: Выделяем date-fns (может быть тяжелой, используется не везде)
+          if (id.includes('node_modules/date-fns')) {
+            return 'date-vendor';
+          }
+          
+          // ОПТИМИЗАЦИЯ: Выделяем zustand (state management, легкий, но можно отдельно)
+          if (id.includes('node_modules/zustand')) {
+            return 'state-vendor';
+          }
+          
           // КРИТИЧНО: @supabase и @tanstack НЕ разделяем на отдельный chunk
           // Разделение вызывает проблемы с зависимостями (u is not a function)
           // Оставляем в основном vendor chunk для стабильности
