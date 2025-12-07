@@ -10,12 +10,12 @@ import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, isThisMo
 // ОПТИМИЗАЦИЯ: Импортируем только русскую локаль (tree-shaking работает)
 import { ru } from 'date-fns/locale/ru';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { motion, LayoutGroup } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { NotificationIcon } from './NotificationIcon';
-import { VariableSizeList as List } from 'react-window';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import type { DuelNotification } from '@/hooks/useNotifications';
 // ОПТИМИЗАЦИЯ: ReminderConnectModal lazy-loaded (экономия 37.1 KB в initial bundle)
 const ReminderConnectModal = lazy(() => import('@/components/notifications/ReminderConnectModal').then(m => ({ default: m.ReminderConnectModal })));
@@ -255,7 +255,7 @@ export function NotificationsPanel({
   type FlatItem = { type: 'header'; label: string; count: number } | { type: 'notification'; data: DuelNotification };
   const flatList = useMemo<FlatItem[]>(() => {
     const items: FlatItem[] = [];
-    const groups: Record<string, typeof notifications> = {};
+    const groups: Record<string, DuelNotification[]> = {};
     
     // Группируем уведомления
     filteredNotifications.forEach(notification => {
@@ -290,6 +290,17 @@ export function NotificationsPanel({
     
     return items;
   }, [filteredNotifications]);
+
+  // ОПТИМИЗАЦИЯ: Виртуализатор для больших списков
+  const rowVirtualizer = useVirtualizer({
+    count: flatList.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: (index) => {
+      const item = flatList[index];
+      return item.type === 'header' ? 40 : 120; // Заголовок ~40px, уведомление ~120px
+    },
+    overscan: 5, // Рендерим 5 элементов сверху и снизу для плавности скролла
+  });
 
   const handleNotificationClick = useCallback((notification: DuelNotification) => {
     if (!notification.is_read) {
@@ -379,125 +390,143 @@ export function NotificationsPanel({
           </Tabs>
         </SheetHeader>
 
-        <ScrollArea className="flex-1">
-          <LayoutGroup>
-            {filteredNotifications.length === 0 ? (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="p-12 text-center space-y-3"
+        {/* ОПТИМИЗАЦИЯ: Убрали ScrollArea, используем обычный div с overflow-y-auto для виртуализации */}
+        <div className="flex-1 flex flex-col min-h-0">
+          {filteredNotifications.length === 0 ? (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="p-12 text-center space-y-3"
+            >
+              <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
+                {getFilterIcon(filter)}
+              </div>
+              <p className="text-muted-foreground">
+                {filter === 'all' 
+                  ? 'Пока нет уведомлений' 
+                  : `Нет уведомлений в категории "${filter}"`}
+              </p>
+              {filter === 'reminders' && (
+                <Button
+                  onClick={() => setReminderModalOpen(true)}
+                  className="mt-4"
+                  size="sm"
+                >
+                  <Clock className="w-4 h-4 mr-2" />
+                  Настроить напоминания
+                </Button>
+              )}
+            </motion.div>
+          ) : flatList.length > 10 ? (
+            // ОПТИМИЗАЦИЯ: Виртуализация для больших списков (> 10 элементов)
+            // КРИТИЧНО: Контейнер должен иметь фиксированную высоту для работы виртуализации
+            <div
+              ref={parentRef}
+              className="flex-1 overflow-y-auto contain-strict"
+              style={{
+                scrollbarWidth: 'thin',
+              }}
+            >
+              <div
+                style={{
+                  height: `${rowVirtualizer.getTotalSize()}px`,
+                  width: '100%',
+                  position: 'relative',
+                }}
               >
-                <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
-                  {getFilterIcon(filter)}
-                </div>
-                <p className="text-muted-foreground">
-                  {filter === 'all' 
-                    ? 'Пока нет уведомлений' 
-                    : `Нет уведомлений в категории "${filter}"`}
-                </p>
-                {filter === 'reminders' && (
-                  <Button
-                    onClick={() => setReminderModalOpen(true)}
-                    className="mt-4"
-                    size="sm"
-                  >
-                    <Clock className="w-4 h-4 mr-2" />
-                    Настроить напоминания
-                  </Button>
-                )}
-              </motion.div>
-            ) : (
-              <div className="h-full">
-                {/* ОПТИМИЗАЦИЯ: Виртуализация для больших списков (> 10 элементов) */}
-                {flatList.length > 10 ? (
-                  <div className="h-[calc(100vh-200px)]">
-                    <List
-                      ref={listRef}
-                      height={600} // Фиксированная высота для виртуализации
-                      itemCount={flatList.length}
-                      itemSize={(index) => {
-                        // Кешируем размеры для производительности
-                        if (sizeCache.current.has(index)) {
-                          return sizeCache.current.get(index)!;
-                        }
-                        const item = flatList[index];
-                        const size = item.type === 'header' ? 40 : 120; // Заголовок ~40px, уведомление ~120px
-                        sizeCache.current.set(index, size);
-                        return size;
-                      }}
-                      width="100%"
-                      itemData={flatList}
-                    >
-                      {({ index, style, data }) => {
-                        const item = data[index];
-                        if (item.type === 'header') {
-                          return (
-                            <div style={style} className="px-4 pt-6 pb-2">
-                              <div className="flex items-center gap-2">
-                                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                  {item.label}
-                                </h3>
-                                <div className="flex-1 h-px bg-border" />
-                                <span className="text-xs text-muted-foreground">
-                                  {item.count}
-                                </span>
-                              </div>
-                            </div>
-                          );
-                        }
-                        return (
-                          <div style={style} className="px-4 pb-2">
-                            <NotificationItem
-                              notification={item.data}
-                              isExpanded={expandedNotifications.has(item.data.id)}
-                              onToggleExpand={toggleNotificationExpansion}
-                              onClick={handleNotificationClick}
-                              getCachedTime={getCachedTime}
-                              shouldTruncate={shouldTruncate}
-                              navigate={navigate}
-                            />
-                          </div>
-                        );
-                      }}
-                    </List>
-                  </div>
-                ) : (
-                  // Для малых списков (< 10) рендерим без виртуализации (простая группировка)
-                  <div className="p-4 space-y-6">
-                    {Object.entries(groupedNotifications).map(([groupKey, groupNotifications]) => (
-                      <div key={groupKey} className="space-y-3">
-                        <div className="flex items-center gap-2 px-2">
+                {rowVirtualizer.getVirtualItems().map((virtualItem) => {
+                  const item = flatList[virtualItem.index];
+                  
+                  if (item.type === 'header') {
+                    return (
+                      <div
+                        key={virtualItem.key}
+                        data-index={virtualItem.index}
+                        ref={rowVirtualizer.measureElement}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          transform: `translateY(${virtualItem.start}px)`, // GPU ускорение
+                        }}
+                        className="px-4 pt-6 pb-2"
+                      >
+                        <div className="flex items-center gap-2">
                           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                            {groupKey}
+                            {item.label}
                           </h3>
                           <div className="flex-1 h-px bg-border" />
                           <span className="text-xs text-muted-foreground">
-                            {groupNotifications.length}
+                            {item.count}
                           </span>
                         </div>
-                        <div className="space-y-2">
-                          {groupNotifications.map((notification) => (
-                            <NotificationItem
-                              key={notification.id}
-                              notification={notification}
-                              isExpanded={expandedNotifications.has(notification.id)}
-                              onToggleExpand={toggleNotificationExpansion}
-                              onClick={handleNotificationClick}
-                              getCachedTime={getCachedTime}
-                              shouldTruncate={shouldTruncate}
-                              navigate={navigate}
-                            />
-                          ))}
-                        </div>
                       </div>
+                    );
+                  }
+                  
+                  return (
+                    <div
+                      key={virtualItem.key}
+                      data-index={virtualItem.index}
+                      ref={rowVirtualizer.measureElement}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        transform: `translateY(${virtualItem.start}px)`, // GPU ускорение
+                      }}
+                      className="px-4 pb-2"
+                    >
+                      <NotificationItem
+                        notification={item.data}
+                        isExpanded={expandedNotifications.has(item.data.id)}
+                        onToggleExpand={toggleNotificationExpansion}
+                        onClick={handleNotificationClick}
+                        getCachedTime={getCachedTime}
+                        shouldTruncate={shouldTruncate}
+                        navigate={navigate}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            // Для малых списков (< 10) рендерим без виртуализации (простая группировка)
+            <div className="flex-1 overflow-y-auto p-4 space-y-6">
+              {Object.entries(groupedNotifications).map(([groupKey, groupNotifications]) => (
+                <div key={groupKey} className="space-y-3">
+                  <div className="flex items-center gap-2 px-2">
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      {groupKey}
+                    </h3>
+                    <div className="flex-1 h-px bg-border" />
+                    <span className="text-xs text-muted-foreground">
+                      {groupNotifications.length}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {groupNotifications.map((notification) => (
+                      <NotificationItem
+                        key={notification.id}
+                        notification={notification}
+                        isExpanded={expandedNotifications.has(notification.id)}
+                        onToggleExpand={toggleNotificationExpansion}
+                        onClick={handleNotificationClick}
+                        getCachedTime={getCachedTime}
+                        shouldTruncate={shouldTruncate}
+                        navigate={navigate}
+                      />
                     ))}
                   </div>
-                )}
-              </div>
-            )}
-          </LayoutGroup>
-        </ScrollArea>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </SheetContent>
       
       {/* Reminder Connect Modal - lazy loaded */}
