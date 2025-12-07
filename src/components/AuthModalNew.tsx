@@ -393,23 +393,34 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         
         // КРИТИЧНО: Ждем обновления сессии перед редиректом
         // Проверяем, что сессия обновилась, и только потом редиректим
+        // Используем window.location.href для полного перезапуска приложения
+        // Это гарантирует, что UserProvider загрузится и обработает новую сессию
         let attempts = 0;
-        const maxAttempts = 10;
+        const maxAttempts = 15; // Увеличиваем до 15 попыток (3 секунды)
         const checkSession = async () => {
-          const { data: { session: currentSession } } = await supabase.auth.getSession();
-          if (currentSession?.user || attempts >= maxAttempts) {
-            // Сессия обновлена или превышено время ожидания - редиректим
-            // Используем window.location.href для полного перезапуска приложения
-            // Это гарантирует, что UserProvider загрузится и обработает новую сессию
+          const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+          
+          if (currentSession?.user) {
+            console.log('[AuthModalNew] Session confirmed, redirecting to dashboard');
             window.location.href = '/dashboard';
-          } else {
-            attempts++;
-            setTimeout(checkSession, 200);
+            return;
           }
+          
+          if (attempts >= maxAttempts) {
+            console.warn('[AuthModalNew] Max attempts reached, redirecting anyway');
+            // Даже если сессия не подтверждена, редиректим
+            // UserProvider на dashboard проверит сессию при загрузке
+            window.location.href = '/dashboard';
+            return;
+          }
+          
+          attempts++;
+          console.log(`[AuthModalNew] Waiting for session... (attempt ${attempts}/${maxAttempts})`);
+          setTimeout(checkSession, 200);
         };
         
-        // Начинаем проверку через небольшую задержку
-        setTimeout(checkSession, 300);
+        // Начинаем проверку сразу после закрытия модалки
+        setTimeout(checkSession, 100);
       } else {
         // Вход
         const { error } = await supabase.auth.signInWithPassword({
