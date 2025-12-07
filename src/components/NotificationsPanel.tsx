@@ -290,6 +290,35 @@ export function NotificationsPanel({
     return items;
   }, [filteredNotifications]);
 
+  // Group notifications by date (для малых списков)
+  const groupedNotifications = useMemo(() => {
+    const groups: Record<string, DuelNotification[]> = {};
+    
+    filteredNotifications.forEach(notification => {
+      const date = new Date(notification.created_at);
+      let groupKey: string;
+      
+      if (isToday(date)) {
+        groupKey = 'Сегодня';
+      } else if (isYesterday(date)) {
+        groupKey = 'Вчера';
+      } else if (isThisWeek(date)) {
+        groupKey = 'На этой неделе';
+      } else if (isThisMonth(date)) {
+        groupKey = 'В этом месяце';
+      } else {
+        groupKey = format(date, 'MMMM yyyy', { locale: ru });
+      }
+      
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+      groups[groupKey].push(notification);
+    });
+    
+    return groups;
+  }, [filteredNotifications]);
+
   // ОПТИМИЗАЦИЯ: Виртуализатор для больших списков
   const rowVirtualizer = useVirtualizer({
     count: flatList.length,
