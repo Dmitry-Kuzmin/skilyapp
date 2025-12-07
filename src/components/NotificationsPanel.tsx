@@ -214,21 +214,25 @@ export function NotificationsPanel({
   const PROGRESS_NOTIFICATION_TYPES = ['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder'];
   
   const filteredNotifications = useMemo(() => {
-    // Debug: логируем для отладки
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('[NotificationsPanel] Total notifications:', notifications.length);
-      console.log('[NotificationsPanel] Notification types:', notifications.map(n => n.type));
-    }
+    // Debug: логируем для отладки (включаем и в production для диагностики)
+    console.log('[NotificationsPanel] 🔍 Filtering notifications:', {
+      total: notifications.length,
+      filter,
+      types: notifications.map(n => n.type),
+    });
     
     // First, filter out progress notifications (always hide them)
     const notificationsWithoutProgress = notifications.filter(n => !PROGRESS_NOTIFICATION_TYPES.includes(n.type));
     
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('[NotificationsPanel] After filtering progress:', notificationsWithoutProgress.length);
-      console.log('[NotificationsPanel] Filter:', filter);
-    }
+    console.log('[NotificationsPanel] 🔍 After filtering progress:', {
+      count: notificationsWithoutProgress.length,
+      filter,
+    });
     
-    if (filter === 'all') return notificationsWithoutProgress;
+    if (filter === 'all') {
+      console.log('[NotificationsPanel] ✅ Returning all (no progress):', notificationsWithoutProgress.length);
+      return notificationsWithoutProgress;
+    }
     
     const typeMap: Record<string, NotificationFilter> = {
       'finish': 'duels',
@@ -240,9 +244,11 @@ export function NotificationsPanel({
       return category === filter;
     });
     
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('[NotificationsPanel] After filter category:', result.length);
-    }
+    console.log('[NotificationsPanel] ✅ After filter category:', {
+      count: result.length,
+      filter,
+      category: filter,
+    });
     
     return result;
   }, [notifications, filter]);
