@@ -14,6 +14,7 @@ const PartnerRedirect = lazy(() => import("@/components/PartnerRedirect").then(m
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { ServiceWorkerDebug } from "@/components/ServiceWorkerDebug";
 import { OfflineQueueIndicator } from "@/components/OfflineQueueIndicator";
+import { ReloadPrompt } from "@/components/ReloadPrompt";
 
 // Lazy load только тяжелые компоненты
 const DeepLinkHandler = lazy(() => import("@/components/DeepLinkHandler").then(m => ({ default: m.DeepLinkHandler })));
@@ -344,6 +345,8 @@ const App = () => {
     <>
       <OfflineBanner />
       <OfflineQueueIndicator />
+      {/* КРИТИЧНО: Компонент для ручного обновления PWA при registerType: 'prompt' */}
+      <ReloadPrompt />
       <Suspense fallback={null}>
         <CosmeticsPreviewProvider>
           <BrowserRouter basename={basename}>
