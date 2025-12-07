@@ -456,7 +456,7 @@ export function NotificationsPanel({
         </SheetHeader>
 
         {/* ОПТИМИЗАЦИЯ: Убрали ScrollArea, используем обычный div с overflow-y-auto для виртуализации */}
-        <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col min-h-0" key={`notifications-${filter}-${filteredNotifications.length}`}>
           {filteredNotifications.length === 0 ? (
             <motion.div
               key="empty"
