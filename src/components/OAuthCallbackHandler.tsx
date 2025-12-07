@@ -3,6 +3,11 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 
+// Импортируем SUPABASE_URL для проверки localStorage
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 
+  import.meta.env.PUBLIC_SUPABASE_URL || 
+  'https://yffjnqegeiorunyvcxkn.supabase.co';
+
 /**
  * Компонент для обработки OAuth callback (Google, etc.)
  * Извлекает токены из URL hash и создает сессию Supabase вручную
@@ -106,21 +111,65 @@ export function OAuthCallbackHandler() {
           expiresAt: sessionData.session.expires_at,
         });
         
-        // Даем время для сохранения сессии в localStorage
-        await new Promise(resolve => setTimeout(resolve, 300));
+        // КРИТИЧНО: Убеждаемся, что сессия сохранена в localStorage
+        // Supabase должен автоматически сохранить через persistSession: true
+        // Но даем время для сохранения и проверяем
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         // Проверяем что сессия действительно создана и сохранена
         const { data: { session: verifiedSession }, error: verifyError } = await supabase.auth.getSession();
         
         if (verifyError) {
           console.error('[OAuthCallbackHandler] Session verification error:', verifyError);
-          // Продолжаем все равно - сессия может быть создана
+          setIsProcessing(false);
+          window.location.hash = '';
+          navigate('/', { replace: true });
+          return;
         }
         
-        if (verifiedSession) {
-          console.log('[OAuthCallbackHandler] ✅ Session verified:', verifiedSession.user.email);
+        if (!verifiedSession) {
+          console.error('[OAuthCallbackHandler] ⚠️ Session not found after creation!');
+          console.error('[OAuthCallbackHandler] This means session was not saved to localStorage');
+          setIsProcessing(false);
+          window.location.hash = '';
+          navigate('/', { replace: true });
+          return;
+        }
+        
+        console.log('[OAuthCallbackHandler] ✅ Session verified and saved:', verifiedSession.user.email);
+        
+        // Дополнительная проверка: убеждаемся что сессия в localStorage
+        // Supabase использует ключ вида: sb-{project-ref}-auth-token
+        const projectRef = SUPABASE_URL.split('//')[1].split('.')[0];
+        const supabaseAuthKey = `sb-${projectRef}-auth-token`;
+        const storedSession = localStorage.getItem(supabaseAuthKey);
+        
+        if (!storedSession) {
+          console.warn('[OAuthCallbackHandler] ⚠️ Session not found in localStorage!');
+          console.warn('[OAuthCallbackHandler] Key checked:', supabaseAuthKey);
+          console.warn('[OAuthCallbackHandler] Available keys:', Object.keys(localStorage).filter(k => k.includes('auth')));
+          
+          // Пробуем сохранить сессию вручную
+          try {
+            const sessionJson = JSON.stringify({
+              access_token: verifiedSession.access_token,
+              refresh_token: verifiedSession.refresh_token,
+              expires_at: verifiedSession.expires_at,
+              expires_in: verifiedSession.expires_in,
+              token_type: verifiedSession.token_type,
+              user: verifiedSession.user,
+            });
+            localStorage.setItem(supabaseAuthKey, sessionJson);
+            console.log('[OAuthCallbackHandler] ✅ Manually saved session to localStorage');
+          } catch (err) {
+            console.error('[OAuthCallbackHandler] Failed to manually save session:', err);
+            setIsProcessing(false);
+            window.location.hash = '';
+            navigate('/', { replace: true });
+            return;
+          }
         } else {
-          console.warn('[OAuthCallbackHandler] ⚠️ Session not found after creation, but continuing...');
+          console.log('[OAuthCallbackHandler] ✅ Session confirmed in localStorage');
         }
         
         // Очищаем hash от токенов (безопасность)
