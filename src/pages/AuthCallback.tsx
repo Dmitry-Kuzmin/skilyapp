@@ -38,29 +38,45 @@ export function AuthCallback() {
     console.log('[AuthCallback] OAuth tokens detected, waiting for Supabase to process...');
 
     // Функция для безопасного редиректа (предотвращает множественные редиректы)
-    const redirectToDashboard = async () => {
+    const redirectToDashboard = async (session?: any) => {
       if (hasRedirectedRef.current) {
         console.log('[AuthCallback] Already redirected, skipping');
         return;
       }
 
+      console.log('[AuthCallback] Starting redirect process...');
       hasRedirectedRef.current = true;
       setStatus('success');
 
-      // Небольшая задержка, чтобы убедиться что сессия сохранена
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Если сессия передана - используем её, иначе получаем из Supabase
+      let finalSession = session;
+      if (!finalSession) {
+        // Небольшая задержка, чтобы убедиться что сессия сохранена
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Проверяем что сессия действительно сохранена
+        const { data: { session: verifiedSession }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+          console.error('[AuthCallback] Error getting session:', sessionError);
+        }
+        finalSession = verifiedSession;
+      }
 
-      // Проверяем что сессия действительно сохранена
-      const { data: { session: verifiedSession } } = await supabase.auth.getSession();
-      if (verifiedSession) {
-        console.log('[AuthCallback] ✅ Session verified, redirecting to dashboard...');
+      if (finalSession?.user) {
+        console.log('[AuthCallback] ✅ Session verified, redirecting to dashboard...', {
+          email: finalSession.user.email,
+          userId: finalSession.user.id,
+        });
         // Очищаем hash от токенов (безопасность)
         window.location.hash = '';
         // Используем window.location.href для полной перезагрузки
         // Это гарантирует что UserProvider загрузится и обработает сессию
-        window.location.href = '/dashboard';
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 300);
       } else {
         console.error('[AuthCallback] ⚠️ Session not found after verification');
+        console.error('[AuthCallback] Final session:', finalSession);
         setStatus('error');
         setError('Session not found');
         hasRedirectedRef.current = false; // Разрешаем повторить попытку
@@ -76,7 +92,8 @@ export function AuthCallback() {
 
         if (event === 'SIGNED_IN' && session) {
           console.log('[AuthCallback] ✅ Session established:', session.user.email);
-          await redirectToDashboard();
+          // Передаем сессию напрямую - не нужно ждать дополнительной проверки
+          await redirectToDashboard(session);
         } else if (event === 'SIGNED_OUT') {
           console.warn('[AuthCallback] User signed out during callback');
           setStatus('error');
