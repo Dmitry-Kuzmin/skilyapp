@@ -229,52 +229,65 @@ BEGIN
       WHERE dt.user_id = p_user_id AND dt.date = CURRENT_DATE
     ),
     'recent_achievements', (
-      SELECT COALESCE(json_agg(json_build_object(
-        'id', a.id,
-        'achievement_type', a.achievement_type,
-        'title', a.title,
-        'description', a.description,
-        'unlocked', a.unlocked,
-        'progress', a.progress,
-        'max_progress', a.max_progress,
-        'unlocked_at', a.unlocked_at
-      ) ORDER BY a.created_at DESC), '[]'::json)
+      SELECT COALESCE(json_agg(achievement_data), '[]'::json)
       FROM (
-        SELECT * FROM achievements
-        WHERE user_id = p_user_id
-        ORDER BY created_at DESC
+        SELECT json_build_object(
+          'id', a.id,
+          'achievement_type', a.achievement_type,
+          'title', a.title,
+          'description', a.description,
+          'unlocked', a.unlocked,
+          'progress', a.progress,
+          'max_progress', a.max_progress,
+          'unlocked_at', a.unlocked_at
+        ) as achievement_data
+        FROM achievements a
+        WHERE a.user_id = p_user_id
+        ORDER BY a.created_at DESC
         LIMIT 4
-      ) a
+      ) achievements_ordered
     ),
     'weekly_rewards', (
-      SELECT COALESCE(json_agg(json_build_object(
-        'day_number', dbd.day_number,
-        'reward', dbd.reward,
-        'description', dbd.description
-      ) ORDER BY dbd.day_number), '[]'::json)
-      FROM daily_bonus_def dbd
-      WHERE dbd.day_number <= 7
+      SELECT COALESCE(json_agg(bonus_data), '[]'::json)
+      FROM (
+        SELECT json_build_object(
+          'day_number', dbd.day_number,
+          'reward', dbd.reward,
+          'description', dbd.description
+        ) as bonus_data
+        FROM daily_bonus_def dbd
+        WHERE dbd.day_number <= 7
+        ORDER BY dbd.day_number
+      ) weekly_bonuses_ordered
     ),
     -- НОВОЕ: Topics (только нужные поля!)
     'topics', (
-      SELECT COALESCE(json_agg(json_build_object(
-        'id', t.id,
-        'number', t.number,
-        'title_ru', t.title_ru,
-        'title_es', t.title_es,
-        'order_index', t.order_index
-      ) ORDER BY t.order_index), '[]'::json)
-      FROM topics t
+      SELECT COALESCE(json_agg(topic_data), '[]'::json)
+      FROM (
+        SELECT json_build_object(
+          'id', t.id,
+          'number', t.number,
+          'title_ru', t.title_ru,
+          'title_es', t.title_es,
+          'order_index', t.order_index
+        ) as topic_data
+        FROM topics t
+        ORDER BY t.order_index
+      ) topics_ordered
     ),
     -- НОВОЕ: Daily Bonus Definitions (только нужные поля!)
     'daily_bonus_definitions', (
-      SELECT COALESCE(json_agg(json_build_object(
-        'day_number', dbd.day_number,
-        'reward', dbd.reward,
-        'description', dbd.description
-      ) ORDER BY dbd.day_number), '[]'::json)
-      FROM daily_bonus_def dbd
-      LIMIT 7
+      SELECT COALESCE(json_agg(bonus_data), '[]'::json)
+      FROM (
+        SELECT json_build_object(
+          'day_number', dbd.day_number,
+          'reward', dbd.reward,
+          'description', dbd.description
+        ) as bonus_data
+        FROM daily_bonus_def dbd
+        ORDER BY dbd.day_number
+        LIMIT 7
+      ) bonuses_ordered
     )
   ) INTO v_result;
 
