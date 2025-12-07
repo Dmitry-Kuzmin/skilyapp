@@ -516,7 +516,10 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          // КРИТИЧНО: Редиректим на отдельный callback маршрут
+          // Это решает race condition - dashboard не будет делать запросы
+          // до того, как сессия будет готова
+          redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',

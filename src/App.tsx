@@ -38,6 +38,9 @@ const AppRoutes = lazy(() => import("@/components/AppRoutes").then(m => ({ defau
 // ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query)
 // Это критично для уменьшения initial bundle
 import Landing from "./pages/Landing";
+// AuthCallback - страница для обработки OAuth callback
+// Должна быть доступна без AppProviders, так как обрабатывает сессию сама
+import { AuthCallback } from "./pages/AuthCallback";
 
 // Обработка ошибок для lazy loading Index (dashboard)
 const IndexErrorFallback = () => {
@@ -356,11 +359,15 @@ const App = () => {
             <ScrollToTop />
             <Suspense fallback={null}>
               <DeepLinkHandler />
+              {/* OAuthCallbackHandler больше не нужен - используем /auth/callback маршрут */}
+              {/* Оставляем как fallback на случай если кто-то попадет на /dashboard с токенами */}
               <OAuthCallbackHandler />
             </Suspense>
             {/* ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query) */}
             <Routes>
               <Route path="/" element={<Landing />} />
+              {/* OAuth callback - обрабатывает сессию сам, не требует AppProviders */}
+              <Route path="/auth/callback" element={<AuthCallback />} />
               {/* Все остальные роуты - внутри AppProviders (с Supabase/Query) */}
               {/* ОПТИМИЗАЦИЯ: AppProviders lazy - НЕ попадает в initial bundle для лендинга */}
               {/* Это критично для производительности - Supabase/Query грузятся только для /app/* */}

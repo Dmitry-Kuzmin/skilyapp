@@ -55,7 +55,10 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: false, // Отключаем автоматическое определение сессии в URL для производительности
+    // КРИТИЧНО: Включаем автоматическое определение сессии в URL для OAuth callback
+    // Supabase автоматически обработает токены из hash и создаст сессию
+    // Это решает race condition - сессия будет готова до редиректа на dashboard
+    detectSessionInUrl: true,
   },
   // ОПТИМИЗАЦИЯ: Глобальные настройки для снижения нагрузки
   global: {
