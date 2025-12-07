@@ -15,7 +15,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { NotificationIcon } from './NotificationIcon';
-import { FixedSizeList as List } from 'react-window';
+import { VariableSizeList as List } from 'react-window';
 import type { DuelNotification } from '@/hooks/useNotifications';
 // ОПТИМИЗАЦИЯ: ReminderConnectModal lazy-loaded (экономия 37.1 KB в initial bundle)
 const ReminderConnectModal = lazy(() => import('@/components/notifications/ReminderConnectModal').then(m => ({ default: m.ReminderConnectModal })));
@@ -171,6 +171,8 @@ export function NotificationsPanel({
   const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
   const [reminderModalOpen, setReminderModalOpen] = useState(false);
   const navigate = useNavigate();
+  const listRef = useRef<List>(null);
+  const sizeCache = useRef<Map<number, number>>(new Map());
 
   // ОПТИМИЗАЦИЯ: Мемоизируем обработчик для предотвращения лишних ре-рендеров
   const toggleNotificationExpansion = useCallback((notificationId: string) => {
@@ -411,11 +413,18 @@ export function NotificationsPanel({
                 {flatList.length > 10 ? (
                   <div className="h-[calc(100vh-200px)]">
                     <List
+                      ref={listRef}
                       height={600} // Фиксированная высота для виртуализации
                       itemCount={flatList.length}
                       itemSize={(index) => {
+                        // Кешируем размеры для производительности
+                        if (sizeCache.current.has(index)) {
+                          return sizeCache.current.get(index)!;
+                        }
                         const item = flatList[index];
-                        return item.type === 'header' ? 40 : 120; // Заголовок ~40px, уведомление ~120px
+                        const size = item.type === 'header' ? 40 : 120; // Заголовок ~40px, уведомление ~120px
+                        sizeCache.current.set(index, size);
+                        return size;
                       }}
                       width="100%"
                       itemData={flatList}
@@ -453,39 +462,6 @@ export function NotificationsPanel({
                       }}
                     </List>
                   </div>
-                ) : (
-                    {({ index, style, data }) => {
-                      const item = data[index];
-                      if (item.type === 'header') {
-                        return (
-                          <div style={style} className="px-4 pt-6 pb-2">
-                            <div className="flex items-center gap-2">
-                              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                {item.label}
-                              </h3>
-                              <div className="flex-1 h-px bg-border" />
-                              <span className="text-xs text-muted-foreground">
-                                {item.count}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      }
-                      return (
-                        <div style={style} className="px-4 pb-2">
-                          <NotificationItem
-                            notification={item.data}
-                            isExpanded={expandedNotifications.has(item.data.id)}
-                            onToggleExpand={toggleNotificationExpansion}
-                            onClick={handleNotificationClick}
-                            getCachedTime={getCachedTime}
-                            shouldTruncate={shouldTruncate}
-                            navigate={navigate}
-                          />
-                        </div>
-                      );
-                    }}
-                  </List>
                 ) : (
                   // Для малых списков (< 10) рендерим без виртуализации (простая группировка)
                   <div className="p-4 space-y-6">
