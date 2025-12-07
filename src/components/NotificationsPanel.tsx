@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback, ReactNode, lazy, Suspense } from 'react';
+import { useState, useMemo, useEffect, useCallback, ReactNode, lazy, Suspense, memo, useRef } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,11 +10,13 @@ import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, isThisMo
 // ОПТИМИЗАЦИЯ: Импортируем только русскую локаль (tree-shaking работает)
 import { ru } from 'date-fns/locale/ru';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, LayoutGroup } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { NotificationIcon } from './NotificationIcon';
+import { FixedSizeList as List } from 'react-window';
+import type { DuelNotification } from '@/hooks/useNotifications';
 // ОПТИМИЗАЦИЯ: ReminderConnectModal lazy-loaded (экономия 37.1 KB в initial bundle)
 const ReminderConnectModal = lazy(() => import('@/components/notifications/ReminderConnectModal').then(m => ({ default: m.ReminderConnectModal })));
 
@@ -29,6 +31,131 @@ interface NotificationsPanelProps {
 }
 
 type NotificationFilter = 'all' | 'duels' | 'reminders' | 'system';
+
+// ОПТИМИЗАЦИЯ: Мемоизированный компонент элемента уведомления
+// Предотвращает лишние ре-рендеры при обновлении списка
+const NotificationItem = memo(({
+  notification,
+  isExpanded,
+  onToggleExpand,
+  onClick,
+  getCachedTime,
+  shouldTruncate,
+  navigate,
+}: {
+  notification: DuelNotification;
+  isExpanded: boolean;
+  onToggleExpand: (id: string) => void;
+  onClick: (notification: DuelNotification) => void;
+  getCachedTime: (createdAt: string) => string;
+  shouldTruncate: (message: string) => boolean;
+  navigate: (path: string) => void;
+}) => {
+  return (
+    <div
+      onClick={() => onClick(notification)}
+      className={cn(
+        "p-4 rounded-xl border-2 cursor-pointer transition-colors duration-150 w-full max-w-full overflow-hidden",
+        "hover:shadow-md",
+        notification.is_read
+          ? 'bg-background/50 border-border/50 opacity-60'
+          : 'bg-primary/5 border-primary/30 hover:bg-primary/10 hover:border-primary/50'
+      )}
+    >
+      <div className="flex items-start gap-3">
+        {notification.icon && (
+          <div className={cn(
+            "w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0",
+            notification.is_read 
+              ? 'bg-muted/50' 
+              : 'bg-primary/20 shadow-sm'
+          )}>
+            <NotificationIcon 
+              iconName={notification.icon} 
+              className={cn(
+                notification.is_read 
+                  ? 'text-muted-foreground' 
+                  : 'text-primary'
+              )}
+              size={24}
+            />
+          </div>
+        )}
+        <div className="flex-1 min-w-0 max-w-full overflow-hidden">
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <h4 className={cn(
+              "font-bold text-sm line-clamp-1 break-words overflow-wrap-anywhere",
+              !notification.is_read && "text-foreground"
+            )}>
+              {notification.title}
+            </h4>
+            {!notification.is_read && (
+              <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5 animate-pulse" />
+            )}
+          </div>
+          <div className="mb-2 max-w-full overflow-hidden">
+            {shouldTruncate(notification.message) && !isExpanded ? (
+              <>
+                <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed break-all">
+                  {notification.message}
+                </p>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleExpand(notification.id);
+                  }}
+                  className="mt-2 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
+                >
+                  <ChevronDown className="h-3 w-3" />
+                  Развернуть сообщение
+                </button>
+              </>
+            ) : shouldTruncate(notification.message) && isExpanded ? (
+              <>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed break-all">
+                  {notification.message}
+                </p>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleExpand(notification.id);
+                  }}
+                  className="mt-2 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
+                >
+                  <ChevronUp className="h-3 w-3" />
+                  Свернуть сообщение
+                </button>
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed break-all">
+                {notification.message}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">
+              {getCachedTime(notification.created_at)}
+            </p>
+            {notification.duel_id && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 text-xs px-2"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/games/duel?duelId=${notification.duel_id}`);
+                }}
+              >
+                Перейти
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+NotificationItem.displayName = 'NotificationItem';
 
 export function NotificationsPanel({
   notificationsApi,
@@ -101,10 +228,34 @@ export function NotificationsPanel({
     });
   }, [notifications, filter]);
 
-  // Group notifications by date
-  const groupedNotifications = useMemo(() => {
+  // ОПТИМИЗАЦИЯ: Кеш для formatDistanceToNow (избегаем повторных вычислений)
+  const timeCache = useRef<Map<string, string>>(new Map());
+  const getCachedTime = useCallback((createdAt: string) => {
+    const cacheKey = `${createdAt}-${Date.now() - (Date.now() % 60000)}`; // Кеш на 1 минуту
+    if (timeCache.current.has(cacheKey)) {
+      return timeCache.current.get(cacheKey)!;
+    }
+    const formatted = formatDistanceToNow(new Date(createdAt), {
+      addSuffix: true,
+      locale: ru,
+    });
+    timeCache.current.set(cacheKey, formatted);
+    // Очищаем старый кеш (храним только последние 100)
+    if (timeCache.current.size > 100) {
+      const firstKey = timeCache.current.keys().next().value;
+      timeCache.current.delete(firstKey);
+    }
+    return formatted;
+  }, []);
+
+  // ОПТИМИЗАЦИЯ: Плоский список для виртуализации (вместо группировки)
+  // Создаем массив элементов: заголовки групп + уведомления
+  type FlatItem = { type: 'header'; label: string; count: number } | { type: 'notification'; data: DuelNotification };
+  const flatList = useMemo<FlatItem[]>(() => {
+    const items: FlatItem[] = [];
     const groups: Record<string, typeof notifications> = {};
     
+    // Группируем уведомления
     filteredNotifications.forEach(notification => {
       const date = new Date(notification.created_at);
       let groupKey: string;
@@ -127,10 +278,18 @@ export function NotificationsPanel({
       groups[groupKey].push(notification);
     });
     
-    return groups;
+    // Создаем плоский список: заголовок группы + уведомления
+    Object.entries(groups).forEach(([groupKey, groupNotifications]) => {
+      items.push({ type: 'header', label: groupKey, count: groupNotifications.length });
+      groupNotifications.forEach(notification => {
+        items.push({ type: 'notification', data: notification });
+      });
+    });
+    
+    return items;
   }, [filteredNotifications]);
 
-  const handleNotificationClick = (notification: typeof notifications[0]) => {
+  const handleNotificationClick = useCallback((notification: DuelNotification) => {
     if (!notification.is_read) {
       markAsRead(notification.id);
     }
@@ -139,7 +298,7 @@ export function NotificationsPanel({
     if (notification.duel_id) {
       navigate(`/games/duel?duelId=${notification.duel_id}`);
     }
-  };
+  }, [navigate]);
 
   const getFilterIcon = (filterType: NotificationFilter) => {
     switch (filterType) {
@@ -219,13 +378,12 @@ export function NotificationsPanel({
         </SheetHeader>
 
         <ScrollArea className="flex-1">
-          <AnimatePresence mode="wait">
+          <LayoutGroup>
             {filteredNotifications.length === 0 ? (
               <motion.div
                 key="empty"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 className="p-12 text-center space-y-3"
               >
                 <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
@@ -248,144 +406,121 @@ export function NotificationsPanel({
                 )}
               </motion.div>
             ) : (
-              <motion.div
-                key="notifications"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="p-4 space-y-6"
-              >
-                {Object.entries(groupedNotifications).map(([groupKey, groupNotifications]) => (
-                  <div key={groupKey} className="space-y-3">
-                    {/* Group Header */}
-                    <div className="flex items-center gap-2 px-2">
-                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        {groupKey}
-                      </h3>
-                      <div className="flex-1 h-px bg-border" />
-                      <span className="text-xs text-muted-foreground">
-                        {groupNotifications.length}
-                      </span>
-                    </div>
-
-                    {/* Notifications in group */}
-                    {/* ОПТИМИЗАЦИЯ: Ограничиваем рендеринг для больших групп (> 20 уведомлений) */}
-                    <div className="space-y-2">
-                      {(groupNotifications.length > 20 ? groupNotifications.slice(0, 20) : groupNotifications).map((notification) => (
-                        <div
-                          key={notification.id}
-                          onClick={() => handleNotificationClick(notification)}
-                          className={cn(
-                            "p-4 rounded-xl border-2 cursor-pointer transition-colors duration-150 w-full max-w-full overflow-hidden",
-                            // ОПТИМИЗАЦИЯ: Убрано transition-all, оставлен только transition-colors
-                            // ОПТИМИЗАЦИЯ: Убраны тяжелые анимации framer-motion для каждого элемента
-                            "hover:shadow-md",
-                            notification.is_read
-                              ? 'bg-background/50 border-border/50 opacity-60'
-                              : 'bg-primary/5 border-primary/30 hover:bg-primary/10 hover:border-primary/50'
-                          )}
-                        >
-                          <div className="flex items-start gap-3">
-                            {notification.icon && (
-                              <div className={cn(
-                                "w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0",
-                                notification.is_read 
-                                  ? 'bg-muted/50' 
-                                  : 'bg-primary/20 shadow-sm'
-                              )}>
-                                <NotificationIcon 
-                                  iconName={notification.icon} 
-                                  className={cn(
-                                    notification.is_read 
-                                      ? 'text-muted-foreground' 
-                                      : 'text-primary'
-                                  )}
-                                  size={24}
-                                />
-                              </div>
-                            )}
-                            <div className="flex-1 min-w-0 max-w-full overflow-hidden">
-                              <div className="flex items-start justify-between gap-2 mb-1">
-                                <h4 className={cn(
-                                  "font-bold text-sm line-clamp-1 break-words overflow-wrap-anywhere",
-                                  !notification.is_read && "text-foreground"
-                                )}>
-                                  {notification.title}
-                                </h4>
-                                {!notification.is_read && (
-                                  <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5 animate-pulse" />
-                                )}
-                              </div>
-                              <div className="mb-2 max-w-full overflow-hidden">
-                                {shouldTruncate(notification.message) && !expandedNotifications.has(notification.id) ? (
-                                  <>
-                                    <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed break-all">
-                                      {notification.message}
-                                    </p>
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        toggleNotificationExpansion(notification.id);
-                                      }}
-                                      className="mt-2 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
-                                    >
-                                      <ChevronDown className="h-3 w-3" />
-                                      Развернуть сообщение
-                                    </button>
-                                  </>
-                                ) : shouldTruncate(notification.message) && expandedNotifications.has(notification.id) ? (
-                                  <>
-                                    <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed break-all">
-                                      {notification.message}
-                                    </p>
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        toggleNotificationExpansion(notification.id);
-                                      }}
-                                      className="mt-2 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
-                                    >
-                                      <ChevronUp className="h-3 w-3" />
-                                      Свернуть сообщение
-                                    </button>
-                                  </>
-                                ) : (
-                                  <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed break-all">
-                                    {notification.message}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <p className="text-xs text-muted-foreground">
-                                  {formatDistanceToNow(new Date(notification.created_at), {
-                                    addSuffix: true,
-                                    locale: ru,
-                                  })}
-                                </p>
-                                {notification.duel_id && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-6 text-xs px-2"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      navigate(`/games/duel?duelId=${notification.duel_id}`);
-                                    }}
-                                  >
-                                    Перейти
-                                  </Button>
-                                )}
+              <div className="h-full">
+                {/* ОПТИМИЗАЦИЯ: Виртуализация для больших списков (> 10 элементов) */}
+                {flatList.length > 10 ? (
+                  <div className="h-[calc(100vh-200px)]">
+                    <List
+                      height={600} // Фиксированная высота для виртуализации
+                      itemCount={flatList.length}
+                      itemSize={(index) => {
+                        const item = flatList[index];
+                        return item.type === 'header' ? 40 : 120; // Заголовок ~40px, уведомление ~120px
+                      }}
+                      width="100%"
+                      itemData={flatList}
+                    >
+                      {({ index, style, data }) => {
+                        const item = data[index];
+                        if (item.type === 'header') {
+                          return (
+                            <div style={style} className="px-4 pt-6 pb-2">
+                              <div className="flex items-center gap-2">
+                                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                  {item.label}
+                                </h3>
+                                <div className="flex-1 h-px bg-border" />
+                                <span className="text-xs text-muted-foreground">
+                                  {item.count}
+                                </span>
                               </div>
                             </div>
+                          );
+                        }
+                        return (
+                          <div style={style} className="px-4 pb-2">
+                            <NotificationItem
+                              notification={item.data}
+                              isExpanded={expandedNotifications.has(item.data.id)}
+                              onToggleExpand={toggleNotificationExpansion}
+                              onClick={handleNotificationClick}
+                              getCachedTime={getCachedTime}
+                              shouldTruncate={shouldTruncate}
+                              navigate={navigate}
+                            />
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        );
+                      }}
+                    </List>
                   </div>
-                ))}
-              </motion.div>
+                ) : (
+                    {({ index, style, data }) => {
+                      const item = data[index];
+                      if (item.type === 'header') {
+                        return (
+                          <div style={style} className="px-4 pt-6 pb-2">
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                {item.label}
+                              </h3>
+                              <div className="flex-1 h-px bg-border" />
+                              <span className="text-xs text-muted-foreground">
+                                {item.count}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div style={style} className="px-4 pb-2">
+                          <NotificationItem
+                            notification={item.data}
+                            isExpanded={expandedNotifications.has(item.data.id)}
+                            onToggleExpand={toggleNotificationExpansion}
+                            onClick={handleNotificationClick}
+                            getCachedTime={getCachedTime}
+                            shouldTruncate={shouldTruncate}
+                            navigate={navigate}
+                          />
+                        </div>
+                      );
+                    }}
+                  </List>
+                ) : (
+                  // Для малых списков (< 10) рендерим без виртуализации (простая группировка)
+                  <div className="p-4 space-y-6">
+                    {Object.entries(groupedNotifications).map(([groupKey, groupNotifications]) => (
+                      <div key={groupKey} className="space-y-3">
+                        <div className="flex items-center gap-2 px-2">
+                          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                            {groupKey}
+                          </h3>
+                          <div className="flex-1 h-px bg-border" />
+                          <span className="text-xs text-muted-foreground">
+                            {groupNotifications.length}
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          {groupNotifications.map((notification) => (
+                            <NotificationItem
+                              key={notification.id}
+                              notification={notification}
+                              isExpanded={expandedNotifications.has(notification.id)}
+                              onToggleExpand={toggleNotificationExpansion}
+                              onClick={handleNotificationClick}
+                              getCachedTime={getCachedTime}
+                              shouldTruncate={shouldTruncate}
+                              navigate={navigate}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
-          </AnimatePresence>
+          </LayoutGroup>
         </ScrollArea>
       </SheetContent>
       
