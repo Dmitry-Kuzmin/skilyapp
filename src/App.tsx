@@ -359,9 +359,9 @@ const App = () => {
             <ScrollToTop />
             <Suspense fallback={null}>
               <DeepLinkHandler />
-              {/* OAuthCallbackHandler больше не нужен - используем /auth/callback маршрут */}
-              {/* Оставляем как fallback на случай если кто-то попадет на /dashboard с токенами */}
-              <OAuthCallbackHandler />
+              {/* OAuthCallbackHandler отключен - используем /auth/callback маршрут для OAuth */}
+              {/* Если нужно обрабатывать токены на других страницах - можно включить с проверкой pathname */}
+              {/* <OAuthCallbackHandler /> */}
             </Suspense>
             {/* ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query) */}
             <Routes>

@@ -28,11 +28,30 @@ export function AuthCallback() {
     const hash = window.location.hash;
     const hasTokens = hash && hash.includes('access_token');
 
+    // КРИТИЧНО: Если hash пустой, но мы на /auth/callback, возможно Supabase уже обработал токены
+    // Проверяем сессию ПЕРЕД тем, как редиректить на главную
     if (!hasTokens) {
-      console.warn('[AuthCallback] No OAuth tokens in hash, redirecting to home');
-      setStatus('error');
-      setError('No OAuth tokens found');
-      setTimeout(() => navigate('/', { replace: true }), 2000);
+      console.log('[AuthCallback] No tokens in hash, checking if session already exists...');
+      
+      // Проверяем сессию - возможно Supabase уже обработал токены
+      supabase.auth.getSession().then(({ data: { session }, error: sessionError }) => {
+        if (sessionError) {
+          console.error('[AuthCallback] Error getting session:', sessionError);
+        }
+        
+        if (session?.user) {
+          console.log('[AuthCallback] ✅ Session found (Supabase already processed tokens):', session.user.email);
+          // Сессия есть - редиректим на dashboard
+          redirectToDashboard(session);
+        } else {
+          // Нет сессии и нет токенов - редиректим на главную
+          console.warn('[AuthCallback] No OAuth tokens in hash and no session, redirecting to home');
+          setStatus('error');
+          setError('No OAuth tokens found');
+          setTimeout(() => navigate('/', { replace: true }), 2000);
+        }
+      });
+      
       return;
     }
 
