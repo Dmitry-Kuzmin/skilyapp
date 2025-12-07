@@ -65,8 +65,9 @@
 - Данные загружаются мгновенно из кэша, обновление происходит в фоне
 
 **Файлы:**
-- `src/components/providers/AppProviders.tsx` - настройка persistQueryClient
-- Используется `@tanstack/react-query-persist-client` и `@tanstack/query-sync-storage-persister`
+- `src/components/providers/AppProviders.tsx` - настройка PersistQueryClientProvider
+- `src/lib/queryPersister.ts` - создание persister на IndexedDB
+- Используется `@tanstack/react-query-persist-client` и `createAsyncStoragePersister`
 
 ---
 
