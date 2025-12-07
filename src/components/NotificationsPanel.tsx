@@ -367,6 +367,24 @@ export function NotificationsPanel({
     overscan: 5, // Рендерим 5 элементов сверху и снизу для плавности скролла
   });
 
+  // КРИТИЧНО: Сброс кэша виртуализатора при изменении данных
+  // Это заставляет список перерисоваться, когда данные загружаются
+  useEffect(() => {
+    if (flatList.length > 0 && rowVirtualizer) {
+      // Пересчитываем размеры всех элементов при изменении данных
+      rowVirtualizer.measure();
+    }
+  }, [flatList.length, filter, rowVirtualizer]);
+
+  // КРИТИЧНО: Сброс кэша виртуализатора при изменении данных
+  // Это заставляет список перерисоваться, когда данные загружаются
+  useEffect(() => {
+    if (flatList.length > 0 && rowVirtualizer) {
+      // Пересчитываем размеры всех элементов при изменении данных
+      rowVirtualizer.measure();
+    }
+  }, [flatList.length, filter, rowVirtualizer]);
+
   const handleNotificationClick = useCallback((notification: DuelNotification) => {
     if (!notification.is_read) {
       markAsRead(notification.id);

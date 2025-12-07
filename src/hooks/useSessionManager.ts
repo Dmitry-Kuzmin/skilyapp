@@ -123,33 +123,32 @@ export function useSessionManager() {
       saveToken(token);
     }
 
-    try {
-      const { data, error } = await supabase.functions.invoke('manage-session', {
-        body: {
-          action: 'create',
-          user_id: profileId,
-          device_fingerprint: deviceInfo.fingerprint,
-          session_token: token,
-          user_agent: deviceInfo.userAgent,
-          platform: deviceInfo.platform,
-        },
-      });
-
+    // КРИТИЧНО: Fire-and-Forget - не блокируем UI ожиданием ответа
+    // Сессия создается в фоне, пользователь видит интерфейс мгновенно
+    hasInitializedRef.current = true; // Помечаем как инициализированную сразу
+    
+    supabase.functions.invoke('manage-session', {
+      body: {
+        action: 'create',
+        user_id: profileId,
+        device_fingerprint: deviceInfo.fingerprint,
+        session_token: token,
+        user_agent: deviceInfo.userAgent,
+        platform: deviceInfo.platform,
+      },
+    }).then(({ data, error }) => {
       if (error) {
         console.warn('[SessionManager] Ошибка создания сессии (продолжаем работу):', error);
-        hasInitializedRef.current = true;
-        return; // В случае ошибки продолжаем работу без блокировки
+        return;
       }
 
       // Показываем уведомление только если:
       // 1. Были закрыты предыдущие сессии
       // 2. И это действительно новый токен (не восстановленный)
-      // 3. И это не первая инициализация
-      // 4. И закрытые сессии были с ДРУГОГО устройства (не с того же)
+      // 3. И закрытые сессии были с ДРУГОГО устройства (не с того же)
       if (
         data?.previous_sessions_closed > 0 && 
         isNewToken && 
-        hasInitializedRef.current &&
         !data?.closed_same_device
       ) {
         // Закрыты сессии с другого устройства - показываем уведомление
@@ -158,29 +157,26 @@ export function useSessionManager() {
           duration: 5000,
         });
       }
-
-      hasInitializedRef.current = true;
-    } catch (err) {
+    }).catch((err) => {
       console.warn('[SessionManager] Ошибка создания сессии (продолжаем работу):', err);
-      hasInitializedRef.current = true; // В случае ошибки продолжаем работу
-    }
+    });
   }, [profileId, deviceInfo, isRegistered, generateSessionToken, loadSavedToken, saveToken, validateToken]);
 
   // Обновляем активность сессии (heartbeat)
-  const updateSessionActivity = useCallback(async () => {
+  // КРИТИЧНО: Fire-and-Forget - не блокируем UI
+  const updateSessionActivity = useCallback(() => {
     if (!profileId || !sessionTokenRef.current) return;
 
-    try {
-      await supabase.functions.invoke('manage-session', {
-        body: {
-          action: 'update',
-          user_id: profileId,
-          session_token: sessionTokenRef.current,
-        },
-      });
-    } catch (err) {
+    // Отправляем в фоне, не ждем ответа
+    supabase.functions.invoke('manage-session', {
+      body: {
+        action: 'update',
+        user_id: profileId,
+        session_token: sessionTokenRef.current,
+      },
+    }).catch((err) => {
       console.error('[SessionManager] Ошибка обновления сессии:', err);
-    }
+    });
   }, [profileId]);
 
   // Проверяем валидность текущей сессии
