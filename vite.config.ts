@@ -103,7 +103,9 @@ export default defineConfig(({ mode }) => {
     mode === "production" && optimizeCssLoading(), // Только в production
     // PWA Plugin для Offline-First архитектуры (критично для Telegram Mini App)
     VitePWA({
-      registerType: 'autoUpdate',
+      // КРИТИЧНО: Используем 'prompt' вместо 'autoUpdate' для предотвращения спонтанных перезагрузок
+      // 'autoUpdate' вызывает автоматическую перезагрузку при каждом деплое, что раздражает пользователей
+      registerType: 'prompt', // ✅ СПРАШИВАТЬ, а не перезагружать автоматически
       includeAssets: ['favicon.ico', 'favicon.svg'],
       manifest: {
         name: 'Sdadim DGT',
