@@ -253,6 +253,15 @@ export function NotificationsPanel({
     return result;
   }, [notifications, filter]);
 
+  // Debug: логируем filteredNotifications при изменении (ПОСЛЕ определения filteredNotifications)
+  useEffect(() => {
+    console.log('[NotificationsPanel] 🔍 filteredNotifications changed:', {
+      count: filteredNotifications.length,
+      filter,
+      totalNotifications: notifications.length,
+    });
+  }, [filteredNotifications, filter, notifications.length]);
+
   // ОПТИМИЗАЦИЯ: Кеш для formatDistanceToNow (избегаем повторных вычислений)
   const timeCache = useRef<Map<string, string>>(new Map());
   const getCachedTime = useCallback((createdAt: string) => {
