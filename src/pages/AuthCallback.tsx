@@ -18,6 +18,7 @@ export function AuthCallback() {
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [error, setError] = useState<string | null>(null);
   const hasRedirectedRef = useRef(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     console.log('[AuthCallback] Component mounted, checking for OAuth tokens...');
@@ -38,103 +39,102 @@ export function AuthCallback() {
     console.log('[AuthCallback] OAuth tokens detected, waiting for Supabase to process...');
 
     // Функция для безопасного редиректа (предотвращает множественные редиректы)
-    const redirectToDashboard = async (session?: any) => {
+    const redirectToDashboard = (session: any) => {
       if (hasRedirectedRef.current) {
         console.log('[AuthCallback] Already redirected, skipping');
         return;
       }
 
-      console.log('[AuthCallback] Starting redirect process...');
-      hasRedirectedRef.current = true;
-      setStatus('success');
+      console.log('[AuthCallback] Starting redirect process...', {
+        email: session?.user?.email,
+        userId: session?.user?.id,
+      });
 
-      // Если сессия передана - используем её, иначе получаем из Supabase
-      let finalSession = session;
-      if (!finalSession) {
-        // Небольшая задержка, чтобы убедиться что сессия сохранена
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Проверяем что сессия действительно сохранена
-        const { data: { session: verifiedSession }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) {
-          console.error('[AuthCallback] Error getting session:', sessionError);
-        }
-        finalSession = verifiedSession;
+      hasRedirectedRef.current = true;
+      
+      // Очищаем таймаут если он еще не сработал
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
       }
 
-      if (finalSession?.user) {
-        console.log('[AuthCallback] ✅ Session verified, redirecting to dashboard...', {
-          email: finalSession.user.email,
-          userId: finalSession.user.id,
-        });
+      setStatus('success');
+
+      // Небольшая задержка для UI feedback, затем редирект
+      setTimeout(() => {
+        console.log('[AuthCallback] ✅ Redirecting to dashboard...');
         // Очищаем hash от токенов (безопасность)
         window.location.hash = '';
         // Используем window.location.href для полной перезагрузки
         // Это гарантирует что UserProvider загрузится и обработает сессию
-        setTimeout(() => {
-          window.location.href = '/dashboard';
-        }, 300);
-      } else {
-        console.error('[AuthCallback] ⚠️ Session not found after verification');
-        console.error('[AuthCallback] Final session:', finalSession);
-        setStatus('error');
-        setError('Session not found');
-        hasRedirectedRef.current = false; // Разрешаем повторить попытку
-        setTimeout(() => navigate('/', { replace: true }), 2000);
-      }
+        window.location.href = '/dashboard';
+      }, 300);
     };
 
-    // Supabase JS автоматически обработает токены из hash (detectSessionInUrl: true)
+    // КРИТИЧНО: Supabase JS автоматически обработает токены из hash (detectSessionInUrl: true)
     // Нам нужно только дождаться события SIGNED_IN
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log('[AuthCallback] Auth state changed:', event, session?.user?.email);
 
-        if (event === 'SIGNED_IN' && session) {
+        if (event === 'SIGNED_IN' && session?.user) {
           console.log('[AuthCallback] ✅ Session established:', session.user.email);
-          // Передаем сессию напрямую - не нужно ждать дополнительной проверки
-          await redirectToDashboard(session);
+          redirectToDashboard(session);
         } else if (event === 'SIGNED_OUT') {
           console.warn('[AuthCallback] User signed out during callback');
-          setStatus('error');
-          setError('Sign in failed');
-          setTimeout(() => navigate('/', { replace: true }), 2000);
+          if (!hasRedirectedRef.current) {
+            setStatus('error');
+            setError('Sign in failed');
+            setTimeout(() => navigate('/', { replace: true }), 2000);
+          }
         }
       }
     );
 
     // Также проверяем существующую сессию (на случай если Supabase уже обработал)
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error: sessionError }) => {
+      if (sessionError) {
+        console.error('[AuthCallback] Error getting session:', sessionError);
+      }
       if (session?.user) {
         console.log('[AuthCallback] ✅ Session already exists:', session.user.email);
-        redirectToDashboard();
+        redirectToDashboard(session);
+        return;
       }
     });
 
-    // Таймаут на случай если событие не придет
-    const timeout = setTimeout(() => {
+    // Таймаут на случай если событие не придет (только если еще не редиректили)
+    timeoutRef.current = setTimeout(() => {
       if (hasRedirectedRef.current) {
         console.log('[AuthCallback] Already redirected, skipping timeout');
         return;
       }
 
-      console.warn('[AuthCallback] ⚠️ Timeout waiting for SIGNED_IN event');
-      supabase.auth.getSession().then(({ data: { session } }) => {
+      console.warn('[AuthCallback] ⚠️ Timeout waiting for SIGNED_IN event, checking session...');
+      supabase.auth.getSession().then(({ data: { session }, error: sessionError }) => {
+        if (sessionError) {
+          console.error('[AuthCallback] Error getting session on timeout:', sessionError);
+        }
         if (session?.user) {
           console.log('[AuthCallback] ✅ Session found after timeout:', session.user.email);
-          redirectToDashboard();
+          redirectToDashboard(session);
         } else {
           console.error('[AuthCallback] ❌ No session found after timeout');
-          setStatus('error');
-          setError('Authentication timeout');
-          setTimeout(() => navigate('/', { replace: true }), 2000);
+          if (!hasRedirectedRef.current) {
+            setStatus('error');
+            setError('Authentication timeout');
+            setTimeout(() => navigate('/', { replace: true }), 2000);
+          }
         }
       });
     }, 10000); // 10 секунд таймаут
 
     return () => {
       subscription.unsubscribe();
-      clearTimeout(timeout);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
     };
   }, [navigate]);
 
@@ -158,4 +158,3 @@ export function AuthCallback() {
     </div>
   );
 }
-
