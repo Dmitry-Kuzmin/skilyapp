@@ -35,6 +35,22 @@ export function OAuthCallbackHandler() {
       setIsProcessing(true);
 
       console.log('[OAuthCallbackHandler] OAuth tokens detected in URL hash:', hash.substring(0, 50) + '...');
+      
+      // Извлекаем параметры из hash для логирования
+      const hashParams = new URLSearchParams(hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      const tokenType = hashParams.get('token_type');
+      const expiresIn = hashParams.get('expires_in');
+      
+      console.log('[OAuthCallbackHandler] Token details:', {
+        hasAccessToken: !!accessToken,
+        hasRefreshToken: !!refreshToken,
+        tokenType,
+        expiresIn,
+        accessTokenLength: accessToken?.length || 0,
+        refreshTokenLength: refreshToken?.length || 0,
+      });
 
       try {
         // КРИТИЧНО: Supabase автоматически обрабатывает токены из hash
