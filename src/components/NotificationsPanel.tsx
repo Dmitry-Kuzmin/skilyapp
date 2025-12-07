@@ -210,11 +210,23 @@ export function NotificationsPanel({
   // Filter notifications by type
   // Hide progress notifications (start, progress, boost, opponent_ahead, opponent_behind, reminder)
   // Show only results (finish, timeout)
+  // ВАЖНО: Не скрываем все уведомления - показываем finish, timeout и другие важные
   const PROGRESS_NOTIFICATION_TYPES = ['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder'];
   
   const filteredNotifications = useMemo(() => {
+    // Debug: логируем для отладки
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[NotificationsPanel] Total notifications:', notifications.length);
+      console.log('[NotificationsPanel] Notification types:', notifications.map(n => n.type));
+    }
+    
     // First, filter out progress notifications (always hide them)
     const notificationsWithoutProgress = notifications.filter(n => !PROGRESS_NOTIFICATION_TYPES.includes(n.type));
+    
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[NotificationsPanel] After filtering progress:', notificationsWithoutProgress.length);
+      console.log('[NotificationsPanel] Filter:', filter);
+    }
     
     if (filter === 'all') return notificationsWithoutProgress;
     
@@ -223,10 +235,16 @@ export function NotificationsPanel({
       'timeout': 'duels',
     };
 
-    return notificationsWithoutProgress.filter(n => {
+    const result = notificationsWithoutProgress.filter(n => {
       const category = typeMap[n.type] || 'system';
       return category === filter;
     });
+    
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[NotificationsPanel] After filter category:', result.length);
+    }
+    
+    return result;
   }, [notifications, filter]);
 
   // ОПТИМИЗАЦИЯ: Кеш для formatDistanceToNow (избегаем повторных вычислений)
