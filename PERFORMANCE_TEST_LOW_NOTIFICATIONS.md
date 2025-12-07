@@ -48,11 +48,14 @@ flatList.length > 10 ? (
 ### Вариант 1: Создать тестовые уведомления (рекомендуется)
 
 #### Через SQL (Supabase Dashboard):
+
+**Файл:** `CREATE_TEST_NOTIFICATIONS.sql` (создан в корне проекта)
+
 ```sql
--- Создай 15-20 тестовых уведомлений
+-- Создай 20 тестовых уведомлений
 INSERT INTO duel_notifications (user_id, type, title, message, icon, created_at)
 SELECT 
-  'YOUR_PROFILE_ID'::uuid,
+  '532aae3f-0282-469a-be1c-a073ef6c870b'::uuid,  -- ⚠️ ЗАМЕНИ НА СВОЙ profileId!
   'finish',
   'Тестовое уведомление ' || generate_series,
   'Это тестовое уведомление для проверки виртуализации. Сообщение достаточно длинное, чтобы проверить работу компонента.',
@@ -60,6 +63,11 @@ SELECT
   NOW() - (generate_series || ' minutes')::interval
 FROM generate_series(1, 20);
 ```
+
+**Важно:** 
+- UUID должен быть в кавычках: `'532aae3f-0282-469a-be1c-a073ef6c870b'::uuid`
+- НЕ пиши `'YOUR_PROFILE_ID'::532aae3f-...` - это ошибка!
+- Правильно: `'532aae3f-0282-469a-be1c-a073ef6c870b'::uuid`
 
 #### Через DevTools Console:
 ```javascript
