@@ -395,32 +395,34 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         // Проверяем, что сессия обновилась, и только потом редиректим
         // Используем window.location.href для полного перезапуска приложения
         // Это гарантирует, что UserProvider загрузится и обработает новую сессию
-        let attempts = 0;
-        const maxAttempts = 15; // Увеличиваем до 15 попыток (3 секунды)
-        const checkSession = async () => {
-          const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+        (() => {
+          let signUpAttempts = 0;
+          const signUpMaxAttempts = 15; // Увеличиваем до 15 попыток (3 секунды)
+          const checkSignUpSession = async () => {
+            const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+            
+            if (currentSession?.user) {
+              console.log('[AuthModalNew] Session confirmed, redirecting to dashboard');
+              window.location.href = '/dashboard';
+              return;
+            }
+            
+            if (signUpAttempts >= signUpMaxAttempts) {
+              console.warn('[AuthModalNew] Max attempts reached, redirecting anyway');
+              // Даже если сессия не подтверждена, редиректим
+              // UserProvider на dashboard проверит сессию при загрузке
+              window.location.href = '/dashboard';
+              return;
+            }
+            
+            signUpAttempts++;
+            console.log(`[AuthModalNew] Waiting for session... (attempt ${signUpAttempts}/${signUpMaxAttempts})`);
+            setTimeout(checkSignUpSession, 200);
+          };
           
-          if (currentSession?.user) {
-            console.log('[AuthModalNew] Session confirmed, redirecting to dashboard');
-            window.location.href = '/dashboard';
-            return;
-          }
-          
-          if (attempts >= maxAttempts) {
-            console.warn('[AuthModalNew] Max attempts reached, redirecting anyway');
-            // Даже если сессия не подтверждена, редиректим
-            // UserProvider на dashboard проверит сессию при загрузке
-            window.location.href = '/dashboard';
-            return;
-          }
-          
-          attempts++;
-          console.log(`[AuthModalNew] Waiting for session... (attempt ${attempts}/${maxAttempts})`);
-          setTimeout(checkSession, 200);
-        };
-        
-        // Начинаем проверку сразу после закрытия модалки
-        setTimeout(checkSession, 100);
+          // Начинаем проверку сразу после закрытия модалки
+          setTimeout(checkSignUpSession, 100);
+        })();
       } else {
         // Вход
         const { error } = await supabase.auth.signInWithPassword({
@@ -453,32 +455,34 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         // Проверяем, что сессия обновилась, и только потом редиректим
         // Используем window.location.href для полного перезапуска приложения
         // Это гарантирует, что UserProvider загрузится и обработает новую сессию
-        let attempts = 0;
-        const maxAttempts = 15; // Увеличиваем до 15 попыток (3 секунды)
-        const checkSession = async () => {
-          const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+        (() => {
+          let signInAttempts = 0;
+          const signInMaxAttempts = 15; // Увеличиваем до 15 попыток (3 секунды)
+          const checkSignInSession = async () => {
+            const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+            
+            if (currentSession?.user) {
+              console.log('[AuthModalNew] Session confirmed after signIn, redirecting to dashboard');
+              window.location.href = '/dashboard';
+              return;
+            }
+            
+            if (signInAttempts >= signInMaxAttempts) {
+              console.warn('[AuthModalNew] Max attempts reached after signIn, redirecting anyway');
+              // Даже если сессия не подтверждена, редиректим
+              // UserProvider на dashboard проверит сессию при загрузке
+              window.location.href = '/dashboard';
+              return;
+            }
+            
+            signInAttempts++;
+            console.log(`[AuthModalNew] Waiting for session after signIn... (attempt ${signInAttempts}/${signInMaxAttempts})`);
+            setTimeout(checkSignInSession, 200);
+          };
           
-          if (currentSession?.user) {
-            console.log('[AuthModalNew] Session confirmed after signIn, redirecting to dashboard');
-            window.location.href = '/dashboard';
-            return;
-          }
-          
-          if (attempts >= maxAttempts) {
-            console.warn('[AuthModalNew] Max attempts reached after signIn, redirecting anyway');
-            // Даже если сессия не подтверждена, редиректим
-            // UserProvider на dashboard проверит сессию при загрузке
-            window.location.href = '/dashboard';
-            return;
-          }
-          
-          attempts++;
-          console.log(`[AuthModalNew] Waiting for session after signIn... (attempt ${attempts}/${maxAttempts})`);
-          setTimeout(checkSession, 200);
-        };
-        
-        // Начинаем проверку сразу после закрытия модалки
-        setTimeout(checkSession, 100);
+          // Начинаем проверку сразу после закрытия модалки
+          setTimeout(checkSignInSession, 100);
+        })();
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
