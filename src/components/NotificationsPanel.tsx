@@ -352,6 +352,9 @@ export function NotificationsPanel({
     return groups;
   }, [filteredNotifications]);
 
+  // КРИТИЧНО: Отслеживаем готовность контейнера для виртуализации
+  const [isContainerReady, setIsContainerReady] = useState(false);
+
   // ОПТИМИЗАЦИЯ: Виртуализатор для больших списков
   const rowVirtualizer = useVirtualizer({
     count: flatList.length,
@@ -365,25 +368,64 @@ export function NotificationsPanel({
       return item.type === 'header' ? 40 : 120; // Заголовок ~40px, уведомление ~120px
     },
     overscan: 5, // Рендерим 5 элементов сверху и снизу для плавности скролла
+    // КРИТИЧНО: Включаем измерение элементов для динамических размеров
+    measureElement: (element) => {
+      if (!element) return undefined;
+      return element.getBoundingClientRect().height;
+    },
   });
 
-  // КРИТИЧНО: Сброс кэша виртуализатора при изменении данных
-  // Это заставляет список перерисоваться, когда данные загружаются
+  // КРИТИЧНО: Отслеживаем готовность контейнера и форсируем пересчет виртуализатора
   useEffect(() => {
-    if (flatList.length > 0 && rowVirtualizer) {
-      // Пересчитываем размеры всех элементов при изменении данных
-      rowVirtualizer.measure();
-    }
-  }, [flatList.length, filter, rowVirtualizer]);
+    if (!parentRef.current) return;
+    
+    // Проверяем, готов ли контейнер (имеет высоту)
+    const checkContainerReady = () => {
+      if (parentRef.current && parentRef.current.offsetHeight > 0) {
+        if (!isContainerReady) {
+          setIsContainerReady(true);
+        }
+        // Форсируем пересчет виртуализатора
+        if (flatList.length > 0 && rowVirtualizer) {
+          rowVirtualizer.measure();
+        }
+      }
+    };
+    
+    // Проверяем сразу
+    checkContainerReady();
+    
+    // Используем ResizeObserver для отслеживания изменений размера
+    const resizeObserver = new ResizeObserver(() => {
+      checkContainerReady();
+    });
+    
+    resizeObserver.observe(parentRef.current);
+    
+    // Также используем MutationObserver для отслеживания изменений DOM
+    const mutationObserver = new MutationObserver(() => {
+      checkContainerReady();
+    });
+    
+    mutationObserver.observe(parentRef.current, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+    });
+    
+    return () => {
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+    };
+  }, [flatList.length, rowVirtualizer, isContainerReady]);
 
-  // КРИТИЧНО: Сброс кэша виртуализатора при изменении данных
-  // Это заставляет список перерисоваться, когда данные загружаются
+  // КРИТИЧНО: Пересчет виртуализатора при изменении данных
   useEffect(() => {
-    if (flatList.length > 0 && rowVirtualizer) {
+    if (flatList.length > 0 && rowVirtualizer && isContainerReady) {
       // Пересчитываем размеры всех элементов при изменении данных
       rowVirtualizer.measure();
     }
-  }, [flatList.length, filter, rowVirtualizer]);
+  }, [flatList.length, filter, rowVirtualizer, isContainerReady]);
 
   const handleNotificationClick = useCallback((notification: DuelNotification) => {
     if (!notification.is_read) {
@@ -475,32 +517,32 @@ export function NotificationsPanel({
 
         {/* ОПТИМИЗАЦИЯ: Убрали ScrollArea, используем обычный div с overflow-y-auto для виртуализации */}
         <div className="flex-1 flex flex-col min-h-0" key={`notifications-${filter}-${filteredNotifications.length}`}>
-          {filteredNotifications.length === 0 ? (
-            <motion.div
-              key="empty"
+            {filteredNotifications.length === 0 ? (
+              <motion.div
+                key="empty"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="p-12 text-center space-y-3"
-            >
-              <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
-                {getFilterIcon(filter)}
-              </div>
-              <p className="text-muted-foreground">
-                {filter === 'all' 
-                  ? 'Пока нет уведомлений' 
-                  : `Нет уведомлений в категории "${filter}"`}
-              </p>
-              {filter === 'reminders' && (
-                <Button
-                  onClick={() => setReminderModalOpen(true)}
-                  className="mt-4"
-                  size="sm"
-                >
-                  <Clock className="w-4 h-4 mr-2" />
-                  Настроить напоминания
-                </Button>
-              )}
-            </motion.div>
+                className="p-12 text-center space-y-3"
+              >
+                <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
+                  {getFilterIcon(filter)}
+                </div>
+                <p className="text-muted-foreground">
+                  {filter === 'all' 
+                    ? 'Пока нет уведомлений' 
+                    : `Нет уведомлений в категории "${filter}"`}
+                </p>
+                {filter === 'reminders' && (
+                  <Button
+                    onClick={() => setReminderModalOpen(true)}
+                    className="mt-4"
+                    size="sm"
+                  >
+                    <Clock className="w-4 h-4 mr-2" />
+                    Настроить напоминания
+                  </Button>
+                )}
+              </motion.div>
           ) : flatList.length > 10 ? (
             // ОПТИМИЗАЦИЯ: Виртуализация для больших списков (> 10 элементов)
             // КРИТИЧНО: Контейнер должен иметь фиксированную высоту для работы виртуализации
@@ -518,10 +560,39 @@ export function NotificationsPanel({
                   position: 'relative',
                 }}
               >
-                {rowVirtualizer.getVirtualItems().map((virtualItem) => {
-                  const item = flatList[virtualItem.index];
-                  
-                  if (item.type === 'header') {
+                {/* КРИТИЧНО: Проверяем, что виртуализатор готов и есть элементы для рендеринга */}
+                {isContainerReady && rowVirtualizer.getVirtualItems().length > 0 ? (
+                  rowVirtualizer.getVirtualItems().map((virtualItem) => {
+                    const item = flatList[virtualItem.index];
+                    
+                    if (item.type === 'header') {
+                      return (
+                        <div
+                          key={virtualItem.key}
+                          data-index={virtualItem.index}
+                          ref={rowVirtualizer.measureElement}
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            transform: `translateY(${virtualItem.start}px)`, // GPU ускорение
+                          }}
+                          className="px-4 pt-6 pb-2"
+                        >
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                              {item.label}
+                            </h3>
+                            <div className="flex-1 h-px bg-border" />
+                            <span className="text-xs text-muted-foreground">
+                              {item.count}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    }
+                    
                     return (
                       <div
                         key={virtualItem.key}
@@ -534,67 +605,46 @@ export function NotificationsPanel({
                           width: '100%',
                           transform: `translateY(${virtualItem.start}px)`, // GPU ускорение
                         }}
-                        className="px-4 pt-6 pb-2"
+                        className="px-4 pb-2"
                       >
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                            {item.label}
-                          </h3>
-                          <div className="flex-1 h-px bg-border" />
-                          <span className="text-xs text-muted-foreground">
-                            {item.count}
-                          </span>
-                        </div>
+                        <NotificationItem
+                          notification={item.data}
+                          isExpanded={expandedNotifications.has(item.data.id)}
+                          onToggleExpand={toggleNotificationExpansion}
+                          onClick={handleNotificationClick}
+                          getCachedTime={getCachedTime}
+                          shouldTruncate={shouldTruncate}
+                          navigate={navigate}
+                        />
                       </div>
                     );
-                  }
-                  
-                  return (
-                    <div
-                      key={virtualItem.key}
-                      data-index={virtualItem.index}
-                      ref={rowVirtualizer.measureElement}
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        transform: `translateY(${virtualItem.start}px)`, // GPU ускорение
-                      }}
-                      className="px-4 pb-2"
-                    >
-                      <NotificationItem
-                        notification={item.data}
-                        isExpanded={expandedNotifications.has(item.data.id)}
-                        onToggleExpand={toggleNotificationExpansion}
-                        onClick={handleNotificationClick}
-                        getCachedTime={getCachedTime}
-                        shouldTruncate={shouldTruncate}
-                        navigate={navigate}
-                      />
-                    </div>
-                  );
-                })}
+                  })
+                ) : (
+                  // Показываем placeholder, пока виртуализатор не готов
+                  <div className="flex items-center justify-center h-full text-muted-foreground text-sm py-8">
+                    {flatList.length > 0 ? 'Загрузка...' : 'Нет уведомлений'}
+                  </div>
+                )}
               </div>
             </div>
           ) : (
             // Для малых списков (< 10) рендерим без виртуализации (простая группировка)
             <div className="flex-1 overflow-y-auto p-4 space-y-6">
-              {Object.entries(groupedNotifications).map(([groupKey, groupNotifications]) => (
-                <div key={groupKey} className="space-y-3">
-                  <div className="flex items-center gap-2 px-2">
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      {groupKey}
-                    </h3>
-                    <div className="flex-1 h-px bg-border" />
-                    <span className="text-xs text-muted-foreground">
-                      {groupNotifications.length}
-                    </span>
-                  </div>
-                  <div className="space-y-2">
+                {Object.entries(groupedNotifications).map(([groupKey, groupNotifications]) => (
+                  <div key={groupKey} className="space-y-3">
+                    <div className="flex items-center gap-2 px-2">
+                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        {groupKey}
+                      </h3>
+                      <div className="flex-1 h-px bg-border" />
+                      <span className="text-xs text-muted-foreground">
+                        {groupNotifications.length}
+                      </span>
+                    </div>
+                    <div className="space-y-2">
                     {groupNotifications.map((notification) => (
                       <NotificationItem
-                        key={notification.id}
+                          key={notification.id}
                         notification={notification}
                         isExpanded={expandedNotifications.has(notification.id)}
                         onToggleExpand={toggleNotificationExpansion}
@@ -604,12 +654,12 @@ export function NotificationsPanel({
                         navigate={navigate}
                       />
                     ))}
-                  </div>
-                </div>
-              ))}
-            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
           )}
-        </div>
+                  </div>
       </SheetContent>
       
       {/* Reminder Connect Modal - lazy loaded */}
