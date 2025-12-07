@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { Loader2 } from 'lucide-react';
 
 /**
  * Компонент для обработки OAuth callback (Google, etc.)
@@ -12,6 +13,7 @@ export function OAuthCallbackHandler() {
   const navigate = useNavigate();
   const location = useLocation();
   const hasProcessedRef = useRef(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     // Предотвращаем повторную обработку
@@ -28,6 +30,9 @@ export function OAuthCallbackHandler() {
 
       // Помечаем как обработанное, чтобы не обрабатывать повторно
       hasProcessedRef.current = true;
+      
+      // Показываем индикатор загрузки
+      setIsProcessing(true);
 
       console.log('[OAuthCallbackHandler] OAuth tokens detected in URL hash:', hash.substring(0, 50) + '...');
 
@@ -112,6 +117,7 @@ export function OAuthCallbackHandler() {
 
         if (error) {
           console.error('[OAuthCallbackHandler] Error getting session:', error);
+          setIsProcessing(false);
           // Очищаем hash и редиректим на главную
           window.location.hash = '';
           navigate('/', { replace: true });
@@ -132,6 +138,7 @@ export function OAuthCallbackHandler() {
           console.log('[OAuthCallbackHandler] Redirecting to dashboard...');
           
           // Небольшая задержка перед редиректом, чтобы убедиться что все обработано
+          // Индикатор загрузки останется видимым до редиректа
           setTimeout(() => {
             window.location.href = '/dashboard';
           }, 300);
@@ -139,13 +146,21 @@ export function OAuthCallbackHandler() {
           console.warn('[OAuthCallbackHandler] No session or user found after OAuth callback');
           console.warn('[OAuthCallbackHandler] Error details:', error);
           console.warn('[OAuthCallbackHandler] Hash was:', hash.substring(0, 100));
+          console.warn('[OAuthCallbackHandler] Attempting redirect anyway - UserProvider will check session on dashboard');
           
-          // Очищаем hash и редиректим на главную
+          // КРИТИЧНО: Даже если сессия не найдена, редиректим на dashboard
+          // UserProvider на dashboard проверит сессию при загрузке через onAuthStateChange
+          // Это важно, так как на лендинге может не быть UserProvider
           window.location.hash = '';
-          navigate('/', { replace: true });
+          
+          // Редиректим на dashboard - там UserProvider точно есть и обработает сессию
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 300);
         }
       } catch (error) {
         console.error('[OAuthCallbackHandler] Exception handling OAuth callback:', error);
+        setIsProcessing(false);
         // Очищаем hash и редиректим на главную
         window.location.hash = '';
         navigate('/', { replace: true });
@@ -154,6 +169,21 @@ export function OAuthCallbackHandler() {
 
     handleOAuthCallback();
   }, [navigate, location]);
+
+  // Показываем полноэкранный индикатор загрузки во время обработки OAuth
+  if (isProcessing) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-zinc-950/95 backdrop-blur-sm">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 animate-spin text-white" />
+          <div className="text-center space-y-2">
+            <p className="text-lg font-semibold text-white">Завершение входа...</p>
+            <p className="text-sm text-zinc-400">Пожалуйста, подождите</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return null; // Компонент не рендерит ничего
 }
