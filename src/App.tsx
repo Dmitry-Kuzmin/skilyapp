@@ -18,7 +18,9 @@ import { ReloadPrompt } from "@/components/ReloadPrompt";
 
 // Lazy load только тяжелые компоненты
 const DeepLinkHandler = lazy(() => import("@/components/DeepLinkHandler").then(m => ({ default: m.DeepLinkHandler })));
-const OAuthCallbackHandler = lazy(() => import("@/components/OAuthCallbackHandler").then(m => ({ default: m.OAuthCallbackHandler })));
+// КРИТИЧНО: OAuthCallbackHandler НЕ lazy - должен загружаться сразу для обработки OAuth токенов
+// Иначе при ошибках lazy loading OAuth callback не обработается
+import { OAuthCallbackHandler } from "@/components/OAuthCallbackHandler";
 const CosmeticsPreviewProvider = lazy(() => import("@/contexts/CosmeticsPreviewContext").then(m => ({ default: m.CosmeticsPreviewProvider })));
 const HallOfFameModal = lazy(() => import("@/components/HallOfFameModal").then(m => ({ default: m.HallOfFameModal })));
 const DuelPassLeaderboardModal = lazy(() => import("@/components/leaderboard/DuelPassLeaderboardModal").then(m => ({ default: m.DuelPassLeaderboardModal })));
