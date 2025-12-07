@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* КРИТИЧНО: Предотвращаем pull-to-refresh на мобильных (причина спонтанных перезагрузок) */
+body {
+  overscroll-behavior-y: none;
+}
+
 /* Utility to hide native scrollbars but keep scrolling */
 .scrollbar-none {
   -ms-overflow-style: none; /* IE and Edge */

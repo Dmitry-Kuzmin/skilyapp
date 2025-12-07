@@ -39,15 +39,30 @@ import Landing from "./pages/Landing";
 const IndexErrorFallback = () => {
   useEffect(() => {
     console.error("[App] Index (dashboard) module failed to load");
-    // ОПТИМИЗАЦИЯ SSG: Проверка window для безопасности
-    if (typeof window === 'undefined') return;
-    
-    const timer = setTimeout(() => {
-      window.location.reload();
-    }, 2000);
-    return () => clearTimeout(timer);
+    // КРИТИЧНО: НЕ делаем автоматическую перезагрузку - это вызывает спонтанные релоады
+    // Вместо этого показываем ошибку и позволяем пользователю решить
+    console.warn("[App] Dashboard module failed - user can manually reload if needed");
   }, []);
-  return <PageLoader />;
+  return (
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
+      <div className="max-w-md w-full space-y-4 text-center">
+        <h1 className="text-2xl font-bold text-white">Ошибка загрузки</h1>
+        <p className="text-sm text-zinc-400">
+          Не удалось загрузить модуль дашборда. Попробуйте обновить страницу.
+        </p>
+        <button
+          onClick={() => {
+            if (typeof window !== 'undefined') {
+              window.location.reload();
+            }
+          }}
+          className="w-full h-12 px-4 bg-white text-black font-semibold rounded-xl hover:shadow-lg transition-shadow"
+        >
+          Обновить страницу
+        </button>
+      </div>
+    </div>
+  );
 };
 
 const Index = lazy(() => 
@@ -127,16 +142,30 @@ const Pricing = lazy(() => import("./pages/Pricing"));
 function RefundPolicyErrorFallback() {
   useEffect(() => {
     console.error("[App] RefundPolicy module failed to load");
-    // ОПТИМИЗАЦИЯ SSG: Проверка window для безопасности
-    if (typeof window === 'undefined') return;
-    
-    // Перезагружаем страницу через небольшую задержку
-    const timer = setTimeout(() => {
-      window.location.reload();
-    }, 2000);
-    return () => clearTimeout(timer);
+    // КРИТИЧНО: НЕ делаем автоматическую перезагрузку - это вызывает спонтанные релоады
+    // Вместо этого показываем ошибку и позволяем пользователю решить
+    console.warn("[App] RefundPolicy module failed - user can manually reload if needed");
   }, []);
-  return <PageLoader />;
+  return (
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
+      <div className="max-w-md w-full space-y-4 text-center">
+        <h1 className="text-2xl font-bold text-white">Ошибка загрузки</h1>
+        <p className="text-sm text-zinc-400">
+          Не удалось загрузить модуль. Попробуйте обновить страницу.
+        </p>
+        <button
+          onClick={() => {
+            if (typeof window !== 'undefined') {
+              window.location.reload();
+            }
+          }}
+          className="w-full h-12 px-4 bg-white text-black font-semibold rounded-xl hover:shadow-lg transition-shadow"
+        >
+          Обновить страницу
+        </button>
+      </div>
+    </div>
+  );
 }
 
 // Обработка ошибок для lazy loading RefundPolicy

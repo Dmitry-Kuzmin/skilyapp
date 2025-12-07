@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 export function useSessionManager() {
   const { profileId } = useUserContext();
   const { deviceInfo, isRegistered } = useDeviceFingerprint();
+  const navigate = useNavigate();
   const sessionTokenRef = useRef<string | null>(null);
   const heartbeatIntervalRef = useRef<number | null>(null);
   const hasInitializedRef = useRef(false);
@@ -204,8 +205,9 @@ export function useSessionManager() {
           duration: 5000,
         });
         
-        // Перезагружаем страницу для повторной авторизации
-        window.location.reload();
+        // КРИТИЧНО: Используем navigate вместо reload - это предотвращает спонтанные перезагрузки
+        // Перенаправляем на страницу авторизации
+        navigate('/');
         return false;
       }
 
