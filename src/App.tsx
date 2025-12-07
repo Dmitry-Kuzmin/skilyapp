@@ -300,8 +300,9 @@ const App = () => {
       const cleanUrl = cleanPath + cleanSearch + window.location.hash;
       window.history.replaceState({}, '', cleanUrl);
       
-      // Перезагружаем страницу для применения правильного роутинга
-      window.location.reload();
+      // КРИТИЧНО: НЕ делаем автоматическую перезагрузку - это вызывает спонтанные релоады
+      // React Router сам обработает изменение URL без перезагрузки страницы
+      // window.location.reload(); // УДАЛЕНО - вызывает спонтанные перезагрузки
     }
   }, []);
 

@@ -389,11 +389,18 @@ export function NotificationsPanel({
       
       // Сохраняем observer для очистки
       (node as any).__resizeObserver = resizeObserver;
+      
+      // КРИТИЧНО: Возвращаем функцию cleanup для правильного удаления observer
+      return () => {
+        resizeObserver.disconnect();
+        (node as any).__resizeObserver = null;
+      };
     } else if (parentRef.current) {
       // Очищаем observer при размонтировании
       const observer = (parentRef.current as any).__resizeObserver;
       if (observer) {
         observer.disconnect();
+        (parentRef.current as any).__resizeObserver = null;
       }
     }
   }, [containerHeight, containerWidth]);
