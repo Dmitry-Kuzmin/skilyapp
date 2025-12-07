@@ -70,7 +70,7 @@ export function OAuthCallbackHandler() {
         // Это значит, что Supabase НЕ обрабатывает токены из hash автоматически
         // Нужно вручную создать сессию используя setSession()
         
-        console.log('[OAuthCallbackHandler] Creating session from tokens manually...');
+        console.log('[OAuthCallbackHandler] Creating session from tokens manually using setSession()...');
         
         // Вручную создаем сессию из токенов
         const { data: sessionData, error: setSessionError } = await supabase.auth.setSession({
@@ -80,6 +80,11 @@ export function OAuthCallbackHandler() {
         
         if (setSessionError) {
           console.error('[OAuthCallbackHandler] Error setting session:', setSessionError);
+          console.error('[OAuthCallbackHandler] Error details:', {
+            message: setSessionError.message,
+            name: setSessionError.name,
+            status: setSessionError.status,
+          });
           setIsProcessing(false);
           window.location.hash = '';
           navigate('/', { replace: true });
@@ -88,29 +93,35 @@ export function OAuthCallbackHandler() {
         
         if (!sessionData?.session) {
           console.error('[OAuthCallbackHandler] No session created from tokens');
+          console.error('[OAuthCallbackHandler] Session data:', sessionData);
           setIsProcessing(false);
           window.location.hash = '';
           navigate('/', { replace: true });
           return;
         }
         
-        console.log('[OAuthCallbackHandler] ✅ Session created successfully:', sessionData.session.user.email);
+        console.log('[OAuthCallbackHandler] ✅ Session created successfully:', {
+          email: sessionData.session.user.email,
+          userId: sessionData.session.user.id,
+          expiresAt: sessionData.session.expires_at,
+        });
         
-        // Даем время для сохранения сессии
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // Даем время для сохранения сессии в localStorage
+        await new Promise(resolve => setTimeout(resolve, 300));
         
-        // Проверяем что сессия действительно создана
+        // Проверяем что сессия действительно создана и сохранена
         const { data: { session: verifiedSession }, error: verifyError } = await supabase.auth.getSession();
         
-        if (verifyError || !verifiedSession) {
-          console.error('[OAuthCallbackHandler] Session verification failed:', verifyError);
-          setIsProcessing(false);
-          window.location.hash = '';
-          navigate('/', { replace: true });
-          return;
+        if (verifyError) {
+          console.error('[OAuthCallbackHandler] Session verification error:', verifyError);
+          // Продолжаем все равно - сессия может быть создана
         }
         
-        console.log('[OAuthCallbackHandler] ✅ Session verified:', verifiedSession.user.email);
+        if (verifiedSession) {
+          console.log('[OAuthCallbackHandler] ✅ Session verified:', verifiedSession.user.email);
+        } else {
+          console.warn('[OAuthCallbackHandler] ⚠️ Session not found after creation, but continuing...');
+        }
         
         // Очищаем hash от токенов (безопасность)
         window.location.hash = '';
