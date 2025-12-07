@@ -232,14 +232,14 @@ BEGIN
       SELECT COALESCE(json_agg(achievement_data), '[]'::json)
       FROM (
         SELECT json_build_object(
-          'id', a.id,
-          'achievement_type', a.achievement_type,
-          'title', a.title,
-          'description', a.description,
-          'unlocked', a.unlocked,
-          'progress', a.progress,
-          'max_progress', a.max_progress,
-          'unlocked_at', a.unlocked_at
+        'id', a.id,
+        'achievement_type', a.achievement_type,
+        'title', a.title,
+        'description', a.description,
+        'unlocked', a.unlocked,
+        'progress', a.progress,
+        'max_progress', a.max_progress,
+        'unlocked_at', a.unlocked_at
         ) as achievement_data
         FROM achievements a
         WHERE a.user_id = p_user_id

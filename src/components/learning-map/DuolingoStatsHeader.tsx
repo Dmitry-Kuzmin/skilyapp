@@ -14,7 +14,7 @@ export const DuolingoStatsHeader = () => {
     xp: xp || 0,
     streak: streakDays || 0,
     gems: xp || 0, // Используем XP как gems для простоты
-    hearts: 5, // Можно добавить систему жизней позже
+        hearts: 5, // Можно добавить систему жизней позже
   };
 
   return (

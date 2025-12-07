@@ -267,34 +267,34 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
     debugLog('[useNotifications] Loading notifications for profileId:', profileId);
     
     try {
-      // ОПТИМИЗАЦИЯ: Загружаем только последние 30 уведомлений вместо 100
-      // Пагинация будет добавлена позже при необходимости
-      const { data, error } = await supabase
-        .from('duel_notifications')
-        .select('*')
-        .eq('user_id', profileId)
-        .order('created_at', { ascending: false })
-        .limit(30); // Оптимизировано: было 100, стало 30
+    // ОПТИМИЗАЦИЯ: Загружаем только последние 30 уведомлений вместо 100
+    // Пагинация будет добавлена позже при необходимости
+    const { data, error } = await supabase
+      .from('duel_notifications')
+      .select('*')
+      .eq('user_id', profileId)
+      .order('created_at', { ascending: false })
+      .limit(30); // Оптимизировано: было 100, стало 30
 
-      if (error) {
-        console.error('[useNotifications] Error loading notifications:', error);
-        console.error('[useNotifications] Error details:', JSON.stringify(error, null, 2));
-        return;
-      }
+    if (error) {
+      console.error('[useNotifications] Error loading notifications:', error);
+      console.error('[useNotifications] Error details:', JSON.stringify(error, null, 2));
+      return;
+    }
 
-      debugLog('[useNotifications] Loaded notifications:', data?.length || 0);
-      if (data && data.length > 0) {
-        debugLog('[useNotifications] Sample notification:', data[0]);
-      }
-      
-      if (data) {
-        // Filter out progress notifications on client side
-        const filteredData = data.filter(n => !MUTED_NOTIFICATION_TYPES.has(n.type));
-        deliveredNotificationIdsRef.current = new Set(filteredData.map((n) => n.id));
-        setNotifications(filteredData);
-        const unread = filteredData.filter(n => !n.is_read).length;
-        setUnreadCount(unread);
-        debugLog('[useNotifications] Filtered notifications:', filteredData.length, 'Unread count:', unread);
+    debugLog('[useNotifications] Loaded notifications:', data?.length || 0);
+    if (data && data.length > 0) {
+      debugLog('[useNotifications] Sample notification:', data[0]);
+    }
+    
+    if (data) {
+      // Filter out progress notifications on client side
+      const filteredData = data.filter(n => !MUTED_NOTIFICATION_TYPES.has(n.type));
+      deliveredNotificationIdsRef.current = new Set(filteredData.map((n) => n.id));
+      setNotifications(filteredData);
+      const unread = filteredData.filter(n => !n.is_read).length;
+      setUnreadCount(unread);
+      debugLog('[useNotifications] Filtered notifications:', filteredData.length, 'Unread count:', unread);
       }
     } finally {
       loadingNotificationsRef.current = false;

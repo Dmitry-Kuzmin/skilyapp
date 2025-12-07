@@ -291,14 +291,20 @@ export function NotificationsPanel({
   }, [filteredNotifications]);
 
   // ОПТИМИЗАЦИЯ: Виртуализатор для больших списков
+  // КРИТИЧНО: Создаем только если есть элементы для виртуализации
   const rowVirtualizer = useVirtualizer({
     count: flatList.length,
-    getScrollElement: () => parentRef.current,
+    getScrollElement: () => {
+      // Защита от undefined (может быть вызвано до рендера)
+      if (!parentRef.current) return null;
+      return parentRef.current;
+    },
     estimateSize: (index) => {
       const item = flatList[index];
       return item.type === 'header' ? 40 : 120; // Заголовок ~40px, уведомление ~120px
     },
     overscan: 5, // Рендерим 5 элементов сверху и снизу для плавности скролла
+    enabled: flatList.length > 10, // Включаем только для больших списков
   });
 
   const handleNotificationClick = useCallback((notification: DuelNotification) => {

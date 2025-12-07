@@ -173,23 +173,23 @@ export function useDashboardData() {
 // Fallback функция для старого способа загрузки (если новый RPC не работает)
 async function fetchDashboardFallback(profileId: string): Promise<DashboardData | null> {
   const [profileResult, sessionsResult, bonusResult, tasksResult, achievementsResult, rewardsResult] = await Promise.all([
-    supabase
-      .from('profiles')
+          supabase
+            .from('profiles')
       .select('id, rank, xp, coins, boosts, streak_days, settings')
-      .eq('id', profileId)
-      .maybeSingle(),
-    
-    supabase
-      .from('game_sessions')
-      .select('total_questions, score')
+            .eq('id', profileId)
+            .maybeSingle(),
+          
+          supabase
+            .from('game_sessions')
+            .select('total_questions, score')
       .eq('user_id', profileId)
       .or('game_type.eq.test_exam,game_type.eq.test_practice'),
-    
-    supabase
-      .from('user_daily_bonus')
-      .select('id, current_streak, last_claimed_date, total_claims')
-      .eq('user_id', profileId)
-      .maybeSingle(),
+          
+          supabase
+            .from('user_daily_bonus')
+            .select('id, current_streak, last_claimed_date, total_claims')
+            .eq('user_id', profileId)
+            .maybeSingle(),
 
     supabase
       .from('daily_tasks')
@@ -214,44 +214,44 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
   if (profileResult.error) throw profileResult.error;
   if (sessionsResult.error) throw sessionsResult.error;
 
-  const profile = profileResult.data;
+        const profile = profileResult.data;
   if (!profile) return null;
-
-  const sessions = sessionsResult.data || [];
+        
+        const sessions = sessionsResult.data || [];
   const testsCompleted = sessions.length;
   const totalQuestions = sessions.reduce((acc, s) => acc + (s.total_questions || 0), 0);
   const correctAnswers = sessions.reduce((acc, s) => acc + (s.score || 0), 0);
-  const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+        const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
 
-  const bonus = bonusResult.data;
-  const today = new Date().toISOString().split('T')[0];
+        const bonus = bonusResult.data;
+        const today = new Date().toISOString().split('T')[0];
 
   return {
-    profile: {
-      id: profile.id,
-      rank: profile.rank || 'Ученик',
-      xp: profile.xp || 0,
-      coins: profile.coins || 0,
-      boosts: profile.boosts || 0,
-      streak_days: profile.streak_days || 0,
+          profile: {
+            id: profile.id,
+            rank: profile.rank || 'Ученик',
+            xp: profile.xp || 0,
+            coins: profile.coins || 0,
+            boosts: profile.boosts || 0,
+            streak_days: profile.streak_days || 0,
       settings: profile.settings || {},
-    },
-    stats: {
-      tests_completed: testsCompleted,
-      total_questions: totalQuestions,
-      correct_answers: correctAnswers,
-      accuracy: accuracy,
-    },
-    daily_bonus: {
-      id: bonus?.id || null,
-      current_streak: bonus?.current_streak || 0,
-      last_claimed_date: bonus?.last_claimed_date || null,
-      total_claims: bonus?.total_claims || 0,
-      can_claim: !bonus?.last_claimed_date || bonus.last_claimed_date !== today,
-    },
-    dailyTasks: tasksResult.data || [],
-    recentAchievements: achievementsResult.data || [],
-    weeklyRewards: rewardsResult.data || [],
+          },
+          stats: {
+            tests_completed: testsCompleted,
+            total_questions: totalQuestions,
+            correct_answers: correctAnswers,
+            accuracy: accuracy,
+          },
+          daily_bonus: {
+            id: bonus?.id || null,
+            current_streak: bonus?.current_streak || 0,
+            last_claimed_date: bonus?.last_claimed_date || null,
+            total_claims: bonus?.total_claims || 0,
+            can_claim: !bonus?.last_claimed_date || bonus.last_claimed_date !== today,
+          },
+        dailyTasks: tasksResult.data || [],
+        recentAchievements: achievementsResult.data || [],
+        weeklyRewards: rewardsResult.data || [],
   };
 }
 

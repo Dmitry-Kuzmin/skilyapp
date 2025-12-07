@@ -68,7 +68,7 @@ export function usePremium() {
 
       // Fallback: Edge Function (только если Super RPC не вернул данные)
       console.warn('[usePremium] ⚠️ Super RPC premium data not available, using Edge Function');
-      
+
       const { data, error } = await supabase.functions.invoke("premium-status", {
         body: { user_id: profileId },
       });
