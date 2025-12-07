@@ -12,7 +12,7 @@ CREATE OR REPLACE FUNCTION get_dashboard_super(p_user_id UUID)
 RETURNS JSON
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public;
 AS $$
 DECLARE
   v_profile RECORD;
@@ -232,23 +232,14 @@ BEGIN
       WHERE dt.user_id = p_user_id AND dt.date = CURRENT_DATE
     ),
     'recent_achievements', (
-      SELECT COALESCE(json_agg(json_build_object(
-        'id', a.id,
-        'achievement_type', a.achievement_type,
-        'title', a.title,
-        'description', a.description,
-        'unlocked', a.unlocked,
-        'progress', a.progress,
-        'max_progress', a.max_progress,
-        'unlocked_at', a.unlocked_at
-      ), '[]'::json)
+      SELECT COALESCE(json_agg(achievement_data), '[]'::json)
       FROM (
         SELECT json_build_object(
           'id', a.id,
+          'achievement_type', a.achievement_type,
           'title', a.title,
           'description', a.description,
-          'reward', a.reward,
-          'icon', a.icon,
+          'unlocked', a.unlocked,
           'progress', a.progress,
           'max_progress', a.max_progress,
           'unlocked_at', a.unlocked_at
@@ -260,11 +251,7 @@ BEGIN
       ) achievements_ordered
     ),
     'weekly_rewards', (
-      SELECT COALESCE(json_agg(json_build_object(
-        'day_number', dbd.day_number,
-        'reward', dbd.reward,
-        'description', dbd.description
-      ), '[]'::json)
+      SELECT COALESCE(json_agg(bonus_data), '[]'::json)
       FROM (
         SELECT json_build_object(
           'day_number', dbd.day_number,
