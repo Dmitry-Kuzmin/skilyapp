@@ -124,10 +124,11 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         
         onClose();
         
-        // КРИТИЧНО: Редиректим на /dashboard, а не на /, чтобы UserProvider обновил состояние
-        // На /dashboard UserProvider уже загружен и сможет обработать onAuthStateChange
+        // КРИТИЧНО: Используем window.location.href для полного перезапуска приложения
+        // Это гарантирует, что UserProvider загрузится и обработает новую сессию
+        // Особенно важно на лендинге, где UserProvider может отсутствовать
         setTimeout(() => {
-          navigate('/dashboard', { replace: true });
+          window.location.href = '/dashboard';
         }, 300);
       } catch (error) {
         console.error('[AuthModalNew] Telegram login error:', error);
@@ -252,11 +253,11 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
       if (step === 'password-new') {
         // Регистрация
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email: validated.email,
           password: validated.password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`,
+            emailRedirectTo: `${window.location.origin}/dashboard`,
             data: {
               first_name: validated.email.split('@')[0],
             }
@@ -277,19 +278,53 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
           return;
         }
 
+        // КРИТИЧНО: После signUp проверяем, есть ли уже сессия
+        // Если email подтверждения не требуется, сессия создается сразу
+        if (signUpData?.session) {
+          console.log('[AuthModalNew] Session created immediately after signUp');
+        } else {
+          console.log('[AuthModalNew] Email confirmation required, waiting for session...');
+        }
+
         // Получаем user ID после регистрации
-        const { data: { user: newUser } } = await supabase.auth.getUser();
+        // КРИТИЧНО: После signUp нужно подождать, пока Supabase создаст сессию
+        // Проверяем сессию несколько раз, так как она может создаваться асинхронно
+        let newUser = null;
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        while (!newUser && attempts < maxAttempts) {
+          const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
+          if (currentUser && !userError) {
+            newUser = currentUser;
+            break;
+          }
+          attempts++;
+          if (attempts < maxAttempts) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+          }
+        }
         
         if (newUser) {
-          // Ждем создания профиля
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          // Получаем profile ID
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('user_id', newUser.id)
-            .single();
+          // Ждем создания профиля (может быть задержка из-за триггеров в БД)
+          let profile = null;
+          attempts = 0;
+          while (!profile && attempts < 10) {
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('id')
+              .eq('user_id', newUser.id)
+              .maybeSingle();
+            
+            if (profileData?.id) {
+              profile = profileData;
+              break;
+            }
+            attempts++;
+            if (attempts < 10) {
+              await new Promise(resolve => setTimeout(resolve, 500));
+            }
+          }
 
           // Проверяем partner code (приоритет над referral)
           const partnerDataStr = sessionStorage.getItem('partner_code');
@@ -356,11 +391,25 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
         onClose();
         
-        // КРИТИЧНО: Редиректим на /dashboard, а не на /, чтобы UserProvider обновил состояние
-        // На /dashboard UserProvider уже загружен и сможет обработать onAuthStateChange
-        setTimeout(() => {
-          navigate('/dashboard', { replace: true });
-        }, 500);
+        // КРИТИЧНО: Ждем обновления сессии перед редиректом
+        // Проверяем, что сессия обновилась, и только потом редиректим
+        let attempts = 0;
+        const maxAttempts = 10;
+        const checkSession = async () => {
+          const { data: { session: currentSession } } = await supabase.auth.getSession();
+          if (currentSession?.user || attempts >= maxAttempts) {
+            // Сессия обновлена или превышено время ожидания - редиректим
+            // Используем window.location.href для полного перезапуска приложения
+            // Это гарантирует, что UserProvider загрузится и обработает новую сессию
+            window.location.href = '/dashboard';
+          } else {
+            attempts++;
+            setTimeout(checkSession, 200);
+          }
+        };
+        
+        // Начинаем проверку через небольшую задержку
+        setTimeout(checkSession, 300);
       } else {
         // Вход
         const { error } = await supabase.auth.signInWithPassword({
@@ -389,11 +438,36 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
         onClose();
         
-        // КРИТИЧНО: Редиректим на /dashboard, а не на /, чтобы UserProvider обновил состояние
-        // На /dashboard UserProvider уже загружен и сможет обработать onAuthStateChange
-        setTimeout(() => {
-          navigate('/dashboard', { replace: true });
-        }, 300);
+        // КРИТИЧНО: Ждем обновления сессии перед редиректом
+        // Проверяем, что сессия обновилась, и только потом редиректим
+        // Используем window.location.href для полного перезапуска приложения
+        // Это гарантирует, что UserProvider загрузится и обработает новую сессию
+        let attempts = 0;
+        const maxAttempts = 15; // Увеличиваем до 15 попыток (3 секунды)
+        const checkSession = async () => {
+          const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+          
+          if (currentSession?.user) {
+            console.log('[AuthModalNew] Session confirmed after signIn, redirecting to dashboard');
+            window.location.href = '/dashboard';
+            return;
+          }
+          
+          if (attempts >= maxAttempts) {
+            console.warn('[AuthModalNew] Max attempts reached after signIn, redirecting anyway');
+            // Даже если сессия не подтверждена, редиректим
+            // UserProvider на dashboard проверит сессию при загрузке
+            window.location.href = '/dashboard';
+            return;
+          }
+          
+          attempts++;
+          console.log(`[AuthModalNew] Waiting for session after signIn... (attempt ${attempts}/${maxAttempts})`);
+          setTimeout(checkSession, 200);
+        };
+        
+        // Начинаем проверку сразу после закрытия модалки
+        setTimeout(checkSession, 100);
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
