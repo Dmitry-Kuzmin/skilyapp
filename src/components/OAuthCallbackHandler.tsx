@@ -25,15 +25,31 @@ export function OAuthCallbackHandler() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
+    // Логируем каждый раз, когда компонент монтируется или location меняется
+    console.log('[OAuthCallbackHandler] Component mounted/updated, checking for OAuth tokens...', {
+      pathname: location.pathname,
+      hash: window.location.hash ? window.location.hash.substring(0, 50) + '...' : 'empty',
+      hasProcessed: hasProcessedRef.current,
+    });
+
     // Предотвращаем повторную обработку
     if (hasProcessedRef.current) {
+      console.log('[OAuthCallbackHandler] Already processed, skipping');
       return;
     }
 
     const handleOAuthCallback = async () => {
       // Проверяем наличие токенов в URL hash
       const hash = window.location.hash;
+      console.log('[OAuthCallbackHandler] Checking hash:', {
+        hasHash: !!hash,
+        hashLength: hash?.length || 0,
+        containsAccessToken: hash?.includes('access_token') || false,
+        hashPreview: hash ? hash.substring(0, 100) + '...' : 'empty',
+      });
+      
       if (!hash || !hash.includes('access_token')) {
+        console.log('[OAuthCallbackHandler] No OAuth tokens in hash, exiting');
         return; // Нет OAuth токенов в URL
       }
 
