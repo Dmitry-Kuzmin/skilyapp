@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
@@ -17,6 +17,7 @@ export function AuthCallback() {
   const navigate = useNavigate();
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [error, setError] = useState<string | null>(null);
+  const hasRedirectedRef = useRef(false);
 
   useEffect(() => {
     console.log('[AuthCallback] Component mounted, checking for OAuth tokens...');
@@ -36,7 +37,38 @@ export function AuthCallback() {
 
     console.log('[AuthCallback] OAuth tokens detected, waiting for Supabase to process...');
 
-    // Supabase JS автоматически обработает токены из hash
+    // Функция для безопасного редиректа (предотвращает множественные редиректы)
+    const redirectToDashboard = async () => {
+      if (hasRedirectedRef.current) {
+        console.log('[AuthCallback] Already redirected, skipping');
+        return;
+      }
+
+      hasRedirectedRef.current = true;
+      setStatus('success');
+
+      // Небольшая задержка, чтобы убедиться что сессия сохранена
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Проверяем что сессия действительно сохранена
+      const { data: { session: verifiedSession } } = await supabase.auth.getSession();
+      if (verifiedSession) {
+        console.log('[AuthCallback] ✅ Session verified, redirecting to dashboard...');
+        // Очищаем hash от токенов (безопасность)
+        window.location.hash = '';
+        // Используем window.location.href для полной перезагрузки
+        // Это гарантирует что UserProvider загрузится и обработает сессию
+        window.location.href = '/dashboard';
+      } else {
+        console.error('[AuthCallback] ⚠️ Session not found after verification');
+        setStatus('error');
+        setError('Session not found');
+        hasRedirectedRef.current = false; // Разрешаем повторить попытку
+        setTimeout(() => navigate('/', { replace: true }), 2000);
+      }
+    };
+
+    // Supabase JS автоматически обработает токены из hash (detectSessionInUrl: true)
     // Нам нужно только дождаться события SIGNED_IN
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -44,25 +76,7 @@ export function AuthCallback() {
 
         if (event === 'SIGNED_IN' && session) {
           console.log('[AuthCallback] ✅ Session established:', session.user.email);
-          setStatus('success');
-
-          // Небольшая задержка, чтобы убедиться что сессия сохранена в localStorage
-          await new Promise(resolve => setTimeout(resolve, 300));
-
-          // Проверяем что сессия действительно сохранена
-          const { data: { session: verifiedSession } } = await supabase.auth.getSession();
-          if (verifiedSession) {
-            console.log('[AuthCallback] ✅ Session verified, redirecting to dashboard...');
-            // Очищаем hash от токенов (безопасность)
-            window.location.hash = '';
-            // Редиректим на dashboard
-            navigate('/dashboard', { replace: true });
-          } else {
-            console.error('[AuthCallback] ⚠️ Session not found after SIGNED_IN event');
-            setStatus('error');
-            setError('Session not found after sign in');
-            setTimeout(() => navigate('/', { replace: true }), 2000);
-          }
+          await redirectToDashboard();
         } else if (event === 'SIGNED_OUT') {
           console.warn('[AuthCallback] User signed out during callback');
           setStatus('error');
@@ -76,21 +90,22 @@ export function AuthCallback() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         console.log('[AuthCallback] ✅ Session already exists:', session.user.email);
-        setStatus('success');
-        window.location.hash = '';
-        navigate('/dashboard', { replace: true });
+        redirectToDashboard();
       }
     });
 
     // Таймаут на случай если событие не придет
     const timeout = setTimeout(() => {
+      if (hasRedirectedRef.current) {
+        console.log('[AuthCallback] Already redirected, skipping timeout');
+        return;
+      }
+
       console.warn('[AuthCallback] ⚠️ Timeout waiting for SIGNED_IN event');
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session?.user) {
           console.log('[AuthCallback] ✅ Session found after timeout:', session.user.email);
-          setStatus('success');
-          window.location.hash = '';
-          navigate('/dashboard', { replace: true });
+          redirectToDashboard();
         } else {
           console.error('[AuthCallback] ❌ No session found after timeout');
           setStatus('error');

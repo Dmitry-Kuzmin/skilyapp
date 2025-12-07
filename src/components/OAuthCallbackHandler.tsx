@@ -25,6 +25,13 @@ export function OAuthCallbackHandler() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
+    // КРИТИЧНО: Не обрабатываем OAuth callback на /auth/callback
+    // Там это делает AuthCallback компонент
+    if (location.pathname === '/auth/callback') {
+      console.log('[OAuthCallbackHandler] Skipping - using AuthCallback page for OAuth');
+      return;
+    }
+
     // Логируем каждый раз, когда компонент монтируется или location меняется
     console.log('[OAuthCallbackHandler] Component mounted/updated, checking for OAuth tokens...', {
       pathname: location.pathname,
