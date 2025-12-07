@@ -207,15 +207,6 @@ export function NotificationsPanel({
     }
   }, [notifications, unreadCount, profileId]);
 
-  // Debug: логируем filteredNotifications при изменении
-  useEffect(() => {
-    console.log('[NotificationsPanel] 🔍 filteredNotifications changed:', {
-      count: filteredNotifications.length,
-      filter,
-      totalNotifications: notifications.length,
-    });
-  }, [filteredNotifications, filter, notifications.length]);
-
   // Filter notifications by type
   // Hide progress notifications (start, progress, boost, opponent_ahead, opponent_behind, reminder)
   // Show only results (finish, timeout)
