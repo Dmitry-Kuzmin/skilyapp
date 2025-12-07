@@ -352,8 +352,51 @@ export function NotificationsPanel({
     return groups;
   }, [filteredNotifications]);
 
-  // КРИТИЧНО: Отслеживаем готовность контейнера для виртуализации
-  const [isContainerReady, setIsContainerReady] = useState(false);
+  // КРИТИЧНО: Отслеживаем реальную высоту контейнера (Zero-Dimension Trap fix)
+  // Это решает проблему, когда виртуализатор инициализируется до того, как контейнер получит размеры
+  const [containerHeight, setContainerHeight] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  // КРИТИЧНО: Используем ref callback для отслеживания размеров контейнера
+  const setContainerRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) {
+      parentRef.current = node;
+      
+      // Используем ResizeObserver для отслеживания реальных размеров
+      const resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const { height, width } = entry.contentRect;
+          // Обновляем размеры только если они изменились (избегаем лишних ре-рендеров)
+          if (height > 0 && height !== containerHeight) {
+            setContainerHeight(height);
+          }
+          if (width > 0 && width !== containerWidth) {
+            setContainerWidth(width);
+          }
+        }
+      });
+      
+      resizeObserver.observe(node);
+      
+      // Проверяем размеры сразу (на случай, если они уже известны)
+      const rect = node.getBoundingClientRect();
+      if (rect.height > 0) {
+        setContainerHeight(rect.height);
+      }
+      if (rect.width > 0) {
+        setContainerWidth(rect.width);
+      }
+      
+      // Сохраняем observer для очистки
+      (node as any).__resizeObserver = resizeObserver;
+    } else if (parentRef.current) {
+      // Очищаем observer при размонтировании
+      const observer = (parentRef.current as any).__resizeObserver;
+      if (observer) {
+        observer.disconnect();
+      }
+    }
+  }, [containerHeight, containerWidth]);
 
   // ОПТИМИЗАЦИЯ: Виртуализатор для больших списков
   const rowVirtualizer = useVirtualizer({
@@ -375,57 +418,13 @@ export function NotificationsPanel({
     },
   });
 
-  // КРИТИЧНО: Отслеживаем готовность контейнера и форсируем пересчет виртуализатора
+  // КРИТИЧНО: Пересчет виртуализатора при изменении данных или размеров контейнера
   useEffect(() => {
-    if (!parentRef.current) return;
-    
-    // Проверяем, готов ли контейнер (имеет высоту)
-    const checkContainerReady = () => {
-      if (parentRef.current && parentRef.current.offsetHeight > 0) {
-        if (!isContainerReady) {
-          setIsContainerReady(true);
-        }
-        // Форсируем пересчет виртуализатора
-        if (flatList.length > 0 && rowVirtualizer) {
-          rowVirtualizer.measure();
-        }
-      }
-    };
-    
-    // Проверяем сразу
-    checkContainerReady();
-    
-    // Используем ResizeObserver для отслеживания изменений размера
-    const resizeObserver = new ResizeObserver(() => {
-      checkContainerReady();
-    });
-    
-    resizeObserver.observe(parentRef.current);
-    
-    // Также используем MutationObserver для отслеживания изменений DOM
-    const mutationObserver = new MutationObserver(() => {
-      checkContainerReady();
-    });
-    
-    mutationObserver.observe(parentRef.current, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-    });
-    
-    return () => {
-      resizeObserver.disconnect();
-      mutationObserver.disconnect();
-    };
-  }, [flatList.length, rowVirtualizer, isContainerReady]);
-
-  // КРИТИЧНО: Пересчет виртуализатора при изменении данных
-  useEffect(() => {
-    if (flatList.length > 0 && rowVirtualizer && isContainerReady) {
+    if (flatList.length > 0 && rowVirtualizer && containerHeight > 0) {
       // Пересчитываем размеры всех элементов при изменении данных
       rowVirtualizer.measure();
     }
-  }, [flatList.length, filter, rowVirtualizer, isContainerReady]);
+  }, [flatList.length, filter, rowVirtualizer, containerHeight]);
 
   const handleNotificationClick = useCallback((notification: DuelNotification) => {
     if (!notification.is_read) {
@@ -547,7 +546,7 @@ export function NotificationsPanel({
             // ОПТИМИЗАЦИЯ: Виртуализация для больших списков (> 10 элементов)
             // КРИТИЧНО: Контейнер должен иметь фиксированную высоту для работы виртуализации
             <div
-              ref={parentRef}
+              ref={setContainerRef}
               className="flex-1 overflow-y-auto contain-strict"
               style={{
                 scrollbarWidth: 'thin',
@@ -560,8 +559,8 @@ export function NotificationsPanel({
                   position: 'relative',
                 }}
               >
-                {/* КРИТИЧНО: Проверяем, что виртуализатор готов и есть элементы для рендеринга */}
-                {isContainerReady && rowVirtualizer.getVirtualItems().length > 0 ? (
+                {/* КРИТИЧНО: Рендерим ТОЛЬКО если контейнер имеет реальную высоту (Zero-Dimension Trap fix) */}
+                {containerHeight > 0 && rowVirtualizer.getVirtualItems().length > 0 ? (
                   rowVirtualizer.getVirtualItems().map((virtualItem) => {
                     const item = flatList[virtualItem.index];
                     
@@ -620,7 +619,7 @@ export function NotificationsPanel({
                     );
                   })
                 ) : (
-                  // Показываем placeholder, пока виртуализатор не готов
+                  // Показываем placeholder, пока контейнер не получил реальные размеры
                   <div className="flex items-center justify-center h-full text-muted-foreground text-sm py-8">
                     {flatList.length > 0 ? 'Загрузка...' : 'Нет уведомлений'}
                   </div>

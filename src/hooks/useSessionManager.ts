@@ -128,14 +128,14 @@ export function useSessionManager() {
     hasInitializedRef.current = true; // Помечаем как инициализированную сразу
     
     supabase.functions.invoke('manage-session', {
-      body: {
-        action: 'create',
-        user_id: profileId,
-        device_fingerprint: deviceInfo.fingerprint,
-        session_token: token,
-        user_agent: deviceInfo.userAgent,
-        platform: deviceInfo.platform,
-      },
+        body: {
+          action: 'create',
+          user_id: profileId,
+          device_fingerprint: deviceInfo.fingerprint,
+          session_token: token,
+          user_agent: deviceInfo.userAgent,
+          platform: deviceInfo.platform,
+        },
     }).then(({ data, error }) => {
       if (error) {
         console.warn('[SessionManager] Ошибка создания сессии (продолжаем работу):', error);
@@ -169,11 +169,11 @@ export function useSessionManager() {
 
     // Отправляем в фоне, не ждем ответа
     supabase.functions.invoke('manage-session', {
-      body: {
-        action: 'update',
-        user_id: profileId,
-        session_token: sessionTokenRef.current,
-      },
+        body: {
+          action: 'update',
+          user_id: profileId,
+          session_token: sessionTokenRef.current,
+        },
     }).catch((err) => {
       console.error('[SessionManager] Ошибка обновления сессии:', err);
     });
