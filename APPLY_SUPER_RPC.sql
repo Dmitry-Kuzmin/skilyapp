@@ -12,7 +12,7 @@ CREATE OR REPLACE FUNCTION get_dashboard_super(p_user_id UUID)
 RETURNS JSON
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public;
+SET search_path TO public
 AS $$
 DECLARE
   v_profile RECORD;
