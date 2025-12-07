@@ -171,8 +171,7 @@ export function NotificationsPanel({
   const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
   const [reminderModalOpen, setReminderModalOpen] = useState(false);
   const navigate = useNavigate();
-  const listRef = useRef<List>(null);
-  const sizeCache = useRef<Map<number, number>>(new Map());
+  const parentRef = useRef<HTMLDivElement>(null);
 
   // ОПТИМИЗАЦИЯ: Мемоизируем обработчик для предотвращения лишних ре-рендеров
   const toggleNotificationExpansion = useCallback((notificationId: string) => {
