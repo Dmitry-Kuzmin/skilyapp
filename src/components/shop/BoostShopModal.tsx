@@ -198,7 +198,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     if (open && !hasLoadedRef.current && profileId) {
       console.log('[BoostShopModal] Загрузка данных, profileId:', profileId);
       hasLoadedRef.current = true;
-      loadData();
+        loadData();
     } else if (!open) {
       // Сбрасываем флаг при закрытии
       hasLoadedRef.current = false;
@@ -206,7 +206,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       console.warn('[BoostShopModal] Модалка открыта, но profileId отсутствует');
     } else if (open && hasLoadedRef.current) {
       console.log('[BoostShopModal] Данные уже загружены, пропускаем');
-    }
+      }
   }, [open, profileId]);
 
   // Загружаем историю транзакций при переключении на вкладку "История"

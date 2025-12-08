@@ -61,7 +61,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="border-t border-border/50 bg-background/95 backdrop-blur-xl mt-auto pb-28 md:pb-6">
+    <footer className="border-t border-border/50 bg-background/95 backdrop-blur-xl mt-auto pb-4 md:pb-6">
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row items-start justify-between gap-6 text-center md:text-left">
           {/* Logo/Brand */}

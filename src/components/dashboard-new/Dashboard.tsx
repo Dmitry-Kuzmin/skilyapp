@@ -162,7 +162,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   }, []);
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-10 pt-4 md:pt-6 pb-24 font-sans">
+    <div className="w-full px-4 sm:px-6 lg:px-10 pt-4 md:pt-6 pb-6 md:pb-8 font-sans">
       <div className="max-w-[1370px] mx-auto space-y-6">
         
         {/* Header */}

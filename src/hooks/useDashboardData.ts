@@ -126,7 +126,7 @@ export function useDashboardData() {
   const userContext = useContext(UserContext);
   const profileId = userContext?.profileId ?? null;
   const queryClient = useSafeQueryClient();
-  
+
   const {
     data,
     isLoading: loading,

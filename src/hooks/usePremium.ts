@@ -131,7 +131,7 @@ export function usePremium() {
   // Функция для инвалидации кэша (полезно после покупки premium)
   const invalidate = () => {
     if (queryClient) {
-      queryClient.invalidateQueries({ queryKey: [PREMIUM_QUERY_KEY, profileId] });
+    queryClient.invalidateQueries({ queryKey: [PREMIUM_QUERY_KEY, profileId] });
     }
   };
 
@@ -142,7 +142,7 @@ export function usePremium() {
       loading: false,
       refresh: async () => {},
       invalidate: () => {},
-    };
+  };
   }
 
   return {
