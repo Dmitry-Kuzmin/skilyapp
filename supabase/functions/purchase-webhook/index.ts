@@ -151,18 +151,21 @@ serve(async (req) => {
 
           if (coinsAfter < coinsBefore + coins) {
             console.error(`[purchase-webhook] ⚠️ Coins not added correctly! Before: ${coinsBefore}, After: ${coinsAfter}, Expected: ${coinsBefore + coins}`);
-            // Пытаемся начислить вручную через UPDATE
-            const { error: updateError } = await supabase
-              .from("profiles")
-              .update({ coins: coinsBefore + coins })
-              .eq("id", userId);
             
-            if (updateError) {
-              console.error(`[purchase-webhook] ❌ Failed to fix coins manually:`, updateError);
-              throw new Error(`Failed to add coins: RPC and manual update both failed`);
+            // Повторная попытка через RPC (атомарно)
+            const missingCoins = (coinsBefore + coins) - coinsAfter;
+            const { error: retryError } = await supabase.rpc("increment_profile_value", {
+              p_profile_id: userId,
+              p_column: "coins",
+              p_amount: missingCoins,
+            });
+            
+            if (retryError) {
+              console.error(`[purchase-webhook] ❌ Retry failed:`, retryError);
+              throw new Error(`Failed to add coins: RPC failed twice`);
             }
             
-            console.log(`[purchase-webhook] ✅ Fixed coins manually: ${coinsBefore} → ${coinsBefore + coins}`);
+            console.log(`[purchase-webhook] ✅ Fixed coins via retry: ${coinsAfter} → ${coinsAfter + missingCoins}`);
           }
 
           await supabase.from("transactions").insert({

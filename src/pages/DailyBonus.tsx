@@ -223,12 +223,27 @@ const DailyBonus = () => {
       setRestoringStreak(true);
 
       const today = new Date().toISOString().split('T')[0];
-      const newCoins = userCoins - 10;
 
-      await supabase
+      // КРИТИЧНО: Используем атомарную операцию для списания монет
+      const { error: coinsError } = await supabase.rpc('increment_profile_value', {
+        p_profile_id: profileId,
+        p_column: 'coins',
+        p_amount: -10, // Отрицательное значение для списания
+      });
+
+      if (coinsError) {
+        console.error('[DailyBonus] Error decrementing coins:', coinsError);
+        throw new Error(coinsError.message || 'Не удалось списать монеты');
+      }
+
+      // Получаем новый баланс после списания
+      const { data: updatedProfile } = await supabase
         .from('profiles')
-        .update({ coins: newCoins })
-        .eq('id', profileId);
+        .select('coins')
+        .eq('id', profileId)
+        .single();
+
+      const newCoins = updatedProfile?.coins || userCoins - 10;
 
       await (supabase as any)
         .from('user_daily_bonus')

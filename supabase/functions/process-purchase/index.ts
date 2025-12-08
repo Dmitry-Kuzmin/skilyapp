@@ -227,21 +227,24 @@ serve(async (req) => {
 
         if (coinsAfter < coinsBefore + coins) {
           console.error(`[process-purchase] ⚠️ Coins not added correctly! Before: ${coinsBefore}, After: ${coinsAfter}, Expected: ${coinsBefore + coins}`);
-          // Пытаемся начислить вручную через UPDATE
-          const { error: updateError } = await supabase
-            .from("profiles")
-            .update({ coins: coinsBefore + coins })
-            .eq("id", userId);
           
-          if (updateError) {
-            console.error(`[process-purchase] Failed to fix coins manually:`, updateError);
+          // Повторная попытка через RPC (атомарно)
+          const missingCoins = (coinsBefore + coins) - coinsAfter;
+          const { error: retryError } = await supabase.rpc("increment_profile_value", {
+            p_profile_id: userId,
+            p_column: "coins",
+            p_amount: missingCoins,
+          });
+          
+          if (retryError) {
+            console.error(`[process-purchase] Retry failed:`, retryError);
             return new Response(
-              JSON.stringify({ error: "Failed to add coins", details: "RPC and manual update both failed" }),
+              JSON.stringify({ error: "Failed to add coins", details: "RPC failed twice" }),
               { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
             );
           }
           
-          console.log(`[process-purchase] ✅ Fixed coins manually: ${coinsBefore} → ${coinsBefore + coins}`);
+          console.log(`[process-purchase] ✅ Fixed coins via retry: ${coinsAfter} → ${coinsAfter + missingCoins}`);
         }
 
         await supabase.from("transactions").insert({
