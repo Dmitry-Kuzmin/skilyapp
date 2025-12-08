@@ -1,6 +1,42 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useUserContext } from '@/contexts/UserContext';
+import { useContext } from 'react';
+import { UserContext } from '@/contexts/UserContext';
+
+// Безопасная обертка для useQueryClient - возвращает null если провайдер отсутствует
+function useSafeQueryClient() {
+  try {
+    return useQueryClient();
+  } catch (error) {
+    // QueryClientProvider отсутствует - возвращаем null
+    return null;
+  }
+}
+
+// Безопасная обертка для useQuery - возвращает заглушку если QueryClient отсутствует
+// ВАЖНО: Всегда вызываем useQuery для соблюдения правил хуков, но с enabled: false если нет queryClient
+function useSafeQuery<T>(options: Parameters<typeof useQuery<T>>[0] & { enabled?: boolean }) {
+  const queryClient = useSafeQueryClient();
+  const hasQueryClient = !!queryClient;
+  
+  // Всегда вызываем useQuery, но с enabled: false если нет queryClient
+  const queryResult = useQuery<T>({
+    ...options,
+    enabled: hasQueryClient && (options.enabled !== false),
+  });
+  
+  // Если нет queryClient, возвращаем заглушку
+  if (!hasQueryClient) {
+    return {
+      data: undefined,
+      isLoading: false,
+      error: null,
+      refetch: async () => ({ data: undefined, error: null }),
+    };
+  }
+  
+  return queryResult;
+}
 
 interface DashboardStats {
   profile: {
@@ -85,15 +121,17 @@ const DASHBOARD_QUERY_KEY = 'dashboard-data';
  * - Daily Bonus Definitions
  */
 export function useDashboardData() {
-  const { profileId } = useUserContext();
-  const queryClient = useQueryClient();
-
+  // Безопасное обращение к UserContext и QueryClient
+  const userContext = useContext(UserContext);
+  const profileId = userContext?.profileId ?? null;
+  const queryClient = useSafeQueryClient();
+  
   const {
     data,
     isLoading: loading,
     error,
     refetch,
-  } = useQuery<DashboardData | null>({
+  } = useSafeQuery<DashboardData | null>({
     queryKey: [DASHBOARD_QUERY_KEY, profileId],
     queryFn: async () => {
       if (!profileId) return null;

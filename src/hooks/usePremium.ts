@@ -1,8 +1,18 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { UserContext } from "@/contexts/UserContext";
 import { useDashboardData } from "./useDashboardData";
+
+// Безопасная обертка для useQueryClient - возвращает null если провайдер отсутствует
+function useSafeQueryClient() {
+  try {
+    return useQueryClient();
+  } catch (error) {
+    // QueryClientProvider отсутствует - возвращаем null
+    return null;
+  }
+}
 
 interface PremiumState {
   isPremium: boolean;
@@ -38,19 +48,20 @@ export function usePremium() {
   // Безопасное обращение к UserContext: если провайдер отсутствует (лендинг/глобальная модалка), возвращаем статику
   const userContext = useContext(UserContext);
   const profileId = userContext?.profileId ?? null;
-  const queryClient = useQueryClient();
+  const queryClient = useSafeQueryClient();
   
-  // Если нет контекста — не дергаем лишние хуки/запросы, возвращаем заглушку
-  if (!userContext) {
-    return {
+  // Если нет контекста или QueryClient — не дергаем лишние хуки/запросы, возвращаем заглушку
+  if (!userContext || !queryClient) {
+    return useMemo(() => ({
       ...initialState,
       loading: false,
       refresh: async () => {},
       invalidate: () => {},
-    };
+    }), []);
   }
 
   // ОПТИМИЗАЦИЯ: Пытаемся взять premium из Super RPC Dashboard
+  // useDashboardData теперь безопасный и вернет null если QueryClient отсутствует
   const { data: dashboardData } = useDashboardData();
 
   const {
