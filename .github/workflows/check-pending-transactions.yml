@@ -1,0 +1,77 @@
+name: Check Pending Transactions
+
+on:
+  schedule:
+    # Запускается каждый день в 04:00 UTC (через час после cleanup)
+    - cron: '0 4 * * *'
+  workflow_dispatch: # Можно запустить вручную через GitHub UI
+
+jobs:
+  check-pending:
+    runs-on: ubuntu-latest
+    name: Check and process pending transactions
+    
+    steps:
+      - name: Check pending transactions
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          echo "🔍 Starting check for pending transactions (Cryptomus, Paddle, Telegram Stars)..."
+          
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            -H "Content-Type: application/json" \
+            "$SUPABASE_URL/functions/v1/check-pending-transactions")
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "Response code: $HTTP_CODE"
+          echo "Response body: $BODY"
+          
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Check completed successfully"
+            echo "$BODY" | jq '.'
+            
+            # Показываем статистику
+            TOTAL_CHECKED=$(echo "$BODY" | jq -r '.total_checked // 0')
+            TOTAL_COMPLETED=$(echo "$BODY" | jq -r '.total_completed // 0')
+            TOTAL_FAILED=$(echo "$BODY" | jq -r '.total_failed // 0')
+            
+            echo ""
+            echo "📊 Summary:"
+            echo "   Checked: $TOTAL_CHECKED"
+            echo "   Completed: $TOTAL_COMPLETED"
+            echo "   Failed: $TOTAL_FAILED"
+            
+            # Проверяем ошибки
+            CRYPTOMUS_ERRORS=$(echo "$BODY" | jq -r '.results.cryptomus.errors // [] | length')
+            PADDLE_ERRORS=$(echo "$BODY" | jq -r '.results.paddle.errors // [] | length')
+            STARS_ERRORS=$(echo "$BODY" | jq -r '.results.telegram_stars.errors // [] | length')
+            
+            if [ "$CRYPTOMUS_ERRORS" -gt 0 ] || [ "$PADDLE_ERRORS" -gt 0 ] || [ "$STARS_ERRORS" -gt 0 ]; then
+              echo ""
+              echo "⚠️ Warnings:"
+              [ "$CRYPTOMUS_ERRORS" -gt 0 ] && echo "   Cryptomus errors: $CRYPTOMUS_ERRORS"
+              [ "$PADDLE_ERRORS" -gt 0 ] && echo "   Paddle errors: $PADDLE_ERRORS"
+              [ "$STARS_ERRORS" -gt 0 ] && echo "   Telegram Stars errors: $STARS_ERRORS"
+            fi
+          else
+            echo "❌ Check failed with code $HTTP_CODE"
+            echo "$BODY"
+            exit 1
+          fi
+      
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Pending Transactions Check Failed',
+              body: 'The daily pending transactions check failed. Please check the logs and verify payment gateway credentials.'
+            })
+
