@@ -59,11 +59,10 @@ export function UnifiedModal({
   zIndex,
 }: UnifiedModalProps) {
   const isMobile = useIsMobile();
+  const route = useModalRoute(modalRouteKey ?? undefined);
   
   const modalConfig = getModalConfig(modalType);
   const sizeConfig = isMobile ? modalConfig.mobile : modalConfig.desktop;
-  
-  const route = modalRouteKey ? useModalRoute(modalRouteKey) : null;
   
   const resolvedOpen = React.useMemo(() => {
     if (open !== undefined) {

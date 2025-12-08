@@ -65,7 +65,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   
   // ОПТИМИЗАЦИЯ: Мемоизируем все вычисления классов для избежания пересчетов при каждом рендере
   const themeClasses = useMemo(() => {
-    const pageBgClass = isDarkTheme ? 'bg-[#0f172a] text-white' : 'bg-[#f5f6fb] text-slate-900';
+    // УБРАНО: pageBgClass - используем фон из Layout (bg-background) для единообразия
     const heroBackground = isDarkTheme
       ? 'linear-gradient(135deg, #1e1b2e 0%, #2d1b4e 25%, #4c2d7a 50%, #6d4c9e 75%, #8b6fb8 100%)'
       : 'linear-gradient(135deg, #e0ebff 0%, #f0e5ff 30%, #ffe5f0 60%, #ffeef5 100%)';
@@ -111,7 +111,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
     const coinsIconColor = isDarkTheme ? 'text-amber-100' : 'text-amber-600';
     
     return {
-      pageBgClass,
       heroBackground,
       heroShadowClass,
       onlineBadgeClass,
@@ -163,7 +162,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   }, []);
 
   return (
-    <div className={`w-full ${themeClasses.pageBgClass} px-4 sm:px-6 lg:px-10 pt-4 md:pt-6 pb-24 font-sans`}>
+    <div className="w-full px-4 sm:px-6 lg:px-10 pt-4 md:pt-6 pb-24 font-sans">
       <div className="max-w-[1370px] mx-auto space-y-6">
         
         {/* Header */}
@@ -221,7 +220,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               src="https://grainy-gradients.vercel.app/noise.svg" 
               alt="" 
               className={`absolute inset-0 w-full h-full object-cover ${themeClasses.heroNoiseOpacity} mix-blend-overlay pointer-events-none`}
-              fetchPriority="high"
+              fetchpriority="high"
               loading="eager"
               decoding="async"
               aria-hidden="true"

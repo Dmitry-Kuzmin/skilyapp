@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import { UnifiedModal } from '@/components/ui/unified-modal';
 import { useModalRoute } from '@/hooks/useModalRoute';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift, Trophy, TestTube, Zap, Calendar, CreditCard, Users, Filter, Crown, Sparkles, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useUserContext } from '@/contexts/UserContext';
+import { useUserContext, UserContext } from '@/contexts/UserContext';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';
 import Confetti from 'react-confetti';
@@ -66,7 +66,19 @@ interface Transaction {
 }
 
 export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
-  const { profileId, platform } = useUserContext();
+  // БЕЗОПАСНОЕ использование UserContext - может быть undefined если модалка открыта вне UserProvider
+  const userContext = useContext(UserContext);
+  const profileId = userContext?.profileId ?? null;
+  const platform = userContext?.platform ?? 'web';
+  
+  // Если UserContext отсутствует, закрываем модалку
+  useEffect(() => {
+    if (open && !userContext) {
+      console.warn('[BoostShopModal] UserContext not available, closing modal');
+      onOpenChange(false);
+    }
+  }, [open, userContext, onOpenChange]);
+  
   const { isPremium } = usePremium();
   const { t, language } = useLanguage();
   const dateLocale = localeMap[language] || 'en-US';
@@ -1758,6 +1770,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       </>
     );
   };
+
+  // Ранний возврат, если UserContext отсутствует (модалка открыта вне UserProvider)
+  if (!userContext) {
+    return null;
+  }
 
   return (
     <>

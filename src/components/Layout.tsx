@@ -325,7 +325,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
       {/* Top Navigation for Desktop - Hide in Telegram or when hideNavigation */}
       {!hideNavigation && (
         <header className={cn(
-          "border-b border-border/50 backdrop-blur-xl bg-card/30 sticky top-0 z-50 overflow-x-hidden w-full",
+          "border-b border-border/50 backdrop-blur-xl bg-background/95 sticky top-0 z-50 overflow-x-hidden w-full",
           isTelegramApp ? "hidden" : "hidden md:block"
         )}>
         <div className="container mx-auto px-4 max-w-[1370px]">
@@ -450,7 +450,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
 
       {/* Wallet Widget Bar - отдельная строка под header на средних экранах (планшеты) */}
       {!hideNavigation && isAuthenticated && !isTelegramApp && (
-        <div className="hidden md:flex lg:hidden border-b border-border/50 backdrop-blur-xl bg-card/20 sticky top-16 z-40">
+        <div className="hidden md:flex lg:hidden border-b border-border/50 backdrop-blur-xl bg-background/95 sticky top-16 z-40">
           <div className="container mx-auto px-4 py-2">
             <div className="flex items-center justify-end w-full gap-2">
               <WalletWidget />

@@ -1,5 +1,5 @@
-import { lazy, Suspense, useEffect, useState } from "react";
-import { BrowserRouter, useLocation, Routes, Route } from "react-router-dom";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { BrowserRouter, useLocation, Routes, Route, useNavigate } from "react-router-dom";
 import { useInitTelegram } from "@/hooks/useInitTelegram";
 import { useBackgroundTasks } from "@/hooks/useBackgroundTasks";
 import { useOfflineAnalytics } from "@/utils/offlineAnalytics";
@@ -216,6 +216,37 @@ const ScrollToTop = () => {
   return null;
 };
 
+// Лёгкий редирект: если есть supabase-сессия в localStorage — сразу в дашборд
+const LandingRedirect = () => {
+  const navigate = useNavigate();
+
+  // Ключ supabase auth в localStorage (sb-<project-ref>-auth-token)
+  const authStorageKey = useMemo(() => {
+    const fallbackRef = "yffjnqegeiorunyvcxkn";
+    const url = import.meta.env.VITE_SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL || "";
+    const ref = url.startsWith("https://") ? url.replace("https://", "").split(".")[0] : fallbackRef;
+    return `sb-${ref}-auth-token`;
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = localStorage.getItem(authStorageKey);
+      if (!raw || raw === "null") return;
+      const parsed = JSON.parse(raw);
+      const session = parsed?.currentSession ?? parsed?.currentSession?.user ? parsed.currentSession : parsed?.session ?? parsed;
+      const hasToken = session?.access_token || session?.currentSession?.access_token;
+      if (hasToken) {
+        navigate("/dashboard", { replace: true });
+      }
+    } catch (error) {
+      console.warn("[LandingRedirect] Failed to parse supabase auth token", error);
+    }
+  }, [authStorageKey, navigate]);
+
+  return <Landing />;
+};
+
 const App = () => {
   // OFFLINE-FIRST: Детектор первого запуска
   const [isFirstRun, setIsFirstRun] = useState(false);
@@ -365,7 +396,7 @@ const App = () => {
             </Suspense>
             {/* ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query) */}
             <Routes>
-              <Route path="/" element={<Landing />} />
+              <Route path="/" element={<LandingRedirect />} />
               {/* OAuth callback - обрабатывает сессию сам, не требует AppProviders */}
               <Route path="/auth/callback" element={<AuthCallback />} />
               {/* Все остальные роуты - внутри AppProviders (с Supabase/Query) */}

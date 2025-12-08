@@ -14,7 +14,11 @@ export function Footer() {
   
   // SUPER ОПТИМИЗАЦИЯ: Берем partner из Super RPC Dashboard (нет отдельного запроса!)
   const { data: dashboardData } = useDashboardData();
-  const isPartner = dashboardData?.partner?.is_partner ?? false;
+  const partnerStatus = dashboardData?.partner?.partner_status;
+  const isPartner =
+    dashboardData?.partner?.is_partner ||
+    partnerStatus === "approved" ||
+    partnerStatus === "active";
 
   // Определяем fullscreen режимы (тесты и игры) - footer должен быть скрыт
   const isFullscreenMode = 
@@ -47,13 +51,17 @@ export function Footer() {
       { to: "/refund-policy", label: t("footer.refundPolicy") },
       { 
         to: isPartner ? "/partner/dashboard" : "/partners", 
-        label: isPartner ? t("footer.partnerDashboard") : t("footer.becomePartner") 
+        label: isPartner
+          ? t("footer.partnerDashboard")
+          : partnerStatus === "pending"
+            ? t("footer.partnerPending")
+            : t("footer.becomePartner"), 
       },
     ],
   ];
 
   return (
-    <footer className="border-t border-border/50 bg-card/30 backdrop-blur-xl mt-auto pb-28 md:pb-6">
+    <footer className="border-t border-border/50 bg-background/95 backdrop-blur-xl mt-auto pb-28 md:pb-6">
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row items-start justify-between gap-6 text-center md:text-left">
           {/* Logo/Brand */}

@@ -416,3 +416,5 @@ COMMENT ON FUNCTION link_session_to_user IS 'Связывает анонимны
 
 
 
+
+
