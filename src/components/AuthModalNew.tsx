@@ -51,6 +51,57 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   // Это позволяет AuthModalNew работать на лендинге (где UserProvider отсутствует)
   const userContext = useContext(UserContext);
   const login = userContext?.login;
+
+  // Фолбек для Telegram, если UserProvider не загружен (например, на лендинге)
+  const fallbackTelegramLogin = async (user: any) => {
+    console.warn('[AuthModalNew] UserProvider not loaded, using fallback Telegram login');
+
+    const userData = {
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      username: user.username,
+      photo_url: user.photo_url,
+      language_code: user.language_code,
+    };
+
+    // Сохраняем локально, чтобы LandingUserContext/UserContext могли подхватить
+    try {
+      window.puzzleUser = userData;
+      window.puzzleCodeData = {
+        ...(window.puzzleCodeData || {}),
+        FIRST_NAME: userData.first_name,
+        LAST_NAME: userData.last_name,
+        USERNAME: userData.username,
+        ID: userData.id,
+        LANGUAGE: userData.language_code,
+        PLATFORM: 'web',
+      };
+      localStorage.setItem('puzzle_user', JSON.stringify(userData));
+      console.log('[AuthModalNew] Fallback: stored Telegram user locally');
+    } catch (err) {
+      console.error('[AuthModalNew] Fallback: failed to store Telegram user locally', err);
+    }
+
+    // Пытаемся дернуть серверную функцию (не блокируем редирект)
+    const referralCode = sessionStorage.getItem('referral_code') || undefined;
+    supabase.functions.invoke('telegram-auth', {
+      body: {
+        user: userData,
+        platform: 'web',
+        referred_by_code: referralCode,
+      },
+    }).then(() => {
+      console.log('[AuthModalNew] Fallback: telegram-auth invoked');
+    }).catch((err) => {
+      console.warn('[AuthModalNew] Fallback: telegram-auth invoke error (continue anyway):', err);
+    });
+
+    // Полный редирект, чтобы AppProviders/UserProvider загрузились
+    setTimeout(() => {
+      window.location.href = '/dashboard';
+    }, 300);
+  };
   const { toast } = useToast();
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -100,12 +151,15 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
       try {
         // КРИТИЧНО: Проверяем наличие login функции перед использованием
         if (!login) {
-          console.error('[AuthModalNew] login function not available - UserProvider not loaded');
+          console.warn('[AuthModalNew] login function not available - UserProvider not loaded, using fallback');
+          
+          await fallbackTelegramLogin(user);
+          
           toast({
-            title: t('auth.errors.validationError'),
-            description: 'Пожалуйста, обновите страницу',
-            variant: "destructive"
+            title: t('auth.success.loggedIn'),
+            description: t('auth.success.welcomeUser', { name: user.first_name }),
           });
+          
           return;
         }
         
