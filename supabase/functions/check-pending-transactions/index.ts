@@ -309,6 +309,7 @@ Deno.serve(async (req) => {
         .eq('status', 'pending')
         .not('cryptomus_order_id', 'is', null)
         .lt('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()) // Старше 24 часов
+        .limit(50) // Защита от timeout: обрабатываем максимум 50 за раз
 
       if (cryptomusError) {
         console.error('[check-pending] Error fetching Cryptomus purchases:', cryptomusError)
@@ -360,6 +361,7 @@ Deno.serve(async (req) => {
         .eq('status', 'pending')
         .not('paddle_transaction_id', 'is', null)
         .lt('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()) // Старше 24 часов
+        .limit(50) // Защита от timeout: обрабатываем максимум 50 за раз
 
       if (paddleError) {
         console.error('[check-pending] Error fetching Paddle purchases:', paddleError)
@@ -409,6 +411,7 @@ Deno.serve(async (req) => {
       .eq('status', 'completed')
       .eq('rewards_status', 'pending')
       .lt('completed_at', new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString()) // Старше 1 часа
+      .limit(50) // Защита от timeout: обрабатываем максимум 50 за раз
 
     if (starsError) {
       console.error('[check-pending] Error fetching Stars payments:', starsError)
