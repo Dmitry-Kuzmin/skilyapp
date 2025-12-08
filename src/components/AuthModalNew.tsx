@@ -806,8 +806,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                       {telegramLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <TelegramIcon />}
                       <div 
                         id="telegram-login-container-new" 
-                        className="absolute inset-0 flex items-center justify-center pointer-events-auto z-[100] opacity-0 [&>iframe]:!w-full [&>iframe]:!h-full [&>iframe]:!opacity-0 [&>iframe]:!pointer-events-auto"
-                        style={{ minHeight: '40px' }}
+                        className="absolute inset-0 flex items-center justify-center pointer-events-auto z-[100] opacity-50 bg-red-500/20 [&>iframe]:!w-full [&>iframe]:!h-full [&>iframe]:!opacity-100 [&>iframe]:!pointer-events-auto"
+                        style={{ minHeight: '40px', overflow: 'hidden' }}
                       />
                     </Button>
                   </div>
