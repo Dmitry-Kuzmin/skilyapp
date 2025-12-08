@@ -57,10 +57,11 @@ CREATE INDEX IF NOT EXISTS idx_transactions_user_type_created
 -- ============================================
 -- Индексы только для активных/незавершенных записей
 
-CREATE INDEX IF NOT EXISTS idx_purchases_pending_old 
-  ON public.purchases(created_at) 
-  WHERE status = 'pending' AND created_at < NOW() - INTERVAL '24 hours';
--- Оптимизация для check-pending-transactions: только старые pending покупки
+CREATE INDEX IF NOT EXISTS idx_purchases_pending 
+  ON public.purchases(created_at DESC) 
+  WHERE status = 'pending';
+-- Оптимизация для check-pending-transactions: все pending покупки
+-- Фильтр по времени (created_at < NOW() - 24h) применяется в запросе Edge Function
 
 CREATE INDEX IF NOT EXISTS idx_stars_payments_pending_rewards 
   ON public.stars_payments(completed_at) 
