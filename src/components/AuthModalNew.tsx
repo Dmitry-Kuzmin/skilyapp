@@ -43,6 +43,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   // --- Loading States ---
   const [checkingEmail, setCheckingEmail] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [telegramLoading, setTelegramLoading] = useState(false);
   
   // --- Refs & Context ---
   const emailInputRef = useRef<HTMLInputElement>(null);
@@ -55,6 +56,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   // Фолбек для Telegram, если UserProvider не загружен (например, на лендинге)
   const fallbackTelegramLogin = async (user: any) => {
     console.warn('[AuthModalNew] UserProvider not loaded, using fallback Telegram login');
+    setTelegramLoading(true);
 
     const userData = {
       id: user.id,
@@ -83,24 +85,33 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
       console.error('[AuthModalNew] Fallback: failed to store Telegram user locally', err);
     }
 
-    // Пытаемся дернуть серверную функцию (не блокируем редирект)
+    // Пытаемся дернуть серверную функцию и ЖДЕМ ответа
     const referralCode = sessionStorage.getItem('referral_code') || undefined;
-    supabase.functions.invoke('telegram-auth', {
-      body: {
-        user: userData,
-        platform: 'web',
-        referred_by_code: referralCode,
-      },
-    }).then(() => {
-      console.log('[AuthModalNew] Fallback: telegram-auth invoked');
-    }).catch((err) => {
-      console.warn('[AuthModalNew] Fallback: telegram-auth invoke error (continue anyway):', err);
-    });
+    try {
+      const { error } = await supabase.functions.invoke('telegram-auth', {
+        body: {
+          user: userData,
+          platform: 'web',
+          referred_by_code: referralCode,
+        },
+      });
 
-    // Полный редирект, чтобы AppProviders/UserProvider загрузились
-    setTimeout(() => {
+      if (error) {
+        throw error;
+      }
+
+      console.log('[AuthModalNew] Fallback: telegram-auth success, redirecting');
       window.location.href = '/dashboard';
-    }, 300);
+    } catch (err) {
+      console.error('[AuthModalNew] Fallback: telegram-auth failed', err);
+      toast({
+        title: t('auth.errors.validationError'),
+        description: t('auth.errors.genericError'),
+        variant: 'destructive',
+      });
+    } finally {
+      setTelegramLoading(false);
+    }
   };
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -152,14 +163,14 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         // КРИТИЧНО: Проверяем наличие login функции перед использованием
         if (!login) {
           console.warn('[AuthModalNew] login function not available - UserProvider not loaded, using fallback');
-          
+
           await fallbackTelegramLogin(user);
-          
+
           toast({
             title: t('auth.success.loggedIn'),
             description: t('auth.success.welcomeUser', { name: user.first_name }),
           });
-          
+
           return;
         }
         
@@ -783,9 +794,10 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                     </Button>
                     <Button 
                       variant="secondary" 
-                      className="bg-zinc-900 h-11 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all relative overflow-hidden" 
+                      disabled={telegramLoading}
+                      className="bg-zinc-900 h-11 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed" 
                     >
-                      <TelegramIcon />
+                      {telegramLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <TelegramIcon />}
                       <div 
                         id="telegram-login-container-new" 
                         className="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-auto [&>iframe]:!w-full [&>iframe]:!h-full"
