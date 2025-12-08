@@ -1,115 +1,64 @@
-# 📋 Как посмотреть логи Edge Function sync-google-sheets
+# 📋 Как посмотреть логи GitHub Actions
 
-## 🔗 Прямая ссылка на логи
+## 🔍 Просмотр логов
 
-**Логи функции sync-google-sheets:**
+### Способ 1: Развернуть шаг
+
+1. На странице workflow run найдите секцию **"Job Steps"**
+2. Найдите шаг **"> Cleanup old test sessions"** (с зеленой галочкой)
+3. **Кликните на этот шаг** - он развернется и покажет логи
+
+### Способ 2: Через кнопку "View logs"
+
+1. На странице workflow run
+2. Найдите шаг **"> Cleanup old test sessions"**
+3. Справа от названия шага должна быть кнопка **"View logs"** или **"View raw logs"**
+4. Кликните на неё
+
+## 📊 Что должно быть в логах
+
+После разворачивания шага "Cleanup old test sessions" вы должны увидеть:
+
 ```
-https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/functions/sync-google-sheets/logs
-```
-
-## 📍 Как найти логи через Dashboard
-
-### Способ 1: Через Edge Functions
-
-1. **Откройте Edge Functions:**
-   - В левом меню нажмите на **"Edge Functions"**
-   - Или перейдите по ссылке:
-     ```
-     https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/functions
-     ```
-
-2. **Выберите функцию `sync-google-sheets`:**
-   - Найдите функцию в списке
-   - Нажмите на неё
-
-3. **Откройте вкладку "Logs":**
-   - В верхней части страницы функции найдите вкладку **"Logs"**
-   - Нажмите на неё
-
-### Способ 2: Через Logs & Analytics (общие логи)
-
-1. **Откройте Logs & Analytics:**
-   - В левом меню нажмите на **"Logs"** или **"Logs & Analytics"**
-   - Или перейдите по ссылке:
-     ```
-     https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/logs
-     ```
-
-2. **Выберите Edge Functions:**
-   - В левом меню в разделе "COLLECTIONS" найдите **"Edge Functions"**
-   - Нажмите на него
-
-3. **Выберите функцию `sync-google-sheets`:**
-   - Найдите функцию в списке
-   - Нажмите на неё
-
-## 🔍 Что искать в логах
-
-### После обновления функции (с детальным логированием):
-
-1. **Логи первых 3 строк:**
-   - `Row 1 first 3 columns:` - показывает первые 3 колонки для первой строки
-   - `Row 2 first 3 columns:` - показывает первые 3 колонки для второй строки
-   - `Row 3 first 3 columns:` - показывает первые 3 колонки для третьей строки
-
-2. **Информация о парсинге:**
-   - `Parsed X columns for row Y` - показывает, сколько колонок распознано
-
-3. **Ошибки с детальной информацией:**
-   - `Missing source_id for row X:` - детальная информация о проблемной строке
-   - Показывает: `col0`, `col0_trimmed`, `col0_length`, `columnsCount`
-
-4. **Общая информация:**
-   - `Found X questions` - сколько строк найдено в CSV
-   - `Sync completed:` - итоговый результат синхронизации
-
-### Примеры сообщений в логах:
-
-**Успешный парсинг:**
-```
-Row 1 first 3 columns: { col0: "GS-1", col1: "1", col2: "medium", col0_trimmed: "GS-1", col0_length: 4, ... }
-Parsed 32 columns for row 1
+🧹 Starting cleanup of old test sessions...
+Response code: 200
+Response body: {"success":true,"deleted_started":0,"deleted_abandoned":0,"timestamp":"..."}
+✅ Cleanup completed successfully
+{
+  "success": true,
+  "deleted_started": 0,
+  "deleted_abandoned": 0,
+  "timestamp": "2025-12-08T20:57:00.000Z"
+}
 ```
 
-**Проблема с source_id:**
-```
-Missing source_id for row 2: { rowNumber: 2, columnsCount: 32, firstColumn: "", firstColumnTrimmed: "", firstColumnLength: 0, ... }
-```
+## 🔍 Если логов нет
 
-**Проблема с парсингом:**
-```
-Parsed 0 columns for row 5
-```
+### Вариант 1: Шаг не разворачивается
+- Попробуйте обновить страницу (F5 или Cmd+R)
+- Убедитесь, что JavaScript включен в браузере
 
-## 📊 Фильтры в логах
+### Вариант 2: Логи пустые
+- Проверьте, что секреты `SUPABASE_URL` и `SUPABASE_ANON_KEY` правильно настроены
+- Проверьте, что Edge Function задеплоена
 
-1. **По времени:**
-   - "Last hour" - последний час
-   - "Last 3 hours" - последние 3 часа
-   - "Last 24 hours" - последние 24 часа
+### Вариант 3: Ошибка в логах
+- Если видите ошибку 401/403 - проверьте `SUPABASE_ANON_KEY`
+- Если видите ошибку 404 - проверьте `SUPABASE_URL`
+- Если видите другую ошибку - скопируйте её и проверьте логи Edge Function в Supabase Dashboard
 
-2. **По уровню:**
-   - "All" - все логи
-   - "Error" - только ошибки
-   - "Warning" - только предупреждения
-   - "Info" - только информационные сообщения
+## 📸 Скриншот где искать
 
-3. **Поиск:**
-   - Используйте поле "Search events" для поиска по тексту
-   - Например: `source_id`, `Missing`, `Row 1`, и т.д.
+На вашем скриншоте:
+1. Найдите секцию **"Job Steps"** (слева внизу)
+2. Найдите **"> Cleanup old test sessions"** (с зеленой галочкой)
+3. **Кликните на него** - он развернется и покажет логи
 
-## 🔗 Полезные ссылки
+## ✅ Проверка успешного выполнения
 
-- **Логи функции:** https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/functions/sync-google-sheets/logs
-- **Общие логи:** https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/logs
-- **Edge Functions:** https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/functions
-- **Настройки функции:** https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/functions/sync-google-sheets/settings
+Если workflow выполнился успешно (зеленая галочка), значит:
+- ✅ Секреты настроены правильно
+- ✅ Edge Function доступна
+- ✅ Очистка выполнилась
 
-## 💡 Совет
-
-После синхронизации:
-1. Откройте логи функции
-2. Найдите сообщения с `Row X first 3 columns:`
-3. Проверьте, что `col0` содержит `source_id` (например, "GS-1", "GS-2")
-4. Если `col0` пустой или `undefined`, проверьте структуру таблицы Google Sheets
-
+Логи покажут сколько записей было удалено.

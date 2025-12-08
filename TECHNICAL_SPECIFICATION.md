@@ -1199,9 +1199,10 @@ const viewportHeight = webApp?.viewportHeight || window.innerHeight;
   - Формула: `questions_count * MIN_TIME_PER_QUESTION` (например, 3 сек/вопрос)
 - ✅ Настроить `pg_cron` для очистки незавершенных сессий (> 24 часов)
 
-3. ✅ **Написать E2E тесты для платежей**
-   - Тесты для всех платежных шлюзов (Stars, Stripe, Cryptomus)
+3. ⏳ **Написать E2E тесты для платежей**
+   - Тесты для всех платежных шлюзов (Cryptomus, Telegram Stars, Paddle)
    - Тесты для edge cases (webhook failures, retries)
+   - **Примечание:** Stripe не используется, фокус на Cryptomus, Stars и Paddle
 
 ### Неделя 2 (Высокий приоритет) - Data & Sync
 4. ✅ **Реализовать атомарные операции для критических полей**
