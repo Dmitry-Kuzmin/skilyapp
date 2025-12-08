@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useUserContext } from "@/contexts/UserContext";
+import { useContext } from "react";
+import { UserContext } from "@/contexts/UserContext";
 import { useDashboardData } from "./useDashboardData";
 
 interface PremiumState {
@@ -34,9 +35,21 @@ const PREMIUM_QUERY_KEY = "premium-status";
  * Fallback на Edge Function только если Super RPC не вернул premium данные
  */
 export function usePremium() {
-  const { profileId } = useUserContext();
+  // Безопасное обращение к UserContext: если провайдер отсутствует (лендинг/глобальная модалка), возвращаем статику
+  const userContext = useContext(UserContext);
+  const profileId = userContext?.profileId ?? null;
   const queryClient = useQueryClient();
   
+  // Если нет контекста — не дергаем лишние хуки/запросы, возвращаем заглушку
+  if (!userContext) {
+    return {
+      ...initialState,
+      loading: false,
+      refresh: async () => {},
+      invalidate: () => {},
+    };
+  }
+
   // ОПТИМИЗАЦИЯ: Пытаемся взять premium из Super RPC Dashboard
   const { data: dashboardData } = useDashboardData();
 
