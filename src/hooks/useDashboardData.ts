@@ -14,19 +14,33 @@ function useSafeQueryClient() {
 }
 
 // Безопасная обертка для useQuery - возвращает заглушку если QueryClient отсутствует
-// ВАЖНО: Всегда вызываем useQuery для соблюдения правил хуков, но с enabled: false если нет queryClient
+// ВАЖНО: Всегда вызываем useQuery для соблюдения правил хуков
 function useSafeQuery<T>(options: Parameters<typeof useQuery<T>>[0] & { enabled?: boolean }) {
   const queryClient = useSafeQueryClient();
   const hasQueryClient = !!queryClient;
   
-  // Всегда вызываем useQuery, но с enabled: false если нет queryClient
-  const queryResult = useQuery<T>({
-    ...options,
-    enabled: hasQueryClient && (options.enabled !== false),
-  });
-  
-  // Если нет queryClient, возвращаем заглушку
-  if (!hasQueryClient) {
+  // Пытаемся вызвать useQuery, но если QueryClient отсутствует, он упадет
+  // В этом случае мы вернем заглушку
+  try {
+    // Всегда вызываем useQuery, но с enabled: false если нет queryClient
+    const queryResult = useQuery<T>({
+      ...options,
+      enabled: hasQueryClient && (options.enabled !== false),
+    });
+    
+    // Если нет queryClient, возвращаем заглушку
+    if (!hasQueryClient) {
+      return {
+        data: undefined,
+        isLoading: false,
+        error: null,
+        refetch: async () => ({ data: undefined, error: null }),
+      };
+    }
+    
+    return queryResult;
+  } catch (error) {
+    // QueryClient отсутствует - возвращаем заглушку
     return {
       data: undefined,
       isLoading: false,
@@ -34,8 +48,6 @@ function useSafeQuery<T>(options: Parameters<typeof useQuery<T>>[0] & { enabled?
       refetch: async () => ({ data: undefined, error: null }),
     };
   }
-  
-  return queryResult;
 }
 
 interface DashboardStats {
