@@ -32,20 +32,28 @@ WHERE is_active = true;
 -- Формула: Цена в Stars рассчитывается на основе цены в EUR с учетом комиссии Telegram (30%)
 -- Расчет: euros / 0.7 (комиссия 30%) / 0.02161 (цена 1 звезды) = stars
 -- 
--- Примеры расчетов:
--- €2.99 → €4.27 → 198 звёзд
--- €9.99 → €14.27 → 660 звёзд
--- €19.99 → €28.56 → 1321 звёзд
--- €39.99 → €57.13 → 2644 звёзд
--- €59.99 → €85.70 → 3966 звёзд
+-- Примеры расчетов (известные цены):
+-- €2.99 → €4.27 → 198 звёзд (coins_100)
+-- €9.99 → €14.27 → 660 звёзд (coins_500, premium_monthly)
+-- €19.99 → €28.56 → 1321 звёзд (coins_1200)
+-- €39.99 → €57.13 → 2644 звёзд (coins_3000)
+-- €59.99 → €85.70 → 3966 звёзд (premium_yearly, premium_forever)
+--
+-- Примечание: Для пакетов coins_300, coins_700, coins_1500, coins_5000 используются
+-- примерные расчеты на основе пропорций. Если у вас есть точные цены в EUR,
+-- обновите значения вручную после применения скрипта.
 
 UPDATE pricing_packages
 SET price_stars = CASE
-  -- Пакеты монет
+  -- Пакеты монет (основные)
   WHEN package_key = 'coins_100' THEN 198  -- €2.99 → €4.27 → 198 звёзд
+  WHEN package_key = 'coins_300' THEN 396  -- ~€5.99 → ~€8.56 → 396 звёзд (примерно)
   WHEN package_key = 'coins_500' THEN 660  -- €9.99 → €14.27 → 660 звёзд
+  WHEN package_key = 'coins_700' THEN 924  -- ~€13.99 → ~€19.99 → 924 звёзд (примерно)
   WHEN package_key = 'coins_1200' THEN 1321  -- €19.99 → €28.56 → 1321 звёзд
+  WHEN package_key = 'coins_1500' THEN 1650  -- ~€24.99 → ~€35.70 → 1650 звёзд (примерно)
   WHEN package_key = 'coins_3000' THEN 2644  -- €39.99 → €57.13 → 2644 звёзд
+  WHEN package_key = 'coins_5000' THEN 4408  -- ~€66.99 → ~€95.70 → 4408 звёзд (примерно)
   
   -- Premium пакеты
   WHEN package_key = 'premium_monthly' THEN 660  -- €9.99 → €14.27 → 660 звёзд
@@ -57,10 +65,7 @@ SET price_stars = CASE
 END,
 updated_at = NOW()
 WHERE is_active = true
-  AND (
-    price_stars IS NULL 
-    OR package_key IN ('coins_100', 'coins_500', 'coins_1200', 'coins_3000', 'premium_monthly', 'premium_yearly', 'premium_forever')
-  );
+  AND price_stars IS NULL;
 
 -- 4. ПРОВЕРКА: Убеждаемся, что все заполнено
 -- ============================================
