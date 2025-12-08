@@ -23,8 +23,12 @@
 3. Вставь код в редактор Supabase Dashboard
 4. Нажми **"Deploy"** или **"Save"**
 
-#### Шаг 5: Настрой переменные окружения
-1. Перейди в **Settings** → **Secrets** (или **Edge Functions** → **Settings** → **Secrets**)
+#### Шаг 5: ⚠️ КРИТИЧНО - Настрой переменные окружения
+
+**ВАЖНО:** Edge Functions в облаке НЕ видят локальный `.env` файл! Секреты нужно залить в облако.
+
+**Вариант А: Через Supabase Dashboard**
+1. Перейди в **Edge Functions** → **Settings** → **Secrets**
 2. Добавь следующие секреты (если еще не добавлены):
 
 **Для Cryptomus:**
@@ -74,19 +78,63 @@ supabase login
 supabase link --project-ref ваш-project-ref
 ```
 
-#### Шаг 4: Задеплой функцию
+#### Шаг 4: ⚠️ КРИТИЧНО - Залей секреты в облако
+
+**ВАЖНО:** Секреты нужно залить ДО деплоя функции!
+
+**Вариант А: Через CLI (рекомендуется)**
 ```bash
-supabase functions deploy check-pending-transactions
+# Если есть файл .env.prod
+supabase secrets set --env-file ./supabase/.env.prod
+
+# Или вручную для критичных ключей:
+supabase secrets set CRYPTOMUS_MERCHANT_ID=your_merchant_id
+supabase secrets set CRYPTOMUS_PAYMENT_KEY=your_payment_key
+supabase secrets set PADDLE_API_KEY=your_paddle_key
 ```
 
-#### Шаг 5: Настрой переменные окружения
-Через Dashboard (см. Способ 1, Шаг 5)
+**Вариант Б: Через Dashboard**
+1. Перейди в **Edge Functions** → **Settings** → **Secrets**
+2. Добавь секреты вручную (см. Способ 1, Шаг 5)
+
+#### Шаг 5: Задеплой функцию
+```bash
+# Для функций, вызываемых через Service Role (как check-pending-transactions)
+supabase functions deploy check-pending-transactions --no-verify-jwt
+
+# Или без флага, если проверяешь JWT сам
+supabase functions deploy check-pending-transactions
+```
 
 ---
 
 ## ✅ Проверка работы
 
-### Тест 1: Ручной вызов через curl
+### 🧪 Smoke Test (КРИТИЧНО - сделай сразу после деплоя!)
+
+**Цель:** Убедиться, что функция работает в облаке
+
+**Шаг 1: Простейший тест**
+```bash
+curl -X POST https://your-project.supabase.co/functions/v1/check-pending-transactions \
+  -H "Authorization: Bearer YOUR_ANON_KEY" \
+  -H "Content-Type: application/json"
+```
+
+**Ожидаемый результат:**
+- ✅ HTTP 200 (не 500!)
+- ✅ JSON ответ с полями `results`, `total_checked`, etc.
+- ✅ В логах нет ошибок типа "Missing config" или "CRYPTOMUS_MERCHANT_ID not configured"
+
+**Если Smoke Test провален:**
+- 🔴 **STOP!** Не иди дальше по плану
+- Проверь секреты в Dashboard
+- Проверь логи функции
+- Исправь ошибки перед продолжением
+
+---
+
+### Тест 1: Ручной вызов через curl (детальный)
 
 ```bash
 curl -X POST https://your-project.supabase.co/functions/v1/check-pending-transactions \
@@ -160,10 +208,26 @@ GitHub Actions workflow уже создан (`.github/workflows/check-pending-tr
 
 ## ⚠️ Важные замечания
 
-1. **Переменные окружения:** Убедись, что все секреты добавлены в Supabase Dashboard
-2. **Права доступа:** Функция использует `SERVICE_ROLE_KEY` для обхода RLS
-3. **Лимиты:** Функция обрабатывает максимум 50 транзакций за раз (защита от timeout)
-4. **Повторные запуски:** Если транзакций больше 50, они будут обработаны при следующем запуске
+### 🔑 1. Secrets Management (КРИТИЧНО!)
+- **Edge Functions НЕ видят локальный `.env` файл!**
+- Секреты нужно залить в облако через Dashboard или CLI
+- Без секретов функция упадет с ошибкой 500 при первом запуске
+- Проверь секреты ДО деплоя функции
+
+### 🌐 2. CORS
+- Для `check-pending-transactions` (вызывается CRON-ом) CORS не критичен
+- Функция обрабатывает `OPTIONS` запросы (см. код)
+- Для функций, вызываемых с фронтенда, убедись в корректной обработке CORS
+
+### 🧪 3. Smoke Testing
+- **Сделай Smoke Test сразу после деплоя!**
+- Если тест провален — **STOP!** Не иди дальше, пока не исправишь
+- Простой тест: вызови функцию и проверь, что она отвечает (не 500)
+
+### 📊 4. Другие замечания
+- **Права доступа:** Функция использует `SERVICE_ROLE_KEY` для обхода RLS
+- **Лимиты:** Функция обрабатывает максимум 50 транзакций за раз (защита от timeout)
+- **Повторные запуски:** Если транзакций больше 50, они будут обработаны при следующем запуске
 
 ---
 
