@@ -7,6 +7,13 @@ body {
   overscroll-behavior-y: none;
 }
 
+/* Telegram widget iframe: ensure clickable in Chrome */
+iframe[id^="telegram-login"] {
+  z-index: 100 !important;
+  position: relative !important;
+  pointer-events: auto !important;
+}
+
 /* Utility to hide native scrollbars but keep scrolling */
 .scrollbar-none {
   -ms-overflow-style: none; /* IE and Edge */
