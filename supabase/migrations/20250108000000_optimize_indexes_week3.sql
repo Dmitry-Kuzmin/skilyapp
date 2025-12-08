@@ -35,9 +35,9 @@ CREATE INDEX IF NOT EXISTS idx_duel_players_activity_status
 -- Для поиска активных дуэлей игрока (WHERE user_id = ? AND activity_status = 'online')
 
 CREATE INDEX IF NOT EXISTS idx_duel_players_connected 
-  ON public.duel_players(duel_id, connected) 
+  ON public.duel_players(duel_id) 
   WHERE connected = true;
--- Для поиска подключенных игроков в дуэли
+-- Для поиска подключенных игроков в дуэли (connected уже в WHERE, не нужно в индексе)
 
 -- ============================================
 -- 3. Составные индексы для оптимизации JOIN
@@ -57,11 +57,12 @@ CREATE INDEX IF NOT EXISTS idx_transactions_user_type_created
 -- ============================================
 -- Индексы только для активных/незавершенных записей
 
-CREATE INDEX IF NOT EXISTS idx_purchases_pending 
-  ON public.purchases(created_at DESC) 
+CREATE INDEX IF NOT EXISTS idx_purchases_pending_created 
+  ON public.purchases(created_at) 
   WHERE status = 'pending';
--- Оптимизация для check-pending-transactions: все pending покупки
--- Фильтр по времени (created_at < NOW() - 24h) применяется в запросе Edge Function
+-- Для Cron-задачи очистки зависших платежей
+-- Cron запрос: WHERE status='pending' AND created_at < NOW() - 1 day
+-- Этот индекс идеально подойдет (created_at отсортирован внутри индекса)
 
 CREATE INDEX IF NOT EXISTS idx_stars_payments_pending_rewards 
   ON public.stars_payments(completed_at) 
@@ -100,14 +101,8 @@ ANALYZE VERBOSE public.stars_payments;
 -- ============================================
 
 COMMENT ON INDEX idx_user_progress_user_question_composite IS 
-  'Составной индекс для оптимизации запросов прогресса пользователя по конкретному вопросу';
+  'Ускоряет проверку: отвечал ли юзер на этот вопрос';
 
-COMMENT ON INDEX idx_duel_players_activity_status IS 
-  'Индекс для поиска активных дуэлей игрока по статусу активности';
-
-COMMENT ON INDEX idx_purchases_pending IS 
-  'Частичный индекс для оптимизации check-pending-transactions: все pending покупки (фильтр по времени в запросе)';
-
-COMMENT ON INDEX idx_stars_payments_pending_rewards IS 
-  'Частичный индекс для оптимизации check-pending-transactions: платежи с незачисленными наградами';
+COMMENT ON INDEX idx_purchases_pending_created IS 
+  'Для Cron-задачи очистки зависших платежей';
 

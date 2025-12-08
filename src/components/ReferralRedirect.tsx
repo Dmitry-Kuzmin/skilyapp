@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState, useCallback } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useUserContext } from '@/contexts/UserContext';
 import { toast } from 'sonner';
 import { isTelegramMiniApp, getTelegramWebApp } from '@/lib/telegram';
+import { extractDeepLink } from '@/lib/telegramNotifications';
 import { Loader2 } from 'lucide-react';
 
 /**
@@ -13,29 +14,41 @@ import { Loader2 } from 'lucide-react';
  * КРИТИЧНО для Telegram Web App:
  * - Использует window.location для редиректа (надежнее чем navigate в iframe)
  * - Показывает визуальную обратную связь
+ * - Также обрабатывает start_param из Telegram Web App (формат: ref_CODE)
  */
 export function ReferralRedirect() {
   const { code } = useParams<{ code: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated, isLoading } = useUserContext();
   const [processing, setProcessing] = useState(true);
   const [redirecting, setRedirecting] = useState(false);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!code) {
-      redirectToHome();
-      return;
+  const redirectToHome = useCallback(() => {
+    setRedirecting(true);
+    
+    const isTelegram = isTelegramMiniApp();
+    const webApp = getTelegramWebApp();
+
+    // КРИТИЧНО для Telegram Web App: используем window.location вместо navigate
+    // Это более надежно работает в iframe контексте Telegram
+    if (isTelegram && webApp) {
+      console.log('[ReferralRedirect] Redirecting in Telegram Web App via window.location');
+      // В Telegram используем window.location для надежного редиректа
+      setTimeout(() => {
+        window.location.href = window.location.origin + '/';
+      }, 800);
+    } else {
+      // В обычном браузере используем navigate
+      console.log('[ReferralRedirect] Redirecting via navigate');
+      setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 800);
     }
+  }, [navigate]);
 
-    // Ждем загрузки контекста пользователя
-    if (isLoading) {
-      return;
-    }
-
-    handleReferralCode(code.toUpperCase());
-  }, [code, isAuthenticated, isLoading]);
-
-  const handleReferralCode = async (referralCode: string) => {
+  const handleReferralCode = useCallback(async (referralCode: string) => {
     try {
       // КРИТИЧНО: Всегда сохраняем код в sessionStorage (даже для авторизованных)
       // Это позволяет применить код при следующей регистрации
@@ -61,30 +74,49 @@ export function ReferralRedirect() {
     } finally {
       setProcessing(false);
     }
-  };
+  }, [isAuthenticated, redirectToHome]);
 
-  const redirectToHome = () => {
-    setRedirecting(true);
-    
-    const isTelegram = isTelegramMiniApp();
-    const webApp = getTelegramWebApp();
+  useEffect(() => {
+    // Приоритет 1: код из URL параметра /join/:code
+    let codeToUse = code?.toUpperCase() || null;
 
-    // КРИТИЧНО для Telegram Web App: используем window.location вместо navigate
-    // Это более надежно работает в iframe контексте Telegram
-    if (isTelegram && webApp) {
-      console.log('[ReferralRedirect] Redirecting in Telegram Web App via window.location');
-      // В Telegram используем window.location для надежного редиректа
-      setTimeout(() => {
-        window.location.href = window.location.origin + '/';
-      }, 800);
-    } else {
-      // В обычном браузере используем navigate
-      console.log('[ReferralRedirect] Redirecting via navigate');
-      setTimeout(() => {
-        navigate('/', { replace: true });
-      }, 800);
+    // Приоритет 2: проверяем start_param из Telegram Web App
+    if (!codeToUse) {
+      const webApp = getTelegramWebApp();
+      if (webApp) {
+        const deepLink = extractDeepLink();
+        if (deepLink && deepLink.action === 'ref' && deepLink.id) {
+          console.log('[ReferralRedirect] Found referral code from Telegram start_param:', deepLink.id);
+          codeToUse = deepLink.id.toUpperCase();
+        }
+      }
     }
-  };
+
+    // Приоритет 3: проверяем query параметр startapp
+    if (!codeToUse) {
+      const startappParam = searchParams.get('startapp');
+      if (startappParam && startappParam.startsWith('ref_')) {
+        const codeFromParam = startappParam.replace('ref_', '').toUpperCase();
+        console.log('[ReferralRedirect] Found referral code from startapp param:', codeFromParam);
+        codeToUse = codeFromParam;
+      }
+    }
+
+    if (!codeToUse) {
+      console.warn('[ReferralRedirect] No referral code found');
+      redirectToHome();
+      return;
+    }
+
+    setReferralCode(codeToUse);
+
+    // Ждем загрузки контекста пользователя
+    if (isLoading) {
+      return;
+    }
+
+    handleReferralCode(codeToUse);
+  }, [code, isLoading, searchParams, handleReferralCode]);
 
   // Показываем загрузку во время обработки
   return (
@@ -95,9 +127,9 @@ export function ReferralRedirect() {
           <p className="text-white text-lg font-semibold">
             {processing ? 'Обработка реферальной ссылки...' : 'Перенаправление...'}
           </p>
-          {code && (
+          {referralCode && (
             <p className="text-zinc-400 text-sm">
-              Код: <span className="font-mono font-semibold text-indigo-400">{code.toUpperCase()}</span>
+              Код: <span className="font-mono font-semibold text-indigo-400">{referralCode}</span>
             </p>
           )}
         </div>
