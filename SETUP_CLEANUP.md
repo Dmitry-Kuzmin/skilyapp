@@ -13,17 +13,16 @@ supabase functions deploy cleanup-test-sessions
 ### 2. Настроить GitHub Secrets
 
 1. Перейдите в GitHub → Settings → Secrets and variables → Actions
-2. Добавьте секреты:
+2. Проверьте существующие секреты:
+   - ✅ **`SUPABASE_ANON_KEY`** - уже есть! (обновлен 3 недели назад)
+3. Добавьте недостающий секрет:
    - **`SUPABASE_URL`** - URL вашего проекта
-     - **Значение:** `https://yffjnqegeiorunyvcxkn.supabase.co`
-     - Или найти: Supabase Dashboard → Settings → API → Project URL
-   - **`SUPABASE_ANON_KEY`** - Anon/Public ключ
-     - **Где найти:** 
-       1. Откройте: https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/settings/api
-       2. Найдите секцию **"Project API keys"**
-       3. Найдите ключ с меткой **"anon" "public"** (НЕ service_role!)
-       4. Нажмите "Reveal" и скопируйте значение (начинается с `eyJ`)
-     - ⚠️ **ВАЖНО:** Используйте только "anon" "public" ключ, НЕ service_role!
+     - Нажмите **"New repository secret"**
+     - **Name:** `SUPABASE_URL`
+     - **Secret:** `https://yffjnqegeiorunyvcxkn.supabase.co`
+     - Нажмите **"Add secret"**
+
+**Примечание:** Секрет `SUPABASE_ANON_KEY` уже настроен, нужно только добавить `SUPABASE_URL`.
 
 ### 3. Проверить что всё работает
 
