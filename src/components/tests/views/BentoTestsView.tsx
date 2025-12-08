@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
     BookOpen, Shuffle, Zap, Flame,
@@ -129,10 +129,18 @@ export const BentoTestsView = memo(function BentoTestsView({
     const { isPremium } = usePremium();
     const { resolvedTheme } = useTheme();
     const [hoveredTopic, setHoveredTopic] = useState<string | null>(null);
-    const [hasSelectedCount, setHasSelectedCount] = useState(false);
+    // Если randomQuestionCount уже установлен (не 0), значит пользователь уже выбрал или есть значение по умолчанию
+    const [hasSelectedCount, setHasSelectedCount] = useState(randomQuestionCount > 0);
 
     // ОПТИМИЗАЦИЯ: Мемоизируем вычисления для предотвращения лишних ре-рендеров
     const isDark = useMemo(() => (resolvedTheme ?? 'dark') !== 'light', [resolvedTheme]);
+    
+    // Синхронизируем hasSelectedCount с randomQuestionCount
+    useEffect(() => {
+        if (randomQuestionCount > 0 && !hasSelectedCount) {
+            setHasSelectedCount(true);
+        }
+    }, [randomQuestionCount, hasSelectedCount]);
     
     // ОПТИМИЗАЦИЯ: Мемоизируем обработчики для предотвращения лишних ре-рендеров
     const handleCountSelect = useCallback((count: number) => {
