@@ -39,7 +39,10 @@
 - [x] В Telegram Mini App показывается цена в Stars (`price_stars`)
 - [x] На Web показывается цена в EUR (Cryptomus/Paddle)
 - [x] Edge Functions используют `price_stars` для Telegram Stars (уже используют)
-- [ ] **ОСТАЛОСЬ:** Применить скрипт `CHECK_AND_FILL_PRICE_STARS.sql` в Supabase SQL Editor
+- [x] **ВЫПОЛНЕНО:** Скрипт `CHECK_AND_FILL_PRICE_STARS.sql` применен в БД
+- [x] Все пакеты имеют `price_stars` (проверено)
+- [x] Forever (6500) дороже Yearly (3990) - правильная экономика
+- [x] Все цены округлены до "красивых" чисел
 
 ---
 
@@ -98,11 +101,11 @@
 
 ## 📊 Прогресс
 
-- [x] Telegram Stars: Разные цены (код готов, нужно заполнить БД)
+- [x] Telegram Stars: Разные цены ✅ (код готов, БД заполнена)
 - [ ] Pending Transactions: Проверка зависших платежей
 - [ ] Performance: Оптимизация индексов
 
-**Прогресс: 50% (Telegram Stars - код готов, ждем заполнения БД)**
+**Прогресс: 33% (Задача 1 завершена, переходим к задаче 2)**
 
 ---
 
