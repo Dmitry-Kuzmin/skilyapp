@@ -21,6 +21,7 @@ interface PricingPackage {
   title_ru: string;
   description_ru: string;
   price_coins: number;
+  price_stars: number | null; // Цена в Telegram Stars (только для Telegram Mini App)
   premium_days: number;
 }
 
@@ -78,7 +79,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     try {
       const { data, error } = await supabase
         .from('pricing_packages')
-        .select('id, package_key, title_ru, description_ru, price_coins, premium_days')
+        .select('id, package_key, title_ru, description_ru, price_coins, price_stars, premium_days')
         .eq('is_active', true)
         .in('package_key', ['premium_monthly', 'premium_forever']);
 
@@ -218,6 +219,21 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
             {plans.map((plan) => {
               const pkg = pricingPackages[plan.key];
               const priceCoins = pkg?.price_coins || 0;
+              const priceStars = pkg?.price_stars || null;
+              
+              // Определяем, находимся ли в Telegram Mini App
+              const isTelegram = isTelegramMiniApp();
+              
+              // Форматируем цену в зависимости от платформы
+              const displayPrice = (() => {
+                if (isTelegram && priceStars) {
+                  // В Telegram Mini App показываем цену в Stars
+                  return `${priceStars} ⭐`;
+                } else {
+                  // На Web показываем цену в EUR (из статического массива plans)
+                  return plan.price;
+                }
+              })();
 
               return (
                 <div key={plan.key} className="rounded-xl border p-4 space-y-2">
@@ -226,7 +242,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                       <h3 className="text-base font-semibold">{plan.title}</h3>
                       <p className="text-sm text-muted-foreground">{plan.description}</p>
                     </div>
-                    <span className="text-sm font-medium">{plan.price}</span>
+                    <span className="text-sm font-medium">{displayPrice}</span>
                   </div>
                   
                   {/* Кнопки оплаты */}
