@@ -117,53 +117,67 @@ const DailyBonus = () => {
 
     try {
       setClaimingBonus(true);
-      const today = new Date().toISOString().split('T')[0];
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
       
-      let newStreak = 1;
-      if (dailyBonus.last_claimed_date === yesterday) {
-        newStreak = Math.min((dailyBonus.current_streak || 0) + 1, 90);
+      // КРИТИЧНО: Используем Edge Function для безопасной обработки на сервере
+      // Все логика (UTC время, идемпотентность, начисление наград) теперь на сервере
+      const { data, error } = await supabase.functions.invoke('claim-daily-bonus', {
+        body: { user_id: profileId }
+      });
+
+      if (error) {
+        console.error('[DailyBonus] Edge Function error:', error);
+        throw error;
       }
 
-      const currentReward = weeklyRewards.find(r => r.day_number === newStreak);
-      if (!currentReward) throw new Error('Reward not found');
+      // Проверяем ответ
+      if (!data) {
+        throw new Error('No data received from server');
+      }
 
-      await (supabase as any)
-        .from('user_daily_bonus')
-        .update({
-          current_streak: newStreak,
-          last_claimed_date: today,
-          total_claims: dailyBonus.total_claims + 1,
-        })
-        .eq('id', dailyBonus.id);
+      // Проверяем, не был ли уже получен бонус сегодня
+      if (data.already_claimed) {
+        toast({
+          title: "Уже получено",
+          description: "Сегодняшняя награда уже получена",
+          variant: "default",
+        });
+        // Обновляем данные
+        loadBonusData();
+        setClaimingBonus(false);
+        return;
+      }
 
-      const newXP = userXP + currentReward.reward.xp;
-      const newCoins = userCoins + currentReward.reward.coins;
+      if (!data.success) {
+        throw new Error(data?.error || 'Failed to claim daily bonus');
+      }
 
-      await supabase
-        .from('profiles')
-        .update({
-          xp: newXP,
-          coins: newCoins,
-        })
-        .eq('id', profileId);
+      const { streak, reward, date } = data;
+      
+      if (typeof streak !== 'number' || !reward || typeof reward !== 'object') {
+        console.error('[DailyBonus] Invalid response:', data);
+        throw new Error('Invalid response from server: missing or invalid streak/reward');
+      }
+      
+      const weekDay = (streak % 7) || 7;
 
+      // Обновляем локальное состояние
       setDailyBonus({
         ...dailyBonus,
-        current_streak: newStreak,
-        last_claimed_date: today,
+        current_streak: streak,
+        last_claimed_date: date || new Date().toISOString().split('T')[0], // Fallback на текущую дату
         total_claims: dailyBonus.total_claims + 1,
       });
 
-      setUserXP(newXP);
-      setUserCoins(newCoins);
+      // Обновляем XP и монеты из ответа (или перезагружаем данные)
+      if (reward?.xp) setUserXP(prev => prev + reward.xp);
+      if (reward?.coins) setUserCoins(prev => prev + reward.coins);
       setCanClaimBonus(false);
 
       // Показываем награду
       let rewardText = [];
-      if (currentReward.reward.xp > 0) rewardText.push(`+${currentReward.reward.xp} XP`);
-      if (currentReward.reward.coins > 0) rewardText.push(`+${currentReward.reward.coins} монет`);
-      if (currentReward.reward.boost) rewardText.push('Boost активирован!');
+      if (reward?.xp > 0) rewardText.push(`+${reward.xp} XP`);
+      if (reward?.coins > 0) rewardText.push(`+${reward.coins} монет`);
+      if (reward?.boost) rewardText.push('⚡ Boost получен!');
 
       toast({
         title: "🎉 Награда получена!",
@@ -171,8 +185,8 @@ const DailyBonus = () => {
         duration: 4000,
       });
 
-      // Особые сообщения
-      if ([7, 14, 21, 30, 60, 90].includes(newStreak)) {
+      // Особые сообщения для milestone streak
+      if ([7, 14, 21, 30, 60, 90].includes(streak)) {
         setTimeout(() => {
           const messages: Record<number, string> = {
             7: "🏆 Недельный герой! Первая неделя позади!",
@@ -182,9 +196,10 @@ const DailyBonus = () => {
             60: "💎 Два месяца! Неостановимый!",
             90: "👑 ЖЕЛЕЗНАЯ ВОЛЯ! 90 дней подряд!"
           };
+          const currentReward = weeklyRewards.find(r => r.day_number === weekDay);
           toast({
-            title: messages[newStreak],
-            description: currentReward.description,
+            title: messages[streak],
+            description: currentReward?.description || '',
             duration: 5000,
           });
         }, 2000);

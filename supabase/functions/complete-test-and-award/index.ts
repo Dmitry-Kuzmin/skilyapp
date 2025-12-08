@@ -349,6 +349,94 @@ serve(async (req) => {
       );
     }
 
+    // КРИТИЧНО: Валидация времени прохождения теста
+    // Проверяем, что тест был начат через Edge Function
+    const { data: testSession, error: sessionError } = await supabase
+      .from('test_sessions')
+      .select('started_at, questions_count, status')
+      .eq('session_id', session_id)
+      .single();
+
+    if (sessionError || !testSession) {
+      console.error('[complete-test-and-award] Test session not found:', session_id);
+      return new Response(
+        JSON.stringify({ 
+          error: "Test session not found. Test must be started via start-test-session Edge Function.",
+          details: "This prevents cheating by requiring server-side session tracking."
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Проверка: тест уже завершен?
+    if (testSession.status === 'completed') {
+      console.warn('[complete-test-and-award] Test session already completed:', session_id);
+      return new Response(
+        JSON.stringify({ 
+          error: "Test session already completed",
+          details: "This session has already been processed."
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // КРИТИЧНО: Валидация минимального времени прохождения
+    // Формула: questions_count * MIN_TIME_PER_QUESTION (3 секунды на вопрос)
+    const MIN_TIME_PER_QUESTION = 3; // секунд
+    const minRequiredTime = testSession.questions_count * MIN_TIME_PER_QUESTION;
+    
+    // Вычисляем реальное время прохождения (серверное время - started_at)
+    const startedAt = new Date(testSession.started_at);
+    const now = new Date();
+    const actualTimeSpent = Math.floor((now.getTime() - startedAt.getTime()) / 1000); // секунды
+
+    // Проверка: если клиент передал время, используем его, но проверяем минимальное
+    const reportedTime = test_duration_seconds || actualTimeSpent;
+    
+    if (reportedTime < minRequiredTime) {
+      console.warn('[complete-test-and-award] Test completed too fast:', {
+        session_id,
+        questions_count: testSession.questions_count,
+        minRequiredTime,
+        reportedTime,
+        actualTimeSpent,
+      });
+      
+      // Блокируем награды, но сохраняем результат (для аналитики)
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Test completed too fast",
+          message: `Test must take at least ${minRequiredTime} seconds (${MIN_TIME_PER_QUESTION}s per question). Actual time: ${reportedTime}s.`,
+          coins_awarded: 0,
+          sp_awarded: 0,
+          abuse_penalty: 0,
+          validation_failed: true,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Проверка: если reportedTime сильно отличается от actualTimeSpent - подозрительно
+    const timeDifference = Math.abs(reportedTime - actualTimeSpent);
+    if (timeDifference > 60) { // Разница больше 60 секунд - подозрительно
+      console.warn('[complete-test-and-award] Time mismatch detected:', {
+        session_id,
+        reportedTime,
+        actualTimeSpent,
+        difference: timeDifference,
+      });
+      // Не блокируем, но логируем для аналитики
+    }
+
+    console.log('[complete-test-and-award] Time validation passed:', {
+      session_id,
+      questions_count: testSession.questions_count,
+      minRequiredTime,
+      reportedTime,
+      actualTimeSpent,
+    });
+
     // Получаем конфигурацию наград
     const { data: configData, error: configError } = await supabase.rpc('get_active_reward_config', {
       p_key: 'test_rewards',
@@ -578,6 +666,20 @@ serve(async (req) => {
         }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // 4. Обновляем статус test_sessions на 'completed'
+    const { error: updateSessionError } = await supabase
+      .from('test_sessions')
+      .update({
+        status: 'completed',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('session_id', session_id);
+
+    if (updateSessionError) {
+      console.warn("[complete-test-and-award] Failed to update test_sessions status:", updateSessionError);
+      // Не прерываем процесс, но логируем ошибку
     }
 
     // 4. Логируем транзакции

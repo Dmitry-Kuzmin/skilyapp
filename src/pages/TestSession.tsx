@@ -269,6 +269,7 @@ const TestSession = () => {
     return (saved === 'en' ? 'en' : 'es') as 'es' | 'en';
   });
   const testSessionIdRef = useRef<string | null>(null);
+  const testSessionStartedRef = useRef<boolean>(false); // Флаг для отслеживания старта сессии
   const getOrCreateSessionId = () => {
     if (!testSessionIdRef.current) {
       const fallbackId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
@@ -279,6 +280,61 @@ const TestSession = () => {
     }
     return testSessionIdRef.current;
   };
+
+  // КРИТИЧНО: Вызываем start-test-session Edge Function при старте теста
+  useEffect(() => {
+    const startTestSession = async () => {
+      // Проверяем условия: вопросы загружены, есть profileId, сессия еще не начата
+      if (!profileId || questions.length === 0 || testSessionStartedRef.current) {
+        return;
+      }
+
+      const sessionId = getOrCreateSessionId();
+      
+      try {
+        // Проверяем онлайн статус
+        const realOnline = await checkOnlineStatus();
+        if (!realOnline) {
+          console.log('[TestSession] Offline mode - skipping start-test-session');
+          // В offline режиме не вызываем Edge Function, но помечаем как начатую локально
+          testSessionStartedRef.current = true;
+          return;
+        }
+
+        console.log('[TestSession] Starting test session via Edge Function:', {
+          session_id: sessionId,
+          user_id: profileId,
+          questions_count: questions.length,
+          mode,
+          test_id: testId || null,
+        });
+
+        const { data, error } = await supabase.functions.invoke('start-test-session', {
+          body: {
+            user_id: profileId,
+            session_id: sessionId,
+            test_id: testId || null,
+            questions_count: questions.length,
+            mode: mode || null,
+          },
+        });
+
+        if (error) {
+          console.error('[TestSession] Error starting test session:', error);
+          // Не блокируем тест, но логируем ошибку
+          toast.warning("Не удалось зарегистрировать начало теста. Результаты могут быть не сохранены.");
+        } else {
+          console.log('[TestSession] Test session started successfully:', data);
+          testSessionStartedRef.current = true;
+        }
+      } catch (error) {
+        console.error('[TestSession] Unexpected error starting test session:', error);
+        // Не блокируем тест
+      }
+    };
+
+    startTestSession();
+  }, [profileId, questions.length, mode, testId]); // Вызываем когда вопросы загружены
   
   // Mastery Mode - отслеживаем неправильные вопросы для повторения
   const [masteryWrongQuestions, setMasteryWrongQuestions] = useState<string[]>([]);

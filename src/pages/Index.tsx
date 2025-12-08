@@ -81,280 +81,105 @@ const DashboardContent = () => {
     try {
       setClaimingBonus(true);
       
-      // ОПТИМИЗАЦИЯ: Динамический импорт Supabase (Index.tsx lazy loaded, но для чистоты делаем динамический импорт)
+      // ОПТИМИЗАЦИЯ: Динамический импорт Supabase
       const { supabase } = await import('@/integrations/supabase/client');
       
-      const today = new Date().toISOString().split('T')[0];
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-      
-      const dailyBonus = dashboardData.daily_bonus;
-      
-      // Проверяем, можно ли получить награду
-      if (!dailyBonus.can_claim) {
-        console.log('[handleClaimBonus] Already claimed today');
+      // КРИТИЧНО: Используем Edge Function для безопасной обработки на сервере
+      // Все логика (UTC время, идемпотентность, начисление наград) теперь на сервере
+      const { data, error } = await supabase.functions.invoke('claim-daily-bonus', {
+        body: { user_id: profileId }
+      });
+
+      if (error) {
+        console.error('[handleClaimBonus] Edge Function error:', error);
+        throw error;
+      }
+
+      // Проверяем ответ
+      if (!data) {
+        throw new Error('No data received from server');
+      }
+
+      // Проверяем, не был ли уже получен бонус сегодня
+      if (data.already_claimed) {
         toast({
           title: "Уже получено",
           description: "Сегодняшняя награда уже получена",
           variant: "default",
         });
-        setClaimingBonus(false);
-        return;
-      }
-      
-      console.log('[handleClaimBonus] Processing claim...');
-      
-      // Вычисляем новый стрик (без ограничения, циклический расчет)
-      let newStreak = 1;
-      if (dailyBonus.last_claimed_date === yesterday) {
-        // Продолжаем streak (без ограничения)
-        newStreak = (dailyBonus.current_streak || 0) + 1;
-      } else if (dailyBonus.last_claimed_date === today) {
-        // Уже получено сегодня
-        console.log('[handleClaimBonus] Already claimed today (date check)');
-        toast({
-          title: "Уже получено",
-          description: "Сегодняшняя награда уже получена",
-          variant: "default",
-        });
+        // Обновляем данные для отображения актуального состояния
+        invalidateCache();
         setClaimingBonus(false);
         return;
       }
 
-      // Циклический расчет: день недели (1-7)
-      // Если streak кратен 7, то день 7, иначе остаток от деления
-      const weekDay = newStreak % 7 || 7;
-      const weekNumber = Math.ceil(newStreak / 7);
-
-      // Получаем награду по дню недели (циклический)
-      // Используем weeklyRewards из dashboardData или fallback на dailyBonusDefinitions
-      const weeklyRewards = dashboardData.weeklyRewards || dailyBonusDefinitions;
-      const currentReward = weeklyRewards.find((r: any) => r.day_number === weekDay);
-      if (!currentReward) {
-        console.error('[handleClaimBonus] Reward not found for streak:', newStreak, 'weekDay:', weekDay, 'available rewards:', weeklyRewards);
-        throw new Error('Reward not found');
+      if (!data.success) {
+        throw new Error(data?.error || 'Failed to claim daily bonus');
       }
 
-      // Обновляем или создаём user_daily_bonus
-      let bonusUpdateError = null;
-      if (dailyBonus.id) {
-      const { error: bonusError } = await (supabase as any)
-        .from('user_daily_bonus')
-        .update({
-          current_streak: newStreak,
-          last_claimed_date: today,
-            total_claims: (dailyBonus.total_claims || 0) + 1,
-        })
-        .eq('id', dailyBonus.id);
-
-        bonusUpdateError = bonusError;
-      } else {
-        const { error: bonusError } = await (supabase as any)
-          .from('user_daily_bonus')
-          .insert({
-            user_id: profileId,
-            current_streak: newStreak,
-            last_claimed_date: today,
-            total_claims: 1,
-          });
-
-        bonusUpdateError = bonusError;
-      }
-
-      if (bonusUpdateError) {
-        console.error('[handleClaimBonus] Error updating daily_bonus:', bonusUpdateError);
-        throw bonusUpdateError;
-      }
-
-      // Обновляем XP и монеты сразу (без ожидания Edge Functions)
-      const updateData: { xp?: number; coins?: number } = {};
+      const { streak, reward, date } = data;
       
-      if (currentReward.reward.xp && currentReward.reward.xp > 0) {
-        updateData.xp = (dashboardData.profile.xp || 0) + currentReward.reward.xp;
+      if (typeof streak !== 'number' || !reward || typeof reward !== 'object') {
+        console.error('[handleClaimBonus] Invalid response:', data);
+        throw new Error('Invalid response from server: missing or invalid streak/reward');
       }
       
-      if (currentReward.reward.coins && currentReward.reward.coins > 0) {
-        updateData.coins = (dashboardData.profile.coins || 0) + currentReward.reward.coins;
-      }
+      const weekDay = (streak % 7) || 7;
+      const weekNumber = Math.ceil(streak / 7);
 
-      if (Object.keys(updateData).length > 0) {
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update(updateData)
-          .eq('id', profileId);
+      console.log('[handleClaimBonus] Claim successful:', { streak, reward, weekDay, date });
 
-        if (updateError) {
-          console.error('[handleClaimBonus] Error updating profile:', updateError);
-        // Не прерываем выполнение, продолжаем
-        }
-      }
-
-      // Вызываем Edge Functions асинхронно (без ожидания - они могут быть медленными)
-      // Продолжаем выполнение даже если функции не ответили
-      Promise.allSettled([
-        // УБРАНО: coins-earn - монеты теперь начисляются напрямую из daily_bonus_def
-        // УБРАНО: duel-pass-xp - используем новую систему season-sp вместо старой
-        supabase.functions.invoke('season-sp', {
-        body: { 
-          user_id: profileId, 
-          source_type: 'daily_login',
-          metadata: { streak_days: newStreak }
-        },
-        }).then(({ data: spData }) => {
-          // Если был level up в Duel Pass, показываем уведомление
-          if (spData?.level_up) {
-            supabase.functions.invoke('assistant-suggest', {
-          body: { trigger: 'duel_pass_level_up' },
-            }).then(({ data: suggestion }) => {
-        const message = suggestion?.suggestion?.message;
-        if (message) {
-          toast({
-            title: "Duel Pass",
-            description: message,
-          });
-        }
-            }).catch(err => {
-              console.warn('[handleClaimBonus] assistant-suggest error:', err);
-            });
-          }
-        }).catch(err => {
-          console.warn('[handleClaimBonus] season-sp error (non-blocking):', err);
-        }),
-      ]);
-
-      // Инвалидируем кэш и обновляем данные
-      invalidateCache();
-      
-      console.log('[handleClaimBonus] Claim successful, streak:', newStreak, 'weekDay:', weekDay);
-
-      // Показываем успешное сообщение сразу
+      // Формируем текст награды
       const rewardText: string[] = [];
-      if (currentReward.reward.xp > 0) rewardText.push(`+${currentReward.reward.xp} XP`);
-      if (currentReward.reward.coins > 0) rewardText.push(`+${currentReward.reward.coins} монет`);
-      
-      // Обработка рандомного лута (день 2, 3, 6)
-      let randomLootGranted = false;
-      if (currentReward.reward.random_loot) {
+      if (reward?.xp > 0) rewardText.push(`+${reward.xp} XP`);
+      if (reward?.coins > 0) rewardText.push(`+${reward.coins} монет`);
+      if (reward?.boost) rewardText.push('⚡ Boost получен!');
+
+      // Обработка рандомного лута (если есть в награде)
+      // TODO: Это можно перенести в Edge Function позже для полной безопасности
+      if (reward?.random_loot) {
         try {
-          const lootType = currentReward.reward.random_loot.type;
-          const lootPool = currentReward.reward.random_loot.pool || 'common';
+          const lootType = reward.random_loot.type;
+          const lootPool = reward.random_loot.pool || 'common';
           
           if (lootType === 'sticker') {
-            // Получаем рандомный стикер
             const { data: stickerId, error: stickerError } = await supabase.rpc('get_random_sticker_from_pool', {
               p_pool: lootPool
             });
             
-            if (stickerError) {
-              console.error('[handleClaimBonus] Error getting random sticker:', stickerError);
-            } else if (stickerId) {
-              const { data: lootResult, error: lootError } = await supabase.rpc('grant_random_loot', {
+            if (!stickerError && stickerId) {
+              const { data: lootResult } = await supabase.rpc('grant_random_loot', {
                 p_user_id: profileId,
-                p_loot_data: {
-                  type: 'sticker',
-                  id: stickerId,
-                  quantity: 1
-                }
+                p_loot_data: { type: 'sticker', id: stickerId, quantity: 1 }
               });
               
-              if (lootError) {
-                console.error('[handleClaimBonus] Error granting sticker:', lootError);
-              } else if (lootResult?.success) {
-                console.log('[handleClaimBonus] Sticker granted:', lootResult);
+              if (lootResult?.success) {
                 rewardText.push('🎁 Стикер получен!');
-                randomLootGranted = true;
-              } else {
-                console.warn('[handleClaimBonus] Sticker grant failed:', lootResult);
-              }
-            }
-          } else if (lootType === 'surprise') {
-            // Сюрпризный лут: 60% монеты (уже в награде), 40% косметика
-            const { data: lootData, error: lootDataError } = await supabase.rpc('get_random_loot', {
-              p_loot_type: 'surprise',
-              p_pool: lootPool
-            });
-            
-            if (lootDataError) {
-              console.error('[handleClaimBonus] Error getting random loot:', lootDataError);
-            } else if (lootData && lootData.type !== 'coins_only' && lootData.type !== 'none') {
-              const { data: lootResult, error: lootError } = await supabase.rpc('grant_random_loot', {
-                p_user_id: profileId,
-                p_loot_data: lootData
-              });
-              
-              if (lootError) {
-                console.error('[handleClaimBonus] Error granting surprise loot:', lootError);
-              } else if (lootResult?.success) {
-                console.log('[handleClaimBonus] Surprise loot granted:', lootResult);
-                randomLootGranted = true;
-                if (lootResult.type === 'sticker') {
-                  rewardText.push('🎁 Стикер получен!');
-                } else if (lootResult.type === 'skin') {
-                  rewardText.push('🎨 Скин получен!');
-                }
-              } else {
-                console.warn('[handleClaimBonus] Surprise loot grant failed:', lootResult);
               }
             }
           }
         } catch (lootError) {
           console.error('[handleClaimBonus] Error granting random loot:', lootError);
-          // Не прерываем выполнение, но логируем ошибку
-        }
-      }
-
-      // Обработка Boost (день 4, 7)
-      if (currentReward.reward.boost) {
-        try {
-          // Даем Double SP boost (полезный для дуэлей)
-          const { data: boostData, error: boostError } = await supabase.rpc('modify_boost_inventory', {
-            p_user_id: profileId,
-            p_boost_type: 'double_sp',
-            p_change: 1
-          });
-          
-          if (boostError) {
-            console.error('[handleClaimBonus] Error granting boost:', boostError);
-            // Пробуем альтернативный способ - прямой insert через service role
-            // Но это не сработает из клиента, поэтому просто логируем
-          } else {
-            console.log('[handleClaimBonus] Boost granted: double_sp', boostData);
-            rewardText.push('⚡ Boost получен!');
-          }
-        } catch (boostError) {
-          console.error('[handleClaimBonus] Error granting boost:', boostError);
         }
       }
 
       // Обработка сезонного бейджа (день 7)
-      if (currentReward.reward.badge === 'seasonal' && weekDay === 7) {
+      if (reward?.badge === 'seasonal' && weekDay === 7) {
         try {
-          const { data: badgeId, error: badgeIdError } = await supabase.rpc('get_seasonal_weekly_badge');
-          
-          if (badgeIdError) {
-            console.error('[handleClaimBonus] Error getting seasonal badge:', badgeIdError);
-          } else if (badgeId) {
-            const { data: badgeData, error: badgeError } = await supabase
-              .from('user_badges')
-              .insert({
-                user_id: profileId,
-                badge_id: badgeId,
-                is_displayed: false,
-                obtained_from: 'daily_bonus',
-                obtained_metadata: {
-                  week_number: weekNumber,
-                  streak: newStreak,
-                  obtained_at: new Date().toISOString()
-                }
-              })
-              .select();
-            
-            if (badgeError && badgeError.code !== '23505') {
-              // 23505 = unique violation (бейдж уже есть) - это нормально
-              console.error('[handleClaimBonus] Error granting badge:', badgeError);
-            } else {
-              console.log('[handleClaimBonus] Seasonal badge granted:', badgeId, badgeData);
-              rewardText.push('🏆 Сезонный бейдж получен!');
-            }
+          const { data: badgeId } = await supabase.rpc('get_seasonal_weekly_badge');
+          if (badgeId) {
+            await supabase.from('user_badges').insert({
+              user_id: profileId,
+              badge_id: badgeId,
+              is_displayed: false,
+              obtained_from: 'daily_bonus',
+              obtained_metadata: {
+                week_number: weekNumber,
+                streak: streak,
+                obtained_at: new Date().toISOString()
+              }
+            });
+            rewardText.push('🏆 Сезонный бейдж получен!');
           }
         } catch (badgeError) {
           console.error('[handleClaimBonus] Error granting badge:', badgeError);
@@ -366,7 +191,10 @@ const DashboardContent = () => {
         description: rewardText.join(', '),
       });
 
-      // Обновляем данные в фоне (не блокируем UI)
+      // Инвалидируем кэш и обновляем данные
+      invalidateCache();
+      
+      // Обновляем данные в фоне
       refreshDashboard(true).catch(err => {
         console.error('[handleClaimBonus] Error refreshing dashboard:', err);
       });
@@ -376,16 +204,16 @@ const DashboardContent = () => {
         setTimeout(() => {
           toast({
             title: "🏆 Неделя завершена!",
-            description: `Неделя ${weekNumber} завершена! Начинается новая! Общий streak: ${newStreak} дней`,
+            description: `Неделя ${weekNumber} завершена! Начинается новая! Общий streak: ${streak} дней`,
             duration: 5000,
           });
         }, 2000);
       }
     } catch (error: any) {
-      console.error('Error claiming bonus:', error);
+      console.error('[handleClaimBonus] Error:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось получить награду",
+        description: error?.message || "Не удалось получить награду",
         variant: "destructive",
       });
     } finally {
