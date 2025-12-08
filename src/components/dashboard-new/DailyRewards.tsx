@@ -430,7 +430,12 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
         {/* КАРТОЧКИ СПРАВА */}
         <div className="flex-1">
           <div className={`text-[10px] mb-1.5 ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>
-            Осталось {7 - weekDay} {7 - weekDay === 1 ? 'день' : 'дней'} до 🎁
+            {effectiveHasClaimed 
+              ? `Осталось ${7 - weekDay} ${7 - weekDay === 1 ? 'день' : 'дней'} до 🎁`
+              : weekDay === 7
+              ? '🎁 Получите награду за неделю!'
+              : `Осталось ${7 - weekDay + 1} ${7 - weekDay + 1 === 1 ? 'день' : 'дней'} до 🎁`
+            }
           </div>
           <div className="grid grid-cols-4 gap-1.5">
             {[1, 2, 3, 4, 5, 6, 7].map((day) => {

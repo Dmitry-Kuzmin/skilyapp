@@ -10,6 +10,7 @@ import { useCoins } from "@/hooks/useCoins";
 import { DashboardSkeleton } from "@/components/dashboard-new/DashboardSkeleton";
 import { useExamReadiness } from "@/hooks/useExamReadiness";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useDailyBonusDefinitions } from "@/hooks/useStaticData";
 // ОПТИМИЗАЦИЯ: Layout lazy-loaded - содержит UserContext, SettingsDrawer, NotificationsPanel, UserProfilePopover
 // Все эти компоненты тянут Supabase/Radix, поэтому Layout не должен быть в initial bundle
 const Layout = lazy(() => import("@/components/Layout").then(m => ({ default: m.default })));
@@ -47,6 +48,9 @@ const DashboardContent = () => {
 
   // Get dashboard data with caching
   const { data: dashboardData, loading, error, refresh: refreshDashboard, invalidateCache } = useDashboardData();
+  
+  // Fallback для weeklyRewards если их нет в dashboardData
+  const { data: dailyBonusDefinitions = [] } = useDailyBonusDefinitions();
   
   // Get exam readiness
   const { readiness, metrics, loading: readinessLoading } = useExamReadiness(profileId);
@@ -122,9 +126,11 @@ const DashboardContent = () => {
       const weekNumber = Math.ceil(newStreak / 7);
 
       // Получаем награду по дню недели (циклический)
-      const currentReward = dashboardData.weeklyRewards.find(r => r.day_number === weekDay);
+      // Используем weeklyRewards из dashboardData или fallback на dailyBonusDefinitions
+      const weeklyRewards = dashboardData.weeklyRewards || dailyBonusDefinitions;
+      const currentReward = weeklyRewards.find((r: any) => r.day_number === weekDay);
       if (!currentReward) {
-        console.error('[handleClaimBonus] Reward not found for streak:', newStreak);
+        console.error('[handleClaimBonus] Reward not found for streak:', newStreak, 'weekDay:', weekDay, 'available rewards:', weeklyRewards);
         throw new Error('Reward not found');
       }
 
@@ -407,7 +413,8 @@ const DashboardContent = () => {
     : (dashboardData?.stats.accuracy || 0);
   const averageScore = readinessPercent || accuracy;
   
-  const hasClaimedToday = dashboardData?.daily_bonus.can_claim === false;
+  // Правильная логика: hasClaimedToday = !can_claim (если can_claim false, значит уже получено)
+  const hasClaimedToday = dashboardData?.daily_bonus ? !dashboardData.daily_bonus.can_claim : false;
 
   let pageContent: React.ReactNode = null;
 
