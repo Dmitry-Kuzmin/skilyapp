@@ -30,34 +30,24 @@ WHERE status = 'abandoned'
 
 ## Вариант 2: Внешний сервис (автоматизация)
 
-### A. GitHub Actions (бесплатно)
+### A. GitHub Actions (бесплатно) ✅ РЕКОМЕНДУЕТСЯ
 
-Создайте файл `.github/workflows/cleanup-test-sessions.yml`:
-
-```yaml
-name: Cleanup Test Sessions
-
-on:
-  schedule:
-    - cron: '0 3 * * *' # Каждый день в 03:00 UTC
-  workflow_dispatch: # Можно запустить вручную
-
-jobs:
-  cleanup:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cleanup old test sessions
-        run: |
-          curl -X POST \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Content-Type: application/json" \
-            https://YOUR_PROJECT.supabase.co/functions/v1/cleanup-test-sessions
-```
+**Файл уже создан:** `.github/workflows/cleanup-test-sessions.yml`
 
 **Настройка:**
-1. Создайте секрет `SUPABASE_ANON_KEY` в GitHub Settings → Secrets
-2. Замените `YOUR_PROJECT` на ваш проект Supabase
-3. Создайте Edge Function `cleanup-test-sessions` (см. ниже)
+1. Перейдите в GitHub → Settings → Secrets and variables → Actions
+2. Добавьте секреты:
+   - `SUPABASE_URL` - URL вашего проекта (например: `https://xxxxx.supabase.co`)
+   - `SUPABASE_ANON_KEY` - Anon/Public ключ из Supabase Dashboard → Settings → API
+3. Задеплойте Edge Function `cleanup-test-sessions` (см. ниже)
+4. Workflow запустится автоматически каждый день в 03:00 UTC
+5. Можно запустить вручную: Actions → Cleanup Test Sessions → Run workflow
+
+**Преимущества:**
+- ✅ Бесплатно (2000 минут в месяц, запрос занимает ~1 секунду)
+- ✅ Уведомления на почту при ошибках
+- ✅ Логи в GitHub Actions
+- ✅ Infrastructure as Code (в репозитории)
 
 ### B. cron-job.org (бесплатно)
 
@@ -70,41 +60,20 @@ jobs:
 
 ### C. Edge Function для очистки
 
-Создайте Edge Function `cleanup-test-sessions`:
+**Файл уже создан:** `supabase/functions/cleanup-test-sessions/index.ts`
 
-```typescript
-// supabase/functions/cleanup-test-sessions/index.ts
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-serve(async (req) => {
-  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-  const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  const supabase = createClient(supabaseUrl, supabaseKey);
-
-  // Очистка незавершенных сессий старше 24 часов
-  const { data: deleted1, error: error1 } = await supabase
-    .from('test_sessions')
-    .delete()
-    .eq('status', 'started')
-    .lt('started_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
-
-  // Очистка abandoned сессий старше 7 дней
-  const { data: deleted2, error: error2 } = await supabase
-    .from('test_sessions')
-    .delete()
-    .eq('status', 'abandoned')
-    .lt('updated_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
-
-  return new Response(JSON.stringify({
-    success: true,
-    deleted_started: deleted1?.length || 0,
-    deleted_abandoned: deleted2?.length || 0,
-  }), {
-    headers: { "Content-Type": "application/json" },
-  });
-});
+**Задеплойте функцию:**
+```bash
+supabase functions deploy cleanup-test-sessions
 ```
+
+Или через Supabase Dashboard → Edge Functions → Deploy
+
+**Особенности:**
+- ✅ Использует современный `Deno.serve` (быстрее, меньше памяти)
+- ✅ Использует Service Role Key (обходит RLS)
+- ✅ Возвращает количество удаленных записей
+- ✅ Логирует ошибки для отладки
 
 ---
 
