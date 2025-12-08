@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { createPortal } from 'react-dom';
 import { Drawer } from 'vaul';
 import { cn } from '@/lib/utils';
 import { AchievementsModalContent } from './AchievementsModalContent';
@@ -76,9 +77,12 @@ export function AchievementsModalVaul({
   // Desktop - Framer Motion Modal
   if (!open) return null;
   
-  return (
+  const portalTarget = typeof document !== 'undefined' ? document.body : null;
+  if (!portalTarget) return null;
+
+  return createPortal(
     <AnimatePresence mode="wait">
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[2147483646] flex items-center justify-center p-4">
         {/* Backdrop */}
         <motion.div 
           initial={{ opacity: 0 }}
@@ -101,7 +105,8 @@ export function AchievementsModalVaul({
           {modalContent}
         </motion.div>
       </div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    portalTarget
   );
 }
 
