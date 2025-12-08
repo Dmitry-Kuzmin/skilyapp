@@ -102,18 +102,43 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 ## ✅ Критерии успеха
 
-- [ ] Все обновления coins используют `increment_profile_value`
-- [ ] Все обновления xp используют `increment_profile_value`
-- [ ] Все обновления sp используют `increment_profile_value`
-- [ ] Нет прямых `UPDATE profiles SET coins = ...` в клиентском коде
-- [ ] Нет прямых `update({ coins: ... })` в клиентском коде
+- [x] Все обновления coins используют `increment_profile_value` или `increment_profile_stats`
+- [x] Все обновления xp используют `increment_profile_value` или `increment_profile_stats`
+- [x] Все обновления sp используют `increment_profile_value` или `increment_profile_stats`
+- [x] Нет прямых `UPDATE profiles SET coins = ...` в клиентском коде
+- [x] Нет прямых `update({ coins: ... })` в клиентском коде
+- [x] Оптимистичные обновления вычисляют баланс локально (не полагаются на сервер)
+- [x] Оптимистичные обновления откатываются при ошибках
+
+---
+
+## ✅ Выполнено
+
+### 1. Создана bulk функция `increment_profile_stats`
+- Один атомарный UPDATE вместо нескольких вызовов
+- Обновляет coins, xp, sp одновременно
+- Проверяет отрицательный баланс для coins
+
+### 2. Исправлен `DailyBonus.tsx`
+- Использует `increment_profile_value` с правильными параметрами (`p_profile_id`, `p_column`, `p_amount`)
+- Реализованы optimistic updates с локальным вычислением
+- Откат при ошибках
+
+### 3. Исправлен `useCoins.ts`
+- Optimistic updates вычисляют баланс локально
+- Откат при ошибках
+- Синхронизация с сервером после успешной операции
+
+### 4. Исправлены Edge Functions
+- `claim-daily-bonus` - использует retry вместо прямого UPDATE
+- `process-purchase` - использует retry вместо прямого UPDATE
+- `purchase-webhook` - использует retry вместо прямого UPDATE
 
 ---
 
 ## 🚀 Следующие шаги
 
-1. Исправить `DailyBonus.tsx`
-2. Проверить все Edge Functions
-3. Протестировать исправления
-4. Перейти к следующей задаче Недели 2
+1. ✅ Применить миграцию `20250101000003_create_increment_profile_stats.sql`
+2. ✅ Протестировать optimistic updates
+3. Перейти к следующей задаче Недели 2 (архивация через pg_cron)
 
