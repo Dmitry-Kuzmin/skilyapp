@@ -2270,8 +2270,10 @@ useEffect(() => {
         <div 
           data-testid="test-content-block"
           className={cn(
-            "pt-0 sm:pt-1 md:pt-3",
-            isTelegramApp ? "px-2 sm:px-4 !pt-12" : "pb-2 md:pb-3"
+            // Для мобильной версии браузера добавляем небольшой отступ сверху
+            isTelegramApp 
+              ? "px-2 sm:px-4 !pt-12" 
+              : "pt-4 sm:pt-1 md:pt-3 pb-2 md:pb-3"
           )}
         >
         {/* КРИТИЧНО: Индикатор офлайн статуса */}
