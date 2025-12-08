@@ -150,176 +150,145 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   }
 
   return (
-    <div className="fixed inset-0 bg-background overflow-y-auto pt-safe z-40">
-      <div className="min-h-screen w-full max-w-2xl mx-auto px-4 py-8 pb-24 space-y-6 relative z-10">
+    <div className="fixed inset-0 bg-zinc-950 overflow-y-auto pt-safe z-40">
+      <div className="min-h-screen w-full max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4 relative z-10">
         <AnimatePresence>
-          {results.isWinner && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={200} gravity={0.25} style={{ position: 'fixed', top: 0, left: 0, zIndex: 50 }} />}
+          {results.isWinner && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={150} gravity={0.2} style={{ position: 'fixed', top: 0, left: 0, zIndex: 50 }} />}
         </AnimatePresence>
 
         {/* Header - Animated Result Status */}
         <motion.div
-          initial={{ scale: 0.5, opacity: 0, y: -50 }}
+          initial={{ scale: 0.96, opacity: 0, y: -20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
-          transition={{ type: "spring", duration: 0.7, bounce: 0.4 }}
-          className="text-center space-y-4 relative"
+          transition={{ type: "spring", duration: 0.4, bounce: 0.2 }}
+          className="text-center space-y-3 relative"
         >
           {/* Animated Trophy/Icon */}
           <motion.div
             animate={results.isWinner ? {
-              rotate: [0, -5, 5, -5, 0],
-              scale: [1, 1.1, 1, 1.05, 1]
+              scale: [1, 1.02, 1]
             } : {}}
-            transition={{ duration: 1, repeat: results.isWinner ? Infinity : 0, repeatDelay: 3 }}
+            transition={{ duration: 2, repeat: results.isWinner ? Infinity : 0, repeatDelay: 2 }}
             className="relative inline-block"
           >
             {results.isWinner && (
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 blur-3xl opacity-50 animate-pulse" />
-                <Trophy className="relative h-24 w-24 mx-auto text-yellow-400 drop-shadow-2xl" />
+                <div className="absolute inset-0 bg-indigo-500/10 blur-2xl opacity-30" />
+                <Trophy className="relative h-16 w-16 mx-auto text-indigo-400" />
               </div>
             )}
             {!results.isWinner && !results.isDraw && (
-              <div className="text-7xl opacity-80">😔</div>
+              <div className="text-6xl opacity-60">😔</div>
             )}
             {results.isDraw && (
-              <div className="text-7xl opacity-80">🤝</div>
+              <div className="text-6xl opacity-60">🤝</div>
             )}
           </motion.div>
 
           {/* Status Text */}
-          <div className="space-y-2">
+          <div className="space-y-1">
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.2 }}
               className={cn(
-                "text-5xl md:text-6xl font-black tracking-tight",
-                results.isWinner && "bg-gradient-to-r from-yellow-300 via-orange-400 to-yellow-300 bg-clip-text text-transparent animate-shimmer",
-                results.isDraw && "text-blue-400",
-                !results.isWinner && !results.isDraw && "text-slate-400"
+                "text-4xl md:text-5xl font-bold tracking-tight",
+                results.isWinner && "bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 bg-clip-text text-transparent",
+                results.isDraw && "text-zinc-300",
+                !results.isWinner && !results.isDraw && "text-zinc-500"
               )}
-              style={results.isWinner ? { backgroundSize: "200% 100%" } : {}}
             >
               {results.isWinner ? 'Победа!' : results.isDraw ? 'Ничья!' : 'Поражение'}
             </motion.h1>
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="text-slate-400 text-lg font-medium"
+              transition={{ delay: 0.3 }}
+              className="text-zinc-400 text-sm font-medium"
             >
               {results.isWinner ? 'Отличная игра!' : results.isDraw ? 'Вы на равных' : 'Попробуй ещё раз!'}
             </motion.p>
           </div>
         </motion.div>
 
-        {/* Score Cards - Modern Glass Design */}
-        <div className="grid grid-cols-2 gap-4">
+        {/* Score Cards - Premium Glass Design */}
+        <div className="grid grid-cols-2 gap-3">
           <motion.div
-            initial={{ x: -100, opacity: 0 }}
+            initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
+            transition={{ delay: 0.15, duration: 0.3 }}
             className="relative group"
           >
-            {/* Glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-            <div className="relative bg-gradient-to-br from-blue-900/40 to-purple-900/40 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
-              <div className="text-center space-y-3">
-                <motion.div
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="text-6xl font-black bg-gradient-to-br from-blue-400 to-purple-400 bg-clip-text text-transparent"
-                >
+            <div className="relative bg-zinc-900/50 backdrop-blur-xl rounded-xl p-4 border border-white/5 hover:border-white/10 transition-colors">
+              <div className="text-center space-y-2">
+                <div className="text-5xl font-bold text-zinc-100">
                   {results.myScore}
-                </motion.div>
-                <div className="text-sm font-bold text-white/80">Вы</div>
-                <div className="flex items-center justify-center gap-2 bg-white/10 rounded-xl px-3 py-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-400" />
-                  <span className="text-sm font-bold text-white">{results.myCorrect}/10</span>
+                </div>
+                <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Вы</div>
+                <div className="flex items-center justify-center gap-1.5 bg-emerald-500/10 rounded-full px-2 py-1 border border-emerald-500/20">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-xs font-semibold text-zinc-200">{results.myCorrect}/10</span>
                 </div>
               </div>
             </div>
           </motion.div>
 
           <motion.div
-            initial={{ x: 100, opacity: 0 }}
+            initial={{ x: 20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.3, type: "spring", stiffness: 100 }}
+            transition={{ delay: 0.2, duration: 0.3 }}
             className="relative group"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-500/20 to-slate-600/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-            <div className="relative bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
-              <div className="text-center space-y-3">
-                <div className="text-6xl font-black text-slate-300">
+            <div className="relative bg-zinc-900/50 backdrop-blur-xl rounded-xl p-4 border border-white/5 hover:border-white/10 transition-colors">
+              <div className="text-center space-y-2">
+                <div className="text-5xl font-bold text-zinc-300">
                   {results.opponentScore}
                 </div>
-                <div className="text-sm font-bold text-slate-400 truncate px-2 max-w-[150px] md:max-w-none mx-auto" title={results.opponentName}>{results.opponentName}</div>
-                <div className="flex items-center justify-center gap-2 bg-white/10 rounded-xl px-3 py-2">
-                  <Target className="w-4 h-4 text-orange-400" />
-                  <span className="text-sm font-bold text-white">{results.opponentCorrect}/10</span>
+                <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider truncate px-2 max-w-[120px] md:max-w-none mx-auto" title={results.opponentName}>{results.opponentName}</div>
+                <div className="flex items-center justify-center gap-1.5 bg-orange-500/10 rounded-full px-2 py-1 border border-orange-500/20">
+                  <Target className="w-3.5 h-3.5 text-orange-400" />
+                  <span className="text-xs font-semibold text-zinc-200">{results.opponentCorrect}/10</span>
                 </div>
               </div>
             </div>
           </motion.div>
         </div>
 
-        {/* Rewards Section - Completely Redesigned */}
+        {/* Rewards Section - Premium Design */}
         {rewards && (
           <motion.div
-            initial={{ y: 30, opacity: 0, scale: 0.95 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5 }}
-            className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-indigo-900/40 via-purple-900/40 to-pink-900/40 backdrop-blur-xl p-6"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.25, duration: 0.3 }}
+            className="relative overflow-hidden rounded-xl border border-white/10 bg-zinc-900/50 backdrop-blur-xl p-4"
           >
-            {/* Animated background gradient */}
-            <motion.div
-              animate={{
-                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
-              }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-50 rounded-3xl overflow-hidden"
-              style={{ backgroundSize: "200% 200%" }}
-            />
+            {/* Subtle background glow */}
+            <div className="absolute inset-0 bg-indigo-500/5 blur-[120px] opacity-30" />
 
-            <div className="relative z-10 space-y-5">
+            <div className="relative z-10 space-y-3">
               <div className="flex items-center justify-center gap-2">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                >
-                  <Sparkles className="w-6 h-6 text-purple-400" />
-                </motion.div>
-                <h3 className="text-xl font-black bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  Награды
-                </h3>
+                <Sparkles className="w-4 h-4 text-indigo-400" />
+                <h3 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider">Награды</h3>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 {/* Season Points */}
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-blue-500/20 text-center space-y-2"
-                >
-                  <Star className="w-8 h-8 text-blue-400 mx-auto fill-blue-400/20" />
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Season Points</div>
-                  <div className="text-3xl font-black bg-gradient-to-br from-blue-400 to-blue-600 bg-clip-text text-transparent">
+                <div className="bg-zinc-800/30 backdrop-blur-sm rounded-lg p-4 border border-white/5 text-center space-y-2">
+                  <Star className="w-5 h-5 text-indigo-400 mx-auto fill-indigo-400/10" />
+                  <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">Season Points</div>
+                  <div className="text-2xl font-bold text-zinc-100">
                     +{rewards.sp}
                   </div>
-                </motion.div>
+                </div>
 
                 {/* XP */}
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-purple-500/20 text-center space-y-2"
-                >
-                  <Zap className="w-8 h-8 text-purple-400 mx-auto fill-purple-400/20" />
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Опыт</div>
-                  <div className="text-3xl font-black bg-gradient-to-br from-purple-400 to-purple-600 bg-clip-text text-transparent">
+                <div className="bg-zinc-800/30 backdrop-blur-sm rounded-lg p-4 border border-white/5 text-center space-y-2">
+                  <Zap className="w-5 h-5 text-violet-400 mx-auto fill-violet-400/10" />
+                  <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">Опыт</div>
+                  <div className="text-2xl font-bold text-zinc-100">
                     +{rewards.xp}
                   </div>
-                </motion.div>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -328,43 +297,39 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
         {/* Betting Results */}
         {results.betAmount > 0 && (
           <motion.div
-            initial={{ y: 30, opacity: 0 }}
+            initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="bg-slate-900/60 backdrop-blur-xl rounded-3xl border border-white/10 overflow-hidden"
+            transition={{ delay: 0.3, duration: 0.3 }}
+            className="bg-zinc-900/50 backdrop-blur-xl rounded-xl border border-white/10 overflow-hidden"
           >
-            <div className="p-4 border-b border-white/10 bg-white/5 flex items-center gap-2">
-              <Coins className="w-5 h-5 text-amber-400" />
-              <h3 className="font-bold text-white">Ставка</h3>
+            <div className="p-3 border-b border-white/5 bg-zinc-800/30 flex items-center gap-2">
+              <Coins className="w-4 h-4 text-amber-400" />
+              <h3 className="text-sm font-semibold text-zinc-200">Ставка</h3>
             </div>
-            <div className="p-5 space-y-3">
-              <div className="flex justify-between items-center bg-white/5 rounded-xl p-3">
-                <span className="text-slate-400 font-medium">Ваша ставка:</span>
-                <span className="font-bold text-red-400">-{results.betAmount}</span>
+            <div className="p-4 space-y-2">
+              <div className="flex justify-between items-center bg-zinc-800/30 rounded-lg p-3 border border-white/5">
+                <span className="text-xs font-medium text-zinc-400">Ваша ставка:</span>
+                <span className="text-sm font-semibold text-red-400">-{results.betAmount}</span>
               </div>
 
               {results.isWinner && (
-                <motion.div
-                  initial={{ scale: 0.95 }}
-                  animate={{ scale: 1 }}
-                  className="flex justify-between items-center bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl p-3 border border-green-500/30"
-                >
-                  <span className="font-bold text-green-400">Выигрыш:</span>
-                  <span className="font-black text-2xl text-green-400">+{results.winnings}</span>
-                </motion.div>
+                <div className="flex justify-between items-center bg-emerald-500/10 rounded-lg p-3 border border-emerald-500/20">
+                  <span className="text-xs font-semibold text-emerald-400">Выигрыш:</span>
+                  <span className="text-xl font-bold text-emerald-400">+{results.winnings}</span>
+                </div>
               )}
 
               {!results.isWinner && !results.isDraw && (
-                <div className="flex justify-between items-center bg-red-500/10 rounded-xl p-3 border border-red-500/20">
-                  <span className="font-bold text-red-400">Проигрыш:</span>
-                  <span className="font-black text-2xl text-red-400">-{results.betAmount}</span>
+                <div className="flex justify-between items-center bg-red-500/10 rounded-lg p-3 border border-red-500/20">
+                  <span className="text-xs font-semibold text-red-400">Проигрыш:</span>
+                  <span className="text-xl font-bold text-red-400">-{results.betAmount}</span>
                 </div>
               )}
 
               {results.isDraw && (
-                <div className="flex justify-between items-center bg-blue-500/10 rounded-xl p-3 border border-blue-500/20">
-                  <span className="font-bold text-blue-400">Возврат:</span>
-                  <span className="font-black text-2xl text-blue-400">+{results.betAmount}</span>
+                <div className="flex justify-between items-center bg-indigo-500/10 rounded-lg p-3 border border-indigo-500/20">
+                  <span className="text-xs font-semibold text-indigo-400">Возврат:</span>
+                  <span className="text-xl font-bold text-indigo-400">+{results.betAmount}</span>
                 </div>
               )}
             </div>
@@ -374,21 +339,21 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
         {/* Questions Review */}
         {myAnswers.length > 0 && (
           <motion.div
-            initial={{ y: 30, opacity: 0 }}
+            initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.7 }}
-            className="bg-slate-900/60 backdrop-blur-xl rounded-3xl border border-white/10 overflow-hidden"
+            transition={{ delay: 0.35, duration: 0.3 }}
+            className="bg-zinc-900/50 backdrop-blur-xl rounded-xl border border-white/10 overflow-hidden"
           >
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="questions" className="border-none">
-                <AccordionTrigger className="px-5 py-4 hover:no-underline bg-white/5 border-b border-white/10">
+                <AccordionTrigger className="px-4 py-3 hover:no-underline bg-zinc-800/30 border-b border-white/5">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-500/20 rounded-lg">
-                      <Trophy className="w-5 h-5 text-indigo-400" />
+                    <div className="p-1.5 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
+                      <Trophy className="w-4 h-4 text-indigo-400" />
                     </div>
                     <div className="text-left">
-                      <h3 className="font-bold text-white">Обзор вопросов</h3>
-                      <p className="text-xs text-slate-400">{results.myCorrect} правильных из 10</p>
+                      <h3 className="text-sm font-semibold text-zinc-200">Обзор вопросов</h3>
+                      <p className="text-xs text-zinc-500">{results.myCorrect} правильных из 10</p>
                     </div>
                   </div>
                 </AccordionTrigger>
@@ -398,31 +363,31 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
                       <div
                         key={idx}
                         onClick={() => handleQuestionClick(answer)}
-                        className="p-4 hover:bg-white/5 cursor-pointer transition-colors group"
+                        className="p-3 hover:bg-zinc-800/30 cursor-pointer transition-colors group"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3 flex-1">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
                             <div className={cn(
-                              "w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm",
-                              answer.is_correct ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"
+                              "w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0",
+                              answer.is_correct ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"
                             )}>
                               {idx + 1}
                             </div>
-                            <div className="flex-1">
-                              <p className="text-sm text-white/90 line-clamp-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs text-zinc-300 line-clamp-2 font-medium">
                                 {answer.duel_questions?.question_snapshot?.question_ru || 
                                  answer.duel_questions?.question_ru || 
                                  'Вопрос'}
                               </p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-shrink-0">
                             {answer.is_correct ? (
-                              <CheckCircle2 className="w-5 h-5 text-green-400" />
+                              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                             ) : (
-                              <XCircle className="w-5 h-5 text-red-400" />
+                              <XCircle className="w-4 h-4 text-red-400" />
                             )}
-                            <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white transition-colors" />
+                            <ChevronRight className="w-3.5 h-3.5 text-zinc-500 group-hover:text-zinc-300 transition-colors" />
                           </div>
                         </div>
                       </div>
@@ -436,26 +401,24 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
 
         {/* Action Buttons */}
         <motion.div
-          initial={{ y: 30, opacity: 0 }}
+          initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="grid grid-cols-2 gap-4 pt-4"
+          transition={{ delay: 0.4, duration: 0.3 }}
+          className="grid grid-cols-2 gap-3 pt-2"
         >
           <Button
             onClick={onRematch}
-            size="lg"
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold h-14 rounded-2xl shadow-lg shadow-blue-500/30"
+            className="bg-white text-zinc-950 hover:bg-zinc-100 font-semibold h-12 rounded-xl shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)] hover:scale-[1.01] transition-all"
           >
-            <RotateCcw className="w-5 h-5 mr-2" />
+            <RotateCcw className="w-4 h-4 mr-2" />
             Реванш
           </Button>
           <Button
             onClick={onBackToMenu}
-            size="lg"
             variant="outline"
-            className="border-white/20 bg-white/5 hover:bg-white/10 text-white font-bold h-14 rounded-2xl backdrop-blur-sm"
+            className="border-white/10 bg-zinc-900/50 hover:bg-zinc-800/50 text-zinc-200 font-semibold h-12 rounded-xl backdrop-blur-sm"
           >
-            <Home className="w-5 h-5 mr-2" />
+            <Home className="w-4 h-4 mr-2" />
             В меню
           </Button>
         </motion.div>
