@@ -158,6 +158,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     
     (window as any).onTelegramAuth = async (user: any) => {
       console.log('[AuthModalNew] Telegram auth callback triggered:', user);
+      setTelegramLoading(true);
       
       try {
         // КРИТИЧНО: Проверяем наличие login функции перед использованием
@@ -180,6 +181,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
           last_name: user.last_name,
           username: user.username,
           photo_url: user.photo_url,
+          auth_date: user.auth_date,
+          hash: user.hash,
         });
         
         toast({
@@ -202,6 +205,9 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
           description: t('auth.errors.genericError'),
           variant: "destructive"
         });
+      } finally {
+        // Если произойдет redirect, это не успеет мигнуть; нужен для сценария ошибки
+        setTelegramLoading(false);
       }
     };
 
