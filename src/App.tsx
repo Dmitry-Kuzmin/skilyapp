@@ -7,6 +7,7 @@ import { useOfflineAnalytics } from "@/utils/offlineAnalytics";
 // ОПТИМИЗАЦИЯ: Toaster, Sonner, TooltipProvider перемещены в AppProviders
 // Они тянут Radix UI (@radix-ui/react-toast, @radix-ui/react-tooltip), поэтому не должны грузиться на лендинге
 import { PageLoader } from "@/components/PageLoader";
+import { LightFallback } from "@/components/LightFallback";
 // ОПТИМИЗАЦИЯ: ReferralRedirect и PartnerRedirect используют UserContext - делаем lazy
 // Они используются только в AppRoutes, который уже lazy, но для чистоты делаем их lazy здесь тоже
 const ReferralRedirect = lazy(() => import("@/components/ReferralRedirect").then(m => ({ default: m.ReferralRedirect })));
