@@ -668,12 +668,14 @@ serve(async (req) => {
       );
     }
 
-    // 4. Обновляем статус test_sessions на 'completed'
+    // 4. Обновляем статус test_sessions на 'completed' и устанавливаем finished_at
+    const finishedAt = new Date().toISOString();
     const { error: updateSessionError } = await supabase
       .from('test_sessions')
       .update({
         status: 'completed',
-        updated_at: new Date().toISOString(),
+        finished_at: finishedAt,
+        updated_at: finishedAt,
       })
       .eq('session_id', session_id);
 

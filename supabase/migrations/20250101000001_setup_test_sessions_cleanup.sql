@@ -12,8 +12,8 @@ SELECT cron.unschedule('cleanup-old-test-sessions');
 -- Создаем задачу для ежедневной очистки незавершенных сессий старше 24 часов
 -- Запускается каждый день в 03:00 UTC
 SELECT cron.schedule(
-  'cleanup-old-test-sessions',
-  '0 3 * * *', -- Каждый день в 03:00 UTC
+  'cleanup-abandoned-sessions',
+  '0 3 * * *', -- Каждую ночь в 03:00 UTC
   $$
     DELETE FROM public.test_sessions
     WHERE status = 'started'
