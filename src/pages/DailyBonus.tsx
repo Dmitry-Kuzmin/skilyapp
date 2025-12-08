@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Flame, Gift, Sparkles, Zap, Trophy, Check, Lock, Clock, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -23,6 +24,7 @@ const DailyBonus = () => {
   const navigate = useNavigate();
   const { profileId } = useUserContext();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const [loading, setLoading] = useState(true);
   const [dailyBonus, setDailyBonus] = useState<any>(null);
@@ -225,6 +227,20 @@ const DailyBonus = () => {
       const today = new Date().toISOString().split('T')[0];
 
       // КРИТИЧНО: Используем атомарную операцию для списания монет
+      // OPTIMISTIC UPDATE: Обновляем UI сразу, до ответа сервера
+      const previousCoins = userCoins;
+      const expectedNewCoins = previousCoins - 10;
+
+      // Оптимистично обновляем кэш (вычисляем локально)
+      queryClient.setQueryData(
+        ['profile-data', profileId],
+        (old: any) => ({
+          ...old,
+          coins: expectedNewCoins,
+        })
+      );
+
+      // Выполняем атомарную операцию на сервере
       const { error: coinsError } = await supabase.rpc('increment_profile_value', {
         p_profile_id: profileId,
         p_column: 'coins',
@@ -233,17 +249,36 @@ const DailyBonus = () => {
 
       if (coinsError) {
         console.error('[DailyBonus] Error decrementing coins:', coinsError);
+        // Откатываем optimistic update при ошибке
+        queryClient.setQueryData(
+          ['profile-data', profileId],
+          (old: any) => ({
+            ...old,
+            coins: previousCoins,
+          })
+        );
         throw new Error(coinsError.message || 'Не удалось списать монеты');
       }
 
-      // Получаем новый баланс после списания
+      // Получаем актуальный баланс с сервера для синхронизации
       const { data: updatedProfile } = await supabase
         .from('profiles')
         .select('coins')
         .eq('id', profileId)
         .single();
 
-      const newCoins = updatedProfile?.coins || userCoins - 10;
+      const newCoins = updatedProfile?.coins ?? expectedNewCoins;
+      
+      // Синхронизируем кэш с реальным значением с сервера
+      if (updatedProfile?.coins !== undefined) {
+        queryClient.setQueryData(
+          ['profile-data', profileId],
+          (old: any) => ({
+            ...old,
+            coins: updatedProfile.coins,
+          })
+        );
+      }
 
       await (supabase as any)
         .from('user_daily_bonus')

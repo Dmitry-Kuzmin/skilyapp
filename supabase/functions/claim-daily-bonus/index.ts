@@ -163,8 +163,6 @@ serve(async (req) => {
     }
 
     // АТОМАРНЫЕ ОПЕРАЦИИ: Начисляем награды через атомарные UPDATE
-    const updateData: { xp?: number; coins?: number } = {};
-
     if (reward.xp && reward.xp > 0) {
       // Атомарное обновление XP через RPC функцию
       const { error: xpError } = await supabase.rpc('increment_profile_value', {
@@ -175,15 +173,16 @@ serve(async (req) => {
 
       if (xpError) {
         console.error('[claim-daily-bonus] Error incrementing XP:', xpError);
-        // Fallback на прямой UPDATE если RPC не работает
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('xp')
-          .eq('id', user_id)
-          .single();
+        // Повторная попытка (максимум 1 раз)
+        const { error: retryXpError } = await supabase.rpc('increment_profile_value', {
+          p_profile_id: user_id,
+          p_column: 'xp',
+          p_amount: reward.xp
+        });
         
-        if (profile) {
-          updateData.xp = (profile.xp || 0) + reward.xp;
+        if (retryXpError) {
+          console.error('[claim-daily-bonus] Retry XP failed:', retryXpError);
+          // Не прерываем выполнение - пользователь получит награду при следующем вызове (идемпотентность)
         }
       }
     }
@@ -198,29 +197,17 @@ serve(async (req) => {
 
       if (coinsError) {
         console.error('[claim-daily-bonus] Error incrementing coins:', coinsError);
-        // Fallback на прямой UPDATE если RPC не работает
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('coins')
-          .eq('id', user_id)
-          .single();
+        // Повторная попытка (максимум 1 раз)
+        const { error: retryCoinsError } = await supabase.rpc('increment_profile_value', {
+          p_profile_id: user_id,
+          p_column: 'coins',
+          p_amount: reward.coins
+        });
         
-        if (profile) {
-          updateData.coins = (profile.coins || 0) + reward.coins;
+        if (retryCoinsError) {
+          console.error('[claim-daily-bonus] Retry coins failed:', retryCoinsError);
+          // Не прерываем выполнение - пользователь получит награду при следующем вызове (идемпотентность)
         }
-      }
-    }
-
-    // Fallback: если RPC не работает, используем прямой UPDATE (но это не атомарно)
-    if (Object.keys(updateData).length > 0) {
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update(updateData)
-        .eq('id', user_id);
-
-      if (updateError) {
-        console.error('[claim-daily-bonus] Error updating profile (fallback):', updateError);
-        // Не прерываем выполнение, но логируем ошибку
       }
     }
 

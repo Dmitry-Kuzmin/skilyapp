@@ -27,14 +27,47 @@ export function useCoins() {
     async (spendType: SpendType, metadata?: Record<string, unknown>) => {
       if (!profileId) return { success: false };
 
+      // Получаем текущий баланс для optimistic update
+      const currentData = queryClient.getQueryData(["profile-data", profileId]) as any;
+      const currentCoins = currentData?.coins ?? balance;
+      
+      // Определяем стоимость (из COSTS в Edge Function)
+      const COSTS: Record<SpendType, number> = {
+        boost_50_50: 30,
+        boost_hint: 40,
+        boost_time: 50,
+        second_chance: 60,
+      };
+      const cost = COSTS[spendType] || 0;
+      const expectedNewBalance = currentCoins - cost;
+
+      // OPTIMISTIC UPDATE: Обновляем UI сразу (вычисляем локально)
+      queryClient.setQueryData(
+        ["profile-data", profileId],
+        (old: any) => ({
+          ...old,
+          coins: expectedNewBalance,
+        })
+      );
+
       try {
         const { data, error } = await supabaseClient.functions.invoke("coins-spend", {
           body: { user_id: profileId, spend_type: spendType, metadata },
         });
 
-        if (error) throw error;
+        if (error) {
+          // Откатываем optimistic update при ошибке
+          queryClient.setQueryData(
+            ["profile-data", profileId],
+            (old: any) => ({
+              ...old,
+              coins: currentCoins,
+            })
+          );
+          throw error;
+        }
 
-        // Оптимистично обновляем кэш профиля
+        // Синхронизируем с реальным значением с сервера (если вернулось)
         if (data?.new_balance !== undefined) {
           queryClient.setQueryData(
             ["profile-data", profileId],
@@ -56,7 +89,7 @@ export function useCoins() {
         return { success: false };
       }
     },
-    [profileId, queryClient, refreshBalance]
+    [profileId, queryClient, refreshBalance, balance]
   );
 
   return {
