@@ -19,28 +19,15 @@ function useSafeQuery<T>(options: Parameters<typeof useQuery<T>>[0] & { enabled?
   const queryClient = useSafeQueryClient();
   const hasQueryClient = !!queryClient;
   
-  // Пытаемся вызвать useQuery, но если QueryClient отсутствует, он упадет
-  // В этом случае мы вернем заглушку
-  try {
-    // Всегда вызываем useQuery, но с enabled: false если нет queryClient
-    const queryResult = useQuery<T>({
-      ...options,
-      enabled: hasQueryClient && (options.enabled !== false),
-    });
-    
-    // Если нет queryClient, возвращаем заглушку
-    if (!hasQueryClient) {
-      return {
-        data: undefined,
-        isLoading: false,
-        error: null,
-        refetch: async () => ({ data: undefined, error: null }),
-      };
-    }
-    
-    return queryResult;
-  } catch (error) {
-    // QueryClient отсутствует - возвращаем заглушку
+  // Всегда вызываем useQuery, но с enabled: false если нет queryClient
+  // Если QueryClient отсутствует, useQuery может упасть, но мы надеемся что enabled: false предотвратит это
+  const queryResult = useQuery<T>({
+    ...options,
+    enabled: hasQueryClient && (options.enabled !== false),
+  });
+  
+  // Если нет queryClient, возвращаем заглушку
+  if (!hasQueryClient) {
     return {
       data: undefined,
       isLoading: false,
@@ -48,6 +35,8 @@ function useSafeQuery<T>(options: Parameters<typeof useQuery<T>>[0] & { enabled?
       refetch: async () => ({ data: undefined, error: null }),
     };
   }
+  
+  return queryResult;
 }
 
 interface DashboardStats {
@@ -199,6 +188,7 @@ export function useDashboardData() {
 
   // Функция для принудительного обновления
   const refresh = async (force = false) => {
+    if (!queryClient) return;
     if (force) {
       // Инвалидируем кэш перед обновлением
       queryClient.invalidateQueries({ queryKey: [DASHBOARD_QUERY_KEY, profileId] });
@@ -208,8 +198,20 @@ export function useDashboardData() {
 
   // Функция для инвалидации кэша
   const invalidateCache = () => {
+    if (!queryClient) return;
     queryClient.invalidateQueries({ queryKey: [DASHBOARD_QUERY_KEY, profileId] });
   };
+
+  // Если нет провайдеров - возвращаем заглушку
+  if (!userContext || !queryClient) {
+    return {
+      data: null,
+      loading: false,
+      error: null,
+      refresh: async () => {},
+      invalidateCache: () => {},
+    };
+  }
 
   return {
     data,

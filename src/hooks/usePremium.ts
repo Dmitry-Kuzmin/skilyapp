@@ -50,19 +50,13 @@ export function usePremium() {
   const profileId = userContext?.profileId ?? null;
   const queryClient = useSafeQueryClient();
   
-  // Если нет контекста или QueryClient — не дергаем лишние хуки/запросы, возвращаем заглушку
-  if (!userContext || !queryClient) {
-    return useMemo(() => ({
-      ...initialState,
-      loading: false,
-      refresh: async () => {},
-      invalidate: () => {},
-    }), []);
-  }
-
+  // ВАЖНО: Всегда вызываем хуки в одном порядке (правила хуков)
   // ОПТИМИЗАЦИЯ: Пытаемся взять premium из Super RPC Dashboard
   // useDashboardData теперь безопасный и вернет null если QueryClient отсутствует
   const { data: dashboardData } = useDashboardData();
+  
+  // Проверяем наличие провайдеров для enabled флага
+  const hasProviders = !!(userContext && queryClient);
 
   const {
     data: state = initialState,
@@ -119,7 +113,7 @@ export function usePremium() {
         subscriptionStatus: data.subscriptionStatus || null,
       };
     },
-    enabled: !!profileId,
+    enabled: hasProviders && !!profileId,
     staleTime: 2 * 60 * 1000, // 2 минуты
     gcTime: 5 * 60 * 1000, // 5 минут
     refetchOnWindowFocus: false,
@@ -136,8 +130,20 @@ export function usePremium() {
 
   // Функция для инвалидации кэша (полезно после покупки premium)
   const invalidate = () => {
-    queryClient.invalidateQueries({ queryKey: [PREMIUM_QUERY_KEY, profileId] });
+    if (queryClient) {
+      queryClient.invalidateQueries({ queryKey: [PREMIUM_QUERY_KEY, profileId] });
+    }
   };
+
+  // Если нет провайдеров - возвращаем заглушку
+  if (!hasProviders) {
+    return {
+      ...initialState,
+      loading: false,
+      refresh: async () => {},
+      invalidate: () => {},
+    };
+  }
 
   return {
     ...state,
