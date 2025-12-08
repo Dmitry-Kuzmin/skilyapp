@@ -15,11 +15,15 @@ supabase functions deploy cleanup-test-sessions
 1. Перейдите в GitHub → Settings → Secrets and variables → Actions
 2. Добавьте секреты:
    - **`SUPABASE_URL`** - URL вашего проекта
-     - Найти: Supabase Dashboard → Settings → API → Project URL
-     - Пример: `https://xxxxx.supabase.co`
+     - **Значение:** `https://yffjnqegeiorunyvcxkn.supabase.co`
+     - Или найти: Supabase Dashboard → Settings → API → Project URL
    - **`SUPABASE_ANON_KEY`** - Anon/Public ключ
-     - Найти: Supabase Dashboard → Settings → API → Project API keys → `anon` `public`
-     - Скопируйте значение
+     - **Где найти:** 
+       1. Откройте: https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/settings/api
+       2. Найдите секцию **"Project API keys"**
+       3. Найдите ключ с меткой **"anon" "public"** (НЕ service_role!)
+       4. Нажмите "Reveal" и скопируйте значение (начинается с `eyJ`)
+     - ⚠️ **ВАЖНО:** Используйте только "anon" "public" ключ, НЕ service_role!
 
 ### 3. Проверить что всё работает
 
@@ -33,8 +37,11 @@ supabase functions deploy cleanup-test-sessions
 curl -X POST \
   -H "Authorization: Bearer YOUR_ANON_KEY" \
   -H "Content-Type: application/json" \
-  https://YOUR_PROJECT.supabase.co/functions/v1/cleanup-test-sessions
+  https://yffjnqegeiorunyvcxkn.supabase.co/functions/v1/cleanup-test-sessions
 ```
+
+**Где взять `YOUR_ANON_KEY`:**
+- Supabase Dashboard → Settings → API → Project API keys → "anon" "public"
 
 **Ожидаемый ответ:**
 ```json
