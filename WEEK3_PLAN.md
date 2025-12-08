@@ -8,7 +8,7 @@
 
 ## 📋 Задачи
 
-### 1. ✅ Telegram Stars: Разные цены для Telegram Mini App и Web
+ок### 1. ✅ Telegram Stars: Разные цены для Telegram Mini App и Web
 
 **Важно:** Telegram Stars используется ТОЛЬКО в Telegram Mini App. На Web используются Cryptomus/Paddle (EUR).
 
@@ -26,18 +26,20 @@
 - Убедиться, что Edge Functions используют `price_stars` для Telegram Stars
 
 **План:**
-1. ✅ Проверить, что `price_stars` заполнено в БД (уже есть в миграциях)
-2. Обновить `PaywallModal.tsx` для загрузки `price_stars` из БД
-3. Обновить отображение цены: Stars в Telegram, EUR на Web
-4. Проверить Edge Functions (`telegram-stars-payment`) - используют ли `price_stars`
+1. ✅ Проверить, что `price_stars` заполнено в БД (создан скрипт `CHECK_AND_FILL_PRICE_STARS.sql`)
+2. ✅ Обновить `PaywallModal.tsx` для загрузки `price_stars` из БД
+3. ✅ Обновить отображение цены: Stars в Telegram, EUR на Web
+4. Проверить Edge Functions (`telegram-stars-payment`) - используют ли `price_stars` ✅ (уже используют)
 5. Обновить другие компоненты (если есть), где показываются цены
 
 **Критерии успеха:**
 - [x] Колонка `price_stars` существует в `pricing_packages` (уже есть)
-- [ ] В Telegram Mini App показывается цена в Stars (`price_stars`)
-- [ ] На Web показывается цена в EUR (Cryptomus/Paddle)
-- [ ] Edge Functions используют `price_stars` для Telegram Stars
-- [ ] Нет вычислений на клиенте — все из БД
+- [x] Скрипт для проверки и заполнения `price_stars` создан (`CHECK_AND_FILL_PRICE_STARS.sql`)
+- [x] `PaywallModal.tsx` загружает `price_stars` из БД
+- [x] В Telegram Mini App показывается цена в Stars (`price_stars`)
+- [x] На Web показывается цена в EUR (Cryptomus/Paddle)
+- [x] Edge Functions используют `price_stars` для Telegram Stars (уже используют)
+- [ ] **ОСТАЛОСЬ:** Применить скрипт `CHECK_AND_FILL_PRICE_STARS.sql` в Supabase SQL Editor
 
 ---
 
@@ -96,11 +98,11 @@
 
 ## 📊 Прогресс
 
-- [ ] Telegram Stars: Разные цены
+- [x] Telegram Stars: Разные цены (код готов, нужно заполнить БД)
 - [ ] Pending Transactions: Проверка зависших платежей
 - [ ] Performance: Оптимизация индексов
 
-**Прогресс: 0%**
+**Прогресс: 50% (Telegram Stars - код готов, ждем заполнения БД)**
 
 ---
 
