@@ -2270,9 +2270,10 @@ useEffect(() => {
         <div 
           data-testid="test-content-block"
           className={cn(
+            // Для Telegram: Layout уже применяет padding-top через safe-area, поэтому не добавляем дополнительный отступ
             // Для мобильной версии браузера добавляем небольшой отступ сверху
             isTelegramApp 
-              ? "px-2 sm:px-4 !pt-12" 
+              ? "px-2 sm:px-4 pt-0" 
               : "pt-4 sm:pt-1 md:pt-3 pb-2 md:pb-3"
           )}
         >
