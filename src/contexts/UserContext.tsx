@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from "react";
 import { TelegramUser } from "@/types/window";
 import { getTelegramUser, getPlatform, initTelegram } from "@/core/TelegramInit";
 import { isTelegramMiniApp } from "@/lib/telegram";
@@ -435,20 +435,24 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // Determine if user is authenticated (either Telegram or Supabase)
   const isAuthenticated = !!(user || supabaseUser);
 
+  // ОПТИМИЗАЦИЯ: Мемоизируем значение контекста для предотвращения лишних ре-рендеров
+  const contextValue = useMemo(
+    () => ({
+      user,
+      supabaseUser,
+      session,
+      platform,
+      isAuthenticated,
+      isLoading,
+      profileId,
+      login,
+      logout,
+    }),
+    [user, supabaseUser, session, platform, isAuthenticated, isLoading, profileId, login, logout]
+  );
+
   return (
-    <UserContext.Provider
-      value={{
-        user,
-        supabaseUser,
-        session,
-        platform,
-        isAuthenticated,
-        isLoading,
-        profileId,
-        login,
-        logout,
-      }}
-    >
+    <UserContext.Provider value={contextValue}>
       {children}
     </UserContext.Provider>
   );

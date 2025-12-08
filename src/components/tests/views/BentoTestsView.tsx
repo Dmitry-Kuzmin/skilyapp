@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useEffect } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
     BookOpen, Shuffle, Zap, Flame,
@@ -6,7 +6,6 @@ import {
     ChevronRight, Trophy, Sparkles, Target, BarChart3, Play, ArrowRight
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { FluidDropdown } from "@/components/ui/fluid-dropdown";
 import { cn } from "@/lib/utils";
 import { usePremium } from "@/hooks/usePremium";
 import { useTheme } from "next-themes";
@@ -129,18 +128,10 @@ export const BentoTestsView = memo(function BentoTestsView({
     const { isPremium } = usePremium();
     const { resolvedTheme } = useTheme();
     const [hoveredTopic, setHoveredTopic] = useState<string | null>(null);
-    // Если randomQuestionCount уже установлен (не 0), значит пользователь уже выбрал или есть значение по умолчанию
-    const [hasSelectedCount, setHasSelectedCount] = useState(randomQuestionCount > 0);
+    const [hasSelectedCount, setHasSelectedCount] = useState(false);
 
     // ОПТИМИЗАЦИЯ: Мемоизируем вычисления для предотвращения лишних ре-рендеров
     const isDark = useMemo(() => (resolvedTheme ?? 'dark') !== 'light', [resolvedTheme]);
-    
-    // Синхронизируем hasSelectedCount с randomQuestionCount
-    useEffect(() => {
-        if (randomQuestionCount > 0 && !hasSelectedCount) {
-            setHasSelectedCount(true);
-        }
-    }, [randomQuestionCount, hasSelectedCount]);
     
     // ОПТИМИЗАЦИЯ: Мемоизируем обработчики для предотвращения лишних ре-рендеров
     const handleCountSelect = useCallback((count: number) => {
@@ -235,18 +226,31 @@ export const BentoTestsView = memo(function BentoTestsView({
                                             <p className={cn("text-xs mb-2 font-semibold", isDark ? "text-white/60" : "text-gray-500")}>
                                                 {t('testsPage.questionCount')}
                                             </p>
-                                            <FluidDropdown
-                                                options={[
-                                                    { id: "10", label: "10", value: 10 },
-                                                    { id: "20", label: "20", value: 20 },
-                                                    { id: "30", label: "30", value: 30 },
-                                                ]}
-                                                selectedValue={randomQuestionCount}
-                                                onSelect={(value) => {
-                                                    handleCountSelect(value as number);
-                                                }}
-                                                isDark={isDark}
-                                            />
+                                            <div className="flex gap-2">
+                                                {[10, 20, 30].map((count) => (
+                                                    <motion.button
+                                                        key={count}
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleCountSelect(count);
+                                                        }}
+                                                        className={cn(
+                                                            "flex-1 px-3 md:px-4 py-2 md:py-2.5 rounded-xl font-bold text-sm md:text-base transition-all",
+                                                            randomQuestionCount === count
+                                                                ? (isDark 
+                                                                    ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/50" 
+                                                                    : "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg")
+                                                                : (isDark 
+                                                                    ? "bg-white/10 text-white hover:bg-white/20 border border-white/10" 
+                                                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200")
+                                                        )}
+                                                    >
+                                                        {count}
+                                                    </motion.button>
+                                                ))}
+                                            </div>
                                         </div>
                                         
                                         {/* Start Button - показываем только после выбора */}

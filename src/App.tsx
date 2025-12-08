@@ -403,9 +403,9 @@ const App = () => {
               {/* ОПТИМИЗАЦИЯ: AppProviders lazy - НЕ попадает в initial bundle для лендинга */}
               {/* Это критично для производительности - Supabase/Query грузятся только для /app/* */}
               <Route path="/*" element={
-                <Suspense fallback={<PageLoader />}>
+                <Suspense fallback={<LightFallback />}>
                   <AppProviders>
-                    <Suspense fallback={<PageLoader />}>
+                    <Suspense fallback={<LightFallback />}>
                       <AppRoutes />
                     </Suspense>
                     {/* Глобальный менеджер модалок должен быть внутри провайдеров,

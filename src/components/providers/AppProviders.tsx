@@ -16,6 +16,7 @@ import { UserProvider } from "@/contexts/UserContext";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ReconnectHandler } from "@/components/ReconnectHandler";
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -31,7 +32,9 @@ export function AppProviders({ children }: AppProvidersProps) {
           gcTime: 7 * 24 * 60 * 60 * 1000, // 7 дней - данные хранятся в кэше
           refetchOnWindowFocus: false, // Не перезапрашиваем при фокусе окна
           refetchOnMount: false, // Не перезапрашиваем при монтировании, если данные свежие
-          refetchOnReconnect: true, // Перезапрашиваем при восстановлении соединения
+          // ОПТИМИЗАЦИЯ: refetchOnReconnect отключен для предотвращения мерцаний
+          // Вместо этого используем ручной refetch с задержкой через onReconnect callback
+          refetchOnReconnect: false, // Отключаем мгновенный refetch
           retry: 1, // Минимум повторных попыток
           retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
         },
@@ -116,6 +119,7 @@ export function AppProviders({ children }: AppProvidersProps) {
             },
           }}
         >
+          <ReconnectHandler />
           {children}
         </PersistQueryClientProvider>
       </UserProvider>
