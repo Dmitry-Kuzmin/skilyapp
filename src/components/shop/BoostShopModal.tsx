@@ -198,6 +198,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   useEffect(() => {
     // ОПТИМИЗАЦИЯ: Debounce загрузки данных
     if (open && !hasLoadedRef.current && profileId) {
+      console.log('[BoostShopModal] Загрузка данных, profileId:', profileId);
       hasLoadedRef.current = true;
       // Небольшая задержка для плавного открытия модалки
       loadDataTimeoutRef.current = setTimeout(() => {
@@ -209,6 +210,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       if (loadDataTimeoutRef.current) {
         clearTimeout(loadDataTimeoutRef.current);
       }
+    } else if (open && !profileId) {
+      console.warn('[BoostShopModal] Модалка открыта, но profileId отсутствует');
+    } else if (open && hasLoadedRef.current) {
+      console.log('[BoostShopModal] Данные уже загружены, пропускаем');
     }
     
     return () => {
@@ -236,6 +241,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   }, [open, activeTab]);
 
   const loadData = async () => {
+    console.log('[BoostShopModal] loadData вызвана, profileId:', profileId);
     if (!profileId) {
       console.warn('[BoostShop] profileId не установлен');
       setLoading(false);
@@ -243,6 +249,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     }
 
     try {
+      console.log('[BoostShopModal] Начинаем загрузку данных...');
       setLoading(true);
 
       // Загрузка бустов
@@ -297,6 +304,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     } catch (error) {
       console.error('[BoostShop] Ошибка загрузки данных магазина:', error);
     } finally {
+      console.log('[BoostShopModal] Загрузка данных завершена, loading: false');
       setLoading(false);
     }
   };
