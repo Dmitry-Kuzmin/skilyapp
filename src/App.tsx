@@ -408,6 +408,11 @@ const App = () => {
                     <Suspense fallback={<PageLoader />}>
                       <AppRoutes />
                     </Suspense>
+                    {/* Глобальный менеджер модалок должен быть внутри провайдеров,
+                        чтобы работали UserContext и QueryClient */}
+                    <Suspense fallback={null}>
+                      <GlobalModalManager />
+                    </Suspense>
                   </AppProviders>
                 </Suspense>
               } />
@@ -417,9 +422,8 @@ const App = () => {
               <HallOfFameModal />
               <DuelPassLeaderboardModal />
             </Suspense>
-            {/* Глобальный менеджер модалок для Instagram-подобного поведения */}
+            {/* Глобальный менеджер модалок (перенесен внутрь AppProviders выше) */}
             <Suspense fallback={null}>
-              <GlobalModalManager />
               <PerformanceMonitor />
               <PasskeyOnboardingWrapper />
             </Suspense>
