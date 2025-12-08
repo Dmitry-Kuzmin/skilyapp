@@ -43,19 +43,25 @@ WHERE is_active = true;
 -- примерные расчеты на основе пропорций. Если у вас есть точные цены в EUR,
 -- обновите значения вручную после применения скрипта.
 
+-- ВАЖНО: Если у вас есть точные цены в EUR для coins_300, coins_700, coins_1500, coins_5000,
+-- обновите значения вручную после применения скрипта.
+-- Текущие значения рассчитаны на основе примерных EUR цен.
+
 UPDATE pricing_packages
 SET price_stars = CASE
-  -- Пакеты монет (основные)
+  -- Пакеты монет (основные - известные цены)
   WHEN package_key = 'coins_100' THEN 198  -- €2.99 → €4.27 → 198 звёзд
-  WHEN package_key = 'coins_300' THEN 396  -- ~€5.99 → ~€8.56 → 396 звёзд (примерно)
   WHEN package_key = 'coins_500' THEN 660  -- €9.99 → €14.27 → 660 звёзд
-  WHEN package_key = 'coins_700' THEN 924  -- ~€13.99 → ~€19.99 → 924 звёзд (примерно)
   WHEN package_key = 'coins_1200' THEN 1321  -- €19.99 → €28.56 → 1321 звёзд
-  WHEN package_key = 'coins_1500' THEN 1650  -- ~€24.99 → ~€35.70 → 1650 звёзд (примерно)
   WHEN package_key = 'coins_3000' THEN 2644  -- €39.99 → €57.13 → 2644 звёзд
-  WHEN package_key = 'coins_5000' THEN 4408  -- ~€66.99 → ~€95.70 → 4408 звёзд (примерно)
   
-  -- Premium пакеты
+  -- Пакеты монет (примерные расчеты - требуют проверки EUR цен)
+  WHEN package_key = 'coins_300' THEN 396  -- ~€5.99 → ~€8.56 → 396 звёзд (ПРОВЕРИТЬ EUR!)
+  WHEN package_key = 'coins_700' THEN 924  -- ~€13.99 → ~€19.99 → 924 звёзд (ПРОВЕРИТЬ EUR!)
+  WHEN package_key = 'coins_1500' THEN 1650  -- ~€24.99 → ~€35.70 → 1650 звёзд (ПРОВЕРИТЬ EUR!)
+  WHEN package_key = 'coins_5000' THEN 4408  -- ~€66.99 → ~€95.70 → 4408 звёзд (ПРОВЕРИТЬ EUR!)
+  
+  -- Premium пакеты (известные цены)
   WHEN package_key = 'premium_monthly' THEN 660  -- €9.99 → €14.27 → 660 звёзд
   WHEN package_key = 'premium_yearly' THEN 3966  -- €59.99 → €85.70 → 3966 звёзд
   WHEN package_key = 'premium_forever' THEN 3966  -- €59.99 → €85.70 → 3966 звёзд
