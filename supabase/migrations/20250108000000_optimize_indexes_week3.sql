@@ -104,8 +104,8 @@ COMMENT ON INDEX idx_user_progress_user_question_composite IS
 COMMENT ON INDEX idx_duel_players_activity_status IS 
   'Индекс для поиска активных дуэлей игрока по статусу активности';
 
-COMMENT ON INDEX idx_purchases_pending_old IS 
-  'Частичный индекс для оптимизации check-pending-transactions: только старые pending покупки';
+COMMENT ON INDEX idx_purchases_pending IS 
+  'Частичный индекс для оптимизации check-pending-transactions: все pending покупки (фильтр по времени в запросе)';
 
 COMMENT ON INDEX idx_stars_payments_pending_rewards IS 
   'Частичный индекс для оптимизации check-pending-transactions: платежи с незачисленными наградами';
