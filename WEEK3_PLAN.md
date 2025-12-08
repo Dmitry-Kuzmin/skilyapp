@@ -8,28 +8,35 @@
 
 ## 📋 Задачи
 
-### 1. ✅ Telegram Stars: Разные цены для Web и Telegram
+### 1. ✅ Telegram Stars: Разные цены для Telegram Mini App и Web
+
+**Важно:** Telegram Stars используется ТОЛЬКО в Telegram Mini App. На Web используются Cryptomus/Paddle (EUR).
 
 **Проблема:**
 - Telegram Stars имеет комиссию Apple/Google (30%) + комиссию Telegram
 - Цены в Stars должны быть выше, чем в Web (Cryptomus/Paddle)
-- Сейчас цены одинаковые, что съедает маржу
+- Сейчас в UI показывается только `price_coins`, а не `price_stars` для Telegram
+- Поле `price_stars` уже есть в БД, но не используется в UI
 
 **Решение:**
-- Добавить колонку `stars_price` в таблицу `pricing_packages`
-- Не вычислять `x1.4` на клиенте — хранить в БД
-- Показывать разные цены в зависимости от платформы (Web vs Telegram)
+- Поле `price_stars` уже существует в `pricing_packages` ✅
+- Обновить UI для показа правильной цены:
+  - **В Telegram Mini App:** показывать цену в Stars (`price_stars`)
+  - **На Web:** показывать цену в EUR (через Cryptomus/Paddle)
+- Убедиться, что Edge Functions используют `price_stars` для Telegram Stars
 
 **План:**
-1. Создать миграцию для добавления `stars_price` в `pricing_packages`
-2. Заполнить `stars_price` для существующих пакетов (цена * 1.4)
-3. Обновить Edge Functions для использования правильной цены
-4. Обновить клиентский код для отображения правильной цены
+1. ✅ Проверить, что `price_stars` заполнено в БД (уже есть в миграциях)
+2. Обновить `PaywallModal.tsx` для загрузки `price_stars` из БД
+3. Обновить отображение цены: Stars в Telegram, EUR на Web
+4. Проверить Edge Functions (`telegram-stars-payment`) - используют ли `price_stars`
+5. Обновить другие компоненты (если есть), где показываются цены
 
 **Критерии успеха:**
-- [ ] Колонка `stars_price` добавлена в `pricing_packages`
-- [ ] Цены для Telegram Stars на 35-40% выше, чем для Web
-- [ ] Правильная цена показывается в зависимости от платформы
+- [x] Колонка `price_stars` существует в `pricing_packages` (уже есть)
+- [ ] В Telegram Mini App показывается цена в Stars (`price_stars`)
+- [ ] На Web показывается цена в EUR (Cryptomus/Paddle)
+- [ ] Edge Functions используют `price_stars` для Telegram Stars
 - [ ] Нет вычислений на клиенте — все из БД
 
 ---
@@ -109,7 +116,22 @@
 
 ## 📝 Примечания
 
+- **КРИТИЧНО:** Telegram Stars используется ТОЛЬКО в Telegram Mini App
+- **КРИТИЧНО:** На Web используются Cryptomus/Paddle (EUR), НЕ Telegram Stars
 - **Важно:** Не объяснять причину разных цен в UI (нарушение правил сторов)
 - **Важно:** Использовать тестовые ключи для проверки pending транзакций
 - **Важно:** Логировать все операции для отладки
+
+## 🔍 Текущее состояние
+
+### Telegram Stars:
+- ✅ Поле `price_stars` существует в БД
+- ✅ Edge Function `telegram-stars-payment` использует `price_stars`
+- ✅ `StarsPaymentButton` показывается только в Telegram Mini App
+- ❌ `PaywallModal` НЕ загружает `price_stars` из БД (только `price_coins`)
+- ❌ UI не показывает цену в Stars для Telegram Mini App
+
+### Web (Cryptomus/Paddle):
+- ✅ `CryptomusPaymentPreview` используется на Web
+- ✅ Цены в EUR через Cryptomus/Paddle
 
