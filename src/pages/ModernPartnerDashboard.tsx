@@ -10,6 +10,7 @@ import {
   RefreshCw,
   TrendingUp,
   Sparkles,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,6 +22,7 @@ import { ModernPartnerConversionFunnel } from "@/components/partner/ModernPartne
 import { PartnerLinkGenerator } from "@/components/partner/PartnerLinkGenerator";
 import { PartnerBalancePayouts } from "@/components/partner/PartnerBalancePayouts";
 import { AutoschoolStudentsProgress } from "@/components/partner/AutoschoolStudentsProgress";
+import { PartnerHandbook } from "@/components/partner/PartnerHandbook";
 
 interface PartnerData {
   id: string;
@@ -259,6 +261,13 @@ export default function ModernPartnerDashboard() {
                     <Download className="h-4 w-4 mr-1.5" />
                     Материалы
                   </TabsTrigger>
+                  <TabsTrigger 
+                    value="handbook"
+                    className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
+                  >
+                    <BookOpen className="h-4 w-4 mr-1.5" />
+                    Справочник
+                  </TabsTrigger>
                 </>
               )}
             </TabsList>
@@ -295,6 +304,10 @@ export default function ModernPartnerDashboard() {
                   Баннеры, логотипы и шаблоны скоро появятся здесь
                 </p>
               </div>
+            </TabsContent>
+
+            <TabsContent value="handbook" className="mt-6">
+              {partner && <PartnerHandbook partnerType={partner.partner_type} />}
             </TabsContent>
           </Tabs>
         </div>
