@@ -103,8 +103,15 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     if (!profileId) return;
     setLoadingKey(catalogKey);
     try {
+      // Получаем partner_code из localStorage (если пользователь пришел через партнерскую ссылку)
+      const partnerCode = localStorage.getItem('partner_code');
+      
       const { data, error } = await supabase.functions.invoke("purchase-create", {
-        body: { user_id: profileId, catalog_key: catalogKey },
+        body: { 
+          user_id: profileId, 
+          catalog_key: catalogKey,
+          ...(partnerCode ? { partner_code: partnerCode } : {}),
+        },
       });
       
       console.log("[PaywallModal] Response:", { data, error });

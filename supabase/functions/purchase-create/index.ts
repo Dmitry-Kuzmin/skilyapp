@@ -181,7 +181,7 @@ serve(async (req) => {
       );
     }
 
-    const { user_id, catalog_key } = requestBody;
+    const { user_id, catalog_key, partner_code } = requestBody;
 
     if (!user_id || !catalog_key) {
       console.error("[purchase-create] Missing required fields:", { user_id: !!user_id, catalog_key: !!catalog_key });
@@ -190,6 +190,9 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // partner_code опционален (может быть null если покупка не через партнера)
+    const normalizedPartnerCode = partner_code ? partner_code.toUpperCase().trim() : null;
 
     console.log("[purchase-create] Processing purchase:", { user_id, catalog_key });
 
@@ -231,6 +234,8 @@ serve(async (req) => {
         catalog_key,
         db_type: entry.dbType,
         db_item_id: entry.dbItemId,
+        // Партнерский код для начисления комиссии
+        ...(normalizedPartnerCode ? { partner_code: normalizedPartnerCode } : {}),
         // Для coins_pack добавляем количество монет в metadata
         ...(entry.dbType === "coins_pack" && entry.metadata?.coins 
           ? { coins: entry.metadata.coins.toString() } 
@@ -253,7 +258,11 @@ serve(async (req) => {
       currency: entry.currency.toUpperCase(),
       stripe_session_id: session.id,
       status: "pending",
-      metadata: entry.metadata || {},
+      partner_code: normalizedPartnerCode, // Сохраняем partner_code в таблице
+      metadata: {
+        ...(entry.metadata || {}),
+        ...(normalizedPartnerCode ? { partner_code: normalizedPartnerCode } : {}),
+      },
     });
 
     return new Response(

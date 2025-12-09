@@ -647,9 +647,16 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     }
 
     try {
+      // Получаем partner_code из localStorage (если пользователь пришел через партнерскую ссылку)
+      const partnerCode = localStorage.getItem('partner_code');
+      
       // Создаем Stripe Checkout сессию
       const { data, error } = await supabaseClient.functions.invoke("purchase-create", {
-        body: { user_id: profileId, catalog_key: catalogKey },
+        body: { 
+          user_id: profileId, 
+          catalog_key: catalogKey,
+          ...(partnerCode ? { partner_code: partnerCode } : {}),
+        },
       });
 
       if (error) {
