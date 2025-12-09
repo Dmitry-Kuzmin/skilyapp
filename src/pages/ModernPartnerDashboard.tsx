@@ -266,7 +266,8 @@ export default function ModernPartnerDashboard() {
           {/* Tabs */}
           <Tabs defaultValue="funnel" className="space-y-6">
             <TabsList className="bg-zinc-900 border border-zinc-800 p-1 h-auto">
-              {partner.registration_status === "approved" && (
+              {/* Показываем табы если партнер одобрен (по той же логике, что и доступ к дашборду) */}
+              {isApproved && (
                 <>
                   <TabsTrigger 
                     value="funnel"
