@@ -130,7 +130,15 @@ export default function ModernPartnerDashboard() {
     );
   }
 
-  if (!partner || partner.registration_status !== "approved") {
+  // Партнер считается одобренным, если:
+  // 1. registration_status === "approved" ИЛИ
+  // 2. есть partner_code (код генерируется только для одобренных партнеров)
+  const isApproved = partner && (
+    partner.registration_status === "approved" || 
+    (partner.partner_code && partner.partner_code.trim() !== "")
+  );
+
+  if (!partner || !isApproved) {
     return (
       <Layout>
         <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
