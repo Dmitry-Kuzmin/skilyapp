@@ -23,13 +23,43 @@ export function PartnerHandbook({ partnerType = "revenue_share" }: PartnerHandbo
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-6 mb-6">
-          <TabsTrigger value="overview">Обзор</TabsTrigger>
-          <TabsTrigger value="commissions">Комиссии</TabsTrigger>
-          <TabsTrigger value="mechanics">Механики</TabsTrigger>
-          <TabsTrigger value="security">Безопасность</TabsTrigger>
-          <TabsTrigger value="faq">FAQ</TabsTrigger>
-          <TabsTrigger value="examples">Примеры</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-6 mb-6 bg-zinc-900 border border-zinc-800 p-1 h-auto">
+          <TabsTrigger 
+            value="overview"
+            className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
+          >
+            Обзор
+          </TabsTrigger>
+          <TabsTrigger 
+            value="commissions"
+            className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
+          >
+            Комиссии
+          </TabsTrigger>
+          <TabsTrigger 
+            value="mechanics"
+            className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
+          >
+            Механики
+          </TabsTrigger>
+          <TabsTrigger 
+            value="security"
+            className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
+          >
+            Безопасность
+          </TabsTrigger>
+          <TabsTrigger 
+            value="faq"
+            className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
+          >
+            FAQ
+          </TabsTrigger>
+          <TabsTrigger 
+            value="examples"
+            className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
+          >
+            Примеры
+          </TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
