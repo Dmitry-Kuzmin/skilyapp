@@ -48,6 +48,12 @@ export default function ModernPartnerDashboard() {
   const { isAuthenticated, supabaseUser } = useUserContext();
   const [loading, setLoading] = useState(true);
   const [partner, setPartner] = useState<PartnerData | null>(null);
+  const [funnelStats, setFunnelStats] = useState<{
+    clicks: number;
+    registrations: number;
+    purchases: number;
+    total_commission: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -88,6 +94,21 @@ export default function ModernPartnerDashboard() {
 
       if (partnerData) {
         setPartner(partnerData);
+        
+        // Загружаем реальные данные из воронки конверсий
+        const { data: stats, error: statsError } = await supabase.rpc('get_partner_funnel_stats', {
+          p_partner_id: partnerData.id,
+          p_days: 30
+        });
+        
+        if (!statsError && stats && stats.length > 0) {
+          setFunnelStats({
+            clicks: Number(stats[0].clicks) || 0,
+            registrations: Number(stats[0].registrations) || 0,
+            purchases: Number(stats[0].purchases) || 0,
+            total_commission: Number(stats[0].total_commission) || 0,
+          });
+        }
       } else {
         navigate("/partners");
       }
@@ -125,28 +146,29 @@ export default function ModernPartnerDashboard() {
     );
   }
 
+  // Используем реальные данные из воронки, если они загружены
   const statCards = [
     {
       label: "Кликов",
-      value: partner.total_link_activations || 0,
+      value: funnelStats?.clicks ?? partner.total_link_activations ?? 0,
       icon: TrendingUp,
       trend: null,
     },
     {
       label: "Регистраций",
-      value: partner.total_keys_activated || 0,
+      value: funnelStats?.registrations ?? 0,
       icon: Users,
-      trend: "+12% за неделю",
+      trend: null,
     },
     {
       label: "Покупок",
-      value: 0, // TODO: Получить из воронки
+      value: funnelStats?.purchases ?? 0,
       icon: Sparkles,
       trend: null,
     },
     {
       label: "Комиссия",
-      value: `€${partner.accumulated_commission?.toFixed(2) || '0.00'}`,
+      value: `€${(funnelStats?.total_commission ?? partner.accumulated_commission ?? 0).toFixed(2)}`,
       icon: DollarSign,
       trend: null,
     },
