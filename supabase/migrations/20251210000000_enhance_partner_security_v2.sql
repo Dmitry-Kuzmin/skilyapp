@@ -22,18 +22,29 @@ CREATE INDEX IF NOT EXISTS idx_partner_conversions_fingerprint_hash
 ON public.partner_conversions(fingerprint_hash) 
 WHERE fingerprint_hash IS NOT NULL;
 
+-- КРИТИЧНО: Композитный индекс для быстрого поиска кликов по session_id (для Cookie Stuffing Protection)
+-- Этот индекс критичен для производительности триггера
+CREATE INDEX IF NOT EXISTS idx_partner_conversions_session_event 
+ON public.partner_conversions(session_id, event_type) 
+WHERE session_id IS NOT NULL;
+
 -- Комментарии
 COMMENT ON COLUMN public.partner_conversions.click_timestamp IS 'Время первого клика по партнерской ссылке (для Cookie Stuffing Protection)';
 COMMENT ON COLUMN public.partner_conversions.fingerprint_hash IS 'Browser fingerprint hash (FingerprintJS) для детекции ботов';
 COMMENT ON COLUMN public.partner_conversions.time_to_register_seconds IS 'Время от клика до регистрации в секундах (для детекции ботов)';
 
 -- 2. Функция для проверки Cookie Stuffing (слишком быстрое время между кликом и регистрацией)
+-- Возвращает RECORD с результатом проверки и временем для сохранения в таблицу
 CREATE OR REPLACE FUNCTION check_cookie_stuffing(
   p_session_id TEXT,
   p_event_type TEXT,
   p_created_at TIMESTAMPTZ
 )
-RETURNS BOOLEAN AS $$
+RETURNS TABLE(
+  is_stuffing BOOLEAN,
+  click_timestamp TIMESTAMPTZ,
+  time_diff_seconds INTEGER
+) AS $$
 DECLARE
   v_click_timestamp TIMESTAMPTZ;
   v_time_diff_seconds INTEGER;
@@ -41,10 +52,11 @@ DECLARE
 BEGIN
   -- Проверяем только для registration и purchase
   IF p_event_type NOT IN ('registration', 'purchase') THEN
-    RETURN false; -- Не применимо
+    RETURN QUERY SELECT false, NULL::TIMESTAMPTZ, NULL::INTEGER;
+    RETURN;
   END IF;
 
-  -- Найти время первого клика для этой сессии
+  -- Найти время первого клика для этой сессии (использует индекс idx_partner_conversions_session_event)
   SELECT MIN(created_at) INTO v_click_timestamp
   FROM public.partner_conversions
   WHERE session_id = p_session_id
@@ -53,7 +65,8 @@ BEGIN
 
   -- Если клика не было, пропускаем проверку (может быть прямой переход)
   IF v_click_timestamp IS NULL THEN
-    RETURN false;
+    RETURN QUERY SELECT false, NULL::TIMESTAMPTZ, NULL::INTEGER;
+    RETURN;
   END IF;
 
   -- Вычислить разницу времени
@@ -61,10 +74,12 @@ BEGIN
 
   -- Если прошло меньше 2 секунд - это Cookie Stuffing (бот/скрипт)
   IF v_time_diff_seconds < v_min_time_seconds THEN
-    RETURN true; -- Обнаружен Cookie Stuffing
+    RETURN QUERY SELECT true, v_click_timestamp, v_time_diff_seconds;
+    RETURN;
   END IF;
 
-  RETURN false; -- Всё нормально
+  -- Всё нормально - возвращаем данные для сохранения
+  RETURN QUERY SELECT false, v_click_timestamp, v_time_diff_seconds;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER
 SET search_path = public;
@@ -108,25 +123,27 @@ BEGIN
     END IF;
   END IF;
 
-  -- 3. Cookie Stuffing Protection (проверка времени)
+  -- 3. Cookie Stuffing Protection (используем функцию вместо дублирования кода - DRY принцип)
   IF NEW.event_type IN ('registration', 'purchase') AND NEW.session_id IS NOT NULL THEN
-    -- Найти время первого клика
-    SELECT MIN(created_at) INTO v_click_timestamp
-    FROM public.partner_conversions
-    WHERE session_id = NEW.session_id
-    AND event_type = 'click'
-    LIMIT 1;
+    -- Вызываем функцию проверки (возвращает результат и время)
+    SELECT 
+      cs.is_stuffing,
+      cs.click_timestamp,
+      cs.time_diff_seconds
+    INTO
+      v_is_cookie_stuffing,
+      v_click_timestamp,
+      v_time_diff_seconds
+    FROM check_cookie_stuffing(NEW.session_id, NEW.event_type, NEW.created_at) cs;
 
+    -- Если функция вернула данные (был клик)
     IF v_click_timestamp IS NOT NULL THEN
-      -- Вычислить разницу времени
-      v_time_diff_seconds := EXTRACT(EPOCH FROM (NEW.created_at - v_click_timestamp))::INTEGER;
-      
       -- Сохранить время для аналитики
       NEW.time_to_register_seconds := v_time_diff_seconds;
       NEW.click_timestamp := v_click_timestamp;
 
-      -- Если прошло меньше 2 секунд - блокируем
-      IF v_time_diff_seconds < 2 THEN
+      -- Если обнаружен Cookie Stuffing - блокируем
+      IF v_is_cookie_stuffing THEN
         -- Создать fraud alert
         PERFORM create_fraud_alert(
           NEW.partner_id,
@@ -265,21 +282,96 @@ $$ LANGUAGE plpgsql SECURITY DEFINER
 SET search_path = public;
 
 -- 6. Триггер AFTER INSERT для асинхронной проверки (не блокирует транзакцию)
--- Этот триггер только ставит задачу в очередь, не блокирует INSERT
+-- Использует pg_net для вызова Edge Function (если доступно) или таблицу очереди
 CREATE OR REPLACE FUNCTION queue_async_fraud_check()
 RETURNS TRIGGER AS $$
+DECLARE
+  v_url TEXT;
+  v_service_key TEXT;
+  v_payload JSONB;
+  v_use_pg_net BOOLEAN := false; -- Флаг: использовать pg_net или таблицу очереди
 BEGIN
-  -- Вместо немедленной проверки, можно:
-  -- 1. Записать в таблицу очереди для обработки Edge Function
-  -- 2. Или вызвать pg_notify для обработки через LISTEN/NOTIFY
-  -- 3. Или просто оставить для обработки через pg_cron
-  
-  -- Для простоты оставляем пустым - тяжелые проверки делаются через pg_cron
-  -- или Edge Function, который вызывается после успешного INSERT
-  
+  -- Проверяем, доступно ли расширение pg_net
+  SELECT EXISTS (
+    SELECT 1 FROM pg_extension WHERE extname = 'pg_net'
+  ) INTO v_use_pg_net;
+
+  IF v_use_pg_net THEN
+    -- Вариант 1: Используем pg_net для асинхронного вызова Edge Function
+    -- ⚠️ ВАЖНО: Замените на ваш реальный URL Edge Function
+    -- URL должен быть вида: 'https://PROJECT_REF.supabase.co/functions/v1/fraud-check-worker'
+    v_url := current_setting('app.settings.fraud_check_url', true);
+    
+    -- Если URL не настроен, используем fallback через таблицу очереди
+    IF v_url IS NULL OR v_url = '' THEN
+      v_use_pg_net := false;
+    ELSE
+      -- Получаем Service Role Key из vault/secrets (или используем переменную окружения)
+      v_service_key := current_setting('app.settings.service_role_key', true);
+      
+      -- Если ключ не настроен, используем fallback
+      IF v_service_key IS NULL OR v_service_key = '' THEN
+        v_use_pg_net := false;
+      ELSE
+        -- Формируем payload
+        v_payload := jsonb_build_object(
+          'conversion_id', NEW.id::TEXT,
+          'partner_id', NEW.partner_id::TEXT,
+          'event_type', NEW.event_type
+        );
+
+        -- Отправляем асинхронный запрос через pg_net (НЕ блокирует транзакцию)
+        PERFORM net.http_post(
+          url := v_url,
+          headers := jsonb_build_object(
+            'Content-Type', 'application/json',
+            'Authorization', 'Bearer ' || v_service_key
+          ),
+          body := v_payload
+        );
+        
+        RETURN NEW;
+      END IF;
+    END IF;
+  END IF;
+
+  -- Вариант 2: Fallback - записываем в таблицу очереди для обработки через pg_cron или Edge Function
+  -- Создаем таблицу очереди, если её еще нет
+  CREATE TABLE IF NOT EXISTS public.fraud_check_queue (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    conversion_id UUID NOT NULL REFERENCES public.partner_conversions(id) ON DELETE CASCADE,
+    partner_id UUID NOT NULL REFERENCES public.partners(id) ON DELETE CASCADE,
+    event_type TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    processed_at TIMESTAMPTZ,
+    status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
+    error_message TEXT,
+    
+    UNIQUE(conversion_id)
+  );
+
+  -- Создаем индекс для быстрой выборки pending задач
+  CREATE INDEX IF NOT EXISTS idx_fraud_check_queue_pending 
+  ON public.fraud_check_queue(status, created_at) 
+  WHERE status = 'pending';
+
+  -- Записываем задачу в очередь
+  INSERT INTO public.fraud_check_queue (
+    conversion_id,
+    partner_id,
+    event_type,
+    status
+  ) VALUES (
+    NEW.id,
+    NEW.partner_id,
+    NEW.event_type,
+    'pending'
+  )
+  ON CONFLICT (conversion_id) DO NOTHING; -- Игнорируем дубликаты
+
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql
+$$ LANGUAGE plpgsql SECURITY DEFINER
 SET search_path = public;
 
 -- Триггер AFTER INSERT (не блокирует транзакцию)
@@ -290,10 +382,33 @@ FOR EACH ROW
 EXECUTE FUNCTION queue_async_fraud_check();
 
 -- 7. Функция для обновления track_partner_conversion (добавить поддержку fingerprint_hash)
--- Удаляем все версии функции (если существуют) - PostgreSQL требует указать типы параметров
--- Старая версия (без fingerprint_hash):
-DROP FUNCTION IF EXISTS track_partner_conversion(TEXT, TEXT, UUID, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, INET, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT);
--- Новая версия (с fingerprint_hash) будет создана ниже
+-- Безопасный способ: используем CREATE OR REPLACE, PostgreSQL сам перегрузит функцию
+-- Если нужна полная замена, лучше удалить через Dashboard перед миграцией
+-- Или использовать более безопасный подход через проверку существования
+DO $$
+BEGIN
+  -- Пытаемся удалить старую версию только если она существует с точной сигнатурой
+  -- Это безопаснее, чем жестко указывать все типы
+  IF EXISTS (
+    SELECT 1 FROM pg_proc p
+    JOIN pg_namespace n ON p.pronamespace = n.oid
+    WHERE n.nspname = 'public'
+    AND p.proname = 'track_partner_conversion'
+    AND array_length(p.proargtypes, 1) = 18 -- Старая версия без fingerprint_hash
+  ) THEN
+    -- Удаляем через системную функцию с точной сигнатурой
+    -- Используем pg_get_function_identity_arguments для безопасности
+    EXECUTE format(
+      'DROP FUNCTION IF EXISTS %s(%s)',
+      'track_partner_conversion',
+      (SELECT pg_get_function_identity_arguments(oid) 
+       FROM pg_proc 
+       WHERE proname = 'track_partner_conversion' 
+       AND array_length(proargtypes, 1) = 18 
+       LIMIT 1)
+    );
+  END IF;
+END $$;
 
 -- Создаем новую версию с поддержкой fingerprint_hash
 CREATE OR REPLACE FUNCTION track_partner_conversion(
@@ -405,9 +520,33 @@ $$ LANGUAGE plpgsql SECURITY DEFINER
 SET search_path = public;
 
 -- Комментарии для документации
-COMMENT ON FUNCTION check_cookie_stuffing IS 'Проверяет Cookie Stuffing: блокирует регистрации, которые произошли менее чем за 2 секунды после клика';
-COMMENT ON FUNCTION check_conversion_fraud_v2 IS 'Улучшенная версия проверки фрода: легкие проверки синхронно, тяжелые асинхронно';
-COMMENT ON FUNCTION async_check_fraud_patterns IS 'Асинхронная проверка тяжелых паттернов фрода (вызывается после INSERT, не блокирует транзакцию)';
-COMMENT ON FUNCTION queue_async_fraud_check IS 'Триггер для постановки задачи на асинхронную проверку (не блокирует INSERT)';
+COMMENT ON FUNCTION check_cookie_stuffing IS 'Проверяет Cookie Stuffing: возвращает результат проверки и время для сохранения в таблицу (DRY принцип)';
+COMMENT ON FUNCTION check_conversion_fraud_v2 IS 'Улучшенная версия проверки фрода: легкие проверки синхронно, тяжелые асинхронно. Использует check_cookie_stuffing вместо дублирования кода';
+COMMENT ON FUNCTION async_check_fraud_patterns IS 'Асинхронная проверка тяжелых паттернов фрода (вызывается через queue_async_fraud_check, не блокирует INSERT)';
+COMMENT ON FUNCTION queue_async_fraud_check IS 'Триггер для постановки задачи на асинхронную проверку. Использует pg_net (если доступно) или таблицу очереди fraud_check_queue';
 COMMENT ON FUNCTION track_partner_conversion IS 'Обновленная функция трекинга конверсий с поддержкой FingerprintJS hash';
+
+-- Комментарии о настройке
+COMMENT ON TABLE public.fraud_check_queue IS 'Очередь задач для асинхронной проверки фрода. Обрабатывается через pg_cron или Edge Function';
+COMMENT ON INDEX idx_partner_conversions_session_event IS 'КРИТИЧНО: Композитный индекс для быстрого поиска кликов по session_id (используется в Cookie Stuffing Protection)';
+
+-- ============================================================
+-- НАСТРОЙКА АСИНХРОННОЙ ПРОВЕРКИ
+-- ============================================================
+-- Для использования pg_net (рекомендуется):
+-- 1. Включите расширение: CREATE EXTENSION IF NOT EXISTS pg_net;
+-- 2. Настройте переменные через ALTER DATABASE:
+--    ALTER DATABASE postgres SET app.settings.fraud_check_url = 'https://PROJECT_REF.supabase.co/functions/v1/fraud-check-worker';
+--    ALTER DATABASE postgres SET app.settings.service_role_key = 'YOUR_SERVICE_ROLE_KEY';
+-- 3. Или создайте Edge Function fraud-check-worker, которая вызывает async_check_fraud_patterns()
+--
+-- Для использования таблицы очереди (fallback):
+-- 1. Настройте pg_cron для обработки очереди (каждые 5 минут):
+--    SELECT cron.schedule('fraud-check-worker', '*/5 * * * *', $$
+--      SELECT async_check_fraud_patterns(conversion_id) 
+--      FROM fraud_check_queue 
+--      WHERE status = 'pending' 
+--      LIMIT 50;
+--    $$);
+-- ============================================================
 
