@@ -133,10 +133,21 @@ export default function ModernPartnerDashboard() {
   // Партнер считается одобренным, если:
   // 1. registration_status === "approved" ИЛИ
   // 2. есть partner_code (код генерируется только для одобренных партнеров)
+  // 3. registration_status === null или undefined (старые партнеры без явного статуса, но с кодом)
   const isApproved = partner && (
     partner.registration_status === "approved" || 
-    (partner.partner_code && partner.partner_code.trim() !== "")
+    (partner.partner_code && partner.partner_code.trim() !== "") ||
+    (partner.registration_status === null && partner.partner_code)
   );
+
+  // Отладочная информация (только в dev режиме)
+  if (import.meta.env.DEV && partner) {
+    console.log('[ModernPartnerDashboard] Partner status check:', {
+      registration_status: partner.registration_status,
+      partner_code: partner.partner_code,
+      isApproved,
+    });
+  }
 
   if (!partner || !isApproved) {
     return (
@@ -148,6 +159,11 @@ export default function ModernPartnerDashboard() {
             <p className="text-zinc-400 text-sm">
               Ваша заявка на рассмотрении. Мы свяжемся с вами в течение 24 часов.
             </p>
+            {import.meta.env.DEV && partner && (
+              <div className="mt-4 p-3 bg-zinc-800 rounded text-xs text-zinc-400 text-left">
+                <p>Debug: status={String(partner.registration_status)}, code={partner.partner_code || 'null'}</p>
+              </div>
+            )}
           </div>
         </div>
       </Layout>
