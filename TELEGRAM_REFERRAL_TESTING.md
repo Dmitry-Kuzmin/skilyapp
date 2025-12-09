@@ -125,3 +125,5 @@ VITE_TELEGRAM_BOT_USERNAME=sdadimtutbot
 
 Сейчас в коде используется хардкод `sdadimtutbot` в `ProfileModal.tsx`, но в `Referrals.tsx` используется переменная окружения.
 
+
+

@@ -466,3 +466,5 @@ COMMENT ON FUNCTION get_pending_fraud_alerts IS 'Возвращает pending fr
 
 
 
+
+

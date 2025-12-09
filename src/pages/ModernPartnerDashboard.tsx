@@ -73,8 +73,12 @@ export default function ModernPartnerDashboard() {
   }, [isAuthenticated, supabaseUser]);
 
   const loadDashboardData = async () => {
-    if (!supabaseUser) return;
+    if (!supabaseUser) {
+      console.log('[ModernPartnerDashboard] No supabaseUser, skipping load');
+      return;
+    }
 
+    console.log('[ModernPartnerDashboard] Loading dashboard data for user_id:', supabaseUser.id);
     setLoading(true);
     
     try {
@@ -84,8 +88,21 @@ export default function ModernPartnerDashboard() {
         .eq("user_id", supabaseUser.id)
         .single();
 
+      console.log('[ModernPartnerDashboard] Partner query result:', {
+        hasData: !!partnerData,
+        error: partnerError?.message,
+        errorCode: partnerError?.code,
+        partnerData: partnerData ? {
+          id: partnerData.id,
+          name: partnerData.name,
+          partner_code: partnerData.partner_code,
+          registration_status: partnerData.registration_status,
+        } : null,
+      });
+
       if (partnerError) {
         if (partnerError.code === "PGRST116") {
+          console.log('[ModernPartnerDashboard] Partner not found, redirecting to /partners');
           navigate("/partners");
           return;
         }
@@ -93,6 +110,7 @@ export default function ModernPartnerDashboard() {
       }
 
       if (partnerData) {
+        console.log('[ModernPartnerDashboard] Setting partner data:', partnerData);
         setPartner(partnerData);
         
         // Загружаем реальные данные из воронки конверсий
@@ -140,13 +158,18 @@ export default function ModernPartnerDashboard() {
     (partner.registration_status === null && partner.partner_code)
   );
 
-  // Отладочная информация (только в dev режиме)
-  if (import.meta.env.DEV && partner) {
+  // Отладочная информация (всегда показываем для отладки)
+  if (partner) {
     console.log('[ModernPartnerDashboard] Partner status check:', {
+      partner_id: partner.id,
       registration_status: partner.registration_status,
       partner_code: partner.partner_code,
+      has_partner_code: !!(partner.partner_code && partner.partner_code.trim() !== ""),
       isApproved,
+      partner_full: partner,
     });
+  } else {
+    console.log('[ModernPartnerDashboard] Partner is null');
   }
 
   if (!partner || !isApproved) {
