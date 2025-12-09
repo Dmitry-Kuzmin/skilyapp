@@ -404,7 +404,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
               const partnerData = JSON.parse(partnerDataStr);
               const ipAddress = await getClientIP();
               const userAgent = navigator.userAgent;
-              
+
               // Получаем session_id из localStorage (если был сохранен при клике)
               const sessionId = localStorage.getItem('partner_session_id');
               

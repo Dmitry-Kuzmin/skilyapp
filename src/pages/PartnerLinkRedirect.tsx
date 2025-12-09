@@ -49,14 +49,14 @@ export default function PartnerLinkRedirect() {
         // Трекинг клика (не ждем ответа, редиректим сразу)
         // Получаем fingerprint и передаем в track_partner_conversion
         fingerprintPromise.then((fingerprintHash) => {
-          supabase.rpc('track_partner_conversion', {
-            p_partner_code: linkInfo.partner_code,
-            p_event_type: 'click',
-            p_session_id: sessionId,
-            p_utm_campaign: linkInfo.utm_campaign,
-            p_landing_page: linkInfo.destination,
+        supabase.rpc('track_partner_conversion', {
+          p_partner_code: linkInfo.partner_code,
+          p_event_type: 'click',
+          p_session_id: sessionId,
+          p_utm_campaign: linkInfo.utm_campaign,
+          p_landing_page: linkInfo.destination,
             p_fingerprint_hash: fingerprintHash, // Передаем fingerprint hash
-          }).then(() => {
+        }).then(() => {
             console.log('[PartnerLink] Click tracked with fingerprint:', fingerprintHash ? 'yes' : 'no');
           }).catch((err) => {
             console.error('[PartnerLink] Track error:', err);

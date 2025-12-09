@@ -501,7 +501,7 @@ export default function Partners() {
                 </CardDescription>
               </CardHeader>
               {/* Status messages moved outside CardHeader to fix DOM nesting (div cannot be inside p) */}
-              {loadingProfile && (
+                {loadingProfile && (
                 <div className="px-6 pb-0">
                   <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
                     <p className="text-sm text-primary flex items-center gap-2">
@@ -509,9 +509,9 @@ export default function Partners() {
                       {currentContent.form.loadingProfile}
                     </p>
                   </div>
-                </div>
-              )}
-              {isAlreadyPartner && (
+                  </div>
+                )}
+                {isAlreadyPartner && (
                 <div className="px-6 pb-0">
                   <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
                     <p className="text-sm text-green-300 flex items-center gap-2">
@@ -522,9 +522,9 @@ export default function Partners() {
                       {currentContent.form.redirecting}
                     </p>
                   </div>
-                </div>
-              )}
-              {!isAuthenticated && !loadingProfile && (
+                  </div>
+                )}
+                {!isAuthenticated && !loadingProfile && (
                 <div className="px-6 pb-0">
                   <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
                     <p className="text-sm text-amber-300">
@@ -538,9 +538,9 @@ export default function Partners() {
                       </Button>
                     </p>
                   </div>
-                </div>
-              )}
-              {isAuthenticated && !loadingProfile && !isAlreadyPartner && (formData.name || formData.email) && (
+                  </div>
+                )}
+                {isAuthenticated && !loadingProfile && !isAlreadyPartner && (formData.name || formData.email) && (
                 <div className="px-6 pb-0">
                   <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
                     <p className="text-sm text-primary flex items-center gap-2">
@@ -548,8 +548,8 @@ export default function Partners() {
                       {currentContent.form.autoFilled}
                     </p>
                   </div>
-                </div>
-              )}
+                  </div>
+                )}
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Personal Info */}

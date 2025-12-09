@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -55,24 +55,7 @@ export default function ModernPartnerDashboard() {
     total_commission: number;
   } | null>(null);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/partners");
-      return;
-    }
-    
-    loadDashboardData();
-    
-    const interval = setInterval(() => {
-      if (isAuthenticated && supabaseUser && document.visibilityState === 'visible') {
-        loadDashboardData();
-      }
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, [isAuthenticated, supabaseUser]);
-
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     if (!supabaseUser) return;
 
     setLoading(true);
@@ -86,7 +69,10 @@ export default function ModernPartnerDashboard() {
 
       if (partnerError) {
         if (partnerError.code === "PGRST116") {
-          navigate("/partners");
+          // Партнер не найден - редирект только если мы еще на странице дашборда
+          if (window.location.pathname.includes('/partner/dashboard')) {
+            navigate("/partners");
+          }
           return;
         }
         throw partnerError;
@@ -110,7 +96,10 @@ export default function ModernPartnerDashboard() {
           });
         }
       } else {
-        navigate("/partners");
+        // Партнер не найден - редирект только если мы еще на странице дашборда
+        if (window.location.pathname.includes('/partner/dashboard')) {
+          navigate("/partners");
+        }
       }
     } catch (error: any) {
       console.error('[ModernPartnerDashboard] Error:', error);
@@ -118,7 +107,27 @@ export default function ModernPartnerDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [supabaseUser, navigate]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/partners");
+      return;
+    }
+    
+    if (!supabaseUser) return;
+    
+    loadDashboardData();
+    
+    // Обновляем данные каждые 60 секунд, только если страница видима
+    const interval = setInterval(() => {
+      if (isAuthenticated && supabaseUser && document.visibilityState === 'visible') {
+        loadDashboardData();
+      }
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated, supabaseUser, loadDashboardData, navigate]);
 
   if (loading) {
     return (
