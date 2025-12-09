@@ -22,6 +22,7 @@ import {
   QrCode,
   BarChart3,
   Zap,
+  BookOpen,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ import { PartnerConversionFunnel } from "@/components/partner/PartnerConversionF
 import { PartnerLinkGenerator } from "@/components/partner/PartnerLinkGenerator";
 import { PartnerBalancePayouts } from "@/components/partner/PartnerBalancePayouts";
 import { AutoschoolStudentsProgress } from "@/components/partner/AutoschoolStudentsProgress";
+import { PartnerHandbook } from "@/components/partner/PartnerHandbook";
 
 interface PartnerData {
   id: string;
@@ -580,6 +582,10 @@ export default function PartnerDashboard() {
                   Рекламные материалы
                 </TabsTrigger>
               )}
+              <TabsTrigger value="handbook">
+                <BookOpen className="h-4 w-4 mr-2" />
+                Справочник
+              </TabsTrigger>
             </TabsList>
 
             {/* Conversion Funnel Tab - NEW! */}
@@ -863,6 +869,11 @@ export default function PartnerDashboard() {
               )}
               </TabsContent>
             )}
+
+            {/* Handbook Tab */}
+            <TabsContent value="handbook" className="space-y-4">
+              <PartnerHandbook partnerType={partner.partner_type} />
+            </TabsContent>
 
             {/* Materials Tab */}
             {partner.registration_status === "approved" && (
