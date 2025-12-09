@@ -283,6 +283,24 @@ SET search_path = public;
 
 -- 6. Триггер AFTER INSERT для асинхронной проверки (не блокирует транзакцию)
 -- Использует pg_net для вызова Edge Function (если доступно) или таблицу очереди
+-- Создаем очередь заранее, чтобы избежать ошибки "relation does not exist"
+CREATE TABLE IF NOT EXISTS public.fraud_check_queue (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  conversion_id UUID NOT NULL REFERENCES public.partner_conversions(id) ON DELETE CASCADE,
+  partner_id UUID NOT NULL REFERENCES public.partners(id) ON DELETE CASCADE,
+  event_type TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  processed_at TIMESTAMPTZ,
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
+  error_message TEXT,
+  UNIQUE(conversion_id)
+);
+
+-- Индекс для быстрой выборки pending задач
+CREATE INDEX IF NOT EXISTS idx_fraud_check_queue_pending 
+ON public.fraud_check_queue(status, created_at) 
+WHERE status = 'pending';
+
 CREATE OR REPLACE FUNCTION queue_async_fraud_check()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -336,25 +354,6 @@ BEGIN
   END IF;
 
   -- Вариант 2: Fallback - записываем в таблицу очереди для обработки через pg_cron или Edge Function
-  -- Создаем таблицу очереди, если её еще нет
-  CREATE TABLE IF NOT EXISTS public.fraud_check_queue (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    conversion_id UUID NOT NULL REFERENCES public.partner_conversions(id) ON DELETE CASCADE,
-    partner_id UUID NOT NULL REFERENCES public.partners(id) ON DELETE CASCADE,
-    event_type TEXT NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    processed_at TIMESTAMPTZ,
-    status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
-    error_message TEXT,
-    
-    UNIQUE(conversion_id)
-  );
-
-  -- Создаем индекс для быстрой выборки pending задач
-  CREATE INDEX IF NOT EXISTS idx_fraud_check_queue_pending 
-  ON public.fraud_check_queue(status, created_at) 
-  WHERE status = 'pending';
-
   -- Записываем задачу в очередь
   INSERT INTO public.fraud_check_queue (
     conversion_id,
