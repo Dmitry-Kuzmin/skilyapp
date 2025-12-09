@@ -290,7 +290,12 @@ FOR EACH ROW
 EXECUTE FUNCTION queue_async_fraud_check();
 
 -- 7. Функция для обновления track_partner_conversion (добавить поддержку fingerprint_hash)
--- Обновим существующую функцию для поддержки нового поля
+-- Удаляем все версии функции (если существуют) - PostgreSQL требует указать типы параметров
+-- Старая версия (без fingerprint_hash):
+DROP FUNCTION IF EXISTS track_partner_conversion(TEXT, TEXT, UUID, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, INET, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT);
+-- Новая версия (с fingerprint_hash) будет создана ниже
+
+-- Создаем новую версию с поддержкой fingerprint_hash
 CREATE OR REPLACE FUNCTION track_partner_conversion(
   p_partner_code TEXT,
   p_event_type TEXT,
