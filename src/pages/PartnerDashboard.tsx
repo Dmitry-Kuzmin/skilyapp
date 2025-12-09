@@ -872,7 +872,7 @@ export default function PartnerDashboard() {
 
             {/* Handbook Tab */}
             <TabsContent value="handbook" className="space-y-4">
-              <PartnerHandbook partnerType={partner.partner_type} />
+              {partner && <PartnerHandbook partnerType={partner.partner_type} />}
             </TabsContent>
 
             {/* Materials Tab */}
