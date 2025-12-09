@@ -471,6 +471,7 @@ export default defineConfig(({ mode }) => {
       'react-router-dom',
       '@tanstack/react-query',
       'framer-motion',
+      '@fingerprintjs/fingerprintjs', // Добавляем FingerprintJS для правильной обработки
     ],
     // КРИТИЧНО: Явно указываем, что framer-motion должен быть предварительно оптимизирован
     exclude: [],

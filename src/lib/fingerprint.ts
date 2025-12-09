@@ -6,18 +6,30 @@
  * npm install @fingerprintjs/fingerprintjs
  */
 
-import FingerprintJS from '@fingerprintjs/fingerprintjs';
-
-let fpPromise: Promise<ReturnType<typeof FingerprintJS.load>> | null = null;
+let fpPromise: Promise<any> | null = null;
 let cachedFingerprint: string | null = null;
+let fingerprintModule: any = null;
 
 /**
- * Инициализирует FingerprintJS (вызывается один раз)
+ * Инициализирует FingerprintJS (вызывается один раз, использует динамический импорт)
  */
-function initFingerprint(): Promise<ReturnType<typeof FingerprintJS.load>> {
-  if (!fpPromise) {
-    fpPromise = FingerprintJS.load();
+async function initFingerprint(): Promise<any> {
+  if (fpPromise) {
+    return fpPromise;
   }
+
+  fpPromise = (async () => {
+    try {
+      // Динамический импорт для избежания проблем с Vite оптимизацией
+      const FingerprintJS = await import('@fingerprintjs/fingerprintjs');
+      fingerprintModule = FingerprintJS.default || FingerprintJS;
+      return fingerprintModule.load();
+    } catch (error) {
+      console.error('[Fingerprint] Failed to load FingerprintJS module:', error);
+      throw error;
+    }
+  })();
+
   return fpPromise;
 }
 
@@ -44,9 +56,10 @@ export async function getFingerprint(): Promise<string | null> {
     cachedFingerprint = result.visitorId;
     return cachedFingerprint;
   } catch (error) {
-    console.error('[Fingerprint] Error getting fingerprint:', error);
-    // Не ломаем приложение, если фингерпринтинг не сработал (блокировщики рекламы и т.д.)
-    return null;
+    console.warn('[Fingerprint] FingerprintJS failed, using fallback:', error);
+    // Используем fallback если FingerprintJS не загрузился
+    cachedFingerprint = generateFallbackFingerprint();
+    return cachedFingerprint;
   }
 }
 
