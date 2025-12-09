@@ -1,4 +1,5 @@
 import { BookOpen, DollarSign, Clock, Shield, TrendingUp, Users, Link as LinkIcon, HelpCircle, Calculator, AlertCircle, CheckCircle2 } from "lucide-react";
+import { FingerprintTest } from "./FingerprintTest";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,7 +24,7 @@ export function PartnerHandbook({ partnerType = "revenue_share" }: PartnerHandbo
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-6 mb-6 bg-zinc-900 border border-zinc-800 p-1 h-auto">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 mb-6 bg-zinc-900 border border-zinc-800 p-1 h-auto">
           <TabsTrigger 
             value="overview"
             className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
@@ -59,6 +60,12 @@ export function PartnerHandbook({ partnerType = "revenue_share" }: PartnerHandbo
             className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
           >
             Примеры
+          </TabsTrigger>
+          <TabsTrigger 
+            value="test"
+            className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
+          >
+            Тест
           </TabsTrigger>
         </TabsList>
 
@@ -451,6 +458,11 @@ export function PartnerHandbook({ partnerType = "revenue_share" }: PartnerHandbo
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Test Tab */}
+        <TabsContent value="test" className="space-y-4">
+          <FingerprintTest />
         </TabsContent>
       </Tabs>
     </div>
