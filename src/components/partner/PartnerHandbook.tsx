@@ -36,7 +36,7 @@ export function PartnerHandbook({ partnerType = "revenue_share" }: PartnerHandbo
         <TabsContent value="overview" className="space-y-4">
           <Card className="bg-zinc-900/50 border-zinc-800">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-white">
                 <TrendingUp className="h-5 w-5 text-primary" />
                 Что такое партнерская программа?
               </CardTitle>
@@ -71,7 +71,7 @@ export function PartnerHandbook({ partnerType = "revenue_share" }: PartnerHandbo
 
           <Card className="bg-zinc-900/50 border-zinc-800">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-white">
                 <LinkIcon className="h-5 w-5 text-primary" />
                 Как работает партнерская ссылка?
               </CardTitle>
@@ -131,7 +131,7 @@ export function PartnerHandbook({ partnerType = "revenue_share" }: PartnerHandbo
         <TabsContent value="commissions" className="space-y-4">
           <Card className="bg-zinc-900/50 border-zinc-800">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-white">
                 <DollarSign className="h-5 w-5 text-primary" />
                 Размер комиссии
               </CardTitle>
@@ -171,7 +171,7 @@ export function PartnerHandbook({ partnerType = "revenue_share" }: PartnerHandbo
 
           <Card className="bg-zinc-900/50 border-zinc-800">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-white">
                 <Clock className="h-5 w-5 text-primary" />
                 Период заморозки (Hold Period)
               </CardTitle>
@@ -186,7 +186,9 @@ export function PartnerHandbook({ partnerType = "revenue_share" }: PartnerHandbo
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="bg-zinc-800">Hold Period</Badge>
+                  <Badge variant="outline" className="bg-amber-500/10 text-amber-400 border-amber-500/30">
+                    Hold Period
+                  </Badge>
                   <span className="text-white font-medium">14-30 дней</span>
                 </div>
                 <p className="text-xs text-zinc-400">
@@ -199,7 +201,7 @@ export function PartnerHandbook({ partnerType = "revenue_share" }: PartnerHandbo
 
           <Card className="bg-zinc-900/50 border-zinc-800">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-white">
                 <Calculator className="h-5 w-5 text-primary" />
                 Пример расчета
               </CardTitle>
@@ -234,7 +236,7 @@ export function PartnerHandbook({ partnerType = "revenue_share" }: PartnerHandbo
         <TabsContent value="mechanics" className="space-y-4">
           <Card className="bg-zinc-900/50 border-zinc-800">
             <CardHeader>
-              <CardTitle>Воронка конверсий</CardTitle>
+              <CardTitle className="text-white">Воронка конверсий</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-zinc-300">
               <p>Система отслеживает весь путь пользователя от клика до покупки:</p>
@@ -272,7 +274,7 @@ export function PartnerHandbook({ partnerType = "revenue_share" }: PartnerHandbo
 
           <Card className="bg-zinc-900/50 border-zinc-800">
             <CardHeader>
-              <CardTitle>Генератор ссылок</CardTitle>
+              <CardTitle className="text-white">Генератор ссылок</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-zinc-300">
               <p>Вы можете создавать уникальные ссылки для разных кампаний:</p>
@@ -298,7 +300,7 @@ export function PartnerHandbook({ partnerType = "revenue_share" }: PartnerHandbo
         <TabsContent value="security" className="space-y-4">
           <Card className="bg-zinc-900/50 border-zinc-800">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-white">
                 <Shield className="h-5 w-5 text-primary" />
                 Система защиты от мошенничества
               </CardTitle>
@@ -382,7 +384,7 @@ export function PartnerHandbook({ partnerType = "revenue_share" }: PartnerHandbo
         <TabsContent value="examples" className="space-y-4">
           <Card className="bg-zinc-900/50 border-zinc-800">
             <CardHeader>
-              <CardTitle>Примеры расчетов комиссий</CardTitle>
+              <CardTitle className="text-white">Примеры расчетов комиссий</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3 text-sm">
