@@ -62,6 +62,8 @@ serve(async (req) => {
       utm_campaign,
       ip_address,
       user_agent,
+      fingerprint_hash, // FingerprintJS hash с фронта
+      session_id, // Session ID для связи с кликом
     } = await req.json();
 
     if (!partner_code || !user_id) {
@@ -81,6 +83,26 @@ serve(async (req) => {
       p_ip_address: ip_address || null,
       p_user_agent: user_agent || null,
     });
+
+    // Трекинг регистрации в воронке конверсий (после успешной активации)
+    if (!error && data && data.length > 0 && data[0].success) {
+      // Трекаем регистрацию с fingerprint_hash и session_id
+      supabase.rpc('track_partner_conversion', {
+        p_partner_code: partner_code.toUpperCase().trim(),
+        p_event_type: 'registration',
+        p_user_id: user_id,
+        p_session_id: session_id || null, // Session ID для связи с кликом
+        p_fingerprint_hash: fingerprint_hash || null,
+        p_utm_source: utm_source || null,
+        p_utm_medium: utm_medium || null,
+        p_utm_campaign: utm_campaign || null,
+        p_ip_address: ip_address || null,
+        p_user_agent: user_agent || null,
+      }).catch((trackError) => {
+        // Не прерываем процесс активации, если трекинг не удался
+        console.error('[activate-partner-premium] Track registration error:', trackError);
+      });
+    }
 
     if (error) {
       console.error("[activate-partner-premium] Error:", error);
@@ -195,6 +217,7 @@ async function sendPartnerWebhookNotification(
     console.error("[activate-partner-premium] Webhook error:", error);
   }
 }
+
 
 
 

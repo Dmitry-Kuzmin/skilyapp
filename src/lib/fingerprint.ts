@@ -25,9 +25,14 @@ function initFingerprint(): Promise<ReturnType<typeof FingerprintJS.load>> {
  * Получает browser fingerprint hash
  * Кэширует результат для повторного использования
  * 
- * @returns Promise<string> - Уникальный хеш устройства
+ * @returns Promise<string | null> - Уникальный хеш устройства или null при ошибке
  */
-export async function getFingerprint(): Promise<string> {
+export async function getFingerprint(): Promise<string | null> {
+  // Проверяем, что мы в браузере
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
   // Если уже есть кэш, возвращаем его
   if (cachedFingerprint) {
     return cachedFingerprint;
@@ -40,8 +45,8 @@ export async function getFingerprint(): Promise<string> {
     return cachedFingerprint;
   } catch (error) {
     console.error('[Fingerprint] Error getting fingerprint:', error);
-    // Fallback: генерируем простой хеш на основе доступных данных
-    return generateFallbackFingerprint();
+    // Не ломаем приложение, если фингерпринтинг не сработал (блокировщики рекламы и т.д.)
+    return null;
   }
 }
 

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { getFingerprint } from "@/lib/fingerprint";
 
 export default function PartnerLinkRedirect() {
   const { code } = useParams<{ code: string }>();
@@ -42,17 +43,37 @@ export default function PartnerLinkRedirect() {
         localStorage.setItem('partner_code', linkInfo.partner_code);
         localStorage.setItem('partner_utm_campaign', linkInfo.utm_campaign || '');
 
+        // Получаем fingerprint параллельно (не блокируем редирект)
+        const fingerprintPromise = getFingerprint();
+
         // Трекинг клика (не ждем ответа, редиректим сразу)
-        supabase.rpc('track_partner_conversion', {
-          p_partner_code: linkInfo.partner_code,
-          p_event_type: 'click',
-          p_session_id: sessionId,
-          p_utm_campaign: linkInfo.utm_campaign,
-          p_landing_page: linkInfo.destination,
-        }).then(() => {
-          console.log('[PartnerLink] Click tracked');
+        // Получаем fingerprint и передаем в track_partner_conversion
+        fingerprintPromise.then((fingerprintHash) => {
+          supabase.rpc('track_partner_conversion', {
+            p_partner_code: linkInfo.partner_code,
+            p_event_type: 'click',
+            p_session_id: sessionId,
+            p_utm_campaign: linkInfo.utm_campaign,
+            p_landing_page: linkInfo.destination,
+            p_fingerprint_hash: fingerprintHash, // Передаем fingerprint hash
+          }).then(() => {
+            console.log('[PartnerLink] Click tracked with fingerprint:', fingerprintHash ? 'yes' : 'no');
+          }).catch((err) => {
+            console.error('[PartnerLink] Track error:', err);
+          });
         }).catch((err) => {
-          console.error('[PartnerLink] Track error:', err);
+          console.error('[PartnerLink] Fingerprint error:', err);
+          // Если fingerprint не получен, все равно трекаем клик без него
+          supabase.rpc('track_partner_conversion', {
+            p_partner_code: linkInfo.partner_code,
+            p_event_type: 'click',
+            p_session_id: sessionId,
+            p_utm_campaign: linkInfo.utm_campaign,
+            p_landing_page: linkInfo.destination,
+            p_fingerprint_hash: null,
+          }).catch((err) => {
+            console.error('[PartnerLink] Track error (no fingerprint):', err);
+          });
         });
 
         // Редиректнуть на destination

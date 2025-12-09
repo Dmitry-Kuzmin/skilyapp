@@ -404,6 +404,13 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
               const partnerData = JSON.parse(partnerDataStr);
               const ipAddress = await getClientIP();
               const userAgent = navigator.userAgent;
+              
+              // Получаем session_id из localStorage (если был сохранен при клике)
+              const sessionId = localStorage.getItem('partner_session_id');
+              
+              // Получаем fingerprint_hash (параллельно, не блокируем процесс)
+              const { getFingerprint } = await import('@/lib/fingerprint');
+              const fingerprintHash = await getFingerprint();
 
               const { data: activationData, error: activationError } = await supabase.functions.invoke('activate-partner-premium', {
                 body: {
@@ -414,6 +421,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   utm_campaign: partnerData.utm_campaign,
                   ip_address: ipAddress,
                   user_agent: userAgent,
+                  fingerprint_hash: fingerprintHash, // Передаем fingerprint hash
+                  session_id: sessionId, // Передаем session_id для связи с кликом
                 },
               });
 
