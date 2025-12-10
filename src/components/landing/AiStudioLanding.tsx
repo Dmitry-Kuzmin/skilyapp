@@ -21,7 +21,6 @@ import {
   Sparkles,
   Coins,
 } from "lucide-react";
-import { motion } from "framer-motion";
 import { playClickSound, playEngineSound } from "@/services/audioService";
 import { LandingLogo } from "./LandingLogo";
 import { StartEngineButton } from "./StartEngineButton";
@@ -169,12 +168,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
 
       {/* Partner Banner (Priority over Referral) */}
       {partnerInfo && !loadingPartner && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="relative z-40 px-6 pt-6 pb-0 max-w-[1400px] mx-auto"
-        >
+        <div className="relative z-40 px-6 pt-6 pb-0 max-w-[1400px] mx-auto animate-fade-in">
           <div className="relative overflow-hidden rounded-[2rem] bg-slate-900/80 backdrop-blur-xl border border-amber-500/30 shadow-2xl">
             {/* Subtle gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-yellow-500/10 pointer-events-none" />
@@ -227,17 +221,12 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
               </button>
             </div>
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Referral Banner (Shown only if no partner banner) */}
       {!partnerInfo && referrerInfo && !loadingReferrer && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="relative z-40 px-6 pt-6 pb-0 max-w-[1400px] mx-auto"
-        >
+        <div className="relative z-40 px-6 pt-6 pb-0 max-w-[1400px] mx-auto animate-fade-in">
           <div className="relative overflow-hidden rounded-[2rem] bg-slate-900/80 backdrop-blur-xl border border-slate-800/50 shadow-2xl">
             {/* Subtle gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-fuchsia-500/5 pointer-events-none" />
@@ -294,7 +283,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
               </button>
             </div>
           </div>
-        </motion.div>
+        </div>
       )}
 
       <section className="relative z-10 px-6 pt-12 pb-10 md:pt-20 md:pb-16 max-w-[1400px] mx-auto flex flex-col items-center text-center">
