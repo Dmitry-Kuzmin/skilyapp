@@ -335,7 +335,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
               to="/dashboard"
               className="min-w-0 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl px-1 py-1 transition-colors hover:opacity-90"
             >
-              <LandingLogo theme="dark" variant="minimal" showText={true} className="scale-75" />
+              <LandingLogo theme="dark" variant="minimal" showText={true} />
             </NavLink>
 
             <nav className="flex gap-1 min-w-0 flex-shrink">
