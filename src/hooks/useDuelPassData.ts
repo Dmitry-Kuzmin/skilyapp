@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useDashboardData } from "./useDashboardData";
 
 const supabaseClient = supabase as any;
 
@@ -56,57 +57,77 @@ const buildFallbackResult = (): DuelPassQueryResult => ({
   seasonData: null,
 });
 
-const fetchDuelPass = async (profileId: string): Promise<DuelPassQueryResult> => {
+const fetchDuelPass = async (
+  profileId: string,
+  dashboardData?: any
+): Promise<DuelPassQueryResult> => {
   try {
-    const [seasonResult, rewardsResult] = await Promise.allSettled([
-      supabaseClient.rpc("get_active_season"),
+    // ОПТИМИЗАЦИЯ: Используем данные из Super RPC Dashboard если доступны
+    let activeSeason: any = null;
+    let progressData: any = null;
+
+    if (dashboardData?.active_season && dashboardData?.season_progress) {
+      activeSeason = dashboardData.active_season;
+      progressData = { data: [dashboardData.season_progress] };
+      logWarn("[useDuelPassData] ✅ Using season data from Super RPC");
+    } else {
+      // Fallback: отдельные запросы
+      const [seasonResult] = await Promise.allSettled([
+        supabaseClient.rpc("get_active_season"),
+      ]);
+
+      if (seasonResult.status === "rejected") {
+        const error = seasonResult.reason;
+        if (isCorsError(error)) {
+          logWarn("[useDuelPassData] CORS error loading season (likely auth)");
+        } else {
+          logWarn("[useDuelPassData] Error loading season:", error);
+        }
+        return buildFallbackResult();
+      }
+
+      const seasons = seasonResult.value.data;
+      if (!seasons || seasons.length === 0) {
+        logWarn("[useDuelPassData] No active season found");
+        return buildFallbackResult();
+      }
+
+      activeSeason = seasons[0];
+
+      const progressResult = await supabaseClient.rpc(
+        "get_or_create_season_progress",
+        {
+          p_user_id: profileId,
+          p_season_id: activeSeason.id,
+        }
+      );
+      
+      if (progressResult.error) {
+        if (isCorsError(progressResult.error)) {
+          logWarn("[useDuelPassData] CORS error loading season progress");
+        } else {
+          logWarn("[useDuelPassData] Error loading season progress:", progressResult.error);
+        }
+        return buildFallbackResult();
+      }
+      
+      progressData = progressResult;
+    }
+
+    // Загружаем награды сезона (этот запрос можно тоже добавить в Super RPC позже)
+    const rewardsResult = await Promise.allSettled([
       supabaseClient
         .from("duel_pass_season_rewards")
         .select("season_id, level, sp_required")
         .order("level", { ascending: true }),
     ]);
 
-    if (seasonResult.status === "rejected") {
-      const error = seasonResult.reason;
-      if (isCorsError(error)) {
-        logWarn("[useDuelPassData] CORS error loading season (likely auth)");
-      } else {
-        logWarn("[useDuelPassData] Error loading season:", error);
-      }
-      return buildFallbackResult();
-    }
-
-    const seasons = seasonResult.value.data;
-    if (!seasons || seasons.length === 0) {
-      logWarn("[useDuelPassData] No active season found");
-      return buildFallbackResult();
-    }
-
-    const activeSeason = seasons[0];
-
-    const { data: progressData, error: progressError } = await supabaseClient.rpc(
-      "get_or_create_season_progress",
-      {
-        p_user_id: profileId,
-        p_season_id: activeSeason.id,
-      }
-    );
-
-    if (progressError) {
-      if (isCorsError(progressError)) {
-        logWarn("[useDuelPassData] CORS error loading season progress");
-      } else {
-        logWarn("[useDuelPassData] Error loading season progress:", progressError);
-      }
-      return buildFallbackResult();
-    }
-
-    if (!progressData || progressData.length === 0) {
+    if (!progressData || !progressData.data || progressData.data.length === 0) {
       logWarn("[useDuelPassData] No season progress data");
       return buildFallbackResult();
     }
 
-    const progress = progressData[0];
+    const progress = progressData.data[0];
     const currentSP = progress.season_points || 0;
     const currentLevel = progress.level || 1;
 
@@ -211,18 +232,20 @@ const fetchDuelPass = async (profileId: string): Promise<DuelPassQueryResult> =>
 
 export const useDuelPassData = (profileId?: string | null) => {
   const enabled = Boolean(profileId);
+  // ОПТИМИЗАЦИЯ: Используем данные из Super RPC Dashboard
+  const { data: dashboardData } = useDashboardData();
 
   const query = useQuery<DuelPassQueryResult>({
     queryKey: ["duelPass", profileId],
-    queryFn: () => fetchDuelPass(profileId as string),
-    enabled,
-    staleTime: 2 * 60 * 1000, // 2 минуты - увеличиваем кэш
+    queryFn: () => fetchDuelPass(profileId as string, dashboardData),
+    enabled: enabled && !!dashboardData, // Ждем загрузки dashboard
+    staleTime: 2 * 60 * 1000, // 2 минуты
     gcTime: 10 * 60 * 1000, // 10 минут
     retry: 1,
-    refetchInterval: false, // Отключаем автообновление
+    refetchInterval: false,
     refetchIntervalInBackground: false,
-    refetchOnWindowFocus: false, // Не обновляем при фокусе
-    refetchOnMount: false, // Не обновляем при монтировании
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
     return {

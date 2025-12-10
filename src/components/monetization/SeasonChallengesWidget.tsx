@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
+import { useActiveSeason } from "@/hooks/useActiveSeason";
 import { Loader2, Trophy, Target, CheckCircle2, Coins } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -31,41 +32,22 @@ type ChallengeProgress = {
 
 export function SeasonChallengesWidget() {
   const { profileId } = useUserContext();
+  // ОПТИМИЗАЦИЯ: Используем хук, который берет данные из Super RPC Dashboard
+  const { data: activeSeason, isLoading: seasonLoading } = useActiveSeason();
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [progress, setProgress] = useState<Map<string, ChallengeProgress>>(new Map());
   const [loading, setLoading] = useState(true);
-  const [activeSeason, setActiveSeason] = useState<any>(null);
 
   useEffect(() => {
-    if (!profileId) return;
+    if (!profileId || !activeSeason) return;
     loadChallenges();
-  }, [profileId]);
+  }, [profileId, activeSeason]);
 
   const loadChallenges = async () => {
+    if (!activeSeason) return;
+    
     try {
       setLoading(true);
-
-      // Получаем активный сезон
-      const { data: seasonData, error: seasonError } = await supabase
-        .rpc("get_active_season");
-
-      if (seasonError) {
-        console.error("[SeasonChallengesWidget] Error loading season", seasonError);
-        // Если функция не найдена (404), значит миграция не применена
-        if (seasonError.code === 'PGRST116' || seasonError.message?.includes('404')) {
-          console.error("[SeasonChallengesWidget] ⚠️ Миграция не применена! Примените файл APPLY_SEASON_MIGRATION_NOW.sql в Supabase SQL Editor");
-        }
-        setLoading(false);
-        return;
-      }
-
-      if (!seasonData || seasonData.length === 0) {
-        setLoading(false);
-        return;
-      }
-
-      const season = seasonData[0];
-      setActiveSeason(season);
 
       const today = new Date().toISOString().split('T')[0];
 
@@ -129,7 +111,7 @@ export function SeasonChallengesWidget() {
     }
   };
 
-  if (loading) {
+  if (seasonLoading || loading) {
     return (
       <Card className="p-4">
         <div className="flex items-center justify-center py-8">

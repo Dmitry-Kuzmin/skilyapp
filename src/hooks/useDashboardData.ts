@@ -97,6 +97,33 @@ interface DashboardStats {
     reward: number;
     description: string;
   }>;
+  // НОВОЕ: Данные сезона (из Super RPC v2.1)
+  active_season?: {
+    id: number;
+    season_number: number;
+    name_ru: string;
+    name_es?: string;
+    name_en?: string;
+    theme?: string;
+    start_date: string;
+    end_date: string;
+    days_remaining: number;
+  } | null;
+  season_progress?: {
+    id: string;
+    user_id: string;
+    season_id: number;
+    season_points: number;
+    level: number;
+    premium_pass_purchased: boolean;
+    premium_pass_purchased_at?: string | null;
+    levels_skipped: number;
+    final_level?: number | null;
+    total_xp_earned: number;
+    created_at: string;
+    updated_at: string;
+  } | null;
+  unread_notifications_count?: number;
 }
 
 interface DashboardData extends DashboardStats {
@@ -113,13 +140,16 @@ const DASHBOARD_QUERY_KEY = 'dashboard-data';
  * БЫЛО: 200+ запросов на загрузку dashboard
  * СТАЛО: 1 SUPER запрос на загрузку ВСЕГО dashboard (включая topics, partners, premium)
  * 
- * SUPER RPC v2.0 возвращает:
+ * SUPER RPC v2.1 возвращает:
  * - Profile (полный с аватаром)
  * - Stats, Readiness, Daily Bonus
  * - Premium Status (без Edge Function!)
  * - Partner Status (без отдельного запроса!)
  * - Topics (список тем)
  * - Daily Bonus Definitions
+ * - НОВОЕ: Active Season (активный сезон)
+ * - НОВОЕ: Season Progress (прогресс пользователя)
+ * - НОВОЕ: Unread Notifications Count
  */
 export function useDashboardData() {
   // Безопасное обращение к UserContext и QueryClient
