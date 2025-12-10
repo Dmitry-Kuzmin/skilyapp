@@ -3,8 +3,24 @@
 @tailwind utilities;
 
 /* КРИТИЧНО: Предотвращаем pull-to-refresh на мобильных (причина спонтанных перезагрузок) */
-body {
+html, body {
   overscroll-behavior-y: none;
+  /* Цвет фона для overscroll (когда пользователь скроллит за пределы контента) */
+  background-color: hsl(222 47% 11%); /* Темная тема - slate-900 */
+}
+
+/* Для светлой темы */
+@media (prefers-color-scheme: light) {
+  html, body {
+    background-color: #ffffff;
+  }
+}
+
+/* Для темной темы */
+@media (prefers-color-scheme: dark) {
+  html, body {
+    background-color: #09090b; /* zinc-950 для совпадения с theme-color */
+  }
 }
 
 /* Telegram widget iframe: ensure clickable in Chrome */
