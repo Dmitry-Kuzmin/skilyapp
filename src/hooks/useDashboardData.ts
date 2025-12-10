@@ -119,7 +119,7 @@ interface DashboardStats {
     premium_pass_purchased_at?: string | null;
     levels_skipped: number;
     final_level?: number | null;
-    total_xp_earned: number;
+    final_sp?: number | null;
     created_at: string;
     updated_at: string;
   } | null;

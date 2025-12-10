@@ -81,7 +81,7 @@ const fetchDuelPass = async (
         premium_pass_purchased_at: null,
         levels_skipped: 0,
         final_level: null,
-        total_xp_earned: 0,
+        final_sp: null,
         created_at: null,
         updated_at: null,
       };

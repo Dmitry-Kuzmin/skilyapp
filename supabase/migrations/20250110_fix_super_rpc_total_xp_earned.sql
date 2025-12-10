@@ -1,8 +1,8 @@
 -- ======================================
--- Расширение Super RPC: Добавление season и notifications данных
+-- Исправление Super RPC: убираем несуществующую колонку total_xp_earned
 -- ======================================
--- Версия 2.1 - Добавляем active_season, season_progress, unread_notifications_count
--- Это устраняет дублирование запросов get_active_season и get_or_create_season_progress
+-- Проблема: в таблице user_season_progress нет колонки total_xp_earned
+-- Решение: используем final_sp вместо total_xp_earned
 
 CREATE OR REPLACE FUNCTION get_dashboard_super(p_user_id UUID)
 RETURNS JSON
@@ -169,7 +169,7 @@ BEGIN
   WHERE p.user_id = p_user_id
   LIMIT 1;
 
-  -- 7. НОВОЕ: Активный сезон (убираем отдельный запрос get_active_season)
+  -- 7. Активный сезон
   SELECT 
     s.id,
     s.season_number,
@@ -188,8 +188,7 @@ BEGIN
   ORDER BY s.season_number DESC
   LIMIT 1;
 
-  -- 8. НОВОЕ: Прогресс сезона пользователя (убираем отдельный запрос get_or_create_season_progress)
-  -- Используем активный сезон из предыдущего запроса
+  -- 8. Прогресс сезона пользователя
   IF v_active_season.id IS NOT NULL THEN
     SELECT 
       usp.id,
@@ -331,7 +330,6 @@ BEGIN
         LIMIT 7
       ) bonuses_ordered
     ),
-    -- НОВОЕ: Активный сезон (убираем отдельный запрос)
     'active_season', CASE 
       WHEN v_active_season.id IS NOT NULL THEN
         json_build_object(
@@ -347,7 +345,6 @@ BEGIN
         )
       ELSE NULL
     END,
-    -- НОВОЕ: Прогресс сезона пользователя (убираем отдельный запрос)
     'season_progress', CASE 
       WHEN v_season_progress.id IS NOT NULL THEN
         json_build_object(
@@ -366,7 +363,6 @@ BEGIN
         )
       ELSE NULL
     END,
-    -- НОВОЕ: Количество непрочитанных уведомлений (убираем отдельный запрос)
     'unread_notifications_count', (
       SELECT count(*)::INTEGER 
       FROM duel_notifications 
@@ -378,22 +374,7 @@ BEGIN
 END;
 $$;
 
--- Обновляем комментарий функции
 COMMENT ON FUNCTION get_dashboard_super IS 
-'SUPER RPC v2.1 - Возвращает АБСОЛЮТНО ВСЁ для Dashboard в 1 запросе:
-- Profile (полный с аватаром)
-- Stats (тесты, точность)
-- Readiness (готовность к экзамену)
-- Daily Bonus (текущий стрик)
-- Premium Status (без Edge Function!)
-- Partner Status (без отдельного запроса!)
-- Topics (список тем)
-- Daily Bonus Definitions (награды по дням)
-- Daily Tasks (задания на сегодня)
-- Recent Achievements (последние достижения)
-- НОВОЕ: Active Season (активный сезон)
-- НОВОЕ: Season Progress (прогресс пользователя в сезоне)
-- НОВОЕ: Unread Notifications Count (количество непрочитанных)
-
-Заменяет 20+ запросов на 1! 🚀';
+'SUPER RPC v2.1 (FIXED) - Исправлена ошибка с несуществующей колонкой total_xp_earned
+Используется final_sp вместо total_xp_earned';
 
