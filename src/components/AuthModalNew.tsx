@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ScanFace, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react';
+import { ScanFace, ArrowRight, ShieldCheck, Loader2, Mail } from 'lucide-react';
 import { Drawer } from 'vaul';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -618,10 +618,28 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     }
   };
 
-  const getPasskeyText = () => {
-    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-    if (isMac) return "Face ID";
-    return "Passkey";
+  const getPasskeyLabel = () => {
+    if (typeof navigator === 'undefined') return 'Вход с устройства';
+    
+    const ua = navigator.userAgent.toLowerCase();
+
+    if (/iphone|ipad|ipod/.test(ua)) {
+      return 'Войти через Face ID';
+    }
+
+    if (/macintosh|mac os x/.test(ua)) {
+      return 'Войти через Touch ID';
+    }
+
+    if (/win/.test(ua)) {
+      return 'Войти через Windows Hello';
+    }
+
+    if (/android/.test(ua)) {
+      return 'Войти через отпечаток / лицо';
+    }
+
+    return 'Вход с устройства';
   };
 
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -740,6 +758,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                     type="email" 
                     placeholder={t('auth.emailPlaceholder')} 
                     value={email}
+                    icon={<Mail className="w-4 h-4" />}
                     onChange={(e) => {
                       setEmail(e.target.value);
                       if(emailError) setEmailError(null);
@@ -794,7 +813,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                     <PasskeyLoginButton 
                       onSuccess={onClose} 
                       variant="inline" 
-                      label={getPasskeyText()}
+                      label={getPasskeyLabel()}
                     />
                     <Button 
                       variant="secondary" 
@@ -886,11 +905,23 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
           </AnimatePresence>
         </div>
 
-        {/* Footer Statement */}
-        <div className="mt-6 pt-6 border-t border-white/5">
-           <p className="text-[10px] text-zinc-600 text-center leading-relaxed max-w-[280px] mx-auto">
-             {t('auth.footerText')}
-           </p>
+        {/* Legal Footer */}
+        <div className="mt-6 text-center text-xs text-zinc-500">
+          Продолжая, вы принимаете{' '}
+          <Link 
+            to="/terms" 
+            className="underline underline-offset-4 hover:text-blue-400 transition-colors"
+          >
+            Условия
+          </Link>
+          {' '}и{' '}
+          <Link 
+            to="/privacy" 
+            className="underline underline-offset-4 hover:text-blue-400 transition-colors"
+          >
+            Политику конфиденциальности
+          </Link>
+          .
         </div>
 
       </div>
