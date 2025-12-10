@@ -135,7 +135,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         loading="eager"
         decoding="async"
         fetchpriority="high"
-        className="fixed inset-0 w-full h-[120vh] object-cover opacity-70 mix-blend-screen pointer-events-none select-none"
+        className="fixed inset-0 w-full h-[120vh] object-cover opacity-35 mix-blend-soft-light pointer-events-none select-none"
       />
 
       <nav className="relative z-50 px-6 md:px-10 py-6 flex items-center justify-between max-w-[1400px] mx-auto gap-4 flex-wrap">
