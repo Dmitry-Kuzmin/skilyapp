@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { GoogleIcon, TelegramIcon } from '@/components/icons/SocialIcons';
 import { PasskeyLoginButton } from '@/components/auth/PasskeyLoginButton';
 import { checkEmailExists, getClientIP } from '@/lib/auth-utils';
+import { isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/passkey';
 
 // Schema будет использовать переводы через context
 const createAuthSchema = (t: (key: string) => string) => z.object({
@@ -44,6 +45,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   const [checkingEmail, setCheckingEmail] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [telegramLoading, setTelegramLoading] = useState(false);
+  const [isPasskeyAvailable, setIsPasskeyAvailable] = useState(false);
   
   // --- Refs & Context ---
   const emailInputRef = useRef<HTMLInputElement>(null);
@@ -659,6 +661,23 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     }
   };
 
+  // Проверка доступности Passkey для адаптации layout
+  useEffect(() => {
+    const checkPasskeyAvailability = async () => {
+      const supported = isPasskeySupported();
+      if (supported) {
+        const available = await isPlatformAuthenticatorAvailable();
+        setIsPasskeyAvailable(available);
+      } else {
+        setIsPasskeyAvailable(false);
+      }
+    };
+    
+    if (open) {
+      checkPasskeyAvailability();
+    }
+  }, [open]);
+
   const getPasskeyLabel = () => {
     if (typeof navigator === 'undefined') return 'Устройство';
     
@@ -850,15 +869,20 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                       <div className="flex-grow border-t border-zinc-800"></div>
                     </div>
 
-                  <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-1">
-                    <PasskeyLoginButton 
-                      onSuccess={onClose} 
-                      variant="inline" 
-                      label={getPasskeyLabel()}
-                    />
+                  <div className={cn(
+                    "grid gap-3 mt-1",
+                    isPasskeyAvailable ? "grid-cols-3" : "grid-cols-2"
+                  )}>
+                    {isPasskeyAvailable && (
+                      <PasskeyLoginButton 
+                        onSuccess={onClose} 
+                        variant="inline" 
+                        label={getPasskeyLabel()}
+                      />
+                    )}
                     <Button 
                       variant="secondary" 
-                      className="bg-zinc-900 h-11 sm:h-12 text-xs sm:text-sm border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all" 
+                      className="bg-zinc-900 h-11 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all" 
                       onClick={handleGoogleLogin}
                     >
                       <GoogleIcon />
@@ -866,7 +890,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                     <Button 
                       variant="secondary" 
                       disabled={telegramLoading}
-                      className="bg-zinc-900 h-11 sm:h-12 text-xs sm:text-sm border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed" 
+                      className="bg-zinc-900 h-11 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed" 
                     >
                       {telegramLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <TelegramIcon />}
                       <div 
