@@ -118,7 +118,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-white font-sans overflow-x-hidden selection:bg-indigo-500/30">
+    <div className="relative min-h-screen bg-[#0f172a] text-white font-sans overflow-x-hidden selection:bg-indigo-500/30">
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.03] z-0"
         style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}
@@ -128,6 +128,15 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
       <div className="fixed top-[-20%] left-[20%] w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
       {/* ОПТИМИЗАЦИЯ: Скрываем фиолетовый градиент внизу для мобильных браузеров (не Telegram) */}
       <div className="hidden md:block fixed bottom-[-20%] right-[10%] w-[600px] h-[600px] bg-fuchsia-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+      {/* LCP: локальное hero изображение с preload */}
+      <img
+        src="/images/hero-lcp.webp"
+        alt=""
+        loading="eager"
+        decoding="async"
+        fetchpriority="high"
+        className="fixed inset-0 w-full h-[120vh] object-cover opacity-70 mix-blend-screen pointer-events-none select-none"
+      />
 
       <nav className="relative z-50 px-6 md:px-10 py-6 flex items-center justify-between max-w-[1400px] mx-auto gap-4 flex-wrap">
         <LandingLogo theme="dark" className="scale-90 origin-left" />
