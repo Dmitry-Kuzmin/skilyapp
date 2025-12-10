@@ -63,13 +63,33 @@ const fetchDuelPass = async (
 ): Promise<DuelPassQueryResult> => {
   try {
     // ОПТИМИЗАЦИЯ: Используем данные из Super RPC Dashboard если доступны
+    // ВАЖНО: season_progress может быть null для нового пользователя - это нормально!
     let activeSeason: any = null;
     let progressData: any = null;
 
-    if (dashboardData?.active_season && dashboardData?.season_progress) {
+    if (dashboardData?.active_season) {
       activeSeason = dashboardData.active_season;
-      progressData = { data: [dashboardData.season_progress] };
-      logWarn("[useDuelPassData] ✅ Using season data from Super RPC");
+      // Если прогресса нет (null) - создаем дефолтный объект с нулевыми значениями
+      // НЕ вызываем get_or_create_season_progress автоматически!
+      const progress = dashboardData.season_progress || {
+        id: null,
+        user_id: profileId,
+        season_id: dashboardData.active_season.id,
+        season_points: 0,
+        level: 0,
+        premium_pass_purchased: false,
+        premium_pass_purchased_at: null,
+        levels_skipped: 0,
+        final_level: null,
+        total_xp_earned: 0,
+        created_at: null,
+        updated_at: null,
+      };
+      progressData = { data: [progress] };
+      logWarn("[useDuelPassData] ✅ Using season data from Super RPC", {
+        hasProgress: !!dashboardData.season_progress,
+        isNewUser: !dashboardData.season_progress,
+      });
     } else {
       // Fallback: отдельные запросы
       const [seasonResult] = await Promise.allSettled([
@@ -128,8 +148,10 @@ const fetchDuelPass = async (
     }
 
     const progress = progressData.data[0];
+    // ВАЖНО: Для нового пользователя (season_progress = null) используем уровень 0, а не 1
+    // Прогресс создается только когда пользователь реально начинает играть
     const currentSP = progress.season_points || 0;
-    const currentLevel = progress.level || 1;
+    const currentLevel = progress.level ?? 0; // Уровень 0 для нового пользователя
 
     const { data: claimedRewardsData, error: claimedRewardsError } = await supabaseClient
       .from("user_claimed_rewards")

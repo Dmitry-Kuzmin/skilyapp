@@ -36,9 +36,15 @@ export function useDuelPassInfo() {
       if (!profileId) return null;
 
       // ОПТИМИЗАЦИЯ: Сначала пытаемся взять из Super RPC Dashboard
-      if (dashboardData?.active_season && dashboardData?.season_progress) {
+      // ВАЖНО: season_progress может быть null для нового пользователя - это нормально!
+      if (dashboardData?.active_season) {
         const season = dashboardData.active_season;
-        const progress = dashboardData.season_progress;
+        // Если прогресса нет (null) - используем дефолтные значения (уровень 0, 0 SP)
+        // НЕ создаем прогресс автоматически - только когда пользователь реально начнет играть
+        const progress = dashboardData.season_progress || {
+          season_points: 0,
+          level: 0,
+        };
 
         // Получаем статистику дуэлей (этот запрос можно тоже добавить в Super RPC позже)
         const { data: stats } = await supabase
@@ -48,7 +54,7 @@ export function useDuelPassInfo() {
           .maybeSingle();
 
         const currentSP = progress.season_points || 0;
-        const currentLevel = progress.level || 1;
+        const currentLevel = progress.level || 0; // Уровень 0 для нового пользователя
         const spForNextLevel = 100; // Каждый уровень требует 100 SP
         const spInCurrentLevel = currentSP % 100;
         const nextLevelSP = spForNextLevel - spInCurrentLevel;
