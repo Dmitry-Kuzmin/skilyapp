@@ -8,91 +8,6 @@ import { VitePWA } from "vite-plugin-pwa";
 // SSG: Prerender будет выполняться через отдельный скрипт (scripts/prerender.js)
 // Это более надёжно чем vite-plugin-prerender для сложных проектов
 
-// Плагин для оптимизации загрузки CSS (неблокирующая загрузка)
-function optimizeCssLoading(): Plugin {
-  return {
-    name: "optimize-css-loading",
-    transformIndexHtml: {
-      order: "post", // Выполняем после того, как Vite инжектирует CSS
-      handler(html, ctx) {
-        let result = html;
-        
-        // Заменяем обычные CSS ссылки на preload с неблокирующей загрузкой
-        result = result.replace(
-          /<link([^>]*rel="stylesheet"([^>]*href="([^"]+\.css)"[^>]*))>/g,
-          (match, attrs, _, href) => {
-            // Пропускаем если уже есть preload или другие специальные атрибуты
-            if (match.includes('rel="preload"') || match.includes('media=') || match.includes('data-vite')) {
-              // Для Vite CSS используем preload с onload
-              if (match.includes('data-vite')) {
-                return `
-<link rel="preload" href="${href}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript>${match}</noscript>
-                `.trim();
-              }
-              return match;
-            }
-            // Создаем неблокирующую загрузку CSS через preload + onload
-            // Извлекаем все атрибуты кроме rel для noscript
-            const noscriptAttrs = attrs.replace(/rel="[^"]*"/g, '').trim();
-            return `
-<link rel="preload" href="${href}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="${href}"${noscriptAttrs ? ' ' + noscriptAttrs : ''}></noscript>
-            `.trim();
-          }
-        );
-        
-        // КРИТИЧНО: Preload критических JS chunks (vendor и index)
-        // Это уменьшает критический путь загрузки на 300-500ms
-        
-        // КРИТИЧНО: charset должен быть первым элементом в <head>
-        // Вставляем modulepreload ссылки ПОСЛЕ charset, но перед другими элементами
-        
-        // 1. Preload для vendor.js (React, Supabase, TanStack - критично!)
-        const vendorJsMatch = result.match(/<script type="module"([^>]*src="([^"]+vendor[^"]+\.js)"[^>]*)>/);
-        if (vendorJsMatch && vendorJsMatch[2]) {
-          const vendorJsPath = vendorJsMatch[2];
-          const hasVendorPreload = result.includes(`href="${vendorJsPath}"`) && result.includes('modulepreload');
-          if (!hasVendorPreload) {
-            // Вставляем ПОСЛЕ charset (первый элемент в <head>)
-            result = result.replace(
-              /(<meta\s+charset="[^"]*"\s*\/?>)/i,
-              `$1\n    <link rel="modulepreload" href="${vendorJsPath}" crossorigin fetchpriority="high">`
-            );
-          }
-        }
-        
-        // 2. Preload для index.js (основной код приложения)
-        const indexJsMatch = result.match(/<script type="module"([^>]*src="([^"]+index[^"]+\.js)"[^>]*)>/);
-        if (indexJsMatch && indexJsMatch[2]) {
-          const indexJsPath = indexJsMatch[2];
-          const hasIndexPreload = result.includes(`href="${indexJsPath}"`) && result.includes('modulepreload');
-          if (!hasIndexPreload) {
-            // Вставляем ПОСЛЕ charset (первый элемент в <head>)
-            result = result.replace(
-              /(<meta\s+charset="[^"]*"\s*\/?>)/i,
-              `$1\n    <link rel="modulepreload" href="${indexJsPath}" crossorigin fetchpriority="high">`
-            );
-          }
-        }
-        
-        // 3. Добавляем fetchpriority="high" к существующим modulepreload ссылкам
-        result = result.replace(
-          /<link rel="modulepreload"([^>]*href="([^"]+(?:vendor|index)[^"]+)"[^>]*)>/g,
-          (match, attrs, href) => {
-            if (!match.includes('fetchpriority')) {
-              return match.replace('>', ' fetchpriority="high">');
-            }
-            return match;
-          }
-        );
-        
-        return result;
-      },
-    },
-  };
-}
-
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const shouldAnalyze = Boolean(process.env.ANALYZE);
@@ -100,7 +15,6 @@ export default defineConfig(({ mode }) => {
   const plugins = [
     react(),
     mode === "development" && componentTagger(),
-    mode === "production" && optimizeCssLoading(), // Только в production
     // PWA Plugin для Offline-First архитектуры (критично для Telegram Mini App)
     VitePWA({
       // КРИТИЧНО: Используем 'prompt' вместо 'autoUpdate' для предотвращения спонтанных перезагрузок
@@ -340,6 +254,8 @@ export default defineConfig(({ mode }) => {
     // ВАЖНО: terser может быть более стабильным для React, но медленнее
     minify: 'esbuild',
     target: 'es2015',
+    // Отключаем автоматический modulepreload от Vite, чтобы не тянуть vendor на лендинге
+    modulePreload: false,
     // КРИТИЧНО: Отключаем некоторые агрессивные оптимизации для стабильности
     minifyWhitespace: true,
     // КРИТИЧНО: Отключаем некоторые агрессивные оптимизации

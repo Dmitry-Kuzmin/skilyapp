@@ -125,7 +125,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
       ></div>
       <div className="fixed inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
 
-      <div className="fixed top-[-20%] left-[20%] w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="hidden md:block fixed top-[-20%] left-[20%] w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
       {/* ОПТИМИЗАЦИЯ: Скрываем фиолетовый градиент внизу для мобильных браузеров (не Telegram) */}
       <div className="hidden md:block fixed bottom-[-20%] right-[10%] w-[600px] h-[600px] bg-fuchsia-600/10 rounded-full blur-[120px] pointer-events-none"></div>
       {/* LCP: локальное hero изображение с preload */}
