@@ -619,27 +619,27 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   };
 
   const getPasskeyLabel = () => {
-    if (typeof navigator === 'undefined') return 'Вход с устройства';
+    if (typeof navigator === 'undefined') return 'Устройство';
     
     const ua = navigator.userAgent.toLowerCase();
 
     if (/iphone|ipad|ipod/.test(ua)) {
-      return 'Войти через Face ID';
+      return 'Face ID';
     }
 
     if (/macintosh|mac os x/.test(ua)) {
-      return 'Войти через Touch ID';
+      return 'Touch ID';
     }
 
     if (/win/.test(ua)) {
-      return 'Войти через Windows Hello';
+      return 'Windows Hello';
     }
 
     if (/android/.test(ua)) {
-      return 'Войти через отпечаток / лицо';
+      return 'Отпечаток / лицо';
     }
 
-    return 'Вход с устройства';
+    return 'Устройство';
   };
 
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
