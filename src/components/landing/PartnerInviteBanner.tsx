@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { X, Sparkles, Gift } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -10,6 +11,7 @@ interface PartnerInfo {
 }
 
 export function PartnerInviteBanner() {
+  const navigate = useNavigate();
   const [partnerInfo, setPartnerInfo] = useState<PartnerInfo | null>(null);
   const [dismissed, setDismissed] = useState(false);
 
@@ -76,12 +78,7 @@ export function PartnerInviteBanner() {
             {/* Right Side - CTA + Close */}
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
-                onClick={() => {
-                  const authButton = document.querySelector('[data-auth-trigger="true"]');
-                  if (authButton) {
-                    (authButton as HTMLElement).click();
-                  }
-                }}
+                onClick={() => navigate('/dashboard')}
                 className="px-4 py-2 rounded-lg bg-white text-primary font-semibold hover:bg-white/90 transition-colors text-sm"
               >
                 Получить Premium
