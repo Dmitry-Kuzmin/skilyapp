@@ -115,6 +115,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
   const { theme, setTheme } = useTheme();
   const { isPremium } = usePremium();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { previewSkin, previewBadges, previewSticker } = useCosmeticsPreview();
   const [open, setOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
