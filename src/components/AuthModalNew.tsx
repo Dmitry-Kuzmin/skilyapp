@@ -620,8 +620,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
   const getPasskeyText = () => {
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-    if (isMac) return "Войти с Face ID / Touch ID";
-    return "Войти с устройством";
+    if (isMac) return "Face ID";
+    return "Passkey";
   };
 
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -778,15 +778,6 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                     )}
                 </form>
 
-                {/* Passkey Button - показывается между email и соцсетями */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 5 }} 
-                  animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}
-                >
-                  {/* PasskeyLoginButton имеет свой divider внутри */}
-                  <PasskeyLoginButton onSuccess={onClose} />
-                </motion.div>
-
                 {/* Divider & Socials */}
                 <motion.div 
                   initial={{ opacity: 0 }} 
@@ -799,7 +790,12 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                       <div className="flex-grow border-t border-zinc-800"></div>
                     </div>
 
-                  <div className="grid grid-cols-2 gap-3 mt-1">
+                  <div className="grid grid-cols-3 gap-3 mt-1">
+                    <PasskeyLoginButton 
+                      onSuccess={onClose} 
+                      variant="inline" 
+                      label={getPasskeyText()}
+                    />
                     <Button 
                       variant="secondary" 
                       className="bg-zinc-900 h-11 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all" 

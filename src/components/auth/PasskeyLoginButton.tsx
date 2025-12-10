@@ -11,12 +11,16 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { loginWithPasskey, isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/passkey';
 import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
 interface PasskeyLoginButtonProps {
   onSuccess?: () => void;
+  variant?: 'default' | 'inline';
+  className?: string;
+  label?: string;
 }
 
-export function PasskeyLoginButton({ onSuccess }: PasskeyLoginButtonProps) {
+export function PasskeyLoginButton({ onSuccess, variant = 'default', className, label = 'Войти с помощью устройства' }: PasskeyLoginButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
   const [isAvailable, setIsAvailable] = useState(false);
@@ -132,6 +136,41 @@ export function PasskeyLoginButton({ onSuccess }: PasskeyLoginButtonProps) {
     return null;
   }
 
+  const buttonContent = (
+    <>
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-violet-400 opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300" />
+      <div className="relative flex items-center justify-center gap-2">
+        {isLoading ? (
+          <>
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span>Вход...</span>
+          </>
+        ) : (
+          <>
+            <Fingerprint className="w-5 h-5" />
+            <span>{label}</span>
+          </>
+        )}
+      </div>
+    </>
+  );
+
+  if (variant === 'inline') {
+    return (
+      <Button
+        type="button"
+        onClick={handleLogin}
+        disabled={isLoading}
+        className={cn(
+          "w-full h-11 bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600 text-white text-sm font-semibold shadow-lg shadow-blue-500/15 hover:shadow-blue-500/25 transition-all duration-200 hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 group relative overflow-hidden",
+          className
+        )}
+      >
+        {buttonContent}
+      </Button>
+    );
+  }
+
   return (
     <div className="space-y-3">
       {/* Разделитель */}
@@ -151,25 +190,12 @@ export function PasskeyLoginButton({ onSuccess }: PasskeyLoginButtonProps) {
         type="button"
         onClick={handleLogin}
         disabled={isLoading}
-        className="w-full h-12 bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600 text-white font-semibold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all duration-200 hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 group relative overflow-hidden"
+        className={cn(
+          "w-full h-12 bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600 text-white font-semibold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all duration-200 hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 group relative overflow-hidden",
+          className
+        )}
       >
-        {/* Glow эффект при hover */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-violet-400 opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300" />
-        
-        {/* Контент */}
-        <div className="relative flex items-center justify-center gap-2">
-          {isLoading ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              <span>Вход...</span>
-            </>
-          ) : (
-            <>
-              <Fingerprint className="w-5 h-5" />
-              <span>Войти с помощью устройства</span>
-            </>
-          )}
-        </div>
+        {buttonContent}
       </Button>
 
       {/* Подсказки */}
