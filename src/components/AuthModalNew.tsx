@@ -47,6 +47,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   const [telegramLoading, setTelegramLoading] = useState(false);
   const [isPasskeyAvailable, setIsPasskeyAvailable] = useState(false);
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const drawerContentRef = useRef<HTMLDivElement>(null);
   
   // --- Refs & Context ---
@@ -687,11 +688,39 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   useEffect(() => {
     if (!open || !isMobile || typeof window === 'undefined') return;
 
+    const initialHeight = window.innerHeight;
+
     const updateViewportHeight = () => {
       if (window.visualViewport) {
-        setViewportHeight(window.visualViewport.height);
+        const vpHeight = window.visualViewport.height;
+        const vpTop = window.visualViewport.offsetTop || 0;
+        setViewportHeight(vpHeight);
+        
+        // Определяем, открыта ли клавиатура
+        // Клавиатура считается открытой, если viewport уменьшился более чем на 150px
+        // Или если есть offsetTop (viewport сдвинулся вверх)
+        const keyboardThreshold = 150;
+        const heightDiff = initialHeight - vpHeight;
+        const keyboardIsOpen = heightDiff > keyboardThreshold || vpTop > 0;
+        setIsKeyboardOpen(keyboardIsOpen);
+        
+        // Позиционируем модалку относительно visualViewport
+        if (keyboardIsOpen && drawerContentRef.current) {
+          // Используем transform для позиционирования относительно visualViewport
+          const drawerContent = drawerContentRef.current;
+          drawerContent.style.transform = `translateY(${vpTop}px)`;
+        } else if (drawerContentRef.current) {
+          drawerContentRef.current.style.transform = '';
+        }
       } else {
-        setViewportHeight(window.innerHeight);
+        const currentHeight = window.innerHeight;
+        setViewportHeight(currentHeight);
+        const keyboardIsOpen = currentHeight < initialHeight - 150;
+        setIsKeyboardOpen(keyboardIsOpen);
+        
+        if (drawerContentRef.current) {
+          drawerContentRef.current.style.transform = '';
+        }
       }
     };
 
@@ -713,48 +742,62 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
       } else {
         window.removeEventListener('resize', updateViewportHeight);
       }
+      setIsKeyboardOpen(false);
     };
   }, [open, isMobile]);
 
   // Автоскролл к полю ввода при фокусе на мобильных
   useEffect(() => {
-    if (!open || !isMobile || !emailInputRef.current) return;
+    if (!open || !isMobile) return;
 
-    const handleFocus = () => {
-      // Небольшая задержка для того, чтобы клавиатура успела появиться
+    const handleFocus = (inputElement: HTMLInputElement) => {
+      // Увеличиваем задержку для того, чтобы клавиатура успела появиться и viewport обновился
       setTimeout(() => {
-        emailInputRef.current?.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center',
-          inline: 'nearest'
-        });
-        
-        // Дополнительный скролл контента модалки, если нужно
         const drawerContent = drawerContentRef.current;
-        if (drawerContent && emailInputRef.current) {
-          const inputRect = emailInputRef.current.getBoundingClientRect();
-          const drawerRect = drawerContent.getBoundingClientRect();
-          const viewportHeight = window.visualViewport?.height || window.innerHeight;
-          
-          // Если поле ввода находится слишком высоко или скрыто клавиатурой
-          if (inputRect.bottom > viewportHeight - 20) {
-            const scrollOffset = inputRect.bottom - (viewportHeight - 20);
-            drawerContent.scrollBy({
-              top: scrollOffset,
-              behavior: 'smooth'
-            });
-          }
+        if (!drawerContent || !inputElement) return;
+
+        const currentViewportHeight = window.visualViewport?.height || window.innerHeight;
+        const inputRect = inputElement.getBoundingClientRect();
+        
+        // Вычисляем желаемую позицию: поле должно быть в верхней трети видимой области
+        const targetTop = currentViewportHeight * 0.2; // 20% от верха viewport
+        const inputTop = inputRect.top;
+        const scrollContainer = drawerContent.querySelector('[class*="overflow-y-auto"]') as HTMLElement || drawerContent;
+        
+        // Вычисляем необходимый скролл
+        const scrollOffset = inputTop - targetTop;
+        
+        if (Math.abs(scrollOffset) > 10) {
+          scrollContainer.scrollBy({
+            top: scrollOffset,
+            behavior: 'smooth'
+          });
         }
-      }, 300); // Задержка для появления клавиатуры
+      }, 400); // Увеличена задержка для надежности
     };
 
-    const input = emailInputRef.current;
-    input.addEventListener('focus', handleFocus);
+    // Обработчик для email поля
+    const emailInput = emailInputRef.current;
+    if (emailInput) {
+      const emailHandler = () => handleFocus(emailInput);
+      emailInput.addEventListener('focus', emailHandler);
+      
+      return () => {
+        emailInput.removeEventListener('focus', emailHandler);
+      };
+    }
 
-    return () => {
-      input.removeEventListener('focus', handleFocus);
-    };
-  }, [open, isMobile]);
+    // Обработчик для password поля
+    const passwordInput = passwordInputRef.current;
+    if (passwordInput) {
+      const passwordHandler = () => handleFocus(passwordInput);
+      passwordInput.addEventListener('focus', passwordHandler);
+      
+      return () => {
+        passwordInput?.removeEventListener('focus', passwordHandler);
+      };
+    }
+  }, [open, isMobile, viewportHeight]);
 
   const getPasskeyLabel = () => {
     if (typeof navigator === 'undefined') return 'Устройство';
@@ -1076,7 +1119,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         open={open} 
         onOpenChange={onClose}
         shouldScaleBackground
-        dismissible={true}
+        dismissible={!isKeyboardOpen} // Отключаем закрытие свайпом когда клавиатура открыта
         modal={true}
         fadeFromIndex={0}
       >
@@ -1084,17 +1127,51 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
           <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
           <Drawer.Content
             ref={drawerContentRef}
-            className="bg-zinc-950 flex flex-col rounded-t-[32px] border-t border-white/10 shadow-2xl z-50 focus:outline-none fixed bottom-0 left-0 right-0"
+            className="bg-zinc-950 flex flex-col rounded-t-[32px] border-t border-white/10 shadow-2xl z-50 focus:outline-none fixed left-0 right-0 bottom-0"
             style={{
-              maxHeight: viewportHeight 
-                ? `${Math.min(viewportHeight * 0.92, window.innerHeight * 0.85)}px`
-                : '85vh'
+              maxHeight: viewportHeight && isKeyboardOpen
+                ? `${viewportHeight}px`
+                : viewportHeight
+                  ? `${Math.min(viewportHeight * 0.92, window.innerHeight * 0.85)}px`
+                  : '85vh',
+              height: isKeyboardOpen && viewportHeight ? `${viewportHeight}px` : undefined,
+              // Плавные переходы для адаптации к клавиатуре
+              transition: 'max-height 0.25s ease-out, height 0.25s ease-out, transform 0.25s ease-out'
             }}
           >
-            {/* Drawer Handle для мобилок - нативный iOS стиль */}
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-800 mt-4" aria-hidden="true" />
+            {/* Drawer Handle для мобилок - нативный iOS стиль (скрываем при клавиатуре) */}
+            {!isKeyboardOpen && (
+              <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-800 mt-4" aria-hidden="true" />
+            )}
             
-            <div className="overflow-y-auto flex-1 overscroll-contain">
+            {/* Accessibility title (скрытый) */}
+            <div className="sr-only" role="heading" aria-level={1}>
+              {t('auth.identification')}
+            </div>
+            
+            <div 
+              className="overflow-y-auto flex-1 overscroll-contain" 
+              style={{ 
+                maxHeight: viewportHeight && isKeyboardOpen 
+                  ? `${viewportHeight - 20}px` 
+                  : undefined,
+                // Предотвращаем скролл страницы за модалкой при клавиатуре
+                touchAction: isKeyboardOpen ? 'pan-y' : 'auto'
+              }}
+              // Предотвращаем закрытие Drawer при свайпе внутри области ввода
+              onTouchStart={(e) => {
+                // Останавливаем распространение события, чтобы Drawer не закрывался
+                if (isKeyboardOpen) {
+                  e.stopPropagation();
+                }
+              }}
+              onTouchMove={(e) => {
+                // Предотвращаем закрытие при свайпе во время ввода
+                if (isKeyboardOpen) {
+                  e.stopPropagation();
+                }
+              }}
+            >
               {modalContent}
             </div>
           </Drawer.Content>
