@@ -198,12 +198,14 @@ export function NotificationsPanel({
     return message.length > 180; // Safe threshold for 3 lines
   };
 
-  // Debug logging
+  // Debug logging (только в dev режиме)
   useEffect(() => {
-    console.log('[NotificationsPanel] Component mounted, profileId:', profileId);
-    console.log('[NotificationsPanel] Notifications:', notifications.length, 'Unread:', unreadCount);
-    if (notifications.length > 0) {
-      console.log('[NotificationsPanel] First notification:', notifications[0]);
+    if (process.env.NODE_ENV === 'development' && window.localStorage?.getItem('debugNotifications') === '1') {
+      console.log('[NotificationsPanel] Component mounted, profileId:', profileId);
+      console.log('[NotificationsPanel] Notifications:', notifications.length, 'Unread:', unreadCount);
+      if (notifications.length > 0) {
+        console.log('[NotificationsPanel] First notification:', notifications[0]);
+      }
     }
   }, [notifications, unreadCount, profileId]);
 
@@ -214,23 +216,10 @@ export function NotificationsPanel({
   const PROGRESS_NOTIFICATION_TYPES = ['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder'];
   
   const filteredNotifications = useMemo(() => {
-    // Debug: логируем для отладки (включаем и в production для диагностики)
-    console.log('[NotificationsPanel] 🔍 Filtering notifications:', {
-      total: notifications.length,
-      filter,
-      types: notifications.map(n => n.type),
-    });
-    
     // First, filter out progress notifications (always hide them)
     const notificationsWithoutProgress = notifications.filter(n => !PROGRESS_NOTIFICATION_TYPES.includes(n.type));
     
-    console.log('[NotificationsPanel] 🔍 After filtering progress:', {
-      count: notificationsWithoutProgress.length,
-      filter,
-    });
-    
     if (filter === 'all') {
-      console.log('[NotificationsPanel] ✅ Returning all (no progress):', notificationsWithoutProgress.length);
       return notificationsWithoutProgress;
     }
     
@@ -244,22 +233,18 @@ export function NotificationsPanel({
       return category === filter;
     });
     
-    console.log('[NotificationsPanel] ✅ After filter category:', {
-      count: result.length,
-      filter,
-      category: filter,
-    });
-    
     return result;
   }, [notifications, filter]);
 
-  // Debug: логируем filteredNotifications при изменении (ПОСЛЕ определения filteredNotifications)
+  // Debug: логируем только в dev режиме при необходимости
   useEffect(() => {
-    console.log('[NotificationsPanel] 🔍 filteredNotifications changed:', {
-      count: filteredNotifications.length,
-      filter,
-      totalNotifications: notifications.length,
-    });
+    if (process.env.NODE_ENV === 'development' && window.localStorage?.getItem('debugNotifications') === '1') {
+      console.log('[NotificationsPanel] 🔍 filteredNotifications changed:', {
+        count: filteredNotifications.length,
+        filter,
+        totalNotifications: notifications.length,
+      });
+    }
   }, [filteredNotifications, filter, notifications.length]);
 
   // ОПТИМИЗАЦИЯ: Кеш для formatDistanceToNow (избегаем повторных вычислений)

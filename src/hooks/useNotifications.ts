@@ -57,6 +57,37 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
   const lastToastAtRef = useRef(0);
   const lastTelegramAtRef = useRef(0);
   const previousNotificationsRef = useRef<DuelNotification[]>([]);
+  
+  // КРИТИЧНО: Загружаем показанные уведомления из localStorage при инициализации
+  // Это предотвращает повторный показ toast при смене страницы
+  useEffect(() => {
+    if (!profileId) return;
+    
+    try {
+      const storageKey = `shown_notifications_${profileId}`;
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        const shownIds = JSON.parse(stored) as string[];
+        const shownSet = new Set(shownIds);
+        deliveredNotificationIdsRef.current = shownSet;
+        debugLog('[useNotifications] Loaded shown notifications from localStorage:', shownSet.size);
+        
+        // Очищаем старые записи (старше 24 часов)
+        const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+        const cleaned = Array.from(shownSet).filter(id => {
+          // ID содержит timestamp или можем хранить отдельный объект с timestamp
+          // Пока просто ограничим размер (макс 1000 ID)
+          return true;
+        });
+        if (cleaned.length !== shownIds.length) {
+          localStorage.setItem(storageKey, JSON.stringify(cleaned.slice(0, 1000)));
+          deliveredNotificationIdsRef.current = new Set(cleaned);
+        }
+      }
+    } catch (error) {
+      console.warn('[useNotifications] Error loading shown notifications:', error);
+    }
+  }, [profileId, debugLog]);
 
   // ОПТИМИЗАЦИЯ: Используем React Query с polling вместо real-time WebSocket
   // Это снижает нагрузку на Supabase и упрощает код
@@ -108,13 +139,34 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
     if (newNotifications.length > 0) {
       debugLog('[useNotifications] 🔔 New notifications detected:', newNotifications.length);
       
+      // Сохраняем показанные ID в localStorage для предотвращения повторного показа
+      const storageKey = `shown_notifications_${profileId}`;
+      
       // Обрабатываем каждое новое уведомление
       newNotifications.forEach((newNotification) => {
         const deliveredSet = deliveredNotificationIdsRef.current;
+        
+        // КРИТИЧНО: Проверяем, было ли уведомление уже показано (включая localStorage)
         if (deliveredSet.has(newNotification.id)) {
           return; // Уже обработано
         }
+        
+        // КРИТИЧНО: Не показываем toast для старых уведомлений (созданных более 5 минут назад)
+        // Это предотвращает показ toast при первой загрузке или смене страницы
+        const notificationAge = Date.now() - new Date(newNotification.created_at).getTime();
+        const MAX_AGE_FOR_TOAST_MS = 5 * 60 * 1000; // 5 минут
+        
+        const isOldNotification = notificationAge > MAX_AGE_FOR_TOAST_MS;
+        
         deliveredSet.add(newNotification.id);
+        
+        // Сохраняем в localStorage
+        try {
+          const current = Array.from(deliveredSet);
+          localStorage.setItem(storageKey, JSON.stringify(current.slice(0, 1000)));
+        } catch (error) {
+          console.warn('[useNotifications] Error saving shown notifications:', error);
+        }
         
         // Убираем иконку из title, если она дублирует icon
         const normalizedTitle = (() => {
@@ -125,8 +177,8 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
           return title;
         })();
         
-        // Show toast notification if enabled
-        if (showToasts) {
+        // Show toast notification if enabled (только для новых уведомлений, не старше 5 минут)
+        if (showToasts && !isOldNotification) {
           const now = Date.now();
           const isImportant = IMPORTANT_NOTIFICATION_TYPES.has(newNotification.type);
           const duration = isImportant ? 5000 : 3000;
@@ -140,6 +192,8 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
               duration,
             });
           }
+        } else if (isOldNotification) {
+          debugLog('[Notifications] 🔇 Toast skipped - old notification (created', Math.round(notificationAge / 1000), 'seconds ago)');
         }
         
         // Play sound if enabled

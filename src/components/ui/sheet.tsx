@@ -69,15 +69,20 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
     const contentRef = React.useRef<HTMLDivElement>(null);
     const [startY, setStartY] = React.useState<number | null>(null);
     const [currentY, setCurrentY] = React.useState<number | null>(null);
+    // Для горизонтального свайпа (right sheet)
+    const [startX, setStartX] = React.useState<number | null>(null);
+    const [currentX, setCurrentX] = React.useState<number | null>(null);
     const [isDragging, setIsDragging] = React.useState(false);
     // Защита от множественных вызовов закрытия
     const isClosingRef = React.useRef(false);
     // Отслеживание скорости для инерции (Instagram-стиль)
     const velocityRef = React.useRef(0);
     const lastYRef = React.useRef<number | null>(null);
+    const lastXRef = React.useRef<number | null>(null);
     const lastTimeRef = React.useRef<number | null>(null);
-    // Высота модалки для динамического порога
+    // Высота/ширина модалки для динамического порога
     const modalHeightRef = React.useRef<number | null>(null);
+    const modalWidthRef = React.useRef<number | null>(null);
     
     // Пытаемся получить доступ к родительскому Sheet Root через контекст
     // Radix UI Dialog использует внутренний контекст, но мы можем попробовать найти его через DOM
@@ -102,7 +107,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
     // Сбрасываем состояния свайпа при закрытии модалки другими способами (кнопка, клик вне, ESC)
     React.useEffect(() => {
       // Отслеживаем изменения через MutationObserver для data-state
-      if (!contentRef.current || side !== "bottom") return;
+      if (!contentRef.current || (side !== "bottom" && side !== "right")) return;
 
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
@@ -114,16 +119,20 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
               // КРИТИЧНО: Сбрасываем флаг закрытия СИНХРОННО
               isClosingRef.current = false;
               
-              // Сбрасываем все состояния свайпа
-              setStartY(null);
-              setCurrentY(null);
-              setIsDragging(false);
-              
-              // Сбрасываем все refs
-              velocityRef.current = 0;
-              lastYRef.current = null;
-              lastTimeRef.current = null;
-              modalHeightRef.current = null;
+      // Сбрасываем все состояния свайпа
+      setStartY(null);
+      setCurrentY(null);
+      setStartX(null);
+      setCurrentX(null);
+      setIsDragging(false);
+      
+      // Сбрасываем все refs
+      velocityRef.current = 0;
+      lastYRef.current = null;
+      lastXRef.current = null;
+      lastTimeRef.current = null;
+      modalHeightRef.current = null;
+      modalWidthRef.current = null;
               
               // Убираем все кастомные стили через requestAnimationFrame для гарантии
               requestAnimationFrame(() => {
@@ -176,16 +185,20 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
                 }
               });
               
-              // Сбрасываем состояния свайпа
-              setStartY(null);
-              setCurrentY(null);
-              setIsDragging(false);
-              
-              // Сбрасываем все refs
-              velocityRef.current = 0;
-              lastYRef.current = null;
-              lastTimeRef.current = null;
-              modalHeightRef.current = null;
+      // Сбрасываем состояния свайпа
+      setStartY(null);
+      setCurrentY(null);
+      setStartX(null);
+      setCurrentX(null);
+      setIsDragging(false);
+      
+      // Сбрасываем все refs
+      velocityRef.current = 0;
+      lastYRef.current = null;
+      lastXRef.current = null;
+      lastTimeRef.current = null;
+      modalHeightRef.current = null;
+      modalWidthRef.current = null;
               
               if (process.env.NODE_ENV === 'development') {
                 console.log('[Sheet] Modal closed - all states reset');
@@ -205,9 +218,9 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       };
     }, [side]);
 
-    // Обработка свайпа для закрытия (только для bottom sheet) - Instagram-стиль
+    // Обработка свайпа для закрытия (bottom и right sheet) - Instagram-стиль
     const handleTouchStart = (e: React.TouchEvent) => {
-      if (side !== "bottom") return;
+      if (side !== "bottom" && side !== "right") return;
       
       // КРИТИЧНО: Проверяем, что модалка открыта и не закрывается
       if (!contentRef.current) return;
@@ -249,32 +262,58 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       
       if (!rect) return;
       
-      // Сохраняем высоту модалки для динамического порога
-      modalHeightRef.current = rect.height;
-      
-      // КРИТИЧНО: Свайп для закрытия только из очень узкой зоны вверху (индикатор + 40px)
-      // Это предотвращает случайное закрытие при взаимодействии с контентом
-      const dragZoneHeight = 50; // Узкая зона только для индикатора и небольшой области вокруг
-      const isInDragZone = touchY - rect.top < dragZoneHeight;
-      
-      if (!isInDragZone) {
-        // Touch не в зоне для drag - игнорируем
-        return;
+      if (side === "bottom") {
+        // Сохраняем высоту модалки для динамического порога
+        modalHeightRef.current = rect.height;
+        
+        // КРИТИЧНО: Свайп для закрытия только из очень узкой зоны вверху (индикатор + 40px)
+        // Это предотвращает случайное закрытие при взаимодействии с контентом
+        const dragZoneHeight = 50; // Узкая зона только для индикатора и небольшой области вокруг
+        const isInDragZone = touchY - rect.top < dragZoneHeight;
+        
+        if (!isInDragZone) {
+          // Touch не в зоне для drag - игнорируем
+          return;
+        }
+      } else if (side === "right") {
+        // Сохраняем ширину модалки для динамического порога
+        modalWidthRef.current = rect.width;
+        
+        // Для right sheet разрешаем свайп вправо из любой точки левого края (50px зона)
+        const dragZoneWidth = 50;
+        const isInDragZone = touchX - rect.left < dragZoneWidth;
+        
+        if (!isInDragZone) {
+          return;
+        }
       }
       
-      // Instagram-стиль: "липкая" прокрутка - проверяем, можно ли скроллить контент
-      const scrollableElement = e.currentTarget.querySelector('[data-scrollable]') || 
-                                e.currentTarget.querySelector('.overflow-y-auto') ||
-                                e.currentTarget;
-      
-      const isScrollable = scrollableElement && 
-        (scrollableElement.scrollHeight > scrollableElement.clientHeight);
-      const scrollTop = isScrollable ? (scrollableElement as HTMLElement).scrollTop : 0;
-      
-      // Если контент скроллится и мы не в самом верху - не начинаем свайп для закрытия
-      if (isScrollable && scrollTop > 10) {
-        // Если есть скролл, разрешаем свайп только если мы точно в зоне индикатора
-        if (touchY - rect.top < 30) {
+      if (side === "bottom") {
+        // Instagram-стиль: "липкая" прокрутка - проверяем, можно ли скроллить контент
+        const scrollableElement = e.currentTarget.querySelector('[data-scrollable]') || 
+                                  e.currentTarget.querySelector('.overflow-y-auto') ||
+                                  e.currentTarget;
+        
+        const isScrollable = scrollableElement && 
+          (scrollableElement.scrollHeight > scrollableElement.clientHeight);
+        const scrollTop = isScrollable ? (scrollableElement as HTMLElement).scrollTop : 0;
+        
+        // Если контент скроллится и мы не в самом верху - не начинаем свайп для закрытия
+        if (isScrollable && scrollTop > 10) {
+          // Если есть скролл, разрешаем свайп только если мы точно в зоне индикатора
+          if (touchY - rect.top < 30) {
+            setStartY(touchY);
+            setIsDragging(true);
+            velocityRef.current = 0;
+            lastYRef.current = touchY;
+            lastTimeRef.current = Date.now();
+            
+            if (contentRef.current) {
+              contentRef.current.style.touchAction = 'pan-y';
+            }
+          }
+        } else {
+          // Если контент не скроллится или мы вверху - разрешаем свайп только из зоны индикатора
           setStartY(touchY);
           setIsDragging(true);
           velocityRef.current = 0;
@@ -285,22 +324,24 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
             contentRef.current.style.touchAction = 'pan-y';
           }
         }
-      } else {
-        // Если контент не скроллится или мы вверху - разрешаем свайп только из зоны индикатора
-        setStartY(touchY);
+      } else if (side === "right") {
+        // Для right sheet начинаем горизонтальный свайп
+        setStartX(touchX);
         setIsDragging(true);
         velocityRef.current = 0;
-        lastYRef.current = touchY;
+        lastXRef.current = touchX;
         lastTimeRef.current = Date.now();
         
         if (contentRef.current) {
-          contentRef.current.style.touchAction = 'pan-y';
+          contentRef.current.style.touchAction = 'pan-x';
         }
       }
     };
 
     const handleTouchMove = (e: React.TouchEvent) => {
-      if (side !== "bottom" || startY === null || !isDragging) return;
+      if (side === "bottom" && (startY === null || !isDragging)) return;
+      if (side === "right" && (startX === null || !isDragging)) return;
+      if (side !== "bottom" && side !== "right") return;
       
       // КРИТИЧНО: Проверяем, что модалка еще открыта и не закрывается
       if (!contentRef.current) {
@@ -315,50 +356,91 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         // Если модалка уже закрыта или закрывается, прекращаем обработку
         setStartY(null);
         setCurrentY(null);
+        setStartX(null);
+        setCurrentX(null);
         setIsDragging(false);
         return;
       }
       
-      const currentYPos = e.touches[0].clientY;
-      const diff = currentYPos - startY;
-      
-      // Разрешаем свайп только вниз (Instagram-стиль: модалка следует за пальцем)
-      if (diff > 0 && contentRef.current) {
-        e.preventDefault(); // Предотвращаем скролл страницы только при свайпе вниз
+      if (side === "bottom" && startY !== null) {
+        const currentYPos = e.touches[0].clientY;
+        const diff = currentYPos - startY;
         
-        // Вычисляем скорость для инерции (Instagram-стиль)
-        const now = Date.now();
-        if (lastYRef.current !== null && lastTimeRef.current !== null) {
-          const deltaY = currentYPos - lastYRef.current;
-          const deltaTime = now - lastTimeRef.current;
-          if (deltaTime > 0) {
-            // Скорость в px/ms
-            velocityRef.current = deltaY / deltaTime;
+        // Разрешаем свайп только вниз (Instagram-стиль: модалка следует за пальцем)
+        if (diff > 0 && contentRef.current) {
+          e.preventDefault(); // Предотвращаем скролл страницы только при свайпе вниз
+          
+          // Вычисляем скорость для инерции (Instagram-стиль)
+          const now = Date.now();
+          if (lastYRef.current !== null && lastTimeRef.current !== null) {
+            const deltaY = currentYPos - lastYRef.current;
+            const deltaTime = now - lastTimeRef.current;
+            if (deltaTime > 0) {
+              // Скорость в px/ms
+              velocityRef.current = deltaY / deltaTime;
+            }
+          }
+          lastYRef.current = currentYPos;
+          lastTimeRef.current = now;
+          
+          // Модалка следует за пальцем (Instagram-стиль)
+          const maxDrag = modalHeightRef.current ? modalHeightRef.current * 1.2 : 600;
+          setCurrentY(diff);
+          contentRef.current.style.transform = `translateY(${Math.min(diff, maxDrag)}px)`;
+          contentRef.current.style.transition = 'none';
+          
+          // Overlay становится прозрачным пропорционально движению (Instagram-стиль)
+          const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+          if (overlay && modalHeightRef.current) {
+            // Прозрачность уменьшается пропорционально движению (25-30% высоты = полное закрытие)
+            const threshold = modalHeightRef.current * 0.3;
+            const opacity = Math.max(0, 0.8 * (1 - diff / threshold));
+            overlay.style.opacity = opacity.toString();
+            overlay.style.transition = 'none';
           }
         }
-        lastYRef.current = currentYPos;
-        lastTimeRef.current = now;
+      } else if (side === "right" && startX !== null) {
+        const currentXPos = e.touches[0].clientX;
+        const diff = currentXPos - startX;
         
-        // Модалка следует за пальцем (Instagram-стиль)
-        const maxDrag = modalHeightRef.current ? modalHeightRef.current * 1.2 : 600;
-        setCurrentY(diff);
-        contentRef.current.style.transform = `translateY(${Math.min(diff, maxDrag)}px)`;
-        contentRef.current.style.transition = 'none';
-        
-        // Overlay становится прозрачным пропорционально движению (Instagram-стиль)
-        const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
-        if (overlay && modalHeightRef.current) {
-          // Прозрачность уменьшается пропорционально движению (25-30% высоты = полное закрытие)
-          const threshold = modalHeightRef.current * 0.3;
-          const opacity = Math.max(0, 0.8 * (1 - diff / threshold));
-          overlay.style.opacity = opacity.toString();
-          overlay.style.transition = 'none';
+        // Разрешаем свайп только вправо (модалка следует за пальцем)
+        if (diff > 0 && contentRef.current) {
+          e.preventDefault(); // Предотвращаем скролл страницы
+          
+          // Вычисляем скорость для инерции
+          const now = Date.now();
+          if (lastXRef.current !== null && lastTimeRef.current !== null) {
+            const deltaX = currentXPos - lastXRef.current;
+            const deltaTime = now - lastTimeRef.current;
+            if (deltaTime > 0) {
+              velocityRef.current = deltaX / deltaTime;
+            }
+          }
+          lastXRef.current = currentXPos;
+          lastTimeRef.current = now;
+          
+          // Модалка следует за пальцем
+          const maxDrag = modalWidthRef.current ? modalWidthRef.current * 1.2 : 400;
+          setCurrentX(diff);
+          contentRef.current.style.transform = `translateX(${Math.min(diff, maxDrag)}px)`;
+          contentRef.current.style.transition = 'none';
+          
+          // Overlay становится прозрачным пропорционально движению
+          const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+          if (overlay && modalWidthRef.current) {
+            const threshold = modalWidthRef.current * 0.3;
+            const opacity = Math.max(0, 0.8 * (1 - diff / threshold));
+            overlay.style.opacity = opacity.toString();
+            overlay.style.transition = 'none';
+          }
         }
       }
     };
 
     const handleTouchEnd = (e?: React.TouchEvent) => {
-      if (side !== "bottom" || startY === null || !isDragging) return;
+      if (side === "bottom" && (startY === null || !isDragging)) return;
+      if (side === "right" && (startX === null || !isDragging)) return;
+      if (side !== "bottom" && side !== "right") return;
       
       if (!contentRef.current) return;
       
@@ -371,6 +453,8 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         // Сбрасываем состояния
         setStartY(null);
         setCurrentY(null);
+        setStartX(null);
+        setCurrentX(null);
         setIsDragging(false);
         return;
       }
@@ -384,12 +468,22 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       }
       
       // Вычисляем расстояние свайпа напрямую из последней позиции пальца
-      let dragDistance = currentY || 0;
+      let dragDistance = 0;
       
-      // Если есть событие touchEnd, вычисляем расстояние из него
-      if (e && e.changedTouches && e.changedTouches.length > 0) {
-        const endY = e.changedTouches[0].clientY;
-        dragDistance = endY - startY;
+      if (side === "bottom") {
+        dragDistance = currentY || 0;
+        // Если есть событие touchEnd, вычисляем расстояние из него
+        if (e && e.changedTouches && e.changedTouches.length > 0 && startY !== null) {
+          const endY = e.changedTouches[0].clientY;
+          dragDistance = endY - startY;
+        }
+      } else if (side === "right") {
+        dragDistance = currentX || 0;
+        // Если есть событие touchEnd, вычисляем расстояние из него
+        if (e && e.changedTouches && e.changedTouches.length > 0 && startX !== null) {
+          const endX = e.changedTouches[0].clientX;
+          dragDistance = endX - startX;
+        }
       }
       
       // Очень простой порог - если свайпнули больше 50px, закрываем
@@ -398,11 +492,14 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       // Отладочная информация
       if (process.env.NODE_ENV === 'development') {
         console.log('[Sheet] TouchEnd:', {
+          side,
           dragDistance,
           shouldClose,
           hasOnOpenChange: !!onOpenChange,
           currentY,
-          startY
+          currentX,
+          startY,
+          startX
         });
       }
       
