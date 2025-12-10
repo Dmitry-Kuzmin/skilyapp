@@ -219,18 +219,51 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         
         onClose();
         
-        // КРИТИЧНО: Используем navigate вместо window.location.href для предотвращения проблем
+        // КРИТИЧНО: Предотвращаем переключение на другую вкладку в Safari
+        // Telegram widget может открывать popup/вкладку, поэтому нужно вернуть фокус на текущую
+        try {
+          // Закрываем все popup окна, которые мог открыть виджет
+          if (window.opener && !window.opener.closed) {
+            try {
+              window.opener.close();
+            } catch (e) {
+              console.warn('[AuthModalNew] Could not close opener window:', e);
+            }
+          }
+          
+          // Пытаемся вернуть фокус на текущее окно/вкладку
+          if (window.focus) {
+            window.focus();
+          }
+          
+          // Также пытаемся вернуть фокус через blur/focus
+          if (document.hasFocus && !document.hasFocus()) {
+            window.blur();
+            window.focus();
+          }
+        } catch (e) {
+          console.warn('[AuthModalNew] Could not focus window:', e);
+        }
+        
+        // Используем navigate вместо window.location.href для предотвращения проблем
         // с переключением вкладок в Safari. navigate безопаснее и работает корректно
-        // Особенно на мобильных устройствах, где window.location.href может вызывать проблемы
         setTimeout(() => {
           // Проверяем, не находимся ли мы уже на dashboard
           if (window.location.pathname !== '/dashboard') {
             navigate('/dashboard', { replace: true });
           } else {
-            // Если уже на dashboard, просто обновляем страницу через navigate(0)
-            // Это обновит контекст без полной перезагрузки
+            // Если уже на dashboard, просто обновляем страницу
             window.location.reload();
           }
+          
+          // Дополнительно пытаемся вернуть фокус после навигации
+          setTimeout(() => {
+            try {
+              window.focus();
+            } catch (e) {
+              // Игнорируем ошибки фокуса
+            }
+          }, 100);
         }, 300);
       } catch (error) {
         console.error('[AuthModalNew] Telegram login error:', error);
@@ -269,6 +302,9 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
       script.setAttribute('data-size', 'large');
       script.setAttribute('data-onauth', 'onTelegramAuth(user)');
       script.setAttribute('data-request-access', 'write');
+      // КРИТИЧНО: Предотвращаем открытие popup/новой вкладки виджетом
+      // Используем корс-атрибут для безопасности
+      script.setAttribute('data-cors', 'anonymous');
 
       // Обработка успешной загрузки
       script.onload = () => {
@@ -288,6 +324,48 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
       container.appendChild(script);
       console.log('[AuthModalNew] Telegram widget script appended, waiting for load...');
+      
+      // КРИТИЧНО: Перехватываем клики на виджете, чтобы предотвратить открытие новых окон/вкладок
+      // Telegram widget может открывать popup, нужно предотвратить это
+      const handleContainerClick = (e: MouseEvent) => {
+        // Позволяем только клики на кнопку виджета, но предотвращаем открытие новых окон
+        const target = e.target as HTMLElement;
+        if (target.closest('iframe') || target.closest('script')) {
+          // Если клик на iframe виджета, предотвращаем открытие нового окна
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      };
+      
+      // Перехватываем клики на контейнере
+      container.addEventListener('click', handleContainerClick, true);
+      
+      // Также перехватываем события открытия новых окон
+      const originalOpen = window.open;
+      let windowOpenBlocked = false;
+      window.open = function(...args) {
+        if (windowOpenBlocked) {
+          console.log('[AuthModalNew] Blocked window.open call:', args);
+          // Блокируем открытие новых окон во время авторизации
+          return null;
+        }
+        return originalOpen.apply(this, args);
+      };
+      
+      // Блокируем window.open во время авторизации
+      windowOpenBlocked = true;
+      
+      // Обработка успешной загрузки виджета
+      const originalOnLoad = script.onload;
+      script.onload = () => {
+        console.log('[AuthModalNew] ✅ Telegram widget script loaded successfully');
+        if (originalOnLoad) originalOnLoad();
+        // Восстанавливаем window.open после небольшой задержки
+        setTimeout(() => {
+          windowOpenBlocked = false;
+          container.removeEventListener('click', handleContainerClick, true);
+        }, 2000); // Увеличиваем задержку для безопасности
+      };
     }, 100);
 
     return () => {
