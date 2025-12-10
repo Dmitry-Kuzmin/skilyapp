@@ -117,11 +117,12 @@ const DialogContent = React.forwardRef<
           {/* Индикатор для свайпа */}
           <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-muted-foreground/30 rounded-full z-10" />
           
-          {/* Автоматически добавляем скрытые элементы доступности */}
+          {/* КРИТИЧНО: Автоматически добавляем скрытые элементы доступности КАК ПРЯМЫХ ПОТОМКОВ
+              Radix UI требует, чтобы DialogTitle и DialogDescription были прямыми потомками DialogContent */}
           {autoAccessibility && (
             <>
-              <DialogPrimitive.Title className="sr-only">Диалоговое окно</DialogPrimitive.Title>
-              <DialogPrimitive.Description className="sr-only">Содержимое диалогового окна</DialogPrimitive.Description>
+              <DialogPrimitive.Title className="sr-only" aria-hidden="true">Диалоговое окно</DialogPrimitive.Title>
+              <DialogPrimitive.Description className="sr-only" aria-hidden="true">Содержимое диалогового окна</DialogPrimitive.Description>
             </>
           )}
           
@@ -183,11 +184,13 @@ const DialogContent = React.forwardRef<
         }}
         {...props}
       >
-        {/* Автоматически добавляем скрытые элементы доступности */}
+        {/* КРИТИЧНО: Автоматически добавляем скрытые элементы доступности КАК ПРЯМЫХ ПОТОМКОВ
+            Radix UI требует, чтобы DialogTitle и DialogDescription были прямыми потомками DialogContent
+            Даже если они есть в children внутри DialogHeader, Radix их не видит */}
         {autoAccessibility && (
           <>
-            <DialogPrimitive.Title className="sr-only">Диалоговое окно</DialogPrimitive.Title>
-            <DialogPrimitive.Description className="sr-only">Содержимое диалогового окна</DialogPrimitive.Description>
+            <DialogPrimitive.Title className="sr-only" aria-hidden="true">Диалоговое окно</DialogPrimitive.Title>
+            <DialogPrimitive.Description className="sr-only" aria-hidden="true">Содержимое диалогового окна</DialogPrimitive.Description>
           </>
         )}
         
