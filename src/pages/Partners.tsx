@@ -430,7 +430,7 @@ export default function Partners() {
 
       {/* Navigation */}
       <nav className="relative z-50 px-6 md:px-10 py-6 flex items-center justify-between max-w-[1400px] mx-auto gap-4 flex-wrap">
-        <LandingLogo theme="dark" className="scale-90 origin-left" />
+        <LandingLogo theme="dark" showSubtitle={false} className="scale-90 origin-left" />
         <div className="flex items-center gap-3 flex-wrap justify-end ml-auto">
           <button
             onClick={() => navigate("/")}
@@ -768,7 +768,7 @@ export default function Partners() {
               onClick={() => navigate("/")}
               className="flex items-center gap-3 mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg px-2 py-2 transition-opacity hover:opacity-90"
             >
-              <LandingLogo theme="dark" className="scale-75" />
+              <LandingLogo theme="dark" showSubtitle={false} className="scale-75" />
             </button>
             <p className="text-sm text-slate-400 max-w-md text-center">
               {language === 'ru' 
