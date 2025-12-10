@@ -106,7 +106,12 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
       }
 
       console.log('[AuthModalNew] Fallback: telegram-auth success, redirecting');
-      window.location.href = '/dashboard';
+      // Используем navigate вместо window.location.href для безопасности
+      if (window.location.pathname !== '/dashboard') {
+        navigate('/dashboard', { replace: true });
+      } else {
+        window.location.reload();
+      }
     } catch (err) {
       console.error('[AuthModalNew] Fallback: telegram-auth failed', err);
       toast({
@@ -214,11 +219,18 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         
         onClose();
         
-        // КРИТИЧНО: Используем window.location.href для полного перезапуска приложения
-        // Это гарантирует, что UserProvider загрузится и обработает новую сессию
-        // Особенно важно на лендинге, где UserProvider может отсутствовать
+        // КРИТИЧНО: Используем navigate вместо window.location.href для предотвращения проблем
+        // с переключением вкладок в Safari. navigate безопаснее и работает корректно
+        // Особенно на мобильных устройствах, где window.location.href может вызывать проблемы
         setTimeout(() => {
-          window.location.href = '/dashboard';
+          // Проверяем, не находимся ли мы уже на dashboard
+          if (window.location.pathname !== '/dashboard') {
+            navigate('/dashboard', { replace: true });
+          } else {
+            // Если уже на dashboard, просто обновляем страницу через navigate(0)
+            // Это обновит контекст без полной перезагрузки
+            window.location.reload();
+          }
         }, 300);
       } catch (error) {
         console.error('[AuthModalNew] Telegram login error:', error);
@@ -529,7 +541,11 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
             
             if (currentSession?.user) {
               console.log('[AuthModalNew] Session confirmed, redirecting to dashboard');
-              window.location.href = '/dashboard';
+              if (window.location.pathname !== '/dashboard') {
+                navigate('/dashboard', { replace: true });
+              } else {
+                window.location.reload();
+              }
               return;
             }
             
@@ -537,7 +553,11 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
               console.warn('[AuthModalNew] Max attempts reached, redirecting anyway');
               // Даже если сессия не подтверждена, редиректим
               // UserProvider на dashboard проверит сессию при загрузке
-              window.location.href = '/dashboard';
+              if (window.location.pathname !== '/dashboard') {
+                navigate('/dashboard', { replace: true });
+              } else {
+                window.location.reload();
+              }
               return;
             }
             
@@ -589,7 +609,11 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
             
             if (currentSession?.user) {
               console.log('[AuthModalNew] Session confirmed after signIn, redirecting to dashboard');
-              window.location.href = '/dashboard';
+              if (window.location.pathname !== '/dashboard') {
+                navigate('/dashboard', { replace: true });
+              } else {
+                window.location.reload();
+              }
               return;
             }
             
@@ -597,7 +621,11 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
               console.warn('[AuthModalNew] Max attempts reached after signIn, redirecting anyway');
               // Даже если сессия не подтверждена, редиректим
               // UserProvider на dashboard проверит сессию при загрузке
-              window.location.href = '/dashboard';
+              if (window.location.pathname !== '/dashboard') {
+                navigate('/dashboard', { replace: true });
+              } else {
+                window.location.reload();
+              }
               return;
             }
             
