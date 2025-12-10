@@ -173,6 +173,18 @@ export function useDashboardData() {
       const { data: superResult, error: superError } = await supabase
         .rpc('get_dashboard_super', { p_user_id: profileId });
 
+      if (superError) {
+        console.error('[useDashboardData] ❌ Super RPC error:', {
+          error: superError,
+          code: superError.code,
+          message: superError.message,
+          details: superError.details,
+          hint: superError.hint,
+          profileId,
+          profileIdType: typeof profileId,
+        });
+      }
+
       if (!superError && superResult && !superResult.error) {
         console.log('[useDashboardData] ✅ SUPER RPC success - all data in 1 request!', {
           profileId,
@@ -184,7 +196,14 @@ export function useDashboardData() {
       }
 
       // Fallback на обычный RPC
-      console.warn('[useDashboardData] ⚠️ Super RPC not available, trying regular RPC');
+      if (superError) {
+        console.warn('[useDashboardData] ⚠️ Super RPC failed, trying regular RPC', {
+          errorCode: superError.code,
+          errorMessage: superError.message,
+        });
+      } else {
+        console.warn('[useDashboardData] ⚠️ Super RPC not available, trying regular RPC');
+      }
       const { data: result, error: rpcError } = await supabase
         .rpc('get_dashboard_complete', { p_user_id: profileId });
 

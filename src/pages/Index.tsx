@@ -91,8 +91,23 @@ const DashboardContent = () => {
       });
 
       if (error) {
-        console.error('[handleClaimBonus] Edge Function error:', error);
-        throw error;
+        console.error('[handleClaimBonus] Edge Function error:', {
+          error,
+          name: error.name,
+          message: error.message,
+          status: (error as any).status,
+          statusText: (error as any).statusText,
+          profileId,
+        });
+        
+        // Более детальное сообщение об ошибке
+        if ((error as any).status === 503) {
+          throw new Error('Сервис временно недоступен. Пожалуйста, попробуйте позже.');
+        } else if ((error as any).status === 400) {
+          throw new Error('Неверный запрос. Проверьте данные и попробуйте снова.');
+        } else {
+          throw error;
+        }
       }
 
       // Проверяем ответ
