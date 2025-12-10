@@ -46,6 +46,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [telegramLoading, setTelegramLoading] = useState(false);
   const [isPasskeyAvailable, setIsPasskeyAvailable] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+  const drawerContentRef = useRef<HTMLDivElement>(null);
   
   // --- Refs & Context ---
   const emailInputRef = useRef<HTMLInputElement>(null);
@@ -678,6 +680,79 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     }
   }, [open]);
 
+  // Обработка изменения viewport при появлении клавиатуры на мобильных
+  useEffect(() => {
+    if (!open || !isMobile || typeof window === 'undefined') return;
+
+    const updateViewportHeight = () => {
+      if (window.visualViewport) {
+        setViewportHeight(window.visualViewport.height);
+      } else {
+        setViewportHeight(window.innerHeight);
+      }
+    };
+
+    // Инициализация
+    updateViewportHeight();
+
+    // Отслеживаем изменения viewport (появление/скрытие клавиатуры)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateViewportHeight);
+      window.visualViewport.addEventListener('scroll', updateViewportHeight);
+    } else {
+      window.addEventListener('resize', updateViewportHeight);
+    }
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', updateViewportHeight);
+        window.visualViewport.removeEventListener('scroll', updateViewportHeight);
+      } else {
+        window.removeEventListener('resize', updateViewportHeight);
+      }
+    };
+  }, [open, isMobile]);
+
+  // Автоскролл к полю ввода при фокусе на мобильных
+  useEffect(() => {
+    if (!open || !isMobile || !emailInputRef.current) return;
+
+    const handleFocus = () => {
+      // Небольшая задержка для того, чтобы клавиатура успела появиться
+      setTimeout(() => {
+        emailInputRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+        
+        // Дополнительный скролл контента модалки, если нужно
+        const drawerContent = drawerContentRef.current;
+        if (drawerContent && emailInputRef.current) {
+          const inputRect = emailInputRef.current.getBoundingClientRect();
+          const drawerRect = drawerContent.getBoundingClientRect();
+          const viewportHeight = window.visualViewport?.height || window.innerHeight;
+          
+          // Если поле ввода находится слишком высоко или скрыто клавиатурой
+          if (inputRect.bottom > viewportHeight - 20) {
+            const scrollOffset = inputRect.bottom - (viewportHeight - 20);
+            drawerContent.scrollBy({
+              top: scrollOffset,
+              behavior: 'smooth'
+            });
+          }
+        }
+      }, 300); // Задержка для появления клавиатуры
+    };
+
+    const input = emailInputRef.current;
+    input.addEventListener('focus', handleFocus);
+
+    return () => {
+      input.removeEventListener('focus', handleFocus);
+    };
+  }, [open, isMobile]);
+
   const getPasskeyLabel = () => {
     if (typeof navigator === 'undefined') return 'Устройство';
     
@@ -1007,7 +1082,13 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
           <Drawer.Content
-            className="bg-zinc-950 flex flex-col rounded-t-[32px] border-t border-white/10 shadow-2xl z-50 focus:outline-none fixed bottom-0 left-0 right-0 max-h-[85vh]"
+            ref={drawerContentRef}
+            className="bg-zinc-950 flex flex-col rounded-t-[32px] border-t border-white/10 shadow-2xl z-50 focus:outline-none fixed bottom-0 left-0 right-0"
+            style={{
+              maxHeight: viewportHeight 
+                ? `${Math.min(viewportHeight * 0.92, window.innerHeight * 0.85)}px`
+                : '85vh'
+            }}
           >
             {/* Drawer Handle для мобилок - нативный iOS стиль */}
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-800 mt-4" aria-hidden="true" />
