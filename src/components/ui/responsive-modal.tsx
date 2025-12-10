@@ -50,16 +50,13 @@ export function ResponsiveModal({
     setMounted(true);
   }, []);
 
-  // КРИТИЧНО: Защита от повторного открытия при закрытии
+  // КРИТИЧНО: Обработчик изменения состояния модалки
   // Выносим useCallback наверх, чтобы не нарушать правила хуков React
   const handleOpenChange = React.useCallback((newOpen: boolean) => {
-    // Если пытаемся закрыть, но модалка уже закрыта - игнорируем
-    if (!newOpen && !open) return;
-    // Если пытаемся открыть, но модалка уже открыта - игнорируем
-    if (newOpen && open) return;
-    
+    // Просто передаем изменение состояния дальше
+    // Vaul сам управляет состоянием, нам нужно только уведомить родителя
     onOpenChange?.(newOpen);
-  }, [open, onOpenChange]);
+  }, [onOpenChange]);
 
   // Общий контент для desktop и mobile
   const modalContent = (
@@ -127,11 +124,18 @@ export function ResponsiveModal({
               }
             }}
           >
-            {/* Drawer Handle */}
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-800 mt-4" aria-hidden="true" />
+            {/* Drawer Handle - область для drag-to-dismiss */}
+            <div 
+              className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-800 mt-4 cursor-grab active:cursor-grabbing" 
+              aria-hidden="true"
+              style={{ touchAction: 'none' }}
+            />
             
-            {/* Content Wrapper */}
-            <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Content Wrapper - скроллируемый контент не должен блокировать drag */}
+            <div 
+              className="flex-1 flex flex-col overflow-hidden"
+              data-vaul-no-drag
+            >
               {modalContent}
             </div>
           </DrawerPrimitive.Content>
