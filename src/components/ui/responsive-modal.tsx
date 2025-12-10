@@ -79,10 +79,20 @@ export function ResponsiveModal({
   if (!isDesktop) {
     if (!mounted) return null;
 
+    // Защита от повторного открытия при закрытии
+    const handleOpenChange = React.useCallback((newOpen: boolean) => {
+      // Если пытаемся закрыть, но модалка уже закрыта - игнорируем
+      if (!newOpen && !open) return;
+      // Если пытаемся открыть, но модалка уже открыта - игнорируем
+      if (newOpen && open) return;
+      
+      onOpenChange?.(newOpen);
+    }, [open, onOpenChange]);
+
     return (
       <DrawerPrimitive.Root
         open={open}
-        onOpenChange={onOpenChange}
+        onOpenChange={handleOpenChange}
         shouldScaleBackground={true}
         dismissible={!preventClose}
         modal={true}
