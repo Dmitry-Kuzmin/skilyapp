@@ -1,109 +1,96 @@
+import { Car } from "lucide-react";
+
 interface LandingLogoProps {
   className?: string;
   showText?: boolean;
-  showSubtitle?: boolean;
   theme?: "light" | "dark";
+  variant?: "default" | "minimal" | "bold" | "elegant";
 }
 
 export const LandingLogo: React.FC<LandingLogoProps> = ({
   className = "",
   showText = true,
-  showSubtitle = false,
   theme = "dark",
+  variant = "default",
 }) => {
   const isDark = theme === "dark";
-  const glowColor = isDark ? "#6366f1" : "#4f46e5"; // indigo-500
-  const accentColor = isDark ? "#818cf8" : "#6366f1"; // indigo-400
-  const networkColor = isDark ? "#a5b4fc" : "#818cf8"; // indigo-300
+  const textColor = isDark ? "text-white" : "text-zinc-900";
 
-  return (
-    <div className={`flex flex-col gap-1 ${className}`}>
-      <div className="flex items-center gap-3">
-        {/* Логотип: Машина с нейросетью внутри */}
-        <div className="relative flex-shrink-0">
-          <svg
-            width="48"
-            height="48"
-            viewBox="0 0 48 48"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="drop-shadow-2xl"
-          >
-            <defs>
-              {/* Градиент для свечения */}
-              <linearGradient id="car-glow" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor={glowColor} stopOpacity="0.8" />
-                <stop offset="50%" stopColor={accentColor} stopOpacity="0.9" />
-                <stop offset="100%" stopColor={networkColor} stopOpacity="0.7" />
-              </linearGradient>
-              
-              {/* Градиент для нейросети */}
-              <linearGradient id="network-glow" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor={networkColor} stopOpacity="0.9" />
-                <stop offset="100%" stopColor={accentColor} stopOpacity="0.6" />
-              </linearGradient>
-              
-              {/* Фильтр свечения */}
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                <feMerge>
-                  <feMergeNode in="coloredBlur"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
-            </defs>
-
-            {/* Контур машины (спортивный автомобиль в профиль) */}
-            <path
-              d="M8 32 C10 20 16 14 24 14 L32 14 C36 14 39 12 41 10 C43 8 44 8 45 10 C46 12 46.5 16 46.5 20 L46.5 24 C46.5 26 45.5 27 44 27 L40 27 C39 30 36 32 32 32 C28 32 25 29.5 24 27 L20 27 C19 29.5 16 32 12 32 C8 32 5.5 30 5 27 L4 27 C2.5 27 1.5 26 1.5 24.5 L1.5 20 C1.5 18 2 16 3 14 L8 32 Z"
-              stroke="url(#car-glow)"
-              strokeWidth="1.5"
-              fill="none"
-              filter="url(#glow)"
-              className="animate-pulse"
-              style={{ animationDuration: '3s' }}
-            />
-
-            {/* Нейросеть внутри машины (соединенные точки и линии) */}
-            <g opacity="0.9">
-              {/* Узлы нейросети */}
-              <circle cx="18" cy="20" r="2" fill="url(#network-glow)" filter="url(#glow)" />
-              <circle cx="24" cy="18" r="2" fill="url(#network-glow)" filter="url(#glow)" />
-              <circle cx="30" cy="20" r="2" fill="url(#network-glow)" filter="url(#glow)" />
-              <circle cx="20" cy="24" r="1.5" fill="url(#network-glow)" filter="url(#glow)" />
-              <circle cx="28" cy="24" r="1.5" fill="url(#network-glow)" filter="url(#glow)" />
-              <circle cx="24" cy="22" r="2.5" fill="url(#network-glow)" filter="url(#glow)" />
-              
-              {/* Соединительные линии нейросети */}
-              <line x1="18" y1="20" x2="24" y2="18" stroke="url(#network-glow)" strokeWidth="1" opacity="0.6" filter="url(#glow)" />
-              <line x1="24" y1="18" x2="30" y2="20" stroke="url(#network-glow)" strokeWidth="1" opacity="0.6" filter="url(#glow)" />
-              <line x1="18" y1="20" x2="20" y2="24" stroke="url(#network-glow)" strokeWidth="1" opacity="0.6" filter="url(#glow)" />
-              <line x1="30" y1="20" x2="28" y2="24" stroke="url(#network-glow)" strokeWidth="1" opacity="0.6" filter="url(#glow)" />
-              <line x1="20" y1="24" x2="24" y2="22" stroke="url(#network-glow)" strokeWidth="1" opacity="0.6" filter="url(#glow)" />
-              <line x1="28" y1="24" x2="24" y2="22" stroke="url(#network-glow)" strokeWidth="1" opacity="0.6" filter="url(#glow)" />
-              <line x1="24" y1="22" x2="24" y2="18" stroke="url(#network-glow)" strokeWidth="1" opacity="0.6" filter="url(#glow)" />
-            </g>
-
-            {/* Дополнительные детали машины (фары) */}
-            <circle cx="44" cy="22" r="1.5" fill={accentColor} opacity="0.8" filter="url(#glow)" />
-            <circle cx="44" cy="24" r="1.5" fill={accentColor} opacity="0.8" filter="url(#glow)" />
-          </svg>
-        </div>
-
-        {/* Текст: Skily */}
+  // Вариант 1: Минималистичный (простая иконка без фона)
+  if (variant === "minimal") {
+    return (
+      <div className={`flex items-center gap-2.5 ${className}`}>
+        <Car 
+          className={`w-6 h-6 ${isDark ? "text-indigo-400" : "text-indigo-600"}`} 
+          strokeWidth={2}
+        />
         {showText && (
-          <div className="flex flex-col">
-            <span className={`text-3xl font-black tracking-tight leading-none ${isDark ? "text-white" : "text-zinc-900"} font-sans`}>
-              Skily
-            </span>
-            {showSubtitle && (
-              <span className={`text-xs font-semibold tracking-wider uppercase mt-0.5 ${isDark ? "text-indigo-400" : "text-indigo-600"}`}>
-                AI-платформа для DGT
-              </span>
-            )}
-          </div>
+          <span className={`text-xl font-semibold tracking-tight ${textColor}`}>
+            Skily
+          </span>
         )}
       </div>
+    );
+  }
+
+  // Вариант 2: Жирный (крупная иконка с контрастным фоном) - улучшенный дизайн
+  if (variant === "bold") {
+    return (
+      <div className={`flex items-center gap-3 ${className}`}>
+        <div className="relative flex-shrink-0">
+          {/* Градиентный фон с анимацией */}
+          <div className={`w-12 h-12 rounded-2xl ${isDark ? "bg-gradient-to-br from-indigo-500 via-violet-500 to-indigo-600" : "bg-gradient-to-br from-indigo-600 via-violet-700 to-indigo-800"} flex items-center justify-center shadow-xl ${isDark ? "shadow-indigo-500/40" : "shadow-indigo-600/50"} relative overflow-hidden`}>
+            {/* Дополнительное свечение внутри */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent"></div>
+            {/* Иконка */}
+            <Car className="w-6 h-6 text-white relative z-10" strokeWidth={2.5} />
+          </div>
+          {/* Внешнее свечение */}
+          <div className={`absolute inset-0 rounded-2xl ${isDark ? "bg-indigo-400/30" : "bg-indigo-500/30"} blur-xl -z-10 animate-pulse`} style={{ animationDuration: '3s' }}></div>
+        </div>
+        {showText && (
+          <span className={`text-2xl font-bold tracking-tight ${textColor} bg-gradient-to-r ${isDark ? "from-white via-indigo-50 to-white" : "from-zinc-900 via-indigo-900 to-zinc-900"} bg-clip-text text-transparent`}>
+            Skily
+          </span>
+        )}
+      </div>
+    );
+  }
+
+  // Вариант 3: Элегантный (тонкая рамка, градиентный текст)
+  if (variant === "elegant") {
+    return (
+      <div className={`flex items-center gap-3 ${className}`}>
+        <div className={`w-11 h-11 rounded-xl border-2 ${isDark ? "border-indigo-400/40 bg-indigo-500/10" : "border-indigo-500/50 bg-indigo-50"} flex items-center justify-center backdrop-blur-sm`}>
+          <Car className={`w-5 h-5 ${isDark ? "text-indigo-400" : "text-indigo-600"}`} strokeWidth={2} />
+        </div>
+        {showText && (
+          <span className={`text-xl font-bold tracking-tight bg-gradient-to-r ${isDark ? "from-white to-indigo-200" : "from-zinc-900 to-indigo-700"} bg-clip-text text-transparent`}>
+            Skily
+          </span>
+        )}
+      </div>
+    );
+  }
+
+  // Вариант по умолчанию: Современный (иконка в круге с градиентом)
+  return (
+    <div className={`flex items-center gap-3 ${className}`}>
+      <div className="relative flex-shrink-0">
+        <div className={`w-11 h-11 rounded-full ${isDark ? "bg-gradient-to-br from-indigo-500 via-violet-500 to-indigo-600" : "bg-gradient-to-br from-indigo-600 to-violet-700"} flex items-center justify-center shadow-lg ${isDark ? "shadow-indigo-500/25" : "shadow-indigo-600/30"}`}>
+          <Car className="w-5 h-5 text-white" strokeWidth={2.5} />
+        </div>
+        {/* Декоративное свечение */}
+        <div className={`absolute inset-0 rounded-full ${isDark ? "bg-indigo-400/20" : "bg-indigo-500/20"} blur-xl -z-10`}></div>
+      </div>
+
+      {showText && (
+        <div className="flex items-center">
+          <span className={`text-2xl font-bold tracking-tight leading-none ${textColor}`}>
+            Skily
+          </span>
+        </div>
+      )}
     </div>
   );
 };
