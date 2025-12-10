@@ -420,6 +420,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       await supabase.auth.signOut();
     }
     
+    // Очищаем состояние пользователя
     setUser(null);
     setSupabaseUser(null);
     setSession(null);
@@ -427,8 +428,28 @@ export function UserProvider({ children }: { children: ReactNode }) {
     window.puzzleCodeData = {
       PLATFORM: platform
     };
+    
+    // Очищаем localStorage
     localStorage.removeItem('telegram_token');
     localStorage.removeItem('puzzle_user');
+    
+    // КРИТИЧНО: Очищаем кэш React Query и IndexedDB
+    try {
+      // Очищаем IndexedDB кэш
+      const { del } = await import('idb-keyval');
+      await del('SDADIM_REACT_QUERY_OFFLINE_CACHE');
+      console.log('[UserContext] ✅ IndexedDB cache cleared');
+    } catch (error) {
+      console.warn('[UserContext] ⚠️ Failed to clear IndexedDB cache:', error);
+    }
+    
+    // КРИТИЧНО: Перенаправляем на лендинг
+    // Используем window.location для гарантированного редиректа
+    // Это предотвращает автологин при перезагрузке страницы
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
+    
     logUserContext("[UserContext] User logged out");
   };
 

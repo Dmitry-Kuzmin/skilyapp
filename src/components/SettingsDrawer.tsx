@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "./ThemeToggle";
 import { PasskeyManager } from "@/components/auth/PasskeyManager";
 import { cn } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface SettingsDrawerProps {
   open: boolean;
@@ -29,6 +30,7 @@ interface SettingsDrawerProps {
 export function SettingsDrawer({ open, onOpenChange }: SettingsDrawerProps) {
   const { user, logout, platform, supabaseUser } = useUserContext();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [notifications, setNotifications] = useState(true);
   const [language, setLanguage] = useState("ru");
   const [soundsEnabled, setSoundsEnabled] = useState(true);
@@ -53,13 +55,17 @@ export function SettingsDrawer({ open, onOpenChange }: SettingsDrawerProps) {
     }
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    // КРИТИЧНО: Очищаем кэш React Query перед logout
+    try {
+      queryClient.clear();
+      console.log('[SettingsDrawer] ✅ React Query cache cleared');
+    } catch (error) {
+      console.warn('[SettingsDrawer] ⚠️ Failed to clear Query cache:', error);
+    }
+    
     onOpenChange(false);
-    toast({
-      title: "Вы вышли из системы",
-      description: "До скорой встречи!",
-    });
+    logout(); // logout сам сделает редирект на лендинг
   };
 
   return (

@@ -22,7 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { 
   Settings, 
   Gift, 
@@ -140,11 +140,20 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
   const subscription = 'free'; // Убрали subscription_status из запроса
 
   // ОПТИМИЗАЦИЯ: Мемоизируем обработчики для предотвращения лишних ре-рендеров
-  const handleLogout = useCallback(() => {
-    logout();
+  const handleLogout = useCallback(async () => {
     setOpen(false);
-    toast.success(t('loggedOut') || 'Вы вышли из аккаунта');
-  }, [logout, t]);
+    
+    // КРИТИЧНО: Очищаем кэш React Query перед logout
+    try {
+      queryClient.clear();
+      console.log('[UserProfilePopover] ✅ React Query cache cleared');
+    } catch (error) {
+      console.warn('[UserProfilePopover] ⚠️ Failed to clear Query cache:', error);
+    }
+    
+    // Вызываем logout (он сам очистит IndexedDB и сделает редирект)
+    logout();
+  }, [logout, queryClient]);
 
   const handleLanguageChange = useCallback(async (lang: 'ru' | 'en' | 'es') => {
     setLanguage(lang);

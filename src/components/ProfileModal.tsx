@@ -238,10 +238,17 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
     updateSettings({ language: lang });
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    // КРИТИЧНО: Очищаем кэш React Query перед logout
+    try {
+      queryClient.clear();
+      console.log('[ProfileModal] ✅ React Query cache cleared');
+    } catch (error) {
+      console.warn('[ProfileModal] ⚠️ Failed to clear Query cache:', error);
+    }
+    
     onOpenChange(false);
-    toast.success(t('loggedOut'));
+    logout(); // logout сам сделает редирект на лендинг
   };
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
