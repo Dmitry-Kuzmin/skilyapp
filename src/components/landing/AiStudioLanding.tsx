@@ -22,7 +22,7 @@ import {
   Coins,
 } from "lucide-react";
 import { playClickSound, playEngineSound } from "@/services/audioService";
-import { LandingLogo } from "./LandingLogo";
+import { SkilyLogo } from "@/components/ui/SkilyLogo";
 import { StartEngineButton } from "./StartEngineButton";
 import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
@@ -127,7 +127,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
       <div className="fixed inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
 
       <nav className="relative z-50 px-6 md:px-10 py-6 flex items-center justify-between max-w-[1400px] mx-auto gap-4 flex-wrap">
-        <LandingLogo theme="dark" showSubtitle={false} className="scale-90 origin-left" />
+        <SkilyLogo className="h-8 scale-90 origin-left" />
         <div className="flex items-center gap-3 flex-wrap justify-end ml-auto">
           <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-white transition-colors">
             <Smartphone size={16} />
