@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { cn } from '@/lib/utils';
 import { GoogleIcon, TelegramIcon } from '@/components/icons/SocialIcons';
 import { PasskeyLoginButton } from '@/components/auth/PasskeyLoginButton';
+import { LandingLogo } from '@/components/landing/LandingLogo';
 import { checkEmailExists, getClientIP } from '@/lib/auth-utils';
 import { isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/passkey';
 
@@ -991,9 +992,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                 exit={{ scale: 0.8, opacity: 0 }}
                 className="mb-4"
               >
-                <div className="w-12 h-12 bg-gradient-to-tr from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 ring-1 ring-white/20">
-                  <div className="w-6 h-6 border-2 border-white/80 rounded-lg" />
-                </div>
+                <LandingLogo theme="dark" variant="default" showText={false} className="mx-auto" />
               </motion.div>
             )}
           </AnimatePresence>

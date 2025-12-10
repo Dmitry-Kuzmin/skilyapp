@@ -4,6 +4,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { cn } from "@/lib/utils";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { LandingLogo } from "@/components/landing/LandingLogo";
 
 export function Footer() {
   const { t } = useLanguage();
@@ -68,12 +69,9 @@ export function Footer() {
           <button
             type="button"
             onClick={() => navigate("/dashboard")}
-            className="flex items-center gap-2 mx-auto md:mx-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg px-1 py-1 transition-opacity hover:opacity-90"
+            className="mx-auto md:mx-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg px-1 py-1 transition-opacity hover:opacity-90"
           >
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg gradient-primary">
-              <span className="text-primary-foreground font-bold text-sm">S</span>
-            </div>
-            <span className="text-sm font-semibold text-foreground">Skilyapp</span>
+            <LandingLogo theme="dark" variant="minimal" showText={true} className="scale-75" />
           </button>
 
           {/* Organized Link Columns */}
@@ -96,7 +94,7 @@ export function Footer() {
 
           {/* Copyright */}
           <p className="text-sm text-muted-foreground mx-auto md:mx-0">
-            ©2025 Skilyapp
+            ©2025 Skily
           </p>
         </div>
       </div>
