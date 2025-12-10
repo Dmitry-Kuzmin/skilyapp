@@ -89,11 +89,13 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
     highlightIndex >= 0 ? totalQuestionsText.slice(highlightIndex + highlightWord.length) : "";
 
   const handleStartEngine = () => {
-    if (isStarting) return;
+    if (isStarting) return; // избегаем двойного триггера во время анимации
     setIsStarting(true);
     playEngineSound();
     setTimeout(() => {
       onRequestAccess();
+      // сбрасываем состояние, чтобы повторные нажатия снова открывали модалку
+      setIsStarting(false);
     }, 1500);
   };
 
