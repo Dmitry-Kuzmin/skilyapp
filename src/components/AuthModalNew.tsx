@@ -850,7 +850,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                       <div className="flex-grow border-t border-zinc-800"></div>
                     </div>
 
-                  <div className="grid grid-cols-3 gap-3 mt-1">
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-1">
                     <PasskeyLoginButton 
                       onSuccess={onClose} 
                       variant="inline" 
@@ -858,7 +858,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                     />
                     <Button 
                       variant="secondary" 
-                      className="bg-zinc-900 h-11 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all" 
+                      className="bg-zinc-900 h-11 sm:h-12 text-xs sm:text-sm border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all" 
                       onClick={handleGoogleLogin}
                     >
                       <GoogleIcon />
@@ -866,7 +866,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                     <Button 
                       variant="secondary" 
                       disabled={telegramLoading}
-                      className="bg-zinc-900 h-11 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed" 
+                      className="bg-zinc-900 h-11 sm:h-12 text-xs sm:text-sm border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed" 
                     >
                       {telegramLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <TelegramIcon />}
                       <div 
