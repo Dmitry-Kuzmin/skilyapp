@@ -663,6 +663,9 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     }
   };
 
+  // Определяем мобильное устройство в начале компонента (до использования в useEffect)
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
   // Проверка доступности Passkey для адаптации layout
   useEffect(() => {
     const checkPasskeyAvailability = async () => {
@@ -753,6 +756,9 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     };
   }, [open, isMobile]);
 
+  // Определяем мобильное устройство в начале компонента
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
   const getPasskeyLabel = () => {
     if (typeof navigator === 'undefined') return 'Устройство';
     
@@ -776,8 +782,6 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
     return 'Устройство';
   };
-
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   // Общий контент для обоих режимов (desktop и mobile)
   const modalContent = (
