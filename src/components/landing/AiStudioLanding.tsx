@@ -127,7 +127,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
       <div className="fixed inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
 
       <nav className="relative z-50 px-6 md:px-10 py-6 flex items-center justify-between max-w-[1400px] mx-auto gap-4 flex-wrap">
-        <LandingLogo theme="dark" className="scale-90 origin-left" />
+        <LandingLogo theme="dark" variant="elegant" className="scale-90 origin-left" />
         <div className="flex items-center gap-3 flex-wrap justify-end ml-auto">
           <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-white transition-colors">
             <Smartphone size={16} />
@@ -339,7 +339,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         </div>
       </section>
 
-      <section className="relative z-10 px-6 py-16 max-w-[1400px] mx-auto border-t border-slate-800/50">
+      <section className="relative z-10 px-6 py-12 max-w-[1400px] mx-auto">
         <div className="mb-12">
           <h2 className="text-3xl md:text-5xl font-black mb-4">{copy.ecosystem.title}</h2>
           <p className="text-slate-400 max-w-xl">{copy.ecosystem.description}</p>
@@ -385,7 +385,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         </div>
       </section>
 
-      <section className="relative z-10 px-6 py-16 max-w-[1400px] mx-auto">
+      <section className="relative z-10 px-6 pt-10 pb-16 max-w-[1400px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 p-10 rounded-[2.5rem] relative overflow-hidden">
             <div className="absolute top-0 right-0 p-10 opacity-10">
