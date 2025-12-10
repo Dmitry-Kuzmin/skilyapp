@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useContext } from 'react';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';
-import { useModalRoute } from '@/hooks/useModalRoute';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -83,7 +82,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const { t, language } = useLanguage();
   const dateLocale = localeMap[language] || 'en-US';
   const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId);
-  // UnifiedModal сам синхронизирует с URL через modalRouteKey
   // Используем isTelegramMiniApp() для более надежного определения Telegram Mini App
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
   const showStarsPayment = isPaymentMethodAvailable('telegram_stars', currentPlatform);

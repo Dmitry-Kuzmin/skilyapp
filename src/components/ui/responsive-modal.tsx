@@ -83,7 +83,7 @@ export function ResponsiveModal({
     </>
   );
 
-  // Мобильная версия - Vaul Drawer с физикой
+  // Мобильная версия - Vaul Drawer с физикой (как в модалке достижений)
   if (!isDesktop) {
     if (!mounted) return null;
 
@@ -91,7 +91,7 @@ export function ResponsiveModal({
       <DrawerPrimitive.Root
         open={open}
         onOpenChange={onOpenChange}
-        shouldScaleBackground
+        shouldScaleBackground={true}
         dismissible={!preventClose}
         modal={true}
         fadeFromIndex={0}
@@ -137,59 +137,61 @@ export function ResponsiveModal({
   }
 
   // Десктопная версия - Framer Motion с spring-физикой (как в модалке достижений)
-  if (!mounted || !open) return null;
+  if (!mounted) return null;
 
   const portalTarget = typeof document !== 'undefined' ? document.body : null;
   if (!portalTarget) return null;
 
   return createPortal(
-    <AnimatePresence mode="wait">
-      <div className="fixed inset-0 z-[2147483646] flex items-center justify-center p-4" style={{ zIndex }}>
-        {/* Backdrop с blur */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-          onClick={preventClose ? undefined : () => onOpenChange?.(false)}
-        />
+    <AnimatePresence>
+      {open && (
+        <div className="fixed inset-0 z-[2147483646] flex items-center justify-center p-4" style={{ zIndex }}>
+          {/* Backdrop с blur */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={preventClose ? undefined : () => onOpenChange?.(false)}
+          />
 
-        {/* Modal Content с spring-анимацией */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.96, y: 8 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: 8 }}
-          transition={{
-            type: "spring",
-            damping: 30,
-            stiffness: 400,
-            duration: 0.25
-          }}
-          className={cn(
-            "relative z-10 w-full max-w-2xl h-auto max-h-[85vh] bg-background rounded-[24px] border border-border/50 shadow-2xl overflow-hidden flex flex-col",
-            className
-          )}
-          onClick={(e) => e.stopPropagation()}
-          onInteractOutside={(e) => {
-            if (preventClose) {
-              e.preventDefault();
-            }
-          }}
-          onEscapeKeyDown={(e) => {
-            if (preventClose) {
-              e.preventDefault();
-            }
-          }}
-          onPointerDownOutside={(e) => {
-            if (preventClose) {
-              e.preventDefault();
-            }
-          }}
-        >
-          {modalContent}
-        </motion.div>
-      </div>
+          {/* Modal Content с spring-анимацией */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 8 }}
+            transition={{
+              type: "spring",
+              damping: 30,
+              stiffness: 400,
+              duration: 0.25
+            }}
+            className={cn(
+              "relative z-10 w-full max-w-2xl h-auto max-h-[85vh] bg-background rounded-[24px] border border-border/50 shadow-2xl overflow-hidden flex flex-col",
+              className
+            )}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-labelledby={title ? "responsive-modal-title" : "responsive-modal-title-default"}
+            aria-describedby={description ? "responsive-modal-description" : "responsive-modal-description-default"}
+          >
+            {/* Accessibility: скрытые заголовки для screen readers */}
+            {title ? (
+              <DialogTitle id="responsive-modal-title" className="sr-only">{title}</DialogTitle>
+            ) : (
+              <DialogTitle id="responsive-modal-title-default" className="sr-only">Модальное окно</DialogTitle>
+            )}
+            {description ? (
+              <DialogDescription id="responsive-modal-description" className="sr-only">{description}</DialogDescription>
+            ) : (
+              <DialogDescription id="responsive-modal-description-default" className="sr-only">Содержимое модального окна</DialogDescription>
+            )}
+            
+            {modalContent}
+          </motion.div>
+        </div>
+      )}
     </AnimatePresence>,
     portalTarget
   );
