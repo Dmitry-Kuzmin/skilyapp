@@ -756,9 +756,6 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     };
   }, [open, isMobile]);
 
-  // Определяем мобильное устройство в начале компонента
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
   const getPasskeyLabel = () => {
     if (typeof navigator === 'undefined') return 'Устройство';
     
