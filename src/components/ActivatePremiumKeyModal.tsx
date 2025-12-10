@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Key, CheckCircle2, XCircle, Gift } from "lucide-react";
+import { Key, CheckCircle2, XCircle, Gift, Crown } from "lucide-react";
 import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,7 @@ export function ActivatePremiumKeyModal({ open, onOpenChange }: ActivatePremiumK
   const [key, setKey] = useState("");
   const [loading, setLoading] = useState(false);
   const { profileId } = useUserContext();
-  const { refresh: refreshPremium } = usePremium();
+  const { isLifetime, refresh: refreshPremium } = usePremium();
 
   const handleActivate = async () => {
     if (!key.trim()) {
@@ -66,6 +66,40 @@ export function ActivatePremiumKeyModal({ open, onOpenChange }: ActivatePremiumK
     }
   };
 
+  // Если у пользователя уже есть Premium Forever - показываем сообщение
+  if (isLifetime) {
+    return (
+      <UnifiedModal
+        open={open}
+        onOpenChange={onOpenChange}
+        modalRouteKey="activate-key"
+        title="Premium Forever активен"
+        description="У вас уже есть Premium Forever"
+      >
+        <div className="space-y-4">
+          <div className="p-6 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 text-center">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <Crown className="h-6 w-6 text-green-500" />
+              <span className="font-semibold text-lg">Premium Forever активен</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              У вас уже есть пожизненный доступ ко всем функциям приложения. Ключ активации не требуется.
+            </p>
+          </div>
+
+          <Button
+            onClick={() => onOpenChange(false)}
+            className="w-full bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600 text-white font-semibold shadow-lg shadow-blue-500/15 hover:shadow-blue-500/25 transition-all duration-200 hover:scale-[1.01]"
+            size="lg"
+          >
+            <CheckCircle2 className="h-4 w-4 mr-2" />
+            Понятно
+          </Button>
+        </div>
+      </UnifiedModal>
+    );
+  }
+
   return (
     <UnifiedModal
       open={open}
@@ -108,7 +142,7 @@ export function ActivatePremiumKeyModal({ open, onOpenChange }: ActivatePremiumK
         <Button
           onClick={handleActivate}
           disabled={loading || !key.trim()}
-          className="w-full"
+          className="w-full bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600 text-white font-semibold shadow-lg shadow-blue-500/15 hover:shadow-blue-500/25 transition-all duration-200 hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           size="lg"
         >
           {loading ? (
