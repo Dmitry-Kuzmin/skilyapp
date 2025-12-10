@@ -357,13 +357,33 @@ const Index = () => {
   const isLoading = userContext?.isLoading ?? true;
   const navigate = useNavigate();
   
-  // КРИТИЧНО: Если не авторизован, редиректим на главную (где Landing рендерится напрямую)
-  // НЕ рендерим Landing здесь, чтобы избежать бесконечного цикла
+  // КРИТИЧНО: Проверяем Telegram авторизацию перед редиректом на лендинг
+  // Это предотвращает редирект, пока UserContext обрабатывает Telegram пользователя
   useEffect(() => {
-    if (!isLoading && userContext && !isAuthenticated) {
-      navigate('/', { replace: true });
+    if (isLoading) return; // Ждем завершения загрузки
+    
+    // Если уже авторизован - ничего не делаем
+    if (isAuthenticated) return;
+    
+    // Если нет UserContext - показываем loader (он уже обрабатывается выше)
+    if (!userContext) return;
+    
+    // Проверяем Telegram авторизацию (особенно важно для Telegram Mini App)
+    const { checkTelegramAuth } = require('@/utils/authCheck');
+    const { isTelegramMiniApp } = require('@/lib/telegram');
+    
+    if (isTelegramMiniApp() && checkTelegramAuth()) {
+      console.log('[Index] Telegram auth detected, waiting for UserContext to process...');
+      // Не делаем редирект - даем UserContext время обработать Telegram авторизацию
+      // UserContext автоматически авторизует пользователя через telegram-auth Edge Function
+      // Это предотвращает бесконечный цикл редиректов между / и /dashboard
+      return;
     }
-  }, [isLoading, userContext, isAuthenticated, navigate]);
+    
+    // Если это не Telegram и не авторизован - редирект на лендинг
+    console.log('[Index] Not authenticated, redirecting to landing...');
+    navigate('/', { replace: true });
+  }, [isLoading, isAuthenticated, navigate, userContext]);
   
   // КРИТИЧНО: Показываем loader пока идет загрузка авторизации или пока UserProvider не готов
   // Это предотвращает белый экран при перезагрузке страницы
