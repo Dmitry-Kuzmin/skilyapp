@@ -200,15 +200,33 @@ export const GlobalModalManager = () => {
     </Suspense>
   );
 
+  // КРИТИЧНО: Модалки, которые сами создают портал (ResponsiveModal, CelebrationModal и т.д.)
+  // не нужно оборачивать в дополнительный div, так как это блокирует клики
+  // Проверяем, создает ли модалка свой портал
+  const createsOwnPortal = topModal.type === 'BOOST_SHOP' || 
+                           topModal.type === 'CELEBRATION' ||
+                           topModal.type === 'HALL_OF_FAME' ||
+                           topModal.type === 'DUEL_PASS_LEADERBOARD';
+
+  if (createsOwnPortal) {
+    // Модалка сама создает портал, просто рендерим её
+    return ModalContent;
+  }
+
+  // Для остальных модалок (которые используют Radix UI Dialog/Sheet) 
+  // оборачиваем в div для правильного z-index
   return createPortal(
     <div
       style={{
         position: 'fixed',
         inset: 0,
         zIndex: topModal.zIndex || 1000 + stack.length - 1,
+        pointerEvents: 'none', // КРИТИЧНО: не блокируем клики, только для z-index
       }}
     >
-      {ModalContent}
+      <div style={{ pointerEvents: 'auto' }}>
+        {ModalContent}
+      </div>
     </div>,
     document.body
   );
