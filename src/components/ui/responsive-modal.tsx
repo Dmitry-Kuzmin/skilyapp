@@ -3,14 +3,6 @@ import { useMediaQuery } from "usehooks-ts";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
 import { Drawer as DrawerPrimitive } from "vaul";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 interface ResponsiveModalProps {
@@ -176,16 +168,16 @@ export function ResponsiveModal({
             aria-labelledby={title ? "responsive-modal-title" : "responsive-modal-title-default"}
             aria-describedby={description ? "responsive-modal-description" : "responsive-modal-description-default"}
           >
-            {/* Accessibility: скрытые заголовки для screen readers */}
+            {/* Accessibility: скрытые заголовки для screen readers (используем обычные HTML элементы, не DialogTitle/DialogDescription) */}
             {title ? (
-              <DialogTitle id="responsive-modal-title" className="sr-only">{title}</DialogTitle>
+              <h2 id="responsive-modal-title" className="sr-only">{title}</h2>
             ) : (
-              <DialogTitle id="responsive-modal-title-default" className="sr-only">Модальное окно</DialogTitle>
+              <h2 id="responsive-modal-title-default" className="sr-only">Модальное окно</h2>
             )}
             {description ? (
-              <DialogDescription id="responsive-modal-description" className="sr-only">{description}</DialogDescription>
+              <p id="responsive-modal-description" className="sr-only">{description}</p>
             ) : (
-              <DialogDescription id="responsive-modal-description-default" className="sr-only">Содержимое модального окна</DialogDescription>
+              <p id="responsive-modal-description-default" className="sr-only">Содержимое модального окна</p>
             )}
             
             {modalContent}
