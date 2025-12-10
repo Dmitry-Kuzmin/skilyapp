@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useContext } from 'react';
-import { UnifiedModal } from '@/components/ui/unified-modal';
+import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { useModalRoute } from '@/hooks/useModalRoute';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
@@ -979,12 +979,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const regularBoosts = boosts.filter(b => !b.is_premium);
   const premiumBoosts = boosts.filter(b => b.is_premium);
 
-  // Контент модалки с skeleton
+  // Контент модалки
   const ModalContent = () => {
-    if (loading) {
-      return <ModalSkeleton variant="shop" />;
-    }
-    
     return (
       <>
         {/* ОПТИМИЗАЦИЯ: Confetti только когда модалка открыта */}
@@ -1779,18 +1775,21 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
   return (
     <>
-      <UnifiedModal
+      <ResponsiveModal
         open={open}
         onOpenChange={onOpenChange}
         title={t('boostShop.title')}
-        showTitleBar={false}
         className="max-w-4xl"
-        loading={loading}
-        skeletonVariant="shop"
-        modalRouteKey="boost-shop"
+        contentClassName="scrollbar-none"
       >
-        {!loading && <ModalContent />}
-      </UnifiedModal>
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
+          </div>
+        ) : (
+          <ModalContent />
+        )}
+      </ResponsiveModal>
       
       {/* Nested Modals - рендерим только когда нужно */}
       {paywallOpen && (
@@ -1811,7 +1810,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           currency={cryptomusPreview.currency}
           itemName={cryptomusPreview.itemName}
           onPaymentComplete={() => {
-            loadUserData();
+            loadData();
           }}
           onCancel={() => {
             // Ничего не делаем при отмене
