@@ -50,6 +50,17 @@ export function ResponsiveModal({
     setMounted(true);
   }, []);
 
+  // КРИТИЧНО: Защита от повторного открытия при закрытии
+  // Выносим useCallback наверх, чтобы не нарушать правила хуков React
+  const handleOpenChange = React.useCallback((newOpen: boolean) => {
+    // Если пытаемся закрыть, но модалка уже закрыта - игнорируем
+    if (!newOpen && !open) return;
+    // Если пытаемся открыть, но модалка уже открыта - игнорируем
+    if (newOpen && open) return;
+    
+    onOpenChange?.(newOpen);
+  }, [open, onOpenChange]);
+
   // Общий контент для desktop и mobile
   const modalContent = (
     <>
@@ -79,16 +90,6 @@ export function ResponsiveModal({
   if (!isDesktop) {
     if (!mounted) return null;
 
-    // Защита от повторного открытия при закрытии
-    const handleOpenChange = React.useCallback((newOpen: boolean) => {
-      // Если пытаемся закрыть, но модалка уже закрыта - игнорируем
-      if (!newOpen && !open) return;
-      // Если пытаемся открыть, но модалка уже открыта - игнорируем
-      if (newOpen && open) return;
-      
-      onOpenChange?.(newOpen);
-    }, [open, onOpenChange]);
-
     return (
       <DrawerPrimitive.Root
         open={open}
@@ -97,6 +98,7 @@ export function ResponsiveModal({
         dismissible={!preventClose}
         modal={true}
         fadeFromIndex={0}
+        noBodyStyles={false}
       >
         <DrawerPrimitive.Portal>
           <DrawerPrimitive.Overlay
