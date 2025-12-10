@@ -124,6 +124,10 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
       ></div>
       <div className="fixed inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
 
+      {/* Мягкие фоновые градиенты (только десктоп, лёгкие CSS) */}
+      <div className="hidden md:block fixed top-[-18%] left-[-10%] w-[720px] h-[720px] bg-indigo-600/12 rounded-full blur-[140px] pointer-events-none"></div>
+      <div className="hidden md:block fixed bottom-[-22%] right-[-8%] w-[820px] h-[820px] bg-violet-600/12 rounded-full blur-[160px] pointer-events-none"></div>
+
       {/* LCP: локальное hero изображение с preload */}
       <img
         src="/images/hero-lcp.webp"
