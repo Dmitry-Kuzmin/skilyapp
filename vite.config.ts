@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
         name: 'Sdadim DGT',
         short_name: 'Sdadim',
         description: 'Sdadim Digital Gaming Platform - Подготовка к теоретическому экзамену DGT',
-        theme_color: '#18181b', // zinc-900
+        theme_color: '#09090b', // zinc-950 - совпадает с фоном страницы
         background_color: '#09090b', // zinc-950
         display: 'standalone',
         orientation: 'portrait',
