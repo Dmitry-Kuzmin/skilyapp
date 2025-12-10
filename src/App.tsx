@@ -386,52 +386,49 @@ const App = () => {
       {/* КРИТИЧНО: Компонент для ручного обновления PWA при registerType: 'prompt' */}
       <ReloadPrompt />
       <Suspense fallback={null}>
-        <CosmeticsPreviewProvider>
-          <BrowserRouter basename={basename}>
-            <ScrollToTop />
-            <Suspense fallback={null}>
-              <DeepLinkHandler />
-              {/* OAuthCallbackHandler отключен - используем /auth/callback маршрут для OAuth */}
-              {/* Если нужно обрабатывать токены на других страницах - можно включить с проверкой pathname */}
-              {/* <OAuthCallbackHandler /> */}
-            </Suspense>
-            {/* ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query) */}
-            <Routes>
-              <Route path="/" element={<LandingRedirect />} />
-              {/* OAuth callback - обрабатывает сессию сам, не требует AppProviders */}
-              <Route path="/auth/callback" element={<AuthCallback />} />
-              {/* Все остальные роуты - внутри AppProviders (с Supabase/Query) */}
-              {/* ОПТИМИЗАЦИЯ: AppProviders lazy - НЕ попадает в initial bundle для лендинга */}
-              {/* Это критично для производительности - Supabase/Query грузятся только для /app/* */}
-              <Route path="/*" element={
-                <Suspense fallback={<LightFallback />}>
-                  <AppProviders>
-                    <Suspense fallback={<LightFallback />}>
+        <BrowserRouter basename={basename}>
+          <ScrollToTop />
+          <Suspense fallback={null}>
+            <DeepLinkHandler />
+            {/* OAuthCallbackHandler отключен - используем /auth/callback маршрут для OAuth */}
+            {/* Если нужно обрабатывать токены на других страницах - можно включить с проверкой pathname */}
+            {/* <OAuthCallbackHandler /> */}
+          </Suspense>
+          {/* ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query) */}
+          <Routes>
+            <Route path="/" element={<LandingRedirect />} />
+            {/* OAuth callback - обрабатывает сессию сам, не требует AppProviders */}
+            <Route path="/auth/callback" element={<AuthCallback />} />
+            {/* Все остальные роуты - внутри AppProviders (с Supabase/Query) */}
+            {/* ОПТИМИЗАЦИЯ: AppProviders lazy - НЕ попадает в initial bundle для лендинга */}
+            {/* Это критично для производительности - Supabase/Query грузятся только для /app/* */}
+            <Route path="/*" element={
+              <Suspense fallback={<LightFallback />}>
+                <AppProviders>
+                  <Suspense fallback={<LightFallback />}>
+                    <CosmeticsPreviewProvider>
                       <AppRoutes />
-                    </Suspense>
-                    {/* Глобальный менеджер модалок должен быть внутри провайдеров,
-                        чтобы работали UserContext и QueryClient */}
-                    <Suspense fallback={null}>
-                      <GlobalModalManager />
-                    </Suspense>
-                  </AppProviders>
-                </Suspense>
-              } />
-            </Routes>
-            {/* Модалки, доступные на всех страницах */}
-            <Suspense fallback={null}>
-              <HallOfFameModal />
-              <DuelPassLeaderboardModal />
-            </Suspense>
-            {/* Глобальный менеджер модалок (перенесен внутрь AppProviders выше) */}
-            <Suspense fallback={null}>
-              <PerformanceMonitor />
-              <PasskeyOnboardingWrapper />
-            </Suspense>
-            {/* Debug панель Service Worker (только в dev или с localStorage.debug_sw) */}
-            <ServiceWorkerDebug />
-          </BrowserRouter>
-        </CosmeticsPreviewProvider>
+                      {/* Глобальный менеджер модалок должен быть внутри провайдеров,
+                          чтобы работали UserContext и QueryClient */}
+                      <Suspense fallback={null}>
+                        <GlobalModalManager />
+                        <PerformanceMonitor />
+                        <PasskeyOnboardingWrapper />
+                      </Suspense>
+                    </CosmeticsPreviewProvider>
+                  </Suspense>
+                </AppProviders>
+              </Suspense>
+            } />
+          </Routes>
+          {/* Модалки, доступные на всех страницах */}
+          <Suspense fallback={null}>
+            <HallOfFameModal />
+            <DuelPassLeaderboardModal />
+          </Suspense>
+          {/* Debug панель Service Worker (только в dev или с localStorage.debug_sw) */}
+          <ServiceWorkerDebug />
+        </BrowserRouter>
       </Suspense>
     </>
   );

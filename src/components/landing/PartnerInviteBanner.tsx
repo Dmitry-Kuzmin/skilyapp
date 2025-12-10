@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { X, Sparkles, Gift } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
 
 interface PartnerInfo {
   partnerCode: string;
@@ -76,18 +75,17 @@ export function PartnerInviteBanner() {
 
             {/* Right Side - CTA + Close */}
             <div className="flex items-center gap-2 flex-shrink-0">
-              <Button
-                size="sm"
+              <button
                 onClick={() => {
                   const authButton = document.querySelector('[data-auth-trigger="true"]');
                   if (authButton) {
                     (authButton as HTMLElement).click();
                   }
                 }}
-                className="bg-white text-primary hover:bg-white/90 font-semibold"
+                className="px-4 py-2 rounded-lg bg-white text-primary font-semibold hover:bg-white/90 transition-colors text-sm"
               >
                 Получить Premium
-              </Button>
+              </button>
               
               <button
                 onClick={handleDismiss}
