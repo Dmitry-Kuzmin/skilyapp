@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { X, Sparkles, Gift } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PartnerInfo {
   partnerCode: string;
@@ -12,6 +13,7 @@ interface PartnerInfo {
 
 export function PartnerInviteBanner() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [partnerInfo, setPartnerInfo] = useState<PartnerInfo | null>(null);
   const [dismissed, setDismissed] = useState(false);
 
@@ -61,14 +63,14 @@ export function PartnerInviteBanner() {
                 <div className="flex items-center gap-2 mb-0.5">
                   <Sparkles className="h-4 w-4 text-yellow-300 flex-shrink-0" />
                   <p className="text-sm font-bold text-white">
-                    Специальное предложение от партнера!
+                    {t('auth.partner.specialOffer')}
                   </p>
                 </div>
                 <p className="text-sm text-white/90">
-                  Получите <strong>Premium на 30 дней бесплатно</strong> при регистрации
+                  {t('auth.partner.getPremium')} <strong>{t('auth.partner.premium30Days')}</strong> {t('auth.partner.onRegistration')}
                   {partnerInfo.utm_campaign && (
                     <span className="text-white/70 ml-1">
-                      • Кампания: {partnerInfo.utm_campaign}
+                      • {t('auth.partner.campaign')}: {partnerInfo.utm_campaign}
                     </span>
                   )}
                 </p>
@@ -81,13 +83,13 @@ export function PartnerInviteBanner() {
                 onClick={() => navigate('/dashboard')}
                 className="px-4 py-2 rounded-lg bg-white text-primary font-semibold hover:bg-white/90 transition-colors text-sm"
               >
-                Получить Premium
+                {t('auth.partner.getPremium')}
               </button>
               
               <button
                 onClick={handleDismiss}
                 className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
-                aria-label="Закрыть"
+                aria-label={t('auth.partner.close')}
               >
                 <X className="h-4 w-4 text-white/70 hover:text-white" />
               </button>

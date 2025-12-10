@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { loginWithPasskey, isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/passkey';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface PasskeyLoginButtonProps {
   onSuccess?: () => void;
@@ -20,12 +21,13 @@ interface PasskeyLoginButtonProps {
   label?: string;
 }
 
-export function PasskeyLoginButton({ onSuccess, variant = 'default', className, label = 'Войти с помощью устройства' }: PasskeyLoginButtonProps) {
+export function PasskeyLoginButton({ onSuccess, variant = 'default', className, label }: PasskeyLoginButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
   const [isAvailable, setIsAvailable] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   // Проверка поддержки при монтировании
   useEffect(() => {
@@ -59,8 +61,8 @@ export function PasskeyLoginButton({ onSuccess, variant = 'default', className, 
 
       if (result.success) {
         toast({
-          title: '✅ Вход выполнен',
-          description: 'Добро пожаловать обратно!',
+          title: t('auth.passkey.loginSuccess'),
+          description: t('auth.passkey.loginSuccessDesc'),
         });
 
         onSuccess?.();
@@ -77,8 +79,8 @@ export function PasskeyLoginButton({ onSuccess, variant = 'default', className, 
         // Если Passkey не найден - предлагаем зарегистрировать
         if (errorMessage.includes('not found') || errorMessage.includes('не найден')) {
           toast({
-            title: 'Passkey не настроен',
-            description: 'Войдите через email и добавьте устройство в Настройках → Безопасность',
+            title: t('auth.passkey.notConfigured'),
+            description: t('auth.passkey.notConfiguredDesc'),
             variant: 'destructive',
             duration: 6000,
           });
@@ -86,16 +88,16 @@ export function PasskeyLoginButton({ onSuccess, variant = 'default', className, 
         // Если пользователь отменил (закрыл диалог Face ID)
         else if (errorMessage.includes('abort') || errorMessage.includes('cancel') || errorMessage.includes('отменено')) {
           toast({
-            title: 'Вход отменён',
-            description: 'Вы можете войти через email или попробовать Passkey снова',
+            title: t('auth.passkey.cancelled'),
+            description: t('auth.passkey.cancelledDesc'),
             duration: 4000,
           });
         }
         // Rate limit превышен
         else if (errorMessage.includes('Rate limit') || errorMessage.includes('Too many')) {
           toast({
-            title: 'Слишком много попыток',
-            description: 'Подождите минуту или войдите через email',
+            title: t('auth.passkey.tooManyAttempts'),
+            description: t('auth.passkey.tooManyAttemptsDesc'),
             variant: 'destructive',
             duration: 6000,
           });
@@ -103,8 +105,8 @@ export function PasskeyLoginButton({ onSuccess, variant = 'default', className, 
         // Другие ошибки
         else {
           toast({
-            title: 'Не удалось войти',
-            description: 'Попробуйте снова или используйте вход через email',
+            title: t('auth.passkey.loginFailed'),
+            description: t('auth.passkey.loginFailedDesc'),
             variant: 'destructive',
             duration: 5000,
           });
@@ -118,10 +120,10 @@ export function PasskeyLoginButton({ onSuccess, variant = 'default', className, 
       const isUserCancellation = errorMsg.includes('abort') || errorMsg.includes('cancel');
       
       toast({
-        title: isUserCancellation ? 'Вход отменён' : 'Ошибка входа',
+        title: isUserCancellation ? t('auth.passkey.cancelled') : t('auth.passkey.error'),
         description: isUserCancellation 
-          ? 'Вы можете войти через email' 
-          : 'Не удалось войти через Passkey. Используйте вход через email',
+          ? t('auth.passkey.cancelledDesc')
+          : t('auth.passkey.errorDesc'),
         variant: isUserCancellation ? 'default' : 'destructive',
         duration: 5000,
       });
@@ -145,12 +147,12 @@ export function PasskeyLoginButton({ onSuccess, variant = 'default', className, 
         {isLoading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
-            <span>Вход...</span>
+            <span>{t('auth.passkey.loginInProgress')}</span>
           </>
         ) : (
           <>
             <Fingerprint className="w-5 h-5" />
-            <span>{label}</span>
+            <span>{label || t('auth.deviceLoginFallback')}</span>
           </>
         )}
       </div>
@@ -164,8 +166,7 @@ export function PasskeyLoginButton({ onSuccess, variant = 'default', className, 
         onClick={handleLogin}
         disabled={isLoading}
         className={cn(
-          // Компактные размеры на мобиле, полноценные на десктопе
-          "w-full h-11 sm:h-12 bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-blue-500/15 hover:shadow-blue-500/25 transition-all duration-200 hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 group relative overflow-hidden",
+          "w-full h-11 bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600 text-white text-sm font-semibold shadow-lg shadow-blue-500/15 hover:shadow-blue-500/25 transition-all duration-200 hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 group relative overflow-hidden",
           className
         )}
       >
@@ -183,7 +184,7 @@ export function PasskeyLoginButton({ onSuccess, variant = 'default', className, 
         </div>
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-zinc-950 px-2 text-zinc-500 font-semibold tracking-wider">
-            Или
+            {t('auth.passkey.or')}
           </span>
         </div>
       </div>
@@ -194,7 +195,7 @@ export function PasskeyLoginButton({ onSuccess, variant = 'default', className, 
         onClick={handleLogin}
         disabled={isLoading}
         className={cn(
-          "w-full h-11 sm:h-12 bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600 text-white text-sm sm:text-base font-semibold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all duration-200 hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 group relative overflow-hidden",
+          "w-full h-12 bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600 text-white font-semibold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all duration-200 hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 group relative overflow-hidden",
           className
         )}
       >
@@ -204,10 +205,10 @@ export function PasskeyLoginButton({ onSuccess, variant = 'default', className, 
       {/* Подсказки */}
       <div className="space-y-1">
         <p className="text-xs text-center text-zinc-500">
-          Face ID • Touch ID • Windows Hello
+          {t('auth.passkey.deviceTypes')}
         </p>
         <p className="text-xs text-center text-zinc-600">
-          Нет доступа к устройству? Используйте вход через email выше
+          {t('auth.passkey.noDeviceAccess')}
         </p>
       </div>
     </div>

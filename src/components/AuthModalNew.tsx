@@ -179,7 +179,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         console.error('[AuthModalNew] ❌ Invalid user data in callback:', user);
         toast({
           title: t('auth.errors.validationError'),
-          description: 'Ошибка: неполные данные пользователя',
+          description: t('auth.errors.incompleteUserData'),
           variant: "destructive"
         });
         setTelegramLoading(false);
@@ -317,7 +317,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         console.error('[AuthModalNew] ❌ Failed to load Telegram widget script:', error);
         toast({
           title: t('auth.errors.validationError'),
-          description: 'Не удалось загрузить виджет авторизации. Проверьте подключение к интернету.',
+          description: t('auth.errors.widgetLoadFailed'),
           variant: "destructive"
         });
         setTelegramLoading(false);
@@ -1196,19 +1196,19 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
         {/* Legal Footer */}
         <div className="mt-6 text-center text-xs text-zinc-500">
-          Продолжая, вы принимаете{' '}
+          {t('auth.legalFooter')}{' '}
           <Link 
             to="/terms" 
             className="underline underline-offset-4 hover:text-blue-400 transition-colors"
           >
-            Условия
+            {t('auth.terms')}
           </Link>
           {' '}и{' '}
           <Link 
             to="/privacy" 
             className="underline underline-offset-4 hover:text-blue-400 transition-colors"
           >
-            Политику конфиденциальности
+            {t('auth.privacy')}
           </Link>
           .
         </div>

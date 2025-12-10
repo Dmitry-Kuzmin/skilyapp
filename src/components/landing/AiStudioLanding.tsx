@@ -339,7 +339,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         </div>
       </section>
 
-      <section className="relative z-10 px-6 py-12 max-w-[1400px] mx-auto">
+      <section className="relative z-10 px-6 pt-12 pb-6 max-w-[1400px] mx-auto">
         <div className="mb-12">
           <h2 className="text-3xl md:text-5xl font-black mb-4">{copy.ecosystem.title}</h2>
           <p className="text-slate-400 max-w-xl">{copy.ecosystem.description}</p>
@@ -385,7 +385,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         </div>
       </section>
 
-      <section className="relative z-10 px-6 pt-10 pb-16 max-w-[1400px] mx-auto">
+      <section className="relative z-10 px-6 pt-6 pb-16 max-w-[1400px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 p-10 rounded-[2.5rem] relative overflow-hidden">
             <div className="absolute top-0 right-0 p-10 opacity-10">

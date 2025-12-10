@@ -201,10 +201,10 @@ export function NotificationsPanel({
   // Debug logging (только в dev режиме)
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' && window.localStorage?.getItem('debugNotifications') === '1') {
-      console.log('[NotificationsPanel] Component mounted, profileId:', profileId);
-      console.log('[NotificationsPanel] Notifications:', notifications.length, 'Unread:', unreadCount);
-      if (notifications.length > 0) {
-        console.log('[NotificationsPanel] First notification:', notifications[0]);
+    console.log('[NotificationsPanel] Component mounted, profileId:', profileId);
+    console.log('[NotificationsPanel] Notifications:', notifications.length, 'Unread:', unreadCount);
+    if (notifications.length > 0) {
+      console.log('[NotificationsPanel] First notification:', notifications[0]);
       }
     }
   }, [notifications, unreadCount, profileId]);
@@ -239,11 +239,11 @@ export function NotificationsPanel({
   // Debug: логируем только в dev режиме при необходимости
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' && window.localStorage?.getItem('debugNotifications') === '1') {
-      console.log('[NotificationsPanel] 🔍 filteredNotifications changed:', {
-        count: filteredNotifications.length,
-        filter,
-        totalNotifications: notifications.length,
-      });
+    console.log('[NotificationsPanel] 🔍 filteredNotifications changed:', {
+      count: filteredNotifications.length,
+      filter,
+      totalNotifications: notifications.length,
+    });
     }
   }, [filteredNotifications, filter, notifications.length]);
 

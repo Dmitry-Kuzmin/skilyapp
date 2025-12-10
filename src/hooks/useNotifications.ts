@@ -57,7 +57,7 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
   const lastToastAtRef = useRef(0);
   const lastTelegramAtRef = useRef(0);
   const previousNotificationsRef = useRef<DuelNotification[]>([]);
-  
+
   // КРИТИЧНО: Загружаем показанные уведомления из localStorage при инициализации
   // Это предотвращает повторный показ toast при смене страницы
   useEffect(() => {
