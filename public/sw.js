@@ -111,6 +111,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // КРИТИЧНО: Пропускаем внешние домены (особенно telegram.org) - не кэшируем их через SW
+  // Это предотвращает opaque responses и проблемы с загрузкой внешних скриптов
+  try {
+    const currentOrigin = new URL(self.location.origin);
+    const requestHostname = url.hostname.toLowerCase();
+    const currentHostname = currentOrigin.hostname.toLowerCase();
+    
+    if (requestHostname !== currentHostname && requestHostname !== '') {
+      // Внешний домен - пропускаем обработку, пусть браузер обработает напрямую
+      // Это критично для telegram.org, supabase.co и других внешних ресурсов
+      return;
+    }
+  } catch (e) {
+    // Если не удалось определить origin, пропускаем проверку
+    console.warn('[SW] Could not compare hostnames:', e);
+  }
+
   // КРИТИЧНО: Кэшируем данные тестов для offline режима
   // Пропускаем только критичные API запросы, но кэшируем данные тестов
   if (

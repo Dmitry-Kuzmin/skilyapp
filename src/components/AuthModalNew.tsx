@@ -157,7 +157,24 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     console.log('[AuthModalNew] Loading Telegram widget...');
     
     (window as any).onTelegramAuth = async (user: any) => {
-      console.log('[AuthModalNew] Telegram auth callback triggered:', user);
+      console.log('[AuthModalNew] 🔔 Telegram auth callback triggered:', {
+        hasUser: !!user,
+        userId: user?.id,
+        firstName: user?.first_name,
+        username: user?.username
+      });
+      
+      if (!user || !user.id) {
+        console.error('[AuthModalNew] ❌ Invalid user data in callback:', user);
+        toast({
+          title: t('auth.errors.validationError'),
+          description: 'Ошибка: неполные данные пользователя',
+          variant: "destructive"
+        });
+        setTelegramLoading(false);
+        return;
+      }
+      
       setTelegramLoading(true);
       
       try {
@@ -220,16 +237,40 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
       container.innerHTML = '';
       
+      // Проверяем, что callback функция установлена
+      if (typeof (window as any).onTelegramAuth !== 'function') {
+        console.error('[AuthModalNew] onTelegramAuth callback not set!');
+      } else {
+        console.log('[AuthModalNew] onTelegramAuth callback is ready');
+      }
+      
       const script = document.createElement('script');
       script.src = 'https://telegram.org/js/telegram-widget.js?22';
       script.async = true;
+      script.crossOrigin = 'anonymous'; // Для совместимости с Safari Privacy
       script.setAttribute('data-telegram-login', 'sdadimtutbot');
       script.setAttribute('data-size', 'large');
       script.setAttribute('data-onauth', 'onTelegramAuth(user)');
       script.setAttribute('data-request-access', 'write');
 
+      // Обработка успешной загрузки
+      script.onload = () => {
+        console.log('[AuthModalNew] ✅ Telegram widget script loaded successfully');
+      };
+
+      // Обработка ошибок загрузки
+      script.onerror = (error) => {
+        console.error('[AuthModalNew] ❌ Failed to load Telegram widget script:', error);
+        toast({
+          title: t('auth.errors.validationError'),
+          description: 'Не удалось загрузить виджет авторизации. Проверьте подключение к интернету.',
+          variant: "destructive"
+        });
+        setTelegramLoading(false);
+      };
+
       container.appendChild(script);
-      console.log('[AuthModalNew] Telegram widget script appended');
+      console.log('[AuthModalNew] Telegram widget script appended, waiting for load...');
     }, 100);
 
     return () => {
