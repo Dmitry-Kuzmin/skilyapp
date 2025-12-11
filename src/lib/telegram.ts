@@ -23,6 +23,42 @@ export const isTelegramDesktopPlatformName = (platform?: string | null) => {
   );
 };
 
+/**
+ * Проверяет наличие Telegram WebApp без требования initData
+ * Используется для десктопной версии, где initData может появиться с задержкой
+ */
+export const hasTelegramWebApp = () => {
+  if (typeof window === 'undefined') return false;
+  if (!window.Telegram?.WebApp) return false;
+  
+  const webApp = window.Telegram.WebApp;
+  
+  // Проверяем, что это не мок
+  const isMockData = webApp.initData === 'mock_init_data' || 
+                     webApp.initData?.startsWith('mock_') ||
+                     (webApp.initDataUnsafe?.user?.id === 123456789 && 
+                      webApp.initDataUnsafe?.user?.username === 'test_user');
+  
+  if (isMockData) {
+    return false;
+  }
+  
+  // Проверяем наличие platform и version (эти свойства есть всегда в реальном Telegram WebApp)
+  const platform = webApp.platform;
+  const isValidPlatform = platform === 'web' || 
+                          platform === 'ios' || 
+                          platform === 'android' || 
+                          platform === 'tdesktop' || 
+                          platform === 'macos' || 
+                          platform === 'windows' || 
+                          platform === 'linux';
+  
+  const hasVersion = webApp.version && typeof webApp.version === 'string';
+  
+  // Возвращаем true если есть валидная платформа и версия (даже без initData)
+  return isValidPlatform && hasVersion;
+};
+
 export const isTelegramMiniApp = () => {
   // Строгая проверка: только если действительно в Telegram Web App
   if (typeof window === 'undefined') return false;

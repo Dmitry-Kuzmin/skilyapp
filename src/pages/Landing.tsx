@@ -10,7 +10,7 @@ const PartnerInviteBanner = lazy(() => import("@/components/landing/PartnerInvit
 import { checkAuthFromStorage, checkTelegramAuth } from "@/utils/authCheck";
 // ОПТИМИЗАЦИЯ: Убираем статический импорт Supabase - используем сервисные функции с динамическим импортом
 import { loadReferralInfo, loadPartnerInfo, type ReferrerInfo, type PartnerInfo } from "@/services/referralService";
-import { isTelegramMiniApp } from "@/lib/telegram";
+import { isTelegramMiniApp, hasTelegramWebApp } from "@/lib/telegram";
 import { initTelegram } from "@/core/TelegramInit";
 
 const Landing = () => {
@@ -19,32 +19,57 @@ const Landing = () => {
   const [partnerInfo, setPartnerInfo] = useState<PartnerInfo | null>(null);
   const [loadingReferrer, setLoadingReferrer] = useState(false);
   const [loadingPartner, setLoadingPartner] = useState(false);
+  // КРИТИЧНО: Состояние проверки Telegram - предотвращает мерцание лендинга
+  const [isCheckingTelegram, setIsCheckingTelegram] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
 
   // КРИТИЧНО: Проверка Telegram авторизации для автоматического редиректа
+  // В десктопной версии Telegram initData может появиться с задержкой (Race Condition)
   useEffect(() => {
-    // Проверяем только если мы в Telegram Mini App
-    if (!isTelegramMiniApp()) {
-      return;
-    }
+    let attempts = 0;
+    const maxAttempts = 20; // 5 секунд максимум (20 * 250ms)
+    let timeoutId: NodeJS.Timeout | null = null;
 
-    // Инициализируем Telegram (получаем пользователя)
-    const telegramUser = initTelegram();
-    
-    // Если есть Telegram пользователь, редиректим на dashboard
-    // UserContext там загрузится и обработает авторизацию
-    if (telegramUser && telegramUser.id !== 123456789 && telegramUser.username !== 'test_user') {
-      console.log('[Landing] Telegram user detected, redirecting to dashboard:', telegramUser.first_name);
-      navigate('/dashboard', { replace: true });
-      return;
-    }
+    const checkTelegram = () => {
+      // А. Если мы точно в Мини-аппе и есть данные -> редирект
+      if (isTelegramMiniApp()) {
+        const telegramUser = initTelegram();
+        const hasAuth = checkTelegramAuth();
+        
+        if ((telegramUser && telegramUser.id !== 123456789 && telegramUser.username !== 'test_user') || hasAuth) {
+          console.log('[Landing] Telegram user detected, redirecting to dashboard:', telegramUser?.first_name || 'via checkTelegramAuth');
+          navigate('/dashboard', { replace: true });
+          return;
+        }
+      }
 
-    // Также проверяем через checkTelegramAuth (на случай, если initTelegram не сработал)
-    if (checkTelegramAuth()) {
-      console.log('[Landing] Telegram auth detected via checkTelegramAuth, redirecting to dashboard');
-      navigate('/dashboard', { replace: true });
-    }
+      // Б. Если мы видим признаки WebApp (platform/version), но нет initData -> ждем
+      const hasWebApp = hasTelegramWebApp();
+      
+      if (hasWebApp && attempts < maxAttempts) {
+        // Продолжаем попытки - initData может появиться с задержкой
+        attempts++;
+        timeoutId = setTimeout(checkTelegram, 250);
+      } else if (!hasWebApp && attempts < 3) {
+        // Если нет WebApp, делаем еще несколько попыток на случай задержки загрузки
+        attempts++;
+        timeoutId = setTimeout(checkTelegram, 250);
+      } else {
+        // В. Тайм-аут вышел или это точно не Telegram -> показываем Лендинг
+        console.log('[Landing] Telegram check completed, showing landing page');
+        setIsCheckingTelegram(false);
+      }
+    };
+
+    // Начинаем проверку сразу
+    checkTelegram();
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [navigate]);
 
   useEffect(() => {
@@ -124,6 +149,20 @@ const Landing = () => {
     })();
   }, [location]);
 
+  // КРИТИЧНО: Если идет проверка - показываем лоадер, чтобы избежать мерцания лендинга
+  // Пользователь не должен видеть лендинг, который потом резко исчезнет
+  if (isCheckingTelegram) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-zinc-950">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
+          <div className="text-sm font-medium text-zinc-400">Загрузка...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Если проверка прошла и это обычный браузер -> Рендерим Лендинг
   return (
     <>
       {partnerInfo && (
