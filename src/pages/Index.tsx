@@ -24,6 +24,7 @@ import { Dashboard } from "@/components/dashboard-new/Dashboard";
 // ОПТИМИЗАЦИЯ: Lazy load некритичных компонентов (не нужны для первого рендера)
 const PaywallModal = lazy(() => import("@/components/monetization/PaywallModal").then(m => ({ default: m.PaywallModal })));
 const WelcomeOverlay = lazy(() => import("@/components/dashboard-new/WelcomeOverlay").then(m => ({ default: m.WelcomeOverlay })));
+const DailyWelcomeScreen = lazy(() => import("@/components/dashboard-new/DailyWelcomeScreen").then(m => ({ default: m.DailyWelcomeScreen })));
 
 // Внутренний компонент для авторизованных пользователей
 // Это позволяет вызывать все хуки в правильном порядке
@@ -42,6 +43,17 @@ const DashboardContent = () => {
     if (typeof window !== 'undefined') {
       const hasSeenWelcome = localStorage.getItem('has_seen_welcome');
       return !hasSeenWelcome; // Показываем только если еще не видели
+    }
+    return true;
+  });
+
+  // КРИТИЧНО: Проверка первого открытия за день
+  const [showDailyWelcome, setShowDailyWelcome] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const lastOpenDate = localStorage.getItem('last_daily_open');
+      const today = new Date().toDateString();
+      // Показываем экран, если последнее открытие было не сегодня
+      return lastOpenDate !== today;
     }
     return true;
   });
@@ -332,14 +344,27 @@ const DashboardContent = () => {
     );
   }
 
+  const handleDailyWelcomeComplete = () => {
+    setShowDailyWelcome(false);
+  };
+
   return (
     <>
-      {showWelcome && (
-        <WelcomeOverlay onComplete={handleWelcomeComplete} />
+      {/* КРИТИЧНО: Показываем экран первого открытия за день с кнопкой ENGINE START/STOP */}
+      {showDailyWelcome && (
+        <Suspense fallback={<PageLoader />}>
+          <DailyWelcomeScreen onComplete={handleDailyWelcomeComplete} />
+        </Suspense>
+      )}
+      {/* Показываем WelcomeOverlay только если это первое открытие приложения И не показываем DailyWelcome */}
+      {showWelcome && !showDailyWelcome && (
+        <Suspense fallback={null}>
+          <WelcomeOverlay onComplete={handleWelcomeComplete} />
+        </Suspense>
       )}
       <Suspense fallback={<PageLoader />}>
-        <Layout hideNavigation={showWelcome}>
-          <div className={`w-full pb-6 ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
+        <Layout hideNavigation={showWelcome || showDailyWelcome}>
+          <div className={`w-full pb-6 ${(showWelcome || showDailyWelcome) ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
             {pageContent}
           </div>
         </Layout>
@@ -357,33 +382,13 @@ const Index = () => {
   const isLoading = userContext?.isLoading ?? true;
   const navigate = useNavigate();
   
-  // КРИТИЧНО: Проверяем Telegram авторизацию перед редиректом на лендинг
-  // Это предотвращает редирект, пока UserContext обрабатывает Telegram пользователя
+  // КРИТИЧНО: Если не авторизован, редиректим на главную (где Landing рендерится напрямую)
+  // НЕ рендерим Landing здесь, чтобы избежать бесконечного цикла
   useEffect(() => {
-    if (isLoading) return; // Ждем завершения загрузки
-    
-    // Если уже авторизован - ничего не делаем
-    if (isAuthenticated) return;
-    
-    // Если нет UserContext - показываем loader (он уже обрабатывается выше)
-    if (!userContext) return;
-    
-    // Проверяем Telegram авторизацию (особенно важно для Telegram Mini App)
-    const { checkTelegramAuth } = require('@/utils/authCheck');
-    const { isTelegramMiniApp } = require('@/lib/telegram');
-    
-    if (isTelegramMiniApp() && checkTelegramAuth()) {
-      console.log('[Index] Telegram auth detected, waiting for UserContext to process...');
-      // Не делаем редирект - даем UserContext время обработать Telegram авторизацию
-      // UserContext автоматически авторизует пользователя через telegram-auth Edge Function
-      // Это предотвращает бесконечный цикл редиректов между / и /dashboard
-      return;
+    if (!isLoading && userContext && !isAuthenticated) {
+      navigate('/', { replace: true });
     }
-    
-    // Если это не Telegram и не авторизован - редирект на лендинг
-    console.log('[Index] Not authenticated, redirecting to landing...');
-    navigate('/', { replace: true });
-  }, [isLoading, isAuthenticated, navigate, userContext]);
+  }, [isLoading, userContext, isAuthenticated, navigate]);
   
   // КРИТИЧНО: Показываем loader пока идет загрузка авторизации или пока UserProvider не готов
   // Это предотвращает белый экран при перезагрузке страницы
