@@ -23,6 +23,8 @@ export interface StaticMaterial {
 
 type MaterialModule = StaticMaterial | { default: StaticMaterial };
 
+import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
+
 const localMaterials = new Map<string, StaticMaterial>();
 const localMaterialsByStaticId = new Map<string, StaticMaterial>();
 
@@ -137,7 +139,7 @@ export async function loadStaticMaterialBySubtopicId(
   try {
     // Если номер темы не передан, пытаемся загрузить из Supabase
     if (!topicNumber) {
-      const { supabase } = await import('@/integrations/supabase/client');
+      const supabase = await getSupabaseClient();
       const { data: subtopic } = await supabase
         .from('subtopics')
         .select('code, topics(number)')
@@ -152,7 +154,7 @@ export async function loadStaticMaterialBySubtopicId(
     }
     
     // Получаем код подтемы
-    const { supabase } = await import('@/integrations/supabase/client');
+    const supabase = await getSupabaseClient();
     const { data: subtopic } = await supabase
       .from('subtopics')
       .select('code')

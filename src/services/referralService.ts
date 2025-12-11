@@ -1,7 +1,8 @@
 /**
  * Сервис для загрузки реферальной и партнерской информации
- * Использует динамический импорт Supabase для уменьшения initial bundle
+ * Использует ленивую инициализацию Supabase для уменьшения initial bundle
  */
+import { getSupabaseClient } from '@/integrations/supabase/lazyClient';
 
 export interface ReferrerInfo {
   first_name: string;
@@ -27,8 +28,7 @@ export interface PartnerInfo {
  */
 export async function loadReferralInfo(code: string): Promise<ReferrerInfo | null> {
   try {
-    // Динамический импорт Supabase - не попадает в initial bundle
-    const { supabase } = await import('@/integrations/supabase/client');
+    const supabase = await getSupabaseClient();
     
     const { data: profile, error } = await supabase
       .from('profiles')
@@ -60,8 +60,7 @@ export async function loadReferralInfo(code: string): Promise<ReferrerInfo | nul
  */
 export async function loadPartnerInfo(code: string): Promise<PartnerInfo | null> {
   try {
-    // Динамический импорт Supabase - не попадает в initial bundle
-    const { supabase } = await import('@/integrations/supabase/client');
+    const supabase = await getSupabaseClient();
     
     const { data: partner, error } = await supabase
       .from('partners')

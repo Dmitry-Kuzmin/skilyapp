@@ -9,6 +9,7 @@ import { usePremium } from "@/hooks/usePremium";
 import { useCoins } from "@/hooks/useCoins";
 import { DashboardSkeleton } from "@/components/dashboard-new/DashboardSkeleton";
 import { useExamReadiness } from "@/hooks/useExamReadiness";
+import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useDailyBonusDefinitions } from "@/hooks/useStaticData";
 // ОПТИМИЗАЦИЯ: Layout lazy-loaded - содержит UserContext, SettingsDrawer, NotificationsPanel, UserProfilePopover
@@ -24,7 +25,6 @@ import { Dashboard } from "@/components/dashboard-new/Dashboard";
 // ОПТИМИЗАЦИЯ: Lazy load некритичных компонентов (не нужны для первого рендера)
 const PaywallModal = lazy(() => import("@/components/monetization/PaywallModal").then(m => ({ default: m.PaywallModal })));
 const WelcomeOverlay = lazy(() => import("@/components/dashboard-new/WelcomeOverlay").then(m => ({ default: m.WelcomeOverlay })));
-const DailyWelcomeScreen = lazy(() => import("@/components/dashboard-new/DailyWelcomeScreen").then(m => ({ default: m.DailyWelcomeScreen })));
 
 // Внутренний компонент для авторизованных пользователей
 // Это позволяет вызывать все хуки в правильном порядке
@@ -43,17 +43,6 @@ const DashboardContent = () => {
     if (typeof window !== 'undefined') {
       const hasSeenWelcome = localStorage.getItem('has_seen_welcome');
       return !hasSeenWelcome; // Показываем только если еще не видели
-    }
-    return true;
-  });
-
-  // КРИТИЧНО: Проверка первого открытия за день
-  const [showDailyWelcome, setShowDailyWelcome] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const lastOpenDate = localStorage.getItem('last_daily_open');
-      const today = new Date().toDateString();
-      // Показываем экран, если последнее открытие было не сегодня
-      return lastOpenDate !== today;
     }
     return true;
   });
@@ -93,8 +82,7 @@ const DashboardContent = () => {
     try {
       setClaimingBonus(true);
       
-      // ОПТИМИЗАЦИЯ: Динамический импорт Supabase
-      const { supabase } = await import('@/integrations/supabase/client');
+      const supabase = await getSupabaseClient();
       
       // КРИТИЧНО: Используем Edge Function для безопасной обработки на сервере
       // Все логика (UTC время, идемпотентность, начисление наград) теперь на сервере
@@ -344,27 +332,14 @@ const DashboardContent = () => {
     );
   }
 
-  const handleDailyWelcomeComplete = () => {
-    setShowDailyWelcome(false);
-  };
-
   return (
     <>
-      {/* КРИТИЧНО: Показываем экран первого открытия за день с кнопкой ENGINE START/STOP */}
-      {showDailyWelcome && (
-        <Suspense fallback={<PageLoader />}>
-          <DailyWelcomeScreen onComplete={handleDailyWelcomeComplete} />
-        </Suspense>
-      )}
-      {/* Показываем WelcomeOverlay только если это первое открытие приложения И не показываем DailyWelcome */}
-      {showWelcome && !showDailyWelcome && (
-        <Suspense fallback={null}>
-          <WelcomeOverlay onComplete={handleWelcomeComplete} />
-        </Suspense>
+      {showWelcome && (
+        <WelcomeOverlay onComplete={handleWelcomeComplete} />
       )}
       <Suspense fallback={<PageLoader />}>
-        <Layout hideNavigation={showWelcome || showDailyWelcome}>
-          <div className={`w-full pb-6 ${(showWelcome || showDailyWelcome) ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
+        <Layout hideNavigation={showWelcome}>
+          <div className={`w-full pb-6 ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
             {pageContent}
           </div>
         </Layout>

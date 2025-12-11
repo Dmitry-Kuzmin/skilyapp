@@ -1,5 +1,4 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { reportError } from '@/lib/rollbar';
 
 interface Props {
   children: ReactNode;
@@ -36,12 +35,19 @@ export class ErrorBoundary extends Component<Props, State> {
     console.error('[ErrorBoundary] Component stack:', errorInfo.componentStack);
     
     // Отправляем ошибку в Rollbar
-    reportError(error, {
-      componentStack: errorInfo.componentStack,
-      errorBoundary: true,
-      url: window.location.href,
-      userAgent: navigator.userAgent,
-    });
+    import('@/lib/rollbar')
+      .then(({ reportError }) => {
+        reportError(error, {
+          componentStack: errorInfo.componentStack,
+          errorBoundary: true,
+          url: window.location.href,
+          userAgent: navigator.userAgent,
+        });
+      })
+      .catch(() => {
+        // fallback: тихо логируем в консоль, чтобы не ломать рендер
+        console.warn('[ErrorBoundary] Rollbar not available, skipped reporting');
+      });
     
     this.setState({
       error,

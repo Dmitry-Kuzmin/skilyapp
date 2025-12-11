@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useUserContext } from '@/contexts/UserContext';
 import { toast } from 'sonner';
+import { getSupabaseClient } from '@/integrations/supabase/lazyClient';
 
 /**
  * Компонент для обработки партнерских ссылок /partner/:code
@@ -64,7 +65,7 @@ export function PartnerRedirect() {
     if (!profileId) return;
 
     try {
-      const { supabase } = await import('@/integrations/supabase/client');
+      const supabase = await getSupabaseClient();
       
       // Получаем IP и User-Agent для защиты от злоупотребления
       const ipAddress = await getClientIP();
@@ -126,6 +127,10 @@ export function PartnerRedirect() {
     </div>
   );
 }
+
+
+
+
 
 
 

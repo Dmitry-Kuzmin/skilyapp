@@ -1,7 +1,7 @@
 import { useEffect, useRef, useContext } from 'react';
-// ОПТИМИЗАЦИЯ: Динамический импорт Supabase - не попадает в initial bundle для лендинга
-// Это критично для производительности - Supabase не должен грузиться на /
+// ОПТИМИЗАЦИЯ: Динамический Supabase - не попадает в initial bundle для лендинга
 import { UserContext } from '@/contexts/UserContext';
+import { getSupabaseClient } from '@/integrations/supabase/lazyClient';
 
 /**
  * ОПТИМИЗАЦИЯ: Фоновые задачи, которые не блокируют рендеринг
@@ -28,8 +28,7 @@ export function useBackgroundTasks() {
     // ОПТИМИЗАЦИЯ: Запускаем фоновые задачи с задержкой
     // Даем приоритет критичным данным (dashboard, profile)
     const timer = setTimeout(async () => {
-      // ОПТИМИЗАЦИЯ: Динамический импорт Supabase - не попадает в initial bundle
-      const { supabase } = await import('@/integrations/supabase/client');
+      const supabase = await getSupabaseClient();
       runBackgroundTasks(profileId, supabaseUser.id, supabase);
     }, 2000); // 2 секунды задержки - UI уже отрисован
 
