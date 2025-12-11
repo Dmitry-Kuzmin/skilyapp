@@ -388,12 +388,6 @@ const App = () => {
       <Suspense fallback={null}>
         <BrowserRouter basename={basename}>
           <ScrollToTop />
-          <Suspense fallback={null}>
-            <DeepLinkHandler />
-            {/* OAuthCallbackHandler отключен - используем /auth/callback маршрут для OAuth */}
-            {/* Если нужно обрабатывать токены на других страницах - можно включить с проверкой pathname */}
-            {/* <OAuthCallbackHandler /> */}
-          </Suspense>
           {/* ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query) */}
           <Routes>
             <Route path="/" element={<LandingRedirect />} />
@@ -407,6 +401,14 @@ const App = () => {
                 <AppProviders>
                   <Suspense fallback={<LightFallback />}>
                     <CosmeticsPreviewProvider>
+                      <Suspense fallback={null}>
+                        <DeepLinkHandler />
+                        {/* OAuthCallbackHandler отключен - используем /auth/callback маршрут для OAuth */}
+                        {/* Если нужно обрабатывать токены на других страницах - можно включить с проверкой pathname */}
+                        {/* <OAuthCallbackHandler /> */}
+                        <HallOfFameModal />
+                        <DuelPassLeaderboardModal />
+                      </Suspense>
                       <AppRoutes />
                       {/* Глобальный менеджер модалок должен быть внутри провайдеров,
                           чтобы работали UserContext и QueryClient */}
@@ -421,11 +423,6 @@ const App = () => {
               </Suspense>
             } />
           </Routes>
-          {/* Модалки, доступные на всех страницах */}
-          <Suspense fallback={null}>
-            <HallOfFameModal />
-            <DuelPassLeaderboardModal />
-          </Suspense>
           {/* Debug панель Service Worker (только в dev или с localStorage.debug_sw) */}
           <ServiceWorkerDebug />
         </BrowserRouter>
