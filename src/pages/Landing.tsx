@@ -30,34 +30,65 @@ const Landing = () => {
     let attempts = 0;
     const maxAttempts = 20; // 5 секунд максимум (20 * 250ms)
     let timeoutId: NodeJS.Timeout | null = null;
+    let webAppDetected = false;
 
     const checkTelegram = () => {
-      // А. Если мы точно в Мини-аппе и есть данные -> редирект
-      if (isTelegramMiniApp()) {
-        const telegramUser = initTelegram();
-        const hasAuth = checkTelegramAuth();
-        
-        if ((telegramUser && telegramUser.id !== 123456789 && telegramUser.username !== 'test_user') || hasAuth) {
-          console.log('[Landing] Telegram user detected, redirecting to dashboard:', telegramUser?.first_name || 'via checkTelegramAuth');
-          navigate('/dashboard', { replace: true });
-          return;
-        }
+      attempts++;
+
+      // Проверяем наличие Telegram WebApp
+      const hasWebApp = hasTelegramWebApp();
+      if (hasWebApp) {
+        webAppDetected = true;
       }
 
-      // Б. Если мы видим признаки WebApp (platform/version), но нет initData -> ждем
-      const hasWebApp = hasTelegramWebApp();
+      // А. Проверяем, есть ли уже авторизованный пользователь (в localStorage или в WebApp)
+      const telegramUser = initTelegram();
+      const hasAuth = checkTelegramAuth();
+      const hasStoredAuth = checkAuthFromStorage();
       
+      // Если есть пользователь или авторизация -> редирект
+      if ((telegramUser && telegramUser.id !== 123456789 && telegramUser.username !== 'test_user') || hasAuth || hasStoredAuth) {
+        console.log('[Landing] Telegram user/auth detected, redirecting to dashboard:', telegramUser?.first_name || 'via stored auth');
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+
+      // Б. Если мы точно в Мини-аппе (есть initData) -> редирект на дашборд
+      // UserContext там обработает авторизацию, даже если пользователь еще не найден
+      if (isTelegramMiniApp()) {
+        console.log('[Landing] Telegram Mini App detected with initData, redirecting to dashboard');
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+
+      // В. Если WebApp обнаружен, но initData еще нет -> продолжаем попытки
       if (hasWebApp && attempts < maxAttempts) {
-        // Продолжаем попытки - initData может появиться с задержкой
-        attempts++;
+        console.log(`[Landing] WebApp detected, waiting for initData (attempt ${attempts}/${maxAttempts})`);
         timeoutId = setTimeout(checkTelegram, 250);
-      } else if (!hasWebApp && attempts < 3) {
-        // Если нет WebApp, делаем еще несколько попыток на случай задержки загрузки
-        attempts++;
+        return;
+      }
+
+      // Г. Если WebApp был обнаружен, но таймаут истек -> редирект на дашборд
+      // UserContext там обработает авторизацию, когда initData появится
+      if (webAppDetected && attempts >= maxAttempts) {
+        console.log('[Landing] WebApp detected but timeout reached, redirecting to dashboard for auth handling');
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+
+      // Д. Если нет WebApp и прошло достаточно попыток -> показываем Лендинг
+      if (!hasWebApp && attempts >= 3) {
+        console.log('[Landing] No Telegram WebApp detected, showing landing page');
+        setIsCheckingTelegram(false);
+        return;
+      }
+
+      // Е. Продолжаем попытки на случай задержки загрузки
+      if (attempts < maxAttempts) {
         timeoutId = setTimeout(checkTelegram, 250);
       } else {
-        // В. Тайм-аут вышел или это точно не Telegram -> показываем Лендинг
-        console.log('[Landing] Telegram check completed, showing landing page');
+        // Финальный fallback - показываем лендинг
+        console.log('[Landing] Max attempts reached, showing landing page');
         setIsCheckingTelegram(false);
       }
     };
