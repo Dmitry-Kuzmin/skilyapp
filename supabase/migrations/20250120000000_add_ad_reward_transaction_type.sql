@@ -14,6 +14,8 @@ BEGIN
     FROM public.transactions 
     WHERE transaction_type NOT IN (
       'coins_purchase_paddle', -- Paddle платежи
+      'coins_purchase_cryptomus', -- Cryptomus платежи (криптовалюты)
+      'coins_purchase_telegram_stars', -- Telegram Stars платежи
       'coins_earned_test',
       'coins_earned_duel',
       'coins_earned_daily',
@@ -49,6 +51,8 @@ ALTER TABLE public.transactions
   CHECK (
     transaction_type IN (
       'coins_purchase_paddle', -- Paddle платежи
+      'coins_purchase_cryptomus', -- Cryptomus платежи (криптовалюты)
+      'coins_purchase_telegram_stars', -- Telegram Stars платежи
       'coins_earned_test',
       'coins_earned_duel',
       'coins_earned_daily',

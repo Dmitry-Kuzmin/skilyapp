@@ -497,6 +497,8 @@ const translations: Record<Language, Record<string, any>> = {
       },
       transactions: {
         coinsPurchasePaddle: "Compra de monedas: {{amount}}",
+        coinsPurchaseCryptomus: "Compra de monedas (Cryptomus): {{amount}}",
+        coinsPurchaseStars: "Compra de monedas (Telegram Stars): {{amount}}",
         premiumPurchase: "Suscripción Premium ({{type}})",
         premiumType: {
           monthly: "mes",
@@ -1397,6 +1399,8 @@ const translations: Record<Language, Record<string, any>> = {
       },
       transactions: {
         coinsPurchasePaddle: "Coin top-up: {{amount}}",
+        coinsPurchaseCryptomus: "Coin top-up (Cryptomus): {{amount}}",
+        coinsPurchaseStars: "Coin top-up (Telegram Stars): {{amount}}",
         premiumPurchase: "Premium subscription ({{type}})",
         premiumType: {
           monthly: "month",
@@ -2279,6 +2283,8 @@ const translations: Record<Language, Record<string, any>> = {
       },
       transactions: {
         coinsPurchasePaddle: "Покупка монет: {{amount}}",
+        coinsPurchaseCryptomus: "Покупка монет (Cryptomus): {{amount}}",
+        coinsPurchaseStars: "Покупка монет (Telegram Stars): {{amount}}",
         premiumPurchase: "Premium подписка ({{type}})",
         premiumType: {
           monthly: "месяц",

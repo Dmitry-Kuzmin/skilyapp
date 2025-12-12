@@ -403,6 +403,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           category: 'purchase',
         };
       }
+      case 'coins_purchase_paddle':
+        return { icon: CreditCard, description: t('boostShop.transactions.coinsPurchasePaddle', { amount: metadata?.amount || 0 }), category: 'purchase' };
+      case 'coins_purchase_cryptomus':
+        return { icon: CreditCard, description: t('boostShop.transactions.coinsPurchaseCryptomus', { amount: metadata?.amount || 0 }), category: 'purchase' };
+      case 'coins_purchase_telegram_stars':
+        return { icon: Sparkles, description: t('boostShop.transactions.coinsPurchaseStars', { amount: metadata?.amount || 0 }), category: 'purchase' };
       case 'duel_pass_purchase':
         return { icon: Trophy, description: t('boostShop.transactions.duelPassPurchase'), category: 'purchase' };
       case 'bet':
@@ -571,12 +577,19 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           
           if (purchase.item_type === 'coins_pack') {
             const coinsAmount = purchase.metadata?.coins_amount || 0;
-            // Пропускаем Stripe покупки (удалены из системы)
-            // Обрабатываем только Paddle и другие методы
-            if (purchase.metadata?.payment_method === 'stripe') {
-              return; // Пропускаем Stripe транзакции
+            // Определяем тип транзакции в зависимости от метода оплаты
+            let transactionType = 'coins_purchase_paddle'; // По умолчанию Paddle
+            
+            if (purchase.cryptomus_order_id) {
+              transactionType = 'coins_purchase_cryptomus';
+            } else if (purchase.paddle_transaction_id) {
+              transactionType = 'coins_purchase_paddle';
+            } else if (purchase.metadata?.payment_method === 'telegram_stars' || purchase.metadata?.gateway === 'telegram_stars') {
+              transactionType = 'coins_purchase_telegram_stars';
             }
-            description = t('boostShop.transactions.coinsPurchaseStripe', { amount: coinsAmount });
+            
+            // Используем универсальный перевод для покупок монет
+            description = t('boostShop.transactions.coinsPurchasePaddle', { amount: coinsAmount });
             amount = coinsAmount;
           } else if (purchase.item_type === 'premium') {
             const price = purchase.price || purchase.metadata?.price || 0;
@@ -606,7 +619,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             allTransactions.push({
               id: purchase.id,
               amount: amount,
-              type: 'coins_purchase_paddle', // Все покупки монет теперь через Paddle
+              type: transactionType, // Paddle, Cryptomus или Telegram Stars
               description,
               created_at: purchase.completed_at || purchase.created_at,
               category: 'purchase',

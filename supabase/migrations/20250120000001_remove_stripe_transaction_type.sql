@@ -19,7 +19,9 @@ ALTER TABLE public.transactions
   ADD CONSTRAINT transactions_transaction_type_check
   CHECK (
     transaction_type IN (
-      'coins_purchase_paddle', -- Paddle платежи (единственный метод покупки монет)
+      'coins_purchase_paddle', -- Paddle платежи
+      'coins_purchase_cryptomus', -- Cryptomus платежи (криптовалюты)
+      'coins_purchase_telegram_stars', -- Telegram Stars платежи
       'coins_earned_test',
       'coins_earned_duel',
       'coins_earned_daily',

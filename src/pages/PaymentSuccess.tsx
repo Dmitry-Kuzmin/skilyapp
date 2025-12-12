@@ -194,13 +194,20 @@ export default function PaymentSuccess() {
             
             console.log('[PaymentSuccess] User coins:', profile?.coins, 'Expected coins from purchase:', coins);
             
-            // Проверяем транзакцию (Paddle или Cryptomus)
-            const transactionType = purchase.paddle_transaction_id
-              ? 'coins_purchase_paddle'
-              : 'coins_purchase_cryptomus';
-            const transactionKey = purchase.paddle_transaction_id
-              ? { 'metadata->>transaction_id': paddleTransactionId }
-              : { 'metadata->>order_id': orderId };
+            // Проверяем транзакцию (Paddle, Cryptomus или Telegram Stars)
+            let transactionType = 'coins_purchase_paddle'; // По умолчанию
+            let transactionKey: Record<string, string> = {};
+            
+            if (purchase.paddle_transaction_id) {
+              transactionType = 'coins_purchase_paddle';
+              transactionKey = { 'metadata->>transaction_id': paddleTransactionId };
+            } else if (purchase.cryptomus_order_id) {
+              transactionType = 'coins_purchase_cryptomus';
+              transactionKey = { 'metadata->>order_id': orderId };
+            } else if (purchase.metadata?.payment_method === 'telegram_stars' || purchase.metadata?.gateway === 'telegram_stars') {
+              transactionType = 'coins_purchase_telegram_stars';
+              transactionKey = { 'metadata->>payment_id': purchase.id };
+            }
             
             const { data: transaction } = await supabase
               .from('transactions')
