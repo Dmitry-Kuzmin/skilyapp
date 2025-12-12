@@ -104,7 +104,7 @@ export function ResponsiveModal({
           />
           <DrawerPrimitive.Content
             className={cn(
-              "bg-zinc-900/80 backdrop-blur-xl flex flex-col rounded-t-[24px] border-t border-white/10 shadow-2xl z-50 focus:outline-none fixed bottom-0 left-0 right-0 max-h-[90vh]",
+              "bg-zinc-950 flex flex-col rounded-t-[24px] border-t border-white/10 shadow-[0_0_40px_rgba(139,92,246,0.15)] z-50 focus:outline-none fixed bottom-0 left-0 right-0 max-h-[90vh]",
               className
             )}
             style={{ zIndex }}
@@ -173,7 +173,7 @@ export function ResponsiveModal({
               duration: 0.25
             }}
             className={cn(
-              "relative z-10 w-full max-w-2xl h-auto max-h-[85vh] bg-zinc-900/80 backdrop-blur-xl rounded-[24px] border border-white/10 shadow-2xl overflow-hidden flex flex-col",
+              "relative z-10 w-full max-w-2xl h-auto max-h-[85vh] bg-zinc-950 rounded-[24px] border border-white/10 shadow-[0_0_40px_rgba(139,92,246,0.15)] overflow-hidden flex flex-col",
               className
             )}
             onClick={(e) => e.stopPropagation()}

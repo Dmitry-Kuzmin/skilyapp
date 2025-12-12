@@ -1073,7 +1073,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         )}
 
         {/* Компактный заголовок с балансом - премиум стиль */}
-        <div className="px-3 md:px-4 py-2 md:py-3 border-b border-white/10 shrink-0 bg-zinc-900/50 backdrop-blur-sm">
+        <div className="px-3 md:px-4 py-2 md:py-3 border-b border-white/10 shrink-0 bg-zinc-950">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
               <div className="relative">
@@ -1217,7 +1217,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     return (
                     <Card
                       key={idx}
-                        className={`group relative overflow-hidden rounded-3xl border bg-zinc-900/80 backdrop-blur-xl p-4 md:p-5 shadow-lg transition-all duration-200 hover:-translate-y-1 ${
+                        className={`group relative overflow-hidden rounded-3xl border bg-zinc-900 p-4 md:p-5 shadow-lg transition-all duration-200 hover:-translate-y-1 ${
                           isBestValue
                             ? 'border-violet-500/50 shadow-[0_15px_40px_rgba(139,92,246,0.35)] scale-[1.02] ring-2 ring-violet-500/30'
                             : isHighlighted
@@ -1225,20 +1225,16 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                               : 'border-white/10 hover:border-violet-500/30'
                         }`}
                       >
-                        {/* Градиентная полоска для Best Value */}
-                        {isBestValue && (
-                          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-violet-500 opacity-100" />
-                        )}
-                        {/* Best Value бейдж */}
-                        {isBestValue && (
-                          <div className="absolute top-3 right-3 z-10">
-                            <Badge className="bg-gradient-to-r from-violet-500 to-purple-500 text-white border-0 shadow-lg shadow-violet-500/50 text-xs font-bold px-2.5 py-0.5">
-                              🔥 ХИТ ПРОДАЖ
-                            </Badge>
-                          </div>
-                        )}
                       <div className="flex flex-col gap-4">
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-start gap-4">
+                            {/* Best Value бейдж - размещаем слева от иконки, не перекрывая цену */}
+                            {isBestValue && (
+                              <div className="absolute -top-2 left-4 z-10">
+                                <Badge className="bg-gradient-to-r from-violet-500 to-purple-500 text-white border-0 shadow-lg shadow-violet-500/50 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                  🔥 ХИТ
+                                </Badge>
+                              </div>
+                            )}
                             <div className={`w-16 h-16 rounded-3xl flex items-center justify-center flex-shrink-0 ${
                               isBestValue
                                 ? 'bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500 text-white shadow-lg shadow-violet-500/50'
@@ -1262,7 +1258,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                 </div>
                             )}
                           </div>
-                            <div className="text-right">
+                            <div className="text-right flex-shrink-0">
                               <span className="text-2xl font-black text-foreground">{pack.price}</span>
                               {pricePerCoin && (
                                 <p className="text-[11px] text-muted-foreground">
@@ -1891,7 +1887,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         open={open}
         onOpenChange={onOpenChange}
         title={t('boostShop.title')}
-        className="max-w-4xl bg-zinc-900/80 backdrop-blur-xl border-white/10"
+        className="max-w-4xl"
         contentClassName="scrollbar-none"
       >
         {loading ? (
