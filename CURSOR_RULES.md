@@ -505,4 +505,176 @@ grep -r "useQuery\|useMutation" src/hooks/ | wc -l
 
 ---
 
+---
+
+## 🎨 СТАНДАРТ UI БИБЛИОТЕК (ОБЯЗАТЕЛЬНО!)
+
+### ⚠️ КРИТИЧЕСКИ ВАЖНО
+
+**ВСЕ новые модалки, попапы и уведомления ДОЛЖНЫ использовать новый стандарт библиотек!**
+
+### 📚 Золотой Стек 2025 года
+
+Для нашего стека (**React + Tailwind + Telegram Mini App**) используется следующий стек:
+
+#### 1. **shadcn/ui + Radix UI** (База)
+
+- ✅ **Dialog** (модалки) - `@radix-ui/react-dialog`
+- ✅ **Drawer** (шторки) - `vaul` (используется под капотом shadcn Drawer)
+- ✅ **Popover** - `@radix-ui/react-popover`
+- ✅ **Alert Dialog** - `@radix-ui/react-alert-dialog`
+- ✅ **Tooltip** - `@radix-ui/react-tooltip`
+
+**Почему это топ:**
+- Headless UI (логика без стилей)
+- Полная доступность (a11y) из коробки
+- Focus Trap, блокировка скролла, управление клавиатурой
+- Полностью стилизуется через Tailwind
+
+#### 2. **Vaul** (Мобильная шторка)
+
+- ✅ Используется для **Drawer** компонента
+- ✅ Имитирует нативное поведение iOS
+- ✅ Можно тянуть, закрывать свайпом
+- ✅ Ощущается как часть Telegram, а не веб-сайт
+
+#### 3. **Framer Motion** (Анимации)
+
+- ✅ Для плавных анимаций появления/исчезновения
+- ✅ `AnimatePresence` для анимации удаления из DOM
+- ✅ Используется для эффектов "зума" и "скольжения"
+
+#### 4. **Sonner** (Уведомления/Toasts)
+
+- ✅ Легковесная библиотека
+- ✅ Премиум внешний вид
+- ✅ Работает поверх всех модалок (правильный z-index)
+- ✅ Настраивается через Tailwind
+
+### ✅ ОБЯЗАТЕЛЬНЫЕ ПРАВИЛА
+
+#### 1. ResponsiveModal - Умный компонент
+
+**ВСЕ новые модалки ДОЛЖНЫ использовать `ResponsiveModal`:**
+
+```tsx
+import { ResponsiveModal } from "@/components/ui/responsive-modal";
+
+export function MyModal({ open, onOpenChange }: MyModalProps) {
+  return (
+    <ResponsiveModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Заголовок"
+      description="Описание (опционально)"
+    >
+      {/* Ваш контент */}
+    </ResponsiveModal>
+  );
+}
+```
+
+**Как работает:**
+- На десктопе (>= 768px): **Dialog** (центрированная модалка)
+- На мобильных (< 768px): **Drawer** (шторка снизу)
+
+#### 2. Уведомления - ТОЛЬКО Sonner
+
+**ВСЕ уведомления ДОЛЖНЫ использовать `toast` из `sonner`:**
+
+```tsx
+import { toast } from "@/components/ui/sonner";
+
+// Успех
+toast.success("Награда получена!", {
+  description: "Вы получили 100 монет",
+});
+
+// Ошибка
+toast.error("Ошибка оплаты", {
+  description: "Недостаточно средств",
+});
+
+// Информация
+toast.info("Новое обновление", {
+  description: "Доступна новая функция",
+});
+```
+
+**ЗАПРЕЩЕНО:**
+- ❌ Использовать старую систему `use-toast` из `@radix-ui/react-toast`
+- ❌ Создавать кастомные компоненты уведомлений
+- ❌ Использовать `react-hot-toast` или другие библиотеки
+
+#### 3. Премиум стиль (zinc-900)
+
+**ВСЕ компоненты ДОЛЖНЫ использовать премиум стиль:**
+
+- **Фон:** `bg-zinc-900` (НЕ `bg-background`, НЕ `bg-slate-950`)
+- **Границы:** `border-zinc-800 border-white/10` (тонкие, премиум)
+- **Текст:** 
+  - Заголовки: `text-zinc-200`
+  - Описания: `text-zinc-400`
+  - Мелкий текст: `text-zinc-500`
+- **Скругление:** `rounded-xl` для модалок, `rounded-full` для badges
+
+#### 4. Структура компонентов
+
+**Dialog (десктоп):**
+```tsx
+<Dialog open={open} onOpenChange={onOpenChange}>
+  <DialogContent className="bg-zinc-900 border-zinc-800 border-white/10">
+    <DialogHeader>
+      <DialogTitle className="text-zinc-200">Заголовок</DialogTitle>
+      <DialogDescription className="text-zinc-400">Описание</DialogDescription>
+    </DialogHeader>
+    {/* Контент */}
+  </DialogContent>
+</Dialog>
+```
+
+**Drawer (мобильные):**
+```tsx
+<Drawer open={open} onOpenChange={onOpenChange}>
+  <DrawerContent className="bg-zinc-900 border-zinc-800 border-t-white/10">
+    <DrawerHeader>
+      <DrawerTitle className="text-zinc-200">Заголовок</DrawerTitle>
+      <DrawerDescription className="text-zinc-400">Описание</DrawerDescription>
+    </DrawerHeader>
+    {/* Контент */}
+  </DrawerContent>
+</Drawer>
+```
+
+### 📋 Чеклист при создании новой модалки:
+
+- [ ] Используется `ResponsiveModal` или `Dialog`/`Drawer` напрямую
+- [ ] Применен премиум стиль (`bg-zinc-900`, `border-zinc-800`, `text-zinc-200/400`)
+- [ ] Уведомления используют `toast` из `sonner`
+- [ ] Проверена работа на мобильных (Drawer) и десктопе (Dialog)
+- [ ] Добавлены анимации через Framer Motion (если нужно)
+
+### 🚫 ЗАПРЕЩЕНО
+
+- ❌ Использовать `react-modal` или другие старые библиотеки
+- ❌ Использовать `Material UI` или `Ant Design` (тяжелые, убивают кастомный дизайн)
+- ❌ Создавать кастомные модалки без использования Radix UI
+- ❌ Использовать старую систему уведомлений (`use-toast`)
+
+### 📦 Установленные зависимости
+
+Все необходимые зависимости уже установлены:
+- ✅ `@radix-ui/react-dialog` - Dialog
+- ✅ `@radix-ui/react-popover` - Popover
+- ✅ `@radix-ui/react-alert-dialog` - Alert Dialog
+- ✅ `vaul` - Drawer (мобильная шторка)
+- ✅ `framer-motion` - Анимации
+- ✅ `sonner` - Уведомления
+- ✅ `class-variance-authority` - Варианты компонентов
+- ✅ `clsx` + `tailwind-merge` - Утилиты для классов
+
+**НЕ нужно устанавливать дополнительные зависимости!**
+
+---
+
 **Последнее обновление:** 2025-12-01
