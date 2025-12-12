@@ -1098,7 +1098,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         )}
 
         {/* Компактный заголовок с балансом - премиум стиль */}
-        <div className="px-3 md:px-4 py-2 md:py-3 border-b border-white/10 shrink-0 bg-zinc-950">
+        <div className="px-3 md:px-4 py-2 md:py-3 border-b border-border shrink-0 bg-card">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
               <div className="relative">
@@ -1111,7 +1111,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </div>
             <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
               <button 
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-800/50 border border-white/10 hover:border-violet-500/50 hover:bg-zinc-800/80 transition-all cursor-pointer backdrop-blur-sm"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50 border border-border hover:border-violet-500/50 hover:bg-muted/80 transition-all cursor-pointer backdrop-blur-sm"
                 onClick={async () => {
                   setActiveTab('history');
                   if (transactions.length === 0) {
@@ -1136,7 +1136,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full flex flex-col h-full">
             <div className="px-4 pt-4 pb-0 shrink-0">
-              <TabsList className="grid w-full grid-cols-4 bg-zinc-900/50 border border-white/5">
+              <TabsList className="grid w-full grid-cols-4 bg-muted/50 border border-border">
                 <TabsTrigger value="boosts" className="text-xs truncate data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500/20 data-[state=active]:to-purple-500/20 data-[state=active]:text-violet-300 data-[state=active]:shadow-[0_0_20px_rgba(139,92,246,0.3)]">
                   <Zap className="w-3 h-3 mr-1 flex-shrink-0" />
                   <span className="truncate">{t('boostShop.tabs.boosts')}</span>
@@ -1242,12 +1242,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     return (
                     <Card
                       key={idx}
-                        className={`group relative overflow-hidden rounded-3xl border bg-zinc-900 p-4 md:p-5 shadow-lg transition-all duration-200 hover:-translate-y-1 ${
+                        className={`group relative overflow-hidden rounded-3xl border bg-card p-4 md:p-5 shadow-lg transition-all duration-200 hover:-translate-y-1 ${
                           isBestValue
-                            ? 'border-violet-500/50 shadow-[0_15px_40px_rgba(139,92,246,0.35)] scale-[1.02] ring-2 ring-violet-500/30'
+                            ? 'border-violet-500/50 shadow-[0_15px_40px_rgba(139,92,246,0.35)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.35)] scale-[1.02] ring-2 ring-violet-500/30'
                             : isHighlighted
-                              ? 'border-yellow-400/50 shadow-[0_15px_40px_rgba(251,191,36,0.25)]'
-                              : 'border-white/10 hover:border-violet-500/30'
+                              ? 'border-yellow-400/50 shadow-[0_15px_40px_rgba(251,191,36,0.25)] dark:shadow-[0_15px_40px_rgba(251,191,36,0.25)]'
+                              : 'border-border hover:border-violet-500/30'
                         }`}
                       >
                       <div className="flex flex-col gap-4">
@@ -1265,7 +1265,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                 ? 'bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500 text-white shadow-lg shadow-violet-500/50'
                                 : isHighlighted
                                   ? 'bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 text-slate-900'
-                                  : 'bg-gradient-to-br from-zinc-800 to-zinc-700 text-foreground'
+                                  : 'bg-gradient-to-br from-muted to-muted/80 text-foreground'
                             }`}>
                             <Coins className="w-7 h-7" />
                           </div>
@@ -1277,7 +1277,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                 {description}
                               </p>
                             {pack.bonus > 0 && (
-                                <div className="flex items-center gap-1.5 text-sm font-bold mt-1.5 text-emerald-400">
+                                <div className="flex items-center gap-1.5 text-sm font-bold mt-1.5 text-emerald-600 dark:text-emerald-400">
                                   <Sparkles className="w-4 h-4" />
                                 {t('boostShop.coins.bonusLabel', { bonus: pack.bonus })}
                                 </div>
@@ -1334,7 +1334,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                             >
                               {purchaseLoading === pack.catalogKey ? (
                                 <>
-                                  <div className="w-4 h-4 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                  <div className="w-4 h-4 mr-2 border-2 border-foreground/30 border-t-foreground rounded-full animate-spin" />
                                   {t('boostShop.coins.loading', { defaultValue: 'Загрузка...' })}
                                 </>
                               ) : (
@@ -1352,7 +1352,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                               size="sm"
                               aria-label={t('boostShop.coins.buyPackAria', { amount: pack.amount })}
                               onClick={() => handleCoinPurchase(pack.catalogKey)}
-                              className="w-full sm:flex-1 sm:min-w-[160px] bg-transparent border border-white/20 hover:border-violet-500/50 text-foreground hover:text-violet-300"
+                              className="w-full sm:flex-1 sm:min-w-[160px] bg-transparent border border-border hover:border-violet-500/50 text-foreground hover:text-violet-600 dark:hover:text-violet-300"
                               disabled={!profileId}
                               variant="outline"
                             >
@@ -1429,7 +1429,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                   });
                                 }
                               }}
-                              className="w-full sm:flex-1 sm:min-w-[160px] bg-transparent border border-white/20 hover:border-violet-500/50 text-foreground hover:text-violet-300"
+                              className="w-full sm:flex-1 sm:min-w-[160px] bg-transparent border border-border hover:border-violet-500/50 text-foreground hover:text-violet-600 dark:hover:text-violet-300"
                               disabled={!profileId}
                               variant="outline"
                             >
