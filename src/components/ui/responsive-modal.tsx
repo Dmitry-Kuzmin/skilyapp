@@ -63,7 +63,7 @@ export function ResponsiveModal({
               )}
             </DrawerHeader>
           )}
-          <div className={cn("px-4 pb-4", contentClassName)}>
+          <div className={cn("px-4 md:px-6 pb-6", contentClassName)}>
             {children}
           </div>
         </DrawerContent>
