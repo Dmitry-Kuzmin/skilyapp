@@ -88,7 +88,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   // Используем isTelegramMiniApp() для более надежного определения Telegram Mini App
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
   const showStarsPayment = isPaymentMethodAvailable('telegram_stars', currentPlatform);
-  const showStripePayment = isPaymentMethodAvailable('stripe', currentPlatform);
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
   
@@ -99,13 +98,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         platform,
         currentPlatform,
         showStarsPayment,
-        showStripePayment,
         showCryptomusPayment,
         showPaddlePayment,
         paddleEnabled: PAYMENT_CONFIG.paddleEnabled
       });
     }
-  }, [open, platform, currentPlatform, showStarsPayment, showStripePayment, showCryptomusPayment, showPaddlePayment]);
+  }, [open, platform, currentPlatform, showStarsPayment, showCryptomusPayment, showPaddlePayment]);
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
   const [coins, setCoins] = useState(0);
@@ -393,12 +391,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         return { icon: Gift, description: t('boostShop.transactions.coinsSpentSkin'), category: 'spend' };
       case 'coins_spent_duel_entry':
         return { icon: Zap, description: t('boostShop.transactions.coinsSpentDuelEntry'), category: 'spend' };
-      case 'coins_purchase_stripe':
-        return {
-          icon: CreditCard,
-          description: t('boostShop.transactions.coinsPurchaseStripe', { amount: metadata?.amount || '' }),
-          category: 'purchase',
-        };
       case 'premium_purchase_monthly':
       case 'premium_purchase_yearly':
       case 'premium_purchase_forever': {
@@ -579,6 +571,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           
           if (purchase.item_type === 'coins_pack') {
             const coinsAmount = purchase.metadata?.coins_amount || 0;
+            // Пропускаем Stripe покупки (удалены из системы)
+            // Обрабатываем только Paddle и другие методы
+            if (purchase.metadata?.payment_method === 'stripe') {
+              return; // Пропускаем Stripe транзакции
+            }
             description = t('boostShop.transactions.coinsPurchaseStripe', { amount: coinsAmount });
             amount = coinsAmount;
           } else if (purchase.item_type === 'premium') {
@@ -609,7 +606,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             allTransactions.push({
               id: purchase.id,
               amount: amount,
-              type: 'coins_purchase_stripe',
+              type: 'coins_purchase_paddle', // Все покупки монет теперь через Paddle
               description,
               created_at: purchase.completed_at || purchase.created_at,
               category: 'purchase',
@@ -1346,7 +1343,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                               }}
                               variant={showStripePayment ? "outline" : "default"}
                               size="sm"
-                              className={`w-full sm:flex-1 sm:min-w-[160px] ${!showStripePayment && isHighlighted ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' : ''}`}
+                              className={`w-full sm:flex-1 sm:min-w-[160px] ${isHighlighted ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' : ''}`}
                             />
                           )}
                           
@@ -1372,21 +1369,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                   {pack.price}
                                 </>
                               )}
-                            </Button>
-                          )}
-                          
-                          {/* Stripe (оставляем для будущего включения) */}
-                          {showStripePayment && (
-                            <Button
-                              size="sm"
-                              aria-label={t('boostShop.coins.buyPackAria', { amount: pack.amount })}
-                              onClick={() => handleCoinPurchase(pack.catalogKey)}
-                              className="w-full sm:flex-1 sm:min-w-[160px] bg-transparent border border-border hover:border-violet-500/50 text-foreground hover:text-violet-600 dark:hover:text-violet-300"
-                              disabled={!profileId}
-                              variant="outline"
-                            >
-                              <ShoppingBag className="w-4 h-4 mr-2" />
-                              Stripe
                             </Button>
                           )}
                           
@@ -1468,7 +1450,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                           )}
                           
                           {/* Сообщение если нет доступных методов */}
-                          {!showStarsPayment && !showStripePayment && !showCryptomusPayment && !showPaddlePayment && (
+                          {!showStarsPayment && !showCryptomusPayment && !showPaddlePayment && (
                             <div className="text-sm text-muted-foreground text-center py-2 w-full">
                               Используйте Telegram Mini App для оплаты через Stars
                             </div>

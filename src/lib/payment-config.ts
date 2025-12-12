@@ -5,11 +5,9 @@
  * в зависимости от юридического статуса и платформы
  */
 
-export type PaymentMethod = 'telegram_stars' | 'paypal' | 'stripe' | 'cryptomus' | 'paddle';
+export type PaymentMethod = 'telegram_stars' | 'paypal' | 'cryptomus' | 'paddle';
 
 export interface PaymentConfig {
-  /** Включен ли Stripe (требует autónomo в Испании) */
-  stripeEnabled: boolean;
   /** Включен ли PayPal */
   paypalEnabled: boolean;
   /** Включен ли Telegram Stars */
@@ -23,14 +21,12 @@ export interface PaymentConfig {
 /**
  * Текущая конфигурация платежей
  * 
- * ⚠️ ВАЖНО: Stripe отключен до оформления autónomo в Испании
- * 
  * Telegram Stars работает без регистрации и является основным методом
  * Cryptomus - криптоплатежи без регистрации (для крипто-аудитории)
  * PayPal можно использовать как альтернативу для веб-версии
+ * Paddle - Merchant of Record, не требует autónomo (рекомендуется для веб)
  */
 export const PAYMENT_CONFIG: PaymentConfig = {
-  stripeEnabled: false, // Отключено до оформления autónomo
   paypalEnabled: true,  // Можно использовать без autónomo (на начальном этапе)
   telegramStarsEnabled: true, // Работает без регистрации
   cryptomusEnabled: true, // Криптоплатежи без регистрации
@@ -65,11 +61,6 @@ export function getAvailablePaymentMethods(platform: 'telegram' | 'web' | 'mobil
     methods.push('paypal');
   }
 
-  // Stripe доступен везде (когда включен и оформлен autónomo)
-  if (PAYMENT_CONFIG.stripeEnabled) {
-    methods.push('stripe');
-  }
-
   return methods;
 }
 
@@ -82,7 +73,7 @@ export function isPaymentMethodAvailable(method: PaymentMethod, platform: 'teleg
 
 /**
  * Получить основной метод оплаты для платформы
- * (приоритет: Stars > Paddle > Cryptomus > PayPal > Stripe)
+ * (приоритет: Stars > Paddle > Cryptomus > PayPal)
  */
 export function getPrimaryPaymentMethod(platform: 'telegram' | 'web' | 'mobile'): PaymentMethod | null {
   const methods = getAvailablePaymentMethods(platform);

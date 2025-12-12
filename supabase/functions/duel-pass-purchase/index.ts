@@ -159,10 +159,6 @@ serve(async (req) => {
 
       // Для тестирования - сразу разблокируем
       console.log(`[duel-pass-purchase] Simulating Telegram Stars payment: ${DUEL_PASS_PRICE_STARS} stars`);
-    } else if (payment_method === "stripe") {
-      // Интеграция со Stripe
-      // TODO: Реальная интеграция со Stripe
-      console.log(`[duel-pass-purchase] Stripe payment: ${DUEL_PASS_PRICE_CENTS} cents`);
     } else {
       return new Response(
         JSON.stringify({ error: "Unsupported payment method" }),

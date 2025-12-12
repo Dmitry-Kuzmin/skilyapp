@@ -13,8 +13,7 @@ BEGIN
     SELECT DISTINCT transaction_type 
     FROM public.transactions 
     WHERE transaction_type NOT IN (
-      'coins_purchase_stripe',
-      'coins_purchase_paddle', -- Добавляем Paddle
+      'coins_purchase_paddle', -- Paddle платежи
       'coins_earned_test',
       'coins_earned_duel',
       'coins_earned_daily',
@@ -49,7 +48,6 @@ ALTER TABLE public.transactions
   ADD CONSTRAINT transactions_transaction_type_check
   CHECK (
     transaction_type IN (
-      'coins_purchase_stripe',
       'coins_purchase_paddle', -- Paddle платежи
       'coins_earned_test',
       'coins_earned_duel',

@@ -61,7 +61,6 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
   const availableMethods = getAvailablePaymentMethods(currentPlatform);
   const showStarsPayment = isPaymentMethodAvailable('telegram_stars', currentPlatform);
-  const showStripePayment = isPaymentMethodAvailable('stripe', currentPlatform);
   const showPaypalPayment = isPaymentMethodAvailable('paypal', currentPlatform);
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
   
@@ -106,7 +105,12 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       // Получаем partner_code из localStorage (если пользователь пришел через партнерскую ссылку)
       const partnerCode = localStorage.getItem('partner_code');
       
-      const { data, error } = await supabase.functions.invoke("purchase-create", {
+      // Stripe удален, используем только Telegram Stars или другие методы
+      // TODO: Реализовать покупку Premium через Paddle или Telegram Stars
+      alert("Покупка Premium временно недоступна. Используйте Telegram Stars или свяжитесь с поддержкой.");
+      return;
+      /* 
+      const { data, error } = await supabase.functions.invoke("premium-purchase", {
         body: { 
           user_id: profileId, 
           catalog_key: catalogKey,
@@ -134,7 +138,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
           }
         }
         
-        alert(`Ошибка при создании покупки:\n\n${errorDetails}\n\nПроверьте настройки секретов в:\nSupabase Dashboard → Edge Functions → Settings\n\nУбедитесь, что добавлены:\n- STRIPE_SECRET_KEY\n- STRIPE_SUCCESS_URL\n- STRIPE_CANCEL_URL`);
+        alert(`Ошибка при создании покупки:\n\n${errorDetails}`);
         throw error;
       }
       
@@ -145,45 +149,9 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       }
       
       if (data?.url) {
-        // Сохраняем session_id перед редиректом (для восстановления после возврата с Stripe)
-        if (data?.sessionId) {
-          console.log("[PaywallModal] Saving session_id:", data.sessionId);
-          // Используем sessionStorage для Telegram (более надежно при переходах между доменами)
-          sessionStorage.setItem('stripe_checkout_session_id', data.sessionId);
-          localStorage.setItem('stripe_checkout_session_id', data.sessionId); // Fallback
-          if (profileId) {
-            sessionStorage.setItem('stripe_user_id', profileId);
-          }
-        }
-        
-        // Проверяем, находимся ли в Telegram Web App
-        const webApp = getTelegramWebApp();
-        const isTelegram = platform === 'telegram' && !!webApp;
-        
-        if (isTelegram && webApp) {
-          // В Telegram используем webApp.openLink для открытия в браузере Telegram
-          console.log("[PaywallModal] Opening Stripe in Telegram Web App");
-          if ((webApp as any).openLink) {
-            (webApp as any).openLink(data.url);
-          } else if ((webApp as any).openTelegramLink) {
-            (webApp as any).openTelegramLink(data.url);
-          } else {
-            // Fallback: прямой редирект
-            window.location.href = data.url;
-          }
-        } else {
-          // В обычном браузере используем прямой редирект
-          console.log("[PaywallModal] Redirecting to:", data.url);
-          window.location.href = data.url;
-        }
-      } else {
-        console.error("[PaywallModal] No URL in response", data);
-        alert("Не удалось получить ссылку на оплату. Проверьте настройки Stripe в Supabase Dashboard.");
-      }
-    } catch (err: any) {
-      console.error("[PaywallModal] purchase error", err);
-      const errorMessage = err?.message || err?.error?.message || JSON.stringify(err);
-      alert(`Ошибка: ${errorMessage}\n\nПроверьте:\n1. Настроены ли секреты Stripe в Supabase Dashboard → Edge Functions → Settings\n2. Правильны ли URL для success/cancel (НЕ используйте localhost!)`);
+        // TODO: Реализовать редирект на страницу оплаты (Paddle или Telegram Stars)
+        console.log("[PaywallModal] Purchase URL:", data.url);
+        */
     } finally {
       setLoadingKey(null);
     }
@@ -269,23 +237,6 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                       />
                     )}
                     
-                    {/* Stripe (только если включен в конфиге) */}
-                    {showStripePayment && (
-                      <Button
-                        className="w-full"
-                        onClick={() => handlePurchase(plan.key)}
-                        disabled={loadingKey === plan.key || !profileId}
-                      >
-                        {loadingKey === plan.key ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Перенаправляем...
-                          </>
-                        ) : (
-                          "Оплатить картой (Stripe)"
-                        )}
-                      </Button>
-                    )}
                     
                     {/* Cryptomus (криптоплатежи) */}
                     {showCryptomusPayment && (

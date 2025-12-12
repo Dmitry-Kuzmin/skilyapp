@@ -30,12 +30,10 @@ export default function PaymentSuccess() {
       processedRef.current = true;
       try {
         // Получаем параметры из URL
-        let sessionId = searchParams.get('session_id'); // Stripe
         let orderId = searchParams.get('order_id'); // Cryptomus
         let paddleTransactionId = searchParams.get('transaction_id'); // Paddle
         
         console.log('[PaymentSuccess] Page loaded:', {
-          sessionId,
           orderId,
           paddleTransactionId,
           profileId,
@@ -44,7 +42,7 @@ export default function PaymentSuccess() {
         });
         
         // Если session_id нет в URL, пытаемся найти альтернативными способами
-        if (!sessionId && !orderId && !paddleTransactionId) {
+        if (!orderId && !paddleTransactionId) {
           console.warn('[PaymentSuccess] ⚠️ No session_id, order_id or transaction_id in URL, trying alternatives...');
           
           // Способ 1: Проверяем sessionStorage (приоритет для Telegram) и localStorage (fallback)
@@ -74,7 +72,7 @@ export default function PaymentSuccess() {
             
             const { data: recentPurchases } = await supabase
               .from('purchases')
-              .select('stripe_session_id, cryptomus_order_id, paddle_transaction_id, created_at, status')
+              .select('cryptomus_order_id, paddle_transaction_id, created_at, status')
               .eq('user_id', profileId)
               .in('status', ['pending', 'completed'])
               .gte('created_at', tenMinutesAgo)
@@ -85,11 +83,8 @@ export default function PaymentSuccess() {
               const recentPurchase = recentPurchases[0];
               console.log('[PaymentSuccess] Found recent purchase:', recentPurchase);
               
-              // Приоритет: Stripe session_id, затем Cryptomus order_id
-              if (recentPurchase.stripe_session_id) {
-                sessionId = recentPurchase.stripe_session_id;
-                console.log('[PaymentSuccess] Using pending purchase session_id:', sessionId);
-              } else if (recentPurchase.paddle_transaction_id) {
+              // Приоритет: Paddle transaction_id, затем Cryptomus order_id
+              if (recentPurchase.paddle_transaction_id) {
                 paddleTransactionId = recentPurchase.paddle_transaction_id;
                 console.log('[PaymentSuccess] Using pending purchase paddle_transaction_id:', paddleTransactionId);
               } else if (recentPurchase.cryptomus_order_id) {
@@ -100,7 +95,7 @@ export default function PaymentSuccess() {
           }
         }
         
-        if (!sessionId && !orderId && !paddleTransactionId) {
+        if (!orderId && !paddleTransactionId) {
           console.error('[PaymentSuccess] ❌ No session_id, order_id or transaction_id found');
           // Если нет ID платежа, возможно пользователь просто вернулся без оплаты
           // Перенаправляем на страницу отмены
@@ -119,27 +114,18 @@ export default function PaymentSuccess() {
           return;
         }
 
-        console.log('[PaymentSuccess] Processing payment:', { sessionId, orderId, user: profileId });
+        console.log('[PaymentSuccess] Processing payment:', { orderId, paddleTransactionId, user: profileId });
 
-        // Проверяем статус покупки в БД (Stripe или Cryptomus)
+        // Проверяем статус покупки в БД (Paddle или Cryptomus)
         let purchase;
         let purchaseError;
         
-        if (sessionId) {
-          // Stripe платеж
+        if (paddleTransactionId) {
+          // Paddle платеж
           const result = await supabase
           .from('purchases')
           .select('*')
-          .eq('stripe_session_id', sessionId)
-          .single();
-          purchase = result.data;
-          purchaseError = result.error;
-        } else if (paddleTransactionId) {
-          // Paddle платеж
-          const result = await supabase
-            .from('purchases')
-            .select('*')
-            .eq('paddle_transaction_id', paddleTransactionId)
+          .eq('paddle_transaction_id', paddleTransactionId)
           .single();
           purchase = result.data;
           purchaseError = result.error;
@@ -156,7 +142,7 @@ export default function PaymentSuccess() {
 
         if (purchaseError) {
           if (purchaseError.code === 'PGRST116') {
-            console.warn('[PaymentSuccess] ⚠️ Purchase not found in database:', sessionId);
+            console.warn('[PaymentSuccess] ⚠️ Purchase not found in database');
             toast.warning('Покупка не найдена в базе данных', {
               description: 'Возможно, покупка еще обрабатывается. Попробуйте обновить страницу через несколько секунд.',
             });
@@ -218,16 +204,12 @@ export default function PaymentSuccess() {
             
             console.log('[PaymentSuccess] User coins:', profile?.coins, 'Expected coins from purchase:', coins);
             
-            // Проверяем транзакцию (Stripe или Cryptomus)
-            const transactionType = purchase.stripe_session_id 
-              ? 'coins_purchase_stripe' 
-              : purchase.paddle_transaction_id
-                ? 'coins_purchase_paddle'
+            // Проверяем транзакцию (Paddle или Cryptomus)
+            const transactionType = purchase.paddle_transaction_id
+              ? 'coins_purchase_paddle'
               : 'coins_purchase_cryptomus';
-            const transactionKey = purchase.stripe_session_id 
-              ? { 'metadata->>session_id': sessionId }
-              : purchase.paddle_transaction_id
-                ? { 'metadata->>transaction_id': paddleTransactionId }
+            const transactionKey = purchase.paddle_transaction_id
+              ? { 'metadata->>transaction_id': paddleTransactionId }
               : { 'metadata->>order_id': orderId };
             
             const { data: transaction } = await supabase
@@ -244,7 +226,6 @@ export default function PaymentSuccess() {
               // Пытаемся обработать вручную
               const { data: processData, error: processError } = await supabase.functions.invoke('process-purchase', {
                 body: {
-                  session_id: sessionId,
                   user_id: profileId,
                 },
               });
@@ -252,7 +233,7 @@ export default function PaymentSuccess() {
               if (processError || !processData?.success) {
                 console.error('[PaymentSuccess] ❌ Failed to process manually:', processError || processData);
                 toast.error('Ошибка начисления монет', {
-                  description: 'Покупка оплачена, но монеты не начислены. Обратитесь в поддержку с ID сессии: ' + sessionId,
+                  description: 'Покупка оплачена, но монеты не начислены. Обратитесь в поддержку.',
                 });
               } else {
                 console.log('[PaymentSuccess] ✅ Manually processed:', processData);
@@ -276,7 +257,7 @@ export default function PaymentSuccess() {
           
           // Если открыто в попапе, отправляем сообщение родительскому окну
           if (isPopup) {
-            window.opener?.postMessage({ type: 'STRIPE_SUCCESS' }, window.location.origin);
+            window.opener?.postMessage({ type: 'PAYMENT_SUCCESS' }, window.location.origin);
             setTimeout(() => {
               window.close();
             }, 2000);
@@ -296,7 +277,7 @@ export default function PaymentSuccess() {
 
         // Если покупка еще не обработана, вызываем process-purchase функцию
         // Для Cryptomus: webhook обрабатывает автоматически, но можем проверить статус
-        if (orderId && !sessionId) {
+        if (orderId) {
           // Cryptomus платеж - проверяем статус в БД
           // Если покупка уже была найдена выше, используем её статус
           if (purchase) {
@@ -326,7 +307,6 @@ export default function PaymentSuccess() {
         
         const { data, error } = await supabase.functions.invoke('process-purchase', {
           body: {
-            session_id: sessionId,
             user_id: profileId,
           },
         });
@@ -362,7 +342,7 @@ export default function PaymentSuccess() {
           
           // Если открыто в попапе, отправляем сообщение родительскому окну
           if (isPopup) {
-            window.opener?.postMessage({ type: 'STRIPE_SUCCESS' }, window.location.origin);
+            window.opener?.postMessage({ type: 'PAYMENT_SUCCESS' }, window.location.origin);
             setTimeout(() => {
               window.close();
             }, 2000);
