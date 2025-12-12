@@ -1072,18 +1072,21 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           />
         )}
 
-        {/* Компактный заголовок с балансом */}
-        <div className="px-3 md:px-4 py-2 md:py-3 border-b border-border/50 shrink-0">
+        {/* Компактный заголовок с балансом - премиум стиль */}
+        <div className="px-3 md:px-4 py-2 md:py-3 border-b border-white/10 shrink-0 bg-zinc-900/50 backdrop-blur-sm">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
-              <ShoppingBag className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />
-              <h2 className="text-base md:text-lg font-semibold truncate">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-violet-500/30 to-purple-500/30 rounded-lg blur-sm" />
+                <ShoppingBag className="relative w-4 h-4 md:w-5 md:h-5 text-violet-400 flex-shrink-0" />
+              </div>
+              <h2 className="text-base md:text-lg font-semibold truncate bg-gradient-to-r from-violet-300 to-purple-300 bg-clip-text text-transparent">
                 {t('boostShop.title')}
               </h2>
             </div>
             <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
               <button 
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-800/50 border border-white/10 hover:border-violet-500/50 hover:bg-zinc-800/80 transition-all cursor-pointer backdrop-blur-sm"
                 onClick={async () => {
                   setActiveTab('history');
                   if (transactions.length === 0) {
@@ -1091,8 +1094,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   }
                 }}
               >
-                <Coins className="w-4 h-4 text-gold" />
-                <span className="text-sm font-semibold">{coins}</span>
+                <Coins className="w-4 h-4 text-yellow-400" />
+                <span className="text-sm font-bold text-foreground">{coins}</span>
                 <History className="w-3 h-3 text-muted-foreground ml-0.5" />
               </button>
             </div>
@@ -1108,20 +1111,20 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full flex flex-col h-full">
             <div className="px-4 pt-4 pb-0 shrink-0">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="boosts" className="text-xs truncate">
+              <TabsList className="grid w-full grid-cols-4 bg-zinc-900/50 border border-white/5">
+                <TabsTrigger value="boosts" className="text-xs truncate data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500/20 data-[state=active]:to-purple-500/20 data-[state=active]:text-violet-300 data-[state=active]:shadow-[0_0_20px_rgba(139,92,246,0.3)]">
                   <Zap className="w-3 h-3 mr-1 flex-shrink-0" />
                   <span className="truncate">{t('boostShop.tabs.boosts')}</span>
                 </TabsTrigger>
-                <TabsTrigger value="coins" className="text-xs truncate">
+                <TabsTrigger value="coins" className="text-xs truncate data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500/20 data-[state=active]:to-purple-500/20 data-[state=active]:text-violet-300 data-[state=active]:shadow-[0_0_20px_rgba(139,92,246,0.3)]">
                   <Coins className="w-3 h-3 mr-1 flex-shrink-0" />
                   <span className="truncate">{t('boostShop.tabs.coins')}</span>
                 </TabsTrigger>
-                <TabsTrigger value="premium" className="text-xs truncate">
+                <TabsTrigger value="premium" className="text-xs truncate data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500/20 data-[state=active]:to-purple-500/20 data-[state=active]:text-violet-300 data-[state=active]:shadow-[0_0_20px_rgba(139,92,246,0.3)]">
                   <Crown className="w-3 h-3 mr-1 flex-shrink-0" />
                   <span className="truncate">{t('boostShop.tabs.premium')}</span>
                 </TabsTrigger>
-                <TabsTrigger value="history" className="text-xs truncate">
+                <TabsTrigger value="history" className="text-xs truncate data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500/20 data-[state=active]:to-purple-500/20 data-[state=active]:text-violet-300 data-[state=active]:shadow-[0_0_20px_rgba(139,92,246,0.3)]">
                   <History className="w-3 h-3 mr-1 flex-shrink-0" />
                   <span className="truncate">{t('boostShop.tabs.history')}</span>
                 </TabsTrigger>
@@ -1193,18 +1196,18 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               className="p-3 md:p-4 space-y-3 mt-3 md:mt-4"
             >
               <div className="space-y-3">
-                <div className="text-center py-4">
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {t('boostShop.coins.topUpTitle')}
-                  </p>
+                {/* Компактный баланс в шапке - убрали большой баннер */}
+                <div className="text-center py-2">
                   <div className="flex items-center justify-center gap-2">
-                    <Coins className="w-6 h-6 text-yellow-500" />
-                    <span className="text-2xl font-bold">{coins}</span>
+                    <Coins className="w-5 h-5 text-yellow-400" />
+                    <span className="text-xl font-bold text-foreground">{coins}</span>
                   </div>
                 </div>
 
                 <div className="grid gap-3">
                   {coinPacks.map((pack, idx) => {
+                    // Выделяем пак 500 монет как "Best Value" (лучшее соотношение цена/количество)
+                    const isBestValue = pack.amount === 500;
                     const isHighlighted = Boolean(pack.highlight);
                     const pricePerCoin = pack.priceValue && pack.priceCoins
                       ? pack.priceValue / pack.priceCoins
@@ -1214,19 +1217,34 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     return (
                     <Card
                       key={idx}
-                        className={`group relative overflow-hidden rounded-3xl border bg-card backdrop-blur-xl p-4 md:p-5 shadow-lg transition-transform duration-200 hover:-translate-y-1 ${
-                          isHighlighted
-                            ? 'border-yellow-400/50 dark:border-yellow-400/50 shadow-[0_15px_40px_rgba(251,191,36,0.25)]'
-                            : 'border-border hover:border-primary/40'
+                        className={`group relative overflow-hidden rounded-3xl border bg-zinc-900/80 backdrop-blur-xl p-4 md:p-5 shadow-lg transition-all duration-200 hover:-translate-y-1 ${
+                          isBestValue
+                            ? 'border-violet-500/50 shadow-[0_15px_40px_rgba(139,92,246,0.35)] scale-[1.02] ring-2 ring-violet-500/30'
+                            : isHighlighted
+                              ? 'border-yellow-400/50 shadow-[0_15px_40px_rgba(251,191,36,0.25)]'
+                              : 'border-white/10 hover:border-violet-500/30'
                         }`}
                       >
-                        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-yellow-300/50 dark:via-yellow-300/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        {/* Градиентная полоска для Best Value */}
+                        {isBestValue && (
+                          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-violet-500 opacity-100" />
+                        )}
+                        {/* Best Value бейдж */}
+                        {isBestValue && (
+                          <div className="absolute top-3 right-3 z-10">
+                            <Badge className="bg-gradient-to-r from-violet-500 to-purple-500 text-white border-0 shadow-lg shadow-violet-500/50 text-xs font-bold px-2.5 py-0.5">
+                              🔥 ХИТ ПРОДАЖ
+                            </Badge>
+                          </div>
+                        )}
                       <div className="flex flex-col gap-4">
                         <div className="flex items-center gap-4">
                             <div className={`w-16 h-16 rounded-3xl flex items-center justify-center flex-shrink-0 ${
-                              isHighlighted
-                                ? 'bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 text-slate-900'
-                                : 'bg-gradient-to-br from-muted to-muted/80 text-foreground'
+                              isBestValue
+                                ? 'bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500 text-white shadow-lg shadow-violet-500/50'
+                                : isHighlighted
+                                  ? 'bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 text-slate-900'
+                                  : 'bg-gradient-to-br from-zinc-800 to-zinc-700 text-foreground'
                             }`}>
                             <Coins className="w-7 h-7" />
                           </div>
@@ -1238,8 +1256,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                 {description}
                               </p>
                             {pack.bonus > 0 && (
-                                <div className="flex items-center gap-1 text-xs mt-1 text-yellow-600 dark:text-yellow-200">
-                                  <Sparkles className="w-3 h-3" />
+                                <div className="flex items-center gap-1.5 text-sm font-bold mt-1.5 text-emerald-400">
+                                  <Sparkles className="w-4 h-4" />
                                 {t('boostShop.coins.bonusLabel', { bonus: pack.bonus })}
                                 </div>
                             )}
@@ -1282,17 +1300,19 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                             />
                           )}
                           
-                          {/* Paddle (основной метод для web через MoR) */}
+                          {/* Paddle (основной метод для web через MoR) - градиентная кнопка */}
                           {showPaddlePayment && (
                             <Button
                               size="sm"
                               aria-label={t('boostShop.coins.buyPackAria', { amount: pack.amount })}
                               onClick={() => handleCoinPurchase(pack.catalogKey)}
-                              className={`w-full sm:flex-1 sm:min-w-[160px] ${isHighlighted ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' : ''}`}
+                              className={`w-full sm:flex-1 sm:min-w-[160px] font-semibold bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0 shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 transition-all duration-200 hover:scale-[1.02] ${
+                                isBestValue ? 'ring-2 ring-violet-400/50' : ''
+                              }`}
                               disabled={!profileId}
                             >
                               <ShoppingBag className="w-4 h-4 mr-2" />
-                              Paddle
+                              {pack.price}
                             </Button>
                           )}
                           
@@ -1302,7 +1322,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                               size="sm"
                               aria-label={t('boostShop.coins.buyPackAria', { amount: pack.amount })}
                               onClick={() => handleCoinPurchase(pack.catalogKey)}
-                              className={`w-full sm:flex-1 sm:min-w-[160px] ${isHighlighted ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' : ''}`}
+                              className="w-full sm:flex-1 sm:min-w-[160px] bg-transparent border border-white/20 hover:border-violet-500/50 text-foreground hover:text-violet-300"
                               disabled={!profileId}
                               variant="outline"
                             >
@@ -1379,7 +1399,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                   });
                                 }
                               }}
-                              className={`w-full sm:flex-1 sm:min-w-[160px] ${!showStarsPayment && !showStripePayment && isHighlighted ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' : ''}`}
+                              className="w-full sm:flex-1 sm:min-w-[160px] bg-transparent border border-white/20 hover:border-violet-500/50 text-foreground hover:text-violet-300"
                               disabled={!profileId}
                               variant="outline"
                             >
@@ -1871,7 +1891,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         open={open}
         onOpenChange={onOpenChange}
         title={t('boostShop.title')}
-        className="max-w-4xl"
+        className="max-w-4xl bg-zinc-900/80 backdrop-blur-xl border-white/10"
         contentClassName="scrollbar-none"
       >
         {loading ? (
