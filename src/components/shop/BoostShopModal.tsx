@@ -750,9 +750,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           paddle.Checkout.open({
             transactionId: data.transaction_id,
             settings: {
-              displayMode: "overlay", // Важно! Оверлей, а не редирект
+              displayMode: "overlay", // Важно! Оверлей выглядит современнее, чем полная страница
               successUrl: `${window.location.origin}/purchase/success?transaction_id={transaction_id}`,
-              theme: "dark", // Под ваш дизайн
+              theme: "dark", // Темная тема под ваш дизайн
+              locale: language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en', // Локализация
             },
           });
         } catch (error) {
@@ -767,7 +768,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         // Fallback: если SDK не инициализирован, используем редирект на Paddle checkout
         // Это менее идеально, но работает
         console.warn("[BoostShop] Paddle SDK not initialized, using fallback redirect");
-        console.warn("[BoostShop] To use overlay, add VITE_PADDLE_CLIENT_TOKEN to environment variables");
+        console.warn("[BoostShop] To use modern overlay, add VITE_PADDLE_CLIENT_TOKEN to environment variables");
         
         // Используем правильный Paddle checkout URL
         const paddleCheckoutUrl = `https://checkout.paddle.com/transaction/${data.transaction_id}`;
