@@ -140,7 +140,7 @@ export default function PaymentSuccess() {
             .from('purchases')
             .select('*')
             .eq('paddle_transaction_id', paddleTransactionId)
-            .single();
+          .single();
           purchase = result.data;
           purchaseError = result.error;
         } else if (orderId) {
@@ -223,12 +223,12 @@ export default function PaymentSuccess() {
               ? 'coins_purchase_stripe' 
               : purchase.paddle_transaction_id
                 ? 'coins_purchase_paddle'
-                : 'coins_purchase_cryptomus';
+              : 'coins_purchase_cryptomus';
             const transactionKey = purchase.stripe_session_id 
               ? { 'metadata->>session_id': sessionId }
               : purchase.paddle_transaction_id
                 ? { 'metadata->>transaction_id': paddleTransactionId }
-                : { 'metadata->>order_id': orderId };
+              : { 'metadata->>order_id': orderId };
             
             const { data: transaction } = await supabase
               .from('transactions')

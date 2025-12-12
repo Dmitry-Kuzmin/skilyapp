@@ -42,19 +42,50 @@ export function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [systemHealth, setSystemHealth] = useState<SystemHealthStatus | null>(null);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [metrics, setMetrics] = useState<any>(null);
+  const [metricsLoading, setMetricsLoading] = useState(false);
 
   useEffect(() => {
     fetchStats();
     fetchRecentActivity();
+    fetchMetrics();
     
     // Refresh stats every 30 seconds
     const interval = setInterval(() => {
       fetchStats();
       fetchRecentActivity();
+      fetchMetrics();
     }, 30000);
 
     return () => clearInterval(interval);
   }, []);
+
+  const fetchMetrics = async () => {
+    setMetricsLoading(true);
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const response = await fetch(`${supabaseUrl}/functions/v1/metrics-exporter`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          metric_type: 'all',
+          time_range: '24h',
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setMetrics(data.metrics);
+      }
+    } catch (error) {
+      console.error('Error fetching metrics:', error);
+    } finally {
+      setMetricsLoading(false);
+    }
+  };
 
   const fetchStats = async () => {
     try {
@@ -302,6 +333,152 @@ export function AdminDashboard() {
           ))}
         </div>
       </div>
+
+      {/* Performance Metrics */}
+      {metrics && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card className="border-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                Метрики производительности
+              </CardTitle>
+              <CardDescription>Мониторинг системы через Supabase Metrics API</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {metricsLoading ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Загрузка метрик...
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {metrics.auth && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm relative overflow-hidden"
+                    >
+                      {/* Ambient glow */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-violet-500/5 blur-2xl -z-10" />
+                      
+                      <div className="flex items-start justify-between mb-4">
+                        <h4 className="font-semibold text-sm uppercase tracking-wider text-zinc-400 flex items-center gap-2">
+                          <Users className="h-4 w-4" />
+                          Auth метрики
+                        </h4>
+                        {/* Пульсирующая точка для активных пользователей */}
+                        <div className="relative">
+                          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                          <div className="absolute inset-0 w-2 h-2 bg-emerald-500/30 rounded-full animate-ping" />
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-zinc-500">Новых (24ч)</span>
+                          <span className="text-lg font-bold text-zinc-200">{metrics.auth.new_users || 0}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-zinc-500">Активных (24ч)</span>
+                          <span className="text-lg font-bold text-emerald-400">{metrics.auth.active_users || 0}</span>
+                        </div>
+                        <div className="flex items-center justify-between pt-2 border-t border-zinc-800">
+                          <span className="text-xs text-zinc-500 flex items-center gap-1.5">
+                            <Shield className="h-3 w-3" />
+                            С Passkey
+                          </span>
+                          <span className="text-lg font-bold text-blue-400">{metrics.auth.passkey_users || 0}</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                  {metrics.database && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.1 }}
+                      className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm relative overflow-hidden"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 blur-2xl -z-10" />
+                      
+                      <div className="flex items-start justify-between mb-4">
+                        <h4 className="font-semibold text-sm uppercase tracking-wider text-zinc-400 flex items-center gap-2">
+                          <Database className="h-4 w-4" />
+                          База данных
+                        </h4>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        {metrics.database.table_counts && (
+                          <>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-zinc-500">Профилей</span>
+                              <span className="text-lg font-bold text-zinc-200">{metrics.database.table_counts.profiles || 0}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-zinc-500">Вопросов</span>
+                              <span className="text-lg font-bold text-zinc-200">{metrics.database.table_counts.questions || 0}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-zinc-500">Тем</span>
+                              <span className="text-lg font-bold text-zinc-200">{metrics.database.table_counts.topics || 0}</span>
+                            </div>
+                            <div className="flex items-center justify-between pt-2 border-t border-zinc-800">
+                              <span className="text-xs text-zinc-500">Дуэлей</span>
+                              <span className="text-lg font-bold text-violet-400">{metrics.database.table_counts.duels || 0}</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                  {metrics.performance && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.2 }}
+                      className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm relative overflow-hidden"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-orange-500/5 blur-2xl -z-10" />
+                      
+                      <div className="flex items-start justify-between mb-4">
+                        <h4 className="font-semibold text-sm uppercase tracking-wider text-zinc-400 flex items-center gap-2">
+                          <Zap className="h-4 w-4" />
+                          Производительность
+                        </h4>
+                        {/* Пульсирующая точка для активности */}
+                        <div className="relative">
+                          <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
+                          <div className="absolute inset-0 w-2 h-2 bg-yellow-500/30 rounded-full animate-ping" />
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        {metrics.performance.activity_24h && (
+                          <>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-zinc-500">Транзакций</span>
+                              <span className="text-lg font-bold text-yellow-400">{metrics.performance.activity_24h.transactions || 0}</span>
+                            </div>
+                            <div className="flex items-center justify-between pt-2 border-t border-zinc-800">
+                              <span className="text-xs text-zinc-500">Дуэлей</span>
+                              <span className="text-lg font-bold text-orange-400">{metrics.performance.activity_24h.duels || 0}</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
 
       {/* Recent Activity & System Info */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

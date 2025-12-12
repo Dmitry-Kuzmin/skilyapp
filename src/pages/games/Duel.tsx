@@ -154,23 +154,35 @@ export default function Duel() {
 
     // Define handleDuelStarted early so it can be used in useEffect dependencies
     const handleDuelStarted = useCallback((targetDuelId?: string) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:156',message:'handleDuelStarted called',data:{targetDuelId,currentDuelId:duelId,currentMode:mode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
         const activeDuelId = targetDuelId || duelId;
         console.log('[Duel] ⚡ DUEL STARTED! Switching to battle mode. DuelId:', activeDuelId);
 
         if (!activeDuelId) {
             console.error('[Duel] ❌ Cannot start battle: no duelId');
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:160',message:'Cannot start - no duelId',data:{targetDuelId,currentDuelId:duelId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
             return;
         }
 
         // Убеждаемся, что duelId установлен
         if (targetDuelId && targetDuelId !== duelId) {
             setDuelId(targetDuelId);
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:166',message:'Updating duelId',data:{targetDuelId,oldDuelId:duelId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
         }
 
         // Reset hidden state when starting new battle
         setIsBattleHidden(false);
 
         // Immediate state change
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:174',message:'Setting mode to battle',data:{activeDuelId,previousMode:mode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
         setMode('battle');
 
         // Multiple retries for Telegram reliability
@@ -178,6 +190,9 @@ export default function Duel() {
         retries.forEach((delay, index) => {
             setTimeout(() => {
                 console.log(`[Duel] Battle mode retry #${index + 1}`);
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:181',message:'Battle mode retry',data:{retryIndex:index+1,delay,activeDuelId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+                // #endregion
                 setMode('battle');
             }, delay);
         });
@@ -337,6 +352,9 @@ export default function Duel() {
     };
 
     const handleDuelJoined = async (id: string, code: string, autoStarted?: boolean) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:339',message:'handleDuelJoined called',data:{id,code,autoStarted,currentMode:mode,currentDuelId:duelId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
         if (!id || !code) {
             console.error('[Duel] ❌ Invalid parameters for handleDuelJoined:', { id, code });
             return;
@@ -347,21 +365,33 @@ export default function Duel() {
         try {
             setDuelId(id);
             setDuelCode(code);
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:348',message:'Duel ID and code set',data:{id,code},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
 
             // Если дуэль автозапустилась, сразу переходим к битве
             if (autoStarted) {
                 console.log('[Duel] ✅ AUTO-STARTED = TRUE, going straight to battle!');
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:352',message:'Auto-started - calling handleDuelStarted',data:{id,currentMode:mode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+                // #endregion
                 handleDuelStarted(id); // Передаем id для гарантии
                 return;
             }
 
             // Check if duel is already active (fallback check)
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:359',message:'Checking duel status from DB',data:{id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
             const { data, error } = await supabase
                 .from('duels')
                 .select('status')
                 .eq('id', id)
                 .maybeSingle();
 
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:365',message:'Duel status check result',data:{hasError:!!error,status:data?.status},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
             if (error) {
                 console.error('[Duel] Error checking duel status:', error);
                 // Продолжаем с переходом в лобби даже при ошибке проверки
@@ -369,13 +399,22 @@ export default function Duel() {
 
             if (data?.status === 'active') {
                 console.log('[Duel] Duel already active, going straight to battle!');
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:370',message:'Duel active - calling handleDuelStarted',data:{id,currentMode:mode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+                // #endregion
                 handleDuelStarted(id); // Передаем id для гарантии
             } else {
                 console.log('[Duel] Going to lobby to wait for start');
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:374',message:'Setting mode to create (lobby)',data:{currentMode:mode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+                // #endregion
                 setMode('create');
             }
         } catch (error) {
             console.error('[Duel] ❌ Error in handleDuelJoined:', error);
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:377',message:'Error in handleDuelJoined',data:{errorMessage:error instanceof Error ? error.message : String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
             // При ошибке возвращаемся в меню
             setMode('menu');
             setDuelId(null);
@@ -464,20 +503,32 @@ export default function Duel() {
 
     // Handle inline join
     const handleInlineJoin = async (code: string) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:466',message:'handleInlineJoin called',data:{code,hasAutoJoined:hasAutoJoinedRef.current,isJoining,profileId,dataLoaded},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
         if (!code || code.length !== 4) {
             return;
         }
 
         if (!profileId || !dataLoaded) {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:472',message:'Early return - missing data',data:{profileId,dataLoaded},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
             return; // Не показываем ошибку до загрузки данных
         }
 
         if (hasAutoJoinedRef.current) {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:475',message:'Early return - already joined',data:{hasAutoJoined:hasAutoJoinedRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
             return;
         }
 
         hasAutoJoinedRef.current = true;
         setIsJoining(true);
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:479',message:'Starting join process',data:{code,profileId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
 
         try {
             console.log('[Duel] ⚡ Invoking join_duel with code:', code);
@@ -493,6 +544,9 @@ export default function Duel() {
                 },
             });
 
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:496',message:'join_duel response received',data:{hasError:!!error,autoStarted:data?.auto_started,duelStatus:data?.duel?.status,duelId:data?.duel?.id,playerId:data?.player?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
             console.log('[Duel] join_duel response:', { data, error });
 
             if (error) {
@@ -515,13 +569,22 @@ export default function Duel() {
 
             showDuelJoinSuccess(data.auto_started);
 
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:519',message:'Calling handleDuelJoined',data:{duelId:data.duel.id,duelCode:data.duel.code,autoStarted:data.auto_started,currentMode:mode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
             // Передаем auto_started в handleDuelJoined для правильной обработки
             handleDuelJoined(data.duel.id, data.duel.code, data.auto_started);
             setJoinCode('');
             hasAutoJoinedRef.current = false;
             setIsJoining(false);
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:522',message:'Join completed successfully',data:{duelId:data.duel.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
         } catch (error: any) {
             console.error('[Duel] ❌ Error in handleInlineJoin:', error);
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Duel.tsx:524',message:'Join error occurred',data:{errorMessage:error?.message,errorCode:error?.code},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
 
             // Показываем ошибку пользователю
             showDuelJoinError(error);

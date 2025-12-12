@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift, Trophy, TestTube, Zap, Calendar, CreditCard, Users, Filter, Crown, Sparkles, Check } from 'lucide-react';
+import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift, Trophy, TestTube, Zap, Calendar, CreditCard, Users, Filter, Crown, Sparkles, Check, Video } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext, UserContext } from '@/contexts/UserContext';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
@@ -17,6 +17,7 @@ import { BoostCard } from './BoostCard';
 // Removed framer-motion import for better performance
 import { PaywallModal } from '@/components/monetization/PaywallModal';
 import { usePremium } from '@/hooks/usePremium';
+import { RewardedAdModal } from '@/components/monetization/RewardedAdModal';
 import { StarsPaymentButton } from '@/components/monetization/StarsPaymentButton';
 import { CryptomusPaymentPreview } from '@/components/monetization/CryptomusPaymentPreview';
 import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
@@ -155,6 +156,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const [filterCategory, setFilterCategory] = useState<'all' | 'earn' | 'spend' | 'purchase' | 'reward'>('all');
   const [activeTab, setActiveTab] = useState<'boosts' | 'coins' | 'premium' | 'history'>('boosts');
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [showRewardedAdModal, setShowRewardedAdModal] = useState(false);
 
   const translateBoostField = (boostType: string | undefined, field: 'name' | 'description', fallback?: string) => {
     if (!boostType) {
@@ -377,6 +379,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         return { icon: Calendar, description: t('boostShop.transactions.coinsEarnedDaily'), category: 'earn' };
       case 'coins_earned_premium_bonus':
         return { icon: Gift, description: t('boostShop.transactions.coinsEarnedPremiumBonus'), category: 'earn' };
+      case 'coins_earned_ad':
+        return { icon: Video, description: t('boostShop.transactions.coinsEarnedAd', { amount: metadata?.amount || 20 }), category: 'earn' };
       case 'coins_spent_boost':
         return {
           icon: Zap,
@@ -1229,6 +1233,31 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   </div>
                 </div>
 
+                {/* Кнопка получения монет за рекламу (только для non-Premium) */}
+                {!isPremium && (
+                  <Card className="p-4 border-2 border-indigo-500/20 bg-gradient-to-br from-indigo-500/5 to-violet-500/5">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/20 to-violet-500/20 flex items-center justify-center">
+                          <Video className="w-6 h-6 text-indigo-400" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm">Получить монеты бесплатно</p>
+                          <p className="text-xs text-muted-foreground">Посмотри видео и получи 20 монет</p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => setShowRewardedAdModal(true)}
+                        className="bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 text-white"
+                      >
+                        <Video className="w-4 h-4 mr-2" />
+                        Смотреть
+                      </Button>
+                    </div>
+                  </Card>
+                )}
+
                 <div className="grid gap-3">
                   {coinPacks.map((pack, idx) => {
                     // Выделяем пак 500 монет как "Best Value" (лучшее соотношение цена/количество)
@@ -1936,6 +1965,51 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       {/* Nested Modals - рендерим только когда нужно */}
       {paywallOpen && (
         <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+      
+      {/* Rewarded Ad Modal */}
+      <RewardedAdModal
+        open={showRewardedAdModal}
+        onOpenChange={setShowRewardedAdModal}
+        rewardType="coins"
+        rewardAmount={20}
+        onRewardClaimed={async () => {
+          // Вызываем Edge Function для начисления награды
+          if (!profileId) return;
+          
+          try {
+            const { data, error } = await supabaseClient.functions.invoke('ad-reward', {
+              body: {
+                user_id: profileId,
+                reward_type: 'coins',
+                amount: 20,
+              },
+            });
+
+            if (error) {
+              console.error('[BoostShop] Error claiming ad reward:', error);
+              throw error;
+            }
+
+            // Обновляем баланс
+            await loadData();
+            
+            toast({
+              title: '✨ Монеты получены!',
+              description: 'Тебе начислено 20 монет за просмотр рекламы',
+            });
+            
+            setShowConfetti(true);
+            setTimeout(() => setShowConfetti(false), 3000);
+          } catch (error: any) {
+            console.error('[BoostShop] Error claiming ad reward:', error);
+            toast({
+              title: 'Ошибка',
+              description: error.message || 'Не удалось начислить монеты',
+              variant: 'destructive',
+            });
+          }
+        }}
+      />
       )}
       
       {cryptomusPreview && (
@@ -1959,6 +2033,51 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           }}
         />
       )}
+
+      {/* Rewarded Ad Modal */}
+      <RewardedAdModal
+        open={showRewardedAdModal}
+        onOpenChange={setShowRewardedAdModal}
+        rewardType="coins"
+        rewardAmount={20}
+        onRewardClaimed={async () => {
+          // Вызываем Edge Function для начисления награды
+          if (!profileId) return;
+          
+          try {
+            const { data, error } = await supabaseClient.functions.invoke('ad-reward', {
+              body: {
+                user_id: profileId,
+                reward_type: 'coins',
+                amount: 20,
+              },
+            });
+
+            if (error) {
+              console.error('[BoostShop] Error claiming ad reward:', error);
+              throw error;
+            }
+
+            // Обновляем баланс
+            await loadData();
+            
+            toast({
+              title: '✨ Монеты получены!',
+              description: 'Тебе начислено 20 монет за просмотр рекламы',
+            });
+            
+            setShowConfetti(true);
+            setTimeout(() => setShowConfetti(false), 3000);
+          } catch (error: any) {
+            console.error('[BoostShop] Error claiming ad reward:', error);
+            toast({
+              title: 'Ошибка',
+              description: error.message || 'Не удалось начислить монеты',
+              variant: 'destructive',
+            });
+          }
+        }}
+      />
     </>
   );
 }

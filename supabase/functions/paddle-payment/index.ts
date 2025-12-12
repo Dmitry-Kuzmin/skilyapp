@@ -236,6 +236,28 @@ serve(async (req) => {
       }
 
       const transactionData = await transactionResponse.json();
+      
+      console.log("[paddle-payment] Paddle API response (subscription):", {
+        hasData: !!transactionData.data,
+        transactionId: transactionData.data?.id,
+        checkoutUrl: transactionData.data?.checkout?.url,
+        fullCheckout: transactionData.data?.checkout,
+        fullResponse: JSON.stringify(transactionData).substring(0, 500)
+      });
+
+      // Проверяем, что checkout URL есть
+      const checkoutUrl = transactionData.data?.checkout?.url;
+      if (!checkoutUrl) {
+        console.error("[paddle-payment] No checkout URL in response (subscription):", transactionData);
+        return new Response(
+          JSON.stringify({ 
+            error: "Paddle did not return checkout URL",
+            details: "Transaction created but checkout URL is missing",
+            transaction_id: transactionData.data?.id
+          }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
 
       // Сохраняем покупку в БД
       await supabase.from("purchases").insert({
@@ -256,8 +278,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: true, 
-          checkout_url: transactionData.data?.checkout?.url,
           transaction_id: transactionData.data?.id,
+          // checkout_url не возвращаем - фронтенд использует Paddle SDK или формирует URL сам
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -299,6 +321,29 @@ serve(async (req) => {
       }
 
       const transactionData = await transactionResponse.json();
+      
+      console.log("[paddle-payment] Paddle API response:", {
+        hasData: !!transactionData.data,
+        transactionId: transactionData.data?.id,
+        checkoutUrl: transactionData.data?.checkout?.url,
+        fullCheckout: transactionData.data?.checkout,
+        fullResponse: JSON.stringify(transactionData).substring(0, 500)
+      });
+
+      // Проверяем, что transaction ID есть
+      // КРИТИЧНО: Не возвращаем checkout_url - фронтенд будет использовать Paddle SDK
+      // или формировать URL самостоятельно на основе transaction_id
+      if (!transactionData.data?.id) {
+        console.error("[paddle-payment] No transaction ID in response:", transactionData);
+        return new Response(
+          JSON.stringify({ 
+            error: "Paddle did not return transaction ID",
+            details: "Transaction may not have been created",
+            fullResponse: JSON.stringify(transactionData).substring(0, 500)
+          }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
 
       // Сохраняем покупку в БД
       await supabase.from("purchases").insert({
@@ -318,8 +363,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: true, 
-          checkout_url: transactionData.data?.checkout?.url,
           transaction_id: transactionData.data?.id,
+          // checkout_url не возвращаем - фронтенд использует Paddle SDK или формирует URL сам
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );

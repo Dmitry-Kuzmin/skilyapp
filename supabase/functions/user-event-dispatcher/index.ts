@@ -432,6 +432,32 @@ function buildVariables(
     case 'streak_reminder':
       base.streak_days = payload.streak_days ?? metrics?.streak_days ?? null;
       break;
+    // Auth security events
+    case 'password_changed':
+      // Нет дополнительных переменных, базовый шаблон
+      break;
+    case 'email_changed':
+      base.new_email = payload.new_email || payload.new_value || '';
+      base.old_email = payload.old_email || payload.old_value || '';
+      break;
+    case 'phone_changed':
+      base.new_phone = payload.new_phone || payload.new_value || '';
+      base.old_phone = payload.old_phone || payload.old_value || '';
+      break;
+    case 'identity_linked':
+    case 'identity_unlinked':
+      base.provider_name = payload.provider_name || 'Unknown';
+      base.provider_email = payload.provider_email || '';
+      break;
+    case 'mfa_enrolled':
+    case 'mfa_unenrolled':
+      // Нет дополнительных переменных
+      break;
+    case 'suspicious_login':
+      base.location = payload.location || 'Unknown location';
+      base.device_info = payload.device_info || 'Unknown device';
+      base.ip_address = payload.ip_address || '';
+      break;
     case 'almost_ready':
       base.readiness_level = payload.readiness_level ?? metrics?.readiness_level ?? null;
       break;

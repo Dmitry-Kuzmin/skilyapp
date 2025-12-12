@@ -76,3 +76,10 @@ COMMENT ON POLICY "Anyone can view active partners by code" ON public.partners I
 
 
 
+
+
+
+
+
+
+

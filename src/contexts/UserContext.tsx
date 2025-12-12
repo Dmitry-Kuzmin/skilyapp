@@ -309,24 +309,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
         // Persist to localStorage
         localStorage.setItem('puzzle_user', JSON.stringify(telegramUser));
         
-        // Save to backend and wait for session to be established
-        // КРИТИЧНО: Ждем завершения login(), чтобы Supabase сессия успела установиться
-        // Это предотвращает редирект на лендинг до завершения авторизации
-        try {
-          await login(telegramUser);
-          logUserContext("[UserContext] Auto-login completed successfully");
-          
-          // Проверяем, что сессия Supabase установлена
-          const { data: { session: newSession } } = await supabase.auth.getSession();
-          if (newSession?.user) {
-            logUserContext("[UserContext] Supabase session established after auto-login");
-            setSupabaseUser(newSession.user);
-            setSession(newSession);
-          }
-        } catch (err) {
+        // Save to backend asynchronously (don't block UI)
+        login(telegramUser).catch(err => {
           console.error('[UserContext] Auto-login failed:', err);
-          // Продолжаем даже при ошибке - пользователь уже установлен локально
-        }
+        });
       } else {
         // Check for stored token
         const token = localStorage.getItem('telegram_token');
@@ -468,10 +454,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   // Determine if user is authenticated (either Telegram or Supabase)
-  // КРИТИЧНО: Пользователь считается авторизованным, если:
-  // 1. Есть Supabase сессия (обычная авторизация через email/OAuth)
-  // 2. ИЛИ есть Telegram пользователь (авторизация через Telegram Mini App)
-  // Это важно для Telegram Mini App, где Supabase Auth сессия может не создаваться сразу
   const isAuthenticated = !!(user || supabaseUser);
 
   // ОПТИМИЗАЦИЯ: Мемоизируем значение контекста для предотвращения лишних ре-рендеров

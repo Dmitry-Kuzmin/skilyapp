@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Flame, Gift, Sparkles, Zap, Trophy, Check, Lock, Clock, Info } from "lucide-react";
+import { ArrowLeft, Flame, Gift, Sparkles, Zap, Trophy, Check, Lock, Clock, Info, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useUserContext } from "@/contexts/UserContext";
@@ -9,6 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { cn } from "@/lib/utils";
+import { RewardedAdModal } from "@/components/monetization/RewardedAdModal";
+import { usePremium } from "@/hooks/usePremium";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +38,8 @@ const DailyBonus = () => {
   const [showRestoreDialog, setShowRestoreDialog] = useState(false);
   const [restoringStreak, setRestoringStreak] = useState(false);
   const [showStreakInfo, setShowStreakInfo] = useState(false);
+  const [showRewardedAdModal, setShowRewardedAdModal] = useState(false);
+  const { isPremium } = usePremium();
 
   useEffect(() => {
     if (profileId) {
@@ -308,6 +312,64 @@ const DailyBonus = () => {
       });
     } finally {
       setRestoringStreak(false);
+    }
+  };
+
+  // Восстановление streak через просмотр рекламы
+  const handleRestoreStreakWithAd = async () => {
+    if (!dailyBonus || !profileId) return;
+
+    setShowRestoreDialog(false);
+    setShowRewardedAdModal(true);
+  };
+
+  const handleAdRewardClaimed = async () => {
+    if (!dailyBonus || !profileId) return;
+
+    try {
+      const today = new Date().toISOString().split('T')[0];
+
+      // Вызываем Edge Function для начисления награды
+      const { data, error } = await supabase.functions.invoke('ad-reward', {
+        body: {
+          user_id: profileId,
+          reward_type: 'restore_streak',
+        },
+      });
+
+      if (error) {
+        console.error('[DailyBonus] Error claiming ad reward:', error);
+        throw error;
+      }
+
+      // Обновляем streak
+      await (supabase as any)
+        .from('user_daily_bonus')
+        .update({
+          last_claimed_date: today,
+        })
+        .eq('id', dailyBonus.id);
+
+      setDailyBonus({
+        ...dailyBonus,
+        last_claimed_date: today,
+      });
+      setCanClaimBonus(false);
+
+      // Обновляем баланс монет (если начислены)
+      queryClient.invalidateQueries({ queryKey: ['profile-data', profileId] });
+
+      toast({
+        title: "✨ Серия восстановлена!",
+        description: "Посмотрел видео — серия продолжается!",
+      });
+    } catch (error) {
+      console.error('[DailyBonus] Error claiming ad reward:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось восстановить серию",
+        variant: "destructive",
+      });
     }
   };
 
@@ -632,22 +694,48 @@ const DailyBonus = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Восстановить серию?</AlertDialogTitle>
             <AlertDialogDescription>
-              Твоя серия прервана. Восстанови её за 10 монет и продолжай движение к цели!
+              Твоя серия прервана. Выбери способ восстановления:
               <br /><br />
               У тебя: {userCoins} 🪙
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Отмена</AlertDialogCancel>
-            <AlertDialogAction
+          <div className="space-y-2">
+            {/* Опция с монетами */}
+            <Button
               onClick={handleRestoreStreak}
               disabled={restoringStreak || userCoins < 10}
+              className="w-full justify-start"
+              variant={userCoins >= 10 ? "default" : "outline"}
             >
-              {restoringStreak ? 'Восстановление...' : 'Восстановить'}
-            </AlertDialogAction>
+              <Sparkles className="w-4 h-4 mr-2" />
+              За 10 монет {userCoins < 10 && '(недостаточно)'}
+            </Button>
+            
+            {/* Опция с рекламой (только для non-Premium) */}
+            {!isPremium && (
+              <Button
+                onClick={handleRestoreStreakWithAd}
+                className="w-full justify-start bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600"
+                variant="default"
+              >
+                <Video className="w-4 h-4 mr-2" />
+                Бесплатно — посмотреть рекламу
+              </Button>
+            )}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Отмена</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Rewarded Ad Modal */}
+      <RewardedAdModal
+        open={showRewardedAdModal}
+        onOpenChange={setShowRewardedAdModal}
+        rewardType="restore_streak"
+        onRewardClaimed={handleAdRewardClaimed}
+      />
 
       {/* Streak Info Dialog */}
       <AlertDialog open={showStreakInfo} onOpenChange={setShowStreakInfo}>

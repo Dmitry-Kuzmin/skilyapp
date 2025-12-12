@@ -312,11 +312,11 @@ const App = () => {
   // Обработка редиректа из 404.html для GitHub Pages
   useEffect(() => {
     if (typeof window !== 'undefined' && isGitHubPages) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const redirectPath = urlParams.get('p');
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectPath = urlParams.get('p');
       if (redirectPath) {
-        // Удаляем query параметр и перенаправляем на правильный путь
-        window.history.replaceState({}, '', basename + redirectPath);
+      // Удаляем query параметр и перенаправляем на правильный путь
+      window.history.replaceState({}, '', basename + redirectPath);
       }
     }
   }, [basename, isGitHubPages]);
@@ -384,13 +384,13 @@ const App = () => {
 
   return (
     <>
-      <OfflineBanner />
-      <OfflineQueueIndicator />
+        <OfflineBanner />
+        <OfflineQueueIndicator />
       {/* КРИТИЧНО: Компонент для ручного обновления PWA при registerType: 'prompt' */}
       <ReloadPrompt />
-      <Suspense fallback={null}>
-        <BrowserRouter basename={basename}>
-          <ScrollToTop />
+        <Suspense fallback={null}>
+              <BrowserRouter basename={basename}>
+                <ScrollToTop />
           {/* ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query) */}
           <Routes>
             <Route path="/" element={<LandingRedirect />} />
@@ -410,20 +410,20 @@ const App = () => {
                 <AppProviders>
                   <Suspense fallback={<LightFallback />}>
                     <CosmeticsPreviewProvider>
-                      <Suspense fallback={null}>
-                        <DeepLinkHandler />
+                <Suspense fallback={null}>
+                  <DeepLinkHandler />
                         {/* OAuthCallbackHandler отключен - используем /auth/callback маршрут для OAuth */}
                         {/* Если нужно обрабатывать токены на других страницах - можно включить с проверкой pathname */}
                         {/* <OAuthCallbackHandler /> */}
-                        <HallOfFameModal />
-                        <DuelPassLeaderboardModal />
-                      </Suspense>
+                  <HallOfFameModal />
+                  <DuelPassLeaderboardModal />
+                </Suspense>
                       <AppRoutes />
                       {/* Глобальный менеджер модалок должен быть внутри провайдеров,
                           чтобы работали UserContext и QueryClient */}
                       <Suspense fallback={null}>
-                        <GlobalModalManager />
-                        <PerformanceMonitor />
+                <GlobalModalManager />
+                <PerformanceMonitor />
                         <PasskeyOnboardingWrapper />
                       </Suspense>
                     </CosmeticsPreviewProvider>
@@ -432,10 +432,10 @@ const App = () => {
               </Suspense>
             } />
           </Routes>
-          {/* Debug панель Service Worker (только в dev или с localStorage.debug_sw) */}
-          <ServiceWorkerDebug />
-        </BrowserRouter>
-      </Suspense>
+                {/* Debug панель Service Worker (только в dev или с localStorage.debug_sw) */}
+                <ServiceWorkerDebug />
+              </BrowserRouter>
+        </Suspense>
     </>
   );
 };
