@@ -1109,22 +1109,33 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           />
         )}
 
-        {/* Компактный хедер только с балансом - без дублирования заголовка */}
-        <div className="px-4 py-3 border-b border-border shrink-0 bg-card">
-          <div className="flex items-center justify-end">
-            <button 
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/50 border border-border hover:border-violet-500/50 hover:bg-muted/80 transition-all cursor-pointer backdrop-blur-sm"
-              onClick={async () => {
-                setActiveTab('history');
-                if (transactions.length === 0) {
-                  await loadTransactionHistory();
-                }
-              }}
-            >
-              <Coins className="w-4 h-4 text-yellow-400" />
-              <span className="text-sm font-bold text-foreground">{coins}</span>
-              <History className="w-3 h-3 text-muted-foreground" />
-            </button>
+        {/* Компактный заголовок с балансом - премиум стиль */}
+        <div className="px-3 md:px-4 py-2 md:py-3 border-b border-border shrink-0 bg-card">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-violet-500/30 to-purple-500/30 rounded-lg blur-sm" />
+                <ShoppingBag className="relative w-4 h-4 md:w-5 md:h-5 text-violet-400 flex-shrink-0" />
+              </div>
+              <h2 className="text-base md:text-lg font-semibold truncate bg-gradient-to-r from-violet-300 to-purple-300 bg-clip-text text-transparent">
+                {t('boostShop.title')}
+              </h2>
+            </div>
+            <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+              <button 
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50 border border-border hover:border-violet-500/50 hover:bg-muted/80 transition-all cursor-pointer backdrop-blur-sm"
+                onClick={async () => {
+                  setActiveTab('history');
+                  if (transactions.length === 0) {
+                    await loadTransactionHistory();
+                  }
+                }}
+              >
+                <Coins className="w-4 h-4 text-yellow-400" />
+                <span className="text-sm font-bold text-foreground">{coins}</span>
+                <History className="w-3 h-3 text-muted-foreground ml-0.5" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1222,7 +1233,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               className="p-4 md:p-6 space-y-4 mt-3 md:mt-4"
             >
               <div className="space-y-4">
-                {/* Блок рекламы - компактная полоска сверху */}
+                {/* Компактная полоска рекламы (только для non-Premium) */}
                 {!isPremium && (
                   <Card className="p-3 border border-indigo-500/30 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 rounded-xl">
                     <div className="flex items-center justify-between gap-3">
@@ -1241,12 +1252,17 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   </Card>
                 )}
 
-                {/* Grid карточек монет - вертикальные карточки */}
+                {/* Grid карточек монет - вертикальные карточки в игровом стиле */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {coinPacks.map((pack, idx) => {
                     // Выделяем пак 500 монет как "Best Value" (лучшее соотношение цена/количество)
                     const isBestValue = pack.amount === 500;
                     const isHighlighted = Boolean(pack.highlight);
+                    const pricePerCoin = pack.priceValue && pack.priceCoins
+                      ? pack.priceValue / pack.priceCoins
+                      : null;
+                    const description = t(pack.descriptionKey ?? 'boostShop.coins.purpose');
+                    const helperText = t(pack.helperKey ?? 'boostShop.coins.deliveryHint');
                     return (
                     <Card
                       key={idx}
@@ -1437,6 +1453,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   })}
                 </div>
 
+                <div className="text-center text-xs text-muted-foreground pt-2">
+                  <p>{t('boostShop.coins.premiumHint')}</p>
+                </div>
               </div>
             </TabsContent>
 
@@ -1902,9 +1921,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       <ResponsiveModal
         open={open}
         onOpenChange={onOpenChange}
+        title={t('boostShop.title')}
         className="max-w-5xl"
         contentClassName="scrollbar-none"
-        hideCloseButton={false}
       >
         {loading ? (
           <div className="flex items-center justify-center py-12">
