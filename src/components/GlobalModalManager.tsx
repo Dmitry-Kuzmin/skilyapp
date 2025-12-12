@@ -93,6 +93,8 @@ export const GlobalModalManager = () => {
       }
     );
 
+    // КРИТИЧНО: Проверяем, что модалка еще не открыта и не закрывается
+    // Это предотвращает повторное открытие при закрытии через клик вне модалки
     if (modalType && !stack.some(m => m.type === modalType)) {
       // Извлекаем параметры из URL
       const props: Record<string, any> = {};
@@ -103,7 +105,17 @@ export const GlobalModalManager = () => {
       });
 
       // Открываем модалку без синхронизации URL (чтобы не дублировать)
-      openModal(modalType, props, false);
+      // Используем requestAnimationFrame для предотвращения race condition
+      // Это гарантирует, что проверка произойдет после всех обновлений состояния
+      const rafId = requestAnimationFrame(() => {
+        // Двойная проверка: убеждаемся, что модалка все еще не открыта
+        const currentStack = useModalStore.getState().stack;
+        if (!currentStack.some(m => m.type === modalType)) {
+          openModal(modalType, props, false);
+        }
+      });
+      
+      return () => cancelAnimationFrame(rafId);
     }
   }, [searchParams, stack, openModal]);
 
