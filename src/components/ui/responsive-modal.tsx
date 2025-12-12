@@ -72,11 +72,16 @@ export function ResponsiveModal({
   }
 
   // На десктопе используем Dialog (Radix UI) - центрированная модалка
+  // Проверяем, есть ли в className max-w, чтобы не переопределять переданную ширину
+  const hasMaxWidth = className?.includes('max-w');
+  const defaultMaxWidth = hasMaxWidth ? '' : 'sm:max-w-[425px]';
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          "sm:max-w-[425px] bg-zinc-900 border-zinc-800 border-white/10",
+          defaultMaxWidth,
+          "bg-zinc-900 border-zinc-800 border-white/10",
           className
         )}
         hideCloseButton={hideCloseButton}
