@@ -363,12 +363,19 @@ export function UserProvider({ children }: { children: ReactNode }) {
       if (referralCode) {
         logUserContext("[UserContext] Found referral code:", referralCode);
       }
+
+      // КРИТИЧНО: Проверяем партнерский код из start_param
+      const partnerRefCode = sessionStorage.getItem('partner_ref_code');
+      if (partnerRefCode) {
+        logUserContext("[UserContext] Found partner ref code:", partnerRefCode);
+      }
       
       logUserContext("[UserContext] User data:", { 
         id: userData.id, 
         first_name: userData.first_name,
         platform: actualPlatform,
-        hasReferralCode: !!referralCode
+        hasReferralCode: !!referralCode,
+        hasPartnerRefCode: !!partnerRefCode
       });
       
       const { data: result, error } = await supabase.functions.invoke('telegram-auth', {
@@ -391,6 +398,34 @@ export function UserProvider({ children }: { children: ReactNode }) {
         logUserContext("[UserContext] Setting profileId from backend response:", result.profile.id);
         setProfileId(result.profile.id);
         localStorage.setItem(`profile_${userData.id}`, result.profile.id);
+
+        // КРИТИЧНО: Связываем пользователя с партнером после создания профиля
+        if (partnerRefCode) {
+          try {
+            logUserContext("[UserContext] Linking user to partner:", partnerRefCode);
+            const { data: linkResult, error: linkError } = await supabase.rpc(
+              'link_user_to_partner_from_start_param',
+              {
+                p_user_id: result.profile.id,
+                p_start_param: partnerRefCode.startsWith('partner_') ? partnerRefCode : `partner_${partnerRefCode}`
+              }
+            );
+
+            if (linkError) {
+              console.error('[UserContext] Failed to link user to partner:', linkError);
+            } else if (linkResult && linkResult.length > 0 && linkResult[0].success) {
+              logUserContext("[UserContext] User linked to partner:", {
+                partner_id: linkResult[0].partner_id,
+                partner_code: linkResult[0].partner_code
+              });
+            } else {
+              logUserContext("[UserContext] Partner link result:", linkResult?.[0]?.message || 'Unknown');
+            }
+          } catch (linkErr) {
+            console.error('[UserContext] Exception linking user to partner:', linkErr);
+            // Не прерываем процесс из-за ошибки связки с партнером
+          }
+        }
       }
 
       // Store token if provided
@@ -402,6 +437,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
       if (referralCode) {
         sessionStorage.removeItem('referral_code');
         logUserContext("[UserContext] Referral code cleared from session");
+      }
+
+      // Clear partner ref code after successful use
+      if (partnerRefCode) {
+        sessionStorage.removeItem('partner_ref_code');
+        logUserContext("[UserContext] Partner ref code cleared from session");
       }
       
       logUserContext("[UserContext] User saved to backend successfully");

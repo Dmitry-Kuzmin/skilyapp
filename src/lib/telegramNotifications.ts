@@ -20,6 +20,9 @@ export interface DeepLinkData {
  * Форматы:
  * - duel_{duel_id} → { action: 'duel', id: duel_id }
  * - test_{topic_id} → { action: 'test', id: topic_id }
+ * - ref_{code} → { action: 'ref', id: code }
+ * - partner_{code} → { action: 'partner', id: code }
+ * - {code} (без префикса) → проверяем, партнерский ли это код
  * - learn → { action: 'learn' }
  */
 export function parseDeepLink(startParam: string): DeepLinkData | null {
@@ -38,8 +41,19 @@ export function parseDeepLink(startParam: string): DeepLinkData | null {
 
   // Простое действие без ID
   if (parts.length === 1) {
-    console.log('[Deep Link] Parsed simple action:', parts[0]);
-    return { action: parts[0] };
+    const code = parts[0];
+    
+    // КРИТИЧНО: Если код без префикса, проверяем, может это партнерский код
+    // Telegram Partner Program может использовать просто код без префикса
+    // Проверяем формат (обычно партнерские коды - это 3-6 символов, реферальные - 6)
+    if (code.length >= 3 && code.length <= 6 && /^[A-Z0-9]+$/.test(code.toUpperCase())) {
+      // Это может быть партнерский код - возвращаем как partner
+      console.log('[Deep Link] Detected possible partner code (no prefix):', code);
+      return { action: 'partner', id: code };
+    }
+    
+    console.log('[Deep Link] Parsed simple action:', code);
+    return { action: code };
   }
 
   console.warn('[Deep Link] Invalid format:', startParam);

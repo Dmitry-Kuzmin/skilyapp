@@ -1354,7 +1354,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                 setShowConfetti(true);
                                 setTimeout(() => setShowConfetti(false), 3000);
                               }}
-                              variant={showStripePayment ? "outline" : "default"}
+                              variant="default"
                               size="sm"
                               className={`w-full sm:flex-1 sm:min-w-[160px] ${isHighlighted ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' : ''}`}
                             />

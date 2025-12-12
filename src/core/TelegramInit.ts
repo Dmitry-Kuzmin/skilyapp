@@ -91,6 +91,66 @@ function handleDeepLink(deepLink: DeepLinkData): void {
     console.log('[Telegram Init] Storing referral code:', deepLink.id);
     sessionStorage.setItem('referral_code', deepLink.id.toUpperCase());
   }
+
+  // КРИТИЧНО: Для партнерского кода сохраняем отдельно и связываем с пользователем
+  if (deepLink.action === 'partner' && deepLink.id) {
+    console.log('[Telegram Init] Storing partner code:', deepLink.id);
+    sessionStorage.setItem('partner_ref_code', deepLink.id.toUpperCase());
+    // Связываем пользователя с партнером (если пользователь уже авторизован)
+    linkUserToPartner(deepLink.id);
+  }
+}
+
+/**
+ * Связывает пользователя с партнером на основе start_param
+ * Вызывается при первом входе в приложение
+ */
+async function linkUserToPartner(partnerCode: string): Promise<void> {
+  try {
+    // Импортируем Supabase только когда нужно
+    const { supabase } = await import('@/integrations/supabase/client');
+    
+    // Получаем текущего пользователя
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.log('[Telegram Init] User not authenticated yet, will link after auth');
+      return;
+    }
+
+    // Получаем profile_id
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!profile) {
+      console.warn('[Telegram Init] Profile not found for user');
+      return;
+    }
+
+    // Вызываем функцию связки
+    const { data, error } = await supabase.rpc('link_user_to_partner_from_start_param', {
+      p_user_id: profile.id,
+      p_start_param: `partner_${partnerCode}`
+    });
+
+    if (error) {
+      console.error('[Telegram Init] Failed to link user to partner:', error);
+      return;
+    }
+
+    if (data && data.length > 0 && data[0].success) {
+      console.log('[Telegram Init] User linked to partner:', {
+        partner_id: data[0].partner_id,
+        partner_code: data[0].partner_code
+      });
+    } else {
+      console.log('[Telegram Init] Partner link result:', data?.[0]?.message || 'Unknown');
+    }
+  } catch (error) {
+    console.error('[Telegram Init] Error linking user to partner:', error);
+  }
 }
 
 export function isTelegramPlatform(): boolean {

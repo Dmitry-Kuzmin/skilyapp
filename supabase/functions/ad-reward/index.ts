@@ -29,29 +29,79 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey);
+
+    let user_id: string | null = null;
+    let reward_type: RewardRequest['reward_type'] = 'coins';
+    let amount = 20;
+    let ad_unit_id: string | undefined;
+    let ad_network = 'adsgram';
+
+    // Поддержка GET запросов от AdsGram (с параметром userid из Telegram)
+    if (req.method === 'GET') {
+      const url = new URL(req.url);
+      const telegramUserId = url.searchParams.get('userid');
+      reward_type = (url.searchParams.get('reward_type') as RewardRequest['reward_type']) || 'coins';
+      amount = parseInt(url.searchParams.get('amount') || '20', 10);
+      ad_unit_id = url.searchParams.get('ad_unit_id') || undefined;
+      ad_network = url.searchParams.get('ad_network') || 'adsgram';
+
+      if (!telegramUserId) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'userid parameter is required' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
-    );
 
-    const {
-      data: { user },
-    } = await supabaseClient.auth.getUser();
+      // Находим профиль пользователя по Telegram ID
+      const { data: profile, error: profileError } = await supabaseClient
+        .from('profiles')
+        .select('id')
+        .eq('telegram_id', parseInt(telegramUserId, 10))
+        .single();
 
-    if (!user) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      if (profileError || !profile) {
+        console.error('[ad-reward] Profile not found for telegram_id:', telegramUserId, profileError);
+        return new Response(
+          JSON.stringify({ success: false, error: 'User not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      user_id = profile.id;
+    } else {
+      // Поддержка POST запросов (от клиентского приложения)
+      const supabaseClientWithAuth = createClient(
+        supabaseUrl,
+        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+        {
+          global: {
+            headers: { Authorization: req.headers.get('Authorization')! },
+          },
+        }
       );
-    }
 
-    const body: RewardRequest = await req.json();
-    const { reward_type, amount = 20, ad_unit_id, ad_network = 'adsgram' } = body;
+      const {
+        data: { user },
+      } = await supabaseClientWithAuth.auth.getUser();
+
+      if (!user) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Unauthorized' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      user_id = user.id;
+
+      const body: RewardRequest = await req.json();
+      reward_type = body.reward_type || 'coins';
+      amount = body.amount || 20;
+      ad_unit_id = body.ad_unit_id;
+      ad_network = body.ad_network || 'adsgram';
+    }
 
     // Валидация
     if (!reward_type) {
@@ -61,12 +111,19 @@ serve(async (req) => {
       );
     }
 
+    if (!user_id) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'User ID not found' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Rate limiting: максимум 10 наград в час
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
     const { count } = await supabaseClient
       .from('transactions')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
+      .eq('user_id', user_id)
       .eq('transaction_type', 'coins_earned_ad')
       .gte('created_at', oneHourAgo);
 
@@ -92,7 +149,7 @@ serve(async (req) => {
 
         // Начисляем монеты
         const { error: coinsError } = await supabaseClient.rpc('increment_profile_value', {
-          p_profile_id: user.id,
+          p_profile_id: user_id,
           p_column: 'coins',
           p_amount: amount,
         });
@@ -107,7 +164,7 @@ serve(async (req) => {
 
         // Логируем транзакцию
         await supabaseClient.from('transactions').insert({
-          user_id: user.id,
+          user_id: user_id,
           transaction_type: 'coins_earned_ad',
           amount: amount,
           metadata: {
@@ -129,7 +186,7 @@ serve(async (req) => {
         // Логика восстановления streak будет добавлена позже
         // Пока возвращаем успех (награда уже начислена на клиенте)
         await supabaseClient.from('transactions').insert({
-          user_id: user.id,
+          user_id: user_id,
           transaction_type: 'coins_earned_ad',
           amount: 0, // Streak восстановление не дает монет
           metadata: {

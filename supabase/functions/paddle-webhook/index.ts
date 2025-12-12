@@ -212,6 +212,7 @@ serve(async (req) => {
         const userId = purchase.user_id;
         const itemType = purchase.item_type;
         const itemId = purchase.item_id;
+        const purchaseAmount = transaction.total ? parseFloat(transaction.total) : 0;
 
         if (itemType === "premium") {
           // Добавляем премиум доступ
@@ -239,6 +240,35 @@ serve(async (req) => {
           // Разблокируем Duel Pass
           // TODO: Реализовать логику разблокировки Duel Pass
           console.log("[paddle-webhook] Duel Pass purchase completed:", userId);
+        }
+
+        // КРИТИЧНО: Начисляем комиссию партнеру (если пользователь пришел от партнера)
+        // Telegram Partner Program работает только с Stars, для Paddle делаем вручную
+        if (purchaseAmount > 0) {
+          try {
+            const { data: commissionResult, error: commissionError } = await supabase.rpc(
+              "add_partner_commission_for_paddle_payment",
+              {
+                p_user_id: userId,
+                p_purchase_amount: purchaseAmount,
+                p_purchase_id: purchase.id,
+              }
+            );
+
+            if (commissionError) {
+              console.error("[paddle-webhook] Failed to add partner commission:", commissionError);
+            } else if (commissionResult && commissionResult.length > 0 && commissionResult[0].success) {
+              console.log("[paddle-webhook] Partner commission added:", {
+                partner_id: commissionResult[0].partner_id,
+                commission_amount: commissionResult[0].commission_amount,
+              });
+            } else {
+              console.log("[paddle-webhook] No partner commission (user not referred by partner)");
+            }
+          } catch (error) {
+            console.error("[paddle-webhook] Exception adding partner commission:", error);
+            // Не прерываем обработку платежа из-за ошибки комиссии
+          }
         }
 
         return new Response(
