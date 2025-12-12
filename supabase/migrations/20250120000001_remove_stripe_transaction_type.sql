@@ -1,5 +1,5 @@
 -- Удаление типа транзакции coins_purchase_stripe
--- Stripe больше не используется, заменен на Paddle
+-- Stripe больше не используется, заменен на Paddle, Cryptomus и Telegram Stars
 
 -- Сначала конвертируем существующие Stripe транзакции в Paddle
 UPDATE public.transactions
