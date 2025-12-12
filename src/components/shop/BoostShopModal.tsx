@@ -132,8 +132,16 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         
         if (!clientToken) {
           console.warn('[BoostShopModal] Paddle client token not found in env');
+          console.warn('[BoostShopModal] Please add VITE_PADDLE_CLIENT_TOKEN to your environment variables');
+          console.warn('[BoostShopModal] You can find it in Paddle Dashboard → Developer Tools → Authentication → Client-side tokens');
           return;
         }
+
+        console.log('[BoostShopModal] Initializing Paddle SDK...', {
+          environment: import.meta.env.PROD ? 'production' : 'sandbox',
+          hasToken: !!clientToken,
+          tokenPrefix: clientToken?.substring(0, 10)
+        });
 
         const paddleInstance = await initializePaddle({
           environment: import.meta.env.PROD ? 'production' : 'sandbox',
@@ -141,16 +149,16 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         });
 
         setPaddle(paddleInstance);
-        console.log('[BoostShopModal] Paddle SDK initialized');
+        console.log('[BoostShopModal] ✅ Paddle SDK initialized successfully');
       } catch (error) {
-        console.error('[BoostShopModal] Failed to initialize Paddle SDK:', error);
+        console.error('[BoostShopModal] ❌ Failed to initialize Paddle SDK:', error);
       }
     };
 
-    if (showPaddlePayment) {
+    if (showPaddlePayment && open) {
       initPaddle();
     }
-  }, [showPaddlePayment]);
+  }, [showPaddlePayment, open]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [filterCategory, setFilterCategory] = useState<'all' | 'earn' | 'spend' | 'purchase' | 'reward'>('all');
@@ -735,9 +743,20 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
       // КРИТИЧНО: Используем Paddle SDK для открытия checkout overlay
       // Вместо редиректа на URL, открываем overlay с transaction_id
-      if (paddle) {
-        console.log("[BoostShop] Opening Paddle checkout overlay with transaction:", data.transaction_id);
-        
+      if (!paddle) {
+        console.error("[BoostShop] Paddle SDK not initialized");
+        console.error("[BoostShop] Make sure VITE_PADDLE_CLIENT_TOKEN is set in environment variables");
+        toast({
+          title: t('boostShop.toasts.errorTitle'),
+          description: 'Paddle SDK не инициализирован. Убедитесь, что VITE_PADDLE_CLIENT_TOKEN добавлен в настройки.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      console.log("[BoostShop] Opening Paddle checkout overlay with transaction:", data.transaction_id);
+      
+      try {
         paddle.Checkout.open({
           transactionId: data.transaction_id,
           settings: {
@@ -746,11 +765,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             theme: "dark", // Под ваш дизайн
           },
         });
-      } else {
-        console.error("[BoostShop] Paddle SDK not initialized");
+      } catch (error) {
+        console.error("[BoostShop] Failed to open Paddle checkout:", error);
         toast({
           title: t('boostShop.toasts.errorTitle'),
-          description: 'Paddle SDK не инициализирован. Попробуйте обновить страницу.',
+          description: 'Не удалось открыть форму оплаты. Попробуйте еще раз.',
           variant: 'destructive',
         });
       }
