@@ -41,21 +41,11 @@ export default function PaymentSuccess() {
           searchParams: Object.fromEntries(searchParams.entries())
         });
         
-        // Если session_id нет в URL, пытаемся найти альтернативными способами
+        // Если transaction_id или order_id нет в URL, пытаемся найти альтернативными способами
         if (!orderId && !paddleTransactionId) {
-          console.warn('[PaymentSuccess] ⚠️ No session_id, order_id or transaction_id in URL, trying alternatives...');
+          console.warn('[PaymentSuccess] ⚠️ No order_id or transaction_id in URL, trying alternatives...');
           
-          // Способ 1: Проверяем sessionStorage (приоритет для Telegram) и localStorage (fallback)
-          const storedSessionId = sessionStorage.getItem('stripe_checkout_session_id') 
-            || localStorage.getItem('stripe_checkout_session_id');
-          if (storedSessionId) {
-            console.log('[PaymentSuccess] Found session_id in storage:', storedSessionId);
-            sessionId = storedSessionId;
-            // Удаляем после использования
-            sessionStorage.removeItem('stripe_checkout_session_id');
-            localStorage.removeItem('stripe_checkout_session_id');
-          }
-          
+          // Способ 1: Проверяем sessionStorage и localStorage
           const storedPaddleTransactionId = sessionStorage.getItem('paddle_transaction_id') 
             || localStorage.getItem('paddle_transaction_id');
           if (storedPaddleTransactionId) {
@@ -66,7 +56,7 @@ export default function PaymentSuccess() {
           }
           
           // Способ 2: Если есть profileId, ищем последнюю pending покупку за последние 10 минут
-          if (!sessionId && !orderId && !paddleTransactionId && profileId) {
+          if (!orderId && !paddleTransactionId && profileId) {
             console.log('[PaymentSuccess] Searching for recent pending purchase...');
             const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
             
