@@ -743,35 +743,37 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
       // КРИТИЧНО: Используем Paddle SDK для открытия checkout overlay
       // Вместо редиректа на URL, открываем overlay с transaction_id
-      if (!paddle) {
-        console.error("[BoostShop] Paddle SDK not initialized");
-        console.error("[BoostShop] Make sure VITE_PADDLE_CLIENT_TOKEN is set in environment variables");
-        toast({
-          title: t('boostShop.toasts.errorTitle'),
-          description: 'Paddle SDK не инициализирован. Убедитесь, что VITE_PADDLE_CLIENT_TOKEN добавлен в настройки.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      console.log("[BoostShop] Opening Paddle checkout overlay with transaction:", data.transaction_id);
-      
-      try {
-        paddle.Checkout.open({
-          transactionId: data.transaction_id,
-          settings: {
-            displayMode: "overlay", // Важно! Оверлей, а не редирект
-            successUrl: `${window.location.origin}/purchase/success?transaction_id={transaction_id}`,
-            theme: "dark", // Под ваш дизайн
-          },
-        });
-      } catch (error) {
-        console.error("[BoostShop] Failed to open Paddle checkout:", error);
-        toast({
-          title: t('boostShop.toasts.errorTitle'),
-          description: 'Не удалось открыть форму оплаты. Попробуйте еще раз.',
-          variant: 'destructive',
-        });
+      if (paddle) {
+        console.log("[BoostShop] Opening Paddle checkout overlay with transaction:", data.transaction_id);
+        
+        try {
+          paddle.Checkout.open({
+            transactionId: data.transaction_id,
+            settings: {
+              displayMode: "overlay", // Важно! Оверлей, а не редирект
+              successUrl: `${window.location.origin}/purchase/success?transaction_id={transaction_id}`,
+              theme: "dark", // Под ваш дизайн
+            },
+          });
+        } catch (error) {
+          console.error("[BoostShop] Failed to open Paddle checkout:", error);
+          toast({
+            title: t('boostShop.toasts.errorTitle'),
+            description: 'Не удалось открыть форму оплаты. Попробуйте еще раз.',
+            variant: 'destructive',
+          });
+        }
+      } else {
+        // Fallback: если SDK не инициализирован, используем редирект на Paddle checkout
+        // Это менее идеально, но работает
+        console.warn("[BoostShop] Paddle SDK not initialized, using fallback redirect");
+        console.warn("[BoostShop] To use overlay, add VITE_PADDLE_CLIENT_TOKEN to environment variables");
+        
+        // Используем правильный Paddle checkout URL
+        const paddleCheckoutUrl = `https://checkout.paddle.com/transaction/${data.transaction_id}`;
+        console.log("[BoostShop] Redirecting to Paddle checkout:", paddleCheckoutUrl);
+        
+        window.location.href = paddleCheckoutUrl;
       }
 
     } catch (err: any) {
