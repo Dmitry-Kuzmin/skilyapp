@@ -496,7 +496,7 @@ const translations: Record<Language, Record<string, any>> = {
         insufficientCoins: "Necesitas {{amount}} monedas más",
       },
       transactions: {
-        coinsPurchaseStripe: "Compra de monedas: {{amount}}",
+        coinsPurchasePaddle: "Compra de monedas: {{amount}}",
         premiumPurchase: "Suscripción Premium ({{type}})",
         premiumType: {
           monthly: "mes",
@@ -1396,7 +1396,7 @@ const translations: Record<Language, Record<string, any>> = {
         insufficientCoins: "You need {{amount}} more coins",
       },
       transactions: {
-        coinsPurchaseStripe: "Coin top-up: {{amount}}",
+        coinsPurchasePaddle: "Coin top-up: {{amount}}",
         premiumPurchase: "Premium subscription ({{type}})",
         premiumType: {
           monthly: "month",
@@ -2278,7 +2278,7 @@ const translations: Record<Language, Record<string, any>> = {
         insufficientCoins: "Вам нужно ещё {{amount}} монет",
       },
       transactions: {
-        coinsPurchaseStripe: "Покупка монет: {{amount}}",
+        coinsPurchasePaddle: "Покупка монет: {{amount}}",
         premiumPurchase: "Premium подписка ({{type}})",
         premiumType: {
           monthly: "месяц",

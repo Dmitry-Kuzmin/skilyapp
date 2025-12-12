@@ -96,7 +96,7 @@ export default function PaymentSuccess() {
         }
         
         if (!orderId && !paddleTransactionId) {
-          console.error('[PaymentSuccess] ❌ No session_id, order_id or transaction_id found');
+          console.error('[PaymentSuccess] ❌ No order_id or transaction_id found');
           // Если нет ID платежа, возможно пользователь просто вернулся без оплаты
           // Перенаправляем на страницу отмены
           console.log('[PaymentSuccess] No payment ID found - redirecting to cancel');
