@@ -1960,51 +1960,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       {/* Nested Modals - рендерим только когда нужно */}
       {paywallOpen && (
         <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
-      
-      {/* Rewarded Ad Modal */}
-      <RewardedAdModal
-        open={showRewardedAdModal}
-        onOpenChange={setShowRewardedAdModal}
-        rewardType="coins"
-        rewardAmount={20}
-        onRewardClaimed={async () => {
-          // Вызываем Edge Function для начисления награды
-          if (!profileId) return;
-          
-          try {
-            const { data, error } = await supabaseClient.functions.invoke('ad-reward', {
-              body: {
-                user_id: profileId,
-                reward_type: 'coins',
-                amount: 20,
-              },
-            });
-
-            if (error) {
-              console.error('[BoostShop] Error claiming ad reward:', error);
-              throw error;
-            }
-
-            // Обновляем баланс
-            await loadData();
-            
-            toast({
-              title: '✨ Монеты получены!',
-              description: 'Тебе начислено 20 монет за просмотр рекламы',
-            });
-            
-            setShowConfetti(true);
-            setTimeout(() => setShowConfetti(false), 3000);
-          } catch (error: any) {
-            console.error('[BoostShop] Error claiming ad reward:', error);
-            toast({
-              title: 'Ошибка',
-              description: error.message || 'Не удалось начислить монеты',
-              variant: 'destructive',
-            });
-          }
-        }}
-      />
       )}
       
       {cryptomusPreview && (
