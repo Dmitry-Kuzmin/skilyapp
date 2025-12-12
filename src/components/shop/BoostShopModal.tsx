@@ -1109,33 +1109,22 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           />
         )}
 
-        {/* Компактный заголовок с балансом - премиум стиль */}
-        <div className="px-3 md:px-4 py-2 md:py-3 border-b border-border shrink-0 bg-card">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-violet-500/30 to-purple-500/30 rounded-lg blur-sm" />
-                <ShoppingBag className="relative w-4 h-4 md:w-5 md:h-5 text-violet-400 flex-shrink-0" />
-              </div>
-              <h2 className="text-base md:text-lg font-semibold truncate bg-gradient-to-r from-violet-300 to-purple-300 bg-clip-text text-transparent">
-                {t('boostShop.title')}
-              </h2>
-            </div>
-            <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-              <button 
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50 border border-border hover:border-violet-500/50 hover:bg-muted/80 transition-all cursor-pointer backdrop-blur-sm"
-                onClick={async () => {
-                  setActiveTab('history');
-                  if (transactions.length === 0) {
-                    await loadTransactionHistory();
-                  }
-                }}
-              >
-                <Coins className="w-4 h-4 text-yellow-400" />
-                <span className="text-sm font-bold text-foreground">{coins}</span>
-                <History className="w-3 h-3 text-muted-foreground ml-0.5" />
-              </button>
-            </div>
+        {/* Компактный хедер только с балансом - без дублирования заголовка */}
+        <div className="px-4 py-3 border-b border-border shrink-0 bg-card">
+          <div className="flex items-center justify-end">
+            <button 
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/50 border border-border hover:border-violet-500/50 hover:bg-muted/80 transition-all cursor-pointer backdrop-blur-sm"
+              onClick={async () => {
+                setActiveTab('history');
+                if (transactions.length === 0) {
+                  await loadTransactionHistory();
+                }
+              }}
+            >
+              <Coins className="w-4 h-4 text-yellow-400" />
+              <span className="text-sm font-bold text-foreground">{coins}</span>
+              <History className="w-3 h-3 text-muted-foreground" />
+            </button>
           </div>
         </div>
 
@@ -1232,266 +1221,222 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               value="coins" 
               className="p-4 md:p-6 space-y-4 mt-3 md:mt-4"
             >
-              <div className="space-y-3">
-                {/* Компактный баланс в шапке - убрали большой баннер */}
-                <div className="text-center py-2">
-                  <div className="flex items-center justify-center gap-2">
-                    <Coins className="w-5 h-5 text-yellow-400" />
-                    <span className="text-xl font-bold text-foreground">{coins}</span>
-                  </div>
-                </div>
-
-                {/* Кнопка получения монет за рекламу (только для non-Premium) */}
+              <div className="space-y-4">
+                {/* Блок рекламы - компактная полоска сверху */}
                 {!isPremium && (
-                  <Card className="p-4 md:p-5 border-2 border-indigo-500/20 bg-gradient-to-br from-indigo-500/5 to-violet-500/5">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/20 to-violet-500/20 flex items-center justify-center flex-shrink-0">
-                          <Video className="w-6 h-6 text-indigo-400" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-sm">Получить монеты бесплатно</p>
-                          <p className="text-xs text-muted-foreground">Посмотри видео и получи 20 монет</p>
-                        </div>
+                  <Card className="p-3 border border-indigo-500/30 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 rounded-xl">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <Video className="w-4 h-4 text-indigo-400" />
+                        <span className="text-xs font-medium">+20 монет за рекламу</span>
                       </div>
                       <Button
-                        size="default"
+                        size="sm"
                         onClick={() => setShowRewardedAdModal(true)}
-                        className="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 text-white h-11"
+                        className="h-8 px-3 text-xs bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 text-white"
                       >
-                        <Video className="w-4 h-4 mr-2" />
                         Смотреть
                       </Button>
                     </div>
                   </Card>
                 )}
 
-                <div className="grid gap-4">
+                {/* Grid карточек монет - вертикальные карточки */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {coinPacks.map((pack, idx) => {
                     // Выделяем пак 500 монет как "Best Value" (лучшее соотношение цена/количество)
                     const isBestValue = pack.amount === 500;
                     const isHighlighted = Boolean(pack.highlight);
-                    const pricePerCoin = pack.priceValue && pack.priceCoins
-                      ? pack.priceValue / pack.priceCoins
-                      : null;
-                    const description = t(pack.descriptionKey ?? 'boostShop.coins.purpose');
-                    const helperText = t(pack.helperKey ?? 'boostShop.coins.deliveryHint');
                     return (
                     <Card
                       key={idx}
-                        className={`group relative overflow-hidden rounded-3xl border bg-card p-4 md:p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 ${
+                        className={`group relative overflow-visible rounded-2xl border bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-950 p-6 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${
                           isBestValue
-                            ? 'border-violet-500/50 shadow-[0_15px_40px_rgba(139,92,246,0.35)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.35)] scale-[1.02] ring-2 ring-violet-500/30'
+                            ? 'border-yellow-500/60 shadow-[0_25px_80px_rgba(251,191,36,0.5)] scale-[1.05] ring-4 ring-yellow-500/40'
                             : isHighlighted
-                              ? 'border-yellow-400/50 shadow-[0_15px_40px_rgba(251,191,36,0.25)] dark:shadow-[0_15px_40px_rgba(251,191,36,0.25)]'
-                              : 'border-border hover:border-violet-500/30'
+                              ? 'border-yellow-400/30 shadow-[0_15px_40px_rgba(251,191,36,0.25)]'
+                              : 'border-zinc-800 hover:border-violet-500/30'
                         }`}
                       >
-                      <div className="flex flex-col gap-4 md:gap-5">
-                        <div className="flex items-start gap-4">
-                            {/* Best Value бейдж - размещаем слева от иконки, не перекрывая цену */}
-                            {isBestValue && (
-                              <div className="absolute -top-2 left-4 z-10">
-                                <Badge className="bg-gradient-to-r from-violet-500 to-purple-500 text-white border-0 shadow-lg shadow-violet-500/50 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                  🔥 ХИТ
-                                </Badge>
-                              </div>
-                            )}
-                            <div className={`relative w-16 h-16 rounded-3xl flex items-center justify-center flex-shrink-0 overflow-hidden ${
-                              isBestValue
-                                ? 'bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500 text-white shadow-lg shadow-violet-500/50'
-                                : isHighlighted
-                                  ? 'bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 text-slate-900'
-                                  : 'bg-gradient-to-br from-yellow-500/20 via-amber-500/30 to-orange-500/20 border border-yellow-500/30'
-                            }`}>
-                            {/* Эффект свечения для всех иконок */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 via-transparent to-orange-500/20 blur-sm" />
-                            <Coins className={`relative w-8 h-8 ${
-                              isBestValue || isHighlighted 
-                                ? 'drop-shadow-lg' 
-                                : 'text-yellow-400 drop-shadow-md'
-                            }`} />
-                            {/* Дополнительные монеты для эффекта "кучи" */}
-                            {!isBestValue && !isHighlighted && (
-                              <>
-                                <Coins className="absolute w-5 h-5 text-yellow-500/40 -top-1 -right-1 rotate-12" />
-                                <Coins className="absolute w-4 h-4 text-amber-500/30 -bottom-1 -left-1 -rotate-12" />
-                              </>
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                              <p className="text-xl font-bold text-foreground truncate">
-                              {t('boostShop.coins.packLabel', { amount: pack.amount })}
-                            </p>
-                              <p className="text-xs text-muted-foreground">
-                                {description}
-                              </p>
-                            {pack.bonus > 0 && (
-                                <div className="flex items-center gap-1.5 text-sm font-bold mt-1.5 text-emerald-600 dark:text-emerald-400">
-                                  <Sparkles className="w-4 h-4" />
-                                {t('boostShop.coins.bonusLabel', { bonus: pack.bonus })}
-                                </div>
-                            )}
-                          </div>
-                            <div className="text-right flex-shrink-0">
-                              <span className="text-2xl font-black text-foreground">{pack.price}</span>
-                              {pricePerCoin && (
-                                <p className="text-[11px] text-muted-foreground">
-                                  ≈ {t('boostShop.coins.perCoin', { price: pricePerCoin.toFixed(2) })}
-                                </p>
-                              )}
-                            </div>
+                      {/* Бейдж ХИТ - вылезает за границы */}
+                      {isBestValue && (
+                        <div className="absolute -top-3 -right-3 z-20">
+                          <Badge className="bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 text-slate-900 border-0 shadow-xl shadow-yellow-500/50 text-xs font-black px-3 py-1 rounded-full rotate-12">
+                            🔥 ХИТ
+                          </Badge>
                         </div>
-
-                          <div className="flex flex-col gap-3">
-                            <div className="flex items-center text-xs text-muted-foreground gap-2">
-                              <div className="h-px flex-1 bg-border" />
-                              <span className="text-center">{helperText}</span>
-                              <div className="h-px flex-1 bg-border" />
+                      )}
+                      
+                      {/* Вертикальная структура карточки */}
+                      <div className="flex flex-col items-center gap-4">
+                        {/* Большая 3D иконка монет - занимает 50% карточки */}
+                        <div className={`relative ${isBestValue ? 'w-28 h-28' : 'w-24 h-24'} rounded-2xl flex items-center justify-center overflow-hidden ${
+                          isBestValue
+                            ? 'bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 shadow-2xl shadow-yellow-500/50'
+                            : isHighlighted
+                              ? 'bg-gradient-to-br from-yellow-400/80 via-amber-500/80 to-orange-500/80 shadow-xl shadow-yellow-500/30'
+                              : 'bg-gradient-to-br from-yellow-500/30 via-amber-500/40 to-orange-500/30 border border-yellow-500/40'
+                        }`}>
+                          {/* Эффект свечения */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/30 via-transparent to-orange-500/30 blur-xl" />
+                          {/* Основная иконка */}
+                          <Coins className={`relative ${isBestValue ? 'w-14 h-14' : 'w-12 h-12'} ${
+                            isBestValue || isHighlighted 
+                              ? 'text-slate-900 drop-shadow-2xl' 
+                              : 'text-yellow-400 drop-shadow-lg'
+                          }`} />
+                          {/* Дополнительные монеты для эффекта "кучи" */}
+                          {!isBestValue && !isHighlighted && (
+                            <>
+                              <Coins className="absolute w-6 h-6 text-yellow-500/50 -top-2 -right-2 rotate-12" />
+                              <Coins className="absolute w-5 h-5 text-amber-500/40 -bottom-2 -left-2 -rotate-12" />
+                            </>
+                          )}
+                        </div>
+                        
+                        {/* Огромная цифра количества монет */}
+                        <div className="text-center">
+                          <p className={`${isBestValue ? 'text-6xl md:text-7xl' : 'text-5xl md:text-6xl'} font-black bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 bg-clip-text text-transparent leading-none`}>
+                            {pack.amount}
+                          </p>
+                          <p className="text-xs font-semibold text-muted-foreground mt-1 uppercase tracking-wider">
+                            {t('boostShop.coins.monets', { defaultValue: 'монет' })}
+                          </p>
+                          {pack.bonus > 0 && (
+                            <div className="flex items-center justify-center gap-1 text-sm font-bold mt-2 text-emerald-400">
+                              <Sparkles className="w-4 h-4" />
+                              +{pack.bonus}
                             </div>
-                            
-                            {/* Главная кнопка покупки */}
-                            <div className="flex flex-col gap-2">
-                              {/* Telegram Stars (приоритетный метод в Telegram) */}
-                              {showStarsPayment && (
-                                <StarsPaymentButton
-                                  packageKey={pack.packageKey}
-                                  priceCoins={pack.priceCoins}
-                                  onSuccess={() => {
-                                    loadData();
+                          )}
+                        </div>
+                        
+                        {/* Компактная кнопка с ценой */}
+                        <div className="w-full flex flex-col gap-2">
+                          {/* Telegram Stars */}
+                          {showStarsPayment && (
+                            <StarsPaymentButton
+                              packageKey={pack.packageKey}
+                              priceCoins={pack.priceCoins}
+                              onSuccess={() => {
+                                loadData();
+                                toast({
+                                  title: t('boostShop.coins.successTitle'),
+                                  description: t('boostShop.coins.successDescription', { amount: pack.amount }),
+                                  duration: 5000,
+                                });
+                                setShowConfetti(true);
+                                setTimeout(() => setShowConfetti(false), 3000);
+                              }}
+                              variant="default"
+                              size="default"
+                              className={`w-full h-11 font-bold text-sm ${
+                                isBestValue
+                                  ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110 shadow-lg shadow-yellow-500/50'
+                                  : isHighlighted
+                                    ? 'bg-gradient-to-r from-yellow-400/90 to-orange-500/90 text-slate-900 hover:brightness-110'
+                                    : 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/30'
+                              } transition-all duration-200 hover:scale-[1.02]`}
+                            />
+                          )}
+                          
+                          {/* Paddle */}
+                          {!showStarsPayment && showPaddlePayment && (
+                            <Button
+                              size="default"
+                              aria-label={t('boostShop.coins.buyPackAria', { amount: pack.amount })}
+                              onClick={() => handleCoinPurchase(pack.catalogKey)}
+                              className={`w-full h-11 font-bold text-sm ${
+                                isBestValue
+                                  ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110 shadow-lg shadow-yellow-500/50'
+                                  : 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/30'
+                              } border-0 transition-all duration-200 hover:scale-[1.02]`}
+                              disabled={!profileId || purchaseLoading === pack.catalogKey || paddleLoading}
+                            >
+                              {purchaseLoading === pack.catalogKey ? (
+                                <div className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />
+                              ) : (
+                                pack.price
+                              )}
+                            </Button>
+                          )}
+                          
+                          {/* Крипто опция */}
+                          {showCryptomusPayment && (
+                            <button
+                              onClick={async () => {
+                                if (!profileId) {
+                                  toast({
+                                    title: t('boostShop.toasts.errorTitle'),
+                                    description: t('boostShop.toasts.needLogin'),
+                                    variant: 'destructive',
+                                  });
+                                  return;
+                                }
+                                
+                                try {
+                                  const { data, error } = await supabaseClient.functions.invoke("cryptomus-payment", {
+                                    body: { user_id: profileId, catalog_key: pack.catalogKey },
+                                  });
+                                  
+                                  if (error) {
+                                    console.error("[BoostShop] Cryptomus error:", error);
                                     toast({
-                                      title: t('boostShop.coins.successTitle'),
-                                      description: t('boostShop.coins.successDescription', { amount: pack.amount }),
-                                      duration: 5000,
+                                      title: t('boostShop.toasts.errorTitle'),
+                                      description: error.message || t('boostShop.toasts.purchaseErrorDescription'),
+                                      variant: 'destructive',
                                     });
-                                    setShowConfetti(true);
-                                    setTimeout(() => setShowConfetti(false), 3000);
-                                  }}
-                                  variant="default"
-                                  size="default"
-                                  className={`w-full h-12 font-semibold text-base ${
-                                    isHighlighted 
-                                      ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' 
-                                      : 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50'
-                                  } transition-all duration-200 hover:scale-[1.01] ${
-                                    isBestValue ? 'ring-2 ring-violet-400/50' : ''
-                                  }`}
-                                />
-                              )}
-                              
-                              {/* Paddle (основной метод для web) - главная кнопка */}
-                              {!showStarsPayment && showPaddlePayment && (
-                                <Button
-                                  size="lg"
-                                  aria-label={t('boostShop.coins.buyPackAria', { amount: pack.amount })}
-                                  onClick={() => handleCoinPurchase(pack.catalogKey)}
-                                  className={`w-full h-12 font-semibold text-base bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0 shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 transition-all duration-200 hover:scale-[1.01] ${
-                                    isBestValue ? 'ring-2 ring-violet-400/50' : ''
-                                  }`}
-                                  disabled={!profileId || purchaseLoading === pack.catalogKey || paddleLoading}
-                                >
-                                  {purchaseLoading === pack.catalogKey ? (
-                                    <>
-                                      <div className="w-5 h-5 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                      {t('boostShop.coins.loading', { defaultValue: 'Загрузка...' })}
-                                    </>
-                                  ) : (
-                                    <>
-                                      <ShoppingBag className="w-5 h-5 mr-2" />
-                                      Купить за {pack.price}
-                                    </>
-                                  )}
-                                </Button>
-                              )}
-                              
-                              {/* Крипто как опция (маленькая ссылка) */}
-                              {showCryptomusPayment && (
-                                <button
-                                  onClick={async () => {
-                                    if (!profileId) {
-                                      toast({
-                                        title: t('boostShop.toasts.errorTitle'),
-                                        description: t('boostShop.toasts.needLogin'),
-                                        variant: 'destructive',
-                                      });
-                                      return;
-                                    }
+                                    return;
+                                  }
+                                  
+                                  if (data?.error) {
+                                    toast({
+                                      title: t('boostShop.toasts.errorTitle'),
+                                      description: data.error || t('boostShop.toasts.purchaseErrorDescription'),
+                                      variant: 'destructive',
+                                    });
+                                    return;
+                                  }
+                                  
+                                  if (data?.url && data?.orderId) {
+                                    const amount = pack.priceValue || 0;
                                     
-                                    try {
-                                      const { data, error } = await supabaseClient.functions.invoke("cryptomus-payment", {
-                                        body: { user_id: profileId, catalog_key: pack.catalogKey },
-                                      });
-                                      
-                                      if (error) {
-                                        console.error("[BoostShop] Cryptomus error:", error);
-                                        toast({
-                                          title: t('boostShop.toasts.errorTitle'),
-                                          description: error.message || t('boostShop.toasts.purchaseErrorDescription'),
-                                          variant: 'destructive',
-                                        });
-                                        return;
-                                      }
-                                      
-                                      if (data?.error) {
-                                        toast({
-                                          title: t('boostShop.toasts.errorTitle'),
-                                          description: data.error || t('boostShop.toasts.purchaseErrorDescription'),
-                                          variant: 'destructive',
-                                        });
-                                        return;
-                                      }
-                                      
-                                      if (data?.url && data?.orderId) {
-                                        const amount = pack.priceValue || 0;
-                                        
-                                        setCryptomusPreview({
-                                          open: true,
-                                          paymentUrl: data.url,
-                                          orderId: data.orderId,
-                                          amount: amount,
-                                          currency: 'EUR',
-                                          itemName: `${pack.amount} монет`,
-                                        });
-                                      } else {
-                                        toast({
-                                          title: t('boostShop.toasts.errorTitle'),
-                                          description: t('boostShop.toasts.sessionError'),
-                                          variant: 'destructive',
-                                        });
-                                      }
-                                    } catch (err: any) {
-                                      console.error("[BoostShop] Cryptomus error:", err);
-                                      toast({
-                                        title: t('boostShop.toasts.errorTitle'),
-                                        description: err?.message || t('boostShop.toasts.purchaseErrorDescription'),
-                                        variant: 'destructive',
-                                      });
-                                    }
-                                  }}
-                                  className="text-xs text-muted-foreground hover:text-violet-400 transition-colors text-center py-1"
-                                  disabled={!profileId}
-                                >
-                                  или оплатить криптовалютой
-                                </button>
-                              )}
-                            </div>
-                            
-                            {/* Сообщение если нет доступных методов */}
-                            {!showStarsPayment && !showCryptomusPayment && !showPaddlePayment && (
-                              <div className="text-sm text-muted-foreground text-center py-2 w-full">
-                                Используйте Telegram Mini App для оплаты через Stars
-                              </div>
-                            )}
-                          </div>
+                                    setCryptomusPreview({
+                                      open: true,
+                                      paymentUrl: data.url,
+                                      orderId: data.orderId,
+                                      amount: amount,
+                                      currency: 'EUR',
+                                      itemName: `${pack.amount} монет`,
+                                    });
+                                  } else {
+                                    toast({
+                                      title: t('boostShop.toasts.errorTitle'),
+                                      description: t('boostShop.toasts.sessionError'),
+                                      variant: 'destructive',
+                                    });
+                                  }
+                                } catch (err: any) {
+                                  console.error("[BoostShop] Cryptomus error:", err);
+                                  toast({
+                                    title: t('boostShop.toasts.errorTitle'),
+                                    description: err?.message || t('boostShop.toasts.purchaseErrorDescription'),
+                                    variant: 'destructive',
+                                  });
+                                }
+                              }}
+                              className="text-[10px] text-muted-foreground hover:text-violet-400 transition-colors text-center py-1"
+                              disabled={!profileId}
+                            >
+                              или крипто
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </Card>
                     );
                   })}
                 </div>
 
-                <div className="text-center text-xs text-muted-foreground pt-2">
-                  <p>{t('boostShop.coins.premiumHint')}</p>
-                </div>
               </div>
             </TabsContent>
 
@@ -1957,9 +1902,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       <ResponsiveModal
         open={open}
         onOpenChange={onOpenChange}
-        title={t('boostShop.title')}
         className="max-w-5xl"
         contentClassName="scrollbar-none"
+        hideCloseButton={false}
       >
         {loading ? (
           <div className="flex items-center justify-center py-12">
