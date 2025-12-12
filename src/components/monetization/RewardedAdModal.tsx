@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRewardedAd, RewardType } from '@/hooks/useRewardedAd';
 import { UnifiedModal } from '@/components/ui/unified-modal';
 import { Button } from '@/components/ui/button';
-import { Loader2, Video, Coins, Calendar, AlertCircle, Sparkles } from 'lucide-react';
+import { Loader2, Video, Coins, Calendar, AlertCircle, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 
@@ -48,14 +48,27 @@ export function RewardedAdModal({
     return (
       <UnifiedModal open={open} onOpenChange={onOpenChange} title="Premium статус">
         <div className="space-y-4">
-          <Alert>
-            <Sparkles className="h-4 w-4" />
-            <AlertDescription>
-              У тебя Premium подписка! Ты получаешь все награды без просмотра рекламы.
-            </AlertDescription>
-          </Alert>
+          <div className="bg-zinc-900/50 border border-white/10 rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
+                <Sparkles className="w-4 h-4 text-indigo-400" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-zinc-200 font-medium mb-1">Premium подписка активна</p>
+                <p className="text-xs text-zinc-400">
+                  У тебя Premium подписка! Ты получаешь все награды без просмотра рекламы.
+                </p>
+              </div>
+            </div>
+          </div>
           <div className="flex gap-2 justify-end">
-            <Button onClick={() => onOpenChange(false)}>Понятно</Button>
+            <Button 
+              variant="primary"
+              onClick={() => onOpenChange(false)}
+              className="w-full sm:w-auto"
+            >
+              Понятно
+            </Button>
           </div>
         </div>
       </UnifiedModal>
@@ -68,29 +81,29 @@ export function RewardedAdModal({
         return {
           icon: Coins,
           defaultTitle: `Получить ${rewardAmount} монет`,
-          defaultDescription: 'Посмотри короткое видео и получи монеты!',
+          defaultDescription: 'Посмотри короткое видео и получи монеты',
           rewardText: `+${rewardAmount} монет`,
         };
       case 'restore_streak':
         return {
           icon: Calendar,
           defaultTitle: 'Восстановить серию',
-          defaultDescription: 'Посмотри видео и восстанови свою серию ежедневных бонусов!',
-          rewardText: 'Серию восстановлено!',
+          defaultDescription: 'Посмотри видео и восстанови свою серию ежедневных бонусов',
+          rewardText: 'Серию восстановлено',
         };
       case 'test_attempt':
         return {
           icon: Video,
           defaultTitle: 'Дополнительная попытка',
-          defaultDescription: 'Посмотри видео и получи дополнительную попытку прохождения теста!',
-          rewardText: 'Попытка восстановлена!',
+          defaultDescription: 'Посмотри видео и получи дополнительную попытку прохождения теста',
+          rewardText: 'Попытка восстановлена',
         };
       default:
         return {
           icon: Video,
           defaultTitle: 'Получить награду',
-          defaultDescription: 'Посмотри короткое видео и получи награду!',
-          rewardText: 'Награда получена!',
+          defaultDescription: 'Посмотри короткое видео и получи награду',
+          rewardText: 'Награда получена',
         };
     }
   };
@@ -127,20 +140,21 @@ export function RewardedAdModal({
       onOpenChange={onOpenChange}
       title={title || rewardInfo.defaultTitle}
     >
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Состояние: Ожидание просмотра */}
         {!showReward && (
           <>
-            <div className="flex flex-col items-center justify-center space-y-4 py-4">
+            <div className="flex flex-col items-center justify-center space-y-3 py-4">
+              {/* Иконка награды */}
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-violet-500/20 blur-2xl rounded-full animate-pulse" />
-                <div className="relative bg-gradient-to-br from-indigo-500/10 to-violet-500/10 border border-indigo-500/20 rounded-2xl p-8">
-                  <RewardIcon className="w-16 h-16 text-indigo-400" />
+                <div className="p-4 rounded-xl bg-zinc-900/50 border border-white/10">
+                  <RewardIcon className="w-8 h-8 text-indigo-400" />
                 </div>
               </div>
               
-              <div className="text-center space-y-2">
-                <p className="text-sm text-zinc-400">
+              {/* Описание */}
+              <div className="text-center space-y-1">
+                <p className="text-sm text-zinc-300">
                   {description || rewardInfo.defaultDescription}
                 </p>
                 <p className="text-xs text-zinc-500">
@@ -149,34 +163,40 @@ export function RewardedAdModal({
               </div>
             </div>
 
+            {/* Ошибка */}
             {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
+              <div className="bg-zinc-900/50 border border-red-500/20 rounded-xl p-3">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-red-400">{error}</p>
+                </div>
+              </div>
             )}
 
-            <div className="flex gap-2 justify-end">
+            {/* Кнопки */}
+            <div className="flex gap-2">
               <Button
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 disabled={loading}
+                className="flex-1 sm:flex-initial"
               >
                 Отмена
               </Button>
               <Button
+                variant="primary"
                 onClick={handleShowAd}
                 disabled={loading}
-                className="bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600"
+                className="flex-1 sm:flex-initial"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                     Загрузка...
                   </>
                 ) : (
                   <>
-                    <Video className="w-4 h-4 mr-2" />
+                    <Video className="w-4 h-4" />
                     Смотреть видео
                   </>
                 )}
@@ -187,20 +207,21 @@ export function RewardedAdModal({
 
         {/* Состояние: Награда получена */}
         {showReward && (
-          <div className="flex flex-col items-center justify-center space-y-4 py-8">
+          <div className="flex flex-col items-center justify-center space-y-3 py-6">
+            {/* Иконка успеха */}
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 to-green-500/30 blur-2xl rounded-full animate-ping" />
-              <div className="relative bg-gradient-to-br from-emerald-500/20 to-green-500/20 border border-emerald-500/30 rounded-2xl p-8">
-                <Sparkles className="w-16 h-16 text-emerald-400 animate-pulse" />
+              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                <CheckCircle2 className="w-8 h-8 text-emerald-400" />
               </div>
             </div>
             
-            <div className="text-center space-y-2">
-              <p className="text-2xl font-bold text-emerald-400">
+            {/* Текст награды */}
+            <div className="text-center space-y-1">
+              <p className="text-lg font-semibold text-emerald-400">
                 {rewardInfo.rewardText}
               </p>
-              <p className="text-sm text-zinc-400">
-                Награда начислена!
+              <p className="text-xs text-zinc-400">
+                Награда начислена
               </p>
             </div>
           </div>

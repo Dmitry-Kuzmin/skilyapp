@@ -73,30 +73,52 @@ serve(async (req) => {
       user_id = profile.id;
     } else {
       // Поддержка POST запросов (от клиентского приложения)
-      const supabaseClientWithAuth = createClient(
-        supabaseUrl,
-        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-        {
-          global: {
-            headers: { Authorization: req.headers.get('Authorization')! },
-          },
+      const body: RewardRequest = await req.json();
+      
+      // Если user_id передан напрямую в body (для Telegram пользователей)
+      if (body.user_id) {
+        // Проверяем, что профиль существует
+        const { data: profile, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('id')
+          .eq('id', body.user_id)
+          .single();
+
+        if (profileError || !profile) {
+          console.error('[ad-reward] Profile not found for user_id:', body.user_id, profileError);
+          return new Response(
+            JSON.stringify({ success: false, error: 'User not found' }),
+            { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
-      );
 
-      const {
-        data: { user },
-      } = await supabaseClientWithAuth.auth.getUser();
-
-      if (!user) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'Unauthorized' }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        user_id = body.user_id;
+      } else {
+        // Пытаемся получить пользователя через авторизацию (для веб-пользователей)
+        const supabaseClientWithAuth = createClient(
+          supabaseUrl,
+          Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+          {
+            global: {
+              headers: { Authorization: req.headers.get('Authorization')! },
+            },
+          }
         );
+
+        const {
+          data: { user },
+        } = await supabaseClientWithAuth.auth.getUser();
+
+        if (!user) {
+          return new Response(
+            JSON.stringify({ success: false, error: 'Unauthorized. user_id is required in request body.' }),
+            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        user_id = user.id;
       }
 
-      user_id = user.id;
-
-      const body: RewardRequest = await req.json();
       reward_type = body.reward_type || 'coins';
       amount = body.amount || 20;
       ad_unit_id = body.ad_unit_id;
