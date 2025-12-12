@@ -769,13 +769,19 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         
         try {
           // Overlay - открывается попап прямо на сайте (рекомендуется)
+          // ВАЖНО: Paddle имеет ограниченную кастомизацию через SDK
+          // Для полной кастомизации (логотип, цвета) используйте Paddle Dashboard:
+          // Settings → Branding → Checkout appearance
           paddleInstance.Checkout.open({
             transactionId: data.transaction_id,
             settings: {
               displayMode: "overlay", // Попап на сайте - современный UX
               successUrl: `${window.location.origin}/purchase/success?transaction_id={transaction_id}`,
-              theme: "dark", // Темная тема под ваш дизайн
+              theme: "dark", // Темная тема под ваш дизайн (light/dark)
               locale: language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en', // Локализация
+              // Дополнительные опции (если нужен inline mode):
+              // frameInitialHeight: 500, // Для inline mode - высота iframe
+              // frameTarget: 'paddle-checkout-container', // Для inline mode - ID контейнера
             },
           });
           // После успешного открытия overlay - сбрасываем loading (форма открыта)
