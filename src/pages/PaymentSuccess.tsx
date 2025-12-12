@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,9 +16,18 @@ export default function PaymentSuccess() {
   const [processing, setProcessing] = useState(true);
   const [coinsAdded, setCoinsAdded] = useState<number | null>(null);
   const isPopup = window.opener !== null;
+  const processedRef = useRef(false); // Защита от множественных вызовов
 
   useEffect(() => {
+    // Защита от множественных вызовов (React StrictMode вызывает эффекты дважды)
+    if (processedRef.current) {
+      console.log('[PaymentSuccess] Already processed, skipping...');
+      return;
+    }
+
     const processPayment = async () => {
+      // Помечаем как обработанное сразу, чтобы предотвратить повторные вызовы
+      processedRef.current = true;
       try {
         // Получаем параметры из URL
         let sessionId = searchParams.get('session_id'); // Stripe
@@ -96,9 +105,7 @@ export default function PaymentSuccess() {
           // Если нет ID платежа, возможно пользователь просто вернулся без оплаты
           // Перенаправляем на страницу отмены
           console.log('[PaymentSuccess] No payment ID found - redirecting to cancel');
-          toast.warning('Платеж не был завершен', {
-            description: 'Вы вернулись со страницы оплаты, но платеж не был завершен.',
-          });
+          // Убираем toast здесь - он будет показан на странице /cancel
           navigate('/cancel');
           return;
         }
@@ -176,9 +183,7 @@ export default function PaymentSuccess() {
         // Если покупка в статусе pending - платеж не был завершен, перенаправляем на cancel
         if (purchase?.status === 'pending') {
           console.warn('[PaymentSuccess] ⚠️ Purchase is still pending - payment was not completed');
-          toast.warning('Платеж не был завершен', {
-            description: 'Вы вернулись со страницы оплаты, но платеж не был завершен.',
-          });
+          // Убираем toast здесь - он будет показан на странице /cancel (чтобы избежать дублирования)
           // Перенаправляем на страницу отмены
           navigate('/cancel');
           return;
