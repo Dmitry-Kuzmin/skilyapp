@@ -7,7 +7,7 @@ import { AiStudioLanding } from "@/components/landing/AiStudioLanding";
 // Это критично для уменьшения initial bundle - Radix UI не должен грузиться на лендинге
 const PartnerInviteBanner = lazy(() => import("@/components/landing/PartnerInviteBanner").then(m => ({ default: m.PartnerInviteBanner })));
 // ОПТИМИЗАЦИЯ: Легкая проверка авторизации БЕЗ Supabase (через localStorage)
-import { checkAuthFromStorage, checkTelegramAuth } from "@/utils/authCheck";
+import { checkTelegramAuth } from "@/utils/authCheck";
 // ОПТИМИЗАЦИЯ: Убираем статический импорт Supabase - используем сервисные функции с динамическим импортом
 import { loadReferralInfo, loadPartnerInfo, type ReferrerInfo, type PartnerInfo } from "@/services/referralService";
 import { isTelegramMiniApp, hasTelegramWebApp } from "@/lib/telegram";
@@ -41,14 +41,15 @@ const Landing = () => {
         webAppDetected = true;
       }
 
-      // А. Проверяем, есть ли уже авторизованный пользователь (в localStorage или в WebApp)
+      // А. Проверяем, есть ли уже авторизованный пользователь в Telegram WebApp
       const telegramUser = initTelegram();
       const hasAuth = checkTelegramAuth();
-      const hasStoredAuth = checkAuthFromStorage();
       
-      // Если есть пользователь или авторизация -> редирект
-      if ((telegramUser && telegramUser.id !== 123456789 && telegramUser.username !== 'test_user') || hasAuth || hasStoredAuth) {
-        console.log('[Landing] Telegram user/auth detected, redirecting to dashboard:', telegramUser?.first_name || 'via stored auth');
+      // КРИТИЧНО: НЕ проверяем hasStoredAuth - это может создать бесконечный цикл
+      // Index (dashboard) сам проверит реальную авторизацию из Supabase
+      // Если есть реальный Telegram user или initData -> редирект
+      if ((telegramUser && telegramUser.id !== 123456789 && telegramUser.username !== 'test_user') || hasAuth) {
+        console.log('[Landing] Telegram user/auth detected, redirecting to dashboard:', telegramUser?.first_name || 'via initData');
         navigate('/dashboard', { replace: true });
         return;
       }

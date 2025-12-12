@@ -42,6 +42,9 @@ import Landing from "./pages/Landing";
 // AuthCallback - страница для обработки OAuth callback
 // Должна быть доступна без AppProviders, так как обрабатывает сессию сама
 import { AuthCallback } from "./pages/AuthCallback";
+// Purchase - страница для обработки Paddle checkout
+// Должна быть доступна без AppProviders, так как Paddle редиректит туда до оплаты
+const Purchase = lazy(() => import("./pages/Purchase").then(m => ({ default: m.default })));
 
 // Обработка ошибок для lazy loading Index (dashboard)
 const IndexErrorFallback = () => {
@@ -393,6 +396,12 @@ const App = () => {
             <Route path="/" element={<LandingRedirect />} />
             {/* OAuth callback - обрабатывает сессию сам, не требует AppProviders */}
             <Route path="/auth/callback" element={<AuthCallback />} />
+            {/* Paddle purchase - обрабатывает редирект от Paddle, не требует AppProviders */}
+            <Route path="/purchase" element={
+              <Suspense fallback={<LightFallback />}>
+                <Purchase />
+              </Suspense>
+            } />
             {/* Все остальные роуты - внутри AppProviders (с Supabase/Query) */}
             {/* ОПТИМИЗАЦИЯ: AppProviders lazy - НЕ попадает в initial bundle для лендинга */}
             {/* Это критично для производительности - Supabase/Query грузятся только для /app/* */}

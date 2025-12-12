@@ -92,6 +92,7 @@ const Inventory = lazy(() => import("../pages/Inventory"));
 const Settings = lazy(() => import("../pages/Settings"));
 const PaymentSuccess = lazy(() => import("../pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("../pages/PaymentCancel"));
+// Purchase обрабатывается в App.tsx (без AppProviders)
 const InviteLanding = lazy(() => import("../pages/InviteLanding"));
 
 export function AppRoutes() {
@@ -158,6 +159,9 @@ export function AppRoutes() {
         <Route path="/duel-leaderboard" element={<DuelLeaderboard />} />
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/settings" element={<Settings />} />
+        {/* /purchase обрабатывается в App.tsx (без AppProviders) */}
+        <Route path="/purchase/success" element={<PaymentSuccess />} />
+        <Route path="/purchase/cancel" element={<PaymentCancel />} />
         <Route path="/success" element={<PaymentSuccess />} />
         <Route path="/cancel" element={<PaymentCancel />} />
         <Route path="/invite/:code" element={<InviteLanding />} />

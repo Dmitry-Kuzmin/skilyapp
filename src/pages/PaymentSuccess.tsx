@@ -23,18 +23,20 @@ export default function PaymentSuccess() {
         // Получаем параметры из URL
         let sessionId = searchParams.get('session_id'); // Stripe
         let orderId = searchParams.get('order_id'); // Cryptomus
+        let paddleTransactionId = searchParams.get('transaction_id'); // Paddle
         
         console.log('[PaymentSuccess] Page loaded:', {
           sessionId,
           orderId,
+          paddleTransactionId,
           profileId,
           url: window.location.href,
           searchParams: Object.fromEntries(searchParams.entries())
         });
         
         // Если session_id нет в URL, пытаемся найти альтернативными способами
-        if (!sessionId && !orderId) {
-          console.warn('[PaymentSuccess] ⚠️ No session_id or order_id in URL, trying alternatives...');
+        if (!sessionId && !orderId && !paddleTransactionId) {
+          console.warn('[PaymentSuccess] ⚠️ No session_id, order_id or transaction_id in URL, trying alternatives...');
           
           // Способ 1: Проверяем sessionStorage (приоритет для Telegram) и localStorage (fallback)
           const storedSessionId = sessionStorage.getItem('stripe_checkout_session_id') 
@@ -47,14 +49,23 @@ export default function PaymentSuccess() {
             localStorage.removeItem('stripe_checkout_session_id');
           }
           
+          const storedPaddleTransactionId = sessionStorage.getItem('paddle_transaction_id') 
+            || localStorage.getItem('paddle_transaction_id');
+          if (storedPaddleTransactionId) {
+            console.log('[PaymentSuccess] Found paddle_transaction_id in storage:', storedPaddleTransactionId);
+            paddleTransactionId = storedPaddleTransactionId;
+            sessionStorage.removeItem('paddle_transaction_id');
+            localStorage.removeItem('paddle_transaction_id');
+          }
+          
           // Способ 2: Если есть profileId, ищем последнюю pending покупку за последние 10 минут
-          if (!sessionId && !orderId && profileId) {
+          if (!sessionId && !orderId && !paddleTransactionId && profileId) {
             console.log('[PaymentSuccess] Searching for recent pending purchase...');
             const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
             
             const { data: recentPurchases } = await supabase
               .from('purchases')
-              .select('stripe_session_id, cryptomus_order_id, created_at, status')
+              .select('stripe_session_id, cryptomus_order_id, paddle_transaction_id, created_at, status')
               .eq('user_id', profileId)
               .in('status', ['pending', 'completed'])
               .gte('created_at', tenMinutesAgo)
@@ -69,6 +80,9 @@ export default function PaymentSuccess() {
               if (recentPurchase.stripe_session_id) {
                 sessionId = recentPurchase.stripe_session_id;
                 console.log('[PaymentSuccess] Using pending purchase session_id:', sessionId);
+              } else if (recentPurchase.paddle_transaction_id) {
+                paddleTransactionId = recentPurchase.paddle_transaction_id;
+                console.log('[PaymentSuccess] Using pending purchase paddle_transaction_id:', paddleTransactionId);
               } else if (recentPurchase.cryptomus_order_id) {
                 orderId = recentPurchase.cryptomus_order_id;
                 console.log('[PaymentSuccess] Using pending purchase order_id:', orderId);
@@ -77,8 +91,8 @@ export default function PaymentSuccess() {
           }
         }
         
-        if (!sessionId && !orderId) {
-          console.error('[PaymentSuccess] ❌ No session_id or order_id found');
+        if (!sessionId && !orderId && !paddleTransactionId) {
+          console.error('[PaymentSuccess] ❌ No session_id, order_id or transaction_id found');
           // Если нет ID платежа, возможно пользователь просто вернулся без оплаты
           // Перенаправляем на страницу отмены
           console.log('[PaymentSuccess] No payment ID found - redirecting to cancel');
@@ -111,6 +125,15 @@ export default function PaymentSuccess() {
           .select('*')
           .eq('stripe_session_id', sessionId)
           .single();
+          purchase = result.data;
+          purchaseError = result.error;
+        } else if (paddleTransactionId) {
+          // Paddle платеж
+          const result = await supabase
+            .from('purchases')
+            .select('*')
+            .eq('paddle_transaction_id', paddleTransactionId)
+            .single();
           purchase = result.data;
           purchaseError = result.error;
         } else if (orderId) {
@@ -193,10 +216,14 @@ export default function PaymentSuccess() {
             // Проверяем транзакцию (Stripe или Cryptomus)
             const transactionType = purchase.stripe_session_id 
               ? 'coins_purchase_stripe' 
-              : 'coins_purchase_cryptomus';
+              : purchase.paddle_transaction_id
+                ? 'coins_purchase_paddle'
+                : 'coins_purchase_cryptomus';
             const transactionKey = purchase.stripe_session_id 
               ? { 'metadata->>session_id': sessionId }
-              : { 'metadata->>order_id': orderId };
+              : purchase.paddle_transaction_id
+                ? { 'metadata->>transaction_id': paddleTransactionId }
+                : { 'metadata->>order_id': orderId };
             
             const { data: transaction } = await supabase
               .from('transactions')
@@ -249,6 +276,16 @@ export default function PaymentSuccess() {
               window.close();
             }, 2000);
           }
+          return;
+        }
+
+        // Paddle: ждем webhook, если еще не обработан
+        if (paddleTransactionId) {
+          console.log('[PaymentSuccess] Paddle transaction pending webhook, showing waiting state');
+          toast.info('Оплата обрабатывается', {
+            description: 'Мы получили платеж, обновим статус в течение нескольких секунд.',
+          });
+          setProcessing(false);
           return;
         }
 

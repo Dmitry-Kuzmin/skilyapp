@@ -16,16 +16,15 @@ type CatalogEntry = {
   metadata?: Record<string, unknown>;
 };
 
-// Маппинг catalog_key -> Paddle Price ID
-// Замените на реальные Price IDs после создания продуктов в Paddle
+// Маппинг catalog_key -> Paddle Price ID (Live)
 const PADDLE_PRICE_IDS: Record<string, string> = {
-  premium_monthly: 'pro_01kbb8kmj4vmy7qz3ae3k49gs1', // Заменить на реальный Price ID
-  premium_yearly: 'pri_xxxxxxxxxxxxx', // Заменить на реальный Price ID
-  duel_pass_season: 'pri_xxxxxxxxxxxxx', // Заменить на реальный Price ID
-  coins_pack_100: 'pri_xxxxxxxxxxxxx', // Заменить на реальный Price ID
-  coins_pack_500: 'pri_xxxxxxxxxxxxx', // Заменить на реальный Price ID
-  coins_pack_1200: 'pri_xxxxxxxxxxxxx', // Заменить на реальный Price ID
-  coins_pack_3000: 'pri_xxxxxxxxxxxxx', // Заменить на реальный Price ID
+  premium_monthly: 'pri_01kbbcfnxmtpn1yttmafj86vbc', // Premium Monthly (€9.99/месяц)
+  premium_yearly: 'pri_01kc92macq42tk8e8pbp46qp2y', // Premium Yearly (€59.99/год)
+  duel_pass_season: 'pri_01kc92sf64bd1dps62zhaeb1r5', // Duel Pass (€4.99)
+  coins_pack_100: 'pri_01kc92twnhc57syz7j0rs9z7vx', // 100 Coins (€2.99)
+  coins_pack_500: 'pri_01kc92q7jccd8f7m05c81cgce4', // 500 Coins (€9.99)
+  coins_pack_1200: 'pri_01kc92wq23nez03n9n5da92khz', // 1200 Coins (€19.99)
+  coins_pack_3000: 'pri_01kc92ygzjxz2bmztasvj37ygt', // 3000 Coins (€39.99)
 };
 
 const CATALOG: Record<string, CatalogEntry> = {
@@ -101,8 +100,10 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const paddleApiKey = Deno.env.get("PADDLE_API_KEY");
     const paddleVendorId = Deno.env.get("PADDLE_VENDOR_ID");
-    const successUrl = Deno.env.get("PADDLE_SUCCESS_URL") || `${supabaseUrl.replace('/functions/v1', '')}/purchase/success`;
-    const cancelUrl = Deno.env.get("PADDLE_CANCEL_URL") || `${supabaseUrl.replace('/functions/v1', '')}/purchase/cancel`;
+    // Paddle редиректит на return_url после оплаты
+    // Используем реальный домен skilyapp.com (одобрен в Paddle)
+    const successUrl = Deno.env.get("PADDLE_SUCCESS_URL") || "https://skilyapp.com/purchase/success";
+    const cancelUrl = Deno.env.get("PADDLE_CANCEL_URL") || "https://skilyapp.com/purchase/cancel";
 
     if (!paddleApiKey || !paddleVendorId) {
       console.error("[paddle-payment] Missing Paddle configuration");
@@ -147,7 +148,15 @@ serve(async (req) => {
       );
     }
 
-    console.log("[paddle-payment] Processing purchase:", { user_id, catalog_key });
+    console.log("[paddle-payment] Processing purchase:", { 
+      user_id, 
+      catalog_key,
+      paddleApiKey: paddleApiKey ? `${paddleApiKey.substring(0, 10)}...` : 'MISSING',
+      paddleVendorId: paddleVendorId || 'MISSING',
+      priceId: PADDLE_PRICE_IDS[catalog_key] || 'NOT_FOUND',
+      successUrl,
+      cancelUrl
+    });
 
     const entry = CATALOG[catalog_key];
     if (!entry) {
@@ -206,7 +215,9 @@ serve(async (req) => {
               quantity: 1,
             }
           ],
-          customer_id: user_id.toString(),
+          // КРИТИЧНО: Не передаем customer_id - Paddle создаст customer автоматически
+          // customer_id должен быть в формате Paddle (ctm_...) или null
+          // Мы используем custom_data для связи транзакции с нашим пользователем
           custom_data: customData,
           return_url: `${successUrl}?transaction_id={transaction_id}`,
         }),
@@ -267,7 +278,9 @@ serve(async (req) => {
               quantity: 1,
             }
           ],
-          customer_id: user_id.toString(),
+          // КРИТИЧНО: Не передаем customer_id - Paddle создаст customer автоматически
+          // customer_id должен быть в формате Paddle (ctm_...) или null
+          // Мы используем custom_data для связи транзакции с нашим пользователем
           custom_data: customData,
           return_url: `${successUrl}?transaction_id={transaction_id}`,
         }),
@@ -314,11 +327,13 @@ serve(async (req) => {
   } catch (error) {
     console.error("[paddle-payment] error", error);
     const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
     
     return new Response(
       JSON.stringify({ 
         error: "Internal server error",
         message: errorMessage,
+        stack: errorStack,
       }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
