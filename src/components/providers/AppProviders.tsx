@@ -4,7 +4,7 @@
  * Не грузится для лендинга (/)
  */
 
-import { useMemo, ReactNode } from "react";
+import { useMemo, ReactNode, useEffect } from "react";
 import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@/lib/queryPersister";
@@ -17,12 +17,23 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReconnectHandler } from "@/components/ReconnectHandler";
+import { useAuthEventListener } from "@/hooks/useAuthEventListener";
+import { preloadPaddle } from "@/lib/paddle";
 
 interface AppProvidersProps {
   children: ReactNode;
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
+  // Слушаем Auth события для отправки уведомлений о критичных изменениях
+  useAuthEventListener();
+
+  // ОПТИМИЗАЦИЯ: Предзагружаем Paddle SDK при старте приложения
+  // Это ускоряет открытие формы оплаты (SDK уже готов, не нужно ждать инициализации)
+  useEffect(() => {
+    preloadPaddle();
+  }, []);
+
   // OFFLINE-FIRST: Создаем QueryClient с длительным кэшированием
   const queryClient = useMemo(() => {
     return new QueryClient({

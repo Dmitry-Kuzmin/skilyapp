@@ -24,7 +24,8 @@ import { dispatchUserEvent } from '@/lib/notification-events';
 import { PAYMENT_CONFIG, isPaymentMethodAvailable } from '@/lib/payment-config';
 import { useOfflineQueue } from '@/hooks/useOfflineQueue';
 import { trackOfflineAction } from '@/utils/offlineAnalytics';
-import { initializePaddle, type Paddle } from '@paddle/paddle-js';
+import { getPaddleInstance, getPaddleInstanceSync, preloadPaddle } from '@/lib/paddle';
+import type { Paddle } from '@paddle/paddle-js';
 
 const supabaseClient = supabase as any;
 
@@ -122,45 +123,33 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const [showHistory, setShowHistory] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [paddle, setPaddle] = useState<Paddle | null>(null);
+  const [paddleLoading, setPaddleLoading] = useState(false);
+  const [purchaseLoading, setPurchaseLoading] = useState<string | null>(null); // catalogKey покупки в процессе
 
-  // Инициализация Paddle SDK (один раз при монтировании компонента)
+  // Инициализация Paddle SDK через глобальную утилиту (предзагружается при старте приложения)
   useEffect(() => {
     if (!showPaddlePayment) return;
 
-    const initPaddle = async () => {
-      try {
-        // Получаем Client-side token из env (должен быть в .env как VITE_PADDLE_CLIENT_TOKEN)
-        const clientToken = import.meta.env.VITE_PADDLE_CLIENT_TOKEN;
-        
-        if (!clientToken) {
-          console.warn('[BoostShopModal] Paddle client token not found in env');
-          console.warn('[BoostShopModal] Please add VITE_PADDLE_CLIENT_TOKEN to your environment variables');
-          console.warn('[BoostShopModal] You can find it in Paddle Dashboard → Developer Tools → Authentication → Client-side tokens');
-          return;
-        }
+    // Пробуем получить уже инициализированный инстанс
+    const existingPaddle = getPaddleInstanceSync();
+    if (existingPaddle) {
+      setPaddle(existingPaddle);
+      return;
+    }
 
-        console.log('[BoostShopModal] Initializing Paddle SDK...', {
-          environment: import.meta.env.PROD ? 'production' : 'sandbox',
-          hasToken: !!clientToken,
-          tokenPrefix: clientToken?.substring(0, 15) + '...',
-          isTelegram: isTelegramMiniApp()
-        });
-
-        const paddleInstance = await initializePaddle({
-          environment: import.meta.env.PROD ? 'production' : 'sandbox',
-          token: clientToken,
-        });
-
-        setPaddle(paddleInstance);
-        console.log('[BoostShopModal] ✅ Paddle SDK initialized successfully');
-      } catch (error) {
-        console.error('[BoostShopModal] ❌ Failed to initialize Paddle SDK:', error);
-      }
-    };
-
-    // Инициализируем сразу, не ждем открытия модалки
-    initPaddle();
-  }, [showPaddlePayment]); // Убрали зависимость от `open` - инициализируем один раз
+    // Если не инициализирован - инициализируем (но это должно быть редко, т.к. предзагружается)
+    setPaddleLoading(true);
+    getPaddleInstance()
+      .then((instance) => {
+        setPaddle(instance);
+      })
+      .catch((error) => {
+        console.error('[BoostShopModal] Failed to get Paddle instance:', error);
+      })
+      .finally(() => {
+        setPaddleLoading(false);
+      });
+  }, [showPaddlePayment]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [filterCategory, setFilterCategory] = useState<'all' | 'earn' | 'spend' | 'purchase' | 'reward'>('all');
@@ -691,7 +680,24 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       return;
     }
 
+    // Предотвращаем двойные клики
+    if (purchaseLoading === catalogKey) {
+      return;
+    }
+
+    setPurchaseLoading(catalogKey);
+
     try {
+      // Убеждаемся, что Paddle SDK готов (если еще не инициализирован - инициализируем)
+      let paddleInstance = paddle || getPaddleInstanceSync();
+      if (!paddleInstance && showPaddlePayment) {
+        console.log('[BoostShop] Paddle not ready, initializing...');
+        paddleInstance = await getPaddleInstance();
+        if (paddleInstance) {
+          setPaddle(paddleInstance);
+        }
+      }
+
       // Получаем partner_code из localStorage (если пользователь пришел через партнерскую ссылку)
       const partnerCode = localStorage.getItem('partner_code');
       
@@ -711,6 +717,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           description: error.message || t('boostShop.toasts.purchaseErrorDescription'),
           variant: 'destructive',
         });
+        setPurchaseLoading(null);
         return;
       }
 
@@ -721,6 +728,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           description: data.error || t('boostShop.toasts.purchaseErrorDescription'),
           variant: 'destructive',
         });
+        setPurchaseLoading(null);
         return;
       }
 
@@ -736,6 +744,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           description: t('boostShop.toasts.sessionError'),
           variant: 'destructive',
         });
+        setPurchaseLoading(null);
         return;
       }
 
@@ -748,7 +757,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       const isTelegram = isTelegramMiniApp();
       const webApp = getTelegramWebApp();
       
-      if (paddle) {
+      // Используем текущий paddle или синхронно получаем инстанс
+      const paddleInstance = paddle || getPaddleInstanceSync();
+      
+      if (paddleInstance) {
         console.log("[BoostShop] Opening Paddle checkout overlay with transaction:", {
           transactionId: data.transaction_id,
           isTelegram,
@@ -757,7 +769,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         
         try {
           // Overlay - открывается попап прямо на сайте (рекомендуется)
-          paddle.Checkout.open({
+          paddleInstance.Checkout.open({
             transactionId: data.transaction_id,
             settings: {
               displayMode: "overlay", // Попап на сайте - современный UX
@@ -766,12 +778,17 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               locale: language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en', // Локализация
             },
           });
+          // После успешного открытия overlay - сбрасываем loading (форма открыта)
+          setPurchaseLoading(null);
         } catch (error) {
           console.error("[BoostShop] Failed to open Paddle checkout overlay:", error);
           
           // Fallback: если overlay не открылся, используем редирект
           console.warn("[BoostShop] Overlay failed, falling back to redirect");
           const paddleCheckoutUrl = `https://checkout.paddle.com/transaction/${data.transaction_id}`;
+          
+          // При редиректе сбрасываем loading (пользователь уходит со страницы)
+          setPurchaseLoading(null);
           
           if (isTelegram && webApp) {
             // В Telegram используем openLink для открытия в системном браузере
@@ -792,6 +809,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         const paddleCheckoutUrl = `https://checkout.paddle.com/transaction/${data.transaction_id}`;
         console.log("[BoostShop] Redirecting to Paddle checkout:", paddleCheckoutUrl);
         
+        // При редиректе сбрасываем loading (пользователь уходит со страницы)
+        setPurchaseLoading(null);
+        
         if (isTelegram && webApp && (webApp as any).openLink) {
           // В Telegram открываем в системном браузере для надежности
           (webApp as any).openLink(paddleCheckoutUrl);
@@ -807,6 +827,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         description: err?.message || t('boostShop.toasts.purchaseErrorDescription'),
         variant: 'destructive',
       });
+      setPurchaseLoading(null);
     }
   };
 
@@ -1305,10 +1326,19 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                               className={`w-full sm:flex-1 sm:min-w-[160px] font-semibold bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0 shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 transition-all duration-200 hover:scale-[1.02] ${
                                 isBestValue ? 'ring-2 ring-violet-400/50' : ''
                               }`}
-                              disabled={!profileId}
+                              disabled={!profileId || purchaseLoading === pack.catalogKey || paddleLoading}
                             >
-                              <ShoppingBag className="w-4 h-4 mr-2" />
-                              {pack.price}
+                              {purchaseLoading === pack.catalogKey ? (
+                                <>
+                                  <div className="w-4 h-4 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                  {t('boostShop.coins.loading', { defaultValue: 'Загрузка...' })}
+                                </>
+                              ) : (
+                                <>
+                                  <ShoppingBag className="w-4 h-4 mr-2" />
+                                  {pack.price}
+                                </>
+                              )}
                             </Button>
                           )}
                           
