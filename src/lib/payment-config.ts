@@ -53,13 +53,11 @@ export function getAvailablePaymentMethods(platform: 'telegram' | 'web' | 'mobil
     methods.push('cryptomus');
   }
 
-  // Paddle доступен везде (когда включен, рекомендуется для веб)
-  // ВАЖНО: Paddle доступен и для web, и для telegram (если не Telegram Mini App)
+  // Paddle доступен везде (когда включен)
+  // ВАЖНО: Paddle доступен на всех платформах (web, mobile, telegram)
+  // В Telegram Mini App можно использовать и Paddle, и Stars (пользователь выбирает)
   if (PAYMENT_CONFIG.paddleEnabled) {
-    // Paddle доступен везде, кроме Telegram Mini App (там используем Stars)
-    if (platform !== 'telegram') {
-      methods.push('paddle');
-    }
+    methods.push('paddle');
   }
 
   // PayPal доступен везде (когда включен)
