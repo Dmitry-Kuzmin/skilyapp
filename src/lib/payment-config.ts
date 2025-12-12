@@ -54,8 +54,12 @@ export function getAvailablePaymentMethods(platform: 'telegram' | 'web' | 'mobil
   }
 
   // Paddle доступен везде (когда включен, рекомендуется для веб)
-  if (PAYMENT_CONFIG.paddleEnabled && platform === 'web') {
-    methods.push('paddle');
+  // ВАЖНО: Paddle доступен и для web, и для telegram (если не Telegram Mini App)
+  if (PAYMENT_CONFIG.paddleEnabled) {
+    // Paddle доступен везде, кроме Telegram Mini App (там используем Stars)
+    if (platform !== 'telegram') {
+      methods.push('paddle');
+    }
   }
 
   // PayPal доступен везде (когда включен)

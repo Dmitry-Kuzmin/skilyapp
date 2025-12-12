@@ -87,6 +87,22 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const showStarsPayment = isPaymentMethodAvailable('telegram_stars', currentPlatform);
   const showStripePayment = isPaymentMethodAvailable('stripe', currentPlatform);
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
+  const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
+  
+  // Логирование для отладки (только в dev или при открытии модалки)
+  useEffect(() => {
+    if (open) {
+      console.log("[BoostShopModal] Payment methods availability:", {
+        platform,
+        currentPlatform,
+        showStarsPayment,
+        showStripePayment,
+        showCryptomusPayment,
+        showPaddlePayment,
+        paddleEnabled: PAYMENT_CONFIG.paddleEnabled
+      });
+    }
+  }, [open, platform, currentPlatform, showStarsPayment, showStripePayment, showCryptomusPayment, showPaddlePayment]);
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
   const [coins, setCoins] = useState(0);
@@ -634,22 +650,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       return;
     }
 
-    // Проверяем, доступен ли Stripe
-    if (!showStripePayment) {
-      toast({
-        title: t('boostShop.toasts.errorTitle'),
-        description: 'Stripe временно недоступен. Используйте Telegram Stars для оплаты в Telegram Mini App.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
     try {
       // Получаем partner_code из localStorage (если пользователь пришел через партнерскую ссылку)
       const partnerCode = localStorage.getItem('partner_code');
       
-      // Создаем Stripe Checkout сессию
-      const { data, error } = await supabaseClient.functions.invoke("purchase-create", {
+      // Создаем Paddle Transaction через Edge Function
+      const { data, error } = await supabaseClient.functions.invoke("paddle-payment", {
         body: { 
           user_id: profileId, 
           catalog_key: catalogKey,
@@ -677,7 +683,16 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         return;
       }
 
-      if (!data?.url) {
+      console.log("[BoostShop] Paddle response data:", {
+        hasCheckoutUrl: !!data?.checkout_url,
+        hasUrl: !!data?.url,
+        checkoutUrl: data?.checkout_url,
+        url: data?.url,
+        transactionId: data?.transaction_id,
+        fullData: data
+      });
+
+      if (!data?.checkout_url && !data?.url) {
         console.error("[BoostShop] No URL in response:", data);
         toast({
           title: t('boostShop.toasts.errorTitle'),
@@ -687,38 +702,31 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         return;
       }
 
-      // Сохраняем session_id перед редиректом (для восстановления после возврата с Stripe)
-      if (data?.sessionId) {
-        console.log("[BoostShop] Saving session_id:", data.sessionId);
-        // Используем sessionStorage для Telegram (более надежно при переходах между доменами)
-        sessionStorage.setItem('stripe_checkout_session_id', data.sessionId);
-        localStorage.setItem('stripe_checkout_session_id', data.sessionId); // Fallback
-        // Также сохраняем в URL параметрах для передачи через Stripe
-        sessionStorage.setItem('stripe_user_id', profileId);
+      // Запоминаем transaction_id (для Paddle) для последующей проверки
+      if (data?.transaction_id) {
+        sessionStorage.setItem('paddle_transaction_id', data.transaction_id);
+        localStorage.setItem('paddle_transaction_id', data.transaction_id);
       }
 
       const isTelegram = isTelegramMiniApp();
       const webApp = getTelegramWebApp();
+      const checkoutUrl = data.checkout_url || data.url;
 
       // В Telegram Web App используем прямой редирект или webApp.openLink
-      // Это необходимо, так как window.open (попап) плохо работает в Telegram
       if (isTelegram && webApp) {
-        console.log("[BoostShop] Opening Stripe in Telegram Web App (same window)");
-        // Используем webApp.openLink для открытия в браузере Telegram
-        // Это сохранит контекст и вернет пользователя обратно после оплаты
+        console.log("[BoostShop] Opening Paddle in Telegram Web App (same window)");
         if ((webApp as any).openLink) {
-          (webApp as any).openLink(data.url);
+          (webApp as any).openLink(checkoutUrl);
         } else if ((webApp as any).openTelegramLink) {
-          (webApp as any).openTelegramLink(data.url);
+          (webApp as any).openTelegramLink(checkoutUrl);
         } else {
           // Fallback: прямой редирект
-          window.location.href = data.url;
+          window.location.href = checkoutUrl;
         }
       } else {
-        // В обычном браузере используем прямой редирект (не попап!)
-        // Это гарантирует что session_id будет передан в success_url
-        console.log("[BoostShop] Redirecting to Stripe (same window)");
-        window.location.href = data.url;
+        // В обычном браузере используем прямой редирект
+        console.log("[BoostShop] Redirecting to Paddle checkout (same window)");
+        window.location.href = checkoutUrl;
       }
 
     } catch (err: any) {
@@ -1203,8 +1211,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                             />
                           )}
                           
-                          {/* Stripe (только если включен в конфиге) */}
-                          {showStripePayment && (
+                          {/* Paddle (основной метод для web через MoR) */}
+                          {showPaddlePayment && (
                             <Button
                               size="sm"
                               aria-label={t('boostShop.coins.buyPackAria', { amount: pack.amount })}
@@ -1213,7 +1221,22 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                               disabled={!profileId}
                             >
                               <ShoppingBag className="w-4 h-4 mr-2" />
-                              {t('boostShop.buttons.buy')}
+                              Paddle
+                            </Button>
+                          )}
+                          
+                          {/* Stripe (оставляем для будущего включения) */}
+                          {showStripePayment && (
+                            <Button
+                              size="sm"
+                              aria-label={t('boostShop.coins.buyPackAria', { amount: pack.amount })}
+                              onClick={() => handleCoinPurchase(pack.catalogKey)}
+                              className={`w-full sm:flex-1 sm:min-w-[160px] ${isHighlighted ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' : ''}`}
+                              disabled={!profileId}
+                              variant="outline"
+                            >
+                              <ShoppingBag className="w-4 h-4 mr-2" />
+                              Stripe
                             </Button>
                           )}
                           
@@ -1295,7 +1318,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                           )}
                           
                           {/* Сообщение если нет доступных методов */}
-                          {!showStarsPayment && !showStripePayment && !showCryptomusPayment && (
+                          {!showStarsPayment && !showStripePayment && !showCryptomusPayment && !showPaddlePayment && (
                             <div className="text-sm text-muted-foreground text-center py-2 w-full">
                               Используйте Telegram Mini App для оплаты через Stars
                             </div>
