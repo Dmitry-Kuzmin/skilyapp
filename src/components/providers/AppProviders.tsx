@@ -17,7 +17,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReconnectHandler } from "@/components/ReconnectHandler";
-import { useAuthEventListener } from "@/hooks/useAuthEventListener";
+import { useAuthEventListener } from "@/hooks/useAuthEventListener.ts";
 import { preloadPaddle } from "@/lib/paddle";
 
 interface AppProvidersProps {
