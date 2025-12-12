@@ -712,6 +712,13 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       const webApp = getTelegramWebApp();
       const checkoutUrl = data.checkout_url || data.url;
 
+      console.log("[BoostShop] About to redirect to checkout:", {
+        checkoutUrl,
+        isTelegram,
+        hasWebApp: !!webApp,
+        transactionId: data?.transaction_id
+      });
+
       // В Telegram Web App используем прямой редирект или webApp.openLink
       if (isTelegram && webApp) {
         console.log("[BoostShop] Opening Paddle in Telegram Web App (same window)");
@@ -721,11 +728,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           (webApp as any).openTelegramLink(checkoutUrl);
         } else {
           // Fallback: прямой редирект
+          console.log("[BoostShop] Fallback: redirecting to:", checkoutUrl);
           window.location.href = checkoutUrl;
         }
       } else {
         // В обычном браузере используем прямой редирект
-        console.log("[BoostShop] Redirecting to Paddle checkout (same window)");
+        console.log("[BoostShop] Redirecting to Paddle checkout (same window):", checkoutUrl);
         window.location.href = checkoutUrl;
       }
 
