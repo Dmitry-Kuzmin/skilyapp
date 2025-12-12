@@ -1,7 +1,7 @@
 import { useModalStore, type ModalType, getModalUrlKey } from '@/store/modalStore';
 import { useEffect, useState, Suspense } from 'react';
 import { createPortal } from 'react-dom';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import React from 'react';
 
 // ОПТИМИЗАЦИЯ: Все модалки lazy-loaded для уменьшения initial bundle
@@ -65,7 +65,8 @@ const MODAL_COMPONENTS: Record<ModalType, React.ComponentType<any> | null> = {
  */
 export const GlobalModalManager = () => {
   const { stack, closeModal, openModal } = useModalStore();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [isMounted, setIsMounted] = useState(false);
 
   // Проверяем, что компонент смонтирован и DOM готов
@@ -188,16 +189,41 @@ export const GlobalModalManager = () => {
 
   // Поддержка разных интерфейсов модалок
   if (topModal.type === 'AUTH') {
-    modalProps.onClose = () => closeModal(topModal.id, true); // Синхронизируем URL
+    modalProps.onClose = () => {
+      closeModal(topModal.id, false); // Не синхронизируем через store
+      // Синхронизируем URL напрямую через React Router
+      const newParams = new URLSearchParams(searchParams);
+      const urlKey = getModalUrlKey(topModal.type);
+      if (urlKey && newParams.get('modal') === urlKey) {
+        newParams.delete('modal');
+        setSearchParams(newParams, { replace: true });
+      }
+    };
   } else if (topModal.type === 'CELEBRATION') {
     // CelebrationModal использует show и onClose
     modalProps.show = true;
-    modalProps.onClose = () => closeModal(topModal.id, true); // Синхронизируем URL
+    modalProps.onClose = () => {
+      closeModal(topModal.id, false); // Не синхронизируем через store
+      // Синхронизируем URL напрямую через React Router
+      const newParams = new URLSearchParams(searchParams);
+      const urlKey = getModalUrlKey(topModal.type);
+      if (urlKey && newParams.get('modal') === urlKey) {
+        newParams.delete('modal');
+        setSearchParams(newParams, { replace: true });
+      }
+    };
   } else {
     // Остальные модалки используют open и onOpenChange
     modalProps.onOpenChange = (open: boolean) => {
       if (!open) {
-        closeModal(topModal.id, true); // Синхронизируем URL
+        closeModal(topModal.id, false); // Не синхронизируем через store
+        // Синхронизируем URL напрямую через React Router для немедленного обновления
+        const newParams = new URLSearchParams(searchParams);
+        const urlKey = getModalUrlKey(topModal.type);
+        if (urlKey && newParams.get('modal') === urlKey) {
+          newParams.delete('modal');
+          setSearchParams(newParams, { replace: true });
+        }
       }
     };
   }
