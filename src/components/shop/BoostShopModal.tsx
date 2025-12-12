@@ -757,9 +757,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       const isTelegram = isTelegramMiniApp();
       const webApp = getTelegramWebApp();
       
-      // Используем текущий paddle или синхронно получаем инстанс
-      const paddleInstance = paddle || getPaddleInstanceSync();
-      
+      // Используем уже полученный paddleInstance (объявлен выше)
       if (paddleInstance) {
         console.log("[BoostShop] Opening Paddle checkout overlay with transaction:", {
           transactionId: data.transaction_id,
