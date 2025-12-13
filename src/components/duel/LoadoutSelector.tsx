@@ -389,7 +389,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
       >
         <SheetContent 
           side="bottom" 
-          className="bg-black/95 border-t border-white/20 rounded-t-3xl max-h-[70vh] flex flex-col p-0 backdrop-blur-xl relative z-[9999]"
+          className="bg-black/95 border-t border-white/20 rounded-t-3xl max-h-[70vh] flex flex-col p-0 backdrop-blur-xl relative z-[9999] overflow-y-auto"
           style={{
             boxShadow: '0 -10px 40px -10px rgba(0, 0, 0, 0.8)',
             zIndex: 9999,
@@ -418,9 +418,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           </SheetHeader>
           
           {selectedSlotIndex !== null && (
-            <>
-              {console.log('[LoadoutSelector] Rendering BoostSelectSheetContent, selectedSlotIndex:', selectedSlotIndex)}
-              <BoostSelectSheetContent
+            <BoostSelectSheetContent
                 availableBoosts={availableBoosts}
                 selectedBoost={getBoostByType(
                   selectedSlotIndex === 0 ? loadout.slot_1_boost_type :
