@@ -26,6 +26,8 @@ ALTER TABLE public.ad_rewards ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
 -- Упрощенная политика: проверяем через profiles напрямую
+-- Используем DROP POLICY IF EXISTS для безопасного повторного применения миграции
+DROP POLICY IF EXISTS "Users can view their own ad rewards" ON public.ad_rewards;
 CREATE POLICY "Users can view their own ad rewards"
   ON public.ad_rewards
   FOR SELECT
@@ -34,6 +36,7 @@ CREATE POLICY "Users can view their own ad rewards"
     OR user_id = (SELECT id FROM profiles WHERE telegram_id = ((current_setting('request.jwt.claims', true)::json->>'telegram_id')::bigint) LIMIT 1)
   );
 
+DROP POLICY IF EXISTS "Users can insert their own ad rewards" ON public.ad_rewards;
 CREATE POLICY "Users can insert their own ad rewards"
   ON public.ad_rewards
   FOR INSERT
@@ -42,6 +45,7 @@ CREATE POLICY "Users can insert their own ad rewards"
     OR user_id = (SELECT id FROM profiles WHERE telegram_id = ((current_setting('request.jwt.claims', true)::json->>'telegram_id')::bigint) LIMIT 1)
   );
 
+DROP POLICY IF EXISTS "Users can update their own ad rewards" ON public.ad_rewards;
 CREATE POLICY "Users can update their own ad rewards"
   ON public.ad_rewards
   FOR UPDATE
@@ -50,6 +54,7 @@ CREATE POLICY "Users can update their own ad rewards"
     OR user_id = (SELECT id FROM profiles WHERE telegram_id = ((current_setting('request.jwt.claims', true)::json->>'telegram_id')::bigint) LIMIT 1)
   );
 
+DROP POLICY IF EXISTS "Service role can manage ad rewards" ON public.ad_rewards;
 CREATE POLICY "Service role can manage ad rewards"
   ON public.ad_rewards
   FOR ALL
