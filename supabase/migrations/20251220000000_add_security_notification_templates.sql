@@ -160,3 +160,5 @@ COMMENT ON COLUMN public.notification_templates.category IS 'Категория 
 COMMENT ON TABLE public.notification_templates IS 'Шаблоны уведомлений включая новые Auth события безопасности (password_changed, email_changed, mfa_enrolled и т.д.)';
 
 
+
+

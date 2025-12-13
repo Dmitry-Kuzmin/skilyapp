@@ -205,3 +205,5 @@ WHERE telegram_partner_code IS NOT NULL;
 
 **Рекомендация:** Используй оба! Telegram Partner Program для простоты, текущая система для гибкости.
 
+
+

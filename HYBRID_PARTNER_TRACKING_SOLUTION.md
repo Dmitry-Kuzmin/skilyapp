@@ -229,3 +229,5 @@ WHERE partner_code = 'MIGUEL';
 - `src/contexts/UserContext.tsx` - связка после авторизации
 - `supabase/functions/paddle-webhook/index.ts` - начисление комиссии
 
+
+

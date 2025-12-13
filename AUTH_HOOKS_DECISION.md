@@ -100,3 +100,5 @@ await sendAuthEvent('email_changed', user.id, {
 
 Но сейчас **вызовы из кода - оптимальное решение**.
 
+
+

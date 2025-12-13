@@ -227,3 +227,5 @@ await fetch('/functions/v1/auth-event-handler', {
 - [ ] Протестировать оба канала уведомлений
 
 
+
+

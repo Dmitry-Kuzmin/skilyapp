@@ -134,3 +134,5 @@ const response = await fetch('/functions/v1/email-template-generator', {
 - Убедитесь, что используете правильный project ID
 
 
+
+

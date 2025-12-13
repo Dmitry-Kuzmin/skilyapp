@@ -198,3 +198,5 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 COMMENT ON FUNCTION add_partner_commission_for_paddle_payment IS 
 'Начисляет комиссию партнеру при успешном платеже через Paddle. Использует partner_ref_code из profiles для определения партнера.';
 
+
+
