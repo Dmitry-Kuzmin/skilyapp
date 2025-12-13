@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Lock, Coins, Crown, Zap, Check, X, Plus, Cpu, Search } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
@@ -276,8 +276,10 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
     );
   }
 
+  const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(null);
+
   return (
-    <Card className="p-6 bg-zinc-900/80 border border-white/10 backdrop-blur-xl rounded-xl relative overflow-visible">
+    <Card className="p-6 bg-zinc-900/80 border border-white/10 backdrop-blur-xl rounded-xl relative overflow-visible pb-32">
       <div className="space-y-5">
         {/* Заголовок - Премиум типографика */}
         <div className="flex items-start justify-between">
@@ -293,14 +295,14 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         </div>
 
         {/* Слоты - Премиум дизайн */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 pb-4">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
           {/* Слот 1 - Базовый */}
           <SlotCard
             slotNumber={1}
             isUnlocked={true}
             selectedBoost={getBoostByType(loadout.slot_1_boost_type)}
-            availableBoosts={availableBoosts}
-            onSelectBoost={(boostType) => handleSelectBoost(1, boostType)}
+            onSlotClick={() => setSelectedSlotIndex(0)}
+            onClear={() => handleSelectBoost(1, null)}
           />
 
           {/* Слот 2 - Платный */}
@@ -313,8 +315,12 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
             isUnlocking={unlockingSlot}
             onUnlock={() => handleUnlockSlot(2)}
             selectedBoost={getBoostByType(loadout.slot_2_boost_type)}
-            availableBoosts={availableBoosts}
-            onSelectBoost={(boostType) => handleSelectBoost(2, boostType)}
+            onSlotClick={() => {
+              if (ramSlotsUnlocked >= 2) {
+                setSelectedSlotIndex(1);
+              }
+            }}
+            onClear={() => handleSelectBoost(2, null)}
           />
 
           {/* Слот 3 - Premium */}
@@ -325,11 +331,41 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
             userHasPremium={isPremium}
             onUnlock={() => handleUnlockSlot(3)}
             selectedBoost={getBoostByType(loadout.slot_3_boost_type)}
-            availableBoosts={availableBoosts}
-            onSelectBoost={(boostType) => handleSelectBoost(3, boostType)}
+            onSlotClick={() => {
+              if (ramSlotsUnlocked >= 3) {
+                setSelectedSlotIndex(2);
+              }
+            }}
+            onClear={() => handleSelectBoost(3, null)}
           />
         </div>
       </div>
+
+      {/* Bottom Sheet для выбора буста */}
+      <Sheet open={selectedSlotIndex !== null} onOpenChange={(open) => !open && setSelectedSlotIndex(null)}>
+        <SheetContent side="bottom" className="bg-zinc-950 border-t border-white/10 rounded-t-3xl max-h-[70vh] flex flex-col p-0">
+          <SheetHeader className="px-4 pt-4 pb-3 border-b border-white/10">
+            <SheetTitle className="font-mono text-sm font-bold text-indigo-400">
+              SELECT MODULE [SLOT {selectedSlotIndex !== null ? selectedSlotIndex + 1 : ''}]
+            </SheetTitle>
+          </SheetHeader>
+          
+          {selectedSlotIndex !== null && (
+            <BoostSelectSheetContent
+              availableBoosts={availableBoosts}
+              selectedBoost={getBoostByType(
+                selectedSlotIndex === 0 ? loadout.slot_1_boost_type :
+                selectedSlotIndex === 1 ? loadout.slot_2_boost_type :
+                loadout.slot_3_boost_type
+              )}
+              onSelectBoost={(boostType) => {
+                handleSelectBoost((selectedSlotIndex + 1) as 1 | 2 | 3, boostType);
+                setSelectedSlotIndex(null);
+              }}
+            />
+          )}
+        </SheetContent>
+      </Sheet>
     </Card>
   );
 };
@@ -344,8 +380,8 @@ interface SlotCardProps {
   isUnlocking?: boolean;
   onUnlock?: () => void;
   selectedBoost: Boost | null;
-  availableBoosts: Boost[];
-  onSelectBoost: (boostType: string | null) => void;
+  onSlotClick: () => void;
+  onClear: () => void;
 }
 
 const SlotCard: React.FC<SlotCardProps> = ({
@@ -358,22 +394,10 @@ const SlotCard: React.FC<SlotCardProps> = ({
   isUnlocking = false,
   onUnlock,
   selectedBoost,
-  availableBoosts,
-  onSelectBoost,
+  onSlotClick,
+  onClear,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const cardRef = useRef<HTMLDivElement>(null);
-
-  // Фильтрация бустов по поисковому запросу
-  const filteredBoosts = useMemo(() => {
-    if (!searchQuery.trim()) return availableBoosts;
-    const query = searchQuery.toLowerCase();
-    return availableBoosts.filter(boost => 
-      boost.name_ru.toLowerCase().includes(query) ||
-      boost.type.toLowerCase().includes(query)
-    );
-  }, [availableBoosts, searchQuery]);
 
   const canUnlock = isPremium
     ? userHasPremium
@@ -417,200 +441,99 @@ const SlotCard: React.FC<SlotCardProps> = ({
   return (
     <div className="relative" ref={cardRef}>
       <motion.div
+        onClick={isUnlocked ? onSlotClick : undefined}
         className={cn(
-          "relative p-4 rounded-xl border transition-all duration-200",
-          "backdrop-blur-[12px]",
-          slotStyles.container,
+          "relative aspect-[3/4] rounded-xl border transition-all duration-200 cursor-pointer",
+          "backdrop-blur-[12px] flex flex-col items-center justify-center",
+          selectedBoost
+            ? "bg-white/5 border-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.2)]"
+            : isUnlocked
+            ? "bg-black/20 border-white/10 border-dashed hover:bg-white/5 hover:border-white/30"
+            : slotStyles.container,
+          isPremium && !selectedBoost ? "border-amber-500/30 bg-amber-500/5" : "",
           slotStyles.glow
         )}
         whileHover={isUnlocked ? { scale: 1.02, y: -2 } : {}}
         whileTap={isUnlocked ? { scale: 0.98 } : {}}
       >
         {/* Заголовок слота - Моноширинный шрифт */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider font-mono">
-              SLOT {slotNumber}
-            </span>
-            {isPremium && (
-              <motion.div
-                animate={{ rotate: [0, 5, -5, 0] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-              >
-                <Crown className="w-3.5 h-3.5 text-amber-400 drop-shadow-[0_0_4px_rgba(255,215,0,0.5)]" />
-              </motion.div>
-            )}
-          </div>
-          {!isUnlocked && (
-            <Lock className="w-3.5 h-3.5 text-zinc-500" />
-          )}
+        <div className="absolute top-2 left-0 right-0 text-center">
+          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+            SLOT {slotNumber}
+          </span>
         </div>
 
-        {/* Выбранный буст или кнопка выбора */}
-        {isUnlocked ? (
-          <div className="space-y-2">
-            {selectedBoost ? (
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="relative group"
-              >
-                {/* Эффект "вставленного чипа" - картридж с тенью */}
-                <motion.div
-                  className={cn(
-                    "p-3 rounded-lg border backdrop-blur-sm transition-all relative",
-                    "shadow-[0_4px_12px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)]",
-                    selectedBoost.category === 'exploit' && "bg-gradient-to-br from-red-500/20 to-red-600/10 border-red-500/40 shadow-red-500/20",
-                    selectedBoost.category === 'defense' && "bg-gradient-to-br from-blue-500/20 to-blue-600/10 border-blue-500/40 shadow-blue-500/20",
-                    selectedBoost.category === 'utility' && "bg-gradient-to-br from-green-500/20 to-green-600/10 border-green-500/40 shadow-green-500/20"
-                  )}
-                  whileHover={{ scale: 1.02 }}
-                >
-                  {/* Градиентная обводка при hover */}
-                  <motion.div
-                    className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                    style={{
-                      background: selectedBoost.category === 'exploit' 
-                        ? 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(220,38,38,0.1))'
-                        : selectedBoost.category === 'defense'
-                        ? 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(37,99,235,0.1))'
-                        : 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(22,163,74,0.1))'
-                    }}
-                  />
-                  
-                  {/* Крупная иконка буста */}
-                  <div className="flex items-center justify-center mb-2 relative z-10">
-                    <motion.span 
-                      className="text-3xl"
-                      animate={{ 
-                        scale: [1, 1.1, 1],
-                        rotate: [0, 5, -5, 0]
-                      }}
-                      transition={{ 
-                        duration: 2, 
-                        repeat: Infinity, 
-                        repeatDelay: 2 
-                      }}
-                    >
-                      {selectedBoost.icon}
-                    </motion.span>
-                  </div>
-                  
-                  {/* Название и категория */}
-                  <div className="text-center relative z-10">
-                    <div className="text-xs font-semibold text-zinc-200 mb-1 truncate">
-                      {selectedBoost.name_ru}
-                    </div>
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "text-[10px] font-bold px-2 py-0.5 rounded-full border",
-                        selectedBoost.category === 'exploit' && "border-red-500/60 text-red-400 bg-red-500/15",
-                        selectedBoost.category === 'defense' && "border-blue-500/60 text-blue-400 bg-blue-500/15",
-                        selectedBoost.category === 'utility' && "border-green-500/60 text-green-400 bg-green-500/15"
-                      )}
-                    >
-                      {selectedBoost.category === 'exploit' && 'Атака'}
-                      {selectedBoost.category === 'defense' && 'Защита'}
-                      {selectedBoost.category === 'utility' && 'Утилита'}
-                    </Badge>
-                  </div>
-                </motion.div>
+        {isPremium && (
+          <motion.div
+            className="absolute top-2 right-2"
+            animate={{ rotate: [0, 5, -5, 0] }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+          >
+            <Crown className="w-3.5 h-3.5 text-amber-400 drop-shadow-[0_0_4px_rgba(255,215,0,0.5)]" />
+          </motion.div>
+        )}
 
-                {/* Кнопка замены - открывает Popover */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <motion.button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                      className="absolute -top-1.5 -right-1.5 w-7 h-7 rounded-full bg-zinc-800/90 hover:bg-zinc-700 border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg z-20"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      <X className="w-3.5 h-3.5 text-zinc-300" />
-                    </motion.button>
-                  </PopoverTrigger>
-                  <PopoverContent 
-                    align="start" 
-                    side="bottom"
-                    sideOffset={8}
-                    className={cn(
-                      "w-[280px] p-0 bg-zinc-950/98 backdrop-blur-xl",
-                      "border-white/20 rounded-xl shadow-2xl shadow-black/80",
-                      "z-[200]"
-                    )}
-                  >
-                    <BoostSelectContent
-                      availableBoosts={availableBoosts}
-                      selectedBoost={selectedBoost}
-                      searchQuery={searchQuery}
-                      onSearchChange={setSearchQuery}
-                      onSelectBoost={(boostType) => {
-                        onSelectBoost(boostType);
-                        setSearchQuery('');
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </motion.div>
-            ) : (
-              <Popover open={isOpen} onOpenChange={setIsOpen}>
-                <PopoverTrigger asChild>
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full h-10 border-white/10 bg-zinc-900/50 hover:bg-zinc-800/50 hover:border-indigo-500/30 text-zinc-300 hover:text-zinc-100 text-xs font-medium relative overflow-hidden"
-                    >
-                      {/* Watermark иконка микросхемы */}
-                      <div className="absolute inset-0 flex items-center justify-center opacity-10">
-                        <Cpu className="w-8 h-8 text-zinc-400" />
-                      </div>
-                      
-                      <div className="relative z-10 flex items-center gap-1.5">
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>Выбрать</span>
-                      </div>
-                    </Button>
-                  </motion.div>
-                </PopoverTrigger>
-                <PopoverContent 
-                  align="start" 
-                  side="bottom"
-                  sideOffset={8}
-                  className={cn(
-                    "w-[280px] p-0 bg-zinc-950/98 backdrop-blur-xl",
-                    "border-white/20 rounded-xl shadow-2xl shadow-black/80",
-                    "z-[200]"
-                  )}
-                  onOpenAutoFocus={(e) => {
-                    // Фокус на поиск при открытии
-                    const searchInput = e.currentTarget.querySelector('input[type="text"]') as HTMLInputElement;
-                    if (searchInput) {
-                      setTimeout(() => searchInput.focus(), 0);
-                    }
+        {/* Контент слота */}
+        {isUnlocked ? (
+          selectedBoost ? (
+            <div className="relative group flex flex-col items-center justify-center flex-1 w-full px-2">
+              {/* Крупная иконка буста */}
+              <div className="flex items-center justify-center mb-2">
+                <motion.span 
+                  className="text-2xl"
+                  animate={{ 
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 5, -5, 0]
+                  }}
+                  transition={{ 
+                    duration: 2, 
+                    repeat: Infinity, 
+                    repeatDelay: 2 
                   }}
                 >
-                  <BoostSelectContent
-                    availableBoosts={availableBoosts}
-                    selectedBoost={selectedBoost}
-                    searchQuery={searchQuery}
-                    onSearchChange={setSearchQuery}
-                    onSelectBoost={(boostType) => {
-                      onSelectBoost(boostType);
-                      setIsOpen(false);
-                      setSearchQuery('');
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-            )}
-          </div>
+                  {selectedBoost.icon}
+                </motion.span>
+              </div>
+              
+              {/* Название */}
+              <span className="text-xs font-bold text-white text-center px-1 truncate w-full mb-1">
+                {selectedBoost.name_ru}
+              </span>
+
+              {/* Категория badge */}
+              <Badge
+                variant="outline"
+                className={cn(
+                  "text-[9px] font-bold px-1.5 py-0.5 rounded-full border",
+                  selectedBoost.category === 'exploit' && "border-red-500/60 text-red-400 bg-red-500/15",
+                  selectedBoost.category === 'defense' && "border-blue-500/60 text-blue-400 bg-blue-500/15",
+                  selectedBoost.category === 'utility' && "border-green-500/60 text-green-400 bg-green-500/15"
+                )}
+              >
+                {selectedBoost.category === 'exploit' && 'Атака'}
+                {selectedBoost.category === 'defense' && 'Защита'}
+                {selectedBoost.category === 'utility' && 'Утилита'}
+              </Badge>
+
+              {/* Кнопка очистки */}
+              <motion.button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClear();
+                }}
+                className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500/90 hover:bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg z-20"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <X className="w-3 h-3" />
+              </motion.button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-1 text-indigo-400/60">
+              <span className="text-2xl font-light">+</span>
+              <span className="text-[10px] font-mono">INSTALL</span>
+            </div>
+          )
         ) : (
           <motion.div
             whileHover={canUnlock && !isUnlocking ? { scale: 1.02 } : {}}
@@ -662,22 +585,20 @@ const SlotCard: React.FC<SlotCardProps> = ({
   );
 };
 
-// Компонент для содержимого выбора буста (используется в Popover)
-interface BoostSelectContentProps {
+// Компонент для содержимого выбора буста в Bottom Sheet (Grid layout)
+interface BoostSelectSheetContentProps {
   availableBoosts: Boost[];
   selectedBoost: Boost | null;
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
   onSelectBoost: (boostType: string | null) => void;
 }
 
-const BoostSelectContent: React.FC<BoostSelectContentProps> = ({
+const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
   availableBoosts,
   selectedBoost,
-  searchQuery,
-  onSearchChange,
   onSelectBoost,
 }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
   const filteredBoosts = useMemo(() => {
     if (!searchQuery.trim()) return availableBoosts;
     const query = searchQuery.toLowerCase();
@@ -687,19 +608,52 @@ const BoostSelectContent: React.FC<BoostSelectContentProps> = ({
     );
   }, [availableBoosts, searchQuery]);
 
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'exploit':
+        return {
+          bg: 'bg-red-500/10',
+          border: 'border-red-500/40',
+          text: 'text-red-400',
+          hover: 'hover:bg-red-500/20 hover:border-red-500/60'
+        };
+      case 'defense':
+        return {
+          bg: 'bg-blue-500/10',
+          border: 'border-blue-500/40',
+          text: 'text-blue-400',
+          hover: 'hover:bg-blue-500/20 hover:border-blue-500/60'
+        };
+      case 'utility':
+        return {
+          bg: 'bg-green-500/10',
+          border: 'border-green-500/40',
+          text: 'text-green-400',
+          hover: 'hover:bg-green-500/20 hover:border-green-500/60'
+        };
+      default:
+        return {
+          bg: 'bg-zinc-800/50',
+          border: 'border-white/10',
+          text: 'text-zinc-300',
+          hover: 'hover:bg-zinc-800/70 hover:border-white/20'
+        };
+    }
+  };
+
   return (
-    <>
+    <div className="flex flex-col flex-1 overflow-hidden">
       {/* Поиск */}
-      <div className="p-2 border-b border-white/10">
+      <div className="px-4 pt-3 pb-3 border-b border-white/10">
         <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
           <input
             type="text"
             placeholder="Поиск буста..."
             value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className={cn(
-              "w-full h-9 pl-8 pr-3",
+              "w-full h-10 pl-10 pr-4",
               "bg-zinc-900/50 border border-white/10 rounded-lg",
               "text-sm text-zinc-200 placeholder:text-zinc-600",
               "focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50",
@@ -709,73 +663,96 @@ const BoostSelectContent: React.FC<BoostSelectContentProps> = ({
         </div>
       </div>
 
-      {/* Список бустов */}
-      <div className="max-h-64 overflow-y-auto p-2 space-y-1">
+      {/* Scrollable Grid */}
+      <div className="flex-1 overflow-y-auto px-4 py-4">
         {/* Кнопка очистки */}
         <button
           onClick={() => onSelectBoost(null)}
           className={cn(
-            "w-full p-2.5 text-left text-xs font-medium",
+            "w-full mb-3 p-3 text-left text-xs font-medium",
             "text-zinc-400 hover:text-zinc-200",
             "hover:bg-zinc-800/70 rounded-lg transition-colors",
-            "border border-transparent hover:border-white/10"
+            "border border-white/10 hover:border-white/20"
           )}
         >
           Очистить слот
         </button>
 
-        {/* Разделитель */}
-        {filteredBoosts.length > 0 && (
-          <div className="h-px bg-white/5 my-1" />
-        )}
-
-        {/* Список бустов */}
+        {/* Grid бустов */}
         {filteredBoosts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <div className="p-2 rounded-full bg-zinc-900 border border-zinc-800 mb-2">
-              <Search className="w-4 h-4 text-zinc-500" />
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="p-3 rounded-full bg-zinc-900 border border-zinc-800 mb-3">
+              <Search className="w-5 h-5 text-zinc-500" />
             </div>
-            <p className="text-xs text-zinc-500">Бусты не найдены</p>
+            <p className="text-sm text-zinc-500">Бусты не найдены</p>
           </div>
         ) : (
-          filteredBoosts.map((boost) => (
-            <motion.button
-              key={boost.type}
-              onClick={() => onSelectBoost(boost.type)}
-              whileHover={{ scale: 1.01, x: 2 }}
-              whileTap={{ scale: 0.99 }}
-              className={cn(
-                "w-full p-2.5 text-left rounded-lg transition-all",
-                "flex items-center gap-2.5 border",
-                selectedBoost?.type === boost.type
-                  ? "bg-indigo-500/20 border-indigo-500/40 shadow-[0_0_10px_rgba(99,102,241,0.3)]"
-                  : "border-transparent hover:bg-zinc-800/70 hover:border-white/10"
-              )}
-            >
-              <span className="text-lg">{boost.icon}</span>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-zinc-200 truncate">
-                  {boost.name_ru}
-                </div>
-                <div className="text-xs font-medium text-zinc-500 mt-0.5">
-                  {boost.category === 'exploit' && 'Атака'}
-                  {boost.category === 'defense' && 'Защита'}
-                  {boost.category === 'utility' && 'Утилита'}
-                </div>
-              </div>
-              {selectedBoost?.type === boost.type && (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring" }}
+          <div className="grid grid-cols-2 gap-3">
+            {filteredBoosts.map((boost) => {
+              const colors = getCategoryColor(boost.category);
+              const isSelected = selectedBoost?.type === boost.type;
+              
+              return (
+                <motion.button
+                  key={boost.type}
+                  onClick={() => onSelectBoost(boost.type)}
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={cn(
+                    "relative p-4 rounded-xl border transition-all",
+                    "flex flex-col items-center gap-2",
+                    isSelected
+                      ? `${colors.bg} ${colors.border} shadow-[0_0_15px_rgba(99,102,241,0.3)] ring-2 ring-indigo-500/50`
+                      : `bg-zinc-900/50 border-white/10 ${colors.hover}`
+                  )}
                 >
-                  <Check className="w-4 h-4 text-indigo-400 shrink-0" />
-                </motion.div>
-              )}
-            </motion.button>
-          ))
+                  {/* Иконка */}
+                  <div className={cn(
+                    "text-3xl mb-1",
+                    isSelected ? colors.text : "text-zinc-300"
+                  )}>
+                    {boost.icon}
+                  </div>
+
+                  {/* Название */}
+                  <div className="text-center w-full">
+                    <div className={cn(
+                      "text-sm font-semibold mb-1 truncate",
+                      isSelected ? "text-white" : "text-zinc-200"
+                    )}>
+                      {boost.name_ru}
+                    </div>
+                    <div className={cn(
+                      "text-xs font-medium px-2 py-0.5 rounded-full border inline-block",
+                      colors.bg,
+                      colors.border,
+                      colors.text
+                    )}>
+                      {boost.category === 'exploit' && 'Атака'}
+                      {boost.category === 'defense' && 'Защита'}
+                      {boost.category === 'utility' && 'Утилита'}
+                    </div>
+                  </div>
+
+                  {/* Индикатор выбора */}
+                  {isSelected && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring" }}
+                      className="absolute top-2 right-2"
+                    >
+                      <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center">
+                        <Check className="w-3 h-3 text-white" />
+                      </div>
+                    </motion.div>
+                  )}
+                </motion.button>
+              );
+            })}
+          </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
