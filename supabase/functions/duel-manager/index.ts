@@ -55,6 +55,21 @@ const useBoostSchema = z.object({
   language: z.enum(['ru', 'en']).optional() // Для translate бустера
 });
 
+const findMatchSchema = z.object({
+  num_questions: z.number().int().min(5).max(30),
+  categories: z.array(z.string().uuid()).max(10).nullable().optional(),
+  difficulty: z.enum(['easy', 'medium', 'hard', 'mix']).optional(),
+  bet_amount: z.number().int().min(0).max(10000).optional().default(0),
+  bet_type: z.enum(['none', 'fixed', 'custom']).optional().default('none'),
+  insurance_enabled: z.boolean().optional(),
+  insurance_rate: z.number().min(0).max(1).optional(),
+  insurance_coverage_rate: z.number().min(0).max(1).optional(),
+  security_context: z.object({
+    ip_hash: z.string().max(255).optional(),
+    device_hash: z.string().max(255).optional()
+  }).optional()
+});
+
 // Seeded random number generator (Mulberry32)
 function mulberry32(seed: number) {
   return function () {
@@ -350,28 +365,103 @@ function calculateScore(
   return Math.round((base + timeBonus) * comboMult);
 }
 
-// Bot simulation
-function simulateBotAnswer(difficulty: string, questionDifficulty: string): {
+// Bot name pool - реалистичные никнеймы для ботов
+const BOT_NAMES = [
+  'CyberNinja', 'Alex_99', 'Kira', 'Neo_V', 'Ghost_Rider', 'Zero_Cool',
+  'Matrix_Hack', 'Byte_Force', 'Code_Breaker', 'Net_Runner', 'Data_Storm',
+  'Pixel_Warrior', 'Binary_Soul', 'Quantum_Leap', 'Crypto_King', 'Tech_Master',
+  'Digital_Shadow', 'Firewall_Breaker', 'System_Crash', 'Neon_Blade'
+];
+
+// Bot avatar pool (используем доступные аватары)
+const BOT_AVATARS = [
+  'default', 'cyberpunk', 'hacker', 'ninja', 'warrior', 'ghost', 'neon'
+];
+
+// Generate bot profile based on player level and win streak (anti-farming protection)
+function generateBotProfile(playerLevel: number, winStreak: number = 0): {
+  name: string;
+  avatar: string;
+  difficulty: 'easy' | 'medium' | 'hard' | 'insane';
+} {
+  // 🛡️ АДАПТИВНАЯ СЛОЖНОСТЬ (Anti-Farming Protection)
+  // Чем больше побед подряд - тем сильнее бот
+  // 0-2 победы: Easy/Medium (даем кайфануть)
+  // 3-5 побед: Hard (начинаем давить)
+  // 5+ побед: Insane (бот-убийца, почти непобедим)
+  
+  let difficulty: 'easy' | 'medium' | 'hard' | 'insane' = 'medium';
+  
+  if (winStreak >= 5) {
+    difficulty = 'insane'; // Бот-убийца для фармеров
+  } else if (winStreak >= 3) {
+    difficulty = 'hard'; // Начинаем давить
+  } else if (winStreak <= 2) {
+    // Базовая сложность на основе уровня игрока
+    if (playerLevel >= 8) {
+      difficulty = 'hard';
+    } else if (playerLevel >= 4) {
+      difficulty = 'medium';
+    } else {
+      difficulty = 'easy';
+    }
+  }
+
+  // Случайное имя и аватар
+  const name = BOT_NAMES[Math.floor(Math.random() * BOT_NAMES.length)];
+  const avatar = BOT_AVATARS[Math.floor(Math.random() * BOT_AVATARS.length)];
+
+  console.log(`[generateBotProfile] 🛡️ Win streak: ${winStreak}, Bot difficulty: ${difficulty}, Player level: ${playerLevel}`);
+
+  return { name, avatar, difficulty };
+}
+
+// Bot simulation with adaptive accuracy based on bot difficulty (anti-farming protection)
+function simulateBotAnswer(botDifficulty: 'easy' | 'medium' | 'hard' | 'insane', questionDifficulty: string): {
   delayMs: number;
   willBeCorrect: boolean;
 } {
-  const accuracyMap = {
-    easy: { easy: 0.95, medium: 0.85, hard: 0.65 },
-    medium: { easy: 0.85, medium: 0.70, hard: 0.50 },
-    hard: { easy: 0.70, medium: 0.55, hard: 0.35 },
+  // 🛡️ АДАПТИВНАЯ ТОЧНОСТЬ БОТА
+  // Easy: 60-70% (дает кайфануть новичкам)
+  // Medium: 70-80% (стандартная сложность)
+  // Hard: 85-90% (начинает давить на фармеров)
+  // Insane: 95-99% (бот-убийца, почти непобедим)
+  
+  const baseAccuracies = {
+    easy: 0.65,      // 65% базовая точность
+    medium: 0.75,    // 75% базовая точность
+    hard: 0.875,     // 87.5% базовая точность
+    insane: 0.97,    // 97% базовая точность (почти непобедим)
+  };
+  
+  const baseAccuracy = baseAccuracies[botDifficulty] || 0.75;
+  
+  // Модификаторы на основе сложности вопроса
+  const difficultyModifiers = {
+    easy: 0.15,   // +15% для легких вопросов
+    medium: 0,    // Без изменений для средних
+    hard: -0.10,  // -10% для сложных вопросов (но не ниже минимума)
   };
 
-  const delayMap = {
-    easy: [2000, 4000],
-    medium: [3000, 6000],
-    hard: [5000, 9000],
+  const modifier = difficultyModifiers[questionDifficulty as keyof typeof difficultyModifiers] || 0;
+  const accuracy = Math.min(0.99, Math.max(0.50, baseAccuracy + modifier));
+
+  // 🛡️ АДАПТИВНАЯ СКОРОСТЬ ОТВЕТА
+  // Чем сложнее бот - тем быстрее отвечает (реалистично для сильных игроков)
+  const delayRanges = {
+    easy: { min: 30000, max: 60000 },      // 30-60 секунд (медленно думает)
+    medium: { min: 20000, max: 50000 },     // 20-50 секунд (стандартно)
+    hard: { min: 15000, max: 35000 },      // 15-35 секунд (быстрее)
+    insane: { min: 10000, max: 25000 },    // 10-25 секунд (очень быстро, как про)
   };
 
-  const accuracy = accuracyMap[difficulty as keyof typeof accuracyMap]?.[questionDifficulty as keyof typeof accuracyMap.easy] || 0.5;
-  const [minDelay, maxDelay] = delayMap[difficulty as keyof typeof delayMap] || [3000, 6000];
+  const range = delayRanges[botDifficulty] || delayRanges.medium;
+  const delayMs = Math.floor(Math.random() * (range.max - range.min) + range.min);
+
+  console.log(`[simulateBotAnswer] 🤖 Bot difficulty: ${botDifficulty}, Question: ${questionDifficulty}, Accuracy: ${(accuracy * 100).toFixed(1)}%, Delay: ${Math.round(delayMs / 1000)}s`);
 
   return {
-    delayMs: Math.floor(Math.random() * (maxDelay - minDelay) + minDelay),
+    delayMs,
     willBeCorrect: Math.random() < accuracy,
   };
 }
@@ -800,7 +890,7 @@ async function createNotification(body: any, profileId: string, supabase: any): 
     // Get opponent's profile_id
     const { data: players, error: playersError } = await supabase
       .from('duel_players')
-      .select('user_id')
+      .select('user_id, is_bot, bot_name')
       .eq('duel_id', duel_id);
 
     if (playersError) {
@@ -819,9 +909,27 @@ async function createNotification(body: any, profileId: string, supabase: any): 
       });
     }
 
-    const opponentId = players.find((p: any) => p.user_id !== profileId)?.user_id;
+    // Находим оппонента: если есть имя бота в metadata, используем его; иначе ищем по user_id
+    let opponentId: string | null = null;
+    const opponentPlayer = players.find((p: any) => {
+      // Если это бот и имя бота уже в metadata - используем его
+      if (p.is_bot && metadata.opponent_name) {
+        return true;
+      }
+      // Иначе ищем по user_id
+      return p.user_id && p.user_id !== profileId;
+    });
 
-    if (!opponentId) {
+    // Если оппонент - бот и имя уже передано в metadata, пропускаем поиск по user_id
+    if (opponentPlayer?.is_bot && metadata.opponent_name) {
+      opponentId = null; // Для бота user_id не нужен, имя уже в metadata
+      console.log('[create_notification] Bot opponent detected, using name from metadata:', metadata.opponent_name);
+    } else {
+      opponentId = opponentPlayer?.user_id || null;
+    }
+
+    // Если оппонент не найден и это не бот с именем в metadata - ошибка
+    if (!opponentId && !(opponentPlayer?.is_bot && metadata.opponent_name)) {
       console.warn('[create_notification] Opponent not found. Players:', players, 'profileId:', profileId);
       return new Response(JSON.stringify({ error: 'Opponent not found' }), {
         status: 404,
@@ -829,20 +937,32 @@ async function createNotification(body: any, profileId: string, supabase: any): 
       });
     }
 
-    console.log('[create_notification] Opponent found:', opponentId, 'All players:', JSON.stringify(players.map((p: any) => ({ user_id: p.user_id }))));
+    console.log('[create_notification] Opponent found:', opponentId || 'BOT', 'All players:', JSON.stringify(players.map((p: any) => ({ user_id: p.user_id, is_bot: p.is_bot, bot_name: p.bot_name }))));
 
     // Get opponent name if not provided in metadata
     // ВАЖНО: Всегда получаем имя соперника перед использованием шаблона
+    // Если оппонент - бот и имя уже в metadata, используем его
     if (!metadata.opponent_name) {
-      try {
-        console.log('[create_notification] 🔍 Fetching opponent name for opponentId:', opponentId);
-        metadata.opponent_name = await getOpponentName(opponentId, supabase);
-        console.log('[create_notification] ✅ Opponent name retrieved:', metadata.opponent_name);
-      } catch (nameError: any) {
-        console.error('[create_notification] ❌ Error getting opponent name:', nameError);
-        console.error('[create_notification] Error details:', JSON.stringify(nameError, null, 2));
-        // Используем "Игрок" как fallback вместо ID
+      // Если оппонент - бот, пытаемся получить имя из player данных
+      if (opponentPlayer?.is_bot && opponentPlayer?.bot_name) {
+        metadata.opponent_name = opponentPlayer.bot_name;
+        console.log('[create_notification] ✅ Using bot name from player data:', metadata.opponent_name);
+      } else if (opponentId) {
+        // Для реального игрока получаем имя из профиля
+        try {
+          console.log('[create_notification] 🔍 Fetching opponent name for opponentId:', opponentId);
+          metadata.opponent_name = await getOpponentName(opponentId, supabase);
+          console.log('[create_notification] ✅ Opponent name retrieved:', metadata.opponent_name);
+        } catch (nameError: any) {
+          console.error('[create_notification] ❌ Error getting opponent name:', nameError);
+          console.error('[create_notification] Error details:', JSON.stringify(nameError, null, 2));
+          // Используем "Игрок" как fallback вместо ID
+          metadata.opponent_name = 'Игрок';
+        }
+      } else {
+        // Fallback если ничего не найдено
         metadata.opponent_name = 'Игрок';
+        console.warn('[create_notification] ⚠️ No opponent name found, using fallback');
       }
     }
 
@@ -1114,6 +1234,15 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Детальное логирование перед switch
+    console.log('[Duel Manager] 🔍 Before switch:', {
+      action,
+      actionType: typeof action,
+      actionValue: JSON.stringify(action),
+      hasFindMatch: action === 'find_match',
+      switchCases: ['create_notification', 'check_status', 'find_match', 'submit_answer', 'use_boost', 'finish_duel', 'cancel_duel']
+    });
+
     switch (action) {
       case 'create_notification':
         return await createNotification(params, profileId, supabase);
@@ -1157,9 +1286,10 @@ Deno.serve(async (req) => {
         console.log('[Duel Manager] Getting players for duel:', duel_id, 'Profile:', profileId);
 
         // Загружаем игроков без join (чтобы избежать проблем с RLS)
+        // Включаем информацию о ботах (is_bot, bot_difficulty)
         const { data: players, error: playersError } = await supabase
           .from('duel_players')
-          .select('id, user_id, score, correct_count')
+          .select('id, user_id, score, correct_count, is_bot, bot_difficulty')
           .eq('duel_id', duel_id);
 
         if (playersError) {
@@ -1244,6 +1374,31 @@ Deno.serve(async (req) => {
 
         // Format players with names
         const formattedPlayers = players.map((p: any) => {
+          // Если это бот - используем сгенерированное имя
+          if (p.is_bot) {
+            const botNames = ['CyberNinja', 'Alex_99', 'Kira', 'Neo_V', 'Ghost_Rider', 'Zero_Cool', 'Matrix_Hack', 'Byte_Force', 'Code_Breaker', 'Net_Runner'];
+            // Генерируем детерминированное имя на основе ID бота для консистентности
+            const botNameIndex = parseInt(p.id.replace(/-/g, '').slice(0, 8), 16) % botNames.length;
+            const botName = botNames[botNameIndex];
+            
+            console.log('[get_players] Processing bot player:', {
+              playerId: p.id,
+              botName,
+              bot_difficulty: p.bot_difficulty
+            });
+
+            return {
+              id: p.id,
+              user_id: p.user_id,
+              score: p.score || 0,
+              correct_count: p.correct_count || 0,
+              name: botName,
+              bot_name: botName, // Дублируем для совместимости
+              is_bot: true,
+              bot_difficulty: p.bot_difficulty,
+            };
+          }
+
           const profile = profilesMap.get(p.user_id);
 
           console.log('[get_players] Processing player:', {
@@ -1505,6 +1660,538 @@ Deno.serve(async (req) => {
         console.log('[Duel Manager] ✅ Host player created:', hostPlayer?.id);
 
         return new Response(JSON.stringify({ duel, code }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      case 'find_match': {
+        // Логируем входящие параметры для диагностики
+        console.log('[find_match] 📥 Received params:', JSON.stringify(params, null, 2));
+        console.log('[find_match] 📥 Params types:', {
+          num_questions: typeof params.num_questions,
+          bet_amount: typeof params.bet_amount,
+          difficulty: typeof params.difficulty,
+          bet_type: typeof params.bet_type,
+          insurance_enabled: typeof params.insurance_enabled,
+          has_categories: 'categories' in params,
+        });
+
+        // Валидация с детальной обработкой ошибок
+        let validated;
+        try {
+          validated = findMatchSchema.parse(params);
+          console.log('[find_match] ✅ Validation passed:', {
+            num_questions: validated.num_questions,
+            bet_amount: validated.bet_amount,
+            difficulty: validated.difficulty,
+            bet_type: validated.bet_type,
+          });
+        } catch (validationError: any) {
+          console.error('[find_match] ❌ Validation error:', {
+            error: validationError.message,
+            issues: validationError.issues,
+            receivedParams: params,
+            receivedParamsTypes: {
+              num_questions: typeof params.num_questions,
+              bet_amount: typeof params.bet_amount,
+              difficulty: typeof params.difficulty,
+              bet_type: typeof params.bet_type,
+            }
+          });
+          return new Response(JSON.stringify({ 
+            error: 'Validation failed', 
+            message: validationError.message,
+            details: validationError.issues,
+            received: params 
+          }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        const {
+          num_questions,
+          categories,
+          difficulty,
+          bet_amount = 0,
+          bet_type = 'none',
+          insurance_enabled,
+          insurance_rate,
+          insurance_coverage_rate,
+          security_context
+        } = validated;
+
+        console.log('[find_match] Starting matchmaking for profile:', profileId);
+
+        // Получаем уровень игрока для определения сложности бота
+        const { data: playerProfile, error: profileError } = await supabase
+          .from('profiles')
+          .select('duel_pass_level, coins')
+          .eq('id', profileId)
+          .single();
+
+        if (profileError || !playerProfile) {
+          return new Response(JSON.stringify({ error: 'Profile not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        const playerLevel = playerProfile.duel_pass_level || 1;
+
+        // Проверяем монеты для ставки
+        if (bet_amount > 0) {
+          const hostInsurance = bet_amount > 0 ? getInsuranceConfig(bet_amount, {
+            enabled: insurance_enabled,
+            rate: insurance_rate,
+            coverageRate: insurance_coverage_rate
+          }) : { enabled: false, rate: 0, coverageRate: 0, premium: 0 };
+
+          const requiredCoins = bet_amount + (hostInsurance.premium || 0);
+
+          if ((playerProfile.coins || 0) < requiredCoins) {
+            return new Response(JSON.stringify({ error: `Insufficient coins. You need ${requiredCoins} coins but only have ${playerProfile.coins || 0}` }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+        }
+
+        // Шаг 1: Добавляем игрока в очередь поиска
+        // Подготавливаем данные для вставки (categories может быть null)
+        const queueData: any = {
+          profile_id: profileId,
+          num_questions,
+          difficulty: difficulty || 'mix',
+          bet_amount: bet_amount || 0,
+          bet_type: bet_type || 'none',
+          expires_at: new Date(Date.now() + 30000).toISOString(), // 30 секунд
+          matched: false
+        };
+        
+        // Добавляем categories только если они есть
+        if (categories && Array.isArray(categories) && categories.length > 0) {
+          queueData.categories = categories;
+        }
+        
+        console.log('[find_match] 📝 Inserting into queue:', {
+          ...queueData,
+          profile_id: `${queueData.profile_id.substring(0, 8)}...`
+        });
+        
+        const { data: queueEntry, error: queueInsertError } = await supabase
+          .from('duel_matchmaking_queue')
+          .insert(queueData)
+          .select()
+          .single();
+
+        if (queueInsertError) {
+          console.error('[find_match] ❌ Error adding to queue:', {
+            error: queueInsertError,
+            message: queueInsertError.message,
+            code: queueInsertError.code,
+            details: queueInsertError.details,
+            hint: queueInsertError.hint,
+            data: {
+              profile_id: profileId,
+              num_questions,
+              difficulty,
+              categories,
+              bet_amount,
+              bet_type,
+            }
+          });
+          return new Response(JSON.stringify({ 
+            error: 'Failed to join matchmaking queue',
+            details: queueInsertError.message,
+            code: queueInsertError.code
+          }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        console.log('[find_match] ✅ Added to queue:', queueEntry.id);
+
+        // Шаг 2: Ищем реального соперника в очереди (5-10 секунд)
+        const searchStartTime = Date.now();
+        const searchTimeout = 8000; // 8 секунд поиска
+        let matchedOpponent = null;
+
+        while (Date.now() - searchStartTime < searchTimeout) {
+          // Ищем подходящего соперника в очереди с FOR UPDATE SKIP LOCKED для защиты от race condition
+          // Используем RPC для выполнения SQL с FOR UPDATE SKIP LOCKED
+          const { data: queueEntries, error: queueError } = await supabase.rpc('find_matchmaking_opponent', {
+            p_profile_id: profileId,
+            p_bet_amount: bet_amount,
+            p_difficulty: difficulty || 'mix'
+          });
+
+          if (!queueError && queueEntries && queueEntries.length > 0) {
+            matchedOpponent = queueEntries[0];
+            console.log('[find_match] ✅ Found real opponent:', matchedOpponent.profile_id);
+            break;
+          }
+
+          // Ждем 1 секунду перед следующей попыткой
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
+        // Шаг 2: Если нашли реального соперника - создаем дуэль
+        if (matchedOpponent) {
+          // Соперник уже помечен как matched в RPC функции find_matchmaking_opponent
+          // Удаляем обе записи из очереди
+          await supabase
+            .from('duel_matchmaking_queue')
+            .delete()
+            .in('id', [queueEntry.id, matchedOpponent.id]);
+
+          // Создаем дуэль (используем логику из create_duel)
+          const hostInsurance = bet_amount > 0 ? getInsuranceConfig(bet_amount, {
+            enabled: insurance_enabled,
+            rate: insurance_rate,
+            coverageRate: insurance_coverage_rate
+          }) : { enabled: false, rate: 0, coverageRate: 0, premium: 0 };
+
+          if (bet_amount > 0) {
+            await supabase.rpc('increment_profile_value', {
+              p_profile_id: profileId,
+              p_column: 'coins',
+              p_amount: -(bet_amount + (hostInsurance.premium || 0))
+            });
+          }
+
+          let code = generateDuelCode();
+          let attempts = 0;
+          while (attempts < 10) {
+            const { data: existing } = await supabase
+              .from('duels')
+              .select('id')
+              .eq('code', code)
+              .single();
+
+            if (!existing) break;
+            code = generateDuelCode();
+            attempts++;
+          }
+
+          const questionSeed = Math.floor(Date.now() * 1000 + Math.random() * 1000000);
+
+          const { data: duel, error: duelError } = await supabase
+            .from('duels')
+            .insert({
+              code,
+              host_user: profileId,
+              num_questions,
+              categories,
+              difficulty,
+              question_seed: questionSeed,
+              bet_amount,
+              bet_type,
+            })
+            .select()
+            .single();
+
+          if (duelError) throw duelError;
+
+          // Добавляем хост
+          await supabase
+            .from('duel_players')
+            .insert({
+              duel_id: duel.id,
+              user_id: profileId,
+              is_host: true,
+            });
+
+          // Добавляем соперника
+          await supabase
+            .from('duel_players')
+            .insert({
+              duel_id: duel.id,
+              user_id: matchedOpponent.profile_id,
+              is_host: false,
+            });
+
+          // Удаляем обе записи из очереди (соперник уже помечен как matched в RPC функции)
+          await supabase
+            .from('duel_matchmaking_queue')
+            .delete()
+            .in('id', [queueEntry.id, matchedOpponent.id]);
+
+          // Автозапуск дуэли (логика из join_duel)
+          try {
+            console.log('[find_match] 🚀 AUTO-START: 2 players detected, starting duel...');
+            
+            const { data: allQuestions, error: questionsError } = await supabase
+              .from('questions_new')
+              .select(`
+                id, question_ru, question_es, question_en, image_url, difficulty,
+                answer_options(id, text_ru, text_es, text_en, is_correct, position)
+              `);
+
+            if (questionsError) {
+              console.error('[find_match] ❌ Error loading questions:', questionsError);
+              throw questionsError;
+            }
+
+            if (!allQuestions || allQuestions.length === 0) {
+              console.error('[find_match] ❌ No questions found in database');
+              throw new Error('No questions found');
+            }
+
+            console.log(`[find_match] ✅ Total questions loaded: ${allQuestions.length}`);
+
+            const rng = mulberry32(questionSeed);
+            const shuffled = fisherYatesShuffle(allQuestions, rng);
+            const selectedQuestions = shuffled.slice(0, num_questions);
+
+            console.log(`[find_match] ✅ Selected ${selectedQuestions.length} random questions using seed ${questionSeed}`);
+
+            // Insert duel questions
+            const duelQuestions = selectedQuestions.map((q: any, idx: number) => ({
+              duel_id: duel.id,
+              question_id: q.id,
+              position: idx + 1,
+              question_snapshot: {
+                question_ru: q.question_ru,
+                question_es: q.question_es,
+                question_en: q.question_en,
+                image_url: q.image_url,
+                difficulty: q.difficulty,
+                answer_options: q.answer_options.map((opt: any) => ({
+                  id: opt.id,
+                  text_ru: opt.text_ru,
+                  text_es: opt.text_es,
+                  text_en: opt.text_en,
+                  is_correct: opt.is_correct,
+                  position: opt.position,
+                })),
+              },
+              correct_option_ids: q.answer_options
+                .filter((opt: any) => opt.is_correct)
+                .map((opt: any) => opt.id),
+            }));
+
+            const { error: insertError } = await supabase
+              .from('duel_questions')
+              .insert(duelQuestions);
+
+            if (insertError) {
+              console.error('[find_match] ❌ Error inserting questions:', insertError);
+              throw insertError;
+            }
+
+            // Update duel status to active
+            await supabase
+              .from('duels')
+              .update({
+                status: 'active',
+                started_at: new Date().toISOString(),
+              })
+              .eq('id', duel.id);
+
+            console.log('[find_match] ✅ Duel auto-started successfully');
+          } catch (autoStartError) {
+            console.error('[find_match] ❌ Error during auto-start:', autoStartError);
+            // Не прерываем выполнение, дуэль создана, но не запущена
+          }
+
+          return new Response(JSON.stringify({ 
+            duel, 
+            code,
+            opponent_type: 'real',
+            auto_started: true
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Шаг 3: Если не нашли реального соперника - создаем бота
+        console.log('[find_match] ⚠️ No real opponent found, creating bot...');
+
+        // 🛡️ Получаем win_streak игрока для адаптивной сложности бота (Anti-Farming Protection)
+        const { data: playerProfile, error: profileError } = await supabase
+          .from('profiles')
+          .select('win_streak')
+          .eq('id', profileId)
+          .single();
+
+        const winStreak = playerProfile?.win_streak || 0;
+        console.log(`[find_match] 🛡️ Player win streak: ${winStreak} (anti-farming protection)`);
+
+        // Генерируем профиль бота на основе уровня игрока и win_streak
+        const botProfile = generateBotProfile(playerLevel, winStreak);
+        console.log('[find_match] Generated bot profile:', botProfile);
+
+        // Создаем дуэль с ботом
+        const hostInsurance = bet_amount > 0 ? getInsuranceConfig(bet_amount, {
+          enabled: insurance_enabled,
+          rate: insurance_rate,
+          coverageRate: insurance_coverage_rate
+        }) : { enabled: false, rate: 0, coverageRate: 0, premium: 0 };
+
+        if (bet_amount > 0) {
+          await supabase.rpc('increment_profile_value', {
+            p_profile_id: profileId,
+            p_column: 'coins',
+            p_amount: -(bet_amount + (hostInsurance.premium || 0))
+          });
+        }
+
+        let code = generateDuelCode();
+        let attempts = 0;
+        while (attempts < 10) {
+          const { data: existing } = await supabase
+            .from('duels')
+            .select('id')
+            .eq('code', code)
+            .single();
+
+          if (!existing) break;
+          code = generateDuelCode();
+          attempts++;
+        }
+
+        const questionSeed = Math.floor(Date.now() * 1000 + Math.random() * 1000000);
+
+        const { data: duel, error: duelError } = await supabase
+          .from('duels')
+          .insert({
+            code,
+            host_user: profileId,
+            num_questions,
+            categories,
+            difficulty,
+            question_seed: questionSeed,
+            bet_amount,
+            bet_type,
+          })
+          .select()
+          .single();
+
+        if (duelError) throw duelError;
+
+        // Добавляем хост
+        await supabase
+          .from('duel_players')
+          .insert({
+            duel_id: duel.id,
+            user_id: profileId,
+            is_host: true,
+          });
+
+        // Добавляем БОТА (is_bot = true, user_id = null)
+        const { data: botPlayer, error: botError } = await supabase
+          .from('duel_players')
+          .insert({
+            duel_id: duel.id,
+            user_id: null, // Бот не имеет user_id
+            is_host: false,
+            is_bot: true,
+            bot_difficulty: botProfile.difficulty,
+          })
+          .select()
+          .single();
+
+        if (botError) {
+          console.error('[find_match] ❌ Error creating bot player:', botError);
+          throw botError;
+        }
+
+        console.log('[find_match] ✅ Bot player created:', botPlayer.id);
+
+        // Удаляем свою заявку из очереди (бот создан, реального соперника не нашли)
+        await supabase
+          .from('duel_matchmaking_queue')
+          .delete()
+          .eq('id', queueEntry.id);
+
+        // Автозапуск дуэли с ботом (аналогично реальному сопернику)
+        try {
+          console.log('[find_match] 🚀 AUTO-START with bot: starting duel...');
+          
+          const { data: allQuestions, error: questionsError } = await supabase
+            .from('questions_new')
+            .select(`
+              id, question_ru, question_es, question_en, image_url, difficulty,
+              answer_options(id, text_ru, text_es, text_en, is_correct, position)
+            `);
+
+          if (questionsError) {
+            console.error('[find_match] ❌ Error loading questions:', questionsError);
+            throw questionsError;
+          }
+
+          if (!allQuestions || allQuestions.length === 0) {
+            console.error('[find_match] ❌ No questions found in database');
+            throw new Error('No questions found');
+          }
+
+          console.log(`[find_match] ✅ Total questions loaded: ${allQuestions.length}`);
+
+          const rng = mulberry32(questionSeed);
+          const shuffled = fisherYatesShuffle(allQuestions, rng);
+          const selectedQuestions = shuffled.slice(0, num_questions);
+
+          console.log(`[find_match] ✅ Selected ${selectedQuestions.length} random questions using seed ${questionSeed}`);
+
+          // Insert duel questions
+          const duelQuestions = selectedQuestions.map((q: any, idx: number) => ({
+            duel_id: duel.id,
+            question_id: q.id,
+            position: idx + 1,
+            question_snapshot: {
+              question_ru: q.question_ru,
+              question_es: q.question_es,
+              question_en: q.question_en,
+              image_url: q.image_url,
+              difficulty: q.difficulty,
+              answer_options: q.answer_options.map((opt: any) => ({
+                id: opt.id,
+                text_ru: opt.text_ru,
+                text_es: opt.text_es,
+                text_en: opt.text_en,
+                is_correct: opt.is_correct,
+                position: opt.position,
+              })),
+            },
+            correct_option_ids: q.answer_options
+              .filter((opt: any) => opt.is_correct)
+              .map((opt: any) => opt.id),
+          }));
+
+          const { error: insertError } = await supabase
+            .from('duel_questions')
+            .insert(duelQuestions);
+
+          if (insertError) {
+            console.error('[find_match] ❌ Error inserting questions:', insertError);
+            throw insertError;
+          }
+
+          // Update duel status to active
+          await supabase
+            .from('duels')
+            .update({
+              status: 'active',
+              started_at: new Date().toISOString(),
+            })
+            .eq('id', duel.id);
+
+          console.log('[find_match] ✅ Duel with bot auto-started successfully');
+        } catch (autoStartError) {
+          console.error('[find_match] ❌ Error during auto-start with bot:', autoStartError);
+          // Не прерываем выполнение, дуэль создана, но не запущена
+        }
+
+        return new Response(JSON.stringify({ 
+          duel, 
+          code,
+          opponent_type: 'bot',
+          bot_name: botProfile.name,
+          bot_avatar: botProfile.avatar,
+          auto_started: true
+        }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
@@ -2277,11 +2964,203 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Проверяем, есть ли бот в дуэли, и если да - планируем его ответ
+        const { data: botPlayer } = await supabase
+          .from('duel_players')
+          .select('id, is_bot, bot_difficulty')
+          .eq('duel_id', duel_id)
+          .eq('is_bot', true)
+          .maybeSingle();
+
+        if (botPlayer && !isSkipped) {
+          // Бот будет отвечать через некоторое время
+          // Клиент должен вызвать bot_answer после задержки
+          console.log('[submit_answer] Bot detected, will answer after delay');
+        }
+
         return new Response(JSON.stringify({
           is_correct: isCorrect,
           points_awarded: points,
           new_score: newScore,
           combo: finalCombo,
+          has_bot: !!botPlayer,
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      case 'bot_answer': {
+        // Обработка ответа бота на вопрос
+        const { duel_id, duel_question_id } = params;
+
+        // Находим бота в дуэли
+        const { data: botPlayer } = await supabase
+          .from('duel_players')
+          .select('id, bot_difficulty, score, correct_count')
+          .eq('duel_id', duel_id)
+          .eq('is_bot', true)
+          .single();
+
+        if (!botPlayer) {
+          return new Response(JSON.stringify({ error: 'Bot not found in this duel' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Проверяем, не ответил ли бот уже
+        const { data: existingAnswer } = await supabase
+          .from('duel_answers')
+          .select('id')
+          .eq('player_id', botPlayer.id)
+          .eq('duel_question_id', duel_question_id)
+          .single();
+
+        if (existingAnswer) {
+          return new Response(JSON.stringify({ error: 'Bot already answered' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Получаем вопрос
+        const { data: question } = await supabase
+          .from('duel_questions')
+          .select('*')
+          .eq('id', duel_question_id)
+          .single();
+
+        if (!question) {
+          return new Response(JSON.stringify({ error: 'Question not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        const questionDifficulty = (question.question_snapshot as any).difficulty || 'medium';
+        const botDifficulty = botPlayer.bot_difficulty || 'medium';
+
+        // Симулируем ответ бота
+        const botSimulation = simulateBotAnswer(botDifficulty, questionDifficulty);
+        const correctIds = question.correct_option_ids as string[];
+
+        // Выбираем правильный или неправильный ответ
+        let selectedOptionId: string | null = null;
+        if (botSimulation.willBeCorrect && correctIds.length > 0) {
+          selectedOptionId = correctIds[0]; // Берем первый правильный
+        } else {
+          // Выбираем случайный неправильный ответ
+          const allOptions = (question.question_snapshot as any).answer_options || [];
+          const wrongOptions = allOptions.filter((opt: any) => !correctIds.includes(opt.id));
+          if (wrongOptions.length > 0) {
+            selectedOptionId = wrongOptions[Math.floor(Math.random() * wrongOptions.length)].id;
+          }
+        }
+
+        const isCorrect = selectedOptionId ? correctIds.includes(selectedOptionId) : false;
+        const isSkipped = !selectedOptionId;
+
+        // Вычисляем очки (бот не получает комбо бонусы для упрощения)
+        const timeLimit = 60000;
+        const timeRemain = Math.floor(Math.random() * 20000) + 10000; // 10-30 секунд
+        const points = isCorrect ? calculateScore(questionDifficulty, timeRemain, timeLimit, 0) : 0;
+
+        // Сохраняем ответ бота
+        await supabase.from('duel_answers').insert({
+          duel_id,
+          player_id: botPlayer.id,
+          duel_question_id,
+          selected_option_id: selectedOptionId,
+          is_correct: isCorrect,
+          is_skipped: isSkipped,
+          time_taken_ms: timeLimit - timeRemain,
+          points_awarded: points,
+          combo_at_time: 0,
+          boost_used: null,
+        });
+
+        // Обновляем счет бота
+        const newBotScore = botPlayer.score + points;
+        await supabase
+          .from('duel_players')
+          .update({
+            score: newBotScore,
+            correct_count: botPlayer.correct_count + (isCorrect ? 1 : 0),
+          })
+          .eq('id', botPlayer.id);
+
+        // Создаем уведомление для игрока о прогрессе бота (как в реальных дуэлях)
+        // Всегда уведомляем о каждом ответе бота, не только на milestones
+        if (!isSkipped) {
+          console.log('[bot_answer] Creating progress notification for human player');
+
+          const { data: duel } = await supabase
+            .from('duels')
+            .select('num_questions')
+            .eq('id', duel_id)
+            .single();
+
+          // Total answers including current one
+          const { count: botAnswersCount } = await supabase
+            .from('duel_answers')
+            .select('*', { count: 'exact', head: true })
+            .eq('player_id', botPlayer.id)
+            .eq('duel_id', duel_id);
+
+          const totalAnswers = (botAnswersCount || 0);
+          const progress = duel ? Math.round((totalAnswers / duel.num_questions) * 100) : 0;
+
+          // Находим реального игрока (не бота) - ищем игрока с user_id (не null)
+          const { data: humanPlayer } = await supabase
+            .from('duel_players')
+            .select('user_id')
+            .eq('duel_id', duel_id)
+            .not('user_id', 'is', null)
+            .eq('is_bot', false)
+            .single();
+
+          if (humanPlayer?.user_id) {
+            const botName = botPlayer.bot_name || 'Бот';
+            
+            console.log('[bot_answer] Notification metadata:', {
+              is_correct: isCorrect,
+              question_number: question.position,
+              progress,
+              totalAnswers,
+              bot_name: botName
+            });
+
+            // Всегда уведомляем о прогрессе, но включаем процент только на milestones
+            // Также добавляем имя бота в metadata для правильного отображения
+            const notifResult = await createNotification({
+              duel_id,
+              type: 'progress',
+              metadata: {
+                is_correct: isCorrect,
+                question_number: question.position,
+                progress: progress >= 25 && progress % 25 === 0 ? progress : undefined, // Notify at 25%, 50%, 75%
+                opponent_name: botName, // Добавляем имя бота для правильного отображения
+              }
+            }, humanPlayer.user_id, supabase).catch(err => {
+              console.error('[bot_answer] Error creating progress notification:', err);
+              return false;
+            });
+
+            if (!notifResult) {
+              console.warn('[bot_answer] Failed to create progress notification - human player might not be found');
+            } else {
+              console.log('[bot_answer] ✅ Progress notification created successfully');
+            }
+          } else {
+            console.warn('[bot_answer] ⚠️ Human player not found in duel');
+          }
+        }
+
+        return new Response(JSON.stringify({
+          is_correct: isCorrect,
+          points_awarded: points,
+          new_score: newBotScore,
+          combo: 0,
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -2720,6 +3599,46 @@ Deno.serve(async (req) => {
               p_is_draw: isDraw,
               p_score: player.score
             });
+          }
+
+          // 🛡️ ANTI-FARMING PROTECTION: Update win_streak based on duel outcome
+          // Проверяем, есть ли бот в дуэли
+          const { data: botPlayer } = await supabase
+            .from('duel_players')
+            .select('id, is_bot')
+            .eq('duel_id', duel_id)
+            .eq('is_bot', true)
+            .single();
+
+          const hasBot = !!botPlayer;
+
+          if (hasBot) {
+            // Если в дуэли есть бот - обновляем win_streak для реальных игроков
+            for (const player of playersWithScores) {
+              if (player.user_id) { // Только для реальных игроков (не ботов)
+                const isWin = player.id === winnerId && !isDraw;
+                
+                if (isWin) {
+                  // Победа над ботом - увеличиваем win_streak
+                  await supabase.rpc('increment_profile_value', {
+                    p_profile_id: player.user_id,
+                    p_column: 'win_streak',
+                    p_amount: 1
+                  });
+                  console.log(`[finish_duel] 🛡️ Win streak incremented for player ${player.user_id} (won against bot)`);
+                } else {
+                  // Поражение или ничья - сбрасываем win_streak
+                  await supabase
+                    .from('profiles')
+                    .update({ win_streak: 0 })
+                    .eq('id', player.user_id);
+                  console.log(`[finish_duel] 🛡️ Win streak reset for player ${player.user_id} (lost/draw against bot)`);
+                }
+              }
+            }
+          } else {
+            // Если это дуэль с реальным игроком - не трогаем win_streak
+            console.log('[finish_duel] Real player duel - win_streak not affected');
           }
 
           console.log('[finish_duel] Duel finished:', {

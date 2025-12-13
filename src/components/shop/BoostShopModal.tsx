@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift, Trophy, TestTube, Zap, Calendar, CreditCard, Users, Filter, Crown, Sparkles, Check, Video, ChevronDown, Shield, Wand2 } from 'lucide-react';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift, Trophy, TestTube, Zap, Calendar, CreditCard, Users, Filter, Crown, Sparkles, Check, Video, ChevronDown, Shield, Wand2, Download, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext, UserContext } from '@/contexts/UserContext';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
@@ -15,6 +16,7 @@ import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { BoostCard } from './BoostCard';
 import { MarketItem } from './MarketItem';
+import { CryptoMinerAdButton } from './CryptoMinerAdButton';
 // Removed framer-motion import for better performance
 import { PaywallModal } from '@/components/monetization/PaywallModal';
 import { usePremium } from '@/hooks/usePremium';
@@ -1133,6 +1135,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
   // Состояние фильтра категорий
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'exploit' | 'defense' | 'utility' | 'premium'>('all');
+  
+  // Состояние для просмотра деталей товара (Inspect Sheet)
+  const [selectedBoostForInspect, setSelectedBoostForInspect] = useState<Boost | null>(null);
 
   // Фильтрация бустов по категории
   const filteredRegularBoosts = useMemo(() => {
@@ -1239,6 +1244,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                       inventoryCount={getInventoryCount(boost.type)}
                       coins={coins}
                       onPurchase={() => handlePurchase(boost)}
+                      onInspect={() => {
+                        console.log('[BoostShopModal] Setting selectedBoostForInspect:', boost.type);
+                        setSelectedBoostForInspect(boost);
+                      }}
                       category={getBoostCategory(boost.type)}
                     />
                   ))}
@@ -1249,6 +1258,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                       inventoryCount={getInventoryCount(boost.type)}
                       coins={coins}
                       onPurchase={() => handlePurchase(boost)}
+                      onInspect={() => {
+                        console.log('[BoostShopModal] Setting selectedBoostForInspect:', boost.type);
+                        setSelectedBoostForInspect(boost);
+                      }}
                       category={getBoostCategory(boost.type)}
                     />
                   ))}
@@ -1267,29 +1280,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               className="p-4 md:p-6 space-y-4 mt-3 md:mt-4"
             >
               <div className="space-y-3">
-                {/* Кнопка получения монет за рекламу (только для non-Premium) */}
+                {/* CRYPTO MINER - Киберпанк-стиль реклама за монеты (только для non-Premium) */}
                 {!isPremium && (
-                  <Card className="p-4 md:p-5 border-2 border-indigo-500/20 bg-gradient-to-br from-indigo-500/5 to-violet-500/5">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/20 to-violet-500/20 flex items-center justify-center flex-shrink-0">
-                          <Video className="w-6 h-6 text-indigo-400" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-sm">Получить монеты бесплатно</p>
-                          <p className="text-xs text-muted-foreground">Посмотри видео и получи 20 монет</p>
-                        </div>
-                      </div>
-                      <Button
-                        size="default"
-                        onClick={() => setShowRewardedAdModal(true)}
-                        className="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 text-white h-11"
-                      >
-                        <Video className="w-4 h-4 mr-2" />
-                        Смотреть
-                      </Button>
-                    </div>
-                  </Card>
+                  <CryptoMinerAdButton />
                 )}
 
                 <div className="grid gap-4">
@@ -2152,6 +2145,175 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           }
         }}
       />
+
+      {/* Boost Inspect Sheet (Product Details) */}
+      {selectedBoostForInspect && (() => {
+        console.log('[BoostShopModal] Rendering inspect sheet for:', selectedBoostForInspect.type);
+        const inspectBoost = selectedBoostForInspect;
+        const inspectCategory = getBoostCategory(inspectBoost.type);
+        const inspectInventoryCount = getInventoryCount(inspectBoost.type);
+        const inspectCanAfford = coins >= inspectBoost.cost_coins;
+        const inspectIsConsumable = !inspectBoost.is_premium;
+        const inspectIsButtonDisabled = !inspectIsConsumable && inspectInventoryCount > 0;
+        
+        const inspectTheme = inspectCategory === 'exploit'
+          ? {
+              border: 'border-red-500/30',
+              icon: 'text-red-500',
+              bg: 'bg-red-500/20',
+              text: 'text-red-400',
+              buttonBg: 'bg-red-500/20 hover:bg-red-500/30',
+              buttonBorder: 'border-red-500/50',
+              buttonShadow: 'shadow-[0_0_20px_rgba(239,68,68,0.3)]',
+            }
+          : inspectCategory === 'defense'
+          ? {
+              border: 'border-cyan-500/30',
+              icon: 'text-cyan-400',
+              bg: 'bg-cyan-500/20',
+              text: 'text-cyan-400',
+              buttonBg: 'bg-cyan-500/20 hover:bg-cyan-500/30',
+              buttonBorder: 'border-cyan-500/50',
+              buttonShadow: 'shadow-[0_0_20px_rgba(6,182,212,0.3)]',
+            }
+          : {
+              border: 'border-emerald-500/30',
+              icon: 'text-emerald-400',
+              bg: 'bg-emerald-500/20',
+              text: 'text-emerald-400',
+              buttonBg: 'bg-emerald-500/20 hover:bg-emerald-500/30',
+              buttonBorder: 'border-emerald-500/50',
+              buttonShadow: 'shadow-[0_0_20px_rgba(34,197,94,0.3)]',
+            };
+
+        return (
+          <Sheet 
+            open={!!selectedBoostForInspect} 
+            onOpenChange={(open) => {
+              console.log('[BoostShopModal] Sheet onOpenChange:', open, 'selectedBoost:', selectedBoostForInspect?.type);
+              if (!open) {
+                setSelectedBoostForInspect(null);
+              }
+            }}
+          >
+            <SheetContent 
+              side="bottom" 
+              className="bg-[#0f1014] border-t border-white/10 p-6 rounded-t-3xl max-h-[80vh] overflow-y-auto"
+            >
+              {/* Noise texture */}
+              <div 
+                className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'repeat'
+                }}
+              />
+              
+              <div className="relative z-10">
+                {/* Header */}
+                <div className="flex items-center gap-4 mb-6">
+                  <div className={cn(
+                    "w-16 h-16 rounded-xl flex items-center justify-center",
+                    "bg-black/50 border border-white/10",
+                    inspectTheme.buttonShadow
+                  )}>
+                    <span 
+                      className={cn("text-3xl", inspectTheme.icon)}
+                      style={{
+                        filter: `drop-shadow(0 0 12px ${
+                          inspectCategory === 'exploit' ? 'rgba(239, 68, 68, 0.8)' : 
+                          inspectCategory === 'defense' ? 'rgba(6, 182, 212, 0.8)' : 
+                          'rgba(34, 197, 94, 0.8)'
+                        })`
+                      }}
+                    >
+                      {inspectBoost.icon}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-[10px] font-mono text-white/40 mb-1">
+                      {inspectCategory === 'exploit' ? 'ATK' : inspectCategory === 'defense' ? 'DEF' : 'UTL'}_MODULE v.{inspectInventoryCount || 1}
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-1">
+                      {translateBoostField(inspectBoost.type, 'name', inspectBoost.name_ru)}
+                    </h2>
+                    {inspectInventoryCount > 0 && inspectIsConsumable && (
+                      <div className="text-xs font-mono text-emerald-400">
+                        STOCK: {inspectInventoryCount}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Full Description */}
+                <div className="bg-white/5 p-4 rounded-xl border border-white/5 mb-6">
+                  <h3 className="text-xs font-mono text-white/40 mb-2 uppercase tracking-wider">System Effect</h3>
+                  <p className="text-sm text-white/80 leading-relaxed">
+                    {translateBoostField(inspectBoost.type, 'description', inspectBoost.description_ru)}
+                  </p>
+                </div>
+
+                {/* Specs Grid */}
+                <div className="grid grid-cols-2 gap-3 mb-8">
+                  <div className="p-3 rounded-lg bg-black/30 border border-white/5">
+                    <div className="text-[10px] text-white/30 font-mono mb-1">DURATION</div>
+                    <div className="text-sm text-white font-bold">1 Round</div>
+                  </div>
+                  <div className="p-3 rounded-lg bg-black/30 border border-white/5">
+                    <div className="text-[10px] text-white/30 font-mono mb-1">TARGET</div>
+                    <div className="text-sm text-white font-bold">
+                      {inspectCategory === 'exploit' ? 'Enemy System' : inspectCategory === 'defense' ? 'Self' : 'Both'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Big Action Button */}
+                <button
+                  onClick={() => {
+                    handlePurchase(inspectBoost);
+                    setSelectedBoostForInspect(null);
+                  }}
+                  disabled={!inspectCanAfford || inspectBoost.is_premium || inspectIsButtonDisabled}
+                  className={cn(
+                    "w-full py-4 rounded-xl font-bold text-lg transition-all",
+                    "flex items-center justify-center gap-2",
+                    inspectBoost.is_premium || inspectIsButtonDisabled || !inspectCanAfford
+                      ? "bg-gray-500/10 text-gray-400 border border-gray-500/30 cursor-not-allowed"
+                      : cn(
+                          inspectTheme.buttonBg,
+                          inspectTheme.text,
+                          inspectTheme.buttonBorder,
+                          inspectTheme.buttonShadow,
+                          "active:scale-95"
+                        )
+                  )}
+                >
+                  {inspectBoost.is_premium ? (
+                    <>
+                      <Lock className="w-5 h-5" />
+                      <span>LOCKED</span>
+                    </>
+                  ) : !inspectCanAfford ? (
+                    <span>INSUFFICIENT FUNDS</span>
+                  ) : inspectIsButtonDisabled ? (
+                    <>
+                      <Check className="w-5 h-5" />
+                      <span>OWNED</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-5 h-5" />
+                      <span>INSTALL MODULE</span>
+                      <Coins className="w-5 h-5 text-yellow-500" />
+                      <span className="text-yellow-500">{inspectBoost.cost_coins}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </SheetContent>
+          </Sheet>
+        );
+      })()}
     </>
   );
 }

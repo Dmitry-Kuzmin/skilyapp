@@ -4,6 +4,46 @@ import { OpponentActivityIndicator } from './OpponentActivityIndicator';
 import { memo } from 'react';
 import { cn } from '@/lib/utils';
 
+// Функция для генерации инициалов из имени
+const getInitials = (name: string): string => {
+  if (!name || name.trim().length === 0) return '?';
+  
+  // Очищаем имя от лишних символов и разбиваем на части
+  // Обрабатываем пробелы, подчеркивания, дефисы как разделители
+  const cleaned = name.trim().replace(/[_\-\s]+/g, ' ');
+  const words = cleaned.split(/\s+/).filter(w => w.length > 0);
+  
+  if (words.length === 0) return '?';
+  
+  // Если одно слово - берем первые 2 символа (буквы приоритетнее)
+  if (words.length === 1) {
+    const word = words[0];
+    // Ищем первые 2 буквы (пропускаем цифры и спецсимволы)
+    // Используем два отдельных класса для латиницы и кириллицы
+    const letters = word.match(/[A-Za-z]|[А-Яа-я]/g);
+    if (letters && letters.length >= 2) {
+      return letters.slice(0, 2).join('').toUpperCase();
+    }
+    if (letters && letters.length === 1) {
+      return letters[0].toUpperCase();
+    }
+    // Если букв нет - берем первые 2 символа
+    return word.substring(0, 2).toUpperCase();
+  }
+  
+  // Если несколько слов - берем первые буквы каждого слова (максимум 2)
+  const initials = words
+    .slice(0, 2)
+    .map(w => {
+      // Берем первую букву из слова (латиница или кириллица)
+      const firstLetter = w.match(/[A-Za-z]|[А-Яа-я]/);
+      return firstLetter ? firstLetter[0].toUpperCase() : w[0].toUpperCase();
+    })
+    .join('');
+  
+  return initials || '?';
+};
+
 interface DuelScoreBoardProps {
   myScore: number;
   opponentScore: number;
@@ -66,7 +106,9 @@ export const DuelScoreBoard = memo(({
             </div>
           ) : (
             <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
-              <Trophy className="w-5 h-5 md:w-6 md:h-6 text-white" />
+              <span className="text-sm md:text-base font-bold text-white select-none">
+                {getInitials(myName)}
+              </span>
             </div>
           )}
           {/* Иконка страховки рядом с фото */}
@@ -137,7 +179,9 @@ export const DuelScoreBoard = memo(({
             </div>
           ) : (
             <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
-              <Swords className="w-5 h-5 md:w-6 md:h-6 text-white" />
+              <span className="text-sm md:text-base font-bold text-white select-none">
+                {getInitials(opponentName)}
+              </span>
             </div>
           )}
 

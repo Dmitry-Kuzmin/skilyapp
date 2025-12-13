@@ -144,15 +144,28 @@ export function useDuelGame({
       setMyScore(players.myScore);
       setOpponentScore(players.opponentScore);
       setMyName(players.myName);
-      setOpponentName(players.opponentName);
-
+      
+      // Проверяем, является ли соперник ботом
       const myPlayer = players.players.find((p) => p.user_id === profileId);
       const opponent = players.players.find((p) => p.user_id !== profileId);
+      
+      // Устанавливаем имя соперника с учетом бота
+      if (opponent?.is_bot) {
+        // Для бота используем bot_name из данных
+        setOpponentName(opponent.bot_name || opponent.name || players.opponentName || 'CyberNinja');
+      } else {
+        setOpponentName(players.opponentName);
+      }
 
       if (myPlayer?.profiles?.photo_url) {
         setMyPhotoUrl(getImageUrl(myPlayer.profiles.photo_url));
       }
-      if (opponent?.profiles?.photo_url) {
+      
+      // Для бота используем дефолтный аватар, для реального игрока - его фото
+      if (opponent?.is_bot) {
+        // Используем дефолтный аватар для бота (можно заменить на сгенерированный)
+        setOpponentPhotoUrl('/avatars/bot-default.png');
+      } else if (opponent?.profiles?.photo_url) {
         setOpponentPhotoUrl(getImageUrl(opponent.profiles.photo_url));
       }
     } catch (error) {

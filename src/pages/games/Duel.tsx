@@ -22,7 +22,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { dispatchUserEvent } from '@/lib/notification-events';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
-import { Users, Clock, Share2 } from 'lucide-react';
+import { Users, Clock, Share2, Search } from 'lucide-react';
 import { useModal } from '@/hooks/useModal';
 import { Switch } from '@/components/ui/switch';
 import { useLumiToast } from '@/hooks/useLumiToast';
@@ -76,6 +76,7 @@ export default function Duel() {
     // Inline join state
     const [joinCode, setJoinCode] = useState('');
     const [isJoining, setIsJoining] = useState(false);
+    const [isFindingMatch, setIsFindingMatch] = useState(false);
     const hasAutoJoinedRef = useRef(false);
     const [duelPreview, setDuelPreview] = useState<{ bet_amount: number; num_questions: number } | null>(null);
 
@@ -733,6 +734,170 @@ export default function Duel() {
         }
     };
 
+    const handleFindMatch = async () => {
+        if (!dataLoaded || !profileId) {
+            console.warn('[Duel] Cannot find match: dataLoaded=', dataLoaded, 'profileId=', profileId);
+            return;
+        }
+        if (isFindingMatch) return;
+
+        setIsFindingMatch(true);
+
+        try {
+            // Валидация и подготовка данных
+            const numQuestionsValue = Number(numQuestions);
+            const betAmountValue = Number(betAmount);
+            
+            // Проверка на валидные числа
+            if (isNaN(numQuestionsValue) || numQuestionsValue < 5 || numQuestionsValue > 30) {
+                throw new Error(`Неверное количество вопросов: ${numQuestionsValue}. Должно быть от 5 до 30.`);
+            }
+            
+            if (isNaN(betAmountValue) || betAmountValue < 0 || betAmountValue > 10000) {
+                throw new Error(`Неверная ставка: ${betAmountValue}. Должна быть от 0 до 10000.`);
+            }
+
+            if (!profileId || typeof profileId !== 'string') {
+                throw new Error('Profile ID не найден. Пожалуйста, войдите в систему.');
+            }
+
+            // Подготовка данных для отправки
+            const requestBody: any = {
+                action: 'find_match',
+                profile_id: profileId,
+                num_questions: numQuestionsValue,
+                difficulty: 'mix' as const,
+                bet_amount: betAmountValue,
+                bet_type: betType || 'none',
+            };
+
+            // Добавляем insurance поля только если они нужны
+            if (hostInsuranceEnabled && betAmountValue > 0) {
+                requestBody.insurance_enabled = true;
+                requestBody.insurance_rate = INSURANCE_RATE;
+                requestBody.insurance_coverage_rate = COVERAGE_RATE;
+            }
+
+            console.log('[Duel] ✅ Validated request body:', {
+                ...requestBody,
+                profile_id: profileId ? `${profileId.substring(0, 8)}...` : 'MISSING'
+            });
+
+            const { data, error } = await supabase.functions.invoke('duel-manager', {
+                body: requestBody,
+            });
+
+            if (error) {
+                console.error('[Duel] ❌ Supabase function error:', {
+                    message: error.message,
+                    name: error.name,
+                    context: error.context,
+                    stack: error.stack
+                });
+                
+                // Пытаемся извлечь детали из error.context (это Response объект)
+                if (error.context && typeof error.context.json === 'function') {
+                    try {
+                        // Клонируем response, чтобы можно было прочитать его несколько раз
+                        const clonedResponse = error.context.clone();
+                        const errorBody = await clonedResponse.json();
+                        console.error('[Duel] ❌ Error body details:', errorBody);
+                        // Добавляем детали в error для последующей обработки
+                        (error as any).errorDetails = errorBody;
+                    } catch (e) {
+                        console.warn('[Duel] Could not parse error body:', e);
+                        // Пробуем прочитать как текст
+                        try {
+                            const clonedResponse = error.context.clone();
+                            const errorText = await clonedResponse.text();
+                            console.error('[Duel] ❌ Error body (text):', errorText);
+                            (error as any).errorDetails = { message: errorText };
+                        } catch (e2) {
+                            console.warn('[Duel] Could not read error body as text:', e2);
+                        }
+                    }
+                }
+                
+                throw error;
+            }
+
+            // Reload coins after bet
+            if (betAmount > 0) {
+                setUserCoins(userCoins - betAmount);
+            }
+
+            setDuelId(data.duel.id);
+            setDuelCode(data.duel.code);
+
+            // Если автозапуск произошел - сразу переходим к битве
+            if (data.auto_started) {
+                handleDuelStarted(data.duel.id);
+                toast.success(data.opponent_type === 'bot' ? `Соперник ${data.bot_name || 'найден'}!` : 'Соперник найден!');
+            } else {
+                // Fallback: переходим в лобби (не должно происходить, так как автозапуск всегда true)
+                setCreatedCode(data.duel.code);
+                setConnectionStatus('checking');
+                setWaitTime(0);
+                toast.success('Соперник найден!');
+            }
+        } catch (error: any) {
+            console.error('[Duel] ❌ Error finding match:', error);
+            
+            // Пытаемся извлечь детали ошибки из ответа Edge Function
+            let errorMessage = 'Ошибка при поиске соперника';
+            let errorDetails: any = null;
+
+            // Пробуем разные способы извлечения деталей ошибки
+            // errorDetails уже должен быть установлен в блоке выше (если error.context был Response)
+            if (error?.errorDetails) {
+                errorDetails = error.errorDetails;
+            } else if (error?.context && typeof error.context.json === 'function') {
+                // Если errorDetails еще не установлен, пытаемся прочитать из Response
+                try {
+                    const clonedResponse = error.context.clone();
+                    errorDetails = await clonedResponse.json().catch(() => null);
+                } catch (e) {
+                    console.warn('[Duel] Could not parse error body in catch:', e);
+                }
+            } else if (error?.context?.message) {
+                errorMessage = error.context.message;
+            } else if (error?.message) {
+                errorMessage = error.message;
+            }
+
+            // Если есть детали валидации
+            if (errorDetails?.details && Array.isArray(errorDetails.details)) {
+                const validationErrors = errorDetails.details
+                    .map((d: any) => {
+                        const field = d.path?.join('.') || 'unknown';
+                        const value = d.received !== undefined ? ` (получено: ${JSON.stringify(d.received)})` : '';
+                        return `${field}: ${d.message}${value}`;
+                    })
+                    .join('\n');
+                errorMessage = `Ошибка валидации:\n${validationErrors}`;
+                console.error('[Duel] ❌ Validation errors:', errorDetails.details);
+                console.error('[Duel] ❌ Received params:', errorDetails.received);
+            } else if (errorDetails?.message) {
+                errorMessage = errorDetails.message;
+            } else if (errorDetails?.error) {
+                errorMessage = errorDetails.error;
+            }
+            
+            // Показываем ошибку в toast (для длинных сообщений используем description)
+            if (errorMessage.includes('\n')) {
+                const [title, ...lines] = errorMessage.split('\n');
+                toast.error(title, {
+                    description: lines.join('\n'),
+                    duration: 5000,
+                });
+            } else {
+                toast.error(errorMessage);
+            }
+        } finally {
+            setIsFindingMatch(false);
+        }
+    };
+
     const handleCopyCode = async () => {
         if (!createdCode) return;
 
@@ -1315,22 +1480,45 @@ export default function Duel() {
                                                                     <LoadoutSelector />
                                                                 </motion.div>
 
-                                                                {/* Create button */}
+                                                                {/* Action buttons */}
                                                                 <motion.div
                                                                     initial={{ opacity: 0, y: 10 }}
                                                                     animate={{ opacity: 1, y: 0 }}
                                                                     transition={{ delay: 0.8 }}
-                                                                    className="w-full"
+                                                                    className="w-full space-y-3"
                                                                 >
+                                                                    {/* Find Match button */}
                                                                     <Button
                                                                         size="lg"
-                                                                        onClick={() => handleActionClick(() => handleInlineCreate())}
-                                                                        disabled={isCreating || (betType !== 'none' && betAmount <= 0) || (betAmount > 0 && hostTotalStake > userCoins)}
-                                                                        className="w-full h-12 text-sm sm:text-base font-black rounded-2xl bg-gradient-to-r from-violet-500 via-purple-600 to-indigo-600 hover:from-violet-600 hover:via-purple-700 hover:to-indigo-700 text-white shadow-2xl shadow-violet-500/40 hover:shadow-violet-500/50 transition-all duration-300 disabled:opacity-50 touch-manipulation relative overflow-hidden group"
+                                                                        onClick={() => handleActionClick(() => handleFindMatch())}
+                                                                        disabled={isFindingMatch || isCreating || (betType !== 'none' && betAmount <= 0) || (betAmount > 0 && hostTotalStake > userCoins)}
+                                                                        className="w-full h-12 text-sm sm:text-base font-black rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 hover:from-emerald-600 hover:via-teal-700 hover:to-cyan-700 text-white shadow-2xl shadow-emerald-500/40 hover:shadow-emerald-500/50 transition-all duration-300 disabled:opacity-50 touch-manipulation relative overflow-hidden group"
                                                                     >
                                                                         {/* Shine effect on hover */}
                                                                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
 
+                                                                        {isFindingMatch ? (
+                                                                            <>
+                                                                                <Loader2 className="mr-2 h-4 w-4 animate-spin relative z-10" />
+                                                                                <span className="hidden sm:inline relative z-10">Поиск соперника...</span>
+                                                                                <span className="sm:hidden relative z-10">Поиск...</span>
+                                                                            </>
+                                                                        ) : (
+                                                                            <>
+                                                                                <Search className="mr-2 h-4 w-4 relative z-10" />
+                                                                                <span className="relative z-10">Найти игру</span>
+                                                                            </>
+                                                                        )}
+                                                                    </Button>
+
+                                                                    {/* Create button */}
+                                                                    <Button
+                                                                        size="lg"
+                                                                        onClick={() => handleActionClick(() => handleInlineCreate())}
+                                                                        disabled={isCreating || isFindingMatch || (betType !== 'none' && betAmount <= 0) || (betAmount > 0 && hostTotalStake > userCoins)}
+                                                                        variant="outline"
+                                                                        className="w-full h-12 text-sm sm:text-base font-black rounded-2xl border-2 border-violet-500/50 hover:border-violet-500 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-all duration-300 disabled:opacity-50 touch-manipulation relative overflow-hidden group"
+                                                                    >
                                                                         {isCreating ? (
                                                                             <>
                                                                                 <Loader2 className="mr-2 h-4 w-4 animate-spin relative z-10" />
@@ -1341,7 +1529,7 @@ export default function Duel() {
                                                                             <>
                                                                                 <Swords className="mr-2 h-4 w-4 relative z-10" />
                                                                                 <span className="hidden sm:inline relative z-10">
-                                                                                    {betAmount > 0 ? `Создать за ${betAmount} монет` : 'Создать дуэль'}
+                                                                                    {betAmount > 0 ? `Создать за ${betAmount} монет` : 'Создать дуэль по коду'}
                                                                                 </span>
                                                                                 <span className="sm:hidden relative z-10">
                                                                                     {betAmount > 0 ? `За ${betAmount}` : 'Создать'}

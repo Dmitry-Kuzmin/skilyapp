@@ -136,3 +136,4 @@ const response = await fetch('/functions/v1/email-template-generator', {
 
 
 
+

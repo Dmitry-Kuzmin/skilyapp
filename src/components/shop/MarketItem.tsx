@@ -18,6 +18,7 @@ interface MarketItemProps {
   inventoryCount: number;
   coins: number;
   onPurchase: () => void;
+  onInspect?: () => void;
   category?: 'utility' | 'exploit' | 'defense';
 }
 
@@ -42,11 +43,19 @@ const categoryIcons = {
   utility: Wand2,
 };
 
-export function MarketItem({ boost, inventoryCount, coins, onPurchase, category }: MarketItemProps) {
+export function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect, category }: MarketItemProps) {
   const { t } = useLanguage();
   const canAfford = coins >= boost.cost_coins;
   const boostCategory = category || getBoostCategory(boost.type);
   const CategoryIcon = categoryIcons[boostCategory];
+
+  // Определяем, является ли товар расходником (consumable)
+  // Все бусты (50/50, атаки, защита, утилиты) - расходники, их можно покупать многократно
+  // Премиум и другие перманентные предметы - не расходники
+  const isConsumable = !boost.is_premium; // Пока все не-премиум бусты считаем расходниками
+
+  // Логика блокировки кнопки: Блокируем ТОЛЬКО если это не расходник и он уже куплен
+  const isButtonDisabled = !isConsumable && inventoryCount > 0;
 
   // Цветовые схемы для категорий
   const theme = boostCategory === 'exploit'
@@ -95,9 +104,13 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, category 
   const level = inventoryCount > 0 ? Math.min(inventoryCount, 99) : 1;
 
   return (
-    <motion.button
-      onClick={onPurchase}
-      disabled={!canAfford || boost.is_premium}
+    <motion.div
+      onClick={() => {
+        if (onInspect) {
+          console.log('[MarketItem] Opening inspect sheet for:', boost.type);
+          onInspect();
+        }
+      }}
       whileHover={{ scale: 1.01, y: -1 }}
       whileTap={{ scale: 0.99 }}
       className={cn(
@@ -108,7 +121,7 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, category 
         theme.hoverBorder,
         theme.hoverGlow,
         "hover:bg-[#15161a]",
-        (!canAfford || boost.is_premium) && "opacity-60 cursor-not-allowed"
+        onInspect && "cursor-pointer"
       )}
     >
       {/* Background Grid Pattern (еле заметный) */}
@@ -165,14 +178,26 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, category 
 
       {/* Центральный контент: Название + Описание */}
       <div className="relative z-10 flex-1 min-w-0 text-left">
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
           <h3 className="text-white font-bold text-sm leading-tight truncate group-hover:text-white transition-colors">
             {displayName}
           </h3>
           <div className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[9px] font-mono text-white/40 flex-shrink-0">
             v.{level}
           </div>
-          {inventoryCount > 0 && (
+          {/* STOCK Badge (Индикатор запаса для расходников) - рядом с версией */}
+          {inventoryCount > 0 && isConsumable && (
+            <div className={cn(
+              "px-2 py-0.5 rounded border text-[9px] font-mono font-bold flex items-center gap-1 flex-shrink-0",
+              "bg-emerald-500/10 border-emerald-500/30 text-emerald-400",
+              "shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+            )}>
+              <span className="text-[8px] opacity-70">STOCK:</span>
+              <span className="text-xs">{inventoryCount}</span>
+            </div>
+          )}
+          {/* Badge количества для перманентных (если нужно) */}
+          {inventoryCount > 0 && !isConsumable && (
             <Badge 
               variant="outline" 
               className="text-[10px] px-1 py-0 min-w-[18px] text-center border-success/50 text-success bg-success/10 flex-shrink-0"
@@ -181,9 +206,13 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, category 
             </Badge>
           )}
         </div>
-        <p className="text-xs text-white/60 line-clamp-1 leading-relaxed">
-          {displayDescription}
-        </p>
+        <div className="relative">
+          <p className="text-xs text-white/60 line-clamp-1 leading-relaxed">
+            {displayDescription}
+          </p>
+          {/* Градиент внизу текста, намекающий "читай дальше" */}
+          <div className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-[#0f1014] to-transparent pointer-events-none" />
+        </div>
         <div className="flex items-center gap-2 mt-1">
           <span className={cn(
             "text-[9px] font-mono tracking-widest uppercase opacity-60",
@@ -224,30 +253,38 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, category 
           )}>
             INSUFFICIENT
           </div>
-        ) : inventoryCount > 0 ? (
+        ) : isButtonDisabled ? (
+          // Перманентный предмет уже куплен
           <div className={cn(
             "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg",
-            "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30",
-            "text-[10px] font-bold tracking-wider"
+            "bg-gray-500/10 text-gray-400 border border-gray-500/30",
+            "text-[10px] font-bold tracking-wider cursor-not-allowed"
           )}>
             <Check className="w-3 h-3" />
             <span>OWNED</span>
           </div>
         ) : (
-          <div className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 rounded-lg",
-            "bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30",
-            "transition-all active:scale-95",
-            "text-[10px] font-bold tracking-wider text-white"
-          )}>
+          // Расходник или еще не купленный перманентный - можно покупать
+          <button
+            onClick={(e) => {
+              e.stopPropagation(); // Предотвращаем открытие модалки при клике на кнопку
+              onPurchase();
+            }}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-lg",
+              "bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30",
+              "transition-all active:scale-95",
+              "text-[10px] font-bold tracking-wider text-white cursor-pointer"
+            )}
+          >
             <span>GET</span>
             <Download size={12} className="text-white/70" />
-          </div>
+          </button>
         )}
       </div>
 
-      {/* Индикатор выбора (если есть в инвентаре) */}
-      {inventoryCount > 0 && (
+      {/* Индикатор выбора (только для перманентных предметов, которые уже куплены) */}
+      {inventoryCount > 0 && !isConsumable && (
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -258,7 +295,7 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, category 
           </div>
         </motion.div>
       )}
-    </motion.button>
+    </motion.div>
   );
 }
 

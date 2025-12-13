@@ -36,6 +36,7 @@ import { useDuelSettings } from '@/hooks/useDuelSettings';
 import { useQuestionBookmark } from '@/hooks/useQuestionBookmark';
 import { useDuelTimeout } from '@/hooks/useDuelTimeout';
 import { useDuelGame } from '@/hooks/useDuelGame';
+import { useBotOpponent } from '@/hooks/useBotOpponent';
 // 🆕 Компоненты атак
 import { OilSplashAttack } from './attacks/OilSplashAttack';
 import { PoliceBackdoorAttack } from './attacks/PoliceBackdoorAttack';
@@ -339,6 +340,31 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     fetchPlayers,
     moveToNextQuestion,
     finishDuel,
+  });
+
+  // Загружаем игроков для хука бота
+  const [players, setPlayers] = useState<any[]>([]);
+  useEffect(() => {
+    const loadPlayers = async () => {
+      const playersData = await fetchPlayers();
+      if (playersData?.players) {
+        setPlayers(playersData.players);
+      }
+    };
+    if (duelId && profileId) {
+      loadPlayers();
+    }
+  }, [duelId, profileId, fetchPlayers, state.duelStarted]);
+
+  // Подключаем хук для автоматических ответов бота
+  const currentQuestionId = questions[currentIndex]?.id || null;
+  useBotOpponent({
+    duelId,
+    currentQuestionId,
+    currentQuestionIndex: currentIndex,
+    totalQuestions: questions.length,
+    players,
+    profileId,
   });
 
   // ОПТИМИЗАЦИЯ: Мемоизируем formatTime
@@ -1207,16 +1233,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         });
 
         try {
-          await supabase.functions.invoke('duel-manager', {
-            body: {
-              action: 'use_boost',
-              duel_id: duelId,
-              profile_id: profileId,
-              duel_question_id: questions[currentIndex].id,
-              boost_type: boostType,
-              language: language,
-            },
-          });
+      await supabase.functions.invoke('duel-manager', {
+        body: {
+          action: 'use_boost',
+          duel_id: duelId,
+          profile_id: profileId,
+          duel_question_id: questions[currentIndex].id,
+          boost_type: boostType,
+          language: language,
+        },
+      });
 
           // Успех - обновляем toast
           if (navigator.vibrate) {
@@ -1236,7 +1262,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             duration: 3000,
           });
 
-          await syncBoostInventory();
+      await syncBoostInventory();
         } catch (error) {
           // Ошибка
           if (navigator.vibrate) {
@@ -1281,7 +1307,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       const isExploitError = rootModeExploits.includes(boostType);
       
       if (!isExploitError) {
-        toast.error('Не удалось использовать буст');
+      toast.error('Не удалось использовать буст');
       }
     }
   }, [

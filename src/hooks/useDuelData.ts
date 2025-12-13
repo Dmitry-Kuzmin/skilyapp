@@ -167,8 +167,15 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       const opponent = players.find((p) => p.user_id !== profileId);
 
       const myName = myPlayer?.name || myPlayer?.profiles?.first_name || myPlayer?.profiles?.username || "Ты";
-      const opponentName =
-        opponent?.name || opponent?.profiles?.first_name || opponent?.profiles?.username || "Соперник";
+      
+      // Проверяем, является ли соперник ботом
+      let opponentName = "Соперник";
+      if (opponent?.is_bot) {
+        // Для бота используем bot_name из данных или генерируем случайное имя
+        opponentName = opponent?.bot_name || opponent?.name || "CyberNinja";
+      } else {
+        opponentName = opponent?.name || opponent?.profiles?.first_name || opponent?.profiles?.username || "Соперник";
+      }
 
       return {
         myPlayerId: myPlayer?.id ?? null,
@@ -208,8 +215,15 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       return null;
     }
 
-    const playersWithProfiles = await enrichPlayersWithProfiles(data);
-    const result = buildResult(playersWithProfiles);
+    // Обогащаем только реальных игроков (не ботов)
+    const realPlayers = data.filter((p: any) => !p.is_bot);
+    const playersWithProfiles = await enrichPlayersWithProfiles(realPlayers);
+    
+    // Добавляем ботов обратно с их именами
+    const bots = data.filter((p: any) => p.is_bot);
+    const allPlayers = [...playersWithProfiles, ...bots];
+    
+    const result = buildResult(allPlayers);
     cache.players = result;
     return result;
   }, [duelId, profileId]);
