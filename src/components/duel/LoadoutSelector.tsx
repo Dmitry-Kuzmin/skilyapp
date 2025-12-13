@@ -115,9 +115,11 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
     }
   }, [loadout, onLoadoutChange]);
 
-  // Логирование состояния Sheet
+  // Логирование состояния Sheet (только в dev режиме)
   useEffect(() => {
-    console.log('[LoadoutSelector] selectedSlotIndex changed:', selectedSlotIndex);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[LoadoutSelector] selectedSlotIndex changed:', selectedSlotIndex);
+    }
   }, [selectedSlotIndex]);
 
   // Разблокировка слота
@@ -329,7 +331,9 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
             isUnlocked={true}
             selectedBoost={getBoostByType(loadout.slot_1_boost_type)}
             onSlotClick={() => {
-              console.log('[LoadoutSelector] Slot 1 clicked, setting selectedSlotIndex to 0');
+              if (process.env.NODE_ENV === 'development') {
+                console.log('[LoadoutSelector] Slot 1 clicked, setting selectedSlotIndex to 0');
+              }
               setSelectedSlotIndex(0);
             }}
             onClear={() => handleSelectBoost(1, null)}
@@ -375,7 +379,9 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
       <Sheet 
         open={selectedSlotIndex !== null} 
         onOpenChange={(open) => {
-          console.log('[LoadoutSelector] Sheet onOpenChange:', open, 'selectedSlotIndex:', selectedSlotIndex, 'isClosingRef:', isClosingRef.current);
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[LoadoutSelector] Sheet onOpenChange:', open, 'selectedSlotIndex:', selectedSlotIndex, 'isClosingRef:', isClosingRef.current);
+          }
           // Защита от множественных вызовов
           if (!open && !isClosingRef.current && selectedSlotIndex !== null) {
             isClosingRef.current = true;
@@ -516,7 +522,9 @@ const SlotCard: React.FC<SlotCardProps> = ({
       <motion.div
         onClick={(e) => {
           if (isUnlocked) {
-            console.log('[SlotCard] Slot clicked, slotNumber:', slotNumber, 'isUnlocked:', isUnlocked);
+            if (process.env.NODE_ENV === 'development') {
+              console.log('[SlotCard] Slot clicked, slotNumber:', slotNumber, 'isUnlocked:', isUnlocked);
+            }
             e.stopPropagation();
             onSlotClick();
           }
