@@ -888,6 +888,140 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
             <p className="text-sm text-zinc-500">Бусты не найдены</p>
           </div>
         ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {filteredBoosts.map((boost) => {
+              const colors = getCategoryColor(boost.category);
+              const isSelected = selectedBoost?.type === boost.type;
+              const categoryLabel = boost.category === 'exploit' ? 'ATK' : boost.category === 'defense' ? 'DEF' : 'UTL';
+              
+              return (
+                <motion.button
+                  key={boost.type}
+                  onClick={() => onSelectBoost(boost.type)}
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={cn(
+                    "relative group overflow-hidden p-4 rounded-xl border transition-all",
+                    "flex flex-col items-center gap-3",
+                    isSelected
+                      ? `${colors.bg} ${colors.border} shadow-[0_0_20px_rgba(99,102,241,0.4)] ring-2 ring-indigo-500/50`
+                      : `bg-black/40 border-white/5 ${colors.hover}`,
+                    "backdrop-blur-sm"
+                  )}
+                  style={{
+                    boxShadow: isSelected 
+                      ? `inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 10px 30px -10px rgba(0, 0, 0, 0.6)`
+                      : `inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 4px 12px -4px rgba(0, 0, 0, 0.4)`
+                  }}
+                >
+                  {/* Фоновый эффект при наведении - сканирующая полоска */}
+                  <motion.div
+                    className={cn(
+                      "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity",
+                      boost.category === 'exploit' && "bg-gradient-to-r from-transparent via-red-500/10 to-transparent",
+                      boost.category === 'defense' && "bg-gradient-to-r from-transparent via-blue-500/10 to-transparent",
+                      boost.category === 'utility' && "bg-gradient-to-r from-transparent via-green-500/10 to-transparent"
+                    )}
+                    initial={{ x: '-100%' }}
+                    whileHover={{ x: '100%' }}
+                    transition={{ duration: 0.7, ease: "easeInOut" }}
+                  />
+
+                  {/* Noise texture overlay */}
+                  <div 
+                    className="absolute inset-0 opacity-[0.01] mix-blend-overlay pointer-events-none"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'repeat'
+                    }}
+                  />
+
+                  {/* Иконка в "колбе" */}
+                  <div 
+                    className={cn(
+                      "w-14 h-14 rounded-lg flex items-center justify-center relative",
+                      "bg-black/60 border border-white/10",
+                      "shadow-[inset_0_0_15px_rgba(0,0,0,0.8)]"
+                    )}
+                    style={{
+                      boxShadow: `
+                        inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+                        inset 0 -1px 0 0 rgba(0, 0, 0, 0.5),
+                        0 0 20px ${boost.category === 'exploit' ? 'rgba(239, 68, 68, 0.3)' : boost.category === 'defense' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(34, 197, 94, 0.3)'}
+                      `
+                    }}
+                  >
+                    <span 
+                      className={cn(
+                        "text-2xl",
+                        colors.text
+                      )}
+                      style={{
+                        filter: `drop-shadow(0 0 8px ${boost.category === 'exploit' ? 'rgba(239, 68, 68, 0.8)' : boost.category === 'defense' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(34, 197, 94, 0.8)'})`
+                      }}
+                    >
+                      {boost.icon}
+                    </span>
+                  </div>
+
+                  {/* Название и категория */}
+                  <div className="text-center w-full relative z-10">
+                    <div className={cn(
+                      "text-[10px] font-mono mb-1 tracking-widest",
+                      isSelected ? "text-white/60" : "text-white/40"
+                    )}>
+                      {categoryLabel}-MODULE
+                    </div>
+                    <div className={cn(
+                      "text-sm font-bold mb-2 truncate",
+                      isSelected ? "text-white" : "text-zinc-200"
+                    )}>
+                      {boost.name_ru}
+                    </div>
+                  </div>
+
+                  {/* Статус редкости - цветная полоска снизу */}
+                  <div 
+                    className={cn(
+                      "absolute bottom-0 left-0 right-0 h-1",
+                      boost.category === 'exploit' && "bg-gradient-to-r from-red-500 via-red-400 to-red-500",
+                      boost.category === 'defense' && "bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500",
+                      boost.category === 'utility' && "bg-gradient-to-r from-green-500 via-green-400 to-green-500"
+                    )}
+                    style={{
+                      boxShadow: `0 -2px 8px ${boost.category === 'exploit' ? 'rgba(239, 68, 68, 0.5)' : boost.category === 'defense' ? 'rgba(59, 130, 246, 0.5)' : 'rgba(34, 197, 94, 0.5)'}`
+                    }}
+                  />
+
+                  {/* Индикатор выбора */}
+                  {isSelected && (
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      className="absolute top-2 right-2 z-20"
+                    >
+                      <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center shadow-[0_0_12px_rgba(99,102,241,0.8)]">
+                        <Check className="w-3.5 h-3.5 text-white" />
+                      </div>
+                    </motion.div>
+                  )}
+                </motion.button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ========== АЛЬТЕРНАТИВНАЯ ВЕРСИЯ: UltraBoostCard (Holo-Cartridge) - ЗАКОММЕНТИРОВАНО ========== */}
+        {/* 
+        {filteredBoosts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="p-3 rounded-full bg-zinc-900 border border-zinc-800 mb-3">
+              <Search className="w-5 h-5 text-zinc-500" />
+            </div>
+            <p className="text-sm text-zinc-500">Бусты не найдены</p>
+          </div>
+        ) : (
           <div className="space-y-2">
             {filteredBoosts.map((boost) => {
               const isAttack = boost.category === 'exploit';
@@ -945,7 +1079,6 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
                     "hover:bg-[#15161a]"
                   )}
                 >
-                  {/* 1. Фоновый блик при наведении (Scanline effect) */}
                   <motion.div
                     className={cn(
                       "absolute inset-0 bg-gradient-to-r", colors.bg,
@@ -953,16 +1086,12 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
                       "transition-transform duration-700 ease-in-out z-0"
                     )}
                   />
-
-                  {/* 2. Декоративные уголки (Tech corners) */}
                   <div className="absolute top-0 right-0 p-1 opacity-20 group-hover:opacity-100 transition-opacity">
                     <div className={cn("w-2 h-2 border-t-2 border-r-2", colors.borderColor)} />
                   </div>
                   <div className="absolute bottom-0 left-0 p-1 opacity-20 group-hover:opacity-100 transition-opacity">
                     <div className={cn("w-2 h-2 border-b-2 border-l-2", colors.borderColor)} />
                   </div>
-
-                  {/* 3. Иконка в "Гнезде" */}
                   <div className="relative z-10">
                     <div className={cn(
                       "w-14 h-14 rounded-lg bg-black/60 border border-white/10",
@@ -979,13 +1108,10 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
                         {boost.icon}
                       </span>
                     </div>
-                    {/* Маленький лейбл уровня под иконкой */}
                     <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#0f1014] px-1.5 border border-white/10 rounded text-[9px] font-mono text-white/40">
                       LVL.1
                     </div>
                   </div>
-
-                  {/* 4. Текстовый контент */}
                   <div className="relative z-10 flex-1 text-left">
                     <div className="flex justify-between items-center mb-1">
                       <span className={cn(
@@ -996,12 +1122,9 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
                       </span>
                       <span className="text-[10px] font-mono text-white/20">#{String(boost.type).slice(0, 3).toUpperCase()}</span>
                     </div>
-                    
                     <h3 className="text-white font-bold text-lg tracking-wide group-hover:text-white transition-colors">
                       {boost.name_ru}
                     </h3>
-                    
-                    {/* Описание или статы */}
                     <div className="flex items-center gap-2 mt-1">
                       <div className="h-1 w-12 rounded-full bg-white/10 overflow-hidden">
                         <div className={cn(
@@ -1012,8 +1135,6 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
                       <span className="text-xs text-white/40 font-mono">POWER</span>
                     </div>
                   </div>
-
-                  {/* 5. Индикатор выбора */}
                   {isSelected ? (
                     <motion.div
                       initial={{ scale: 0, rotate: -180 }}
@@ -1035,6 +1156,7 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
             })}
           </div>
         )}
+        */}
       </div>
     </div>
   );
