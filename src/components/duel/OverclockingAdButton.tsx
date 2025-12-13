@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Cpu, Video, Loader2, Clock, Lock } from 'lucide-react';
+import { Cpu, Video, Loader2, Clock, Lock, Play, Zap } from 'lucide-react';
 import { RewardedAdModal } from '@/components/monetization/RewardedAdModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
@@ -136,29 +136,30 @@ export function OverclockingAdButton({ slotNumber, onSlotUnlocked, className }: 
         variant="outline"
         size="sm"
         className={cn(
-          "w-full h-10 text-xs font-semibold transition-all relative overflow-hidden",
-          "border-indigo-500/40 bg-gradient-to-br from-indigo-950/40 to-violet-950/30",
-          "hover:from-indigo-950/60 hover:to-violet-950/50 hover:border-indigo-400/60",
-          "text-indigo-300 hover:text-indigo-200",
-          "shadow-[0_0_15px_rgba(99,102,241,0.2)] hover:shadow-[0_0_20px_rgba(99,102,241,0.3)]",
+          "w-full h-9 text-[10px] font-semibold transition-all relative overflow-hidden",
+          "border-amber-500/50 bg-gradient-to-br from-amber-950/50 to-orange-950/40",
+          "hover:from-amber-950/70 hover:to-orange-950/60 hover:border-amber-400/70",
+          "text-amber-300 hover:text-amber-200",
+          "shadow-[0_0_15px_rgba(251,146,60,0.3)] hover:shadow-[0_0_25px_rgba(251,146,60,0.5)]",
           "disabled:opacity-50 disabled:cursor-not-allowed",
+          "font-mono tracking-wider",
           className
         )}
       >
         {isDailyLimitReached ? (
           <>
-            <Lock className="w-3.5 h-3.5 mr-1.5 text-indigo-500/50" />
-            <span>Daily Limit</span>
+            <Lock className="w-3.5 h-3.5 mr-1.5 text-amber-500/50" />
+            <span className="text-[9px]">DAILY LIMIT</span>
           </>
         ) : isOnCooldown ? (
           <>
-            <Clock className="w-3.5 h-3.5 mr-1.5 text-indigo-500/50" />
-            <span>Cooldown ({timeUntilAvailable})</span>
+            <Clock className="w-3.5 h-3.5 mr-1.5 text-amber-500/50" />
+            <span className="text-[9px]">COOLDOWN ({timeUntilAvailable})</span>
           </>
         ) : (
           <>
-            <Video className="w-3.5 h-3.5 mr-1.5 text-indigo-400" />
-            <span>OVERCLOCK</span>
+            <Play className="w-3.5 h-3.5 mr-1.5 text-amber-400 fill-amber-400" />
+            <span className="text-[9px]">OVERCLOCK</span>
           </>
         )}
       </Button>

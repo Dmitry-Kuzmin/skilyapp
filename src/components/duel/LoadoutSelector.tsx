@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Lock, Coins, Crown, Zap, Check, X, Plus, Cpu, Search, Shield, Hexagon } from 'lucide-react';
+import { Lock, Coins, Crown, Zap, Check, X, Plus, Cpu, Search, Shield, Hexagon, Play, Trash2 } from 'lucide-react';
 import { OverclockingAdButton } from './OverclockingAdButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
@@ -484,49 +484,56 @@ const SlotCard: React.FC<SlotCardProps> = ({
   onClear,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const [isHovering, setIsHovering] = useState(false);
 
   const canUnlock = isPremium
     ? userHasPremium
     : (unlockCost && userCoins >= unlockCost);
 
-  // Определяем стили для слота
-  const getSlotStyles = () => {
-    if (!isUnlocked) {
-      if (isPremium) {
-        // Premium заблокированный - золотой градиент
+  // Определяем, доступен ли OVERCLOCK (только для слота 2, не Premium)
+  const canOverclock = slotNumber === 2 && !isPremium && !isUnlocked;
+
+  // Получаем цвет категории буста
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'exploit':
         return {
-          container: "bg-zinc-950/40 border-amber-500/20 shadow-[inset_0_4px_20px_rgba(0,0,0,0.6),0_0_20px_rgba(255,215,0,0.1)]",
-          glow: "before:absolute before:inset-0 before:bg-gradient-to-br before:from-amber-500/5 before:via-yellow-500/5 before:to-amber-500/5 before:rounded-xl before:blur-sm"
+          glow: 'rgba(239, 68, 68, 0.4)',
+          border: 'border-red-500/50',
+          bg: 'bg-red-500/10',
+          text: 'text-red-400',
         };
-      } else {
-        // Обычный заблокированный - темный с внутренней тенью
+      case 'defense':
         return {
-          container: "bg-zinc-950/40 border-white/5 shadow-[inset_0_4px_20px_rgba(0,0,0,0.7)] opacity-70",
-          glow: ""
+          glow: 'rgba(59, 130, 246, 0.4)',
+          border: 'border-blue-500/50',
+          bg: 'bg-blue-500/10',
+          text: 'text-blue-400',
         };
-      }
-    } else {
-      if (isPremium) {
-        // Premium разблокированный - золотая обводка
+      case 'utility':
         return {
-          container: "bg-zinc-900/60 border-amber-500/30 shadow-[inset_0_2px_10px_rgba(0,0,0,0.3),0_0_15px_rgba(255,215,0,0.15)] hover:border-amber-400/50 hover:shadow-[inset_0_2px_10px_rgba(0,0,0,0.3),0_0_20px_rgba(255,215,0,0.25)]",
-          glow: "before:absolute before:inset-0 before:bg-gradient-to-br before:from-amber-500/10 before:via-yellow-500/5 before:to-amber-500/10 before:rounded-xl before:blur-sm before:opacity-50"
+          glow: 'rgba(34, 197, 94, 0.4)',
+          border: 'border-green-500/50',
+          bg: 'bg-green-500/10',
+          text: 'text-green-400',
         };
-      } else {
-        // Обычный разблокированный - стандартный
+      default:
         return {
-          container: "bg-zinc-900/60 border-white/10 shadow-[inset_0_2px_10px_rgba(0,0,0,0.3)] hover:border-indigo-500/30 hover:bg-zinc-900/80",
-          glow: ""
+          glow: 'rgba(99, 102, 241, 0.4)',
+          border: 'border-indigo-500/50',
+          bg: 'bg-indigo-500/10',
+          text: 'text-indigo-400',
         };
-      }
     }
   };
 
-  const slotStyles = getSlotStyles();
+  const categoryColors = selectedBoost ? getCategoryColor(selectedBoost.category) : null;
 
   return (
     <div className="relative" ref={cardRef}>
       <motion.div
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
         onClick={(e) => {
           if (isUnlocked) {
             if (process.env.NODE_ENV === 'development') {
@@ -537,25 +544,32 @@ const SlotCard: React.FC<SlotCardProps> = ({
           }
         }}
         className={cn(
-          "relative aspect-[3/4] rounded-xl border transition-all duration-200",
+          "relative aspect-[3/4] rounded-xl border transition-all duration-300",
           "backdrop-blur-[12px] flex flex-col items-center justify-center overflow-hidden",
+          // Слот с бустом - эффект вставленного модуля
           selectedBoost
-            ? "bg-white/5 border-indigo-500/50 cursor-pointer"
-            : isUnlocked
-            ? "bg-black/20 border-white/10 border-dashed hover:bg-white/5 hover:border-white/30 cursor-pointer"
-            : slotStyles.container,
-          isPremium && !selectedBoost ? "border-amber-500/30 bg-amber-500/5" : "",
-          slotStyles.glow
+            ? cn(
+                "bg-zinc-900/80 border-2 cursor-pointer",
+                categoryColors?.border,
+                "shadow-[inset_0_2px_8px_rgba(0,0,0,0.6),inset_0_-2px_8px_rgba(0,0,0,0.4)]"
+              )
+            : // Пустой разблокированный слот - синее свечение
+            isUnlocked
+            ? "bg-zinc-950/60 border-2 border-dashed border-indigo-500/40 cursor-pointer hover:border-indigo-500/60 hover:bg-zinc-950/80 shadow-[inset_0_4px_16px_rgba(0,0,0,0.8),0_0_20px_rgba(99,102,241,0.2)] hover:shadow-[inset_0_4px_16px_rgba(0,0,0,0.8),0_0_30px_rgba(99,102,241,0.4)]"
+            : // Заблокированный слот
+            isPremium
+            ? "bg-zinc-950/40 border-2 border-amber-500/20 opacity-70 shadow-[inset_0_4px_20px_rgba(0,0,0,0.6),0_0_20px_rgba(255,215,0,0.1)]"
+            : canOverclock
+            ? "bg-zinc-950/40 border-2 border-amber-500/30 opacity-80 shadow-[inset_0_4px_20px_rgba(0,0,0,0.6),0_0_20px_rgba(251,146,60,0.2)] hover:border-amber-500/50 hover:shadow-[inset_0_4px_20px_rgba(0,0,0,0.6),0_0_30px_rgba(251,146,60,0.3)]"
+            : "bg-zinc-950/40 border-2 border-white/5 opacity-70 shadow-[inset_0_4px_20px_rgba(0,0,0,0.7)]"
         )}
         style={{
           boxShadow: selectedBoost
-            ? `inset 0 2px 8px rgba(0, 0, 0, 0.6), inset 0 -2px 8px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.3)`
-            : isUnlocked
-            ? `inset 0 4px 16px rgba(0, 0, 0, 0.8), inset 0 -2px 8px rgba(0, 0, 0, 0.6)`
-            : `inset 0 6px 20px rgba(0, 0, 0, 0.9)`
+            ? `inset 0 2px 8px rgba(0, 0, 0, 0.6), inset 0 -2px 8px rgba(0, 0, 0, 0.4), 0 0 20px ${categoryColors?.glow || 'rgba(99, 102, 241, 0.3)'}`
+            : undefined
         }}
-        whileHover={isUnlocked ? { scale: 1.02, y: -2 } : {}}
-        whileTap={isUnlocked ? { scale: 0.98 } : {}}
+        whileHover={isUnlocked || canOverclock ? { scale: 1.02, y: -2 } : {}}
+        whileTap={isUnlocked || canOverclock ? { scale: 0.98 } : {}}
       >
         {/* Noise texture для слота */}
         <div 
@@ -566,22 +580,22 @@ const SlotCard: React.FC<SlotCardProps> = ({
           }}
         />
 
-        {/* Tech-corners для активного слота */}
-        {selectedBoost && (
+        {/* Tech-corners для активного слота с бустом */}
+        {selectedBoost && categoryColors && (
           <>
-            {/* Верхний левый угол */}
-            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-indigo-500/60" />
-            {/* Верхний правый угол */}
-            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-indigo-500/60" />
-            {/* Нижний левый угол */}
-            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-indigo-500/60" />
-            {/* Нижний правый угол */}
-            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-indigo-500/60" />
+            <div className={cn("absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2", categoryColors.border)} />
+            <div className={cn("absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2", categoryColors.border)} />
+            <div className={cn("absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2", categoryColors.border)} />
+            <div className={cn("absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2", categoryColors.border)} />
           </>
         )}
+
         {/* Заголовок слота - Моноширинный шрифт */}
         <div className="absolute top-2 left-0 right-0 text-center z-10">
-          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
+          <span className={cn(
+            "text-[10px] font-bold uppercase tracking-wider font-mono",
+            selectedBoost ? categoryColors?.text || "text-zinc-400" : "text-zinc-400"
+          )}>
             SLOT {slotNumber}
           </span>
           {/* Декоративные цифры-призраки */}
@@ -590,9 +604,10 @@ const SlotCard: React.FC<SlotCardProps> = ({
           </div>
         </div>
 
+        {/* Premium корона */}
         {isPremium && (
           <motion.div
-            className="absolute top-2 right-2"
+            className="absolute top-2 right-2 z-10"
             animate={{ rotate: [0, 5, -5, 0] }}
             transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
           >
@@ -603,46 +618,45 @@ const SlotCard: React.FC<SlotCardProps> = ({
         {/* Контент слота */}
         {isUnlocked ? (
           selectedBoost ? (
+            // === СЛОТ С БУСТОМ: Эффект вставленного модуля ===
             <motion.div 
               className="relative group flex flex-col items-center justify-center flex-1 w-full px-2"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, scale: 0.8, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
-              {/* Вспышка при вставке */}
-              <motion.div
-                className="absolute inset-0 bg-white/20 rounded-xl"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: [0, 0.3, 0] }}
-                transition={{ duration: 0.4 }}
+              {/* Эффект вставленного модуля - затемнение по краям */}
+              <div 
+                className={cn(
+                  "absolute inset-2 rounded-lg",
+                  categoryColors?.bg || "bg-zinc-900/60"
+                )}
+                style={{
+                  boxShadow: `inset 0 2px 8px rgba(0, 0, 0, 0.8), inset 0 -2px 8px rgba(0, 0, 0, 0.6)`
+                }}
               />
 
-              {/* Крупная иконка буста в колбе */}
+              {/* Крупная иконка буста */}
               <div className="flex items-center justify-center mb-2 relative z-10">
                 <div 
                   className={cn(
-                    "w-12 h-12 rounded-lg flex items-center justify-center",
-                    "bg-black/60 border border-white/10",
-                    "shadow-[inset_0_0_15px_rgba(0,0,0,0.8)]"
+                    "w-14 h-14 rounded-lg flex items-center justify-center",
+                    "bg-black/80 border-2",
+                    categoryColors?.border || "border-white/20",
+                    "shadow-[inset_0_0_20px_rgba(0,0,0,0.9)]"
                   )}
                   style={{
                     boxShadow: `
                       inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
                       inset 0 -1px 0 0 rgba(0, 0, 0, 0.5),
-                      0 0 15px ${selectedBoost.category === 'exploit' ? 'rgba(239, 68, 68, 0.4)' : selectedBoost.category === 'defense' ? 'rgba(59, 130, 246, 0.4)' : 'rgba(34, 197, 94, 0.4)'}
+                      0 0 20px ${categoryColors?.glow || 'rgba(99, 102, 241, 0.4)'}
                     `
                   }}
                 >
                   <motion.span 
-                    className={cn(
-                      "text-2xl",
-                      selectedBoost.category === 'exploit' && "text-red-400",
-                      selectedBoost.category === 'defense' && "text-blue-400",
-                      selectedBoost.category === 'utility' && "text-green-400"
-                    )}
+                    className={cn("text-3xl", categoryColors?.text || "text-white")}
                     animate={{ 
-                      scale: [1, 1.1, 1],
-                      rotate: [0, 5, -5, 0]
+                      scale: [1, 1.05, 1],
                     }}
                     transition={{ 
                       duration: 2, 
@@ -650,7 +664,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
                       repeatDelay: 2 
                     }}
                     style={{
-                      filter: `drop-shadow(0 0 8px ${selectedBoost.category === 'exploit' ? 'rgba(239, 68, 68, 0.8)' : selectedBoost.category === 'defense' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(34, 197, 94, 0.8)'})`
+                      filter: `drop-shadow(0 0 10px ${categoryColors?.glow || 'rgba(99, 102, 241, 0.8)'})`
                     }}
                   >
                     {selectedBoost.icon}
@@ -658,8 +672,11 @@ const SlotCard: React.FC<SlotCardProps> = ({
                 </div>
               </div>
               
-              {/* Название */}
-              <span className="text-xs font-bold text-white text-center px-1 truncate w-full mb-1 relative z-10">
+              {/* Название буста */}
+              <span className={cn(
+                "text-xs font-bold text-center px-1 truncate w-full mb-1 relative z-10",
+                categoryColors?.text || "text-white"
+              )}>
                 {selectedBoost.name_ru}
               </span>
 
@@ -667,7 +684,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
               <Badge
                 variant="outline"
                 className={cn(
-                  "text-[9px] font-bold px-1.5 py-0.5 rounded-full border relative z-10",
+                  "text-[9px] font-bold px-2 py-0.5 rounded-full border relative z-10",
                   selectedBoost.category === 'exploit' && "border-red-500/60 text-red-400 bg-red-500/15",
                   selectedBoost.category === 'defense' && "border-blue-500/60 text-blue-400 bg-blue-500/15",
                   selectedBoost.category === 'utility' && "border-green-500/60 text-green-400 bg-green-500/15"
@@ -678,26 +695,27 @@ const SlotCard: React.FC<SlotCardProps> = ({
                 {selectedBoost.category === 'utility' && 'Утилита'}
               </Badge>
 
-              {/* Кнопка очистки */}
+              {/* Кнопка удаления при hover */}
               <motion.button
                 onClick={(e) => {
                   e.stopPropagation();
                   onClear();
                 }}
-                className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500/90 hover:bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg z-20"
-                whileHover={{ scale: 1.1 }}
+                className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-red-500/90 hover:bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg z-20 border-2 border-red-400/50"
+                whileHover={{ scale: 1.15 }}
                 whileTap={{ scale: 0.9 }}
               >
-                <X className="w-3 h-3" />
+                <Trash2 className="w-3.5 h-3.5" />
               </motion.button>
             </motion.div>
           ) : (
-            <div className="flex flex-col items-center gap-2 text-indigo-400/60 relative z-10">
-              {/* Анимация ожидания - пульсирующая рамка */}
+            // === ПУСТОЙ СЛОТ: INSTALL MODULE ===
+            <div className="flex flex-col items-center gap-3 text-indigo-400 relative z-10">
+              {/* Пульсирующее синее свечение */}
               <motion.div
-                className="absolute inset-4 border-2 border-dashed border-indigo-500/30 rounded-lg"
+                className="absolute inset-4 border-2 border-dashed border-indigo-500/40 rounded-lg"
                 animate={{
-                  opacity: [0.3, 0.6, 0.3],
+                  opacity: [0.4, 0.7, 0.4],
                   scale: [1, 1.05, 1],
                 }}
                 transition={{
@@ -710,16 +728,14 @@ const SlotCard: React.FC<SlotCardProps> = ({
               {/* Сканирующая полоска */}
               <motion.div
                 className="absolute inset-4 rounded-lg overflow-hidden"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
               >
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/20 to-transparent"
+                  className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/30 to-transparent"
                   animate={{
                     y: ['-100%', '200%'],
                   }}
                   transition={{
-                    duration: 2,
+                    duration: 2.5,
                     repeat: Infinity,
                     ease: "linear",
                     repeatDelay: 1
@@ -727,64 +743,165 @@ const SlotCard: React.FC<SlotCardProps> = ({
                 />
               </motion.div>
 
-              <span className="text-2xl font-light relative z-10">+</span>
-              <span className="text-[10px] font-mono tracking-wider relative z-10">INSTALL</span>
+              {/* Иконка плюса */}
+              <motion.span 
+                className="text-4xl font-light relative z-10"
+                animate={{
+                  scale: [1, 1.1, 1],
+                  opacity: [0.7, 1, 0.7],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                +
+              </motion.span>
+              
+              {/* Текст INSTALL MODULE */}
+              <div className="relative z-10 text-center">
+                <span className="text-[11px] font-mono tracking-wider font-bold block">INSTALL</span>
+                <span className="text-[9px] font-mono tracking-widest text-indigo-500/60 block mt-0.5">MODULE</span>
+              </div>
             </div>
           )
-        ) : (
-          <div className="space-y-2">
-            {/* Кнопка покупки за монеты (для слота 2) или Premium (для слота 3) */}
+        ) : canOverclock ? (
+          // === OVERCLOCK СОСТОЯНИЕ: Оранжевый/Янтарный ===
+          <div className="flex flex-col items-center justify-center flex-1 w-full px-2 relative z-10">
+            {/* Пульсирующее оранжевое свечение */}
             <motion.div
-              whileHover={canUnlock && !isUnlocking ? { scale: 1.02 } : {}}
-              whileTap={canUnlock && !isUnlocking ? { scale: 0.98 } : {}}
+              className="absolute inset-4 border-2 border-dashed border-amber-500/40 rounded-lg"
+              animate={{
+                opacity: [0.4, 0.7, 0.4],
+                scale: [1, 1.05, 1],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+
+            {/* Иконка Play/Молния */}
+            <motion.div
+              animate={{
+                scale: [1, 1.1, 1],
+                rotate: [0, 5, -5, 0],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="mb-3 relative z-10"
             >
-              <Button
-                onClick={onUnlock}
-                disabled={!canUnlock || isUnlocking}
-                variant="outline"
-                size="sm"
-                className={cn(
-                  "w-full h-10 text-xs font-semibold transition-all relative overflow-hidden",
-                  canUnlock && !isUnlocking
-                    ? isPremium
-                      ? "border-amber-500/40 bg-gradient-to-br from-amber-950/40 to-yellow-950/30 hover:from-amber-950/60 hover:to-yellow-950/50 hover:border-amber-400/60 text-amber-300 hover:text-amber-200 shadow-[0_0_15px_rgba(255,215,0,0.2)] hover:shadow-[0_0_20px_rgba(255,215,0,0.3)]"
-                      : "border-white/20 bg-zinc-900/60 hover:bg-zinc-800/60 hover:border-yellow-500/40 text-zinc-200 hover:text-yellow-300"
-                    : "border-white/5 bg-zinc-950/40 text-zinc-500"
-                )}
-              >
-                {isUnlocking ? (
-                  <span className="flex items-center gap-2">
-                    <motion.div
-                      className="w-3 h-3 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full"
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    />
-                    Разблокировка...
-                  </span>
-                ) : isPremium ? (
-                  <>
-                    <Crown className="w-3.5 h-3.5 mr-1.5 text-amber-400 drop-shadow-[0_0_4px_rgba(255,215,0,0.5)]" />
-                    <span>Premium</span>
-                  </>
-                ) : (
-                  <>
-                    <Coins className="w-3.5 h-3.5 mr-1.5 text-yellow-400" />
-                    <span>
-                      <span className="text-yellow-400 font-bold">{unlockCost}</span>
-                      <span className="text-zinc-400"> монет</span>
-                    </span>
-                  </>
-                )}
-              </Button>
+              <div className="w-12 h-12 rounded-lg bg-amber-500/20 border-2 border-amber-500/50 flex items-center justify-center shadow-[0_0_20px_rgba(251,146,60,0.4)]">
+                <Play className="w-6 h-6 text-amber-400 fill-amber-400" />
+              </div>
             </motion.div>
-            
-            {/* Кнопка OVERCLOCKING (только для слота 2, не Premium) */}
-            {slotNumber === 2 && !isPremium && (
+
+            {/* Текст OVERCLOCK */}
+            <span className="text-[12px] font-mono tracking-wider font-bold text-amber-400 mb-1 relative z-10">
+              OVERCLOCK
+            </span>
+            <span className="text-[9px] font-mono tracking-widest text-amber-500/60 relative z-10">
+              1 MATCH ONLY
+            </span>
+
+            {/* Кнопка OVERCLOCKING */}
+            <div className="mt-3 w-full px-2 relative z-10">
               <OverclockingAdButton
                 slotNumber={2}
                 onSlotUnlocked={onSlotUnlocked || (() => {})}
               />
+            </div>
+          </div>
+        ) : (
+          // === ЗАБЛОКИРОВАННЫЙ СЛОТ: Замок, цена или Premium ===
+          <div className="flex flex-col items-center justify-center flex-1 w-full px-2 relative z-10">
+            {/* Иконка замка */}
+            <motion.div
+              animate={{
+                y: [0, -2, 0],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="mb-3"
+            >
+              <div className={cn(
+                "w-12 h-12 rounded-lg flex items-center justify-center",
+                isPremium 
+                  ? "bg-amber-500/10 border-2 border-amber-500/30 shadow-[0_0_15px_rgba(255,215,0,0.2)]"
+                  : "bg-zinc-900/60 border-2 border-white/10 shadow-[inset_0_0_15px_rgba(0,0,0,0.8)]"
+              )}>
+                <Lock className={cn(
+                  "w-6 h-6",
+                  isPremium ? "text-amber-400" : "text-zinc-500"
+                )} />
+              </div>
+            </motion.div>
+
+            {/* Текст */}
+            {isPremium ? (
+              <>
+                <Crown className="w-4 h-4 text-amber-400 mb-2 drop-shadow-[0_0_4px_rgba(255,215,0,0.5)]" />
+                <span className="text-[10px] font-mono tracking-wider text-amber-400/80 mb-1">
+                  PREMIUM
+                </span>
+                <span className="text-[9px] font-mono text-amber-500/60">
+                  REQUIRED
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-[10px] font-mono tracking-wider text-zinc-400 mb-2">
+                  LOCKED
+                </span>
+                {unlockCost && (
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Coins className="w-3.5 h-3.5 text-yellow-400" />
+                    <span className="text-xs font-bold text-yellow-400">
+                      {unlockCost}
+                    </span>
+                  </div>
+                )}
+              </>
             )}
+
+            {/* Кнопка разблокировки */}
+            <Button
+              onClick={onUnlock}
+              disabled={!canUnlock || isUnlocking}
+              variant="outline"
+              size="sm"
+              className={cn(
+                "w-full h-9 text-[10px] font-semibold transition-all mt-2",
+                canUnlock && !isUnlocking
+                  ? isPremium
+                    ? "border-amber-500/40 bg-gradient-to-br from-amber-950/40 to-yellow-950/30 hover:from-amber-950/60 hover:to-yellow-950/50 hover:border-amber-400/60 text-amber-300 hover:text-amber-200 shadow-[0_0_15px_rgba(255,215,0,0.2)] hover:shadow-[0_0_20px_rgba(255,215,0,0.3)]"
+                    : "border-yellow-500/40 bg-zinc-900/60 hover:bg-zinc-800/60 hover:border-yellow-500/60 text-yellow-300 hover:text-yellow-200"
+                  : "border-white/5 bg-zinc-950/40 text-zinc-500 cursor-not-allowed"
+              )}
+            >
+              {isUnlocking ? (
+                <span className="flex items-center gap-2">
+                  <motion.div
+                    className="w-3 h-3 border-2 border-yellow-400/30 border-t-yellow-400 rounded-full"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  />
+                  <span className="text-[9px]">Разблокировка...</span>
+                </span>
+              ) : isPremium ? (
+                <span className="text-[9px] font-mono">UNLOCK</span>
+              ) : (
+                <span className="text-[9px] font-mono">UNLOCK</span>
+              )}
+            </Button>
           </div>
         )}
 
