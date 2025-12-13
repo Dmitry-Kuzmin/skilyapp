@@ -329,17 +329,57 @@ const DailyBonus = () => {
     try {
       const today = new Date().toISOString().split('T')[0];
 
-      // Вызываем Edge Function для начисления награды
-      const { data, error } = await supabase.functions.invoke('ad-reward', {
-        body: {
-          user_id: profileId,
-          reward_type: 'restore_streak',
-        },
-      });
+      // Retry логика для мобильных устройств (где могут быть проблемы с сетью)
+      const maxRetries = 3;
+      let lastError: any = null;
+      
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+          const { data, error } = await supabase.functions.invoke('ad-reward', {
+            body: {
+              user_id: profileId,
+              reward_type: 'restore_streak',
+            },
+          });
 
-      if (error) {
-        console.error('[DailyBonus] Error claiming ad reward:', error);
-        throw error;
+          if (error) {
+            console.error(`[DailyBonus] Error claiming ad reward (attempt ${attempt + 1}/${maxRetries}):`, error);
+            lastError = error;
+            
+            if (attempt === maxRetries - 1) {
+              throw error;
+            }
+            
+            const delay = Math.min(1000 * Math.pow(2, attempt), 3000);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            continue;
+          }
+
+          // Успех
+          break;
+        } catch (err: any) {
+          console.error(`[DailyBonus] Exception during ad reward claim (attempt ${attempt + 1}/${maxRetries}):`, err);
+          lastError = err;
+          
+          if (attempt === maxRetries - 1) {
+            // Проверяем, возможно награда уже была начислена через Reward URL от AdsGram
+            const errorMessage = err.message || err.toString() || '';
+            const isNetworkError = errorMessage.includes('Failed to send') || 
+                                  errorMessage.includes('Сетевое соединение') ||
+                                  errorMessage.includes('access control checks');
+            
+            if (isNetworkError) {
+              // На мобильном могут быть проблемы с сетью, но AdsGram уже вызвал Reward URL
+              // Продолжаем выполнение, как будто успешно
+              console.log('[DailyBonus] Network error, but reward might be already processed by AdsGram');
+            } else {
+              throw err;
+            }
+          } else {
+            const delay = Math.min(1000 * Math.pow(2, attempt), 3000);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
       }
 
       // Обновляем streak

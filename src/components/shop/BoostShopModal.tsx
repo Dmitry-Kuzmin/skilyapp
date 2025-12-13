@@ -2022,21 +2022,60 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           if (!profileId) return;
           
           try {
-            const { data, error } = await supabaseClient.functions.invoke('ad-reward', {
-              body: {
-                user_id: profileId,
-                reward_type: 'coins',
-                amount: 20,
-              },
-            });
+            // Retry логика для мобильных устройств (где могут быть проблемы с сетью)
+            const maxRetries = 3;
+            let lastError: any = null;
+            
+            for (let attempt = 0; attempt < maxRetries; attempt++) {
+              try {
+                const { data, error } = await supabaseClient.functions.invoke('ad-reward', {
+                  body: {
+                    user_id: profileId,
+                    reward_type: 'coins',
+                    amount: 20,
+                  },
+                });
 
-            if (error) {
-              console.error('[BoostShop] Error claiming ad reward:', error);
-              throw error;
+                if (error) {
+                  console.error(`[BoostShop] Error claiming ad reward (attempt ${attempt + 1}/${maxRetries}):`, error);
+                  lastError = error;
+                  
+                  // Если это последняя попытка, выбрасываем ошибку
+                  if (attempt === maxRetries - 1) {
+                    throw error;
+                  }
+                  
+                  // Ждем перед следующей попыткой (экспоненциальная задержка)
+                  const delay = Math.min(1000 * Math.pow(2, attempt), 3000);
+                  await new Promise(resolve => setTimeout(resolve, delay));
+                  continue;
+                }
+
+                // Успех - выходим из цикла
+                console.log('[BoostShop] Ad reward claimed successfully');
+                break;
+              } catch (err: any) {
+                console.error(`[BoostShop] Exception during ad reward claim (attempt ${attempt + 1}/${maxRetries}):`, err);
+                lastError = err;
+                
+                // Если это последняя попытка, выбрасываем ошибку
+                if (attempt === maxRetries - 1) {
+                  throw err;
+                }
+                
+                // Ждем перед следующей попыткой
+                const delay = Math.min(1000 * Math.pow(2, attempt), 3000);
+                await new Promise(resolve => setTimeout(resolve, delay));
+              }
             }
 
-            // Обновляем баланс
-            await loadData();
+            // Обновляем баланс только после успешного начисления
+            try {
+              await loadData();
+            } catch (loadError) {
+              console.error('[BoostShop] Error loading data after reward:', loadError);
+              // Не критично, просто логируем
+            }
             
             toast({
               title: '✨ Монеты получены!',
