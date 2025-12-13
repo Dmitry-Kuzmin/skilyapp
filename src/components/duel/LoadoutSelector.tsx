@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Lock, Coins, Crown, Zap, Check, X, Plus, Cpu, Search, Shield, Hexagon, Play, Trash2 } from 'lucide-react';
 import { RewardedAdModal } from '@/components/monetization/RewardedAdModal';
+import { PaywallModal } from '@/components/monetization/PaywallModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { usePremium } from '@/hooks/usePremium';
@@ -50,6 +51,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
   const [unlockingSlot, setUnlockingSlot] = useState(false);
   const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(null);
   const [showOverclockModal, setShowOverclockModal] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
   const isClosingRef = useRef(false);
 
   // Загрузка данных
@@ -595,6 +597,9 @@ const SlotCard: React.FC<SlotCardProps> = ({
         console.log('[SlotCard] Slot clicked, slotNumber:', slotNumber, 'isUnlocked:', isUnlocked);
       }
       onSlotClick();
+    } else if (isPremium && !userHasPremium && onPremiumClick) {
+      // Premium слот - открываем модалку Premium
+      onPremiumClick();
     } else if (canOverclock && onOverclockClick) {
       // OVERCLOCK слот - открываем рекламу
       onOverclockClick();
@@ -636,8 +641,8 @@ const SlotCard: React.FC<SlotCardProps> = ({
             ? `inset 0 2px 8px rgba(0, 0, 0, 0.6), inset 0 -2px 8px rgba(0, 0, 0, 0.4), 0 0 20px ${categoryColors?.glow || 'rgba(99, 102, 241, 0.3)'}`
             : undefined
         }}
-        whileHover={isUnlocked || canOverclock ? { scale: 1.02, y: -2 } : {}}
-        whileTap={isUnlocked || canOverclock ? { scale: 0.98 } : {}}
+        whileHover={isUnlocked || canOverclock || (isPremium && !userHasPremium) ? { scale: 1.02, y: -2 } : {}}
+        whileTap={isUnlocked || canOverclock || (isPremium && !userHasPremium) ? { scale: 0.98 } : {}}
       >
         {/* Noise texture для слота */}
         <div 
