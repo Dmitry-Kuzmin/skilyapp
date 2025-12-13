@@ -98,22 +98,22 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, category 
     <motion.button
       onClick={onPurchase}
       disabled={!canAfford || boost.is_premium}
-      whileHover={{ scale: 1.02, y: -2 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={{ scale: 1.01, y: -1 }}
+      whileTap={{ scale: 0.99 }}
       className={cn(
-        "group relative flex flex-col",
+        "group relative flex items-center gap-3",
         "p-3 rounded-xl overflow-hidden",
-        "bg-[#0a0b0f] border transition-all duration-300",
+        "bg-[#0f1014] border transition-all duration-300",
         theme.border,
         theme.hoverBorder,
         theme.hoverGlow,
-        "hover:bg-[#0f1115]",
+        "hover:bg-[#15161a]",
         (!canAfford || boost.is_premium) && "opacity-60 cursor-not-allowed"
       )}
     >
-      {/* Noise texture */}
+      {/* Background Grid Pattern (еле заметный) */}
       <div 
-        className="absolute inset-0 opacity-[0.015] mix-blend-overlay pointer-events-none"
+        className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
           backgroundRepeat: 'repeat'
@@ -132,97 +132,109 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, category 
         )}
       />
 
-      {/* Tech corner (только один, в правом верхнем углу) */}
-      <div className="absolute top-1.5 right-1.5 opacity-30 group-hover:opacity-100 transition-opacity">
+      {/* Tech corner (только правый верхний) */}
+      <div className="absolute top-0 right-0 p-1 opacity-20 group-hover:opacity-100 transition-opacity z-10">
         <div className={cn(
-          "w-1.5 h-1.5 border-t border-r",
+          "w-2 h-2 border-t-2 border-r-2",
           boostCategory === 'exploit' && "border-red-500",
           boostCategory === 'defense' && "border-cyan-500",
           boostCategory === 'utility' && "border-emerald-500"
         )} />
       </div>
 
-      {/* Компактный layout: иконка слева, контент справа */}
-      <div className="relative z-10 flex items-start gap-3">
-        {/* Иконка */}
-        <div className={cn(
-          "flex-shrink-0 w-10 h-10 rounded-lg bg-black/40 border border-white/5",
-          "flex items-center justify-center",
-          "group-hover:border-white/10 transition-colors"
-        )}>
-          <span 
-            className={cn("text-lg", theme.icon)}
-            style={{
-              filter: `drop-shadow(0 0 6px ${
-                boostCategory === 'exploit' ? 'rgba(239, 68, 68, 0.5)' : 
-                boostCategory === 'defense' ? 'rgba(6, 182, 212, 0.5)' : 
-                'rgba(34, 197, 94, 0.5)'
-              })`
-            }}
-          >
-            {boost.icon}
+      {/* Иконка слева */}
+      <div className={cn(
+        "relative z-10 flex-shrink-0",
+        "w-12 h-12 rounded-lg flex items-center justify-center",
+        "bg-black/50 border border-white/5",
+        theme.iconBg || "shadow-[inset_0_0_15px_rgba(0,0,0,0.3)]"
+      )}>
+        <span 
+          className={cn("text-xl", theme.icon)}
+          style={{
+            filter: `drop-shadow(0 0 8px ${
+              boostCategory === 'exploit' ? 'rgba(239, 68, 68, 0.6)' : 
+              boostCategory === 'defense' ? 'rgba(6, 182, 212, 0.6)' : 
+              'rgba(34, 197, 94, 0.6)'
+            })`
+          }}
+        >
+          {boost.icon}
+        </span>
+      </div>
+
+      {/* Центральный контент: Название + Описание */}
+      <div className="relative z-10 flex-1 min-w-0 text-left">
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="text-white font-bold text-sm leading-tight truncate group-hover:text-white transition-colors">
+            {displayName}
+          </h3>
+          <div className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[9px] font-mono text-white/40 flex-shrink-0">
+            v.{level}
+          </div>
+          {inventoryCount > 0 && (
+            <Badge 
+              variant="outline" 
+              className="text-[10px] px-1 py-0 min-w-[18px] text-center border-success/50 text-success bg-success/10 flex-shrink-0"
+            >
+              {inventoryCount}
+            </Badge>
+          )}
+        </div>
+        <p className="text-xs text-white/40 line-clamp-1 leading-relaxed">
+          {displayDescription}
+        </p>
+        <div className="flex items-center gap-2 mt-1">
+          <span className={cn(
+            "text-[9px] font-mono tracking-widest uppercase opacity-60",
+            theme.text
+          )}>
+            {boostCategory === 'exploit' ? 'ATK' : boostCategory === 'defense' ? 'DEF' : 'UTL'}
           </span>
-        </div>
-
-        {/* Контент */}
-        <div className="flex-1 min-w-0">
-          {/* Заголовок и категория */}
-          <div className="flex items-start justify-between gap-2 mb-1">
-            <div className="flex-1 min-w-0">
-              <h3 className="text-white font-bold text-sm leading-tight truncate mb-0.5">
-                {displayName}
-              </h3>
-              <div className="flex items-center gap-2">
-                <span className={cn(
-                  "text-[9px] font-mono tracking-wider uppercase opacity-50",
-                  theme.text
-                )}>
-                  {boostCategory === 'exploit' ? 'ATK' : boostCategory === 'defense' ? 'DEF' : 'UTL'}
-                </span>
-                {inventoryCount > 0 && (
-                  <Badge 
-                    variant="outline" 
-                    className="text-[9px] px-1 py-0 h-4 border-success/50 text-success bg-success/10"
-                  >
-                    {inventoryCount}
-                  </Badge>
-                )}
-              </div>
-            </div>
-            {/* Версия (компактно) */}
-            <div className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[9px] font-mono text-white/30 flex-shrink-0">
-              v.{level}
-            </div>
-          </div>
-
-          {/* Описание (одна строка) */}
-          <p className="text-[10px] text-white/35 line-clamp-1 leading-snug mb-2">
-            {displayDescription}
-          </p>
-
-          {/* Footer: Price + Button */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="font-mono text-yellow-400 font-bold text-xs flex items-center gap-1">
-              <Coins className="w-3 h-3" />
-              <span>{boost.cost_coins}</span>
-            </div>
-            
-            {boost.is_premium ? (
-              <div className="px-2 py-1 rounded bg-gold/10 border border-gold/30 text-[9px] font-bold text-gold">
-                LOCKED
-              </div>
-            ) : !canAfford ? (
-              <div className="px-2 py-1 rounded bg-white/5 border border-white/10 text-[9px] font-bold text-white/30">
-                NEED {boost.cost_coins}
-              </div>
-            ) : (
-              <div className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 transition-all flex items-center gap-1">
-                <span className="text-[9px] font-bold tracking-wider text-white/80">GET</span>
-                <Download size={11} className="text-white/60" />
-              </div>
-            )}
+          <div className="h-0.5 w-8 rounded-full bg-white/10 overflow-hidden">
+            <div className={cn(
+              "h-full w-2/3", theme.powerBar,
+              "shadow-[0_0_6px_currentColor]"
+            )}></div>
           </div>
         </div>
+      </div>
+
+      {/* Правая часть: Цена + Кнопка */}
+      <div className="relative z-10 flex items-center gap-2 flex-shrink-0">
+        <div className="font-mono text-yellow-500 font-bold flex items-center gap-1 text-sm">
+          <Coins className="w-4 h-4" />
+          <span>{boost.cost_coins}</span>
+        </div>
+        
+        {boost.is_premium ? (
+          <div className={cn(
+            "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg",
+            "bg-gold/10 text-gold border border-gold/30",
+            "text-[10px] font-bold tracking-wider"
+          )}>
+            <Lock className="w-3 h-3" />
+            <span>LOCKED</span>
+          </div>
+        ) : !canAfford ? (
+          <div className={cn(
+            "px-2.5 py-1.5 rounded-lg",
+            "bg-white/5 text-white/40 border border-white/10",
+            "text-[10px] font-bold tracking-wider"
+          )}>
+            INSUFFICIENT
+          </div>
+        ) : (
+          <div className={cn(
+            "flex items-center gap-1.5 px-3 py-1.5 rounded-lg",
+            "bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30",
+            "transition-all active:scale-95",
+            "text-[10px] font-bold tracking-wider text-white"
+          )}>
+            <span>GET</span>
+            <Download size={12} className="text-white/70" />
+          </div>
+        )}
       </div>
 
       {/* Индикатор выбора (если есть в инвентаре) */}
@@ -232,7 +244,7 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, category 
           animate={{ scale: 1 }}
           className="absolute top-1.5 right-1.5 z-20"
         >
-          <div className="w-4 h-4 rounded-full bg-indigo-500 flex items-center justify-center shadow-[0_0_8px_rgba(99,102,241,0.8)]">
+          <div className="w-4 h-4 rounded-full bg-indigo-500 flex items-center justify-center shadow-[0_0_12px_rgba(99,102,241,0.8)]">
             <Check className="w-2.5 h-2.5 text-white" />
           </div>
         </motion.div>
