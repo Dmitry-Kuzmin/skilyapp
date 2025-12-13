@@ -14,6 +14,7 @@ import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { BoostFeedback } from './BoostFeedback';
 import { NotificationToast } from '@/components/NotificationToast';
 import { DuelWaitingReplay } from './DuelWaitingReplay';
 import { DuelWidget } from './DuelWidget';
@@ -39,6 +40,7 @@ import { useDuelGame } from '@/hooks/useDuelGame';
 import { OilSplashAttack } from './attacks/OilSplashAttack';
 import { PoliceBackdoorAttack } from './attacks/PoliceBackdoorAttack';
 import { InputLagWrapper } from './attacks/InputLagWrapper';
+import { BoostFeedback } from './BoostFeedback';
 
 // ОПТИМИЗАЦИЯ: Условное логирование только в development
 const isDev = process.env.NODE_ENV === 'development';
@@ -175,6 +177,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     icon?: string;
   }>>([]);
   const [translatePopoverOpen, setTranslatePopoverOpen] = useState<string | null>(null);
+  // 🆕 Состояние для визуальной обратной связи при использовании буста
+  const [boostFeedback, setBoostFeedback] = useState<{ isActive: boolean; boostName: string; boostType: string }>({
+    isActive: false,
+    boostName: '',
+    boostType: '',
+  });
   const [myName, setMyName] = useState<string>('Ты');
   const [opponentName, setOpponentName] = useState<string>('Соперник');
   const [myPhotoUrl, setMyPhotoUrl] = useState<string | null>(null);
@@ -1112,7 +1120,44 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     const boost = boosts.find(b => b.boost_type === boostType);
     if (!boost || boost.quantity <= 0) return;
 
+    // 🆕 Определяем, является ли буст Root Mode exploit (атакой)
+    const rootModeExploits = ['screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall'];
+    const isExploit = rootModeExploits.includes(boostType);
+
+    // 🆕 Названия бустов для отображения
+    const boostNames: Record<string, string> = {
+      screen_injector: 'Screen Injector',
+      input_lag: 'Input Lag',
+      gps_spoofing: 'GPS Spoofing',
+      police_backdoor: 'Police Backdoor',
+      firewall: 'Firewall',
+      rewind: 'Rewind',
+    };
+
+    // 🆕 Мгновенная визуальная обратная связь (Optimistic UI)
+    if (isExploit) {
+      // Вибрация при нажатии
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+      
+      // Показываем Hacking Overlay
+      setBoostFeedback({
+        isActive: true,
+        boostName: boostNames[boostType] || boostType,
+        boostType,
+      });
+
+      // Скрываем overlay через 1.5 секунды
+      setTimeout(() => {
+        setBoostFeedback(prev => ({ ...prev, isActive: false }));
+      }, 1500);
+    }
+
     setUsedBoosts(prev => [...prev, boostType]);
+    
+    // Сохраняем isExploit для использования в catch блоке
+    const isExploitForError = isExploit;
 
     try {
       if (boostType === 'fifty_fifty') {
@@ -1150,25 +1195,93 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
       if (!questions || questions.length === 0 || !questions[currentIndex]) {
         toast.error('Вопросы не загружены');
+        setBoostFeedback(prev => ({ ...prev, isActive: false }));
         return;
       }
 
-      await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'use_boost',
-          duel_id: duelId,
-          profile_id: profileId,
-          duel_question_id: questions[currentIndex].id,
-          boost_type: boostType,
-          language: language,
-        },
-      });
+      // 🆕 Показываем toast для Root Mode exploits
+      if (exploitFlag) {
+        const toastId = toast.loading("INITIALIZING EXPLOIT...", {
+          style: { 
+            background: '#000', 
+            color: '#fff', 
+            border: '1px solid #ef4444',
+            fontFamily: 'monospace'
+          }
+        });
 
-      await syncBoostInventory();
+        try {
+          await supabase.functions.invoke('duel-manager', {
+            body: {
+              action: 'use_boost',
+              duel_id: duelId,
+              profile_id: profileId,
+              duel_question_id: questions[currentIndex].id,
+              boost_type: boostType,
+              language: language,
+            },
+          });
+
+          // Успех - обновляем toast
+          if (navigator.vibrate) {
+            navigator.vibrate([100, 50, 100]); // Двойная вибрация "Бзз-Бзз"
+          }
+
+          toast.success("MALWARE UPLOADED", {
+            id: toastId,
+            description: "Атака успешно отправлена сопернику",
+            style: { 
+              background: '#020617', 
+              color: '#4ade80', 
+              border: '1px solid #4ade80',
+              fontFamily: 'monospace'
+            },
+            icon: '💉',
+            duration: 3000,
+          });
+
+          await syncBoostInventory();
+        } catch (error) {
+          // Ошибка
+          if (navigator.vibrate) {
+            navigator.vibrate(500); // Длинная вибрация ошибки
+          }
+          toast.error("UPLOAD FAILED", { 
+            id: toastId,
+            description: 'Не удалось отправить атаку',
+            style: {
+              background: '#7f1d1d',
+              color: '#fca5a5',
+              border: '1px solid #ef4444',
+              fontFamily: 'monospace'
+            }
+          });
+          setBoostFeedback(prev => ({ ...prev, isActive: false }));
+          throw error;
+        }
+      } else {
+        // Обычные бусты (Safe Mode) - без специальной обработки
+        await supabase.functions.invoke('duel-manager', {
+          body: {
+            action: 'use_boost',
+            duel_id: duelId,
+            profile_id: profileId,
+            duel_question_id: questions[currentIndex].id,
+            boost_type: boostType,
+            language: language,
+          },
+        });
+
+        await syncBoostInventory();
+      }
     } catch (error) {
       logError('Error using boost:', error);
       setUsedBoosts(prev => prev.filter(b => b !== boostType));
-      toast.error('Не удалось использовать буст');
+      // Скрываем overlay при ошибке
+      setBoostFeedback(prev => ({ ...prev, isActive: false }));
+      if (!exploitFlag) {
+        toast.error('Не удалось использовать буст');
+      }
     }
   }, [
     usedBoosts,
@@ -1189,6 +1302,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     syncBoostInventory,
     finishDuel,
     moveToNextQuestion,
+    setBoostFeedback,
   ]);
 
   // ============================================================================
@@ -1522,6 +1636,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           />
         </motion.div>
       </div>
+
+      {/* 🆕 Hacking Overlay - визуальная обратная связь при использовании буста */}
+      <BoostFeedback
+        isActive={boostFeedback.isActive}
+        boostName={boostFeedback.boostName}
+        boostType={boostFeedback.boostType}
+      />
 
       {/* 🆕 Слой спецэффектов (высокий z-index) */}
       {(() => {
