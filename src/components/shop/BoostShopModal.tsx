@@ -1977,22 +1977,36 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     return null;
   }
 
-  // Кастомный заголовок с блоком монет
+  // Кастомный заголовок в стиле BLACK MARKET
   const headerContent = (
-    <div className="px-4 md:px-6 py-3 md:py-4 border-b border-border shrink-0 bg-card relative pr-12 md:pr-14">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
+    <div className="px-4 md:px-6 py-3 md:py-4 border-b border-white/10 shrink-0 bg-black/95 backdrop-blur-xl relative pr-12 md:pr-14">
+      {/* Noise texture */}
+      <div 
+        className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'repeat'
+        }}
+      />
+      
+      <div className="flex items-center justify-between gap-2 relative z-10">
+        <div className="flex items-center gap-2 md:gap-3 min-w-0">
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/30 to-purple-500/30 rounded-lg blur-sm" />
-            <ShoppingBag className="relative w-4 h-4 md:w-5 md:h-5 text-violet-400 flex-shrink-0" />
+            <div className="absolute inset-0 bg-gradient-to-br from-red-500/30 to-orange-500/30 rounded-lg blur-sm" />
+            <ShoppingBag className="relative w-4 h-4 md:w-5 md:h-5 text-red-400 flex-shrink-0 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" />
           </div>
-          <h2 className="text-base md:text-lg font-semibold truncate bg-gradient-to-r from-violet-300 to-purple-300 bg-clip-text text-transparent">
-            {t('boostShop.title')}
-          </h2>
+          <div>
+            <h2 className="text-base md:text-lg font-black truncate text-white tracking-wider font-mono">
+              BLACK MARKET
+            </h2>
+            <p className="text-[10px] font-mono text-white/40 tracking-widest uppercase">
+              ILLEGAL SOFTWARE DEPOT
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
           <button 
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50 border border-border hover:border-violet-500/50 hover:bg-muted/80 transition-all cursor-pointer backdrop-blur-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 border border-yellow-500/20 hover:border-yellow-500/40 transition-all cursor-pointer backdrop-blur-sm"
             onClick={async () => {
               setActiveTab('history');
               if (transactions.length === 0) {
@@ -2001,8 +2015,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             }}
           >
             <Coins className="w-4 h-4 text-yellow-400" />
-            <span className="text-sm font-bold text-foreground">{coins}</span>
-            <History className="w-3 h-3 text-muted-foreground ml-0.5" />
+            <span className="text-sm font-bold font-mono text-yellow-400">{coins}</span>
+            <History className="w-3 h-3 text-white/40 ml-0.5" />
           </button>
         </div>
       </div>
