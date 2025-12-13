@@ -31,11 +31,19 @@ export const DuelBoostsPanel = memo(({
     <div className="flex items-center gap-1.5 flex-wrap">
       {boosts.map((boost) => {
         const boostConfig = {
+          // Safe Mode
           fifty_fifty: { icon: Sparkles, label: '50/50', gradient: 'from-yellow-400 via-orange-400 to-orange-500', bg: 'bg-gradient-to-br from-yellow-400/90 to-orange-500/90' },
           time_extend: { icon: Timer, label: '+30s', gradient: 'from-blue-400 via-cyan-400 to-cyan-500', bg: 'bg-gradient-to-br from-blue-400/90 to-cyan-500/90' },
           hint: { icon: HelpCircle, label: 'Hint', gradient: 'from-orange-400 via-amber-400 to-amber-500', bg: 'bg-gradient-to-br from-orange-400/90 to-amber-500/90' },
           skip: { icon: SkipForward, label: 'Skip', gradient: 'from-blue-400 via-indigo-400 to-indigo-500', bg: 'bg-gradient-to-br from-blue-400/90 to-indigo-500/90' },
           translate: { icon: Globe, label: 'Translate', gradient: 'from-green-400 via-emerald-400 to-emerald-500', bg: 'bg-gradient-to-br from-green-400/90 to-emerald-500/90' },
+          rewind: { icon: Zap, label: 'Rewind', gradient: 'from-purple-400 via-violet-400 to-violet-500', bg: 'bg-gradient-to-br from-purple-400/90 to-violet-500/90' },
+          // Root Mode (Exploits)
+          screen_injector: { icon: Zap, label: 'Injector', gradient: 'from-red-500 via-rose-500 to-red-600', bg: 'bg-gradient-to-br from-red-500/90 to-red-600/90' },
+          input_lag: { icon: Zap, label: 'Input Lag', gradient: 'from-orange-500 via-red-500 to-orange-600', bg: 'bg-gradient-to-br from-orange-500/90 to-orange-600/90' },
+          gps_spoofing: { icon: Zap, label: 'GPS Spoof', gradient: 'from-cyan-500 via-blue-500 to-cyan-600', bg: 'bg-gradient-to-br from-cyan-500/90 to-cyan-600/90' },
+          police_backdoor: { icon: Zap, label: 'Backdoor', gradient: 'from-yellow-500 via-amber-500 to-yellow-600', bg: 'bg-gradient-to-br from-yellow-500/90 to-yellow-600/90' },
+          firewall: { icon: Zap, label: 'Firewall', gradient: 'from-blue-500 via-indigo-500 to-blue-600', bg: 'bg-gradient-to-br from-blue-500/90 to-blue-600/90' },
         }[boost.boost_type] || { icon: Zap, label: boost.boost_type, gradient: 'from-gray-500 to-gray-600', bg: 'bg-gradient-to-br from-gray-500/90 to-gray-600/90' };
 
         const BoostIcon = boostConfig.icon;

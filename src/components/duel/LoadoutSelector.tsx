@@ -256,7 +256,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         </div>
 
         {/* Слоты */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
           {/* Слот 1 - Базовый */}
           <SlotCard
             slotNumber={1}
@@ -395,25 +395,29 @@ const SlotCard: React.FC<SlotCardProps> = ({
                   selectedBoost.category === 'defense' && "bg-blue-500/10 border-blue-500/30",
                   selectedBoost.category === 'utility' && "bg-green-500/10 border-green-500/30"
                 )}>
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-xl">{selectedBoost.icon}</span>
-                    <span className="text-sm font-medium text-zinc-200 flex-1 truncate">
-                      {selectedBoost.name_ru}
-                    </span>
+                  {/* Крупная иконка буста - главный элемент */}
+                  <div className="flex items-center justify-center mb-2">
+                    <span className="text-3xl">{selectedBoost.icon}</span>
                   </div>
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      "text-xs font-semibold px-2 py-0.5 rounded-full",
-                      selectedBoost.category === 'exploit' && "border-red-500/50 text-red-400 bg-red-500/10",
-                      selectedBoost.category === 'defense' && "border-blue-500/50 text-blue-400 bg-blue-500/10",
-                      selectedBoost.category === 'utility' && "border-green-500/50 text-green-400 bg-green-500/10"
-                    )}
-                  >
-                    {selectedBoost.category === 'exploit' && 'Атака'}
-                    {selectedBoost.category === 'defense' && 'Защита'}
-                    {selectedBoost.category === 'utility' && 'Утилита'}
-                  </Badge>
+                  {/* Название и категория - компактно */}
+                  <div className="text-center">
+                    <div className="text-xs font-medium text-zinc-300 mb-1 truncate">
+                      {selectedBoost.name_ru}
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        "text-xs font-semibold px-2 py-0.5 rounded-full",
+                        selectedBoost.category === 'exploit' && "border-red-500/50 text-red-400 bg-red-500/10",
+                        selectedBoost.category === 'defense' && "border-blue-500/50 text-blue-400 bg-blue-500/10",
+                        selectedBoost.category === 'utility' && "border-green-500/50 text-green-400 bg-green-500/10"
+                      )}
+                    >
+                      {selectedBoost.category === 'exploit' && 'Атака'}
+                      {selectedBoost.category === 'defense' && 'Защита'}
+                      {selectedBoost.category === 'utility' && 'Утилита'}
+                    </Badge>
+                  </div>
                 </div>
                 <button
                   onClick={() => setIsOpen(!isOpen)}
@@ -464,7 +468,10 @@ const SlotCard: React.FC<SlotCardProps> = ({
             ) : (
               <>
                 <Coins className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
-                {unlockCost} монет
+                <span>
+                  <span className="text-yellow-400 font-bold">{unlockCost}</span>
+                  <span className="text-zinc-400"> монет</span>
+                </span>
               </>
             )}
           </Button>
@@ -479,7 +486,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="absolute top-full left-0 right-0 mt-2 z-50 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 max-h-64 overflow-y-auto space-y-1 shadow-2xl shadow-black/50"
+              className="absolute top-full left-0 right-0 mt-2 z-[100] bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 max-h-64 overflow-y-auto space-y-1 shadow-2xl shadow-black/50"
             >
               <button
                 onClick={() => {

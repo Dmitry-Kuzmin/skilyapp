@@ -222,6 +222,22 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       return cache.boosts;
     }
 
+    // Загружаем loadout пользователя
+    const { data: loadout } = await supabase
+      .from("user_loadouts")
+      .select("slot_1_boost_type, slot_2_boost_type, slot_3_boost_type")
+      .eq("user_id", profileId)
+      .maybeSingle();
+
+    // Формируем список выбранных бустов из loadout (фильтруем null)
+    const loadoutBoosts: string[] = [];
+    if (loadout) {
+      if (loadout.slot_1_boost_type) loadoutBoosts.push(loadout.slot_1_boost_type);
+      if (loadout.slot_2_boost_type) loadoutBoosts.push(loadout.slot_2_boost_type);
+      if (loadout.slot_3_boost_type) loadoutBoosts.push(loadout.slot_3_boost_type);
+    }
+
+    // Если loadout пустой, используем все бусты из инвентаря (обратная совместимость)
     const { data, error } = await supabase
       .from("boost_inventory")
       .select("boost_type, quantity")
@@ -231,7 +247,13 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       throw error;
     }
 
-    const boosts = data || [];
+    let boosts = data || [];
+
+    // Если есть loadout, фильтруем только выбранные бусты
+    if (loadoutBoosts.length > 0) {
+      boosts = boosts.filter(boost => loadoutBoosts.includes(boost.boost_type));
+    }
+
     cache.boosts = boosts;
     return boosts;
   }, [profileId]);
