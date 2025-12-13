@@ -462,10 +462,17 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       }
     };
 
+    // Подписываемся на broadcast события
+    // В Supabase Realtime v2 channel.on() возвращает сам channel для цепочки
     channel.on('broadcast', { event: 'exploit_triggered' }, handleBroadcast);
 
     return () => {
-      channel.off('broadcast', { event: 'exploit_triggered' }, handleBroadcast);
+      // В Supabase Realtime v2 нет метода channel.off()
+      // Подписка автоматически удалится при удалении канала через removeChannel
+      // Здесь просто проверяем, что channel существует (для безопасности)
+      if (!channel) {
+        logWarn('[useDuelRealtime] Channel is null during cleanup');
+      }
     };
   }, [duelId, channel, profileId]);
 
