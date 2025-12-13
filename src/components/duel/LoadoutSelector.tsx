@@ -514,7 +514,13 @@ const SlotCard: React.FC<SlotCardProps> = ({
   return (
     <div className="relative" ref={cardRef}>
       <motion.div
-        onClick={isUnlocked ? onSlotClick : undefined}
+        onClick={(e) => {
+          if (isUnlocked) {
+            console.log('[SlotCard] Slot clicked, slotNumber:', slotNumber, 'isUnlocked:', isUnlocked);
+            e.stopPropagation();
+            onSlotClick();
+          }
+        }}
         className={cn(
           "relative aspect-[3/4] rounded-xl border transition-all duration-200",
           "backdrop-blur-[12px] flex flex-col items-center justify-center overflow-hidden",
