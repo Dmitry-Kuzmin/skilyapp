@@ -546,7 +546,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
         className={cn(
           "relative aspect-[3/4] min-h-[140px] rounded-xl border-2 transition-all duration-300",
           "backdrop-blur-[12px] flex flex-col items-stretch justify-between overflow-hidden",
-          "p-2 sm:p-3"
+          "p-2 sm:p-3",
           // Слот с бустом - эффект вставленного модуля
           selectedBoost
             ? cn(
