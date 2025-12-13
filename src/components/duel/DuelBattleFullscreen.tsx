@@ -1155,9 +1155,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
 
     setUsedBoosts(prev => [...prev, boostType]);
-    
-    // Сохраняем isExploit для использования в catch блоке
-    const isExploitForError = isExploit;
 
     try {
       if (boostType === 'fifty_fifty') {
@@ -1200,7 +1197,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       }
 
       // 🆕 Показываем toast для Root Mode exploits
-      if (exploitFlag) {
+      if (isExploit) {
         const toastId = toast.loading("INITIALIZING EXPLOIT...", {
           style: { 
             background: '#000', 
@@ -1279,7 +1276,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       setUsedBoosts(prev => prev.filter(b => b !== boostType));
       // Скрываем overlay при ошибке
       setBoostFeedback(prev => ({ ...prev, isActive: false }));
-      if (!exploitFlag) {
+      
+      // Определяем isExploit заново для catch блока
+      const rootModeExploits = ['screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall'];
+      const isExploitError = rootModeExploits.includes(boostType);
+      
+      if (!isExploitError) {
         toast.error('Не удалось использовать буст');
       }
     }
