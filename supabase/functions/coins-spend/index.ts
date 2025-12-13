@@ -24,9 +24,13 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { user_id, spend_type, metadata } = await req.json();
+    const body = await req.json();
+    console.log("[coins-spend] Request body:", body);
+    
+    const { user_id, spend_type, metadata } = body;
 
     if (!user_id || !spend_type) {
+      console.error("[coins-spend] Missing required fields:", { user_id: !!user_id, spend_type: !!spend_type });
       return new Response(
         JSON.stringify({ error: "user_id and spend_type are required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -35,11 +39,14 @@ serve(async (req) => {
 
     const cost = COSTS[spend_type];
     if (!cost) {
+      console.error("[coins-spend] Unsupported spend_type:", spend_type, "Available:", Object.keys(COSTS));
       return new Response(
-        JSON.stringify({ error: "Unsupported spend_type" }),
+        JSON.stringify({ error: `Unsupported spend_type: ${spend_type}. Available: ${Object.keys(COSTS).join(", ")}` }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    
+    console.log("[coins-spend] Processing:", { user_id, spend_type, cost, metadata });
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")

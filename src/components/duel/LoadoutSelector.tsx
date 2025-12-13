@@ -125,6 +125,8 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
 
       setUnlockingSlot(true);
       try {
+        console.log('[LoadoutSelector] Unlocking slot 2, profileId:', profileId, 'coins:', userCoins);
+        
         const { data, error } = await supabase.functions.invoke('coins-spend', {
           body: {
             user_id: profileId,
@@ -133,7 +135,37 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           },
         });
 
-        if (error) throw error;
+        console.log('[LoadoutSelector] coins-spend response:', { data, error });
+
+        if (error) {
+          // Пытаемся извлечь сообщение об ошибке из ответа
+          let errorMessage = error.message || 'Ошибка разблокировки слота';
+          
+          // Если есть context, пытаемся распарсить JSON ответ
+          if (error.context) {
+            try {
+              const errorBody = await error.context.json?.();
+              if (errorBody?.error) {
+                errorMessage = errorBody.error;
+              }
+            } catch (e) {
+              console.warn('[LoadoutSelector] Could not parse error context:', e);
+            }
+          }
+          
+          // Проверяем специфичные ошибки
+          if (errorMessage.includes('Insufficient balance')) {
+            toast.error(`Недостаточно монет. Нужно ${SLOT_UNLOCK_COST} монет`);
+            return;
+          }
+          
+          throw new Error(errorMessage);
+        }
+
+        // Проверяем, есть ли ошибка в data
+        if (data?.error) {
+          throw new Error(data.error);
+        }
 
         // Обновляем профиль (разблокируем слот)
         const { error: updateError } = await supabase
@@ -141,7 +173,10 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           .update({ ram_slots_unlocked: 2 })
           .eq('id', profileId);
 
-        if (updateError) throw updateError;
+        if (updateError) {
+          console.error('[LoadoutSelector] Error updating profile:', updateError);
+          throw updateError;
+        }
 
         setRamSlotsUnlocked(2);
         // Обновляем баланс из ответа функции
@@ -153,7 +188,8 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         toast.success('Слот 2 разблокирован!');
       } catch (error: any) {
         console.error('[LoadoutSelector] Error unlocking slot:', error);
-        toast.error(error.message || 'Ошибка разблокировки слота');
+        const errorMessage = error?.message || error?.error || 'Ошибка разблокировки слота';
+        toast.error(errorMessage);
       } finally {
         setUnlockingSlot(false);
       }
