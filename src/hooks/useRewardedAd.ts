@@ -97,7 +97,16 @@ export function useRewardedAd() {
       return rewarded;
     } catch (err: any) {
       console.error('[useRewardedAd] Error showing ad:', err);
-      setError(err.message || 'Не удалось показать рекламу');
+      
+      // Обработка специфических ошибок
+      let errorMessage = err.message || 'Не удалось показать рекламу';
+      
+      // NotAllowedError - автовоспроизведение заблокировано
+      if (err.message?.includes('not allowed') || err.message?.includes('NotAllowedError') || err.name === 'NotAllowedError') {
+        errorMessage = 'Браузер заблокировал автовоспроизведение. Пожалуйста, нажмите на кнопку еще раз после взаимодействия со страницей.';
+      }
+      
+      setError(errorMessage);
       setLoading(false);
       throw err;
     }

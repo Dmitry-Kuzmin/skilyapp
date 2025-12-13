@@ -96,10 +96,28 @@ export function showAdsGramRewardedVideo(): Promise<boolean> {
           reject(new Error(result.description || 'Ad not completed'));
         }
       })
-      .catch((result: ShowPromiseResult) => {
-        // Ошибка или пользователь пропустил рекламу
-        console.error('[AdsGram] Rewarded video error:', result);
-        reject(new Error(result.description || 'Ad error'));
+      .catch((error: any) => {
+        // Обработка различных типов ошибок
+        console.error('[AdsGram] Rewarded video error:', error);
+        
+        // Проверяем тип ошибки
+        const errorMessage = error?.message || error?.description || 'Unknown error';
+        const errorName = error?.name || '';
+        
+        // NotAllowedError - браузер блокирует автовоспроизведение
+        if (errorName === 'NotAllowedError' || errorMessage.includes('not allowed') || errorMessage.includes('NotAllowedError')) {
+          reject(new Error('Автовоспроизведение заблокировано браузером. Пожалуйста, нажмите на кнопку "Смотреть видео" еще раз.'));
+          return;
+        }
+        
+        // Если это объект ShowPromiseResult
+        if (typeof error === 'object' && 'description' in error) {
+          reject(new Error(error.description || 'Ad error'));
+          return;
+        }
+        
+        // Общая ошибка
+        reject(new Error(errorMessage || 'Не удалось показать рекламу'));
       });
   });
 }

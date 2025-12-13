@@ -114,6 +114,7 @@ export function RewardedAdModal({
   const handleShowAd = async () => {
     try {
       setShowReward(false);
+      setError(null); // Сбрасываем предыдущие ошибки
       const success = await showAd();
       
       if (success) {
@@ -128,9 +129,15 @@ export function RewardedAdModal({
           onOpenChange(false);
         }, 2000);
       }
-    } catch (err) {
-      // Ошибка уже установлена в хуке
+    } catch (err: any) {
+      // Ошибка уже установлена в хуке, но можем добавить дополнительную обработку
       console.error('[RewardedAdModal] Error:', err);
+      
+      // Если это NotAllowedError, предлагаем пользователю попробовать еще раз
+      if (err.message?.includes('not allowed') || err.message?.includes('NotAllowedError')) {
+        // Ошибка уже установлена в хуке, просто логируем
+        console.warn('[RewardedAdModal] Autoplay blocked, user needs to interact again');
+      }
     }
   };
 
