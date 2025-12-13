@@ -1,6 +1,6 @@
 -- Расширение функции claim_ad_reward для поддержки новых типов наград:
 -- - double_winnings: удвоение выигрыша в дуэли
--- - slot_unlock: разблокировка слота за рекламу
+-- - slot_unlock: ВРЕМЕННАЯ разблокировка слота за рекламу (только на одну дуэль, НЕ навсегда!)
 
 CREATE OR REPLACE FUNCTION claim_ad_reward(
   p_user_id UUID,
@@ -120,5 +120,5 @@ BEGIN
 END;
 $$;
 
-COMMENT ON FUNCTION claim_ad_reward IS 'Claims ad reward after successful ad watch. Supports: coins (CRYPTO MINER), double_winnings (DATA LAUNDERING), slot_unlock (OVERCLOCKING). Validates limits (p_daily_limit, p_cooldown_minutes)';
+COMMENT ON FUNCTION claim_ad_reward IS 'Claims ad reward after successful ad watch. Supports: coins (CRYPTO MINER), double_winnings (DATA LAUNDERING), slot_unlock (OVERCLOCKING - TEMPORARY, one duel only). Validates limits (p_daily_limit, p_cooldown_minutes). Returns client_action for frontend handling';
 
