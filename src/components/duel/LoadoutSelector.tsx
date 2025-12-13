@@ -326,7 +326,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         </div>
 
         {/* Слоты - Премиум дизайн */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full">
           {/* Слот 1 - Базовый */}
           <SlotCard
             slotNumber={1}
@@ -530,7 +530,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
   const categoryColors = selectedBoost ? getCategoryColor(selectedBoost.category) : null;
 
   return (
-    <div className="relative" ref={cardRef}>
+    <div className="relative w-full" ref={cardRef}>
       <motion.div
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
@@ -544,8 +544,9 @@ const SlotCard: React.FC<SlotCardProps> = ({
           }
         }}
         className={cn(
-          "relative aspect-[3/4] rounded-xl border transition-all duration-300",
-          "backdrop-blur-[12px] flex flex-col items-center justify-center overflow-hidden",
+          "relative aspect-[3/4] min-h-[140px] rounded-xl border-2 transition-all duration-300",
+          "backdrop-blur-[12px] flex flex-col items-stretch justify-between overflow-hidden",
+          "p-2 sm:p-3"
           // Слот с бустом - эффект вставленного модуля
           selectedBoost
             ? cn(
@@ -590,130 +591,189 @@ const SlotCard: React.FC<SlotCardProps> = ({
           </>
         )}
 
-        {/* Заголовок слота - Моноширинный шрифт */}
-        <div className="absolute top-2 left-0 right-0 text-center z-10">
+        {/* Top Label - Заголовок слота */}
+        <div className="flex items-center justify-between relative z-10 flex-shrink-0">
           <span className={cn(
-            "text-[10px] font-bold uppercase tracking-wider font-mono",
-            selectedBoost ? categoryColors?.text || "text-zinc-400" : "text-zinc-400"
+            "text-[9px] font-bold uppercase tracking-wider font-mono",
+            selectedBoost ? categoryColors?.text || "text-zinc-400" : 
+            canOverclock ? "text-amber-400/60" :
+            isPremium ? "text-amber-400/60" : "text-zinc-400/60"
           )}>
             SLOT {slotNumber}
           </span>
           {/* Декоративные цифры-призраки */}
-          <div className="absolute top-0 left-2 text-[8px] font-mono text-white/5">
+          <span className="text-[7px] font-mono text-white/5">
             R:{String(slotNumber).padStart(2, '0')}
-          </div>
+          </span>
+          {/* Premium корона */}
+          {isPremium && (
+            <motion.div
+              animate={{ rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+            >
+              <Crown className="w-3 h-3 text-amber-400 drop-shadow-[0_0_4px_rgba(255,215,0,0.5)]" />
+            </motion.div>
+          )}
         </div>
 
-        {/* Premium корона */}
-        {isPremium && (
-          <motion.div
-            className="absolute top-2 right-2 z-10"
-            animate={{ rotate: [0, 5, -5, 0] }}
-            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-          >
-            <Crown className="w-3.5 h-3.5 text-amber-400 drop-shadow-[0_0_4px_rgba(255,215,0,0.5)]" />
-          </motion.div>
-        )}
-
-        {/* Контент слота */}
-        {isUnlocked ? (
-          selectedBoost ? (
-            // === СЛОТ С БУСТОМ: Эффект вставленного модуля ===
-            <motion.div 
-              className="relative group flex flex-col items-center justify-center flex-1 w-full px-2"
-              initial={{ opacity: 0, scale: 0.8, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
-              {/* Эффект вставленного модуля - затемнение по краям */}
-              <div 
-                className={cn(
-                  "absolute inset-2 rounded-lg",
-                  categoryColors?.bg || "bg-zinc-900/60"
-                )}
-                style={{
-                  boxShadow: `inset 0 2px 8px rgba(0, 0, 0, 0.8), inset 0 -2px 8px rgba(0, 0, 0, 0.6)`
-                }}
-              />
-
-              {/* Крупная иконка буста */}
-              <div className="flex items-center justify-center mb-2 relative z-10">
+        {/* Main Content - Центральная часть слота */}
+        <div className="flex-1 flex flex-col items-center justify-center relative z-10 min-h-0">
+          {isUnlocked ? (
+            selectedBoost ? (
+              // === СЛОТ С БУСТОМ: Эффект вставленного модуля ===
+              <motion.div 
+                className="relative group flex flex-col items-center justify-center w-full"
+                initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                {/* Эффект вставленного модуля - затемнение по краям */}
                 <div 
                   className={cn(
-                    "w-14 h-14 rounded-lg flex items-center justify-center",
-                    "bg-black/80 border-2",
-                    categoryColors?.border || "border-white/20",
-                    "shadow-[inset_0_0_20px_rgba(0,0,0,0.9)]"
+                    "absolute inset-0 rounded-lg -m-1",
+                    categoryColors?.bg || "bg-zinc-900/60"
                   )}
                   style={{
-                    boxShadow: `
-                      inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
-                      inset 0 -1px 0 0 rgba(0, 0, 0, 0.5),
-                      0 0 20px ${categoryColors?.glow || 'rgba(99, 102, 241, 0.4)'}
-                    `
+                    boxShadow: `inset 0 2px 8px rgba(0, 0, 0, 0.8), inset 0 -2px 8px rgba(0, 0, 0, 0.6)`
                   }}
-                >
-                  <motion.span 
-                    className={cn("text-3xl", categoryColors?.text || "text-white")}
-                    animate={{ 
-                      scale: [1, 1.05, 1],
-                    }}
-                    transition={{ 
-                      duration: 2, 
-                      repeat: Infinity, 
-                      repeatDelay: 2 
-                    }}
+                />
+
+                {/* Крупная иконка буста */}
+                <div className="flex items-center justify-center mb-2 relative z-10">
+                  <div 
+                    className={cn(
+                      "w-12 h-12 sm:w-14 sm:h-14 rounded-lg flex items-center justify-center",
+                      "bg-black/80 border-2",
+                      categoryColors?.border || "border-white/20",
+                      "shadow-[inset_0_0_20px_rgba(0,0,0,0.9)]"
+                    )}
                     style={{
-                      filter: `drop-shadow(0 0 10px ${categoryColors?.glow || 'rgba(99, 102, 241, 0.8)'})`
+                      boxShadow: `
+                        inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+                        inset 0 -1px 0 0 rgba(0, 0, 0, 0.5),
+                        0 0 20px ${categoryColors?.glow || 'rgba(99, 102, 241, 0.4)'}
+                      `
                     }}
                   >
-                    {selectedBoost.icon}
-                  </motion.span>
+                    <motion.span 
+                      className={cn("text-2xl sm:text-3xl", categoryColors?.text || "text-white")}
+                      animate={{ 
+                        scale: [1, 1.05, 1],
+                      }}
+                      transition={{ 
+                        duration: 2, 
+                        repeat: Infinity, 
+                        repeatDelay: 2 
+                      }}
+                      style={{
+                        filter: `drop-shadow(0 0 10px ${categoryColors?.glow || 'rgba(99, 102, 241, 0.8)'})`
+                      }}
+                    >
+                      {selectedBoost.icon}
+                    </motion.span>
+                  </div>
+                </div>
+                
+                {/* Название буста */}
+                <span className={cn(
+                  "text-[10px] sm:text-xs font-bold text-center px-1 truncate w-full mb-1 relative z-10 leading-tight",
+                  categoryColors?.text || "text-white"
+                )}>
+                  {selectedBoost.name_ru}
+                </span>
+
+                {/* Категория badge */}
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "text-[8px] sm:text-[9px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full border relative z-10",
+                    selectedBoost.category === 'exploit' && "border-red-500/60 text-red-400 bg-red-500/15",
+                    selectedBoost.category === 'defense' && "border-blue-500/60 text-blue-400 bg-blue-500/15",
+                    selectedBoost.category === 'utility' && "border-green-500/60 text-green-400 bg-green-500/15"
+                  )}
+                >
+                  {selectedBoost.category === 'exploit' && 'Атака'}
+                  {selectedBoost.category === 'defense' && 'Защита'}
+                  {selectedBoost.category === 'utility' && 'Утилита'}
+                </Badge>
+
+                {/* Кнопка удаления при hover */}
+                <motion.button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClear();
+                  }}
+                  className="absolute -top-1 -right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-red-500/90 hover:bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg z-20 border-2 border-red-400/50"
+                  whileHover={{ scale: 1.15 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                </motion.button>
+              </motion.div>
+            ) : (
+              // === ПУСТОЙ СЛОТ: INSTALL MODULE ===
+              <div className="flex flex-col items-center gap-2 text-indigo-400 relative z-10 w-full">
+                {/* Пульсирующее синее свечение */}
+                <motion.div
+                  className="absolute inset-0 border-2 border-dashed border-indigo-500/40 rounded-lg"
+                  animate={{
+                    opacity: [0.4, 0.7, 0.4],
+                    scale: [1, 1.05, 1],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+                
+                {/* Сканирующая полоска */}
+                <motion.div
+                  className="absolute inset-0 rounded-lg overflow-hidden"
+                >
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/30 to-transparent"
+                    animate={{
+                      y: ['-100%', '200%'],
+                    }}
+                    transition={{
+                      duration: 2.5,
+                      repeat: Infinity,
+                      ease: "linear",
+                      repeatDelay: 1
+                    }}
+                  />
+                </motion.div>
+
+                {/* Иконка плюса */}
+                <motion.span 
+                  className="text-3xl sm:text-4xl font-light relative z-10"
+                  animate={{
+                    scale: [1, 1.1, 1],
+                    opacity: [0.7, 1, 0.7],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  +
+                </motion.span>
+                
+                {/* Текст INSTALL MODULE */}
+                <div className="relative z-10 text-center">
+                  <span className="text-[10px] sm:text-[11px] font-mono tracking-wider font-bold block leading-tight">INSTALL</span>
+                  <span className="text-[8px] sm:text-[9px] font-mono tracking-widest text-indigo-500/60 block mt-0.5">MODULE</span>
                 </div>
               </div>
-              
-              {/* Название буста */}
-              <span className={cn(
-                "text-xs font-bold text-center px-1 truncate w-full mb-1 relative z-10",
-                categoryColors?.text || "text-white"
-              )}>
-                {selectedBoost.name_ru}
-              </span>
-
-              {/* Категория badge */}
-              <Badge
-                variant="outline"
-                className={cn(
-                  "text-[9px] font-bold px-2 py-0.5 rounded-full border relative z-10",
-                  selectedBoost.category === 'exploit' && "border-red-500/60 text-red-400 bg-red-500/15",
-                  selectedBoost.category === 'defense' && "border-blue-500/60 text-blue-400 bg-blue-500/15",
-                  selectedBoost.category === 'utility' && "border-green-500/60 text-green-400 bg-green-500/15"
-                )}
-              >
-                {selectedBoost.category === 'exploit' && 'Атака'}
-                {selectedBoost.category === 'defense' && 'Защита'}
-                {selectedBoost.category === 'utility' && 'Утилита'}
-              </Badge>
-
-              {/* Кнопка удаления при hover */}
-              <motion.button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClear();
-                }}
-                className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-red-500/90 hover:bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg z-20 border-2 border-red-400/50"
-                whileHover={{ scale: 1.15 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </motion.button>
-            </motion.div>
-          ) : (
-            // === ПУСТОЙ СЛОТ: INSTALL MODULE ===
-            <div className="flex flex-col items-center gap-3 text-indigo-400 relative z-10">
-              {/* Пульсирующее синее свечение */}
+            )
+          ) : canOverclock ? (
+            // === OVERCLOCK СОСТОЯНИЕ: Оранжевый/Янтарный ===
+            <div className="flex flex-col items-center justify-center w-full relative z-10">
+              {/* Пульсирующее оранжевое свечение */}
               <motion.div
-                className="absolute inset-4 border-2 border-dashed border-indigo-500/40 rounded-lg"
+                className="absolute inset-0 border-2 border-dashed border-amber-500/40 rounded-lg"
                 animate={{
                   opacity: [0.4, 0.7, 0.4],
                   scale: [1, 1.05, 1],
@@ -724,162 +784,107 @@ const SlotCard: React.FC<SlotCardProps> = ({
                   ease: "easeInOut"
                 }}
               />
-              
-              {/* Сканирующая полоска */}
-              <motion.div
-                className="absolute inset-4 rounded-lg overflow-hidden"
-              >
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/30 to-transparent"
-                  animate={{
-                    y: ['-100%', '200%'],
-                  }}
-                  transition={{
-                    duration: 2.5,
-                    repeat: Infinity,
-                    ease: "linear",
-                    repeatDelay: 1
-                  }}
-                />
-              </motion.div>
 
-              {/* Иконка плюса */}
-              <motion.span 
-                className="text-4xl font-light relative z-10"
+              {/* Иконка Play/Молния */}
+              <motion.div
                 animate={{
                   scale: [1, 1.1, 1],
-                  opacity: [0.7, 1, 0.7],
+                  rotate: [0, 5, -5, 0],
                 }}
                 transition={{
                   duration: 2,
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
+                className="mb-2 relative z-10"
               >
-                +
-              </motion.span>
-              
-              {/* Текст INSTALL MODULE */}
-              <div className="relative z-10 text-center">
-                <span className="text-[11px] font-mono tracking-wider font-bold block">INSTALL</span>
-                <span className="text-[9px] font-mono tracking-widest text-indigo-500/60 block mt-0.5">MODULE</span>
-              </div>
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-amber-500/20 border-2 border-amber-500/50 flex items-center justify-center shadow-[0_0_20px_rgba(251,146,60,0.4)]">
+                  <Play className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400 fill-amber-400" />
+                </div>
+              </motion.div>
+
+              {/* Текст OVERCLOCK */}
+              <span className="text-[11px] sm:text-[12px] font-mono tracking-wider font-bold text-amber-400 mb-0.5 relative z-10 leading-tight">
+                OVERCLOCK
+              </span>
+              <span className="text-[8px] sm:text-[9px] font-mono tracking-widest text-amber-500/60 relative z-10 leading-tight">
+                1 MATCH ONLY
+              </span>
             </div>
-          )
-        ) : canOverclock ? (
-          // === OVERCLOCK СОСТОЯНИЕ: Оранжевый/Янтарный ===
-          <div className="flex flex-col items-center justify-center flex-1 w-full px-2 relative z-10">
-            {/* Пульсирующее оранжевое свечение */}
-            <motion.div
-              className="absolute inset-4 border-2 border-dashed border-amber-500/40 rounded-lg"
-              animate={{
-                opacity: [0.4, 0.7, 0.4],
-                scale: [1, 1.05, 1],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
+          ) : (
+            // === ЗАБЛОКИРОВАННЫЙ СЛОТ: Замок, цена или Premium ===
+            <div className="flex flex-col items-center justify-center w-full relative z-10">
+              {/* Иконка замка */}
+              <motion.div
+                animate={{
+                  y: [0, -2, 0],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="mb-2"
+              >
+                <div className={cn(
+                  "w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center",
+                  isPremium 
+                    ? "bg-amber-500/10 border-2 border-amber-500/30 shadow-[0_0_15px_rgba(255,215,0,0.2)]"
+                    : "bg-zinc-900/60 border-2 border-white/10 shadow-[inset_0_0_15px_rgba(0,0,0,0.8)]"
+                )}>
+                  <Lock className={cn(
+                    "w-5 h-5 sm:w-6 sm:h-6",
+                    isPremium ? "text-amber-400" : "text-zinc-500"
+                  )} />
+                </div>
+              </motion.div>
+
+              {/* Текст */}
+              {isPremium ? (
+                <>
+                  <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 mb-1.5 drop-shadow-[0_0_4px_rgba(255,215,0,0.5)]" />
+                  <span className="text-[9px] sm:text-[10px] font-mono tracking-wider text-amber-400/80 mb-0.5 leading-tight">
+                    PREMIUM
+                  </span>
+                  <span className="text-[8px] sm:text-[9px] font-mono text-amber-500/60 leading-tight">
+                    REQUIRED
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-[9px] sm:text-[10px] font-mono tracking-wider text-zinc-400 mb-1.5 leading-tight">
+                    LOCKED
+                  </span>
+                  {unlockCost && (
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <Coins className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-400" />
+                      <span className="text-[10px] sm:text-xs font-bold text-yellow-400">
+                        {unlockCost}
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Footer - Нижняя часть слота (кнопки) */}
+        <div className="flex-shrink-0 w-full relative z-10">
+          {canOverclock && (
+            <OverclockingAdButton
+              slotNumber={2}
+              onSlotUnlocked={onSlotUnlocked || (() => {})}
             />
-
-            {/* Иконка Play/Молния */}
-            <motion.div
-              animate={{
-                scale: [1, 1.1, 1],
-                rotate: [0, 5, -5, 0],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              className="mb-3 relative z-10"
-            >
-              <div className="w-12 h-12 rounded-lg bg-amber-500/20 border-2 border-amber-500/50 flex items-center justify-center shadow-[0_0_20px_rgba(251,146,60,0.4)]">
-                <Play className="w-6 h-6 text-amber-400 fill-amber-400" />
-              </div>
-            </motion.div>
-
-            {/* Текст OVERCLOCK */}
-            <span className="text-[12px] font-mono tracking-wider font-bold text-amber-400 mb-1 relative z-10">
-              OVERCLOCK
-            </span>
-            <span className="text-[9px] font-mono tracking-widest text-amber-500/60 relative z-10">
-              1 MATCH ONLY
-            </span>
-
-            {/* Кнопка OVERCLOCKING */}
-            <div className="mt-3 w-full px-2 relative z-10">
-              <OverclockingAdButton
-                slotNumber={2}
-                onSlotUnlocked={onSlotUnlocked || (() => {})}
-              />
-            </div>
-          </div>
-        ) : (
-          // === ЗАБЛОКИРОВАННЫЙ СЛОТ: Замок, цена или Premium ===
-          <div className="flex flex-col items-center justify-center flex-1 w-full px-2 relative z-10">
-            {/* Иконка замка */}
-            <motion.div
-              animate={{
-                y: [0, -2, 0],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              className="mb-3"
-            >
-              <div className={cn(
-                "w-12 h-12 rounded-lg flex items-center justify-center",
-                isPremium 
-                  ? "bg-amber-500/10 border-2 border-amber-500/30 shadow-[0_0_15px_rgba(255,215,0,0.2)]"
-                  : "bg-zinc-900/60 border-2 border-white/10 shadow-[inset_0_0_15px_rgba(0,0,0,0.8)]"
-              )}>
-                <Lock className={cn(
-                  "w-6 h-6",
-                  isPremium ? "text-amber-400" : "text-zinc-500"
-                )} />
-              </div>
-            </motion.div>
-
-            {/* Текст */}
-            {isPremium ? (
-              <>
-                <Crown className="w-4 h-4 text-amber-400 mb-2 drop-shadow-[0_0_4px_rgba(255,215,0,0.5)]" />
-                <span className="text-[10px] font-mono tracking-wider text-amber-400/80 mb-1">
-                  PREMIUM
-                </span>
-                <span className="text-[9px] font-mono text-amber-500/60">
-                  REQUIRED
-                </span>
-              </>
-            ) : (
-              <>
-                <span className="text-[10px] font-mono tracking-wider text-zinc-400 mb-2">
-                  LOCKED
-                </span>
-                {unlockCost && (
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <Coins className="w-3.5 h-3.5 text-yellow-400" />
-                    <span className="text-xs font-bold text-yellow-400">
-                      {unlockCost}
-                    </span>
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* Кнопка разблокировки */}
+          )}
+          {!isUnlocked && !canOverclock && (
             <Button
               onClick={onUnlock}
               disabled={!canUnlock || isUnlocking}
               variant="outline"
               size="sm"
               className={cn(
-                "w-full h-9 text-[10px] font-semibold transition-all mt-2",
+                "w-full h-8 sm:h-9 text-[9px] sm:text-[10px] font-semibold transition-all",
                 canUnlock && !isUnlocking
                   ? isPremium
                     ? "border-amber-500/40 bg-gradient-to-br from-amber-950/40 to-yellow-950/30 hover:from-amber-950/60 hover:to-yellow-950/50 hover:border-amber-400/60 text-amber-300 hover:text-amber-200 shadow-[0_0_15px_rgba(255,215,0,0.2)] hover:shadow-[0_0_20px_rgba(255,215,0,0.3)]"
@@ -888,22 +893,20 @@ const SlotCard: React.FC<SlotCardProps> = ({
               )}
             >
               {isUnlocking ? (
-                <span className="flex items-center gap-2">
+                <span className="flex items-center gap-1.5">
                   <motion.div
-                    className="w-3 h-3 border-2 border-yellow-400/30 border-t-yellow-400 rounded-full"
+                    className="w-2.5 h-2.5 sm:w-3 sm:h-3 border-2 border-yellow-400/30 border-t-yellow-400 rounded-full"
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   />
-                  <span className="text-[9px]">Разблокировка...</span>
+                  <span className="text-[8px] sm:text-[9px]">Разблокировка...</span>
                 </span>
-              ) : isPremium ? (
-                <span className="text-[9px] font-mono">UNLOCK</span>
               ) : (
-                <span className="text-[9px] font-mono">UNLOCK</span>
+                <span className="text-[8px] sm:text-[9px] font-mono">UNLOCK</span>
               )}
             </Button>
-          </div>
-        )}
+          )}
+        </div>
 
       </motion.div>
     </div>
