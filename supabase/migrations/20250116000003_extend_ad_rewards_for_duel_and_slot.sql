@@ -17,7 +17,6 @@ AS $$
 DECLARE
   v_status JSONB;
   v_record RECORD;
-  v_metadata JSONB;
 BEGIN
   -- Проверяем статус с теми же лимитами
   v_status := check_ad_reward_status(p_user_id, p_reward_type, p_daily_limit, p_cooldown_minutes);
@@ -38,6 +37,13 @@ BEGIN
     AND reward_type = p_reward_type
     AND date = CURRENT_DATE
   FOR UPDATE;
+
+  -- Если записи нет (вдруг check прошел, а запись не создалась - редкий кейс, но для надежности)
+  IF NOT FOUND THEN
+     INSERT INTO ad_rewards (user_id, reward_type, date, daily_count)
+     VALUES (p_user_id, p_reward_type, CURRENT_DATE, 0)
+     RETURNING * INTO v_record;
+  END IF;
 
   -- Обновляем счетчик и время последнего просмотра
   UPDATE ad_rewards
@@ -84,26 +90,19 @@ BEGIN
     );
     
   ELSIF p_reward_type = 'slot_unlock' THEN
-    -- Разблокируем слот (OVERCLOCKING)
-    -- Получаем metadata из параметров (если передано)
-    v_metadata := jsonb_build_object('slot_number', 2); -- По умолчанию слот 2
-    
-    -- Обновляем ram_slots_unlocked (только если текущее значение меньше 2)
-    UPDATE profiles
-    SET ram_slots_unlocked = GREATEST(ram_slots_unlocked, 2),
-        updated_at = NOW()
-    WHERE id = p_user_id
-      AND ram_slots_unlocked < 2;
+    -- ⚠️ ВАЖНО: Мы НЕ обновляем profiles.ram_slots_unlocked навсегда.
+    -- Мы просто фиксируем факт просмотра. Фронтенд сам активирует слот на 1 раз.
     
     -- Создаем транзакцию (без изменения монет)
     INSERT INTO transactions (user_id, transaction_type, amount, metadata)
     VALUES (
       p_user_id,
-      'slot_unlocked_ad',
+      'ad_watched', -- Используем нейтральный тип, так как монет нет
       0,
       jsonb_build_object(
         'reward_type', p_reward_type,
         'source', 'overclocking',
+        'reward', 'temp_slot_unlock',
         'slot_number', 2,
         'daily_count', (v_status->>'daily_count')::INTEGER + 1
       )
@@ -112,9 +111,11 @@ BEGIN
 
   RETURN jsonb_build_object(
     'success', true,
+    'reward_type', p_reward_type,
     'reward_amount', CASE WHEN p_reward_type = 'slot_unlock' THEN 0 ELSE p_reward_amount END,
     'daily_count', (v_status->>'daily_count')::INTEGER + 1,
-    'daily_limit', (v_status->>'daily_limit')::INTEGER
+    'daily_limit', p_daily_limit, -- Возвращаем актуальный лимит
+    'client_action', CASE WHEN p_reward_type = 'slot_unlock' THEN 'unlock_temp_slot' ELSE 'none' END
   );
 END;
 $$;

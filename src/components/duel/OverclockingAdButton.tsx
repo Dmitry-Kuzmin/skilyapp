@@ -94,27 +94,25 @@ export function OverclockingAdButton({ slotNumber, onSlotUnlocked, className }: 
       if (error) throw error;
 
       if (data.success) {
-        // Обновляем профиль (разблокируем слот)
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({ ram_slots_unlocked: slotNumber })
-          .eq('id', profileId);
+        // ⚠️ ВАЖНО: НЕ обновляем профиль! Разблокировка временная (только на эту дуэль)
+        // Фронтенд должен локально разблокировать слот на время сессии создания дуэли
+        
+        // Проверяем, что сервер вернул правильный client_action
+        if (data.client_action === 'unlock_temp_slot') {
+          sounds.correctAnswer();
+          haptics.boostActivated();
 
-        if (updateError) throw updateError;
+          toast({
+            title: '✅ OVERCLOCKING',
+            description: `Слот ${slotNumber} разблокирован на эту дуэль! Временный root-доступ активирован.`,
+          });
 
-        // Обновляем баланс в кэше
-        await queryClient.invalidateQueries({ queryKey: ['profile-data', profileId] });
-
-        sounds.correctAnswer();
-        haptics.boostActivated();
-
-        toast({
-          title: '✅ OVERCLOCKING',
-          description: `Слот ${slotNumber} разблокирован на эту дуэль!`,
-        });
-
-        // Уведомляем родителя
-        onSlotUnlocked();
+          // Уведомляем родителя о временной разблокировке
+          // Родитель должен сохранить это состояние локально для текущей сессии создания дуэли
+          onSlotUnlocked();
+        } else {
+          throw new Error('Неожиданный ответ от сервера');
+        }
       } else {
         throw new Error(data.error || 'Не удалось разблокировать слот');
       }

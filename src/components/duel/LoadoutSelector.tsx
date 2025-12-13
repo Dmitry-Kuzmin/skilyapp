@@ -44,6 +44,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
     slot_3_boost_type: null,
   });
   const [ramSlotsUnlocked, setRamSlotsUnlocked] = useState(1);
+  const [tempSlotUnlocked, setTempSlotUnlocked] = useState<number | null>(null); // Временная разблокировка через рекламу
   const [userCoins, setUserCoins] = useState(0);
   const [loading, setLoading] = useState(true);
   const [unlockingSlot, setUnlockingSlot] = useState(false);
@@ -229,9 +230,9 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
 
   // Выбор буста для слота
   const handleSelectBoost = async (slotNumber: 1 | 2 | 3, boostType: string | null) => {
-    // Проверяем, что слот доступен
-    if (slotNumber === 2 && ramSlotsUnlocked < 2) {
-      toast.error('Слот 2 заблокирован. Разблокируйте за 500 монет');
+    // Проверяем, что слот доступен (постоянно или временно через рекламу)
+    if (slotNumber === 2 && ramSlotsUnlocked < 2 && tempSlotUnlocked !== 2) {
+      toast.error('Слот 2 заблокирован. Разблокируйте за 500 монет или посмотрите рекламу');
       return;
     }
     if (slotNumber === 3 && ramSlotsUnlocked < 3) {
@@ -343,18 +344,19 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           {/* Слот 2 - Платный */}
           <SlotCard
             slotNumber={2}
-            isUnlocked={ramSlotsUnlocked >= 2}
+            isUnlocked={ramSlotsUnlocked >= 2 || tempSlotUnlocked === 2}
             isPremium={false}
             unlockCost={SLOT_UNLOCK_COST}
             userCoins={userCoins}
             isUnlocking={unlockingSlot}
             onUnlock={() => handleUnlockSlot(2)}
             onSlotUnlocked={() => {
-              setRamSlotsUnlocked(2);
+              // Временная разблокировка через рекламу (только на эту сессию)
+              setTempSlotUnlocked(2);
             }}
             selectedBoost={getBoostByType(loadout.slot_2_boost_type)}
             onSlotClick={() => {
-              if (ramSlotsUnlocked >= 2) {
+              if (ramSlotsUnlocked >= 2 || tempSlotUnlocked === 2) {
                 setSelectedSlotIndex(1);
               }
             }}
