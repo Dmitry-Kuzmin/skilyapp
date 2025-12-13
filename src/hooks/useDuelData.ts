@@ -263,14 +263,25 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       console.log('[useDuelData] Filtering by loadout. Looking for:', loadoutBoosts);
       console.log('[useDuelData] Available boost types in inventory:', boosts.map(b => b.boost_type));
       
-      boosts = boosts.filter(boost => {
+      const filteredBoosts = boosts.filter(boost => {
         const matches = loadoutBoosts.includes(boost.boost_type);
         if (!matches) {
           console.log(`[useDuelData] Boost ${boost.boost_type} not in loadout, filtering out`);
         }
         return matches;
       });
-      console.log('[useDuelData] Filtered boosts by loadout:', boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })));
+      
+      // Если после фильтрации ничего не осталось, показываем все бусты (fallback)
+      // Это означает, что выбранные в loadout бусты еще не куплены
+      if (filteredBoosts.length === 0) {
+        console.warn('[useDuelData] ⚠️ No boosts found in inventory matching loadout. Showing all boosts as fallback.');
+        console.warn('[useDuelData] Selected in loadout:', loadoutBoosts);
+        console.warn('[useDuelData] Available in inventory:', boosts.map(b => b.boost_type));
+        // Не фильтруем - показываем все
+      } else {
+        boosts = filteredBoosts;
+        console.log('[useDuelData] Filtered boosts by loadout:', boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })));
+      }
     } else {
       console.log('[useDuelData] No loadout selected, showing all boosts');
     }
