@@ -1231,7 +1231,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
               {/* Grid Layout для бустов */}
               {(filteredRegularBoosts.length > 0 || filteredPremiumBoosts.length > 0) ? (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   {filteredRegularBoosts.map((boost) => (
                     <MarketItem
                       key={boost.id}
