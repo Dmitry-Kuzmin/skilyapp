@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS public.ad_rewards (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  reward_type TEXT NOT NULL CHECK (reward_type IN ('coins', 'restore_streak', 'test_attempt', 'extra_slot')),
+  reward_type TEXT NOT NULL CHECK (reward_type IN ('coins', 'restore_streak', 'test_attempt', 'extra_slot', 'double_winnings', 'slot_unlock')),
   date DATE NOT NULL DEFAULT CURRENT_DATE,
   daily_count INTEGER NOT NULL DEFAULT 0 CHECK (daily_count >= 0),
   last_watched_at TIMESTAMPTZ,
