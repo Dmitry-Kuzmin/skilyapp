@@ -297,7 +297,6 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         }}
       />
       <div className="relative z-10 space-y-5">
-      <div className="space-y-5">
         {/* Заголовок - Премиум типографика */}
         <div className="flex items-start justify-between relative">
           <div className="space-y-1 relative z-10">
@@ -362,9 +361,8 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           />
         </div>
       </div>
-    </Card>
 
-    {/* Bottom Sheet для выбора буста */}
+      {/* Bottom Sheet для выбора буста */}
       <Sheet 
         open={selectedSlotIndex !== null} 
         onOpenChange={(open) => {
