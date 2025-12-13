@@ -40,7 +40,6 @@ import { useDuelGame } from '@/hooks/useDuelGame';
 import { OilSplashAttack } from './attacks/OilSplashAttack';
 import { PoliceBackdoorAttack } from './attacks/PoliceBackdoorAttack';
 import { InputLagWrapper } from './attacks/InputLagWrapper';
-import { BoostFeedback } from './BoostFeedback';
 
 // ОПТИМИЗАЦИЯ: Условное логирование только в development
 const isDev = process.env.NODE_ENV === 'development';
