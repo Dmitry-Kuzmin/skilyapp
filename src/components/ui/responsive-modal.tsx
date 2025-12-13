@@ -14,6 +14,7 @@ interface ResponsiveModalProps {
   contentClassName?: string;
   hideCloseButton?: boolean;
   preventClose?: boolean;
+  headerContent?: React.ReactNode;
 }
 
 /**
@@ -35,6 +36,7 @@ export function ResponsiveModal({
   contentClassName,
   hideCloseButton = false,
   preventClose = false,
+  headerContent,
 }: ResponsiveModalProps) {
   const isMobile = useIsMobile();
 
@@ -57,7 +59,11 @@ export function ResponsiveModal({
             }
           }}
         >
-          {title && (
+          {headerContent ? (
+            <div className="shrink-0">
+              {headerContent}
+            </div>
+          ) : title ? (
             <DrawerHeader className={cn("text-left shrink-0", contentClassName)}>
               <DrawerTitle className="text-zinc-200">{title}</DrawerTitle>
               {description && (
@@ -66,7 +72,7 @@ export function ResponsiveModal({
                 </DrawerDescription>
               )}
             </DrawerHeader>
-          )}
+          ) : null}
           <div 
             className={cn(
               "px-4 md:px-6 pb-6 flex-1 overflow-y-auto min-h-0 scrollbar-none",
@@ -99,7 +105,11 @@ export function ResponsiveModal({
         hideCloseButton={hideCloseButton}
         preventClose={preventClose}
       >
-        {title && (
+        {headerContent ? (
+          <div className="shrink-0 relative">
+            {headerContent}
+          </div>
+        ) : title ? (
           <DialogHeader className={cn("shrink-0 px-4 md:px-6 pt-4 md:pt-6 pb-3 md:pb-4", contentClassName)}>
             <DialogTitle className="text-zinc-200">{title}</DialogTitle>
             {description && (
@@ -108,7 +118,7 @@ export function ResponsiveModal({
               </DialogDescription>
             )}
           </DialogHeader>
-        )}
+        ) : null}
         <div 
           className={cn(
             "flex-1 overflow-y-auto min-h-0 px-4 md:px-6 pb-4 md:pb-6",

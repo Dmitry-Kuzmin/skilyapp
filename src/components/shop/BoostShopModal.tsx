@@ -1129,36 +1129,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           />
         )}
 
-        {/* Компактный заголовок с балансом - премиум стиль */}
-        <div className="px-3 md:px-4 py-2 md:py-3 border-b border-border shrink-0 bg-card">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-violet-500/30 to-purple-500/30 rounded-lg blur-sm" />
-                <ShoppingBag className="relative w-4 h-4 md:w-5 md:h-5 text-violet-400 flex-shrink-0" />
-              </div>
-              <h2 className="text-base md:text-lg font-semibold truncate bg-gradient-to-r from-violet-300 to-purple-300 bg-clip-text text-transparent">
-                {t('boostShop.title')}
-              </h2>
-            </div>
-            <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-              <button 
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50 border border-border hover:border-violet-500/50 hover:bg-muted/80 transition-all cursor-pointer backdrop-blur-sm"
-                onClick={async () => {
-                  setActiveTab('history');
-                  if (transactions.length === 0) {
-                    await loadTransactionHistory();
-                  }
-                }}
-              >
-                <Coins className="w-4 h-4 text-yellow-400" />
-                <span className="text-sm font-bold text-foreground">{coins}</span>
-                <History className="w-3 h-3 text-muted-foreground ml-0.5" />
-              </button>
-            </div>
-          </div>
-        </div>
-
         <div className="relative">
           {isRefreshing && (
             <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
@@ -1253,14 +1223,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               className="p-4 md:p-6 space-y-4 mt-3 md:mt-4"
             >
               <div className="space-y-3">
-                {/* Компактный баланс в шапке - убрали большой баннер */}
-                <div className="text-center py-2">
-                  <div className="flex items-center justify-center gap-2">
-                    <Coins className="w-5 h-5 text-yellow-400" />
-                    <span className="text-xl font-bold text-foreground">{coins}</span>
-                  </div>
-                </div>
-
                 {/* Кнопка получения монет за рекламу (только для non-Premium) */}
                 {!isPremium && (
                   <Card className="p-4 md:p-5 border-2 border-indigo-500/20 bg-gradient-to-br from-indigo-500/5 to-violet-500/5">
@@ -1972,12 +1934,44 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     return null;
   }
 
+  // Кастомный заголовок с блоком монет
+  const headerContent = (
+    <div className="px-4 md:px-6 py-3 md:py-4 border-b border-border shrink-0 bg-card relative pr-12 md:pr-14">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/30 to-purple-500/30 rounded-lg blur-sm" />
+            <ShoppingBag className="relative w-4 h-4 md:w-5 md:h-5 text-violet-400 flex-shrink-0" />
+          </div>
+          <h2 className="text-base md:text-lg font-semibold truncate bg-gradient-to-r from-violet-300 to-purple-300 bg-clip-text text-transparent">
+            {t('boostShop.title')}
+          </h2>
+        </div>
+        <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+          <button 
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50 border border-border hover:border-violet-500/50 hover:bg-muted/80 transition-all cursor-pointer backdrop-blur-sm"
+            onClick={async () => {
+              setActiveTab('history');
+              if (transactions.length === 0) {
+                await loadTransactionHistory();
+              }
+            }}
+          >
+            <Coins className="w-4 h-4 text-yellow-400" />
+            <span className="text-sm font-bold text-foreground">{coins}</span>
+            <History className="w-3 h-3 text-muted-foreground ml-0.5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <ResponsiveModal
         open={open}
         onOpenChange={onOpenChange}
-        title={t('boostShop.title')}
+        headerContent={headerContent}
         className="max-w-5xl"
         contentClassName="scrollbar-none"
       >
