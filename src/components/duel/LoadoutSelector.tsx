@@ -472,6 +472,12 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         </SheetContent>
       </Sheet>
 
+      {/* Модалка Premium */}
+      <PaywallModal
+        open={showPremiumModal}
+        onOpenChange={setShowPremiumModal}
+      />
+
       {/* Модалка рекламы для OVERCLOCK */}
       <RewardedAdModal
         open={showOverclockModal}
