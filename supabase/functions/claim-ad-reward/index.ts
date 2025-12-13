@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { user_id, reward_type = 'coins', reward_amount = 50 } = await req.json();
+    const { user_id, reward_type = 'coins', reward_amount = 50, metadata } = await req.json();
 
     if (!user_id) {
       return new Response(
@@ -27,10 +27,16 @@ serve(async (req) => {
     );
 
     // Вызываем функцию начисления награды (с проверкой ограничений)
+    // Для slot_unlock передаем специальные лимиты (1 раз в день, кулдаун 24 часа)
+    const dailyLimit = reward_type === 'slot_unlock' ? 1 : 5;
+    const cooldownMinutes = reward_type === 'slot_unlock' ? 1440 : 60; // 24 часа для слота
+
     const { data, error } = await supabase.rpc('claim_ad_reward', {
       p_user_id: user_id,
       p_reward_type: reward_type,
       p_reward_amount: reward_amount,
+      p_daily_limit: dailyLimit,
+      p_cooldown_minutes: cooldownMinutes,
     });
 
     if (error) {

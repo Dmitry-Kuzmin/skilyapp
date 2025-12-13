@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Lock, Coins, Crown, Zap, Check, X, Plus, Cpu, Search, Shield, Hexagon } from 'lucide-react';
+import { OverclockingAdButton } from './OverclockingAdButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { usePremium } from '@/hooks/usePremium';
@@ -348,6 +349,9 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
             userCoins={userCoins}
             isUnlocking={unlockingSlot}
             onUnlock={() => handleUnlockSlot(2)}
+            onSlotUnlocked={() => {
+              setRamSlotsUnlocked(2);
+            }}
             selectedBoost={getBoostByType(loadout.slot_2_boost_type)}
             onSlotClick={() => {
               if (ramSlotsUnlocked >= 2) {
@@ -457,6 +461,7 @@ interface SlotCardProps {
   userHasPremium?: boolean;
   isUnlocking?: boolean;
   onUnlock?: () => void;
+  onSlotUnlocked?: () => void;
   selectedBoost: Boost | null;
   onSlotClick: () => void;
   onClear: () => void;
@@ -471,6 +476,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
   userHasPremium = false,
   isUnlocking = false,
   onUnlock,
+  onSlotUnlocked,
   selectedBoost,
   onSlotClick,
   onClear,
@@ -724,49 +730,60 @@ const SlotCard: React.FC<SlotCardProps> = ({
             </div>
           )
         ) : (
-          <motion.div
-            whileHover={canUnlock && !isUnlocking ? { scale: 1.02 } : {}}
-            whileTap={canUnlock && !isUnlocking ? { scale: 0.98 } : {}}
-          >
-            <Button
-              onClick={onUnlock}
-              disabled={!canUnlock || isUnlocking}
-              variant="outline"
-              size="sm"
-              className={cn(
-                "w-full h-10 text-xs font-semibold transition-all relative overflow-hidden",
-                canUnlock && !isUnlocking
-                  ? isPremium
-                    ? "border-amber-500/40 bg-gradient-to-br from-amber-950/40 to-yellow-950/30 hover:from-amber-950/60 hover:to-yellow-950/50 hover:border-amber-400/60 text-amber-300 hover:text-amber-200 shadow-[0_0_15px_rgba(255,215,0,0.2)] hover:shadow-[0_0_20px_rgba(255,215,0,0.3)]"
-                    : "border-white/20 bg-zinc-900/60 hover:bg-zinc-800/60 hover:border-yellow-500/40 text-zinc-200 hover:text-yellow-300"
-                  : "border-white/5 bg-zinc-950/40 text-zinc-500"
-              )}
+          <div className="space-y-2">
+            {/* Кнопка покупки за монеты (для слота 2) или Premium (для слота 3) */}
+            <motion.div
+              whileHover={canUnlock && !isUnlocking ? { scale: 1.02 } : {}}
+              whileTap={canUnlock && !isUnlocking ? { scale: 0.98 } : {}}
             >
-              {isUnlocking ? (
-                <span className="flex items-center gap-2">
-                  <motion.div
-                    className="w-3 h-3 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  />
-                  Разблокировка...
-                </span>
-              ) : isPremium ? (
-                <>
-                  <Crown className="w-3.5 h-3.5 mr-1.5 text-amber-400 drop-shadow-[0_0_4px_rgba(255,215,0,0.5)]" />
-                  <span>Premium</span>
-                </>
-              ) : (
-                <>
-                  <Coins className="w-3.5 h-3.5 mr-1.5 text-yellow-400" />
-                  <span>
-                    <span className="text-yellow-400 font-bold">{unlockCost}</span>
-                    <span className="text-zinc-400"> монет</span>
+              <Button
+                onClick={onUnlock}
+                disabled={!canUnlock || isUnlocking}
+                variant="outline"
+                size="sm"
+                className={cn(
+                  "w-full h-10 text-xs font-semibold transition-all relative overflow-hidden",
+                  canUnlock && !isUnlocking
+                    ? isPremium
+                      ? "border-amber-500/40 bg-gradient-to-br from-amber-950/40 to-yellow-950/30 hover:from-amber-950/60 hover:to-yellow-950/50 hover:border-amber-400/60 text-amber-300 hover:text-amber-200 shadow-[0_0_15px_rgba(255,215,0,0.2)] hover:shadow-[0_0_20px_rgba(255,215,0,0.3)]"
+                      : "border-white/20 bg-zinc-900/60 hover:bg-zinc-800/60 hover:border-yellow-500/40 text-zinc-200 hover:text-yellow-300"
+                    : "border-white/5 bg-zinc-950/40 text-zinc-500"
+                )}
+              >
+                {isUnlocking ? (
+                  <span className="flex items-center gap-2">
+                    <motion.div
+                      className="w-3 h-3 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    />
+                    Разблокировка...
                   </span>
-                </>
-              )}
-            </Button>
-          </motion.div>
+                ) : isPremium ? (
+                  <>
+                    <Crown className="w-3.5 h-3.5 mr-1.5 text-amber-400 drop-shadow-[0_0_4px_rgba(255,215,0,0.5)]" />
+                    <span>Premium</span>
+                  </>
+                ) : (
+                  <>
+                    <Coins className="w-3.5 h-3.5 mr-1.5 text-yellow-400" />
+                    <span>
+                      <span className="text-yellow-400 font-bold">{unlockCost}</span>
+                      <span className="text-zinc-400"> монет</span>
+                    </span>
+                  </>
+                )}
+              </Button>
+            </motion.div>
+            
+            {/* Кнопка OVERCLOCKING (только для слота 2, не Premium) */}
+            {slotNumber === 2 && !isPremium && (
+              <OverclockingAdButton
+                slotNumber={2}
+                onSlotUnlocked={onSlotUnlocked || (() => {})}
+              />
+            )}
+          </div>
         )}
 
       </motion.div>

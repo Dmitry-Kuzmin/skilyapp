@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { dispatchUserEvent } from '@/lib/notification-events';
 import { cn } from '@/lib/utils';
 import { useDuelResults } from '@/hooks/useDuelResults';
+import { DataLaunderingButton } from './DataLaunderingButton';
 
 interface DuelResultProps {
   duelId: string;
@@ -344,14 +345,29 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
               </div>
 
               {results.isWinner && (
-                <motion.div
-                  initial={{ scale: 0.95 }}
-                  animate={{ scale: 1 }}
-                  className="flex justify-between items-center bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl p-3 border border-green-500/30"
-                >
-                  <span className="font-bold text-green-400">Выигрыш:</span>
-                  <span className="font-black text-2xl text-green-400">+{results.winnings}</span>
-                </motion.div>
+                <>
+                  <motion.div
+                    initial={{ scale: 0.95 }}
+                    animate={{ scale: 1 }}
+                    className="flex justify-between items-center bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl p-3 border border-green-500/30"
+                  >
+                    <span className="font-bold text-green-400">Выигрыш:</span>
+                    <span className="font-black text-2xl text-green-400">+{results.winnings}</span>
+                  </motion.div>
+                  
+                  {/* DATA LAUNDERING - Удвоение выигрыша за рекламу */}
+                  <motion.div
+                    initial={{ y: 10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="mt-3"
+                  >
+                    <DataLaunderingButton 
+                      winnings={results.winnings} 
+                      duelId={duelId}
+                    />
+                  </motion.div>
+                </>
               )}
 
               {!results.isWinner && !results.isDraw && (

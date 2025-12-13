@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { user_id, reward_type = 'coins' } = await req.json();
+    const { user_id, reward_type = 'coins', daily_limit, cooldown_minutes } = await req.json();
 
     if (!user_id) {
       return new Response(
@@ -26,10 +26,16 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    // Определяем лимиты в зависимости от типа награды
+    const finalDailyLimit = daily_limit ?? (reward_type === 'slot_unlock' ? 1 : 5);
+    const finalCooldownMinutes = cooldown_minutes ?? (reward_type === 'slot_unlock' ? 1440 : 60);
+
     // Вызываем функцию проверки статуса
     const { data, error } = await supabase.rpc('check_ad_reward_status', {
       p_user_id: user_id,
       p_reward_type: reward_type,
+      p_daily_limit: finalDailyLimit,
+      p_cooldown_minutes: finalCooldownMinutes,
     });
 
     if (error) {
