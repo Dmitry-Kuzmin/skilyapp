@@ -16,9 +16,13 @@ export function useDuelSync({
   const syncBoostInventory = useCallback(async () => {
     try {
       const inventory = await fetchBoostInventory();
-      setBoosts(inventory.filter((item) => item.quantity > 0));
+      console.log('[useDuelSync] Raw inventory:', inventory);
+      const filteredBoosts = inventory.filter((item) => item.quantity > 0);
+      console.log('[useDuelSync] Filtered boosts (quantity > 0):', filteredBoosts);
+      setBoosts(filteredBoosts);
     } catch (error) {
       console.error('[useDuelSync] Error syncing boosts:', error);
+      setBoosts([]);
     }
   }, [fetchBoostInventory, setBoosts]);
 

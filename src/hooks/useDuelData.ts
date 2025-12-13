@@ -223,11 +223,15 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
     }
 
     // Загружаем loadout пользователя
-    const { data: loadout } = await supabase
+    const { data: loadout, error: loadoutError } = await supabase
       .from("user_loadouts")
       .select("slot_1_boost_type, slot_2_boost_type, slot_3_boost_type")
       .eq("user_id", profileId)
       .maybeSingle();
+
+    if (loadoutError) {
+      console.warn('[useDuelData] Error loading loadout:', loadoutError);
+    }
 
     // Формируем список выбранных бустов из loadout (фильтруем null)
     const loadoutBoosts: string[] = [];
@@ -237,21 +241,29 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       if (loadout.slot_3_boost_type) loadoutBoosts.push(loadout.slot_3_boost_type);
     }
 
-    // Если loadout пустой, используем все бусты из инвентаря (обратная совместимость)
+    console.log('[useDuelData] Loadout:', loadout, 'Selected boosts:', loadoutBoosts);
+
+    // Загружаем все бусты из инвентаря
     const { data, error } = await supabase
       .from("boost_inventory")
       .select("boost_type, quantity")
       .eq("user_id", profileId);
 
     if (error) {
+      console.error('[useDuelData] Error loading boost inventory:', error);
       throw error;
     }
 
     let boosts = data || [];
+    console.log('[useDuelData] All boosts from inventory:', boosts);
 
-    // Если есть loadout, фильтруем только выбранные бусты
+    // Если есть выбранные бусты в loadout, фильтруем только их
+    // Если loadout пустой (все null) или не существует, показываем все бусты
     if (loadoutBoosts.length > 0) {
       boosts = boosts.filter(boost => loadoutBoosts.includes(boost.boost_type));
+      console.log('[useDuelData] Filtered boosts by loadout:', boosts);
+    } else {
+      console.log('[useDuelData] No loadout selected, showing all boosts');
     }
 
     cache.boosts = boosts;
