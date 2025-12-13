@@ -264,6 +264,8 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         }
       )
       // 🆕 Подписка на новые exploits через postgres_changes
+      // ВАЖНО: Убираем фильтр по target_player_id из SQL, фильтруем в JS
+      // Это гарантирует, что мы получим все события, даже если myPlayerId еще не установлен
       .on(
         'postgres_changes',
         {
@@ -277,9 +279,19 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           const newExploit = payload.new as any;
           const currentMyPlayerId = myPlayerIdRef.current;
           
+          // Детальное логирование для отладки
+          log('[useDuelRealtime] 📦 Exploit INSERT received:', {
+            exploit_type: newExploit.exploit_type,
+            target_player_id: newExploit.target_player_id,
+            myPlayerId: currentMyPlayerId,
+            is_active: newExploit.is_active,
+            duel_id: newExploit.duel_id,
+            matches: currentMyPlayerId === newExploit.target_player_id
+          });
+          
           // Проверяем, что exploit направлен на нас
           if (currentMyPlayerId && newExploit.target_player_id === currentMyPlayerId && newExploit.is_active) {
-            log('[useDuelRealtime] 🎯 New exploit received via postgres_changes:', newExploit.exploit_type);
+            log('[useDuelRealtime] 🎯 АТАКА ПОЛУЧЕНА! Exploit type:', newExploit.exploit_type);
             
             // Добавляем в состояние
             setState(prev => {
