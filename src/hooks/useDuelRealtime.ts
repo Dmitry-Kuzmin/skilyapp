@@ -118,12 +118,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     if (!duelId) return;
 
     log('[useDuelRealtime] Initializing channel for duel:', duelId);
-    // #region agent log
-    // Debug logging только в dev режиме
-    if (process.env.NODE_ENV === 'development') {
-      debugFetch({location:'useDuelRealtime.ts:98',message:'Initializing realtime channel',data:{duelId,myPlayerId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'});
-    }
-    // #endregion
+    debugFetch({location:'useDuelRealtime.ts:98',message:'Initializing realtime channel',data:{duelId,myPlayerId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'});
     const duelChannel = supabase.channel(`duel_${duelId}`);
 
     // Subscribe to duel changes
