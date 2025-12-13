@@ -15,6 +15,17 @@ const logWarn = (...args: any[]) => {
   if (isDev) console.warn(...args);
 };
 
+// 🆕 Helper для debug fetch (только в dev режиме)
+const debugFetch = (data: any) => {
+  if (isDev) {
+    fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).catch(() => {});
+  }
+};
+
 // 🆕 Интерфейс для активных exploits
 export interface ActiveExploit {
   type: string;
