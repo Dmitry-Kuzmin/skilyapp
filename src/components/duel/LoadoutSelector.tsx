@@ -49,6 +49,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
   const [loading, setLoading] = useState(true);
   const [unlockingSlot, setUnlockingSlot] = useState(false);
   const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(null);
+  const [showOverclockModal, setShowOverclockModal] = useState(false);
   const isClosingRef = useRef(false);
 
   // Загрузка данных
@@ -350,6 +351,10 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
             userCoins={userCoins}
             isUnlocking={unlockingSlot}
             onUnlock={() => handleUnlockSlot(2)}
+            onOverclockClick={() => {
+              // Открываем модалку рекламы для OVERCLOCK
+              setShowOverclockModal(true);
+            }}
             onSlotUnlocked={() => {
               // Временная разблокировка через рекламу (только на эту сессию)
               setTempSlotUnlocked(2);
@@ -449,6 +454,17 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Модалка рекламы для OVERCLOCK */}
+      {showOverclockModal && (
+        <OverclockingAdButton
+          slotNumber={2}
+          onSlotUnlocked={() => {
+            setTempSlotUnlocked(2);
+            setShowOverclockModal(false);
+          }}
+        />
+      )}
     </Card>
     </>
   );
@@ -463,6 +479,7 @@ interface SlotCardProps {
   userHasPremium?: boolean;
   isUnlocking?: boolean;
   onUnlock?: () => void;
+  onOverclockClick?: () => void;
   onSlotUnlocked?: () => void;
   selectedBoost: Boost | null;
   onSlotClick: () => void;
@@ -478,6 +495,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
   userHasPremium = false,
   isUnlocking = false,
   onUnlock,
+  onOverclockClick,
   onSlotUnlocked,
   selectedBoost,
   onSlotClick,
@@ -529,40 +547,51 @@ const SlotCard: React.FC<SlotCardProps> = ({
 
   const categoryColors = selectedBoost ? getCategoryColor(selectedBoost.category) : null;
 
+  // Обработчик клика для всего слота
+  const handleSlotClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (isUnlocked) {
+      // Разблокированный слот - открываем выбор буста
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[SlotCard] Slot clicked, slotNumber:', slotNumber, 'isUnlocked:', isUnlocked);
+      }
+      onSlotClick();
+    } else if (canOverclock && onOverclockClick) {
+      // OVERCLOCK слот - открываем рекламу
+      onOverclockClick();
+    } else if (canUnlock && onUnlock) {
+      // Заблокированный слот - разблокируем
+      onUnlock();
+    }
+  };
+
   return (
     <div className="relative w-full" ref={cardRef}>
       <motion.div
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
-        onClick={(e) => {
-          if (isUnlocked) {
-            if (process.env.NODE_ENV === 'development') {
-              console.log('[SlotCard] Slot clicked, slotNumber:', slotNumber, 'isUnlocked:', isUnlocked);
-            }
-            e.stopPropagation();
-            onSlotClick();
-          }
-        }}
+        onClick={handleSlotClick}
         className={cn(
-          "relative aspect-[3/4] min-h-[140px] rounded-xl border-2 transition-all duration-300",
-          "backdrop-blur-[12px] flex flex-col items-stretch justify-between overflow-hidden",
-          "p-2 sm:p-3",
+          "relative aspect-[3/4] min-h-[140px] rounded-xl border transition-all duration-300",
+          "backdrop-blur-[12px] flex flex-col items-center justify-center overflow-hidden",
+          "cursor-pointer",
           // Слот с бустом - эффект вставленного модуля
           selectedBoost
             ? cn(
-                "bg-zinc-900/80 border-2 cursor-pointer",
-                categoryColors?.border,
+                "bg-zinc-900/80 border-2",
+                categoryColors?.border || "border-indigo-500/50",
                 "shadow-[inset_0_2px_8px_rgba(0,0,0,0.6),inset_0_-2px_8px_rgba(0,0,0,0.4)]"
               )
-            : // Пустой разблокированный слот - синее свечение
+            : // Пустой разблокированный слот - синяя рамка
             isUnlocked
-            ? "bg-zinc-950/60 border-2 border-dashed border-indigo-500/40 cursor-pointer hover:border-indigo-500/60 hover:bg-zinc-950/80 shadow-[inset_0_4px_16px_rgba(0,0,0,0.8),0_0_20px_rgba(99,102,241,0.2)] hover:shadow-[inset_0_4px_16px_rgba(0,0,0,0.8),0_0_30px_rgba(99,102,241,0.4)]"
+            ? "bg-zinc-950/60 border border-blue-500/30 hover:border-blue-500/50 hover:bg-zinc-950/80"
             : // Заблокированный слот
             isPremium
-            ? "bg-zinc-950/40 border-2 border-amber-500/20 opacity-70 shadow-[inset_0_4px_20px_rgba(0,0,0,0.6),0_0_20px_rgba(255,215,0,0.1)]"
+            ? "bg-zinc-950/40 border border-amber-500/30 opacity-70 hover:opacity-90"
             : canOverclock
-            ? "bg-zinc-950/40 border-2 border-amber-500/30 opacity-80 shadow-[inset_0_4px_20px_rgba(0,0,0,0.6),0_0_20px_rgba(251,146,60,0.2)] hover:border-amber-500/50 hover:shadow-[inset_0_4px_20px_rgba(0,0,0,0.6),0_0_30px_rgba(251,146,60,0.3)]"
-            : "bg-zinc-950/40 border-2 border-white/5 opacity-70 shadow-[inset_0_4px_20px_rgba(0,0,0,0.7)]"
+            ? "bg-orange-500/5 border border-orange-500/30 hover:border-orange-500/50 hover:bg-orange-500/10"
+            : "bg-zinc-950/40 border border-white/5 opacity-70"
         )}
         style={{
           boxShadow: selectedBoost
@@ -591,111 +620,55 @@ const SlotCard: React.FC<SlotCardProps> = ({
           </>
         )}
 
-        {/* Top Label - Заголовок слота */}
-        <div className="flex items-center justify-between relative z-10 flex-shrink-0">
-          <span className={cn(
-            "text-[9px] font-bold uppercase tracking-wider font-mono",
-            selectedBoost ? categoryColors?.text || "text-zinc-400" : 
-            canOverclock ? "text-amber-400/60" :
-            isPremium ? "text-amber-400/60" : "text-zinc-400/60"
-          )}>
+        {/* Top Label - Минималистичный заголовок */}
+        <div className="absolute top-2 left-2 right-2 flex items-center justify-between z-10">
+          <span className="text-[8px] font-mono text-white/20 uppercase tracking-wider">
             SLOT {slotNumber}
           </span>
-          {/* Декоративные цифры-призраки */}
-          <span className="text-[7px] font-mono text-white/5">
-            R:{String(slotNumber).padStart(2, '0')}
-          </span>
-          {/* Premium корона */}
           {isPremium && (
-            <motion.div
-              animate={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-            >
-              <Crown className="w-3 h-3 text-amber-400 drop-shadow-[0_0_4px_rgba(255,215,0,0.5)]" />
-            </motion.div>
+            <Crown className="w-3 h-3 text-amber-400/60" />
           )}
         </div>
 
-        {/* Main Content - Центральная часть слота */}
-        <div className="flex-1 flex flex-col items-center justify-center relative z-10 min-h-0">
+        {/* Main Content - Минималистичный центр */}
+        <div className="flex flex-col items-center justify-center flex-1 relative z-10">
           {isUnlocked ? (
             selectedBoost ? (
-              // === СЛОТ С БУСТОМ: Эффект вставленного модуля ===
+              // === СЛОТ С БУСТОМ: Иконка + название ===
               <motion.div 
-                className="relative group flex flex-col items-center justify-center w-full"
-                initial={{ opacity: 0, scale: 0.8, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
+                className="relative group flex flex-col items-center justify-center"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
-                {/* Эффект вставленного модуля - затемнение по краям */}
-                <div 
+                {/* Иконка буста */}
+                <motion.span 
                   className={cn(
-                    "absolute inset-0 rounded-lg -m-1",
-                    categoryColors?.bg || "bg-zinc-900/60"
+                    "text-4xl sm:text-5xl mb-2",
+                    categoryColors?.text || "text-white"
                   )}
-                  style={{
-                    boxShadow: `inset 0 2px 8px rgba(0, 0, 0, 0.8), inset 0 -2px 8px rgba(0, 0, 0, 0.6)`
+                  animate={{ 
+                    scale: [1, 1.05, 1],
                   }}
-                />
-
-                {/* Крупная иконка буста */}
-                <div className="flex items-center justify-center mb-2 relative z-10">
-                  <div 
-                    className={cn(
-                      "w-12 h-12 sm:w-14 sm:h-14 rounded-lg flex items-center justify-center",
-                      "bg-black/80 border-2",
-                      categoryColors?.border || "border-white/20",
-                      "shadow-[inset_0_0_20px_rgba(0,0,0,0.9)]"
-                    )}
-                    style={{
-                      boxShadow: `
-                        inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
-                        inset 0 -1px 0 0 rgba(0, 0, 0, 0.5),
-                        0 0 20px ${categoryColors?.glow || 'rgba(99, 102, 241, 0.4)'}
-                      `
-                    }}
-                  >
-                    <motion.span 
-                      className={cn("text-2xl sm:text-3xl", categoryColors?.text || "text-white")}
-                      animate={{ 
-                        scale: [1, 1.05, 1],
-                      }}
-                      transition={{ 
-                        duration: 2, 
-                        repeat: Infinity, 
-                        repeatDelay: 2 
-                      }}
-                      style={{
-                        filter: `drop-shadow(0 0 10px ${categoryColors?.glow || 'rgba(99, 102, 241, 0.8)'})`
-                      }}
-                    >
-                      {selectedBoost.icon}
-                    </motion.span>
-                  </div>
-                </div>
+                  transition={{ 
+                    duration: 2, 
+                    repeat: Infinity, 
+                    repeatDelay: 2 
+                  }}
+                  style={{
+                    filter: `drop-shadow(0 0 10px ${categoryColors?.glow || 'rgba(99, 102, 241, 0.8)'})`
+                  }}
+                >
+                  {selectedBoost.icon}
+                </motion.span>
                 
                 {/* Название буста */}
                 <span className={cn(
-                  "text-[10px] sm:text-xs font-bold text-center px-1 truncate w-full mb-1 relative z-10 leading-tight",
+                  "text-[10px] sm:text-xs font-bold text-center px-2 truncate w-full leading-tight",
                   categoryColors?.text || "text-white"
                 )}>
                   {selectedBoost.name_ru}
                 </span>
-
-                {/* Категория badge */}
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "text-[8px] sm:text-[9px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full border relative z-10",
-                    selectedBoost.category === 'exploit' && "border-red-500/60 text-red-400 bg-red-500/15",
-                    selectedBoost.category === 'defense' && "border-blue-500/60 text-blue-400 bg-blue-500/15",
-                    selectedBoost.category === 'utility' && "border-green-500/60 text-green-400 bg-green-500/15"
-                  )}
-                >
-                  {selectedBoost.category === 'exploit' && 'Атака'}
-                  {selectedBoost.category === 'defense' && 'Защита'}
-                  {selectedBoost.category === 'utility' && 'Утилита'}
-                </Badge>
 
                 {/* Кнопка удаления при hover */}
                 <motion.button
@@ -703,51 +676,18 @@ const SlotCard: React.FC<SlotCardProps> = ({
                     e.stopPropagation();
                     onClear();
                   }}
-                  className="absolute -top-1 -right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-red-500/90 hover:bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg z-20 border-2 border-red-400/50"
+                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500/90 hover:bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20"
                   whileHover={{ scale: 1.15 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <X className="w-3 h-3" />
                 </motion.button>
               </motion.div>
             ) : (
-              // === ПУСТОЙ СЛОТ: INSTALL MODULE ===
-              <div className="flex flex-col items-center gap-2 text-indigo-400 relative z-10 w-full">
-                {/* Пульсирующее синее свечение */}
-                <motion.div
-                  className="absolute inset-0 border-2 border-dashed border-indigo-500/40 rounded-lg"
-                  animate={{
-                    opacity: [0.4, 0.7, 0.4],
-                    scale: [1, 1.05, 1],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                />
-                
-                {/* Сканирующая полоска */}
-                <motion.div
-                  className="absolute inset-0 rounded-lg overflow-hidden"
-                >
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/30 to-transparent"
-                    animate={{
-                      y: ['-100%', '200%'],
-                    }}
-                    transition={{
-                      duration: 2.5,
-                      repeat: Infinity,
-                      ease: "linear",
-                      repeatDelay: 1
-                    }}
-                  />
-                </motion.div>
-
-                {/* Иконка плюса */}
+              // === ПУСТОЙ СЛОТ: Просто "+" и "ADD" ===
+              <div className="flex flex-col items-center gap-2">
                 <motion.span 
-                  className="text-3xl sm:text-4xl font-light relative z-10"
+                  className="text-5xl sm:text-6xl font-light text-blue-400"
                   animate={{
                     scale: [1, 1.1, 1],
                     opacity: [0.7, 1, 0.7],
@@ -760,151 +700,38 @@ const SlotCard: React.FC<SlotCardProps> = ({
                 >
                   +
                 </motion.span>
-                
-                {/* Текст INSTALL MODULE */}
-                <div className="relative z-10 text-center">
-                  <span className="text-[10px] sm:text-[11px] font-mono tracking-wider font-bold block leading-tight">INSTALL</span>
-                  <span className="text-[8px] sm:text-[9px] font-mono tracking-widest text-indigo-500/60 block mt-0.5">MODULE</span>
-                </div>
+                <span className="text-[10px] font-mono tracking-wider text-blue-400/60 uppercase">
+                  ADD
+                </span>
               </div>
             )
           ) : canOverclock ? (
-            // === OVERCLOCK СОСТОЯНИЕ: Оранжевый/Янтарный ===
-            <div className="flex flex-col items-center justify-center w-full relative z-10">
-              {/* Пульсирующее оранжевое свечение */}
-              <motion.div
-                className="absolute inset-0 border-2 border-dashed border-amber-500/40 rounded-lg"
-                animate={{
-                  opacity: [0.4, 0.7, 0.4],
-                  scale: [1, 1.05, 1],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              />
-
-              {/* Иконка Play/Молния */}
+            // === OVERCLOCK: Иконка Play + "AD BOOST" ===
+            <div className="flex flex-col items-center gap-2">
               <motion.div
                 animate={{
                   scale: [1, 1.1, 1],
-                  rotate: [0, 5, -5, 0],
                 }}
                 transition={{
                   duration: 2,
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
-                className="mb-2 relative z-10"
               >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-amber-500/20 border-2 border-amber-500/50 flex items-center justify-center shadow-[0_0_20px_rgba(251,146,60,0.4)]">
-                  <Play className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400 fill-amber-400" />
-                </div>
+                <Play className="w-8 h-8 sm:w-10 sm:h-10 text-orange-400 fill-orange-400" />
               </motion.div>
-
-              {/* Текст OVERCLOCK */}
-              <span className="text-[11px] sm:text-[12px] font-mono tracking-wider font-bold text-amber-400 mb-0.5 relative z-10 leading-tight">
-                OVERCLOCK
-              </span>
-              <span className="text-[8px] sm:text-[9px] font-mono tracking-widest text-amber-500/60 relative z-10 leading-tight">
-                1 MATCH ONLY
+              <span className="text-[10px] font-bold text-orange-400 uppercase tracking-wider">
+                AD BOOST
               </span>
             </div>
           ) : (
-            // === ЗАБЛОКИРОВАННЫЙ СЛОТ: Замок, цена или Premium ===
-            <div className="flex flex-col items-center justify-center w-full relative z-10">
-              {/* Иконка замка */}
-              <motion.div
-                animate={{
-                  y: [0, -2, 0],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="mb-2"
-              >
-                <div className={cn(
-                  "w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center",
-                  isPremium 
-                    ? "bg-amber-500/10 border-2 border-amber-500/30 shadow-[0_0_15px_rgba(255,215,0,0.2)]"
-                    : "bg-zinc-900/60 border-2 border-white/10 shadow-[inset_0_0_15px_rgba(0,0,0,0.8)]"
-                )}>
-                  <Lock className={cn(
-                    "w-5 h-5 sm:w-6 sm:h-6",
-                    isPremium ? "text-amber-400" : "text-zinc-500"
-                  )} />
-                </div>
-              </motion.div>
-
-              {/* Текст */}
-              {isPremium ? (
-                <>
-                  <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 mb-1.5 drop-shadow-[0_0_4px_rgba(255,215,0,0.5)]" />
-                  <span className="text-[9px] sm:text-[10px] font-mono tracking-wider text-amber-400/80 mb-0.5 leading-tight">
-                    PREMIUM
-                  </span>
-                  <span className="text-[8px] sm:text-[9px] font-mono text-amber-500/60 leading-tight">
-                    REQUIRED
-                  </span>
-                </>
-              ) : (
-                <>
-                  <span className="text-[9px] sm:text-[10px] font-mono tracking-wider text-zinc-400 mb-1.5 leading-tight">
-                    LOCKED
-                  </span>
-                  {unlockCost && (
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <Coins className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-400" />
-                      <span className="text-[10px] sm:text-xs font-bold text-yellow-400">
-                        {unlockCost}
-                      </span>
-                    </div>
-                  )}
-                </>
-              )}
+            // === PREMIUM: Иконка Crown + "PREMIUM" ===
+            <div className="flex flex-col items-center gap-2">
+              <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-amber-400" />
+              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">
+                PREMIUM
+              </span>
             </div>
-          )}
-        </div>
-
-        {/* Footer - Нижняя часть слота (кнопки) */}
-        <div className="flex-shrink-0 w-full relative z-10">
-          {canOverclock && (
-            <OverclockingAdButton
-              slotNumber={2}
-              onSlotUnlocked={onSlotUnlocked || (() => {})}
-            />
-          )}
-          {!isUnlocked && !canOverclock && (
-            <Button
-              onClick={onUnlock}
-              disabled={!canUnlock || isUnlocking}
-              variant="outline"
-              size="sm"
-              className={cn(
-                "w-full h-8 sm:h-9 text-[9px] sm:text-[10px] font-semibold transition-all",
-                canUnlock && !isUnlocking
-                  ? isPremium
-                    ? "border-amber-500/40 bg-gradient-to-br from-amber-950/40 to-yellow-950/30 hover:from-amber-950/60 hover:to-yellow-950/50 hover:border-amber-400/60 text-amber-300 hover:text-amber-200 shadow-[0_0_15px_rgba(255,215,0,0.2)] hover:shadow-[0_0_20px_rgba(255,215,0,0.3)]"
-                    : "border-yellow-500/40 bg-zinc-900/60 hover:bg-zinc-800/60 hover:border-yellow-500/60 text-yellow-300 hover:text-yellow-200"
-                  : "border-white/5 bg-zinc-950/40 text-zinc-500 cursor-not-allowed"
-              )}
-            >
-              {isUnlocking ? (
-                <span className="flex items-center gap-1.5">
-                  <motion.div
-                    className="w-2.5 h-2.5 sm:w-3 sm:h-3 border-2 border-yellow-400/30 border-t-yellow-400 rounded-full"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  />
-                  <span className="text-[8px] sm:text-[9px]">Разблокировка...</span>
-                </span>
-              ) : (
-                <span className="text-[8px] sm:text-[9px] font-mono">UNLOCK</span>
-              )}
-            </Button>
           )}
         </div>
 
