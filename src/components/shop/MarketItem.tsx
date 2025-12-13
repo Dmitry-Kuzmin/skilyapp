@@ -98,91 +98,145 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, category 
     <motion.button
       onClick={onPurchase}
       disabled={!canAfford || boost.is_premium}
-      whileHover={{ scale: 1.01 }}
-      whileTap={{ scale: 0.99 }}
+      whileHover={{ scale: 1.02, y: -2 }}
+      whileTap={{ scale: 0.98 }}
       className={cn(
         "group relative flex flex-col",
-        "p-3 rounded-xl border transition-all duration-200",
-        "bg-zinc-900/50 border-white/5 hover:border-white/10",
-        "hover:bg-zinc-800/50",
-        !canAfford && "opacity-50 cursor-not-allowed",
-        boost.is_premium && "border-amber-500/20 bg-amber-500/5"
+        "p-3 rounded-xl overflow-hidden",
+        "bg-[#0a0b0f] border transition-all duration-300",
+        theme.border,
+        theme.hoverBorder,
+        theme.hoverGlow,
+        "hover:bg-[#0f1115]",
+        (!canAfford || boost.is_premium) && "opacity-60 cursor-not-allowed"
       )}
     >
-      {/* Noise texture (subtle) */}
+      {/* Noise texture */}
       <div 
-        className="absolute inset-0 opacity-[0.015] mix-blend-overlay pointer-events-none rounded-xl"
+        className="absolute inset-0 opacity-[0.015] mix-blend-overlay pointer-events-none"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
           backgroundRepeat: 'repeat'
         }}
       />
 
-      {/* Header: Icon + Badge */}
-      <div className="flex items-start justify-between mb-2 relative z-10">
+      {/* Scanline effect при hover */}
+      <motion.div
+        className={cn(
+          "absolute inset-0 bg-gradient-to-r",
+          boostCategory === 'exploit' && "from-red-500/0 via-red-500/5 to-red-500/0",
+          boostCategory === 'defense' && "from-cyan-500/0 via-cyan-500/5 to-cyan-500/0",
+          boostCategory === 'utility' && "from-emerald-500/0 via-emerald-500/5 to-emerald-500/0",
+          "translate-x-[-100%] group-hover:translate-x-[100%]",
+          "transition-transform duration-700 ease-in-out z-0"
+        )}
+      />
+
+      {/* Tech corner (только один, в правом верхнем углу) */}
+      <div className="absolute top-1.5 right-1.5 opacity-30 group-hover:opacity-100 transition-opacity">
         <div className={cn(
-          "p-2 rounded-lg border",
-          boostCategory === 'exploit' && "bg-red-500/10 border-red-500/20",
-          boostCategory === 'defense' && "bg-cyan-500/10 border-cyan-500/20",
-          boostCategory === 'utility' && "bg-emerald-500/10 border-emerald-500/20"
+          "w-1.5 h-1.5 border-t border-r",
+          boostCategory === 'exploit' && "border-red-500",
+          boostCategory === 'defense' && "border-cyan-500",
+          boostCategory === 'utility' && "border-emerald-500"
+        )} />
+      </div>
+
+      {/* Компактный layout: иконка слева, контент справа */}
+      <div className="relative z-10 flex items-start gap-3">
+        {/* Иконка */}
+        <div className={cn(
+          "flex-shrink-0 w-10 h-10 rounded-lg bg-black/40 border border-white/5",
+          "flex items-center justify-center",
+          "group-hover:border-white/10 transition-colors"
         )}>
-          <span className="text-lg">
+          <span 
+            className={cn("text-lg", theme.icon)}
+            style={{
+              filter: `drop-shadow(0 0 6px ${
+                boostCategory === 'exploit' ? 'rgba(239, 68, 68, 0.5)' : 
+                boostCategory === 'defense' ? 'rgba(6, 182, 212, 0.5)' : 
+                'rgba(34, 197, 94, 0.5)'
+              })`
+            }}
+          >
             {boost.icon}
           </span>
         </div>
-        {inventoryCount > 0 && (
-          <Badge 
-            variant="outline" 
-            className="text-xs px-1.5 py-0 min-w-[18px] text-center border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
-          >
-            {inventoryCount}
-          </Badge>
-        )}
+
+        {/* Контент */}
+        <div className="flex-1 min-w-0">
+          {/* Заголовок и категория */}
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-white font-bold text-sm leading-tight truncate mb-0.5">
+                {displayName}
+              </h3>
+              <div className="flex items-center gap-2">
+                <span className={cn(
+                  "text-[9px] font-mono tracking-wider uppercase opacity-50",
+                  theme.text
+                )}>
+                  {boostCategory === 'exploit' ? 'ATK' : boostCategory === 'defense' ? 'DEF' : 'UTL'}
+                </span>
+                {inventoryCount > 0 && (
+                  <Badge 
+                    variant="outline" 
+                    className="text-[9px] px-1 py-0 h-4 border-success/50 text-success bg-success/10"
+                  >
+                    {inventoryCount}
+                  </Badge>
+                )}
+              </div>
+            </div>
+            {/* Версия (компактно) */}
+            <div className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[9px] font-mono text-white/30 flex-shrink-0">
+              v.{level}
+            </div>
+          </div>
+
+          {/* Описание (одна строка) */}
+          <p className="text-[10px] text-white/35 line-clamp-1 leading-snug mb-2">
+            {displayDescription}
+          </p>
+
+          {/* Footer: Price + Button */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="font-mono text-yellow-400 font-bold text-xs flex items-center gap-1">
+              <Coins className="w-3 h-3" />
+              <span>{boost.cost_coins}</span>
+            </div>
+            
+            {boost.is_premium ? (
+              <div className="px-2 py-1 rounded bg-gold/10 border border-gold/30 text-[9px] font-bold text-gold">
+                LOCKED
+              </div>
+            ) : !canAfford ? (
+              <div className="px-2 py-1 rounded bg-white/5 border border-white/10 text-[9px] font-bold text-white/30">
+                NEED {boost.cost_coins}
+              </div>
+            ) : (
+              <div className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 transition-all flex items-center gap-1">
+                <span className="text-[9px] font-bold tracking-wider text-white/80">GET</span>
+                <Download size={11} className="text-white/60" />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 mb-3 relative z-10 text-left">
-        <div className="flex items-center gap-1.5 mb-1">
-          <span className={cn(
-            "text-[10px] font-semibold uppercase tracking-wider",
-            boostCategory === 'exploit' && "text-red-400",
-            boostCategory === 'defense' && "text-cyan-400",
-            boostCategory === 'utility' && "text-emerald-400"
-          )}>
-            {boostCategory === 'exploit' ? 'ATK' : boostCategory === 'defense' ? 'DEF' : 'UTL'}
-          </span>
-        </div>
-        
-        <h3 className="text-sm font-semibold text-white mb-1 leading-tight">
-          {displayName}
-        </h3>
-        
-        <p className="text-xs text-zinc-400 line-clamp-2 leading-snug">
-          {displayDescription}
-        </p>
-      </div>
-
-      {/* Footer: Price + Action */}
-      <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/5 relative z-10">
-        <div className="flex items-center gap-1">
-          <Coins className="w-3.5 h-3.5 text-yellow-400" />
-          <span className="text-sm font-semibold text-yellow-400">{boost.cost_coins}</span>
-        </div>
-        
-        {boost.is_premium ? (
-          <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/10 border border-amber-500/20">
-            <Lock className="w-3 h-3 text-amber-400" />
-            <span className="text-[10px] font-semibold text-amber-400">LOCKED</span>
+      {/* Индикатор выбора (если есть в инвентаре) */}
+      {inventoryCount > 0 && (
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          className="absolute top-1.5 right-1.5 z-20"
+        >
+          <div className="w-4 h-4 rounded-full bg-indigo-500 flex items-center justify-center shadow-[0_0_8px_rgba(99,102,241,0.8)]">
+            <Check className="w-2.5 h-2.5 text-white" />
           </div>
-        ) : !canAfford ? (
-          <span className="text-[10px] font-medium text-zinc-500">Недостаточно</span>
-        ) : (
-          <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-            <Download className="w-3 h-3 text-zinc-300" />
-            <span className="text-[10px] font-semibold text-zinc-300">GET</span>
-          </div>
-        )}
-      </div>
+        </motion.div>
+      )}
     </motion.button>
   );
 }
