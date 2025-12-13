@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Lock, Coins, Crown, Zap, Check, X, Plus, Cpu, Search, Shield, Hexagon, Play, Trash2 } from 'lucide-react';
-import { OverclockingAdButton } from './OverclockingAdButton';
+import { RewardedAdModal } from '@/components/monetization/RewardedAdModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { usePremium } from '@/hooks/usePremium';
@@ -456,15 +456,39 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
       </Sheet>
 
       {/* Модалка рекламы для OVERCLOCK */}
-      {showOverclockModal && (
-        <OverclockingAdButton
-          slotNumber={2}
-          onSlotUnlocked={() => {
-            setTempSlotUnlocked(2);
-            setShowOverclockModal(false);
-          }}
-        />
-      )}
+      <RewardedAdModal
+        open={showOverclockModal}
+        onOpenChange={setShowOverclockModal}
+        rewardType="coins"
+        rewardAmount={0}
+        onRewardClaimed={async () => {
+          if (!profileId) return;
+          
+          try {
+            const { data, error } = await supabase.functions.invoke('claim-ad-reward', {
+              body: {
+                user_id: profileId,
+                reward_type: 'slot_unlock',
+                reward_amount: 0,
+                metadata: { slot_number: 2 },
+              }
+            });
+
+            if (error) throw error;
+
+            if (data.success && data.client_action === 'unlock_temp_slot') {
+              setTempSlotUnlocked(2);
+              setShowOverclockModal(false);
+              toast.success('Слот 2 разблокирован на эту дуэль!');
+            }
+          } catch (err: any) {
+            console.error('[LoadoutSelector] Error claiming reward:', err);
+            toast.error(err.message || 'Не удалось разблокировать слот');
+          }
+        }}
+        title="OVERCLOCKING"
+        description="Посмотри видео и разблокируй слот на эту дуэль. Временный root-доступ..."
+      />
     </Card>
     </>
   );
