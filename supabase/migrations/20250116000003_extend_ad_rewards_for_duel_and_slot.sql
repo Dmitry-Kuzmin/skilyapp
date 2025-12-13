@@ -30,7 +30,7 @@ BEGIN
     );
   END IF;
 
-  -- Получаем запись для обновления
+  -- Получаем запись для обновления (блокируем для атомарности)
   SELECT * INTO v_record
   FROM ad_rewards
   WHERE user_id = p_user_id
@@ -38,11 +38,12 @@ BEGIN
     AND date = CURRENT_DATE
   FOR UPDATE;
 
-  -- Если записи нет (вдруг check прошел, а запись не создалась - редкий кейс, но для надежности)
+  -- ⚠️ ВАЖНО: Если записи нет - создаем (первый просмотр за день)
+  -- Это необходимо, так как check_ad_reward_status больше не создает запись
   IF NOT FOUND THEN
-     INSERT INTO ad_rewards (user_id, reward_type, date, daily_count)
-     VALUES (p_user_id, p_reward_type, CURRENT_DATE, 0)
-     RETURNING * INTO v_record;
+    INSERT INTO ad_rewards (user_id, reward_type, date, daily_count, last_watched_at)
+    VALUES (p_user_id, p_reward_type, CURRENT_DATE, 0, NULL)
+    RETURNING * INTO v_record;
   END IF;
 
   -- Обновляем счетчик и время последнего просмотра
