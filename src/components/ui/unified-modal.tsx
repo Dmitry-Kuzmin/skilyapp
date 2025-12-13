@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { ModalSkeleton, type ModalSkeletonVariant } from "@/components/ui/modal-skeleton";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -273,11 +273,14 @@ export function UnifiedModal({
               <div className="h-1 w-12 rounded-full bg-white/70 dark:bg-white/60 shadow-[0_3px_12px_rgba(0,0,0,0.35)]" />
             </div>
           )}
-          {title && showTitleBar && (
-            <div className="px-4 pb-2 pt-3 border-b border-border/50 sm:px-6 sm:pb-3 sm:pt-4">
-              <h2 className="text-xl font-bold">{title}</h2>
-            </div>
-          )}
+          <SheetHeader className={showTitleBar && title ? "px-4 pb-2 pt-3 border-b border-border/50 sm:px-6 sm:pb-3 sm:pt-4" : "sr-only"}>
+            <SheetTitle>
+              {title || "Модальное окно"}
+            </SheetTitle>
+            <SheetDescription className="sr-only">
+              {title ? `Содержимое модального окна: ${title}` : "Содержимое модального окна"}
+            </SheetDescription>
+          </SheetHeader>
 
           <div
             data-scrollable
