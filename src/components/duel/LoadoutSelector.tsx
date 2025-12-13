@@ -46,6 +46,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
   const [userCoins, setUserCoins] = useState(0);
   const [loading, setLoading] = useState(true);
   const [unlockingSlot, setUnlockingSlot] = useState(false);
+  const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(null);
 
   // Загрузка данных
   useEffect(() => {
@@ -275,8 +276,6 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
       </Card>
     );
   }
-
-  const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(null);
 
   return (
     <Card className="p-6 bg-zinc-900/80 border border-white/10 backdrop-blur-xl rounded-xl relative overflow-visible pb-32">
