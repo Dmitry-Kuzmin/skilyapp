@@ -377,6 +377,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
             isPremium={true}
             userHasPremium={isPremium}
             onUnlock={() => handleUnlockSlot(3)}
+            onPremiumClick={() => setShowPremiumModal(true)}
             selectedBoost={getBoostByType(loadout.slot_3_boost_type)}
             onSlotClick={() => {
               if (ramSlotsUnlocked >= 3) {
@@ -521,6 +522,7 @@ interface SlotCardProps {
   onUnlock?: () => void;
   onOverclockClick?: () => void;
   onSlotUnlocked?: () => void;
+  onPremiumClick?: () => void;
   selectedBoost: Boost | null;
   onSlotClick: () => void;
   onClear: () => void;
@@ -537,6 +539,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
   onUnlock,
   onOverclockClick,
   onSlotUnlocked,
+  onPremiumClick,
   selectedBoost,
   onSlotClick,
   onClear,
