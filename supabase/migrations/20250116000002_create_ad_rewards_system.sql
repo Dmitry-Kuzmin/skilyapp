@@ -58,6 +58,7 @@ CREATE POLICY "Service role can manage ad rewards"
 
 -- Function to check ad reward status
 -- Лимиты вынесены в параметры для гибкости (можно менять без миграции)
+-- Оптимизировано: без блокировки (FOR UPDATE) - блокировка будет в claim_ad_reward
 CREATE OR REPLACE FUNCTION check_ad_reward_status(
   p_user_id UUID,
   p_reward_type TEXT,
@@ -75,40 +76,36 @@ DECLARE
   v_next_available_at TIMESTAMPTZ;
   v_daily_count INTEGER := 0;
 BEGIN
-  -- Получаем или создаем запись для сегодня
+  -- Получаем запись (без блокировки - блокировка будет в claim_ad_reward)
   SELECT * INTO v_record
   FROM ad_rewards
   WHERE user_id = p_user_id
     AND reward_type = p_reward_type
-    AND date = CURRENT_DATE
-  FOR UPDATE;
+    AND date = CURRENT_DATE;
 
-  -- Если записи нет - создаем
-  IF NOT FOUND THEN
-    INSERT INTO ad_rewards (user_id, reward_type, date, daily_count)
-    VALUES (p_user_id, p_reward_type, CURRENT_DATE, 0)
-    RETURNING * INTO v_record;
+  -- Если записи нет, считаем count = 0 (не создаем запись здесь)
+  IF FOUND THEN
+    v_daily_count := v_record.daily_count;
+  ELSE
+    v_daily_count := 0;
   END IF;
 
-  v_daily_count := v_record.daily_count;
-
-  -- Проверяем лимит на день
-  IF v_daily_count >= v_daily_limit THEN
+  -- 1. Проверка лимита (используем переданный аргумент p_daily_limit)
+  IF v_daily_count >= p_daily_limit THEN
     v_can_watch := false;
-    -- Доступно будет завтра
     v_next_available_at := (CURRENT_DATE + INTERVAL '1 day')::TIMESTAMPTZ;
   END IF;
 
-  -- Проверяем кулдаун (если был последний просмотр)
-  IF v_record.last_watched_at IS NOT NULL THEN
+  -- 2. Проверка кулдауна (используем переданный аргумент p_cooldown_minutes)
+  IF v_can_watch AND FOUND AND v_record.last_watched_at IS NOT NULL THEN
     DECLARE
       v_seconds_since_last INTEGER;
     BEGIN
       v_seconds_since_last := EXTRACT(EPOCH FROM (NOW() - v_record.last_watched_at))::INTEGER;
       
-      IF v_seconds_since_last < (v_cooldown_minutes * 60) THEN
+      IF v_seconds_since_last < (p_cooldown_minutes * 60) THEN
         v_can_watch := false;
-        v_next_available_at := v_record.last_watched_at + (v_cooldown_minutes || ' minutes')::INTERVAL;
+        v_next_available_at := v_record.last_watched_at + (p_cooldown_minutes || ' minutes')::INTERVAL;
       END IF;
     END;
   END IF;
@@ -117,8 +114,8 @@ BEGIN
     'can_watch', v_can_watch,
     'next_available_at', v_next_available_at,
     'daily_count', v_daily_count,
-    'daily_limit', v_daily_limit,
-    'cooldown_minutes', v_cooldown_minutes
+    'daily_limit', p_daily_limit,
+    'cooldown_minutes', p_cooldown_minutes
   );
 END;
 $$;
