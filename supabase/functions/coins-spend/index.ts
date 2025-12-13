@@ -11,6 +11,7 @@ const COSTS: Record<string, number> = {
   boost_hint: 60,
   boost_time: 50,
   second_chance: 60,
+  slot_unlock: 500, // Разблокировка 2-го RAM слота
 };
 
 serve(async (req) => {
@@ -74,9 +75,14 @@ serve(async (req) => {
       );
     }
 
+    // Определяем тип транзакции в зависимости от типа траты
+    const transactionType = spend_type === 'slot_unlock' 
+      ? 'coins_spent_slot_unlock'
+      : 'coins_spent_boost';
+
     await supabase.from("transactions").insert({
       user_id: profile.id,
-      transaction_type: "coins_spent_boost",
+      transaction_type: transactionType,
       amount: -cost,
       metadata: {
         spend_type,

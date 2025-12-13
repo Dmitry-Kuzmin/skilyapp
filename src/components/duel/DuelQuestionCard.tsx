@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { memo } from 'react';
 import { getImageUrl } from '@/utils/imageUtils';
+import { InputLagWrapper } from './attacks/InputLagWrapper';
 
 interface QuestionOption {
   id: string;
@@ -29,6 +30,8 @@ interface DuelQuestionCardProps {
   eliminatedOptions: string[];
   translationLanguage: 'ru' | 'en' | null;
   onAnswer: (optionId: string) => void;
+  inputLagActive?: boolean;
+  inputLagDelay?: number;
 }
 
 export const DuelQuestionCard = memo(({
@@ -38,6 +41,8 @@ export const DuelQuestionCard = memo(({
   eliminatedOptions,
   translationLanguage,
   onAnswer,
+  inputLagActive = false,
+  inputLagDelay = 1500,
 }: DuelQuestionCardProps) => {
   if (!question || !question.question_snapshot) {
     return null;
@@ -100,17 +105,16 @@ export const DuelQuestionCard = memo(({
               ? option.text_en
               : option.text_es;
 
-          return (
+          const buttonElement = (
             <motion.button
-              key={option.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
-              onClick={() => onAnswer(option.id)}
+              onClick={() => !isAnswered && !isEliminated && onAnswer(option.id)}
               disabled={isAnswered || isEliminated}
               whileHover={!isAnswered && !isEliminated ? { scale: 1.02 } : {}}
               whileTap={!isAnswered && !isEliminated ? { scale: 0.98 } : {}}
-              className={`p-3 md:p-4 rounded-2xl border-2 text-left transition-all font-semibold text-sm md:text-base leading-snug relative overflow-hidden min-h-[48px] md:min-h-[60px] break-words hyphens-auto ${
+              className={`p-3 md:p-4 rounded-2xl border-2 text-left transition-all font-semibold text-sm md:text-base leading-snug relative overflow-hidden min-h-[48px] md:min-h-[60px] break-words hyphens-auto w-full ${
                 showResult
                   ? isCorrect
                     ? 'bg-green-500/20 border-green-500 text-foreground shadow-lg'
@@ -137,6 +141,28 @@ export const DuelQuestionCard = memo(({
                 {optionText}
               </span>
             </motion.button>
+          );
+
+          // 🆕 Обертываем в InputLagWrapper если лаг активен
+          if (inputLagActive && !isAnswered && !isEliminated) {
+            return (
+              <InputLagWrapper
+                key={option.id}
+                isActive={inputLagActive}
+                delayMs={inputLagDelay}
+                onClick={() => onAnswer(option.id)}
+                disabled={isAnswered || isEliminated}
+                className="w-full"
+              >
+                {buttonElement}
+              </InputLagWrapper>
+            );
+          }
+
+          return (
+            <div key={option.id}>
+              {buttonElement}
+            </div>
           );
         })}
       </div>

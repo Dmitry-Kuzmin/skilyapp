@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import { useUserContext } from '@/contexts/UserContext';
 
 // ОПТИМИЗАЦИЯ: Условное логирование только в development
 const isDev = process.env.NODE_ENV === 'development';
@@ -14,6 +15,20 @@ const logWarn = (...args: any[]) => {
   if (isDev) console.warn(...args);
 };
 
+// 🆕 Интерфейс для активных exploits
+export interface ActiveExploit {
+  type: string;
+  data: {
+    duration_ms?: number;
+    popup_count?: number;
+    delay_ms?: number;
+    shuffle_duration_ms?: number;
+    [key: string]: any;
+  };
+  receivedAt: number;
+  expiresAt: number;
+}
+
 export interface DuelRealtimeState {
   opponentJoined: boolean;
   opponentScore: number;
@@ -26,9 +41,12 @@ export interface DuelRealtimeState {
   myScore: number;
   opponentActivityStatus: 'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline';
   opponentLastSeen: Date | null;
+  // 🆕 Активные exploits (для State Recovery)
+  activeExploits?: ActiveExploit[];
 }
 
 export function useDuelRealtime(duelId: string | null, myPlayerId?: string | null) {
+  const { profileId } = useUserContext();
   const [state, setState] = useState<DuelRealtimeState>({
     opponentJoined: false,
     opponentScore: 0,
@@ -41,6 +59,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     myScore: 0,
     opponentActivityStatus: 'online',
     opponentLastSeen: null,
+    activeExploits: [],
   });
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
   const myPlayerIdRef = useRef<string | null | undefined>(myPlayerId);
@@ -244,6 +263,53 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           }
         }
       )
+      // 🆕 Подписка на новые exploits через postgres_changes
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'duel_active_exploits',
+          filter: `duel_id=eq.${duelId}`,
+        },
+        async (payload) => {
+          markEvent();
+          const newExploit = payload.new as any;
+          const currentMyPlayerId = myPlayerIdRef.current;
+          
+          // Проверяем, что exploit направлен на нас
+          if (currentMyPlayerId && newExploit.target_player_id === currentMyPlayerId && newExploit.is_active) {
+            log('[useDuelRealtime] 🎯 New exploit received via postgres_changes:', newExploit.exploit_type);
+            
+            // Добавляем в состояние
+            setState(prev => {
+              const exploit: ActiveExploit = {
+                type: newExploit.exploit_type,
+                data: newExploit.effect_data || {},
+                receivedAt: new Date(newExploit.activated_at).getTime(),
+                expiresAt: new Date(newExploit.expires_at).getTime(),
+              };
+
+              // Проверяем на дубликаты
+              const exists = (prev.activeExploits || []).some(
+                e => e.type === exploit.type && 
+                     Math.abs(e.receivedAt - exploit.receivedAt) < 1000
+              );
+
+              if (exists) {
+                log('[useDuelRealtime] ⚠️ Duplicate exploit ignored:', newExploit.exploit_type);
+                return prev;
+              }
+
+              log('[useDuelRealtime] ✅ New exploit added to state:', newExploit.exploit_type);
+              return {
+                ...prev,
+                activeExploits: [...(prev.activeExploits || []), exploit]
+              };
+            });
+          }
+        }
+      )
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
           setConnectionStatus('connected');
@@ -282,6 +348,126 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       supabase.removeChannel(duelChannel);
     };
   }, [duelId]);
+
+  // 🆕 Функция восстановления состояния атак (State Recovery)
+  const recoverActiveExploits = useCallback(async () => {
+    if (!duelId || !myPlayerId || !profileId) {
+      log('[useDuelRealtime] Cannot recover exploits: missing duelId, myPlayerId or profileId');
+      return;
+    }
+
+    try {
+      log('[useDuelRealtime] 🔄 Starting exploit recovery...');
+
+      // myPlayerId - это уже ID из duel_players, используем его напрямую
+      const targetPlayerId = myPlayerId;
+
+      // Запрашиваем активные атаки, срок которых еще не истек
+      const { data: exploits, error: exploitsError } = await supabase
+        .from('duel_active_exploits')
+        .select('*')
+        .eq('duel_id', duelId)
+        .eq('target_player_id', targetPlayerId)
+        .eq('is_active', true)
+        .gt('expires_at', new Date().toISOString())
+        .order('activated_at', { ascending: false });
+
+      if (exploitsError) {
+        logError('[useDuelRealtime] Error recovering exploits:', exploitsError);
+        return;
+      }
+
+      if (exploits && exploits.length > 0) {
+        log('[useDuelRealtime] 🔄 Recovered active exploits:', exploits.length);
+        
+        // Обновляем стейт (добавляем восстановленные атаки)
+        setState(prev => {
+          // Избегаем дубликатов - проверяем по типу и времени активации
+          const existingTypes = new Set((prev.activeExploits || []).map(e => `${e.type}-${e.receivedAt}`));
+          
+          const newExploits = exploits
+            .map(e => ({
+              type: e.exploit_type,
+              data: e.effect_data || {},
+              receivedAt: new Date(e.activated_at).getTime(),
+              expiresAt: new Date(e.expires_at).getTime()
+            }))
+            .filter(e => !existingTypes.has(`${e.type}-${e.receivedAt}`));
+
+          if (newExploits.length === 0) {
+            return prev; // Нет новых exploits
+          }
+
+          return {
+            ...prev,
+            activeExploits: [...(prev.activeExploits || []), ...newExploits]
+          };
+        });
+      } else {
+        log('[useDuelRealtime] No active exploits to recover');
+      }
+    } catch (error) {
+      logError('[useDuelRealtime] Exception in recoverActiveExploits:', error);
+    }
+  }, [duelId, myPlayerId, profileId]);
+
+  // 🆕 Вызов восстановления при подключении
+  useEffect(() => {
+    if (connectionStatus === 'connected' && state.duelStarted && myPlayerId && profileId) {
+      log('[useDuelRealtime] Connection established, recovering exploits...');
+      recoverActiveExploits();
+    }
+  }, [connectionStatus, state.duelStarted, myPlayerId, profileId, recoverActiveExploits]);
+
+  // 🆕 Обработка broadcast событий для exploits
+  useEffect(() => {
+    if (!duelId || !channel || !profileId) return;
+
+    const handleBroadcast = (payload: any) => {
+      if (payload.event === 'exploit_triggered') {
+        markEvent();
+        const { boost_type, attacker_id, target_id, effect_data } = payload.payload;
+        
+        // Проверяем, что атака направлена на нас
+        if (target_id === profileId) {
+          log('[useDuelRealtime] 🎯 Exploit received:', boost_type);
+          
+          // Сохраняем в состояние
+          setState(prev => {
+            const newExploit: ActiveExploit = {
+              type: boost_type,
+              data: effect_data || {},
+              receivedAt: Date.now(),
+              expiresAt: Date.now() + (effect_data?.duration_ms || 10000),
+            };
+
+            // Проверяем на дубликаты
+            const exists = (prev.activeExploits || []).some(
+              e => e.type === newExploit.type && 
+                   Math.abs(e.receivedAt - newExploit.receivedAt) < 1000
+            );
+
+            if (exists) {
+              log('[useDuelRealtime] ⚠️ Duplicate exploit ignored:', boost_type);
+              return prev;
+            }
+
+            log('[useDuelRealtime] ✅ New exploit added to state:', boost_type);
+            return {
+              ...prev,
+              activeExploits: [...(prev.activeExploits || []), newExploit]
+            };
+          });
+        }
+      }
+    };
+
+    channel.on('broadcast', { event: 'exploit_triggered' }, handleBroadcast);
+
+    return () => {
+      channel.off('broadcast', { event: 'exploit_triggered' }, handleBroadcast);
+    };
+  }, [duelId, channel, profileId]);
 
   // ОПТИМИЗАЦИЯ: Мемоизируем broadcast функцию
   const broadcast = useCallback((event: string, data: any) => {

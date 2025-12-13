@@ -12,6 +12,7 @@ import { DuelJoinModal } from '@/components/duel/DuelJoinModal';
 import { DuelBattleFullscreen } from '@/components/duel/DuelBattleFullscreen';
 import { DuelResult } from '@/components/duel/DuelResult';
 import { DuelSkeleton } from '@/components/duel/DuelSkeleton';
+import { LoadoutSelector } from '@/components/duel/LoadoutSelector';
 import { AuthModalNew as AuthModal } from '@/components/AuthModalNew';
 import { useUserContext } from '@/contexts/UserContext';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -1295,11 +1296,20 @@ export default function Duel() {
                                                                     )}
                                                                 </motion.div>
 
-                                                                {/* Create button */}
+                                                                {/* Loadout Selector */}
                                                                 <motion.div
                                                                     initial={{ opacity: 0, y: 10 }}
                                                                     animate={{ opacity: 1, y: 0 }}
                                                                     transition={{ delay: 0.7 }}
+                                                                >
+                                                                    <LoadoutSelector />
+                                                                </motion.div>
+
+                                                                {/* Create button */}
+                                                                <motion.div
+                                                                    initial={{ opacity: 0, y: 10 }}
+                                                                    animate={{ opacity: 1, y: 0 }}
+                                                                    transition={{ delay: 0.8 }}
                                                                     className="w-full"
                                                                 >
                                                                     <Button

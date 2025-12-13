@@ -46,7 +46,12 @@ const submitAnswerSchema = z.object({
 const useBoostSchema = z.object({
   duel_id: z.string().uuid(),
   duel_question_id: z.string().uuid().optional(),
-  boost_type: z.enum(['fifty_fifty', 'time_extend', 'hint', 'skip', 'translate']),
+  boost_type: z.enum([
+    // Safe Mode
+    'fifty_fifty', 'time_extend', 'hint', 'skip', 'translate', 'rewind',
+    // Root Mode (Exploits)
+    'screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall'
+  ]),
   language: z.enum(['ru', 'en']).optional() // Для translate бустера
 });
 
@@ -2388,6 +2393,97 @@ Deno.serve(async (req) => {
           boostEffect.translate_applied = true;
           boostEffect.language = language; // Return selected language for confirmation
           console.log('[use_boost] Translate applied for language:', language);
+        } else if (boost_type === 'rewind') {
+          // ADAS: Rewind - отмена ошибки в тестах
+          boostEffect.rewind_confirmed = true;
+          console.log('[use_boost] Rewind confirmed');
+        }
+        // 🆕 Обработка Root Mode exploits
+        else if (boost_type === 'screen_injector') {
+          boostEffect = {
+            success: true,
+            popup_count: 3,
+            duration_ms: 10000,
+          };
+          console.log('[use_boost] Screen Injector activated');
+        } else if (boost_type === 'input_lag') {
+          boostEffect = {
+            success: true,
+            delay_ms: 1500,
+            duration_ms: 5000,
+          };
+          console.log('[use_boost] Input Lag activated');
+        } else if (boost_type === 'gps_spoofing') {
+          boostEffect = {
+            success: true,
+            shuffle_duration_ms: 1000,
+          };
+          console.log('[use_boost] GPS Spoofing activated');
+        } else if (boost_type === 'police_backdoor') {
+          boostEffect = {
+            success: true,
+            block_duration_ms: 8000,
+            captcha_required: true,
+          };
+          console.log('[use_boost] Police Backdoor activated');
+        } else if (boost_type === 'firewall') {
+          boostEffect = {
+            success: true,
+            active: true,
+            duration_ms: 30000, // Firewall активен до конца вопроса или 30 секунд
+          };
+          console.log('[use_boost] Firewall activated');
+        }
+
+        // 🆕 Получаем информацию о бусте из БД для определения target_type
+        const { data: boostDef } = await supabase
+          .from('boost_definitions')
+          .select('target_type, category, mode')
+          .eq('type', boost_type)
+          .single();
+
+        // 🆕 Если буст влияет на противника - сохраняем в БД и отправляем broadcast
+        if (boostDef && (boostDef.target_type === 'opponent' || boostDef.target_type === 'both')) {
+          // Получаем всех игроков дуэли
+          const { data: players } = await supabase
+            .from('duel_players')
+            .select('id, user_id')
+            .eq('duel_id', duel_id);
+
+          if (players && players.length >= 2) {
+            const opponent = players.find(p => p.user_id !== profileId);
+            
+            if (opponent) {
+              // Вычисляем время истечения эффекта
+              const durationMs = boostEffect.duration_ms || 10000;
+              const expiresAt = new Date(Date.now() + durationMs).toISOString();
+
+              // Сохраняем exploit в БД для State Recovery
+              const { error: exploitError } = await supabase
+                .from('duel_active_exploits')
+                .insert({
+                  duel_id,
+                  target_player_id: opponent.id,
+                  exploit_type: boost_type,
+                  attacker_player_id: player.id,
+                  effect_data: boostEffect,
+                  expires_at: expiresAt,
+                  is_active: true,
+                });
+
+              if (exploitError) {
+                console.error('[use_boost] Error saving exploit to DB:', exploitError);
+              } else {
+                console.log('[use_boost] ✅ Exploit saved to DB for State Recovery');
+              }
+
+              // 🆕 Broadcast через postgres_changes
+              // Клиент подписан на изменения duel_active_exploits через useDuelRealtime
+              // При вставке новой записи клиент получит событие через postgres_changes
+              // Это надежнее чем broadcast, так как работает даже при разрыве соединения
+              console.log('[use_boost] ✅ Exploit saved, client will receive via postgres_changes');
+            }
+          }
         }
 
         // Create boost notification for opponent

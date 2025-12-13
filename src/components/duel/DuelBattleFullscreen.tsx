@@ -35,6 +35,10 @@ import { useDuelSettings } from '@/hooks/useDuelSettings';
 import { useQuestionBookmark } from '@/hooks/useQuestionBookmark';
 import { useDuelTimeout } from '@/hooks/useDuelTimeout';
 import { useDuelGame } from '@/hooks/useDuelGame';
+// 🆕 Компоненты атак
+import { OilSplashAttack } from './attacks/OilSplashAttack';
+import { PoliceBackdoorAttack } from './attacks/PoliceBackdoorAttack';
+import { InputLagWrapper } from './attacks/InputLagWrapper';
 
 // ОПТИМИЗАЦИЯ: Условное логирование только в development
 const isDev = process.env.NODE_ENV === 'development';
@@ -78,6 +82,46 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const { state } = useDuelRealtime(duelId, myPlayerId);
   const [duelCode, setDuelCode] = useState<string | null>(null);
+  
+  // 🆕 Состояние для активных exploits
+  const [activeExploits, setActiveExploits] = useState<Map<string, { expiresAt: number; passed?: boolean }>>(new Map());
+  
+  // 🆕 Обработка активных exploits из Realtime
+  useEffect(() => {
+    if (!state.activeExploits || state.activeExploits.length === 0) {
+      setActiveExploits(new Map());
+      return;
+    }
+
+    const exploitsMap = new Map<string, { expiresAt: number; passed?: boolean }>();
+    state.activeExploits.forEach(exploit => {
+      exploitsMap.set(exploit.type, {
+        expiresAt: exploit.expiresAt,
+        passed: activeExploits.get(exploit.type)?.passed || false,
+      });
+    });
+    setActiveExploits(exploitsMap);
+  }, [state.activeExploits]);
+
+  // 🆕 Очистка истекших exploits
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = Date.now();
+      setActiveExploits(prev => {
+        const updated = new Map(prev);
+        let changed = false;
+        prev.forEach((value, key) => {
+          if (value.expiresAt <= now) {
+            updated.delete(key);
+            changed = true;
+          }
+        });
+        return changed ? updated : prev;
+      });
+    }, 1000); // Проверяем каждую секунду
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Initialize notifications for this duel
   useNotifications({ showToasts: true, playSounds: true });
@@ -1282,6 +1326,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
+  // 🆕 Определяем активные exploits
+  const inputLagExploit = state.activeExploits?.find(e => e.type === 'input_lag');
+  const inputLagActive = !!inputLagExploit && !activeExploits.get('input_lag')?.passed;
+
   // УБРАНО: Countdown экран - сразу начинаем битву без задержки
 
   return (
@@ -1296,6 +1344,24 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         touchAction: 'pan-y pinch-zoom'
       }}
     >
+      {/* 🆕 Визуальный индикатор Input Lag */}
+      {inputLagActive && (
+        <motion.div
+          initial={{ y: -100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -100, opacity: 0 }}
+          className="fixed top-4 left-1/2 -translate-x-1/2 z-[9997] 
+                      bg-red-950/90 border border-red-500/50 rounded-lg p-3 
+                      backdrop-blur-xl shadow-2xl"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-red-400 animate-pulse">🕸️</span>
+            <span className="text-red-300 text-sm font-semibold">
+              СИСТЕМА ПЕРЕГРУЖЕНА! Враг применил Input Lag
+            </span>
+          </div>
+        </motion.div>
+      )}
       {/* Toast Notifications */}
       {/* Учитываем отступы для Telegram WebApp: разные для мобильной и десктопной версии */}
       <div
@@ -1451,9 +1517,56 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             eliminatedOptions={eliminatedOptions}
             translationLanguage={translationLanguage}
             onAnswer={handleAnswer}
+            inputLagActive={!!activeExploits.get('input_lag') && !activeExploits.get('input_lag')?.passed}
+            inputLagDelay={1500}
           />
         </motion.div>
       </div>
+
+      {/* 🆕 Слой спецэффектов (высокий z-index) */}
+      {(() => {
+        const screenInjector = state.activeExploits?.find(e => e.type === 'screen_injector');
+        const policeRaid = state.activeExploits?.find(e => e.type === 'police_backdoor');
+        const policePassed = activeExploits.get('police_backdoor')?.passed || false;
+
+        return (
+          <>
+            {/* Масло (Screen Injector) */}
+            {screenInjector && !activeExploits.get('screen_injector')?.passed && (
+              <OilSplashAttack
+                isActive={true}
+                onCleaned={() => {
+                  setActiveExploits(prev => {
+                    const updated = new Map(prev);
+                    const current = updated.get('screen_injector');
+                    if (current) {
+                      updated.set('screen_injector', { ...current, passed: true });
+                    }
+                    return updated;
+                  });
+                }}
+              />
+            )}
+
+            {/* Полиция (Police Backdoor) */}
+            {policeRaid && !policePassed && (
+              <PoliceBackdoorAttack
+                isActive={true}
+                onUnlock={() => {
+                  setActiveExploits(prev => {
+                    const updated = new Map(prev);
+                    const current = updated.get('police_backdoor');
+                    if (current) {
+                      updated.set('police_backdoor', { ...current, passed: true });
+                    }
+                    return updated;
+                  });
+                }}
+              />
+            )}
+          </>
+        );
+      })()}
     </div>
   );
 }
