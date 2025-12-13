@@ -319,6 +319,13 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
                 activeExploits: [...(prev.activeExploits || []), exploit]
               };
             });
+          } else {
+            log('[useDuelRealtime] ⏭️ Exploit ignored (not for us):', {
+              exploit_type: newExploit.exploit_type,
+              target_player_id: newExploit.target_player_id,
+              myPlayerId: currentMyPlayerId,
+              is_active: newExploit.is_active
+            });
           }
         }
       )
