@@ -24,8 +24,17 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const body = await req.json();
-    console.log("[coins-spend] Request body:", body);
+    let body;
+    try {
+      body = await req.json();
+      console.log("[coins-spend] Request body:", body);
+    } catch (parseError) {
+      console.error("[coins-spend] JSON parse error:", parseError);
+      return new Response(
+        JSON.stringify({ error: "Invalid JSON in request body" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
     
     const { user_id, spend_type, metadata } = body;
 
