@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift, Trophy, TestTube, Zap, Calendar, CreditCard, Users, Filter, Crown, Sparkles, Check, Video, ChevronDown } from 'lucide-react';
+import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift, Trophy, TestTube, Zap, Calendar, CreditCard, Users, Filter, Crown, Sparkles, Check, Video, ChevronDown, Shield, Wand2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext, UserContext } from '@/contexts/UserContext';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
@@ -14,6 +14,7 @@ import Confetti from 'react-confetti';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { BoostCard } from './BoostCard';
+import { MarketItem } from './MarketItem';
 // Removed framer-motion import for better performance
 import { PaywallModal } from '@/components/monetization/PaywallModal';
 import { usePremium } from '@/hooks/usePremium';
@@ -1115,6 +1116,35 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const regularBoosts = boosts.filter(b => !b.is_premium);
   const premiumBoosts = boosts.filter(b => b.is_premium);
 
+  // Функция определения категории буста по типу
+  const getBoostCategory = (type: string): 'utility' | 'exploit' | 'defense' => {
+    // Атака (exploit)
+    if (['screen_injector', 'input_lag', 'spam_attack'].includes(type)) {
+      return 'exploit';
+    }
+    // Защита (defense)
+    if (['firewall', 'adas', 'shield'].includes(type)) {
+      return 'defense';
+    }
+    // Утилиты (utility) - по умолчанию
+    return 'utility';
+  };
+
+  // Состояние фильтра категорий
+  const [categoryFilter, setCategoryFilter] = useState<'all' | 'exploit' | 'defense' | 'utility' | 'premium'>('all');
+
+  // Фильтрация бустов по категории
+  const filteredRegularBoosts = useMemo(() => {
+    if (categoryFilter === 'all') return regularBoosts;
+    if (categoryFilter === 'premium') return [];
+    return regularBoosts.filter(b => getBoostCategory(b.type) === categoryFilter);
+  }, [regularBoosts, categoryFilter]);
+
+  const filteredPremiumBoosts = useMemo(() => {
+    if (categoryFilter === 'all' || categoryFilter === 'premium') return premiumBoosts;
+    return [];
+  }, [premiumBoosts, categoryFilter]);
+
   // Контент модалки
   const ModalContent = () => {
     return (
@@ -1163,60 +1193,71 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             {/* Boosts Tab */}
             <TabsContent 
               value="boosts" 
-              className="p-3 md:p-4 space-y-3 mt-3 md:mt-4"
+              className="p-3 md:p-4 space-y-4 mt-3 md:mt-4"
             >
-              <>
-                  {regularBoosts.length > 0 && (
-                    <div className="space-y-2">
-                      <h3 className="text-sm font-semibold text-muted-foreground px-1">
-                        {t('boostShop.sections.popular')}
-                      </h3>
-                      <div className="space-y-2">
-                        {regularBoosts.map((boost) => (
-                          <BoostCard
-                            key={boost.id}
-                            boost={boost}
-                            inventoryCount={getInventoryCount(boost.type)}
-                            coins={coins}
-                            onPurchase={() => handlePurchase(boost)}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
+              {/* Фильтры категорий */}
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                {[
+                  { value: 'all', label: 'ALL SOFTWARE', icon: Zap },
+                  { value: 'exploit', label: 'OFFENSE', icon: Zap, color: 'red' },
+                  { value: 'defense', label: 'DEFENSE', icon: Shield, color: 'cyan' },
+                  { value: 'utility', label: 'UTILS', icon: Wand2, color: 'emerald' },
+                  { value: 'premium', label: 'PREMIUM', icon: Crown, color: 'amber' },
+                ].map(({ value, label, icon: Icon, color }) => (
+                  <button
+                    key={value}
+                    onClick={() => setCategoryFilter(value as typeof categoryFilter)}
+                    className={cn(
+                      "px-4 py-2 rounded-lg border text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2",
+                      categoryFilter === value
+                        ? color === 'red'
+                          ? "bg-red-500/10 border-red-500/50 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.3)]"
+                          : color === 'cyan'
+                          ? "bg-cyan-500/10 border-cyan-500/50 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
+                          : color === 'emerald'
+                          ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(34,197,94,0.3)]"
+                          : color === 'amber'
+                          ? "bg-amber-500/10 border-amber-500/50 text-amber-400 shadow-[0_0_15px_rgba(255,215,0,0.3)]"
+                          : "bg-indigo-500/10 border-indigo-500/50 text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.3)]"
+                        : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10"
+                    )}
+                  >
+                    <Icon className="w-3 h-3" />
+                    <span>{label}</span>
+                  </button>
+                ))}
+              </div>
 
-                  {premiumBoosts.length > 0 && (
-                    <div className="space-y-2 mt-4">
-                      <div className="flex items-center gap-2 px-1">
-                        <h3 className="text-sm font-semibold text-muted-foreground">
-                          {t('boostShop.sections.premium')}
-                        </h3>
-                        <Badge className="gradient-gold border-none text-xs px-1.5 py-0">
-                          {t('boostShop.sections.premiumBadge')}
-                        </Badge>
-                      </div>
-                      <div className="space-y-2">
-                        {premiumBoosts.map((boost) => (
-                          <BoostCard
-                            key={boost.id}
-                            boost={boost}
-                            inventoryCount={getInventoryCount(boost.type)}
-                            coins={coins}
-                            onPurchase={() => handlePurchase(boost)}
-                            isPremium
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {boosts.length === 0 && (
-                    <div className="text-center py-12 text-muted-foreground">
-                      <Zap className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                      <p className="text-sm">{t('boostShop.sections.empty')}</p>
-                    </div>
-                  )}
-              </>
+              {/* Grid Layout для бустов */}
+              {(filteredRegularBoosts.length > 0 || filteredPremiumBoosts.length > 0) ? (
+                <div className="grid grid-cols-2 gap-3">
+                  {filteredRegularBoosts.map((boost) => (
+                    <MarketItem
+                      key={boost.id}
+                      boost={boost}
+                      inventoryCount={getInventoryCount(boost.type)}
+                      coins={coins}
+                      onPurchase={() => handlePurchase(boost)}
+                      category={getBoostCategory(boost.type)}
+                    />
+                  ))}
+                  {filteredPremiumBoosts.map((boost) => (
+                    <MarketItem
+                      key={boost.id}
+                      boost={boost}
+                      inventoryCount={getInventoryCount(boost.type)}
+                      coins={coins}
+                      onPurchase={() => handlePurchase(boost)}
+                      category={getBoostCategory(boost.type)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Zap className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                  <p className="text-sm">{t('boostShop.sections.empty')}</p>
+                </div>
+              )}
             </TabsContent>
 
             {/* Coins Tab */}
