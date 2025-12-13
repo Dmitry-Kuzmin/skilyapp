@@ -287,7 +287,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
 
   return (
     <>
-    <Card className="p-6 relative overflow-visible pb-32 rounded-xl border border-white/10 backdrop-blur-xl"
+    <Card className="p-6 relative overflow-visible pb-20 rounded-xl border border-white/10 backdrop-blur-xl"
       style={{
         background: 'radial-gradient(120% 120% at 50% 0%, rgba(99, 102, 241, 0.05) 0%, rgba(0, 0, 0, 0.4) 100%)',
         boxShadow: `
