@@ -323,7 +323,10 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
             slotNumber={1}
             isUnlocked={true}
             selectedBoost={getBoostByType(loadout.slot_1_boost_type)}
-            onSlotClick={() => setSelectedSlotIndex(0)}
+            onSlotClick={() => {
+              console.log('[LoadoutSelector] Slot 1 clicked, setting selectedSlotIndex to 0');
+              setSelectedSlotIndex(0);
+            }}
             onClear={() => handleSelectBoost(1, null)}
           />
 
@@ -367,6 +370,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
       <Sheet 
         open={selectedSlotIndex !== null} 
         onOpenChange={(open) => {
+          console.log('[LoadoutSelector] Sheet onOpenChange:', open, 'selectedSlotIndex:', selectedSlotIndex, 'isClosingRef:', isClosingRef.current);
           // Защита от множественных вызовов
           if (!open && !isClosingRef.current && selectedSlotIndex !== null) {
             isClosingRef.current = true;
@@ -380,9 +384,10 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
       >
         <SheetContent 
           side="bottom" 
-          className="bg-black/95 border-t border-white/20 rounded-t-3xl max-h-[70vh] flex flex-col p-0 backdrop-blur-xl relative overflow-hidden"
+          className="bg-black/95 border-t border-white/20 rounded-t-3xl max-h-[70vh] flex flex-col p-0 backdrop-blur-xl relative overflow-hidden z-[9999]"
           style={{
             boxShadow: '0 -10px 40px -10px rgba(0, 0, 0, 0.8)',
+            zIndex: 9999,
           }}
         >
           {/* Noise Texture для Sheet */}
