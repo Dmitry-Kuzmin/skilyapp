@@ -255,13 +255,22 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
     }
 
     let boosts = data || [];
-    console.log('[useDuelData] All boosts from inventory:', boosts);
+    console.log('[useDuelData] All boosts from inventory:', boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })));
 
     // Если есть выбранные бусты в loadout, фильтруем только их
     // Если loadout пустой (все null) или не существует, показываем все бусты
     if (loadoutBoosts.length > 0) {
-      boosts = boosts.filter(boost => loadoutBoosts.includes(boost.boost_type));
-      console.log('[useDuelData] Filtered boosts by loadout:', boosts);
+      console.log('[useDuelData] Filtering by loadout. Looking for:', loadoutBoosts);
+      console.log('[useDuelData] Available boost types in inventory:', boosts.map(b => b.boost_type));
+      
+      boosts = boosts.filter(boost => {
+        const matches = loadoutBoosts.includes(boost.boost_type);
+        if (!matches) {
+          console.log(`[useDuelData] Boost ${boost.boost_type} not in loadout, filtering out`);
+        }
+        return matches;
+      });
+      console.log('[useDuelData] Filtered boosts by loadout:', boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })));
     } else {
       console.log('[useDuelData] No loadout selected, showing all boosts');
     }
