@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Lock, Coins, Crown, Zap, Check, X } from 'lucide-react';
+import { Lock, Coins, Crown, Zap, Check, X, Plus, Cpu } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { usePremium } from '@/hooks/usePremium';
@@ -240,23 +240,23 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
   }
 
   return (
-    <Card className="p-6 bg-zinc-900/80 border border-white/10 backdrop-blur-xl rounded-xl">
-      <div className="space-y-4">
-        {/* Заголовок */}
+    <Card className="p-6 bg-zinc-900/80 border border-white/10 backdrop-blur-xl rounded-xl relative overflow-visible">
+      <div className="space-y-5">
+        {/* Заголовок - Премиум типографика */}
         <div className="flex items-start justify-between">
-          <div>
-            <h3 className="text-base font-semibold text-zinc-200 flex items-center gap-2 tracking-tight">
-              <Zap className="w-4 h-4 text-indigo-400" />
-              RAM Slots (Loadout)
+          <div className="space-y-1">
+            <h3 className="text-lg font-black text-white flex items-center gap-2 tracking-tight">
+              <Zap className="w-5 h-5 text-indigo-400" />
+              <span className="font-mono">RAM LOADOUT</span>
             </h3>
-            <p className="text-xs font-medium text-zinc-500 mt-1.5 uppercase tracking-wider">
-              Выберите бусты для дуэли. Максимум 3 слота.
+            <p className="text-xs font-medium text-zinc-400 tracking-normal">
+              Select up to 3 boosts
             </p>
           </div>
         </div>
 
-        {/* Слоты */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
+        {/* Слоты - Премиум дизайн */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 pb-4">
           {/* Слот 1 - Базовый */}
           <SlotCard
             slotNumber={1}
@@ -352,27 +352,66 @@ const SlotCard: React.FC<SlotCardProps> = ({
     ? userHasPremium
     : (unlockCost && userCoins >= unlockCost);
 
+  // Определяем стили для слота
+  const getSlotStyles = () => {
+    if (!isUnlocked) {
+      if (isPremium) {
+        // Premium заблокированный - золотой градиент
+        return {
+          container: "bg-zinc-950/40 border-amber-500/20 shadow-[inset_0_4px_20px_rgba(0,0,0,0.6),0_0_20px_rgba(255,215,0,0.1)]",
+          glow: "before:absolute before:inset-0 before:bg-gradient-to-br before:from-amber-500/5 before:via-yellow-500/5 before:to-amber-500/5 before:rounded-xl before:blur-sm"
+        };
+      } else {
+        // Обычный заблокированный - темный с внутренней тенью
+        return {
+          container: "bg-zinc-950/40 border-white/5 shadow-[inset_0_4px_20px_rgba(0,0,0,0.7)] opacity-70",
+          glow: ""
+        };
+      }
+    } else {
+      if (isPremium) {
+        // Premium разблокированный - золотая обводка
+        return {
+          container: "bg-zinc-900/60 border-amber-500/30 shadow-[inset_0_2px_10px_rgba(0,0,0,0.3),0_0_15px_rgba(255,215,0,0.15)] hover:border-amber-400/50 hover:shadow-[inset_0_2px_10px_rgba(0,0,0,0.3),0_0_20px_rgba(255,215,0,0.25)]",
+          glow: "before:absolute before:inset-0 before:bg-gradient-to-br before:from-amber-500/10 before:via-yellow-500/5 before:to-amber-500/10 before:rounded-xl before:blur-sm before:opacity-50"
+        };
+      } else {
+        // Обычный разблокированный - стандартный
+        return {
+          container: "bg-zinc-900/60 border-white/10 shadow-[inset_0_2px_10px_rgba(0,0,0,0.3)] hover:border-indigo-500/30 hover:bg-zinc-900/80",
+          glow: ""
+        };
+      }
+    }
+  };
+
+  const slotStyles = getSlotStyles();
+
   return (
     <div className="relative" ref={cardRef}>
       <motion.div
         className={cn(
           "relative p-4 rounded-xl border transition-all duration-200",
-          "backdrop-blur-sm",
-          isUnlocked
-            ? "bg-zinc-900/60 border-white/10 hover:border-indigo-500/30 hover:bg-zinc-900/80"
-            : "bg-zinc-950/40 border-white/5 opacity-70"
+          "backdrop-blur-[12px]",
+          slotStyles.container,
+          slotStyles.glow
         )}
-        whileHover={isUnlocked ? { scale: 1.01 } : {}}
-        whileTap={isUnlocked ? { scale: 0.99 } : {}}
+        whileHover={isUnlocked ? { scale: 1.02, y: -2 } : {}}
+        whileTap={isUnlocked ? { scale: 0.98 } : {}}
       >
-        {/* Заголовок слота */}
+        {/* Заголовок слота - Моноширинный шрифт */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-1.5">
-            <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-              Slot {slotNumber}
+            <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider font-mono">
+              SLOT {slotNumber}
             </span>
             {isPremium && (
-              <Crown className="w-3.5 h-3.5 text-amber-400" />
+              <motion.div
+                animate={{ rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+              >
+                <Crown className="w-3.5 h-3.5 text-amber-400 drop-shadow-[0_0_4px_rgba(255,215,0,0.5)]" />
+              </motion.div>
             )}
           </div>
           {!isUnlocked && (
@@ -385,32 +424,64 @@ const SlotCard: React.FC<SlotCardProps> = ({
           <div className="space-y-2">
             {selectedBoost ? (
               <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
+                initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className="relative group"
               >
-                <div className={cn(
-                  "p-3 rounded-lg border backdrop-blur-sm transition-all",
-                  selectedBoost.category === 'exploit' && "bg-red-500/10 border-red-500/30",
-                  selectedBoost.category === 'defense' && "bg-blue-500/10 border-blue-500/30",
-                  selectedBoost.category === 'utility' && "bg-green-500/10 border-green-500/30"
-                )}>
-                  {/* Крупная иконка буста - главный элемент */}
-                  <div className="flex items-center justify-center mb-2">
-                    <span className="text-3xl">{selectedBoost.icon}</span>
+                {/* Эффект "вставленного чипа" - картридж с тенью */}
+                <motion.div
+                  className={cn(
+                    "p-3 rounded-lg border backdrop-blur-sm transition-all relative",
+                    "shadow-[0_4px_12px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)]",
+                    selectedBoost.category === 'exploit' && "bg-gradient-to-br from-red-500/20 to-red-600/10 border-red-500/40 shadow-red-500/20",
+                    selectedBoost.category === 'defense' && "bg-gradient-to-br from-blue-500/20 to-blue-600/10 border-blue-500/40 shadow-blue-500/20",
+                    selectedBoost.category === 'utility' && "bg-gradient-to-br from-green-500/20 to-green-600/10 border-green-500/40 shadow-green-500/20"
+                  )}
+                  whileHover={{ scale: 1.02 }}
+                >
+                  {/* Градиентная обводка при hover */}
+                  <motion.div
+                    className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{
+                      background: selectedBoost.category === 'exploit' 
+                        ? 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(220,38,38,0.1))'
+                        : selectedBoost.category === 'defense'
+                        ? 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(37,99,235,0.1))'
+                        : 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(22,163,74,0.1))'
+                    }}
+                  />
+                  
+                  {/* Крупная иконка буста */}
+                  <div className="flex items-center justify-center mb-2 relative z-10">
+                    <motion.span 
+                      className="text-3xl"
+                      animate={{ 
+                        scale: [1, 1.1, 1],
+                        rotate: [0, 5, -5, 0]
+                      }}
+                      transition={{ 
+                        duration: 2, 
+                        repeat: Infinity, 
+                        repeatDelay: 2 
+                      }}
+                    >
+                      {selectedBoost.icon}
+                    </motion.span>
                   </div>
-                  {/* Название и категория - компактно */}
-                  <div className="text-center">
-                    <div className="text-xs font-medium text-zinc-300 mb-1 truncate">
+                  
+                  {/* Название и категория */}
+                  <div className="text-center relative z-10">
+                    <div className="text-xs font-semibold text-zinc-200 mb-1 truncate">
                       {selectedBoost.name_ru}
                     </div>
                     <Badge
                       variant="outline"
                       className={cn(
-                        "text-xs font-semibold px-2 py-0.5 rounded-full",
-                        selectedBoost.category === 'exploit' && "border-red-500/50 text-red-400 bg-red-500/10",
-                        selectedBoost.category === 'defense' && "border-blue-500/50 text-blue-400 bg-blue-500/10",
-                        selectedBoost.category === 'utility' && "border-green-500/50 text-green-400 bg-green-500/10"
+                        "text-[10px] font-bold px-2 py-0.5 rounded-full border",
+                        selectedBoost.category === 'exploit' && "border-red-500/60 text-red-400 bg-red-500/15",
+                        selectedBoost.category === 'defense' && "border-blue-500/60 text-blue-400 bg-blue-500/15",
+                        selectedBoost.category === 'utility' && "border-green-500/60 text-green-400 bg-green-500/15"
                       )}
                     >
                       {selectedBoost.category === 'exploit' && 'Атака'}
@@ -418,66 +489,92 @@ const SlotCard: React.FC<SlotCardProps> = ({
                       {selectedBoost.category === 'utility' && 'Утилита'}
                     </Badge>
                   </div>
-                </div>
-                <button
-                  onClick={() => setIsOpen(!isOpen)}
-                  className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-zinc-800/80 hover:bg-zinc-700 border border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                </motion.div>
+
+                {/* Кнопка закрытия - Увеличена touch area */}
+                <motion.button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsOpen(!isOpen);
+                  }}
+                  className="absolute -top-1.5 -right-1.5 w-7 h-7 rounded-full bg-zinc-800/90 hover:bg-zinc-700 border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg z-20"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                 >
-                  <X className="w-3 h-3 text-zinc-400" />
-                </button>
+                  <X className="w-3.5 h-3.5 text-zinc-300" />
+                </motion.button>
               </motion.div>
             ) : (
-              <Button
-                onClick={() => setIsOpen(!isOpen)}
-                variant="outline"
-                size="sm"
-                className="w-full h-10 border-white/10 bg-zinc-900/50 hover:bg-zinc-800/50 hover:border-indigo-500/30 text-zinc-300 hover:text-zinc-100 text-xs font-medium"
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <Zap className="w-3.5 h-3.5 mr-1.5" />
-                Выбрать
-              </Button>
+                <Button
+                  onClick={() => setIsOpen(!isOpen)}
+                  variant="outline"
+                  size="sm"
+                  className="w-full h-10 border-white/10 bg-zinc-900/50 hover:bg-zinc-800/50 hover:border-indigo-500/30 text-zinc-300 hover:text-zinc-100 text-xs font-medium relative overflow-hidden"
+                >
+                  {/* Watermark иконка микросхемы */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-10">
+                    <Cpu className="w-8 h-8 text-zinc-400" />
+                  </div>
+                  
+                  <div className="relative z-10 flex items-center gap-1.5">
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Выбрать</span>
+                  </div>
+                </Button>
+              </motion.div>
             )}
           </div>
         ) : (
-          <Button
-            onClick={onUnlock}
-            disabled={!canUnlock || isUnlocking}
-            variant="outline"
-            size="sm"
-            className={cn(
-              "w-full h-10 text-xs font-semibold transition-all",
-              canUnlock && !isUnlocking
-                ? "border-white/20 bg-zinc-900/60 hover:bg-zinc-800/60 hover:border-indigo-500/40 text-zinc-200 hover:text-zinc-100"
-                : "border-white/5 bg-zinc-950/40 text-zinc-500"
-            )}
+          <motion.div
+            whileHover={canUnlock && !isUnlocking ? { scale: 1.02 } : {}}
+            whileTap={canUnlock && !isUnlocking ? { scale: 0.98 } : {}}
           >
-            {isUnlocking ? (
-              <span className="flex items-center gap-2">
-                <motion.div
-                  className="w-3 h-3 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                />
-                Разблокировка...
-              </span>
-            ) : isPremium ? (
-              <>
-                <Crown className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
-                Premium
-              </>
-            ) : (
-              <>
-                <Coins className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
-                <span>
-                  <span className="text-yellow-400 font-bold">{unlockCost}</span>
-                  <span className="text-zinc-400"> монет</span>
+            <Button
+              onClick={onUnlock}
+              disabled={!canUnlock || isUnlocking}
+              variant="outline"
+              size="sm"
+              className={cn(
+                "w-full h-10 text-xs font-semibold transition-all relative overflow-hidden",
+                canUnlock && !isUnlocking
+                  ? isPremium
+                    ? "border-amber-500/40 bg-gradient-to-br from-amber-950/40 to-yellow-950/30 hover:from-amber-950/60 hover:to-yellow-950/50 hover:border-amber-400/60 text-amber-300 hover:text-amber-200 shadow-[0_0_15px_rgba(255,215,0,0.2)] hover:shadow-[0_0_20px_rgba(255,215,0,0.3)]"
+                    : "border-white/20 bg-zinc-900/60 hover:bg-zinc-800/60 hover:border-yellow-500/40 text-zinc-200 hover:text-yellow-300"
+                  : "border-white/5 bg-zinc-950/40 text-zinc-500"
+              )}
+            >
+              {isUnlocking ? (
+                <span className="flex items-center gap-2">
+                  <motion.div
+                    className="w-3 h-3 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  />
+                  Разблокировка...
                 </span>
-              </>
-            )}
-          </Button>
+              ) : isPremium ? (
+                <>
+                  <Crown className="w-3.5 h-3.5 mr-1.5 text-amber-400 drop-shadow-[0_0_4px_rgba(255,215,0,0.5)]" />
+                  <span>Premium</span>
+                </>
+              ) : (
+                <>
+                  <Coins className="w-3.5 h-3.5 mr-1.5 text-yellow-400" />
+                  <span>
+                    <span className="text-yellow-400 font-bold">{unlockCost}</span>
+                    <span className="text-zinc-400"> монет</span>
+                  </span>
+                </>
+              )}
+            </Button>
+          </motion.div>
         )}
 
-        {/* Выпадающий список бустов */}
+        {/* Выпадающий список бустов - КРИТИЧНО: Высокий z-index и отступ снизу */}
         <AnimatePresence>
           {isOpen && isUnlocked && (
             <motion.div
@@ -486,34 +583,37 @@ const SlotCard: React.FC<SlotCardProps> = ({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="absolute top-full left-0 right-0 mt-2 z-[100] bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 max-h-64 overflow-y-auto space-y-1 shadow-2xl shadow-black/50"
+              className="absolute top-full left-0 right-0 mt-2 z-[200] bg-zinc-950/98 backdrop-blur-xl border border-white/20 rounded-xl p-2 max-h-64 overflow-y-auto space-y-1 shadow-2xl shadow-black/80 mb-20"
+              style={{ marginBottom: '80px' }} // ✅ КРИТИЧНО: Отступ снизу чтобы не перекрывалось кнопкой
             >
               <button
                 onClick={() => {
                   onSelectBoost(null);
                   setIsOpen(false);
                 }}
-                className="w-full p-2 text-left text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 rounded-lg transition-colors"
+                className="w-full p-2.5 text-left text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/70 rounded-lg transition-colors border border-transparent hover:border-white/10"
               >
                 Очистить слот
               </button>
               {availableBoosts.map((boost) => (
-                <button
+                <motion.button
                   key={boost.type}
                   onClick={() => {
                     onSelectBoost(boost.type);
                     setIsOpen(false);
                   }}
+                  whileHover={{ scale: 1.02, x: 2 }}
+                  whileTap={{ scale: 0.98 }}
                   className={cn(
                     "w-full p-2.5 text-left rounded-lg transition-all flex items-center gap-2.5 border",
                     selectedBoost?.type === boost.type
-                      ? "bg-indigo-500/20 border-indigo-500/40"
-                      : "border-transparent hover:bg-zinc-800/50 hover:border-white/5"
+                      ? "bg-indigo-500/20 border-indigo-500/40 shadow-[0_0_10px_rgba(99,102,241,0.3)]"
+                      : "border-transparent hover:bg-zinc-800/70 hover:border-white/10"
                   )}
                 >
                   <span className="text-lg">{boost.icon}</span>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-zinc-200 truncate">
+                    <div className="text-sm font-semibold text-zinc-200 truncate">
                       {boost.name_ru}
                     </div>
                     <div className="text-xs font-medium text-zinc-500 mt-0.5">
@@ -523,9 +623,15 @@ const SlotCard: React.FC<SlotCardProps> = ({
                     </div>
                   </div>
                   {selectedBoost?.type === boost.type && (
-                    <Check className="w-4 h-4 text-indigo-400 shrink-0" />
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring" }}
+                    >
+                      <Check className="w-4 h-4 text-indigo-400 shrink-0" />
+                    </motion.div>
                   )}
-                </button>
+                </motion.button>
               ))}
             </motion.div>
           )}
@@ -534,4 +640,3 @@ const SlotCard: React.FC<SlotCardProps> = ({
     </div>
   );
 };
-
