@@ -418,23 +418,27 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           </SheetHeader>
           
           {selectedSlotIndex !== null && (
-            <BoostSelectSheetContent
-              availableBoosts={availableBoosts}
-              selectedBoost={getBoostByType(
-                selectedSlotIndex === 0 ? loadout.slot_1_boost_type :
-                selectedSlotIndex === 1 ? loadout.slot_2_boost_type :
-                loadout.slot_3_boost_type
-              )}
-              onSelectBoost={(boostType) => {
-                // Закрываем Sheet перед обновлением
-                isClosingRef.current = true;
-                handleSelectBoost((selectedSlotIndex + 1) as 1 | 2 | 3, boostType);
-                setSelectedSlotIndex(null);
-                setTimeout(() => {
-                  isClosingRef.current = false;
-                }, 300);
-              }}
-            />
+            <>
+              {console.log('[LoadoutSelector] Rendering BoostSelectSheetContent, selectedSlotIndex:', selectedSlotIndex)}
+              <BoostSelectSheetContent
+                availableBoosts={availableBoosts}
+                selectedBoost={getBoostByType(
+                  selectedSlotIndex === 0 ? loadout.slot_1_boost_type :
+                  selectedSlotIndex === 1 ? loadout.slot_2_boost_type :
+                  loadout.slot_3_boost_type
+                )}
+                onSelectBoost={(boostType) => {
+                  console.log('[LoadoutSelector] Boost selected:', boostType);
+                  // Закрываем Sheet перед обновлением
+                  isClosingRef.current = true;
+                  handleSelectBoost((selectedSlotIndex + 1) as 1 | 2 | 3, boostType);
+                  setSelectedSlotIndex(null);
+                  setTimeout(() => {
+                    isClosingRef.current = false;
+                  }, 300);
+                }}
+              />
+            </>
           )}
         </SheetContent>
       </Sheet>
