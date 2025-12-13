@@ -429,6 +429,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         </SheetContent>
       </Sheet>
     </Card>
+    </>
   );
 };
 
