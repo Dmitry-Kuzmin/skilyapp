@@ -181,7 +181,7 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, category 
             </Badge>
           )}
         </div>
-        <p className="text-xs text-white/40 line-clamp-1 leading-relaxed">
+        <p className="text-xs text-white/60 line-clamp-1 leading-relaxed">
           {displayDescription}
         </p>
         <div className="flex items-center gap-2 mt-1">
@@ -203,8 +203,8 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, category 
       {/* Правая часть: Цена + Кнопка */}
       <div className="relative z-10 flex items-center gap-2 flex-shrink-0">
         <div className="font-mono text-yellow-500 font-bold flex items-center gap-1 text-sm">
-          <Coins className="w-4 h-4" />
-          <span>{boost.cost_coins}</span>
+          <Coins className="w-4 h-4 text-yellow-500" />
+          <span className="text-yellow-500">{boost.cost_coins}</span>
         </div>
         
         {boost.is_premium ? (
@@ -223,6 +223,15 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, category 
             "text-[10px] font-bold tracking-wider"
           )}>
             INSUFFICIENT
+          </div>
+        ) : inventoryCount > 0 ? (
+          <div className={cn(
+            "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg",
+            "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30",
+            "text-[10px] font-bold tracking-wider"
+          )}>
+            <Check className="w-3 h-3" />
+            <span>OWNED</span>
           </div>
         ) : (
           <div className={cn(

@@ -1231,7 +1231,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
               {/* Grid Layout для бустов */}
               {(filteredRegularBoosts.length > 0 || filteredPremiumBoosts.length > 0) ? (
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-2 gap-3">
                   {filteredRegularBoosts.map((boost) => (
                     <MarketItem
                       key={boost.id}
@@ -2015,8 +2015,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               }
             }}
           >
-            <Coins className="w-4 h-4 text-yellow-400" />
-            <span className="text-sm font-bold font-mono text-yellow-400">{coins}</span>
+            <Coins className="w-4 h-4 text-yellow-500" />
+            <span className="text-sm font-bold font-mono text-yellow-500">{coins}</span>
             <History className="w-3 h-3 text-white/40 ml-0.5" />
           </button>
         </div>
