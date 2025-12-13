@@ -355,7 +355,10 @@ const DailyBonus = () => {
             continue;
           }
 
-          // Успех
+          // Успех - инвалидируем кэш профиля для обновления баланса во всех компонентах
+          if (profileId) {
+            queryClient.invalidateQueries({ queryKey: ['profile-data', profileId] });
+          }
           break;
         } catch (err: any) {
           console.error(`[DailyBonus] Exception during ad reward claim (attempt ${attempt + 1}/${maxRetries}):`, err);

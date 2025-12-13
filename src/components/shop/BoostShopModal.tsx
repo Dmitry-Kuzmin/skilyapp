@@ -27,6 +27,7 @@ import { useOfflineQueue } from '@/hooks/useOfflineQueue';
 import { trackOfflineAction } from '@/utils/offlineAnalytics';
 import { getPaddleInstance, getPaddleInstanceSync, preloadPaddle } from '@/lib/paddle';
 import type { Paddle } from '@paddle/paddle-js';
+import { useQueryClient } from '@tanstack/react-query';
 
 const supabaseClient = supabase as any;
 
@@ -72,6 +73,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const userContext = useContext(UserContext);
   const profileId = userContext?.profileId ?? null;
   const platform = userContext?.platform ?? 'web';
+  const queryClient = useQueryClient();
   
   // Если UserContext отсутствует, закрываем модалку
   useEffect(() => {
@@ -2069,7 +2071,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               }
             }
 
-            // Обновляем баланс только после успешного начисления
+            // Баланс уже обновлен через invalidateQueries выше, но обновляем и локальные данные модалки
             try {
               await loadData();
             } catch (loadError) {
