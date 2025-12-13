@@ -279,18 +279,40 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
   }
 
   return (
-    <Card className="p-6 bg-zinc-900/80 border border-white/10 backdrop-blur-xl rounded-xl relative overflow-visible pb-32">
+    <Card className="p-6 relative overflow-visible pb-32 rounded-xl border border-white/10 backdrop-blur-xl"
+      style={{
+        background: 'radial-gradient(120% 120% at 50% 0%, rgba(99, 102, 241, 0.05) 0%, rgba(0, 0, 0, 0.4) 100%)',
+        boxShadow: `
+          inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+          0 10px 40px -10px rgba(0, 0, 0, 0.5)
+        `,
+      }}
+    >
+      {/* Noise Texture Overlay */}
+      <div 
+        className="absolute inset-0 rounded-xl opacity-[0.015] mix-blend-overlay pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'repeat'
+        }}
+      />
+      <div className="relative z-10 space-y-5">
       <div className="space-y-5">
         {/* Заголовок - Премиум типографика */}
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
+        <div className="flex items-start justify-between relative">
+          <div className="space-y-1 relative z-10">
             <h3 className="text-lg font-black text-white flex items-center gap-2 tracking-tight">
-              <Zap className="w-5 h-5 text-indigo-400" />
-              <span className="font-mono">RAM LOADOUT</span>
+              <Zap className="w-5 h-5 text-indigo-400 drop-shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
+              <span className="font-mono tracking-wider">RAM LOADOUT</span>
             </h3>
-            <p className="text-xs font-medium text-zinc-400 tracking-normal">
+            <p className="text-xs font-mono text-zinc-400 tracking-wider uppercase">
               Select up to 3 boosts
             </p>
+          </div>
+          
+          {/* Декоративный текст-призрак */}
+          <div className="absolute top-0 right-0 text-[8px] font-mono text-white/5 tracking-widest">
+            V.2.0
           </div>
         </div>
 
@@ -340,8 +362,9 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           />
         </div>
       </div>
+    </Card>
 
-      {/* Bottom Sheet для выбора буста */}
+    {/* Bottom Sheet для выбора буста */}
       <Sheet 
         open={selectedSlotIndex !== null} 
         onOpenChange={(open) => {
@@ -358,12 +381,31 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
       >
         <SheetContent 
           side="bottom" 
-          className="bg-zinc-950 border-t border-white/10 rounded-t-3xl max-h-[70vh] flex flex-col p-0"
+          className="bg-black/95 border-t border-white/20 rounded-t-3xl max-h-[70vh] flex flex-col p-0 backdrop-blur-xl relative overflow-hidden"
+          style={{
+            boxShadow: '0 -10px 40px -10px rgba(0, 0, 0, 0.8)',
+          }}
         >
-          <SheetHeader className="px-4 pt-4 pb-3 border-b border-white/10">
-            <SheetTitle className="font-mono text-sm font-bold text-indigo-400">
+          {/* Noise Texture для Sheet */}
+          <div 
+            className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+              backgroundRepeat: 'repeat'
+            }}
+          />
+          
+          {/* Декоративные линии сверху */}
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
+          
+          <SheetHeader className="px-4 pt-4 pb-3 border-b border-white/10 relative z-10">
+            <SheetTitle className="font-mono text-sm font-bold text-indigo-400 tracking-wider">
               SELECT MODULE [SLOT {selectedSlotIndex !== null ? selectedSlotIndex + 1 : ''}]
             </SheetTitle>
+            {/* Декоративный текст-призрак */}
+            <div className="absolute top-4 right-4 text-[10px] font-mono text-white/5 tracking-widest">
+              SYS_READY
+            </div>
           </SheetHeader>
           
           {selectedSlotIndex !== null && (
@@ -464,24 +506,57 @@ const SlotCard: React.FC<SlotCardProps> = ({
       <motion.div
         onClick={isUnlocked ? onSlotClick : undefined}
         className={cn(
-          "relative aspect-[3/4] rounded-xl border transition-all duration-200 cursor-pointer",
-          "backdrop-blur-[12px] flex flex-col items-center justify-center",
+          "relative aspect-[3/4] rounded-xl border transition-all duration-200",
+          "backdrop-blur-[12px] flex flex-col items-center justify-center overflow-hidden",
           selectedBoost
-            ? "bg-white/5 border-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.2)]"
+            ? "bg-white/5 border-indigo-500/50 cursor-pointer"
             : isUnlocked
-            ? "bg-black/20 border-white/10 border-dashed hover:bg-white/5 hover:border-white/30"
+            ? "bg-black/20 border-white/10 border-dashed hover:bg-white/5 hover:border-white/30 cursor-pointer"
             : slotStyles.container,
           isPremium && !selectedBoost ? "border-amber-500/30 bg-amber-500/5" : "",
           slotStyles.glow
         )}
+        style={{
+          boxShadow: selectedBoost
+            ? `inset 0 2px 8px rgba(0, 0, 0, 0.6), inset 0 -2px 8px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.3)`
+            : isUnlocked
+            ? `inset 0 4px 16px rgba(0, 0, 0, 0.8), inset 0 -2px 8px rgba(0, 0, 0, 0.6)`
+            : `inset 0 6px 20px rgba(0, 0, 0, 0.9)`
+        }}
         whileHover={isUnlocked ? { scale: 1.02, y: -2 } : {}}
         whileTap={isUnlocked ? { scale: 0.98 } : {}}
       >
+        {/* Noise texture для слота */}
+        <div 
+          className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            backgroundRepeat: 'repeat'
+          }}
+        />
+
+        {/* Tech-corners для активного слота */}
+        {selectedBoost && (
+          <>
+            {/* Верхний левый угол */}
+            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-indigo-500/60" />
+            {/* Верхний правый угол */}
+            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-indigo-500/60" />
+            {/* Нижний левый угол */}
+            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-indigo-500/60" />
+            {/* Нижний правый угол */}
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-indigo-500/60" />
+          </>
+        )}
         {/* Заголовок слота - Моноширинный шрифт */}
-        <div className="absolute top-2 left-0 right-0 text-center">
+        <div className="absolute top-2 left-0 right-0 text-center z-10">
           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
             SLOT {slotNumber}
           </span>
+          {/* Декоративные цифры-призраки */}
+          <div className="absolute top-0 left-2 text-[8px] font-mono text-white/5">
+            R:{String(slotNumber).padStart(2, '0')}
+          </div>
         </div>
 
         {isPremium && (
@@ -497,27 +572,63 @@ const SlotCard: React.FC<SlotCardProps> = ({
         {/* Контент слота */}
         {isUnlocked ? (
           selectedBoost ? (
-            <div className="relative group flex flex-col items-center justify-center flex-1 w-full px-2">
-              {/* Крупная иконка буста */}
-              <div className="flex items-center justify-center mb-2">
-                <motion.span 
-                  className="text-2xl"
-                  animate={{ 
-                    scale: [1, 1.1, 1],
-                    rotate: [0, 5, -5, 0]
-                  }}
-                  transition={{ 
-                    duration: 2, 
-                    repeat: Infinity, 
-                    repeatDelay: 2 
+            <motion.div 
+              className="relative group flex flex-col items-center justify-center flex-1 w-full px-2"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              {/* Вспышка при вставке */}
+              <motion.div
+                className="absolute inset-0 bg-white/20 rounded-xl"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 0.3, 0] }}
+                transition={{ duration: 0.4 }}
+              />
+
+              {/* Крупная иконка буста в колбе */}
+              <div className="flex items-center justify-center mb-2 relative z-10">
+                <div 
+                  className={cn(
+                    "w-12 h-12 rounded-lg flex items-center justify-center",
+                    "bg-black/60 border border-white/10",
+                    "shadow-[inset_0_0_15px_rgba(0,0,0,0.8)]"
+                  )}
+                  style={{
+                    boxShadow: `
+                      inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+                      inset 0 -1px 0 0 rgba(0, 0, 0, 0.5),
+                      0 0 15px ${selectedBoost.category === 'exploit' ? 'rgba(239, 68, 68, 0.4)' : selectedBoost.category === 'defense' ? 'rgba(59, 130, 246, 0.4)' : 'rgba(34, 197, 94, 0.4)'}
+                    `
                   }}
                 >
-                  {selectedBoost.icon}
-                </motion.span>
+                  <motion.span 
+                    className={cn(
+                      "text-2xl",
+                      selectedBoost.category === 'exploit' && "text-red-400",
+                      selectedBoost.category === 'defense' && "text-blue-400",
+                      selectedBoost.category === 'utility' && "text-green-400"
+                    )}
+                    animate={{ 
+                      scale: [1, 1.1, 1],
+                      rotate: [0, 5, -5, 0]
+                    }}
+                    transition={{ 
+                      duration: 2, 
+                      repeat: Infinity, 
+                      repeatDelay: 2 
+                    }}
+                    style={{
+                      filter: `drop-shadow(0 0 8px ${selectedBoost.category === 'exploit' ? 'rgba(239, 68, 68, 0.8)' : selectedBoost.category === 'defense' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(34, 197, 94, 0.8)'})`
+                    }}
+                  >
+                    {selectedBoost.icon}
+                  </motion.span>
+                </div>
               </div>
               
               {/* Название */}
-              <span className="text-xs font-bold text-white text-center px-1 truncate w-full mb-1">
+              <span className="text-xs font-bold text-white text-center px-1 truncate w-full mb-1 relative z-10">
                 {selectedBoost.name_ru}
               </span>
 
@@ -525,7 +636,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
               <Badge
                 variant="outline"
                 className={cn(
-                  "text-[9px] font-bold px-1.5 py-0.5 rounded-full border",
+                  "text-[9px] font-bold px-1.5 py-0.5 rounded-full border relative z-10",
                   selectedBoost.category === 'exploit' && "border-red-500/60 text-red-400 bg-red-500/15",
                   selectedBoost.category === 'defense' && "border-blue-500/60 text-blue-400 bg-blue-500/15",
                   selectedBoost.category === 'utility' && "border-green-500/60 text-green-400 bg-green-500/15"
@@ -548,11 +659,45 @@ const SlotCard: React.FC<SlotCardProps> = ({
               >
                 <X className="w-3 h-3" />
               </motion.button>
-            </div>
+            </motion.div>
           ) : (
-            <div className="flex flex-col items-center gap-1 text-indigo-400/60">
-              <span className="text-2xl font-light">+</span>
-              <span className="text-[10px] font-mono">INSTALL</span>
+            <div className="flex flex-col items-center gap-2 text-indigo-400/60 relative z-10">
+              {/* Анимация ожидания - пульсирующая рамка */}
+              <motion.div
+                className="absolute inset-4 border-2 border-dashed border-indigo-500/30 rounded-lg"
+                animate={{
+                  opacity: [0.3, 0.6, 0.3],
+                  scale: [1, 1.05, 1],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+              
+              {/* Сканирующая полоска */}
+              <motion.div
+                className="absolute inset-4 rounded-lg overflow-hidden"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/20 to-transparent"
+                  animate={{
+                    y: ['-100%', '200%'],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "linear",
+                    repeatDelay: 1
+                  }}
+                />
+              </motion.div>
+
+              <span className="text-2xl font-light relative z-10">+</span>
+              <span className="text-[10px] font-mono tracking-wider relative z-10">INSTALL</span>
             </div>
           )
         ) : (
@@ -665,7 +810,7 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
       {/* Поиск */}
-      <div className="px-4 pt-3 pb-3 border-b border-white/10">
+      <div className="px-4 pt-3 pb-3 border-b border-white/10 relative z-10">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
           <input
@@ -674,12 +819,16 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className={cn(
-              "w-full h-10 pl-10 pr-4",
-              "bg-zinc-900/50 border border-white/10 rounded-lg",
-              "text-sm text-zinc-200 placeholder:text-zinc-600",
+              "w-full h-10 pl-10 pr-4 font-mono text-sm",
+              "bg-black/60 border border-white/10 rounded-lg",
+              "text-zinc-200 placeholder:text-zinc-600 placeholder:font-sans",
               "focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50",
-              "hover:border-zinc-700 transition-all"
+              "hover:border-zinc-700 transition-all",
+              "backdrop-blur-sm"
             )}
+            style={{
+              boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.05), inset 0 -1px 0 0 rgba(0, 0, 0, 0.3)'
+            }}
           />
         </div>
       </div>
@@ -690,13 +839,21 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
         <button
           onClick={() => onSelectBoost(null)}
           className={cn(
-            "w-full mb-3 p-3 text-left text-xs font-medium",
+            "w-full mb-3 p-3 text-left text-xs font-mono tracking-wider",
             "text-zinc-400 hover:text-zinc-200",
             "hover:bg-zinc-800/70 rounded-lg transition-colors",
-            "border border-white/10 hover:border-white/20"
+            "border border-white/10 hover:border-white/20",
+            "uppercase relative overflow-hidden group"
           )}
         >
-          Очистить слот
+          <span className="relative z-10">Очистить слот</span>
+          {/* Декоративная полоска при hover */}
+          <motion.div
+            className="absolute bottom-0 left-0 h-0.5 bg-indigo-500/50"
+            initial={{ width: 0 }}
+            whileHover={{ width: '100%' }}
+            transition={{ duration: 0.3 }}
+          />
         </button>
 
         {/* Grid бустов */}
@@ -712,6 +869,7 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
             {filteredBoosts.map((boost) => {
               const colors = getCategoryColor(boost.category);
               const isSelected = selectedBoost?.type === boost.type;
+              const categoryLabel = boost.category === 'exploit' ? 'ATK' : boost.category === 'defense' ? 'DEF' : 'UTL';
               
               return (
                 <motion.button
@@ -720,51 +878,108 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                   className={cn(
-                    "relative p-4 rounded-xl border transition-all",
-                    "flex flex-col items-center gap-2",
+                    "relative group overflow-hidden p-4 rounded-xl border transition-all",
+                    "flex flex-col items-center gap-3",
                     isSelected
-                      ? `${colors.bg} ${colors.border} shadow-[0_0_15px_rgba(99,102,241,0.3)] ring-2 ring-indigo-500/50`
-                      : `bg-zinc-900/50 border-white/10 ${colors.hover}`
+                      ? `${colors.bg} ${colors.border} shadow-[0_0_20px_rgba(99,102,241,0.4)] ring-2 ring-indigo-500/50`
+                      : `bg-black/40 border-white/5 ${colors.hover}`,
+                    "backdrop-blur-sm"
                   )}
+                  style={{
+                    boxShadow: isSelected 
+                      ? `inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 10px 30px -10px rgba(0, 0, 0, 0.6)`
+                      : `inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 4px 12px -4px rgba(0, 0, 0, 0.4)`
+                  }}
                 >
-                  {/* Иконка */}
-                  <div className={cn(
-                    "text-3xl mb-1",
-                    isSelected ? colors.text : "text-zinc-300"
-                  )}>
-                    {boost.icon}
+                  {/* Фоновый эффект при наведении - сканирующая полоска */}
+                  <motion.div
+                    className={cn(
+                      "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity",
+                      boost.category === 'exploit' && "bg-gradient-to-r from-transparent via-red-500/10 to-transparent",
+                      boost.category === 'defense' && "bg-gradient-to-r from-transparent via-blue-500/10 to-transparent",
+                      boost.category === 'utility' && "bg-gradient-to-r from-transparent via-green-500/10 to-transparent"
+                    )}
+                    initial={{ x: '-100%' }}
+                    whileHover={{ x: '100%' }}
+                    transition={{ duration: 0.7, ease: "easeInOut" }}
+                  />
+
+                  {/* Noise texture overlay */}
+                  <div 
+                    className="absolute inset-0 opacity-[0.01] mix-blend-overlay pointer-events-none"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'repeat'
+                    }}
+                  />
+
+                  {/* Иконка в "колбе" */}
+                  <div 
+                    className={cn(
+                      "w-14 h-14 rounded-lg flex items-center justify-center relative",
+                      "bg-black/60 border border-white/10",
+                      "shadow-[inset_0_0_15px_rgba(0,0,0,0.8)]"
+                    )}
+                    style={{
+                      boxShadow: `
+                        inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+                        inset 0 -1px 0 0 rgba(0, 0, 0, 0.5),
+                        0 0 20px ${boost.category === 'exploit' ? 'rgba(239, 68, 68, 0.3)' : boost.category === 'defense' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(34, 197, 94, 0.3)'}
+                      `
+                    }}
+                  >
+                    <span 
+                      className={cn(
+                        "text-2xl",
+                        colors.text
+                      )}
+                      style={{
+                        filter: `drop-shadow(0 0 8px ${boost.category === 'exploit' ? 'rgba(239, 68, 68, 0.8)' : boost.category === 'defense' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(34, 197, 94, 0.8)'})`
+                      }}
+                    >
+                      {boost.icon}
+                    </span>
                   </div>
 
-                  {/* Название */}
-                  <div className="text-center w-full">
+                  {/* Название и категория */}
+                  <div className="text-center w-full relative z-10">
                     <div className={cn(
-                      "text-sm font-semibold mb-1 truncate",
+                      "text-[10px] font-mono mb-1 tracking-widest",
+                      isSelected ? "text-white/60" : "text-white/40"
+                    )}>
+                      {categoryLabel}-MODULE
+                    </div>
+                    <div className={cn(
+                      "text-sm font-bold mb-2 truncate",
                       isSelected ? "text-white" : "text-zinc-200"
                     )}>
                       {boost.name_ru}
                     </div>
-                    <div className={cn(
-                      "text-xs font-medium px-2 py-0.5 rounded-full border inline-block",
-                      colors.bg,
-                      colors.border,
-                      colors.text
-                    )}>
-                      {boost.category === 'exploit' && 'Атака'}
-                      {boost.category === 'defense' && 'Защита'}
-                      {boost.category === 'utility' && 'Утилита'}
-                    </div>
                   </div>
+
+                  {/* Статус редкости - цветная полоска снизу */}
+                  <div 
+                    className={cn(
+                      "absolute bottom-0 left-0 right-0 h-1",
+                      boost.category === 'exploit' && "bg-gradient-to-r from-red-500 via-red-400 to-red-500",
+                      boost.category === 'defense' && "bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500",
+                      boost.category === 'utility' && "bg-gradient-to-r from-green-500 via-green-400 to-green-500"
+                    )}
+                    style={{
+                      boxShadow: `0 -2px 8px ${boost.category === 'exploit' ? 'rgba(239, 68, 68, 0.5)' : boost.category === 'defense' ? 'rgba(59, 130, 246, 0.5)' : 'rgba(34, 197, 94, 0.5)'}`
+                    }}
+                  />
 
                   {/* Индикатор выбора */}
                   {isSelected && (
                     <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring" }}
-                      className="absolute top-2 right-2"
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      className="absolute top-2 right-2 z-20"
                     >
-                      <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center">
-                        <Check className="w-3 h-3 text-white" />
+                      <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center shadow-[0_0_12px_rgba(99,102,241,0.8)]">
+                        <Check className="w-3.5 h-3.5 text-white" />
                       </div>
                     </motion.div>
                   )}
