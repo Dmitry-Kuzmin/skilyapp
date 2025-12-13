@@ -115,6 +115,11 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
     }
   }, [loadout, onLoadoutChange]);
 
+  // Логирование состояния Sheet
+  useEffect(() => {
+    console.log('[LoadoutSelector] selectedSlotIndex changed:', selectedSlotIndex);
+  }, [selectedSlotIndex]);
+
   // Разблокировка слота
   const handleUnlockSlot = async (slotNumber: 2 | 3) => {
     if (unlockingSlot) return;
