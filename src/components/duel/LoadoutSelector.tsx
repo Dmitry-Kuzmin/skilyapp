@@ -346,7 +346,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         open={selectedSlotIndex !== null} 
         onOpenChange={(open) => {
           // Защита от множественных вызовов
-          if (!open && !isClosingRef.current) {
+          if (!open && !isClosingRef.current && selectedSlotIndex !== null) {
             isClosingRef.current = true;
             setSelectedSlotIndex(null);
             // Сбрасываем флаг через небольшую задержку
@@ -359,16 +359,6 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         <SheetContent 
           side="bottom" 
           className="bg-zinc-950 border-t border-white/10 rounded-t-3xl max-h-[70vh] flex flex-col p-0"
-          onOpenChange={(open) => {
-            // Дополнительная защита на уровне SheetContent
-            if (!open && !isClosingRef.current) {
-              isClosingRef.current = true;
-              setSelectedSlotIndex(null);
-              setTimeout(() => {
-                isClosingRef.current = false;
-              }, 300);
-            }
-          }}
         >
           <SheetHeader className="px-4 pt-4 pb-3 border-b border-white/10">
             <SheetTitle className="font-mono text-sm font-bold text-indigo-400">
