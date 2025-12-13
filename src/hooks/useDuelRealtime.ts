@@ -119,7 +119,10 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
 
     log('[useDuelRealtime] Initializing channel for duel:', duelId);
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useDuelRealtime.ts:98',message:'Initializing realtime channel',data:{duelId,myPlayerId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // Debug logging только в dev режиме
+    if (process.env.NODE_ENV === 'development') {
+      debugFetch({location:'useDuelRealtime.ts:98',message:'Initializing realtime channel',data:{duelId,myPlayerId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'});
+    }
     // #endregion
     const duelChannel = supabase.channel(`duel_${duelId}`);
 
@@ -136,9 +139,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         (payload) => {
           markEvent();
           const duel = payload.new;
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useDuelRealtime.ts:118',message:'Duel status update received',data:{duelId,status:duel.status,previousDuelStarted:state.duelStarted},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-          // #endregion
+          debugFetch({location:'useDuelRealtime.ts:118',message:'Duel status update received',data:{duelId,status:duel.status,previousDuelStarted:state.duelStarted},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'});
           
           if (duel.status === 'active') {
             log('[useDuelRealtime] ✅ Duel started!');
@@ -175,18 +176,14 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           markEvent();
           const updatedPlayer = payload.new as any;
           const currentMyPlayerId = myPlayerIdRef.current;
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useDuelRealtime.ts:149',message:'Player score update received',data:{updatedPlayerId:updatedPlayer.id,myPlayerId:currentMyPlayerId,updatedScore:updatedPlayer.score,isMyPlayer:updatedPlayer.id===currentMyPlayerId,currentMyScore:state.myScore,currentOpponentScore:state.opponentScore},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-          // #endregion
+          debugFetch({location:'useDuelRealtime.ts:149',message:'Player score update received',data:{updatedPlayerId:updatedPlayer.id,myPlayerId:currentMyPlayerId,updatedScore:updatedPlayer.score,isMyPlayer:updatedPlayer.id===currentMyPlayerId,currentMyScore:state.myScore,currentOpponentScore:state.opponentScore},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'});
           
           // ОПТИМИЗАЦИЯ: Батчим обновления состояния для предотвращения лишних ре-рендеров
           if (currentMyPlayerId) {
             if (updatedPlayer.id === currentMyPlayerId) {
               // Это обновление моего счета
               if (typeof updatedPlayer.score === 'number') {
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useDuelRealtime.ts:156',message:'Updating my score',data:{newScore:updatedPlayer.score,oldScore:state.myScore},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                // #endregion
+                debugFetch({location:'useDuelRealtime.ts:156',message:'Updating my score',data:{newScore:updatedPlayer.score,oldScore:state.myScore},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'});
                 setState(prev => prev.myScore === updatedPlayer.score ? prev : { 
                   ...prev, 
                   myScore: updatedPlayer.score
@@ -198,9 +195,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               const newCorrectCount = typeof updatedPlayer.correct_count === 'number' ? updatedPlayer.correct_count : undefined;
               const newActivityStatus = updatedPlayer.activity_status;
               const newLastSeen = updatedPlayer.last_heartbeat_at ? new Date(updatedPlayer.last_heartbeat_at) : undefined;
-              // #region agent log
-              fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useDuelRealtime.ts:165',message:'Updating opponent score',data:{newOpponentScore,oldOpponentScore:state.opponentScore,newCorrectCount,oldCorrectCount:state.opponentCorrectCount},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-              // #endregion
+              debugFetch({location:'useDuelRealtime.ts:165',message:'Updating opponent score',data:{newOpponentScore,oldOpponentScore:state.opponentScore,newCorrectCount,oldCorrectCount:state.opponentCorrectCount},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'});
               
               setState(prev => {
                 // Проверяем, нужно ли обновление
@@ -223,9 +218,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             }
           } else {
             // myPlayerId не установлен - обновляем opponentScore как fallback
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useDuelRealtime.ts:190',message:'myPlayerId not set - fallback update',data:{updatedScore:updatedPlayer.score,currentOpponentScore:state.opponentScore},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-            // #endregion
+            debugFetch({location:'useDuelRealtime.ts:190',message:'myPlayerId not set - fallback update',data:{updatedScore:updatedPlayer.score,currentOpponentScore:state.opponentScore},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'});
             if (typeof updatedPlayer.score === 'number') {
               setState(prev => prev.opponentScore === updatedPlayer.score ? prev : ({ 
                 ...prev, 

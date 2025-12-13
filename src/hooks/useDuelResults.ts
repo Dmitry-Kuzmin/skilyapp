@@ -36,13 +36,15 @@ export function useDuelResults(duelId: string | null, profileId: string | null) 
       if (!duelId || !profileId) return null;
 
       // ОПТИМИЗАЦИЯ: Объединяем все запросы в Promise.all для параллельной загрузки
+      // ИСПРАВЛЕНИЕ: Используем maybeSingle() вместо single() для обработки race condition
+      // Если данные еще не готовы (Edge Function еще обрабатывает), вернется null
       const [duelResult, playersResult] = await Promise.all([
         // Загружаем данные дуэли
         supabase
           .from("duels")
           .select("*")
           .eq("id", duelId)
-          .single(),
+          .maybeSingle(), // ✅ Исправлено: maybeSingle() не вызовет ошибку если данных нет
 
         // Загружаем игроков с профилями (batch запрос)
         supabase
@@ -51,9 +53,21 @@ export function useDuelResults(duelId: string | null, profileId: string | null) 
           .eq("duel_id", duelId),
       ]);
 
+      // Если дуэль еще не готова (race condition), выбрасываем специальную ошибку для retry
       if (duelResult.error) {
+        // PGRST116 = no rows returned - это нормально, если Edge Function еще обрабатывает
+        if (duelResult.error.code === 'PGRST116') {
+          console.warn("[useDuelResults] Duel not ready yet (race condition), will retry...");
+          throw new Error('DUEL_NOT_READY'); // Специальная ошибка для retry
+        }
         console.error("[useDuelResults] Error loading duel:", duelResult.error);
         throw duelResult.error;
+      }
+
+      // Если данных нет (null), значит Edge Function еще обрабатывает
+      if (!duelResult.data) {
+        console.warn("[useDuelResults] Duel data is null (race condition), will retry...");
+        throw new Error('DUEL_NOT_READY'); // Специальная ошибка для retry
       }
 
       if (playersResult.error) {
@@ -154,7 +168,19 @@ export function useDuelResults(duelId: string | null, profileId: string | null) 
     gcTime: 5 * 60 * 1000, // 5 минут
     refetchOnWindowFocus: false,
     refetchOnMount: false,
-    retry: 1,
+    // ✅ ИСПРАВЛЕНИЕ: Увеличиваем retry и добавляем задержку для race condition
+    retry: (failureCount, error: any) => {
+      // Если это race condition (дуэль еще не готова), делаем больше попыток
+      if (error?.message === 'DUEL_NOT_READY') {
+        return failureCount < 5; // До 5 попыток с задержкой
+      }
+      // Для других ошибок - только 1 попытка
+      return failureCount < 1;
+    },
+    retryDelay: (attemptIndex) => {
+      // Экспоненциальная задержка: 500ms, 1000ms, 2000ms, 4000ms, 8000ms
+      return Math.min(500 * Math.pow(2, attemptIndex), 8000);
+    },
   });
 }
 
