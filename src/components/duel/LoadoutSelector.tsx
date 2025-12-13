@@ -47,6 +47,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
   const [loading, setLoading] = useState(true);
   const [unlockingSlot, setUnlockingSlot] = useState(false);
   const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(null);
+  const isClosingRef = useRef(false);
 
   // Загрузка данных
   useEffect(() => {
@@ -341,8 +342,34 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
       </div>
 
       {/* Bottom Sheet для выбора буста */}
-      <Sheet open={selectedSlotIndex !== null} onOpenChange={(open) => !open && setSelectedSlotIndex(null)}>
-        <SheetContent side="bottom" className="bg-zinc-950 border-t border-white/10 rounded-t-3xl max-h-[70vh] flex flex-col p-0">
+      <Sheet 
+        open={selectedSlotIndex !== null} 
+        onOpenChange={(open) => {
+          // Защита от множественных вызовов
+          if (!open && !isClosingRef.current) {
+            isClosingRef.current = true;
+            setSelectedSlotIndex(null);
+            // Сбрасываем флаг через небольшую задержку
+            setTimeout(() => {
+              isClosingRef.current = false;
+            }, 300);
+          }
+        }}
+      >
+        <SheetContent 
+          side="bottom" 
+          className="bg-zinc-950 border-t border-white/10 rounded-t-3xl max-h-[70vh] flex flex-col p-0"
+          onOpenChange={(open) => {
+            // Дополнительная защита на уровне SheetContent
+            if (!open && !isClosingRef.current) {
+              isClosingRef.current = true;
+              setSelectedSlotIndex(null);
+              setTimeout(() => {
+                isClosingRef.current = false;
+              }, 300);
+            }
+          }}
+        >
           <SheetHeader className="px-4 pt-4 pb-3 border-b border-white/10">
             <SheetTitle className="font-mono text-sm font-bold text-indigo-400">
               SELECT MODULE [SLOT {selectedSlotIndex !== null ? selectedSlotIndex + 1 : ''}]
@@ -358,8 +385,13 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
                 loadout.slot_3_boost_type
               )}
               onSelectBoost={(boostType) => {
+                // Закрываем Sheet перед обновлением
+                isClosingRef.current = true;
                 handleSelectBoost((selectedSlotIndex + 1) as 1 | 2 | 3, boostType);
                 setSelectedSlotIndex(null);
+                setTimeout(() => {
+                  isClosingRef.current = false;
+                }, 300);
               }}
             />
           )}
