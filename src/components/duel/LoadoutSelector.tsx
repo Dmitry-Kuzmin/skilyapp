@@ -423,14 +423,28 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           {/* Декоративные линии сверху */}
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
           
-          <SheetHeader className="px-4 pt-4 pb-3 border-b border-white/10 relative z-10">
+          <SheetHeader className="px-4 pt-4 pb-3 border-b border-white/10 relative z-10 flex items-center justify-between">
             <SheetTitle className="font-mono text-sm font-bold text-indigo-400 tracking-wider">
               SELECT MODULE [SLOT {selectedSlotIndex !== null ? selectedSlotIndex + 1 : ''}]
             </SheetTitle>
-            {/* Декоративный текст-призрак */}
-            <div className="absolute top-4 right-4 text-[10px] font-mono text-white/5 tracking-widest">
-              SYS_READY
-            </div>
+            {/* Кнопка очистки в заголовке */}
+            {selectedSlotIndex !== null && (
+              <button
+                onClick={() => {
+                  const slotNumber = (selectedSlotIndex + 1) as 1 | 2 | 3;
+                  handleSelectBoost(slotNumber, null);
+                  isClosingRef.current = true;
+                  setSelectedSlotIndex(null);
+                  setTimeout(() => {
+                    isClosingRef.current = false;
+                  }, 300);
+                }}
+                className="text-xs font-mono text-white/30 hover:text-red-400 transition-colors flex items-center gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">UNEQUIP</span>
+              </button>
+            )}
           </SheetHeader>
           
           {selectedSlotIndex !== null && (
@@ -819,110 +833,47 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
   selectedBoost,
   onSelectBoost,
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const filteredBoosts = useMemo(() => {
-    if (!searchQuery.trim()) return availableBoosts;
-    const query = searchQuery.toLowerCase();
-    return availableBoosts.filter(boost => 
-      boost.name_ru.toLowerCase().includes(query) ||
-      boost.type.toLowerCase().includes(query)
-    );
-  }, [availableBoosts, searchQuery]);
-
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'exploit':
         return {
-          bg: 'bg-red-500/10',
-          border: 'border-red-500/40',
-          text: 'text-red-400',
-          hover: 'hover:bg-red-500/20 hover:border-red-500/60'
+          borderLeft: 'border-l-red-500/60',
+          icon: 'text-red-400',
         };
       case 'defense':
         return {
-          bg: 'bg-blue-500/10',
-          border: 'border-blue-500/40',
-          text: 'text-blue-400',
-          hover: 'hover:bg-blue-500/20 hover:border-blue-500/60'
+          borderLeft: 'border-l-blue-500/60',
+          icon: 'text-blue-400',
         };
       case 'utility':
         return {
-          bg: 'bg-green-500/10',
-          border: 'border-green-500/40',
-          text: 'text-green-400',
-          hover: 'hover:bg-green-500/20 hover:border-green-500/60'
+          borderLeft: 'border-l-green-500/60',
+          icon: 'text-green-400',
         };
       default:
         return {
-          bg: 'bg-zinc-800/50',
-          border: 'border-white/10',
-          text: 'text-zinc-300',
-          hover: 'hover:bg-zinc-800/70 hover:border-white/20'
+          borderLeft: 'border-l-white/20',
+          icon: 'text-zinc-300',
         };
     }
   };
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
-      {/* Поиск */}
-      <div className="px-4 pt-3 pb-3 border-b border-white/10 relative z-10 flex-shrink-0">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-          <input
-            type="text"
-            placeholder="Поиск буста..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={cn(
-              "w-full h-10 pl-10 pr-4 font-mono text-sm",
-              "bg-black/60 border border-white/10 rounded-lg",
-              "text-zinc-200 placeholder:text-zinc-600 placeholder:font-sans",
-              "focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50",
-              "hover:border-zinc-700 transition-all",
-              "backdrop-blur-sm"
-            )}
-            style={{
-              boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.05), inset 0 -1px 0 0 rgba(0, 0, 0, 0.3)'
-            }}
-          />
-        </div>
-      </div>
-
       {/* Scrollable Grid */}
       <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0">
-        {/* Кнопка очистки */}
-        <button
-          onClick={() => onSelectBoost(null)}
-          className={cn(
-            "w-full mb-3 p-3 text-left text-xs font-mono tracking-wider",
-            "text-zinc-400 hover:text-zinc-200",
-            "hover:bg-zinc-800/70 rounded-lg transition-colors",
-            "border border-white/10 hover:border-white/20",
-            "uppercase relative overflow-hidden group"
-          )}
-        >
-          <span className="relative z-10">Очистить слот</span>
-          {/* Декоративная полоска при hover */}
-          <motion.div
-            className="absolute bottom-0 left-0 h-0.5 bg-indigo-500/50"
-            initial={{ width: 0 }}
-            whileHover={{ width: '100%' }}
-            transition={{ duration: 0.3 }}
-          />
-        </button>
-
         {/* Grid бустов */}
-        {filteredBoosts.length === 0 ? (
+        {availableBoosts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="p-3 rounded-full bg-zinc-900 border border-zinc-800 mb-3">
-              <Search className="w-5 h-5 text-zinc-500" />
+            <div className="p-3 rounded-full bg-zinc-900/50 border border-white/10 mb-3">
+              <Shield className="w-5 h-5 text-zinc-500" />
             </div>
-            <p className="text-sm text-zinc-500">Бусты не найдены</p>
+            <p className="text-sm text-zinc-500 mb-2">Инвентарь пуст</p>
+            <p className="text-xs text-zinc-600 font-mono">Go to Black Market</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
-            {filteredBoosts.map((boost) => {
+            {availableBoosts.map((boost) => {
               const colors = getCategoryColor(boost.category);
               const isSelected = selectedBoost?.type === boost.type;
               const categoryLabel = boost.category === 'exploit' ? 'ATK' : boost.category === 'defense' ? 'DEF' : 'UTL';
@@ -931,111 +882,63 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
                 <motion.button
                   key={boost.type}
                   onClick={() => onSelectBoost(boost.type)}
-                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.98 }}
                   className={cn(
-                    "relative group overflow-hidden p-4 rounded-xl border transition-all",
-                    "flex flex-col items-center gap-3",
-                    isSelected
-                      ? `${colors.bg} ${colors.border} shadow-[0_0_20px_rgba(99,102,241,0.4)] ring-2 ring-indigo-500/50`
-                      : `bg-black/40 border-white/5 ${colors.hover}`,
+                    "relative group overflow-hidden p-3 rounded-lg border transition-all",
+                    "flex flex-col items-center gap-2",
+                    "bg-white/5 border-white/10",
+                    "hover:bg-white/10 hover:border-white/20",
+                    isSelected && "border-white/40 bg-white/10",
                     "backdrop-blur-sm"
                   )}
                   style={{
-                    boxShadow: isSelected 
-                      ? `inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 10px 30px -10px rgba(0, 0, 0, 0.6)`
-                      : `inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 4px 12px -4px rgba(0, 0, 0, 0.4)`
+                    boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 2px 8px -2px rgba(0, 0, 0, 0.3)'
                   }}
                 >
-                  {/* Фоновый эффект при наведении - сканирующая полоска */}
-                  <motion.div
-                    className={cn(
-                      "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity",
-                      boost.category === 'exploit' && "bg-gradient-to-r from-transparent via-red-500/10 to-transparent",
-                      boost.category === 'defense' && "bg-gradient-to-r from-transparent via-blue-500/10 to-transparent",
-                      boost.category === 'utility' && "bg-gradient-to-r from-transparent via-green-500/10 to-transparent"
-                    )}
-                    initial={{ x: '-100%' }}
-                    whileHover={{ x: '100%' }}
-                    transition={{ duration: 0.7, ease: "easeInOut" }}
-                  />
-
-                  {/* Noise texture overlay */}
-                  <div 
-                    className="absolute inset-0 opacity-[0.01] mix-blend-overlay pointer-events-none"
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'repeat'
-                    }}
-                  />
-
-                  {/* Иконка в "колбе" */}
+                  {/* Цветная вертикальная полоска слева */}
                   <div 
                     className={cn(
-                      "w-14 h-14 rounded-lg flex items-center justify-center relative",
-                      "bg-black/60 border border-white/10",
-                      "shadow-[inset_0_0_15px_rgba(0,0,0,0.8)]"
+                      "absolute left-0 top-0 bottom-0 w-0.5",
+                      colors.borderLeft
                     )}
-                    style={{
-                      boxShadow: `
-                        inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
-                        inset 0 -1px 0 0 rgba(0, 0, 0, 0.5),
-                        0 0 20px ${boost.category === 'exploit' ? 'rgba(239, 68, 68, 0.3)' : boost.category === 'defense' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(34, 197, 94, 0.3)'}
-                      `
-                    }}
-                  >
+                  />
+
+                  {/* Иконка */}
+                  <div className="flex items-center justify-center relative z-10">
                     <span 
                       className={cn(
-                        "text-2xl",
-                        colors.text
+                        "text-3xl",
+                        colors.icon
                       )}
-                      style={{
-                        filter: `drop-shadow(0 0 8px ${boost.category === 'exploit' ? 'rgba(239, 68, 68, 0.8)' : boost.category === 'defense' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(34, 197, 94, 0.8)'})`
-                      }}
                     >
                       {boost.icon}
                     </span>
                   </div>
 
-                  {/* Название и категория */}
+                  {/* Название */}
                   <div className="text-center w-full relative z-10">
-                    <div className={cn(
-                      "text-[10px] font-mono mb-1 tracking-widest",
-                      isSelected ? "text-white/60" : "text-white/40"
-                    )}>
-                      {categoryLabel}-MODULE
+                    <div className="text-[9px] font-mono mb-0.5 tracking-widest text-white/40 uppercase">
+                      {categoryLabel}
                     </div>
                     <div className={cn(
-                      "text-sm font-bold mb-2 truncate",
+                      "text-xs font-bold truncate leading-tight",
                       isSelected ? "text-white" : "text-zinc-200"
                     )}>
                       {boost.name_ru}
                     </div>
                   </div>
 
-                  {/* Статус редкости - цветная полоска снизу */}
-                  <div 
-                    className={cn(
-                      "absolute bottom-0 left-0 right-0 h-1",
-                      boost.category === 'exploit' && "bg-gradient-to-r from-red-500 via-red-400 to-red-500",
-                      boost.category === 'defense' && "bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500",
-                      boost.category === 'utility' && "bg-gradient-to-r from-green-500 via-green-400 to-green-500"
-                    )}
-                    style={{
-                      boxShadow: `0 -2px 8px ${boost.category === 'exploit' ? 'rgba(239, 68, 68, 0.5)' : boost.category === 'defense' ? 'rgba(59, 130, 246, 0.5)' : 'rgba(34, 197, 94, 0.5)'}`
-                    }}
-                  />
-
-                  {/* Индикатор выбора */}
+                  {/* Индикатор выбора - галочка */}
                   {isSelected && (
                     <motion.div
-                      initial={{ scale: 0, rotate: -180 }}
-                      animate={{ scale: 1, rotate: 0 }}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
                       transition={{ type: "spring", stiffness: 300, damping: 20 }}
                       className="absolute top-2 right-2 z-20"
                     >
-                      <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center shadow-[0_0_12px_rgba(99,102,241,0.8)]">
-                        <Check className="w-3.5 h-3.5 text-white" />
+                      <div className="w-5 h-5 rounded-full bg-white/20 border border-white/40 flex items-center justify-center">
+                        <Check className="w-3 h-3 text-white" />
                       </div>
                     </motion.div>
                   )}
