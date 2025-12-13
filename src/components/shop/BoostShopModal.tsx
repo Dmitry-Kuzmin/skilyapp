@@ -29,6 +29,7 @@ import { trackOfflineAction } from '@/utils/offlineAnalytics';
 import { getPaddleInstance, getPaddleInstanceSync, preloadPaddle } from '@/lib/paddle';
 import type { Paddle } from '@paddle/paddle-js';
 import { useQueryClient } from '@tanstack/react-query';
+import { cn } from '@/lib/utils';
 
 const supabaseClient = supabase as any;
 
