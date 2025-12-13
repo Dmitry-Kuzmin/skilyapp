@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Lock, Coins, Crown, Zap, Check, X, Plus, Cpu } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Lock, Coins, Crown, Zap, Check, X, Plus, Cpu, Search } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { usePremium } from '@/hooks/usePremium';
@@ -361,28 +362,18 @@ const SlotCard: React.FC<SlotCardProps> = ({
   onSelectBoost,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // Закрытие по клику вне элемента
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        isOpen &&
-        dropdownRef.current &&
-        cardRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
-        !cardRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isOpen]);
+  // Фильтрация бустов по поисковому запросу
+  const filteredBoosts = useMemo(() => {
+    if (!searchQuery.trim()) return availableBoosts;
+    const query = searchQuery.toLowerCase();
+    return availableBoosts.filter(boost => 
+      boost.name_ru.toLowerCase().includes(query) ||
+      boost.type.toLowerCase().includes(query)
+    );
+  }, [availableBoosts, searchQuery]);
 
   const canUnlock = isPremium
     ? userHasPremium
@@ -527,41 +518,97 @@ const SlotCard: React.FC<SlotCardProps> = ({
                   </div>
                 </motion.div>
 
-                {/* Кнопка закрытия - Увеличена touch area */}
-                <motion.button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsOpen(!isOpen);
-                  }}
-                  className="absolute -top-1.5 -right-1.5 w-7 h-7 rounded-full bg-zinc-800/90 hover:bg-zinc-700 border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg z-20"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <X className="w-3.5 h-3.5 text-zinc-300" />
-                </motion.button>
+                {/* Кнопка замены - открывает Popover */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <motion.button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                      className="absolute -top-1.5 -right-1.5 w-7 h-7 rounded-full bg-zinc-800/90 hover:bg-zinc-700 border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg z-20"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <X className="w-3.5 h-3.5 text-zinc-300" />
+                    </motion.button>
+                  </PopoverTrigger>
+                  <PopoverContent 
+                    align="start" 
+                    side="bottom"
+                    sideOffset={8}
+                    className={cn(
+                      "w-[280px] p-0 bg-zinc-950/98 backdrop-blur-xl",
+                      "border-white/20 rounded-xl shadow-2xl shadow-black/80",
+                      "z-[200]"
+                    )}
+                  >
+                    <BoostSelectContent
+                      availableBoosts={availableBoosts}
+                      selectedBoost={selectedBoost}
+                      searchQuery={searchQuery}
+                      onSearchChange={setSearchQuery}
+                      onSelectBoost={(boostType) => {
+                        onSelectBoost(boostType);
+                        setSearchQuery('');
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
               </motion.div>
             ) : (
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Button
-                  onClick={() => setIsOpen(!isOpen)}
-                  variant="outline"
-                  size="sm"
-                  className="w-full h-10 border-white/10 bg-zinc-900/50 hover:bg-zinc-800/50 hover:border-indigo-500/30 text-zinc-300 hover:text-zinc-100 text-xs font-medium relative overflow-hidden"
+              <Popover open={isOpen} onOpenChange={setIsOpen}>
+                <PopoverTrigger asChild>
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full h-10 border-white/10 bg-zinc-900/50 hover:bg-zinc-800/50 hover:border-indigo-500/30 text-zinc-300 hover:text-zinc-100 text-xs font-medium relative overflow-hidden"
+                    >
+                      {/* Watermark иконка микросхемы */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-10">
+                        <Cpu className="w-8 h-8 text-zinc-400" />
+                      </div>
+                      
+                      <div className="relative z-10 flex items-center gap-1.5">
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Выбрать</span>
+                      </div>
+                    </Button>
+                  </motion.div>
+                </PopoverTrigger>
+                <PopoverContent 
+                  align="start" 
+                  side="bottom"
+                  sideOffset={8}
+                  className={cn(
+                    "w-[280px] p-0 bg-zinc-950/98 backdrop-blur-xl",
+                    "border-white/20 rounded-xl shadow-2xl shadow-black/80",
+                    "z-[200]"
+                  )}
+                  onOpenAutoFocus={(e) => {
+                    // Фокус на поиск при открытии
+                    const searchInput = e.currentTarget.querySelector('input[type="text"]') as HTMLInputElement;
+                    if (searchInput) {
+                      setTimeout(() => searchInput.focus(), 0);
+                    }
+                  }}
                 >
-                  {/* Watermark иконка микросхемы */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-10">
-                    <Cpu className="w-8 h-8 text-zinc-400" />
-                  </div>
-                  
-                  <div className="relative z-10 flex items-center gap-1.5">
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Выбрать</span>
-                  </div>
-                </Button>
-              </motion.div>
+                  <BoostSelectContent
+                    availableBoosts={availableBoosts}
+                    selectedBoost={selectedBoost}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    onSelectBoost={(boostType) => {
+                      onSelectBoost(boostType);
+                      setIsOpen(false);
+                      setSearchQuery('');
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
             )}
           </div>
         ) : (
@@ -610,69 +657,125 @@ const SlotCard: React.FC<SlotCardProps> = ({
           </motion.div>
         )}
 
-        {/* Выпадающий список бустов - КРИТИЧНО: Высокий z-index и отступ снизу */}
-        <AnimatePresence>
-          {isOpen && isUnlocked && (
-            <motion.div
-              ref={dropdownRef}
-              initial={{ opacity: 0, y: -8, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.95 }}
-              transition={{ duration: 0.15 }}
-              className="absolute top-full left-0 right-0 mt-2 z-[200] bg-zinc-950/98 backdrop-blur-xl border border-white/20 rounded-xl p-2 max-h-64 overflow-y-auto space-y-1 shadow-2xl shadow-black/80 mb-20"
-              style={{ marginBottom: '80px' }} // ✅ КРИТИЧНО: Отступ снизу чтобы не перекрывалось кнопкой
-            >
-              <button
-                onClick={() => {
-                  onSelectBoost(null);
-                  setIsOpen(false);
-                }}
-                className="w-full p-2.5 text-left text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/70 rounded-lg transition-colors border border-transparent hover:border-white/10"
-              >
-                Очистить слот
-              </button>
-              {availableBoosts.map((boost) => (
-                <motion.button
-                  key={boost.type}
-                  onClick={() => {
-                    onSelectBoost(boost.type);
-                    setIsOpen(false);
-                  }}
-                  whileHover={{ scale: 1.02, x: 2 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={cn(
-                    "w-full p-2.5 text-left rounded-lg transition-all flex items-center gap-2.5 border",
-                    selectedBoost?.type === boost.type
-                      ? "bg-indigo-500/20 border-indigo-500/40 shadow-[0_0_10px_rgba(99,102,241,0.3)]"
-                      : "border-transparent hover:bg-zinc-800/70 hover:border-white/10"
-                  )}
-                >
-                  <span className="text-lg">{boost.icon}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-zinc-200 truncate">
-                      {boost.name_ru}
-                    </div>
-                    <div className="text-xs font-medium text-zinc-500 mt-0.5">
-                      {boost.category === 'exploit' && 'Атака'}
-                      {boost.category === 'defense' && 'Защита'}
-                      {boost.category === 'utility' && 'Утилита'}
-                    </div>
-                  </div>
-                  {selectedBoost?.type === boost.type && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring" }}
-                    >
-                      <Check className="w-4 h-4 text-indigo-400 shrink-0" />
-                    </motion.div>
-                  )}
-                </motion.button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
       </motion.div>
     </div>
+  );
+};
+
+// Компонент для содержимого выбора буста (используется в Popover)
+interface BoostSelectContentProps {
+  availableBoosts: Boost[];
+  selectedBoost: Boost | null;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  onSelectBoost: (boostType: string | null) => void;
+}
+
+const BoostSelectContent: React.FC<BoostSelectContentProps> = ({
+  availableBoosts,
+  selectedBoost,
+  searchQuery,
+  onSearchChange,
+  onSelectBoost,
+}) => {
+  const filteredBoosts = useMemo(() => {
+    if (!searchQuery.trim()) return availableBoosts;
+    const query = searchQuery.toLowerCase();
+    return availableBoosts.filter(boost => 
+      boost.name_ru.toLowerCase().includes(query) ||
+      boost.type.toLowerCase().includes(query)
+    );
+  }, [availableBoosts, searchQuery]);
+
+  return (
+    <>
+      {/* Поиск */}
+      <div className="p-2 border-b border-white/10">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500" />
+          <input
+            type="text"
+            placeholder="Поиск буста..."
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className={cn(
+              "w-full h-9 pl-8 pr-3",
+              "bg-zinc-900/50 border border-white/10 rounded-lg",
+              "text-sm text-zinc-200 placeholder:text-zinc-600",
+              "focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50",
+              "hover:border-zinc-700 transition-all"
+            )}
+          />
+        </div>
+      </div>
+
+      {/* Список бустов */}
+      <div className="max-h-64 overflow-y-auto p-2 space-y-1">
+        {/* Кнопка очистки */}
+        <button
+          onClick={() => onSelectBoost(null)}
+          className={cn(
+            "w-full p-2.5 text-left text-xs font-medium",
+            "text-zinc-400 hover:text-zinc-200",
+            "hover:bg-zinc-800/70 rounded-lg transition-colors",
+            "border border-transparent hover:border-white/10"
+          )}
+        >
+          Очистить слот
+        </button>
+
+        {/* Разделитель */}
+        {filteredBoosts.length > 0 && (
+          <div className="h-px bg-white/5 my-1" />
+        )}
+
+        {/* Список бустов */}
+        {filteredBoosts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <div className="p-2 rounded-full bg-zinc-900 border border-zinc-800 mb-2">
+              <Search className="w-4 h-4 text-zinc-500" />
+            </div>
+            <p className="text-xs text-zinc-500">Бусты не найдены</p>
+          </div>
+        ) : (
+          filteredBoosts.map((boost) => (
+            <motion.button
+              key={boost.type}
+              onClick={() => onSelectBoost(boost.type)}
+              whileHover={{ scale: 1.01, x: 2 }}
+              whileTap={{ scale: 0.99 }}
+              className={cn(
+                "w-full p-2.5 text-left rounded-lg transition-all",
+                "flex items-center gap-2.5 border",
+                selectedBoost?.type === boost.type
+                  ? "bg-indigo-500/20 border-indigo-500/40 shadow-[0_0_10px_rgba(99,102,241,0.3)]"
+                  : "border-transparent hover:bg-zinc-800/70 hover:border-white/10"
+              )}
+            >
+              <span className="text-lg">{boost.icon}</span>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold text-zinc-200 truncate">
+                  {boost.name_ru}
+                </div>
+                <div className="text-xs font-medium text-zinc-500 mt-0.5">
+                  {boost.category === 'exploit' && 'Атака'}
+                  {boost.category === 'defense' && 'Защита'}
+                  {boost.category === 'utility' && 'Утилита'}
+                </div>
+              </div>
+              {selectedBoost?.type === boost.type && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring" }}
+                >
+                  <Check className="w-4 h-4 text-indigo-400 shrink-0" />
+                </motion.div>
+              )}
+            </motion.button>
+          ))
+        )}
+      </div>
+    </>
   );
 };
