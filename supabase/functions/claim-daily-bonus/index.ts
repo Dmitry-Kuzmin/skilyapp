@@ -61,8 +61,29 @@ serve(async (req) => {
       );
     }
 
+    // Нормализуем last_claimed_date для сравнения (может быть Date объектом или строкой)
+    let normalizedLastClaimedDate: string | null = null;
+    if (existingBonus?.last_claimed_date) {
+      if (typeof existingBonus.last_claimed_date === 'string') {
+        normalizedLastClaimedDate = existingBonus.last_claimed_date.split('T')[0]; // YYYY-MM-DD
+      } else if (existingBonus.last_claimed_date instanceof Date) {
+        normalizedLastClaimedDate = existingBonus.last_claimed_date.toISOString().split('T')[0];
+      } else {
+        // Если это объект с методами, пытаемся преобразовать
+        normalizedLastClaimedDate = String(existingBonus.last_claimed_date).split('T')[0];
+      }
+    }
+
+    console.log('[claim-daily-bonus] Date comparison:', {
+      todayDateString,
+      yesterdayDateString,
+      last_claimed_date_raw: existingBonus?.last_claimed_date,
+      normalizedLastClaimedDate,
+      current_streak: existingBonus?.current_streak
+    });
+
     // Если бонус уже получен сегодня (UTC) - возвращаем существующий результат
-    if (existingBonus && existingBonus.last_claimed_date === todayDateString) {
+    if (existingBonus && normalizedLastClaimedDate === todayDateString) {
       console.log('[claim-daily-bonus] Already claimed today (UTC):', todayDateString);
       
       // Получаем награду для текущего streak
@@ -88,17 +109,34 @@ serve(async (req) => {
     // Вычисляем новый streak на сервере
     let newStreak = 1;
     if (existingBonus) {
-      if (existingBonus.last_claimed_date === yesterdayDateString) {
+      if (normalizedLastClaimedDate === yesterdayDateString) {
         // Продолжаем streak
         newStreak = (existingBonus.current_streak || 0) + 1;
+        console.log('[claim-daily-bonus] Continuing streak:', {
+          previous_streak: existingBonus.current_streak,
+          new_streak: newStreak
+        });
       } else {
         // Streak прерван - начинаем заново
         newStreak = 1;
+        console.log('[claim-daily-bonus] Streak broken, starting new:', {
+          last_claimed: normalizedLastClaimedDate,
+          yesterday: yesterdayDateString,
+          previous_streak: existingBonus.current_streak
+        });
       }
+    } else {
+      console.log('[claim-daily-bonus] No existing bonus, starting new streak');
     }
 
     // Циклический расчет: день недели (1-7)
     const weekDay = (newStreak % 7) || 7;
+
+    console.log('[claim-daily-bonus] Week day calculation:', {
+      newStreak,
+      weekDay,
+      calculation: `(${newStreak} % 7) || 7 = ${newStreak % 7} || 7 = ${weekDay}`
+    });
 
     // Получаем награду по дню недели
     const { data: rewardDef, error: rewardError } = await supabase

@@ -50,7 +50,7 @@ export function ResponsiveModal({
       >
         <DrawerContent
           className={cn(
-            "bg-zinc-900 border-zinc-800 border-t-white/10 flex flex-col max-h-[90vh]",
+            "bg-background border-border border-t-border/50 flex flex-col max-h-[90vh]",
             className
           )}
           onInteractOutside={(e) => {
@@ -65,9 +65,9 @@ export function ResponsiveModal({
             </div>
           ) : title ? (
             <DrawerHeader className={cn("text-left shrink-0", contentClassName)}>
-              <DrawerTitle className="text-zinc-200">{title}</DrawerTitle>
+              <DrawerTitle className="text-foreground">{title}</DrawerTitle>
               {description && (
-                <DrawerDescription className="text-zinc-400">
+                <DrawerDescription className="text-muted-foreground">
                   {description}
                 </DrawerDescription>
               )}
@@ -99,7 +99,7 @@ export function ResponsiveModal({
       <DialogContent
         className={cn(
           defaultMaxWidth,
-          "bg-zinc-900 border-zinc-800 border-white/10 flex flex-col max-h-[90vh] p-0",
+          "bg-background border-border flex flex-col max-h-[90vh] p-0",
           className
         )}
         hideCloseButton={hideCloseButton}
@@ -111,9 +111,9 @@ export function ResponsiveModal({
           </div>
         ) : title ? (
           <DialogHeader className={cn("shrink-0 px-4 md:px-6 pt-4 md:pt-6 pb-3 md:pb-4", contentClassName)}>
-            <DialogTitle className="text-zinc-200">{title}</DialogTitle>
+            <DialogTitle className="text-foreground">{title}</DialogTitle>
             {description && (
-              <DialogDescription className="text-zinc-400">
+              <DialogDescription className="text-muted-foreground">
                 {description}
               </DialogDescription>
             )}
