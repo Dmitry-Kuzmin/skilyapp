@@ -89,7 +89,45 @@ const Index = lazy(() =>
 const LearningMap = lazy(() => import("./pages/LearningMap"));
 const TopicDetail = lazy(() => import("./pages/TopicDetail"));
 const SubtopicDetail = lazy(() => import("./pages/SubtopicDetail"));
-const Tests = lazy(() => import("./pages/Tests"));
+
+// Обработка ошибок для lazy loading Tests
+const TestsErrorFallback = () => {
+  useEffect(() => {
+    console.error("[App] Tests module failed to load");
+  }, []);
+  return (
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
+      <div className="max-w-md w-full space-y-4 text-center">
+        <h1 className="text-2xl font-bold text-white">Ошибка загрузки</h1>
+        <p className="text-sm text-zinc-400">
+          Не удалось загрузить модуль тестов. Попробуйте обновить страницу.
+        </p>
+        <button
+          onClick={() => {
+            if (typeof window !== 'undefined') {
+              window.location.reload();
+            }
+          }}
+          className="w-full h-12 px-4 bg-white text-black font-semibold rounded-xl hover:shadow-lg transition-shadow"
+        >
+          Обновить страницу
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const Tests = lazy(() => 
+  import("./pages/Tests").catch((error) => {
+    console.error("[App] Failed to load Tests module:", error);
+    if (error?.message?.includes('MIME type') || error?.message?.includes('text/html')) {
+      console.error("[App] MIME type error detected for Tests");
+      return { default: TestsErrorFallback };
+    }
+    return { default: TestsErrorFallback };
+  })
+);
+
 const Learning = lazy(() => import("./pages/Learning"));
 const Games = lazy(() => import("./pages/Games"));
 const NotFound = lazy(() => import("./pages/NotFound"));
