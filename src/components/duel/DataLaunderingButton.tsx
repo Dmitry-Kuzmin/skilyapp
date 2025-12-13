@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Video, Coins, Loader2 } from 'lucide-react';
+import { Video, Coins, Loader2, Clock, Lock } from 'lucide-react';
 import { RewardedAdModal } from '@/components/monetization/RewardedAdModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
@@ -9,6 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
+import { useAdRewardStatus } from '@/hooks/useAdRewardStatus';
 
 interface DataLaunderingButtonProps {
   winnings: number;
@@ -25,8 +26,64 @@ export function DataLaunderingButton({ winnings, duelId, className }: DataLaunde
   const queryClient = useQueryClient();
   const [showAdModal, setShowAdModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  // Проверяем статус рекламы (double_winnings: без лимитов, но с кулдауном 60 минут)
+  const { 
+    canWatch, 
+    nextAvailableAt, 
+    dailyCount, 
+    dailyLimit, 
+    cooldownMinutes,
+    refetch 
+  } = useAdRewardStatus(
+    profileId,
+    'double_winnings',
+    { 
+      enabled: !!profileId && winnings > 0,
+      dailyLimit: 999, // Без дневного лимита (но можно ограничить)
+      cooldownMinutes: 60, // 1 час кулдаун
+      refetchInterval: 30000, // Обновляем каждые 30 секунд
+    }
+  );
+
+  // Обновляем статус после закрытия модалки рекламы
+  useEffect(() => {
+    if (!showAdModal && profileId) {
+      const timer = setTimeout(() => {
+        refetch();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [showAdModal, profileId, refetch]);
+
+  const getTimeUntilAvailable = () => {
+    if (!nextAvailableAt) return null;
+    
+    const now = new Date();
+    const diff = nextAvailableAt.getTime() - now.getTime();
+    
+    if (diff <= 0) return null;
+    
+    const minutes = Math.floor(diff / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const timeUntilAvailable = getTimeUntilAvailable();
+  const isOnCooldown = !!timeUntilAvailable;
 
   const handleWatchAd = () => {
+    // Проверяем лимиты перед показом модалки
+    if (!canWatch && isOnCooldown) {
+      toast({
+        title: 'Кулдаун активен',
+        description: `Подожди ${Math.ceil((nextAvailableAt!.getTime() - Date.now()) / 60000)} минут перед следующим просмотром.`,
+        variant: 'default',
+      });
+      return;
+    }
+
     setShowAdModal(true);
   };
 
@@ -61,6 +118,9 @@ export function DataLaunderingButton({ winnings, duelId, className }: DataLaunde
         
         // Обновляем данные дуэли
         await queryClient.invalidateQueries({ queryKey: ['duel-results', duelId] });
+        
+        // Обновляем статус рекламы
+        await refetch();
 
         sounds.correctAnswer();
         haptics.boostActivated();
@@ -74,11 +134,22 @@ export function DataLaunderingButton({ winnings, duelId, className }: DataLaunde
       }
     } catch (err: any) {
       console.error('[DataLaunderingButton] Error claiming reward:', err);
-      toast({
-        title: 'Ошибка',
-        description: err.message || 'Не удалось удвоить выигрыш',
-        variant: 'destructive',
-      });
+      
+      // Обрабатываем ошибки лимитов
+      if (err.message?.includes('cooldown')) {
+        toast({
+          title: 'Кулдаун активен',
+          description: err.message || 'Подожди перед следующим просмотром',
+          variant: 'default',
+        });
+        await refetch(); // Обновляем статус
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: err.message || 'Не удалось удвоить выигрыш',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -88,7 +159,7 @@ export function DataLaunderingButton({ winnings, duelId, className }: DataLaunde
     <>
       <Button
         onClick={handleWatchAd}
-        disabled={loading || winnings === 0}
+        disabled={loading || winnings === 0 || isOnCooldown}
         className={cn(
           "w-full p-4 bg-gradient-to-r from-violet-500/20 to-indigo-500/20",
           "border border-violet-500/50 rounded-xl",
@@ -100,19 +171,37 @@ export function DataLaunderingButton({ winnings, duelId, className }: DataLaunde
         )}
       >
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-violet-500/20 rounded-lg">
-            <Video className="text-violet-400 w-6 h-6" />
+          <div className={cn(
+            "p-2 bg-violet-500/20 rounded-lg",
+            isOnCooldown && "opacity-50"
+          )}>
+            {isOnCooldown ? (
+              <Clock className="text-violet-400 w-6 h-6" />
+            ) : (
+              <Video className="text-violet-400 w-6 h-6" />
+            )}
           </div>
           <div className="text-left">
             <div className="text-white font-bold font-mono">DATA LAUNDERING</div>
             <div className="text-[10px] text-violet-400/80 font-mono">
-              Удвой выигрыш
+              {isOnCooldown ? (
+                `COOLDOWN (${timeUntilAvailable})`
+              ) : (
+                'Удвой выигрыш'
+              )}
             </div>
+            {!isOnCooldown && (
+              <div className="text-[9px] text-violet-400/60 font-mono mt-0.5">
+                {cooldownMinutes}min cooldown
+              </div>
+            )}
           </div>
         </div>
         <div className="text-right">
           <span className="text-white font-mono font-bold block">+{winnings} 🟡</span>
-          <span className="text-[10px] text-white/40 uppercase">Watch Ad</span>
+          <span className="text-[10px] text-white/40 uppercase">
+            {isOnCooldown ? 'Wait' : 'Watch Ad'}
+          </span>
         </div>
       </Button>
 

@@ -5,6 +5,8 @@ import { useQuery } from '@tanstack/react-query';
 interface AdRewardStatusOptions {
   enabled?: boolean;
   refetchInterval?: number;
+  dailyLimit?: number;
+  cooldownMinutes?: number;
 }
 
 /**

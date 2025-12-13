@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Cpu, Video, Loader2, Lock, Clock } from 'lucide-react';
+import { Cpu, Video, Loader2, Lock, Clock, Info } from 'lucide-react';
 import { RewardedAdModal } from '@/components/monetization/RewardedAdModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
@@ -9,6 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
+import { useAdRewardStatus } from '@/hooks/useAdRewardStatus';
 
 interface CryptoMinerAdButtonProps {
   className?: string;
@@ -23,58 +24,36 @@ export function CryptoMinerAdButton({ className }: CryptoMinerAdButtonProps) {
   const queryClient = useQueryClient();
   const [showAdModal, setShowAdModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [adStatus, setAdStatus] = useState<{
-    canWatch: boolean;
-    nextAvailableAt?: Date;
-    dailyCount?: number;
-    dailyLimit?: number;
-  } | null>(null);
-
-  // Проверяем статус рекламы (можно ли смотреть, кулдаун, лимиты)
-  const checkAdStatus = async () => {
-    if (!profileId) return;
-
-    try {
-      const { data, error } = await supabase.functions.invoke('check-ad-reward-status', {
-        body: { user_id: profileId, reward_type: 'coins' }
-      });
-
-      if (error) throw error;
-
-      setAdStatus({
-        canWatch: data.can_watch || false,
-        nextAvailableAt: data.next_available_at ? new Date(data.next_available_at) : undefined,
-        dailyCount: data.daily_count || 0,
-        dailyLimit: data.daily_limit || 5,
-      });
-    } catch (err: any) {
-      console.error('[CryptoMinerAdButton] Error checking ad status:', err);
-      // По умолчанию разрешаем смотреть (если сервер недоступен)
-      setAdStatus({
-        canWatch: true,
-        dailyCount: 0,
-        dailyLimit: 5,
-      });
+  
+  // Проверяем статус рекламы через хук (coins: 5 раз в день, кулдаун 60 минут)
+  const { 
+    canWatch, 
+    nextAvailableAt, 
+    dailyCount, 
+    dailyLimit, 
+    cooldownMinutes,
+    refetch 
+  } = useAdRewardStatus(
+    profileId,
+    'coins',
+    { 
+      enabled: !!profileId,
+      dailyLimit: 5, // 5 раз в день
+      cooldownMinutes: 60, // 1 час кулдаун
+      refetchInterval: 30000, // Обновляем каждые 30 секунд для актуального таймера
     }
-  };
-
-  // Загружаем статус при монтировании и после закрытия модалки
-  useEffect(() => {
-    if (profileId) {
-      checkAdStatus();
-    }
-  }, [profileId]);
+  );
 
   // Обновляем статус после закрытия модалки рекламы
   useEffect(() => {
     if (!showAdModal && profileId) {
       // Небольшая задержка, чтобы дать время серверу обработать запрос
       const timer = setTimeout(() => {
-        checkAdStatus();
+        refetch();
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [showAdModal, profileId]);
+  }, [showAdModal, profileId, refetch]);
 
   const handleWatchAd = async () => {
     if (!profileId) {
@@ -83,6 +62,27 @@ export function CryptoMinerAdButton({ className }: CryptoMinerAdButtonProps) {
         description: 'Необходимо войти в систему',
         variant: 'destructive',
       });
+      return;
+    }
+
+    // Проверяем лимиты перед показом модалки
+    if (!canWatch) {
+      if (dailyCount && dailyLimit && dailyCount >= dailyLimit) {
+        toast({
+          title: 'Дневной лимит достигнут',
+          description: `Ты уже посмотрел ${dailyLimit} реклам сегодня. Попробуй завтра!`,
+          variant: 'default',
+        });
+      } else if (nextAvailableAt) {
+        const now = new Date();
+        const diff = nextAvailableAt.getTime() - now.getTime();
+        const minutes = Math.ceil(diff / 60000);
+        toast({
+          title: 'Кулдаун активен',
+          description: `Подожди ${minutes} минут перед следующим просмотром.`,
+          variant: 'default',
+        });
+      }
       return;
     }
 
@@ -108,7 +108,7 @@ export function CryptoMinerAdButton({ className }: CryptoMinerAdButtonProps) {
         await queryClient.invalidateQueries({ queryKey: ['profile-data', profileId] });
         
         // Обновляем статус рекламы
-        await checkAdStatus();
+        await refetch();
 
         sounds.correctAnswer();
         haptics.boostActivated();
@@ -122,21 +122,32 @@ export function CryptoMinerAdButton({ className }: CryptoMinerAdButtonProps) {
       }
     } catch (err: any) {
       console.error('[CryptoMinerAdButton] Error claiming reward:', err);
-      toast({
-        title: 'Ошибка',
-        description: err.message || 'Не удалось начислить монеты',
-        variant: 'destructive',
-      });
+      
+      // Обрабатываем ошибки лимитов
+      if (err.message?.includes('daily limit') || err.message?.includes('cooldown')) {
+        toast({
+          title: 'Лимит достигнут',
+          description: err.message || 'Ты уже использовал все доступные просмотры',
+          variant: 'default',
+        });
+        await refetch(); // Обновляем статус
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: err.message || 'Не удалось начислить монеты',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const getTimeUntilAvailable = () => {
-    if (!adStatus?.nextAvailableAt) return null;
+    if (!nextAvailableAt) return null;
     
     const now = new Date();
-    const diff = adStatus.nextAvailableAt.getTime() - now.getTime();
+    const diff = nextAvailableAt.getTime() - now.getTime();
     
     if (diff <= 0) return null;
     
@@ -148,8 +159,8 @@ export function CryptoMinerAdButton({ className }: CryptoMinerAdButtonProps) {
 
   const timeUntilAvailable = getTimeUntilAvailable();
   const isOnCooldown = !!timeUntilAvailable;
-  const isDailyLimitReached = adStatus?.dailyCount && adStatus?.dailyLimit 
-    ? adStatus.dailyCount >= adStatus.dailyLimit 
+  const isDailyLimitReached = dailyCount && dailyLimit 
+    ? dailyCount >= dailyLimit 
     : false;
 
   return (
@@ -181,13 +192,19 @@ export function CryptoMinerAdButton({ className }: CryptoMinerAdButtonProps) {
             <div className="text-white font-bold font-mono">CRYPTO MINER</div>
             <div className="text-[10px] text-yellow-500/80 font-mono">
               {isDailyLimitReached ? (
-                'STATUS: DAILY LIMIT REACHED'
+                `STATUS: LIMIT (${dailyCount}/${dailyLimit})`
               ) : isOnCooldown ? (
                 `STATUS: COOLDOWN (${timeUntilAvailable})`
               ) : (
-                'STATUS: READY'
+                `STATUS: READY (${dailyCount || 0}/${dailyLimit || 5})`
               )}
             </div>
+            {/* Информация о лимитах */}
+            {!isDailyLimitReached && !isOnCooldown && (
+              <div className="text-[9px] text-yellow-500/60 font-mono mt-0.5">
+                {cooldownMinutes}min cooldown
+              </div>
+            )}
           </div>
         </div>
         <div className="text-right">
