@@ -149,7 +149,13 @@ const TestResults = () => {
       <Layout>
         <div className="container mx-auto px-4 py-8 text-center">
           <p className="text-muted-foreground mb-4">No hay datos de resultados del test</p>
-          <Button onClick={() => navigate("/tests")}>
+          <Button onClick={() => {
+            // Показываем Interstitial при возврате (только для обычных пользователей, один раз за сессию)
+            if (!isPremium) {
+              setShouldShowInterstitial(true);
+            }
+            setTimeout(() => navigate("/tests"), 100);
+          }}>
             Volver a los tests
           </Button>
         </div>
@@ -916,7 +922,13 @@ const TestResults = () => {
             <Button
               variant="outline"
               className="w-full mt-4"
-              onClick={() => navigate(mode === "sequential" ? "/tests/sequential" : "/tests")}
+              onClick={() => {
+                // Показываем Interstitial при возврате (только для обычных пользователей, один раз за сессию)
+                if (!isPremium) {
+                  setShouldShowInterstitial(true);
+                }
+                setTimeout(() => navigate(mode === "sequential" ? "/tests/sequential" : "/tests"), 100);
+              }}
             >
               <TrendingUp className="w-4 h-4 mr-2" />
               Practicar más temas
@@ -926,7 +938,13 @@ const TestResults = () => {
 
         <div className="flex flex-col sm:flex-row gap-3 mt-6">
           <Button 
-            onClick={() => navigate(mode === "sequential" ? "/tests/sequential" : "/tests")} 
+            onClick={() => {
+              // Показываем Interstitial при возврате (только для обычных пользователей, один раз за сессию)
+              if (!isPremium) {
+                setShouldShowInterstitial(true);
+              }
+              setTimeout(() => navigate(mode === "sequential" ? "/tests/sequential" : "/tests"), 100);
+            }}
             variant="outline" 
             className="flex-1"
             size="lg"
