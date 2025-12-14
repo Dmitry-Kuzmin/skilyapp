@@ -299,8 +299,12 @@
     <!-- Telegram WebApp Scripts - загружаем асинхронно, не блокируя рендеринг -->
     <!-- КРИТИЧНО: telegram-web-app.js нужен для инициализации, загружаем с defer -->
     <!-- crossorigin="anonymous" для лучшей совместимости с Safari Privacy -->
-    <!-- AdsGram SDK -->
+    <!-- AdsGram SDK (для Telegram Mini App) -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    
+    <!-- Monetag Rewarded Interstitial SDK (для веб-версии) -->
+    <!-- Zone ID нужно получить из Monetag кабинета после создания Rewarded Interstitial блока -->
+    <script src="https://domain.com/sdk.js" data-zone="10323437" data-sdk="show_10323437" async></script>
     
     <script src="https://telegram.org/js/telegram-web-app.js" defer crossorigin="anonymous"></script>
     <!-- ОПТИМИЗАЦИЯ: telegram-widget.js откладываем до взаимодействия пользователя -->

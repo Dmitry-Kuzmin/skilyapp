@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { isTelegramMiniApp } from '@/lib/telegram';
 import { usePremium } from './usePremium';
 import { initAdsGram, showAdsGramRewardedVideo } from '@/lib/adsgram';
+import { initMonetag, showMonetagRewardedVideo } from '@/lib/monetag';
 
 /**
  * Типы наград за просмотр рекламы
@@ -37,13 +38,13 @@ export function useRewardedAd() {
       return false;
     }
 
-    // В Telegram Mini App реклама доступна
+    // В Telegram Mini App реклама доступна (AdsGram)
     if (isTelegramMiniApp()) {
       return true;
     }
 
-    // В веб-версии пока не поддерживается
-    return false;
+    // В веб-версии используем Monetag Rewarded Interstitial
+    return true;
   }, [isPremium]);
 
   // Инициализация SDK при монтировании
@@ -52,31 +53,37 @@ export function useRewardedAd() {
       return;
     }
 
-    // Ждем загрузки SDK скрипта
-    const checkSDK = () => {
-      if (typeof window !== 'undefined' && window.Adsgram) {
-        initAdsGram();
-      } else {
-        // Проверяем каждые 100мс до 5 секунд
-        let attempts = 0;
-        const interval = setInterval(() => {
-          attempts++;
-          if (window.Adsgram || attempts > 50) {
-            clearInterval(interval);
-            if (window.Adsgram) {
-              initAdsGram();
+    // В Telegram Mini App используем AdsGram
+    if (isTelegramMiniApp()) {
+      // Ждем загрузки AdsGram SDK скрипта
+      const checkSDK = () => {
+        if (typeof window !== 'undefined' && window.Adsgram) {
+          initAdsGram();
+        } else {
+          // Проверяем каждые 100мс до 5 секунд
+          let attempts = 0;
+          const interval = setInterval(() => {
+            attempts++;
+            if (window.Adsgram || attempts > 50) {
+              clearInterval(interval);
+              if (window.Adsgram) {
+                initAdsGram();
+              }
             }
-          }
-        }, 100);
-      }
-    };
+          }, 100);
+        }
+      };
 
-    // Если DOM уже загружен
-    if (document.readyState === 'complete') {
-      checkSDK();
+      // Если DOM уже загружен
+      if (document.readyState === 'complete') {
+        checkSDK();
+      } else {
+        window.addEventListener('load', checkSDK);
+        return () => window.removeEventListener('load', checkSDK);
+      }
     } else {
-      window.addEventListener('load', checkSDK);
-      return () => window.removeEventListener('load', checkSDK);
+      // В веб-версии используем Monetag
+      initMonetag();
     }
   }, [isAvailable]);
 
@@ -92,7 +99,16 @@ export function useRewardedAd() {
     setError(null);
 
     try {
-      const rewarded = await showAdsGramRewardedVideo();
+      let rewarded: boolean;
+      
+      // В Telegram Mini App используем AdsGram
+      if (isTelegramMiniApp()) {
+        rewarded = await showAdsGramRewardedVideo();
+      } else {
+        // В веб-версии используем Monetag
+        rewarded = await showMonetagRewardedVideo();
+      }
+      
       setLoading(false);
       return rewarded;
     } catch (err: any) {
