@@ -161,12 +161,16 @@ export function useDuelGame({
         setMyPhotoUrl(getImageUrl(myPlayer.profiles.photo_url));
       }
       
-      // Для бота используем дефолтный аватар, для реального игрока - его фото
+      // Для бота используем null, чтобы показывался fallback с инициалами
+      // Для реального игрока - его фото
       if (opponent?.is_bot) {
-        // Используем дефолтный аватар для бота (можно заменить на сгенерированный)
-        setOpponentPhotoUrl('/avatars/bot-default.png');
+        // Для бота всегда показываем аватар с инициалами
+        setOpponentPhotoUrl(null);
       } else if (opponent?.profiles?.photo_url) {
         setOpponentPhotoUrl(getImageUrl(opponent.profiles.photo_url));
+      } else {
+        // Если у реального игрока нет фото - тоже показываем инициалы
+        setOpponentPhotoUrl(null);
       }
     } catch (error) {
       logError('[useDuelGame] Error syncing players:', error);

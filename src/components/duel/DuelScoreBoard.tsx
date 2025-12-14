@@ -169,12 +169,25 @@ export const DuelScoreBoard = memo(({
           </motion.div>
         </div>
         <div className="relative">
-          {opponentPhotoUrl ? (
+          {opponentPhotoUrl && opponentPhotoUrl.trim() !== '' && !opponentPhotoUrl.includes('undefined') && !opponentPhotoUrl.includes('null') ? (
             <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl overflow-hidden border-2 border-orange-500/50 shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
               <img
                 src={opponentPhotoUrl}
                 alt={opponentName}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  // Если изображение не загрузилось - скрываем img и показываем fallback
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = `
+                      <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
+                        <span class="text-sm md:text-base font-bold text-white select-none">${getInitials(opponentName)}</span>
+                      </div>
+                    `;
+                  }
+                }}
               />
             </div>
           ) : (
