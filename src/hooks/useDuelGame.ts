@@ -186,16 +186,59 @@ export function useDuelGame({
       log('[useDuelGame] ⚠️ Questions already loading, skipping sync');
       return;
     }
+    
+    // КРИТИЧНО: Retry логика для загрузки вопросов (может быть race condition при создании дуэли)
+    const maxRetries = 5;
+    const retryDelay = 1000; // 1 секунда между попытками
+    
     try {
       isLoadingRef.current = true;
       setLoading(true);
       log('[useDuelGame] 🔄 Loading questions...', { duelId, profileId });
-      const questionList = await fetchQuestions();
-      log('[useDuelGame] ✅ Questions loaded:', { count: questionList?.length || 0 });
+      
+      let questionList: any[] | null = null;
+      let lastError: any = null;
+      
+      // Пытаемся загрузить вопросы с retry
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+          questionList = await fetchQuestions();
+          if (questionList && questionList.length > 0) {
+            log('[useDuelGame] ✅ Questions loaded:', { count: questionList.length, attempt: attempt + 1 });
+            break; // Успешно загрузили, выходим из цикла
+          }
+          
+          // Если вопросы пустые, пробуем еще раз
+          if (attempt < maxRetries - 1) {
+            logWarn(`[useDuelGame] ⚠️ Questions empty, retrying in ${retryDelay}ms... (attempt ${attempt + 1}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, retryDelay));
+          }
+        } catch (error: any) {
+          lastError = error;
+          const isNotFoundError = error?.message?.includes('не найдены') || error?.message?.includes('not found');
+          
+          // Если это ошибка "не найдены" и не последняя попытка - ретраим
+          if (isNotFoundError && attempt < maxRetries - 1) {
+            logWarn(`[useDuelGame] ⚠️ Questions not found, retrying in ${retryDelay}ms... (attempt ${attempt + 1}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, retryDelay));
+            continue;
+          }
+          
+          // Для других ошибок или последней попытки - пробрасываем ошибку
+          throw error;
+        }
+      }
+      
+      if (!questionList || questionList.length === 0) {
+        throw lastError || new Error('Вопросы не найдены после всех попыток');
+      }
+      
       hydrateQuestions(questionList);
     } catch (error) {
-      logError('[useDuelGame] Failed to load questions:', error);
-      toast.error(`Ошибка загрузки вопросов: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
+      logError('[useDuelGame] Failed to load questions after retries:', error);
+      toast.error(`Ошибка загрузки вопросов: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`, {
+        description: 'Попробуйте обновить страницу'
+      });
     } finally {
       isLoadingRef.current = false;
       setLoading(false);

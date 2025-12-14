@@ -365,8 +365,10 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   };
 
   const handleAnswer = async (optionId: string) => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DuelBattle.tsx:312',message:'handleAnswer called',data:{optionId,answered,currentIndex,timeLeft,myScore,opponentScore},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    // #region agent log (только в dev режиме)
+    if (process.env.NODE_ENV === 'development') {
+      fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DuelBattle.tsx:312',message:'handleAnswer called',data:{optionId,answered,currentIndex,timeLeft,myScore,opponentScore},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    }
     // #endregion
     if (answered) return;
 
@@ -377,8 +379,10 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     setIsCorrect(correctAnswer);
 
     const timeTaken = 60000 - timeLeft;
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DuelBattle.tsx:321',message:'Answer prepared',data:{optionId,correctAnswer,timeTaken,myPlayerId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    // #region agent log (только в dev режиме)
+    if (process.env.NODE_ENV === 'development') {
+      fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DuelBattle.tsx:321',message:'Answer prepared',data:{optionId,correctAnswer,timeTaken,myPlayerId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    }
     // #endregion
 
     try {
@@ -457,8 +461,10 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       // Client MUST use new_score from server response
       // Never calculate score locally - server is source of truth
       // ============================================================================
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DuelBattle.tsx:399',message:'Processing server response',data:{hasData:!!data,newScore:data?.new_score,oldMyScore:myScore,correctAnswer},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+      // #region agent log (только в dev режиме)
+      if (process.env.NODE_ENV === 'development') {
+        fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DuelBattle.tsx:399',message:'Processing server response',data:{hasData:!!data,newScore:data?.new_score,oldMyScore:myScore,correctAnswer},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+      }
       // #endregion
       if (data && data.new_score !== undefined) {
         setMyScore(data.new_score);

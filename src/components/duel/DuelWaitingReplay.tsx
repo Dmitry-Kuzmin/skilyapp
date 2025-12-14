@@ -1015,8 +1015,18 @@ export function DuelWaitingReplay({
             });
           }
 
+          // Если позиция все еще 0, используем индекс в отсортированном массиве + 1
+          // Это надежный fallback, основанный на порядке создания ответов
+          if (!position || position === 0) {
+            const sortedAnswers = [...answers].sort((a: any, b: any) =>
+              new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            );
+            position = sortedAnswers.findIndex((a: any) => a.id === ans.id) + 1;
+            if (position === 0) position = 1; // Минимум 1
+          }
+
           return {
-            question_number: position || 0,
+            question_number: position || 1, // Минимум 1, не 0
             is_correct: ans.is_correct,
             is_skipped: ans.is_skipped || false,
             time_taken_ms: ans.time_taken_ms,
@@ -1208,15 +1218,27 @@ export function DuelWaitingReplay({
                   });
                 } else if (reloadedAnswers && reloadedAnswers.length > 0) {
                   const formatted = reloadedAnswers.map((ans: any) => {
-                    const pos = questionPositionsRef.current.get(ans.duel_question_id);
-                    if (!pos) {
-                      console.warn('[DuelWaitingReplay] Answer without cached position in reload:', {
+                    let pos = questionPositionsRef.current.get(ans.duel_question_id);
+                    
+                    // Если позиция не найдена, используем порядок по created_at
+                    if (!pos || pos === 0) {
+                      const sortedAnswers = [...reloadedAnswers].sort((a: any, b: any) =>
+                        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                      );
+                      pos = sortedAnswers.findIndex((a: any) => a.id === ans.id) + 1;
+                      if (pos === 0) pos = 1; // Минимум 1
+                    }
+                    
+                    if (!pos || pos === 0) {
+                      console.warn('[DuelWaitingReplay] Answer without position in reload:', {
                         answerId: ans.id,
                         questionId: ans.duel_question_id
                       });
+                      pos = 1; // Fallback на 1
                     }
+                    
                     return {
-                      question_number: pos || 0,
+                      question_number: pos,
                       is_correct: ans.is_correct,
                       is_skipped: ans.is_skipped || false,
                       time_taken_ms: ans.time_taken_ms,
@@ -1411,7 +1433,7 @@ export function DuelWaitingReplay({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 flex items-center justify-center p-4"
+      className="min-h-screen bg-background flex items-center justify-center p-4"
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
@@ -1431,8 +1453,9 @@ export function DuelWaitingReplay({
 
             <div>
               <h2 className="text-2xl font-bold mb-2">Вы закончили первым!</h2>
-              <p className="text-muted-foreground">
-                Ожидание ответа от <span className="font-semibold text-foreground truncate max-w-[150px] md:max-w-none inline-block" title={opponentName}>{opponentName}</span>
+              <p className="text-muted-foreground flex items-center justify-center gap-2">
+                <span>Ожидание ответа от</span>
+                <span className="font-semibold text-foreground truncate max-w-[150px] md:max-w-none" title={opponentName}>{opponentName}</span>
               </p>
 
               {/* Индикатор статуса соперника */}
@@ -1622,7 +1645,10 @@ export function DuelWaitingReplay({
                     <div className="text-xs font-medium text-muted-foreground mb-3">
                       Последние ответы
                     </div>
-                    {opponentAnswers.slice(-3).reverse().map((answer, idx) => (
+                    {[...opponentAnswers]
+                      .sort((a, b) => a.question_number - b.question_number) // Сортируем по номеру вопроса
+                      .slice(-3) // Берем последние 3 по порядку
+                      .map((answer, idx) => (
                       <motion.div
                         key={`${answer.question_number}-${idx}`}
                         initial={{ opacity: 0, x: -10 }}

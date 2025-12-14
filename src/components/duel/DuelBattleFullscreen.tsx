@@ -380,8 +380,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
 
     log('[DuelBattleFullscreen] 🚀 Component mounted, syncing data...', { duelId, profileId });
-    syncQuestions();
-    syncPlayers();
+    // КРИТИЧНО: Сначала загружаем игроков, потом вопросы (чтобы избежать race condition)
+    // Особенно важно для дуэлей с ботами - вопросы могут не существовать до создания игроков
+    syncPlayers().then(() => {
+      // После загрузки игроков загружаем вопросы
+      syncQuestions();
+    }).catch((error) => {
+      logError('[DuelBattleFullscreen] Error loading players, retrying questions anyway:', error);
+      // Даже при ошибке загрузки игроков пытаемся загрузить вопросы
+      syncQuestions();
+    });
     syncBoostInventory();
     syncBetInfo();
   }, [duelId, profileId, syncBetInfo, syncBoostInventory, syncPlayers, syncQuestions]);

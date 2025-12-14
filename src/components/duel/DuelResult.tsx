@@ -60,6 +60,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
     }
   }, [duelResultsData, duelId]);
 
+  // Получаем общее количество вопросов из данных дуэли
+  const totalQuestions = duelResultsData?.duel?.num_questions || myAnswers.length || 10;
+
   // Показываем Vignette Banner после завершения дуэли (только в веб-версии, один раз за сессию)
   // Задержка 1.5 секунды, чтобы не перекрывать анимацию результатов
   useVignetteBanner(!!results, 1500);
@@ -174,15 +177,23 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           initial={{ scale: 0.5, opacity: 0, y: -50 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           transition={{ type: "spring", duration: 0.7, bounce: 0.4 }}
-          className="text-center space-y-4 relative"
+          className="text-center space-y-6 relative pt-8 md:pt-12"
         >
           {/* Animated Trophy/Icon */}
           <motion.div
             animate={results.isWinner ? {
               rotate: [0, -5, 5, -5, 0],
               scale: [1, 1.1, 1, 1.05, 1]
-            } : {}}
-            transition={{ duration: 1, repeat: results.isWinner ? Infinity : 0, repeatDelay: 3 }}
+            } : results.isDraw ? {
+              scale: [1, 1.05, 1]
+            } : {
+              scale: [1, 0.95, 1]
+            }}
+            transition={{ 
+              duration: results.isWinner ? 1 : 2, 
+              repeat: results.isWinner ? Infinity : (results.isDraw ? Infinity : 0), 
+              repeatDelay: results.isWinner ? 3 : 2 
+            }}
             className="relative inline-block"
           >
             {results.isWinner && (
@@ -192,15 +203,39 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
               </div>
             )}
             {!results.isWinner && !results.isDraw && (
-              <div className="text-7xl opacity-80">😔</div>
+              <div className="relative">
+                {/* Subtle glow for defeat */}
+                <div className="absolute inset-0 bg-gradient-to-r from-zinc-500/20 to-zinc-600/20 blur-2xl opacity-30" />
+                <motion.div 
+                  className="text-7xl md:text-8xl relative z-10"
+                  animate={{ 
+                    opacity: [0.6, 0.8, 0.6],
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  😔
+                </motion.div>
+              </div>
             )}
             {results.isDraw && (
-              <div className="text-7xl opacity-80">🤝</div>
+              <div className="relative">
+                {/* Subtle glow for draw */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 blur-2xl opacity-30" />
+                <motion.div 
+                  className="text-7xl md:text-8xl relative z-10"
+                  animate={{ 
+                    opacity: [0.7, 0.9, 0.7],
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  🤝
+                </motion.div>
+              </div>
             )}
           </motion.div>
 
           {/* Status Text */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -208,8 +243,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
               className={cn(
                 "text-5xl md:text-6xl font-black tracking-tight",
                 results.isWinner && "bg-gradient-to-r from-yellow-300 via-orange-400 to-yellow-300 bg-clip-text text-transparent animate-shimmer",
-                results.isDraw && "text-blue-400",
-                !results.isWinner && !results.isDraw && "text-slate-400"
+                results.isDraw && "bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent",
+                !results.isWinner && !results.isDraw && "bg-gradient-to-r from-zinc-400 to-zinc-500 bg-clip-text text-transparent"
               )}
               style={results.isWinner ? { backgroundSize: "200% 100%" } : {}}
             >
@@ -219,7 +254,12 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="text-slate-400 text-lg font-medium"
+              className={cn(
+                "text-lg md:text-xl font-medium",
+                results.isWinner && "text-yellow-400/80",
+                results.isDraw && "text-blue-400/80",
+                !results.isWinner && !results.isDraw && "text-zinc-400"
+              )}
             >
               {results.isWinner ? 'Отличная игра!' : results.isDraw ? 'Вы на равных' : 'Попробуй ещё раз!'}
             </motion.p>
@@ -227,7 +267,12 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
         </motion.div>
 
         {/* Score Cards - Modern Glass Design */}
-        <div className="grid grid-cols-2 gap-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="grid grid-cols-2 gap-4"
+        >
           <motion.div
             initial={{ x: -100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
@@ -235,21 +280,21 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
             className="relative group"
           >
             {/* Glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-indigo-500/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            <div className="relative bg-gradient-to-br from-blue-900/40 to-purple-900/40 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
+            <div className="relative bg-zinc-900/40 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
               <div className="text-center space-y-3">
                 <motion.div
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
-                  className="text-6xl font-black bg-gradient-to-br from-blue-400 to-purple-400 bg-clip-text text-transparent"
+                  className="text-6xl font-black bg-gradient-to-br from-blue-500 to-indigo-500 bg-clip-text text-transparent"
                 >
                   {results.myScore}
                 </motion.div>
                 <div className="text-sm font-bold text-white/80">Вы</div>
                 <div className="flex items-center justify-center gap-2 bg-white/10 rounded-xl px-3 py-2">
                   <CheckCircle2 className="w-4 h-4 text-green-400" />
-                  <span className="text-sm font-bold text-white">{results.myCorrect}/10</span>
+                  <span className="text-sm font-bold text-white">{results.myCorrect}/{totalQuestions}</span>
                 </div>
               </div>
             </div>
@@ -261,22 +306,26 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
             transition={{ delay: 0.3, type: "spring", stiffness: 100 }}
             className="relative group"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-500/20 to-slate-600/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-zinc-500/20 to-zinc-600/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            <div className="relative bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
-              <div className="text-center space-y-3">
-                <div className="text-6xl font-black text-slate-300">
+            <div className="relative bg-zinc-900/40 backdrop-blur-xl rounded-3xl p-6 border border-white/10 overflow-hidden">
+              {/* Subtle animated background */}
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-zinc-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+              </div>
+              <div className="text-center space-y-3 relative z-10">
+                <div className="text-6xl font-black text-zinc-300">
                   {results.opponentScore}
                 </div>
-                <div className="text-sm font-bold text-slate-400 truncate px-2 max-w-[150px] md:max-w-none mx-auto" title={results.opponentName}>{results.opponentName}</div>
-                <div className="flex items-center justify-center gap-2 bg-white/10 rounded-xl px-3 py-2">
+                <div className="text-sm font-bold text-zinc-400 truncate px-2 max-w-[150px] md:max-w-none mx-auto" title={results.opponentName}>{results.opponentName}</div>
+                <div className="flex items-center justify-center gap-2 bg-white/10 rounded-xl px-3 py-2 backdrop-blur-sm">
                   <Target className="w-4 h-4 text-orange-400" />
-                  <span className="text-sm font-bold text-white">{results.opponentCorrect}/10</span>
+                  <span className="text-sm font-bold text-white">{results.opponentCorrect}/{totalQuestions}</span>
                 </div>
               </div>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
 
         {/* Rewards Section - Completely Redesigned */}
         {rewards && (
@@ -284,7 +333,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
             initial={{ y: 30, opacity: 0, scale: 0.95 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             transition={{ delay: 0.5 }}
-            className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-indigo-900/40 via-purple-900/40 to-pink-900/40 backdrop-blur-xl p-6"
+            className="relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-900/40 backdrop-blur-xl p-6"
           >
             {/* Animated background gradient */}
             <motion.div
@@ -292,9 +341,15 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
                 backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
               }}
               transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-50 rounded-3xl overflow-hidden"
+              className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-indigo-500/5 to-blue-500/5 opacity-40 rounded-3xl overflow-hidden"
               style={{ backgroundSize: "200% 200%" }}
             />
+            
+            {/* Subtle mesh gradient overlay */}
+            <div className="absolute inset-0 opacity-30">
+              <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-br from-indigo-500/10 to-transparent rounded-full blur-3xl" />
+              <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-blue-500/10 to-transparent rounded-full blur-3xl" />
+            </div>
 
             <div className="relative z-10 space-y-5">
               <div className="flex items-center justify-center gap-2">
@@ -302,9 +357,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
                   animate={{ rotate: 360 }}
                   transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                 >
-                  <Sparkles className="w-6 h-6 text-purple-400" />
+                  <Sparkles className="w-6 h-6 text-indigo-400" />
                 </motion.div>
-                <h3 className="text-xl font-black bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                <h3 className="text-xl font-black bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
                   Награды
                 </h3>
               </div>
@@ -313,11 +368,18 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
                 {/* Season Points */}
                 <motion.div
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-blue-500/20 text-center space-y-2"
+                  className="relative bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-blue-500/20 text-center space-y-2 overflow-hidden group"
                 >
-                  <Star className="w-8 h-8 text-blue-400 mx-auto fill-blue-400/20" />
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Season Points</div>
-                  <div className="text-3xl font-black bg-gradient-to-br from-blue-400 to-blue-600 bg-clip-text text-transparent">
+                  {/* Hover glow */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <motion.div
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className="absolute top-0 right-0 w-16 h-16 bg-blue-500/5 rounded-full blur-xl"
+                  />
+                  <Star className="relative z-10 w-8 h-8 text-blue-400 mx-auto fill-blue-400/20" />
+                  <div className="relative z-10 text-xs font-bold text-zinc-400 uppercase tracking-wider">Season Points</div>
+                  <div className="relative z-10 text-3xl font-black bg-gradient-to-br from-blue-400 to-blue-600 bg-clip-text text-transparent">
                     +{rewards.sp}
                   </div>
                 </motion.div>
@@ -325,11 +387,18 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
                 {/* XP */}
                 <motion.div
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-purple-500/20 text-center space-y-2"
+                  className="relative bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-indigo-500/20 text-center space-y-2 overflow-hidden group"
                 >
-                  <Zap className="w-8 h-8 text-purple-400 mx-auto fill-purple-400/20" />
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Опыт</div>
-                  <div className="text-3xl font-black bg-gradient-to-br from-purple-400 to-purple-600 bg-clip-text text-transparent">
+                  {/* Hover glow */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <motion.div
+                    animate={{ rotate: [360, 0] }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className="absolute top-0 left-0 w-16 h-16 bg-indigo-500/5 rounded-full blur-xl"
+                  />
+                  <Zap className="relative z-10 w-8 h-8 text-indigo-400 mx-auto fill-indigo-400/20" />
+                  <div className="relative z-10 text-xs font-bold text-zinc-400 uppercase tracking-wider">Опыт</div>
+                  <div className="relative z-10 text-3xl font-black bg-gradient-to-br from-indigo-400 to-indigo-600 bg-clip-text text-transparent">
                     +{rewards.xp}
                   </div>
                 </motion.div>
@@ -416,7 +485,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
                     </div>
                     <div className="text-left">
                       <h3 className="font-bold text-white">Обзор вопросов</h3>
-                      <p className="text-xs text-slate-400">{results.myCorrect} правильных из 10</p>
+                      <p className="text-xs text-slate-400">{results.myCorrect} правильных из {totalQuestions}</p>
                     </div>
                   </div>
                 </AccordionTrigger>
@@ -472,7 +541,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           <Button
             onClick={onRematch}
             size="lg"
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold h-14 rounded-2xl shadow-lg shadow-blue-500/30"
+            className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-400 hover:to-indigo-400 text-white font-bold h-14 rounded-2xl shadow-lg shadow-blue-500/30"
           >
             <RotateCcw className="w-5 h-5 mr-2" />
             Реванш

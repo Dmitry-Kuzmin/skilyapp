@@ -63,10 +63,6 @@ export function useBotOpponent({
       console.log('[useBotOpponent] ⚠️ No duelId');
       return;
     }
-    if (!currentQuestionId) {
-      console.log('[useBotOpponent] ⚠️ No currentQuestionId');
-      return;
-    }
     if (!botPlayerRef.current) {
       console.log('[useBotOpponent] ⚠️ No bot player found');
       return;
@@ -76,67 +72,117 @@ export function useBotOpponent({
       return;
     }
     
-    console.log('[useBotOpponent] ✅ All conditions met, processing bot answer for question:', currentQuestionId);
-
-    // Если этот вопрос уже обработан - пропускаем
-    if (processedQuestions.current.has(currentQuestionId)) {
-      return;
-    }
-
-    // Проверяем, что вопрос в допустимом диапазоне
-    if (currentQuestionIndex < 0 || currentQuestionIndex >= totalQuestions) {
-      return;
-    }
-
-    // Если для этого вопроса уже есть активный таймер - не создаем новый
-    if (activeTimers.current.has(currentQuestionId)) {
-      return;
-    }
-
-    // Имитация "мышления" бота: задержка 20-60 секунд для реалистичности
-    // Это создает иллюзию, что соперник действительно думает над ответом
-    const thinkingTime = Math.floor(Math.random() * 40000) + 20000; // 20-60 секунд
-    const botName = botPlayerRef.current.bot_name || botPlayerRef.current.name || 'Bot';
-
-    console.log(`[useBotOpponent] 🤖 ${botName} is thinking about question ${currentQuestionIndex + 1}/${totalQuestions}... (will answer in ${Math.round(thinkingTime / 1000)}s)`);
-
-    const timer = setTimeout(async () => {
-      // Помечаем вопрос как обработанный
-      processedQuestions.current.add(currentQuestionId);
-      // Удаляем таймер из активных
-      activeTimers.current.delete(currentQuestionId);
-
+    // КРИТИЧНО: Бот должен отвечать строго по порядку (position 1, 2, 3, 4, 5...)
+    // Не используем currentQuestionId игрока - бот отвечает независимо от игрока
+    const processBotAnswers = async () => {
       try {
-        // Вызываем action bot_answer для обработки ответа бота
-        const { data, error } = await supabase.functions.invoke('duel-manager', {
-          body: {
-            action: 'bot_answer',
-            duel_id: duelId,
-            duel_question_id: currentQuestionId,
-          },
-        });
+        // Загружаем все вопросы дуэли, отсортированные по position
+        const { data: allQuestions } = await supabase
+          .from('duel_questions')
+          .select('id, position')
+          .eq('duel_id', duelId)
+          .order('position', { ascending: true });
 
-        if (error) {
-          console.error('[useBotOpponent] ❌ Error submitting bot answer:', error);
-          // Если ошибка "уже ответил" - это нормально, просто помечаем как обработанный
-          if (error.message?.includes('already answered') || error.message?.includes('Bot already answered')) {
-            console.log('[useBotOpponent] ℹ️ Bot already answered this question (race condition)');
-          }
+        if (!allQuestions || allQuestions.length === 0) {
           return;
         }
 
-        console.log('[useBotOpponent] ✅ Bot answered successfully:', {
-          is_correct: data?.is_correct,
-          points_awarded: data?.points_awarded,
-          new_score: data?.new_score
-        });
-      } catch (error) {
-        console.error('[useBotOpponent] ❌ Exception submitting bot answer:', error);
-      }
-    }, thinkingTime);
+        // Загружаем все ответы бота
+        const { data: botAnswers } = await supabase
+          .from('duel_answers')
+          .select('duel_question_id')
+          .eq('duel_id', duelId)
+          .eq('player_id', botPlayerRef.current.id);
 
-    // Сохраняем таймер в Map, чтобы не потерять его при переходе к следующему вопросу
-    activeTimers.current.set(currentQuestionId, timer);
+        const answeredQuestionIds = new Set((botAnswers || []).map((a: any) => a.duel_question_id));
+
+        // КРИТИЧНО: Находим СЛЕДУЮЩИЙ вопрос по порядку (минимальный position среди неотвеченных)
+        // Это гарантирует, что бот отвечает строго по порядку: 1, 2, 3, 4, 5...
+        let nextQuestion: { id: string; position: number } | null = null;
+        
+        for (const question of allQuestions) {
+          if (!answeredQuestionIds.has(question.id) && 
+              !processedQuestions.current.has(question.id) && 
+              !activeTimers.current.has(question.id)) {
+            // Нашли первый неотвеченный вопрос по порядку
+            nextQuestion = { id: question.id, position: question.position };
+            break; // Важно: останавливаемся на первом найденном
+          }
+        }
+
+        if (!nextQuestion) {
+          // Все вопросы отвечены
+          return;
+        }
+
+        const questionToAnswer = nextQuestion.id;
+        const questionIndexToAnswer = nextQuestion.position - 1; // position начинается с 1
+        
+        if (questionIndexToAnswer >= 0 && questionIndexToAnswer < totalQuestions) {
+          console.log('[useBotOpponent] ✅ Next question in order:', questionToAnswer, `position ${nextQuestion.position} (${questionIndexToAnswer + 1}/${totalQuestions})`);
+          startBotAnswerTimer(questionToAnswer, questionIndexToAnswer);
+        }
+      } catch (error) {
+        console.error('[useBotOpponent] ❌ Error processing bot answers:', error);
+      }
+    };
+
+    // Функция для запуска таймера ответа бота
+    const startBotAnswerTimer = (questionToAnswer: string, questionIndexToAnswer: number) => {
+      // Имитация "мышления" бота: задержка 20-60 секунд для реалистичности
+      // Это создает иллюзию, что соперник действительно думает над ответом
+      const thinkingTime = Math.floor(Math.random() * 40000) + 20000; // 20-60 секунд
+      const botName = botPlayerRef.current.bot_name || botPlayerRef.current.name || 'Bot';
+
+      console.log(`[useBotOpponent] 🤖 ${botName} is thinking about question ${questionIndexToAnswer + 1}/${totalQuestions}... (will answer in ${Math.round(thinkingTime / 1000)}s)`);
+
+      const timer = setTimeout(async () => {
+        // Помечаем вопрос как обработанный
+        processedQuestions.current.add(questionToAnswer);
+        // Удаляем таймер из активных
+        activeTimers.current.delete(questionToAnswer);
+
+        try {
+          // Вызываем action bot_answer для обработки ответа бота
+          const { data, error } = await supabase.functions.invoke('duel-manager', {
+            body: {
+              action: 'bot_answer',
+              duel_id: duelId,
+              duel_question_id: questionToAnswer,
+            },
+          });
+
+          if (error) {
+            console.error('[useBotOpponent] ❌ Error submitting bot answer:', error);
+            // Если ошибка "уже ответил" - это нормально, просто помечаем как обработанный
+            if (error.message?.includes('already answered') || error.message?.includes('Bot already answered')) {
+              console.log('[useBotOpponent] ℹ️ Bot already answered this question (race condition)');
+            }
+            return;
+          }
+
+          console.log('[useBotOpponent] ✅ Bot answered successfully:', {
+            is_correct: data?.is_correct,
+            points_awarded: data?.points_awarded,
+            new_score: data?.new_score
+          });
+
+          // После успешного ответа проверяем, есть ли еще вопросы для ответа
+          // Это позволяет боту продолжать отвечать даже когда игрок закончил все вопросы
+          setTimeout(() => {
+            processBotAnswers();
+          }, 1000);
+        } catch (error) {
+          console.error('[useBotOpponent] ❌ Exception submitting bot answer:', error);
+        }
+      }, thinkingTime);
+
+      // Сохраняем таймер в Map, чтобы не потерять его при переходе к следующему вопросу
+      activeTimers.current.set(questionToAnswer, timer);
+    };
+
+    // Запускаем обработку ответов бота
+    processBotAnswers();
 
     // Cleanup только при размонтировании компонента или смене дуэли
     // НЕ очищаем таймер при смене вопроса!

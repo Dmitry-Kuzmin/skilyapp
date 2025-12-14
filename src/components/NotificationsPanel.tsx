@@ -213,6 +213,8 @@ export function NotificationsPanel({
   // Hide progress notifications (start, progress, boost, opponent_ahead, opponent_behind, reminder)
   // Show only results (finish, timeout)
   // ВАЖНО: Не скрываем все уведомления - показываем finish, timeout и другие важные
+  // КРИТИЧНО: Не фильтруем 'answer' - это уведомления о правильных ответах соперника
+  // Фильтруем только 'progress' для неправильных ответов (чтобы не было спама)
   const PROGRESS_NOTIFICATION_TYPES = ['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder'];
   
   const filteredNotifications = useMemo(() => {

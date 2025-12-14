@@ -27,6 +27,9 @@ interface QuestionProgressBarProps {
   // Optional: Answers for visual indicators
   answers?: Array<{ isCorrect: boolean }>;
   
+  // Optional: Hide correct/incorrect indicators (e.g. in exam mode)
+  hideScoreIndicators?: boolean;
+  
   className?: string;
 }
 
@@ -44,6 +47,7 @@ export function QuestionProgressBar({
   SettingsMenuComponent,
   customLeftContent,
   answers = [],
+  hideScoreIndicators = false,
   className,
 }: QuestionProgressBarProps) {
   const progress = ((currentIndex + 1) / totalQuestions) * 100;
@@ -99,8 +103,8 @@ export function QuestionProgressBar({
           </div>
         </div>
         
-        {/* Score indicators */}
-        {answers.length > 0 && (
+        {/* Score indicators - скрываем в режиме экзамена */}
+        {answers.length > 0 && !hideScoreIndicators && (
           <div className="hidden sm:flex items-center gap-1.5 shrink-0">
             <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20">
               <CheckCircle2 className="w-3 h-3 text-emerald-500" />

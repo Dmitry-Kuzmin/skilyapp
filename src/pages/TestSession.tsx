@@ -2353,6 +2353,7 @@ useEffect(() => {
             currentIndex={currentIndex}
             totalQuestions={questions.length}
             answers={answers}
+            hideScoreIndicators={mode === "exam"}
             onClose={!isTelegramApp ? handleClose : undefined}
             showClose={!isTelegramApp}
             onShowQuestionMap={() => setShowQuestionMap(true)}

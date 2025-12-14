@@ -190,13 +190,16 @@ async function sendBatch(): Promise<void> {
 
     // Отправляем батчами по пользователям
     const sendPromises: Promise<void>[] = [];
+    const eventsToDelete: string[] = [];
+    const eventsToUpdate: AnalyticsEvent[] = [];
+    
     for (const [userId, userEvents] of eventsByUser.entries()) {
       for (const event of userEvents) {
         sendPromises.push(
           sendSingleEvent(event)
             .then(() => {
-              // Удаляем успешно отправленное событие
-              return store.delete(event.id);
+              // Сохраняем ID для удаления после завершения всех промисов
+              eventsToDelete.push(event.id);
             })
             .catch((error) => {
               // КРИТИЧНО: Если токен протух (401) - НЕ увеличиваем retryCount, откладываем до открытия приложения
@@ -204,7 +207,7 @@ async function sendBatch(): Promise<void> {
                 console.warn(`[AnalyticsQueue] Token expired for event ${event.id}, deferring until app opens`);
                 // НЕ удаляем событие, НЕ увеличиваем retryCount
                 // Оно будет отправлено когда приложение откроется и токен обновится
-                return Promise.resolve(); // Пропускаем это событие
+                return; // Пропускаем это событие
               }
               
               // Для других ошибок - стандартная обработка
@@ -214,7 +217,8 @@ async function sendBatch(): Promise<void> {
               const isClientError = error.status === 400 || error.message?.includes('400') || error.message?.includes('Bad Request');
               if (isClientError) {
                 console.warn(`[AnalyticsQueue] Client error (400) for event ${event.id}, not retrying`);
-                return store.delete(event.id); // Удаляем, не ретраим
+                eventsToDelete.push(event.id); // Удаляем, не ретраим
+                return;
               }
               
               // Увеличиваем счетчик попыток только для сетевых/серверных ошибок
@@ -223,11 +227,12 @@ async function sendBatch(): Promise<void> {
               // Если превышен лимит попыток, удаляем событие
               if (event.retryCount > 5) {
                 console.warn(`[AnalyticsQueue] Event ${event.id} exceeded retry limit, deleting`);
-                return store.delete(event.id);
+                eventsToDelete.push(event.id);
+                return;
               }
               
-              // Обновляем событие с новым retryCount
-              return store.put(event);
+              // Сохраняем для обновления после завершения всех промисов
+              eventsToUpdate.push(event);
             })
         );
       }
@@ -235,8 +240,35 @@ async function sendBatch(): Promise<void> {
 
     await Promise.allSettled(sendPromises);
     
+    // КРИТИЧНО: Открываем НОВУЮ транзакцию для удаления/обновления событий
+    // Транзакция из начала функции уже закрыта после await
+    if (eventsToDelete.length > 0 || eventsToUpdate.length > 0) {
+      const updateDb = await getDb();
+      const updateTransaction = updateDb.transaction([STORE_NAME], 'readwrite');
+      const updateStore = updateTransaction.objectStore(STORE_NAME);
+      
+      // Удаляем успешно отправленные события
+      for (const eventId of eventsToDelete) {
+        updateStore.delete(eventId);
+      }
+      
+      // Обновляем события с новым retryCount
+      for (const event of eventsToUpdate) {
+        updateStore.put(event);
+      }
+      
+      // Ждем завершения транзакции
+      await new Promise<void>((resolve, reject) => {
+        updateTransaction.oncomplete = () => resolve();
+        updateTransaction.onerror = () => reject(updateTransaction.error);
+      });
+    }
+    
     // Если еще есть события, планируем следующую отправку
-    const remainingCount = await store.count();
+    const checkDb = await getDb();
+    const checkTransaction = checkDb.transaction([STORE_NAME], 'readonly');
+    const checkStore = checkTransaction.objectStore(STORE_NAME);
+    const remainingCount = await checkStore.count();
     if (remainingCount > 0) {
       scheduleBatchSend();
     }
