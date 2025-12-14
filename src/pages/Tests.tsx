@@ -259,7 +259,7 @@ const Tests = () => {
                   <div className="space-y-4">
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
                       <Crown className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-                      <span className="text-sm font-bold text-white">Главный режим</span>
+                      <span className="text-sm font-bold text-white">Рекомендуется</span>
                     </div>
                     <h2 className="text-5xl md:text-7xl font-black text-white tracking-tight leading-[0.9] drop-shadow-lg">
                       {t('testsPage.randomTest').toUpperCase()}
