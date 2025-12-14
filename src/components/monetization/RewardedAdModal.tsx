@@ -114,7 +114,8 @@ export function RewardedAdModal({
   const handleShowAd = async () => {
     try {
       setShowReward(false);
-      setError(null); // Сбрасываем предыдущие ошибки
+      // Сбрасываем предыдущие ошибки через reset() из хука
+      reset();
       const success = await showAd();
       
       if (success) {
