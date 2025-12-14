@@ -125,18 +125,30 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       
       state.activeExploits.forEach(exploit => {
         const existing = prev.get(exploit.type);
+        const isNew = !existing;
+        
         exploitsMap.set(exploit.type, {
           expiresAt: exploit.expiresAt,
           passed: existing?.passed || false, // Сохраняем passed статус если был
         });
         
-        // Логируем добавление нового exploit
-        if (isDev && !existing) {
-          console.log('[DuelBattleFullscreen] ✅ New exploit added:', exploit.type, {
+        // КРИТИЧНО: Логируем добавление нового exploit (ВСЕГДА, не только в dev)
+        if (isNew) {
+          console.log('[DuelBattleFullscreen] ✅ New exploit added to Map:', exploit.type, {
             expiresAt: new Date(exploit.expiresAt).toISOString(),
-            receivedAt: new Date(exploit.receivedAt).toISOString()
+            receivedAt: new Date(exploit.receivedAt).toISOString(),
+            expiresIn: Math.round((exploit.expiresAt - Date.now()) / 1000) + 's'
           });
         }
+      });
+      
+      console.log('[DuelBattleFullscreen] 📊 Final exploits Map:', {
+        mapSize: exploitsMap.size,
+        mapEntries: Array.from(exploitsMap.entries()).map(([type, data]) => ({
+          type,
+          expiresAt: new Date(data.expiresAt).toISOString(),
+          passed: data.passed
+        }))
       });
       
       return exploitsMap;
