@@ -149,27 +149,42 @@ export function RewardedAdModal({
       title={title || rewardInfo.defaultTitle}
     >
       <div className="space-y-4">
-        {/* Состояние: Ожидание просмотра */}
-        {!showReward && (
-          <>
-            <div className="flex flex-col items-center justify-center space-y-3 py-4">
-              {/* Иконка награды */}
-              <div className="relative">
-                <div className="p-4 rounded-xl bg-zinc-900/50 border border-white/10">
-                  <RewardIcon className="w-8 h-8 text-indigo-400" />
+            {/* Состояние: Ожидание просмотра */}
+            {!showReward && (
+              <>
+                <div className="flex flex-col items-center justify-center space-y-3 py-4">
+                  {/* Иконка награды */}
+                  <div className="relative">
+                    <div className="p-4 rounded-xl bg-zinc-900/50 border border-white/10">
+                      <RewardIcon className="w-8 h-8 text-indigo-400" />
+                    </div>
+                  </div>
+                  
+                  {/* Описание */}
+                  <div className="text-center space-y-1">
+                    <p className="text-sm text-zinc-300">
+                      {description || rewardInfo.defaultDescription}
+                    </p>
+                    <p className="text-xs text-zinc-500">
+                      Смотри рекламу минимум 3 секунды, чтобы получить награду
+                    </p>
+                  </div>
+                  
+                  {/* Индикатор прогресса */}
+                  {loading && (
+                    <div className="w-full max-w-xs space-y-2">
+                      <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-indigo-500 rounded-full transition-all duration-300"
+                          style={{ width: '100%' }}
+                        />
+                      </div>
+                      <p className="text-xs text-zinc-400 text-center">
+                        Реклама загружается...
+                      </p>
+                    </div>
+                  )}
                 </div>
-              </div>
-              
-              {/* Описание */}
-              <div className="text-center space-y-1">
-                <p className="text-sm text-zinc-300">
-                  {description || rewardInfo.defaultDescription}
-                </p>
-                <p className="text-xs text-zinc-500">
-                  Видео займет около 30 секунд
-                </p>
-              </div>
-            </div>
 
             {/* Ошибка */}
             {error && (
