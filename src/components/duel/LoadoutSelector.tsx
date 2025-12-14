@@ -264,6 +264,11 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         }, {
           onConflict: 'user_id',
         });
+      
+      // Уведомляем родительский компонент об изменении loadout
+      if (onLoadoutChange) {
+        onLoadoutChange(newLoadout);
+      }
     } catch (error) {
       console.error('[LoadoutSelector] Error saving loadout:', error);
     }
