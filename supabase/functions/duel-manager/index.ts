@@ -660,6 +660,63 @@ const notificationTemplates: Record<string, (metadata: any) => { title: string; 
     }
   },
 
+  // Answer notifications (correct answers from opponent)
+  'answer': (metadata: any) => {
+    const opponentName = metadata.opponent_name || 'Соперник';
+    const opponentFinished = metadata.opponent_finished || false;
+    const questionNumber = metadata.question_number;
+    const questionText = questionNumber ? ` на ${questionNumber} вопрос` : '';
+    const combo = metadata.combo || 0;
+
+    // Если игрок уже закончил - показываем только информативные уведомления
+    if (opponentFinished) {
+      if (combo >= 3) {
+        const templates = [
+          { title: `${opponentName} ответил правильно ${combo} раза подряд`, message: '', icon: 'lightbulb' },
+          { title: `${opponentName} набрал серию из ${combo} правильных ответов`, message: '', icon: 'lightbulb' },
+        ];
+        return templates[Math.floor(Math.random() * templates.length)];
+      } else {
+        const templates = [
+          { title: `${opponentName} ответил правильно${questionText}`, message: '', icon: 'check-circle' },
+          { title: `${opponentName} дал правильный ответ${questionText}`, message: '', icon: 'check-circle' },
+        ];
+        return templates[Math.floor(Math.random() * templates.length)];
+      }
+    }
+
+    // Если игрок еще играет - показываем мотивирующие уведомления
+    if (combo >= 3) {
+      const templates = [
+        {
+          title: `${opponentName} ответил правильно ${combo} раза подряд!`,
+          message: 'Отличная серия! Продолжайте бороться!',
+          icon: 'lightbulb'
+        },
+        {
+          title: `${opponentName} набирает обороты!`,
+          message: `Уже ${combo} правильных ответа подряд. Не отставай!`,
+          icon: 'zap'
+        },
+      ];
+      return templates[Math.floor(Math.random() * templates.length)];
+    } else {
+      const templates = [
+        {
+          title: `${opponentName} ответил правильно${questionText}`,
+          message: questionNumber === 1 ? 'Игра набирает обороты!' : 'Продолжайте бороться!',
+          icon: 'check-circle'
+        },
+        {
+          title: `${opponentName} дал правильный ответ${questionText}`,
+          message: questionNumber === 1 ? 'Начало положено!' : 'Не сдавайся!',
+          icon: 'target'
+        },
+      ];
+      return templates[Math.floor(Math.random() * templates.length)];
+    }
+  },
+
   // Boost notifications
   'boost': (metadata: any) => {
     const opponentName = metadata.opponent_name; // Всегда должно быть установлено
@@ -2989,9 +3046,11 @@ Deno.serve(async (req) => {
           });
 
           // Always notify about progress, but include progress percentage only at milestones
+          // КРИТИЧНО: Используем тип 'answer' для правильных ответов, чтобы уведомления показывались
+          // Тип 'progress' фильтруется в клиенте и не показывается
           const notifResult = await createNotification({
             duel_id,
-            type: 'progress',
+            type: isCorrect ? 'answer' : 'progress', // Правильные ответы - тип 'answer', неправильные - 'progress'
             metadata: {
               is_correct: isCorrect,
               question_number: questionNumber,
@@ -3082,6 +3141,45 @@ Deno.serve(async (req) => {
             status: 404,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
+        }
+
+        // КРИТИЧНО: Проверяем, что бот отвечает строго по порядку
+        // Бот может ответить только на следующий вопрос по position
+        const { data: botAnswers } = await supabase
+          .from('duel_answers')
+          .select('duel_question_id')
+          .eq('duel_id', duel_id)
+          .eq('player_id', botPlayer.id);
+
+        const answeredQuestionIds = new Set((botAnswers || []).map((a: any) => a.duel_question_id));
+
+        // Получаем все вопросы дуэли, отсортированные по position
+        const { data: allQuestions } = await supabase
+          .from('duel_questions')
+          .select('id, position')
+          .eq('duel_id', duel_id)
+          .order('position', { ascending: true });
+
+        if (allQuestions && allQuestions.length > 0) {
+          // Находим следующий вопрос по порядку (минимальный position среди неотвеченных)
+          let nextQuestionPosition: number | null = null;
+          for (const q of allQuestions) {
+            if (!answeredQuestionIds.has(q.id)) {
+              nextQuestionPosition = q.position;
+              break;
+            }
+          }
+
+          // Если пытаемся ответить не на следующий вопрос - отклоняем
+          if (nextQuestionPosition !== null && question.position !== nextQuestionPosition) {
+            console.warn(`[bot_answer] ⚠️ Bot tried to answer question ${question.position}, but next question is ${nextQuestionPosition}`);
+            return new Response(JSON.stringify({ 
+              error: `Bot must answer questions in order. Expected position ${nextQuestionPosition}, got ${question.position}` 
+            }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
         }
 
         const questionDifficulty = (question.question_snapshot as any).difficulty || 'medium';
@@ -3219,7 +3317,10 @@ Deno.serve(async (req) => {
             .eq('is_bot', false)
             .single();
 
-          if (humanPlayer?.user_id) {
+          // Сохраняем humanPlayer для использования ниже
+          const savedHumanPlayer = humanPlayer;
+
+          if (savedHumanPlayer?.user_id) {
             const botName = botPlayer.bot_name || 'Бот';
             
             console.log('[bot_answer] Notification metadata:', {
@@ -3254,6 +3355,116 @@ Deno.serve(async (req) => {
           } else {
             console.warn('[bot_answer] ⚠️ Human player not found in duel');
           }
+
+        // КРИТИЧНО: Проверяем, закончил ли бот все вопросы
+        // Если да - автоматически завершаем дуэль
+        const { count: botTotalAnswersCount } = await supabase
+          .from('duel_answers')
+          .select('*', { count: 'exact', head: true })
+          .eq('player_id', botPlayer.id)
+          .eq('duel_id', duel_id);
+
+        const { data: duelData } = await supabase
+          .from('duels')
+          .select('num_questions, status')
+          .eq('id', duel_id)
+          .single();
+
+        const botFinishedAllQuestions = duelData && (botTotalAnswersCount || 0) >= duelData.num_questions;
+
+        if (botFinishedAllQuestions && duelData?.status !== 'finished') {
+          console.log('[bot_answer] 🤖 Bot finished all questions, checking if human player also finished...');
+          
+          // Получаем ID реального игрока
+          let humanPlayerId: string | null = null;
+          if (savedHumanPlayer?.user_id) {
+            const { data: humanPlayerData } = await supabase
+              .from('duel_players')
+              .select('id')
+              .eq('duel_id', duel_id)
+              .eq('user_id', savedHumanPlayer.user_id)
+              .eq('is_bot', false)
+              .single();
+            humanPlayerId = humanPlayerData?.id || null;
+          }
+
+          if (humanPlayerId) {
+            // Проверяем, закончил ли реальный игрок все вопросы
+            const { count: humanAnswersCount } = await supabase
+              .from('duel_answers')
+              .select('*', { count: 'exact', head: true })
+              .eq('player_id', humanPlayerId)
+              .eq('duel_id', duel_id);
+
+            const humanFinishedAllQuestions = duelData && (humanAnswersCount || 0) >= duelData.num_questions;
+
+            if (humanFinishedAllQuestions) {
+              console.log('[bot_answer] ✅ Both players finished, finishing duel automatically');
+              
+              // Оба игрока закончили - завершаем дуэль
+              // Используем внутреннюю логику finish_duel
+              const { data: allPlayers } = await supabase
+                .from('duel_players')
+                .select('id, user_id, score, correct_count')
+                .eq('duel_id', duel_id);
+
+              // Обновляем статус дуэли
+              await supabase
+                .from('duels')
+                .update({
+                  status: 'finished',
+                  finished_at: new Date().toISOString()
+                })
+                .eq('id', duel_id);
+
+              // Вызываем settleBetPayout если есть ставки
+              if (duelData && allPlayers && allPlayers.length >= 2) {
+                const botPlayerData = allPlayers.find((p: any) => p.id === botPlayer.id);
+                const humanPlayerData = allPlayers.find((p: any) => p.user_id === savedHumanPlayer.user_id);
+
+                if (botPlayerData && humanPlayerData) {
+                  const botScore = botPlayerData.score || 0;
+                  const humanScore = humanPlayerData.score || 0;
+                  const isDraw = botScore === humanScore;
+                  const winnerUserId = isDraw ? null : (botScore > humanScore ? null : savedHumanPlayer.user_id); // Боты не получают награды
+
+                  // Получаем bet_amount из дуэли
+                  const { data: duelWithBet } = await supabase
+                    .from('duels')
+                    .select('bet_amount, host_user')
+                    .eq('id', duel_id)
+                    .single();
+
+                  if (duelWithBet?.bet_amount > 0) {
+                    try {
+                      await settleBetPayout({
+                        supabaseClient: supabase,
+                        duelId: duel_id,
+                        betAmount: duelWithBet.bet_amount,
+                        hostUserId: duelWithBet.host_user,
+                        players: allPlayers.map((p: any) => ({
+                          id: p.id,
+                          user_id: p.user_id,
+                          score: p.score || 0,
+                          correct_count: p.correct_count || 0
+                        })),
+                        winnerUserId,
+                        isDraw,
+                      });
+                      console.log('[bot_answer] ✅ Bet settled after bot finished');
+                    } catch (betError) {
+                      console.error('[bot_answer] ❌ Error settling bet:', betError);
+                    }
+                  }
+                }
+              }
+
+              console.log('[bot_answer] ✅ Duel finished automatically after bot completed all questions');
+            } else {
+              console.log('[bot_answer] ⏳ Bot finished, but human player has not finished yet. Waiting...');
+            }
+          }
+        }
 
         return new Response(JSON.stringify({
           is_correct: isCorrect,
@@ -3383,7 +3594,7 @@ Deno.serve(async (req) => {
             popup_count: 3,
             duration_ms: 10000,
           };
-          console.log('[use_boost] Screen Injector activated');
+          console.log('[use_boost] Data Leak activated');
         } else if (boost_type === 'input_lag') {
           boostEffect = {
             success: true,
@@ -3669,7 +3880,7 @@ Deno.serve(async (req) => {
             duel_id,
             type: 'boost',
             title: `⚠️ ${botName} использовал буст!`,
-            message: boostType === 'screen_injector' ? 'Screen Injector активирован!' :
+            message: boostType === 'screen_injector' ? 'Data Leak активирован! 🛢️' :
                      boostType === 'input_lag' ? 'Input Lag активирован!' :
                      boostType === 'gps_spoofing' ? 'GPS Spoofing активирован!' :
                      boostType === 'police_backdoor' ? 'Police Backdoor активирован!' :

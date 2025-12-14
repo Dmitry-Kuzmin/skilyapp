@@ -831,9 +831,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
       // FALLBACK: Если мы ждем соперника и счет обновился, проверяем статус дуэли
       // (на случай если Realtime подписка на статус не сработала)
+      // ВАЖНО: Дебаунсим проверку, чтобы не делать лишние запросы
       if (isWaitingForOpponent && hasFinishedMyQuestions && !hasTransitionedRef.current) {
-        log('[DuelBattleFullscreen] 🔄 Opponent score updated while waiting - checking duel status as fallback');
-        setTimeout(async () => {
+        const statusCheckTimeout = setTimeout(async () => {
           try {
             const { data: duel } = await supabase
               .from('duels')
@@ -859,19 +859,35 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           } catch (error) {
             logError('[DuelBattleFullscreen] Error in fallback status check:', error);
           }
-        }, 500);
+        }, 1000); // Увеличено с 500 до 1000 для дебаунса
+
+        return () => clearTimeout(statusCheckTimeout);
       }
     }
   }, [state.opponentScore, opponentScore, isWaitingForOpponent, hasFinishedMyQuestions, duelId, onDuelFinished]);
 
   // FALLBACK для Telegram WebApp: периодическая проверка счета соперника
-  // Если Realtime не работает, обновляем счет каждые 2 секунды
+  // Если Realtime не работает, обновляем счет каждые 3 секунды
+  // ВАЖНО: Не обновляем, если realtime активен (проверяем по последнему обновлению state.opponentScore)
+  const lastRealtimeUpdateRef = useRef<number>(0);
   useEffect(() => {
-    if (!duelId || !myPlayerId || !state.duelStarted) return;
+    if (typeof state.opponentScore === 'number') {
+      lastRealtimeUpdateRef.current = Date.now();
+    }
+  }, [state.opponentScore]);
 
-    // Проверяем счет каждые 2 секунды как fallback
+  useEffect(() => {
+    if (!duelId || !myPlayerId || !state.duelStarted || isWaitingForOpponent) return;
+
+    // Проверяем счет каждые 3 секунды как fallback (только если realtime неактивен)
     const scoreCheckInterval = setInterval(async () => {
       try {
+        // Если realtime обновлялся менее 5 секунд назад - пропускаем fallback
+        const timeSinceRealtimeUpdate = Date.now() - lastRealtimeUpdateRef.current;
+        if (timeSinceRealtimeUpdate < 5000) {
+          return; // Realtime активен, не используем fallback
+        }
+
         const { data: players, error } = await supabase
           .from('duel_players')
           .select('id, score, user_id')
@@ -892,10 +908,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       } catch (error) {
         logError('[DuelBattleFullscreen] Exception in score check fallback:', error);
       }
-    }, 2000); // Каждые 2 секунды
+    }, 3000); // Каждые 3 секунды (увеличено с 2 до 3 для снижения нагрузки)
 
     return () => clearInterval(scoreCheckInterval);
-  }, [duelId, myPlayerId, state.duelStarted, opponentScore]);
+  }, [duelId, myPlayerId, state.duelStarted, opponentScore, isWaitingForOpponent]);
 
   // Sync my score from realtime
   useEffect(() => {
@@ -1093,11 +1109,29 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   // Timer logic with timestamp fix (endTime pattern) - работает даже при переключении вкладок
   const questionEndTimeRef = useRef<number | null>(null);
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const TIME_LIMIT_MS = 60000; // 60 seconds
 
-  // Устанавливаем время окончания при загрузке нового вопроса
+  // КРИТИЧНО: Устанавливаем время окончания при загрузке нового вопроса
+  // Этот useEffect должен выполняться ПЕРВЫМ и устанавливать таймер
   useEffect(() => {
+    // Очищаем предыдущий таймер
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+
+    // Проверяем условия для запуска таймера
     if (!questions.length || isAnswered || isWaitingForOpponent || hasFinishedMyQuestions) {
+      questionEndTimeRef.current = null;
+      setTimeLeft(TIME_LIMIT_MS); // Устанавливаем начальное значение даже если таймер не запускается
+      return;
+    }
+
+    // КРИТИЧНО: Убеждаемся, что currentIndex валиден
+    if (currentIndex < 0 || currentIndex >= questions.length) {
+      questionEndTimeRef.current = null;
+      setTimeLeft(TIME_LIMIT_MS);
       return;
     }
 
@@ -1105,34 +1139,46 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     const targetTime = Date.now() + TIME_LIMIT_MS;
     questionEndTimeRef.current = targetTime;
     setTimeLeft(TIME_LIMIT_MS);
-  }, [currentIndex, questions.length, isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, setTimeLeft]);
 
-  // Основной таймер - вычисляет разницу между endTime и текущим временем
-  useEffect(() => {
-    if (!questions.length || isAnswered || isWaitingForOpponent || hasFinishedMyQuestions || !questionEndTimeRef.current) {
-      return;
-    }
+    log('[DuelBattleFullscreen] ⏱️ Timer started for question', currentIndex + 1, 'endTime:', new Date(targetTime).toISOString());
 
-    const timer = setInterval(() => {
-      if (questionEndTimeRef.current) {
-        const now = Date.now();
-        const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000; // В миллисекундах
-
-        if (secondsRemaining <= 0) {
-          // 🛑 Время вышло
-          setTimeLeft(0);
-          clearInterval(timer);
-          questionEndTimeRef.current = null;
-          handleTimeout();
-        } else {
-          // ✅ Обновляем UI
-          setTimeLeft(secondsRemaining);
+    // Запускаем таймер сразу
+    timerIntervalRef.current = setInterval(() => {
+      if (!questionEndTimeRef.current) {
+        if (timerIntervalRef.current) {
+          clearInterval(timerIntervalRef.current);
+          timerIntervalRef.current = null;
         }
+        return;
+      }
+
+      const now = Date.now();
+      const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000; // В миллисекундах
+
+      if (secondsRemaining <= 0) {
+        // 🛑 Время вышло
+        log('[DuelBattleFullscreen] ⏱️ Timer expired for question', currentIndex + 1);
+        setTimeLeft(0);
+        questionEndTimeRef.current = null;
+        if (timerIntervalRef.current) {
+          clearInterval(timerIntervalRef.current);
+          timerIntervalRef.current = null;
+        }
+        handleTimeout();
+      } else {
+        // ✅ Обновляем UI
+        setTimeLeft(secondsRemaining);
       }
     }, 250); // Обновляем 4 раза в секунду для плавности
 
-    return () => clearInterval(timer);
-  }, [currentIndex, isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, questions.length, handleTimeout, setTimeLeft]);
+    // Cleanup при размонтировании или изменении зависимостей
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+    };
+  }, [currentIndex, questions.length, isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, handleTimeout, setTimeLeft]);
 
   // Обработчик visibilitychange - мгновенное обновление при возвращении на вкладку
   useEffect(() => {
@@ -1145,6 +1191,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         if (secondsRemaining <= 0) {
           setTimeLeft(0);
           questionEndTimeRef.current = null;
+          if (timerIntervalRef.current) {
+            clearInterval(timerIntervalRef.current);
+            timerIntervalRef.current = null;
+          }
           handleTimeout();
         } else {
           setTimeLeft(secondsRemaining);
@@ -1156,12 +1206,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, handleTimeout, setTimeLeft]);
 
-  // ОПТИМИЗАЦИЯ: Объединяем сброс состояния при смене вопроса в один useEffect
+  // ОПТИМИЗАЦИЯ: Сброс дополнительных состояний при смене вопроса
   useEffect(() => {
-    questionEndTimeRef.current = null;
-    setTimeLeft(TIME_LIMIT_MS);
+    // НЕ сбрасываем questionEndTimeRef здесь - это делается в основном useEffect выше
     setTranslationLanguage(null);
-  }, [currentIndex, setTimeLeft]);
+  }, [currentIndex]);
 
   // ОПТИМИЗАЦИЯ: Мемоизируем функцию для сброса usedBoosts
   const setUsedBoostsReset = useCallback(() => {
@@ -1186,7 +1235,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
     // 🆕 Названия бустов для отображения
     const boostNames: Record<string, string> = {
-      screen_injector: 'Screen Injector',
+      screen_injector: 'Data Leak',
       input_lag: 'Input Lag',
       gps_spoofing: 'GPS Spoofing',
       police_backdoor: 'Police Backdoor',
@@ -1740,7 +1789,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
         return (
           <>
-            {/* Масло (Screen Injector) */}
+            {/* Data Leak (Масло) 🛢️ */}
             {screenInjector && !activeExploits.get('screen_injector')?.passed && (
               <OilSplashAttack
                 isActive={true}

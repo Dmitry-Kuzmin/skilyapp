@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Sparkles, Timer, HelpCircle, SkipForward, Globe, Zap, ChevronDown, X } from 'lucide-react';
+import { Sparkles, Timer, HelpCircle, SkipForward, Globe, Zap, ChevronDown, X, Droplets } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { memo } from 'react';
 
@@ -57,7 +57,7 @@ export const DuelBoostsPanel = memo(({
           translate: { icon: Globe, label: 'Translate', gradient: 'from-green-400 via-emerald-400 to-emerald-500', bg: 'bg-gradient-to-br from-green-400/90 to-emerald-500/90' },
           rewind: { icon: Zap, label: 'Rewind', gradient: 'from-purple-400 via-violet-400 to-violet-500', bg: 'bg-gradient-to-br from-purple-400/90 to-violet-500/90' },
           // Root Mode (Exploits)
-          screen_injector: { icon: Zap, label: 'Injector', gradient: 'from-red-500 via-rose-500 to-red-600', bg: 'bg-gradient-to-br from-red-500/90 to-red-600/90' },
+          screen_injector: { icon: Droplets, label: 'Data Leak', gradient: 'from-red-500 via-rose-500 to-red-600', bg: 'bg-gradient-to-br from-red-500/90 to-red-600/90' },
           input_lag: { icon: Zap, label: 'Input Lag', gradient: 'from-orange-500 via-red-500 to-orange-600', bg: 'bg-gradient-to-br from-orange-500/90 to-orange-600/90' },
           gps_spoofing: { icon: Zap, label: 'GPS Spoof', gradient: 'from-cyan-500 via-blue-500 to-cyan-600', bg: 'bg-gradient-to-br from-cyan-500/90 to-cyan-600/90' },
           police_backdoor: { icon: Zap, label: 'Backdoor', gradient: 'from-yellow-500 via-amber-500 to-yellow-600', bg: 'bg-gradient-to-br from-yellow-500/90 to-yellow-600/90' },
