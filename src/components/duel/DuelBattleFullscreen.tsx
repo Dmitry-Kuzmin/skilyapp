@@ -1475,7 +1475,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   return (
     <div
-      className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 z-50 overflow-y-auto"
+      className="fixed inset-0 bg-background z-50 overflow-y-auto"
       style={{
         paddingTop: `${totalTopPadding}px`,
         paddingLeft: `${totalLeftPadding}px`,

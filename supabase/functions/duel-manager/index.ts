@@ -2010,13 +2010,13 @@ Deno.serve(async (req) => {
         console.log('[find_match] ⚠️ No real opponent found, creating bot...');
 
         // 🛡️ Получаем win_streak игрока для адаптивной сложности бота (Anti-Farming Protection)
-        const { data: playerProfile, error: profileError } = await supabase
+        const { data: playerProfileForBot, error: profileErrorForBot } = await supabase
           .from('profiles')
           .select('win_streak')
           .eq('id', profileId)
           .single();
 
-        const winStreak = playerProfile?.win_streak || 0;
+        const winStreak = playerProfileForBot?.win_streak || 0;
         console.log(`[find_match] 🛡️ Player win streak: ${winStreak} (anti-farming protection)`);
 
         // Генерируем профиль бота на основе уровня игрока и win_streak
