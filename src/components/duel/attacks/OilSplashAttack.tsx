@@ -142,23 +142,39 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   useEffect(() => {
     if (!isActive) return;
 
-    const handleResize = () => {
-        if (canvasRef.current) {
-            if (canvasRef.current.width !== window.innerWidth || canvasRef.current.height !== window.innerHeight) {
-                canvasRef.current.width = window.innerWidth;
-                canvasRef.current.height = window.innerHeight;
-            }
-        }
-    };
-    window.addEventListener('resize', handleResize);
-    handleResize(); 
+    // КРИТИЧНО: Проверка доступности window
+    if (typeof window === 'undefined') return;
 
-    return () => {
-        window.removeEventListener('resize', handleResize);
-        if (requestRef.current) cancelAnimationFrame(requestRef.current);
-        if (checkIntervalRef.current) clearInterval(checkIntervalRef.current);
-        if (expireTimeoutRef.current) clearTimeout(expireTimeoutRef.current);
-    };
+    try {
+      const handleResize = () => {
+        try {
+          if (canvasRef.current && window) {
+            if (canvasRef.current.width !== window.innerWidth || canvasRef.current.height !== window.innerHeight) {
+              canvasRef.current.width = window.innerWidth;
+              canvasRef.current.height = window.innerHeight;
+            }
+          }
+        } catch (error) {
+          console.error('[OilSplashAttack] Error in handleResize:', error);
+        }
+      };
+      
+      window.addEventListener('resize', handleResize);
+      handleResize(); 
+
+      return () => {
+        try {
+          window.removeEventListener('resize', handleResize);
+          if (requestRef.current) cancelAnimationFrame(requestRef.current);
+          if (checkIntervalRef.current) clearInterval(checkIntervalRef.current);
+          if (expireTimeoutRef.current) clearTimeout(expireTimeoutRef.current);
+        } catch (error) {
+          console.error('[OilSplashAttack] Error in cleanup:', error);
+        }
+      };
+    } catch (error) {
+      console.error('[OilSplashAttack] Error in canvas setup:', error);
+    }
   }, [isActive]);
 
   // --- 2. Phase Logic ---
