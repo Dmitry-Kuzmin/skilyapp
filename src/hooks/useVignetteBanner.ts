@@ -5,11 +5,13 @@
  * - После завершения теста/дуэли
  * - При первом входе в сессию (опционально)
  * - НЕ показывается в Telegram Mini App
+ * - НЕ показывается Premium пользователям
  * - Показывается максимум один раз за сессию
  */
 
 import { useEffect, useRef } from 'react';
 import { isTelegramMiniApp } from '@/lib/telegram';
+import { usePremium } from './usePremium';
 
 const VIGNETTE_ZONE_ID = '10323401';
 const VIGNETTE_SCRIPT_URL = 'https://gizokraijaw.net/vignette.min.js';
@@ -36,8 +38,15 @@ function markVignetteAsShown(): void {
 
 /**
  * Загружает и показывает Vignette Banner
+ * @param isPremium - флаг премиум статуса пользователя
  */
-function showVignetteBanner(): void {
+function showVignetteBanner(isPremium: boolean): void {
+  // Не показываем Premium пользователям
+  if (isPremium) {
+    console.log('[Vignette] Skipping - user has Premium subscription');
+    return;
+  }
+
   // Не показываем в Telegram Mini App
   if (isTelegramMiniApp()) {
     console.log('[Vignette] Skipping - running in Telegram Mini App');
@@ -82,6 +91,7 @@ function showVignetteBanner(): void {
  * @param delay - задержка перед показом в миллисекундах (по умолчанию 500ms)
  */
 export function useVignetteBanner(show: boolean, delay: number = 500): void {
+  const { isPremium } = usePremium();
   const hasShownRef = useRef(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -92,10 +102,15 @@ export function useVignetteBanner(show: boolean, delay: number = 500): void {
       timeoutRef.current = null;
     }
 
+    // Не показываем Premium пользователям
+    if (isPremium) {
+      return;
+    }
+
     if (show && !hasShownRef.current) {
       // Показываем с задержкой (чтобы не перекрывать результаты сразу)
       timeoutRef.current = setTimeout(() => {
-        showVignetteBanner();
+        showVignetteBanner(isPremium);
         hasShownRef.current = true;
       }, delay);
     }
@@ -105,15 +120,16 @@ export function useVignetteBanner(show: boolean, delay: number = 500): void {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [show, delay]);
+  }, [show, delay, isPremium]);
 }
 
 /**
  * Утилита для показа Vignette Banner программно (без хука)
+ * @param isPremium - флаг премиум статуса пользователя
  */
-export function triggerVignetteBanner(delay: number = 500): void {
+export function triggerVignetteBanner(isPremium: boolean, delay: number = 500): void {
   setTimeout(() => {
-    showVignetteBanner();
+    showVignetteBanner(isPremium);
   }, delay);
 }
 
