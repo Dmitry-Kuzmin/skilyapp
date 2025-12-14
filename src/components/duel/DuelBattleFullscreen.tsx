@@ -1875,16 +1875,34 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         const policePassed = activeExploits.get('police_backdoor')?.passed || false;
         const screenInjectorPassed = activeExploits.get('screen_injector')?.passed || false;
 
-        // КРИТИЧНО: Детальное логирование для отладки в Telegram
-        if (isDev && screenInjector) {
+        // КРИТИЧНО: Детальное логирование для отладки в Telegram (ВСЕГДА, не только в dev)
+        if (screenInjector) {
+          const shouldRender = !screenInjectorPassed && screenInjector.expiresAt > Date.now();
           console.log('[DuelBattleFullscreen] 🛢️ Screen Injector check:', {
             screenInjector,
             screenInjectorPassed,
             expiresAt: screenInjector.expiresAt,
+            expiresAtISO: new Date(screenInjector.expiresAt).toISOString(),
             now: Date.now(),
+            nowISO: new Date().toISOString(),
             expired: screenInjector.expiresAt <= Date.now(),
-            shouldRender: !screenInjectorPassed && screenInjector.expiresAt > Date.now()
+            shouldRender,
+            activeExploitsCount: state.activeExploits?.length || 0,
+            allActiveExploits: state.activeExploits?.map(e => e.type) || []
           });
+          
+          // КРИТИЧНО: Если должен рендериться, но не рендерится - логируем предупреждение
+          if (shouldRender) {
+            console.log('[DuelBattleFullscreen] ✅ OilSplashAttack SHOULD BE RENDERING NOW!');
+          } else {
+            console.warn('[DuelBattleFullscreen] ⚠️ OilSplashAttack NOT rendering:', {
+              reason: screenInjectorPassed ? 'already passed' : 'expired',
+              expiresAt: new Date(screenInjector.expiresAt).toISOString(),
+              now: new Date().toISOString()
+            });
+          }
+        } else {
+          console.log('[DuelBattleFullscreen] ℹ️ No screen_injector exploit found in activeExploits');
         }
 
         return (

@@ -14,6 +14,9 @@ interface OilSplashAttackProps {
   expiresAt?: number; // Время истечения атаки (timestamp в миллисекундах)
 }
 
+// 🧪 ТЕСТОВЫЙ РЕЖИМ: Установите в true для проверки видимости компонента
+const TEST_RED_SQUARE = false; // Измените на true для теста "Красный квадрат"
+
 export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCleaned, expiresAt }) => {
   // FAILSAFE: Проверка поддержки WebGL для старых устройств
   const [webglSupported, setWebglSupported] = useState<boolean | null>(null);
@@ -149,15 +152,47 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
       const handleResize = () => {
         try {
           if (canvasRef.current && window) {
-            if (canvasRef.current.width !== window.innerWidth || canvasRef.current.height !== window.innerHeight) {
-              canvasRef.current.width = window.innerWidth;
-              canvasRef.current.height = window.innerHeight;
+            const newWidth = window.innerWidth;
+            const newHeight = window.innerHeight;
+            
+            if (canvasRef.current.width !== newWidth || canvasRef.current.height !== newHeight) {
+              canvasRef.current.width = newWidth;
+              canvasRef.current.height = newHeight;
+              
+              // КРИТИЧНО: Логируем размеры canvas для отладки
+              console.log('[OilSplashAttack] 📐 Canvas resized:', {
+                width: newWidth,
+                height: newHeight,
+                canvasWidth: canvasRef.current.width,
+                canvasHeight: canvasRef.current.height
+              });
             }
+          } else {
+            console.warn('[OilSplashAttack] ⚠️ Canvas or window not available in handleResize');
           }
         } catch (error) {
           console.error('[OilSplashAttack] Error in handleResize:', error);
         }
       };
+      
+      // КРИТИЧНО: Проверяем, что canvas существует перед настройкой
+      if (!canvasRef.current) {
+        console.error('[OilSplashAttack] ❌ Canvas ref is null during setup!');
+        return;
+      }
+      
+      // КРИТИЧНО: Проверяем контекст canvas
+      const ctx = canvasRef.current.getContext('2d');
+      if (!ctx) {
+        console.error('[OilSplashAttack] ❌ Failed to get 2d context from canvas!');
+        return;
+      }
+      
+      console.log('[OilSplashAttack] ✅ Canvas initialized successfully:', {
+        width: canvasRef.current.width,
+        height: canvasRef.current.height,
+        hasContext: !!ctx
+      });
       
       window.addEventListener('resize', handleResize);
       handleResize(); 
@@ -532,6 +567,66 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
 
   if (!isActive) return null;
 
+  // 🧪 ТЕСТ "КРАСНЫЙ КВАДРАТ" - для проверки видимости компонента
+  if (TEST_RED_SQUARE) {
+    console.log('[OilSplashAttack] 🧪 TEST MODE: Red square active!');
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: 'rgba(255, 0, 0, 0.8)', // Полупрозрачный красный
+        zIndex: 2147483647, // Максимальный z-index
+        pointerEvents: 'auto', // Разрешаем взаимодействие
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        gap: '20px'
+      }}>
+        <h1 style={{
+          color: 'white',
+          fontSize: '32px',
+          fontWeight: 'bold',
+          textAlign: 'center',
+          textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
+        }}>
+          🛢️ ATAKA RABOTAET!
+        </h1>
+        <p style={{
+          color: 'white',
+          fontSize: '18px',
+          textAlign: 'center'
+        }}>
+          Если вы видите это сообщение,<br />
+          логика синхронизации работает идеально!
+        </p>
+        <button
+          onClick={() => {
+            console.log('[OilSplashAttack] 🧪 Test button clicked');
+            if (onCleaned && typeof onCleaned === 'function') {
+              onCleaned();
+            }
+          }}
+          style={{
+            padding: '12px 24px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            backgroundColor: 'white',
+            color: 'red',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          Закрыть тест
+        </button>
+      </div>
+    );
+  }
+
   // КРИТИЧНО: Проверка onCleaned перед использованием
   const safeOnCleaned = () => {
     try {
@@ -578,12 +673,31 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     );
   }
 
+  // КРИТИЧНО: Логируем рендеринг компонента
+  console.log('[OilSplashAttack] 🎨 Rendering component:', {
+    isActive,
+    phase,
+    webglSupported,
+    expiresAt: expiresAt ? new Date(expiresAt).toISOString() : 'none',
+    now: new Date().toISOString(),
+    expired: expiresAt ? expiresAt <= Date.now() : false
+  });
+
   return (
     <div 
         ref={containerRef}
-        className={`fixed inset-0 z-[9999] touch-none overflow-hidden ${phase === 'cleaning' ? 'cursor-none' : ''}`}
+        className={`fixed inset-0 touch-none overflow-hidden ${phase === 'cleaning' ? 'cursor-none' : ''}`}
         style={{
-             transform: `translate(${(Math.random()-0.5) * shake}px, ${(Math.random()-0.5) * shake}px)`
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          zIndex: 2147483647, // Максимальный z-index (максимальное значение для 32-bit int)
+          transform: `translate(${(Math.random()-0.5) * shake}px, ${(Math.random()-0.5) * shake}px)`,
+          pointerEvents: phase === 'cleaning' ? 'auto' : 'none'
         }}
         onMouseMove={(e) => handleInput(e.clientX, e.clientY)}
         onMouseDown={() => setIsCleaning(true)}
