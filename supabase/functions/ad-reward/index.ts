@@ -8,10 +8,11 @@ const corsHeaders = {
 
 interface RewardRequest {
   user_id: string;
-  reward_type: 'coins' | 'restore_streak' | 'test_attempt';
+  reward_type: 'coins' | 'restore_streak' | 'test_attempt' | 'slot_unlock';
   amount?: number;
   ad_unit_id?: string;
   ad_network?: string;
+  metadata?: { [key: string]: any };
 }
 
 /**

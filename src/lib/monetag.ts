@@ -233,11 +233,46 @@ export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
         showFunction();
         console.log('[Monetag Web] Ad banner shown');
         
-        // Monetag платит за показы, поэтому награда выдается сразу после показа
-        // Небольшая задержка (500ms) чтобы убедиться, что реклама действительно показалась
+        // Проверяем, что реклама действительно показалась
+        // Monetag обычно создает iframe или div с рекламой
+        const checkAdShown = () => {
+          const monetagSelectors = [
+            'iframe[src*="monetag"]',
+            'iframe[src*="groleegni"]',
+            'iframe[src*="gizokraijaw"]',
+            'div[id*="monetag"]',
+            'div[class*="monetag"]',
+            '[data-zone="10323437"]'
+          ];
+          
+          for (const selector of monetagSelectors) {
+            if (document.querySelector(selector)) {
+              return true;
+            }
+          }
+          return false;
+        };
+        
+        // Проверяем через 500ms, что реклама показалась
         setTimeout(() => {
-          console.log('[Monetag Web] Rewarded interstitial completed - reward granted ✅');
-          resolve(true);
+          const adShown = checkAdShown();
+          if (adShown) {
+            console.log('[Monetag Web] Ad confirmed shown - reward granted ✅');
+            resolve(true);
+          } else {
+            console.warn('[Monetag Web] Ad might not have shown - checking again...');
+            // Проверяем еще раз через 1 секунду
+            setTimeout(() => {
+              const adShownRetry = checkAdShown();
+              if (adShownRetry) {
+                console.log('[Monetag Web] Ad confirmed shown (retry) - reward granted ✅');
+                resolve(true);
+              } else {
+                console.error('[Monetag Web] Ad not shown - NO reward ❌');
+                resolve(false);
+              }
+            }, 1000);
+          }
         }, 500);
       } catch (showError: any) {
         // Игнорируем ошибку "Failed to verify" - это нормально для Interstitial
