@@ -562,13 +562,6 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               profileId
             });
           }
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error('[useDuelRealtime] ❌❌❌ CHANNEL ERROR - Realtime subscription failed! ❌❌❌');
-        } else if (status === 'TIMED_OUT') {
-          console.error('[useDuelRealtime] ❌❌❌ TIMED OUT - Realtime subscription timeout! ❌❌❌');
-        } else {
-          console.log('[useDuelRealtime] 📡 Channel status:', status);
-        }
           
           // Check current duel status immediately after subscription
           const checkStatus = async () => {
@@ -591,9 +584,13 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           
           checkStatus();
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.error('[useDuelRealtime] ❌❌❌ CHANNEL ERROR/TIMED OUT - Realtime subscription failed! ❌❌❌');
           setConnectionStatus('error');
         } else if (status === 'CLOSED') {
+          console.log('[useDuelRealtime] 📡 Channel closed, reconnecting...');
           setConnectionStatus('connecting');
+        } else {
+          console.log('[useDuelRealtime] 📡 Channel status:', status);
         }
       });
 
