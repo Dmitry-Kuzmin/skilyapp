@@ -1888,16 +1888,47 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
       {/* 🆕 Слой спецэффектов (высокий z-index) */}
       {(() => {
-        const screenInjector = state.activeExploits?.find(e => e.type === 'screen_injector');
+        // КРИТИЧНО: Проверяем ВСЕ возможные типы атаки "Масло"
+        const screenInjector = state.activeExploits?.find(e => 
+          e.type === 'screen_injector' || 
+          e.type === 'data_leak' || 
+          e.type === 'oil_spill'
+        );
         const policeRaid = state.activeExploits?.find(e => e.type === 'police_backdoor');
         const policePassed = activeExploits.get('police_backdoor')?.passed || false;
-        const screenInjectorPassed = activeExploits.get('screen_injector')?.passed || false;
+        
+        // КРИТИЧНО: Проверяем passed статус для всех возможных типов
+        const screenInjectorPassed = 
+          activeExploits.get('screen_injector')?.passed || 
+          activeExploits.get('data_leak')?.passed || 
+          activeExploits.get('oil_spill')?.passed || 
+          false;
 
-        // КРИТИЧНО: Детальное логирование для отладки в Telegram (ВСЕГДА, не только в dev)
+        // КРИТИЧНО: Детальное логирование ВСЕХ exploits для отладки (ВСЕГДА, не только в dev)
+        console.log('[DuelBattleFullscreen] 🔍 ALL activeExploits check:', {
+          totalExploits: state.activeExploits?.length || 0,
+          allExploitTypes: state.activeExploits?.map(e => ({
+            type: e.type,
+            expiresAt: new Date(e.expiresAt).toISOString(),
+            receivedAt: new Date(e.receivedAt).toISOString(),
+            data: e.data
+          })) || [],
+          screenInjectorFound: !!screenInjector,
+          screenInjectorType: screenInjector?.type,
+          screenInjectorPassed,
+          activeExploitsMapKeys: Array.from(activeExploits.keys()),
+          activeExploitsMapEntries: Array.from(activeExploits.entries()).map(([k, v]) => ({
+            key: k,
+            expiresAt: new Date(v.expiresAt).toISOString(),
+            passed: v.passed
+          }))
+        });
+
         if (screenInjector) {
           const shouldRender = !screenInjectorPassed && screenInjector.expiresAt > Date.now();
-          console.log('[DuelBattleFullscreen] 🛢️ Screen Injector check:', {
+          console.log('[DuelBattleFullscreen] 🛢️ Oil Attack (Screen Injector/Data Leak) check:', {
             screenInjector,
+            screenInjectorType: screenInjector.type,
             screenInjectorPassed,
             expiresAt: screenInjector.expiresAt,
             expiresAtISO: new Date(screenInjector.expiresAt).toISOString(),
@@ -1911,7 +1942,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           
           // КРИТИЧНО: Если должен рендериться, но не рендерится - логируем предупреждение
           if (shouldRender) {
-            console.log('[DuelBattleFullscreen] ✅ OilSplashAttack SHOULD BE RENDERING NOW!');
+            console.log('[DuelBattleFullscreen] ✅✅✅ OilSplashAttack SHOULD BE RENDERING NOW! ✅✅✅');
           } else {
             console.warn('[DuelBattleFullscreen] ⚠️ OilSplashAttack NOT rendering:', {
               reason: screenInjectorPassed ? 'already passed' : 'expired',
@@ -1920,25 +1951,35 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             });
           }
         } else {
-          console.log('[DuelBattleFullscreen] ℹ️ No screen_injector exploit found in activeExploits');
+          console.warn('[DuelBattleFullscreen] ⚠️ No oil attack (screen_injector/data_leak/oil_spill) found in activeExploits!', {
+            availableTypes: state.activeExploits?.map(e => e.type) || [],
+            activeExploitsCount: state.activeExploits?.length || 0
+          });
         }
 
         return (
           <>
             {/* Data Leak (Масло) 🛢️ */}
+            {/* КРИТИЧНО: Рендерим для всех возможных типов атаки "Масло" */}
             {screenInjector && !screenInjectorPassed && screenInjector.expiresAt > Date.now() && (
               <OilSplashAttack
                 isActive={true}
                 expiresAt={screenInjector.expiresAt}
                 onCleaned={() => {
-                  if (isDev) {
-                    console.log('[DuelBattleFullscreen] 🛢️ OilSplashAttack cleaned');
-                  }
+                  console.log('[DuelBattleFullscreen] 🛢️ OilSplashAttack cleaned, exploit type:', screenInjector.type);
                   setActiveExploits(prev => {
                     const updated = new Map(prev);
-                    const current = updated.get('screen_injector');
+                    // КРИТИЧНО: Обновляем passed статус для правильного типа
+                    const exploitType = screenInjector.type;
+                    const current = updated.get(exploitType);
                     if (current) {
-                      updated.set('screen_injector', { ...current, passed: true });
+                      updated.set(exploitType, { ...current, passed: true });
+                    } else {
+                      // Fallback: если не нашли по типу, пробуем screen_injector
+                      const fallback = updated.get('screen_injector');
+                      if (fallback) {
+                        updated.set('screen_injector', { ...fallback, passed: true });
+                      }
                     }
                     return updated;
                   });
