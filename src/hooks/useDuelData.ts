@@ -22,6 +22,8 @@ export interface LoadPlayersResult {
 export interface BoostInventoryItem {
   boost_type: string;
   quantity: number;
+  icon?: string | null;
+  name_ru?: string;
 }
 
 export interface BetInfo {
@@ -285,18 +287,53 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       console.log('[useDuelData] Filtering by loadout. Looking for:', loadoutBoosts);
       console.log('[useDuelData] Available boost types in inventory:', boosts.map(b => b.boost_type));
       
+      // Загружаем определения бустов для получения иконок и названий
+      const { data: boostDefinitions } = await supabase
+        .from("boost_definitions")
+        .select("type, icon, name_ru")
+        .in("type", loadoutBoosts);
+      
+      const definitionsMap = new Map(
+        (boostDefinitions || []).map(b => [b.type, { icon: b.icon, name_ru: b.name_ru }])
+      );
+      
       // Создаем мапу для быстрого поиска количества бустов
       const boostsMap = new Map(boosts.map(b => [b.boost_type, b.quantity]));
       
       // Формируем список бустов из loadout (даже если их нет в инвентаре - показываем с количеством 0)
-      const filteredBoosts = loadoutBoosts.map(boostType => ({
-        boost_type: boostType,
-        quantity: boostsMap.get(boostType) || 0
-      }));
+      const filteredBoosts = loadoutBoosts.map(boostType => {
+        const definition = definitionsMap.get(boostType);
+        return {
+          boost_type: boostType,
+          quantity: boostsMap.get(boostType) || 0,
+          icon: definition?.icon || null,
+          name_ru: definition?.name_ru || boostType
+        };
+      });
       
       boosts = filteredBoosts;
-      console.log('[useDuelData] Filtered boosts by loadout:', boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })));
+      console.log('[useDuelData] Filtered boosts by loadout:', boosts.map(b => ({ type: b.boost_type, quantity: b.quantity, icon: b.icon })));
     } else {
+      // Если loadout пустой, загружаем определения для всех бустов из инвентаря
+      if (boosts.length > 0) {
+        const { data: boostDefinitions } = await supabase
+          .from("boost_definitions")
+          .select("type, icon, name_ru")
+          .in("type", boosts.map(b => b.boost_type));
+        
+        const definitionsMap = new Map(
+          (boostDefinitions || []).map(b => [b.type, { icon: b.icon, name_ru: b.name_ru }])
+        );
+        
+        boosts = boosts.map(b => {
+          const definition = definitionsMap.get(b.boost_type);
+          return {
+            ...b,
+            icon: definition?.icon || null,
+            name_ru: definition?.name_ru || b.boost_type
+          };
+        });
+      }
       console.log('[useDuelData] No loadout selected, showing all boosts');
     }
 

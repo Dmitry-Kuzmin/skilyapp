@@ -1262,7 +1262,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             duration: 3000,
           });
 
-      await syncBoostInventory();
+      // Уменьшаем количество буста локально (не синхронизируем с БД - буст уже использован)
+      setBoosts(prev => prev.map(b => 
+        b.boost_type === boostType 
+          ? { ...b, quantity: Math.max(0, b.quantity - 1) }
+          : b
+      ));
         } catch (error) {
           // Ошибка
           if (navigator.vibrate) {
@@ -1294,13 +1299,21 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           },
         });
 
-        await syncBoostInventory();
+        // Уменьшаем количество буста локально (не синхронизируем с БД - буст уже использован)
+        setBoosts(prev => prev.map(b => 
+          b.boost_type === boostType 
+            ? { ...b, quantity: Math.max(0, b.quantity - 1) }
+            : b
+        ));
       }
     } catch (error) {
       logError('Error using boost:', error);
       setUsedBoosts(prev => prev.filter(b => b !== boostType));
       // Скрываем overlay при ошибке
       setBoostFeedback(prev => ({ ...prev, isActive: false }));
+      
+      // ВАЖНО: При ошибке НЕ уменьшаем количество буста - он не был использован
+      // Количество остается прежним, так как Edge Function не выполнил уменьшение
       
       // Определяем isExploit заново для catch блока
       const rootModeExploits = ['screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall'];
@@ -1326,7 +1339,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     setCurrentIndex,
     setSelectedAnswer,
     setUsedBoostsReset,
-    syncBoostInventory,
+    setBoosts,
     finishDuel,
     moveToNextQuestion,
     setBoostFeedback,
@@ -1508,7 +1521,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       <div
         className="fixed z-50 space-y-2 max-w-sm"
         style={{
-          top: `${progressBarTop + PROGRESS_BAR_HEIGHT + (isTelegramMobile ? 40 : isTelegramDesktop ? 8 : 16)}px`, // Отступ 40px от верха прогресс-бара для мобильной версии Telegram
+          top: `${progressBarTop + PROGRESS_BAR_HEIGHT + (isTelegramMobile ? 12 : isTelegramDesktop ? 8 : 16)}px`, // Отступ 12px от верха прогресс-бара для мобильной версии Telegram (уменьшено с 40px)
           right: `${totalRightPadding + 16}px`
         }}
       >
@@ -1573,8 +1586,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         }}
       >
         {/* Header - Scores & Boosts - Premium Design */}
-        <div className={`relative z-20 flex items-center justify-between gap-3 flex-wrap ${isTelegramMobile
-          ? 'mb-2' // Убираем отрицательный margin, чтобы блок не выходил за границы
+        <div className={`relative z-20 ${isTelegramMobile 
+          ? 'flex flex-col gap-2 mb-1' // Вертикальная компоновка для мобильной версии
+          : 'flex items-center justify-between gap-3 flex-wrap'
+        } ${isTelegramMobile
+          ? 'mb-1' // Минимальный отступ для мобильной версии Telegram
           : isTelegramDesktop
             ? 'mb-3 md:mb-4' // Обычный отступ для десктопной версии
             : 'mb-3 md:mb-4' // Обычный отступ для браузера
@@ -1599,7 +1615,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           />
 
           {/* Right Side - Boosts & Combo */}
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className={`flex items-center gap-2 flex-wrap ${isTelegramMobile ? 'w-full justify-center mt-2' : ''}`}>
             {/* Combo */}
             <AnimatePresence>
               {combo > 1 && (
@@ -1630,15 +1646,24 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               )}
             </AnimatePresence>
 
-            {/* Boosts - Premium Compact Design */}
-            <DuelBoostsPanel
-              boosts={boosts}
-              usedBoosts={usedBoosts}
-              isAnswered={isAnswered}
-              translatePopoverOpen={translatePopoverOpen}
-              onBoostUse={handleBoostUse}
-              onTranslatePopoverChange={setTranslatePopoverOpen}
-            />
+            {/* Boosts - Premium Compact Design - Всегда видимы */}
+            {boosts.length > 0 ? (
+              <DuelBoostsPanel
+                boosts={boosts}
+                usedBoosts={usedBoosts}
+                isAnswered={isAnswered}
+                translatePopoverOpen={translatePopoverOpen}
+                onBoostUse={handleBoostUse}
+                onTranslatePopoverChange={setTranslatePopoverOpen}
+              />
+            ) : (
+              // Показываем сообщение для отладки, если бусты не загружены
+              isDev && (
+                <div className="text-xs text-muted-foreground">
+                  Бусты не загружены ({boosts.length})
+                </div>
+              )
+            )}
           </div>
         </div>
 

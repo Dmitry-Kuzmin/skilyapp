@@ -367,10 +367,37 @@ function calculateScore(
 
 // Bot name pool - реалистичные никнеймы для ботов
 const BOT_NAMES = [
-  'CyberNinja', 'Alex_99', 'Kira', 'Neo_V', 'Ghost_Rider', 'Zero_Cool',
-  'Matrix_Hack', 'Byte_Force', 'Code_Breaker', 'Net_Runner', 'Data_Storm',
-  'Pixel_Warrior', 'Binary_Soul', 'Quantum_Leap', 'Crypto_King', 'Tech_Master',
-  'Digital_Shadow', 'Firewall_Breaker', 'System_Crash', 'Neon_Blade'
+  // Русские имена
+  'Александр', 'Мария', 'Дмитрий', 'Анна', 'Иван', 'Елена', 'Сергей', 'Ольга',
+  'Андрей', 'Наталья', 'Максим', 'Татьяна', 'Алексей', 'Юлия', 'Павел', 'Ирина',
+  'Николай', 'Светлана', 'Владимир', 'Екатерина', 'Артем', 'Марина', 'Роман', 'Анастасия',
+  'Денис', 'Виктория', 'Антон', 'Кристина', 'Игорь', 'Дарья', 'Михаил', 'Полина',
+  'Евгений', 'Валерия', 'Алекс', 'София', 'Кирилл', 'Алиса', 'Станислав', 'Вероника',
+  'Артур', 'Арина', 'Даниил', 'Елизавета', 'Георгий', 'Милана', 'Тимур', 'Амелия',
+  'Марк', 'Василиса', 'Лев', 'Ангелина', 'Федор', 'Диана', 'Григорий', 'Карина',
+  
+  // Испанские имена
+  'Carlos', 'María', 'José', 'Ana', 'Luis', 'Carmen', 'Juan', 'Laura',
+  'Miguel', 'Isabel', 'Francisco', 'Patricia', 'Antonio', 'Sofía', 'Manuel', 'Lucía',
+  'Pedro', 'Elena', 'Javier', 'Marta', 'Diego', 'Paula', 'Ángel', 'Claudia',
+  'Fernando', 'Cristina', 'Roberto', 'Andrea', 'Ricardo', 'Natalia', 'Alejandro', 'Sara',
+  'Daniel', 'Beatriz', 'Sergio', 'Raquel', 'Pablo', 'Mónica', 'Álvaro', 'Eva',
+  'Adrián', 'Lorena', 'Rubén', 'Silvia', 'Óscar', 'Rocío', 'Víctor', 'Nerea',
+  'Iván', 'Celia', 'Jorge', 'Inés', 'Raúl', 'Marina', 'Gonzalo', 'Carla',
+  
+  // Английские имена
+  'James', 'Emma', 'Michael', 'Olivia', 'William', 'Sophia', 'David', 'Isabella',
+  'Richard', 'Charlotte', 'Joseph', 'Amelia', 'Thomas', 'Mia', 'Charles', 'Harper',
+  'Christopher', 'Evelyn', 'Daniel', 'Abigail', 'Matthew', 'Emily', 'Anthony', 'Elizabeth',
+  'Mark', 'Sofia', 'Donald', 'Avery', 'Steven', 'Ella', 'Paul', 'Madison',
+  'Andrew', 'Scarlett', 'Joshua', 'Victoria', 'Kenneth', 'Aria', 'Kevin', 'Grace',
+  'Brian', 'Chloe', 'George', 'Camila', 'Timothy', 'Penelope', 'Ronald', 'Riley',
+  'Jason', 'Layla', 'Edward', 'Lillian', 'Jeffrey', 'Nora', 'Ryan', 'Zoey',
+  'Jacob', 'Mila', 'Gary', 'Aubrey', 'Nicholas', 'Hannah', 'Eric', 'Addison',
+  'Jonathan', 'Eleanor', 'Stephen', 'Natalie', 'Larry', 'Luna', 'Justin', 'Savannah',
+  'Scott', 'Leah', 'Brandon', 'Zoe', 'Benjamin', 'Stella', 'Samuel', 'Hazel',
+  'Frank', 'Ellie', 'Gregory', 'Paisley', 'Raymond', 'Audrey', 'Alexander', 'Skylar',
+  'Patrick', 'Violet', 'Jack', 'Claire', 'Dennis', 'Bella', 'Jerry', 'Aurora'
 ];
 
 // Bot avatar pool (используем доступные аватары)
@@ -890,7 +917,7 @@ async function createNotification(body: any, profileId: string, supabase: any): 
     // Get opponent's profile_id
     const { data: players, error: playersError } = await supabase
       .from('duel_players')
-      .select('user_id, is_bot, bot_name')
+      .select('user_id, is_bot, bot_name, name')
       .eq('duel_id', duel_id);
 
     if (playersError) {
@@ -944,9 +971,16 @@ async function createNotification(body: any, profileId: string, supabase: any): 
     // Если оппонент - бот и имя уже в metadata, используем его
     if (!metadata.opponent_name) {
       // Если оппонент - бот, пытаемся получить имя из player данных
-      if (opponentPlayer?.is_bot && opponentPlayer?.bot_name) {
-        metadata.opponent_name = opponentPlayer.bot_name;
-        console.log('[create_notification] ✅ Using bot name from player data:', metadata.opponent_name);
+      if (opponentPlayer?.is_bot) {
+        // ВАЖНО: Используем bot_name из БД, если он есть, иначе name, для консистентности с get_players
+        const botName = opponentPlayer?.bot_name || opponentPlayer?.name;
+        if (botName) {
+          metadata.opponent_name = botName;
+          console.log('[create_notification] ✅ Using bot name from player data:', metadata.opponent_name, '(bot_name:', opponentPlayer?.bot_name, ', name:', opponentPlayer?.name, ')');
+        } else {
+          console.warn('[create_notification] ⚠️ Bot name not found in player data, using fallback');
+          metadata.opponent_name = 'Игрок';
+        }
       } else if (opponentId) {
         // Для реального игрока получаем имя из профиля
         try {
@@ -1286,10 +1320,10 @@ Deno.serve(async (req) => {
         console.log('[Duel Manager] Getting players for duel:', duel_id, 'Profile:', profileId);
 
         // Загружаем игроков без join (чтобы избежать проблем с RLS)
-        // Включаем информацию о ботах (is_bot, bot_difficulty)
+        // Включаем информацию о ботах (is_bot, bot_difficulty, bot_name, name)
         const { data: players, error: playersError } = await supabase
           .from('duel_players')
-          .select('id, user_id, score, correct_count, is_bot, bot_difficulty')
+          .select('id, user_id, score, correct_count, is_bot, bot_difficulty, bot_name, name')
           .eq('duel_id', duel_id);
 
         if (playersError) {
@@ -1374,16 +1408,27 @@ Deno.serve(async (req) => {
 
         // Format players with names
         const formattedPlayers = players.map((p: any) => {
-          // Если это бот - используем сгенерированное имя
+          // Если это бот - используем имя из БД или генерируем
           if (p.is_bot) {
-            const botNames = ['CyberNinja', 'Alex_99', 'Kira', 'Neo_V', 'Ghost_Rider', 'Zero_Cool', 'Matrix_Hack', 'Byte_Force', 'Code_Breaker', 'Net_Runner'];
-            // Генерируем детерминированное имя на основе ID бота для консистентности
-            const botNameIndex = parseInt(p.id.replace(/-/g, '').slice(0, 8), 16) % botNames.length;
-            const botName = botNames[botNameIndex];
+            // ВАЖНО: Используем bot_name из БД, если он есть (это имя, которое было сохранено при создании бота)
+            // Если bot_name нет, используем name из БД
+            // Только если оба отсутствуют, генерируем имя на основе ID
+            let botName = p.bot_name || p.name;
+            
+            if (!botName) {
+              // Fallback: генерируем детерминированное имя на основе ID бота для консистентности
+              const botNameIndex = parseInt(p.id.replace(/-/g, '').slice(0, 8), 16) % BOT_NAMES.length;
+              botName = BOT_NAMES[botNameIndex];
+              console.log('[get_players] ⚠️ Bot name not found in DB, generating from ID:', botName);
+            } else {
+              console.log('[get_players] ✅ Using bot name from DB:', botName);
+            }
             
             console.log('[get_players] Processing bot player:', {
               playerId: p.id,
               botName,
+              bot_name_from_db: p.bot_name,
+              name_from_db: p.name,
               bot_difficulty: p.bot_difficulty
             });
 
@@ -2998,7 +3043,7 @@ Deno.serve(async (req) => {
         // Находим бота в дуэли
         const { data: botPlayer } = await supabase
           .from('duel_players')
-          .select('id, bot_difficulty, score, correct_count')
+          .select('id, bot_difficulty, score, correct_count, bot_name, name')
           .eq('duel_id', duel_id)
           .eq('is_bot', true)
           .single();
@@ -3046,26 +3091,80 @@ Deno.serve(async (req) => {
         const botSimulation = simulateBotAnswer(botDifficulty, questionDifficulty);
         const correctIds = question.correct_option_ids as string[];
 
+        // ВАЖНО: Бот ВСЕГДА должен отвечать на вопрос, пропуски запрещены
         // Выбираем правильный или неправильный ответ
+        const allOptions = (question.question_snapshot as any).answer_options || [];
+        
+        if (allOptions.length === 0) {
+          return new Response(JSON.stringify({ error: 'Question has no answer options' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
         let selectedOptionId: string | null = null;
         if (botSimulation.willBeCorrect && correctIds.length > 0) {
-          selectedOptionId = correctIds[0]; // Берем первый правильный
+          // Выбираем случайный правильный ответ (если их несколько)
+          selectedOptionId = correctIds[Math.floor(Math.random() * correctIds.length)];
         } else {
           // Выбираем случайный неправильный ответ
-          const allOptions = (question.question_snapshot as any).answer_options || [];
           const wrongOptions = allOptions.filter((opt: any) => !correctIds.includes(opt.id));
           if (wrongOptions.length > 0) {
             selectedOptionId = wrongOptions[Math.floor(Math.random() * wrongOptions.length)].id;
+          } else {
+            // Если почему-то нет неправильных вариантов, выбираем любой вариант
+            selectedOptionId = allOptions[Math.floor(Math.random() * allOptions.length)].id;
           }
         }
 
+        // КРИТИЧНО: Бот НИКОГДА не пропускает вопросы
+        if (!selectedOptionId) {
+          console.error('[bot_answer] ❌ CRITICAL: No option selected, selecting random option as fallback');
+          selectedOptionId = allOptions[Math.floor(Math.random() * allOptions.length)].id;
+        }
+
         const isCorrect = selectedOptionId ? correctIds.includes(selectedOptionId) : false;
-        const isSkipped = !selectedOptionId;
+        const isSkipped = false; // Бот никогда не пропускает вопросы
 
         // Вычисляем очки (бот не получает комбо бонусы для упрощения)
         const timeLimit = 60000;
-        const timeRemain = Math.floor(Math.random() * 20000) + 10000; // 10-30 секунд
-        const points = isCorrect ? calculateScore(questionDifficulty, timeRemain, timeLimit, 0) : 0;
+        
+        // Естественное время ответа бота зависит от сложности вопроса и бота
+        // Легкие вопросы - быстрее, сложные - медленнее
+        // Сильные боты отвечают быстрее на легкие вопросы
+        const difficultyTimeModifiers = {
+          easy: { min: 8000, max: 20000 },    // 8-20 секунд для легких
+          medium: { min: 15000, max: 35000 },  // 15-35 секунд для средних
+          hard: { min: 25000, max: 50000 },   // 25-50 секунд для сложных
+        };
+        
+        const timeRange = difficultyTimeModifiers[questionDifficulty as keyof typeof difficultyTimeModifiers] || difficultyTimeModifiers.medium;
+        
+        // Сильные боты отвечают быстрее
+        const botSpeedModifier = {
+          easy: 1.0,    // Без изменений
+          medium: 0.9,  // На 10% быстрее
+          hard: 0.8,    // На 20% быстрее
+          insane: 0.7, // На 30% быстрее
+        }[botDifficulty] || 1.0;
+        
+        const adjustedMin = Math.floor(timeRange.min * botSpeedModifier);
+        const adjustedMax = Math.floor(timeRange.max * botSpeedModifier);
+        const timeRemain = Math.floor(Math.random() * (adjustedMax - adjustedMin) + adjustedMin);
+        
+        // Ограничиваем время ответа разумными пределами (не меньше 5 секунд, не больше 55 секунд)
+        const clampedTimeRemain = Math.max(5000, Math.min(55000, timeRemain));
+        
+        const points = isCorrect ? calculateScore(questionDifficulty, clampedTimeRemain, timeLimit, 0) : 0;
+        
+        console.log(`[bot_answer] ⏱️ Bot answer timing:`, {
+          botDifficulty,
+          questionDifficulty,
+          timeRemain: clampedTimeRemain,
+          timeTaken: timeLimit - clampedTimeRemain,
+          isCorrect,
+          points
+        });
 
         // Сохраняем ответ бота
         await supabase.from('duel_answers').insert({
@@ -3092,9 +3191,8 @@ Deno.serve(async (req) => {
           .eq('id', botPlayer.id);
 
         // Создаем уведомление для игрока о прогрессе бота (как в реальных дуэлях)
-        // Всегда уведомляем о каждом ответе бота, не только на milestones
-        if (!isSkipped) {
-          console.log('[bot_answer] Creating progress notification for human player');
+        // Всегда уведомляем о каждом ответе бота
+        console.log('[bot_answer] Creating progress notification for human player');
 
           const { data: duel } = await supabase
             .from('duels')
@@ -3156,7 +3254,6 @@ Deno.serve(async (req) => {
           } else {
             console.warn('[bot_answer] ⚠️ Human player not found in duel');
           }
-        }
 
         return new Response(JSON.stringify({
           is_correct: isCorrect,

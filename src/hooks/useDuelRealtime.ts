@@ -182,7 +182,21 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           markEvent();
           const updatedPlayer = payload.new as any;
           const currentMyPlayerId = myPlayerIdRef.current;
-          debugFetch({location:'useDuelRealtime.ts:149',message:'Player score update received',data:{updatedPlayerId:updatedPlayer.id,myPlayerId:currentMyPlayerId,updatedScore:updatedPlayer.score,isMyPlayer:updatedPlayer.id===currentMyPlayerId,currentMyScore:state.myScore,currentOpponentScore:state.opponentScore},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'});
+          
+          // Логируем обновление для отладки (особенно для ботов)
+          const isBot = updatedPlayer.is_bot === true;
+          log(`[useDuelRealtime] 📊 Player update received:`, {
+            playerId: updatedPlayer.id,
+            isBot,
+            bot_name: updatedPlayer.bot_name,
+            myPlayerId: currentMyPlayerId,
+            isMyPlayer: updatedPlayer.id === currentMyPlayerId,
+            score: updatedPlayer.score,
+            correct_count: updatedPlayer.correct_count,
+            currentOpponentScore: state.opponentScore
+          });
+          
+          debugFetch({location:'useDuelRealtime.ts:149',message:'Player score update received',data:{updatedPlayerId:updatedPlayer.id,isBot,myPlayerId:currentMyPlayerId,updatedScore:updatedPlayer.score,isMyPlayer:updatedPlayer.id===currentMyPlayerId,currentMyScore:state.myScore,currentOpponentScore:state.opponentScore},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'});
           
           // ОПТИМИЗАЦИЯ: Батчим обновления состояния для предотвращения лишних ре-рендеров
           if (currentMyPlayerId) {
@@ -196,12 +210,21 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
                 });
               }
             } else {
-              // Это обновление счета соперника - батчим все обновления в одно
+              // Это обновление счета соперника (может быть бот) - батчим все обновления в одно
               const newOpponentScore = typeof updatedPlayer.score === 'number' ? updatedPlayer.score : undefined;
               const newCorrectCount = typeof updatedPlayer.correct_count === 'number' ? updatedPlayer.correct_count : undefined;
               const newActivityStatus = updatedPlayer.activity_status;
               const newLastSeen = updatedPlayer.last_heartbeat_at ? new Date(updatedPlayer.last_heartbeat_at) : undefined;
-              debugFetch({location:'useDuelRealtime.ts:165',message:'Updating opponent score',data:{newOpponentScore,oldOpponentScore:state.opponentScore,newCorrectCount,oldCorrectCount:state.opponentCorrectCount},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'});
+              
+              log(`[useDuelRealtime] 🤖 Bot score update:`, {
+                isBot,
+                newOpponentScore,
+                oldOpponentScore: state.opponentScore,
+                newCorrectCount,
+                oldCorrectCount: state.opponentCorrectCount
+              });
+              
+              debugFetch({location:'useDuelRealtime.ts:165',message:'Updating opponent score',data:{isBot,newOpponentScore,oldOpponentScore:state.opponentScore,newCorrectCount,oldCorrectCount:state.opponentCorrectCount},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'});
               
               setState(prev => {
                 // Проверяем, нужно ли обновление
@@ -211,7 +234,15 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
                   (newActivityStatus && prev.opponentActivityStatus !== newActivityStatus) ||
                   (newLastSeen && (!prev.opponentLastSeen || prev.opponentLastSeen.getTime() !== newLastSeen.getTime()));
                 
-                if (!needsUpdate) return prev;
+                if (!needsUpdate) {
+                  log(`[useDuelRealtime] ⏭️ Skipping update (no changes)`);
+                  return prev;
+                }
+                
+                log(`[useDuelRealtime] ✅ Updating opponent state:`, {
+                  opponentScore: newOpponentScore !== undefined ? newOpponentScore : prev.opponentScore,
+                  opponentCorrectCount: newCorrectCount !== undefined ? newCorrectCount : prev.opponentCorrectCount
+                });
                 
                 return {
                   ...prev,
@@ -226,6 +257,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             // myPlayerId не установлен - обновляем opponentScore как fallback
             debugFetch({location:'useDuelRealtime.ts:190',message:'myPlayerId not set - fallback update',data:{updatedScore:updatedPlayer.score,currentOpponentScore:state.opponentScore},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'});
             if (typeof updatedPlayer.score === 'number') {
+              log(`[useDuelRealtime] 🔄 Fallback: Updating opponent score:`, updatedPlayer.score);
               setState(prev => prev.opponentScore === updatedPlayer.score ? prev : ({ 
                 ...prev, 
                 opponentScore: updatedPlayer.score,

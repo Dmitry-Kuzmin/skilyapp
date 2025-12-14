@@ -10,6 +10,7 @@ import { PaywallModal } from '@/components/monetization/PaywallModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { usePremium } from '@/hooks/usePremium';
+import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -38,6 +39,8 @@ const SLOT_UNLOCK_COST = 500;
 export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChange }) => {
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   const [availableBoosts, setAvailableBoosts] = useState<Boost[]>([]);
   const [loadout, setLoadout] = useState<Loadout>({
     slot_1_boost_type: null,
@@ -282,13 +285,13 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
 
   if (loading) {
     return (
-      <Card className="p-6 bg-zinc-900/80 border border-white/10 backdrop-blur-xl rounded-xl">
+      <Card className="p-6 bg-zinc-900/80 dark:bg-zinc-900/80 bg-zinc-50/80 border border-white/10 dark:border-white/10 border-zinc-200/50 backdrop-blur-xl rounded-xl">
         <div className="animate-pulse space-y-4">
-          <div className="h-4 bg-zinc-800/50 rounded w-1/3" />
+          <div className="h-4 bg-zinc-800/50 dark:bg-zinc-800/50 bg-zinc-200/50 rounded w-1/3" />
           <div className="grid grid-cols-3 gap-3">
-            <div className="h-24 bg-zinc-800/50 rounded-xl" />
-            <div className="h-24 bg-zinc-800/50 rounded-xl" />
-            <div className="h-24 bg-zinc-800/50 rounded-xl" />
+            <div className="h-24 bg-zinc-800/50 dark:bg-zinc-800/50 bg-zinc-200/50 rounded-xl" />
+            <div className="h-24 bg-zinc-800/50 dark:bg-zinc-800/50 bg-zinc-200/50 rounded-xl" />
+            <div className="h-24 bg-zinc-800/50 dark:bg-zinc-800/50 bg-zinc-200/50 rounded-xl" />
           </div>
         </div>
       </Card>
@@ -297,13 +300,14 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
 
   return (
     <>
-    <Card className="p-6 relative overflow-visible pb-12 rounded-xl border border-white/10 backdrop-blur-xl"
+    <Card className="p-6 relative overflow-visible pb-12 rounded-xl border border-zinc-200/50 dark:border-white/10 backdrop-blur-xl bg-white/80 dark:bg-zinc-900/80"
       style={{
-        background: 'radial-gradient(120% 120% at 50% 0%, rgba(99, 102, 241, 0.05) 0%, rgba(0, 0, 0, 0.4) 100%)',
-        boxShadow: `
-          inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
-          0 10px 40px -10px rgba(0, 0, 0, 0.5)
-        `,
+        background: isDark 
+          ? 'radial-gradient(120% 120% at 50% 0%, rgba(99, 102, 241, 0.05) 0%, rgba(0, 0, 0, 0.4) 100%)'
+          : 'radial-gradient(120% 120% at 50% 0%, rgba(99, 102, 241, 0.08) 0%, rgba(255, 255, 255, 0.7) 100%)',
+        boxShadow: isDark
+          ? 'inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 10px 40px -10px rgba(0, 0, 0, 0.5)'
+          : 'inset 0 1px 0 0 rgba(0, 0, 0, 0.05), 0 10px 40px -10px rgba(0, 0, 0, 0.1)',
       }}
     >
       {/* Noise Texture Overlay */}
@@ -318,17 +322,17 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         {/* Заголовок - Премиум типографика */}
         <div className="flex items-start justify-between relative">
           <div className="space-y-1 relative z-10">
-            <h3 className="text-lg font-black text-white flex items-center gap-2 tracking-tight">
-              <Zap className="w-5 h-5 text-indigo-400 drop-shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
+            <h3 className="text-lg font-black text-zinc-900 dark:text-white flex items-center gap-2 tracking-tight">
+              <Zap className="w-5 h-5 text-indigo-500 dark:text-indigo-400 drop-shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
               <span className="font-mono tracking-wider">RAM LOADOUT</span>
             </h3>
-            <p className="text-xs font-mono text-zinc-400 tracking-wider uppercase">
+            <p className="text-xs font-mono text-zinc-600 dark:text-zinc-400 tracking-wider uppercase">
               Select up to 3 boosts
             </p>
           </div>
           
           {/* Декоративный текст-призрак */}
-          <div className="absolute top-0 right-0 text-[8px] font-mono text-white/5 tracking-widest">
+          <div className="absolute top-0 right-0 text-[8px] font-mono text-zinc-300/30 dark:text-white/5 tracking-widest">
             V.2.0
           </div>
         </div>
@@ -414,9 +418,11 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
       >
         <SheetContent 
           side="bottom" 
-          className="bg-black/95 border-t border-white/20 rounded-t-3xl max-h-[70vh] flex flex-col p-0 backdrop-blur-xl"
+          className="bg-white/95 dark:bg-black/95 border-t border-zinc-200/50 dark:border-white/20 rounded-t-3xl max-h-[70vh] flex flex-col p-0 backdrop-blur-xl"
           style={{
-            boxShadow: '0 -10px 40px -10px rgba(0, 0, 0, 0.8)',
+            boxShadow: isDark 
+              ? '0 -10px 40px -10px rgba(0, 0, 0, 0.8)'
+              : '0 -10px 40px -10px rgba(0, 0, 0, 0.15)',
           }}
         >
           {/* Noise Texture для Sheet */}
@@ -431,8 +437,8 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           {/* Декоративные линии сверху */}
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
           
-          <SheetHeader className="px-4 pt-4 pb-3 border-b border-white/10 relative z-10 flex items-center justify-between">
-            <SheetTitle className="font-mono text-sm font-bold text-indigo-400 tracking-wider">
+          <SheetHeader className="px-4 pt-4 pb-3 border-b border-zinc-200/50 dark:border-white/10 relative z-10 flex items-center justify-between">
+            <SheetTitle className="font-mono text-sm font-bold text-indigo-600 dark:text-indigo-400 tracking-wider">
               SELECT MODULE [SLOT {selectedSlotIndex !== null ? selectedSlotIndex + 1 : ''}]
             </SheetTitle>
             {/* Кнопка очистки в заголовке */}
@@ -447,7 +453,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
                     isClosingRef.current = false;
                   }, 300);
                 }}
-                className="text-xs font-mono text-white/30 hover:text-red-400 transition-colors flex items-center gap-1.5"
+                className="text-xs font-mono text-zinc-500/70 dark:text-white/30 hover:text-red-500 dark:hover:text-red-400 transition-colors flex items-center gap-1.5"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">UNEQUIP</span>
@@ -463,6 +469,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
                 selectedSlotIndex === 1 ? loadout.slot_2_boost_type :
                 loadout.slot_3_boost_type
               )}
+              isDark={isDark}
               onSelectBoost={(boostType) => {
                 // Закрываем Sheet перед обновлением
                 isClosingRef.current = true;
@@ -647,19 +654,19 @@ const SlotCard: React.FC<SlotCardProps> = ({
           // Слот с бустом - эффект вставленного модуля
           selectedBoost
             ? cn(
-                "bg-zinc-900/80 border-2",
-                categoryColors?.border || "border-indigo-500/50",
-                "shadow-[inset_0_2px_8px_rgba(0,0,0,0.6),inset_0_-2px_8px_rgba(0,0,0,0.4)]"
+                "bg-white/90 dark:bg-zinc-900/80 border-2",
+                categoryColors?.border || "border-indigo-500/50 dark:border-indigo-500/50",
+                "shadow-[inset_0_2px_8px_rgba(0,0,0,0.1),inset_0_-2px_8px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_8px_rgba(0,0,0,0.6),inset_0_-2px_8px_rgba(0,0,0,0.4)]"
               )
             : // Пустой разблокированный слот - синяя рамка
             isUnlocked
-            ? "bg-zinc-950/60 border border-blue-500/30 hover:border-blue-500/50 hover:bg-zinc-950/80"
+            ? "bg-zinc-50/80 dark:bg-zinc-950/60 border border-blue-500/40 dark:border-blue-500/30 hover:border-blue-500/60 dark:hover:border-blue-500/50 hover:bg-zinc-100/90 dark:hover:bg-zinc-950/80"
             : // Заблокированный слот
             isPremium
-            ? "bg-zinc-950/40 border border-amber-500/30 opacity-70 hover:opacity-90"
+            ? "bg-zinc-100/60 dark:bg-zinc-950/40 border border-amber-500/40 dark:border-amber-500/30 opacity-70 hover:opacity-90"
             : canOverclock
-            ? "bg-orange-500/5 border border-orange-500/30 hover:border-orange-500/50 hover:bg-orange-500/10"
-            : "bg-zinc-950/40 border border-white/5 opacity-70"
+            ? "bg-orange-50/50 dark:bg-orange-500/5 border border-orange-500/40 dark:border-orange-500/30 hover:border-orange-500/60 dark:hover:border-orange-500/50 hover:bg-orange-100/70 dark:hover:bg-orange-500/10"
+            : "bg-zinc-100/60 dark:bg-zinc-950/40 border border-zinc-300/50 dark:border-white/5 opacity-70"
         )}
         style={{
           boxShadow: selectedBoost
@@ -690,11 +697,11 @@ const SlotCard: React.FC<SlotCardProps> = ({
 
         {/* Top Label - Минималистичный заголовок */}
         <div className="flex items-center justify-between z-10 flex-shrink-0 mb-2">
-          <span className="text-[8px] font-mono text-white/20 uppercase tracking-wider">
+          <span className="text-[8px] font-mono text-zinc-500/60 dark:text-white/20 uppercase tracking-wider">
             SLOT {slotNumber}
           </span>
           {isPremium && (
-            <Crown className="w-3 h-3 text-amber-400/60" />
+            <Crown className="w-3 h-3 text-amber-500/70 dark:text-amber-400/60" />
           )}
         </div>
 
@@ -733,7 +740,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
                 {/* Название буста */}
                 <span className={cn(
                   "text-[10px] sm:text-xs font-bold text-center px-2 truncate w-full leading-tight",
-                  categoryColors?.text || "text-white"
+                  categoryColors?.text || "text-zinc-900 dark:text-white"
                 )}>
                   {selectedBoost.name_ru}
                 </span>
@@ -744,7 +751,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
                     e.stopPropagation();
                     onClear();
                   }}
-                  className="absolute top-0 right-0 w-5 h-5 flex items-center justify-center text-white/30 hover:text-red-500 transition-colors z-20"
+                  className="absolute top-0 right-0 w-5 h-5 flex items-center justify-center text-zinc-400/70 dark:text-white/30 hover:text-red-500 dark:hover:text-red-500 transition-colors z-20"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
@@ -755,7 +762,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
               // === ПУСТОЙ СЛОТ: Просто "+" и "ADD" ===
               <div className="flex flex-col items-center gap-2">
                 <motion.span 
-                  className="text-5xl sm:text-6xl font-light text-blue-400"
+                  className="text-5xl sm:text-6xl font-light text-blue-500 dark:text-blue-400"
                   animate={{
                     scale: [1, 1.1, 1],
                     opacity: [0.7, 1, 0.7],
@@ -768,7 +775,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
                 >
                   +
                 </motion.span>
-                <span className="text-[10px] font-mono tracking-wider text-blue-400/60 uppercase">
+                <span className="text-[10px] font-mono tracking-wider text-blue-500/70 dark:text-blue-400/60 uppercase">
                   ADD
                 </span>
               </div>
@@ -789,14 +796,14 @@ const SlotCard: React.FC<SlotCardProps> = ({
                   }}
                   className="relative"
                 >
-                  <Play className="w-7 h-7 sm:w-9 sm:h-9 text-orange-400 fill-orange-400" />
+                  <Play className="w-7 h-7 sm:w-9 sm:h-9 text-orange-500 dark:text-orange-400 fill-orange-500 dark:fill-orange-400" />
                   {/* Иконка видео в углу */}
-                  <Video className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 text-orange-500 bg-orange-400/20 rounded-full p-0.5 border border-orange-500/40" />
+                  <Video className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 text-orange-600 dark:text-orange-500 bg-orange-400/30 dark:bg-orange-400/20 rounded-full p-0.5 border border-orange-500/50 dark:border-orange-500/40" />
                 </motion.div>
-                <span className="text-[9px] font-bold text-orange-400 uppercase tracking-wider">
+                <span className="text-[9px] font-bold text-orange-500 dark:text-orange-400 uppercase tracking-wider">
                   OVERCLOCK
                 </span>
-                <span className="text-[7px] text-orange-500/60 font-mono">
+                <span className="text-[7px] text-orange-600/70 dark:text-orange-500/60 font-mono">
                   1 MATCH
                 </span>
               </div>
@@ -809,23 +816,23 @@ const SlotCard: React.FC<SlotCardProps> = ({
                     e.stopPropagation();
                     if (onOverclockClick) onOverclockClick();
                   }}
-                  className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-to-r from-orange-500/30 to-orange-400/30 border-2 border-orange-500/60 shadow-[0_0_10px_rgba(251,146,60,0.4)] whitespace-nowrap min-h-[38px] touch-manipulation"
+                  className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-to-r from-orange-500/40 to-orange-400/40 dark:from-orange-500/30 dark:to-orange-400/30 border-2 border-orange-500/70 dark:border-orange-500/60 shadow-[0_0_10px_rgba(251,146,60,0.3)] dark:shadow-[0_0_10px_rgba(251,146,60,0.4)] whitespace-nowrap min-h-[38px] touch-manipulation"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Video className="w-3.5 h-3.5 text-orange-300 flex-shrink-0" />
-                  <span className="text-[9px] text-orange-200 font-bold uppercase tracking-tight leading-none">
+                  <Video className="w-3.5 h-3.5 text-orange-600 dark:text-orange-300 flex-shrink-0" />
+                  <span className="text-[9px] text-orange-700 dark:text-orange-200 font-bold uppercase tracking-tight leading-none">
                     WATCH AD
                   </span>
                 </motion.button>
                 
                 {/* Разделитель "or" - более заметный */}
                 <div className="flex items-center justify-center gap-2 py-1">
-                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                  <span className="text-[9px] text-zinc-300 font-semibold uppercase tracking-wider px-2">
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-zinc-300/50 dark:via-white/20 to-transparent" />
+                  <span className="text-[9px] text-zinc-600 dark:text-zinc-300 font-semibold uppercase tracking-wider px-2">
                     or
                   </span>
-                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-zinc-300/50 dark:via-white/20 to-transparent" />
                 </div>
                 
                 {/* Кнопка покупки - нижняя */}
@@ -838,8 +845,8 @@ const SlotCard: React.FC<SlotCardProps> = ({
                   className={cn(
                     "flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border-2 transition-all whitespace-nowrap min-h-[38px] touch-manipulation",
                     canUnlock && !isUnlocking
-                      ? "bg-gradient-to-r from-yellow-500/30 to-amber-500/30 border-yellow-500/60 text-yellow-200 shadow-[0_0_10px_rgba(234,179,8,0.4)] hover:from-yellow-500/40 hover:to-amber-500/40 active:scale-95"
-                      : "bg-zinc-800/50 border-zinc-700/50 text-zinc-500 cursor-not-allowed"
+                      ? "bg-gradient-to-r from-yellow-500/40 to-amber-500/40 dark:from-yellow-500/30 dark:to-amber-500/30 border-yellow-500/70 dark:border-yellow-500/60 text-yellow-800 dark:text-yellow-200 shadow-[0_0_10px_rgba(234,179,8,0.3)] dark:shadow-[0_0_10px_rgba(234,179,8,0.4)] hover:from-yellow-500/50 hover:to-amber-500/50 dark:hover:from-yellow-500/40 dark:hover:to-amber-500/40 active:scale-95"
+                      : "bg-zinc-200/50 dark:bg-zinc-800/50 border-zinc-300/50 dark:border-zinc-700/50 text-zinc-400 dark:text-zinc-500 cursor-not-allowed"
                   )}
                 >
                   {isUnlocking ? (
@@ -875,19 +882,19 @@ const SlotCard: React.FC<SlotCardProps> = ({
                   ease: "easeInOut"
                 }}
               >
-                <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-amber-400" />
+                <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-amber-500 dark:text-amber-400" />
               </motion.div>
-              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-amber-500 dark:text-amber-400 uppercase tracking-wider">
                 PREMIUM
               </span>
               {!userHasPremium && (
                 <motion.div 
-                  className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-amber-500/40 shadow-[0_0_8px_rgba(251,191,36,0.3)] whitespace-nowrap"
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500/30 to-yellow-500/30 dark:from-amber-500/20 dark:to-yellow-500/20 border border-amber-500/50 dark:border-amber-500/40 shadow-[0_0_8px_rgba(251,191,36,0.2)] dark:shadow-[0_0_8px_rgba(251,191,36,0.3)] whitespace-nowrap"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Crown className="w-2.5 h-2.5 text-amber-400 flex-shrink-0" />
-                  <span className="text-[8px] text-amber-300 font-bold uppercase tracking-tight leading-tight">
+                  <Crown className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                  <span className="text-[8px] text-amber-700 dark:text-amber-300 font-bold uppercase tracking-tight leading-tight">
                     GET PREMIUM
                   </span>
                 </motion.div>
@@ -905,12 +912,14 @@ const SlotCard: React.FC<SlotCardProps> = ({
 interface BoostSelectSheetContentProps {
   availableBoosts: Boost[];
   selectedBoost: Boost | null;
+  isDark: boolean;
   onSelectBoost: (boostType: string | null) => void;
 }
 
 const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
   availableBoosts,
   selectedBoost,
+  isDark,
   onSelectBoost,
 }) => {
   const getCategoryColor = (category: string) => {
@@ -945,11 +954,11 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
         {/* Grid бустов */}
         {availableBoosts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="p-3 rounded-full bg-zinc-900/50 border border-white/10 mb-3">
-              <Shield className="w-5 h-5 text-zinc-500" />
+            <div className="p-3 rounded-full bg-zinc-100/80 dark:bg-zinc-900/50 border border-zinc-200/50 dark:border-white/10 mb-3">
+              <Shield className="w-5 h-5 text-zinc-400 dark:text-zinc-500" />
             </div>
-            <p className="text-sm text-zinc-500 mb-2">Инвентарь пуст</p>
-            <p className="text-xs text-zinc-600 font-mono">Go to Black Market</p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-500 mb-2">Инвентарь пуст</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-600 font-mono">Go to Black Market</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
@@ -967,13 +976,15 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
                   className={cn(
                     "relative group overflow-hidden p-3 rounded-lg border transition-all",
                     "flex flex-col items-center gap-2",
-                    "bg-white/5 border-white/10",
-                    "hover:bg-white/10 hover:border-white/20",
-                    isSelected && "border-white/40 bg-white/10",
+                    "bg-zinc-50/80 dark:bg-white/5 border-zinc-200/50 dark:border-white/10",
+                    "hover:bg-zinc-100/90 dark:hover:bg-white/10 hover:border-zinc-300/70 dark:hover:border-white/20",
+                    isSelected && "border-indigo-500/60 dark:border-white/40 bg-indigo-50/50 dark:bg-white/10",
                     "backdrop-blur-sm"
                   )}
                   style={{
-                    boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 2px 8px -2px rgba(0, 0, 0, 0.3)'
+                    boxShadow: isDark
+                      ? 'inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 2px 8px -2px rgba(0, 0, 0, 0.3)'
+                      : 'inset 0 1px 0 0 rgba(0, 0, 0, 0.05), 0 2px 8px -2px rgba(0, 0, 0, 0.1)'
                   }}
                 >
                   {/* Цветная вертикальная полоска слева */}
@@ -998,12 +1009,12 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
 
                   {/* Название */}
                   <div className="text-center w-full relative z-10">
-                    <div className="text-[9px] font-mono mb-0.5 tracking-widest text-white/40 uppercase">
+                    <div className="text-[9px] font-mono mb-0.5 tracking-widest text-zinc-500/70 dark:text-white/40 uppercase">
                       {categoryLabel}
                     </div>
                     <div className={cn(
                       "text-xs font-bold truncate leading-tight",
-                      isSelected ? "text-white" : "text-zinc-200"
+                      isSelected ? "text-zinc-900 dark:text-white" : "text-zinc-700 dark:text-zinc-200"
                     )}>
                       {boost.name_ru}
                     </div>
@@ -1017,8 +1028,8 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
                       transition={{ type: "spring", stiffness: 300, damping: 20 }}
                       className="absolute top-2 right-2 z-20"
                     >
-                      <div className="w-5 h-5 rounded-full bg-white/20 border border-white/40 flex items-center justify-center">
-                        <Check className="w-3 h-3 text-white" />
+                      <div className="w-5 h-5 rounded-full bg-indigo-500/20 dark:bg-white/20 border border-indigo-500/40 dark:border-white/40 flex items-center justify-center">
+                        <Check className="w-3 h-3 text-indigo-600 dark:text-white" />
                       </div>
                     </motion.div>
                   )}

@@ -29,20 +29,54 @@ export function useBotOpponent({
   // Находим бота среди игроков
   useEffect(() => {
     if (!players || players.length === 0) {
+      console.log('[useBotOpponent] ⚠️ No players provided');
       botPlayerRef.current = null;
       return;
     }
 
+    console.log('[useBotOpponent] 🔍 Looking for bot in players:', players.map((p: any) => ({ 
+      id: p.id, 
+      user_id: p.user_id, 
+      is_bot: p.is_bot,
+      bot_name: p.bot_name,
+      name: p.name
+    })));
+
     const botPlayer = players.find((p: any) => p.is_bot === true);
+    if (botPlayer) {
+      console.log('[useBotOpponent] ✅ Bot found:', { 
+        id: botPlayer.id, 
+        bot_name: botPlayer.bot_name, 
+        name: botPlayer.name,
+        score: botPlayer.score 
+      });
+    } else {
+      console.log('[useBotOpponent] ⚠️ Bot not found in players');
+    }
     botPlayerRef.current = botPlayer || null;
   }, [players]);
 
   // Обработка ответа бота на текущий вопрос
   useEffect(() => {
     // Проверяем условия для работы
-    if (!duelId || !currentQuestionId || !botPlayerRef.current || !profileId) {
+    if (!duelId) {
+      console.log('[useBotOpponent] ⚠️ No duelId');
       return;
     }
+    if (!currentQuestionId) {
+      console.log('[useBotOpponent] ⚠️ No currentQuestionId');
+      return;
+    }
+    if (!botPlayerRef.current) {
+      console.log('[useBotOpponent] ⚠️ No bot player found');
+      return;
+    }
+    if (!profileId) {
+      console.log('[useBotOpponent] ⚠️ No profileId');
+      return;
+    }
+    
+    console.log('[useBotOpponent] ✅ All conditions met, processing bot answer for question:', currentQuestionId);
 
     // Если этот вопрос уже обработан - пропускаем
     if (processedQuestions.current.has(currentQuestionId)) {

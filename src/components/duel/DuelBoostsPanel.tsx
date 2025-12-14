@@ -6,6 +6,8 @@ import { memo } from 'react';
 interface Boost {
   boost_type: string;
   quantity: number;
+  icon?: string | null;
+  name_ru?: string;
 }
 
 interface DuelBoostsPanelProps {
@@ -25,10 +27,15 @@ export const DuelBoostsPanel = memo(({
   onBoostUse,
   onTranslatePopoverChange,
 }: DuelBoostsPanelProps) => {
+  // Логируем для отладки в dev режиме
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    console.log('[DuelBoostsPanel] Boosts:', boosts.length, boosts);
+  }
+
   if (boosts.length === 0) return null;
 
   return (
-    <div className="flex items-center gap-1.5 flex-wrap">
+    <div className="flex items-center gap-1.5 flex-wrap w-full justify-center">
       {boosts.map((boost) => {
         const boostConfig = {
           // Safe Mode
@@ -49,6 +56,10 @@ export const DuelBoostsPanel = memo(({
         const BoostIcon = boostConfig.icon;
         const isUsed = usedBoosts.includes(boost.boost_type);
         const isDisabled = isUsed || isAnswered || boost.quantity <= 0;
+        
+        // Используем иконку из БД, если она есть, иначе fallback на иконку из конфига
+        const displayIcon = boost.icon || null;
+        const displayName = boost.name_ru || boostConfig.label;
 
         // Для translate бустера показываем развернутую версию с выбором языка
         if (boost.boost_type === 'translate' && translatePopoverOpen === boost.boost_type && !isDisabled) {
@@ -120,8 +131,14 @@ export const DuelBoostsPanel = memo(({
                 : `${boostConfig.bg} text-white border-white/25 hover:shadow-md hover:border-white/40`
             }`}
           >
-            <BoostIcon className="w-3.5 h-3.5 shrink-0" />
-            <span className="whitespace-nowrap leading-none">{boostConfig.label}</span>
+            {displayIcon ? (
+              <span className="text-lg flex items-center justify-center shrink-0 w-4 h-4 leading-none" title={displayName}>
+                {displayIcon}
+              </span>
+            ) : (
+              <BoostIcon className="w-3.5 h-3.5 shrink-0" />
+            )}
+            <span className="whitespace-nowrap leading-none" title={displayName}>{displayName}</span>
             {boost.boost_type === 'translate' && !isDisabled && (
               <ChevronDown className={`h-2.5 w-2.5 transition-transform duration-200 shrink-0 ${translatePopoverOpen === boost.boost_type ? 'rotate-180' : ''}`} />
             )}

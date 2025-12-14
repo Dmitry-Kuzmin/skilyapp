@@ -17,9 +17,10 @@ export function useDuelSync({
     try {
       const inventory = await fetchBoostInventory();
       console.log('[useDuelSync] Raw inventory:', inventory);
-      const filteredBoosts = inventory.filter((item) => item.quantity > 0);
-      console.log('[useDuelSync] Filtered boosts (quantity > 0):', filteredBoosts);
-      setBoosts(filteredBoosts);
+      // ВАЖНО: Показываем ВСЕ бусты из loadout, даже с количеством 0
+      // Фильтр убран, чтобы показывать все 3 слота из loadout
+      console.log('[useDuelSync] All boosts from loadout:', inventory);
+      setBoosts(inventory);
     } catch (error) {
       console.error('[useDuelSync] Error syncing boosts:', error);
       setBoosts([]);
