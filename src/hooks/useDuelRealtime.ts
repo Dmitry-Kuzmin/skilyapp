@@ -533,16 +533,23 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         }
       )
       .subscribe((status) => {
-        // КРИТИЧНО: Логируем статус подписки для отладки
+        // КРИТИЧНО: Логируем статус подписки для отладки (ВСЕГДА, не только в dev)
         console.log('[useDuelRealtime] 📡 Channel subscription status:', {
           status,
           duelId,
           channelName: `duel_${duelId}`,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          myPlayerId,
+          profileId
         });
         
+        // КРИТИЧНО: Логируем ВСЕ статусы для отладки
         if (status === 'SUBSCRIBED') {
-          console.log('[useDuelRealtime] ✅ Successfully subscribed to Realtime channel!');
+          console.log('[useDuelRealtime] ✅✅✅ SUCCESSFULLY SUBSCRIBED TO REALTIME CHANNEL! ✅✅✅');
+          console.log('[useDuelRealtime] 📡 Listening for postgres_changes events on:', {
+            tables: ['duel_players', 'duel_answers', 'duel_active_exploits'],
+            duelId
+          });
           setConnectionStatus('connected');
           
           // КРИТИЧНО: Проверяем активные exploits сразу после подписки
@@ -555,6 +562,13 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               profileId
             });
           }
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('[useDuelRealtime] ❌❌❌ CHANNEL ERROR - Realtime subscription failed! ❌❌❌');
+        } else if (status === 'TIMED_OUT') {
+          console.error('[useDuelRealtime] ❌❌❌ TIMED OUT - Realtime subscription timeout! ❌❌❌');
+        } else {
+          console.log('[useDuelRealtime] 📡 Channel status:', status);
+        }
           
           // Check current duel status immediately after subscription
           const checkStatus = async () => {
