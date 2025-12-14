@@ -17,6 +17,8 @@ import { cn } from '@/lib/utils';
 import { useDuelResults } from '@/hooks/useDuelResults';
 import { DataLaunderingButton } from './DataLaunderingButton';
 import { useVignetteBanner } from '@/hooks/useVignetteBanner';
+import { useInterstitialBanner } from '@/hooks/useInterstitialBanner';
+import { usePremium } from '@/hooks/usePremium';
 
 interface DuelResultProps {
   duelId: string;
@@ -26,6 +28,8 @@ interface DuelResultProps {
 
 export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps) {
   const { profileId } = useUserContext();
+  const { isPremium } = usePremium();
+  const [shouldShowInterstitial, setShouldShowInterstitial] = useState(false);
   
   // ОПТИМИЗАЦИЯ: Используем React Query хук вместо прямых запросов
   const { data: duelResultsData, isLoading: loading, refetch } = useDuelResults(duelId, profileId);
@@ -59,6 +63,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   // Показываем Vignette Banner после завершения дуэли (только в веб-версии, один раз за сессию)
   // Задержка 1.5 секунды, чтобы не перекрывать анимацию результатов
   useVignetteBanner(!!results, 1500);
+
+  // Показываем Interstitial Banner при возврате в меню (только в веб-версии, один раз за сессию)
+  useInterstitialBanner(shouldShowInterstitial, 300);
 
   useEffect(() => {
     if (results && profileId && !rewardsAppliedRef.current) {
@@ -471,7 +478,16 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
             Реванш
           </Button>
           <Button
-            onClick={onBackToMenu}
+            onClick={() => {
+              // Показываем Interstitial при возврате в меню (только для обычных пользователей, один раз за сессию)
+              if (!isPremium) {
+                setShouldShowInterstitial(true);
+              }
+              // Небольшая задержка для показа Interstitial перед навигацией
+              setTimeout(() => {
+                onBackToMenu();
+              }, 100);
+            }}
             size="lg"
             variant="outline"
             className="border-white/20 bg-white/5 hover:bg-white/10 text-white font-bold h-14 rounded-2xl backdrop-blur-sm"

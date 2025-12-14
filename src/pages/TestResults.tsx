@@ -19,6 +19,8 @@ import Confetti from "react-confetti";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { improvementTips, encouragements } from "@/data/lumiHints";
 import { useVignetteBanner } from "@/hooks/useVignetteBanner";
+import { useInterstitialBanner } from "@/hooks/useInterstitialBanner";
+import { usePremium } from "@/hooks/usePremium";
 
 type TestRewardPayload = {
   coins_awarded?: number;
@@ -130,6 +132,7 @@ const TestResults = () => {
   const navigate = useNavigate();
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
+  const [shouldShowInterstitial, setShouldShowInterstitial] = useState(false);
   const duelPassSyncRef = useRef(false);
   const [rewards, setRewards] = useState<{
     coins?: number;
@@ -167,6 +170,9 @@ const TestResults = () => {
   // Показываем Vignette Banner после завершения теста (только в веб-версии, один раз за сессию)
   // Задержка 1.5 секунды, чтобы не перекрывать анимацию результатов
   useVignetteBanner(!!questions && !!answers, 1500);
+
+  // Показываем Interstitial Banner при возврате на дашборд (только в веб-версии, один раз за сессию)
+  useInterstitialBanner(shouldShowInterstitial, 300);
 
   // Синхронизируем награды, переданные с экрана теста (только один раз!)
   const hasShownRewardsRef = useRef(false);
@@ -928,7 +934,13 @@ const TestResults = () => {
             ← Volver a los tests
           </Button>
           <Button 
-            onClick={() => navigate(`/test/${mode}`)} 
+            onClick={() => {
+              // Показываем Interstitial при возврате на дашборд (только для обычных пользователей, один раз за сессию)
+              if (!isPremium) {
+                setShouldShowInterstitial(true);
+              }
+              navigate(`/test/${mode}`);
+            }}
             className="flex-1"
             size="lg"
           >
