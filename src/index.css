@@ -12,14 +12,14 @@ html, body {
 /* Для светлой темы */
 @media (prefers-color-scheme: light) {
   html, body {
-    background-color: #ffffff;
+    background-color: hsl(var(--background));
   }
 }
 
 /* Для темной темы */
 @media (prefers-color-scheme: dark) {
   html, body {
-    background-color: #09090b; /* zinc-950 для совпадения с theme-color */
+    background-color: hsl(var(--background)); /* Используем переменную темы вместо хардкода */
   }
 }
 
@@ -768,6 +768,7 @@ All colors MUST be HSL.
     flex-direction: column;
     height: auto;
     overflow: visible;
+    background-color: hsl(var(--background)); /* Обеспечиваем правильный фон */
   }
 
   /* Основной контент - единая система отступов */
