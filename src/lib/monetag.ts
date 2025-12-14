@@ -187,12 +187,13 @@ export async function showMonetagRewardedVideoTMA(): Promise<boolean> {
  * ВАЖНО: Native Banner (Interstitial) от Monetag НЕ возвращает Promise!
  * Это просто функция, которая показывает полноэкранный баннер.
  * 
- * Для эмуляции Rewarded Video в веб-версии:
+ * Логика награды:
  * 1. Вызываем show_10323437() - показываем баннер
- * 2. Через 3 секунды считаем рекламу "просмотренной" и даем награду
- * 3. Это нормальная практика для веб-версии, где нет настоящего Rewarded Video API
+ * 2. Отслеживаем закрытие рекламы через проверку DOM
+ * 3. Награда выдается ТОЛЬКО если реклама была показана минимум 3 секунды
+ * 4. Если пользователь закрыл раньше - награда НЕ выдается
  * 
- * @returns Promise<boolean> - true если реклама показана
+ * @returns Promise<boolean> - true если реклама просмотрена минимум 3 секунды
  */
 export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
   if (typeof window === 'undefined') {
@@ -226,12 +227,41 @@ export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
 
       console.log('[Monetag Web] Calling show function:', WEB_SHOW_FUNCTION_NAME);
       
-      // ВАЖНО: Native Banner (Interstitial) НЕ возвращает Promise!
-      // Это просто функция, которая показывает баннер
-      // Вызываем её синхронно
+      const MIN_VIEW_TIME_MS = 3000; // Минимум 3 секунды просмотра
+      const startTime = Date.now();
+      let adClosed = false;
+      let rewardTimer: NodeJS.Timeout | null = null;
+      let checkInterval: NodeJS.Timeout | null = null;
+      
+      // Функция для проверки закрытия рекламы
+      const checkAdClosed = () => {
+        // Проверяем, есть ли элементы рекламы Monetag на странице
+        // Monetag обычно создает iframe или div с определенными классами/атрибутами
+        const monetagSelectors = [
+          'iframe[src*="monetag"]',
+          'iframe[src*="groleegni"]',
+          'iframe[src*="gizokraijaw"]',
+          'div[id*="monetag"]',
+          'div[class*="monetag"]',
+          '[data-zone="10323437"]'
+        ];
+        
+        let hasMonetagElements = false;
+        for (const selector of monetagSelectors) {
+          if (document.querySelector(selector)) {
+            hasMonetagElements = true;
+            break;
+          }
+        }
+        
+        // Если элементов нет и прошло больше 500ms - реклама закрыта
+        return !hasMonetagElements && Date.now() - startTime > 500;
+      };
+      
+      // Показываем рекламу
       try {
         showFunction();
-        console.log('[Monetag Web] Ad banner shown');
+        console.log('[Monetag Web] Ad banner shown, starting timer...');
       } catch (showError: any) {
         // Игнорируем ошибку "Failed to verify" - это нормально для Interstitial
         if (showError.message?.includes('Failed to verify') || showError.message?.includes('verify')) {
@@ -244,15 +274,53 @@ export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
         }
       }
       
-      // ХАК: Так как Interstitial не дает Promise при закрытии,
-      // мы считаем рекламу "просмотренной" через 3 секунды после показа
-      // Это нормальная практика для веб-версии
-      const REWARD_DELAY_MS = 3000; // 3 секунды
+      // Проверяем закрытие рекламы каждые 200ms
+      checkInterval = setInterval(() => {
+        if (!adClosed && checkAdClosed()) {
+          adClosed = true;
+          const viewTime = Date.now() - startTime;
+          
+          if (rewardTimer) {
+            clearTimeout(rewardTimer);
+            rewardTimer = null;
+          }
+          
+          if (checkInterval) {
+            clearInterval(checkInterval);
+            checkInterval = null;
+          }
+          
+          if (viewTime >= MIN_VIEW_TIME_MS) {
+            console.log('[Monetag Web] Ad closed after', viewTime, 'ms - reward granted ✅');
+            resolve(true);
+          } else {
+            console.warn('[Monetag Web] Ad closed too quickly (', viewTime, 'ms). Minimum is', MIN_VIEW_TIME_MS, 'ms - NO reward ❌');
+            resolve(false);
+          }
+        }
+      }, 200);
       
-      setTimeout(() => {
-        console.log('[Monetag Web] Rewarded interstitial completed (after', REWARD_DELAY_MS, 'ms delay)');
-        resolve(true);
-      }, REWARD_DELAY_MS);
+      // Fallback: если через 10 секунд реклама все еще открыта - считаем просмотренной
+      // Но только если прошло минимум 3 секунды
+      rewardTimer = setTimeout(() => {
+        if (!adClosed) {
+          adClosed = true;
+          const viewTime = Date.now() - startTime;
+          
+          if (checkInterval) {
+            clearInterval(checkInterval);
+            checkInterval = null;
+          }
+          
+          if (viewTime >= MIN_VIEW_TIME_MS) {
+            console.log('[Monetag Web] Ad still open after', viewTime, 'ms - reward granted ✅ (fallback)');
+            resolve(true);
+          } else {
+            console.warn('[Monetag Web] Ad still open but not enough time (', viewTime, 'ms) - NO reward ❌');
+            resolve(false);
+          }
+        }
+      }, Math.max(MIN_VIEW_TIME_MS, 10000)); // Минимум 3 секунды, максимум 10 секунд
       
     } catch (error: any) {
       console.error('[Monetag Web] Error showing rewarded video:', error);
