@@ -306,10 +306,22 @@
     <script>
       // Показываем Vignette Banner только в веб-версии (не в Telegram Mini App)
       (function() {
-        // Проверяем, что мы НЕ в Telegram Mini App
-        var isTelegramMiniApp = window.Telegram && window.Telegram.WebApp && 
-                                window.Telegram.WebApp.initData && 
-                                window.Telegram.WebApp.initData !== '';
+        // Надежная проверка: мы НЕ в Telegram Mini App
+        // Проверяем наличие Telegram.WebApp с валидными свойствами (platform, version)
+        var isTelegramMiniApp = false;
+        if (window.Telegram && window.Telegram.WebApp) {
+          var webApp = window.Telegram.WebApp;
+          // Проверяем наличие platform и version (эти свойства есть в реальном Telegram WebApp)
+          var hasValidPlatform = webApp.platform && 
+            (webApp.platform === 'web' || webApp.platform === 'ios' || webApp.platform === 'android' || 
+             webApp.platform === 'tdesktop' || webApp.platform === 'macos' || webApp.platform === 'windows' || webApp.platform === 'linux');
+          var hasVersion = webApp.version && typeof webApp.version === 'string';
+          // Проверяем, что это не мок (тестовые данные)
+          var isNotMock = !(webApp.initData === 'mock_init_data' || 
+                           (webApp.initDataUnsafe && webApp.initDataUnsafe.user && 
+                            webApp.initDataUnsafe.user.id === 123456789));
+          isTelegramMiniApp = hasValidPlatform && hasVersion && isNotMock;
+        }
         
         if (!isTelegramMiniApp) {
           // Загружаем Vignette Banner только для веб-версии
