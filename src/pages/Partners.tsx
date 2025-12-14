@@ -429,8 +429,10 @@ export default function Partners() {
       <div className="fixed bottom-[-20%] right-[10%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
 
       {/* Navigation */}
-      <nav className="relative z-50 px-6 md:px-10 py-6 flex items-center justify-between max-w-[1400px] mx-auto gap-4 flex-wrap">
-        <LandingLogo theme="dark" variant="bold" className="scale-90 origin-left" />
+      <nav className="relative z-50 px-6 md:px-10 py-6 flex items-center justify-between max-w-[1400px] mx-auto gap-4 flex-wrap" style={{ overflow: 'visible' }}>
+        <div style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
+          <LandingLogo variant="bold" className="scale-90 origin-left" />
+        </div>
         <div className="flex items-center gap-3 flex-wrap justify-end ml-auto">
           <button
             onClick={() => navigate("/")}
@@ -767,8 +769,9 @@ export default function Partners() {
             <button
               onClick={() => navigate("/")}
               className="flex items-center gap-3 mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg px-2 py-2 transition-opacity hover:opacity-90"
+              style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}
             >
-              <LandingLogo theme="dark" className="scale-75" />
+              <LandingLogo variant="bold" showText={true} className="scale-75" />
             </button>
             <p className="text-sm text-slate-400 max-w-md text-center">
               {language === 'ru' 

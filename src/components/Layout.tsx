@@ -326,34 +326,26 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
       {/* Top Navigation for Desktop - Hide in Telegram or when hideNavigation */}
       {!hideNavigation && (
         <header className={cn(
-          "border-b border-border/50 backdrop-blur-xl bg-background/95 sticky top-0 z-50 overflow-x-hidden w-full",
+          "border-b border-border/50 backdrop-blur-xl bg-background/95 sticky top-0 z-50 overflow-x-hidden overflow-y-visible w-full",
           isTelegramApp ? "hidden" : "hidden md:block"
-        )}>
-        <div className="container mx-auto px-4 max-w-[1370px]">
-          <div className="flex items-center justify-between h-16 min-w-0">
+        )} style={{ overflow: 'visible' }}>
+        <div className="container mx-auto px-4 max-w-[1370px]" style={{ overflow: 'visible', position: 'relative' }}>
+          <div className="flex items-center justify-between h-16 min-w-0" style={{ overflow: 'visible', position: 'relative' }}>
             <NavLink
               to="/dashboard"
               className="min-w-0 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl px-1 py-1 transition-colors hover:opacity-90"
+              style={{ overflow: 'visible', position: 'relative', zIndex: 10 }}
             >
-              <LandingLogo theme="dark" variant="minimal" showText={true} />
+              <LandingLogo variant="bold" showText={true} />
             </NavLink>
 
             <nav className="flex gap-1 min-w-0 flex-shrink">
               {navigation.map((item) => {
                 const desktopActive = isNavigationItemActive(item, location.pathname);
-                const handleDesktopClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                  requestAnimationFrame(() => {
-                    navigate(item.href);
-                  });
-                };
                 return (
                   <NavLink
                     key={item.name}
                     to={item.href}
-                    onClick={handleDesktopClick}
                     className={cn(
                       "flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-150 whitespace-nowrap flex-shrink-0",
                       // ОПТИМИЗАЦИЯ: Убрано transition-all, оставлен только transition-colors
@@ -366,6 +358,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                       pointerEvents: 'auto',
                       touchAction: 'manipulation',
                       WebkitTapHighlightColor: 'transparent',
+                      cursor: 'pointer',
                     }}
                   >
                     <item.icon className="w-5 h-5 flex-shrink-0" />

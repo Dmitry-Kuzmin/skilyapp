@@ -1,19 +1,40 @@
 import { CarFront, Car } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 interface LandingLogoProps {
   className?: string;
   showText?: boolean;
-  theme?: "light" | "dark";
+  theme?: "light" | "dark" | "auto";
   variant?: "default" | "minimal" | "bold" | "elegant";
 }
 
 export const LandingLogo: React.FC<LandingLogoProps> = ({
   className = "",
   showText = true,
-  theme = "dark",
+  theme: themeProp = "auto",
   variant = "default",
 }) => {
-  const isDark = theme === "dark";
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Определяем актуальную тему
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  let actualTheme: "light" | "dark" = "dark";
+  if (themeProp === "auto") {
+    // Автоматически определяем тему из системы
+    actualTheme = resolvedTheme === "light" ? "light" : "dark";
+  } else {
+    actualTheme = themeProp;
+  }
+
+  // Если еще не загрузилось, проверяем системную тему
+  const isDark = mounted 
+    ? actualTheme === "dark" 
+    : (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches);
   const textColor = isDark ? "text-white" : "text-zinc-900";
 
   // Вариант 1: Минималистичный (простая иконка без фона)
@@ -36,20 +57,24 @@ export const LandingLogo: React.FC<LandingLogoProps> = ({
   // Вариант 2: Жирный (крупная иконка с контрастным фоном) - улучшенный дизайн
   if (variant === "bold") {
     return (
-      <div className={`flex items-center gap-3 ${className}`}>
-        <div className="relative flex-shrink-0">
-          {/* Градиентный фон с анимацией */}
-          <div className={`w-12 h-12 rounded-2xl ${isDark ? "bg-gradient-to-br from-indigo-500 via-violet-500 to-indigo-600" : "bg-gradient-to-br from-indigo-600 via-violet-700 to-indigo-800"} flex items-center justify-center shadow-xl ${isDark ? "shadow-indigo-500/40" : "shadow-indigo-600/50"} relative overflow-hidden`}>
+      <div className={`flex items-center gap-2.5 p-2 -m-2 ${className}`} style={{ overflow: 'visible', position: 'relative', zIndex: 10 }}>
+        <div className="relative flex-shrink-0" style={{ overflow: 'visible' }}>
+          {/* Градиентный фон с анимацией - синий акцентный цвет */}
+          <div className={`w-10 h-10 rounded-2xl ${isDark ? "bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700" : "bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800"} flex items-center justify-center shadow-xl ${isDark ? "shadow-blue-500/40" : "shadow-blue-600/50"} relative overflow-hidden`}>
             {/* Дополнительное свечение внутри */}
             <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent"></div>
             {/* Иконка */}
-            <CarFront className="w-6 h-6 text-white relative z-10" strokeWidth={2.5} />
+            <CarFront className="w-5 h-5 text-white relative z-10" strokeWidth={2.5} />
           </div>
-          {/* Внешнее свечение */}
-          <div className={`absolute inset-0 rounded-2xl ${isDark ? "bg-indigo-400/30" : "bg-indigo-500/30"} blur-xl -z-10 animate-pulse`} style={{ animationDuration: '3s' }}></div>
+          {/* Внешнее свечение - расширяем за пределы контейнера, чтобы тень не обрезалась и накладывалась на следующий блок */}
+          <div className={`absolute -inset-4 rounded-2xl ${isDark ? "bg-blue-400/30" : "bg-blue-500/30"} blur-xl -z-10 animate-pulse`} style={{ animationDuration: '3s', pointerEvents: 'none' }}></div>
         </div>
         {showText && (
-          <span className={`text-2xl font-bold tracking-tight ${textColor} bg-gradient-to-r ${isDark ? "from-white via-indigo-50 to-white" : "from-zinc-900 via-indigo-900 to-zinc-900"} bg-clip-text text-transparent`}>
+          <span className={`text-xl font-black tracking-tight ${
+            isDark 
+              ? "bg-gradient-to-r from-white via-blue-50 to-white bg-clip-text text-transparent" 
+              : "text-zinc-900"
+          }`}>
             Skily
           </span>
         )}

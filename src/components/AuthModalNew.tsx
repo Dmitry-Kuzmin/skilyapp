@@ -488,35 +488,19 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
         // КРИТИЧНО: После signUp проверяем, есть ли уже сессия
         // Если email подтверждения не требуется, сессия создается сразу
-        if (signUpData?.session) {
-          console.log('[AuthModalNew] Session created immediately after signUp');
-        } else {
-          console.log('[AuthModalNew] Email confirmation required, waiting for session...');
-        }
+        // Если требуется подтверждение email, сессия будет null, но user будет создан
+        const hasSession = !!signUpData?.session;
+        const userCreated = !!signUpData?.user;
 
-        // Получаем user ID после регистрации
-        // КРИТИЧНО: После signUp нужно подождать, пока Supabase создаст сессию
-        // Проверяем сессию несколько раз, так как она может создаваться асинхронно
-        let newUser = null;
-        let attempts = 0;
-        const maxAttempts = 10;
-        
-        while (!newUser && attempts < maxAttempts) {
-          const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
-          if (currentUser && !userError) {
-            newUser = currentUser;
-            break;
-          }
-          attempts++;
-          if (attempts < maxAttempts) {
-            await new Promise(resolve => setTimeout(resolve, 300));
-          }
-        }
-        
-        if (newUser) {
+        if (hasSession) {
+          // Сессия создана сразу - пользователь может войти без подтверждения email
+          console.log('[AuthModalNew] Session created immediately after signUp');
+          
+          const newUser = signUpData.user;
+          
           // Ждем создания профиля (может быть задержка из-за триггеров в БД)
           let profile = null;
-          attempts = 0;
+          let attempts = 0;
           while (!profile && attempts < 10) {
             const { data: profileData } = await supabase
               .from('profiles')
@@ -558,8 +542,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   utm_campaign: partnerData.utm_campaign,
                   ip_address: ipAddress,
                   user_agent: userAgent,
-                  fingerprint_hash: fingerprintHash, // Передаем fingerprint hash
-                  session_id: sessionId, // Передаем session_id для связи с кликом
+                  fingerprint_hash: fingerprintHash,
+                  session_id: sessionId,
                 },
               });
 
@@ -596,58 +580,54 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
               }
             }
           }
-        }
 
-        toast({
-          title: t('auth.success.registered'),
-          description: t('auth.success.welcome'),
-        });
+          toast({
+            title: t('auth.success.registered'),
+            description: t('auth.success.welcome'),
+          });
 
-        sessionStorage.removeItem('partner_code');
-        sessionStorage.removeItem('referral_code');
+          sessionStorage.removeItem('partner_code');
+          sessionStorage.removeItem('referral_code');
 
-        onClose();
-        
-        // КРИТИЧНО: Ждем обновления сессии перед редиректом
-        // Проверяем, что сессия обновилась, и только потом редиректим
-        // Используем window.location.href для полного перезапуска приложения
-        // Это гарантирует, что UserProvider загрузится и обработает новую сессию
-        (() => {
-          let signUpAttempts = 0;
-          const signUpMaxAttempts = 15; // Увеличиваем до 15 попыток (3 секунды)
-          const checkSignUpSession = async () => {
-            const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
-            
-            if (currentSession?.user) {
-              console.log('[AuthModalNew] Session confirmed, redirecting to dashboard');
-              if (window.location.pathname !== '/dashboard') {
-                navigate('/dashboard', { replace: true });
-              } else {
-                window.location.reload();
-              }
-              return;
-            }
-            
-            if (signUpAttempts >= signUpMaxAttempts) {
-              console.warn('[AuthModalNew] Max attempts reached, redirecting anyway');
-              // Даже если сессия не подтверждена, редиректим
-              // UserProvider на dashboard проверит сессию при загрузке
-              if (window.location.pathname !== '/dashboard') {
-                navigate('/dashboard', { replace: true });
-              } else {
-                window.location.reload();
-              }
-              return;
-            }
-            
-            signUpAttempts++;
-            console.log(`[AuthModalNew] Waiting for session... (attempt ${signUpAttempts}/${signUpMaxAttempts})`);
-            setTimeout(checkSignUpSession, 200);
-          };
+          onClose();
           
-          // Начинаем проверку сразу после закрытия модалки
-          setTimeout(checkSignUpSession, 100);
-        })();
+          // Редиректим на dashboard, так как сессия уже создана
+          if (window.location.pathname !== '/dashboard') {
+            navigate('/dashboard', { replace: true });
+          } else {
+            window.location.reload();
+          }
+        } else if (userCreated) {
+          // Пользователь создан, но требуется подтверждение email
+          console.log('[AuthModalNew] Email confirmation required');
+          
+          toast({
+            title: t('auth.success.registered'),
+            description: t('auth.success.emailConfirmationRequired'),
+          });
+
+          sessionStorage.removeItem('partner_code');
+          sessionStorage.removeItem('referral_code');
+
+          // НЕ закрываем модалку и НЕ редиректим - пользователь должен подтвердить email
+          // Показываем сообщение и возвращаемся на шаг email
+          setIsSubmitting(false);
+          setStep('email');
+          setPassword('');
+          setEmail('');
+          
+          // Показываем дополнительное сообщение через небольшую задержку
+          setTimeout(() => {
+            toast({
+              title: t('auth.success.checkEmail'),
+              description: t('auth.success.checkEmailDescription'),
+            });
+          }, 1000);
+        } else {
+          // Ошибка регистрации - пользователь не создан
+          console.error('[AuthModalNew] User was not created during signUp');
+          throw new Error('Failed to create user account');
+        }
       } else {
         // Вход
         const { error } = await supabase.auth.signInWithPassword({
@@ -992,7 +972,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                 exit={{ scale: 0.8, opacity: 0 }}
                 className="mb-4"
               >
-                <LandingLogo theme="dark" variant="default" showText={false} className="mx-auto" />
+                <LandingLogo variant="bold" showText={false} className="mx-auto" />
               </motion.div>
             )}
           </AnimatePresence>

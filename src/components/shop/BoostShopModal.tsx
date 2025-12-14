@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift, Trophy, TestTube, Zap, Calendar, CreditCard, Users, Filter, Crown, Sparkles, Check, Video, ChevronDown, Shield, Wand2, Download, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext, UserContext } from '@/contexts/UserContext';
@@ -2187,22 +2186,20 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             };
 
         return (
-          <Sheet 
+          <ResponsiveModal
             open={!!selectedBoostForInspect} 
             onOpenChange={(open) => {
-              console.log('[BoostShopModal] Sheet onOpenChange:', open, 'selectedBoost:', selectedBoostForInspect?.type);
+              console.log('[BoostShopModal] ResponsiveModal onOpenChange:', open, 'selectedBoost:', selectedBoostForInspect?.type);
               if (!open) {
                 setSelectedBoostForInspect(null);
               }
             }}
+            className="bg-[#0f1014] border-t border-white/10 max-h-[80vh] relative"
+            contentClassName="p-6 relative"
           >
-            <SheetContent 
-              side="bottom" 
-              className="bg-[#0f1014] border-t border-white/10 p-6 rounded-t-3xl max-h-[80vh] overflow-y-auto"
-            >
               {/* Noise texture */}
               <div 
-                className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none"
+                className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none z-0"
                 style={{
                   backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
                   backgroundRepeat: 'repeat'
@@ -2310,8 +2307,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   )}
                 </button>
               </div>
-            </SheetContent>
-          </Sheet>
+          </ResponsiveModal>
         );
       })()}
     </>

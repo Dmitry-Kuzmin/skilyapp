@@ -154,6 +154,9 @@ const translations: Record<Language, Record<string, any>> = {
         loggedIn: "Sesión iniciada",
         welcome: "¡Bienvenido!",
         welcomeUser: "¡Bienvenido, {{name}}!",
+        emailConfirmationRequired: "Por favor, revisa tu correo para confirmar tu cuenta",
+        checkEmail: "Revisa tu correo",
+        checkEmailDescription: "Hemos enviado un correo de confirmación a tu dirección. Haz clic en el enlace del correo para completar el registro.",
       },
       passkey: {
         loginSuccess: "✅ Sesión iniciada",
@@ -1057,6 +1060,9 @@ const translations: Record<Language, Record<string, any>> = {
         loggedIn: "Logged in",
         welcome: "Welcome!",
         welcomeUser: "Welcome, {{name}}!",
+        emailConfirmationRequired: "Please check your email to confirm your account",
+        checkEmail: "Check your email",
+        checkEmailDescription: "We've sent a confirmation email to your address. Click the link in the email to complete registration.",
       },
       passkey: {
         loginSuccess: "✅ Logged in",
@@ -1959,6 +1965,9 @@ const translations: Record<Language, Record<string, any>> = {
         loggedIn: "Вход выполнен",
         welcome: "Добро пожаловать!",
         welcomeUser: "Добро пожаловать, {{name}}!",
+        emailConfirmationRequired: "Проверьте вашу почту для подтверждения email",
+        checkEmail: "Проверьте email",
+        checkEmailDescription: "Мы отправили письмо с подтверждением на ваш email. Перейдите по ссылке в письме, чтобы завершить регистрацию.",
       },
       passkey: {
         loginSuccess: "✅ Вход выполнен",

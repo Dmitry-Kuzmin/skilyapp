@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Lock, Coins, Crown, Zap, Check, X, Plus, Cpu, Search, Shield, Hexagon, Play, Trash2 } from 'lucide-react';
+import { Lock, Coins, Crown, Zap, Check, X, Plus, Cpu, Search, Shield, Hexagon, Play, Trash2, Video } from 'lucide-react';
 import { RewardedAdModal } from '@/components/monetization/RewardedAdModal';
 import { PaywallModal } from '@/components/monetization/PaywallModal';
 import { supabase } from '@/integrations/supabase/client';
@@ -608,6 +608,9 @@ const SlotCard: React.FC<SlotCardProps> = ({
       onSlotClick();
     } else if (isPremium && !userHasPremium && onPremiumClick) {
       // Premium слот - открываем модалку Premium
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[SlotCard] Premium slot clicked, opening premium modal');
+      }
       onPremiumClick();
     } else if (canOverclock && onOverclockClick) {
       // OVERCLOCK слот - открываем рекламу
@@ -758,10 +761,10 @@ const SlotCard: React.FC<SlotCardProps> = ({
               </div>
             )
           ) : canOverclock ? (
-            // === OVERCLOCK: Split Layout - Реклама сверху, Покупка снизу ===
+            // === OVERCLOCK: Компактный Layout - OVERCLOCK сверху, две кнопки внизу ===
             <div className="flex flex-col h-full w-full">
-              {/* Верхняя часть (70%) - OVERCLOCK / Реклама */}
-              <div className="flex-1 flex flex-col items-center justify-center gap-2 relative">
+              {/* Верхняя часть - OVERCLOCK */}
+              <div className="flex-1 flex flex-col items-center justify-center gap-1.5 relative">
                 <motion.div
                   animate={{
                     scale: [1, 1.1, 1],
@@ -771,22 +774,48 @@ const SlotCard: React.FC<SlotCardProps> = ({
                     repeat: Infinity,
                     ease: "easeInOut"
                   }}
+                  className="relative"
                 >
-                  <Play className="w-8 h-8 sm:w-10 sm:h-10 text-orange-400 fill-orange-400" />
+                  <Play className="w-7 h-7 sm:w-9 sm:h-9 text-orange-400 fill-orange-400" />
+                  {/* Иконка видео в углу */}
+                  <Video className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 text-orange-500 bg-orange-400/20 rounded-full p-0.5 border border-orange-500/40" />
                 </motion.div>
-                <span className="text-[10px] font-bold text-orange-400 uppercase tracking-wider">
+                <span className="text-[9px] font-bold text-orange-400 uppercase tracking-wider">
                   OVERCLOCK
                 </span>
-                <span className="text-[8px] text-orange-500/60 font-mono">
+                <span className="text-[7px] text-orange-500/60 font-mono">
                   1 MATCH
                 </span>
               </div>
               
-              {/* Разделитель */}
-              <div className="h-px bg-white/10 my-1" />
-              
-              {/* Нижняя часть (30%) - Покупка навсегда */}
-              <div className="flex-shrink-0 flex items-center justify-center py-1.5">
+              {/* Нижняя часть - Две кнопки с разделителем "or" */}
+              <div className="flex-shrink-0 flex flex-col gap-1.5 pt-2">
+                {/* Кнопка рекламы - верхняя */}
+                <motion.button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onOverclockClick) onOverclockClick();
+                  }}
+                  className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-to-r from-orange-500/30 to-orange-400/30 border-2 border-orange-500/60 shadow-[0_0_10px_rgba(251,146,60,0.4)] whitespace-nowrap min-h-[38px] touch-manipulation"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Video className="w-3.5 h-3.5 text-orange-300 flex-shrink-0" />
+                  <span className="text-[9px] text-orange-200 font-bold uppercase tracking-tight leading-none">
+                    WATCH AD
+                  </span>
+                </motion.button>
+                
+                {/* Разделитель "or" - более заметный */}
+                <div className="flex items-center justify-center gap-2 py-1">
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                  <span className="text-[9px] text-zinc-300 font-semibold uppercase tracking-wider px-2">
+                    or
+                  </span>
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                </div>
+                
+                {/* Кнопка покупки - нижняя */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -794,26 +823,27 @@ const SlotCard: React.FC<SlotCardProps> = ({
                   }}
                   disabled={!canUnlock || isUnlocking}
                   className={cn(
-                    "text-[9px] font-mono tracking-wider transition-all",
+                    "flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border-2 transition-all whitespace-nowrap min-h-[38px] touch-manipulation",
                     canUnlock && !isUnlocking
-                      ? "text-yellow-400 hover:text-yellow-300 flex items-center gap-1"
-                      : "text-zinc-500 cursor-not-allowed"
+                      ? "bg-gradient-to-r from-yellow-500/30 to-amber-500/30 border-yellow-500/60 text-yellow-200 shadow-[0_0_10px_rgba(234,179,8,0.4)] hover:from-yellow-500/40 hover:to-amber-500/40 active:scale-95"
+                      : "bg-zinc-800/50 border-zinc-700/50 text-zinc-500 cursor-not-allowed"
                   )}
                 >
                   {isUnlocking ? (
-                    <span className="flex items-center gap-1">
+                    <>
                       <motion.div
-                        className="w-2 h-2 border border-yellow-400/30 border-t-yellow-400 rounded-full"
+                        className="w-3 h-3 border-2 border-yellow-400/50 border-t-yellow-400 rounded-full"
                         animate={{ rotate: 360 }}
                         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                       />
-                      <span>Unlocking...</span>
-                    </span>
+                      <span className="text-[8px] font-mono text-yellow-400">...</span>
+                    </>
                   ) : (
                     <>
-                      <span>UNLOCK</span>
-                      <Coins className="w-3 h-3 inline-block" />
-                      <span className="font-bold">{unlockCost}</span>
+                      <Coins className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span className="text-[9px] font-bold uppercase tracking-tight leading-none">
+                        UNLOCK {unlockCost}
+                      </span>
                     </>
                   )}
                 </button>
@@ -821,11 +851,34 @@ const SlotCard: React.FC<SlotCardProps> = ({
             </div>
           ) : (
             // === PREMIUM: Иконка Crown + "PREMIUM" ===
-            <div className="flex flex-col items-center gap-2">
-              <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-amber-400" />
+            <div className="flex flex-col items-center justify-center gap-2 h-full">
+              <motion.div
+                animate={{
+                  scale: [1, 1.1, 1],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-amber-400" />
+              </motion.div>
               <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">
                 PREMIUM
               </span>
+              {!userHasPremium && (
+                <motion.div 
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-amber-500/40 shadow-[0_0_8px_rgba(251,191,36,0.3)] whitespace-nowrap"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Crown className="w-2.5 h-2.5 text-amber-400 flex-shrink-0" />
+                  <span className="text-[8px] text-amber-300 font-bold uppercase tracking-tight leading-tight">
+                    GET PREMIUM
+                  </span>
+                </motion.div>
+              )}
             </div>
           )}
         </div>

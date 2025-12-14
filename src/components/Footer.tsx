@@ -70,8 +70,9 @@ export function Footer() {
             type="button"
             onClick={() => navigate("/dashboard")}
             className="mx-auto md:mx-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg px-1 py-1 transition-opacity hover:opacity-90"
+            style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}
           >
-            <LandingLogo theme="dark" variant="minimal" showText={true} className="scale-75" />
+            <LandingLogo variant="bold" showText={true} className="scale-75" />
           </button>
 
           {/* Organized Link Columns */}
