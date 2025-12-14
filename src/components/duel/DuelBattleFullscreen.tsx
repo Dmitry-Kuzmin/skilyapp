@@ -1215,36 +1215,40 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         } else {
           setTimeLeft(secondsRemaining);
           
-          // КРИТИЧНО: Убеждаемся, что таймер продолжает работать после возвращения
-          // Если интервал был остановлен браузером - перезапускаем его
-          if (!timerIntervalRef.current) {
-            log('[DuelBattleFullscreen] 🔄 Restarting timer interval after tab visibility');
-            timerIntervalRef.current = setInterval(() => {
-              if (!questionEndTimeRef.current) {
-                if (timerIntervalRef.current) {
-                  clearInterval(timerIntervalRef.current);
-                  timerIntervalRef.current = null;
-                }
-                return;
-              }
-
-              const now = Date.now();
-              const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000;
-
-              if (secondsRemaining <= 0) {
-                log('[DuelBattleFullscreen] ⏱️ Timer expired for question', currentIndex + 1);
-                setTimeLeft(0);
-                questionEndTimeRef.current = null;
-                if (timerIntervalRef.current) {
-                  clearInterval(timerIntervalRef.current);
-                  timerIntervalRef.current = null;
-                }
-                handleTimeout();
-              } else {
-                setTimeLeft(secondsRemaining);
-              }
-            }, 250);
+          // КРИТИЧНО: Всегда перезапускаем интервал при возвращении на вкладку
+          // Браузер может замедлить или остановить интервалы в фоновых вкладках
+          // Перезапуск гарантирует, что таймер продолжит работать корректно
+          if (timerIntervalRef.current) {
+            clearInterval(timerIntervalRef.current);
+            timerIntervalRef.current = null;
           }
+          
+          log('[DuelBattleFullscreen] 🔄 Restarting timer interval after tab visibility');
+          timerIntervalRef.current = setInterval(() => {
+            if (!questionEndTimeRef.current) {
+              if (timerIntervalRef.current) {
+                clearInterval(timerIntervalRef.current);
+                timerIntervalRef.current = null;
+              }
+              return;
+            }
+
+            const now = Date.now();
+            const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000;
+
+            if (secondsRemaining <= 0) {
+              log('[DuelBattleFullscreen] ⏱️ Timer expired for question', currentIndex + 1);
+              setTimeLeft(0);
+              questionEndTimeRef.current = null;
+              if (timerIntervalRef.current) {
+                clearInterval(timerIntervalRef.current);
+                timerIntervalRef.current = null;
+              }
+              handleTimeout();
+            } else {
+              setTimeLeft(secondsRemaining);
+            }
+          }, 250);
         }
       } else if (document.visibilityState === 'hidden') {
         // При скрытии вкладки логируем, но не останавливаем таймер
