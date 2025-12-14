@@ -19,11 +19,22 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   const [webglSupported, setWebglSupported] = useState<boolean | null>(null);
   
   useEffect(() => {
+    // КРИТИЧНО: Проверка на SSR и доступность document
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      setWebglSupported(false);
+      return;
+    }
+
     try {
       const canvas = document.createElement('canvas');
+      if (!canvas) {
+        setWebglSupported(false);
+        return;
+      }
       const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
       setWebglSupported(!!gl);
     } catch (e) {
+      console.warn('[OilSplashAttack] WebGL check failed:', e);
       setWebglSupported(false);
     }
   }, []);
@@ -59,42 +70,72 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
 
   // КРИТИЧНО: Автоматическое завершение по истечении времени
   useEffect(() => {
-    if (!isActive || !expiresAt) return;
-
-    const now = Date.now();
-    const remainingTime = expiresAt - now;
-
-    // Если время уже истекло - завершаем сразу
-    if (remainingTime <= 0) {
-      console.log('[OilSplashAttack] ⏰ Attack expired, cleaning up immediately');
-      onCleaned();
+    if (!isActive) return;
+    
+    // КРИТИЧНО: Валидация expiresAt и onCleaned
+    if (!expiresAt || typeof expiresAt !== 'number' || !isFinite(expiresAt)) {
+      console.warn('[OilSplashAttack] Invalid expiresAt:', expiresAt);
       return;
     }
 
-    // Если осталось мало времени (< 1 секунды) - завершаем быстро
-    if (remainingTime < 1000) {
-      console.log('[OilSplashAttack] ⏰ Attack expires soon, cleaning up in', remainingTime, 'ms');
-      expireTimeoutRef.current = setTimeout(() => {
-        onCleaned();
-      }, remainingTime);
-      return () => {
-        if (expireTimeoutRef.current) clearTimeout(expireTimeoutRef.current);
-      };
+    if (!onCleaned || typeof onCleaned !== 'function') {
+      console.error('[OilSplashAttack] onCleaned is not a function');
+      return;
     }
 
-    // Устанавливаем таймер на оставшееся время
-    console.log('[OilSplashAttack] ⏰ Attack will expire in', Math.round(remainingTime / 1000), 'seconds');
-    expireTimeoutRef.current = setTimeout(() => {
-      console.log('[OilSplashAttack] ⏰ Attack expired, cleaning up');
-      onCleaned();
-    }, remainingTime);
+    try {
+      const now = Date.now();
+      const remainingTime = expiresAt - now;
 
-    return () => {
-      if (expireTimeoutRef.current) {
-        clearTimeout(expireTimeoutRef.current);
-        expireTimeoutRef.current = null;
+      // Если время уже истекло - завершаем сразу
+      if (remainingTime <= 0) {
+        console.log('[OilSplashAttack] ⏰ Attack expired, cleaning up immediately');
+        try {
+          onCleaned();
+        } catch (error) {
+          console.error('[OilSplashAttack] Error calling onCleaned:', error);
+        }
+        return;
       }
-    };
+
+      // Если осталось мало времени (< 1 секунды) - завершаем быстро
+      if (remainingTime < 1000) {
+        console.log('[OilSplashAttack] ⏰ Attack expires soon, cleaning up in', remainingTime, 'ms');
+        expireTimeoutRef.current = setTimeout(() => {
+          try {
+            onCleaned();
+          } catch (error) {
+            console.error('[OilSplashAttack] Error calling onCleaned in timeout:', error);
+          }
+        }, Math.max(0, remainingTime)); // Защита от отрицательных значений
+        return () => {
+          if (expireTimeoutRef.current) {
+            clearTimeout(expireTimeoutRef.current);
+            expireTimeoutRef.current = null;
+          }
+        };
+      }
+
+      // Устанавливаем таймер на оставшееся время
+      console.log('[OilSplashAttack] ⏰ Attack will expire in', Math.round(remainingTime / 1000), 'seconds');
+      expireTimeoutRef.current = setTimeout(() => {
+        console.log('[OilSplashAttack] ⏰ Attack expired, cleaning up');
+        try {
+          onCleaned();
+        } catch (error) {
+          console.error('[OilSplashAttack] Error calling onCleaned in expire timeout:', error);
+        }
+      }, Math.max(0, remainingTime)); // Защита от отрицательных значений
+
+      return () => {
+        if (expireTimeoutRef.current) {
+          clearTimeout(expireTimeoutRef.current);
+          expireTimeoutRef.current = null;
+        }
+      };
+    } catch (error) {
+      console.error('[OilSplashAttack] Error in expiresAt effect:', error);
+    }
   }, [isActive, expiresAt, onCleaned]);
 
   // --- 1. Canvas Setup (Run Once & Resize) ---
@@ -475,6 +516,19 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
 
   if (!isActive) return null;
 
+  // КРИТИЧНО: Проверка onCleaned перед использованием
+  const safeOnCleaned = () => {
+    try {
+      if (onCleaned && typeof onCleaned === 'function') {
+        onCleaned();
+      } else {
+        console.error('[OilSplashAttack] onCleaned is not a function');
+      }
+    } catch (error) {
+      console.error('[OilSplashAttack] Error in safeOnCleaned:', error);
+    }
+  };
+
   // FAILSAFE: Если WebGL не поддерживается - показываем простую заглушку
   if (webglSupported === false) {
     return (
@@ -488,7 +542,7 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
           </p>
           <div className="mt-8">
             <button
-              onClick={onCleaned}
+              onClick={safeOnCleaned}
               className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-mono font-bold rounded-lg transition-colors"
             >
               ACKNOWLEDGE
