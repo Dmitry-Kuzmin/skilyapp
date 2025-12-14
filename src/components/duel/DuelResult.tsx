@@ -16,6 +16,7 @@ import { dispatchUserEvent } from '@/lib/notification-events';
 import { cn } from '@/lib/utils';
 import { useDuelResults } from '@/hooks/useDuelResults';
 import { DataLaunderingButton } from './DataLaunderingButton';
+import { useVignetteBanner } from '@/hooks/useVignetteBanner';
 
 interface DuelResultProps {
   duelId: string;
@@ -54,6 +55,10 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
       }
     }
   }, [duelResultsData, duelId]);
+
+  // Показываем Vignette Banner после завершения дуэли (только в веб-версии, один раз за сессию)
+  // Задержка 1.5 секунды, чтобы не перекрывать анимацию результатов
+  useVignetteBanner(!!results, 1500);
 
   useEffect(() => {
     if (results && profileId && !rewardsAppliedRef.current) {

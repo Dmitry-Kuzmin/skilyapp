@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { improvementTips, encouragements } from "@/data/lumiHints";
+import { useVignetteBanner } from "@/hooks/useVignetteBanner";
 
 type TestRewardPayload = {
   coins_awarded?: number;
@@ -162,6 +163,10 @@ const TestResults = () => {
     testInfo?: { id: string; title: string };
     rewardResult?: TestRewardPayload | null;
   };
+
+  // Показываем Vignette Banner после завершения теста (только в веб-версии, один раз за сессию)
+  // Задержка 1.5 секунды, чтобы не перекрывать анимацию результатов
+  useVignetteBanner(!!questions && !!answers, 1500);
 
   // Синхронизируем награды, переданные с экрана теста (только один раз!)
   const hasShownRewardsRef = useRef(false);

@@ -302,37 +302,6 @@
     <!-- AdsGram SDK -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
-    <!-- Monetag Vignette Banner (только для веб-версии, НЕ в Telegram Mini App) -->
-    <script>
-      // Показываем Vignette Banner только в веб-версии (не в Telegram Mini App)
-      (function() {
-        // Надежная проверка: мы НЕ в Telegram Mini App
-        // Проверяем наличие Telegram.WebApp с валидными свойствами (platform, version)
-        var isTelegramMiniApp = false;
-        if (window.Telegram && window.Telegram.WebApp) {
-          var webApp = window.Telegram.WebApp;
-          // Проверяем наличие platform и version (эти свойства есть в реальном Telegram WebApp)
-          var hasValidPlatform = webApp.platform && 
-            (webApp.platform === 'web' || webApp.platform === 'ios' || webApp.platform === 'android' || 
-             webApp.platform === 'tdesktop' || webApp.platform === 'macos' || webApp.platform === 'windows' || webApp.platform === 'linux');
-          var hasVersion = webApp.version && typeof webApp.version === 'string';
-          // Проверяем, что это не мок (тестовые данные)
-          var isNotMock = !(webApp.initData === 'mock_init_data' || 
-                           (webApp.initDataUnsafe && webApp.initDataUnsafe.user && 
-                            webApp.initDataUnsafe.user.id === 123456789));
-          isTelegramMiniApp = hasValidPlatform && hasVersion && isNotMock;
-        }
-        
-        if (!isTelegramMiniApp) {
-          // Загружаем Vignette Banner только для веб-версии
-          (function(s){
-            s.dataset.zone='10323401';
-            s.src='https://gizokraijaw.net/vignette.min.js';
-          })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
-        }
-      })();
-    </script>
-    
     <script src="https://telegram.org/js/telegram-web-app.js" defer crossorigin="anonymous"></script>
     <!-- ОПТИМИЗАЦИЯ: telegram-widget.js откладываем до взаимодействия пользователя -->
     <!-- Загружается только при скролле или через 3 секунды после загрузки страницы -->
