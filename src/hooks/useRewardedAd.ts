@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { isTelegramMiniApp } from '@/lib/telegram';
 import { usePremium } from './usePremium';
 import { initAdsGram, showAdsGramRewardedVideo } from '@/lib/adsgram';
-import { initMonetag, showMonetagRewardedVideo } from '@/lib/monetag';
+import { initMonetag, initMonetagTMA, showMonetagRewardedVideo, showMonetagRewardedVideoTMA } from '@/lib/monetag';
 
 /**
  * Типы наград за просмотр рекламы
@@ -53,10 +53,10 @@ export function useRewardedAd() {
       return;
     }
 
-    // В Telegram Mini App используем AdsGram
+    // В Telegram Mini App используем AdsGram и Monetag (оба для fallback)
     if (isTelegramMiniApp()) {
-      // Ждем загрузки AdsGram SDK скрипта
-      const checkSDK = () => {
+      // Инициализируем AdsGram
+      const checkAdsGramSDK = () => {
         if (typeof window !== 'undefined' && window.Adsgram) {
           initAdsGram();
         } else {
@@ -74,12 +74,15 @@ export function useRewardedAd() {
         }
       };
 
+      // Инициализируем Monetag для TMA
+      initMonetagTMA();
+
       // Если DOM уже загружен
       if (document.readyState === 'complete') {
-        checkSDK();
+        checkAdsGramSDK();
       } else {
-        window.addEventListener('load', checkSDK);
-        return () => window.removeEventListener('load', checkSDK);
+        window.addEventListener('load', checkAdsGramSDK);
+        return () => window.removeEventListener('load', checkAdsGramSDK);
       }
     } else {
       // В веб-версии используем Monetag
@@ -101,11 +104,18 @@ export function useRewardedAd() {
     try {
       let rewarded: boolean;
       
-      // В Telegram Mini App используем AdsGram
+      // В Telegram Mini App используем Monetag Rewarded Interstitial (приоритет) или AdsGram (fallback)
       if (isTelegramMiniApp()) {
-        rewarded = await showAdsGramRewardedVideo();
+        try {
+          // Пробуем Monetag Rewarded Interstitial (возвращает Promise)
+          rewarded = await showMonetagRewardedVideoTMA();
+        } catch (monetagError: any) {
+          console.warn('[useRewardedAd] Monetag TMA failed, trying AdsGram fallback:', monetagError);
+          // Fallback на AdsGram, если Monetag не работает
+          rewarded = await showAdsGramRewardedVideo();
+        }
       } else {
-        // В веб-версии используем Monetag
+        // В веб-версии используем Monetag Native Banner
         rewarded = await showMonetagRewardedVideo();
       }
       

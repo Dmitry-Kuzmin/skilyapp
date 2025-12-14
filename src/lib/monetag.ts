@@ -1,73 +1,188 @@
 /**
- * Monetag SDK интеграция для веб-версии
+ * Monetag SDK интеграция
  * 
  * Документация: https://docs.monetag.com/docs/ad-integration/rewarded-interstitial/
  * 
- * ВАЖНО: Monetag Interstitial работает как Rewarded Video для веб-версии.
- * Пользователь закрывает рекламу, и мы считаем это успешным просмотром.
+ * Поддерживает:
+ * - Rewarded Interstitial для Telegram Mini App (Zone ID: 10323643) - возвращает Promise
+ * - Native Banner (Interstitial) для веб-версии (Zone ID: 10323437) - НЕ возвращает Promise
  */
 
 declare global {
   interface Window {
-    // Monetag Interstitial функция (создается автоматически SDK)
-    // ВАЖНО: Native Banner (Interstitial) НЕ возвращает Promise!
-    // Это просто функция, которая показывает баннер
-    [key: `show_${string}`]: () => void;
+    // Monetag Rewarded Interstitial для Telegram Mini App (возвращает Promise)
+    show_10323643?: () => Promise<void>;
+    // Monetag Native Banner (Interstitial) для веб-версии (НЕ возвращает Promise)
+    [key: `show_${string}`]: (() => void) | (() => Promise<void>);
   }
 }
 
-// Zone ID для Rewarded Interstitial (Native Banner Interstitial используется как Rewarded Video)
-export const MONETAG_REWARDED_ZONE_ID = '10323437';
+// Zone ID для Rewarded Interstitial в Telegram Mini App
+export const MONETAG_TMA_REWARDED_ZONE_ID = '10323643';
 
-// Имя функции, которая будет создана SDK
-const SHOW_FUNCTION_NAME = `show_${MONETAG_REWARDED_ZONE_ID}` as const;
+// Zone ID для Native Banner (Interstitial) в веб-версии
+export const MONETAG_WEB_REWARDED_ZONE_ID = '10323437';
+
+// Имена функций, которые будут созданы SDK
+const TMA_SHOW_FUNCTION_NAME = `show_${MONETAG_TMA_REWARDED_ZONE_ID}` as const;
+const WEB_SHOW_FUNCTION_NAME = `show_${MONETAG_WEB_REWARDED_ZONE_ID}` as const;
 
 /**
- * Проверяет, загружен ли SDK Monetag
+ * Проверяет, загружен ли SDK Monetag для Telegram Mini App
  */
-function isSDKLoaded(): boolean {
+function isTMASDKLoaded(): boolean {
   if (typeof window === 'undefined') {
     return false;
   }
-  return typeof (window as any)[SHOW_FUNCTION_NAME] === 'function';
+  return typeof (window as any)[TMA_SHOW_FUNCTION_NAME] === 'function';
 }
 
 /**
- * Инициализация Monetag SDK
+ * Проверяет, загружен ли SDK Monetag для веб-версии
+ */
+function isWebSDKLoaded(): boolean {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  return typeof (window as any)[WEB_SHOW_FUNCTION_NAME] === 'function';
+}
+
+/**
+ * Инициализация Monetag SDK для Telegram Mini App
  * SDK загружается автоматически через скрипт в index.html
  */
-export function initMonetag(): void {
+export function initMonetagTMA(): void {
   if (typeof window === 'undefined') {
-    console.warn('[Monetag] Window is not available');
+    console.warn('[Monetag TMA] Window is not available');
     return;
   }
 
   // Проверяем сразу
-  if (isSDKLoaded()) {
-    console.log('[Monetag] SDK initialized successfully, function:', SHOW_FUNCTION_NAME);
+  if (isTMASDKLoaded()) {
+    console.log('[Monetag TMA] SDK initialized successfully, function:', TMA_SHOW_FUNCTION_NAME);
     return;
   }
 
-  console.warn('[Monetag] SDK not loaded yet. Waiting for script to load...');
+  console.warn('[Monetag TMA] SDK not loaded yet. Waiting for script to load...');
   
   // Ждем загрузки SDK (максимум 5 секунд)
   let attempts = 0;
   const checkInterval = setInterval(() => {
     attempts++;
-    if (isSDKLoaded()) {
+    if (isTMASDKLoaded()) {
       clearInterval(checkInterval);
-      console.log('[Monetag] SDK loaded successfully (delayed), function:', SHOW_FUNCTION_NAME);
+      console.log('[Monetag TMA] SDK loaded successfully (delayed), function:', TMA_SHOW_FUNCTION_NAME);
     } else if (attempts > 50) {
       clearInterval(checkInterval);
-      console.error('[Monetag] SDK failed to load after 5 seconds');
-      console.error('[Monetag] Available window functions:', Object.keys(window).filter(k => k.startsWith('show_')));
-      console.error('[Monetag] Possible reasons: AdBlock, CORS, or script not loaded');
+      console.error('[Monetag TMA] SDK failed to load after 5 seconds');
+      console.error('[Monetag TMA] Available window functions:', Object.keys(window).filter(k => k.startsWith('show_')));
+      console.error('[Monetag TMA] Possible reasons: AdBlock, CORS, or script not loaded');
     }
   }, 100);
 }
 
 /**
- * Показывает Rewarded Interstitial рекламу (Monetag)
+ * Инициализация Monetag SDK для веб-версии
+ * SDK загружается автоматически через скрипт в index.html
+ */
+export function initMonetagWeb(): void {
+  if (typeof window === 'undefined') {
+    console.warn('[Monetag Web] Window is not available');
+    return;
+  }
+
+  // Проверяем сразу
+  if (isWebSDKLoaded()) {
+    console.log('[Monetag Web] SDK initialized successfully, function:', WEB_SHOW_FUNCTION_NAME);
+    return;
+  }
+
+  console.warn('[Monetag Web] SDK not loaded yet. Waiting for script to load...');
+  
+  // Ждем загрузки SDK (максимум 5 секунд)
+  let attempts = 0;
+  const checkInterval = setInterval(() => {
+    attempts++;
+    if (isWebSDKLoaded()) {
+      clearInterval(checkInterval);
+      console.log('[Monetag Web] SDK loaded successfully (delayed), function:', WEB_SHOW_FUNCTION_NAME);
+    } else if (attempts > 50) {
+      clearInterval(checkInterval);
+      console.error('[Monetag Web] SDK failed to load after 5 seconds');
+      console.error('[Monetag Web] Available window functions:', Object.keys(window).filter(k => k.startsWith('show_')));
+      console.error('[Monetag Web] Possible reasons: AdBlock, CORS, or script not loaded');
+    }
+  }, 100);
+}
+
+/**
+ * Инициализация Monetag SDK (обертка для обратной совместимости)
+ * Определяет платформу автоматически
+ */
+export function initMonetag(): void {
+  // Для обратной совместимости - инициализируем веб-версию
+  initMonetagWeb();
+}
+
+/**
+ * Показывает Rewarded Interstitial рекламу для Telegram Mini App (Monetag)
+ * 
+ * ВАЖНО: Rewarded Interstitial для TMA возвращает Promise!
+ * Promise резолвится, когда пользователь просмотрел рекламу до конца.
+ * 
+ * @returns Promise<boolean> - true если реклама просмотрена до конца
+ */
+export async function showMonetagRewardedVideoTMA(): Promise<boolean> {
+  if (typeof window === 'undefined') {
+    throw new Error('Monetag SDK is not available - window is undefined');
+  }
+
+  // Проверяем, загружен ли SDK
+  if (!isTMASDKLoaded()) {
+    initMonetagTMA();
+    // Ждем немного (500ms) на случай, если SDK загружается асинхронно
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    if (!isTMASDKLoaded()) {
+      // SDK не загружен - возможно, AdBlock заблокировал скрипт
+      const error = new Error('Monetag SDK не загружен. Возможно, AdBlock заблокировал рекламу. Отключите AdBlock, чтобы получить награду.');
+      (error as any).isAdBlockError = true;
+      throw error;
+    }
+  }
+
+  try {
+    const showFunction = (window as any)[TMA_SHOW_FUNCTION_NAME];
+    
+    if (typeof showFunction !== 'function') {
+      console.error('[Monetag TMA] Function not found:', TMA_SHOW_FUNCTION_NAME);
+      console.error('[Monetag TMA] Available functions:', Object.keys(window).filter(k => k.startsWith('show_')));
+      return false;
+    }
+
+    console.log('[Monetag TMA] Calling show function:', TMA_SHOW_FUNCTION_NAME);
+    
+    // Rewarded Interstitial для TMA возвращает Promise
+    // Promise резолвится, когда пользователь просмотрел рекламу до конца
+    await showFunction();
+    
+    console.log('[Monetag TMA] Rewarded interstitial completed successfully');
+    return true;
+  } catch (error: any) {
+    console.error('[Monetag TMA] Error showing rewarded video:', error);
+    
+    // Если это ошибка загрузки SDK (AdBlock), пробрасываем дальше
+    if (error.isAdBlockError) {
+      throw error;
+    }
+    
+    // Другие ошибки - считаем неуспехом
+    return false;
+  }
+}
+
+/**
+ * Показывает Rewarded Interstitial рекламу для веб-версии (Monetag)
  * 
  * ВАЖНО: Native Banner (Interstitial) от Monetag НЕ возвращает Promise!
  * Это просто функция, которая показывает полноэкранный баннер.
@@ -79,18 +194,18 @@ export function initMonetag(): void {
  * 
  * @returns Promise<boolean> - true если реклама показана
  */
-export async function showMonetagRewardedVideo(): Promise<boolean> {
+export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
   if (typeof window === 'undefined') {
     throw new Error('Monetag SDK is not available - window is undefined');
   }
 
   // Проверяем, загружен ли SDK
-  if (!isSDKLoaded()) {
-    initMonetag();
+  if (!isWebSDKLoaded()) {
+    initMonetagWeb();
     // Ждем немного (500ms) на случай, если SDK загружается асинхронно
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    if (!isSDKLoaded()) {
+    if (!isWebSDKLoaded()) {
       // SDK не загружен - возможно, AdBlock заблокировал скрипт
       const error = new Error('Monetag SDK не загружен. Возможно, AdBlock заблокировал рекламу. Отключите AdBlock, чтобы получить награду.');
       (error as any).isAdBlockError = true;
@@ -100,30 +215,30 @@ export async function showMonetagRewardedVideo(): Promise<boolean> {
 
   return new Promise((resolve) => {
     try {
-      const showFunction = (window as any)[SHOW_FUNCTION_NAME];
+      const showFunction = (window as any)[WEB_SHOW_FUNCTION_NAME];
       
       if (typeof showFunction !== 'function') {
-        console.error('[Monetag] Function not found:', SHOW_FUNCTION_NAME);
-        console.error('[Monetag] Available functions:', Object.keys(window).filter(k => k.startsWith('show_')));
+        console.error('[Monetag Web] Function not found:', WEB_SHOW_FUNCTION_NAME);
+        console.error('[Monetag Web] Available functions:', Object.keys(window).filter(k => k.startsWith('show_')));
         resolve(false);
         return;
       }
 
-      console.log('[Monetag] Calling show function:', SHOW_FUNCTION_NAME);
+      console.log('[Monetag Web] Calling show function:', WEB_SHOW_FUNCTION_NAME);
       
       // ВАЖНО: Native Banner (Interstitial) НЕ возвращает Promise!
       // Это просто функция, которая показывает баннер
       // Вызываем её синхронно
       try {
         showFunction();
-        console.log('[Monetag] Ad banner shown');
+        console.log('[Monetag Web] Ad banner shown');
       } catch (showError: any) {
         // Игнорируем ошибку "Failed to verify" - это нормально для Interstitial
         if (showError.message?.includes('Failed to verify') || showError.message?.includes('verify')) {
-          console.warn('[Monetag] Ad verification error (ignored):', showError.message);
+          console.warn('[Monetag Web] Ad verification error (ignored):', showError.message);
           // Продолжаем - баннер был показан
         } else {
-          console.error('[Monetag] Error calling show function:', showError);
+          console.error('[Monetag Web] Error calling show function:', showError);
           resolve(false);
           return;
         }
@@ -135,12 +250,12 @@ export async function showMonetagRewardedVideo(): Promise<boolean> {
       const REWARD_DELAY_MS = 3000; // 3 секунды
       
       setTimeout(() => {
-        console.log('[Monetag] Rewarded interstitial completed (after', REWARD_DELAY_MS, 'ms delay)');
+        console.log('[Monetag Web] Rewarded interstitial completed (after', REWARD_DELAY_MS, 'ms delay)');
         resolve(true);
       }, REWARD_DELAY_MS);
       
     } catch (error: any) {
-      console.error('[Monetag] Error showing rewarded video:', error);
+      console.error('[Monetag Web] Error showing rewarded video:', error);
       
       // Если это ошибка загрузки SDK (AdBlock), пробрасываем дальше
       if (error.isAdBlockError) {
@@ -151,4 +266,16 @@ export async function showMonetagRewardedVideo(): Promise<boolean> {
       resolve(false);
     }
   });
+}
+
+/**
+ * Показывает Rewarded Video рекламу (Monetag)
+ * Автоматически определяет платформу и использует соответствующий SDK
+ * 
+ * @returns Promise<boolean> - true если реклама просмотрена
+ */
+export async function showMonetagRewardedVideo(): Promise<boolean> {
+  // Для обратной совместимости используем веб-версию
+  // В useRewardedAd будет правильное определение платформы
+  return showMonetagRewardedVideoWeb();
 }
