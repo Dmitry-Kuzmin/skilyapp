@@ -113,9 +113,9 @@ export default function PaymentSuccess() {
         if (paddleTransactionId) {
           // Paddle платеж
           const result = await supabase
-          .from('purchases')
-          .select('*')
-          .eq('paddle_transaction_id', paddleTransactionId)
+            .from('purchases')
+            .select('*')
+            .eq('paddle_transaction_id', paddleTransactionId)
           .single();
           purchase = result.data;
           purchaseError = result.error;

@@ -117,8 +117,12 @@ export function useRewardedAd() {
       // Обработка специфических ошибок
       let errorMessage = err.message || 'Не удалось показать рекламу';
       
-      // NotAllowedError - автовоспроизведение заблокировано
-      if (err.message?.includes('not allowed') || err.message?.includes('NotAllowedError') || err.name === 'NotAllowedError') {
+      // AdBlock ошибка (Monetag)
+      if (err.isAdBlockError || err.message?.includes('AdBlock')) {
+        errorMessage = 'AdBlock заблокировал рекламу. Отключите AdBlock, чтобы получить награду.';
+      }
+      // NotAllowedError - автовоспроизведение заблокировано (AdsGram)
+      else if (err.message?.includes('not allowed') || err.message?.includes('NotAllowedError') || err.name === 'NotAllowedError') {
         errorMessage = 'Браузер заблокировал автовоспроизведение. Пожалуйста, нажмите на кнопку еще раз после взаимодействия со страницей.';
       }
       
