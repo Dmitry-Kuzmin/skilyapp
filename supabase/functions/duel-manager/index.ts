@@ -3640,30 +3640,63 @@ Deno.serve(async (req) => {
             .eq('duel_id', duel_id);
 
           if (players && players.length >= 2) {
-            const opponent = players.find(p => p.user_id !== profileId);
+            // КРИТИЧНО: Находим соперника правильно - это игрок, который НЕ является текущим
+            const opponent = players.find(p => p.id !== player.id && !p.is_bot);
+            
+            console.log('[use_boost] 🔍 Finding opponent for exploit:', {
+              totalPlayers: players.length,
+              currentPlayerId: player.id,
+              currentPlayerUserId: profileId,
+              allPlayers: players.map(p => ({ id: p.id, user_id: p.user_id, is_bot: p.is_bot })),
+              opponentFound: !!opponent,
+              opponentId: opponent?.id,
+              opponentUserId: opponent?.user_id
+            });
             
             if (opponent) {
               // Вычисляем время истечения эффекта
               const durationMs = boostEffect.duration_ms || 10000;
               const expiresAt = new Date(Date.now() + durationMs).toISOString();
+              const activatedAt = new Date().toISOString();
 
               // Сохраняем exploit в БД для State Recovery
-              const { error: exploitError } = await supabase
+              const exploitData = {
+                duel_id,
+                target_player_id: opponent.id,
+                exploit_type: boost_type,
+                attacker_player_id: player.id,
+                effect_data: boostEffect,
+                expires_at: expiresAt,
+                activated_at: activatedAt,
+                is_active: true,
+              };
+              
+              console.log('[use_boost] 💾 Inserting exploit to DB:', {
+                exploitData,
+                targetPlayerId: opponent.id,
+                exploitType: boost_type
+              });
+
+              const { data: insertedExploit, error: exploitError } = await supabase
                 .from('duel_active_exploits')
-                .insert({
-                  duel_id,
-                  target_player_id: opponent.id,
-                  exploit_type: boost_type,
-                  attacker_player_id: player.id,
-                  effect_data: boostEffect,
-                  expires_at: expiresAt,
-                  is_active: true,
-                });
+                .insert(exploitData)
+                .select()
+                .single();
 
               if (exploitError) {
-                console.error('[use_boost] Error saving exploit to DB:', exploitError);
+                console.error('[use_boost] ❌ Error saving exploit to DB:', {
+                  error: exploitError,
+                  exploitData,
+                  targetPlayerId: opponent.id
+                });
               } else {
-                console.log('[use_boost] ✅ Exploit saved to DB for State Recovery');
+                console.log('[use_boost] ✅ Exploit saved to DB for State Recovery:', {
+                  exploitId: insertedExploit?.id,
+                  targetPlayerId: opponent.id,
+                  exploitType: boost_type,
+                  expiresAt,
+                  activatedAt
+                });
               }
 
               // 🆕 Broadcast через postgres_changes
@@ -3671,7 +3704,16 @@ Deno.serve(async (req) => {
               // При вставке новой записи клиент получит событие через postgres_changes
               // Это надежнее чем broadcast, так как работает даже при разрыве соединения
               console.log('[use_boost] ✅ Exploit saved, client will receive via postgres_changes');
+            } else {
+              console.warn('[use_boost] ⚠️ Opponent not found for exploit:', {
+                players: players.map(p => ({ id: p.id, user_id: p.user_id, is_bot: p.is_bot })),
+                currentPlayerId: player.id
+              });
             }
+          } else {
+            console.warn('[use_boost] ⚠️ Not enough players for exploit:', {
+              playersCount: players?.length || 0
+            });
           }
         }
 

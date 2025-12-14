@@ -193,7 +193,23 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
 
     log('[useDuelRealtime] Initializing channel for duel:', duelId);
     debugFetch({location:'useDuelRealtime.ts:98',message:'Initializing realtime channel',data:{duelId,myPlayerId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'});
+    
+    // КРИТИЧНО: Логируем создание канала
+    console.log('[useDuelRealtime] 🚀 Initializing Realtime channel:', {
+      duelId,
+      channelName: `duel_${duelId}`,
+      myPlayerId,
+      profileId,
+      timestamp: new Date().toISOString()
+    });
+    
     const duelChannel = supabase.channel(`duel_${duelId}`);
+    
+    // КРИТИЧНО: Логируем создание канала
+    console.log('[useDuelRealtime] 📡 Channel created:', {
+      channelName: duelChannel.topic,
+      duelId
+    });
 
     // Subscribe to duel changes
     duelChannel
