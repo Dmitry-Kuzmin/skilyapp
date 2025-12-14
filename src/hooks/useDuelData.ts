@@ -210,6 +210,14 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       .from("duel_players")
       .select("*, profiles(first_name, username, photo_url)")
       .eq("duel_id", duelId);
+    
+    // Убеждаемся, что bot_name загружен для ботов
+    console.log('[useDuelData] Loaded players:', data?.map((p: any) => ({ 
+      user_id: p.user_id, 
+      is_bot: p.is_bot, 
+      bot_name: p.bot_name, 
+      name: p.name 
+    })));
 
     if (!data?.length) {
       return null;
