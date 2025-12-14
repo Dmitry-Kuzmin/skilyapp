@@ -432,8 +432,6 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           filter: `duel_id=eq.${duelId}`,
         },
         async (payload) => {
-          // КРИТИЧНО: Логируем регистрацию подписки (это должно произойти ДО subscribe)
-          console.log('[useDuelRealtime] 📡📡📡 postgres_changes subscription REGISTERED for duel_active_exploits 📡📡📡');
           // КРИТИЧНО: Логируем ВСЕ события, даже если они не для нас (ВСЕГДА, не только в dev)
           console.log('[useDuelRealtime] 🔔🔔🔔 postgres_changes event received for duel_active_exploits 🔔🔔🔔:', {
             eventType: payload.eventType,
