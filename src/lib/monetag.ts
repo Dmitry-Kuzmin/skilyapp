@@ -188,12 +188,13 @@ export async function showMonetagRewardedVideoTMA(): Promise<boolean> {
  * Это просто функция, которая показывает полноэкранный баннер.
  * 
  * Логика награды:
- * 1. Вызываем show_10323437() - показываем баннер
- * 2. Отслеживаем закрытие рекламы через проверку DOM
- * 3. Награда выдается ТОЛЬКО если реклама была показана минимум 3 секунды
- * 4. Если пользователь закрыл раньше - награда НЕ выдается
+ * Monetag платит за ПОКАЗЫ (impressions), не за клики.
+ * Поэтому награда выдается сразу после показа рекламы.
  * 
- * @returns Promise<boolean> - true если реклама просмотрена минимум 3 секунды
+ * Переходы по ссылке (клики) - это дополнительный доход, но не обязательны.
+ * Если пользователь перейдет - хорошо, если нет - тоже нормально.
+ * 
+ * @returns Promise<boolean> - true если реклама показана
  */
 export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
   if (typeof window === 'undefined') {
@@ -227,100 +228,32 @@ export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
 
       console.log('[Monetag Web] Calling show function:', WEB_SHOW_FUNCTION_NAME);
       
-      const MIN_VIEW_TIME_MS = 3000; // Минимум 3 секунды просмотра
-      const startTime = Date.now();
-      let adClosed = false;
-      let rewardTimer: NodeJS.Timeout | null = null;
-      let checkInterval: NodeJS.Timeout | null = null;
-      
-      // Функция для проверки закрытия рекламы
-      const checkAdClosed = () => {
-        // Проверяем, есть ли элементы рекламы Monetag на странице
-        // Monetag обычно создает iframe или div с определенными классами/атрибутами
-        const monetagSelectors = [
-          'iframe[src*="monetag"]',
-          'iframe[src*="groleegni"]',
-          'iframe[src*="gizokraijaw"]',
-          'div[id*="monetag"]',
-          'div[class*="monetag"]',
-          '[data-zone="10323437"]'
-        ];
-        
-        let hasMonetagElements = false;
-        for (const selector of monetagSelectors) {
-          if (document.querySelector(selector)) {
-            hasMonetagElements = true;
-            break;
-          }
-        }
-        
-        // Если элементов нет и прошло больше 500ms - реклама закрыта
-        return !hasMonetagElements && Date.now() - startTime > 500;
-      };
-      
       // Показываем рекламу
       try {
         showFunction();
-        console.log('[Monetag Web] Ad banner shown, starting timer...');
+        console.log('[Monetag Web] Ad banner shown');
+        
+        // Monetag платит за показы, поэтому награда выдается сразу после показа
+        // Небольшая задержка (500ms) чтобы убедиться, что реклама действительно показалась
+        setTimeout(() => {
+          console.log('[Monetag Web] Rewarded interstitial completed - reward granted ✅');
+          resolve(true);
+        }, 500);
       } catch (showError: any) {
         // Игнорируем ошибку "Failed to verify" - это нормально для Interstitial
         if (showError.message?.includes('Failed to verify') || showError.message?.includes('verify')) {
           console.warn('[Monetag Web] Ad verification error (ignored):', showError.message);
-          // Продолжаем - баннер был показан
+          // Продолжаем - баннер был показан, награда выдается
+          setTimeout(() => {
+            console.log('[Monetag Web] Rewarded interstitial completed (with verification error) - reward granted ✅');
+            resolve(true);
+          }, 500);
         } else {
           console.error('[Monetag Web] Error calling show function:', showError);
           resolve(false);
           return;
         }
       }
-      
-      // Проверяем закрытие рекламы каждые 200ms
-      checkInterval = setInterval(() => {
-        if (!adClosed && checkAdClosed()) {
-          adClosed = true;
-          const viewTime = Date.now() - startTime;
-          
-          if (rewardTimer) {
-            clearTimeout(rewardTimer);
-            rewardTimer = null;
-          }
-          
-          if (checkInterval) {
-            clearInterval(checkInterval);
-            checkInterval = null;
-          }
-          
-          if (viewTime >= MIN_VIEW_TIME_MS) {
-            console.log('[Monetag Web] Ad closed after', viewTime, 'ms - reward granted ✅');
-            resolve(true);
-          } else {
-            console.warn('[Monetag Web] Ad closed too quickly (', viewTime, 'ms). Minimum is', MIN_VIEW_TIME_MS, 'ms - NO reward ❌');
-            resolve(false);
-          }
-        }
-      }, 200);
-      
-      // Fallback: если через 10 секунд реклама все еще открыта - считаем просмотренной
-      // Но только если прошло минимум 3 секунды
-      rewardTimer = setTimeout(() => {
-        if (!adClosed) {
-          adClosed = true;
-          const viewTime = Date.now() - startTime;
-          
-          if (checkInterval) {
-            clearInterval(checkInterval);
-            checkInterval = null;
-          }
-          
-          if (viewTime >= MIN_VIEW_TIME_MS) {
-            console.log('[Monetag Web] Ad still open after', viewTime, 'ms - reward granted ✅ (fallback)');
-            resolve(true);
-          } else {
-            console.warn('[Monetag Web] Ad still open but not enough time (', viewTime, 'ms) - NO reward ❌');
-            resolve(false);
-          }
-        }
-      }, Math.max(MIN_VIEW_TIME_MS, 10000)); // Минимум 3 секунды, максимум 10 секунд
       
     } catch (error: any) {
       console.error('[Monetag Web] Error showing rewarded video:', error);

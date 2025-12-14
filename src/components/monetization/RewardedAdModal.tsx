@@ -166,7 +166,7 @@ export function RewardedAdModal({
                       {description || rewardInfo.defaultDescription}
                     </p>
                     <p className="text-xs text-zinc-500">
-                      Смотри рекламу минимум 3 секунды, чтобы получить награду
+                      Награда будет начислена после показа рекламы
                     </p>
                   </div>
                   
