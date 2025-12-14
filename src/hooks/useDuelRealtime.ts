@@ -432,6 +432,8 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           filter: `duel_id=eq.${duelId}`,
         },
         async (payload) => {
+          // КРИТИЧНО: Логируем регистрацию подписки (это должно произойти ДО subscribe)
+          console.log('[useDuelRealtime] 📡📡📡 postgres_changes subscription REGISTERED for duel_active_exploits 📡📡📡');
           // КРИТИЧНО: Логируем ВСЕ события, даже если они не для нас (ВСЕГДА, не только в dev)
           console.log('[useDuelRealtime] 🔔🔔🔔 postgres_changes event received for duel_active_exploits 🔔🔔🔔:', {
             eventType: payload.eventType,
@@ -580,8 +582,22 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             });
           }
         }
-      )
-      .subscribe((status) => {
+      );
+      
+      // КРИТИЧНО: Логируем регистрацию всех подписок ПЕРЕД subscribe
+      console.log('[useDuelRealtime] 📋 All postgres_changes subscriptions registered:', {
+        subscriptions: [
+          { table: 'duels', event: 'UPDATE' },
+          { table: 'duel_players', event: 'INSERT' },
+          { table: 'duel_players', event: 'UPDATE' },
+          { table: 'duel_answers', event: '*' },
+          { table: 'duel_active_exploits', event: 'INSERT' }
+        ],
+        duelId,
+        channelTopic: duelChannel.topic
+      });
+      
+      duelChannel.subscribe((status) => {
         // КРИТИЧНО: Логируем статус подписки для отладки (ВСЕГДА, не только в dev)
         console.log('[useDuelRealtime] 📡 Channel subscription status:', {
           status,
