@@ -399,7 +399,19 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             }
           }
           
-          // Детальное логирование для отладки
+          // Детальное логирование для отладки (всегда логируем, не только в dev)
+          console.log('[useDuelRealtime] 📦 Exploit INSERT received:', {
+            exploit_type: newExploit.exploit_type,
+            target_player_id: newExploit.target_player_id,
+            myPlayerId: currentMyPlayerId,
+            is_active: newExploit.is_active,
+            duel_id: newExploit.duel_id,
+            matches: currentMyPlayerId === newExploit.target_player_id,
+            profileId: profileId,
+            activated_at: newExploit.activated_at,
+            expires_at: newExploit.expires_at,
+            effect_data: newExploit.effect_data
+          });
           log('[useDuelRealtime] 📦 Exploit INSERT received:', {
             exploit_type: newExploit.exploit_type,
             target_player_id: newExploit.target_player_id,
@@ -412,6 +424,14 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           
           // Проверяем, что exploit направлен на нас
           if (currentMyPlayerId && newExploit.target_player_id === currentMyPlayerId && newExploit.is_active) {
+            // КРИТИЧНО: Всегда логируем в консоль для отладки в Telegram
+            console.log('[useDuelRealtime] 🎯 АТАКА ПОЛУЧЕНА! Exploit type:', newExploit.exploit_type, {
+              exploit_type: newExploit.exploit_type,
+              target_player_id: newExploit.target_player_id,
+              myPlayerId: currentMyPlayerId,
+              expires_at: newExploit.expires_at,
+              activated_at: newExploit.activated_at
+            });
             log('[useDuelRealtime] 🎯 АТАКА ПОЛУЧЕНА! Exploit type:', newExploit.exploit_type);
             
             // Добавляем в состояние
@@ -430,10 +450,17 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               );
 
               if (exists) {
+                console.warn('[useDuelRealtime] ⚠️ Duplicate exploit ignored:', newExploit.exploit_type);
                 log('[useDuelRealtime] ⚠️ Duplicate exploit ignored:', newExploit.exploit_type);
                 return prev;
               }
 
+              console.log('[useDuelRealtime] ✅ New exploit added to state:', newExploit.exploit_type, {
+                type: exploit.type,
+                expiresAt: new Date(exploit.expiresAt).toISOString(),
+                receivedAt: new Date(exploit.receivedAt).toISOString(),
+                totalExploits: (prev.activeExploits || []).length + 1
+              });
               log('[useDuelRealtime] ✅ New exploit added to state:', newExploit.exploit_type);
               return {
                 ...prev,
@@ -441,14 +468,22 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               };
             });
           } else {
+            const reason = !currentMyPlayerId ? 'myPlayerId not set' : 
+                          newExploit.target_player_id !== currentMyPlayerId ? 'not for us' :
+                          !newExploit.is_active ? 'not active' : 'unknown';
+            console.log('[useDuelRealtime] ⏭️ Exploit ignored:', {
+              exploit_type: newExploit.exploit_type,
+              target_player_id: newExploit.target_player_id,
+              myPlayerId: currentMyPlayerId,
+              is_active: newExploit.is_active,
+              reason
+            });
             log('[useDuelRealtime] ⏭️ Exploit ignored:', {
               exploit_type: newExploit.exploit_type,
               target_player_id: newExploit.target_player_id,
               myPlayerId: currentMyPlayerId,
               is_active: newExploit.is_active,
-              reason: !currentMyPlayerId ? 'myPlayerId not set' : 
-                      newExploit.target_player_id !== currentMyPlayerId ? 'not for us' :
-                      !newExploit.is_active ? 'not active' : 'unknown'
+              reason
             });
           }
         }

@@ -90,19 +90,42 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   
   // 🆕 Обработка активных exploits из Realtime
   useEffect(() => {
+    // КРИТИЧНО: Детальное логирование для отладки в Telegram
+    if (isDev) {
+      console.log('[DuelBattleFullscreen] 🔄 activeExploits update:', {
+        stateActiveExploits: state.activeExploits,
+        currentActiveExploits: Array.from(activeExploits.entries()),
+        screenInjector: state.activeExploits?.find(e => e.type === 'screen_injector')
+      });
+    }
+
     if (!state.activeExploits || state.activeExploits.length === 0) {
       setActiveExploits(new Map());
       return;
     }
 
-    const exploitsMap = new Map<string, { expiresAt: number; passed?: boolean }>();
-    state.activeExploits.forEach(exploit => {
-      exploitsMap.set(exploit.type, {
-        expiresAt: exploit.expiresAt,
-        passed: activeExploits.get(exploit.type)?.passed || false,
+    // КРИТИЧНО: Используем функциональное обновление для сохранения passed статуса
+    setActiveExploits(prev => {
+      const exploitsMap = new Map<string, { expiresAt: number; passed?: boolean }>();
+      
+      state.activeExploits.forEach(exploit => {
+        const existing = prev.get(exploit.type);
+        exploitsMap.set(exploit.type, {
+          expiresAt: exploit.expiresAt,
+          passed: existing?.passed || false, // Сохраняем passed статус если был
+        });
+        
+        // Логируем добавление нового exploit
+        if (isDev && !existing) {
+          console.log('[DuelBattleFullscreen] ✅ New exploit added:', exploit.type, {
+            expiresAt: new Date(exploit.expiresAt).toISOString(),
+            receivedAt: new Date(exploit.receivedAt).toISOString()
+          });
+        }
       });
+      
+      return exploitsMap;
     });
-    setActiveExploits(exploitsMap);
   }, [state.activeExploits]);
 
   // 🆕 Очистка истекших exploits
@@ -1841,15 +1864,31 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         const screenInjector = state.activeExploits?.find(e => e.type === 'screen_injector');
         const policeRaid = state.activeExploits?.find(e => e.type === 'police_backdoor');
         const policePassed = activeExploits.get('police_backdoor')?.passed || false;
+        const screenInjectorPassed = activeExploits.get('screen_injector')?.passed || false;
+
+        // КРИТИЧНО: Детальное логирование для отладки в Telegram
+        if (isDev && screenInjector) {
+          console.log('[DuelBattleFullscreen] 🛢️ Screen Injector check:', {
+            screenInjector,
+            screenInjectorPassed,
+            expiresAt: screenInjector.expiresAt,
+            now: Date.now(),
+            expired: screenInjector.expiresAt <= Date.now(),
+            shouldRender: !screenInjectorPassed && screenInjector.expiresAt > Date.now()
+          });
+        }
 
         return (
           <>
             {/* Data Leak (Масло) 🛢️ */}
-            {screenInjector && !activeExploits.get('screen_injector')?.passed && (
+            {screenInjector && !screenInjectorPassed && screenInjector.expiresAt > Date.now() && (
               <OilSplashAttack
                 isActive={true}
                 expiresAt={screenInjector.expiresAt}
                 onCleaned={() => {
+                  if (isDev) {
+                    console.log('[DuelBattleFullscreen] 🛢️ OilSplashAttack cleaned');
+                  }
                   setActiveExploits(prev => {
                     const updated = new Map(prev);
                     const current = updated.get('screen_injector');
