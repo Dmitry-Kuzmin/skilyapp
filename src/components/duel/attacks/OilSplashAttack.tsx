@@ -457,9 +457,9 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
                       
                       <div className="bg-red-900/50 p-4 w-full border border-red-500/50">
                           <p className="text-red-200 font-mono text-sm uppercase animate-pulse">
-                              > ВНЕДРЕНИЕ ВРЕДОНОСНОГО КОДА...<br/>
-                              > УТЕЧКА ГИДРАВЛИКИ...<br/>
-                              > ОТКАЗ СИСТЕМЫ НЕИЗБЕЖЕН
+                              {'>'} ВНЕДРЕНИЕ ВРЕДОНОСНОГО КОДА...<br/>
+                              {'>'} УТЕЧКА ГИДРАВЛИКИ...<br/>
+                              {'>'} ОТКАЗ СИСТЕМЫ НЕИЗБЕЖЕН
                           </p>
                       </div>
                   </div>
