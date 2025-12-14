@@ -1196,6 +1196,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         const now = Date.now();
         const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000;
         
+        log('[DuelBattleFullscreen] 👁️ Tab became visible, recalculating timer. Remaining:', secondsRemaining, 'ms');
+        
         if (secondsRemaining <= 0) {
           setTimeLeft(0);
           questionEndTimeRef.current = null;
@@ -1206,13 +1208,48 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           handleTimeout();
         } else {
           setTimeLeft(secondsRemaining);
+          
+          // КРИТИЧНО: Убеждаемся, что таймер продолжает работать после возвращения
+          // Если интервал был остановлен браузером - перезапускаем его
+          if (!timerIntervalRef.current) {
+            log('[DuelBattleFullscreen] 🔄 Restarting timer interval after tab visibility');
+            timerIntervalRef.current = setInterval(() => {
+              if (!questionEndTimeRef.current) {
+                if (timerIntervalRef.current) {
+                  clearInterval(timerIntervalRef.current);
+                  timerIntervalRef.current = null;
+                }
+                return;
+              }
+
+              const now = Date.now();
+              const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000;
+
+              if (secondsRemaining <= 0) {
+                log('[DuelBattleFullscreen] ⏱️ Timer expired for question', currentIndex + 1);
+                setTimeLeft(0);
+                questionEndTimeRef.current = null;
+                if (timerIntervalRef.current) {
+                  clearInterval(timerIntervalRef.current);
+                  timerIntervalRef.current = null;
+                }
+                handleTimeout();
+              } else {
+                setTimeLeft(secondsRemaining);
+              }
+            }, 250);
+          }
         }
+      } else if (document.visibilityState === 'hidden') {
+        // При скрытии вкладки логируем, но не останавливаем таймер
+        // Таймер продолжит работать в фоне и обновится при возвращении
+        log('[DuelBattleFullscreen] 👁️ Tab hidden, timer continues in background');
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, handleTimeout, setTimeLeft]);
+  }, [isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, handleTimeout, setTimeLeft, currentIndex]);
 
   // ОПТИМИЗАЦИЯ: Сброс дополнительных состояний при смене вопроса
   useEffect(() => {
