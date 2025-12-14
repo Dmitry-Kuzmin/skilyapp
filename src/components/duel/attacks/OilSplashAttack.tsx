@@ -15,7 +15,7 @@ interface OilSplashAttackProps {
 }
 
 // 🧪 ТЕСТОВЫЙ РЕЖИМ: Установите в true для проверки видимости компонента
-const TEST_RED_SQUARE = false; // Измените на true для теста "Красный квадрат"
+const TEST_RED_SQUARE = true; // ВКЛЮЧЕНО для теста "Красный квадрат"
 
 export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCleaned, expiresAt }) => {
   // FAILSAFE: Проверка поддержки WebGL для старых устройств

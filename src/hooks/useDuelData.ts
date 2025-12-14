@@ -98,6 +98,8 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
     };
 
     const loadDirect = async () => {
+      console.log('[useDuelData] 🔍 Loading questions directly from DB for duel:', duelId);
+      
       const { data, error } = await supabase
         .from("duel_questions")
         .select("*")
@@ -105,25 +107,79 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
         .order("position");
 
       if (error) {
+        console.error('[useDuelData] ❌ Direct DB query error:', {
+          error,
+          duelId,
+          profileId,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
         throw error;
       }
 
+      console.log('[useDuelData] 📊 Direct DB query result:', {
+        duelId,
+        questionsFound: data?.length || 0,
+        hasData: !!data
+      });
+
       if (!data?.length) {
-        throw new Error("Вопросы не найдены");
+        // КРИТИЧНО: Проверяем статус дуэли перед ошибкой
+        const { data: duelData } = await supabase
+          .from('duels')
+          .select('status, started_at')
+          .eq('id', duelId)
+          .single();
+        
+        console.warn('[useDuelData] ⚠️ No questions found:', {
+          duelId,
+          duelStatus: duelData?.status,
+          startedAt: duelData?.started_at,
+          profileId
+        });
+        
+        throw new Error(`Вопросы не найдены для дуэли ${duelId}. Статус дуэли: ${duelData?.status || 'unknown'}`);
       }
 
       return data;
     };
 
     let questions = null;
+    let edgeError = null;
+    
     try {
+      console.log('[useDuelData] 🚀 Attempting to load questions via Edge Function...');
       questions = await loadViaEdge();
-    } catch (error) {
-      console.error("[useDuelData] Edge function questions error:", error);
+      if (questions) {
+        console.log('[useDuelData] ✅ Questions loaded via Edge Function:', questions.length);
+      }
+    } catch (error: any) {
+      edgeError = error;
+      console.error("[useDuelData] ❌ Edge function questions error:", {
+        error,
+        message: error?.message,
+        status: error?.status,
+        statusText: error?.statusText,
+        duelId,
+        profileId
+      });
     }
 
     if (!questions) {
-      questions = await loadDirect();
+      console.log('[useDuelData] 🔄 Falling back to direct DB query...');
+      try {
+        questions = await loadDirect();
+        console.log('[useDuelData] ✅ Questions loaded via direct DB query:', questions.length);
+      } catch (directError: any) {
+        console.error('[useDuelData] ❌ Both methods failed:', {
+          edgeError: edgeError?.message || edgeError,
+          directError: directError?.message || directError,
+          duelId,
+          profileId
+        });
+        throw new Error(`Не удалось загрузить вопросы. Edge Function: ${edgeError?.message || 'ошибка'}. Прямой запрос: ${directError?.message || 'ошибка'}`);
+      }
     }
 
     cache.questions = questions;
