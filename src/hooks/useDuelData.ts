@@ -57,8 +57,19 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       return cache.questions;
     }
 
+    // КРИТИЧНО: Функция для проверки статуса дуэли
+    const checkDuelStatus = async (): Promise<'waiting' | 'active' | 'finished' | null> => {
+      const { data: duelData } = await supabase
+        .from('duels')
+        .select('status')
+        .eq('id', duelId)
+        .single();
+      
+      return duelData?.status as any || null;
+    };
+
     const loadViaEdge = async () => {
-      const maxRetries = 3;
+      const maxRetries = 5; // Увеличено с 3 до 5
       for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
           const timeoutPromise = new Promise((_, reject) => {
@@ -78,6 +89,7 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
           if (error) {
             if (attempt < maxRetries - 1) {
               const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+              console.log(`[useDuelData] ⏳ Retrying Edge Function (attempt ${attempt + 1}/${maxRetries}) after ${delay}ms...`);
               await new Promise((resolve) => setTimeout(resolve, delay));
               continue;
             }
@@ -87,62 +99,97 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
           if (data?.questions?.length) {
             return data.questions;
           }
+          
+          // Если вопросов нет, проверяем статус и ждем если дуэль еще "waiting"
+          const status = await checkDuelStatus();
+          if (status === 'waiting' && attempt < maxRetries - 1) {
+            const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+            console.log(`[useDuelData] ⏳ Duel is still "waiting", retrying after ${delay}ms (attempt ${attempt + 1}/${maxRetries})...`);
+            await new Promise((resolve) => setTimeout(resolve, delay));
+            continue;
+          }
+          
           break;
         } catch (err) {
           if (attempt === maxRetries - 1) {
             throw err;
           }
+          const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+          await new Promise((resolve) => setTimeout(resolve, delay));
         }
       }
       return null;
     };
 
-    const loadDirect = async () => {
-      console.log('[useDuelData] 🔍 Loading questions directly from DB for duel:', duelId);
+    const loadDirect = async (retries = 5): Promise<any[]> => {
+      for (let attempt = 0; attempt < retries; attempt++) {
+        console.log(`[useDuelData] 🔍 Loading questions directly from DB for duel: ${duelId} (attempt ${attempt + 1}/${retries})`);
+        
+        const { data, error } = await supabase
+          .from("duel_questions")
+          .select("*")
+          .eq("duel_id", duelId)
+          .order("position");
+
+        if (error) {
+          console.error('[useDuelData] ❌ Direct DB query error:', {
+            error,
+            duelId,
+            profileId,
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            attempt: attempt + 1
+          });
+          
+          if (attempt < retries - 1) {
+            const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+            await new Promise((resolve) => setTimeout(resolve, delay));
+            continue;
+          }
+          throw error;
+        }
+
+        console.log('[useDuelData] 📊 Direct DB query result:', {
+          duelId,
+          questionsFound: data?.length || 0,
+          hasData: !!data,
+          attempt: attempt + 1
+        });
+
+        if (data?.length) {
+          return data;
+        }
+
+        // КРИТИЧНО: Если вопросов нет, проверяем статус дуэли
+        const status = await checkDuelStatus();
+        console.log(`[useDuelData] 📊 Duel status: ${status}`);
+        
+        // Если дуэль еще "waiting" и есть попытки - ждем и повторяем
+        if (status === 'waiting' && attempt < retries - 1) {
+          const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+          console.log(`[useDuelData] ⏳ Duel is still "waiting", questions may not be generated yet. Retrying after ${delay}ms...`);
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          continue;
+        }
+        
+        // Если дуэль уже "active" или "finished", но вопросов нет - это ошибка
+        if (status === 'active' || status === 'finished') {
+          console.error('[useDuelData] ❌ Duel is active/finished but no questions found!', {
+            duelId,
+            status,
+            profileId
+          });
+          throw new Error(`Вопросы не найдены для дуэли ${duelId}. Статус дуэли: ${status}`);
+        }
+        
+        // Если статус "waiting" и это последняя попытка - ошибка
+        if (status === 'waiting' && attempt === retries - 1) {
+          throw new Error(`Вопросы еще не сгенерированы. Статус дуэли: ${status}. Попробуйте обновить страницу через несколько секунд.`);
+        }
+      }
       
-      const { data, error } = await supabase
-        .from("duel_questions")
-        .select("*")
-        .eq("duel_id", duelId)
-        .order("position");
-
-      if (error) {
-        console.error('[useDuelData] ❌ Direct DB query error:', {
-          error,
-          duelId,
-          profileId,
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        });
-        throw error;
-      }
-
-      console.log('[useDuelData] 📊 Direct DB query result:', {
-        duelId,
-        questionsFound: data?.length || 0,
-        hasData: !!data
-      });
-
-      if (!data?.length) {
-        // КРИТИЧНО: Проверяем статус дуэли перед ошибкой
-        const { data: duelData } = await supabase
-          .from('duels')
-          .select('status, started_at')
-          .eq('id', duelId)
-          .single();
-        
-        console.warn('[useDuelData] ⚠️ No questions found:', {
-          duelId,
-          duelStatus: duelData?.status,
-          startedAt: duelData?.started_at,
-          profileId
-        });
-        
-        throw new Error(`Вопросы не найдены для дуэли ${duelId}. Статус дуэли: ${duelData?.status || 'unknown'}`);
-      }
-
-      return data;
+      throw new Error(`Не удалось загрузить вопросы после ${retries} попыток`);
     };
 
     let questions = null;
@@ -167,18 +214,33 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
     }
 
     if (!questions) {
-      console.log('[useDuelData] 🔄 Falling back to direct DB query...');
+      console.log('[useDuelData] 🔄 Falling back to direct DB query with retries...');
       try {
-        questions = await loadDirect();
+        questions = await loadDirect(5); // 5 попыток с экспоненциальной задержкой
         console.log('[useDuelData] ✅ Questions loaded via direct DB query:', questions.length);
       } catch (directError: any) {
+        // КРИТИЧНО: Проверяем статус дуэли перед финальной ошибкой
+        const { data: duelData } = await supabase
+          .from('duels')
+          .select('status, started_at')
+          .eq('id', duelId)
+          .single();
+        
         console.error('[useDuelData] ❌ Both methods failed:', {
           edgeError: edgeError?.message || edgeError,
           directError: directError?.message || directError,
           duelId,
+          duelStatus: duelData?.status,
+          startedAt: duelData?.started_at,
           profileId
         });
-        throw new Error(`Не удалось загрузить вопросы. Edge Function: ${edgeError?.message || 'ошибка'}. Прямой запрос: ${directError?.message || 'ошибка'}`);
+        
+        // Если дуэль еще "waiting", даем более понятное сообщение
+        if (duelData?.status === 'waiting') {
+          throw new Error(`Вопросы еще не сгенерированы. Статус дуэли: ${duelData.status}. Подождите несколько секунд и обновите страницу.`);
+        }
+        
+        throw new Error(`Не удалось загрузить вопросы. Edge Function: ${edgeError?.message || 'ошибка'}. Прямой запрос: ${directError?.message || 'ошибка'}. Статус дуэли: ${duelData?.status || 'unknown'}`);
       }
     }
 
