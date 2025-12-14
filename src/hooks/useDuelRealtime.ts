@@ -123,12 +123,32 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
   // 🆕 Функция восстановления состояния атак (State Recovery)
   // КРИТИЧНО: Объявлена ДО использования в useEffect
   const recoverActiveExploits = useCallback(async () => {
+    // КРИТИЧНО: Логируем ВСЕГДА, даже если параметры отсутствуют
+    console.log('[useDuelRealtime] 🔄 recoverActiveExploits CALLED:', {
+      duelId,
+      myPlayerId,
+      profileId,
+      hasAllParams: !!(duelId && myPlayerId && profileId),
+      timestamp: new Date().toISOString()
+    });
+    
     if (!duelId || !myPlayerId || !profileId) {
+      console.warn('[useDuelRealtime] ⚠️ Cannot recover exploits: missing parameters', {
+        duelId: !!duelId,
+        myPlayerId: !!myPlayerId,
+        profileId: !!profileId
+      });
       log('[useDuelRealtime] Cannot recover exploits: missing duelId, myPlayerId or profileId');
       return;
     }
 
     try {
+      console.log('[useDuelRealtime] 🔄 Starting exploit recovery...', {
+        duelId,
+        myPlayerId,
+        profileId,
+        targetPlayerId: myPlayerId
+      });
       log('[useDuelRealtime] 🔄 Starting exploit recovery...');
 
       // myPlayerId - это уже ID из duel_players, используем его напрямую
@@ -149,7 +169,19 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         return;
       }
 
+      console.log('[useDuelRealtime] 📊 Exploit recovery query result:', {
+        exploitsCount: exploits?.length || 0,
+        exploits: exploits?.map(e => ({
+          type: e.exploit_type,
+          target_player_id: e.target_player_id,
+          is_active: e.is_active,
+          expires_at: e.expires_at,
+          activated_at: e.activated_at
+        })) || []
+      });
+      
       if (exploits && exploits.length > 0) {
+        console.log('[useDuelRealtime] ✅✅✅ Recovered active exploits:', exploits.length, exploits);
         log('[useDuelRealtime] 🔄 Recovered active exploits:', exploits.length);
         
         // Обновляем стейт (добавляем восстановленные атаки)
@@ -166,16 +198,31 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             }))
             .filter(e => !existingTypes.has(`${e.type}-${e.receivedAt}`));
 
+          console.log('[useDuelRealtime] 📦 Adding new exploits to state:', {
+            newExploitsCount: newExploits.length,
+            newExploits,
+            existingCount: (prev.activeExploits || []).length
+          });
+
           if (newExploits.length === 0) {
+            console.log('[useDuelRealtime] ⚠️ No new exploits to add (all duplicates)');
             return prev; // Нет новых exploits
           }
 
-          return {
+          const updatedState = {
             ...prev,
             activeExploits: [...(prev.activeExploits || []), ...newExploits]
           };
+          
+          console.log('[useDuelRealtime] ✅ State updated with exploits:', {
+            totalExploits: updatedState.activeExploits.length,
+            exploitTypes: updatedState.activeExploits.map(e => e.type)
+          });
+          
+          return updatedState;
         });
       } else {
+        console.log('[useDuelRealtime] ℹ️ No active exploits to recover');
         log('[useDuelRealtime] No active exploits to recover');
       }
     } catch (error) {
@@ -385,13 +432,15 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           filter: `duel_id=eq.${duelId}`,
         },
         async (payload) => {
-          // КРИТИЧНО: Логируем ВСЕ события, даже если они не для нас
-          console.log('[useDuelRealtime] 🔔 postgres_changes event received for duel_active_exploits:', {
+          // КРИТИЧНО: Логируем ВСЕ события, даже если они не для нас (ВСЕГДА, не только в dev)
+          console.log('[useDuelRealtime] 🔔🔔🔔 postgres_changes event received for duel_active_exploits 🔔🔔🔔:', {
             eventType: payload.eventType,
             table: payload.table,
             new: payload.new,
             old: payload.old,
             duelId,
+            myPlayerId: myPlayerIdRef.current,
+            profileId,
             timestamp: new Date().toISOString()
           });
           
