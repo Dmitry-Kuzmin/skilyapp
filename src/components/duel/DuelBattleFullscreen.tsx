@@ -77,6 +77,15 @@ interface DuelBattleFullscreenProps {
 }
 
 export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, onWidgetExpand }: DuelBattleFullscreenProps) {
+  // КРИТИЧНО: Логируем duelId при монтировании для отладки
+  useEffect(() => {
+    if (duelId) {
+      console.log('[DuelBattleFullscreen] 🔍 DUEL_ID:', duelId);
+      console.log('[DuelBattleFullscreen] 📋 SQL запрос для проверки exploits:');
+      console.log(`SELECT * FROM duel_active_exploits WHERE duel_id = '${duelId}' ORDER BY activated_at DESC LIMIT 5;`);
+    }
+  }, [duelId]);
+
   const [isWaitingHidden, setIsWaitingHidden] = useState(false);
   const { profileId } = useUserContext();
   const { activeDuel, saveActiveDuel, updateActiveDuel } = useActiveDuel();

@@ -186,6 +186,11 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
   useEffect(() => {
     if (!duelId) return;
 
+    // КРИТИЧНО: Логируем duelId в консоль для удобной отладки SQL запросов
+    console.log('[useDuelRealtime] 🔍 DUEL_ID для SQL запросов:', duelId);
+    console.log('[useDuelRealtime] 📋 SQL запрос для проверки exploits:');
+    console.log(`SELECT * FROM duel_active_exploits WHERE duel_id = '${duelId}' ORDER BY activated_at DESC LIMIT 5;`);
+
     log('[useDuelRealtime] Initializing channel for duel:', duelId);
     debugFetch({location:'useDuelRealtime.ts:98',message:'Initializing realtime channel',data:{duelId,myPlayerId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'});
     const duelChannel = supabase.channel(`duel_${duelId}`);
