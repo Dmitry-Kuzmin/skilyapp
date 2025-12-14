@@ -39,6 +39,7 @@ serve(async (req) => {
     let amount = 20;
     let ad_unit_id: string | undefined;
     let ad_network = 'adsgram';
+    let metadata: { [key: string]: any } | undefined;
 
     // Поддержка GET запросов от AdsGram (с параметром userid из Telegram)
     if (req.method === 'GET') {
@@ -124,6 +125,7 @@ serve(async (req) => {
       amount = body.amount || 20;
       ad_unit_id = body.ad_unit_id;
       ad_network = body.ad_network || 'adsgram';
+      metadata = body.metadata;
     }
 
     // Валидация
@@ -216,6 +218,7 @@ serve(async (req) => {
             ad_unit_id,
             ad_network,
             reward_type: 'restore_streak',
+            ...metadata,
           },
         });
 
@@ -223,6 +226,31 @@ serve(async (req) => {
           JSON.stringify({ 
             success: true, 
             reward: { type: 'restore_streak' },
+          }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      
+      case 'slot_unlock':
+        // Временная разблокировка слота (на одну дуэль)
+        // Здесь не начисляются монеты, только возвращается сигнал клиенту
+        await supabaseClient.from('transactions').insert({
+          user_id: user_id,
+          transaction_type: 'coins_earned_ad',
+          amount: 0,
+          metadata: {
+            ad_unit_id,
+            ad_network,
+            reward_type: 'slot_unlock',
+            slot_number: metadata?.slot_number,
+            ...metadata,
+          },
+        });
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            reward: { type: 'slot_unlock', slot_number: metadata?.slot_number },
+            client_action: 'unlock_temp_slot', // Сигнал клиенту для временной разблокировки
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
