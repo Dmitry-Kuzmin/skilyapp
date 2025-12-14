@@ -162,9 +162,15 @@ export async function showMonetagRewardedVideoTMA(): Promise<boolean> {
 
     console.log('[Monetag TMA] Calling show function:', TMA_SHOW_FUNCTION_NAME);
     
+    // КРИТИЧНО: Добавляем таймаут 3 секунды, чтобы интерфейс не зависал
     // Rewarded Interstitial для TMA возвращает Promise
     // Promise резолвится, когда пользователь просмотрел рекламу до конца
-    await showFunction();
+    await Promise.race([
+      showFunction(),
+      new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Monetag ad timeout - ad did not show within 3 seconds')), 3000)
+      )
+    ]);
     
     console.log('[Monetag TMA] Rewarded interstitial completed successfully');
     return true;
@@ -174,6 +180,12 @@ export async function showMonetagRewardedVideoTMA(): Promise<boolean> {
     // Если это ошибка загрузки SDK (AdBlock), пробрасываем дальше
     if (error.isAdBlockError) {
       throw error;
+    }
+    
+    // Если это таймаут, логируем и возвращаем false
+    if (error.message?.includes('timeout')) {
+      console.warn('[Monetag TMA] Ad timeout - ad may not have shown, skipping reward');
+      return false;
     }
     
     // Другие ошибки - считаем неуспехом
@@ -215,93 +227,103 @@ export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
     }
   }
 
-  return new Promise((resolve) => {
-    try {
-      const showFunction = (window as any)[WEB_SHOW_FUNCTION_NAME];
-      
-      if (typeof showFunction !== 'function') {
-        console.error('[Monetag Web] Function not found:', WEB_SHOW_FUNCTION_NAME);
-        console.error('[Monetag Web] Available functions:', Object.keys(window).filter(k => k.startsWith('show_')));
-        resolve(false);
-        return;
-      }
-
-      console.log('[Monetag Web] Calling show function:', WEB_SHOW_FUNCTION_NAME);
-      
-      // Показываем рекламу
+  // КРИТИЧНО: Добавляем таймаут 3 секунды, чтобы интерфейс не зависал
+  return Promise.race([
+    new Promise<boolean>((resolve) => {
       try {
-        showFunction();
-        console.log('[Monetag Web] Ad banner shown');
+        const showFunction = (window as any)[WEB_SHOW_FUNCTION_NAME];
         
-        // Проверяем, что реклама действительно показалась
-        // Monetag обычно создает iframe или div с рекламой
-        const checkAdShown = () => {
-          const monetagSelectors = [
-            'iframe[src*="monetag"]',
-            'iframe[src*="groleegni"]',
-            'iframe[src*="gizokraijaw"]',
-            'div[id*="monetag"]',
-            'div[class*="monetag"]',
-            '[data-zone="10323437"]'
-          ];
-          
-          for (const selector of monetagSelectors) {
-            if (document.querySelector(selector)) {
-              return true;
-            }
-          }
-          return false;
-        };
-        
-        // Проверяем через 500ms, что реклама показалась
-        setTimeout(() => {
-          const adShown = checkAdShown();
-          if (adShown) {
-            console.log('[Monetag Web] Ad confirmed shown - reward granted ✅');
-            resolve(true);
-          } else {
-            console.warn('[Monetag Web] Ad might not have shown - checking again...');
-            // Проверяем еще раз через 1 секунду
-            setTimeout(() => {
-              const adShownRetry = checkAdShown();
-              if (adShownRetry) {
-                console.log('[Monetag Web] Ad confirmed shown (retry) - reward granted ✅');
-                resolve(true);
-              } else {
-                console.error('[Monetag Web] Ad not shown - NO reward ❌');
-                resolve(false);
-              }
-            }, 1000);
-          }
-        }, 500);
-      } catch (showError: any) {
-        // Игнорируем ошибку "Failed to verify" - это нормально для Interstitial
-        if (showError.message?.includes('Failed to verify') || showError.message?.includes('verify')) {
-          console.warn('[Monetag Web] Ad verification error (ignored):', showError.message);
-          // Продолжаем - баннер был показан, награда выдается
-          setTimeout(() => {
-            console.log('[Monetag Web] Rewarded interstitial completed (with verification error) - reward granted ✅');
-            resolve(true);
-          }, 500);
-        } else {
-          console.error('[Monetag Web] Error calling show function:', showError);
+        if (typeof showFunction !== 'function') {
+          console.error('[Monetag Web] Function not found:', WEB_SHOW_FUNCTION_NAME);
+          console.error('[Monetag Web] Available functions:', Object.keys(window).filter(k => k.startsWith('show_')));
           resolve(false);
           return;
         }
+
+        console.log('[Monetag Web] Calling show function:', WEB_SHOW_FUNCTION_NAME);
+        
+        // Показываем рекламу
+        try {
+          showFunction();
+          console.log('[Monetag Web] Ad banner shown');
+          
+          // Проверяем, что реклама действительно показалась
+          // Monetag обычно создает iframe или div с рекламой
+          const checkAdShown = () => {
+            const monetagSelectors = [
+              'iframe[src*="monetag"]',
+              'iframe[src*="groleegni"]',
+              'iframe[src*="gizokraijaw"]',
+              'div[id*="monetag"]',
+              'div[class*="monetag"]',
+              '[data-zone="10323437"]'
+            ];
+            
+            for (const selector of monetagSelectors) {
+              if (document.querySelector(selector)) {
+                return true;
+              }
+            }
+            return false;
+          };
+          
+          // Проверяем через 500ms, что реклама показалась
+          setTimeout(() => {
+            const adShown = checkAdShown();
+            if (adShown) {
+              console.log('[Monetag Web] Ad confirmed shown - reward granted ✅');
+              resolve(true);
+            } else {
+              console.warn('[Monetag Web] Ad might not have shown - checking again...');
+              // Проверяем еще раз через 1 секунду
+              setTimeout(() => {
+                const adShownRetry = checkAdShown();
+                if (adShownRetry) {
+                  console.log('[Monetag Web] Ad confirmed shown (retry) - reward granted ✅');
+                  resolve(true);
+                } else {
+                  console.error('[Monetag Web] Ad not shown - NO reward ❌');
+                  resolve(false);
+                }
+              }, 1000);
+            }
+          }, 500);
+        } catch (showError: any) {
+          // Игнорируем ошибку "Failed to verify" - это нормально для Interstitial
+          if (showError.message?.includes('Failed to verify') || showError.message?.includes('verify')) {
+            console.warn('[Monetag Web] Ad verification error (ignored):', showError.message);
+            // Продолжаем - баннер был показан, награда выдается
+            setTimeout(() => {
+              console.log('[Monetag Web] Rewarded interstitial completed (with verification error) - reward granted ✅');
+              resolve(true);
+            }, 500);
+          } else {
+            console.error('[Monetag Web] Error calling show function:', showError);
+            resolve(false);
+            return;
+          }
+        }
+        
+      } catch (error: any) {
+        console.error('[Monetag Web] Error showing rewarded video:', error);
+        
+        // Если это ошибка загрузки SDK (AdBlock), пробрасываем дальше
+        if (error.isAdBlockError) {
+          throw error;
+        }
+        
+        // Другие ошибки - считаем неуспехом
+        resolve(false);
       }
-      
-    } catch (error: any) {
-      console.error('[Monetag Web] Error showing rewarded video:', error);
-      
-      // Если это ошибка загрузки SDK (AdBlock), пробрасываем дальше
-      if (error.isAdBlockError) {
-        throw error;
-      }
-      
-      // Другие ошибки - считаем неуспехом
-      resolve(false);
-    }
-  });
+    }),
+    // Таймаут: если реклама не показалась за 3 секунды, отменяем ожидание
+    new Promise<boolean>((resolve) => {
+      setTimeout(() => {
+        console.warn('[Monetag Web] Ad timeout - ad did not show within 3 seconds, skipping reward');
+        resolve(false);
+      }, 3000);
+    })
+  ]);
 }
 
 /**
