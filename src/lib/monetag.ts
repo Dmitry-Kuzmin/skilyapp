@@ -10,8 +10,9 @@
 declare global {
   interface Window {
     // Monetag Interstitial функция (создается автоматически SDK)
-    // Формат: show_<ZONE_ID>() - проверяем динамически
-    [key: `show_${string}`]: () => Promise<void>;
+    // ВАЖНО: Native Banner (Interstitial) НЕ возвращает Promise!
+    // Это просто функция, которая показывает баннер
+    [key: `show_${string}`]: () => void;
   }
 }
 
@@ -68,11 +69,15 @@ export function initMonetag(): void {
 /**
  * Показывает Rewarded Interstitial рекламу (Monetag)
  * 
- * ВАЖНО: Monetag Interstitial - это полноэкранный баннер с кнопкой закрытия.
- * Ошибка "Failed to verify the ad show" означает, что реклама была закрыта слишком быстро.
- * Мы отслеживаем время показа и даем награду, если реклама была показана минимум 3 секунды.
+ * ВАЖНО: Native Banner (Interstitial) от Monetag НЕ возвращает Promise!
+ * Это просто функция, которая показывает полноэкранный баннер.
  * 
- * @returns Promise<boolean> - true если реклама показана и закрыта (минимум 3 секунды)
+ * Для эмуляции Rewarded Video в веб-версии:
+ * 1. Вызываем show_10323437() - показываем баннер
+ * 2. Через 3 секунды считаем рекламу "просмотренной" и даем награду
+ * 3. Это нормальная практика для веб-версии, где нет настоящего Rewarded Video API
+ * 
+ * @returns Promise<boolean> - true если реклама показана
  */
 export async function showMonetagRewardedVideo(): Promise<boolean> {
   if (typeof window === 'undefined') {
@@ -93,68 +98,57 @@ export async function showMonetagRewardedVideo(): Promise<boolean> {
     }
   }
 
-  try {
-    const showFunction = (window as any)[SHOW_FUNCTION_NAME];
-    
-    if (typeof showFunction !== 'function') {
-      console.error('[Monetag] Function not found:', SHOW_FUNCTION_NAME);
-      console.error('[Monetag] Available functions:', Object.keys(window).filter(k => k.startsWith('show_')));
-      throw new Error(`Monetag function ${SHOW_FUNCTION_NAME} is not a function. Возможно, SDK не загрузился или AdBlock заблокировал скрипт.`);
-    }
+  return new Promise((resolve) => {
+    try {
+      const showFunction = (window as any)[SHOW_FUNCTION_NAME];
+      
+      if (typeof showFunction !== 'function') {
+        console.error('[Monetag] Function not found:', SHOW_FUNCTION_NAME);
+        console.error('[Monetag] Available functions:', Object.keys(window).filter(k => k.startsWith('show_')));
+        resolve(false);
+        return;
+      }
 
-    console.log('[Monetag] Calling show function:', SHOW_FUNCTION_NAME);
-    
-    // Отслеживаем время показа рекламы
-    const startTime = Date.now();
-    const MIN_VIEW_TIME_MS = 3000; // Минимум 3 секунды просмотра
-    
-    // Monetag Interstitial: показываем рекламу
-    // Promise резолвится, когда реклама закрыта пользователем
-    await showFunction();
-    
-    const viewTime = Date.now() - startTime;
-    console.log('[Monetag] Ad closed, view time:', viewTime, 'ms');
-    
-    // Если реклама была показана минимум 3 секунды - считаем успехом
-    if (viewTime >= MIN_VIEW_TIME_MS) {
-      console.log('[Monetag] Rewarded interstitial completed successfully (viewed for', viewTime, 'ms)');
-      return true;
-    } else {
-      console.warn('[Monetag] Ad closed too quickly (', viewTime, 'ms). Minimum is', MIN_VIEW_TIME_MS, 'ms');
-      // Не даем награду, если реклама была закрыта слишком быстро
-      return false;
+      console.log('[Monetag] Calling show function:', SHOW_FUNCTION_NAME);
+      
+      // ВАЖНО: Native Banner (Interstitial) НЕ возвращает Promise!
+      // Это просто функция, которая показывает баннер
+      // Вызываем её синхронно
+      try {
+        showFunction();
+        console.log('[Monetag] Ad banner shown');
+      } catch (showError: any) {
+        // Игнорируем ошибку "Failed to verify" - это нормально для Interstitial
+        if (showError.message?.includes('Failed to verify') || showError.message?.includes('verify')) {
+          console.warn('[Monetag] Ad verification error (ignored):', showError.message);
+          // Продолжаем - баннер был показан
+        } else {
+          console.error('[Monetag] Error calling show function:', showError);
+          resolve(false);
+          return;
+        }
+      }
+      
+      // ХАК: Так как Interstitial не дает Promise при закрытии,
+      // мы считаем рекламу "просмотренной" через 3 секунды после показа
+      // Это нормальная практика для веб-версии
+      const REWARD_DELAY_MS = 3000; // 3 секунды
+      
+      setTimeout(() => {
+        console.log('[Monetag] Rewarded interstitial completed (after', REWARD_DELAY_MS, 'ms delay)');
+        resolve(true);
+      }, REWARD_DELAY_MS);
+      
+    } catch (error: any) {
+      console.error('[Monetag] Error showing rewarded video:', error);
+      
+      // Если это ошибка загрузки SDK (AdBlock), пробрасываем дальше
+      if (error.isAdBlockError) {
+        throw error;
+      }
+      
+      // Другие ошибки - считаем неуспехом
+      resolve(false);
     }
-  } catch (error: any) {
-    console.error('[Monetag] Error showing rewarded video:', error);
-    console.error('[Monetag] Error details:', {
-      message: error.message,
-      name: error.name,
-      stack: error.stack
-    });
-    
-    // Если это ошибка загрузки SDK (AdBlock), пробрасываем дальше
-    if (error.isAdBlockError) {
-      throw error;
-    }
-    
-    // Если функция не найдена - это тоже AdBlock ошибка
-    if (error.message?.includes('is not a function')) {
-      const adBlockError = new Error('Monetag SDK не загружен. Возможно, AdBlock заблокировал рекламу. Отключите AdBlock, чтобы получить награду.');
-      (adBlockError as any).isAdBlockError = true;
-      throw adBlockError;
-    }
-    
-    // Ошибка "Failed to verify the ad show" - реклама была закрыта слишком быстро
-    // Но если реклама была показана (мы видели её), даем награду в любом случае
-    if (error.message?.includes('Failed to verify') || error.message?.includes('verify')) {
-      console.warn('[Monetag] Ad verification failed, but ad was shown. Giving reward anyway.');
-      // Реклама была показана, но закрыта слишком быстро для верификации
-      // В веб-версии это нормально - даем награду в любом случае
-      return true;
-    }
-    
-    // Другие ошибки (нет рекламы, ошибка загрузки)
-    // Считаем это неуспехом
-    return false;
-  }
+  });
 }
