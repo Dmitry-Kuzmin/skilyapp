@@ -302,9 +302,15 @@
     <!-- AdsGram SDK (для Telegram Mini App) -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
-    <!-- Monetag Rewarded Interstitial SDK (для веб-версии) -->
-    <!-- Zone ID нужно получить из Monetag кабинета после создания Rewarded Interstitial блока -->
-    <script src="https://domain.com/sdk.js" data-zone="10323437" data-sdk="show_10323437" async></script>
+    <!-- Monetag Native Banner (Interstitial) SDK (для веб-версии - Rewarded Video) -->
+    <!-- Zone ID: 10323437 (Skillful tag) - используется как Rewarded Video -->
+    <script>
+      (function(s){
+        s.dataset.zone='10323437';
+        s.src='https://groleegni.net/vignette.min.js';
+        s.dataset.sdk='show_10323437';
+      })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+    </script>
     
     <script src="https://telegram.org/js/telegram-web-app.js" defer crossorigin="anonymous"></script>
     <!-- ОПТИМИЗАЦИЯ: telegram-widget.js откладываем до взаимодействия пользователя -->
