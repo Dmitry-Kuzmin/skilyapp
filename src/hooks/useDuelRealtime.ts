@@ -120,6 +120,69 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     }
   }, [myPlayerId, duelId]);
 
+  // 🆕 Функция восстановления состояния атак (State Recovery)
+  // КРИТИЧНО: Объявлена ДО использования в useEffect
+  const recoverActiveExploits = useCallback(async () => {
+    if (!duelId || !myPlayerId || !profileId) {
+      log('[useDuelRealtime] Cannot recover exploits: missing duelId, myPlayerId or profileId');
+      return;
+    }
+
+    try {
+      log('[useDuelRealtime] 🔄 Starting exploit recovery...');
+
+      // myPlayerId - это уже ID из duel_players, используем его напрямую
+      const targetPlayerId = myPlayerId;
+
+      // Запрашиваем активные атаки, срок которых еще не истек
+      const { data: exploits, error: exploitsError } = await supabase
+        .from('duel_active_exploits')
+        .select('*')
+        .eq('duel_id', duelId)
+        .eq('target_player_id', targetPlayerId)
+        .eq('is_active', true)
+        .gt('expires_at', new Date().toISOString())
+        .order('activated_at', { ascending: false });
+
+      if (exploitsError) {
+        logError('[useDuelRealtime] Error recovering exploits:', exploitsError);
+        return;
+      }
+
+      if (exploits && exploits.length > 0) {
+        log('[useDuelRealtime] 🔄 Recovered active exploits:', exploits.length);
+        
+        // Обновляем стейт (добавляем восстановленные атаки)
+        setState(prev => {
+          // Избегаем дубликатов - проверяем по типу и времени активации
+          const existingTypes = new Set((prev.activeExploits || []).map(e => `${e.type}-${e.receivedAt}`));
+          
+          const newExploits = exploits
+            .map(e => ({
+              type: e.exploit_type,
+              data: e.effect_data || {},
+              receivedAt: new Date(e.activated_at).getTime(),
+              expiresAt: new Date(e.expires_at).getTime()
+            }))
+            .filter(e => !existingTypes.has(`${e.type}-${e.receivedAt}`));
+
+          if (newExploits.length === 0) {
+            return prev; // Нет новых exploits
+          }
+
+          return {
+            ...prev,
+            activeExploits: [...(prev.activeExploits || []), ...newExploits]
+          };
+        });
+      } else {
+        log('[useDuelRealtime] No active exploits to recover');
+      }
+    } catch (error) {
+      logError('[useDuelRealtime] Exception in recoverActiveExploits:', error);
+    }
+  }, [duelId, myPlayerId, profileId]);
+
   useEffect(() => {
     if (!duelId) return;
 
@@ -428,68 +491,6 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       supabase.removeChannel(duelChannel);
     };
   }, [duelId, profileId, recoverActiveExploits]);
-
-  // 🆕 Функция восстановления состояния атак (State Recovery)
-  const recoverActiveExploits = useCallback(async () => {
-    if (!duelId || !myPlayerId || !profileId) {
-      log('[useDuelRealtime] Cannot recover exploits: missing duelId, myPlayerId or profileId');
-      return;
-    }
-
-    try {
-      log('[useDuelRealtime] 🔄 Starting exploit recovery...');
-
-      // myPlayerId - это уже ID из duel_players, используем его напрямую
-      const targetPlayerId = myPlayerId;
-
-      // Запрашиваем активные атаки, срок которых еще не истек
-      const { data: exploits, error: exploitsError } = await supabase
-        .from('duel_active_exploits')
-        .select('*')
-        .eq('duel_id', duelId)
-        .eq('target_player_id', targetPlayerId)
-        .eq('is_active', true)
-        .gt('expires_at', new Date().toISOString())
-        .order('activated_at', { ascending: false });
-
-      if (exploitsError) {
-        logError('[useDuelRealtime] Error recovering exploits:', exploitsError);
-        return;
-      }
-
-      if (exploits && exploits.length > 0) {
-        log('[useDuelRealtime] 🔄 Recovered active exploits:', exploits.length);
-        
-        // Обновляем стейт (добавляем восстановленные атаки)
-        setState(prev => {
-          // Избегаем дубликатов - проверяем по типу и времени активации
-          const existingTypes = new Set((prev.activeExploits || []).map(e => `${e.type}-${e.receivedAt}`));
-          
-          const newExploits = exploits
-            .map(e => ({
-              type: e.exploit_type,
-              data: e.effect_data || {},
-              receivedAt: new Date(e.activated_at).getTime(),
-              expiresAt: new Date(e.expires_at).getTime()
-            }))
-            .filter(e => !existingTypes.has(`${e.type}-${e.receivedAt}`));
-
-          if (newExploits.length === 0) {
-            return prev; // Нет новых exploits
-          }
-
-          return {
-            ...prev,
-            activeExploits: [...(prev.activeExploits || []), ...newExploits]
-          };
-        });
-      } else {
-        log('[useDuelRealtime] No active exploits to recover');
-      }
-    } catch (error) {
-      logError('[useDuelRealtime] Exception in recoverActiveExploits:', error);
-    }
-  }, [duelId, myPlayerId, profileId]);
 
   // 🆕 Вызов восстановления при подключении
   useEffect(() => {
