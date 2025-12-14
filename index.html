@@ -302,6 +302,25 @@
     <!-- AdsGram SDK -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
+    <!-- Monetag Vignette Banner (только для веб-версии, НЕ в Telegram Mini App) -->
+    <script>
+      // Показываем Vignette Banner только в веб-версии (не в Telegram Mini App)
+      (function() {
+        // Проверяем, что мы НЕ в Telegram Mini App
+        var isTelegramMiniApp = window.Telegram && window.Telegram.WebApp && 
+                                window.Telegram.WebApp.initData && 
+                                window.Telegram.WebApp.initData !== '';
+        
+        if (!isTelegramMiniApp) {
+          // Загружаем Vignette Banner только для веб-версии
+          (function(s){
+            s.dataset.zone='10323401';
+            s.src='https://gizokraijaw.net/vignette.min.js';
+          })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+        }
+      })();
+    </script>
+    
     <script src="https://telegram.org/js/telegram-web-app.js" defer crossorigin="anonymous"></script>
     <!-- ОПТИМИЗАЦИЯ: telegram-widget.js откладываем до взаимодействия пользователя -->
     <!-- Загружается только при скролле или через 3 секунды после загрузки страницы -->
