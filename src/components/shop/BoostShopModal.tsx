@@ -1127,11 +1127,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           : errorMessage || t('boostShop.toasts.purchaseErrorDescription'),
         variant: 'destructive',
       });
+      haptics.wrongAnswer();
     } finally {
       // КРИТИЧНО: Всегда сбрасываем флаг загрузки, даже при ошибке
       setBoostPurchaseLoading(null);
-    }
-      haptics.wrongAnswer();
     }
   };
 
