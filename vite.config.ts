@@ -20,6 +20,8 @@ export default defineConfig(({ mode }) => {
       // КРИТИЧНО: Используем 'prompt' вместо 'autoUpdate' для предотвращения спонтанных перезагрузок
       // 'autoUpdate' вызывает автоматическую перезагрузку при каждом деплое, что раздражает пользователей
       registerType: 'prompt', // ✅ СПРАШИВАТЬ, а не перезагружать автоматически
+      // КРИТИЧНО: Переименовываем service worker чтобы не конфликтовать с Monetag верификацией
+      filename: 'pwa-sw.js', // Вместо sw.js (для Monetag верификации)
       includeAssets: ['favicon.ico', 'favicon.svg'],
       manifest: {
         name: 'Sdadim DGT',
