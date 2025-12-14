@@ -6,16 +6,21 @@
  * - Другие настройки профиля
  */
 
-import { User, Shield, Bell, CreditCard } from 'lucide-react';
+import { User, Shield, Bell, CreditCard, Trash2, RefreshCw } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { PasskeyManager } from '@/components/auth/PasskeyManager';
 import { useUserContext } from '@/contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { clearServiceWorkerAndCache, hasServiceWorkers } from '@/utils/clearServiceWorker';
+import { toast } from '@/hooks/use-toast';
 
 export default function Settings() {
   const { isAuthenticated, isLoading, supabaseUser } = useUserContext();
   const navigate = useNavigate();
+  const [hasSW, setHasSW] = useState(false);
+  const [clearing, setClearing] = useState(false);
 
   // Редирект если не авторизован
   useEffect(() => {
@@ -23,6 +28,37 @@ export default function Settings() {
       navigate('/');
     }
   }, [isAuthenticated, isLoading, navigate]);
+
+  // Проверяем наличие Service Worker
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      hasServiceWorkers().then(setHasSW);
+    }
+  }, []);
+
+  const handleClearSW = async () => {
+    if (!confirm('Очистить Service Worker и кэш? Это перезагрузит страницу.')) {
+      return;
+    }
+
+    setClearing(true);
+    try {
+      await clearServiceWorkerAndCache();
+      toast({
+        title: 'Очистка завершена',
+        description: 'Service Worker и кэш очищены. Страница перезагрузится...',
+      });
+      // clearServiceWorkerAndCache уже перезагрузит страницу
+    } catch (error) {
+      console.error('[Settings] Ошибка очистки SW:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось очистить Service Worker. Попробуй через DevTools.',
+        variant: 'destructive',
+      });
+      setClearing(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -134,6 +170,49 @@ export default function Settings() {
                 </div>
               </div>
             </div>
+
+            {/* Разработка: Очистка Service Worker */}
+            {(import.meta.env.DEV || hasSW) && (
+              <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-xl p-6">
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-semibold text-zinc-200">
+                      Разработка
+                    </h3>
+                    <p className="text-xs text-zinc-500">
+                      Очистка Service Worker и кэша. Используй при проблемах с устаревшим кодом.
+                    </p>
+                  </div>
+                  
+                  {hasSW && (
+                    <div className="flex items-center gap-2 text-xs text-amber-500">
+                      <RefreshCw className="w-3 h-3" />
+                      <span>Обнаружен зарегистрированный Service Worker</span>
+                    </div>
+                  )}
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleClearSW}
+                    disabled={clearing}
+                    className="w-full sm:w-auto"
+                  >
+                    {clearing ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                        Очистка...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Очистить Service Worker и кэш
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
           </section>
 
           {/* Будущие секции (заглушки) */}
