@@ -240,23 +240,12 @@ export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
           return;
         }
 
-      console.log('[Monetag Web] Calling show function:', WEB_SHOW_FUNCTION_NAME);
-      
-      // Показываем рекламу
-      try {
-        // КРИТИЧНО: Обрабатываем возможные unhandled promise rejections
-        const showPromise = Promise.resolve(showFunction());
-        showPromise.catch((showError: any) => {
-          // Игнорируем ошибку "Failed to verify" - это нормально для Interstitial
-          if (showError?.message?.includes('Failed to verify') || showError?.message?.includes('verify')) {
-            console.warn('[Monetag Web] Ad verification error (ignored):', showError.message);
-          } else {
-            console.error('[Monetag Web] Error in show function:', showError);
-          }
-        });
+        console.log('[Monetag Web] Calling show function:', WEB_SHOW_FUNCTION_NAME);
         
-        showFunction();
-        console.log('[Monetag Web] Ad banner shown');
+        // Показываем рекламу
+        try {
+          showFunction();
+          console.log('[Monetag Web] Ad banner shown');
           
           // Проверяем, что реклама действительно показалась
           // Monetag обычно создает iframe или div с рекламой

@@ -74,8 +74,14 @@ interface Transaction {
 export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   // БЕЗОПАСНОЕ использование UserContext - может быть undefined если модалка открыта вне UserProvider
   const userContext = useContext(UserContext);
-  const profileId = userContext?.profileId ?? null;
-  const platform = userContext?.platform ?? 'web';
+  
+  // Ранний возврат, если UserContext отсутствует (модалка открыта вне UserProvider)
+  if (!userContext) {
+    return null;
+  }
+  
+  const profileId = userContext.profileId ?? null;
+  const platform = userContext.platform ?? 'web';
   const queryClient = useQueryClient();
   
   // Если UserContext отсутствует, закрываем модалку
@@ -1980,11 +1986,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       </div>
     );
   };
-
-  // Ранний возврат, если UserContext отсутствует (модалка открыта вне UserProvider)
-  if (!userContext) {
-    return null;
-  }
 
   // Кастомный заголовок в стиле BLACK MARKET
   const headerContent = (
