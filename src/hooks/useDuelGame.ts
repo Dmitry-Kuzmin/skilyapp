@@ -151,8 +151,10 @@ export function useDuelGame({
       
       // Устанавливаем имя соперника с учетом бота
       if (opponent?.is_bot) {
-        // Для бота используем bot_name из данных
-        setOpponentName(opponent.bot_name || opponent.name || players.opponentName || 'CyberNinja');
+        // Для бота используем bot_name из данных (приоритет) или name
+        const botName = opponent.bot_name || opponent.name || players.opponentName || 'CyberNinja';
+        setOpponentName(botName);
+        console.log('[useDuelGame] Bot name set:', { bot_name: opponent.bot_name, name: opponent.name, final: botName });
       } else {
         setOpponentName(players.opponentName);
       }

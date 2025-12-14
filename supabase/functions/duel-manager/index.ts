@@ -2089,6 +2089,8 @@ Deno.serve(async (req) => {
             is_host: false,
             is_bot: true,
             bot_difficulty: botProfile.difficulty,
+            bot_name: botProfile.name, // Сохраняем имя бота в БД
+            name: botProfile.name, // Также сохраняем в поле name для совместимости
           })
           .select()
           .single();
@@ -3130,16 +3132,16 @@ Deno.serve(async (req) => {
               bot_name: botName
             });
 
-            // Всегда уведомляем о прогрессе, но включаем процент только на milestones
-            // Также добавляем имя бота в metadata для правильного отображения
+            // Уведомляем о каждом ответе бота
+            // Используем тип 'answer' для правильных ответов, 'progress' для неправильных
             const notifResult = await createNotification({
               duel_id,
-              type: 'progress',
+              type: isCorrect ? 'answer' : 'progress',
               metadata: {
                 is_correct: isCorrect,
                 question_number: question.position,
-                progress: progress >= 25 && progress % 25 === 0 ? progress : undefined, // Notify at 25%, 50%, 75%
-                opponent_name: botName, // Добавляем имя бота для правильного отображения
+                progress: progress >= 25 && progress % 25 === 0 ? progress : undefined, // Процент только на milestones (25%, 50%, 75%)
+                opponent_name: botName, // Имя бота для правильного отображения в уведомлении
               }
             }, humanPlayer.user_id, supabase).catch(err => {
               console.error('[bot_answer] Error creating progress notification:', err);
