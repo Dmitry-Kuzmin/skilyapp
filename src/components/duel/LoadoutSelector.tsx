@@ -488,7 +488,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           if (!profileId) return;
           
           try {
-            const { data, error } = await supabase.functions.invoke('claim-ad-reward', {
+            const { data, error } = await supabase.functions.invoke('ad-reward', {
               body: {
                 user_id: profileId,
                 reward_type: 'slot_unlock',
