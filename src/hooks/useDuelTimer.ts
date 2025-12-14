@@ -11,6 +11,8 @@ interface UseDuelTimerProps {
   onTimeout: () => void;
 }
 
+const TIME_LIMIT_MS = 60000; // 60 seconds
+
 export function useDuelTimer({
   questions,
   currentIndex,
@@ -21,40 +23,73 @@ export function useDuelTimer({
   setTimeLeft,
   onTimeout,
 }: UseDuelTimerProps) {
-  const questionStartTimeRef = useRef<number | null>(null);
+  const questionEndTimeRef = useRef<number | null>(null);
 
-  // Timer logic with timestamp fix
+  // Устанавливаем время окончания при загрузке нового вопроса
   useEffect(() => {
     if (!questions.length || isAnswered || isWaitingForOpponent || hasFinishedMyQuestions) {
       return;
     }
 
-    // Set start time if not set
-    if (!questionStartTimeRef.current) {
-      questionStartTimeRef.current = Date.now();
+    // Устанавливаем время окончания = Сейчас + 60 секунд
+    const targetTime = Date.now() + TIME_LIMIT_MS;
+    questionEndTimeRef.current = targetTime;
+    setTimeLeft(TIME_LIMIT_MS);
+  }, [currentIndex, questions.length, isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, setTimeLeft]);
+
+  // Основной таймер - вычисляет разницу между endTime и текущим временем
+  useEffect(() => {
+    if (!questions.length || isAnswered || isWaitingForOpponent || hasFinishedMyQuestions || !questionEndTimeRef.current) {
+      return;
     }
 
     const timer = setInterval(() => {
-      if (questionStartTimeRef.current) {
-        const elapsed = Date.now() - questionStartTimeRef.current;
-        const newTimeLeft = Math.max(0, 60000 - elapsed);
+      if (questionEndTimeRef.current) {
+        const now = Date.now();
+        const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000; // В миллисекундах
 
-        setTimeLeft(newTimeLeft);
-
-        if (newTimeLeft <= 0) {
+        if (secondsRemaining <= 0) {
+          // 🛑 Время вышло
+          setTimeLeft(0);
           clearInterval(timer);
+          questionEndTimeRef.current = null;
           onTimeout();
+        } else {
+          // ✅ Обновляем UI
+          setTimeLeft(secondsRemaining);
         }
       }
-    }, 100); // Update more frequently for smoothness
+    }, 250); // Обновляем 4 раза в секунду для плавности
 
     return () => clearInterval(timer);
   }, [currentIndex, isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, questions.length, setTimeLeft, onTimeout]);
 
-  // Reset start time when question changes
+  // Обработчик visibilitychange - мгновенное обновление при возвращении на вкладку
   useEffect(() => {
-    questionStartTimeRef.current = null;
-    setTimeLeft(60000);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && questionEndTimeRef.current && !isAnswered && !isWaitingForOpponent && !hasFinishedMyQuestions) {
+        // Мгновенный пересчет при возвращении
+        const now = Date.now();
+        const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000;
+        
+        if (secondsRemaining <= 0) {
+          setTimeLeft(0);
+          questionEndTimeRef.current = null;
+          onTimeout();
+        } else {
+          setTimeLeft(secondsRemaining);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, onTimeout, setTimeLeft]);
+
+  // Reset end time when question changes
+  useEffect(() => {
+    questionEndTimeRef.current = null;
+    setTimeLeft(TIME_LIMIT_MS);
   }, [currentIndex, setTimeLeft]);
 
   const formatTime = useCallback((ms: number) => {
@@ -62,7 +97,7 @@ export function useDuelTimer({
     return `${seconds}s`;
   }, []);
 
-  return { formatTime };
+  return { formatTime, questionEndTimeRef };
 }
 
 

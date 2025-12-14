@@ -304,7 +304,7 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       const filteredBoosts = loadoutBoosts.map(boostType => {
         const definition = definitionsMap.get(boostType);
         return {
-          boost_type: boostType,
+        boost_type: boostType,
           quantity: boostsMap.get(boostType) || 0,
           icon: definition?.icon || null,
           name_ru: definition?.name_ru || boostType

@@ -27,12 +27,23 @@ export const DuelBoostsPanel = memo(({
   onBoostUse,
   onTranslatePopoverChange,
 }: DuelBoostsPanelProps) => {
-  // Логируем для отладки в dev режиме
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    console.log('[DuelBoostsPanel] Boosts:', boosts.length, boosts);
+  // Логируем для отладки
+  if (typeof window !== 'undefined') {
+    console.log('[DuelBoostsPanel] Boosts count:', boosts.length, 'Boosts:', boosts);
   }
 
-  if (boosts.length === 0) return null;
+  // ВАЖНО: Всегда показываем панель бустов, даже если массив пустой (для отладки)
+  // Но если бустов нет - показываем сообщение только в dev режиме
+  if (boosts.length === 0) {
+    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1'))) {
+      return (
+        <div className="text-xs text-muted-foreground p-2 border border-dashed rounded">
+          Бусты не загружены (0)
+        </div>
+      );
+    }
+    return null;
+  }
 
   return (
     <div className="flex items-center gap-1.5 flex-wrap w-full justify-center">

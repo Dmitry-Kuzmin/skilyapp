@@ -1274,7 +1274,7 @@ Deno.serve(async (req) => {
       actionType: typeof action,
       actionValue: JSON.stringify(action),
       hasFindMatch: action === 'find_match',
-      switchCases: ['create_notification', 'check_status', 'find_match', 'submit_answer', 'use_boost', 'finish_duel', 'cancel_duel']
+      switchCases: ['create_notification', 'check_status', 'find_match', 'submit_answer', 'use_boost', 'bot_use_boost', 'finish_duel', 'cancel_duel', 'bot_answer']
     });
 
     switch (action) {
@@ -3480,6 +3480,216 @@ Deno.serve(async (req) => {
         }
 
         return new Response(JSON.stringify(boostEffect), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      case 'bot_use_boost': {
+        // Логика использования бустов ботом
+        const { duel_id, duel_question_id } = params;
+
+        // Находим бота в дуэли
+        const { data: botPlayer } = await supabase
+          .from('duel_players')
+          .select('id, bot_difficulty, bot_name, name')
+          .eq('duel_id', duel_id)
+          .eq('is_bot', true)
+          .single();
+
+        if (!botPlayer) {
+          return new Response(JSON.stringify({ error: 'Bot not found in this duel' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        const botDifficulty = botPlayer.bot_difficulty || 'medium';
+
+        // Определяем доступные бусты для бота в зависимости от сложности
+        const availableBoosts: { type: string; weight: number }[] = [];
+
+        if (botDifficulty === 'easy') {
+          // Easy боты не используют бусты
+          return new Response(JSON.stringify({ error: 'Easy bots do not use boosts' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        } else if (botDifficulty === 'medium') {
+          // Medium: утилиты и редко атаки
+          availableBoosts.push(
+            { type: 'fifty_fifty', weight: 40 },
+            { type: 'hint', weight: 30 },
+            { type: 'screen_injector', weight: 15 },
+            { type: 'input_lag', weight: 10 },
+            { type: 'gps_spoofing', weight: 5 }
+          );
+        } else {
+          // Hard/Insane: агрессивные атаки
+          availableBoosts.push(
+            { type: 'screen_injector', weight: 30 },
+            { type: 'input_lag', weight: 25 },
+            { type: 'gps_spoofing', weight: 20 },
+            { type: 'police_backdoor', weight: 15 },
+            { type: 'fifty_fifty', weight: 5 },
+            { type: 'hint', weight: 5 }
+          );
+        }
+
+        // Выбираем случайный буст на основе весов
+        const totalWeight = availableBoosts.reduce((sum, boost) => sum + boost.weight, 0);
+        let random = Math.random() * totalWeight;
+        let selectedBoost = availableBoosts[0];
+
+        for (const boost of availableBoosts) {
+          random -= boost.weight;
+          if (random <= 0) {
+            selectedBoost = boost;
+            break;
+          }
+        }
+
+        const boostType = selectedBoost.type;
+
+        // Обработка эффектов бустов
+        let boostEffect: any = { success: true, boost_type: boostType };
+
+        if (boostType === 'fifty_fifty' && duel_question_id) {
+          const { data: question } = await supabase
+            .from('duel_questions')
+            .select('correct_option_ids, question_snapshot')
+            .eq('id', duel_question_id)
+            .single();
+
+          if (question) {
+            const snapshot = question.question_snapshot as any;
+            const allOptions = snapshot.answer_options || [];
+            const correctIds = question.correct_option_ids as string[];
+            const incorrectOptions = allOptions
+              .filter((opt: any) => !correctIds.includes(opt.id))
+              .map((opt: any) => opt.id);
+            const toHide = incorrectOptions.slice(0, Math.min(2, incorrectOptions.length));
+            boostEffect.hidden_options = toHide;
+          }
+        } else if (boostType === 'hint' && duel_question_id) {
+          const { data: question } = await supabase
+            .from('duel_questions')
+            .select('question_snapshot')
+            .eq('id', duel_question_id)
+            .single();
+
+          if (question) {
+            const snapshot = question.question_snapshot as any;
+            const hint = snapshot.explanation_ru || snapshot.explanation_es || snapshot.explanation_en || 'Подсказка недоступна';
+            boostEffect.hint = hint;
+          }
+        } else if (boostType === 'screen_injector') {
+          boostEffect = {
+            success: true,
+            boost_type: 'screen_injector',
+            popup_count: 3,
+            duration_ms: 10000,
+          };
+        } else if (boostType === 'input_lag') {
+          boostEffect = {
+            success: true,
+            boost_type: 'input_lag',
+            delay_ms: 1500,
+            duration_ms: 5000,
+          };
+        } else if (boostType === 'gps_spoofing') {
+          boostEffect = {
+            success: true,
+            boost_type: 'gps_spoofing',
+            shuffle_duration_ms: 1000,
+          };
+        } else if (boostType === 'police_backdoor') {
+          boostEffect = {
+            success: true,
+            boost_type: 'police_backdoor',
+            block_duration_ms: 8000,
+            captcha_required: true,
+          };
+        }
+
+        // Получаем информацию о бусте из БД
+        const { data: boostDef } = await supabase
+          .from('boost_definitions')
+          .select('target_type, category, mode')
+          .eq('type', boostType)
+          .single();
+
+        // Если буст влияет на противника - сохраняем в БД для broadcast через postgres_changes
+        if (boostDef && (boostDef.target_type === 'opponent' || boostDef.target_type === 'both')) {
+          const { data: players } = await supabase
+            .from('duel_players')
+            .select('id, user_id')
+            .eq('duel_id', duel_id);
+
+          if (players && players.length >= 2) {
+            const opponent = players.find(p => p.user_id !== null && !p.is_bot);
+            
+            if (opponent) {
+              const durationMs = boostEffect.duration_ms || 10000;
+              const expiresAt = new Date(Date.now() + durationMs).toISOString();
+
+              const { error: exploitError } = await supabase
+                .from('duel_active_exploits')
+                .insert({
+                  duel_id,
+                  target_player_id: opponent.id,
+                  exploit_type: boostType,
+                  attacker_player_id: botPlayer.id,
+                  effect_data: boostEffect,
+                  expires_at: expiresAt,
+                  is_active: true,
+                });
+
+              if (exploitError) {
+                console.error('[bot_use_boost] Error saving exploit to DB:', exploitError);
+              } else {
+                console.log('[bot_use_boost] ✅ Bot exploit saved to DB, client will receive via postgres_changes');
+              }
+            }
+          }
+        }
+
+        // Создаем уведомление для игрока о том, что бот использовал буст
+        const { data: humanPlayer } = await supabase
+          .from('duel_players')
+          .select('user_id')
+          .eq('duel_id', duel_id)
+          .not('user_id', 'is', null)
+          .eq('is_bot', false)
+          .single();
+
+        if (humanPlayer?.user_id) {
+          const botName = botPlayer.bot_name || botPlayer.name || 'Бот';
+          
+          await createNotification({
+            duel_id,
+            type: 'boost',
+            title: `⚠️ ${botName} использовал буст!`,
+            message: boostType === 'screen_injector' ? 'Screen Injector активирован!' :
+                     boostType === 'input_lag' ? 'Input Lag активирован!' :
+                     boostType === 'gps_spoofing' ? 'GPS Spoofing активирован!' :
+                     boostType === 'police_backdoor' ? 'Police Backdoor активирован!' :
+                     'Бот использовал буст!',
+            icon: '⚡',
+            metadata: {
+              boost_type: boostType,
+              opponent_name: botName,
+              is_bot: true,
+            }
+          }, humanPlayer.user_id, supabase).catch(err => {
+            console.error('[bot_use_boost] Error creating boost notification:', err);
+          });
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          boost_type: boostType,
+          effect: boostEffect,
+        }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }

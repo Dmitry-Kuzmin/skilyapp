@@ -220,25 +220,71 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     prevOpponentScore.current = opponentScore;
   }, [opponentScore, myScore]);
 
+  // Timer logic with timestamp fix (endTime pattern) - работает даже при переключении вкладок
+  const questionEndTimeRef = useRef<number | null>(null);
+  const TIME_LIMIT_MS = 60000; // 60 seconds
+
+  // Устанавливаем время окончания при загрузке нового вопроса
   useEffect(() => {
     if (answered) return;
 
+    // Устанавливаем время окончания = Сейчас + 60 секунд
+    const targetTime = Date.now() + TIME_LIMIT_MS;
+    questionEndTimeRef.current = targetTime;
+    setTimeLeft(TIME_LIMIT_MS);
+  }, [currentIndex, answered, setTimeLeft]);
+
+  // Основной таймер - вычисляет разницу между endTime и текущим временем
+  useEffect(() => {
+    if (answered || !questionEndTimeRef.current) return;
+
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 100) {
+      if (questionEndTimeRef.current) {
+        const now = Date.now();
+        const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000; // В миллисекундах
+
+        if (secondsRemaining <= 0) {
+          // 🛑 Время вышло
+          setTimeLeft(0);
+          clearInterval(timer);
+          questionEndTimeRef.current = null;
           handleTimeout();
-          return 0;
+        } else {
+          // ✅ Обновляем UI
+          setTimeLeft(secondsRemaining);
+          
+          // Play warning sound at 10 seconds
+          if (secondsRemaining <= 10000 && secondsRemaining > 9900) {
+            sounds.timeRunningOut();
+          }
         }
-        // Play warning sound at 10 seconds
-        if (prev <= 10000 && prev > 9900) {
-          sounds.timeRunningOut();
-        }
-        return prev - 100;
-      });
-    }, 100);
+      }
+    }, 250); // Обновляем 4 раза в секунду для плавности
 
     return () => clearInterval(timer);
-  }, [answered, currentIndex]);
+  }, [answered, currentIndex, handleTimeout, setTimeLeft]);
+
+  // Обработчик visibilitychange - мгновенное обновление при возвращении на вкладку
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && questionEndTimeRef.current && !answered) {
+        // Мгновенный пересчет при возвращении
+        const now = Date.now();
+        const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000;
+        
+        if (secondsRemaining <= 0) {
+          setTimeLeft(0);
+          questionEndTimeRef.current = null;
+          handleTimeout();
+        } else {
+          setTimeLeft(secondsRemaining);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [answered, handleTimeout, setTimeLeft]);
 
   // ============================================================================
   // CRITICAL: USE SERVER-PROVIDED BOOST EFFECTS ONLY
@@ -273,8 +319,17 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       } else if (type === 'time_extend' && data.time_added_ms) {
         sounds.boostTimeExtend();
         haptics.boostActivated();
-        // Add exactly what server says (+30s), capped at 60s total
-        setTimeLeft(prev => Math.min(prev + data.time_added_ms, 60000));
+        // Time extend boost - обновляем endTime
+        if (questionEndTimeRef.current) {
+          const now = Date.now();
+          const currentRemaining = questionEndTimeRef.current - now;
+          const newEndTime = now + Math.min(currentRemaining + data.time_added_ms, TIME_LIMIT_MS);
+          questionEndTimeRef.current = newEndTime;
+          setTimeLeft(Math.min(currentRemaining + data.time_added_ms, TIME_LIMIT_MS));
+        } else {
+          // Если endTime не установлен, просто добавляем время
+          setTimeLeft(prev => Math.min(prev + data.time_added_ms, TIME_LIMIT_MS));
+        }
         toast.success(`⏱️ +${data.time_added_ms / 1000} секунд добавлено!`, { duration: 3000 });
       } else if (type === 'hint' && data.hint) {
         sounds.boostHint();

@@ -158,6 +158,86 @@ export function useBotOpponent({
     };
   }, [duelId]);
 
+  // 🔥 НОВАЯ ЛОГИКА: Использование бустов ботом
+  const boostCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastBoostCheckRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!duelId || !botPlayerRef.current || !currentQuestionId) {
+      return;
+    }
+
+    const botDifficulty = (botPlayerRef.current as any).bot_difficulty || 'medium';
+    
+    // Определяем вероятность использования буста в зависимости от сложности
+    // Easy: 0% (не используют бусты)
+    // Medium: 20% каждые 12 секунд
+    // Hard/Insane: 40% каждые 12 секунд
+    let attackChance = 0;
+    if (botDifficulty === 'medium') {
+      attackChance = 0.20; // 20%
+    } else if (botDifficulty === 'hard' || botDifficulty === 'insane') {
+      attackChance = 0.40; // 40%
+    }
+
+    // Easy боты не используют бусты
+    if (attackChance === 0) {
+      return;
+    }
+
+    // Таймер проверки "Бот хочет использовать буст?"
+    const checkBoost = async () => {
+      // Проверяем не слишком ли часто (минимум 8 секунд между проверками)
+      const now = Date.now();
+      if (now - lastBoostCheckRef.current < 8000) {
+        return;
+      }
+      lastBoostCheckRef.current = now;
+
+      // Случайная проверка на использование буста
+      if (Math.random() < attackChance) {
+        try {
+          console.log(`[useBotOpponent] 🤖 Bot is using a boost! (difficulty: ${botDifficulty})`);
+
+          // Вызываем Edge Function для использования буста ботом
+          const { data, error } = await supabase.functions.invoke('duel-manager', {
+            body: {
+              action: 'bot_use_boost',
+              duel_id: duelId,
+              duel_question_id: currentQuestionId,
+            },
+          });
+
+          if (error) {
+            console.error('[useBotOpponent] ❌ Error bot using boost:', error);
+            return;
+          }
+
+          console.log('[useBotOpponent] ✅ Bot used boost successfully:', {
+            boost_type: data?.boost_type,
+            effect: data?.effect
+          });
+        } catch (error) {
+          console.error('[useBotOpponent] ❌ Exception bot using boost:', error);
+        }
+      }
+    };
+
+    // Проверяем каждые 12 секунд
+    boostCheckIntervalRef.current = setInterval(checkBoost, 12000);
+
+    // Первая проверка через 5 секунд после загрузки вопроса
+    const initialTimer = setTimeout(checkBoost, 5000);
+
+    return () => {
+      if (boostCheckIntervalRef.current) {
+        clearInterval(boostCheckIntervalRef.current);
+        boostCheckIntervalRef.current = null;
+      }
+      clearTimeout(initialTimer);
+    };
+  }, [duelId, currentQuestionId, botPlayerRef.current]);
+
   return {
     isBotOpponent: !!botPlayerRef.current,
     botPlayer: botPlayerRef.current,

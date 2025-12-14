@@ -1045,7 +1045,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     // Для десктопа добавляем отступ, чтобы контент не заезжал под фиксированный прогресс-бар
     const contentTopPadding =
       isTelegramMobile
-        ? progressBarTop + PROGRESS_BAR_HEIGHT - 20 // Для мобильных компактнее
+        ? progressBarTop + PROGRESS_BAR_HEIGHT + 4 // Минимальный отступ для мобильной версии (4px вместо -20px)
         : progressBarTop + PROGRESS_BAR_HEIGHT + 16; // Для десктопа больше воздуха
 
     return {
@@ -1091,42 +1091,77 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     finishDuel,
   });
 
-  // Timer logic with timestamp fix
-  const questionStartTimeRef = useRef<number | null>(null);
+  // Timer logic with timestamp fix (endTime pattern) - работает даже при переключении вкладок
+  const questionEndTimeRef = useRef<number | null>(null);
+  const TIME_LIMIT_MS = 60000; // 60 seconds
 
+  // Устанавливаем время окончания при загрузке нового вопроса
   useEffect(() => {
     if (!questions.length || isAnswered || isWaitingForOpponent || hasFinishedMyQuestions) {
       return;
     }
 
-    // Set start time if not set
-    if (!questionStartTimeRef.current) {
-      questionStartTimeRef.current = Date.now();
+    // Устанавливаем время окончания = Сейчас + 60 секунд
+    const targetTime = Date.now() + TIME_LIMIT_MS;
+    questionEndTimeRef.current = targetTime;
+    setTimeLeft(TIME_LIMIT_MS);
+  }, [currentIndex, questions.length, isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, setTimeLeft]);
+
+  // Основной таймер - вычисляет разницу между endTime и текущим временем
+  useEffect(() => {
+    if (!questions.length || isAnswered || isWaitingForOpponent || hasFinishedMyQuestions || !questionEndTimeRef.current) {
+      return;
     }
 
     const timer = setInterval(() => {
-      if (questionStartTimeRef.current) {
-        const elapsed = Date.now() - questionStartTimeRef.current;
-        const newTimeLeft = Math.max(0, 60000 - elapsed);
+      if (questionEndTimeRef.current) {
+        const now = Date.now();
+        const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000; // В миллисекундах
 
-        setTimeLeft(newTimeLeft);
-
-        if (newTimeLeft <= 0) {
+        if (secondsRemaining <= 0) {
+          // 🛑 Время вышло
+          setTimeLeft(0);
           clearInterval(timer);
+          questionEndTimeRef.current = null;
           handleTimeout();
+        } else {
+          // ✅ Обновляем UI
+          setTimeLeft(secondsRemaining);
         }
       }
-    }, 100); // Update more frequently for smoothness
+    }, 250); // Обновляем 4 раза в секунду для плавности
 
     return () => clearInterval(timer);
   }, [currentIndex, isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, questions.length, handleTimeout, setTimeLeft]);
 
+  // Обработчик visibilitychange - мгновенное обновление при возвращении на вкладку
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && questionEndTimeRef.current && !isAnswered && !isWaitingForOpponent && !hasFinishedMyQuestions) {
+        // Мгновенный пересчет при возвращении
+        const now = Date.now();
+        const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000;
+        
+        if (secondsRemaining <= 0) {
+          setTimeLeft(0);
+          questionEndTimeRef.current = null;
+          handleTimeout();
+        } else {
+          setTimeLeft(secondsRemaining);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, handleTimeout, setTimeLeft]);
+
   // ОПТИМИЗАЦИЯ: Объединяем сброс состояния при смене вопроса в один useEffect
   useEffect(() => {
-    questionStartTimeRef.current = null;
-    setTimeLeft(60000);
+    questionEndTimeRef.current = null;
+    setTimeLeft(TIME_LIMIT_MS);
     setTranslationLanguage(null);
-  }, [currentIndex]);
+  }, [currentIndex, setTimeLeft]);
 
   // ОПТИМИЗАЦИЯ: Мемоизируем функцию для сброса usedBoosts
   const setUsedBoostsReset = useCallback(() => {
@@ -1193,7 +1228,17 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         setEliminatedOptions(toEliminate);
       } else if (boostType === 'time_extend') {
         sounds.boostTimeExtend();
-        setTimeLeft(prev => Math.min(prev + 30000, 60000));
+        // Обновляем endTime при использовании буста time_extend (+30 секунд)
+        if (questionEndTimeRef.current) {
+          const now = Date.now();
+          const currentRemaining = questionEndTimeRef.current - now;
+          const newEndTime = now + Math.min(currentRemaining + 30000, TIME_LIMIT_MS);
+          questionEndTimeRef.current = newEndTime;
+          setTimeLeft(Math.min(currentRemaining + 30000, TIME_LIMIT_MS));
+        } else {
+          // Если endTime не установлен, просто добавляем время
+          setTimeLeft(prev => Math.min(prev + 30000, TIME_LIMIT_MS));
+        }
       } else if (boostType === 'hint') {
         sounds.boostHint();
         toast.info('💡 Подсказка: обратите внимание на детали!');
@@ -1587,10 +1632,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       >
         {/* Header - Scores & Boosts - Premium Design */}
         <div className={`relative z-20 ${isTelegramMobile 
-          ? 'flex flex-col gap-2 mb-1' // Вертикальная компоновка для мобильной версии
+          ? 'flex flex-col gap-1 mb-0' // Компактная вертикальная компоновка для мобильной версии
           : 'flex items-center justify-between gap-3 flex-wrap'
         } ${isTelegramMobile
-          ? 'mb-1' // Минимальный отступ для мобильной версии Telegram
+          ? 'mb-0' // Нулевой отступ для мобильной версии Telegram
           : isTelegramDesktop
             ? 'mb-3 md:mb-4' // Обычный отступ для десктопной версии
             : 'mb-3 md:mb-4' // Обычный отступ для браузера
@@ -1615,7 +1660,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           />
 
           {/* Right Side - Boosts & Combo */}
-          <div className={`flex items-center gap-2 flex-wrap ${isTelegramMobile ? 'w-full justify-center mt-2' : ''}`}>
+          <div className={`flex items-center gap-1.5 flex-wrap ${isTelegramMobile ? 'w-full justify-center mt-1' : ''}`}>
             {/* Combo */}
             <AnimatePresence>
               {combo > 1 && (
@@ -1647,23 +1692,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             </AnimatePresence>
 
             {/* Boosts - Premium Compact Design - Всегда видимы */}
-            {boosts.length > 0 ? (
-              <DuelBoostsPanel
-                boosts={boosts}
-                usedBoosts={usedBoosts}
-                isAnswered={isAnswered}
-                translatePopoverOpen={translatePopoverOpen}
-                onBoostUse={handleBoostUse}
-                onTranslatePopoverChange={setTranslatePopoverOpen}
-              />
-            ) : (
-              // Показываем сообщение для отладки, если бусты не загружены
-              isDev && (
-                <div className="text-xs text-muted-foreground">
-                  Бусты не загружены ({boosts.length})
-                </div>
-              )
-            )}
+            <DuelBoostsPanel
+              boosts={boosts}
+              usedBoosts={usedBoosts}
+              isAnswered={isAnswered}
+              translatePopoverOpen={translatePopoverOpen}
+              onBoostUse={handleBoostUse}
+              onTranslatePopoverChange={setTranslatePopoverOpen}
+            />
           </div>
         </div>
 
