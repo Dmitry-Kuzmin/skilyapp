@@ -1150,8 +1150,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
     log('[DuelBattleFullscreen] ⏱️ Timer started for question', currentIndex + 1, 'endTime:', new Date(targetTime).toISOString());
 
-    // Запускаем таймер сразу
-    timerIntervalRef.current = setInterval(() => {
+    // КРИТИЧНО: Функция обновления таймера (вынесена для переиспользования)
+    const updateTimer = () => {
       if (!questionEndTimeRef.current) {
         if (timerIntervalRef.current) {
           clearInterval(timerIntervalRef.current);
@@ -1177,7 +1177,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         // ✅ Обновляем UI
         setTimeLeft(secondsRemaining);
       }
-    }, 250); // Обновляем 4 раза в секунду для плавности
+    };
+
+    // Запускаем таймер сразу
+    timerIntervalRef.current = setInterval(updateTimer, 250); // Обновляем 4 раза в секунду для плавности
+    
+    // КРИТИЧНО: Также обновляем сразу при запуске (на случай если прошло время)
+    updateTimer();
 
     // Cleanup при размонтировании или изменении зависимостей
     return () => {
