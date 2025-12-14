@@ -31,9 +31,9 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   
   // Fluid Physics Config
   const COLUMN_WIDTH = 15;
-  const GRAVITY = 1.5;
+  const GRAVITY = 3.0; // Увеличено с 1.5 для более быстрого падения
   const VISCOSITY = 0.5; 
-  const TERMINAL_VELOCITY = 60;
+  const TERMINAL_VELOCITY = 120; // Увеличено с 60 для более быстрого движения
 
   // Refs for physics/animation
   const columnsRef = useRef<number[]>([]);
@@ -190,7 +190,8 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
 
             for (let i = 0; i < numColumns; i++) {
                 const noise = Math.sin(i * 0.8 + timeRef.current); 
-                let acc = GRAVITY + (timeRef.current * 0.2) + (noise > 0 ? 0.2 : 0);
+                // Увеличено ускорение со временем с 0.2 до 0.5 для более быстрого заполнения
+                let acc = GRAVITY + (timeRef.current * 0.5) + (noise > 0 ? 0.3 : 0);
                 
                 velocitiesRef.current[i] += acc;
                 velocitiesRef.current[i] = Math.min(velocitiesRef.current[i], TERMINAL_VELOCITY);
@@ -234,9 +235,11 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
       columnsRef.current = new Array(numColumns).fill(0).map((_, i) => {
           const x = i * COLUMN_WIDTH;
           const dist = Math.abs(x - cx);
-          return cy - dist * 0.15 - Math.random() * 50; 
+          // Уменьшен коэффициент наклона с 0.15 до 0.05 для более плоской формы на широких экранах
+          // Уменьшен случайный разброс с 50 до 25 для более предсказуемой высоты
+          return cy - dist * 0.05 - Math.random() * 25; 
       });
-      velocitiesRef.current = new Array(numColumns).fill(0).map(() => Math.random() * 5);
+      velocitiesRef.current = new Array(numColumns).fill(0).map(() => Math.random() * 8 + 2); // Увеличена начальная скорость
   };
 
   const drawStaticCracks = (ctx: CanvasRenderingContext2D, paths: Position[][]) => {
