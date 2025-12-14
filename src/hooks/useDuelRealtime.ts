@@ -4,7 +4,7 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 import { useUserContext } from '@/contexts/UserContext';
 
 // ОПТИМИЗАЦИЯ: Условное логирование только в development
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = import.meta.env.DEV;
 const log = (...args: any[]) => {
   if (isDev) console.log(...args);
 };
@@ -16,14 +16,9 @@ const logWarn = (...args: any[]) => {
 };
 
 // 🆕 Helper для debug fetch (только в dev режиме)
+// УДАЛЕНО: debug fetch вызовы убраны для стабильности - они вызывали ERR_CONNECTION_REFUSED
 const debugFetch = (data: any) => {
-  if (isDev) {
-    fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    }).catch(() => {});
-  }
+  // Отключено для стабильности
 };
 
 // 🆕 Интерфейс для активных exploits

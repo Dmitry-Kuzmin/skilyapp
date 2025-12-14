@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { getImageUrl } from '@/utils/imageUtils';
 
 // ОПТИМИЗАЦИЯ: Условное логирование только в development
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = import.meta.env.DEV;
 const log = (...args: any[]) => {
   if (isDev) console.log(...args);
 };
@@ -92,6 +92,8 @@ export function useDuelGame({
   moveToNextQuestion,
   finishDuel,
 }: UseDuelGameProps) {
+  // КРИТИЧНО: Отслеживаем загрузку игроков для предотвращения race condition
+  const playersLoadedRef = useRef(false);
   // Hydrate questions from localStorage
   const hydrateQuestions = useCallback((questionList: any[]) => {
     log('[useDuelGame] 💧 Hydrating questions:', { 
@@ -138,7 +140,15 @@ export function useDuelGame({
   const syncPlayers = useCallback(async () => {
     try {
       const players = await fetchPlayers();
-      if (!players) return;
+      if (!players || !players.players || players.players.length === 0) {
+        logWarn('[useDuelGame] ⚠️ No players data received');
+        playersLoadedRef.current = false;
+        return;
+      }
+
+      // КРИТИЧНО: Помечаем что игроки загружены
+      playersLoadedRef.current = true;
+      log('[useDuelGame] ✅ Players loaded:', { count: players.players.length });
 
       setMyPlayerId(players.myPlayerId);
       setMyScore(players.myScore);
@@ -176,6 +186,7 @@ export function useDuelGame({
       }
     } catch (error) {
       logError('[useDuelGame] Error syncing players:', error);
+      playersLoadedRef.current = false;
     }
   }, [fetchPlayers, profileId, setMyPlayerId, setMyScore, setOpponentScore, setMyName, setOpponentName, setMyPhotoUrl, setOpponentPhotoUrl]);
 
@@ -187,6 +198,19 @@ export function useDuelGame({
       return;
     }
     
+    // КРИТИЧНО: Проверяем что игроки загружены перед загрузкой вопросов
+    // Это предотвращает race condition когда вопросы загружаются до создания игроков (особенно ботов)
+    if (!playersLoadedRef.current) {
+      logWarn('[useDuelGame] ⚠️ Players not loaded yet, waiting before loading questions...');
+      // Ждем немного и проверяем снова (игроки должны загрузиться из DuelBattleFullscreen)
+      // НЕ вызываем syncQuestions рекурсивно - просто ждем и продолжаем загрузку
+      await new Promise(resolve => setTimeout(resolve, 500));
+      if (!playersLoadedRef.current) {
+        logWarn('[useDuelGame] ⚠️ Players still not loaded after delay, attempting to load questions anyway');
+        // Пытаемся загрузить вопросы даже если игроки не загружены (fallback)
+      }
+    }
+    
     // КРИТИЧНО: Retry логика для загрузки вопросов (может быть race condition при создании дуэли)
     const maxRetries = 5;
     const retryDelay = 1000; // 1 секунда между попытками
@@ -194,7 +218,7 @@ export function useDuelGame({
     try {
       isLoadingRef.current = true;
       setLoading(true);
-      log('[useDuelGame] 🔄 Loading questions...', { duelId, profileId });
+      log('[useDuelGame] 🔄 Loading questions...', { duelId, profileId, playersLoaded: playersLoadedRef.current });
       
       let questionList: any[] | null = null;
       let lastError: any = null;

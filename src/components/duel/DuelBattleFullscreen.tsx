@@ -43,7 +43,7 @@ import { PoliceBackdoorAttack } from './attacks/PoliceBackdoorAttack';
 import { InputLagWrapper } from './attacks/InputLagWrapper';
 
 // ОПТИМИЗАЦИЯ: Условное логирование только в development
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = import.meta.env.DEV;
 const log = (...args: any[]) => {
   if (isDev) console.log(...args);
 };

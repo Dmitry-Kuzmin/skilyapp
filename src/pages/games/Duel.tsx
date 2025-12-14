@@ -46,15 +46,9 @@ const getRiskMultiplierPreview = (bet: number) => {
 const getSeasonBonusPreview = (bet: number) => bet > 0 ? Math.round(20 * getRiskMultiplierPreview(bet)) : 30;
 
 // 🆕 Helper для debug fetch (только в dev режиме)
-const isDev = process.env.NODE_ENV === 'development';
+// УДАЛЕНО: debug fetch вызовы убраны для стабильности - они вызывали ERR_CONNECTION_REFUSED
 const debugFetch = (data: any) => {
-  if (isDev) {
-    fetch('http://127.0.0.1:7242/ingest/18ed902d-87ff-4202-94b6-e2257615faa7', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    }).catch(() => {});
-  }
+  // Отключено для стабильности
 };
 
 export default function Duel() {
