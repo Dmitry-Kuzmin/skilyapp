@@ -41,24 +41,28 @@ export function initMonetag(): void {
     return;
   }
 
+  // Проверяем сразу
   if (isSDKLoaded()) {
-    console.log('[Monetag] SDK initialized successfully');
-  } else {
-    console.warn('[Monetag] SDK not loaded. Make sure script is included in index.html');
-    
-    // Ждем загрузки SDK (максимум 5 секунд)
-    let attempts = 0;
-    const checkInterval = setInterval(() => {
-      attempts++;
-      if (isSDKLoaded()) {
-        clearInterval(checkInterval);
-        console.log('[Monetag] SDK loaded successfully (delayed)');
-      } else if (attempts > 50) {
-        clearInterval(checkInterval);
-        console.error('[Monetag] SDK failed to load after 5 seconds - возможно, AdBlock заблокировал скрипт');
-      }
-    }, 100);
+    console.log('[Monetag] SDK initialized successfully, function:', SHOW_FUNCTION_NAME);
+    return;
   }
+
+  console.warn('[Monetag] SDK not loaded yet. Waiting for script to load...');
+  
+  // Ждем загрузки SDK (максимум 5 секунд)
+  let attempts = 0;
+  const checkInterval = setInterval(() => {
+    attempts++;
+    if (isSDKLoaded()) {
+      clearInterval(checkInterval);
+      console.log('[Monetag] SDK loaded successfully (delayed), function:', SHOW_FUNCTION_NAME);
+    } else if (attempts > 50) {
+      clearInterval(checkInterval);
+      console.error('[Monetag] SDK failed to load after 5 seconds');
+      console.error('[Monetag] Available window functions:', Object.keys(window).filter(k => k.startsWith('show_')));
+      console.error('[Monetag] Possible reasons: AdBlock, CORS, or script not loaded');
+    }
+  }, 100);
 }
 
 /**
@@ -92,9 +96,13 @@ export async function showMonetagRewardedVideo(): Promise<boolean> {
     const showFunction = (window as any)[SHOW_FUNCTION_NAME];
     
     if (typeof showFunction !== 'function') {
-      throw new Error(`Monetag function ${SHOW_FUNCTION_NAME} is not a function`);
+      console.error('[Monetag] Function not found:', SHOW_FUNCTION_NAME);
+      console.error('[Monetag] Available functions:', Object.keys(window).filter(k => k.startsWith('show_')));
+      throw new Error(`Monetag function ${SHOW_FUNCTION_NAME} is not a function. Возможно, SDK не загрузился или AdBlock заблокировал скрипт.`);
     }
 
+    console.log('[Monetag] Calling show function:', SHOW_FUNCTION_NAME);
+    
     // Monetag Interstitial: показываем рекламу
     // Promise резолвится, когда реклама закрыта пользователем
     await showFunction();
@@ -103,10 +111,22 @@ export async function showMonetagRewardedVideo(): Promise<boolean> {
     return true;
   } catch (error: any) {
     console.error('[Monetag] Error showing rewarded video:', error);
+    console.error('[Monetag] Error details:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack
+    });
     
     // Если это ошибка загрузки SDK (AdBlock), пробрасываем дальше
     if (error.isAdBlockError) {
       throw error;
+    }
+    
+    // Если функция не найдена - это тоже AdBlock ошибка
+    if (error.message?.includes('is not a function')) {
+      const adBlockError = new Error('Monetag SDK не загружен. Возможно, AdBlock заблокировал рекламу. Отключите AdBlock, чтобы получить награду.');
+      (adBlockError as any).isAdBlockError = true;
+      throw adBlockError;
     }
     
     // Другие ошибки (нет рекламы, пользователь закрыл слишком быстро)
