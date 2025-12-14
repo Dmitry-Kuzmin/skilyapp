@@ -492,25 +492,33 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
               body: {
                 user_id: profileId,
                 reward_type: 'slot_unlock',
-                reward_amount: 0,
                 metadata: { slot_number: 2 },
               }
             });
 
-            if (error) throw error;
+            if (error) {
+              console.error('[LoadoutSelector] Edge Function error:', error);
+              throw error;
+            }
 
-            if (data.success && data.client_action === 'unlock_temp_slot') {
+            console.log('[LoadoutSelector] Edge Function response:', data);
+
+            if (data?.success && data?.client_action === 'unlock_temp_slot') {
               setTempSlotUnlocked(2);
               setShowOverclockModal(false);
               toast.success('Слот 2 разблокирован на эту дуэль!');
+            } else {
+              console.error('[LoadoutSelector] Unexpected response:', data);
+              toast.error('Неожиданный ответ от сервера');
             }
           } catch (err: any) {
             console.error('[LoadoutSelector] Error claiming reward:', err);
-            toast.error(err.message || 'Не удалось разблокировать слот');
+            const errorMessage = err.message || err.error || 'Не удалось разблокировать слот';
+            toast.error(errorMessage);
           }
         }}
         title="OVERCLOCKING"
-        description="Посмотри видео и разблокируй слот на эту дуэль. Временный root-доступ..."
+        description="Посмотри рекламу и разблокируй слот на эту дуэль. Временный root-доступ..."
       />
     </Card>
     </>
