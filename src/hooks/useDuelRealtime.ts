@@ -303,7 +303,38 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         async (payload) => {
           markEvent();
           const newExploit = payload.new as any;
-          const currentMyPlayerId = myPlayerIdRef.current;
+          let currentMyPlayerId = myPlayerIdRef.current;
+          
+          // КРИТИЧНО: Если myPlayerId еще не установлен, пытаемся получить его из БД
+          if (!currentMyPlayerId && profileId && duelId) {
+            log('[useDuelRealtime] ⚠️ myPlayerId not set, fetching from DB...');
+            try {
+              const { data: playerData } = await supabase
+                .from('duel_players')
+                .select('id')
+                .eq('duel_id', duelId)
+                .eq('user_id', profileId)
+                .maybeSingle();
+              
+              if (playerData?.id) {
+                currentMyPlayerId = playerData.id;
+                myPlayerIdRef.current = playerData.id;
+                log('[useDuelRealtime] ✅ myPlayerId loaded from DB:', currentMyPlayerId);
+                
+                // После загрузки myPlayerId вызываем восстановление атак
+                // Это нужно для случаев, когда атака пришла до установки myPlayerId
+                if (newExploit.target_player_id === currentMyPlayerId && newExploit.is_active) {
+                  log('[useDuelRealtime] 🔄 Triggering exploit recovery after myPlayerId load');
+                  // Небольшая задержка для гарантии, что состояние обновилось
+                  setTimeout(() => {
+                    recoverActiveExploits();
+                  }, 100);
+                }
+              }
+            } catch (error) {
+              logError('[useDuelRealtime] Error loading myPlayerId:', error);
+            }
+          }
           
           // Детальное логирование для отладки
           log('[useDuelRealtime] 📦 Exploit INSERT received:', {
@@ -312,7 +343,8 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             myPlayerId: currentMyPlayerId,
             is_active: newExploit.is_active,
             duel_id: newExploit.duel_id,
-            matches: currentMyPlayerId === newExploit.target_player_id
+            matches: currentMyPlayerId === newExploit.target_player_id,
+            profileId: profileId
           });
           
           // Проверяем, что exploit направлен на нас
@@ -324,7 +356,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               const exploit: ActiveExploit = {
                 type: newExploit.exploit_type,
                 data: newExploit.effect_data || {},
-                receivedAt: new Date(newExploit.activated_at).getTime(),
+                receivedAt: new Date(newExploit.activated_at || new Date()).getTime(),
                 expiresAt: new Date(newExploit.expires_at).getTime(),
               };
 
@@ -346,11 +378,14 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               };
             });
           } else {
-            log('[useDuelRealtime] ⏭️ Exploit ignored (not for us):', {
+            log('[useDuelRealtime] ⏭️ Exploit ignored:', {
               exploit_type: newExploit.exploit_type,
               target_player_id: newExploit.target_player_id,
               myPlayerId: currentMyPlayerId,
-              is_active: newExploit.is_active
+              is_active: newExploit.is_active,
+              reason: !currentMyPlayerId ? 'myPlayerId not set' : 
+                      newExploit.target_player_id !== currentMyPlayerId ? 'not for us' :
+                      !newExploit.is_active ? 'not active' : 'unknown'
             });
           }
         }
@@ -392,7 +427,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       log('[useDuelRealtime] Cleaning up channel');
       supabase.removeChannel(duelChannel);
     };
-  }, [duelId]);
+  }, [duelId, profileId, recoverActiveExploits]);
 
   // 🆕 Функция восстановления состояния атак (State Recovery)
   const recoverActiveExploits = useCallback(async () => {

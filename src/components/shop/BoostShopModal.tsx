@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useContext, useMemo } from 'react';
+import { useState, useEffect, useRef, useContext, useMemo, useCallback } from 'react';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
@@ -716,7 +716,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     }
   };
 
-  const handleCoinPurchase = async (catalogKey: string) => {
+  // ОПТИМИЗАЦИЯ: useCallback для предотвращения лишних ререндеров дочерних компонентов
+  const handleCoinPurchase = useCallback(async (catalogKey: string) => {
     if (!profileId) {
       toast({
         title: t('boostShop.toasts.errorTitle'),
@@ -877,9 +878,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       });
       setPurchaseLoading(null);
     }
-  };
+  }, [profileId, purchaseLoading, paddle, showPaddlePayment, language, t]);
 
-  const handlePurchase = async (boost: Boost) => {
+  // ОПТИМИЗАЦИЯ: useCallback для предотвращения лишних ререндеров дочерних компонентов
+  const handlePurchase = useCallback(async (boost: Boost) => {
     // КРИТИЧНО: Защита от двойных кликов
     if (boostPurchaseLoading === boost.type) {
       console.warn('[BoostShop] Purchase already in progress for:', boost.type);
@@ -1132,7 +1134,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       // КРИТИЧНО: Всегда сбрасываем флаг загрузки, даже при ошибке
       setBoostPurchaseLoading(null);
     }
-  };
+  }, [profileId, coins, boostPurchaseLoading, enqueueOfflineAction, t, translateBoostField, dispatchUserEvent]);
 
   const regularBoosts = boosts.filter(b => !b.is_premium);
   const premiumBoosts = boosts.filter(b => b.is_premium);
@@ -1230,7 +1232,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 ].map(({ value, label, icon: Icon, color }) => (
                   <button
                     key={value}
-                    onClick={() => setCategoryFilter(value as typeof categoryFilter)}
+                    onClick={(e) => {
+                      // ОПТИМИЗАЦИЯ: Предотвращаем множественные клики
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setCategoryFilter(value as typeof categoryFilter);
+                    }}
                     className={cn(
                       "px-4 py-2 rounded-lg border text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2",
                       categoryFilter === value
@@ -1243,7 +1250,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                           : color === 'amber'
                           ? "bg-amber-500/10 border-amber-500/50 text-amber-400 shadow-[0_0_15px_rgba(255,215,0,0.3)]"
                           : "bg-indigo-500/10 border-indigo-500/50 text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.3)]"
-                        : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10"
+                        : "bg-zinc-100 dark:bg-white/5 border-zinc-300 dark:border-white/10 text-zinc-700 dark:text-white/60 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-white/10"
                     )}
                   >
                     <Icon className="w-3 h-3" />
@@ -1988,10 +1995,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
   // Кастомный заголовок в стиле BLACK MARKET
   const headerContent = (
-    <div className="px-4 md:px-6 py-3 md:py-4 border-b border-white/10 shrink-0 bg-black/95 backdrop-blur-xl relative pr-12 md:pr-14">
+    <div className="px-4 md:px-6 py-3 md:py-4 border-b border-zinc-300 dark:border-white/10 shrink-0 bg-zinc-50 dark:bg-black/95 backdrop-blur-xl relative pr-12 md:pr-14">
       {/* Noise texture */}
       <div 
-        className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none"
+        className="absolute inset-0 opacity-[0.02] dark:opacity-[0.02] mix-blend-overlay pointer-events-none"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
           backgroundRepeat: 'repeat'
@@ -2002,20 +2009,20 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         <div className="flex items-center gap-2 md:gap-3 min-w-0">
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-br from-red-500/30 to-orange-500/30 rounded-lg blur-sm" />
-            <ShoppingBag className="relative w-4 h-4 md:w-5 md:h-5 text-red-400 flex-shrink-0 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" />
+            <ShoppingBag className="relative w-4 h-4 md:w-5 md:h-5 text-red-500 dark:text-red-400 flex-shrink-0 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" />
           </div>
           <div>
-            <h2 className="text-base md:text-lg font-black truncate text-white tracking-wider font-mono">
+            <h2 className="text-base md:text-lg font-black truncate text-zinc-900 dark:text-white tracking-wider font-mono">
               BLACK MARKET
             </h2>
-            <p className="text-[10px] font-mono text-white/40 tracking-widest uppercase">
+            <p className="text-[10px] font-mono text-zinc-600 dark:text-white/40 tracking-widest uppercase">
               ILLEGAL SOFTWARE DEPOT
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
           <button 
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 border border-yellow-500/20 hover:border-yellow-500/40 transition-all cursor-pointer backdrop-blur-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-100 dark:bg-black/40 border border-yellow-500/40 dark:border-yellow-500/20 hover:border-yellow-500/60 dark:hover:border-yellow-500/40 transition-all cursor-pointer backdrop-blur-sm"
             onClick={async () => {
               setActiveTab('history');
               if (transactions.length === 0) {
@@ -2023,9 +2030,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               }
             }}
           >
-            <Coins className="w-4 h-4 text-yellow-500" />
-            <span className="text-sm font-bold font-mono text-yellow-500">{coins}</span>
-            <History className="w-3 h-3 text-white/40 ml-0.5" />
+            <Coins className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />
+            <span className="text-sm font-bold font-mono text-yellow-600 dark:text-yellow-500">{coins}</span>
+            <History className="w-3 h-3 text-zinc-500 dark:text-white/40 ml-0.5" />
           </button>
         </div>
       </div>
@@ -2210,12 +2217,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 setSelectedBoostForInspect(null);
               }
             }}
-            className="bg-[#0f1014] border-t border-white/10 max-h-[80vh] relative"
+            className="bg-white dark:bg-[#0f1014] border-t border-zinc-200 dark:border-white/10 max-h-[80vh] relative"
             contentClassName="p-6 relative"
           >
               {/* Noise texture */}
               <div 
-                className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none z-0"
+                className="absolute inset-0 opacity-[0.01] dark:opacity-[0.02] mix-blend-overlay pointer-events-none z-0"
                 style={{
                   backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
                   backgroundRepeat: 'repeat'
@@ -2227,7 +2234,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 <div className="flex items-center gap-4 mb-6">
                   <div className={cn(
                     "w-16 h-16 rounded-xl flex items-center justify-center",
-                    "bg-black/50 border border-white/10",
+                    "bg-zinc-100 dark:bg-black/50 border border-zinc-300 dark:border-white/10",
                     inspectTheme.buttonShadow
                   )}>
                     <span 
@@ -2244,14 +2251,14 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     </span>
                   </div>
                   <div className="flex-1">
-                    <div className="text-[10px] font-mono text-white/40 mb-1">
+                    <div className="text-[10px] font-mono text-zinc-600 dark:text-white/40 mb-1">
                       {inspectCategory === 'exploit' ? 'ATK' : inspectCategory === 'defense' ? 'DEF' : 'UTL'}_MODULE v.{inspectInventoryCount || 1}
                     </div>
-                    <h2 className="text-2xl font-bold text-white mb-1">
+                    <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">
                       {translateBoostField(inspectBoost.type, 'name', inspectBoost.name_ru)}
                     </h2>
                     {inspectInventoryCount > 0 && inspectIsConsumable && (
-                      <div className="text-xs font-mono text-emerald-400">
+                      <div className="text-xs font-mono text-emerald-600 dark:text-emerald-400">
                         STOCK: {inspectInventoryCount}
                       </div>
                     )}
@@ -2259,22 +2266,22 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 </div>
 
                 {/* Full Description */}
-                <div className="bg-white/5 p-4 rounded-xl border border-white/5 mb-6">
-                  <h3 className="text-xs font-mono text-white/40 mb-2 uppercase tracking-wider">System Effect</h3>
-                  <p className="text-sm text-white/80 leading-relaxed">
+                <div className="bg-zinc-50 dark:bg-white/5 p-4 rounded-xl border border-zinc-200 dark:border-white/5 mb-6">
+                  <h3 className="text-xs font-mono text-zinc-600 dark:text-white/40 mb-2 uppercase tracking-wider">System Effect</h3>
+                  <p className="text-sm text-zinc-700 dark:text-white/80 leading-relaxed">
                     {translateBoostField(inspectBoost.type, 'description', inspectBoost.description_ru)}
                   </p>
                 </div>
 
                 {/* Specs Grid */}
                 <div className="grid grid-cols-2 gap-3 mb-8">
-                  <div className="p-3 rounded-lg bg-black/30 border border-white/5">
-                    <div className="text-[10px] text-white/30 font-mono mb-1">DURATION</div>
-                    <div className="text-sm text-white font-bold">1 Round</div>
+                  <div className="p-3 rounded-lg bg-zinc-100 dark:bg-black/30 border border-zinc-200 dark:border-white/5">
+                    <div className="text-[10px] text-zinc-500 dark:text-white/30 font-mono mb-1">DURATION</div>
+                    <div className="text-sm text-zinc-900 dark:text-white font-bold">1 Round</div>
                   </div>
-                  <div className="p-3 rounded-lg bg-black/30 border border-white/5">
-                    <div className="text-[10px] text-white/30 font-mono mb-1">TARGET</div>
-                    <div className="text-sm text-white font-bold">
+                  <div className="p-3 rounded-lg bg-zinc-100 dark:bg-black/30 border border-zinc-200 dark:border-white/5">
+                    <div className="text-[10px] text-zinc-500 dark:text-white/30 font-mono mb-1">TARGET</div>
+                    <div className="text-sm text-zinc-900 dark:text-white font-bold">
                       {inspectCategory === 'exploit' ? 'Enemy System' : inspectCategory === 'defense' ? 'Self' : 'Both'}
                     </div>
                   </div>

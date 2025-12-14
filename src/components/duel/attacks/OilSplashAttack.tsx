@@ -11,13 +11,28 @@ type SpillPhase = 'warning' | 'cracking' | 'spilling' | 'cleaning' | 'completed'
 interface OilSplashAttackProps {
   isActive: boolean;
   onCleaned: () => void;
+  expiresAt?: number; // Время истечения атаки (timestamp в миллисекундах)
 }
 
-export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCleaned }) => {
+export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCleaned, expiresAt }) => {
+  // FAILSAFE: Проверка поддержки WebGL для старых устройств
+  const [webglSupported, setWebglSupported] = useState<boolean | null>(null);
+  
+  useEffect(() => {
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      setWebglSupported(!!gl);
+    } catch (e) {
+      setWebglSupported(false);
+    }
+  }, []);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const requestRef = useRef<number>(0);
   const checkIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const expireTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   const [cursorPos, setCursorPos] = useState<Position>({ x: -100, y: -100 });
   const [isCleaning, setIsCleaning] = useState(false);
@@ -42,6 +57,46 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   const crackCenterRef = useRef<Position>({ x: 0, y: 0 });
   const crackPathsRef = useRef<Position[][]>([]);
 
+  // КРИТИЧНО: Автоматическое завершение по истечении времени
+  useEffect(() => {
+    if (!isActive || !expiresAt) return;
+
+    const now = Date.now();
+    const remainingTime = expiresAt - now;
+
+    // Если время уже истекло - завершаем сразу
+    if (remainingTime <= 0) {
+      console.log('[OilSplashAttack] ⏰ Attack expired, cleaning up immediately');
+      onCleaned();
+      return;
+    }
+
+    // Если осталось мало времени (< 1 секунды) - завершаем быстро
+    if (remainingTime < 1000) {
+      console.log('[OilSplashAttack] ⏰ Attack expires soon, cleaning up in', remainingTime, 'ms');
+      expireTimeoutRef.current = setTimeout(() => {
+        onCleaned();
+      }, remainingTime);
+      return () => {
+        if (expireTimeoutRef.current) clearTimeout(expireTimeoutRef.current);
+      };
+    }
+
+    // Устанавливаем таймер на оставшееся время
+    console.log('[OilSplashAttack] ⏰ Attack will expire in', Math.round(remainingTime / 1000), 'seconds');
+    expireTimeoutRef.current = setTimeout(() => {
+      console.log('[OilSplashAttack] ⏰ Attack expired, cleaning up');
+      onCleaned();
+    }, remainingTime);
+
+    return () => {
+      if (expireTimeoutRef.current) {
+        clearTimeout(expireTimeoutRef.current);
+        expireTimeoutRef.current = null;
+      }
+    };
+  }, [isActive, expiresAt, onCleaned]);
+
   // --- 1. Canvas Setup (Run Once & Resize) ---
   useEffect(() => {
     if (!isActive) return;
@@ -61,6 +116,7 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
         window.removeEventListener('resize', handleResize);
         if (requestRef.current) cancelAnimationFrame(requestRef.current);
         if (checkIntervalRef.current) clearInterval(checkIntervalRef.current);
+        if (expireTimeoutRef.current) clearTimeout(expireTimeoutRef.current);
     };
   }, [isActive]);
 
@@ -418,6 +474,39 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   };
 
   if (!isActive) return null;
+
+  // FAILSAFE: Если WebGL не поддерживается - показываем простую заглушку
+  if (webglSupported === false) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95">
+        <div className="text-center space-y-4">
+          <h1 className="text-red-500 font-mono text-4xl font-black animate-pulse" style={{ textShadow: '0 0 20px rgba(255,0,0,0.8)' }}>
+            VISOR BREACH
+          </h1>
+          <p className="text-red-400 font-mono text-sm uppercase tracking-widest">
+            SYSTEM COMPROMISED
+          </p>
+          <div className="mt-8">
+            <button
+              onClick={onCleaned}
+              className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-mono font-bold rounded-lg transition-colors"
+            >
+              ACKNOWLEDGE
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Если проверка еще не завершена - показываем загрузку
+  if (webglSupported === null) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95">
+        <div className="text-red-500 font-mono text-xl animate-pulse">INITIALIZING...</div>
+      </div>
+    );
+  }
 
   return (
     <div 

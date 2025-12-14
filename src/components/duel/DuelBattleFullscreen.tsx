@@ -1801,6 +1801,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             {screenInjector && !activeExploits.get('screen_injector')?.passed && (
               <OilSplashAttack
                 isActive={true}
+                expiresAt={screenInjector.expiresAt}
                 onCleaned={() => {
                   setActiveExploits(prev => {
                     const updated = new Map(prev);

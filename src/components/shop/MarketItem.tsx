@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -44,7 +45,8 @@ const categoryIcons = {
   utility: Wand2,
 };
 
-export function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect, category, isPurchasing = false }: MarketItemProps) {
+// ОПТИМИЗАЦИЯ: React.memo для предотвращения лишних ререндеров
+export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect, category, isPurchasing = false }: MarketItemProps) {
   const { t } = useLanguage();
   const canAfford = coins >= boost.cost_coins;
   const boostCategory = category || getBoostCategory(boost.type);
@@ -117,18 +119,18 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect
       className={cn(
         "group relative flex flex-col sm:flex-row sm:items-center gap-3",
         "p-3 sm:p-3 rounded-xl overflow-hidden",
-        "bg-zinc-900 dark:bg-[#0f1014] border transition-all duration-300",
-        "border-zinc-800 dark:border-zinc-800",
+        "bg-white dark:bg-zinc-900 border transition-all duration-300",
+        "border-zinc-200 dark:border-zinc-800",
         theme.border,
         theme.hoverBorder,
         theme.hoverGlow,
-        "hover:bg-zinc-800 dark:hover:bg-[#15161a]",
+        "hover:bg-zinc-50 dark:hover:bg-zinc-800",
         onInspect && "cursor-pointer"
       )}
     >
       {/* Background Grid Pattern (еле заметный) */}
       <div 
-        className="absolute inset-0 opacity-[0.015] dark:opacity-[0.02] mix-blend-overlay pointer-events-none"
+        className="absolute inset-0 opacity-[0.01] dark:opacity-[0.02] mix-blend-overlay pointer-events-none"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
           backgroundRepeat: 'repeat'
@@ -161,8 +163,8 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect
       <div className={cn(
         "relative z-10 flex-shrink-0",
         "w-12 h-12 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center",
-        "bg-black/50 dark:bg-black/50 border border-white/10 dark:border-white/5",
-        theme.iconBg || "shadow-[inset_0_0_15px_rgba(0,0,0,0.3)]"
+        "bg-zinc-100 dark:bg-black/50 border border-zinc-300 dark:border-white/10",
+        theme.iconBg || "shadow-[inset_0_0_15px_rgba(0,0,0,0.1)] dark:shadow-[inset_0_0_15px_rgba(0,0,0,0.3)]"
       )}>
         <span 
           className={cn("text-xl", theme.icon)}
@@ -181,10 +183,10 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect
       {/* Центральный контент: Название + Описание */}
       <div className="relative z-10 flex-1 min-w-0 text-left w-full sm:w-auto">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
-          <h3 className="text-zinc-100 dark:text-white font-bold text-sm sm:text-sm leading-tight break-words sm:truncate group-hover:text-white transition-colors">
+          <h3 className="text-zinc-900 dark:text-white font-bold text-sm sm:text-sm leading-tight break-words sm:truncate group-hover:text-zinc-950 dark:group-hover:text-white transition-colors">
             {displayName}
           </h3>
-          <div className="px-1.5 py-0.5 rounded bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 text-[9px] font-mono text-zinc-400 dark:text-white/40 flex-shrink-0">
+          <div className="px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-white/5 border border-zinc-300 dark:border-white/10 text-[9px] font-mono text-zinc-600 dark:text-white/40 flex-shrink-0">
             v.{level}
           </div>
           {/* STOCK Badge (Индикатор запаса для расходников) - рядом с версией */}
@@ -209,11 +211,11 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect
           )}
         </div>
         <div className="relative">
-          <p className="text-xs text-zinc-400 dark:text-white/60 line-clamp-2 sm:line-clamp-1 leading-relaxed break-words">
+          <p className="text-xs text-zinc-600 dark:text-white/60 line-clamp-2 sm:line-clamp-1 leading-relaxed break-words">
             {displayDescription}
           </p>
           {/* Градиент внизу текста, намекающий "читай дальше" */}
-          <div className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-zinc-900 dark:from-[#0f1014] to-transparent pointer-events-none sm:hidden" />
+          <div className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-white dark:from-[#0f1014] to-transparent pointer-events-none sm:hidden" />
         </div>
         <div className="flex items-center gap-2 mt-1">
           <span className={cn(
@@ -222,7 +224,7 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect
           )}>
             {boostCategory === 'exploit' ? 'ATK' : boostCategory === 'defense' ? 'DEF' : 'UTL'}
           </span>
-          <div className="h-0.5 w-8 rounded-full bg-zinc-300/30 dark:bg-white/10 overflow-hidden">
+          <div className="h-0.5 w-8 rounded-full bg-zinc-300 dark:bg-white/10 overflow-hidden">
             <div className={cn(
               "h-full w-2/3", theme.powerBar,
               "shadow-[0_0_6px_currentColor]"
@@ -232,10 +234,10 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect
       </div>
 
       {/* Правая часть: Цена + Кнопка */}
-      <div className="relative z-10 flex items-center justify-between sm:justify-end gap-2 flex-shrink-0 w-full sm:w-auto pt-2 sm:pt-0 border-t border-zinc-800 dark:border-zinc-800 sm:border-0">
-        <div className="font-mono text-yellow-500 dark:text-yellow-500 font-bold flex items-center gap-1 text-sm">
-          <Coins className="w-4 h-4 text-yellow-500" />
-          <span className="text-yellow-500">{boost.cost_coins}</span>
+      <div className="relative z-10 flex items-center justify-between sm:justify-end gap-2 flex-shrink-0 w-full sm:w-auto pt-2 sm:pt-0 border-t border-zinc-200 dark:border-zinc-800 sm:border-0">
+        <div className="font-mono text-yellow-600 dark:text-yellow-500 font-bold flex items-center gap-1 text-sm">
+          <Coins className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />
+          <span className="text-yellow-600 dark:text-yellow-500">{boost.cost_coins}</span>
         </div>
         
         {boost.is_premium ? (
@@ -250,7 +252,7 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect
         ) : !canAfford ? (
           <div className={cn(
             "px-2.5 py-1.5 rounded-lg",
-            "bg-white/10 dark:bg-white/5 text-zinc-500 dark:text-white/40 border border-zinc-300 dark:border-white/10",
+            "bg-zinc-100 dark:bg-white/5 text-zinc-500 dark:text-white/40 border border-zinc-300 dark:border-white/10",
             "text-[10px] font-bold tracking-wider"
           )}>
             INSUFFICIENT
@@ -277,7 +279,7 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect
             disabled={isPurchasing}
             className={cn(
               "flex items-center gap-1.5 px-3 py-1.5 rounded-lg",
-              "bg-white/10 dark:bg-white/5 hover:bg-white/20 dark:hover:bg-white/10",
+              "bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10",
               "border border-zinc-300 dark:border-white/10 hover:border-zinc-400 dark:hover:border-white/30",
               "transition-all active:scale-95",
               "text-[10px] font-bold tracking-wider text-zinc-900 dark:text-white",
@@ -304,5 +306,16 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect
       )}
     </motion.div>
   );
-}
+}, (prevProps, nextProps) => {
+  // ОПТИМИЗАЦИЯ: Кастомная функция сравнения для предотвращения лишних ререндеров
+  return (
+    prevProps.boost.id === nextProps.boost.id &&
+    prevProps.inventoryCount === nextProps.inventoryCount &&
+    prevProps.coins === nextProps.coins &&
+    prevProps.category === nextProps.category &&
+    prevProps.isPurchasing === nextProps.isPurchasing &&
+    prevProps.onPurchase === nextProps.onPurchase &&
+    prevProps.onInspect === nextProps.onInspect
+  );
+});
 
