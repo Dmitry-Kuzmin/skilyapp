@@ -28,8 +28,6 @@ function isSDKLoaded(): boolean {
   if (typeof window === 'undefined') {
     return false;
   }
-
-  // Проверяем, существует ли функция show_10323437
   return typeof (window as any)[SHOW_FUNCTION_NAME] === 'function';
 }
 
@@ -43,7 +41,6 @@ export function initMonetag(): void {
     return;
   }
 
-  // Проверяем, загружен ли SDK
   if (isSDKLoaded()) {
     console.log('[Monetag] SDK initialized successfully');
   } else {
@@ -58,7 +55,7 @@ export function initMonetag(): void {
         console.log('[Monetag] SDK loaded successfully (delayed)');
       } else if (attempts > 50) {
         clearInterval(checkInterval);
-        console.error('[Monetag] SDK failed to load after 5 seconds');
+        console.error('[Monetag] SDK failed to load after 5 seconds - возможно, AdBlock заблокировал скрипт');
       }
     }, 100);
   }
@@ -79,9 +76,7 @@ export async function showMonetagRewardedVideo(): Promise<boolean> {
 
   // Проверяем, загружен ли SDK
   if (!isSDKLoaded()) {
-    // Пытаемся инициализировать еще раз
     initMonetag();
-    
     // Ждем немного (500ms) на случай, если SDK загружается асинхронно
     await new Promise(resolve => setTimeout(resolve, 500));
     
@@ -119,4 +114,3 @@ export async function showMonetagRewardedVideo(): Promise<boolean> {
     return false;
   }
 }
-
