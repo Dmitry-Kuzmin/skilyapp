@@ -20,6 +20,7 @@ interface MarketItemProps {
   onPurchase: () => void;
   onInspect?: () => void;
   category?: 'utility' | 'exploit' | 'defense';
+  isPurchasing?: boolean; // Флаг загрузки покупки
 }
 
 // Определяем категорию по типу буста
@@ -43,7 +44,7 @@ const categoryIcons = {
   utility: Wand2,
 };
 
-export function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect, category }: MarketItemProps) {
+export function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect, category, isPurchasing = false }: MarketItemProps) {
   const { t } = useLanguage();
   const canAfford = coins >= boost.cost_coins;
   const boostCategory = category || getBoostCategory(boost.type);
@@ -54,8 +55,8 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect
   // Премиум и другие перманентные предметы - не расходники
   const isConsumable = !boost.is_premium; // Пока все не-премиум бусты считаем расходниками
 
-  // Логика блокировки кнопки: Блокируем ТОЛЬКО если это не расходник и он уже куплен
-  const isButtonDisabled = !isConsumable && inventoryCount > 0;
+  // Логика блокировки кнопки: Блокируем если это не расходник и он уже куплен, ИЛИ идет покупка
+  const isButtonDisabled = (!isConsumable && inventoryCount > 0) || isPurchasing;
 
   // Цветовые схемы для категорий
   const theme = boostCategory === 'exploit'
@@ -269,18 +270,22 @@ export function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect
           <button
             onClick={(e) => {
               e.stopPropagation(); // Предотвращаем открытие модалки при клике на кнопку
-              onPurchase();
+              if (!isPurchasing) {
+                onPurchase();
+              }
             }}
+            disabled={isPurchasing}
             className={cn(
               "flex items-center gap-1.5 px-3 py-1.5 rounded-lg",
               "bg-white/10 dark:bg-white/5 hover:bg-white/20 dark:hover:bg-white/10",
               "border border-zinc-300 dark:border-white/10 hover:border-zinc-400 dark:hover:border-white/30",
               "transition-all active:scale-95",
-              "text-[10px] font-bold tracking-wider text-zinc-900 dark:text-white cursor-pointer"
+              "text-[10px] font-bold tracking-wider text-zinc-900 dark:text-white",
+              isPurchasing ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             )}
           >
-            <span>GET</span>
-            <Download size={12} className="text-zinc-700 dark:text-white/70" />
+            <span>{isPurchasing ? '...' : 'GET'}</span>
+            {!isPurchasing && <Download size={12} className="text-zinc-700 dark:text-white/70" />}
           </button>
         )}
       </div>

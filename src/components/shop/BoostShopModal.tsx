@@ -129,6 +129,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const [paddle, setPaddle] = useState<Paddle | null>(null);
   const [paddleLoading, setPaddleLoading] = useState(false);
   const [purchaseLoading, setPurchaseLoading] = useState<string | null>(null); // catalogKey покупки в процессе
+  const [boostPurchaseLoading, setBoostPurchaseLoading] = useState<string | null>(null); // boost.type покупки в процессе
 
   // Инициализация Paddle SDK через глобальную утилиту (предзагружается при старте приложения)
   useEffect(() => {
@@ -873,6 +874,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   };
 
   const handlePurchase = async (boost: Boost) => {
+    // КРИТИЧНО: Защита от двойных кликов
+    if (boostPurchaseLoading === boost.type) {
+      console.warn('[BoostShop] Purchase already in progress for:', boost.type);
+      return;
+    }
+
     if (!profileId) {
       toast({
         title: t('boostShop.toasts.errorTitle'),
@@ -892,6 +899,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       sounds.wrongAnswer();
       return;
     }
+
+    // Устанавливаем флаг загрузки сразу
+    setBoostPurchaseLoading(boost.type);
 
     try {
       // Проверяем, что profileId действительно существует в базе
@@ -1111,6 +1121,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           : errorMessage || t('boostShop.toasts.purchaseErrorDescription'),
         variant: 'destructive',
       });
+    } finally {
+      // КРИТИЧНО: Всегда сбрасываем флаг загрузки, даже при ошибке
+      setBoostPurchaseLoading(null);
+    }
       haptics.wrongAnswer();
     }
   };
@@ -1248,6 +1262,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                         setSelectedBoostForInspect(boost);
                       }}
                       category={getBoostCategory(boost.type)}
+                      isPurchasing={boostPurchaseLoading === boost.type}
                     />
                   ))}
                   {filteredPremiumBoosts.map((boost) => (
@@ -1262,6 +1277,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                         setSelectedBoostForInspect(boost);
                       }}
                       category={getBoostCategory(boost.type)}
+                      isPurchasing={boostPurchaseLoading === boost.type}
                     />
                   ))}
                 </div>

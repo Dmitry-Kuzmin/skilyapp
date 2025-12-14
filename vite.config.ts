@@ -108,18 +108,28 @@ export default defineConfig(({ mode }) => {
             },
           },
           {
-            // Внешние JS/CSS (CDN) - CacheFirst
-            urlPattern: /^https?:\/\/.*\.(js|css)$/,
-            handler: 'CacheFirst',
+            // КРИТИЧНО: НЕ кэшируем внешние скрипты (telegram.org, CDN) - они вызывают opaque responses
+            // Используем NetworkOnly для внешних JS/CSS, чтобы избежать CORS проблем
+            urlPattern: ({ url }) => {
+              // Исключаем внешние скрипты (особенно telegram.org)
+              return url.origin !== location.origin && 
+                     (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'));
+            },
+            handler: 'NetworkOnly', // НЕ кэшируем внешние скрипты
             options: {
-              cacheName: 'external-assets',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 дней
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
+              cacheName: 'external-assets-skip', // Не используется, но нужен для конфига
+            },
+          },
+          {
+            // КРИТИЧНО: НЕ кэшируем Supabase API запросы (/rest/, /functions/) - они вызывают CORS проблемы
+            // React Query уже кэширует эти запросы на уровне приложения
+            urlPattern: ({ url }) => {
+              return url.hostname.includes('supabase.co') && 
+                     (url.pathname.includes('/rest/') || url.pathname.includes('/functions/'));
+            },
+            handler: 'NetworkOnly', // НЕ кэшируем API запросы через Service Worker
+            options: {
+              cacheName: 'supabase-api-skip', // Не используется, но нужен для конфига
             },
           },
           {

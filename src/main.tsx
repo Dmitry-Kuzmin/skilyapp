@@ -213,6 +213,16 @@ window.addEventListener('error', (event) => {
 });
 
 window.addEventListener('unhandledrejection', (event) => {
+  const reason = event.reason;
+  const reasonStr = reason instanceof Error ? reason.message : String(reason);
+  
+  // КРИТИЧНО: Игнорируем ошибки Monetag "Failed to verify" - это нормально для Interstitial
+  if (reasonStr?.includes('Failed to verify') || reasonStr?.includes('verify')) {
+    console.warn('[Unhandled Rejection] Monetag verification error (ignored):', reasonStr);
+    event.preventDefault(); // Предотвращаем вывод в консоль как ошибку
+    return;
+  }
+  
   const errorData = {
     reason: event.reason,
     promise: event.promise,
