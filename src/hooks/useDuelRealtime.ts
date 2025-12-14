@@ -369,6 +369,16 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           filter: `duel_id=eq.${duelId}`,
         },
         async (payload) => {
+          // КРИТИЧНО: Логируем ВСЕ события, даже если они не для нас
+          console.log('[useDuelRealtime] 🔔 postgres_changes event received for duel_active_exploits:', {
+            eventType: payload.eventType,
+            table: payload.table,
+            new: payload.new,
+            old: payload.old,
+            duelId,
+            timestamp: new Date().toISOString()
+          });
+          
           markEvent();
           const newExploit = payload.new as any;
           let currentMyPlayerId = myPlayerIdRef.current;
@@ -507,8 +517,28 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         }
       )
       .subscribe((status) => {
+        // КРИТИЧНО: Логируем статус подписки для отладки
+        console.log('[useDuelRealtime] 📡 Channel subscription status:', {
+          status,
+          duelId,
+          channelName: `duel_${duelId}`,
+          timestamp: new Date().toISOString()
+        });
+        
         if (status === 'SUBSCRIBED') {
+          console.log('[useDuelRealtime] ✅ Successfully subscribed to Realtime channel!');
           setConnectionStatus('connected');
+          
+          // КРИТИЧНО: Проверяем активные exploits сразу после подписки
+          console.log('[useDuelRealtime] 🔄 Calling recoverActiveExploits after subscription...');
+          if (myPlayerId && profileId) {
+            recoverActiveExploits();
+          } else {
+            console.warn('[useDuelRealtime] ⚠️ Cannot recover exploits: myPlayerId or profileId missing', {
+              myPlayerId,
+              profileId
+            });
+          }
           
           // Check current duel status immediately after subscription
           const checkStatus = async () => {
