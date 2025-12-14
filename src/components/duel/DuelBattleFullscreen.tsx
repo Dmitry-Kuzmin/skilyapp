@@ -99,14 +99,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   
   // 🆕 Обработка активных exploits из Realtime
   useEffect(() => {
-    // КРИТИЧНО: Детальное логирование для отладки в Telegram
-    if (isDev) {
-      console.log('[DuelBattleFullscreen] 🔄 activeExploits update:', {
-        stateActiveExploits: state.activeExploits,
-        currentActiveExploits: Array.from(activeExploits.entries()),
-        screenInjector: state.activeExploits?.find(e => e.type === 'screen_injector')
-      });
-    }
+    // КРИТИЧНО: Детальное логирование для отладки в Telegram (ВСЕГДА, не только в dev)
+    console.log('[DuelBattleFullscreen] 🔄 activeExploits update:', {
+      stateActiveExploits: state.activeExploits,
+      stateActiveExploitsLength: state.activeExploits?.length || 0,
+      stateActiveExploitsTypes: state.activeExploits?.map(e => e.type) || [],
+      currentActiveExploits: Array.from(activeExploits.entries()),
+      screenInjector: state.activeExploits?.find(e => e.type === 'screen_injector'),
+      screenInjectorDetails: state.activeExploits?.find(e => e.type === 'screen_injector') ? {
+        type: state.activeExploits.find(e => e.type === 'screen_injector')?.type,
+        expiresAt: state.activeExploits.find(e => e.type === 'screen_injector')?.expiresAt,
+        expiresAtISO: new Date(state.activeExploits.find(e => e.type === 'screen_injector')?.expiresAt || 0).toISOString(),
+        receivedAt: state.activeExploits.find(e => e.type === 'screen_injector')?.receivedAt
+      } : null
+    });
 
     if (!state.activeExploits || state.activeExploits.length === 0) {
       setActiveExploits(new Map());

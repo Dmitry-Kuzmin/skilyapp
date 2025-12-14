@@ -460,17 +460,30 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
                 return prev;
               }
 
+              const newState = {
+                ...prev,
+                activeExploits: [...(prev.activeExploits || []), exploit]
+              };
+              
               console.log('[useDuelRealtime] ✅ New exploit added to state:', newExploit.exploit_type, {
                 type: exploit.type,
                 expiresAt: new Date(exploit.expiresAt).toISOString(),
                 receivedAt: new Date(exploit.receivedAt).toISOString(),
-                totalExploits: (prev.activeExploits || []).length + 1
+                totalExploits: newState.activeExploits.length,
+                allExploitTypes: newState.activeExploits.map(e => e.type)
               });
+              
+              // КРИТИЧНО: Логируем полное состояние после обновления
+              console.log('[useDuelRealtime] 📊 State after exploit addition:', {
+                activeExploitsCount: newState.activeExploits.length,
+                activeExploits: newState.activeExploits.map(e => ({
+                  type: e.type,
+                  expiresAt: new Date(e.expiresAt).toISOString()
+                }))
+              });
+              
               log('[useDuelRealtime] ✅ New exploit added to state:', newExploit.exploit_type);
-              return {
-                ...prev,
-                activeExploits: [...(prev.activeExploits || []), exploit]
-              };
+              return newState;
             });
           } else {
             const reason = !currentMyPlayerId ? 'myPlayerId not set' : 
