@@ -9,7 +9,8 @@ CREATE OR REPLACE FUNCTION public.use_boost_attack(
   p_duel_id uuid,
   p_boost_type text,
   p_duel_question_id uuid DEFAULT NULL,
-  p_language text DEFAULT NULL
+  p_language text DEFAULT NULL,
+  p_profile_id uuid DEFAULT NULL  -- Опциональный параметр для надежности
 )
 RETURNS json
 LANGUAGE plpgsql
@@ -47,8 +48,26 @@ BEGIN
     v_telegram_id := NULL;
   END;
   
-  RAISE NOTICE '[use_boost_attack] 🚀 Function called: duel_id=%, boost_type=%, question_id=%, language=%, auth_uid=%, telegram_id=%', 
-    p_duel_id, p_boost_type, p_duel_question_id, p_language, v_auth_uid, v_telegram_id;
+  RAISE NOTICE '[use_boost_attack] 🚀 Function called: duel_id=%, boost_type=%, question_id=%, language=%, auth_uid=%, telegram_id=%, p_profile_id=%', 
+    p_duel_id, p_boost_type, p_duel_question_id, p_language, v_auth_uid, v_telegram_id, p_profile_id;
+  
+  -- ============================================
+  -- ШАГ 0: Если передан явный p_profile_id, используем его (самый надежный способ)
+  -- ============================================
+  IF p_profile_id IS NOT NULL AND v_attacker_player_id IS NULL THEN
+    SELECT id INTO v_attacker_player_id
+    FROM duel_players
+    WHERE duel_id = p_duel_id
+      AND user_id = p_profile_id
+      AND is_bot = false
+    LIMIT 1;
+    
+    IF v_attacker_player_id IS NOT NULL THEN
+      v_profile_id := p_profile_id;
+      RAISE NOTICE '[use_boost_attack] ✅ Found player via Strategy 0 (explicit p_profile_id): player_id=%, profile_id=%', 
+        v_attacker_player_id, v_profile_id;
+    END IF;
+  END IF;
   
   -- ============================================
   -- ШАГ 1: ПОИСК ИГРОКА-АТАКУЮЩЕГО (МАКСИМАЛЬНО НАДЕЖНО)
@@ -131,19 +150,75 @@ BEGIN
     END IF;
   END IF;
   
+  -- СТРАТЕГИЯ 5: Отчаянная попытка - ищем ВСЕ профили пользователя и проверяем каждого
+  IF v_attacker_player_id IS NULL THEN
+    DECLARE
+      v_temp_profile_id uuid;
+      v_temp_player_id uuid;
+    BEGIN
+      -- Пробуем найти ВСЕ профили, которые могут принадлежать этому пользователю
+      FOR v_temp_profile_id IN 
+        SELECT id FROM profiles 
+        WHERE (v_auth_uid IS NOT NULL AND user_id = v_auth_uid)
+           OR (v_telegram_id IS NOT NULL AND telegram_id = v_telegram_id)
+        ORDER BY created_at DESC
+      LOOP
+        -- Для каждого профиля проверяем, есть ли игрок в дуэли
+        SELECT id INTO v_temp_player_id
+        FROM duel_players
+        WHERE duel_id = p_duel_id
+          AND user_id = v_temp_profile_id
+          AND is_bot = false
+        LIMIT 1;
+        
+        IF v_temp_player_id IS NOT NULL THEN
+          v_attacker_player_id := v_temp_player_id;
+          v_profile_id := v_temp_profile_id;
+          RAISE NOTICE '[use_boost_attack] ✅ Found player via Strategy 5 (brute force profile search): player_id=%, profile_id=%', 
+            v_attacker_player_id, v_profile_id;
+          EXIT; -- Выходим из цикла
+        END IF;
+      END LOOP;
+    END;
+  END IF;
+  
   -- Если всё ещё не нашли игрока, возвращаем детальную ошибку
   IF v_attacker_player_id IS NULL THEN
-    RAISE NOTICE '[use_boost_attack] ❌ Attacker not found after all strategies: auth_uid=%, telegram_id=%, duel_id=%', 
-      v_auth_uid, v_telegram_id, p_duel_id;
-    
-    -- Дополнительная диагностика: выводим всех игроков в дуэли
-    RAISE NOTICE '[use_boost_attack] 🔍 Diagnostic: All players in duel %', p_duel_id;
-    FOR v_attacker_player_id IN 
-      SELECT id FROM duel_players WHERE duel_id = p_duel_id
-    LOOP
-      RAISE NOTICE '[use_boost_attack]   - Player ID: %, user_id: %', 
-        v_attacker_player_id, (SELECT user_id FROM duel_players WHERE id = v_attacker_player_id);
-    END LOOP;
+    DECLARE
+      v_diagnostic_player_id uuid;
+      v_diagnostic_user_id uuid;
+      v_all_players jsonb := '[]'::jsonb;
+    BEGIN
+      RAISE NOTICE '[use_boost_attack] ❌ Attacker not found after all 5 strategies: auth_uid=%, telegram_id=%, duel_id=%', 
+        v_auth_uid, v_telegram_id, p_duel_id;
+      
+      -- Дополнительная диагностика: выводим всех игроков в дуэли (исправленный цикл)
+      RAISE NOTICE '[use_boost_attack] 🔍 Diagnostic: All players in duel %', p_duel_id;
+      FOR v_diagnostic_player_id, v_diagnostic_user_id IN 
+        SELECT id, user_id FROM duel_players WHERE duel_id = p_duel_id
+      LOOP
+        RAISE NOTICE '[use_boost_attack]   - Player ID: %, user_id (profile.id): %', 
+          v_diagnostic_player_id, v_diagnostic_user_id;
+        v_all_players := v_all_players || jsonb_build_object(
+          'player_id', v_diagnostic_player_id::text,
+          'user_id', v_diagnostic_user_id::text
+        );
+      END LOOP;
+      
+      -- Выводим все профили, которые могут принадлежать пользователю
+      DECLARE
+        v_diag_profile_id uuid;
+      BEGIN
+        RAISE NOTICE '[use_boost_attack] 🔍 Diagnostic: Profiles for auth_uid=% or telegram_id=%', v_auth_uid, v_telegram_id;
+        FOR v_diag_profile_id IN 
+          SELECT id FROM profiles 
+          WHERE (v_auth_uid IS NOT NULL AND user_id = v_auth_uid)
+             OR (v_telegram_id IS NOT NULL AND telegram_id = v_telegram_id)
+        LOOP
+          RAISE NOTICE '[use_boost_attack]   - Profile ID: %', v_diag_profile_id;
+        END LOOP;
+      END;
+    END;
     
     RETURN json_build_object(
       'success', false,
@@ -152,7 +227,8 @@ BEGIN
         'auth_uid', COALESCE(v_auth_uid::text, 'null'),
         'telegram_id', COALESCE(v_telegram_id::text, 'null'),
         'duel_id', p_duel_id::text,
-        'profile_found', (v_profile_id IS NOT NULL)::text
+        'profile_found', (v_profile_id IS NOT NULL)::text,
+        'strategies_tried', 5
       )
     );
   END IF;
