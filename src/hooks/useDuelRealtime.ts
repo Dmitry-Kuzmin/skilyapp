@@ -737,6 +737,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
   }, [duelId, profileId, recoverActiveExploits]);
 
   // 🆕 Вызов восстановления при подключении
+  // ИЗМЕНЕНО: Убрали проверку duelStarted, так как exploits могут быть применены до старта дуэли
   useEffect(() => {
     console.log('[useDuelRealtime] 🔍 useEffect для recoverActiveExploits:', {
       connectionStatus,
@@ -744,10 +745,11 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       myPlayerId,
       profileId,
       duelId,
-      allConditionsMet: connectionStatus === 'connected' && state.duelStarted && myPlayerId && profileId
+      allConditionsMet: connectionStatus === 'connected' && myPlayerId && profileId
     });
     
-    if (connectionStatus === 'connected' && state.duelStarted && myPlayerId && profileId) {
+    // ИЗМЕНЕНО: Убрали проверку state.duelStarted - exploits могут быть применены в любой момент
+    if (connectionStatus === 'connected' && myPlayerId && profileId) {
       console.log('[useDuelRealtime] ✅✅✅ All conditions met, calling recoverActiveExploits ✅✅✅');
       log('[useDuelRealtime] Connection established, recovering exploits...');
       recoverActiveExploits();
@@ -759,7 +761,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         hasProfileId: !!profileId
       });
     }
-  }, [connectionStatus, state.duelStarted, myPlayerId, profileId, recoverActiveExploits, duelId]);
+  }, [connectionStatus, myPlayerId, profileId, recoverActiveExploits, duelId]);
 
   // 🆕 Обработка broadcast событий для exploits
   useEffect(() => {
