@@ -256,6 +256,73 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           return updatedState;
         });
       } else {
+        // КРИТИЧНО: Fallback - проверяем exploits по user_id если myPlayerId не совпадает
+        console.warn('[useDuelRealtime] ⚠️⚠️⚠️ No active exploits found for myPlayerId, trying fallback by user_id ⚠️⚠️⚠️:', {
+          duelId,
+          targetPlayerId,
+          myPlayerId,
+          profileId,
+          currentTime: new Date().toISOString()
+        });
+        
+        // Fallback: находим наш player_id по user_id и проверяем exploits для него
+        try {
+          const { data: myPlayer } = await supabase
+            .from('duel_players')
+            .select('id')
+            .eq('duel_id', duelId)
+            .eq('user_id', profileId)
+            .maybeSingle();
+          
+          if (myPlayer?.id && myPlayer.id !== myPlayerId) {
+            console.warn('[useDuelRealtime] 🔍 FALLBACK: Found different player_id by user_id:', {
+              oldMyPlayerId: myPlayerId,
+              newMyPlayerId: myPlayer.id,
+              profileId
+            });
+            
+            // Пробуем восстановить exploits для правильного player_id
+            const { data: fallbackExploits } = await supabase
+              .from('duel_active_exploits')
+              .select('*')
+              .eq('duel_id', duelId)
+              .eq('target_player_id', myPlayer.id)
+              .eq('is_active', true)
+              .gt('expires_at', new Date().toISOString())
+              .order('activated_at', { ascending: false });
+            
+            if (fallbackExploits && fallbackExploits.length > 0) {
+              console.log('[useDuelRealtime] ✅✅✅ FALLBACK: Recovered exploits by user_id:', fallbackExploits.length);
+              
+              setState(prev => {
+                const existingTypes = new Set((prev.activeExploits || []).map(e => `${e.type}-${e.receivedAt}`));
+                
+                const newExploits = fallbackExploits
+                  .map(e => ({
+                    type: e.exploit_type,
+                    data: e.effect_data || {},
+                    receivedAt: new Date(e.activated_at).getTime(),
+                    expiresAt: new Date(e.expires_at).getTime()
+                  }))
+                  .filter(e => !existingTypes.has(`${e.type}-${e.receivedAt}`));
+
+                if (newExploits.length === 0) {
+                  return prev;
+                }
+
+                return {
+                  ...prev,
+                  activeExploits: [...(prev.activeExploits || []), ...newExploits]
+                };
+              });
+              
+              return; // Успешно восстановили через fallback
+            }
+          }
+        } catch (fallbackError) {
+          console.error('[useDuelRealtime] ❌ Error in fallback recovery:', fallbackError);
+        }
+        
         // КРИТИЧНО: Логируем, почему exploits не найдены
         console.warn('[useDuelRealtime] ⚠️⚠️⚠️ No active exploits to recover ⚠️⚠️⚠️:', {
           duelId,
@@ -560,8 +627,59 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             profileId: profileId
           });
           
-          // Проверяем, что exploit направлен на нас
-          if (currentMyPlayerId && newExploit.target_player_id === currentMyPlayerId && newExploit.is_active) {
+          // КРИТИЧНО: Проверяем, что exploit направлен на нас
+          // Используем два способа проверки:
+          // 1. Прямое сравнение по myPlayerId (основной способ)
+          // 2. Fallback: проверка по user_id через БД (если myPlayerId не совпадает)
+          let isForCurrentPlayer = false;
+          
+          if (currentMyPlayerId && newExploit.target_player_id === currentMyPlayerId) {
+            isForCurrentPlayer = true;
+            console.log('[useDuelRealtime] ✅ Exploit matches by myPlayerId:', {
+              target_player_id: newExploit.target_player_id,
+              myPlayerId: currentMyPlayerId
+            });
+          } else if (profileId && duelId && newExploit.target_player_id) {
+            // Fallback: проверяем через БД, соответствует ли target_player_id нашему user_id
+            try {
+              const { data: targetPlayer } = await supabase
+                .from('duel_players')
+                .select('user_id')
+                .eq('duel_id', duelId)
+                .eq('id', newExploit.target_player_id)
+                .maybeSingle();
+              
+              if (targetPlayer?.user_id === profileId) {
+                isForCurrentPlayer = true;
+                console.log('[useDuelRealtime] ✅✅✅ Exploit matches by user_id (FALLBACK):', {
+                  target_player_id: newExploit.target_player_id,
+                  targetPlayerUserId: targetPlayer.user_id,
+                  myProfileId: profileId,
+                  myPlayerId: currentMyPlayerId,
+                  note: 'myPlayerId mismatch detected, using user_id fallback'
+                });
+                
+                // КРИТИЧНО: Обновляем myPlayerId если он был неправильным
+                if (!currentMyPlayerId || currentMyPlayerId !== newExploit.target_player_id) {
+                  console.warn('[useDuelRealtime] ⚠️ Updating myPlayerId from exploit target:', {
+                    oldMyPlayerId: currentMyPlayerId,
+                    newMyPlayerId: newExploit.target_player_id
+                  });
+                  myPlayerIdRef.current = newExploit.target_player_id;
+                }
+              } else {
+                console.log('[useDuelRealtime] ❌ Exploit NOT for us (user_id mismatch):', {
+                  target_player_id: newExploit.target_player_id,
+                  targetPlayerUserId: targetPlayer?.user_id,
+                  myProfileId: profileId
+                });
+              }
+            } catch (fallbackError) {
+              console.error('[useDuelRealtime] ❌ Error in fallback check:', fallbackError);
+            }
+          }
+          
+          if (isForCurrentPlayer && newExploit.is_active) {
             // КРИТИЧНО: Всегда логируем в консоль для отладки в Telegram
             console.log('[useDuelRealtime] 🎯 АТАКА ПОЛУЧЕНА! Exploit type:', newExploit.exploit_type, {
               exploit_type: newExploit.exploit_type,
@@ -619,15 +737,16 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               return newState;
             });
           } else {
-            const reason = !currentMyPlayerId ? 'myPlayerId not set' : 
-                          newExploit.target_player_id !== currentMyPlayerId ? 'not for us' :
+            const reason = !isForCurrentPlayer ? 'not for us (ID mismatch)' : 
                           !newExploit.is_active ? 'not active' : 'unknown';
             console.log('[useDuelRealtime] ⏭️ Exploit ignored:', {
               exploit_type: newExploit.exploit_type,
               target_player_id: newExploit.target_player_id,
               myPlayerId: currentMyPlayerId,
+              profileId: profileId,
               is_active: newExploit.is_active,
-              reason
+              reason,
+              note: 'Check if target_player_id matches your user_id in duel_players table'
             });
             log('[useDuelRealtime] ⏭️ Exploit ignored:', {
               exploit_type: newExploit.exploit_type,
