@@ -1219,7 +1219,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     questionEndTimeRef.current = targetTime;
     setTimeLeft(TIME_LIMIT_MS);
 
-    log('[DuelBattleFullscreen] ⏱️ Timer started for question', currentIndex + 1, 'endTime:', new Date(targetTime).toISOString());
+    // КРИТИЧНО: Логируем запуск таймера ВСЕГДА (не только в dev)
+    console.log('[DuelBattleFullscreen] ⏱️✅✅✅ TIMER STARTED ✅✅✅', {
+      questionNumber: currentIndex + 1,
+      totalQuestions: questions.length,
+      endTime: new Date(targetTime).toISOString(),
+      currentTime: new Date().toISOString(),
+      timeLimitMs: TIME_LIMIT_MS
+    });
 
     // КРИТИЧНО: Функция обновления таймера (вынесена для переиспользования)
     const updateTimer = () => {
