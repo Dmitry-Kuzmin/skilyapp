@@ -3650,14 +3650,14 @@ Deno.serve(async (req) => {
 
         // 🆕 Если буст влияет на противника - сохраняем в БД и отправляем broadcast
         if (boostDef && (boostDef.target_type === 'opponent' || boostDef.target_type === 'both')) {
-          // Получаем всех игроков дуэли
+          // Получаем всех игроков дуэли (КРИТИЧНО: включаем is_bot для правильной фильтрации)
           const { data: players } = await supabase
             .from('duel_players')
-            .select('id, user_id')
+            .select('id, user_id, is_bot')
             .eq('duel_id', duel_id);
 
           if (players && players.length >= 2) {
-            // КРИТИЧНО: Находим соперника правильно - это игрок, который НЕ является текущим
+            // КРИТИЧНО: Находим соперника правильно - это игрок, который НЕ является текущим и НЕ является ботом
             const opponent = players.find(p => p.id !== player.id && !p.is_bot);
             
             console.log('[use_boost] 🔍 Finding opponent for exploit:', {
@@ -3763,6 +3763,7 @@ Deno.serve(async (req) => {
                   headers: { ...corsHeaders, 'Content-Type': 'application/json' },
                 });
               } else {
+                // КРИТИЧНО: Проверяем, что exploit действительно сохранен и доступен для запроса
                 console.log('[use_boost] ✅✅✅ Exploit saved to DB for State Recovery:', {
                   exploitId: insertedExploit?.id,
                   targetPlayerId: opponent.id,
@@ -3773,6 +3774,43 @@ Deno.serve(async (req) => {
                   duelId,
                   timestamp: new Date().toISOString(),
                   insertedExploit: insertedExploit,
+                });
+
+                // КРИТИЧНО: Проверяем, что exploit можно найти через запрос (как это делает клиент)
+                const { data: verifyExploit, error: verifyError } = await supabase
+                  .from('duel_active_exploits')
+                  .select('*')
+                  .eq('duel_id', duel_id)
+                  .neq('attacker_player_id', opponent.id) // Запрос как у клиента: attacker != target
+                  .eq('is_active', true)
+                  .gt('expires_at', new Date().toISOString())
+                  .order('activated_at', { ascending: false })
+                  .limit(1);
+
+                console.log('[use_boost] 🔍🔍🔍 Verification query result (should find the exploit):', {
+                  found: !!verifyExploit && verifyExploit.length > 0,
+                  verifyExploitCount: verifyExploit?.length || 0,
+                  verifyExploit: verifyExploit?.[0] ? {
+                    id: verifyExploit[0].id,
+                    target_player_id: verifyExploit[0].target_player_id,
+                    attacker_player_id: verifyExploit[0].attacker_player_id,
+                    exploit_type: verifyExploit[0].exploit_type,
+                    is_active: verifyExploit[0].is_active,
+                    expires_at: verifyExploit[0].expires_at,
+                    activated_at: verifyExploit[0].activated_at,
+                  } : null,
+                  verifyError: verifyError ? {
+                    message: verifyError.message,
+                    code: verifyError.code,
+                    details: verifyError.details,
+                  } : null,
+                  queryParams: {
+                    duel_id,
+                    attackerPlayerIdFilter: `attacker_player_id != '${opponent.id}'`,
+                    expectedTargetPlayerId: opponent.id,
+                    expectedAttackerPlayerId: player.id,
+                  },
+                  note: 'This query simulates what the receiving client will do to find exploits targeting them'
                 });
               }
 
