@@ -1,9 +1,12 @@
 /**
  * Глобальная утилита для инициализации Paddle SDK
  * Предзагружает SDK при старте приложения для ускорения открытия формы оплаты
+ * 
+ * Использует envValidation для graceful degradation
  */
 
 import { initializePaddle, type Paddle } from '@paddle/paddle-js';
+import { isPaddleEnabled, getEnvConfig } from '@/utils/envValidation';
 
 let paddleInstance: Paddle | null = null;
 let initializationPromise: Promise<Paddle | null> | null = null;
@@ -29,14 +32,24 @@ export async function getPaddleInstance(): Promise<Paddle | null> {
     return null;
   }
 
+  // Проверяем доступность Paddle через envValidation
+  if (!isPaddleEnabled()) {
+    if (import.meta.env.DEV) {
+      console.debug('[Paddle] Payments disabled - token not configured');
+    }
+    return null;
+  }
+
   isInitializing = true;
 
   initializationPromise = (async () => {
     try {
-      const clientToken = import.meta.env.VITE_PADDLE_CLIENT_TOKEN;
+      const config = getEnvConfig();
+      const clientToken = config.paddle.clientToken;
 
       if (!clientToken) {
-        console.warn('[Paddle] Client token not found in env');
+        // Это не должно произойти, так как мы проверили isPaddleEnabled
+        console.warn('[Paddle] Client token not found despite validation');
         return null;
       }
 

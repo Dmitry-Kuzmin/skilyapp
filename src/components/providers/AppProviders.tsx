@@ -19,6 +19,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReconnectHandler } from "@/components/ReconnectHandler";
 import { useAuthEventListener } from "@/hooks/useAuthEventListener.ts";
 import { preloadPaddle } from "@/lib/paddle";
+import { useIdleInitialization } from "@/hooks/useIdleInitialization";
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -28,10 +29,24 @@ export function AppProviders({ children }: AppProvidersProps) {
   // Слушаем Auth события для отправки уведомлений о критичных изменениях
   useAuthEventListener();
 
-  // ОПТИМИЗАЦИЯ: Предзагружаем Paddle SDK при старте приложения
+  // ОПТИМИЗАЦИЯ: Отложенная инициализация некритичных операций (не блокирует UI)
+  useIdleInitialization();
+
+  // ОПТИМИЗАЦИЯ: Предзагружаем Paddle SDK в idle callback (не блокирует рендеринг)
   // Это ускоряет открытие формы оплаты (SDK уже готов, не нужно ждать инициализации)
   useEffect(() => {
-    preloadPaddle();
+    const hasIdleCallback = typeof window !== 'undefined' && 'requestIdleCallback' in window;
+    
+    const preloadPaddleIdle = () => {
+      preloadPaddle();
+    };
+
+    if (hasIdleCallback) {
+      window.requestIdleCallback(preloadPaddleIdle, { timeout: 2000 });
+    } else {
+      // Fallback для браузеров без requestIdleCallback
+      setTimeout(preloadPaddleIdle, 100);
+    }
   }, []);
 
   // OFFLINE-FIRST: Создаем QueryClient с длительным кэшированием

@@ -1,8 +1,10 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { BrowserRouter, useLocation, Routes, Route, useNavigate } from "react-router-dom";
-import { useInitTelegram } from "@/hooks/useInitTelegram";
+import { TelegramProvider } from "@/contexts/TelegramContext";
 import { useBackgroundTasks } from "@/hooks/useBackgroundTasks";
 import { useOfflineAnalytics } from "@/utils/offlineAnalytics";
+import { useSession } from "@/hooks/useSession";
+import { validateEnv } from "@/utils/envValidation";
 
 // ОПТИМИЗАЦИЯ: Toaster, Sonner, TooltipProvider перемещены в AppProviders
 // Они тянут Radix UI (@radix-ui/react-toast, @radix-ui/react-tooltip), поэтому не должны грузиться на лендинге
@@ -290,11 +292,24 @@ const LandingRedirect = () => {
 };
 
 const App = () => {
+  // Валидация переменных окружения при старте
+  useEffect(() => {
+    try {
+      validateEnv();
+    } catch (error) {
+      console.error('[App] Environment validation failed:', error);
+      // В production можно показать ошибку пользователю
+    }
+  }, []);
+
   // OFFLINE-FIRST: Детектор первого запуска
   const [isFirstRun, setIsFirstRun] = useState(false);
   
   // OFFLINE-FIRST: Инициализация analytics
   useOfflineAnalytics();
+  
+  // Обработка сессии с фильтрацией ошибок
+  useSession();
   
   useEffect(() => {
     // Проверяем, есть ли кэш (это не первый запуск)
@@ -324,9 +339,6 @@ const App = () => {
   }, []);
   
   // ОПТИМИЗАЦИЯ: QueryClient и persister вынесены в AppProviders для lazy loading
-  
-  // КРИТИЧЕСКИ ВАЖНО: инициализируем Telegram WebApp в самом начале
-  useInitTelegram();
   
   // ОПТИМИЗАЦИЯ: Фоновые задачи (не блокируют рендеринг)
   useBackgroundTasks();
@@ -421,14 +433,14 @@ const App = () => {
   }
 
   return (
-    <>
-        <OfflineBanner />
-        <OfflineQueueIndicator />
+    <TelegramProvider>
+      <OfflineBanner />
+      <OfflineQueueIndicator />
       {/* КРИТИЧНО: Компонент для ручного обновления PWA при registerType: 'prompt' */}
       <ReloadPrompt />
-        <Suspense fallback={null}>
-              <BrowserRouter basename={basename}>
-                <ScrollToTop />
+      <Suspense fallback={null}>
+        <BrowserRouter basename={basename}>
+          <ScrollToTop />
           {/* ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query) */}
           <Routes>
             <Route path="/" element={<LandingRedirect />} />
@@ -470,11 +482,11 @@ const App = () => {
               </Suspense>
             } />
           </Routes>
-                {/* Debug панель Service Worker (только в dev или с localStorage.debug_sw) */}
-                <ServiceWorkerDebug />
-              </BrowserRouter>
-        </Suspense>
-    </>
+          {/* Debug панель Service Worker (только в dev или с localStorage.debug_sw) */}
+          <ServiceWorkerDebug />
+        </BrowserRouter>
+      </Suspense>
+    </TelegramProvider>
   );
 };
 

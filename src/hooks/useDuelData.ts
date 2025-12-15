@@ -372,7 +372,16 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       .maybeSingle();
 
     if (loadoutError) {
-      console.warn('[useDuelData] Error loading loadout:', loadoutError);
+      console.error('[useDuelData] ❌ Error loading loadout:', {
+        error: loadoutError,
+        code: loadoutError.code,
+        message: loadoutError.message,
+        profileId,
+        hint: 'This might be an RLS policy issue. Check if migrations are applied.'
+      });
+      // Продолжаем без loadout - покажем все бусты из инвентаря
+    } else {
+      console.log('[useDuelData] ✅ Loadout loaded successfully:', loadout);
     }
 
     // Формируем список выбранных бустов из loadout (фильтруем null)
@@ -392,12 +401,27 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       .eq("user_id", profileId);
 
     if (error) {
-      console.error('[useDuelData] Error loading boost inventory:', error);
-      throw error;
+      console.error('[useDuelData] ❌ Error loading boost inventory:', {
+        error,
+        code: error.code,
+        message: error.message,
+        profileId,
+        hint: 'This might be an RLS policy issue. Check if migrations 20251215000005 and 20251215000006 are applied.'
+      });
+      // НЕ выбрасываем ошибку - возвращаем пустой массив, чтобы игра продолжалась
+      // Бусты просто не будут отображаться
+      return [];
     }
 
     let boosts = data || [];
-    console.log('[useDuelData] All boosts from inventory:', boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })));
+    console.log('[useDuelData] ✅ All boosts from inventory:', boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })));
+    
+    if (boosts.length === 0) {
+      console.warn('[useDuelData] ⚠️ Boost inventory is empty. This might mean:');
+      console.warn('  1. User has no boosts purchased');
+      console.warn('  2. RLS policy is blocking access (check migrations)');
+      console.warn('  3. Boosts are stored under different user_id');
+    }
 
     // Если есть выбранные бусты в loadout, показываем их (даже если количество 0)
     // Если loadout пустой (все null) или не существует, показываем все бусты

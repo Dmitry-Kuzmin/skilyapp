@@ -129,8 +129,8 @@ console.log('[Main] ✅ Script loaded and imports completed', {
   readyState: document.readyState,
 });
 
-// Инициализация Telegram WebApp теперь происходит в useInitTelegram hook в App.tsx
-// Это гарантирует правильный порядок инициализации
+// Инициализация Telegram WebApp теперь происходит через TelegramProvider в App.tsx
+// Это гарантирует правильный порядок инициализации и предотвращает множественные вызовы
 
 // КРИТИЧНО: PWA Service Worker регистрируется автоматически через vite-plugin-pwa
 // Это обеспечивает offline-first архитектуру для Telegram Mini App

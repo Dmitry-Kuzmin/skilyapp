@@ -1179,8 +1179,25 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       timerIntervalRef.current = null;
     }
 
+    // КРИТИЧНО: Детальное логирование условий для отладки (ВСЕГДА, не только в dev)
+    console.log('[DuelBattleFullscreen] ⏱️ Timer setup check:', {
+      questionsLength: questions.length,
+      isAnswered,
+      isWaitingForOpponent,
+      hasFinishedMyQuestions,
+      currentIndex,
+      allConditionsMet: questions.length > 0 && !isAnswered && !isWaitingForOpponent && !hasFinishedMyQuestions,
+      currentIndexValid: currentIndex >= 0 && currentIndex < questions.length
+    });
+
     // Проверяем условия для запуска таймера
     if (!questions.length || isAnswered || isWaitingForOpponent || hasFinishedMyQuestions) {
+      console.warn('[DuelBattleFullscreen] ⚠️ Timer NOT starting - conditions not met:', {
+        noQuestions: !questions.length,
+        isAnswered,
+        isWaitingForOpponent,
+        hasFinishedMyQuestions
+      });
       questionEndTimeRef.current = null;
       setTimeLeft(TIME_LIMIT_MS); // Устанавливаем начальное значение даже если таймер не запускается
       return;
@@ -1188,6 +1205,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
     // КРИТИЧНО: Убеждаемся, что currentIndex валиден
     if (currentIndex < 0 || currentIndex >= questions.length) {
+      console.warn('[DuelBattleFullscreen] ⚠️ Timer NOT starting - invalid currentIndex:', {
+        currentIndex,
+        questionsLength: questions.length
+      });
       questionEndTimeRef.current = null;
       setTimeLeft(TIME_LIMIT_MS);
       return;
