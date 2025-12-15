@@ -91,7 +91,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const { activeDuel, saveActiveDuel, updateActiveDuel } = useActiveDuel();
   const { fetchQuestions, fetchPlayers, fetchBoostInventory, fetchBetInfo } = useDuelData(duelId, profileId);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
-  const { state } = useDuelRealtime(duelId, myPlayerId);
+  const { state, refreshExploits } = useDuelRealtime(duelId, myPlayerId);
   const [duelCode, setDuelCode] = useState<string | null>(null);
   
   // 🆕 Состояние для активных exploits
@@ -1227,6 +1227,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       currentTime: new Date().toISOString(),
       timeLimitMs: TIME_LIMIT_MS
     });
+    
+    // КРИТИЧНО: Принудительно проверяем exploits при старте таймера (для Telegram Mini App)
+    // Это нужно, потому что polling может не запуститься вовремя или потерять контекст
+    if (refreshExploits) {
+      console.log('[DuelBattleFullscreen] 🔄🔄🔄 Forcing exploit refresh on timer start 🔄🔄🔄');
+      refreshExploits().catch((error) => {
+        console.error('[DuelBattleFullscreen] ❌ Error refreshing exploits on timer start:', error);
+      });
+    }
 
     // КРИТИЧНО: Функция обновления таймера (вынесена для переиспользования)
     const updateTimer = () => {

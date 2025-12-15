@@ -1046,6 +1046,16 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     
     // КРИТИЧНО: Функция polling, которую можно вызвать сразу и через интервал
     const performPolling = async () => {
+      // КРИТИЧНО: Логируем каждый вызов polling для диагностики
+      console.log('[useDuelRealtime] 🔄🔄🔄 POLLING EXECUTION START 🔄🔄🔄:', {
+        duelId,
+        myPlayerId: myPlayerIdRef.current,
+        cachedMyPlayerId,
+        profileId,
+        connectionStatus,
+        timestamp: new Date().toISOString()
+      });
+      
       try {
         let currentMyPlayerId = myPlayerIdRef.current || cachedMyPlayerId;
         
@@ -1078,16 +1088,30 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         }
         
         if (!currentMyPlayerId || !duelId) {
-          console.log('[useDuelRealtime] ⏭️ Polling iteration skipped: no myPlayerId', {
+          console.log('[useDuelRealtime] ⏭️ Polling iteration skipped: no myPlayerId or duelId', {
             currentMyPlayerId,
             duelId,
-            profileId
+            profileId,
+            hasMyPlayerId: !!currentMyPlayerId,
+            hasDuelId: !!duelId
           });
           return;
         }
         
-        // ОПТИМИЗАЦИЯ: Убрана избыточная проверка всех exploits (только в dev режиме при необходимости)
+        // КРИТИЧНО: Логируем параметры запроса перед выполнением
         const currentTimeISO = new Date().toISOString();
+        console.log('[useDuelRealtime] 🔍🔍🔍 Polling: About to query exploits:', {
+          duelId,
+          currentMyPlayerId,
+          attackerFilter: `attacker_player_id != '${currentMyPlayerId}'`,
+          currentTimeISO,
+          queryParams: {
+            duel_id: duelId,
+            attacker_player_id_not_equal: currentMyPlayerId,
+            is_active: true,
+            expires_at_greater_than: currentTimeISO
+          }
+        });
         
         // УПРОЩЕННАЯ ЛОГИКА: В дуэли 1 на 1 берем все exploits, где attacker НЕ я
         const { data: newExploits, error } = await supabase
@@ -1099,17 +1123,33 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           .gt('expires_at', currentTimeISO)
           .order('activated_at', { ascending: false });
         
-        if (error) {
-          logError('[useDuelRealtime] ❌ Polling error:', error);
-          return;
-        }
+        // КРИТИЧНО: Логируем результат запроса ВСЕГДА (не только если найдены exploits)
+        console.log('[useDuelRealtime] 📊📊📊 Polling result:', {
+          exploitsFound: newExploits?.length || 0,
+          exploits: newExploits?.map(e => ({
+            id: e.id,
+            exploit_type: e.exploit_type,
+            attacker_player_id: e.attacker_player_id,
+            target_player_id: e.target_player_id,
+            is_active: e.is_active,
+            expires_at: e.expires_at,
+            activated_at: e.activated_at
+          })) || [],
+          error: error ? {
+            message: error.message,
+            code: error.code,
+            details: error.details
+          } : null,
+          queryParams: {
+            duelId,
+            currentMyPlayerId,
+            currentTimeISO
+          }
+        });
         
-        // ОПТИМИЗАЦИЯ: Логируем только если найдены новые exploits (не при каждом polling)
-        if (newExploits && newExploits.length > 0) {
-          log('[useDuelRealtime] 🔍 Polling found exploits:', {
-            exploitsFound: newExploits.length,
-            types: newExploits.map(e => e.exploit_type)
-          });
+        if (error) {
+          console.error('[useDuelRealtime] ❌ Polling error:', error);
+          return;
         }
         
         if (newExploits && newExploits.length > 0) {
@@ -1165,5 +1205,26 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     }
   }, [channel]);
 
-  return { state, broadcast, connectionStatus, lastEventAt };
+  // 🆕 Функция для принудительного обновления exploits (можно вызвать извне)
+  const refreshExploits = useCallback(async () => {
+    console.log('[useDuelRealtime] 🔄🔄🔄 Manual refreshExploits called 🔄🔄🔄:', {
+      duelId,
+      myPlayerId: myPlayerIdRef.current,
+      profileId,
+      connectionStatus
+    });
+    
+    // Вызываем recoverActiveExploits если есть все параметры
+    if (duelId && (myPlayerIdRef.current || profileId)) {
+      await recoverActiveExploits();
+    } else {
+      console.warn('[useDuelRealtime] ⚠️ Cannot refresh exploits: missing parameters', {
+        duelId: !!duelId,
+        myPlayerId: !!myPlayerIdRef.current,
+        profileId: !!profileId
+      });
+    }
+  }, [duelId, profileId, recoverActiveExploits, connectionStatus]);
+
+  return { state, broadcast, connectionStatus, lastEventAt, refreshExploits };
 }
