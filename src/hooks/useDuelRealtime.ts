@@ -154,6 +154,17 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       // myPlayerId - это уже ID из duel_players, используем его напрямую
       const targetPlayerId = myPlayerId;
 
+      // КРИТИЧНО: Логируем SQL запрос для отладки
+      const sqlQuery = `
+        SELECT * FROM duel_active_exploits 
+        WHERE duel_id = '${duelId}' 
+        AND target_player_id = '${targetPlayerId}' 
+        AND is_active = true 
+        AND expires_at > NOW()
+        ORDER BY activated_at DESC
+      `;
+      console.log('[useDuelRealtime] 🔍 SQL запрос для recoverActiveExploits:', sqlQuery);
+      
       // Запрашиваем активные атаки, срок которых еще не истек
       const { data: exploits, error: exploitsError } = await supabase
         .from('duel_active_exploits')
@@ -163,6 +174,20 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         .eq('is_active', true)
         .gt('expires_at', new Date().toISOString())
         .order('activated_at', { ascending: false });
+      
+      // КРИТИЧНО: Логируем детали ошибки, если есть
+      if (exploitsError) {
+        console.error('[useDuelRealtime] ❌❌❌ SQL ERROR при recoverActiveExploits:', {
+          error: exploitsError,
+          message: exploitsError.message,
+          details: exploitsError.details,
+          hint: exploitsError.hint,
+          code: exploitsError.code,
+          sqlQuery,
+          duelId,
+          targetPlayerId
+        });
+      }
 
       if (exploitsError) {
         logError('[useDuelRealtime] Error recovering exploits:', exploitsError);
