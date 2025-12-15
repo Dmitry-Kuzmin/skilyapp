@@ -1469,16 +1469,21 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         });
 
         try {
-      await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'use_boost',
-          duel_id: duelId,
-          profile_id: profileId,
-          duel_question_id: questions[currentIndex].id,
-          boost_type: boostType,
-          language: language,
-        },
-      });
+          // 🆕 Используем RPC функцию вместо Edge Function для надежности в Telegram Mini Apps
+          const { data: rpcResult, error: rpcError } = await supabase.rpc('use_boost_attack', {
+            p_duel_id: duelId,
+            p_boost_type: boostType,
+            p_duel_question_id: questions[currentIndex]?.id || null,
+            p_language: language || null,
+          });
+
+          if (rpcError) {
+            throw rpcError;
+          }
+
+          if (!rpcResult?.success) {
+            throw new Error(rpcResult?.error || 'Failed to use boost');
+          }
 
           // Успех - обновляем toast
           if (navigator.vibrate) {
@@ -1523,17 +1528,21 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           throw error;
         }
       } else {
-        // Обычные бусты (Safe Mode) - без специальной обработки
-        await supabase.functions.invoke('duel-manager', {
-          body: {
-            action: 'use_boost',
-            duel_id: duelId,
-            profile_id: profileId,
-            duel_question_id: questions[currentIndex].id,
-            boost_type: boostType,
-            language: language,
-          },
+        // Обычные бусты (Safe Mode) - используем RPC функцию
+        const { data: rpcResult, error: rpcError } = await supabase.rpc('use_boost_attack', {
+          p_duel_id: duelId,
+          p_boost_type: boostType,
+          p_duel_question_id: questions[currentIndex]?.id || null,
+          p_language: language || null,
         });
+
+        if (rpcError) {
+          throw rpcError;
+        }
+
+        if (!rpcResult?.success) {
+          throw new Error(rpcResult?.error || 'Failed to use boost');
+        }
 
         // Уменьшаем количество буста локально (не синхронизируем с БД - буст уже использован)
         setBoosts(prev => prev.map(b => 
@@ -1549,7 +1558,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       setBoostFeedback(prev => ({ ...prev, isActive: false }));
       
       // ВАЖНО: При ошибке НЕ уменьшаем количество буста - он не был использован
-      // Количество остается прежним, так как Edge Function не выполнил уменьшение
+      // Количество остается прежним, так как RPC функция не выполнила уменьшение
       
       // Определяем isExploit заново для catch блока
       const rootModeExploits = ['screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall'];

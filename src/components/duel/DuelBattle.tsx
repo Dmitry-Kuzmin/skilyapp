@@ -297,18 +297,18 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
 
     try {
       // Для translate бустера язык передается в метаданных
-      const { data, error } = await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'use_boost',
-          profile_id: profileId,
-          duel_id: duelId,
-          duel_question_id: currentQuestion.id,
-          boost_type: type,
-          language: language, // Для translate бустера
-        },
+      // 🆕 Используем RPC функцию вместо Edge Function для надежности
+      const { data: rpcResult, error: rpcError } = await supabase.rpc('use_boost_attack', {
+        p_duel_id: duelId,
+        p_boost_type: type,
+        p_duel_question_id: currentQuestion.id,
+        p_language: language || null,
       });
 
-      if (error) throw error;
+      if (rpcError) throw rpcError;
+      if (!rpcResult?.success) throw new Error(rpcResult?.error || 'Failed to use boost');
+
+      const data = rpcResult.boost_effect || rpcResult;
 
       // Apply server-provided boost effects
       if (type === 'fifty_fifty' && data.hidden_options) {

@@ -99,16 +99,16 @@ export function useDuelBoosts({
         return;
       }
 
-      await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'use_boost',
-          duel_id: duelId,
-          profile_id: profileId,
-          duel_question_id: questions[currentIndex].id,
-          boost_type: boostType,
-          language: language,
-        },
+      // 🆕 Используем RPC функцию вместо Edge Function для надежности
+      const { data: rpcResult, error: rpcError } = await supabase.rpc('use_boost_attack', {
+        p_duel_id: duelId,
+        p_boost_type: boostType,
+        p_duel_question_id: questions[currentIndex].id,
+        p_language: language || null,
       });
+
+      if (rpcError) throw rpcError;
+      if (!rpcResult?.success) throw new Error(rpcResult?.error || 'Failed to use boost');
 
       await syncBoostInventory();
     } catch (error) {
