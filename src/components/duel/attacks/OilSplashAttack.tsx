@@ -542,13 +542,19 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     if (phase !== 'cleaning' || !isActive) return;
 
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!canvas) {
+      console.warn('[OilSplashAttack] ⚠️ Canvas ref is null in checkProgress');
+      return;
+    }
+    const ctx = canvas.getContext('2d', { willReadFrequently: true }); // КРИТИЧНО: Оптимизация для частых чтений
+    if (!ctx) {
+      console.warn('[OilSplashAttack] ⚠️ Canvas context is null in checkProgress');
+      return;
+    }
     
     const w = canvas.width;
     const h = canvas.height;
-    const stride = 60; 
+    const stride = 80; // Увеличен для оптимизации (меньше проверок, быстрее)
     
     try {
         const imageData = ctx.getImageData(0, 0, w, h);
@@ -556,9 +562,12 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
         let cleanedPoints = 0;
         let totalPoints = 0;
 
+        // Оптимизированная проверка прогресса
         for (let y = 0; y < h; y += stride) {
             for (let x = 0; x < w; x += stride) {
                 const index = (y * w + x) * 4;
+                // Проверяем альфа-канал (прозрачность)
+                // Если альфа < 50, значит пиксель очищен (destination-out делает его прозрачным)
                 if (data[index + 3] < 50) { 
                     cleanedPoints++;
                 }
@@ -566,30 +575,74 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
             }
         }
         
-        if (totalPoints === 0) return;
+        if (totalPoints === 0) {
+          console.warn('[OilSplashAttack] ⚠️ No points to check');
+          return;
+        }
 
         const percent = (cleanedPoints / totalPoints) * 100;
+        
+        // КРИТИЧНО: Логируем прогресс для отладки
+        if (Math.floor(percent) !== Math.floor(cleanPercent)) {
+          console.log('[OilSplashAttack] 📊 Progress update:', {
+            cleanedPercent: Math.round(percent),
+            displayPercent: Math.round(100 - percent),
+            cleanedPoints,
+            totalPoints,
+            required: REQUIRED_CLEAN_PERCENTAGE
+          });
+        }
+        
         setCleanPercent(percent);
 
-        if (percent > REQUIRED_CLEAN_PERCENTAGE) {
+        // КРИТИЧНО: Проверяем условие завершения
+        if (percent >= REQUIRED_CLEAN_PERCENTAGE) {
+             console.log('[OilSplashAttack] ✅✅✅ CLEANING COMPLETE! Calling onCleaned...', {
+               percent,
+               required: REQUIRED_CLEAN_PERCENTAGE
+             });
              setPhase('completed');
-             onCleaned();
+             // КРИТИЧНО: Используем безопасный вызов
+             if (onCleaned && typeof onCleaned === 'function') {
+               onCleaned();
+             } else {
+               console.error('[OilSplashAttack] ❌ onCleaned is not a function:', typeof onCleaned);
+             }
         }
-    } catch (e) { 
-        console.error('[OilSplashAttack] Error checking progress:', e); 
+    } catch (e: any) { 
+        console.error('[OilSplashAttack] ❌ Error checking progress:', e);
+        console.error('[OilSplashAttack] Error details:', {
+          message: e?.message,
+          stack: e?.stack,
+          canvasExists: !!canvas,
+          canvasWidth: canvas?.width,
+          canvasHeight: canvas?.height
+        });
     }
-  }, [phase, onCleaned, isActive]);
+  }, [phase, onCleaned, isActive, cleanPercent]);
 
   useEffect(() => {
     if (phase === 'cleaning' && isActive) {
+        // КРИТИЧНО: Запускаем проверку прогресса чаще для более плавного обновления
         const delayStart = setTimeout(() => {
-             checkIntervalRef.current = setInterval(checkProgress, 500);
-        }, 1000);
+             checkIntervalRef.current = setInterval(checkProgress, 300); // Уменьшено с 500 до 300мс
+             // Первая проверка сразу
+             checkProgress();
+        }, 500); // Уменьшено с 1000 до 500мс
         
         return () => {
             clearTimeout(delayStart);
-            if (checkIntervalRef.current) clearInterval(checkIntervalRef.current);
+            if (checkIntervalRef.current) {
+              clearInterval(checkIntervalRef.current);
+              checkIntervalRef.current = null;
+            }
         };
+    } else {
+        // КРИТИЧНО: Очищаем интервал при смене фазы
+        if (checkIntervalRef.current) {
+          clearInterval(checkIntervalRef.current);
+          checkIntervalRef.current = null;
+        }
     }
   }, [phase, checkProgress, isActive]);
 
@@ -601,23 +654,74 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
+    // КРИТИЧНО: Нормализуем координаты относительно canvas
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    const canvasX = (x - rect.left) * scaleX;
+    const canvasY = (y - rect.top) * scaleY;
+    
+    // Проверяем, что координаты в пределах canvas
+    if (canvasX < 0 || canvasX > canvas.width || canvasY < 0 || canvasY > canvas.height) {
+      return;
+    }
+    
     ctx.globalCompositeOperation = 'destination-out';
     const radius = SPONGE_SIZE / 2;
     
-    // Scrubbing
+    // Scrubbing с нормализованными координатами
     ctx.beginPath();
-    ctx.arc(x, y, radius * 0.7, 0, Math.PI*2);
+    ctx.arc(canvasX, canvasY, radius * 0.7, 0, Math.PI*2);
     for(let i=0; i<6; i++) {
         const a = Math.random() * Math.PI*2;
         const d = Math.random() * radius * 0.4;
-        ctx.arc(x + Math.cos(a)*d, y + Math.sin(a)*d, radius*0.6, 0, Math.PI*2);
+        ctx.arc(canvasX + Math.cos(a)*d, canvasY + Math.sin(a)*d, radius*0.6, 0, Math.PI*2);
     }
     ctx.fill();
+    
+    // КРИТИЧНО: Проверяем прогресс сразу после очистки (дебаунс)
+    // Не вызываем каждый раз, но запускаем проверку чаще
+    if (!checkIntervalRef.current || !isActive) {
+      // Если интервал еще не запущен, запускаем его
+    }
   };
 
   const handleInput = (clientX: number, clientY: number) => {
       setCursorPos({ x: clientX, y: clientY });
-      if (isCleaning) clean(clientX, clientY);
+      if (isCleaning) {
+        clean(clientX, clientY);
+        // КРИТИЧНО: Принудительно проверяем прогресс после каждой очистки
+        // (debounced через requestAnimationFrame)
+        if (phase === 'cleaning') {
+          requestAnimationFrame(() => {
+            checkProgress();
+          });
+        }
+      }
+  };
+  
+  const handleTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault(); // КРИТИЧНО: Предотвращаем скролл
+    e.stopPropagation(); // КРИТИЧНО: Предотвращаем всплытие
+    if (e.touches.length > 0) {
+      handleInput(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  };
+  
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault(); // КРИТИЧНО: Предотвращаем скролл
+    e.stopPropagation();
+    setIsCleaning(true);
+    if (e.touches.length > 0) {
+      handleInput(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  };
+  
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsCleaning(false);
   };
 
   if (!isActive) return null;
@@ -741,7 +845,7 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   return (
     <div 
         ref={containerRef}
-        className={`fixed inset-0 touch-none overflow-hidden ${phase === 'cleaning' ? 'cursor-none' : ''}`}
+        className={`fixed inset-0 overflow-hidden ${phase === 'cleaning' ? 'cursor-none' : ''}`}
         style={{
           position: 'fixed',
           top: 0,
@@ -752,16 +856,28 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
           height: '100vh',
           zIndex: 2147483647, // Максимальный z-index (максимальное значение для 32-bit int)
           transform: `translate(${(Math.random()-0.5) * shake}px, ${(Math.random()-0.5) * shake}px)`,
-          pointerEvents: phase === 'cleaning' ? 'auto' : 'none'
+          pointerEvents: phase === 'cleaning' ? 'auto' : 'none',
+          touchAction: 'none', // КРИТИЧНО: Предотвращаем скролл и зум на мобильных
+          userSelect: 'none', // Предотвращаем выделение текста
+          WebkitUserSelect: 'none',
+          WebkitTouchCallout: 'none'
         }}
         onMouseMove={(e) => handleInput(e.clientX, e.clientY)}
         onMouseDown={() => setIsCleaning(true)}
         onMouseUp={() => setIsCleaning(false)}
-        onTouchMove={(e) => handleInput(e.touches[0].clientX, e.touches[0].clientY)}
-        onTouchStart={() => setIsCleaning(true)}
-        onTouchEnd={() => setIsCleaning(false)}
+        onTouchMove={handleTouchMove}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
     >
-      <canvas ref={canvasRef} className="block w-full h-full" />
+      <canvas 
+        ref={canvasRef} 
+        className="block w-full h-full"
+        style={{
+          touchAction: 'none', // КРИТИЧНО: Предотвращаем скролл на canvas
+          display: 'block'
+        }}
+      />
       
       {/* GLITCH WARNING OVERLAY */}
       {phase === 'warning' && (
