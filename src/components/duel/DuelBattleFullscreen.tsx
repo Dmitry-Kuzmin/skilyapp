@@ -1500,6 +1500,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             p_boost_type: boostType,
             p_duel_question_id: questions[currentIndex]?.id || null,
             p_language: language || null,
+            p_profile_id: profileId || null,
             timestamp: new Date().toISOString()
           });
 
@@ -1508,6 +1509,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             p_boost_type: boostType,
             p_duel_question_id: questions[currentIndex]?.id || null,
             p_language: language || null,
+            p_profile_id: profileId || null,  // Передаем profileId для надежности
           });
 
           console.log('[DuelBattleFullscreen] 📥📥📥 RPC use_boost_attack RESULT 📥📥📥:', {
@@ -1589,6 +1591,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           p_boost_type: boostType,
           p_duel_question_id: questions[currentIndex]?.id || null,
           p_language: language || null,
+          p_profile_id: profileId || null,
           timestamp: new Date().toISOString()
         });
 
@@ -1597,6 +1600,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           p_boost_type: boostType,
           p_duel_question_id: questions[currentIndex]?.id || null,
           p_language: language || null,
+          p_profile_id: profileId || null,  // Передаем profileId для надежности
         });
 
         console.log('[DuelBattleFullscreen] 📥📥📥 RPC use_boost_attack RESULT (Safe Mode) 📥📥📥:', {

@@ -105,6 +105,7 @@ export function useDuelBoosts({
         p_boost_type: boostType,
         p_duel_question_id: questions[currentIndex].id,
         p_language: language || null,
+        p_profile_id: profileId || null,  // Передаем profileId для надежности
       });
 
       if (rpcError) throw rpcError;

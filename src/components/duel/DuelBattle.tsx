@@ -303,6 +303,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         p_boost_type: type,
         p_duel_question_id: currentQuestion.id,
         p_language: language || null,
+        p_profile_id: profileId || null,  // Передаем profileId для надежности
       });
 
       if (rpcError) throw rpcError;
