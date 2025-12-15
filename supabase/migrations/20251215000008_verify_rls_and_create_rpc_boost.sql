@@ -51,7 +51,13 @@ DECLARE
   v_to_hide text[];
   v_question_snapshot jsonb;
   v_hint text;
+  -- Переменная для проверки exploit
+  v_verify_count integer;
 BEGIN
+  -- КРИТИЧНО: Логируем начало выполнения функции
+  RAISE NOTICE '[use_boost_attack] 🚀 Function called: duel_id=%, boost_type=%, question_id=%, language=%', 
+    p_duel_id, p_boost_type, p_duel_question_id, p_language;
+  
   -- 1. Получаем profile_id текущего пользователя
   SELECT id INTO v_profile_id
   FROM profiles
@@ -62,6 +68,8 @@ BEGIN
   IF v_profile_id IS NULL THEN
     RAISE EXCEPTION 'User profile not found';
   END IF;
+  
+  RAISE NOTICE '[use_boost_attack] ✅ Profile found: profile_id=%', v_profile_id;
   
   -- 2. Получаем ID игрока-атакующего
   SELECT id INTO v_attacker_player_id
@@ -75,6 +83,8 @@ BEGIN
     RAISE EXCEPTION 'Player not found in this duel';
   END IF;
   
+  RAISE NOTICE '[use_boost_attack] ✅ Attacker player found: attacker_player_id=%', v_attacker_player_id;
+  
   -- 3. Проверяем наличие буста в инвентаре
   SELECT EXISTS (
     SELECT 1 FROM boost_inventory
@@ -84,11 +94,14 @@ BEGIN
   ) INTO v_has_boost;
   
   IF NOT v_has_boost THEN
+    RAISE NOTICE '[use_boost_attack] ❌ Boost not available: user_id=%, boost_type=%', v_profile_id, p_boost_type;
     RETURN json_build_object(
       'success', false,
       'error', 'Boost not available'
     );
   END IF;
+  
+  RAISE NOTICE '[use_boost_attack] ✅ Boost available, deducting...';
   
   -- 4. Списываем буст из инвентаря
   PERFORM modify_boost_inventory(
@@ -96,6 +109,8 @@ BEGIN
     p_boost_type,
     -1
   );
+  
+  RAISE NOTICE '[use_boost_attack] ✅ Boost deducted from inventory';
   
   -- 5. Записываем использование буста
   INSERT INTO duel_boosts_used (
@@ -109,6 +124,8 @@ BEGIN
     p_boost_type,
     p_duel_question_id
   );
+  
+  RAISE NOTICE '[use_boost_attack] ✅ Boost usage recorded in duel_boosts_used';
   
   -- 6. Определяем эффект буста и длительность
   v_activated_at := NOW();
@@ -257,7 +274,13 @@ BEGIN
       RAISE EXCEPTION 'Cannot create exploit - attacker equals target';
     END IF;
     
+    RAISE NOTICE '[use_boost_attack] ✅ Target player found: target_player_id=%, attacker_player_id=%', 
+      v_target_player_id, v_attacker_player_id;
+    
     v_expires_at := v_activated_at + (v_duration_ms || ' milliseconds')::interval;
+    
+    RAISE NOTICE '[use_boost_attack] 💾 Inserting exploit: duel_id=%, exploit_type=%, attacker=%, target=%, expires_at=%', 
+      p_duel_id, p_boost_type, v_attacker_player_id, v_target_player_id, v_expires_at;
     
     -- Вставляем exploit
     INSERT INTO duel_active_exploits (
@@ -280,6 +303,19 @@ BEGIN
       true
     )
     RETURNING id INTO v_exploit_id;
+    
+    RAISE NOTICE '[use_boost_attack] ✅✅✅ Exploit created successfully: exploit_id=%', v_exploit_id;
+    
+    -- КРИТИЧНО: Проверяем, что exploit можно найти через запрос (как это делает клиент)
+    SELECT COUNT(*) INTO v_verify_count
+    FROM duel_active_exploits
+    WHERE duel_id = p_duel_id
+      AND attacker_player_id != v_target_player_id
+      AND is_active = true
+      AND expires_at > NOW();
+    
+    RAISE NOTICE '[use_boost_attack] 🔍 Verification query result: found % exploits for target player (target_player_id=%)', 
+      v_verify_count, v_target_player_id;
     
     -- Возвращаем успешный результат с информацией об exploit
     RETURN json_build_object(

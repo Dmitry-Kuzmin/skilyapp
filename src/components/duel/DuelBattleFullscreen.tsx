@@ -1361,15 +1361,40 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   // ОПТИМИЗАЦИЯ: Мемоизируем handleBoostUse с useCallback
   const handleBoostUse = useCallback(async (boostType: string, language?: 'ru' | 'en') => {
+    // КРИТИЧНО: Логируем начало использования буста
+    console.log('[DuelBattleFullscreen] 🚀🚀🚀 handleBoostUse CALLED 🚀🚀🚀:', {
+      boostType,
+      language,
+      duelId,
+      profileId,
+      currentQuestionId: questions[currentIndex]?.id,
+      timestamp: new Date().toISOString()
+    });
+
     // КРИТИЧЕСКИ ВАЖНО: разблокируем AudioContext при первом использовании буста
     if (!sounds.isUnlocked()) {
       sounds.forceUnlock();
     }
 
-    if (usedBoosts.includes(boostType) || isAnswered) return;
+    if (usedBoosts.includes(boostType) || isAnswered) {
+      console.log('[DuelBattleFullscreen] ⏭️ Boost use skipped:', {
+        boostType,
+        reason: usedBoosts.includes(boostType) ? 'already used' : 'answered',
+        usedBoosts,
+        isAnswered
+      });
+      return;
+    }
 
     const boost = boosts.find(b => b.boost_type === boostType);
-    if (!boost || boost.quantity <= 0) return;
+    if (!boost || boost.quantity <= 0) {
+      console.log('[DuelBattleFullscreen] ⏭️ Boost use skipped: no boost or quantity 0', {
+        boostType,
+        boost,
+        quantity: boost?.quantity
+      });
+      return;
+    }
 
     // 🆕 Определяем, является ли буст Root Mode exploit (атакой)
     const rootModeExploits = ['screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall'];
@@ -1470,6 +1495,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
         try {
           // 🆕 Используем RPC функцию вместо Edge Function для надежности в Telegram Mini Apps
+          console.log('[DuelBattleFullscreen] 🔥🔥🔥 CALLING RPC use_boost_attack 🔥🔥🔥:', {
+            p_duel_id: duelId,
+            p_boost_type: boostType,
+            p_duel_question_id: questions[currentIndex]?.id || null,
+            p_language: language || null,
+            timestamp: new Date().toISOString()
+          });
+
           const { data: rpcResult, error: rpcError } = await supabase.rpc('use_boost_attack', {
             p_duel_id: duelId,
             p_boost_type: boostType,
@@ -1477,11 +1510,33 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             p_language: language || null,
           });
 
+          console.log('[DuelBattleFullscreen] 📥📥📥 RPC use_boost_attack RESULT 📥📥📥:', {
+            rpcResult,
+            rpcError,
+            success: rpcResult?.success,
+            exploitId: rpcResult?.exploit_id,
+            targetPlayerId: rpcResult?.target_player_id,
+            attackerPlayerId: rpcResult?.attacker_player_id,
+            expiresAt: rpcResult?.expires_at,
+            timestamp: new Date().toISOString()
+          });
+
           if (rpcError) {
+            console.error('[DuelBattleFullscreen] ❌❌❌ RPC ERROR ❌❌❌:', {
+              error: rpcError,
+              message: rpcError.message,
+              code: rpcError.code,
+              details: rpcError.details,
+              hint: rpcError.hint
+            });
             throw rpcError;
           }
 
           if (!rpcResult?.success) {
+            console.error('[DuelBattleFullscreen] ❌❌❌ RPC returned success=false ❌❌❌:', {
+              rpcResult,
+              error: rpcResult?.error
+            });
             throw new Error(rpcResult?.error || 'Failed to use boost');
           }
 
@@ -1529,6 +1584,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         }
       } else {
         // Обычные бусты (Safe Mode) - используем RPC функцию
+        console.log('[DuelBattleFullscreen] 🔥🔥🔥 CALLING RPC use_boost_attack (Safe Mode) 🔥🔥🔥:', {
+          p_duel_id: duelId,
+          p_boost_type: boostType,
+          p_duel_question_id: questions[currentIndex]?.id || null,
+          p_language: language || null,
+          timestamp: new Date().toISOString()
+        });
+
         const { data: rpcResult, error: rpcError } = await supabase.rpc('use_boost_attack', {
           p_duel_id: duelId,
           p_boost_type: boostType,
@@ -1536,11 +1599,29 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           p_language: language || null,
         });
 
+        console.log('[DuelBattleFullscreen] 📥📥📥 RPC use_boost_attack RESULT (Safe Mode) 📥📥📥:', {
+          rpcResult,
+          rpcError,
+          success: rpcResult?.success,
+          boostEffect: rpcResult?.boost_effect,
+          timestamp: new Date().toISOString()
+        });
+
         if (rpcError) {
+          console.error('[DuelBattleFullscreen] ❌❌❌ RPC ERROR (Safe Mode) ❌❌❌:', {
+            error: rpcError,
+            message: rpcError.message,
+            code: rpcError.code,
+            details: rpcError.details
+          });
           throw rpcError;
         }
 
         if (!rpcResult?.success) {
+          console.error('[DuelBattleFullscreen] ❌❌❌ RPC returned success=false (Safe Mode) ❌❌❌:', {
+            rpcResult,
+            error: rpcResult?.error
+          });
           throw new Error(rpcResult?.error || 'Failed to use boost');
         }
 
