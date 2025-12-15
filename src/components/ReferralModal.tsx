@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Gift, Copy, Check, Zap, Crown, MessageCircle, Sparkles, X, Link as LinkIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +23,7 @@ interface ReferralData {
 
 export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
   const { profileId } = useUserContext();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const route = useModalRoute('referral');
   const isOpen = open || route.isOpen;
@@ -56,7 +58,7 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
 
       if (error) {
         console.error('[ReferralModal] Error loading data:', error);
-        toast.error('Ошибка загрузки данных');
+        toast.error(t('referral.loadError'));
         return;
       }
 
@@ -89,7 +91,7 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
 
   const handleCopyLink = async () => {
     if (!referralData?.referral_code) {
-      toast.error('Код не загружен');
+      toast.error(t('referral.codeNotLoaded'));
       return;
     }
 
@@ -99,7 +101,7 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(referralLink);
         setCopied(true);
-        toast.success('Ссылка скопирована!');
+        toast.success(t('referral.linkCopied'));
         setTimeout(() => setCopied(false), 2000);
       } else {
         // Fallback
@@ -116,13 +118,13 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
         
         if (successful) {
           setCopied(true);
-          toast.success('Ссылка скопирована!');
+          toast.success(t('referral.linkCopied'));
           setTimeout(() => setCopied(false), 2000);
         }
       }
     } catch (error) {
       console.error('[ReferralModal] Copy error:', error);
-      toast.error('Не удалось скопировать');
+      toast.error(t('referral.copyFailed'));
     }
   };
 
@@ -134,7 +136,7 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
     <UnifiedModal
       open={isOpen}
       onOpenChange={handleOpenChange}
-      title="Пригласи друзей"
+      title={t('referral.title')}
       showTitleBar={false}
       className="max-w-lg p-0 overflow-hidden"
       loading={loading && !referralData}
@@ -145,43 +147,39 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
           {/* Main Content */}
           <div className="space-y-4">
             <div>
-              <h2 className="text-2xl font-bold mb-1">
-                Пригласи друзей
+              <h2 className="text-2xl font-bold mb-1 text-foreground">
+                {t('referral.title')}
               </h2>
               <p className="text-sm text-muted-foreground">
-                и заработай монеты
+                {t('referral.subtitle')}
               </p>
             </div>
 
             {/* How it works */}
             <div className="space-y-3">
               <h3 className="text-sm font-medium text-muted-foreground">
-                Как это работает:
+                {t('referral.howItWorks')}
               </h3>
               <div className="space-y-2.5">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
                     <Zap className="h-3.5 w-3.5 text-muted-foreground" />
                   </div>
-                  <p className="text-sm">Поделись своей ссылкой</p>
+                  <p className="text-sm text-foreground">{t('referral.step1')}</p>
                 </div>
                 
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
                     <Crown className="h-3.5 w-3.5 text-muted-foreground" />
                   </div>
-                  <p className="text-sm">
-                    Они регистрируются и получают <strong className="text-foreground">+50 монет</strong>
-                  </p>
+                  <p className="text-sm text-foreground" dangerouslySetInnerHTML={{ __html: t('referral.step2') }} />
                 </div>
                 
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
                     <MessageCircle className="h-3.5 w-3.5 text-muted-foreground" />
                   </div>
-                  <p className="text-sm">
-                    Ты получаешь <strong className="text-foreground">+100 монет</strong> когда они заработают свои первые 50 монет
-                  </p>
+                  <p className="text-sm text-foreground" dangerouslySetInnerHTML={{ __html: t('referral.step3') }} />
                 </div>
               </div>
             </div>
@@ -191,18 +189,16 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium text-muted-foreground">
-                Твоя ссылка приглашения:
+                {t('referral.yourLink')}
               </h3>
               {referralData && (
-                <span className="text-sm text-muted-foreground">
-                  использовано <strong className="text-foreground">{referralData.total_referrals || 0}</strong> пользователями
-                </span>
+                <span className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: t('referral.usedBy', { count: referralData.total_referrals || 0 }) }} />
               )}
             </div>
             <div className="flex gap-2 items-center bg-muted/50 rounded-lg p-3 border border-border">
               <LinkIcon className="h-4 w-4 text-muted-foreground shrink-0" />
               <span className="flex-1 font-mono text-sm text-foreground truncate">
-                {loading ? 'Загрузка...' : referralLink}
+                {loading ? t('referral.loading') : referralLink}
               </span>
               <Button
                 onClick={handleCopyLink}
@@ -234,7 +230,7 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
                 navigate('/help#rewards-referral');
               }}
             >
-              Посмотреть условия и положения
+              {t('referral.viewTerms')}
             </Button>
           </div>
         </div>
