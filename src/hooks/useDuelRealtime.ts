@@ -633,11 +633,24 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           // 2. Fallback: проверка по user_id через БД (если myPlayerId не совпадает)
           let isForCurrentPlayer = false;
           
+          // КРИТИЧНО: Логируем ВСЕ параметры перед проверкой
+          console.log('[useDuelRealtime] 🔍🔍🔍 BEFORE CHECK - All parameters:', {
+            target_player_id: newExploit.target_player_id,
+            currentMyPlayerId: currentMyPlayerId,
+            myPlayerIdRef: myPlayerIdRef.current,
+            profileId: profileId,
+            duelId: duelId,
+            is_active: newExploit.is_active,
+            exploit_type: newExploit.exploit_type,
+            willMatch: currentMyPlayerId && newExploit.target_player_id === currentMyPlayerId
+          });
+          
           if (currentMyPlayerId && newExploit.target_player_id === currentMyPlayerId) {
             isForCurrentPlayer = true;
-            console.log('[useDuelRealtime] ✅ Exploit matches by myPlayerId:', {
+            console.log('[useDuelRealtime] ✅✅✅ Exploit matches by myPlayerId:', {
               target_player_id: newExploit.target_player_id,
-              myPlayerId: currentMyPlayerId
+              myPlayerId: currentMyPlayerId,
+              isForCurrentPlayer: true
             });
           } else if (profileId && duelId && newExploit.target_player_id) {
             // Fallback: проверяем через БД, соответствует ли target_player_id нашему user_id
@@ -714,19 +727,75 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             }
           }
           
+          // КРИТИЧНО: Если myPlayerId еще не установлен, но есть profileId и duelId, пытаемся загрузить его
+          if (!isForCurrentPlayer && !currentMyPlayerId && profileId && duelId && newExploit.target_player_id) {
+            console.warn('[useDuelRealtime] ⚠️⚠️⚠️ myPlayerId not set, trying to load from DB before processing exploit:', {
+              target_player_id: newExploit.target_player_id,
+              profileId,
+              duelId
+            });
+            
+            try {
+              const { data: playerData } = await supabase
+                .from('duel_players')
+                .select('id, user_id')
+                .eq('duel_id', duelId)
+                .eq('user_id', profileId)
+                .maybeSingle();
+              
+              if (playerData?.id) {
+                const loadedMyPlayerId = playerData.id;
+                myPlayerIdRef.current = loadedMyPlayerId;
+                console.log('[useDuelRealtime] ✅✅✅ Loaded myPlayerId from DB:', {
+                  loadedMyPlayerId,
+                  target_player_id: newExploit.target_player_id,
+                  matches: loadedMyPlayerId === newExploit.target_player_id
+                });
+                
+                // Проверяем еще раз после загрузки myPlayerId
+                if (loadedMyPlayerId === newExploit.target_player_id) {
+                  isForCurrentPlayer = true;
+                  console.log('[useDuelRealtime] ✅✅✅✅ Exploit matches after loading myPlayerId!');
+                }
+              }
+            } catch (loadError) {
+              console.error('[useDuelRealtime] ❌ Error loading myPlayerId:', loadError);
+            }
+          }
+          
+          // КРИТИЧНО: Логируем результат проверки ПЕРЕД обработкой
+          console.log('[useDuelRealtime] 🔍🔍🔍 AFTER ALL CHECKS - Final decision:', {
+            isForCurrentPlayer,
+            is_active: newExploit.is_active,
+            willProcess: isForCurrentPlayer && newExploit.is_active,
+            target_player_id: newExploit.target_player_id,
+            currentMyPlayerId: currentMyPlayerId,
+            myPlayerIdRef: myPlayerIdRef.current,
+            profileId: profileId,
+            exploit_type: newExploit.exploit_type
+          });
+          
           if (isForCurrentPlayer && newExploit.is_active) {
             // КРИТИЧНО: Всегда логируем в консоль для отладки в Telegram
-            console.log('[useDuelRealtime] 🎯 АТАКА ПОЛУЧЕНА! Exploit type:', newExploit.exploit_type, {
+            console.log('[useDuelRealtime] 🎯🎯🎯 АТАКА ПОЛУЧЕНА! Processing exploit:', newExploit.exploit_type, {
               exploit_type: newExploit.exploit_type,
               target_player_id: newExploit.target_player_id,
               myPlayerId: currentMyPlayerId,
               expires_at: newExploit.expires_at,
-              activated_at: newExploit.activated_at
+              activated_at: newExploit.activated_at,
+              isForCurrentPlayer: true,
+              is_active: true
             });
             log('[useDuelRealtime] 🎯 АТАКА ПОЛУЧЕНА! Exploit type:', newExploit.exploit_type);
             
             // Добавляем в состояние
             setState(prev => {
+              // КРИТИЧНО: Логируем предыдущее состояние перед обновлением
+              console.log('[useDuelRealtime] 📊 BEFORE setState - Previous state:', {
+                prevActiveExploitsCount: prev.activeExploits?.length || 0,
+                prevActiveExploitsTypes: prev.activeExploits?.map(e => e.type) || [],
+                newExploitType: newExploit.exploit_type
+              });
               const exploit: ActiveExploit = {
                 type: newExploit.exploit_type,
                 data: newExploit.effect_data || {},
@@ -760,17 +829,25 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               });
               
               // КРИТИЧНО: Логируем полное состояние после обновления
-              console.log('[useDuelRealtime] 📊 State after exploit addition:', {
+              console.log('[useDuelRealtime] 📊📊📊 State after exploit addition:', {
                 activeExploitsCount: newState.activeExploits.length,
                 activeExploits: newState.activeExploits.map(e => ({
                   type: e.type,
-                  expiresAt: new Date(e.expiresAt).toISOString()
-                }))
+                  expiresAt: new Date(e.expiresAt).toISOString(),
+                  receivedAt: new Date(e.receivedAt).toISOString()
+                })),
+                newExploitType: newExploit.exploit_type,
+                stateReference: 'NEW_OBJECT' // Гарантируем новую ссылку
               });
               
               log('[useDuelRealtime] ✅ New exploit added to state:', newExploit.exploit_type);
+              
+              // КРИТИЧНО: Возвращаем НОВЫЙ объект состояния (гарантируем новую ссылку)
               return newState;
             });
+            
+            // КРИТИЧНО: Логируем после setState (хотя это не гарантирует, что состояние обновилось)
+            console.log('[useDuelRealtime] ✅✅✅ setState called for exploit:', newExploit.exploit_type);
           } else {
             const reason = !isForCurrentPlayer ? 'not for us (ID mismatch)' : 
                           !newExploit.is_active ? 'not active' : 'unknown';
