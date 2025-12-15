@@ -3933,14 +3933,65 @@ Deno.serve(async (req) => {
               // Это надежнее чем broadcast, так как работает даже при разрыве соединения
               console.log('[use_boost] ✅ Exploit saved, client will receive via postgres_changes');
             } else {
-              console.warn('[use_boost] ⚠️ Opponent not found for exploit:', {
-                players: players.map(p => ({ id: p.id, user_id: p.user_id, is_bot: p.is_bot })),
-                currentPlayerId: player.id
+              // КРИТИЧНО: Детальное логирование, если opponent не найден
+              console.error('[use_boost] ❌❌❌ OPPONENT NOT FOUND FOR EXPLOIT ❌❌❌:', {
+                players: players.map(p => ({ 
+                  id: p.id, 
+                  user_id: p.user_id, 
+                  is_bot: p.is_bot,
+                  isCurrentPlayer: p.id === player.id,
+                  willBeOpponent: p.id !== player.id && !p.is_bot
+                })),
+                currentPlayerId: player.id,
+                currentPlayerUserId: profileId,
+                duel_id,
+                boost_type,
+                note: 'Exploit will NOT be created because opponent is not found. This may indicate that the duel has only one player or the second player has not joined yet.'
+              });
+              
+              // КРИТИЧНО: Exploit НЕ создается, если opponent не найден
+              // Это правильное поведение - нельзя создать атаку без цели
+              return new Response(JSON.stringify({ 
+                error: 'Opponent not found',
+                details: 'Cannot create exploit - opponent player not found in duel',
+                boostEffect: boostEffect // Возвращаем эффект для клиента, но не сохраняем в БД
+              }), {
+                status: 400,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
               });
             }
           } else {
-            console.warn('[use_boost] ⚠️ Not enough players for exploit:', {
-              playersCount: players?.length || 0
+            // КРИТИЧНО: Детальное логирование, если игроков недостаточно
+            console.warn('[use_boost] ⚠️⚠️⚠️ NOT ENOUGH PLAYERS FOR EXPLOIT ⚠️⚠️⚠️:', {
+              playersCount: players?.length || 0,
+              players: players?.map(p => ({ 
+                id: p.id, 
+                user_id: p.user_id, 
+                is_bot: p.is_bot 
+              })) || [],
+              currentPlayerId: player.id,
+              currentPlayerUserId: profileId,
+              duel_id,
+              note: 'Exploit requires at least 2 players in the duel'
+            });
+            
+            // КРИТИЧНО: Если игроков меньше 2, это может быть проблема с запросом или дуэль еще не началась
+            // Проверяем, может быть второй игрок еще не присоединился
+            const { data: allPlayersCheck } = await supabase
+              .from('duel_players')
+              .select('id, user_id, is_bot, created_at')
+              .eq('duel_id', duel_id)
+              .order('created_at', { ascending: true });
+            
+            console.warn('[use_boost] 🔍🔍🔍 Double-checking players in DB:', {
+              allPlayersCount: allPlayersCheck?.length || 0,
+              allPlayers: allPlayersCheck?.map(p => ({ 
+                id: p.id, 
+                user_id: p.user_id, 
+                is_bot: p.is_bot,
+                created_at: p.created_at
+              })) || [],
+              note: 'This is a direct query to verify player count'
             });
           }
         } else {
