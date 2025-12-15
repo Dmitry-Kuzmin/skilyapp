@@ -56,7 +56,7 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
 
   // --- Configuration ---
   const SPONGE_SIZE = 160; 
-  const REQUIRED_CLEAN_PERCENTAGE = 97;
+  const REQUIRED_CLEAN_PERCENTAGE = 80; // Снижено с 97 до 80 для более легкого завершения
   
   // Fluid Physics Config
   const COLUMN_WIDTH = 15;
@@ -580,7 +580,7 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
           return;
         }
 
-        const percent = (cleanedPoints / totalPoints) * 100;
+        const percent = Math.min(100, Math.max(0, (cleanedPoints / totalPoints) * 100));
         
         // КРИТИЧНО: Логируем прогресс для отладки
         if (Math.floor(percent) !== Math.floor(cleanPercent)) {
@@ -589,25 +589,39 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
             displayPercent: Math.round(100 - percent),
             cleanedPoints,
             totalPoints,
-            required: REQUIRED_CLEAN_PERCENTAGE
+            required: REQUIRED_CLEAN_PERCENTAGE,
+            currentPhase: phase
           });
         }
         
+        // КРИТИЧНО: Обновляем состояние прогресса ВСЕГДА
         setCleanPercent(percent);
 
         // КРИТИЧНО: Проверяем условие завершения
-        if (percent >= REQUIRED_CLEAN_PERCENTAGE) {
+        if (percent >= REQUIRED_CLEAN_PERCENTAGE && phase === 'cleaning') {
              console.log('[OilSplashAttack] ✅✅✅ CLEANING COMPLETE! Calling onCleaned...', {
                percent,
                required: REQUIRED_CLEAN_PERCENTAGE
              });
-             setPhase('completed');
-             // КРИТИЧНО: Используем безопасный вызов
-             if (onCleaned && typeof onCleaned === 'function') {
-               onCleaned();
-             } else {
-               console.error('[OilSplashAttack] ❌ onCleaned is not a function:', typeof onCleaned);
+             
+             // КРИТИЧНО: Останавливаем проверку прогресса
+             if (checkIntervalRef.current) {
+               clearInterval(checkIntervalRef.current);
+               checkIntervalRef.current = null;
              }
+             
+             // КРИТИЧНО: Меняем фазу на completed перед вызовом onCleaned
+             setPhase('completed');
+             
+             // КРИТИЧНО: Используем безопасный вызов с небольшой задержкой для визуализации
+             setTimeout(() => {
+               if (onCleaned && typeof onCleaned === 'function') {
+                 console.log('[OilSplashAttack] ✅ Calling onCleaned after completion delay');
+                 onCleaned();
+               } else {
+                 console.error('[OilSplashAttack] ❌ onCleaned is not a function:', typeof onCleaned);
+               }
+             }, 1500); // Даем 1.5 секунды на показ сообщения о завершении
         }
     } catch (e: any) { 
         console.error('[OilSplashAttack] ❌ Error checking progress:', e);
@@ -625,10 +639,30 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     if (phase === 'cleaning' && isActive) {
         // КРИТИЧНО: Запускаем проверку прогресса чаще для более плавного обновления
         const delayStart = setTimeout(() => {
-             checkIntervalRef.current = setInterval(checkProgress, 300); // Уменьшено с 500 до 300мс
+             // КРИТИЧНО: Используем requestAnimationFrame для более плавной проверки
+             let animationId: number;
+             const checkProgressLoop = () => {
+               checkProgress();
+               if (phase === 'cleaning' && isActive && checkIntervalRef.current !== null) {
+                 animationId = requestAnimationFrame(() => {
+                   setTimeout(() => {
+                     checkProgressLoop();
+                   }, 200); // Проверяем каждые 200мс через RAF
+                 });
+               }
+             };
+             
              // Первая проверка сразу
              checkProgress();
-        }, 500); // Уменьшено с 1000 до 500мс
+             
+             // Запускаем цикл проверки
+             checkIntervalRef.current = setInterval(() => {
+               checkProgressLoop();
+             }, 300) as any; // Fallback интервал
+             
+             // Также запускаем через RAF для более частых проверок
+             checkProgressLoop();
+        }, 100); // Уменьшено до 100мс для быстрого старта
         
         return () => {
             clearTimeout(delayStart);
@@ -925,6 +959,8 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
                     top: cursorPos.y,
                     transform: `translate(-50%, -50%) rotate(${isCleaning ? '-12deg' : '0deg'}) scale(${isCleaning ? 0.9 : 1})`,
                     transition: 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    opacity: phase === 'completed' ? 0 : 1, // Скрываем губку при завершении
+                    pointerEvents: phase === 'completed' ? 'none' : 'none'
                 }}
             >
                 <div className="relative group">
@@ -988,22 +1024,47 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
                 <div className="bg-zinc-950/80 backdrop-blur-md border border-red-500/30 px-8 py-4 rounded-xl shadow-2xl flex flex-col items-center gap-2">
                     <div className="flex justify-between w-full text-xs font-mono text-red-400 mb-1">
                         <span>ВИДИМОСТЬ</span>
-                        <span>КРИТИЧЕСКАЯ</span>
+                        <span>{cleanPercent >= REQUIRED_CLEAN_PERCENTAGE ? 'ВОССТАНОВЛЕНА' : 'КРИТИЧЕСКАЯ'}</span>
                     </div>
                     <div className="flex items-center gap-4 w-80">
                         <div className="flex-1 h-4 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
                             <div 
-                                className="h-full bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 transition-all duration-300 relative"
-                                style={{ width: `${100 - cleanPercent}%` }} 
+                                className={`h-full transition-all duration-300 relative ${
+                                  cleanPercent >= REQUIRED_CLEAN_PERCENTAGE 
+                                    ? 'bg-gradient-to-r from-green-600 via-green-500 to-green-400' 
+                                    : 'bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500'
+                                }`}
+                                style={{ width: `${Math.max(0, Math.min(100, 100 - cleanPercent))}%` }} 
                             >
                                 <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:20px_20px] animate-[pulse_1s_infinite]"></div>
                             </div>
                         </div>
-                        <span className="text-white font-mono font-bold text-lg">{Math.round(100 - cleanPercent)}%</span>
+                        <span className={`font-mono font-bold text-lg ${
+                          cleanPercent >= REQUIRED_CLEAN_PERCENTAGE ? 'text-green-400' : 'text-white'
+                        }`}>
+                          {Math.round(Math.max(0, Math.min(100, 100 - cleanPercent)))}%
+                        </span>
                     </div>
                 </div>
             </div>
         </>
+      )}
+
+      {/* COMPLETION MESSAGE */}
+      {phase === 'completed' && (
+        <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+          <div className="bg-green-600/95 backdrop-blur-md border-4 border-green-400 px-12 py-8 rounded-2xl shadow-2xl text-center animate-fade-in">
+            <div className="flex flex-col items-center gap-4">
+              <div className="text-6xl animate-bounce">✅</div>
+              <h2 className="text-3xl font-bold text-white font-mono tracking-wider">
+                ЭКРАН ОЧИЩЕН
+              </h2>
+              <p className="text-green-200 font-mono text-sm uppercase">
+                Система восстановлена
+              </p>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
