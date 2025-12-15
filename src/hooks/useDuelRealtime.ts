@@ -480,18 +480,28 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         },
         async (payload) => {
           // КРИТИЧНО: Логируем ВСЕ события, даже если они не для нас (ВСЕГДА, не только в dev)
+          const newExploit = payload.new as any;
+          const currentMyPlayerId = myPlayerIdRef.current;
+          const isForMe = currentMyPlayerId && newExploit?.target_player_id === currentMyPlayerId;
+          
           console.log('[useDuelRealtime] 🔔🔔🔔🔔🔔 POSTGRES_CHANGES EVENT RECEIVED FOR duel_active_exploits 🔔🔔🔔🔔🔔:', {
             eventType: payload.eventType,
             table: payload.table,
             new: payload.new,
             old: payload.old,
             duelId,
-            myPlayerId: myPlayerIdRef.current,
+            myPlayerId: currentMyPlayerId,
             profileId,
             timestamp: new Date().toISOString(),
-            exploitType: (payload.new as any)?.exploit_type,
-            targetPlayerId: (payload.new as any)?.target_player_id,
-            isForMe: (payload.new as any)?.target_player_id === myPlayerIdRef.current
+            exploitType: newExploit?.exploit_type,
+            targetPlayerId: newExploit?.target_player_id,
+            attackerPlayerId: newExploit?.attacker_player_id,
+            isForMe,
+            isActive: newExploit?.is_active,
+            expiresAt: newExploit?.expires_at,
+            activatedAt: newExploit?.activated_at,
+            currentTime: new Date().toISOString(),
+            isExpired: newExploit?.expires_at ? new Date(newExploit.expires_at) < new Date() : null
           });
           
           markEvent();
