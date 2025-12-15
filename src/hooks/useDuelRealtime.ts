@@ -666,13 +666,24 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           setConnectionStatus('connected');
           
           // КРИТИЧНО: Проверяем активные exploits сразу после подписки
-          console.log('[useDuelRealtime] 🔄 Calling recoverActiveExploits after subscription...');
+          console.log('[useDuelRealtime] 🔄 Calling recoverActiveExploits after subscription...', {
+            myPlayerId,
+            profileId,
+            duelId,
+            hasMyPlayerId: !!myPlayerId,
+            hasProfileId: !!profileId,
+            hasDuelId: !!duelId
+          });
           if (myPlayerId && profileId) {
+            console.log('[useDuelRealtime] ✅✅✅ All params available, calling recoverActiveExploits ✅✅✅');
             recoverActiveExploits();
           } else {
-            console.warn('[useDuelRealtime] ⚠️ Cannot recover exploits: myPlayerId or profileId missing', {
+            console.warn('[useDuelRealtime] ⚠️⚠️⚠️ Cannot recover exploits: myPlayerId or profileId missing ⚠️⚠️⚠️', {
               myPlayerId,
-              profileId
+              profileId,
+              duelId,
+              myPlayerIdType: typeof myPlayerId,
+              profileIdType: typeof profileId
             });
           }
           
@@ -717,11 +728,28 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
 
   // 🆕 Вызов восстановления при подключении
   useEffect(() => {
+    console.log('[useDuelRealtime] 🔍 useEffect для recoverActiveExploits:', {
+      connectionStatus,
+      duelStarted: state.duelStarted,
+      myPlayerId,
+      profileId,
+      duelId,
+      allConditionsMet: connectionStatus === 'connected' && state.duelStarted && myPlayerId && profileId
+    });
+    
     if (connectionStatus === 'connected' && state.duelStarted && myPlayerId && profileId) {
+      console.log('[useDuelRealtime] ✅✅✅ All conditions met, calling recoverActiveExploits ✅✅✅');
       log('[useDuelRealtime] Connection established, recovering exploits...');
       recoverActiveExploits();
+    } else {
+      console.warn('[useDuelRealtime] ⚠️ Conditions not met for recoverActiveExploits:', {
+        connectionStatus,
+        duelStarted: state.duelStarted,
+        hasMyPlayerId: !!myPlayerId,
+        hasProfileId: !!profileId
+      });
     }
-  }, [connectionStatus, state.duelStarted, myPlayerId, profileId, recoverActiveExploits]);
+  }, [connectionStatus, state.duelStarted, myPlayerId, profileId, recoverActiveExploits, duelId]);
 
   // 🆕 Обработка broadcast событий для exploits
   useEffect(() => {
