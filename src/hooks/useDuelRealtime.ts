@@ -668,11 +668,46 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
                   myPlayerIdRef.current = newExploit.target_player_id;
                 }
               } else {
-                console.log('[useDuelRealtime] ❌ Exploit NOT for us (user_id mismatch):', {
+                // КРИТИЧНО: Дополнительная проверка - может быть myPlayerId неправильный
+                // Проверяем все игроки в дуэли и находим правильный myPlayerId
+                console.warn('[useDuelRealtime] ⚠️⚠️⚠️ Exploit target_player_id mismatch, checking all players:', {
                   target_player_id: newExploit.target_player_id,
                   targetPlayerUserId: targetPlayer?.user_id,
-                  myProfileId: profileId
+                  myProfileId: profileId,
+                  myPlayerId: currentMyPlayerId,
+                  duelId
                 });
+                
+                try {
+                  const { data: allPlayers } = await supabase
+                    .from('duel_players')
+                    .select('id, user_id')
+                    .eq('duel_id', duelId);
+                  
+                  const correctPlayer = allPlayers?.find(p => p.user_id === profileId);
+                  
+                  if (correctPlayer && correctPlayer.id === newExploit.target_player_id) {
+                    // Атака действительно для нас, но myPlayerId был неправильным!
+                    isForCurrentPlayer = true;
+                    console.log('[useDuelRealtime] ✅✅✅✅ Exploit matches after checking all players! Fixing myPlayerId:', {
+                      correctPlayerId: correctPlayer.id,
+                      oldMyPlayerId: currentMyPlayerId,
+                      target_player_id: newExploit.target_player_id,
+                      myProfileId: profileId
+                    });
+                    myPlayerIdRef.current = correctPlayer.id;
+                  } else {
+                    console.log('[useDuelRealtime] ❌ Exploit NOT for us (user_id mismatch):', {
+                      target_player_id: newExploit.target_player_id,
+                      targetPlayerUserId: targetPlayer?.user_id,
+                      myProfileId: profileId,
+                      correctPlayerId: correctPlayer?.id,
+                      allPlayers: allPlayers?.map(p => ({ id: p.id, user_id: p.user_id }))
+                    });
+                  }
+                } catch (checkError) {
+                  console.error('[useDuelRealtime] ❌ Error checking all players:', checkError);
+                }
               }
             } catch (fallbackError) {
               console.error('[useDuelRealtime] ❌ Error in fallback check:', fallbackError);
