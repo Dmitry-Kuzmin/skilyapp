@@ -1970,7 +1970,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         });
 
         if (screenInjector) {
-          const shouldRender = !screenInjectorPassed && screenInjector.expiresAt > Date.now();
+          // КРИТИЧНО: Доверяем факту получения, а не времени (для Telegram Mini App)
+          // Рендерим атаку, если она есть в состоянии, даже если expiresAt в прошлом
+          // Удаляем только когда запись удалена из состояния или is_active стал false
+          const shouldRender = !screenInjectorPassed;
+          const isExpired = screenInjector.expiresAt <= Date.now();
+          const timeRemaining = screenInjector.expiresAt - Date.now();
+          
           console.log('[DuelBattleFullscreen] 🛢️ Oil Attack (Screen Injector/Data Leak) check:', {
             screenInjector,
             screenInjectorType: screenInjector.type,
@@ -1979,18 +1985,25 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             expiresAtISO: new Date(screenInjector.expiresAt).toISOString(),
             now: Date.now(),
             nowISO: new Date().toISOString(),
-            expired: screenInjector.expiresAt <= Date.now(),
+            expired: isExpired,
+            timeRemainingMs: timeRemaining,
+            timeRemainingSec: Math.round(timeRemaining / 1000),
             shouldRender,
             activeExploitsCount: state.activeExploits?.length || 0,
-            allActiveExploits: state.activeExploits?.map(e => e.type) || []
+            allActiveExploits: state.activeExploits?.map(e => e.type) || [],
+            note: 'Rendering based on state presence, not expiresAt (Telegram latency compensation)'
           });
           
           // КРИТИЧНО: Если должен рендериться, но не рендерится - логируем предупреждение
           if (shouldRender) {
-            console.log('[DuelBattleFullscreen] ✅✅✅ OilSplashAttack SHOULD BE RENDERING NOW! ✅✅✅');
+            console.log('[DuelBattleFullscreen] ✅✅✅ OilSplashAttack SHOULD BE RENDERING NOW! ✅✅✅', {
+              isExpired,
+              timeRemainingSec: Math.round(timeRemaining / 1000),
+              note: isExpired ? 'Rendering expired exploit (latency compensation)' : 'Rendering active exploit'
+            });
           } else {
             console.warn('[DuelBattleFullscreen] ⚠️ OilSplashAttack NOT rendering:', {
-              reason: screenInjectorPassed ? 'already passed' : 'expired',
+              reason: 'already passed',
               expiresAt: new Date(screenInjector.expiresAt).toISOString(),
               now: new Date().toISOString()
             });
@@ -2006,7 +2019,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           <>
             {/* Data Leak (Масло) 🛢️ */}
             {/* КРИТИЧНО: Рендерим для всех возможных типов атаки "Масло" */}
-            {screenInjector && !screenInjectorPassed && screenInjector.expiresAt > Date.now() && (
+            {/* ИЗМЕНЕНО: Убрали проверку expiresAt - доверяем факту получения, а не времени */}
+            {screenInjector && !screenInjectorPassed && (
               <OilSplashAttack
                 isActive={true}
                 expiresAt={screenInjector.expiresAt}

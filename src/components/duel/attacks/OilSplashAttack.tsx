@@ -72,6 +72,8 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   const crackPathsRef = useRef<Position[][]>([]);
 
   // КРИТИЧНО: Автоматическое завершение по истечении времени
+  // ИЗМЕНЕНО: Добавлен буфер для компенсации задержки сети в Telegram Mini App
+  // Не завершаем атаку сразу, если время истекло - даем буфер 5 секунд
   useEffect(() => {
     if (!isActive) return;
     
@@ -89,10 +91,42 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     try {
       const now = Date.now();
       const remainingTime = expiresAt - now;
+      const NETWORK_LATENCY_BUFFER_MS = 5000; // 5 секунд буфер для компенсации задержки сети
 
-      // Если время уже истекло - завершаем сразу
-      if (remainingTime <= 0) {
-        console.log('[OilSplashAttack] ⏰ Attack expired, cleaning up immediately');
+      // КРИТИЧНО: Если время истекло, но не более чем на NETWORK_LATENCY_BUFFER_MS - не завершаем сразу
+      // Это компенсирует задержку сети в Telegram Mini App
+      if (remainingTime <= 0 && remainingTime > -NETWORK_LATENCY_BUFFER_MS) {
+        console.log('[OilSplashAttack] ⏰ Attack expired but within latency buffer, allowing continuation:', {
+          expiredBy: Math.abs(remainingTime),
+          buffer: NETWORK_LATENCY_BUFFER_MS,
+          note: 'Telegram latency compensation - attack will continue for a short time'
+        });
+        
+        // Устанавливаем таймер на оставшееся время буфера
+        const bufferTime = NETWORK_LATENCY_BUFFER_MS + remainingTime; // Оставшееся время буфера
+        expireTimeoutRef.current = setTimeout(() => {
+          console.log('[OilSplashAttack] ⏰ Attack expired (after buffer), cleaning up');
+          try {
+            onCleaned();
+          } catch (error) {
+            console.error('[OilSplashAttack] Error calling onCleaned:', error);
+          }
+        }, Math.max(0, bufferTime));
+        
+        return () => {
+          if (expireTimeoutRef.current) {
+            clearTimeout(expireTimeoutRef.current);
+            expireTimeoutRef.current = null;
+          }
+        };
+      }
+
+      // Если время истекло более чем на NETWORK_LATENCY_BUFFER_MS - завершаем сразу
+      if (remainingTime <= -NETWORK_LATENCY_BUFFER_MS) {
+        console.log('[OilSplashAttack] ⏰ Attack expired beyond buffer, cleaning up immediately:', {
+          expiredBy: Math.abs(remainingTime),
+          buffer: NETWORK_LATENCY_BUFFER_MS
+        });
         try {
           onCleaned();
         } catch (error) {
