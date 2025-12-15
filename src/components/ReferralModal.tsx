@@ -83,7 +83,7 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
       }
     } catch (error) {
       console.error('[ReferralModal] Exception loading referral data:', error);
-      toast.error('Ошибка загрузки');
+      toast.error(t('referral.loadError'));
     } finally {
       setLoading(false);
     }
@@ -150,34 +150,34 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
               <h2 className="text-2xl font-bold mb-1 text-foreground">
                 {t('referral.title')}
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-foreground/70">
                 {t('referral.subtitle')}
               </p>
             </div>
 
             {/* How it works */}
             <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground">
+              <h3 className="text-sm font-semibold text-foreground">
                 {t('referral.howItWorks')}
               </h3>
               <div className="space-y-2.5">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
-                    <Zap className="h-3.5 w-3.5 text-muted-foreground" />
+                    <Zap className="h-3.5 w-3.5 text-foreground/70" />
                   </div>
                   <p className="text-sm text-foreground">{t('referral.step1')}</p>
                 </div>
                 
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
-                    <Crown className="h-3.5 w-3.5 text-muted-foreground" />
+                    <Crown className="h-3.5 w-3.5 text-foreground/70" />
                   </div>
                   <p className="text-sm text-foreground" dangerouslySetInnerHTML={{ __html: t('referral.step2') }} />
                 </div>
                 
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
-                    <MessageCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                    <MessageCircle className="h-3.5 w-3.5 text-foreground/70" />
                   </div>
                   <p className="text-sm text-foreground" dangerouslySetInnerHTML={{ __html: t('referral.step3') }} />
                 </div>
@@ -188,15 +188,15 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
           {/* Referral Link Section */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-muted-foreground">
+              <h3 className="text-sm font-semibold text-foreground">
                 {t('referral.yourLink')}
               </h3>
               {referralData && (
-                <span className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: t('referral.usedBy', { count: referralData.total_referrals || 0 }) }} />
+                <span className="text-sm text-foreground/70" dangerouslySetInnerHTML={{ __html: t('referral.usedBy', { count: referralData.total_referrals || 0 }) }} />
               )}
             </div>
             <div className="flex gap-2 items-center bg-muted/50 rounded-lg p-3 border border-border">
-              <LinkIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+              <LinkIcon className="h-4 w-4 text-foreground/60 shrink-0" />
               <span className="flex-1 font-mono text-sm text-foreground truncate">
                 {loading ? t('referral.loading') : referralLink}
               </span>
