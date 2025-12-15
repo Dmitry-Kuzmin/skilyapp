@@ -649,10 +649,12 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           { table: 'duel_players', event: 'INSERT' },
           { table: 'duel_players', event: 'UPDATE' },
           { table: 'duel_answers', event: '*' },
-          { table: 'duel_active_exploits', event: 'INSERT' }
+          { table: 'duel_active_exploits', event: 'INSERT', filter: `duel_id=eq.${duelId}` }
         ],
         duelId,
-        channelTopic: duelChannel.topic
+        channelTopic: duelChannel.topic,
+        channelState: duelChannel.state,
+        isJoined: duelChannel.joinedOnce
       });
       
       duelChannel.subscribe((status) => {
