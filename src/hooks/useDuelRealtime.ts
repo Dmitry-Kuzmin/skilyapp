@@ -154,23 +154,24 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       // myPlayerId - это уже ID из duel_players, используем его напрямую
       const targetPlayerId = myPlayerId;
 
+      // УПРОЩЕННАЯ ЛОГИКА: В дуэли 1 на 1 берем все exploits, где attacker НЕ я
       // КРИТИЧНО: Логируем SQL запрос для отладки
       const sqlQuery = `
         SELECT * FROM duel_active_exploits 
         WHERE duel_id = '${duelId}' 
-        AND target_player_id = '${targetPlayerId}' 
+        AND attacker_player_id != '${targetPlayerId}' 
         AND is_active = true 
         AND expires_at > NOW()
         ORDER BY activated_at DESC
       `;
-      console.log('[useDuelRealtime] 🔍 SQL запрос для recoverActiveExploits:', sqlQuery);
+      console.log('[useDuelRealtime] 🔍 SQL запрос для recoverActiveExploits (1v1 logic):', sqlQuery);
       
-      // Запрашиваем активные атаки, срок которых еще не истек
+      // Запрашиваем активные атаки где attacker НЕ я (в дуэли 1 на 1 это значит "для меня")
       const { data: exploits, error: exploitsError } = await supabase
         .from('duel_active_exploits')
         .select('*')
         .eq('duel_id', duelId)
-        .eq('target_player_id', targetPlayerId)
+        .neq('attacker_player_id', targetPlayerId) // Атаки НЕ от меня = для меня
         .eq('is_active', true)
         .gt('expires_at', new Date().toISOString())
         .order('activated_at', { ascending: false });
@@ -224,6 +225,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           const existingTypes = new Set((prev.activeExploits || []).map(e => `${e.type}-${e.receivedAt}`));
           
           const newExploits = exploits
+            .filter(e => e.attacker_player_id !== myPlayerId) // Только атаки НЕ от меня
             .map(e => ({
               type: e.exploit_type,
               data: e.effect_data || {},
