@@ -627,14 +627,16 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             profileId: profileId
           });
           
-          // КРИТИЧНО: Проверяем, что exploit направлен на нас
-          // Используем два способа проверки:
-          // 1. Прямое сравнение по myPlayerId (основной способ)
-          // 2. Fallback: проверка по user_id через БД (если myPlayerId не совпадает)
+          // КРИТИЧНО: Упрощенная логика для дуэли 1 на 1
+          // В дуэли 1 на 1 нам не нужно сверять target_player_id
+          // Если атаку создал НЕ Я (attacker_player_id !== myPlayerId), значит она В МЕНЯ
+          // Это решает проблему с несовпадением ID без необходимости сложных проверок
+          
           let isForCurrentPlayer = false;
           
           // КРИТИЧНО: Логируем ВСЕ параметры перед проверкой
           console.log('[useDuelRealtime] 🔍🔍🔍 BEFORE CHECK - All parameters:', {
+            attacker_player_id: newExploit.attacker_player_id,
             target_player_id: newExploit.target_player_id,
             currentMyPlayerId: currentMyPlayerId,
             myPlayerIdRef: myPlayerIdRef.current,
@@ -642,97 +644,24 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             duelId: duelId,
             is_active: newExploit.is_active,
             exploit_type: newExploit.exploit_type,
-            willMatch: currentMyPlayerId && newExploit.target_player_id === currentMyPlayerId
+            willMatch: currentMyPlayerId && newExploit.attacker_player_id !== currentMyPlayerId
           });
           
-          if (currentMyPlayerId && newExploit.target_player_id === currentMyPlayerId) {
+          // УПРОЩЕННАЯ ЛОГИКА: Если атаку создал НЕ Я, значит она для меня (в дуэли 1 на 1)
+          if (currentMyPlayerId && newExploit.attacker_player_id && newExploit.attacker_player_id !== currentMyPlayerId) {
             isForCurrentPlayer = true;
-            console.log('[useDuelRealtime] ✅✅✅ Exploit matches by myPlayerId:', {
-              target_player_id: newExploit.target_player_id,
+            console.log('[useDuelRealtime] ✅✅✅ Exploit is from opponent (1v1 logic):', {
+              attacker_player_id: newExploit.attacker_player_id,
               myPlayerId: currentMyPlayerId,
-              isForCurrentPlayer: true
+              isForCurrentPlayer: true,
+              note: 'In 1v1 duel, if attack is not from me, it\'s for me'
             });
-          } else if (profileId && duelId && newExploit.target_player_id) {
-            // Fallback: проверяем через БД, соответствует ли target_player_id нашему user_id
-            try {
-              const { data: targetPlayer } = await supabase
-                .from('duel_players')
-                .select('user_id')
-                .eq('duel_id', duelId)
-                .eq('id', newExploit.target_player_id)
-                .maybeSingle();
-              
-              if (targetPlayer?.user_id === profileId) {
-                isForCurrentPlayer = true;
-                console.log('[useDuelRealtime] ✅✅✅ Exploit matches by user_id (FALLBACK):', {
-                  target_player_id: newExploit.target_player_id,
-                  targetPlayerUserId: targetPlayer.user_id,
-                  myProfileId: profileId,
-                  myPlayerId: currentMyPlayerId,
-                  note: 'myPlayerId mismatch detected, using user_id fallback'
-                });
-                
-                // КРИТИЧНО: Обновляем myPlayerId если он был неправильным
-                if (!currentMyPlayerId || currentMyPlayerId !== newExploit.target_player_id) {
-                  console.warn('[useDuelRealtime] ⚠️ Updating myPlayerId from exploit target:', {
-                    oldMyPlayerId: currentMyPlayerId,
-                    newMyPlayerId: newExploit.target_player_id
-                  });
-                  myPlayerIdRef.current = newExploit.target_player_id;
-                }
-              } else {
-                // КРИТИЧНО: Дополнительная проверка - может быть myPlayerId неправильный
-                // Проверяем все игроки в дуэли и находим правильный myPlayerId
-                console.warn('[useDuelRealtime] ⚠️⚠️⚠️ Exploit target_player_id mismatch, checking all players:', {
-                  target_player_id: newExploit.target_player_id,
-                  targetPlayerUserId: targetPlayer?.user_id,
-                  myProfileId: profileId,
-                  myPlayerId: currentMyPlayerId,
-                  duelId
-                });
-                
-                try {
-                  const { data: allPlayers } = await supabase
-                    .from('duel_players')
-                    .select('id, user_id')
-                    .eq('duel_id', duelId);
-                  
-                  const correctPlayer = allPlayers?.find(p => p.user_id === profileId);
-                  
-                  if (correctPlayer && correctPlayer.id === newExploit.target_player_id) {
-                    // Атака действительно для нас, но myPlayerId был неправильным!
-                    isForCurrentPlayer = true;
-                    console.log('[useDuelRealtime] ✅✅✅✅ Exploit matches after checking all players! Fixing myPlayerId:', {
-                      correctPlayerId: correctPlayer.id,
-                      oldMyPlayerId: currentMyPlayerId,
-                      target_player_id: newExploit.target_player_id,
-                      myProfileId: profileId
-                    });
-                    myPlayerIdRef.current = correctPlayer.id;
-                  } else {
-                    console.log('[useDuelRealtime] ❌ Exploit NOT for us (user_id mismatch):', {
-                      target_player_id: newExploit.target_player_id,
-                      targetPlayerUserId: targetPlayer?.user_id,
-                      myProfileId: profileId,
-                      correctPlayerId: correctPlayer?.id,
-                      allPlayers: allPlayers?.map(p => ({ id: p.id, user_id: p.user_id }))
-                    });
-                  }
-                } catch (checkError) {
-                  console.error('[useDuelRealtime] ❌ Error checking all players:', checkError);
-                }
-              }
-            } catch (fallbackError) {
-              console.error('[useDuelRealtime] ❌ Error in fallback check:', fallbackError);
-            }
-          }
-          
-          // КРИТИЧНО: Если myPlayerId еще не установлен, но есть profileId и duelId, пытаемся загрузить его
-          if (!isForCurrentPlayer && !currentMyPlayerId && profileId && duelId && newExploit.target_player_id) {
-            console.warn('[useDuelRealtime] ⚠️⚠️⚠️ myPlayerId not set, trying to load from DB before processing exploit:', {
-              target_player_id: newExploit.target_player_id,
+          } else if (!currentMyPlayerId && profileId && duelId) {
+            // Fallback: если myPlayerId еще не установлен, загружаем его из БД
+            console.warn('[useDuelRealtime] ⚠️ myPlayerId not set, loading from DB...', {
               profileId,
-              duelId
+              duelId,
+              attacker_player_id: newExploit.attacker_player_id
             });
             
             try {
@@ -748,14 +677,14 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
                 myPlayerIdRef.current = loadedMyPlayerId;
                 console.log('[useDuelRealtime] ✅✅✅ Loaded myPlayerId from DB:', {
                   loadedMyPlayerId,
-                  target_player_id: newExploit.target_player_id,
-                  matches: loadedMyPlayerId === newExploit.target_player_id
+                  attacker_player_id: newExploit.attacker_player_id,
+                  matches: loadedMyPlayerId !== newExploit.attacker_player_id
                 });
                 
                 // Проверяем еще раз после загрузки myPlayerId
-                if (loadedMyPlayerId === newExploit.target_player_id) {
+                if (loadedMyPlayerId !== newExploit.attacker_player_id) {
                   isForCurrentPlayer = true;
-                  console.log('[useDuelRealtime] ✅✅✅✅ Exploit matches after loading myPlayerId!');
+                  console.log('[useDuelRealtime] ✅✅✅✅ Exploit is from opponent after loading myPlayerId!');
                 }
               }
             } catch (loadError) {
@@ -764,15 +693,16 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           }
           
           // КРИТИЧНО: Логируем результат проверки ПЕРЕД обработкой
-          console.log('[useDuelRealtime] 🔍🔍🔍 AFTER ALL CHECKS - Final decision:', {
+          console.log('[useDuelRealtime] 🔍🔍🔍 AFTER CHECK - Final decision:', {
             isForCurrentPlayer,
             is_active: newExploit.is_active,
             willProcess: isForCurrentPlayer && newExploit.is_active,
-            target_player_id: newExploit.target_player_id,
+            attacker_player_id: newExploit.attacker_player_id,
             currentMyPlayerId: currentMyPlayerId,
             myPlayerIdRef: myPlayerIdRef.current,
             profileId: profileId,
-            exploit_type: newExploit.exploit_type
+            exploit_type: newExploit.exploit_type,
+            logic: '1v1: if attacker != me, then exploit is for me'
           });
           
           if (isForCurrentPlayer && newExploit.is_active) {
