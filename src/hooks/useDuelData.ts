@@ -387,8 +387,20 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
         loadoutError = rpcError;
       } else {
         // RPC возвращает массив, берем первый элемент или null
+        console.log('[useDuelData] 🔍 RPC raw response:', {
+          rpcData,
+          rpcDataLength: rpcData?.length,
+          rpcDataType: Array.isArray(rpcData) ? 'array' : typeof rpcData,
+          firstElement: rpcData?.[0],
+        });
         loadout = rpcData && rpcData.length > 0 ? rpcData[0] : null;
-        console.log('[useDuelData] ✅ Loadout loaded via RPC:', loadout);
+        console.log('[useDuelData] ✅ Loadout loaded via RPC:', {
+          loadout,
+          hasLoadout: !!loadout,
+          slot1: loadout?.slot_1_boost_type,
+          slot2: loadout?.slot_2_boost_type,
+          slot3: loadout?.slot_3_boost_type,
+        });
       }
     } catch (rpcException) {
       console.warn('[useDuelData] ⚠️ RPC exception, trying direct query:', rpcException);
@@ -431,7 +443,14 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       if (loadout.slot_3_boost_type) loadoutBoosts.push(loadout.slot_3_boost_type);
     }
 
-    console.log('[useDuelData] Loadout:', loadout, 'Selected boosts:', loadoutBoosts);
+    console.log('[useDuelData] 📋 Loadout processing:', {
+      hasLoadout: !!loadout,
+      loadout,
+      loadoutBoosts,
+      loadoutBoostsLength: loadoutBoosts.length,
+      willFilter: loadoutBoosts.length > 0,
+      willShowAll: loadoutBoosts.length === 0,
+    });
 
     // Загружаем все бусты из инвентаря
     // КРИТИЧНО: Используем RPC функцию, которая обходит RLS через SECURITY DEFINER
