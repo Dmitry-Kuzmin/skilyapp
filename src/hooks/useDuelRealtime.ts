@@ -53,6 +53,17 @@ export interface DuelRealtimeState {
 
 export function useDuelRealtime(duelId: string | null, myPlayerId?: string | null) {
   const { profileId } = useUserContext();
+  
+  // КРИТИЧНО: Логируем все параметры при каждом вызове хука
+  console.log('[useDuelRealtime] 🏁 Hook initialized/re-rendered:', {
+    duelId,
+    myPlayerId,
+    profileId,
+    isTelegram: typeof window !== 'undefined' && !!window.Telegram?.WebApp,
+    platform: typeof window !== 'undefined' ? window.Telegram?.WebApp?.platform : 'unknown',
+    timestamp: new Date().toISOString()
+  });
+  
   const [state, setState] = useState<DuelRealtimeState>({
     opponentJoined: false,
     opponentScore: 0,
@@ -996,22 +1007,79 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
 
   // КРИТИЧНО: Polling fallback для Telegram Mini App (если Realtime не работает)
   // Проверяем новые exploits каждые 2 секунды через прямой запрос к БД
+  // ИЗМЕНЕНО: Теперь работает даже без myPlayerId - загружает его из БД если нужно
   useEffect(() => {
     const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-    if (!isTelegram || !duelId || !myPlayerId || connectionStatus !== 'connected') {
+    
+    // КРИТИЧНО: Логируем все параметры для диагностики
+    console.log('[useDuelRealtime] 🔍 Polling setup check:', {
+      isTelegram,
+      duelId,
+      myPlayerId,
+      profileId,
+      connectionStatus,
+      willStartPolling: isTelegram && duelId && connectionStatus === 'connected'
+    });
+    
+    // ИЗМЕНЕНО: Не требуем myPlayerId - загрузим его из БД если нужно
+    if (!isTelegram || !duelId || connectionStatus !== 'connected') {
+      if (!isTelegram) console.log('[useDuelRealtime] ⏭️ Polling skipped: not Telegram');
+      if (!duelId) console.log('[useDuelRealtime] ⏭️ Polling skipped: no duelId');
+      if (connectionStatus !== 'connected') console.log('[useDuelRealtime] ⏭️ Polling skipped: not connected');
       return;
     }
     
-    console.log('[useDuelRealtime] 🔄 Starting polling fallback for Telegram Mini App...', {
+    console.log('[useDuelRealtime] 🔄🔄🔄 Starting polling fallback for Telegram Mini App... 🔄🔄🔄', {
       duelId,
       myPlayerId,
-      connectionStatus
+      profileId,
+      connectionStatus,
+      platform: window.Telegram?.WebApp?.platform
     });
+    
+    // Кэш для загруженного myPlayerId
+    let cachedMyPlayerId: string | null = myPlayerId || null;
     
     const pollingInterval = setInterval(async () => {
       try {
-        const currentMyPlayerId = myPlayerIdRef.current;
-        if (!currentMyPlayerId || !duelId) return;
+        let currentMyPlayerId = myPlayerIdRef.current || cachedMyPlayerId;
+        
+        // КРИТИЧНО: Если myPlayerId не установлен, загружаем его из БД
+        if (!currentMyPlayerId && profileId && duelId) {
+          console.log('[useDuelRealtime] 🔍 Polling: myPlayerId not set, loading from DB...', {
+            profileId,
+            duelId
+          });
+          
+          try {
+            const { data: playerData } = await supabase
+              .from('duel_players')
+              .select('id')
+              .eq('duel_id', duelId)
+              .eq('user_id', profileId)
+              .maybeSingle();
+            
+            if (playerData?.id) {
+              currentMyPlayerId = playerData.id;
+              cachedMyPlayerId = playerData.id;
+              myPlayerIdRef.current = playerData.id;
+              console.log('[useDuelRealtime] ✅✅✅ Polling: Loaded myPlayerId from DB:', currentMyPlayerId);
+            } else {
+              console.warn('[useDuelRealtime] ⚠️ Polling: Could not find myPlayerId in DB');
+            }
+          } catch (loadError) {
+            console.error('[useDuelRealtime] ❌ Polling: Error loading myPlayerId:', loadError);
+          }
+        }
+        
+        if (!currentMyPlayerId || !duelId) {
+          console.log('[useDuelRealtime] ⏭️ Polling iteration skipped: no myPlayerId', {
+            currentMyPlayerId,
+            duelId,
+            profileId
+          });
+          return;
+        }
         
         // УПРОЩЕННАЯ ЛОГИКА: В дуэли 1 на 1 берем все exploits, где attacker НЕ я
         const { data: newExploits, error } = await supabase
@@ -1028,13 +1096,30 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           return;
         }
         
+        // КРИТИЧНО: Всегда логируем результат polling (даже если пусто)
+        console.log('[useDuelRealtime] 🔍 Polling result:', {
+          exploitsFound: newExploits?.length || 0,
+          currentMyPlayerId,
+          duelId,
+          currentTime: new Date().toISOString(),
+          exploits: newExploits?.map(e => ({
+            id: e.id,
+            type: e.exploit_type,
+            attacker: e.attacker_player_id,
+            target: e.target_player_id,
+            expires_at: e.expires_at,
+            is_active: e.is_active
+          })) || []
+        });
+        
         if (newExploits && newExploits.length > 0) {
-          console.log('[useDuelRealtime] 🔔 Polling found new exploits (1v1 logic):', newExploits.length, {
+          console.log('[useDuelRealtime] 🔔🔔🔔 Polling found new exploits (1v1 logic)! 🔔🔔🔔:', newExploits.length, {
             exploits: newExploits.map(e => ({
               type: e.exploit_type,
               attacker: e.attacker_player_id,
               target: e.target_player_id,
-              myPlayerId: currentMyPlayerId
+              myPlayerId: currentMyPlayerId,
+              expires_at: e.expires_at
             }))
           });
           
@@ -1052,10 +1137,16 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               .filter(e => !existingTypes.has(`${e.type}-${e.receivedAt}`));
             
             if (newExploitsToAdd.length === 0) {
+              console.log('[useDuelRealtime] ⏭️ Polling: All exploits already in state (duplicates)');
               return prev;
             }
             
-            console.log('[useDuelRealtime] ✅ Polling: Adding exploits via fallback (1v1 logic):', newExploitsToAdd.length);
+            console.log('[useDuelRealtime] ✅✅✅ Polling: Adding exploits via fallback (1v1 logic):', newExploitsToAdd.length, {
+              newExploits: newExploitsToAdd.map(e => ({
+                type: e.type,
+                expiresAt: new Date(e.expiresAt).toISOString()
+              }))
+            });
             
             return {
               ...prev,
@@ -1072,7 +1163,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       console.log('[useDuelRealtime] 🛑 Stopping polling fallback...');
       clearInterval(pollingInterval);
     };
-  }, [duelId, myPlayerId, connectionStatus]);
+  }, [duelId, myPlayerId, profileId, connectionStatus]);
 
   // ОПТИМИЗАЦИЯ: Мемоизируем broadcast функцию
   const broadcast = useCallback((event: string, data: any) => {

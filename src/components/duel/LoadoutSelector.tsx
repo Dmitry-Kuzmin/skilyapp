@@ -94,18 +94,18 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           if (rpcError) {
             console.warn('[LoadoutSelector] RPC failed, trying direct query:', rpcError);
             // Fallback: прямой запрос
-            const { data: currentLoadout } = await supabase
-              .from('user_loadouts')
-              .select('slot_1_boost_type, slot_2_boost_type, slot_3_boost_type')
-              .eq('user_id', profileId)
-              .maybeSingle();
+        const { data: currentLoadout } = await supabase
+          .from('user_loadouts')
+          .select('slot_1_boost_type, slot_2_boost_type, slot_3_boost_type')
+          .eq('user_id', profileId)
+          .maybeSingle();
 
-            if (currentLoadout) {
-              setLoadout({
-                slot_1_boost_type: currentLoadout.slot_1_boost_type,
-                slot_2_boost_type: currentLoadout.slot_2_boost_type,
-                slot_3_boost_type: currentLoadout.slot_3_boost_type,
-              });
+        if (currentLoadout) {
+          setLoadout({
+            slot_1_boost_type: currentLoadout.slot_1_boost_type,
+            slot_2_boost_type: currentLoadout.slot_2_boost_type,
+            slot_3_boost_type: currentLoadout.slot_3_boost_type,
+          });
             }
           } else if (rpcData && rpcData.length > 0) {
             const currentLoadout = rpcData[0];
@@ -115,7 +115,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
               slot_3_boost_type: currentLoadout.slot_3_boost_type,
             });
             console.log('[LoadoutSelector] ✅ Loadout loaded via RPC:', currentLoadout);
-          } else {
+        } else {
             // Loadout не существует - это нормально, оставляем пустым
             console.log('[LoadoutSelector] No loadout found, starting with empty slots');
           }
@@ -287,13 +287,13 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         console.error('[LoadoutSelector] Error saving loadout via RPC:', rpcError);
         // Fallback: пробуем через прямой запрос
         const { error: directError } = await supabase
-          .from('user_loadouts')
-          .upsert({
-            user_id: profileId,
-            ...newLoadout,
-          }, {
-            onConflict: 'user_id',
-          });
+        .from('user_loadouts')
+        .upsert({
+          user_id: profileId,
+          ...newLoadout,
+        }, {
+          onConflict: 'user_id',
+        });
         
         if (directError) {
           console.error('[LoadoutSelector] Error saving loadout via direct query:', directError);

@@ -1889,14 +1889,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 codeVersion: '2025-12-15-v2', // Версия кода для проверки обновления
               });
               return (
-                <DuelBoostsPanel
-                  boosts={boosts}
-                  usedBoosts={usedBoosts}
-                  isAnswered={isAnswered}
-                  translatePopoverOpen={translatePopoverOpen}
-                  onBoostUse={handleBoostUse}
-                  onTranslatePopoverChange={setTranslatePopoverOpen}
-                />
+            <DuelBoostsPanel
+              boosts={boosts}
+              usedBoosts={usedBoosts}
+              isAnswered={isAnswered}
+              translatePopoverOpen={translatePopoverOpen}
+              onBoostUse={handleBoostUse}
+              onTranslatePopoverChange={setTranslatePopoverOpen}
+            />
               );
             })()}
           </div>

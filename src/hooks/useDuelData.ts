@@ -414,10 +414,10 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
     if (loadoutError && !loadout) {
       console.log('[useDuelData] 🔄 Trying direct query as fallback...');
       const { data: directData, error: directError } = await supabase
-        .from("user_loadouts")
-        .select("slot_1_boost_type, slot_2_boost_type, slot_3_boost_type")
-        .eq("user_id", profileId)
-        .maybeSingle();
+      .from("user_loadouts")
+      .select("slot_1_boost_type, slot_2_boost_type, slot_3_boost_type")
+      .eq("user_id", profileId)
+      .maybeSingle();
 
       if (directError) {
         console.warn('[useDuelData] ⚠️ Error loading loadout (both RPC and direct failed, continuing without loadout):', {
@@ -425,24 +425,24 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
           directError,
           code: directError.code,
           message: directError.message,
-          profileId,
+        profileId,
           hint: directError.code === 'PGRST116' 
             ? 'Loadout does not exist - this is OK, will show all boosts'
             : 'This might be an RLS policy issue. Check if migrations are applied.'
-        });
-        // Продолжаем без loadout - покажем все бусты из инвентаря
+      });
+      // Продолжаем без loadout - покажем все бусты из инвентаря
         loadout = null;
-      } else {
+    } else {
         loadout = directData;
         console.log('[useDuelData] ✅ Loadout loaded via direct query:', loadout);
-      }
+    }
     }
 
     // КРИТИЧНО: Доверяем данным из базы - если в слоте есть буст, значит пользователь имел право его туда положить
     // (купил слот, посмотрел рекламу, имеет Premium и т.д.)
     // Валидацию "можно ли сохранять в этот слот" делает только LoadoutSelector, а не игра
     // Это решает проблему с временной разблокировкой через рекламу
-    
+
     // Формируем список выбранных бустов из loadout (просто берем все не-null слоты)
     const loadoutBoosts: string[] = [];
     if (loadout) {
@@ -512,9 +512,9 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
     if (error || boosts.length === 0) {
       console.log('[useDuelData] 🔄 Trying direct query as fallback...');
       const { data: directData, error: directError } = await supabase
-        .from("boost_inventory")
-        .select("boost_type, quantity")
-        .eq("user_id", profileId);
+      .from("boost_inventory")
+      .select("boost_type, quantity")
+      .eq("user_id", profileId);
 
       if (directError) {
         console.error('[useDuelData] ❌ Error loading boost inventory (both RPC and direct failed):', {
@@ -524,16 +524,16 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
           message: directError.message,
           details: directError.details,
           hint: directError.hint,
-          profileId,
+        profileId,
           profileIdType: typeof profileId,
           timestamp: new Date().toISOString(),
           hint2: 'This might be an RLS policy issue. Check if migrations 20251215000005 and 20251215000006 are applied.',
           hint3: 'Check if profileId matches profiles.id and if auth.uid() matches profiles.user_id',
-        });
-        // НЕ выбрасываем ошибку - возвращаем пустой массив, чтобы игра продолжалась
-        // Бусты просто не будут отображаться
-        return [];
-      }
+      });
+      // НЕ выбрасываем ошибку - возвращаем пустой массив, чтобы игра продолжалась
+      // Бусты просто не будут отображаться
+      return [];
+    }
 
       if (directData && directData.length > 0) {
         boosts = directData;

@@ -47,7 +47,7 @@ export const DuelBoostsPanel = memo(({
   // Это помогает пользователю видеть, что функционал есть, и упрощает отладку
   const isDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1'));
   const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-  
+
   return (
     <div className="flex items-center gap-1.5 flex-wrap w-full justify-center min-h-[32px]">
       {boosts.length === 0 && (isDev || isTelegram) && (
