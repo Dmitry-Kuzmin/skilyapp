@@ -15,9 +15,12 @@ export function useDuelSync({
 }: UseDuelSyncProps) {
   const syncBoostInventory = useCallback(async () => {
     const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-    console.log('[useDuelSync] 🔄 Starting boost inventory sync:', {
+    // КРИТИЧНО: Версионирование логов для проверки обновления кода
+    console.log('[useDuelSync] 🔄 Starting boost inventory sync [v2]:', {
       isTelegram,
       platform: isTelegram ? window.Telegram.WebApp.platform : 'browser',
+      timestamp: new Date().toISOString(),
+      codeVersion: '2025-12-15-v2', // Версия кода для проверки обновления
     });
     try {
       const inventory = await fetchBoostInventory();

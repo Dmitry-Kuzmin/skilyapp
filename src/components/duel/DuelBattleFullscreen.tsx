@@ -1876,7 +1876,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             {/* Boosts - Premium Compact Design - Всегда видимы */}
             {(() => {
               const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-              console.log('[DuelBattleFullscreen] 🎮 Rendering DuelBoostsPanel:', {
+              // КРИТИЧНО: Версионирование логов для проверки обновления кода
+              console.log('[DuelBattleFullscreen] 🎮 Rendering DuelBoostsPanel [v2]:', {
                 boostsCount: boosts.length,
                 boosts: boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })),
                 isTelegram,
@@ -1884,6 +1885,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 isTelegramMobile,
                 usedBoosts,
                 isAnswered,
+                timestamp: new Date().toISOString(),
+                codeVersion: '2025-12-15-v2', // Версия кода для проверки обновления
               });
               return (
                 <DuelBoostsPanel
