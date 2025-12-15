@@ -400,6 +400,13 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
     console.log('[useDuelData] Loadout:', loadout, 'Selected boosts:', loadoutBoosts);
 
     // Загружаем все бусты из инвентаря
+    // КРИТИЧНО: Добавляем детальное логирование для диагностики RLS
+    console.log('[useDuelData] 🔍 Loading boost inventory:', {
+      profileId,
+      profileIdType: typeof profileId,
+      timestamp: new Date().toISOString(),
+    });
+    
     const { data, error } = await supabase
       .from("boost_inventory")
       .select("boost_type, quantity")
@@ -410,8 +417,13 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
         error,
         code: error.code,
         message: error.message,
+        details: error.details,
+        hint: error.hint,
         profileId,
-        hint: 'This might be an RLS policy issue. Check if migrations 20251215000005 and 20251215000006 are applied.'
+        profileIdType: typeof profileId,
+        timestamp: new Date().toISOString(),
+        hint2: 'This might be an RLS policy issue. Check if migrations 20251215000005 and 20251215000006 are applied.',
+        hint3: 'Check if profileId matches profiles.id and if auth.uid() matches profiles.user_id',
       });
       // НЕ выбрасываем ошибку - возвращаем пустой массив, чтобы игра продолжалась
       // Бусты просто не будут отображаться
@@ -419,7 +431,12 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
     }
 
     let boosts = data || [];
-    console.log('[useDuelData] ✅ All boosts from inventory:', boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })));
+    console.log('[useDuelData] ✅ All boosts from inventory:', {
+      count: boosts.length,
+      boosts: boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })),
+      profileId,
+      timestamp: new Date().toISOString(),
+    });
     
     if (boosts.length === 0) {
       console.warn('[useDuelData] ⚠️ Boost inventory is empty. This might mean:');
