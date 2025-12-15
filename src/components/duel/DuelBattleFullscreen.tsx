@@ -1458,18 +1458,83 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         });
 
         try {
-      await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'use_boost',
-          duel_id: duelId,
-          profile_id: profileId,
-          duel_question_id: questions[currentIndex].id,
-          boost_type: boostType,
-          language: language,
-        },
-      });
+          // КРИТИЧНО: Проверяем сессию перед вызовом Edge Function
+          const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+          if (sessionError) {
+            logError('[DuelBattleFullscreen] ❌ Session error before boost:', sessionError);
+          }
+          log('[DuelBattleFullscreen] 🔐 Session check before boost:', {
+            hasSession: !!sessionData?.session,
+            hasAccessToken: !!sessionData?.session?.access_token,
+            tokenExpiresAt: sessionData?.session?.expires_at,
+          });
+
+          const { data, error } = await supabase.functions.invoke('duel-manager', {
+            body: {
+              action: 'use_boost',
+              duel_id: duelId,
+              profile_id: profileId,
+              duel_question_id: questions[currentIndex].id,
+              boost_type: boostType,
+              language: language,
+            },
+          });
+
+          // КРИТИЧНО: Проверяем error в ответе (даже если не выброшено исключение)
+          if (error) {
+            logError('[DuelBattleFullscreen] ❌ Supabase function error:', {
+              message: error.message,
+              name: error.name,
+              context: error.context,
+              stack: error.stack,
+              boostType,
+              duelId,
+              profileId,
+            });
+
+            // Пытаемся извлечь детали из error.context (это Response объект)
+            if (error.context && typeof error.context.json === 'function') {
+              try {
+                const clonedResponse = error.context.clone();
+                const errorBody = await clonedResponse.json();
+                logError('[DuelBattleFullscreen] ❌ Error body details:', errorBody);
+              } catch (e) {
+                try {
+                  const clonedResponse = error.context.clone();
+                  const errorText = await clonedResponse.text();
+                  logError('[DuelBattleFullscreen] ❌ Error body (text):', errorText);
+                } catch (e2) {
+                  logError('[DuelBattleFullscreen] ❌ Could not parse error body:', e2);
+                }
+              }
+            }
+
+            // Ошибка - показываем toast и откатываем изменения
+            if (navigator.vibrate) {
+              navigator.vibrate(500); // Длинная вибрация ошибки
+            }
+            toast.error("UPLOAD FAILED", { 
+              id: toastId,
+              description: error.message || 'Не удалось отправить атаку',
+              style: {
+                background: '#7f1d1d',
+                color: '#fca5a5',
+                border: '1px solid #ef4444',
+                fontFamily: 'monospace'
+              }
+            });
+            setBoostFeedback(prev => ({ ...prev, isActive: false }));
+            setUsedBoosts(prev => prev.filter(b => b !== boostType)); // Откатываем использование буста
+            throw error;
+          }
 
           // Успех - обновляем toast
+          log('[DuelBattleFullscreen] ✅ Boost activated successfully:', {
+            boostType,
+            duelId,
+            responseData: data,
+          });
+
           if (navigator.vibrate) {
             navigator.vibrate([100, 50, 100]); // Двойная вибрация "Бзз-Бзз"
           }
@@ -1487,20 +1552,21 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             duration: 3000,
           });
 
-      // Уменьшаем количество буста локально (не синхронизируем с БД - буст уже использован)
-      setBoosts(prev => prev.map(b => 
-        b.boost_type === boostType 
-          ? { ...b, quantity: Math.max(0, b.quantity - 1) }
-          : b
-      ));
+          // Уменьшаем количество буста локально (не синхронизируем с БД - буст уже использован)
+          setBoosts(prev => prev.map(b => 
+            b.boost_type === boostType 
+              ? { ...b, quantity: Math.max(0, b.quantity - 1) }
+              : b
+          ));
         } catch (error) {
-          // Ошибка
+          // Ошибка (исключение)
+          logError('[DuelBattleFullscreen] ❌ Exception during boost activation:', error);
           if (navigator.vibrate) {
             navigator.vibrate(500); // Длинная вибрация ошибки
           }
           toast.error("UPLOAD FAILED", { 
             id: toastId,
-            description: 'Не удалось отправить атаку',
+            description: error instanceof Error ? error.message : 'Не удалось отправить атаку',
             style: {
               background: '#7f1d1d',
               color: '#fca5a5',
@@ -1509,11 +1575,23 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             }
           });
           setBoostFeedback(prev => ({ ...prev, isActive: false }));
+          setUsedBoosts(prev => prev.filter(b => b !== boostType)); // Откатываем использование буста
           throw error;
         }
       } else {
         // Обычные бусты (Safe Mode) - без специальной обработки
-        await supabase.functions.invoke('duel-manager', {
+        // КРИТИЧНО: Проверяем сессию перед вызовом Edge Function
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+          logError('[DuelBattleFullscreen] ❌ Session error before boost:', sessionError);
+        }
+        log('[DuelBattleFullscreen] 🔐 Session check before boost (Safe Mode):', {
+          hasSession: !!sessionData?.session,
+          hasAccessToken: !!sessionData?.session?.access_token,
+          tokenExpiresAt: sessionData?.session?.expires_at,
+        });
+
+        const { data, error } = await supabase.functions.invoke('duel-manager', {
           body: {
             action: 'use_boost',
             duel_id: duelId,
@@ -1522,6 +1600,43 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             boost_type: boostType,
             language: language,
           },
+        });
+
+        // КРИТИЧНО: Проверяем error в ответе
+        if (error) {
+          logError('[DuelBattleFullscreen] ❌ Supabase function error (Safe Mode):', {
+            message: error.message,
+            name: error.name,
+            context: error.context,
+            boostType,
+            duelId,
+            profileId,
+          });
+
+          // Пытаемся извлечь детали из error.context
+          if (error.context && typeof error.context.json === 'function') {
+            try {
+              const clonedResponse = error.context.clone();
+              const errorBody = await clonedResponse.json();
+              logError('[DuelBattleFullscreen] ❌ Error body details (Safe Mode):', errorBody);
+            } catch (e) {
+              try {
+                const clonedResponse = error.context.clone();
+                const errorText = await clonedResponse.text();
+                logError('[DuelBattleFullscreen] ❌ Error body (text, Safe Mode):', errorText);
+              } catch (e2) {
+                logError('[DuelBattleFullscreen] ❌ Could not parse error body (Safe Mode):', e2);
+              }
+            }
+          }
+
+          throw error; // Пробрасываем ошибку в catch блок
+        }
+
+        log('[DuelBattleFullscreen] ✅ Boost activated successfully (Safe Mode):', {
+          boostType,
+          duelId,
+          responseData: data,
         });
 
         // Уменьшаем количество буста локально (не синхронизируем с БД - буст уже использован)

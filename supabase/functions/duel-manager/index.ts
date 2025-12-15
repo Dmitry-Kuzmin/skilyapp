@@ -3720,6 +3720,17 @@ Deno.serve(async (req) => {
                 }
               });
 
+              // КРИТИЧНО: Детальное логирование перед вставкой exploit
+              console.log('[use_boost] 🔍🔍🔍 About to insert exploit:', {
+                exploitData,
+                exploitDataStringified: JSON.stringify(exploitData),
+                targetPlayerId: opponent.id,
+                attackerPlayerId: player.id,
+                boostType: boost_type,
+                duelId,
+                timestamp: new Date().toISOString(),
+              });
+
               const { data: insertedExploit, error: exploitError } = await supabase
                 .from('duel_active_exploits')
                 .insert(exploitData)
@@ -3727,18 +3738,41 @@ Deno.serve(async (req) => {
                 .single();
 
               if (exploitError) {
-                console.error('[use_boost] ❌ Error saving exploit to DB:', {
+                console.error('[use_boost] ❌❌❌ CRITICAL ERROR saving exploit to DB:', {
                   error: exploitError,
+                  errorMessage: exploitError.message,
+                  errorCode: exploitError.code,
+                  errorDetails: exploitError.details,
+                  errorHint: exploitError.hint,
                   exploitData,
-                  targetPlayerId: opponent.id
+                  exploitDataStringified: JSON.stringify(exploitData),
+                  targetPlayerId: opponent.id,
+                  attackerPlayerId: player.id,
+                  boostType: boost_type,
+                  duelId,
+                  timestamp: new Date().toISOString(),
+                });
+                
+                // Пробрасываем ошибку, чтобы клиент мог её обработать
+                return new Response(JSON.stringify({ 
+                  error: 'Failed to save exploit',
+                  details: exploitError.message,
+                  code: exploitError.code
+                }), {
+                  status: 500,
+                  headers: { ...corsHeaders, 'Content-Type': 'application/json' },
                 });
               } else {
-                console.log('[use_boost] ✅ Exploit saved to DB for State Recovery:', {
+                console.log('[use_boost] ✅✅✅ Exploit saved to DB for State Recovery:', {
                   exploitId: insertedExploit?.id,
                   targetPlayerId: opponent.id,
+                  attackerPlayerId: player.id,
                   exploitType: boost_type,
                   expiresAt,
-                  activatedAt
+                  activatedAt,
+                  duelId,
+                  timestamp: new Date().toISOString(),
+                  insertedExploit: insertedExploit,
                 });
               }
 
