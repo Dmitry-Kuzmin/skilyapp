@@ -86,24 +86,41 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           setAvailableBoosts(boosts as Boost[]);
         }
 
-        // Загружаем текущий loadout
-        const { data: currentLoadout } = await supabase
-          .from('user_loadouts')
-          .select('slot_1_boost_type, slot_2_boost_type, slot_3_boost_type')
-          .eq('user_id', profileId)
-          .maybeSingle();
+        // Загружаем текущий loadout через RPC функцию (обходит RLS)
+        try {
+          const { data: rpcData, error: rpcError } = await supabase
+            .rpc('get_user_loadout', { p_user_id: profileId });
 
-        if (currentLoadout) {
-          setLoadout({
-            slot_1_boost_type: currentLoadout.slot_1_boost_type,
-            slot_2_boost_type: currentLoadout.slot_2_boost_type,
-            slot_3_boost_type: currentLoadout.slot_3_boost_type,
-          });
-        } else {
-          // Создаем пустой loadout если его нет
-          await supabase
-            .from('user_loadouts')
-            .insert({ user_id: profileId });
+          if (rpcError) {
+            console.warn('[LoadoutSelector] RPC failed, trying direct query:', rpcError);
+            // Fallback: прямой запрос
+            const { data: currentLoadout } = await supabase
+              .from('user_loadouts')
+              .select('slot_1_boost_type, slot_2_boost_type, slot_3_boost_type')
+              .eq('user_id', profileId)
+              .maybeSingle();
+
+            if (currentLoadout) {
+              setLoadout({
+                slot_1_boost_type: currentLoadout.slot_1_boost_type,
+                slot_2_boost_type: currentLoadout.slot_2_boost_type,
+                slot_3_boost_type: currentLoadout.slot_3_boost_type,
+              });
+            }
+          } else if (rpcData && rpcData.length > 0) {
+            const currentLoadout = rpcData[0];
+            setLoadout({
+              slot_1_boost_type: currentLoadout.slot_1_boost_type,
+              slot_2_boost_type: currentLoadout.slot_2_boost_type,
+              slot_3_boost_type: currentLoadout.slot_3_boost_type,
+            });
+            console.log('[LoadoutSelector] ✅ Loadout loaded via RPC:', currentLoadout);
+          } else {
+            // Loadout не существует - это нормально, оставляем пустым
+            console.log('[LoadoutSelector] No loadout found, starting with empty slots');
+          }
+        } catch (error) {
+          console.error('[LoadoutSelector] Error loading loadout:', error);
         }
       } catch (error) {
         console.error('[LoadoutSelector] Error loading data:', error);
@@ -257,16 +274,35 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
 
     setLoadout(newLoadout);
 
-    // Сохраняем в БД
+    // Сохраняем в БД через RPC функцию (обходит RLS)
     try {
-      await supabase
-        .from('user_loadouts')
-        .upsert({
-          user_id: profileId,
-          ...newLoadout,
-        }, {
-          onConflict: 'user_id',
-        });
+      const { error: rpcError } = await supabase.rpc('save_user_loadout', {
+        p_user_id: profileId,
+        p_slot_1_boost_type: newLoadout.slot_1_boost_type,
+        p_slot_2_boost_type: newLoadout.slot_2_boost_type,
+        p_slot_3_boost_type: newLoadout.slot_3_boost_type,
+      });
+
+      if (rpcError) {
+        console.error('[LoadoutSelector] Error saving loadout via RPC:', rpcError);
+        // Fallback: пробуем через прямой запрос
+        const { error: directError } = await supabase
+          .from('user_loadouts')
+          .upsert({
+            user_id: profileId,
+            ...newLoadout,
+          }, {
+            onConflict: 'user_id',
+          });
+        
+        if (directError) {
+          console.error('[LoadoutSelector] Error saving loadout via direct query:', directError);
+          toast.error('Ошибка сохранения снаряжения');
+          return;
+        }
+      }
+      
+      console.log('[LoadoutSelector] ✅ Loadout saved successfully:', newLoadout);
       
       // Уведомляем родительский компонент об изменении loadout
       if (onLoadoutChange) {
@@ -274,6 +310,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
       }
     } catch (error) {
       console.error('[LoadoutSelector] Error saving loadout:', error);
+      toast.error('Ошибка сохранения снаряжения');
     }
   };
 
