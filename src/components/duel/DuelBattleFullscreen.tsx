@@ -77,10 +77,12 @@ interface DuelBattleFullscreenProps {
 }
 
 export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, onWidgetExpand }: DuelBattleFullscreenProps) {
-  // ОПТИМИЗАЦИЯ: Логируем только в dev режиме при монтировании
+  // КРИТИЧНО: Логируем duelId при монтировании для отладки
   useEffect(() => {
-    if (duelId && isDev) {
-      log('[DuelBattleFullscreen] 🔍 DUEL_ID:', duelId);
+    if (duelId) {
+      console.log('[DuelBattleFullscreen] 🔍 DUEL_ID:', duelId);
+      console.log('[DuelBattleFullscreen] 📋 SQL запрос для проверки exploits:');
+      console.log(`SELECT * FROM duel_active_exploits WHERE duel_id = '${duelId}' ORDER BY activated_at DESC LIMIT 5;`);
     }
   }, [duelId]);
 
@@ -1348,6 +1350,119 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     setUsedBoosts([]);
   }, [setUsedBoosts]);
 
+  // КРИТИЧНО: Функция-хелпер для вызова Edge Function с автоматическим обновлением токена
+  const invokeDuelManagerWithTokenRefresh = useCallback(async (
+    action: string,
+    body: any,
+    retryCount = 0
+  ): Promise<{ data: any; error: any }> => {
+    // Проверяем и обновляем токен перед каждым запросом
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) {
+      logError('[DuelBattleFullscreen] ❌ Session error before Edge Function call:', sessionError);
+    }
+    
+    // Если токен скоро истечет (менее 5 минут), обновляем его
+    if (sessionData?.session?.expires_at) {
+      const expiresAt = sessionData.session.expires_at * 1000; // конвертируем в миллисекунды
+      const now = Date.now();
+      const timeUntilExpiry = expiresAt - now;
+      
+      // Если токен истекает менее чем через 5 минут, обновляем его
+      if (timeUntilExpiry < 5 * 60 * 1000) {
+        log('[DuelBattleFullscreen] 🔄 Token expiring soon, refreshing...', {
+          timeUntilExpiry: Math.round(timeUntilExpiry / 1000) + 's',
+          expiresAt: new Date(expiresAt).toISOString(),
+        });
+        
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+        if (refreshError) {
+          logError('[DuelBattleFullscreen] ❌ Token refresh error:', refreshError);
+        } else {
+          log('[DuelBattleFullscreen] ✅ Token refreshed successfully');
+        }
+      }
+    }
+    
+    log('[DuelBattleFullscreen] 🔐 Session check before Edge Function:', {
+      action,
+      hasSession: !!sessionData?.session,
+      hasAccessToken: !!sessionData?.session?.access_token,
+      tokenExpiresAt: sessionData?.session?.expires_at,
+      retryCount,
+    });
+
+    const { data, error } = await supabase.functions.invoke('duel-manager', {
+      body: {
+        action,
+        ...body,
+      },
+    });
+
+    // Если получили 406 или 401, пробуем обновить токен и повторить запрос (максимум 1 раз)
+    if (error && retryCount === 0) {
+      const statusCode = error.context?.status || error.status || 0;
+      
+      // КРИТИЧНО: Детальное логирование для диагностики 406 ошибок
+      logError('[DuelBattleFullscreen] ❌ Edge Function error:', {
+        statusCode,
+        errorMessage: error.message,
+        errorName: error.name,
+        action,
+        retryCount,
+        errorContext: error.context ? {
+          status: error.context.status,
+          statusText: error.context.statusText,
+          url: error.context.url,
+        } : null,
+        timestamp: new Date().toISOString(),
+      });
+      
+      // Пытаемся извлечь детали из error.context (это Response объект)
+      if (error.context && typeof error.context.json === 'function') {
+        try {
+          const clonedResponse = error.context.clone();
+          const errorBody = await clonedResponse.json();
+          logError('[DuelBattleFullscreen] ❌ Error body details:', errorBody);
+        } catch (e) {
+          try {
+            const clonedResponse = error.context.clone();
+            const errorText = await clonedResponse.text();
+            logError('[DuelBattleFullscreen] ❌ Error body (text):', errorText);
+          } catch (e2) {
+            logError('[DuelBattleFullscreen] ❌ Could not parse error body:', e2);
+          }
+        }
+      }
+      
+      if (statusCode === 406 || statusCode === 401) {
+        log('[DuelBattleFullscreen] 🔄 Got 406/401, refreshing token and retrying...', {
+          statusCode,
+          errorMessage: error.message,
+          action,
+        });
+        
+        // Обновляем токен
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+        if (!refreshError && refreshData?.session) {
+          log('[DuelBattleFullscreen] ✅ Token refreshed, retrying request...', {
+            newTokenExpiresAt: refreshData.session.expires_at,
+            newTokenLength: refreshData.session.access_token?.length,
+          });
+          // Повторяем запрос с обновленным токеном
+          return invokeDuelManagerWithTokenRefresh(action, body, 1);
+        } else {
+          logError('[DuelBattleFullscreen] ❌ Failed to refresh token:', {
+            refreshError,
+            hasSession: !!refreshData?.session,
+          });
+        }
+      }
+    }
+
+    return { data, error };
+  }, []);
+
   // ОПТИМИЗАЦИЯ: Мемоизируем handleBoostUse с useCallback
   const handleBoostUse = useCallback(async (boostType: string, language?: 'ru' | 'en') => {
     // КРИТИЧЕСКИ ВАЖНО: разблокируем AudioContext при первом использовании буста
@@ -1458,83 +1573,18 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         });
 
         try {
-          // КРИТИЧНО: Проверяем сессию перед вызовом Edge Function
-          const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-          if (sessionError) {
-            logError('[DuelBattleFullscreen] ❌ Session error before boost:', sessionError);
-          }
-          log('[DuelBattleFullscreen] 🔐 Session check before boost:', {
-            hasSession: !!sessionData?.session,
-            hasAccessToken: !!sessionData?.session?.access_token,
-            tokenExpiresAt: sessionData?.session?.expires_at,
-          });
-
-          const { data, error } = await supabase.functions.invoke('duel-manager', {
-            body: {
-              action: 'use_boost',
-              duel_id: duelId,
-              profile_id: profileId,
-              duel_question_id: questions[currentIndex].id,
-              boost_type: boostType,
-              language: language,
-            },
-          });
-
-          // КРИТИЧНО: Проверяем error в ответе (даже если не выброшено исключение)
-          if (error) {
-            logError('[DuelBattleFullscreen] ❌ Supabase function error:', {
-              message: error.message,
-              name: error.name,
-              context: error.context,
-              stack: error.stack,
-              boostType,
-              duelId,
-              profileId,
-            });
-
-            // Пытаемся извлечь детали из error.context (это Response объект)
-            if (error.context && typeof error.context.json === 'function') {
-              try {
-                const clonedResponse = error.context.clone();
-                const errorBody = await clonedResponse.json();
-                logError('[DuelBattleFullscreen] ❌ Error body details:', errorBody);
-              } catch (e) {
-                try {
-                  const clonedResponse = error.context.clone();
-                  const errorText = await clonedResponse.text();
-                  logError('[DuelBattleFullscreen] ❌ Error body (text):', errorText);
-                } catch (e2) {
-                  logError('[DuelBattleFullscreen] ❌ Could not parse error body:', e2);
-                }
-              }
-            }
-
-            // Ошибка - показываем toast и откатываем изменения
-            if (navigator.vibrate) {
-              navigator.vibrate(500); // Длинная вибрация ошибки
-            }
-            toast.error("UPLOAD FAILED", { 
-              id: toastId,
-              description: error.message || 'Не удалось отправить атаку',
-              style: {
-                background: '#7f1d1d',
-                color: '#fca5a5',
-                border: '1px solid #ef4444',
-                fontFamily: 'monospace'
-              }
-            });
-            setBoostFeedback(prev => ({ ...prev, isActive: false }));
-            setUsedBoosts(prev => prev.filter(b => b !== boostType)); // Откатываем использование буста
-            throw error;
-          }
+      await supabase.functions.invoke('duel-manager', {
+        body: {
+          action: 'use_boost',
+          duel_id: duelId,
+          profile_id: profileId,
+          duel_question_id: questions[currentIndex].id,
+          boost_type: boostType,
+          language: language,
+        },
+      });
 
           // Успех - обновляем toast
-          log('[DuelBattleFullscreen] ✅ Boost activated successfully:', {
-            boostType,
-            duelId,
-            responseData: data,
-          });
-
           if (navigator.vibrate) {
             navigator.vibrate([100, 50, 100]); // Двойная вибрация "Бзз-Бзз"
           }
@@ -1552,21 +1602,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             duration: 3000,
           });
 
-          // Уменьшаем количество буста локально (не синхронизируем с БД - буст уже использован)
-          setBoosts(prev => prev.map(b => 
-            b.boost_type === boostType 
-              ? { ...b, quantity: Math.max(0, b.quantity - 1) }
-              : b
-          ));
+      // Уменьшаем количество буста локально (не синхронизируем с БД - буст уже использован)
+      setBoosts(prev => prev.map(b => 
+        b.boost_type === boostType 
+          ? { ...b, quantity: Math.max(0, b.quantity - 1) }
+          : b
+      ));
         } catch (error) {
-          // Ошибка (исключение)
-          logError('[DuelBattleFullscreen] ❌ Exception during boost activation:', error);
+          // Ошибка
           if (navigator.vibrate) {
             navigator.vibrate(500); // Длинная вибрация ошибки
           }
           toast.error("UPLOAD FAILED", { 
             id: toastId,
-            description: error instanceof Error ? error.message : 'Не удалось отправить атаку',
+            description: 'Не удалось отправить атаку',
             style: {
               background: '#7f1d1d',
               color: '#fca5a5',
@@ -1575,23 +1624,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             }
           });
           setBoostFeedback(prev => ({ ...prev, isActive: false }));
-          setUsedBoosts(prev => prev.filter(b => b !== boostType)); // Откатываем использование буста
           throw error;
         }
       } else {
         // Обычные бусты (Safe Mode) - без специальной обработки
-        // КРИТИЧНО: Проверяем сессию перед вызовом Edge Function
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) {
-          logError('[DuelBattleFullscreen] ❌ Session error before boost:', sessionError);
-        }
-        log('[DuelBattleFullscreen] 🔐 Session check before boost (Safe Mode):', {
-          hasSession: !!sessionData?.session,
-          hasAccessToken: !!sessionData?.session?.access_token,
-          tokenExpiresAt: sessionData?.session?.expires_at,
-        });
-
-        const { data, error } = await supabase.functions.invoke('duel-manager', {
+        await supabase.functions.invoke('duel-manager', {
           body: {
             action: 'use_boost',
             duel_id: duelId,
@@ -1600,43 +1637,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             boost_type: boostType,
             language: language,
           },
-        });
-
-        // КРИТИЧНО: Проверяем error в ответе
-        if (error) {
-          logError('[DuelBattleFullscreen] ❌ Supabase function error (Safe Mode):', {
-            message: error.message,
-            name: error.name,
-            context: error.context,
-            boostType,
-            duelId,
-            profileId,
-          });
-
-          // Пытаемся извлечь детали из error.context
-          if (error.context && typeof error.context.json === 'function') {
-            try {
-              const clonedResponse = error.context.clone();
-              const errorBody = await clonedResponse.json();
-              logError('[DuelBattleFullscreen] ❌ Error body details (Safe Mode):', errorBody);
-            } catch (e) {
-              try {
-                const clonedResponse = error.context.clone();
-                const errorText = await clonedResponse.text();
-                logError('[DuelBattleFullscreen] ❌ Error body (text, Safe Mode):', errorText);
-              } catch (e2) {
-                logError('[DuelBattleFullscreen] ❌ Could not parse error body (Safe Mode):', e2);
-              }
-            }
-          }
-
-          throw error; // Пробрасываем ошибку в catch блок
-        }
-
-        log('[DuelBattleFullscreen] ✅ Boost activated successfully (Safe Mode):', {
-          boostType,
-          duelId,
-          responseData: data,
         });
 
         // Уменьшаем количество буста локально (не синхронизируем с БД - буст уже использован)
@@ -1987,6 +1987,21 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             </AnimatePresence>
 
             {/* Boosts - Premium Compact Design - Всегда видимы */}
+            {(() => {
+              const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
+              // КРИТИЧНО: Версионирование логов для проверки обновления кода
+              console.log('[DuelBattleFullscreen] 🎮 Rendering DuelBoostsPanel [v2]:', {
+                boostsCount: boosts.length,
+                boosts: boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })),
+                isTelegram,
+                platform: isTelegram ? window.Telegram.WebApp.platform : 'browser',
+                isTelegramMobile,
+                usedBoosts,
+                isAnswered,
+                timestamp: new Date().toISOString(),
+                codeVersion: '2025-12-15-v2', // Версия кода для проверки обновления
+              });
+              return (
             <DuelBoostsPanel
               boosts={boosts}
               usedBoosts={usedBoosts}
@@ -1995,6 +2010,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               onBoostUse={handleBoostUse}
               onTranslatePopoverChange={setTranslatePopoverOpen}
             />
+              );
+            })()}
           </div>
         </div>
 
@@ -2045,12 +2062,57 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           activeExploits.get('oil_spill')?.passed || 
           false;
 
-        // ОПТИМИЗАЦИЯ: Логируем только в dev режиме и только при изменении состояния
-        const shouldRender = screenInjector && !screenInjectorPassed && screenInjector.expiresAt > Date.now();
-        
-        // Логируем только в dev режиме при необходимости
-        if (isDev && screenInjector && shouldRender) {
-          log('[DuelBattleFullscreen] 🛢️ OilSplashAttack rendering');
+        // КРИТИЧНО: Детальное логирование ВСЕХ exploits для отладки (ВСЕГДА, не только в dev)
+        console.log('[DuelBattleFullscreen] 🔍 ALL activeExploits check:', {
+          totalExploits: state.activeExploits?.length || 0,
+          allExploitTypes: state.activeExploits?.map(e => ({
+            type: e.type,
+            expiresAt: new Date(e.expiresAt).toISOString(),
+            receivedAt: new Date(e.receivedAt).toISOString(),
+            data: e.data
+          })) || [],
+          screenInjectorFound: !!screenInjector,
+          screenInjectorType: screenInjector?.type,
+          screenInjectorPassed,
+          activeExploitsMapKeys: Array.from(activeExploits.keys()),
+          activeExploitsMapEntries: Array.from(activeExploits.entries()).map(([k, v]) => ({
+            key: k,
+            expiresAt: new Date(v.expiresAt).toISOString(),
+            passed: v.passed
+          }))
+        });
+
+        if (screenInjector) {
+          const shouldRender = !screenInjectorPassed && screenInjector.expiresAt > Date.now();
+          console.log('[DuelBattleFullscreen] 🛢️ Oil Attack (Screen Injector/Data Leak) check:', {
+            screenInjector,
+            screenInjectorType: screenInjector.type,
+            screenInjectorPassed,
+            expiresAt: screenInjector.expiresAt,
+            expiresAtISO: new Date(screenInjector.expiresAt).toISOString(),
+            now: Date.now(),
+            nowISO: new Date().toISOString(),
+            expired: screenInjector.expiresAt <= Date.now(),
+            shouldRender,
+            activeExploitsCount: state.activeExploits?.length || 0,
+            allActiveExploits: state.activeExploits?.map(e => e.type) || []
+          });
+          
+          // КРИТИЧНО: Если должен рендериться, но не рендерится - логируем предупреждение
+          if (shouldRender) {
+            console.log('[DuelBattleFullscreen] ✅✅✅ OilSplashAttack SHOULD BE RENDERING NOW! ✅✅✅');
+          } else {
+            console.warn('[DuelBattleFullscreen] ⚠️ OilSplashAttack NOT rendering:', {
+              reason: screenInjectorPassed ? 'already passed' : 'expired',
+              expiresAt: new Date(screenInjector.expiresAt).toISOString(),
+              now: new Date().toISOString()
+            });
+          }
+        } else {
+          console.warn('[DuelBattleFullscreen] ⚠️ No oil attack (screen_injector/data_leak/oil_spill) found in activeExploits!', {
+            availableTypes: state.activeExploits?.map(e => e.type) || [],
+            activeExploitsCount: state.activeExploits?.length || 0
+          });
         }
 
         return (
