@@ -77,7 +77,7 @@ BEGIN
   
   -- 3. Проверяем наличие буста в инвентаре
   SELECT EXISTS (
-    SELECT 1 FROM user_boost_inventory
+    SELECT 1 FROM boost_inventory
     WHERE user_id = v_profile_id
       AND boost_type = p_boost_type
       AND quantity > 0
