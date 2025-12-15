@@ -6,6 +6,7 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { PageLoader } from "@/components/PageLoader";
+import { PageSkeleton } from "@/components/PageSkeleton";
 
 // Lazy load всех страниц приложения
 const Index = lazy(() => 
@@ -98,75 +99,324 @@ const InviteLanding = lazy(() => import("../pages/InviteLanding"));
 export function AppRoutes() {
   // КРИТИЧНО: AppRoutes рендерится внутри AppProviders, поэтому UserContext доступен
   // Все компоненты здесь могут использовать useUserContext()
+  // АРХИТЕКТУРА: Все lazy-loaded страницы обернуты в Suspense с PageSkeleton для плавных переходов
   return (
     <Routes>
         {/* ОПТИМИЗАЦИЯ: Роут "/" вынесен в App.tsx (рендерится БЕЗ AppProviders) */}
         {/* <Route path="/" element={<Index />} /> */}
-        <Route path="/dashboard" element={<Index />} />
-        <Route path="/learning-map" element={<LearningMap />} />
-        <Route path="/topic/:id" element={<TopicDetail />} />
-        <Route path="/subtopic/:id" element={<SubtopicDetail />} />
-        <Route path="/tests" element={<Tests />} />
-        <Route path="/tests/sequential" element={<SequentialTests />} />
-        <Route path="/tests/challenge-bank" element={<ChallengeBank />} />
-        <Route path="/test/:mode" element={<TestSession />} />
-        <Route path="/test/:mode/:topic" element={<TestSession />} />
-        <Route path="/test/sequential/:testId" element={<TestSession />} />
-        <Route path="/test/challenge-bank" element={<TestSession />} />
-        <Route path="/test/results" element={<TestResults />} />
-        <Route path="/learning" element={<Learning />} />
-        <Route path="/games" element={<Games />} />
-        <Route path="/games/race" element={<RaceGame />} />
-        <Route path="/games/guess-sign" element={<GuessTheSign />} />
-        <Route path="/games/matching" element={<MatchingGame />} />
-        <Route path="/games/duel" element={<Duel />} />
-        <Route path="/games/four-variants" element={<FourVariantsGame />} />
-        <Route path="/games/road-race" element={<RoadRace />} />
-        <Route path="/games/flashcards" element={<FlashCardsGame />} />
-        <Route path="/referrals" element={<Referrals />} />
-        <Route path="/join/:code" element={<ReferralRedirect />} />
-        <Route path="/partner/:code" element={<PartnerRedirect />} />
-        <Route path="/go/:code" element={<PartnerLinkRedirect />} />
-        <Route path="/partner/dashboard" element={<ModernPartnerDashboard />} />
-        <Route path="/partner/dashboard-old" element={<PartnerDashboard />} />
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} />
-          <Route path="reports" element={<AdminQuestionReports />} />
-          <Route path="editor" element={<AdminEditor />} />
-          <Route path="sync" element={<AdminSync />} />
-          <Route path="import" element={<AdminImport />} />
-          <Route path="test-covers" element={<AdminTestCovers />} />
-          <Route path="seasons" element={<AdminSeasonsManagement />} />
-          <Route path="security" element={<AdminSecurityMonitoring />} />
-          <Route path="partners" element={<AdminPartners />} />
-          <Route path="marketing" element={<AdminMarketingMaterials />} />
+        <Route path="/dashboard" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <Index />
+          </Suspense>
+        } />
+        <Route path="/learning-map" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <LearningMap />
+          </Suspense>
+        } />
+        <Route path="/topic/:id" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <TopicDetail />
+          </Suspense>
+        } />
+        <Route path="/subtopic/:id" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <SubtopicDetail />
+          </Suspense>
+        } />
+        <Route path="/tests" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <Tests />
+          </Suspense>
+        } />
+        <Route path="/tests/sequential" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <SequentialTests />
+          </Suspense>
+        } />
+        <Route path="/tests/challenge-bank" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <ChallengeBank />
+          </Suspense>
+        } />
+        <Route path="/test/:mode" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <TestSession />
+          </Suspense>
+        } />
+        <Route path="/test/:mode/:topic" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <TestSession />
+          </Suspense>
+        } />
+        <Route path="/test/sequential/:testId" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <TestSession />
+          </Suspense>
+        } />
+        <Route path="/test/challenge-bank" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <TestSession />
+          </Suspense>
+        } />
+        <Route path="/test/results" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <TestResults />
+          </Suspense>
+        } />
+        <Route path="/learning" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <Learning />
+          </Suspense>
+        } />
+        <Route path="/games" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <Games />
+          </Suspense>
+        } />
+        <Route path="/games/race" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <RaceGame />
+          </Suspense>
+        } />
+        <Route path="/games/guess-sign" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <GuessTheSign />
+          </Suspense>
+        } />
+        <Route path="/games/matching" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <MatchingGame />
+          </Suspense>
+        } />
+        <Route path="/games/duel" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <Duel />
+          </Suspense>
+        } />
+        <Route path="/games/four-variants" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <FourVariantsGame />
+          </Suspense>
+        } />
+        <Route path="/games/road-race" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <RoadRace />
+          </Suspense>
+        } />
+        <Route path="/games/flashcards" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <FlashCardsGame />
+          </Suspense>
+        } />
+        <Route path="/referrals" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <Referrals />
+          </Suspense>
+        } />
+        <Route path="/join/:code" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <ReferralRedirect />
+          </Suspense>
+        } />
+        <Route path="/partner/:code" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <PartnerRedirect />
+          </Suspense>
+        } />
+        <Route path="/go/:code" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <PartnerLinkRedirect />
+          </Suspense>
+        } />
+        <Route path="/partner/dashboard" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <ModernPartnerDashboard />
+          </Suspense>
+        } />
+        <Route path="/partner/dashboard-old" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <PartnerDashboard />
+          </Suspense>
+        } />
+        <Route path="/admin" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <AdminLayout />
+          </Suspense>
+        }>
+          <Route index element={
+            <Suspense fallback={<PageSkeleton />}>
+              <AdminDashboard />
+            </Suspense>
+          } />
+          <Route path="reports" element={
+            <Suspense fallback={<PageSkeleton />}>
+              <AdminQuestionReports />
+            </Suspense>
+          } />
+          <Route path="editor" element={
+            <Suspense fallback={<PageSkeleton />}>
+              <AdminEditor />
+            </Suspense>
+          } />
+          <Route path="sync" element={
+            <Suspense fallback={<PageSkeleton />}>
+              <AdminSync />
+            </Suspense>
+          } />
+          <Route path="import" element={
+            <Suspense fallback={<PageSkeleton />}>
+              <AdminImport />
+            </Suspense>
+          } />
+          <Route path="test-covers" element={
+            <Suspense fallback={<PageSkeleton />}>
+              <AdminTestCovers />
+            </Suspense>
+          } />
+          <Route path="seasons" element={
+            <Suspense fallback={<PageSkeleton />}>
+              <AdminSeasonsManagement />
+            </Suspense>
+          } />
+          <Route path="security" element={
+            <Suspense fallback={<PageSkeleton />}>
+              <AdminSecurityMonitoring />
+            </Suspense>
+          } />
+          <Route path="partners" element={
+            <Suspense fallback={<PageSkeleton />}>
+              <AdminPartners />
+            </Suspense>
+          } />
+          <Route path="marketing" element={
+            <Suspense fallback={<PageSkeleton />}>
+              <AdminMarketingMaterials />
+            </Suspense>
+          } />
         </Route>
-        <Route path="/road-signs" element={<RoadSigns />} />
-        <Route path="/dictionary" element={<Dictionary />} />
-        <Route path="/data-import" element={<DataImport />} />
-        <Route path="/daily-bonus" element={<DailyBonus />} />
-        <Route path="/dgt-tests" element={<DGTTestsSimple />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/subscription-terms" element={<SubscriptionTerms />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/refund-policy" element={<RefundPolicy />} />
-        <Route path="/help" element={<HelpCenter />} />
-        <Route path="/partners" element={<Partners />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/:slug" element={<Article />} />
-        <Route path="/duel-leaderboard" element={<DuelLeaderboard />} />
-        <Route path="/inventory" element={<Inventory />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/road-signs" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <RoadSigns />
+          </Suspense>
+        } />
+        <Route path="/dictionary" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <Dictionary />
+          </Suspense>
+        } />
+        <Route path="/data-import" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <DataImport />
+          </Suspense>
+        } />
+        <Route path="/daily-bonus" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <DailyBonus />
+          </Suspense>
+        } />
+        <Route path="/dgt-tests" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <DGTTestsSimple />
+          </Suspense>
+        } />
+        <Route path="/terms" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <Terms />
+          </Suspense>
+        } />
+        <Route path="/privacy" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <Privacy />
+          </Suspense>
+        } />
+        <Route path="/subscription-terms" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <SubscriptionTerms />
+          </Suspense>
+        } />
+        <Route path="/about" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <About />
+          </Suspense>
+        } />
+        <Route path="/pricing" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <Pricing />
+          </Suspense>
+        } />
+        <Route path="/refund-policy" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <RefundPolicy />
+          </Suspense>
+        } />
+        <Route path="/help" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <HelpCenter />
+          </Suspense>
+        } />
+        <Route path="/partners" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <Partners />
+          </Suspense>
+        } />
+        <Route path="/blog" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <Blog />
+          </Suspense>
+        } />
+        <Route path="/blog/:slug" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <Article />
+          </Suspense>
+        } />
+        <Route path="/duel-leaderboard" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <DuelLeaderboard />
+          </Suspense>
+        } />
+        <Route path="/inventory" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <Inventory />
+          </Suspense>
+        } />
+        <Route path="/settings" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <Settings />
+          </Suspense>
+        } />
         {/* /purchase обрабатывается в App.tsx (без AppProviders) */}
-        <Route path="/purchase/success" element={<PaymentSuccess />} />
-        <Route path="/purchase/cancel" element={<PaymentCancel />} />
-        <Route path="/success" element={<PaymentSuccess />} />
-        <Route path="/cancel" element={<PaymentCancel />} />
-        <Route path="/invite/:code" element={<InviteLanding />} />
+        <Route path="/purchase/success" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <PaymentSuccess />
+          </Suspense>
+        } />
+        <Route path="/purchase/cancel" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <PaymentCancel />
+          </Suspense>
+        } />
+        <Route path="/success" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <PaymentSuccess />
+          </Suspense>
+        } />
+        <Route path="/cancel" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <PaymentCancel />
+          </Suspense>
+        } />
+        <Route path="/invite/:code" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <InviteLanding />
+          </Suspense>
+        } />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <NotFound />
+          </Suspense>
+        } />
       </Routes>
   );
 }

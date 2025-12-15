@@ -1,9 +1,10 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from "react";
 import { TelegramUser } from "@/types/window";
-import { getTelegramUser, getPlatform, initTelegram } from "@/core/TelegramInit";
+import { getTelegramUser, getPlatform } from "@/core/TelegramInit";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
+import { useTelegram } from "@/contexts/TelegramContext";
 
 interface UserContextType {
   user: TelegramUser | null;
@@ -35,6 +36,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [platform, setPlatform] = useState<'telegram' | 'web'>('web');
   const [isLoading, setIsLoading] = useState(true);
+  
+  // АРХИТЕКТУРА: Используем TelegramProvider вместо прямого вызова initTelegram()
+  const webApp = useTelegram();
   const [profileId, setProfileId] = useState<string | null>(null);
 
   // Load profile ID when user changes with optimistic loading and retry
@@ -185,6 +189,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // Initialize Telegram user with enhanced fallbacks
   useEffect(() => {
     const initializeAuth = async () => {
+      // АРХИТЕКТУРА: Зависим от TelegramProvider (webApp)
+      // Если WebApp еще не инициализирован, ждем
+      if (!webApp && window.Telegram?.WebApp) {
+        logUserContext("[UserContext] Waiting for TelegramProvider initialization...");
+        return;
+      }
       logUserContext("[UserContext] Initializing...");
       
       // КРИТИЧНО: Если уже есть реальный пользователь из Supabase, не используем Telegram mock
@@ -210,42 +220,28 @@ export function UserProvider({ children }: { children: ReactNode }) {
         return;
       }
       
-      // Multiple attempts to get Telegram user data
-      let telegramUser = initTelegram();
+      // АРХИТЕКТУРА: Используем TelegramProvider (Singleton) вместо прямого вызова initTelegram()
+      // WebApp уже инициализирован через TelegramProvider, просто получаем пользователя
+      let telegramUser: TelegramUser | null = null;
       
-      // Retry mechanism for Telegram WebApp initialization
-      if (!telegramUser && window.Telegram?.WebApp && !isMockTelegram) {
-        logUserContext("[UserContext] First attempt failed, retrying...");
-        await new Promise(resolve => setTimeout(resolve, 300));
+      // Получаем пользователя из WebApp (уже инициализированного через TelegramProvider)
+      if (webApp?.initDataUnsafe?.user) {
+        const userData = webApp.initDataUnsafe.user;
+        // Проверяем, не мок ли это
+        if (userData.id !== 123456789 && userData.username !== 'test_user') {
+          telegramUser = userData as TelegramUser;
+          logUserContext("[UserContext] User from TelegramProvider:", telegramUser.first_name);
+        }
+      }
+      
+      // Fallback: если пользователя нет в WebApp, проверяем другие источники
+      if (!telegramUser) {
         telegramUser = getTelegramUser();
         
         // Проверяем, не мок ли это
         if (telegramUser && (telegramUser.id === 123456789 || telegramUser.username === 'test_user')) {
-          logUserContext("[UserContext] Mock user detected in retry, skipping");
+          logUserContext("[UserContext] Mock user detected, skipping");
           telegramUser = null;
-        }
-        
-        if (!telegramUser) {
-          await new Promise(resolve => setTimeout(resolve, 500));
-          telegramUser = getTelegramUser();
-          
-          // Проверяем, не мок ли это
-          if (telegramUser && (telegramUser.id === 123456789 || telegramUser.username === 'test_user')) {
-            logUserContext("[UserContext] Mock user detected in retry, skipping");
-            telegramUser = null;
-          }
-        }
-        
-        // Additional retry with longer delay
-        if (!telegramUser) {
-          await new Promise(resolve => setTimeout(resolve, 800));
-          telegramUser = getTelegramUser();
-          
-          // Проверяем, не мок ли это
-          if (telegramUser && (telegramUser.id === 123456789 || telegramUser.username === 'test_user')) {
-            logUserContext("[UserContext] Mock user detected in retry, skipping");
-            telegramUser = null;
-          }
         }
       }
       
@@ -324,9 +320,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
       
       setIsLoading(false);
     };
-
+    
     initializeAuth();
-  }, []);
+  }, [webApp]); // АРХИТЕКТУРА: Зависим от webApp из TelegramProvider
 
   const login = async (userData: TelegramUser) => {
     logUserContext("[UserContext] Login started for:", userData.first_name);

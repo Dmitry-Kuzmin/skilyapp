@@ -11,9 +11,13 @@ import { checkTelegramAuth } from "@/utils/authCheck";
 // ОПТИМИЗАЦИЯ: Убираем статический импорт Supabase - используем сервисные функции с динамическим импортом
 import { loadReferralInfo, loadPartnerInfo, type ReferrerInfo, type PartnerInfo } from "@/services/referralService";
 import { isTelegramMiniApp, hasTelegramWebApp } from "@/lib/telegram";
-import { initTelegram } from "@/core/TelegramInit";
+import { getTelegramUser } from "@/core/TelegramInit";
+import { useTelegram } from "@/contexts/TelegramContext";
 
 const Landing = () => {
+  // АРХИТЕКТУРА: Используем TelegramProvider вместо прямого вызова initTelegram()
+  const webApp = useTelegram();
+  
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [referrerInfo, setReferrerInfo] = useState<ReferrerInfo | null>(null);
   const [partnerInfo, setPartnerInfo] = useState<PartnerInfo | null>(null);
@@ -41,8 +45,24 @@ const Landing = () => {
         webAppDetected = true;
       }
 
-      // А. Проверяем, есть ли уже авторизованный пользователь в Telegram WebApp
-      const telegramUser = initTelegram();
+      // АРХИТЕКТУРА: Используем TelegramProvider (Singleton) вместо прямого вызова initTelegram()
+      // Получаем пользователя из уже инициализированного WebApp
+      let telegramUser = null;
+      if (webApp?.initDataUnsafe?.user) {
+        const userData = webApp.initDataUnsafe.user;
+        if (userData.id !== 123456789 && userData.username !== 'test_user') {
+          telegramUser = userData;
+        }
+      }
+      
+      // Fallback: проверяем другие источники
+      if (!telegramUser) {
+        telegramUser = getTelegramUser();
+        if (telegramUser && (telegramUser.id === 123456789 || telegramUser.username === 'test_user')) {
+          telegramUser = null;
+        }
+      }
+      
       const hasAuth = checkTelegramAuth();
       
       // КРИТИЧНО: НЕ проверяем hasStoredAuth - это может создать бесконечный цикл
@@ -102,7 +122,7 @@ const Landing = () => {
         clearTimeout(timeoutId);
       }
     };
-  }, [navigate]);
+  }, [navigate, webApp]); // АРХИТЕКТУРА: Зависим от webApp из TelegramProvider
 
   useEffect(() => {
     // КРИТИЧНО: Landing НЕ проверяет авторизацию - это делает Index

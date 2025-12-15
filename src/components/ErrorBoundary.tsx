@@ -61,56 +61,72 @@ export class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
+      // АРХИТЕКТУРА: Премиальный UI для Error Boundary (уровень Linear/Vercel/Stripe)
       return (
-        <div style={{
-          padding: '20px',
-          color: '#dc2626',
-          backgroundColor: '#fef2f2',
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-          <h1 style={{ fontSize: '24px', marginBottom: '16px' }}>
-            Произошла ошибка
-          </h1>
-          <p style={{ marginBottom: '16px' }}>
-            {this.state.error?.message || 'Неизвестная ошибка'}
-          </p>
-          {this.state.error?.stack && (
-            <details style={{ marginTop: '16px', width: '100%', maxWidth: '800px' }}>
-              <summary style={{ cursor: 'pointer', marginBottom: '8px' }}>
-                Детали ошибки
-              </summary>
-              <pre style={{
-                background: '#f5f5f5',
-                padding: '12px',
-                overflow: 'auto',
-                fontSize: '12px',
-                whiteSpace: 'pre-wrap',
-              }}>
-                {this.state.error.stack}
-              </pre>
-            </details>
-          )}
-          <button
-            onClick={() => {
-              this.setState({ hasError: false, error: null, errorInfo: null });
-              window.location.reload();
-            }}
-            style={{
-              marginTop: '16px',
-              padding: '8px 16px',
-              backgroundColor: '#dc2626',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            Перезагрузить страницу
-          </button>
+        <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
+          <div className="max-w-md w-full space-y-6 text-center">
+            {/* Иконка ошибки */}
+            <div className="mx-auto w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
+              <svg
+                className="w-8 h-8 text-red-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+
+            {/* Заголовок */}
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold text-white">
+                Ой, сбой системы! 🤖
+              </h1>
+              <p className="text-sm text-zinc-400">
+                Что-то пошло не так. Не волнуйтесь, мы уже знаем об этом.
+              </p>
+            </div>
+
+            {/* Сообщение об ошибке */}
+            {this.state.error?.message && (
+              <div className="p-4 rounded-xl bg-zinc-900 border border-zinc-800">
+                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">
+                  Детали ошибки
+                </p>
+                <p className="text-sm text-zinc-300 font-mono break-all">
+                  {this.state.error.message}
+                </p>
+              </div>
+            )}
+
+            {/* Кнопка перезагрузки */}
+            <button
+              onClick={() => {
+                this.setState({ hasError: false, error: null, errorInfo: null });
+                window.location.reload();
+              }}
+              className="w-full h-12 px-4 bg-white text-black font-semibold rounded-xl hover:shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)] transition-all duration-200 hover:scale-[1.01]"
+            >
+              Перезагрузить
+            </button>
+
+            {/* Дополнительная информация (только в dev) */}
+            {import.meta.env.DEV && this.state.error?.stack && (
+              <details className="mt-4 text-left">
+                <summary className="text-xs text-zinc-500 cursor-pointer hover:text-zinc-400 mb-2">
+                  Stack trace (dev only)
+                </summary>
+                <pre className="text-xs text-zinc-400 bg-zinc-900 border border-zinc-800 rounded-lg p-3 overflow-auto max-h-64 font-mono">
+                  {this.state.error.stack}
+                </pre>
+              </details>
+            )}
+          </div>
         </div>
       );
     }

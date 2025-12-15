@@ -6,8 +6,9 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { TelegramUser } from "@/types/window";
-import { getTelegramUser, getPlatform, initTelegram } from "@/core/TelegramInit";
+import { getTelegramUser, getPlatform } from "@/core/TelegramInit";
 import { isTelegramMiniApp } from "@/lib/telegram";
+import { useTelegram } from "@/contexts/TelegramContext";
 
 interface LandingUserContextType {
   user: TelegramUser | null;
@@ -22,6 +23,9 @@ export function LandingUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<TelegramUser | null>(null);
   const [platform, setPlatform] = useState<'telegram' | 'web'>('web');
   const [isLoading, setIsLoading] = useState(true);
+  
+  // АРХИТЕКТУРА: Используем TelegramProvider вместо прямого вызова initTelegram()
+  const webApp = useTelegram();
 
   // Initialize Telegram user (без Supabase)
   useEffect(() => {
@@ -37,8 +41,20 @@ export function LandingUserProvider({ children }: { children: ReactNode }) {
         return;
       }
       
-      // Multiple attempts to get Telegram user data
-      let telegramUser = initTelegram();
+      // АРХИТЕКТУРА: Используем TelegramProvider (Singleton) вместо прямого вызова initTelegram()
+      // Получаем пользователя из уже инициализированного WebApp
+      let telegramUser: TelegramUser | null = null;
+      
+      if (webApp?.initDataUnsafe?.user) {
+        const userData = webApp.initDataUnsafe.user;
+        if (userData.id !== 123456789 && userData.username !== 'test_user') {
+          telegramUser = userData as TelegramUser;
+        }
+      }
+      
+      // Fallback: если пользователя нет в WebApp, проверяем другие источники
+      if (!telegramUser) {
+        telegramUser = getTelegramUser();
       
       // Retry mechanism for Telegram WebApp initialization
       if (!telegramUser && window.Telegram?.WebApp && !isMockTelegram) {
@@ -118,7 +134,7 @@ export function LandingUserProvider({ children }: { children: ReactNode }) {
     };
     
     initializeAuth();
-  }, []);
+  }, [webApp]); // АРХИТЕКТУРА: Зависим от webApp из TelegramProvider
 
   const isAuthenticated = !!user;
 
