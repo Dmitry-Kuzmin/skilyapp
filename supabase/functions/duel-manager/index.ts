@@ -3625,11 +3625,28 @@ Deno.serve(async (req) => {
         }
 
         // 🆕 Получаем информацию о бусте из БД для определения target_type
-        const { data: boostDef } = await supabase
+        const { data: boostDef, error: boostDefError } = await supabase
           .from('boost_definitions')
           .select('target_type, category, mode')
           .eq('type', boost_type)
           .single();
+
+        // КРИТИЧНО: Логируем результат запроса boost_definitions
+        console.log('[use_boost] 🔍🔍🔍 Checking boost_definitions:', {
+          boost_type,
+          boostDefFound: !!boostDef,
+          boostDefError: boostDefError ? {
+            message: boostDefError.message,
+            code: boostDefError.code,
+            details: boostDefError.details
+          } : null,
+          boostDef: boostDef ? {
+            target_type: boostDef.target_type,
+            category: boostDef.category,
+            mode: boostDef.mode
+          } : null,
+          willCreateExploit: boostDef && (boostDef.target_type === 'opponent' || boostDef.target_type === 'both')
+        });
 
         // 🆕 Если буст влияет на противника - сохраняем в БД и отправляем broadcast
         if (boostDef && (boostDef.target_type === 'opponent' || boostDef.target_type === 'both')) {
@@ -3733,6 +3750,23 @@ Deno.serve(async (req) => {
               playersCount: players?.length || 0
             });
           }
+        } else {
+          // КРИТИЧНО: Логируем, почему exploit НЕ создается
+          console.warn('[use_boost] ⚠️⚠️⚠️ EXPLOIT NOT CREATED - boostDef check failed ⚠️⚠️⚠️:', {
+            boost_type,
+            boostDefFound: !!boostDef,
+            boostDefTargetType: boostDef?.target_type,
+            boostDefError: boostDefError ? {
+              message: boostDefError.message,
+              code: boostDefError.code,
+              details: boostDefError.details
+            } : null,
+            reason: !boostDef 
+              ? 'boostDef not found in DB' 
+              : boostDef.target_type !== 'opponent' && boostDef.target_type !== 'both'
+                ? `target_type is "${boostDef.target_type}", expected "opponent" or "both"`
+                : 'unknown reason'
+          });
         }
 
         // Create boost notification for opponent
