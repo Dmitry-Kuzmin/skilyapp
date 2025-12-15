@@ -181,15 +181,38 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       `;
       console.log('[useDuelRealtime] 🔍 SQL запрос для recoverActiveExploits (1v1 logic):', sqlQuery);
       
-      // Запрашиваем активные атаки где attacker НЕ я (в дуэли 1 на 1 это значит "для меня")
-      const { data: exploits, error: exploitsError } = await supabase
-        .from('duel_active_exploits')
-        .select('*')
-        .eq('duel_id', duelId)
-        .neq('attacker_player_id', targetPlayerId) // Атаки НЕ от меня = для меня
-        .eq('is_active', true)
-        .gt('expires_at', new Date().toISOString())
-        .order('activated_at', { ascending: false });
+      // 🆕 Используем RPC функцию вместо прямого запроса для обхода CORS проблем
+      const { data: rpcResult, error: rpcError } = await supabase.rpc('get_active_exploits', {
+        p_duel_id: duelId,
+        p_my_player_id: targetPlayerId
+      });
+
+      let exploits: any[] = [];
+      let exploitsError: any = null;
+
+      if (rpcError) {
+        exploitsError = rpcError;
+        console.error('[useDuelRealtime] ❌ RPC get_active_exploits error in recoverActiveExploits:', rpcError);
+        
+        // Fallback: если RPC не работает, пробуем прямой запрос
+        console.log('[useDuelRealtime] 🔄 Falling back to direct query in recoverActiveExploits...');
+        const { data: fallbackExploits, error: fallbackError } = await supabase
+          .from('duel_active_exploits')
+          .select('*')
+          .eq('duel_id', duelId)
+          .neq('attacker_player_id', targetPlayerId)
+          .eq('is_active', true)
+          .gt('expires_at', new Date().toISOString())
+          .order('activated_at', { ascending: false });
+        
+        if (fallbackError) {
+          exploitsError = fallbackError;
+        } else {
+          exploits = fallbackExploits || [];
+        }
+      } else if (rpcResult?.success) {
+        exploits = rpcResult.exploits || [];
+      }
       
       // КРИТИЧНО: Логируем детали ошибки, если есть
       if (exploitsError) {
@@ -1141,15 +1164,38 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           }
         });
         
-        // УПРОЩЕННАЯ ЛОГИКА: В дуэли 1 на 1 берем все exploits, где attacker НЕ я
-        const { data: newExploits, error } = await supabase
-          .from('duel_active_exploits')
-          .select('*')
-          .eq('duel_id', duelId)
-          .neq('attacker_player_id', currentMyPlayerId) // Атаки НЕ от меня = для меня
-          .eq('is_active', true)
-          .gt('expires_at', currentTimeISO)
-          .order('activated_at', { ascending: false });
+        // 🆕 Используем RPC функцию вместо прямого запроса для обхода CORS проблем
+        const { data: rpcResult, error: rpcError } = await supabase.rpc('get_active_exploits', {
+          p_duel_id: duelId,
+          p_my_player_id: currentMyPlayerId
+        });
+
+        let newExploits: any[] = [];
+        let error: any = null;
+
+        if (rpcError) {
+          error = rpcError;
+          console.error('[useDuelRealtime] ❌ RPC get_active_exploits error:', rpcError);
+          
+          // Fallback: если RPC не работает, пробуем прямой запрос
+          console.log('[useDuelRealtime] 🔄 Falling back to direct query...');
+          const { data: fallbackExploits, error: fallbackError } = await supabase
+            .from('duel_active_exploits')
+            .select('*')
+            .eq('duel_id', duelId)
+            .neq('attacker_player_id', currentMyPlayerId)
+            .eq('is_active', true)
+            .gt('expires_at', currentTimeISO)
+            .order('activated_at', { ascending: false });
+          
+          if (fallbackError) {
+            error = fallbackError;
+          } else {
+            newExploits = fallbackExploits || [];
+          }
+        } else if (rpcResult?.success) {
+          newExploits = rpcResult.exploits || [];
+        }
         
         // КРИТИЧНО: Логируем результат запроса ВСЕГДА (не только если найдены exploits)
         console.log('[useDuelRealtime] 📊📊📊 Polling result:', {

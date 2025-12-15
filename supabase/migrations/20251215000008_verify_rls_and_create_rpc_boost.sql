@@ -337,6 +337,51 @@ END;
 $$;
 
 -- Комментарий к функции
-COMMENT ON FUNCTION public.use_boost_attack IS 
+COMMENT ON FUNCTION public.use_boost_attack IS
   'RPC функция для использования бустов в дуэлях. Заменяет Edge Function для надежности в Telegram Mini Apps. Создает exploits в duel_active_exploits для Root Mode бустов.';
+
+-- ============================================
+-- СОЗДАНИЕ RPC ФУНКЦИИ ДЛЯ ПОЛУЧЕНИЯ EXPLOITS
+-- ============================================
+-- Эта функция заменяет прямые запросы к таблице для обхода CORS проблем в Telegram Mini Apps
+CREATE OR REPLACE FUNCTION public.get_active_exploits(
+  p_duel_id uuid,
+  p_my_player_id uuid
+)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_exploits json;
+BEGIN
+  -- Получаем все активные exploits для текущего игрока (где attacker != my_player_id)
+  SELECT json_agg(
+    json_build_object(
+      'id', id,
+      'exploit_type', exploit_type,
+      'attacker_player_id', attacker_player_id,
+      'target_player_id', target_player_id,
+      'effect_data', effect_data,
+      'activated_at', activated_at,
+      'expires_at', expires_at,
+      'is_active', is_active
+    )
+  ) INTO v_exploits
+  FROM duel_active_exploits
+  WHERE duel_id = p_duel_id
+    AND attacker_player_id != p_my_player_id
+    AND is_active = true
+    AND expires_at > NOW()
+  ORDER BY activated_at DESC;
+  
+  RETURN json_build_object(
+    'success', true,
+    'exploits', COALESCE(v_exploits, '[]'::json)
+  );
+END;
+$$;
+
+COMMENT ON FUNCTION public.get_active_exploits IS
+  'RPC функция для получения активных exploits в дуэли. Используется для обхода CORS проблем в Telegram Mini Apps.';
 
