@@ -344,6 +344,9 @@ COMMENT ON FUNCTION public.use_boost_attack IS
 -- СОЗДАНИЕ RPC ФУНКЦИИ ДЛЯ ПОЛУЧЕНИЯ EXPLOITS
 -- ============================================
 -- Эта функция заменяет прямые запросы к таблице для обхода CORS проблем в Telegram Mini Apps
+-- Удаляем старую версию функции, если она существует (нужно для изменения типа возврата)
+DROP FUNCTION IF EXISTS public.get_active_exploits(uuid, uuid);
+
 CREATE OR REPLACE FUNCTION public.get_active_exploits(
   p_duel_id uuid,
   p_my_player_id uuid
