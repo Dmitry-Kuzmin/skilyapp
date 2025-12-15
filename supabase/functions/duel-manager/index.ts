@@ -3592,7 +3592,7 @@ Deno.serve(async (req) => {
           boostEffect = {
             success: true,
             popup_count: 3,
-            duration_ms: 30000, // Увеличено с 10 до 30 секунд для визуального эффекта
+            duration_ms: 45000, // Увеличено до 45 секунд для надежной доставки в Telegram Mini App
           };
           console.log('[use_boost] Data Leak activated');
         } else if (boost_type === 'input_lag') {
@@ -3676,17 +3676,25 @@ Deno.serve(async (req) => {
               const now = Date.now();
               const expiresAt = new Date(now + durationMs).toISOString();
               const activatedAt = new Date(now).toISOString();
+              
+              // КРИТИЧНО: Вычисляем время в секундах для удобства
+              const durationSeconds = Math.round(durationMs / 1000);
+              const expiresAtTimestamp = now + durationMs;
 
               // КРИТИЧНО: Логируем время создания для диагностики
               console.log('[use_boost] ⏰⏰⏰ Creating exploit with timing:', {
                 boost_type,
                 durationMs,
-                now: new Date(now).toISOString(),
+                durationSeconds: `${durationSeconds}s`,
+                serverTime: new Date(now).toISOString(),
+                serverTimestamp: now,
                 activatedAt,
                 expiresAt,
-                timeUntilExpiry: `${durationMs}ms (${Math.round(durationMs / 1000)}s)`,
+                expiresAtTimestamp,
+                timeUntilExpiry: `${durationMs}ms (${durationSeconds}s)`,
                 attackerPlayerId: player.id,
-                targetPlayerId: opponent.id
+                targetPlayerId: opponent.id,
+                note: 'Exploit will expire in ' + durationSeconds + ' seconds from now'
               });
 
               // Сохраняем exploit в БД для State Recovery
