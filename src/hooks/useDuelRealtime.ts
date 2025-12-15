@@ -1062,6 +1062,79 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     };
   }, [duelId, channel, profileId]);
 
+  // КРИТИЧНО: Polling fallback для Telegram Mini App (если Realtime не работает)
+  // Проверяем новые exploits каждые 2 секунды через прямой запрос к БД
+  useEffect(() => {
+    const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
+    if (!isTelegram || !duelId || !myPlayerId || connectionStatus !== 'connected') {
+      return;
+    }
+    
+    console.log('[useDuelRealtime] 🔄 Starting polling fallback for Telegram Mini App...', {
+      duelId,
+      myPlayerId,
+      connectionStatus
+    });
+    
+    const pollingInterval = setInterval(async () => {
+      try {
+        const currentMyPlayerId = myPlayerIdRef.current;
+        if (!currentMyPlayerId || !duelId) return;
+        
+        // Проверяем новые exploits через прямой запрос
+        const { data: newExploits, error } = await supabase
+          .from('duel_active_exploits')
+          .select('*')
+          .eq('duel_id', duelId)
+          .eq('target_player_id', currentMyPlayerId)
+          .eq('is_active', true)
+          .gt('expires_at', new Date().toISOString())
+          .order('activated_at', { ascending: false });
+        
+        if (error) {
+          console.error('[useDuelRealtime] ❌ Polling error:', error);
+          return;
+        }
+        
+        if (newExploits && newExploits.length > 0) {
+          console.log('[useDuelRealtime] 🔔 Polling found new exploits:', newExploits.length);
+          
+          // Добавляем exploits, которых еще нет в состоянии
+          setState(prev => {
+            const existingTypes = new Set((prev.activeExploits || []).map(e => `${e.type}-${e.receivedAt}`));
+            
+            const newExploitsToAdd = newExploits
+              .map(e => ({
+                type: e.exploit_type,
+                data: e.effect_data || {},
+                receivedAt: new Date(e.activated_at).getTime(),
+                expiresAt: new Date(e.expires_at).getTime()
+              }))
+              .filter(e => !existingTypes.has(`${e.type}-${e.receivedAt}`));
+            
+            if (newExploitsToAdd.length === 0) {
+              return prev;
+            }
+            
+            console.log('[useDuelRealtime] ✅ Polling: Adding exploits via fallback:', newExploitsToAdd.length);
+            
+            return {
+              ...prev,
+              activeExploits: [...(prev.activeExploits || []), ...newExploitsToAdd]
+            };
+          });
+        }
+      } catch (pollingError) {
+        console.error('[useDuelRealtime] ❌ Polling exception:', pollingError);
+      }
+    }, 2000); // Проверяем каждые 2 секунды
+    
+    return () => {
+      console.log('[useDuelRealtime] 🛑 Stopping polling fallback...');
+      clearInterval(pollingInterval);
+    };
+  }, [duelId, myPlayerId, connectionStatus]);
+
   // ОПТИМИЗАЦИЯ: Мемоизируем broadcast функцию
   const broadcast = useCallback((event: string, data: any) => {
     if (channel) {
