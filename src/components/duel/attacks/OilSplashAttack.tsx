@@ -15,7 +15,7 @@ interface OilSplashAttackProps {
 }
 
 // 🧪 ТЕСТОВЫЙ РЕЖИМ: Установите в true для проверки видимости компонента
-const TEST_RED_SQUARE = true; // ВКЛЮЧЕНО для теста "Красный квадрат"
+const TEST_RED_SQUARE = false; // ОТКЛЮЧЕНО - используем реальную анимацию заливки масла
 
 export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCleaned, expiresAt }) => {
   // FAILSAFE: Проверка поддержки WebGL для старых устройств
@@ -182,68 +182,82 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     // КРИТИЧНО: Проверка доступности window
     if (typeof window === 'undefined') return;
 
-    try {
-      const handleResize = () => {
-        try {
-          if (canvasRef.current && window) {
-            const newWidth = window.innerWidth;
-            const newHeight = window.innerHeight;
-            
-            if (canvasRef.current.width !== newWidth || canvasRef.current.height !== newHeight) {
-              canvasRef.current.width = newWidth;
-              canvasRef.current.height = newHeight;
+    // КРИТИЧНО: Используем небольшую задержку для гарантии монтирования canvas
+    const setupTimeout = setTimeout(() => {
+      try {
+        const handleResize = () => {
+          try {
+            if (canvasRef.current && window) {
+              const newWidth = window.innerWidth;
+              const newHeight = window.innerHeight;
               
-              // КРИТИЧНО: Логируем размеры canvas для отладки
-              console.log('[OilSplashAttack] 📐 Canvas resized:', {
-                width: newWidth,
-                height: newHeight,
-                canvasWidth: canvasRef.current.width,
-                canvasHeight: canvasRef.current.height
-              });
+              if (canvasRef.current.width !== newWidth || canvasRef.current.height !== newHeight) {
+                canvasRef.current.width = newWidth;
+                canvasRef.current.height = newHeight;
+                
+                // КРИТИЧНО: Логируем размеры canvas для отладки
+                console.log('[OilSplashAttack] 📐 Canvas resized:', {
+                  width: newWidth,
+                  height: newHeight,
+                  canvasWidth: canvasRef.current.width,
+                  canvasHeight: canvasRef.current.height
+                });
+              }
+            } else {
+              console.warn('[OilSplashAttack] ⚠️ Canvas or window not available in handleResize');
             }
-          } else {
-            console.warn('[OilSplashAttack] ⚠️ Canvas or window not available in handleResize');
+          } catch (error) {
+            console.error('[OilSplashAttack] Error in handleResize:', error);
           }
-        } catch (error) {
-          console.error('[OilSplashAttack] Error in handleResize:', error);
+        };
+        
+        // КРИТИЧНО: Проверяем, что canvas существует перед настройкой
+        if (!canvasRef.current) {
+          console.error('[OilSplashAttack] ❌ Canvas ref is null during setup!');
+          return;
         }
-      };
-      
-      // КРИТИЧНО: Проверяем, что canvas существует перед настройкой
-      if (!canvasRef.current) {
-        console.error('[OilSplashAttack] ❌ Canvas ref is null during setup!');
-        return;
-      }
-      
-      // КРИТИЧНО: Проверяем контекст canvas
-      const ctx = canvasRef.current.getContext('2d');
-      if (!ctx) {
-        console.error('[OilSplashAttack] ❌ Failed to get 2d context from canvas!');
-        return;
-      }
-      
-      console.log('[OilSplashAttack] ✅ Canvas initialized successfully:', {
-        width: canvasRef.current.width,
-        height: canvasRef.current.height,
-        hasContext: !!ctx
-      });
-      
-      window.addEventListener('resize', handleResize);
-      handleResize(); 
+        
+        // КРИТИЧНО: Проверяем контекст canvas
+        const ctx = canvasRef.current.getContext('2d');
+        if (!ctx) {
+          console.error('[OilSplashAttack] ❌ Failed to get 2d context from canvas!');
+          return;
+        }
+        
+        console.log('[OilSplashAttack] ✅ Canvas initialized successfully:', {
+          width: canvasRef.current.width,
+          height: canvasRef.current.height,
+          hasContext: !!ctx
+        });
+        
+        window.addEventListener('resize', handleResize);
+        handleResize(); 
 
-      return () => {
-        try {
-          window.removeEventListener('resize', handleResize);
-          if (requestRef.current) cancelAnimationFrame(requestRef.current);
-          if (checkIntervalRef.current) clearInterval(checkIntervalRef.current);
-          if (expireTimeoutRef.current) clearTimeout(expireTimeoutRef.current);
-        } catch (error) {
-          console.error('[OilSplashAttack] Error in cleanup:', error);
-        }
-      };
-    } catch (error) {
-      console.error('[OilSplashAttack] Error in canvas setup:', error);
-    }
+        return () => {
+          try {
+            window.removeEventListener('resize', handleResize);
+            if (requestRef.current) cancelAnimationFrame(requestRef.current);
+            if (checkIntervalRef.current) clearInterval(checkIntervalRef.current);
+            if (expireTimeoutRef.current) clearTimeout(expireTimeoutRef.current);
+          } catch (error) {
+            console.error('[OilSplashAttack] Error in cleanup:', error);
+          }
+        };
+      } catch (error) {
+        console.error('[OilSplashAttack] Error in canvas setup:', error);
+      }
+    }, 50); // Небольшая задержка для гарантии монтирования DOM
+
+    return () => {
+      clearTimeout(setupTimeout);
+      try {
+        if (requestRef.current) cancelAnimationFrame(requestRef.current);
+        if (checkIntervalRef.current) clearInterval(checkIntervalRef.current);
+        if (expireTimeoutRef.current) clearTimeout(expireTimeoutRef.current);
+      } catch (error) {
+        console.error('[OilSplashAttack] Error in cleanup:', error);
+      }
+    };
   }, [isActive]);
 
   // --- 2. Phase Logic ---
@@ -267,11 +281,18 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   // ANIMATION LOOPS
   useEffect(() => {
     if (!isActive) return;
+    if (phase === 'warning' || phase === 'completed') return; // Не запускаем анимацию в этих фазах
 
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      console.warn('[OilSplashAttack] ⚠️ Canvas not available for animation');
+      return;
+    }
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    if (!ctx) return;
+    if (!ctx) {
+      console.warn('[OilSplashAttack] ⚠️ Canvas context not available for animation');
+      return;
+    }
 
     const w = canvas.width;
     const h = canvas.height;
