@@ -348,38 +348,39 @@ CREATE OR REPLACE FUNCTION public.get_active_exploits(
   p_duel_id uuid,
   p_my_player_id uuid
 )
-RETURNS json
-LANGUAGE plpgsql
+RETURNS TABLE (
+  id uuid,
+  duel_id uuid,
+  exploit_type text,
+  attacker_player_id uuid,
+  target_player_id uuid,
+  effect_data jsonb,
+  activated_at timestamptz,
+  expires_at timestamptz,
+  is_active boolean,
+  created_at timestamptz
+)
+LANGUAGE sql
 SECURITY DEFINER
+STABLE
 AS $$
-DECLARE
-  v_exploits json;
-BEGIN
-  -- Получаем все активные exploits для текущего игрока (где attacker != my_player_id)
-  SELECT json_agg(
-    json_build_object(
-      'id', id,
-      'exploit_type', exploit_type,
-      'attacker_player_id', attacker_player_id,
-      'target_player_id', target_player_id,
-      'effect_data', effect_data,
-      'activated_at', activated_at,
-      'expires_at', expires_at,
-      'is_active', is_active
-    )
-  ) INTO v_exploits
-  FROM duel_active_exploits
-  WHERE duel_id = p_duel_id
-    AND attacker_player_id != p_my_player_id
-    AND is_active = true
-    AND expires_at > NOW()
-  ORDER BY activated_at DESC;
-  
-  RETURN json_build_object(
-    'success', true,
-    'exploits', COALESCE(v_exploits, '[]'::json)
-  );
-END;
+  SELECT 
+    e.id,
+    e.duel_id,
+    e.exploit_type,
+    e.attacker_player_id,
+    e.target_player_id,
+    e.effect_data,
+    e.activated_at,
+    e.expires_at,
+    e.is_active,
+    e.created_at
+  FROM duel_active_exploits e
+  WHERE e.duel_id = p_duel_id
+    AND e.attacker_player_id != p_my_player_id
+    AND e.is_active = true
+    AND e.expires_at > NOW()
+  ORDER BY e.activated_at DESC;
 $$;
 
 COMMENT ON FUNCTION public.get_active_exploits IS

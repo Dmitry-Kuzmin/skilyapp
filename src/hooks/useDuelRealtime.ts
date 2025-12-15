@@ -182,7 +182,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       console.log('[useDuelRealtime] 🔍 SQL запрос для recoverActiveExploits (1v1 logic):', sqlQuery);
       
       // 🆕 Используем RPC функцию вместо прямого запроса для обхода CORS проблем
-      const { data: rpcResult, error: rpcError } = await supabase.rpc('get_active_exploits', {
+      const { data: rpcExploits, error: rpcError } = await supabase.rpc('get_active_exploits', {
         p_duel_id: duelId,
         p_my_player_id: targetPlayerId
       });
@@ -210,8 +210,9 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         } else {
           exploits = fallbackExploits || [];
         }
-      } else if (rpcResult?.success) {
-        exploits = rpcResult.exploits || [];
+      } else {
+        // RPC функция возвращает TABLE напрямую (массив записей)
+        exploits = rpcExploits || [];
       }
       
       // КРИТИЧНО: Логируем детали ошибки, если есть
@@ -1165,7 +1166,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         });
         
         // 🆕 Используем RPC функцию вместо прямого запроса для обхода CORS проблем
-        const { data: rpcResult, error: rpcError } = await supabase.rpc('get_active_exploits', {
+        const { data: rpcExploits, error: rpcError } = await supabase.rpc('get_active_exploits', {
           p_duel_id: duelId,
           p_my_player_id: currentMyPlayerId
         });
@@ -1193,8 +1194,9 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           } else {
             newExploits = fallbackExploits || [];
           }
-        } else if (rpcResult?.success) {
-          newExploits = rpcResult.exploits || [];
+        } else {
+          // RPC функция возвращает TABLE напрямую (массив записей)
+          newExploits = rpcExploits || [];
         }
         
         // КРИТИЧНО: Логируем результат запроса ВСЕГДА (не только если найдены exploits)
