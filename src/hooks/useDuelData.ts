@@ -364,29 +364,63 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       return cache.boosts;
     }
 
-    // Загружаем loadout пользователя
-    // КРИТИЧНО: Используем .maybeSingle() чтобы не падать если loadout не существует
-    const { data: loadout, error: loadoutError } = await supabase
-      .from("user_loadouts")
-      .select("slot_1_boost_type, slot_2_boost_type, slot_3_boost_type")
-      .eq("user_id", profileId)
-      .maybeSingle();
+    // Загружаем loadout пользователя через RPC функцию (обходит RLS)
+    console.log('[useDuelData] 🔍 Loading loadout via RPC:', {
+      profileId,
+      profileIdType: typeof profileId,
+      timestamp: new Date().toISOString(),
+    });
+    
+    let loadout: { slot_1_boost_type: string | null; slot_2_boost_type: string | null; slot_3_boost_type: string | null } | null = null;
+    let loadoutError: any = null;
+    
+    try {
+      const { data: rpcData, error: rpcError } = await supabase
+        .rpc('get_user_loadout', { p_user_id: profileId });
+      
+      if (rpcError) {
+        console.warn('[useDuelData] ⚠️ RPC function failed, trying direct query:', {
+          rpcError,
+          code: rpcError.code,
+          message: rpcError.message,
+        });
+        loadoutError = rpcError;
+      } else {
+        // RPC возвращает массив, берем первый элемент или null
+        loadout = rpcData && rpcData.length > 0 ? rpcData[0] : null;
+        console.log('[useDuelData] ✅ Loadout loaded via RPC:', loadout);
+      }
+    } catch (rpcException) {
+      console.warn('[useDuelData] ⚠️ RPC exception, trying direct query:', rpcException);
+      loadoutError = rpcException;
+    }
+    
+    // Fallback: прямой запрос (если RPC не работает)
+    if (loadoutError && !loadout) {
+      console.log('[useDuelData] 🔄 Trying direct query as fallback...');
+      const { data: directData, error: directError } = await supabase
+        .from("user_loadouts")
+        .select("slot_1_boost_type, slot_2_boost_type, slot_3_boost_type")
+        .eq("user_id", profileId)
+        .maybeSingle();
 
-    if (loadoutError) {
-      // КРИТИЧНО: Ошибка 401 может означать проблему с авторизацией или RLS
-      // Но мы продолжаем работу - покажем все бусты из инвентаря
-      console.warn('[useDuelData] ⚠️ Error loading loadout (continuing without loadout):', {
-        error: loadoutError,
-        code: loadoutError.code,
-        message: loadoutError.message,
-        profileId,
-        hint: loadoutError.code === 'PGRST116' 
-          ? 'Loadout does not exist - this is OK, will show all boosts'
-          : 'This might be an RLS policy issue. Check if migrations are applied.'
-      });
-      // Продолжаем без loadout - покажем все бусты из инвентаря
-    } else {
-      console.log('[useDuelData] ✅ Loadout loaded successfully:', loadout);
+      if (directError) {
+        console.warn('[useDuelData] ⚠️ Error loading loadout (both RPC and direct failed, continuing without loadout):', {
+          rpcError: loadoutError,
+          directError,
+          code: directError.code,
+          message: directError.message,
+          profileId,
+          hint: directError.code === 'PGRST116' 
+            ? 'Loadout does not exist - this is OK, will show all boosts'
+            : 'This might be an RLS policy issue. Check if migrations are applied.'
+        });
+        // Продолжаем без loadout - покажем все бусты из инвентаря
+        loadout = null;
+      } else {
+        loadout = directData;
+        console.log('[useDuelData] ✅ Loadout loaded via direct query:', loadout);
+      }
     }
 
     // Формируем список выбранных бустов из loadout (фильтруем null)
