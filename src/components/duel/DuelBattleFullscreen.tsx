@@ -77,12 +77,10 @@ interface DuelBattleFullscreenProps {
 }
 
 export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, onWidgetExpand }: DuelBattleFullscreenProps) {
-  // КРИТИЧНО: Логируем duelId при монтировании для отладки
+  // ОПТИМИЗАЦИЯ: Логируем только в dev режиме при монтировании
   useEffect(() => {
-    if (duelId) {
-      console.log('[DuelBattleFullscreen] 🔍 DUEL_ID:', duelId);
-      console.log('[DuelBattleFullscreen] 📋 SQL запрос для проверки exploits:');
-      console.log(`SELECT * FROM duel_active_exploits WHERE duel_id = '${duelId}' ORDER BY activated_at DESC LIMIT 5;`);
+    if (duelId && isDev) {
+      log('[DuelBattleFullscreen] 🔍 DUEL_ID:', duelId);
     }
   }, [duelId]);
 
@@ -1874,21 +1872,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             </AnimatePresence>
 
             {/* Boosts - Premium Compact Design - Всегда видимы */}
-            {(() => {
-              const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-              // КРИТИЧНО: Версионирование логов для проверки обновления кода
-              console.log('[DuelBattleFullscreen] 🎮 Rendering DuelBoostsPanel [v2]:', {
-                boostsCount: boosts.length,
-                boosts: boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })),
-                isTelegram,
-                platform: isTelegram ? window.Telegram.WebApp.platform : 'browser',
-                isTelegramMobile,
-                usedBoosts,
-                isAnswered,
-                timestamp: new Date().toISOString(),
-                codeVersion: '2025-12-15-v2', // Версия кода для проверки обновления
-              });
-              return (
             <DuelBoostsPanel
               boosts={boosts}
               usedBoosts={usedBoosts}
@@ -1897,8 +1880,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               onBoostUse={handleBoostUse}
               onTranslatePopoverChange={setTranslatePopoverOpen}
             />
-              );
-            })()}
           </div>
         </div>
 
@@ -1949,57 +1930,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           activeExploits.get('oil_spill')?.passed || 
           false;
 
-        // КРИТИЧНО: Детальное логирование ВСЕХ exploits для отладки (ВСЕГДА, не только в dev)
-        console.log('[DuelBattleFullscreen] 🔍 ALL activeExploits check:', {
-          totalExploits: state.activeExploits?.length || 0,
-          allExploitTypes: state.activeExploits?.map(e => ({
-            type: e.type,
-            expiresAt: new Date(e.expiresAt).toISOString(),
-            receivedAt: new Date(e.receivedAt).toISOString(),
-            data: e.data
-          })) || [],
-          screenInjectorFound: !!screenInjector,
-          screenInjectorType: screenInjector?.type,
-          screenInjectorPassed,
-          activeExploitsMapKeys: Array.from(activeExploits.keys()),
-          activeExploitsMapEntries: Array.from(activeExploits.entries()).map(([k, v]) => ({
-            key: k,
-            expiresAt: new Date(v.expiresAt).toISOString(),
-            passed: v.passed
-          }))
-        });
-
-        if (screenInjector) {
-          const shouldRender = !screenInjectorPassed && screenInjector.expiresAt > Date.now();
-          console.log('[DuelBattleFullscreen] 🛢️ Oil Attack (Screen Injector/Data Leak) check:', {
-            screenInjector,
-            screenInjectorType: screenInjector.type,
-            screenInjectorPassed,
-            expiresAt: screenInjector.expiresAt,
-            expiresAtISO: new Date(screenInjector.expiresAt).toISOString(),
-            now: Date.now(),
-            nowISO: new Date().toISOString(),
-            expired: screenInjector.expiresAt <= Date.now(),
-            shouldRender,
-            activeExploitsCount: state.activeExploits?.length || 0,
-            allActiveExploits: state.activeExploits?.map(e => e.type) || []
-          });
-          
-          // КРИТИЧНО: Если должен рендериться, но не рендерится - логируем предупреждение
-          if (shouldRender) {
-            console.log('[DuelBattleFullscreen] ✅✅✅ OilSplashAttack SHOULD BE RENDERING NOW! ✅✅✅');
-          } else {
-            console.warn('[DuelBattleFullscreen] ⚠️ OilSplashAttack NOT rendering:', {
-              reason: screenInjectorPassed ? 'already passed' : 'expired',
-              expiresAt: new Date(screenInjector.expiresAt).toISOString(),
-              now: new Date().toISOString()
-            });
-          }
-        } else {
-          console.warn('[DuelBattleFullscreen] ⚠️ No oil attack (screen_injector/data_leak/oil_spill) found in activeExploits!', {
-            availableTypes: state.activeExploits?.map(e => e.type) || [],
-            activeExploitsCount: state.activeExploits?.length || 0
-          });
+        // ОПТИМИЗАЦИЯ: Логируем только в dev режиме и только при изменении состояния
+        const shouldRender = screenInjector && !screenInjectorPassed && screenInjector.expiresAt > Date.now();
+        
+        // Логируем только в dev режиме при необходимости
+        if (isDev && screenInjector && shouldRender) {
+          log('[DuelBattleFullscreen] 🛢️ OilSplashAttack rendering');
         }
 
         return (

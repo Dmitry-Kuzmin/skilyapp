@@ -27,26 +27,12 @@ export const DuelBoostsPanel = memo(({
   onBoostUse,
   onTranslatePopoverChange,
 }: DuelBoostsPanelProps) => {
-  // Логируем для отладки (всегда, не только в dev)
-  // КРИТИЧНО: Версионирование логов для проверки обновления кода
-  if (typeof window !== 'undefined') {
-    const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-    console.log('[DuelBoostsPanel] 📊 Panel render [v2]:', {
-      boostsCount: boosts.length,
-      boosts: boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })),
-      isTelegram,
-      platform: isTelegram ? window.Telegram.WebApp.platform : 'browser',
-      usedBoosts,
-      isAnswered,
-      timestamp: new Date().toISOString(),
-      codeVersion: '2025-12-15-v2', // Версия кода для проверки обновления
-    });
-  }
-
-  // ВАЖНО: Всегда показываем панель бустов, даже если массив пустой
-  // Это помогает пользователю видеть, что функционал есть, и упрощает отладку
+  // ОПТИМИЗАЦИЯ: Логируем только в dev режиме
   const isDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1'));
   const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
+  
+  // ВАЖНО: Всегда показываем панель бустов, даже если массив пустой
+  // Это помогает пользователю видеть, что функционал есть, и упрощает отладку
 
   return (
     <div className="flex items-center gap-1.5 flex-wrap w-full justify-center min-h-[32px]">
