@@ -505,8 +505,6 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           });
           
           markEvent();
-          const newExploit = payload.new as any;
-          let currentMyPlayerId = myPlayerIdRef.current;
           
           // КРИТИЧНО: Если myPlayerId еще не установлен, пытаемся получить его из БД
           if (!currentMyPlayerId && profileId && duelId) {
