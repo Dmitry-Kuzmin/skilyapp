@@ -15,9 +15,11 @@ import { LightFallback } from "@/components/LightFallback";
 const ReferralRedirect = lazy(() => import("@/components/ReferralRedirect").then(m => ({ default: m.ReferralRedirect })));
 const PartnerRedirect = lazy(() => import("@/components/PartnerRedirect").then(m => ({ default: m.PartnerRedirect })));
 import { OfflineBanner } from "@/components/OfflineBanner";
-import { ServiceWorkerDebug } from "@/components/ServiceWorkerDebug";
+// ⚠️ ОТКЛЮЧЕНО: Service Worker отключен
+// import { ServiceWorkerDebug } from "@/components/ServiceWorkerDebug";
 import { OfflineQueueIndicator } from "@/components/OfflineQueueIndicator";
-import { ReloadPrompt } from "@/components/ReloadPrompt";
+// ⚠️ ОТКЛЮЧЕНО: Service Worker отключен
+// import { ReloadPrompt } from "@/components/ReloadPrompt";
 
 // Lazy load только тяжелые компоненты
 const DeepLinkHandler = lazy(() => import("@/components/DeepLinkHandler").then(m => ({ default: m.DeepLinkHandler })));
@@ -436,8 +438,9 @@ const App = () => {
     <TelegramProvider>
       <OfflineBanner />
       <OfflineQueueIndicator />
+      {/* ⚠️ ОТКЛЮЧЕНО: Service Worker отключен */}
       {/* КРИТИЧНО: Компонент для ручного обновления PWA при registerType: 'prompt' */}
-      <ReloadPrompt />
+      {/* <ReloadPrompt /> */}
       <Suspense fallback={null}>
         <BrowserRouter basename={basename}>
           <ScrollToTop />
@@ -482,8 +485,9 @@ const App = () => {
               </Suspense>
             } />
           </Routes>
+          {/* ⚠️ ОТКЛЮЧЕНО: Service Worker отключен */}
           {/* Debug панель Service Worker (только в dev или с localStorage.debug_sw) */}
-          <ServiceWorkerDebug />
+          {/* <ServiceWorkerDebug /> */}
         </BrowserRouter>
       </Suspense>
     </TelegramProvider>

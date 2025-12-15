@@ -11,8 +11,9 @@ import "./index.css";
 // import "./components/lumi/animations.css"; // Lazy loaded when needed
 import { reportWebVitals } from "./utils/webVitals";
 import { performanceMonitor } from "./utils/performance";
-import { registerSW } from 'virtual:pwa-register';
-import { initPWAVersionCheck } from "./utils/pwaVersionCheck";
+// ⚠️ ОТКЛЮЧЕНО: Service Worker вызывает проблемы с кэшированием старого кода
+// import { registerSW } from 'virtual:pwa-register';
+// import { initPWAVersionCheck } from "./utils/pwaVersionCheck";
 
 // ОПТИМИЗАЦИЯ: Инициализируем Rollbar ПОСЛЕ первого рендера (не блокируем FCP)
 // ВАЖНО: Ранние ошибки (до загрузки Rollbar) логируются в консоль
@@ -43,61 +44,9 @@ initRollbar();
   });
 }, 0);
 
+// ⚠️ ОТКЛЮЧЕНО: Service Worker вызывает проблемы с кэшированием старого кода
 // КРИТИЧНО: PWA Version Check для автоматического обновления
-initPWAVersionCheck();
-
-// КРИТИЧНО: Регистрация PWA Service Worker для offline-first режима
-// autoUpdate гарантирует, что пользователи всегда получают последнюю версию
-if (import.meta.env.PROD) {
-  console.log('[PWA] Starting Service Worker registration...');
-  console.log('[PWA] Environment:', {
-    prod: import.meta.env.PROD,
-    mode: import.meta.env.MODE,
-    userAgent: navigator.userAgent.substring(0, 100),
-  });
-  
-  const updateSW = registerSW({
-    immediate: true, // КРИТИЧНО: Регистрируем SW немедленно
-    onNeedRefresh() {
-      console.log('[PWA] 🔄 New version available');
-      // ВАЖНО: НЕ вызываем updateSW(true) здесь!
-      // Перезагрузка будет через controllerchange в pwaVersionCheck
-      // Это предотвращает двойные reload
-      
-      // TODO: Можно показать баннер "Обновить / Позже"
-      // showUpdateBanner(() => updateSW(true));
-    },
-    onOfflineReady() {
-      console.log('[PWA] ✅ App ready to work offline!');
-      console.log('[PWA] Cache initialized, you can now use the app without internet');
-    },
-    onRegistered(registration) {
-      console.log('[PWA] ✅ Service Worker registered successfully');
-      console.log('[PWA] Registration:', registration);
-      
-      // Проверяем, что SW действительно активен
-      if (registration) {
-        console.log('[PWA] Active SW:', registration.active);
-        console.log('[PWA] Installing SW:', registration.installing);
-        console.log('[PWA] Waiting SW:', registration.waiting);
-      }
-    },
-    onRegisteredSW(swUrl, registration) {
-      console.log('[PWA] ✅ Service Worker registered at:', swUrl);
-      console.log('[PWA] Scope:', registration?.scope);
-    },
-    onRegisterError(error) {
-      console.error('[PWA] ❌ Service Worker registration failed:', error);
-      console.error('[PWA] This might happen in:', {
-        telegramWebView: navigator.userAgent.includes('Telegram'),
-        private: window.navigator.userAgent.includes('Private'),
-        incognito: !window.indexedDB,
-      });
-    },
-  });
-} else {
-  console.log('[PWA] Development mode - Service Worker disabled');
-}
+// initPWAVersionCheck();
 
 // ОПТИМИЗАЦИЯ: Инициализация Server Time ПОСЛЕ первого рендера (не блокируем FCP)
 setTimeout(() => {
@@ -132,6 +81,7 @@ console.log('[Main] ✅ Script loaded and imports completed', {
 // Инициализация Telegram WebApp теперь происходит через TelegramProvider в App.tsx
 // Это гарантирует правильный порядок инициализации и предотвращает множественные вызовы
 
+// ⚠️ ОТКЛЮЧЕНО: Service Worker отключен из-за проблем с кэшированием старого кода
 // КРИТИЧНО: PWA Service Worker регистрируется автоматически через vite-plugin-pwa
 // Это обеспечивает offline-first архитектуру для Telegram Mini App
 // См. vite.config.ts для настроек кэширования
@@ -257,6 +207,39 @@ if (!rootElement) {
   document.body.innerHTML = '<div style="padding: 20px; color: red;"><h1>Ошибка инициализации</h1><p>Элемент #root не найден в DOM</p></div>';
   throw new Error('Root element not found');
 }
+
+// --------------------------------------------------------
+// ☠️ SERVICE WORKER KILLER
+// Этот код принудительно удаляет старые кэши PWA
+// КРИТИЧНО: Должен быть перед ReactDOM.createRoot для исправления проблем с кэшированием в Telegram
+// --------------------------------------------------------
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    let unregisterPromises = [];
+    for (let registration of registrations) {
+      console.log('💀 Killing Service Worker:', registration);
+      unregisterPromises.push(registration.unregister());
+    }
+
+    // Если нашли и убили SW, перезагружаем страницу, чтобы взять свежий код с сервера
+    if (registrations.length > 0) {
+      Promise.all(unregisterPromises).then(() => {
+        console.log('🔄 Service Worker killed. Reloading page...');
+        window.location.reload();
+      });
+    }
+  });
+  
+  // Очистка кэша хранилища
+  if ('caches' in window) {
+    caches.keys().then((names) => {
+      for (let name of names) {
+        caches.delete(name);
+      }
+    });
+  }
+}
+// --------------------------------------------------------
 
 console.log('[Main] Starting React app initialization...');
 

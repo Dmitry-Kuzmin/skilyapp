@@ -4,7 +4,6 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { visualizer } from "rollup-plugin-visualizer";
 import type { Plugin } from "vite";
-import { VitePWA } from "vite-plugin-pwa";
 // SSG: Prerender будет выполняться через отдельный скрипт (scripts/prerender.js)
 // Это более надёжно чем vite-plugin-prerender для сложных проектов
 
@@ -15,216 +14,17 @@ export default defineConfig(({ mode }) => {
   const plugins = [
     react(),
     mode === "development" && componentTagger(),
+    // ⚠️ ОТКЛЮЧЕНО: Service Worker вызывает проблемы с кэшированием старого кода
     // PWA Plugin для Offline-First архитектуры (критично для Telegram Mini App)
-    VitePWA({
-      // КРИТИЧНО: Используем 'prompt' вместо 'autoUpdate' для предотвращения спонтанных перезагрузок
-      // 'autoUpdate' вызывает автоматическую перезагрузку при каждом деплое, что раздражает пользователей
-      registerType: 'prompt', // ✅ СПРАШИВАТЬ, а не перезагружать автоматически
-      // КРИТИЧНО: Переименовываем service worker чтобы не конфликтовать с Monetag верификацией
-      filename: 'pwa-sw.js', // Вместо sw.js (для Monetag верификации)
-      includeAssets: ['favicon.ico', 'favicon.svg'],
-      manifest: {
-        name: 'Sdadim DGT',
-        short_name: 'Sdadim',
-        description: 'Sdadim Digital Gaming Platform - Подготовка к теоретическому экзамену DGT',
-        theme_color: '#09090b', // zinc-950 - совпадает с фоном страницы
-        background_color: '#09090b', // zinc-950
-        display: 'standalone',
-        orientation: 'portrait',
-        start_url: '/',
-        scope: '/',
-        // Иконки можно добавить позже (создать pwa-192x192.png и pwa-512x512.png)
-        // Пока приложение будет использовать favicon.ico
-        icons: []
-      },
-      workbox: {
-        // АРХИТЕКТУРА OFFLINE-FIRST:
-        // 
-        // Service Worker отвечает ТОЛЬКО за статику:
-        //   - JS/CSS/HTML (app shell)
-        //   - Images (Supabase Storage, локальные)
-        //   - Fonts
-        // 
-        // React Query отвечает за данные (API):
-        //   - Supabase REST API (/rest/v1/...)
-        //   - Supabase Functions (/functions/v1/...)
-        //   - Кэш в IndexedDB через idb-keyval
-        //   - Управление staleTime/gcTime
-        // 
-        // Это предотвращает конфликты двойного кэша и устаревшие данные.
-        //
-        // ВАЖНО: iOS Safari ограничения:
-        //   - Лимит кэша: ~50 МБ на домен
-        //   - Очистка кэша: при нехватке памяти или бездействии
-        //   - Деактивация SW: при закрытии Safari
-        //   - Минимизируем precache, используем runtime cache
-        
-        // Precache для offline режима
-        // ВАЖНО: iOS Safari агрессивно чистит кэши > 50 МБ
-        // Минимизируем precache, остальное кэшируем runtime
-        globPatterns: [
-          '**/*.{js,css,html,ico,svg}',
-          // Манифесты (маленькие)
-          'manifest.webmanifest',
-          'data/materials-manifest.json',
-        ],
-        // ВАЖНО: Исключаем крупные файлы из precache (будут в runtime)
-        globIgnores: [
-          '**/data/materials/**', // Большие JSON - в runtime cache
-          '**/sounds/**',         // Звуки не критичны
-          '**/*.{png,jpg,jpeg,webp}', // Изображения - в runtime cache
-        ],
-        
-        // Лимит для vendor chunks (vendor.js ~2.5 МБ)
-        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
-        
-        // КРИТИЧНО: Стратегии кэширования ТОЛЬКО для статики
-        // API кэшируется на уровне React Query + IndexedDB, НЕ в Service Worker
-        // 
-        // ВАЖНО: НЕ кэшируем navigation requests (request.mode === 'navigate')
-        // потому что:
-        // 1. Vercel rewrites уже обрабатывают SPA routing (vercel.json)
-        // 2. Mobile Safari выдаёт "Response is disturbed or locked" при попытке
-        //    закэшировать navigation responses (особенность WebKit)
-        // 3. index.html в precache - этого достаточно для offline
-        runtimeCaching: [
-          {
-            // КРИТИЧНО: Локальные JS/CSS (с нашего домена) - CacheFirst
-            // Гарантирует что app shell всегда доступен offline
-            urlPattern: ({ url }) => {
-              return url.origin === location.origin && 
-                     (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'));
-            },
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'app-static-assets',
-              expiration: {
-                maxEntries: 80, // Уменьшено для iOS Safari (было 150)
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 дней
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-          {
-            // КРИТИЧНО: НЕ кэшируем внешние скрипты (telegram.org, CDN) - они вызывают opaque responses
-            // Используем NetworkOnly для внешних JS/CSS, чтобы избежать CORS проблем
-            urlPattern: ({ url }) => {
-              // Исключаем внешние скрипты (особенно telegram.org)
-              return url.origin !== location.origin && 
-                     (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'));
-            },
-            handler: 'NetworkOnly', // НЕ кэшируем внешние скрипты
-            options: {
-              cacheName: 'external-assets-skip', // Не используется, но нужен для конфига
-            },
-          },
-          {
-            // КРИТИЧНО: НЕ кэшируем Supabase API запросы (/rest/, /functions/) - они вызывают CORS проблемы
-            // React Query уже кэширует эти запросы на уровне приложения
-            urlPattern: ({ url }) => {
-              return url.hostname.includes('supabase.co') && 
-                     (url.pathname.includes('/rest/') || url.pathname.includes('/functions/'));
-            },
-            handler: 'NetworkOnly', // НЕ кэшируем API запросы через Service Worker
-            options: {
-              cacheName: 'supabase-api-skip', // Не используется, но нужен для конфига
-            },
-          },
-          {
-            // Supabase Storage ТОЛЬКО (images, files) - CacheFirst
-            // НЕ кэшируем /rest/ и /functions/ - за это отвечает React Query
-            urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/v1\/object\/public\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'supabase-storage',
-              expiration: {
-                maxEntries: 100, // Уменьшено для iOS Safari (было 300)
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 дней
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-          {
-            // Fonts - CacheFirst, долгий TTL
-            urlPattern: /^https?:\/\/.*\.(woff|woff2|ttf|eot|otf)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'fonts',
-              expiration: {
-                maxEntries: 30,
-                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 год
-              },
-            },
-          },
-          {
-            // Images (локальные и внешние) - CacheFirst
-            urlPattern: /^https?:\/\/.*\.(png|jpg|jpeg|svg|gif|webp|ico)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'images',
-              expiration: {
-                maxEntries: 60, // Уменьшено для iOS Safari (было 200)
-                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 дней (было 30)
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-          {
-            // КРИТИЧНО: Локальные JSON файлы (materials) - CacheFirst
-            // iOS Safari ограничивает кэш - кэшируем только часто используемые
-            urlPattern: ({ url }) => {
-              // Только файлы с нашего домена
-              if (url.origin !== location.origin) return false;
-              // JSON файлы или файлы в /data/
-              return url.pathname.endsWith('.json') || url.pathname.includes('/data/');
-            },
-            handler: 'NetworkFirst', // NetworkFirst вместо CacheFirst для iOS
-            options: {
-              cacheName: 'local-data',
-              networkTimeoutSeconds: 3, // Быстрый fallback
-              expiration: {
-                maxEntries: 100, // Сильно уменьшено для iOS (было 500)
-                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 дней (было 30)
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-        ],
-        
-        // КРИТИЧНО: Navigation fallback для SPA
-        // ВАЖНО: На мобильном Safari navigateFallback может вызывать
-        // "Response is disturbed or locked" для прямых URL внутренних страниц.
-        // Vercel rewrites в vercel.json уже обрабатывают SPA routing,
-        // поэтому navigateFallback можно отключить.
-        navigateFallback: undefined, // Отключён (полагаемся на vercel.json rewrites)
-        
-        // Если бы использовали navigateFallback:
-        // navigateFallback: '/index.html',
-        // navigateFallbackDenylist: [
-        //   /^\/api/,
-        //   /\.(png|jpg|jpeg|svg|gif|webp|ico|json)$/,
-        //   /supabase\.co/,
-        // ],
-        
-        // КРИТИЧНО: Очищаем старые кэши при обновлении
-        cleanupOutdatedCaches: true,
-        
-        // КРИТИЧНО: Клиентские claims для немедленной активации SW
-        clientsClaim: true,
-        skipWaiting: true,
-      },
-      devOptions: {
-        enabled: false, // Отключаем в dev режиме для быстрой разработки
-      },
-    }),
+    // Раскомментировать при необходимости:
+    // VitePWA({
+    //   registerType: 'prompt',
+    //   filename: 'pwa-sw.js',
+    //   includeAssets: ['favicon.ico', 'favicon.svg'],
+    //   manifest: { ... },
+    //   workbox: { ... },
+    //   devOptions: { enabled: false },
+    // }),
     shouldAnalyze &&
       visualizer({
         filename: "dist/stats.html",
