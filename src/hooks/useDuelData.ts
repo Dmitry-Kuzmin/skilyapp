@@ -359,10 +359,13 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
   const fetchBoostInventory = useCallback(async (): Promise<BoostInventoryItem[]> => {
     if (!profileId) return [];
 
-    const cache = getCacheEntry();
-    if (cache.boosts) {
-      return cache.boosts;
-    }
+    // КРИТИЧНО: НЕ используем кэш для бустов, так как они зависят от loadout,
+    // который может измениться в любой момент (пользователь может выбрать другие бусты)
+    // Кэш может вызывать проблемы в Telegram Mini App, показывая старые данные
+    // const cache = getCacheEntry();
+    // if (cache.boosts) {
+    //   return cache.boosts;
+    // }
 
     // Загружаем loadout пользователя через RPC функцию (обходит RLS)
     console.log('[useDuelData] 🔍 Loading loadout via RPC:', {
@@ -622,7 +625,8 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       console.log('[useDuelData] No loadout selected, showing all boosts');
     }
 
-    cache.boosts = boosts;
+    // КРИТИЧНО: НЕ сохраняем в кэш, так как loadout может измениться
+    // cache.boosts = boosts;
     return boosts;
   }, [profileId]);
 
