@@ -161,9 +161,50 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
           return data;
         }
 
-        // КРИТИЧНО: Если вопросов нет, проверяем статус дуэли
+        // КРИТИЧНО: Если вопросов нет, проверяем статус дуэли и количество игроков
         const status = await checkDuelStatus();
         console.log(`[useDuelData] 📊 Duel status: ${status}`);
+        
+        // КРИТИЧНО: Если дуэль "waiting" и есть 2 игрока - пытаемся запустить вручную
+        if (status === 'waiting' && attempt >= 2) {
+          // Проверяем количество игроков
+          const { data: playersData } = await supabase
+            .from('duel_players')
+            .select('id, user_id, is_bot')
+            .eq('duel_id', duelId);
+          
+          const realPlayers = playersData?.filter(p => !p.is_bot) || [];
+          console.log('[useDuelData] 🔍 Checking players for manual start:', {
+            totalPlayers: playersData?.length || 0,
+            realPlayers: realPlayers.length,
+            players: playersData?.map(p => ({ id: p.id, user_id: p.user_id, is_bot: p.is_bot }))
+          });
+          
+          // Если есть 2 реальных игрока - пытаемся запустить дуэль вручную
+          if (realPlayers.length === 2) {
+            console.log('[useDuelData] 🚀 2 players detected in waiting duel, attempting manual start...');
+            try {
+              const { data: startData, error: startError } = await supabase.functions.invoke('duel-manager', {
+                body: {
+                  action: 'start_duel',
+                  duel_id: duelId,
+                  profile_id: profileId
+                }
+              });
+              
+              if (startError) {
+                console.error('[useDuelData] ❌ Error starting duel manually:', startError);
+              } else {
+                console.log('[useDuelData] ✅ Duel started manually, waiting for questions...');
+                // Ждем немного и проверяем снова
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+                continue; // Повторяем попытку загрузки вопросов
+              }
+            } catch (startErr: any) {
+              console.error('[useDuelData] ❌ Exception starting duel manually:', startErr);
+            }
+          }
+        }
         
         // Если дуэль еще "waiting" и есть попытки - ждем и повторяем
         if (status === 'waiting' && attempt < retries - 1) {

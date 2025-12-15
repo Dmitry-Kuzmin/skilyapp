@@ -2607,15 +2607,31 @@ Deno.serve(async (req) => {
         console.log('[Duel Manager] ✅ Player created:', player?.id);
 
         // Check if we now have 2 players - auto-start duel
-        const { data: allPlayers } = await supabase
+        const { data: allPlayers, error: playersCheckError } = await supabase
           .from('duel_players')
-          .select('id')
+          .select('id, user_id, is_bot')
           .eq('duel_id', duel.id);
 
-        console.log('[join_duel] ✅ Player count check:', allPlayers?.length);
+        if (playersCheckError) {
+          console.error('[join_duel] ❌ Error checking players:', playersCheckError);
+        }
 
-        if (allPlayers && allPlayers.length === 2) {
-          console.log('[join_duel] 🚀 AUTO-START: 2 players detected, starting duel...');
+        console.log('[join_duel] ✅ Player count check:', {
+          count: allPlayers?.length,
+          players: allPlayers?.map(p => ({ id: p.id, user_id: p.user_id, is_bot: p.is_bot })),
+          duel_id: duel.id
+        });
+
+        // КРИТИЧНО: Проверяем, что есть ровно 2 игрока (не ботов) для автозапуска
+        const realPlayers = allPlayers?.filter(p => !p.is_bot) || [];
+        const totalPlayers = allPlayers?.length || 0;
+
+        if (realPlayers.length === 2 && totalPlayers >= 2) {
+          console.log('[join_duel] 🚀 AUTO-START: 2 real players detected, starting duel...', {
+            realPlayersCount: realPlayers.length,
+            totalPlayersCount: totalPlayers,
+            players: realPlayers.map(p => ({ id: p.id, user_id: p.user_id }))
+          });
 
           try {
             // Auto-start: Load ALL questions, then randomly select
@@ -2721,21 +2737,29 @@ Deno.serve(async (req) => {
           } catch (autoStartError: any) {
             console.error('[join_duel] ❌❌❌ CRITICAL ERROR in auto-start:', autoStartError);
             console.error('[join_duel] Error message:', autoStartError?.message);
+            console.error('[join_duel] Error stack:', autoStartError?.stack);
             console.error('[join_duel] Error details:', JSON.stringify(autoStartError, null, 2));
-            // Если автостарт не удался, возвращаем ошибку
+            
+            // КРИТИЧНО: Не возвращаем ошибку 500 - это блокирует присоединение игрока
+            // Вместо этого логируем ошибку и возвращаем успешный ответ, но без auto_started
+            // Вопросы можно будет сгенерировать позже через start_duel action
+            console.warn('[join_duel] ⚠️ Auto-start failed, but player was added. Duel remains in "waiting" status.');
             return new Response(JSON.stringify({
-              error: 'Failed to auto-start duel: ' + (autoStartError?.message || 'Unknown error'),
               duel,
               player,
-              auto_started: false
+              auto_started: false,
+              warning: 'Failed to auto-start duel: ' + (autoStartError?.message || 'Unknown error')
             }), {
-              status: 500,
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             });
           }
         }
 
-        console.log('[join_duel] Only 1 player, waiting for opponent');
+        console.log('[join_duel] ⏳ Only 1 real player, waiting for opponent', {
+          realPlayersCount: realPlayers.length,
+          totalPlayersCount: totalPlayers,
+          players: allPlayers?.map(p => ({ id: p.id, user_id: p.user_id, is_bot: p.is_bot }))
+        });
         return new Response(JSON.stringify({ duel, player, auto_started: false }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
