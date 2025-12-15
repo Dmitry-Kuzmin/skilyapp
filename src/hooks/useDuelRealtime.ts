@@ -1040,7 +1040,8 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     // Кэш для загруженного myPlayerId
     let cachedMyPlayerId: string | null = myPlayerId || null;
     
-    const pollingInterval = setInterval(async () => {
+    // КРИТИЧНО: Функция polling, которую можно вызвать сразу и через интервал
+    const performPolling = async () => {
       try {
         let currentMyPlayerId = myPlayerIdRef.current || cachedMyPlayerId;
         
@@ -1081,6 +1082,33 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           return;
         }
         
+        // КРИТИЧНО: Сначала проверяем ВСЕ exploits в дуэли (без фильтров) для диагностики
+        const currentTimeISO = new Date().toISOString();
+        const { data: allExploits, error: allError } = await supabase
+          .from('duel_active_exploits')
+          .select('*')
+          .eq('duel_id', duelId)
+          .order('activated_at', { ascending: false });
+        
+        console.log('[useDuelRealtime] 🔍🔍🔍 DEBUG: All exploits in duel (before filtering):', {
+          totalInDB: allExploits?.length || 0,
+          currentMyPlayerId,
+          duelId,
+          currentTime: currentTimeISO,
+          allExploits: allExploits?.map(e => ({
+            id: e.id,
+            type: e.exploit_type,
+            attacker: e.attacker_player_id,
+            target: e.target_player_id,
+            expires_at: e.expires_at,
+            is_active: e.is_active,
+            activated_at: e.activated_at,
+            isExpired: e.expires_at ? new Date(e.expires_at) < new Date(currentTimeISO) : null,
+            attackerMatchesMe: e.attacker_player_id === currentMyPlayerId,
+            targetMatchesMe: e.target_player_id === currentMyPlayerId
+          })) || []
+        });
+        
         // УПРОЩЕННАЯ ЛОГИКА: В дуэли 1 на 1 берем все exploits, где attacker НЕ я
         const { data: newExploits, error } = await supabase
           .from('duel_active_exploits')
@@ -1088,7 +1116,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           .eq('duel_id', duelId)
           .neq('attacker_player_id', currentMyPlayerId) // Атаки НЕ от меня = для меня
           .eq('is_active', true)
-          .gt('expires_at', new Date().toISOString())
+          .gt('expires_at', currentTimeISO)
           .order('activated_at', { ascending: false });
         
         if (error) {
@@ -1101,14 +1129,20 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           exploitsFound: newExploits?.length || 0,
           currentMyPlayerId,
           duelId,
-          currentTime: new Date().toISOString(),
+          currentTime: currentTimeISO,
+          queryFilters: {
+            attackerNotMe: `attacker_player_id != ${currentMyPlayerId}`,
+            isActive: true,
+            notExpired: `expires_at > ${currentTimeISO}`
+          },
           exploits: newExploits?.map(e => ({
             id: e.id,
             type: e.exploit_type,
             attacker: e.attacker_player_id,
             target: e.target_player_id,
             expires_at: e.expires_at,
-            is_active: e.is_active
+            is_active: e.is_active,
+            activated_at: e.activated_at
           })) || []
         });
         
@@ -1157,7 +1191,14 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       } catch (pollingError) {
         console.error('[useDuelRealtime] ❌ Polling exception:', pollingError);
       }
-    }, 2000); // Проверяем каждые 2 секунды
+    };
+    
+    // КРИТИЧНО: Вызываем polling сразу после подключения (не ждем 2 секунды)
+    console.log('[useDuelRealtime] 🚀🚀🚀 Calling polling immediately after connection...');
+    performPolling();
+    
+    // Затем вызываем каждые 2 секунды
+    const pollingInterval = setInterval(performPolling, 2000);
     
     return () => {
       console.log('[useDuelRealtime] 🛑 Stopping polling fallback...');

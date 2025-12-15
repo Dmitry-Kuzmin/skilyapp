@@ -3592,7 +3592,7 @@ Deno.serve(async (req) => {
           boostEffect = {
             success: true,
             popup_count: 3,
-            duration_ms: 10000,
+            duration_ms: 30000, // Увеличено с 10 до 30 секунд для визуального эффекта
           };
           console.log('[use_boost] Data Leak activated');
         } else if (boost_type === 'input_lag') {
@@ -3656,8 +3656,21 @@ Deno.serve(async (req) => {
             if (opponent) {
               // Вычисляем время истечения эффекта
               const durationMs = boostEffect.duration_ms || 10000;
-              const expiresAt = new Date(Date.now() + durationMs).toISOString();
-              const activatedAt = new Date().toISOString();
+              const now = Date.now();
+              const expiresAt = new Date(now + durationMs).toISOString();
+              const activatedAt = new Date(now).toISOString();
+
+              // КРИТИЧНО: Логируем время создания для диагностики
+              console.log('[use_boost] ⏰⏰⏰ Creating exploit with timing:', {
+                boost_type,
+                durationMs,
+                now: new Date(now).toISOString(),
+                activatedAt,
+                expiresAt,
+                timeUntilExpiry: `${durationMs}ms (${Math.round(durationMs / 1000)}s)`,
+                attackerPlayerId: player.id,
+                targetPlayerId: opponent.id
+              });
 
               // Сохраняем exploit в БД для State Recovery
               const exploitData = {
@@ -3674,7 +3687,12 @@ Deno.serve(async (req) => {
               console.log('[use_boost] 💾 Inserting exploit to DB:', {
                 exploitData,
                 targetPlayerId: opponent.id,
-                exploitType: boost_type
+                exploitType: boost_type,
+                timing: {
+                  activatedAt,
+                  expiresAt,
+                  durationMs
+                }
               });
 
               const { data: insertedExploit, error: exploitError } = await supabase
