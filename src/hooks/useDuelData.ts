@@ -438,33 +438,22 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       }
     }
 
-    // Загружаем количество доступных слотов пользователя
-    let availableSlots = 1; // По умолчанию 1 слот
-    try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('ram_slots_unlocked')
-        .eq('id', profileId)
-        .maybeSingle();
-      
-      if (profile?.ram_slots_unlocked) {
-        availableSlots = profile.ram_slots_unlocked;
-      }
-    } catch (error) {
-      console.warn('[useDuelData] ⚠️ Error loading ram_slots_unlocked, using default (1):', error);
-    }
-
-    // Формируем список выбранных бустов из loadout (только доступные слоты, фильтруем null)
+    // КРИТИЧНО: Доверяем данным из базы - если в слоте есть буст, значит пользователь имел право его туда положить
+    // (купил слот, посмотрел рекламу, имеет Premium и т.д.)
+    // Валидацию "можно ли сохранять в этот слот" делает только LoadoutSelector, а не игра
+    // Это решает проблему с временной разблокировкой через рекламу
+    
+    // Формируем список выбранных бустов из loadout (просто берем все не-null слоты)
     const loadoutBoosts: string[] = [];
     if (loadout) {
-      // Показываем только те слоты, которые доступны пользователю
-      if (availableSlots >= 1 && loadout.slot_1_boost_type) {
+      // Если в базе есть запись в слоте, значит пользователь имел право её туда положить
+      if (loadout.slot_1_boost_type) {
         loadoutBoosts.push(loadout.slot_1_boost_type);
       }
-      if (availableSlots >= 2 && loadout.slot_2_boost_type) {
+      if (loadout.slot_2_boost_type) {
         loadoutBoosts.push(loadout.slot_2_boost_type);
       }
-      if (availableSlots >= 3 && loadout.slot_3_boost_type) {
+      if (loadout.slot_3_boost_type) {
         loadoutBoosts.push(loadout.slot_3_boost_type);
       }
     }
@@ -472,14 +461,13 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
     console.log('[useDuelData] 📋 Loadout processing:', {
       hasLoadout: !!loadout,
       loadout,
-      availableSlots,
       loadoutBoosts,
       loadoutBoostsLength: loadoutBoosts.length,
       willFilter: loadoutBoosts.length > 0,
       willShowAll: loadoutBoosts.length === 0,
       note: loadoutBoosts.length === 0 
-        ? 'No boosts selected in available slots - will show all boosts'
-        : `Showing ${loadoutBoosts.length} boost(s) from loadout`,
+        ? 'No boosts selected in loadout - will show all boosts'
+        : `Showing ${loadoutBoosts.length} boost(s) from loadout (trusting DB data)`,
     });
 
     // Загружаем все бусты из инвентаря
