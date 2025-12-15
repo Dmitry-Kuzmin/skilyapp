@@ -32,21 +32,17 @@ export const DuelBoostsPanel = memo(({
     console.log('[DuelBoostsPanel] Boosts count:', boosts.length, 'Boosts:', boosts);
   }
 
-  // ВАЖНО: Всегда показываем панель бустов, даже если массив пустой (для отладки)
-  // Но если бустов нет - показываем сообщение только в dev режиме
-  if (boosts.length === 0) {
-    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1'))) {
-      return (
-        <div className="text-xs text-muted-foreground p-2 border border-dashed rounded">
-          Бусты не загружены (0)
-        </div>
-      );
-    }
-    return null;
-  }
-
+  // ВАЖНО: Всегда показываем панель бустов, даже если массив пустой
+  // Это помогает пользователю видеть, что функционал есть, и упрощает отладку
+  const isDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1'));
+  
   return (
     <div className="flex items-center gap-1.5 flex-wrap w-full justify-center">
+      {boosts.length === 0 && isDev && (
+        <div className="text-xs text-muted-foreground/50 px-2 py-1 border border-dashed border-muted-foreground/20 rounded">
+          Бусты не загружены (0)
+        </div>
+      )}
       {boosts.map((boost) => {
         const boostConfig = {
           // Safe Mode
