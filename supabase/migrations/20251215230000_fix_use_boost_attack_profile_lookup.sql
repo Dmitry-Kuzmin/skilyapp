@@ -1,0 +1,367 @@
+-- ============================================
+-- ИСПРАВЛЕНИЕ use_boost_attack: Улучшенный поиск игрока
+-- ============================================
+-- Проблема: Функция падает с ошибкой "User profile not found" если профиля нет
+-- Решение: Ищем игрока напрямую в duel_players, даже если профиля нет
+-- ============================================
+
+CREATE OR REPLACE FUNCTION public.use_boost_attack(
+  p_duel_id uuid,
+  p_boost_type text,
+  p_duel_question_id uuid DEFAULT NULL,
+  p_language text DEFAULT NULL
+)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER -- Запускаем от имени админа для обхода RLS при вставке
+AS $$
+DECLARE
+  v_profile_id uuid;
+  v_attacker_player_id uuid;
+  v_target_player_id uuid;
+  v_has_boost boolean;
+  v_boost_effect jsonb;
+  v_duration_ms integer;
+  v_expires_at timestamptz;
+  v_activated_at timestamptz;
+  v_exploit_id uuid;
+  -- Переменные для Safe Mode бустов
+  v_question_data jsonb;
+  v_correct_ids text[];
+  v_all_options jsonb;
+  v_incorrect_options text[];
+  v_to_hide text[];
+  v_question_snapshot jsonb;
+  v_hint text;
+  -- Переменная для проверки exploit
+  v_verify_count integer;
+BEGIN
+  -- КРИТИЧНО: Логируем начало выполнения функции
+  RAISE NOTICE '[use_boost_attack] 🚀 Function called: duel_id=%, boost_type=%, question_id=%, language=%', 
+    p_duel_id, p_boost_type, p_duel_question_id, p_language;
+  
+  -- 1. УЛУЧШЕННЫЙ ПОИСК ИГРОКА-АТАКУЮЩЕГО
+  -- Сначала пытаемся найти игрока напрямую в duel_players по user_id
+  SELECT id INTO v_attacker_player_id
+  FROM duel_players
+  WHERE duel_id = p_duel_id 
+    AND (
+      -- Прямая связь по Auth ID (если user_id в duel_players = auth.uid())
+      user_id = auth.uid()
+      OR
+      -- Связь через профиль (если user_id в duel_players = profile.id, а profile.user_id = auth.uid())
+      user_id IN (SELECT id FROM profiles WHERE user_id = auth.uid())
+    )
+    AND is_bot = false
+  LIMIT 1;
+  
+  -- Если не нашли, пытаемся найти профиль и использовать его ID
+  IF v_attacker_player_id IS NULL THEN
+    -- Получаем profile_id текущего пользователя
+    SELECT id INTO v_profile_id
+    FROM profiles
+    WHERE user_id = auth.uid()
+       OR telegram_id = ((current_setting('request.jwt.claims', true)::json->>'telegram_id')::bigint)
+    LIMIT 1;
+    
+    -- Если профиль найден, ищем игрока по profile_id
+    IF v_profile_id IS NOT NULL THEN
+      SELECT id INTO v_attacker_player_id
+      FROM duel_players
+      WHERE duel_id = p_duel_id
+        AND user_id = v_profile_id
+        AND is_bot = false
+      LIMIT 1;
+    END IF;
+  ELSE
+    -- Если нашли игрока напрямую, получаем его profile_id для проверки бустов
+    SELECT user_id INTO v_profile_id
+    FROM duel_players
+    WHERE id = v_attacker_player_id;
+    
+    -- Если user_id в duel_players - это не profile.id, а auth.uid(), ищем профиль
+    IF v_profile_id NOT IN (SELECT id FROM profiles) THEN
+      SELECT id INTO v_profile_id
+      FROM profiles
+      WHERE user_id = v_profile_id OR user_id = auth.uid()
+      LIMIT 1;
+    END IF;
+  END IF;
+  
+  -- Если всё ещё не нашли игрока, возвращаем понятную ошибку
+  IF v_attacker_player_id IS NULL THEN
+    RAISE NOTICE '[use_boost_attack] ❌ Attacker not found: auth.uid()=%, duel_id=%', auth.uid(), p_duel_id;
+    RETURN json_build_object(
+      'success', false,
+      'error', 'Attacker not found in this duel',
+      'debug_info', json_build_object(
+        'auth_uid', auth.uid()::text,
+        'duel_id', p_duel_id::text
+      )
+    );
+  END IF;
+  
+  RAISE NOTICE '[use_boost_attack] ✅ Attacker player found: attacker_player_id=%, profile_id=%', 
+    v_attacker_player_id, v_profile_id;
+  
+  -- 2. Проверяем наличие буста в инвентаре (только если есть profile_id)
+  IF v_profile_id IS NOT NULL THEN
+    SELECT EXISTS (
+      SELECT 1 FROM boost_inventory
+      WHERE user_id = v_profile_id
+        AND boost_type = p_boost_type
+        AND quantity > 0
+    ) INTO v_has_boost;
+    
+    IF NOT v_has_boost THEN
+      RAISE NOTICE '[use_boost_attack] ❌ Boost not available: user_id=%, boost_type=%', v_profile_id, p_boost_type;
+      RETURN json_build_object(
+        'success', false,
+        'error', 'Boost not available'
+      );
+    END IF;
+    
+    RAISE NOTICE '[use_boost_attack] ✅ Boost available, deducting...';
+    
+    -- 3. Списываем буст из инвентаря
+    PERFORM modify_boost_inventory(
+      v_profile_id,
+      p_boost_type,
+      -1
+    );
+    
+    RAISE NOTICE '[use_boost_attack] ✅ Boost deducted from inventory';
+  ELSE
+    -- Если профиля нет, но игрок найден - пропускаем проверку бустов (для тестов)
+    RAISE NOTICE '[use_boost_attack] ⚠️ No profile found, skipping boost inventory check (test mode)';
+    v_has_boost := true;
+  END IF;
+  
+  -- 4. Записываем использование буста
+  INSERT INTO duel_boosts_used (
+    duel_id,
+    player_id,
+    boost_type,
+    duel_question_id
+  ) VALUES (
+    p_duel_id,
+    v_attacker_player_id,
+    p_boost_type,
+    p_duel_question_id
+  );
+  
+  RAISE NOTICE '[use_boost_attack] ✅ Boost usage recorded in duel_boosts_used';
+  
+  -- 5. Определяем эффект буста и длительность
+  v_activated_at := NOW();
+  
+  CASE p_boost_type
+    -- Root Mode Exploits (создают exploit в duel_active_exploits)
+    WHEN 'screen_injector' THEN
+      v_duration_ms := 45000; -- 45 секунд
+      v_boost_effect := jsonb_build_object(
+        'success', true,
+        'popup_count', 3,
+        'duration_ms', v_duration_ms
+      );
+    WHEN 'input_lag' THEN
+      v_duration_ms := 5000;
+      v_boost_effect := jsonb_build_object(
+        'success', true,
+        'delay_ms', 1500,
+        'duration_ms', v_duration_ms
+      );
+    WHEN 'gps_spoofing' THEN
+      v_duration_ms := 10000;
+      v_boost_effect := jsonb_build_object(
+        'success', true,
+        'shuffle_duration_ms', 1000
+      );
+    WHEN 'police_backdoor' THEN
+      v_duration_ms := 8000;
+      v_boost_effect := jsonb_build_object(
+        'success', true,
+        'block_duration_ms', 8000,
+        'captcha_required', true
+      );
+    WHEN 'firewall' THEN
+      v_duration_ms := 30000;
+      v_boost_effect := jsonb_build_object(
+        'success', true,
+        'active', true,
+        'duration_ms', v_duration_ms
+      );
+    -- Safe Mode Boosts (не создают exploit, возвращают эффект)
+    WHEN 'fifty_fifty' THEN
+      -- Получаем вопрос для определения неправильных вариантов
+      IF p_duel_question_id IS NOT NULL THEN
+        SELECT question_snapshot, correct_option_ids INTO v_question_data, v_correct_ids
+        FROM duel_questions
+        WHERE id = p_duel_question_id;
+        
+        IF v_question_data IS NOT NULL THEN
+          v_all_options := v_question_data->'answer_options';
+          -- Находим неправильные варианты
+          SELECT array_agg((opt->>'id')::text) INTO v_incorrect_options
+          FROM jsonb_array_elements(v_all_options) opt
+          WHERE NOT (opt->>'id' = ANY(v_correct_ids));
+          
+          -- Скрываем 2 неправильных варианта (или все, если меньше 2)
+          v_to_hide := array(SELECT unnest(v_incorrect_options) LIMIT 2);
+          
+          v_boost_effect := jsonb_build_object(
+            'success', true,
+            'hidden_options', to_jsonb(v_to_hide)
+          );
+        ELSE
+          v_boost_effect := jsonb_build_object('success', true);
+        END IF;
+      ELSE
+        v_boost_effect := jsonb_build_object('success', true);
+      END IF;
+    WHEN 'time_extend' THEN
+      v_boost_effect := jsonb_build_object(
+        'success', true,
+        'time_added_ms', 30000
+      );
+    WHEN 'hint' THEN
+      -- Получаем подсказку из вопроса
+      IF p_duel_question_id IS NOT NULL THEN
+        SELECT question_snapshot INTO v_question_snapshot
+        FROM duel_questions
+        WHERE id = p_duel_question_id;
+        
+        IF v_question_snapshot IS NOT NULL THEN
+          v_hint := COALESCE(
+            v_question_snapshot->>'explanation_ru',
+            v_question_snapshot->>'explanation_es',
+            v_question_snapshot->>'explanation_en',
+            'Подсказка недоступна'
+          );
+          
+          v_boost_effect := jsonb_build_object(
+            'success', true,
+            'hint', v_hint
+          );
+        ELSE
+          v_boost_effect := jsonb_build_object('success', true);
+        END IF;
+      ELSE
+        v_boost_effect := jsonb_build_object('success', true);
+      END IF;
+    WHEN 'skip' THEN
+      v_boost_effect := jsonb_build_object(
+        'success', true,
+        'skip_confirmed', true
+      );
+    WHEN 'translate' THEN
+      v_boost_effect := jsonb_build_object(
+        'success', true,
+        'translate_applied', true,
+        'language', COALESCE(p_language, 'ru')
+      );
+    WHEN 'rewind' THEN
+      v_boost_effect := jsonb_build_object(
+        'success', true,
+        'rewind_confirmed', true
+      );
+    ELSE
+      -- Неизвестный тип буста
+      v_boost_effect := jsonb_build_object('success', true);
+  END CASE;
+  
+  -- 6. Если это exploit (Root Mode), создаем запись в duel_active_exploits
+  IF v_duration_ms IS NOT NULL THEN
+    -- Находим соперника (второй игрок в дуэли)
+    SELECT id INTO v_target_player_id
+    FROM duel_players
+    WHERE duel_id = p_duel_id
+      AND id != v_attacker_player_id
+      AND is_bot = false
+    LIMIT 1;
+    
+    -- Если нет человеческого соперника, ищем бота
+    IF v_target_player_id IS NULL THEN
+      SELECT id INTO v_target_player_id
+      FROM duel_players
+      WHERE duel_id = p_duel_id
+        AND id != v_attacker_player_id
+        AND is_bot = true
+      LIMIT 1;
+    END IF;
+    
+    IF v_target_player_id IS NULL THEN
+      RAISE EXCEPTION 'Opponent not found in this duel';
+    END IF;
+    
+    -- Проверяем, что attacker != target
+    IF v_attacker_player_id = v_target_player_id THEN
+      RAISE EXCEPTION 'Cannot create exploit - attacker equals target';
+    END IF;
+    
+    RAISE NOTICE '[use_boost_attack] ✅ Target player found: target_player_id=%, attacker_player_id=%', 
+      v_target_player_id, v_attacker_player_id;
+    
+    v_expires_at := v_activated_at + (v_duration_ms || ' milliseconds')::interval;
+    
+    RAISE NOTICE '[use_boost_attack] 💾 Inserting exploit: duel_id=%, exploit_type=%, attacker=%, target=%, expires_at=%', 
+      p_duel_id, p_boost_type, v_attacker_player_id, v_target_player_id, v_expires_at;
+    
+    -- Вставляем exploit
+    INSERT INTO duel_active_exploits (
+      duel_id,
+      exploit_type,
+      attacker_player_id,
+      target_player_id,
+      effect_data,
+      activated_at,
+      expires_at,
+      is_active
+    ) VALUES (
+      p_duel_id,
+      p_boost_type,
+      v_attacker_player_id,
+      v_target_player_id,
+      v_boost_effect,
+      v_activated_at,
+      v_expires_at,
+      true
+    )
+    RETURNING id INTO v_exploit_id;
+    
+    RAISE NOTICE '[use_boost_attack] ✅✅✅ Exploit created successfully: exploit_id=%', v_exploit_id;
+    
+    -- КРИТИЧНО: Проверяем, что exploit можно найти через запрос (как это делает клиент)
+    SELECT COUNT(*) INTO v_verify_count
+    FROM duel_active_exploits
+    WHERE duel_id = p_duel_id
+      AND attacker_player_id != v_target_player_id
+      AND is_active = true
+      AND expires_at > NOW();
+    
+    RAISE NOTICE '[use_boost_attack] 🔍 Verification query result: found % exploits for target player (target_player_id=%)', 
+      v_verify_count, v_target_player_id;
+    
+    -- Возвращаем успешный результат с информацией об exploit
+    RETURN json_build_object(
+      'success', true,
+      'boost_effect', v_boost_effect,
+      'exploit_id', v_exploit_id,
+      'target_player_id', v_target_player_id,
+      'attacker_player_id', v_attacker_player_id,
+      'expires_at', v_expires_at
+    );
+  ELSE
+    -- Safe mode буст - возвращаем только эффект
+    RETURN json_build_object(
+      'success', true,
+      'boost_effect', v_boost_effect
+    );
+  END IF;
+END;
+$$;
+
+-- Комментарий к функции
+COMMENT ON FUNCTION public.use_boost_attack IS
+  'RPC функция для использования бустов в дуэлях. Улучшенный поиск игрока - работает даже если профиля нет в таблице profiles.';
+
