@@ -1046,14 +1046,21 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     
     // КРИТИЧНО: Функция polling, которую можно вызвать сразу и через интервал
     const performPolling = async () => {
-      // КРИТИЧНО: Логируем каждый вызов polling для диагностики
+      // КРИТИЧНО: Логируем каждый вызов polling для диагностики (ВСЕГДА, даже если пропускается)
+      const currentDuelId = duelId;
+      const currentMyPlayerIdFromRef = myPlayerIdRef.current;
+      const currentConnectionStatus = connectionStatus;
+      const currentProfileId = profileId;
+      
       console.log('[useDuelRealtime] 🔄🔄🔄 POLLING EXECUTION START 🔄🔄🔄:', {
-        duelId,
-        myPlayerId: myPlayerIdRef.current,
+        duelId: currentDuelId,
+        myPlayerId: currentMyPlayerIdFromRef,
         cachedMyPlayerId,
-        profileId,
-        connectionStatus,
-        timestamp: new Date().toISOString()
+        profileId: currentProfileId,
+        connectionStatus: currentConnectionStatus,
+        platform: window.Telegram?.WebApp?.platform,
+        timestamp: new Date().toISOString(),
+        willExecute: !!(currentDuelId && currentConnectionStatus === 'connected')
       });
       
       try {
@@ -1078,9 +1085,19 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               currentMyPlayerId = playerData.id;
               cachedMyPlayerId = playerData.id;
               myPlayerIdRef.current = playerData.id;
-              console.log('[useDuelRealtime] ✅✅✅ Polling: Loaded myPlayerId from DB:', currentMyPlayerId);
+              console.log('[useDuelRealtime] ✅✅✅ Polling: Loaded myPlayerId from DB:', {
+                myPlayerId: currentMyPlayerId,
+                profileId,
+                duelId,
+                timestamp: new Date().toISOString()
+              });
             } else {
-              console.warn('[useDuelRealtime] ⚠️ Polling: Could not find myPlayerId in DB');
+              console.warn('[useDuelRealtime] ⚠️⚠️⚠️ Polling: Could not find myPlayerId in DB ⚠️⚠️⚠️', {
+                profileId,
+                duelId,
+                playerData,
+                timestamp: new Date().toISOString()
+              });
             }
           } catch (loadError) {
             console.error('[useDuelRealtime] ❌ Polling: Error loading myPlayerId:', loadError);
@@ -1088,15 +1105,26 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         }
         
         if (!currentMyPlayerId || !duelId) {
-          console.log('[useDuelRealtime] ⏭️ Polling iteration skipped: no myPlayerId or duelId', {
+          console.log('[useDuelRealtime] ⏭️⏭️⏭️ Polling iteration skipped: no myPlayerId or duelId ⏭️⏭️⏭️', {
             currentMyPlayerId,
             duelId,
             profileId,
             hasMyPlayerId: !!currentMyPlayerId,
-            hasDuelId: !!duelId
+            hasDuelId: !!duelId,
+            myPlayerIdRef: myPlayerIdRef.current,
+            cachedMyPlayerId,
+            timestamp: new Date().toISOString()
           });
           return;
         }
+        
+        // КРИТИЧНО: Логируем успешное прохождение проверок
+        console.log('[useDuelRealtime] ✅✅✅ Polling checks passed, proceeding with query ✅✅✅:', {
+          currentMyPlayerId,
+          duelId,
+          profileId,
+          timestamp: new Date().toISOString()
+        });
         
         // КРИТИЧНО: Логируем параметры запроса перед выполнением
         const currentTimeISO = new Date().toISOString();
@@ -1184,12 +1212,39 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     };
     
     // ОПТИМИЗАЦИЯ: Вызываем polling сразу после подключения (не ждем 2 секунды)
+    console.log('[useDuelRealtime] 🚀🚀🚀 Calling polling immediately after connection...', {
+      duelId,
+      myPlayerId: myPlayerIdRef.current,
+      profileId,
+      connectionStatus,
+      timestamp: new Date().toISOString()
+    });
     performPolling();
     
     // Затем вызываем каждые 2 секунды
-    const pollingInterval = setInterval(performPolling, 2000);
+    console.log('[useDuelRealtime] ⏰⏰⏰ Setting up polling interval (every 2 seconds)...', {
+      duelId,
+      myPlayerId: myPlayerIdRef.current,
+      profileId,
+      connectionStatus,
+      timestamp: new Date().toISOString()
+    });
+    const pollingInterval = setInterval(() => {
+      console.log('[useDuelRealtime] ⏰⏰⏰ POLLING INTERVAL TRIGGERED ⏰⏰⏰:', {
+        duelId,
+        myPlayerId: myPlayerIdRef.current,
+        profileId,
+        connectionStatus,
+        timestamp: new Date().toISOString()
+      });
+      performPolling();
+    }, 2000);
     
     return () => {
+      console.log('[useDuelRealtime] 🛑 Stopping polling fallback...', {
+        duelId,
+        timestamp: new Date().toISOString()
+      });
       clearInterval(pollingInterval);
     };
   }, [duelId, myPlayerId, profileId, connectionStatus]);
