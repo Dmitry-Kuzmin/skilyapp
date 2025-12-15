@@ -27,20 +27,33 @@ export const DuelBoostsPanel = memo(({
   onBoostUse,
   onTranslatePopoverChange,
 }: DuelBoostsPanelProps) => {
-  // Логируем для отладки
+  // Логируем для отладки (всегда, не только в dev)
   if (typeof window !== 'undefined') {
-    console.log('[DuelBoostsPanel] Boosts count:', boosts.length, 'Boosts:', boosts);
+    const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
+    console.log('[DuelBoostsPanel] 📊 Panel render:', {
+      boostsCount: boosts.length,
+      boosts: boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })),
+      isTelegram,
+      platform: isTelegram ? window.Telegram.WebApp.platform : 'browser',
+      usedBoosts,
+      isAnswered,
+    });
   }
 
   // ВАЖНО: Всегда показываем панель бустов, даже если массив пустой
   // Это помогает пользователю видеть, что функционал есть, и упрощает отладку
   const isDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1'));
+  const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
   
   return (
-    <div className="flex items-center gap-1.5 flex-wrap w-full justify-center">
-      {boosts.length === 0 && isDev && (
-        <div className="text-xs text-muted-foreground/50 px-2 py-1 border border-dashed border-muted-foreground/20 rounded">
-          Бусты не загружены (0)
+    <div className="flex items-center gap-1.5 flex-wrap w-full justify-center min-h-[32px]">
+      {boosts.length === 0 && (isDev || isTelegram) && (
+        <div className={`text-xs px-2 py-1 border border-dashed rounded ${
+          isTelegram 
+            ? 'text-muted-foreground/70 border-muted-foreground/30 bg-muted/20' 
+            : 'text-muted-foreground/50 border-muted-foreground/20'
+        }`}>
+          {isTelegram ? 'Загрузка бустов...' : 'Бусты не загружены (0)'}
         </div>
       )}
       {boosts.map((boost) => {

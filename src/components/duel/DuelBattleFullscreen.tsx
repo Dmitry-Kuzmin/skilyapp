@@ -1874,14 +1874,28 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             </AnimatePresence>
 
             {/* Boosts - Premium Compact Design - Всегда видимы */}
-            <DuelBoostsPanel
-              boosts={boosts}
-              usedBoosts={usedBoosts}
-              isAnswered={isAnswered}
-              translatePopoverOpen={translatePopoverOpen}
-              onBoostUse={handleBoostUse}
-              onTranslatePopoverChange={setTranslatePopoverOpen}
-            />
+            {(() => {
+              const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
+              console.log('[DuelBattleFullscreen] 🎮 Rendering DuelBoostsPanel:', {
+                boostsCount: boosts.length,
+                boosts: boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })),
+                isTelegram,
+                platform: isTelegram ? window.Telegram.WebApp.platform : 'browser',
+                isTelegramMobile,
+                usedBoosts,
+                isAnswered,
+              });
+              return (
+                <DuelBoostsPanel
+                  boosts={boosts}
+                  usedBoosts={usedBoosts}
+                  isAnswered={isAnswered}
+                  translatePopoverOpen={translatePopoverOpen}
+                  onBoostUse={handleBoostUse}
+                  onTranslatePopoverChange={setTranslatePopoverOpen}
+                />
+              );
+            })()}
           </div>
         </div>
 
