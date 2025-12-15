@@ -3658,17 +3658,65 @@ Deno.serve(async (req) => {
 
           if (players && players.length >= 2) {
             // КРИТИЧНО: Находим соперника правильно - это игрок, который НЕ является текущим и НЕ является ботом
+            // ВАЖНО: Если есть бот, выбираем реального игрока; если ботов нет, выбираем любого другого игрока
             const opponent = players.find(p => p.id !== player.id && !p.is_bot);
             
-            console.log('[use_boost] 🔍 Finding opponent for exploit:', {
+            // КРИТИЧНО: Детальное логирование для диагностики проблемы с ID
+            console.log('[use_boost] 🔍🔍🔍 Finding opponent for exploit (DETAILED):', {
               totalPlayers: players.length,
               currentPlayerId: player.id,
               currentPlayerUserId: profileId,
-              allPlayers: players.map(p => ({ id: p.id, user_id: p.user_id, is_bot: p.is_bot })),
+              allPlayers: players.map(p => ({ 
+                id: p.id, 
+                user_id: p.user_id, 
+                is_bot: p.is_bot,
+                isCurrentPlayer: p.id === player.id,
+                willBeOpponent: p.id !== player.id && !p.is_bot
+              })),
               opponentFound: !!opponent,
               opponentId: opponent?.id,
-              opponentUserId: opponent?.user_id
+              opponentUserId: opponent?.user_id,
+              opponentIsBot: opponent?.is_bot,
+              // КРИТИЧНО: Проверяем, что opponent действительно отличается от player
+              opponentEqualsPlayer: opponent?.id === player.id,
+              // КРИТИЧНО: Проверяем, что opponent не является текущим игроком по user_id
+              opponentUserIdEqualsCurrentUserId: opponent?.user_id === profileId,
+              note: 'Opponent must be different from current player and not a bot'
             });
+            
+            // КРИТИЧНО: Дополнительная проверка - убеждаемся, что opponent не является текущим игроком
+            if (opponent && opponent.id === player.id) {
+              console.error('[use_boost] ❌❌❌ CRITICAL ERROR: Opponent equals current player!', {
+                opponentId: opponent.id,
+                playerId: player.id,
+                players: players.map(p => ({ id: p.id, user_id: p.user_id, is_bot: p.is_bot }))
+              });
+              return new Response(JSON.stringify({ 
+                error: 'Invalid opponent - opponent equals current player',
+                details: 'Opponent ID matches current player ID'
+              }), {
+                status: 500,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              });
+            }
+            
+            // КРИТИЧНО: Проверяем, что opponent не является текущим игроком по user_id
+            if (opponent && opponent.user_id === profileId) {
+              console.error('[use_boost] ❌❌❌ CRITICAL ERROR: Opponent user_id equals current user_id!', {
+                opponentUserId: opponent.user_id,
+                currentUserId: profileId,
+                opponentId: opponent.id,
+                playerId: player.id,
+                players: players.map(p => ({ id: p.id, user_id: p.user_id, is_bot: p.is_bot }))
+              });
+              return new Response(JSON.stringify({ 
+                error: 'Invalid opponent - opponent user_id matches current user_id',
+                details: 'Opponent user_id matches current user_id'
+              }), {
+                status: 500,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              });
+            }
             
             if (opponent) {
               // Вычисляем время истечения эффекта
@@ -3698,6 +3746,23 @@ Deno.serve(async (req) => {
               });
 
               // Сохраняем exploit в БД для State Recovery
+              // КРИТИЧНО: Проверяем, что attacker и target разные перед созданием exploitData
+              if (player.id === opponent.id) {
+                console.error('[use_boost] ❌❌❌ CRITICAL ERROR: Cannot create exploit - attacker equals target!', {
+                  attackerPlayerId: player.id,
+                  targetPlayerId: opponent.id,
+                  playerUserId: profileId,
+                  opponentUserId: opponent.user_id
+                });
+                return new Response(JSON.stringify({ 
+                  error: 'Cannot create exploit - attacker equals target',
+                  details: 'Attacker player ID matches target player ID'
+                }), {
+                  status: 500,
+                  headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                });
+              }
+              
               const exploitData = {
                 duel_id,
                 target_player_id: opponent.id,
@@ -3709,15 +3774,23 @@ Deno.serve(async (req) => {
                 is_active: true,
               };
               
-              console.log('[use_boost] 💾 Inserting exploit to DB:', {
+              // КРИТИЧНО: Детальное логирование перед вставкой с проверкой всех ID
+              console.log('[use_boost] 💾💾💾 Inserting exploit to DB (VERIFIED):', {
                 exploitData,
                 targetPlayerId: opponent.id,
+                attackerPlayerId: player.id,
                 exploitType: boost_type,
+                // КРИТИЧНО: Проверяем, что attacker и target разные
+                attackerEqualsTarget: player.id === opponent.id,
+                attackerUserId: profileId,
+                targetUserId: opponent.user_id,
+                attackerUserIdEqualsTargetUserId: profileId === opponent.user_id,
                 timing: {
                   activatedAt,
                   expiresAt,
                   durationMs
-                }
+                },
+                note: 'This exploit will be received by the target player via postgres_changes'
               });
 
               // КРИТИЧНО: Детальное логирование перед вставкой exploit
@@ -3777,11 +3850,24 @@ Deno.serve(async (req) => {
                 });
 
                 // КРИТИЧНО: Проверяем, что exploit можно найти через запрос (как это делает клиент)
+                // ВАЖНО: Клиент использует запрос `attacker_player_id != myPlayerId`, где myPlayerId - это ID принимающего игрока
+                // Поэтому мы проверяем, что exploit можно найти с фильтром `attacker_player_id != opponent.id`
                 const { data: verifyExploit, error: verifyError } = await supabase
                   .from('duel_active_exploits')
                   .select('*')
                   .eq('duel_id', duel_id)
-                  .neq('attacker_player_id', opponent.id) // Запрос как у клиента: attacker != target
+                  .neq('attacker_player_id', opponent.id) // Запрос как у клиента: attacker != target (target = myPlayerId)
+                  .eq('is_active', true)
+                  .gt('expires_at', new Date().toISOString())
+                  .order('activated_at', { ascending: false })
+                  .limit(1);
+
+                // КРИТИЧНО: Также проверяем прямой запрос по target_player_id (fallback для клиента)
+                const { data: verifyExploitByTarget, error: verifyErrorByTarget } = await supabase
+                  .from('duel_active_exploits')
+                  .select('*')
+                  .eq('duel_id', duel_id)
+                  .eq('target_player_id', opponent.id) // Прямой запрос по target_player_id
                   .eq('is_active', true)
                   .gt('expires_at', new Date().toISOString())
                   .order('activated_at', { ascending: false })
@@ -3798,20 +3884,47 @@ Deno.serve(async (req) => {
                     is_active: verifyExploit[0].is_active,
                     expires_at: verifyExploit[0].expires_at,
                     activated_at: verifyExploit[0].activated_at,
+                    // КРИТИЧНО: Проверяем, что ID правильные
+                    targetPlayerIdMatches: verifyExploit[0].target_player_id === opponent.id,
+                    attackerPlayerIdMatches: verifyExploit[0].attacker_player_id === player.id,
+                    attackerNotEqualsTarget: verifyExploit[0].attacker_player_id !== verifyExploit[0].target_player_id,
                   } : null,
                   verifyError: verifyError ? {
                     message: verifyError.message,
                     code: verifyError.code,
                     details: verifyError.details,
                   } : null,
+                  // КРИТИЧНО: Проверяем прямой запрос по target_player_id
+                  foundByTarget: !!verifyExploitByTarget && verifyExploitByTarget.length > 0,
+                  verifyExploitByTarget: verifyExploitByTarget?.[0] ? {
+                    id: verifyExploitByTarget[0].id,
+                    target_player_id: verifyExploitByTarget[0].target_player_id,
+                    attacker_player_id: verifyExploitByTarget[0].attacker_player_id,
+                  } : null,
+                  verifyErrorByTarget: verifyErrorByTarget ? {
+                    message: verifyErrorByTarget.message,
+                    code: verifyErrorByTarget.code,
+                  } : null,
                   queryParams: {
                     duel_id,
                     attackerPlayerIdFilter: `attacker_player_id != '${opponent.id}'`,
+                    targetPlayerIdFilter: `target_player_id = '${opponent.id}'`,
                     expectedTargetPlayerId: opponent.id,
                     expectedAttackerPlayerId: player.id,
+                    // КРИТИЧНО: Проверяем, что attacker не равен target
+                    attackerNotEqualsTarget: player.id !== opponent.id,
                   },
                   note: 'This query simulates what the receiving client will do to find exploits targeting them'
                 });
+                
+                // КРИТИЧНО: Если exploit не найден через основной запрос, но найден через прямой запрос по target_player_id
+                // это означает, что логика фильтрации на клиенте может быть неправильной
+                if ((!verifyExploit || verifyExploit.length === 0) && verifyExploitByTarget && verifyExploitByTarget.length > 0) {
+                  console.warn('[use_boost] ⚠️⚠️⚠️ WARNING: Exploit found by target_player_id but not by attacker filter!', {
+                    exploitFoundByTarget: verifyExploitByTarget[0],
+                    note: 'This may indicate that the client-side filter logic needs adjustment'
+                  });
+                }
               }
 
               // 🆕 Broadcast через postgres_changes
