@@ -888,13 +888,17 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       
       duelChannel.subscribe((status) => {
         // КРИТИЧНО: Логируем статус подписки для отладки (ВСЕГДА, не только в dev)
+        const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
         console.log('[useDuelRealtime] 📡 Channel subscription status:', {
           status,
           duelId,
           channelName: `duel_${duelId}`,
           timestamp: new Date().toISOString(),
           myPlayerId,
-          profileId
+          profileId,
+          isTelegram,
+          platform: isTelegram ? window.Telegram.WebApp.platform : 'browser',
+          userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown'
         });
         
         // КРИТИЧНО: Логируем ВСЕ статусы для отладки
@@ -902,7 +906,9 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           console.log('[useDuelRealtime] ✅✅✅ SUCCESSFULLY SUBSCRIBED TO REALTIME CHANNEL! ✅✅✅');
           console.log('[useDuelRealtime] 📡 Listening for postgres_changes events on:', {
             tables: ['duel_players', 'duel_answers', 'duel_active_exploits'],
-            duelId
+            duelId,
+            isTelegram,
+            platform: isTelegram ? window.Telegram.WebApp.platform : 'browser'
           });
           setConnectionStatus('connected');
           
@@ -913,7 +919,8 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             duelId,
             hasMyPlayerId: !!myPlayerId,
             hasProfileId: !!profileId,
-            hasDuelId: !!duelId
+            hasDuelId: !!duelId,
+            isTelegram
           });
           if (myPlayerId && profileId) {
             console.log('[useDuelRealtime] ✅✅✅ All params available, calling recoverActiveExploits ✅✅✅');
@@ -927,6 +934,10 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               profileIdType: typeof profileId
             });
           }
+          
+          // КРИТИЧНО: В Telegram Mini App добавляем polling fallback для exploits
+          // Это нужно, потому что Realtime может не работать стабильно в TMA
+          // Polling будет настроен в отдельном useEffect ниже
           
           // Check current duel status immediately after subscription
           const checkStatus = async () => {
