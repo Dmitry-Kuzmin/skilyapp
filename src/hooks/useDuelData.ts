@@ -400,37 +400,78 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
     console.log('[useDuelData] Loadout:', loadout, 'Selected boosts:', loadoutBoosts);
 
     // Загружаем все бусты из инвентаря
-    // КРИТИЧНО: Добавляем детальное логирование для диагностики RLS
-    console.log('[useDuelData] 🔍 Loading boost inventory:', {
+    // КРИТИЧНО: Используем RPC функцию, которая обходит RLS через SECURITY DEFINER
+    console.log('[useDuelData] 🔍 Loading boost inventory via RPC:', {
       profileId,
       profileIdType: typeof profileId,
       timestamp: new Date().toISOString(),
     });
     
-    const { data, error } = await supabase
-      .from("boost_inventory")
-      .select("boost_type, quantity")
-      .eq("user_id", profileId);
-
-    if (error) {
-      console.error('[useDuelData] ❌ Error loading boost inventory:', {
-        error,
-        code: error.code,
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        profileId,
-        profileIdType: typeof profileId,
-        timestamp: new Date().toISOString(),
-        hint2: 'This might be an RLS policy issue. Check if migrations 20251215000005 and 20251215000006 are applied.',
-        hint3: 'Check if profileId matches profiles.id and if auth.uid() matches profiles.user_id',
-      });
-      // НЕ выбрасываем ошибку - возвращаем пустой массив, чтобы игра продолжалась
-      // Бусты просто не будут отображаться
-      return [];
+    // Пробуем сначала через RPC функцию (обходит RLS)
+    let boosts: BoostInventoryItem[] = [];
+    let error: any = null;
+    
+    try {
+      const { data: rpcData, error: rpcError } = await supabase
+        .rpc('get_user_boost_inventory', { p_user_id: profileId });
+      
+      if (rpcError) {
+        console.warn('[useDuelData] ⚠️ RPC function failed, trying direct query:', {
+          rpcError,
+          code: rpcError.code,
+          message: rpcError.message,
+        });
+        error = rpcError;
+      } else {
+        boosts = (rpcData || []).map((item: any) => ({
+          boost_type: item.boost_type,
+          quantity: item.quantity,
+        }));
+        console.log('[useDuelData] ✅ Boosts loaded via RPC:', {
+          count: boosts.length,
+          boosts: boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })),
+        });
+      }
+    } catch (rpcException) {
+      console.warn('[useDuelData] ⚠️ RPC exception, trying direct query:', rpcException);
+      error = rpcException;
     }
+    
+    // Fallback: прямой запрос (если RPC не работает)
+    if (error || boosts.length === 0) {
+      console.log('[useDuelData] 🔄 Trying direct query as fallback...');
+      const { data: directData, error: directError } = await supabase
+        .from("boost_inventory")
+        .select("boost_type, quantity")
+        .eq("user_id", profileId);
 
-    let boosts = data || [];
+      if (directError) {
+        console.error('[useDuelData] ❌ Error loading boost inventory (both RPC and direct failed):', {
+          rpcError: error,
+          directError,
+          code: directError.code,
+          message: directError.message,
+          details: directError.details,
+          hint: directError.hint,
+          profileId,
+          profileIdType: typeof profileId,
+          timestamp: new Date().toISOString(),
+          hint2: 'This might be an RLS policy issue. Check if migrations 20251215000005 and 20251215000006 are applied.',
+          hint3: 'Check if profileId matches profiles.id and if auth.uid() matches profiles.user_id',
+        });
+        // НЕ выбрасываем ошибку - возвращаем пустой массив, чтобы игра продолжалась
+        // Бусты просто не будут отображаться
+        return [];
+      }
+
+      if (directData && directData.length > 0) {
+        boosts = directData;
+        console.log('[useDuelData] ✅ Boosts loaded via direct query:', {
+          count: boosts.length,
+          boosts: boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })),
+        });
+      }
+    }
     console.log('[useDuelData] ✅ All boosts from inventory:', {
       count: boosts.length,
       boosts: boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })),
