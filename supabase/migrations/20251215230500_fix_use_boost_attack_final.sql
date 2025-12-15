@@ -5,6 +5,13 @@
 -- Решение: Ищем игрока ВСЕМИ возможными способами, без требования наличия профиля
 -- ============================================
 
+-- КРИТИЧНО: Удаляем все существующие версии функции перед созданием новой
+-- Это нужно, так как сигнатура изменилась (добавлен p_profile_id)
+DROP FUNCTION IF EXISTS public.use_boost_attack(uuid, text, uuid, text);
+DROP FUNCTION IF EXISTS public.use_boost_attack(uuid, text, uuid);
+DROP FUNCTION IF EXISTS public.use_boost_attack(uuid, text);
+
+-- Создаем новую версию функции с полной сигнатурой
 CREATE OR REPLACE FUNCTION public.use_boost_attack(
   p_duel_id uuid,
   p_boost_type text,
