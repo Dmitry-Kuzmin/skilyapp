@@ -194,15 +194,24 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         return;
       }
 
-      console.log('[useDuelRealtime] 📊 Exploit recovery query result:', {
+      // КРИТИЧНО: Всегда логируем результат, даже если пустой
+      console.log('[useDuelRealtime] 📊📊📊 Exploit recovery query result 📊📊📊:', {
         exploitsCount: exploits?.length || 0,
         exploits: exploits?.map(e => ({
+          id: e.id,
           type: e.exploit_type,
           target_player_id: e.target_player_id,
+          attacker_player_id: e.attacker_player_id,
           is_active: e.is_active,
           expires_at: e.expires_at,
-          activated_at: e.activated_at
-        })) || []
+          activated_at: e.activated_at,
+          effect_data: e.effect_data
+        })) || [],
+        queryParams: {
+          duelId,
+          targetPlayerId,
+          currentTime: new Date().toISOString()
+        }
       });
       
       if (exploits && exploits.length > 0) {
@@ -247,7 +256,20 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           return updatedState;
         });
       } else {
-        console.log('[useDuelRealtime] ℹ️ No active exploits to recover');
+        // КРИТИЧНО: Логируем, почему exploits не найдены
+        console.warn('[useDuelRealtime] ⚠️⚠️⚠️ No active exploits to recover ⚠️⚠️⚠️:', {
+          duelId,
+          targetPlayerId,
+          myPlayerId,
+          profileId,
+          currentTime: new Date().toISOString(),
+          possibleReasons: [
+            'No exploits in DB for this target_player_id',
+            'All exploits expired',
+            'RLS blocking read access',
+            'Wrong target_player_id'
+          ]
+        });
         log('[useDuelRealtime] No active exploits to recover');
       }
     } catch (error) {
@@ -458,7 +480,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         },
         async (payload) => {
           // КРИТИЧНО: Логируем ВСЕ события, даже если они не для нас (ВСЕГДА, не только в dev)
-          console.log('[useDuelRealtime] 🔔🔔🔔 postgres_changes event received for duel_active_exploits 🔔🔔🔔:', {
+          console.log('[useDuelRealtime] 🔔🔔🔔🔔🔔 POSTGRES_CHANGES EVENT RECEIVED FOR duel_active_exploits 🔔🔔🔔🔔🔔:', {
             eventType: payload.eventType,
             table: payload.table,
             new: payload.new,
@@ -466,7 +488,10 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             duelId,
             myPlayerId: myPlayerIdRef.current,
             profileId,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            exploitType: (payload.new as any)?.exploit_type,
+            targetPlayerId: (payload.new as any)?.target_player_id,
+            isForMe: (payload.new as any)?.target_player_id === myPlayerIdRef.current
           });
           
           markEvent();
