@@ -1013,12 +1013,12 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         const currentMyPlayerId = myPlayerIdRef.current;
         if (!currentMyPlayerId || !duelId) return;
         
-        // Проверяем новые exploits через прямой запрос
+        // УПРОЩЕННАЯ ЛОГИКА: В дуэли 1 на 1 берем все exploits, где attacker НЕ я
         const { data: newExploits, error } = await supabase
           .from('duel_active_exploits')
           .select('*')
           .eq('duel_id', duelId)
-          .eq('target_player_id', currentMyPlayerId)
+          .neq('attacker_player_id', currentMyPlayerId) // Атаки НЕ от меня = для меня
           .eq('is_active', true)
           .gt('expires_at', new Date().toISOString())
           .order('activated_at', { ascending: false });
@@ -1029,7 +1029,14 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         }
         
         if (newExploits && newExploits.length > 0) {
-          console.log('[useDuelRealtime] 🔔 Polling found new exploits:', newExploits.length);
+          console.log('[useDuelRealtime] 🔔 Polling found new exploits (1v1 logic):', newExploits.length, {
+            exploits: newExploits.map(e => ({
+              type: e.exploit_type,
+              attacker: e.attacker_player_id,
+              target: e.target_player_id,
+              myPlayerId: currentMyPlayerId
+            }))
+          });
           
           // Добавляем exploits, которых еще нет в состоянии
           setState(prev => {
@@ -1048,7 +1055,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               return prev;
             }
             
-            console.log('[useDuelRealtime] ✅ Polling: Adding exploits via fallback:', newExploitsToAdd.length);
+            console.log('[useDuelRealtime] ✅ Polling: Adding exploits via fallback (1v1 logic):', newExploitsToAdd.length);
             
             return {
               ...prev,
