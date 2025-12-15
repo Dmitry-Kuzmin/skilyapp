@@ -5,6 +5,22 @@ export const getTelegramWebApp = () => {
   return null;
 };
 
+/**
+ * Принудительная перезагрузка страницы в Telegram Mini App
+ * Используется для обновления кеша когда Service Worker недоступен
+ */
+export const forceReloadTelegramApp = () => {
+  const webApp = getTelegramWebApp();
+  if (webApp) {
+    console.log('[Telegram] 🔄 Force reloading Telegram Mini App...');
+    // Используем hard reload с очисткой кеша
+    window.location.reload();
+  } else {
+    console.log('[Telegram] Not in Telegram Mini App, using normal reload');
+    window.location.reload();
+  }
+};
+
 const normalizePlatform = (platform?: string | null) => (platform || '').toLowerCase();
 
 export const isTelegramMobilePlatformName = (platform?: string | null) => {

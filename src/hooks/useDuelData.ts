@@ -365,6 +365,7 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
     }
 
     // Загружаем loadout пользователя
+    // КРИТИЧНО: Используем .maybeSingle() чтобы не падать если loadout не существует
     const { data: loadout, error: loadoutError } = await supabase
       .from("user_loadouts")
       .select("slot_1_boost_type, slot_2_boost_type, slot_3_boost_type")
@@ -372,12 +373,16 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       .maybeSingle();
 
     if (loadoutError) {
-      console.error('[useDuelData] ❌ Error loading loadout:', {
+      // КРИТИЧНО: Ошибка 401 может означать проблему с авторизацией или RLS
+      // Но мы продолжаем работу - покажем все бусты из инвентаря
+      console.warn('[useDuelData] ⚠️ Error loading loadout (continuing without loadout):', {
         error: loadoutError,
         code: loadoutError.code,
         message: loadoutError.message,
         profileId,
-        hint: 'This might be an RLS policy issue. Check if migrations are applied.'
+        hint: loadoutError.code === 'PGRST116' 
+          ? 'Loadout does not exist - this is OK, will show all boosts'
+          : 'This might be an RLS policy issue. Check if migrations are applied.'
       });
       // Продолжаем без loadout - покажем все бусты из инвентаря
     } else {
