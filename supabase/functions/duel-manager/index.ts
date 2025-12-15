@@ -3650,13 +3650,63 @@ Deno.serve(async (req) => {
 
         // 🆕 Если буст влияет на противника - сохраняем в БД и отправляем broadcast
         if (boostDef && (boostDef.target_type === 'opponent' || boostDef.target_type === 'both')) {
+          // КРИТИЧНО: Логируем перед запросом игроков
+          console.log('[use_boost] 🔍🔍🔍 About to query players for exploit:', {
+            duel_id,
+            boost_type,
+            boostDefTargetType: boostDef.target_type,
+            currentPlayerId: player.id,
+            currentPlayerUserId: profileId
+          });
+          
           // Получаем всех игроков дуэли (КРИТИЧНО: включаем is_bot для правильной фильтрации)
-          const { data: players } = await supabase
+          const { data: players, error: playersError } = await supabase
             .from('duel_players')
             .select('id, user_id, is_bot')
             .eq('duel_id', duel_id);
+          
+          // КРИТИЧНО: Логируем результат запроса игроков
+          console.log('[use_boost] 🔍🔍🔍 Players query result:', {
+            playersCount: players?.length || 0,
+            players: players?.map(p => ({ 
+              id: p.id, 
+              user_id: p.user_id, 
+              is_bot: p.is_bot 
+            })) || [],
+            playersError: playersError ? {
+              message: playersError.message,
+              code: playersError.code,
+              details: playersError.details
+            } : null,
+            duel_id,
+            currentPlayerId: player.id,
+            currentPlayerUserId: profileId
+          });
 
-          if (players && players.length >= 2) {
+          // КРИТИЧНО: Проверяем количество игроков ПЕРЕД поиском opponent
+          if (!players || players.length === 0) {
+            console.error('[use_boost] ❌❌❌ NO PLAYERS FOUND IN DUEL ❌❌❌:', {
+              duel_id,
+              playersQueryResult: players,
+              playersError: playersError ? {
+                message: playersError.message,
+                code: playersError.code
+              } : null,
+              currentPlayerId: player.id,
+              currentPlayerUserId: profileId
+            });
+            // Не создаем exploit, если игроков нет
+            return new Response(JSON.stringify({ 
+              error: 'No players found in duel',
+              details: 'Cannot create exploit - no players in duel',
+              boostEffect: boostEffect // Возвращаем эффект для клиента
+            }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+          
+          if (players.length >= 2) {
             // КРИТИЧНО: Находим соперника правильно - это игрок, который НЕ является текущим и НЕ является ботом
             // ВАЖНО: Если есть бот, выбираем реального игрока; если ботов нет, выбираем любого другого игрока
             const opponent = players.find(p => p.id !== player.id && !p.is_bot);
