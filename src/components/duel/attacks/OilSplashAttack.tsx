@@ -892,12 +892,12 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     
     ctx.globalCompositeOperation = 'destination-out';
     const radius = SPONGE_SIZE / 2;
-    // КРИТИЧНО: Увеличенные параметры очистки для desktop - более мощная губка (прежние значения)
+    // КРИТИЧНО: Увеличенные параметры очистки для desktop - более мощная губка для быстрой очистки
     // Mobile: уменьшены коэффициенты для более точной очистки
-    const effectiveRadius = isDesktop ? radius * 1.3 : radius * 0.4; // Desktop: 1.3 (прежнее), Mobile: 0.4 (уменьшено с 0.5)
-    const scrubRadius = isDesktop ? radius * 1.1 : radius * 0.3; // Desktop: 1.1 (прежнее), Mobile: 0.3 (уменьшено с 0.4)
-    const scrubDistance = isDesktop ? radius * 0.9 : radius * 0.2; // Desktop: 0.9 (прежнее), Mobile: 0.2 (уменьшено с 0.25)
-    const scrubCount = isDesktop ? 14 : 3; // Desktop: 14 точек (прежнее), Mobile: 3 точки (уменьшено с 4)
+    const effectiveRadius = isDesktop ? radius * 1.5 : radius * 0.4; // Desktop: 1.5 (увеличено с 1.3), Mobile: 0.4
+    const scrubRadius = isDesktop ? radius * 1.3 : radius * 0.3; // Desktop: 1.3 (увеличено с 1.1), Mobile: 0.3
+    const scrubDistance = isDesktop ? radius * 1.1 : radius * 0.2; // Desktop: 1.1 (увеличено с 0.9), Mobile: 0.2
+    const scrubCount = isDesktop ? 16 : 3; // Desktop: 16 точек (увеличено с 14), Mobile: 3 точки
     
     // Scrubbing с нормализованными координатами
     ctx.beginPath();

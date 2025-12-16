@@ -1289,14 +1289,26 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
       if (secondsRemaining <= 0) {
         // 🛑 Время вышло
-        log('[DuelBattleFullscreen] ⏱️ Timer expired for question', currentIndex + 1);
+        console.log('[DuelBattleFullscreen] ⏱️⏱️⏱️ TIMER EXPIRED - Calling handleTimeout ⏱️⏱️⏱️', {
+          questionNumber: currentIndex + 1,
+          currentIndex,
+          isAnswered,
+          handleTimeoutExists: !!handleTimeoutRef.current
+        });
         setTimeLeft(0);
         questionEndTimeRef.current = null;
         if (timerIntervalRef.current) {
           clearInterval(timerIntervalRef.current);
           timerIntervalRef.current = null;
         }
-        handleTimeoutRef.current(); // Используем ref вместо прямого вызова
+        // КРИТИЧНО: Вызываем handleTimeout синхронно, чтобы гарантировать переход к следующему вопросу
+        if (handleTimeoutRef.current) {
+          handleTimeoutRef.current().catch((error: any) => {
+            console.error('[DuelBattleFullscreen] ❌ Error in handleTimeout:', error);
+          });
+        } else {
+          console.error('[DuelBattleFullscreen] ❌ handleTimeoutRef.current is null!');
+        }
       } else {
         // ✅ Обновляем UI
         setTimeLeft(secondsRemaining);
