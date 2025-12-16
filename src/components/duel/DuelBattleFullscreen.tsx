@@ -48,7 +48,8 @@ const OilSplashAttackMemoized = memo(OilSplashAttack, (prevProps, nextProps) => 
   // Перерендериваем только если изменились критичные props
   return (
     prevProps.isActive === nextProps.isActive &&
-    prevProps.expiresAt === nextProps.expiresAt
+    prevProps.expiresAt === nextProps.expiresAt &&
+    prevProps.exploitId === nextProps.exploitId
   );
 });
 
@@ -2266,6 +2267,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               <OilSplashAttackMemoized
                 isActive={true}
                 expiresAt={screenInjector.expiresAt}
+                exploitId={screenInjector.id}
                 onCleaned={() => {
                   console.log('[DuelBattleFullscreen] 🛢️ OilSplashAttack cleaned, exploit type:', screenInjector.type);
                   setActiveExploits(prev => {

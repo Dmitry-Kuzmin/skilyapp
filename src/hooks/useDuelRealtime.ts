@@ -23,6 +23,7 @@ const debugFetch = (data: any) => {
 
 // 🆕 Интерфейс для активных exploits
 export interface ActiveExploit {
+  id?: string; // ID exploit из БД (для resolve_exploit)
   type: string;
   data: {
     duration_ms?: number;
@@ -270,6 +271,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             const newExploits = exploits
             .filter(e => e.attacker_player_id !== myPlayerId) // Только атаки НЕ от меня
             .map(e => ({
+              id: e.id, // КРИТИЧНО: Сохраняем ID для resolve_exploit
               type: e.exploit_type,
               data: e.effect_data || {},
               receivedAt: new Date(e.activated_at).getTime(),
@@ -357,6 +359,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
                 
                 const newExploits = fallbackExploits
                   .map(e => ({
+                    id: e.id, // КРИТИЧНО: Сохраняем ID для resolve_exploit
                     type: e.exploit_type,
                     data: e.effect_data || {},
                     receivedAt: new Date(e.activated_at).getTime(),
@@ -793,6 +796,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
                 newExploitType: newExploit.exploit_type
               });
               const exploit: ActiveExploit = {
+                id: newExploit.id, // КРИТИЧНО: Сохраняем ID для resolve_exploit
                 type: newExploit.exploit_type,
                 data: newExploit.effect_data || {},
                 receivedAt: new Date(newExploit.activated_at || new Date()).getTime(),
@@ -1277,6 +1281,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             
             const newExploitsToAdd = newExploits
               .map(e => ({
+                id: e.id, // КРИТИЧНО: Сохраняем ID для resolve_exploit
                 type: e.exploit_type,
                 data: e.effect_data || {},
                 receivedAt: new Date(e.activated_at).getTime(),

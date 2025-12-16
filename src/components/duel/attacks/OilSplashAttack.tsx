@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { AlertTriangle, Skull } from 'lucide-react';
 import { isTelegramDesktopPlatformName } from '@/lib/telegram';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Position {
   x: number;
@@ -13,12 +14,13 @@ interface OilSplashAttackProps {
   isActive: boolean;
   onCleaned: () => void;
   expiresAt?: number; // Время истечения атаки (timestamp в миллисекундах)
+  exploitId?: string; // ID exploit из БД (для resolve_exploit)
 }
 
 // 🧪 ТЕСТОВЫЙ РЕЖИМ: Установите в true для проверки видимости компонента
 const TEST_RED_SQUARE = false; // ОТКЛЮЧЕНО - используем реальную анимацию заливки масла
 
-export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCleaned, expiresAt }) => {
+export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCleaned, expiresAt, exploitId }) => {
   // FAILSAFE: Проверка поддержки WebGL для старых устройств
   const [webglSupported, setWebglSupported] = useState<boolean | null>(null);
   
@@ -72,14 +74,16 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   const [shake, setShake] = useState(0);
 
   // --- Configuration ---
-  const SPONGE_SIZE = 160; 
+  // КРИТИЧНО: Адаптивный размер губки - больше на desktop для быстрой очистки
+  const SPONGE_SIZE = isDesktop ? 240 : 160; // Увеличено с 160 до 240 на desktop
   const REQUIRED_CLEAN_PERCENTAGE = 80; // Снижено с 97 до 80 для более легкого завершения
   
-  // Fluid Physics Config - ускорено для desktop
-  const COLUMN_WIDTH = 15;
-  const GRAVITY = isDesktop ? 5.0 : 3.0; // Увеличено для desktop
+  // Fluid Physics Config - оптимизировано для desktop
+  // КРИТИЧНО: Адаптивный COLUMN_WIDTH - больше на desktop = меньше колонок = быстрее
+  const COLUMN_WIDTH = isDesktop ? 30 : 15; // Удвоено на desktop для уменьшения количества колонок
+  const GRAVITY = isDesktop ? 8.0 : 3.0; // Увеличено с 5.0 до 8.0 для desktop
   const VISCOSITY = 0.5; 
-  const TERMINAL_VELOCITY = isDesktop ? 180 : 120; // Увеличено для desktop
+  const TERMINAL_VELOCITY = isDesktop ? 250 : 120; // Увеличено с 180 до 250 для desktop
 
   // Refs for physics/animation
   const columnsRef = useRef<number[]>([]);
@@ -438,8 +442,8 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     // --- SPILLING ---
     if (phase === 'spilling') {
         const animateSpill = () => {
-            // Ускорено для desktop
-            timeRef.current += isDesktop ? 0.1 : 0.05;
+            // КРИТИЧНО: Сильно ускорено для desktop (увеличено с 0.1 до 0.2)
+            timeRef.current += isDesktop ? 0.2 : 0.05;
             ctx.clearRect(0, 0, w, h);
             
             drawStaticCracks(ctx, crackPathsRef.current);
@@ -449,8 +453,8 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
 
             for (let i = 0; i < numColumns; i++) {
                 const noise = Math.sin(i * 0.8 + timeRef.current); 
-                // Увеличено ускорение со временем, еще больше для desktop
-                const accelerationMultiplier = isDesktop ? 0.8 : 0.5;
+                // КРИТИЧНО: Сильно увеличено ускорение со временем для desktop (с 0.8 до 1.5)
+                const accelerationMultiplier = isDesktop ? 1.5 : 0.5;
                 let acc = GRAVITY + (timeRef.current * accelerationMultiplier) + (noise > 0 ? 0.3 : 0);
                 
                 velocitiesRef.current[i] += acc;
@@ -688,7 +692,8 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
             if (percent >= REQUIRED_CLEAN_PERCENTAGE && phase === 'cleaning') {
                  console.log('[OilSplashAttack] ✅✅✅ CLEANING COMPLETE! Calling onCleaned...', {
                    percent,
-                   required: REQUIRED_CLEAN_PERCENTAGE
+                   required: REQUIRED_CLEAN_PERCENTAGE,
+                   exploitId
                  });
                  
                  // КРИТИЧНО: Останавливаем проверку прогресса
@@ -705,6 +710,24 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
                  
                  // КРИТИЧНО: Меняем фазу на completed перед вызовом onCleaned
                  setPhase('completed');
+                 
+                 // КРИТИЧНО: Деактивируем exploit на сервере через RPC
+                 if (exploitId) {
+                   console.log('[OilSplashAttack] 🔄 Calling resolve_exploit RPC:', exploitId);
+                   supabase.rpc('resolve_exploit', { p_exploit_id: exploitId })
+                     .then(({ data, error }) => {
+                       if (error) {
+                         console.error('[OilSplashAttack] ❌ Error resolving exploit:', error);
+                       } else {
+                         console.log('[OilSplashAttack] ✅ Exploit resolved on server:', data);
+                       }
+                     })
+                     .catch((err) => {
+                       console.error('[OilSplashAttack] ❌ Exception in resolve_exploit:', err);
+                     });
+                 } else {
+                   console.warn('[OilSplashAttack] ⚠️ No exploitId provided, skipping server-side resolve');
+                 }
                  
                  // КРИТИЧНО: Используем безопасный вызов с небольшой задержкой для визуализации
                  setTimeout(() => {
@@ -730,7 +753,7 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
           canvasHeight: canvas?.height
         });
     }
-  }, [phase, onCleaned, isActive, cleanPercent, isDesktop]);
+  }, [phase, onCleaned, isActive, cleanPercent, isDesktop, exploitId]);
 
   useEffect(() => {
     if (phase === 'cleaning' && isActive) {
@@ -796,14 +819,18 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     
     ctx.globalCompositeOperation = 'destination-out';
     const radius = SPONGE_SIZE / 2;
+    // КРИТИЧНО: Увеличиваем эффективный радиус очистки на desktop (с 0.7 до 1.0)
+    const effectiveRadius = isDesktop ? radius * 1.0 : radius * 0.7;
+    const scrubRadius = isDesktop ? radius * 0.8 : radius * 0.6;
+    const scrubDistance = isDesktop ? radius * 0.6 : radius * 0.4;
     
     // Scrubbing с нормализованными координатами
     ctx.beginPath();
-    ctx.arc(canvasX, canvasY, radius * 0.7, 0, Math.PI*2);
+    ctx.arc(canvasX, canvasY, effectiveRadius, 0, Math.PI*2);
     for(let i=0; i<6; i++) {
         const a = Math.random() * Math.PI*2;
-        const d = Math.random() * radius * 0.4;
-        ctx.arc(canvasX + Math.cos(a)*d, canvasY + Math.sin(a)*d, radius*0.6, 0, Math.PI*2);
+        const d = Math.random() * scrubDistance;
+        ctx.arc(canvasX + Math.cos(a)*d, canvasY + Math.sin(a)*d, scrubRadius, 0, Math.PI*2);
     }
     ctx.fill();
     
