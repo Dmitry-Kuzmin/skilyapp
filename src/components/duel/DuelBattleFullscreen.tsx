@@ -1494,6 +1494,27 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         });
 
         try {
+          // КРИТИЧНО: Обновляем сессию перед вызовом RPC (особенно важно для Telegram Desktop)
+          try {
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            if (sessionError) {
+              console.warn('[DuelBattleFullscreen] ⚠️ Session check error (continuing anyway):', sessionError);
+            }
+            
+            // Если сессия истекает в ближайшее время (< 5 минут), обновляем её
+            if (session?.expires_at && session.expires_at - Date.now() / 1000 < 300) {
+              console.log('[DuelBattleFullscreen] 🔄 Session expiring soon, refreshing...');
+              const { error: refreshError } = await supabase.auth.refreshSession();
+              if (refreshError) {
+                console.warn('[DuelBattleFullscreen] ⚠️ Failed to refresh session (continuing anyway):', refreshError);
+              } else {
+                console.log('[DuelBattleFullscreen] ✅ Session refreshed successfully');
+              }
+            }
+          } catch (sessionCheckError) {
+            console.warn('[DuelBattleFullscreen] ⚠️ Error checking/refreshing session (continuing anyway):', sessionCheckError);
+          }
+
           // 🆕 Используем RPC функцию вместо Edge Function для надежности в Telegram Mini Apps
           console.log('[DuelBattleFullscreen] 🔥🔥🔥 CALLING RPC use_boost_attack 🔥🔥🔥:', {
             p_duel_id: duelId,
@@ -1501,7 +1522,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             p_duel_question_id: questions[currentIndex]?.id || null,
             p_language: language || null,
             p_profile_id: profileId || null,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            platform: safeArea.platform,
+            isTelegramDesktop: isTelegramDesktop
           });
 
           const { data: rpcResult, error: rpcError } = await supabase.rpc('use_boost_attack', {
@@ -1566,14 +1589,47 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           ? { ...b, quantity: Math.max(0, b.quantity - 1) }
           : b
       ));
-        } catch (error) {
+        } catch (error: any) {
           // Ошибка
+          console.error('[DuelBattleFullscreen] ❌❌❌ BOOST ATTACK ERROR ❌❌❌:', {
+            error,
+            errorMessage: error?.message,
+            errorCode: error?.code,
+            errorDetails: error?.details,
+            errorHint: error?.hint,
+            errorStack: error?.stack,
+            platform: safeArea.platform,
+            isTelegramDesktop,
+            profileId,
+            duelId,
+            boostType
+          });
+
+          // КРИТИЧНО: Пытаемся определить тип ошибки и показать более информативное сообщение
+          let errorDescription = 'Не удалось отправить атаку';
+          
+          if (error?.code === 'PGRST301' || error?.message?.includes('JWT')) {
+            errorDescription = 'Ошибка авторизации. Попробуйте перезагрузить страницу.';
+            console.log('[DuelBattleFullscreen] 🔄 Auth error detected, attempting session refresh...');
+            // Пытаемся обновить сессию для следующей попытки
+            try {
+              await supabase.auth.refreshSession();
+            } catch (refreshError) {
+              console.error('[DuelBattleFullscreen] Failed to refresh session:', refreshError);
+            }
+          } else if (error?.message) {
+            errorDescription = error.message.length > 50 
+              ? error.message.substring(0, 50) + '...' 
+              : error.message;
+          }
+
           if (navigator.vibrate) {
             navigator.vibrate(500); // Длинная вибрация ошибки
           }
+          
           toast.error("UPLOAD FAILED", { 
             id: toastId,
-            description: 'Не удалось отправить атаку',
+            description: errorDescription,
             style: {
               background: '#7f1d1d',
               color: '#fca5a5',
@@ -1585,6 +1641,27 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           throw error;
         }
       } else {
+        // КРИТИЧНО: Обновляем сессию перед вызовом RPC (особенно важно для Telegram Desktop)
+        try {
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+          if (sessionError) {
+            console.warn('[DuelBattleFullscreen] ⚠️ Session check error (Safe Mode, continuing anyway):', sessionError);
+          }
+          
+          // Если сессия истекает в ближайшее время (< 5 минут), обновляем её
+          if (session?.expires_at && session.expires_at - Date.now() / 1000 < 300) {
+            console.log('[DuelBattleFullscreen] 🔄 Session expiring soon (Safe Mode), refreshing...');
+            const { error: refreshError } = await supabase.auth.refreshSession();
+            if (refreshError) {
+              console.warn('[DuelBattleFullscreen] ⚠️ Failed to refresh session (Safe Mode, continuing anyway):', refreshError);
+            } else {
+              console.log('[DuelBattleFullscreen] ✅ Session refreshed successfully (Safe Mode)');
+            }
+          }
+        } catch (sessionCheckError) {
+          console.warn('[DuelBattleFullscreen] ⚠️ Error checking/refreshing session (Safe Mode, continuing anyway):', sessionCheckError);
+        }
+
         // Обычные бусты (Safe Mode) - используем RPC функцию
         console.log('[DuelBattleFullscreen] 🔥🔥🔥 CALLING RPC use_boost_attack (Safe Mode) 🔥🔥🔥:', {
           p_duel_id: duelId,
@@ -1592,7 +1669,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           p_duel_question_id: questions[currentIndex]?.id || null,
           p_language: language || null,
           p_profile_id: profileId || null,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          platform: safeArea.platform,
+          isTelegramDesktop: isTelegramDesktop
         });
 
         const { data: rpcResult, error: rpcError } = await supabase.rpc('use_boost_attack', {
@@ -1673,6 +1752,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     finishDuel,
     moveToNextQuestion,
     setBoostFeedback,
+    safeArea, // КРИТИЧНО: Добавлено для логирования и обновления сессии в Telegram Desktop
+    isTelegramDesktop, // КРИТИЧНО: Добавлено для логирования платформы
   ]);
 
   // ============================================================================
