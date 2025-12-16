@@ -354,6 +354,21 @@
         document.head.appendChild(script);
       }
     </script>
+    
+    <!-- Eruda DevTools - загружаем для всех пользователей в продакшене -->
+    <script>
+      (function() {
+        const script = document.createElement('script');
+        script.src = '//cdn.jsdelivr.net/npm/eruda';
+        script.onload = function() {
+          if (window.eruda) {
+            window.eruda.init();
+            console.log('[Eruda] DevTools initialized');
+          }
+        };
+        document.head.appendChild(script);
+      })();
+    </script>
   </head>
 
   <body>
