@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { AlertTriangle, Skull } from 'lucide-react';
+import { isTelegramDesktopPlatformName } from '@/lib/telegram';
 
 interface Position {
   x: number;
@@ -21,6 +22,9 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   // FAILSAFE: Проверка поддержки WebGL для старых устройств
   const [webglSupported, setWebglSupported] = useState<boolean | null>(null);
   
+  // Определяем desktop платформу для ускорения анимаций
+  const [isDesktop, setIsDesktop] = useState(false);
+  
   useEffect(() => {
     // КРИТИЧНО: Проверка на SSR и доступность document
     if (typeof window === 'undefined' || typeof document === 'undefined') {
@@ -40,6 +44,16 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
       console.warn('[OilSplashAttack] WebGL check failed:', e);
       setWebglSupported(false);
     }
+    
+    // Определяем desktop платформу
+    const webApp = window.Telegram?.WebApp;
+    if (webApp) {
+      const platform = webApp.platform;
+      setIsDesktop(isTelegramDesktopPlatformName(platform));
+    } else {
+      // Если не в Telegram, проверяем по user agent
+      setIsDesktop(!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    }
   }, []);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -47,6 +61,9 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   const requestRef = useRef<number>(0);
   const checkIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const expireTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // КРИТИЧНО: Ref для отслеживания запущенной анимации (предотвращает повторный запуск)
+  const animationStartedRef = useRef<boolean>(false);
+  const currentExpiresAtRef = useRef<number | null>(null);
   
   const [cursorPos, setCursorPos] = useState<Position>({ x: -100, y: -100 });
   const [isCleaning, setIsCleaning] = useState(false);
@@ -58,11 +75,11 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   const SPONGE_SIZE = 160; 
   const REQUIRED_CLEAN_PERCENTAGE = 80; // Снижено с 97 до 80 для более легкого завершения
   
-  // Fluid Physics Config
+  // Fluid Physics Config - ускорено для desktop
   const COLUMN_WIDTH = 15;
-  const GRAVITY = 3.0; // Увеличено с 1.5 для более быстрого падения
+  const GRAVITY = isDesktop ? 5.0 : 3.0; // Увеличено для desktop
   const VISCOSITY = 0.5; 
-  const TERMINAL_VELOCITY = 120; // Увеличено с 60 для более быстрого движения
+  const TERMINAL_VELOCITY = isDesktop ? 180 : 120; // Увеличено для desktop
 
   // Refs for physics/animation
   const columnsRef = useRef<number[]>([]);
@@ -70,6 +87,15 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   const timeRef = useRef<number>(0);
   const crackCenterRef = useRef<Position>({ x: 0, y: 0 });
   const crackPathsRef = useRef<Position[][]>([]);
+
+  // КРИТИЧНО: Сброс состояния при деактивации
+  useEffect(() => {
+    if (!isActive) {
+      animationStartedRef.current = false;
+      currentExpiresAtRef.current = null;
+      return;
+    }
+  }, [isActive]);
 
   // КРИТИЧНО: Автоматическое завершение по истечении времени
   // ИЗМЕНЕНО: Добавлен буфер для компенсации задержки сети в Telegram Mini App
@@ -262,10 +288,38 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
 
   // --- 2. Phase Logic ---
   
-  // WARNING PHASE
+  // КРИТИЧНО: Сброс состояния при изменении expiresAt (новый exploit)
+  useEffect(() => {
+    if (!isActive || !expiresAt) return;
+    
+    // Если expiresAt изменился, значит это новый exploit - сбрасываем состояние
+    if (currentExpiresAtRef.current !== null && currentExpiresAtRef.current !== expiresAt) {
+      console.log('[OilSplashAttack] 🔄 New exploit detected, resetting state:', {
+        oldExpiresAt: currentExpiresAtRef.current,
+        newExpiresAt: expiresAt
+      });
+      animationStartedRef.current = false;
+      setPhase('warning');
+      setCleanPercent(0);
+      setShake(0);
+    }
+    
+    currentExpiresAtRef.current = expiresAt;
+  }, [isActive, expiresAt]);
+  
+  // WARNING PHASE - ускорено для desktop
   useEffect(() => {
     if (!isActive || phase !== 'warning') return;
+    
+    // КРИТИЧНО: Предотвращаем повторный запуск анимации
+    if (animationStartedRef.current && currentExpiresAtRef.current === expiresAt) {
+      console.log('[OilSplashAttack] ⏭️ Animation already started, skipping...');
+      return;
+    }
 
+    animationStartedRef.current = true;
+    const warningDuration = isDesktop ? 1200 : 2200; // Ускорено для desktop
+    
     let shakeInterval = setInterval(() => {
         setShake(Math.random() * 8);
     }, 50);
@@ -273,10 +327,10 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     setTimeout(() => {
         clearInterval(shakeInterval);
         setPhase('cracking');
-    }, 2200);
+    }, warningDuration);
 
     return () => clearInterval(shakeInterval);
-  }, [phase, isActive]);
+  }, [phase, isActive, isDesktop, expiresAt]);
 
   // ANIMATION LOOPS
   useEffect(() => {
@@ -366,7 +420,8 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
             }
 
             if (crackProgress < 1) {
-                crackProgress += 0.08;
+                // Ускорено для desktop
+                crackProgress += isDesktop ? 0.15 : 0.08;
                 setShake(Math.random() * 20); 
                 requestRef.current = requestAnimationFrame(animateCrack);
             } else {
@@ -383,7 +438,8 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     // --- SPILLING ---
     if (phase === 'spilling') {
         const animateSpill = () => {
-            timeRef.current += 0.05;
+            // Ускорено для desktop
+            timeRef.current += isDesktop ? 0.1 : 0.05;
             ctx.clearRect(0, 0, w, h);
             
             drawStaticCracks(ctx, crackPathsRef.current);
@@ -393,8 +449,9 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
 
             for (let i = 0; i < numColumns; i++) {
                 const noise = Math.sin(i * 0.8 + timeRef.current); 
-                // Увеличено ускорение со временем с 0.2 до 0.5 для более быстрого заполнения
-                let acc = GRAVITY + (timeRef.current * 0.5) + (noise > 0 ? 0.3 : 0);
+                // Увеличено ускорение со временем, еще больше для desktop
+                const accelerationMultiplier = isDesktop ? 0.8 : 0.5;
+                let acc = GRAVITY + (timeRef.current * accelerationMultiplier) + (noise > 0 ? 0.3 : 0);
                 
                 velocitiesRef.current[i] += acc;
                 velocitiesRef.current[i] = Math.min(velocitiesRef.current[i], TERMINAL_VELOCITY);
@@ -426,7 +483,7 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
         animateSpill();
     }
 
-  }, [phase, isActive]);
+  }, [phase, isActive, isDesktop]);
 
   // --- Helper Functions ---
 
@@ -442,7 +499,9 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
           // Уменьшен случайный разброс с 50 до 25 для более предсказуемой высоты
           return cy - dist * 0.05 - Math.random() * 25; 
       });
-      velocitiesRef.current = new Array(numColumns).fill(0).map(() => Math.random() * 8 + 2); // Увеличена начальная скорость
+      // Увеличена начальная скорость, еще больше для desktop
+      const initialSpeed = isDesktop ? 12 : 8;
+      velocitiesRef.current = new Array(numColumns).fill(0).map(() => Math.random() * initialSpeed + 2);
   };
 
   const drawStaticCracks = (ctx: CanvasRenderingContext2D, paths: Position[][]) => {
@@ -538,6 +597,11 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   };
 
   // --- 3. Cleaning Logic ---
+  // КРИТИЧНО: Debounce ref для предотвращения слишком частых вызовов
+  const checkProgressDebounceRef = useRef<number | null>(null);
+  const lastCheckTimeRef = useRef<number>(0);
+  const MIN_CHECK_INTERVAL = 500; // Минимальный интервал между проверками (500ms)
+  
   const checkProgress = useCallback(() => {
     if (phase !== 'cleaning' || !isActive) return;
 
@@ -552,77 +616,110 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
       return;
     }
     
+    // КРИТИЧНО: Debounce - пропускаем проверку, если прошло меньше MIN_CHECK_INTERVAL
+    const now = Date.now();
+    if (now - lastCheckTimeRef.current < MIN_CHECK_INTERVAL) {
+      // Отменяем предыдущий debounced вызов
+      if (checkProgressDebounceRef.current) {
+        cancelAnimationFrame(checkProgressDebounceRef.current);
+      }
+      // Планируем проверку через оставшееся время
+      const remainingTime = MIN_CHECK_INTERVAL - (now - lastCheckTimeRef.current);
+      checkProgressDebounceRef.current = requestAnimationFrame(() => {
+        setTimeout(() => {
+          checkProgress();
+        }, remainingTime);
+      });
+      return;
+    }
+    
+    lastCheckTimeRef.current = now;
+    
     const w = canvas.width;
     const h = canvas.height;
-    const stride = 80; // Увеличен для оптимизации (меньше проверок, быстрее)
+    // КРИТИЧНО: Увеличиваем stride для еще большей оптимизации (меньше проверок)
+    const stride = isDesktop ? 120 : 100; // Больше stride для desktop
     
     try {
-        const imageData = ctx.getImageData(0, 0, w, h);
-        const data = imageData.data;
-        let cleanedPoints = 0;
-        let totalPoints = 0;
+        // КРИТИЧНО: Используем requestAnimationFrame для отложенного чтения
+        requestAnimationFrame(() => {
+          try {
+            const imageData = ctx.getImageData(0, 0, w, h);
+            const data = imageData.data;
+            let cleanedPoints = 0;
+            let totalPoints = 0;
 
-        // Оптимизированная проверка прогресса
-        for (let y = 0; y < h; y += stride) {
-            for (let x = 0; x < w; x += stride) {
-                const index = (y * w + x) * 4;
-                // Проверяем альфа-канал (прозрачность)
-                // Если альфа < 50, значит пиксель очищен (destination-out делает его прозрачным)
-                if (data[index + 3] < 50) { 
-                    cleanedPoints++;
+            // Оптимизированная проверка прогресса
+            for (let y = 0; y < h; y += stride) {
+                for (let x = 0; x < w; x += stride) {
+                    const index = (y * w + x) * 4;
+                    // Проверяем альфа-канал (прозрачность)
+                    // Если альфа < 50, значит пиксель очищен (destination-out делает его прозрачным)
+                    if (data[index + 3] < 50) { 
+                        cleanedPoints++;
+                    }
+                    totalPoints++;
                 }
-                totalPoints++;
             }
-        }
-        
-        if (totalPoints === 0) {
-          console.warn('[OilSplashAttack] ⚠️ No points to check');
-          return;
-        }
+            
+            if (totalPoints === 0) {
+              console.warn('[OilSplashAttack] ⚠️ No points to check');
+              return;
+            }
 
-        const percent = Math.min(100, Math.max(0, (cleanedPoints / totalPoints) * 100));
-        
-        // КРИТИЧНО: Логируем прогресс для отладки
-        if (Math.floor(percent) !== Math.floor(cleanPercent)) {
-          console.log('[OilSplashAttack] 📊 Progress update:', {
-            cleanedPercent: Math.round(percent),
-            displayPercent: Math.round(100 - percent),
-            cleanedPoints,
-            totalPoints,
-            required: REQUIRED_CLEAN_PERCENTAGE,
-            currentPhase: phase
-          });
-        }
-        
-        // КРИТИЧНО: Обновляем состояние прогресса ВСЕГДА
-        setCleanPercent(percent);
+            const percent = Math.min(100, Math.max(0, (cleanedPoints / totalPoints) * 100));
+            
+            // КРИТИЧНО: Логируем прогресс только при значительных изменениях (каждые 5%)
+            if (Math.floor(percent / 5) !== Math.floor(cleanPercent / 5)) {
+              console.log('[OilSplashAttack] 📊 Progress update:', {
+                cleanedPercent: Math.round(percent),
+                displayPercent: Math.round(100 - percent),
+                cleanedPoints,
+                totalPoints,
+                required: REQUIRED_CLEAN_PERCENTAGE,
+                currentPhase: phase
+              });
+            }
+            
+            // КРИТИЧНО: Обновляем состояние прогресса ВСЕГДА
+            setCleanPercent(percent);
 
-        // КРИТИЧНО: Проверяем условие завершения
-        if (percent >= REQUIRED_CLEAN_PERCENTAGE && phase === 'cleaning') {
-             console.log('[OilSplashAttack] ✅✅✅ CLEANING COMPLETE! Calling onCleaned...', {
-               percent,
-               required: REQUIRED_CLEAN_PERCENTAGE
-             });
-             
-             // КРИТИЧНО: Останавливаем проверку прогресса
-             if (checkIntervalRef.current) {
-               clearInterval(checkIntervalRef.current);
-               checkIntervalRef.current = null;
-             }
-             
-             // КРИТИЧНО: Меняем фазу на completed перед вызовом onCleaned
-             setPhase('completed');
-             
-             // КРИТИЧНО: Используем безопасный вызов с небольшой задержкой для визуализации
-             setTimeout(() => {
-               if (onCleaned && typeof onCleaned === 'function') {
-                 console.log('[OilSplashAttack] ✅ Calling onCleaned after completion delay');
-                 onCleaned();
-               } else {
-                 console.error('[OilSplashAttack] ❌ onCleaned is not a function:', typeof onCleaned);
-               }
-             }, 1500); // Даем 1.5 секунды на показ сообщения о завершении
-        }
+            // КРИТИЧНО: Проверяем условие завершения
+            if (percent >= REQUIRED_CLEAN_PERCENTAGE && phase === 'cleaning') {
+                 console.log('[OilSplashAttack] ✅✅✅ CLEANING COMPLETE! Calling onCleaned...', {
+                   percent,
+                   required: REQUIRED_CLEAN_PERCENTAGE
+                 });
+                 
+                 // КРИТИЧНО: Останавливаем проверку прогресса
+                 if (checkIntervalRef.current) {
+                   clearInterval(checkIntervalRef.current);
+                   checkIntervalRef.current = null;
+                 }
+                 
+                 // КРИТИЧНО: Отменяем debounced вызовы
+                 if (checkProgressDebounceRef.current) {
+                   cancelAnimationFrame(checkProgressDebounceRef.current);
+                   checkProgressDebounceRef.current = null;
+                 }
+                 
+                 // КРИТИЧНО: Меняем фазу на completed перед вызовом onCleaned
+                 setPhase('completed');
+                 
+                 // КРИТИЧНО: Используем безопасный вызов с небольшой задержкой для визуализации
+                 setTimeout(() => {
+                   if (onCleaned && typeof onCleaned === 'function') {
+                     console.log('[OilSplashAttack] ✅ Calling onCleaned after completion delay');
+                     onCleaned();
+                   } else {
+                     console.error('[OilSplashAttack] ❌ onCleaned is not a function:', typeof onCleaned);
+                   }
+                 }, 1500); // Даем 1.5 секунды на показ сообщения о завершении
+            }
+          } catch (e: any) {
+            console.error('[OilSplashAttack] ❌ Error in checkProgress RAF:', e);
+          }
+        });
     } catch (e: any) { 
         console.error('[OilSplashAttack] ❌ Error checking progress:', e);
         console.error('[OilSplashAttack] Error details:', {
@@ -633,42 +730,33 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
           canvasHeight: canvas?.height
         });
     }
-  }, [phase, onCleaned, isActive, cleanPercent]);
+  }, [phase, onCleaned, isActive, cleanPercent, isDesktop]);
 
   useEffect(() => {
     if (phase === 'cleaning' && isActive) {
-        // КРИТИЧНО: Запускаем проверку прогресса чаще для более плавного обновления
+        // КРИТИЧНО: Увеличены интервалы для снижения нагрузки
+        // Проверяем реже, но более эффективно
+        const checkInterval = isDesktop ? 800 : 1000; // Увеличено с 150/300 до 800/1000
         const delayStart = setTimeout(() => {
-             // КРИТИЧНО: Используем requestAnimationFrame для более плавной проверки
-             let animationId: number;
-             const checkProgressLoop = () => {
-               checkProgress();
-               if (phase === 'cleaning' && isActive && checkIntervalRef.current !== null) {
-                 animationId = requestAnimationFrame(() => {
-                   setTimeout(() => {
-                     checkProgressLoop();
-                   }, 200); // Проверяем каждые 200мс через RAF
-                 });
-               }
-             };
-             
              // Первая проверка сразу
              checkProgress();
              
-             // Запускаем цикл проверки
+             // Запускаем цикл проверки с увеличенным интервалом
              checkIntervalRef.current = setInterval(() => {
-               checkProgressLoop();
-             }, 300) as any; // Fallback интервал
-             
-             // Также запускаем через RAF для более частых проверок
-             checkProgressLoop();
-        }, 100); // Уменьшено до 100мс для быстрого старта
+               checkProgress();
+             }, checkInterval) as any;
+        }, isDesktop ? 200 : 300); // Увеличена задержка старта
         
         return () => {
             clearTimeout(delayStart);
             if (checkIntervalRef.current) {
               clearInterval(checkIntervalRef.current);
               checkIntervalRef.current = null;
+            }
+            // КРИТИЧНО: Отменяем debounced вызовы при очистке
+            if (checkProgressDebounceRef.current) {
+              cancelAnimationFrame(checkProgressDebounceRef.current);
+              checkProgressDebounceRef.current = null;
             }
         };
     } else {
@@ -677,8 +765,13 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
           clearInterval(checkIntervalRef.current);
           checkIntervalRef.current = null;
         }
+        // КРИТИЧНО: Отменяем debounced вызовы
+        if (checkProgressDebounceRef.current) {
+          cancelAnimationFrame(checkProgressDebounceRef.current);
+          checkProgressDebounceRef.current = null;
+        }
     }
-  }, [phase, checkProgress, isActive]);
+  }, [phase, checkProgress, isActive, isDesktop]);
 
   // --- Input ---
   const clean = (x: number, y: number) => {
@@ -725,12 +818,16 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
       setCursorPos({ x: clientX, y: clientY });
       if (isCleaning) {
         clean(clientX, clientY);
-        // КРИТИЧНО: Принудительно проверяем прогресс после каждой очистки
-        // (debounced через requestAnimationFrame)
+        // КРИТИЧНО: Проверяем прогресс после очистки, но с debounce
+        // Не вызываем каждый раз, чтобы не перегружать систему
         if (phase === 'cleaning') {
-          requestAnimationFrame(() => {
-            checkProgress();
-          });
+          // Используем debounce - проверяем только если прошло достаточно времени
+          const now = Date.now();
+          if (now - lastCheckTimeRef.current >= MIN_CHECK_INTERVAL) {
+            requestAnimationFrame(() => {
+              checkProgress();
+            });
+          }
         }
       }
   };
@@ -951,16 +1048,17 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
       {/* SPONGE & HUD */}
       {phase === 'cleaning' && (
         <>
-            {/* Custom Interactive Sponge */}
+            {/* Custom Interactive Sponge - скрывается при завершении */}
+            {phase !== 'completed' && (
             <div 
                 className="pointer-events-none fixed z-20"
                 style={{
                     left: cursorPos.x,
                     top: cursorPos.y,
                     transform: `translate(-50%, -50%) rotate(${isCleaning ? '-12deg' : '0deg'}) scale(${isCleaning ? 0.9 : 1})`,
-                    transition: 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                    opacity: phase === 'completed' ? 0 : 1, // Скрываем губку при завершении
-                    pointerEvents: phase === 'completed' ? 'none' : 'none'
+                    transition: 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-out',
+                    opacity: 1,
+                    pointerEvents: 'none'
                 }}
             >
                 <div className="relative group">
@@ -1018,6 +1116,7 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
                     </div>
                 </div>
             </div>
+            )}
 
             {/* Progress Bar */}
             <div className="absolute top-10 left-0 right-0 flex justify-center pointer-events-none z-30">

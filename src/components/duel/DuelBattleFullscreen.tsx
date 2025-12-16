@@ -42,6 +42,16 @@ import { OilSplashAttack } from './attacks/OilSplashAttack';
 import { PoliceBackdoorAttack } from './attacks/PoliceBackdoorAttack';
 import { InputLagWrapper } from './attacks/InputLagWrapper';
 
+// КРИТИЧНО: Мемоизированный компонент для OilSplashAttack
+// Предотвращает повторный рендеринг при неизменных props
+const OilSplashAttackMemoized = memo(OilSplashAttack, (prevProps, nextProps) => {
+  // Перерендериваем только если изменились критичные props
+  return (
+    prevProps.isActive === nextProps.isActive &&
+    prevProps.expiresAt === nextProps.expiresAt
+  );
+});
+
 // ОПТИМИЗАЦИЯ: Условное логирование только в development
 const isDev = import.meta.env.DEV;
 const log = (...args: any[]) => {
@@ -2253,7 +2263,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             {/* КРИТИЧНО: Рендерим для всех возможных типов атаки "Масло" */}
             {/* ИЗМЕНЕНО: Убрали проверку expiresAt - доверяем факту получения, а не времени */}
             {screenInjector && !screenInjectorPassed && (
-              <OilSplashAttack
+              <OilSplashAttackMemoized
                 isActive={true}
                 expiresAt={screenInjector.expiresAt}
                 onCleaned={() => {

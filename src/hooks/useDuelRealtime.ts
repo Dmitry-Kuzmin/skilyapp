@@ -260,10 +260,14 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         
         // Обновляем стейт (добавляем восстановленные атаки)
         setState(prev => {
-          // Избегаем дубликатов - проверяем по типу и времени активации
-          const existingTypes = new Set((prev.activeExploits || []).map(e => `${e.type}-${e.receivedAt}`));
+          // Избегаем дубликатов - улучшенная проверка по типу, времени активации и истечения
+          const existingExploits = (prev.activeExploits || []).map(e => ({
+            type: e.type,
+            receivedAt: e.receivedAt,
+            expiresAt: e.expiresAt
+          }));
           
-          const newExploits = exploits
+            const newExploits = exploits
             .filter(e => e.attacker_player_id !== myPlayerId) // Только атаки НЕ от меня
             .map(e => ({
               type: e.exploit_type,
@@ -271,7 +275,15 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               receivedAt: new Date(e.activated_at).getTime(),
               expiresAt: new Date(e.expires_at).getTime()
             }))
-            .filter(e => !existingTypes.has(`${e.type}-${e.receivedAt}`));
+            .filter(newExploit => {
+              // КРИТИЧНО: Увеличено окно дедупликации для предотвращения повторных добавлений
+              // Проверяем, что такого exploit еще нет (с учетом окна в 5 секунд для receivedAt)
+              return !existingExploits.some(existing => 
+                existing.type === newExploit.type &&
+                Math.abs(existing.receivedAt - newExploit.receivedAt) < 5000 &&
+                Math.abs(existing.expiresAt - newExploit.expiresAt) < 2000
+              );
+            });
 
           console.log('[useDuelRealtime] 📦 Adding new exploits to state:', {
             newExploitsCount: newExploits.length,
@@ -336,7 +348,12 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               console.log('[useDuelRealtime] ✅✅✅ FALLBACK: Recovered exploits by user_id:', fallbackExploits.length);
               
               setState(prev => {
-                const existingTypes = new Set((prev.activeExploits || []).map(e => `${e.type}-${e.receivedAt}`));
+                // Улучшенная дедупликация для fallback exploits
+                const existingExploits = (prev.activeExploits || []).map(e => ({
+                  type: e.type,
+                  receivedAt: e.receivedAt,
+                  expiresAt: e.expiresAt
+                }));
                 
                 const newExploits = fallbackExploits
                   .map(e => ({
@@ -345,7 +362,15 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
                     receivedAt: new Date(e.activated_at).getTime(),
                     expiresAt: new Date(e.expires_at).getTime()
                   }))
-                  .filter(e => !existingTypes.has(`${e.type}-${e.receivedAt}`));
+                  .filter(newExploit => {
+                    // КРИТИЧНО: Увеличено окно дедупликации для предотвращения повторных добавлений
+                    // Проверяем, что такого exploit еще нет (с учетом окна в 5 секунд для receivedAt)
+                    return !existingExploits.some(existing => 
+                      existing.type === newExploit.type &&
+                      Math.abs(existing.receivedAt - newExploit.receivedAt) < 5000 &&
+                      Math.abs(existing.expiresAt - newExploit.expiresAt) < 2000
+                    );
+                  });
 
                 if (newExploits.length === 0) {
                   return prev;
@@ -774,14 +799,26 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
                 expiresAt: new Date(newExploit.expires_at).getTime(),
               };
 
-              // Проверяем на дубликаты
+              // Проверяем на дубликаты - улучшенная логика
+              // Используем комбинацию type, receivedAt и expiresAt для более надежной дедупликации
+              // КРИТИЧНО: Увеличено окно дедупликации для предотвращения повторных добавлений
               const exists = (prev.activeExploits || []).some(
                 e => e.type === exploit.type && 
-                     Math.abs(e.receivedAt - exploit.receivedAt) < 1000
+                     Math.abs(e.receivedAt - exploit.receivedAt) < 5000 && // Увеличено окно до 5 секунд
+                     Math.abs(e.expiresAt - exploit.expiresAt) < 2000 // Увеличено окно для expiresAt до 2 секунд
               );
 
               if (exists) {
-                console.warn('[useDuelRealtime] ⚠️ Duplicate exploit ignored:', newExploit.exploit_type);
+                console.warn('[useDuelRealtime] ⚠️ Duplicate exploit ignored:', {
+                  exploit_type: newExploit.exploit_type,
+                  receivedAt: new Date(exploit.receivedAt).toISOString(),
+                  expiresAt: new Date(exploit.expiresAt).toISOString(),
+                  existingExploits: (prev.activeExploits || []).map(e => ({
+                    type: e.type,
+                    receivedAt: new Date(e.receivedAt).toISOString(),
+                    expiresAt: new Date(e.expiresAt).toISOString()
+                  }))
+                });
                 log('[useDuelRealtime] ⚠️ Duplicate exploit ignored:', newExploit.exploit_type);
                 return prev;
               }
@@ -1231,7 +1268,12 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         if (newExploits && newExploits.length > 0) {
           // Добавляем exploits, которых еще нет в состоянии
           setState(prev => {
-            const existingTypes = new Set((prev.activeExploits || []).map(e => `${e.type}-${e.receivedAt}`));
+            // КРИТИЧНО: Улучшенная дедупликация - используем комбинацию type, receivedAt и expiresAt
+            const existingExploits = (prev.activeExploits || []).map(e => ({
+              type: e.type,
+              receivedAt: e.receivedAt,
+              expiresAt: e.expiresAt
+            }));
             
             const newExploitsToAdd = newExploits
               .map(e => ({
@@ -1240,7 +1282,14 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
                 receivedAt: new Date(e.activated_at).getTime(),
                 expiresAt: new Date(e.expires_at).getTime()
               }))
-              .filter(e => !existingTypes.has(`${e.type}-${e.receivedAt}`));
+              .filter(newExploit => {
+                // КРИТИЧНО: Увеличено окно дедупликации для предотвращения повторных добавлений
+                return !existingExploits.some(existing => 
+                  existing.type === newExploit.type &&
+                  Math.abs(existing.receivedAt - newExploit.receivedAt) < 5000 &&
+                  Math.abs(existing.expiresAt - newExploit.expiresAt) < 2000
+                );
+              });
             
             if (newExploitsToAdd.length === 0) {
               return prev;
