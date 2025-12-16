@@ -87,7 +87,7 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
 
   // --- Configuration ---
   // КРИТИЧНО: Адаптивный размер губки - больше на desktop для быстрой очистки
-  const SPONGE_SIZE = isDesktop ? 280 : 160; // Сбалансированный размер: 280px на desktop, 160px на mobile
+  const SPONGE_SIZE = isDesktop ? 360 : 160; // Увеличено с 280 до 360 на desktop для более быстрой очистки
   const REQUIRED_CLEAN_PERCENTAGE = 85; // Увеличено до 85 для более сбалансированной очистки
   
   // Fluid Physics Config - оптимизировано для desktop
@@ -890,11 +890,11 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     
     ctx.globalCompositeOperation = 'destination-out';
     const radius = SPONGE_SIZE / 2;
-    // КРИТИЧНО: Сбалансированные параметры очистки - desktop немного мощнее, mobile нормальная
-    const effectiveRadius = isDesktop ? radius * 1.0 : radius * 0.7; // Desktop: 1.0, Mobile: 0.7 (норма)
-    const scrubRadius = isDesktop ? radius * 0.85 : radius * 0.6; // Desktop: 0.85, Mobile: 0.6 (норма)
-    const scrubDistance = isDesktop ? radius * 0.65 : radius * 0.4; // Desktop: 0.65, Mobile: 0.4 (норма)
-    const scrubCount = isDesktop ? 8 : 6; // Desktop: 8 точек, Mobile: 6 точек (норма)
+    // КРИТИЧНО: Увеличенные параметры очистки для desktop - более мощная губка
+    const effectiveRadius = isDesktop ? radius * 1.2 : radius * 0.7; // Desktop: 1.2 (увеличено с 1.0), Mobile: 0.7 (норма)
+    const scrubRadius = isDesktop ? radius * 1.0 : radius * 0.6; // Desktop: 1.0 (увеличено с 0.85), Mobile: 0.6 (норма)
+    const scrubDistance = isDesktop ? radius * 0.8 : radius * 0.4; // Desktop: 0.8 (увеличено с 0.65), Mobile: 0.4 (норма)
+    const scrubCount = isDesktop ? 12 : 6; // Desktop: 12 точек (увеличено с 8), Mobile: 6 точек (норма)
     
     // Scrubbing с нормализованными координатами
     ctx.beginPath();

@@ -1188,11 +1188,28 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // Timer logic with timestamp fix (endTime pattern) - работает даже при переключении вкладок
   const questionEndTimeRef = useRef<number | null>(null);
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const currentIndexRef = useRef<number>(-1); // КРИТИЧНО: Ref для отслеживания изменения currentIndex
+  const handleTimeoutRef = useRef(handleTimeout); // КРИТИЧНО: Ref для handleTimeout, чтобы избежать перезапуска
   const TIME_LIMIT_MS = 60000; // 60 seconds
+
+  // КРИТИЧНО: Обновляем ref при изменении handleTimeout
+  useEffect(() => {
+    handleTimeoutRef.current = handleTimeout;
+  }, [handleTimeout]);
 
   // КРИТИЧНО: Устанавливаем время окончания при загрузке нового вопроса
   // Этот useEffect должен выполняться ПЕРВЫМ и устанавливать таймер
   useEffect(() => {
+    // КРИТИЧНО: Проверяем, действительно ли изменился currentIndex
+    // Если currentIndex не изменился и таймер уже запущен, не перезапускаем его
+    if (currentIndexRef.current === currentIndex && timerIntervalRef.current && questionEndTimeRef.current) {
+      // Таймер уже запущен для этого вопроса, не перезапускаем
+      return;
+    }
+
+    // Обновляем ref текущего индекса
+    currentIndexRef.current = currentIndex;
+
     // Очищаем предыдущий таймер
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
@@ -1279,7 +1296,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           clearInterval(timerIntervalRef.current);
           timerIntervalRef.current = null;
         }
-        handleTimeout();
+        handleTimeoutRef.current(); // Используем ref вместо прямого вызова
       } else {
         // ✅ Обновляем UI
         setTimeLeft(secondsRemaining);
@@ -1299,7 +1316,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         timerIntervalRef.current = null;
       }
     };
-  }, [currentIndex, questions.length, isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, handleTimeout, setTimeLeft]);
+  }, [currentIndex, questions.length, isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, setTimeLeft, refreshExploits]);
 
   // Обработчик visibilitychange - мгновенное обновление при возвращении на вкладку
   useEffect(() => {
