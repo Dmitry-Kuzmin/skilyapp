@@ -66,17 +66,29 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   // КРИТИЧНО: Ref для отслеживания запущенной анимации (предотвращает повторный запуск)
   const animationStartedRef = useRef<boolean>(false);
   const currentExpiresAtRef = useRef<number | null>(null);
+  // КРИТИЧНО: Ref для отслеживания текущей фазы и прогресса (для корректной работы в setTimeout)
+  const phaseRef = useRef<SpillPhase>('warning');
+  const cleanPercentRef = useRef<number>(0);
   
   const [cursorPos, setCursorPos] = useState<Position>({ x: -100, y: -100 });
   const [isCleaning, setIsCleaning] = useState(false);
   const [cleanPercent, setCleanPercent] = useState(0);
   const [phase, setPhase] = useState<SpillPhase>('warning'); 
   const [shake, setShake] = useState(0);
+  
+  // КРИТИЧНО: Обновляем ref при изменении phase и cleanPercent
+  useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
+  
+  useEffect(() => {
+    cleanPercentRef.current = cleanPercent;
+  }, [cleanPercent]);
 
   // --- Configuration ---
   // КРИТИЧНО: Адаптивный размер губки - больше на desktop для быстрой очистки
-  const SPONGE_SIZE = isDesktop ? 320 : 160; // Увеличено с 240 до 320 на desktop для еще более быстрой очистки
-  const REQUIRED_CLEAN_PERCENTAGE = 80; // Снижено с 97 до 80 для более легкого завершения
+  const SPONGE_SIZE = isDesktop ? 280 : 160; // Сбалансированный размер: 280px на desktop, 160px на mobile
+  const REQUIRED_CLEAN_PERCENTAGE = 85; // Увеличено до 85 для более сбалансированной очистки
   
   // Fluid Physics Config - оптимизировано для desktop
   // КРИТИЧНО: Адаптивный COLUMN_WIDTH - больше на desktop = меньше колонок = быстрее
@@ -135,11 +147,24 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
         // Устанавливаем таймер на оставшееся время буфера
         const bufferTime = NETWORK_LATENCY_BUFFER_MS + remainingTime; // Оставшееся время буфера
         expireTimeoutRef.current = setTimeout(() => {
-          console.log('[OilSplashAttack] ⏰ Attack expired (after buffer), cleaning up');
-          try {
-            onCleaned();
-          } catch (error) {
-            console.error('[OilSplashAttack] Error calling onCleaned:', error);
+          // КРИТИЧНО: Используем ref для получения актуальной фазы и прогресса
+          const currentPhase = phaseRef.current;
+          const currentCleanPercent = cleanPercentRef.current;
+          console.log('[OilSplashAttack] ⏰ Attack expired (after buffer), checking phase and progress:', {
+            phase: currentPhase,
+            cleanPercent: currentCleanPercent,
+            required: REQUIRED_CLEAN_PERCENTAGE
+          });
+          // Завершаем только если уже чистим И очистка завершена (>= REQUIRED_CLEAN_PERCENTAGE)
+          if ((currentPhase === 'cleaning' || currentPhase === 'completed') && currentCleanPercent >= REQUIRED_CLEAN_PERCENTAGE) {
+            console.log('[OilSplashAttack] ⏰ Cleaning completed, cleaning up');
+            try {
+              onCleaned();
+            } catch (error) {
+              console.error('[OilSplashAttack] Error calling onCleaned:', error);
+            }
+          } else {
+            console.log('[OilSplashAttack] ⏰ Attack expired but cleaning not completed yet, allowing user to continue');
           }
         }, Math.max(0, bufferTime));
         
@@ -150,49 +175,36 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
           }
         };
       }
+      
+      // КРИТИЧНО: Если время истекло в пределах буфера, но очистка еще не началась - не завершаем автоматически
+      // Это позволяет пользователю начать очистку даже если время немного истекло
 
-      // Если время истекло более чем на NETWORK_LATENCY_BUFFER_MS - завершаем сразу
+      // КРИТИЧНО: Если время истекло более чем на NETWORK_LATENCY_BUFFER_MS - НЕ завершаем автоматически
+      // Пользователь должен самостоятельно очистить экран, даже если время истекло
       if (remainingTime <= -NETWORK_LATENCY_BUFFER_MS) {
-        console.log('[OilSplashAttack] ⏰ Attack expired beyond buffer, cleaning up immediately:', {
+        console.log('[OilSplashAttack] ⏰ Attack expired beyond buffer, but allowing user to clean manually:', {
           expiredBy: Math.abs(remainingTime),
-          buffer: NETWORK_LATENCY_BUFFER_MS
+          buffer: NETWORK_LATENCY_BUFFER_MS,
+          currentPhase: phaseRef.current
         });
-        try {
-          onCleaned();
-        } catch (error) {
-          console.error('[OilSplashAttack] Error calling onCleaned:', error);
-        }
+        // НЕ завершаем автоматически - даем пользователю возможность очистить экран вручную
         return;
       }
 
-      // Если осталось мало времени (< 1 секунды) - завершаем быстро
+      // Если осталось мало времени (< 1 секунды) - НЕ завершаем автоматически
+      // Пользователь должен самостоятельно очистить экран
       if (remainingTime < 1000) {
-        console.log('[OilSplashAttack] ⏰ Attack expires soon, cleaning up in', remainingTime, 'ms');
-        expireTimeoutRef.current = setTimeout(() => {
-          try {
-            onCleaned();
-          } catch (error) {
-            console.error('[OilSplashAttack] Error calling onCleaned in timeout:', error);
-          }
-        }, Math.max(0, remainingTime)); // Защита от отрицательных значений
-        return () => {
-          if (expireTimeoutRef.current) {
-            clearTimeout(expireTimeoutRef.current);
-            expireTimeoutRef.current = null;
-          }
-        };
+        console.log('[OilSplashAttack] ⏰ Attack expires soon, but allowing user to clean manually:', remainingTime, 'ms');
+        // НЕ устанавливаем таймер - даем пользователю возможность очистить экран вручную
+        return;
       }
 
       // Устанавливаем таймер на оставшееся время
-      console.log('[OilSplashAttack] ⏰ Attack will expire in', Math.round(remainingTime / 1000), 'seconds');
-      expireTimeoutRef.current = setTimeout(() => {
-        console.log('[OilSplashAttack] ⏰ Attack expired, cleaning up');
-        try {
-          onCleaned();
-        } catch (error) {
-          console.error('[OilSplashAttack] Error calling onCleaned in expire timeout:', error);
-        }
-      }, Math.max(0, remainingTime)); // Защита от отрицательных значений
+      // КРИТИЧНО: Но завершаем только если очистка уже завершена (проверяется в checkProgress)
+      // Если очистка не завершена, просто ничего не делаем
+      console.log('[OilSplashAttack] ⏰ Attack will expire in', Math.round(remainingTime / 1000), 'seconds (manual cleanup required if not completed)');
+      // НЕ устанавливаем таймер автоматического завершения - очистка должна быть вручную
+      // Если очистка завершена, она будет завершена через checkProgress
 
       return () => {
         if (expireTimeoutRef.current) {
@@ -824,11 +836,11 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     
     ctx.globalCompositeOperation = 'destination-out';
     const radius = SPONGE_SIZE / 2;
-    // КРИТИЧНО: Увеличиваем эффективный радиус очистки на desktop для еще более быстрой очистки
-    const effectiveRadius = isDesktop ? radius * 1.2 : radius * 0.7; // Увеличено с 1.0 до 1.2 на desktop
-    const scrubRadius = isDesktop ? radius * 1.0 : radius * 0.6; // Увеличено с 0.8 до 1.0 на desktop
-    const scrubDistance = isDesktop ? radius * 0.8 : radius * 0.4; // Увеличено с 0.6 до 0.8 на desktop
-    const scrubCount = isDesktop ? 10 : 6; // Больше точек скрабирования на desktop
+    // КРИТИЧНО: Сбалансированные параметры очистки - desktop немного мощнее, mobile нормальная
+    const effectiveRadius = isDesktop ? radius * 1.0 : radius * 0.7; // Desktop: 1.0, Mobile: 0.7 (норма)
+    const scrubRadius = isDesktop ? radius * 0.85 : radius * 0.6; // Desktop: 0.85, Mobile: 0.6 (норма)
+    const scrubDistance = isDesktop ? radius * 0.65 : radius * 0.4; // Desktop: 0.65, Mobile: 0.4 (норма)
+    const scrubCount = isDesktop ? 8 : 6; // Desktop: 8 точек, Mobile: 6 точек (норма)
     
     // Scrubbing с нормализованными координатами
     ctx.beginPath();
