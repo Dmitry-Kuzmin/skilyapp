@@ -617,9 +617,25 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   const checkProgressDebounceRef = useRef<number | null>(null);
   const lastCheckTimeRef = useRef<number>(0);
   const MIN_CHECK_INTERVAL = 500; // Минимальный интервал между проверками (500ms)
+  // КРИТИЧНО: Ref для отслеживания монтирования компонента
+  const isMountedRef = useRef<boolean>(true);
+  
+  // Обновляем ref при размонтировании
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
   
   const checkProgress = useCallback(() => {
     if (phase !== 'cleaning' || !isActive) return;
+    
+    // КРИТИЧНО: Проверяем, что компонент еще смонтирован
+    if (!isMountedRef.current) {
+      console.warn('[OilSplashAttack] ⚠️ Component unmounted, skipping checkProgress');
+      return;
+    }
 
     const canvas = canvasRef.current;
     if (!canvas) {
@@ -643,7 +659,9 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
       const remainingTime = MIN_CHECK_INTERVAL - (now - lastCheckTimeRef.current);
       checkProgressDebounceRef.current = requestAnimationFrame(() => {
         setTimeout(() => {
-          checkProgress();
+          if (isMountedRef.current) {
+            checkProgress();
+          }
         }, remainingTime);
       });
       return;
@@ -659,16 +677,37 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     try {
         // КРИТИЧНО: Используем requestAnimationFrame для отложенного чтения
         requestAnimationFrame(() => {
+          // КРИТИЧНО: Проверяем монтирование и canvas внутри RAF callback
+          if (!isMountedRef.current) {
+            return;
+          }
+          
+          const canvasInRAF = canvasRef.current;
+          if (!canvasInRAF) {
+            console.warn('[OilSplashAttack] ⚠️ Canvas ref is null in RAF callback');
+            return;
+          }
+          
+          const ctxInRAF = canvasInRAF.getContext('2d', { willReadFrequently: true });
+          if (!ctxInRAF) {
+            console.warn('[OilSplashAttack] ⚠️ Canvas context is null in RAF callback');
+            return;
+          }
+          
+          // КРИТИЧНО: Используем актуальные размеры canvas из ref
+          const wInRAF = canvasInRAF.width;
+          const hInRAF = canvasInRAF.height;
+          
           try {
-            const imageData = ctx.getImageData(0, 0, w, h);
+            const imageData = ctxInRAF.getImageData(0, 0, wInRAF, hInRAF);
             const data = imageData.data;
             let cleanedPoints = 0;
             let totalPoints = 0;
 
             // Оптимизированная проверка прогресса
-            for (let y = 0; y < h; y += stride) {
-                for (let x = 0; x < w; x += stride) {
-                    const index = (y * w + x) * 4;
+            for (let y = 0; y < hInRAF; y += stride) {
+                for (let x = 0; x < wInRAF; x += stride) {
+                    const index = (y * wInRAF + x) * 4;
                     // Проверяем альфа-канал (прозрачность)
                     // Если альфа < 50, значит пиксель очищен (destination-out делает его прозрачным)
                     if (data[index + 3] < 50) { 
@@ -685,23 +724,28 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
 
             const percent = Math.min(100, Math.max(0, (cleanedPoints / totalPoints) * 100));
             
+            // КРИТИЧНО: Проверяем монтирование перед обновлением состояния
+            if (!isMountedRef.current) {
+              return;
+            }
+            
             // КРИТИЧНО: Логируем прогресс только при значительных изменениях (каждые 5%)
-            if (Math.floor(percent / 5) !== Math.floor(cleanPercent / 5)) {
+            if (Math.floor(percent / 5) !== Math.floor(cleanPercentRef.current / 5)) {
               console.log('[OilSplashAttack] 📊 Progress update:', {
                 cleanedPercent: Math.round(percent),
                 displayPercent: Math.round(100 - percent),
                 cleanedPoints,
                 totalPoints,
                 required: REQUIRED_CLEAN_PERCENTAGE,
-                currentPhase: phase
+                currentPhase: phaseRef.current
               });
             }
             
             // КРИТИЧНО: Обновляем состояние прогресса ВСЕГДА
             setCleanPercent(percent);
 
-            // КРИТИЧНО: Проверяем условие завершения
-            if (percent >= REQUIRED_CLEAN_PERCENTAGE && phase === 'cleaning') {
+            // КРИТИЧНО: Проверяем условие завершения (используем ref для актуальной фазы)
+            if (percent >= REQUIRED_CLEAN_PERCENTAGE && phaseRef.current === 'cleaning') {
                  console.log('[OilSplashAttack] ✅✅✅ CLEANING COMPLETE! Calling onCleaned...', {
                    percent,
                    required: REQUIRED_CLEAN_PERCENTAGE,
@@ -744,9 +788,19 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
                  
                  // КРИТИЧНО: Скрываем уведомление через 2 секунды и вызываем onCleaned
                  setTimeout(() => {
+                   // Проверяем монтирование перед обновлением состояния
+                   if (!isMountedRef.current) {
+                     console.warn('[OilSplashAttack] ⚠️ Component unmounted, skipping completion message hide');
+                     return;
+                   }
                    setShowCompletionMessage(false);
                    // Небольшая задержка перед вызовом onCleaned для плавного перехода
                    setTimeout(() => {
+                     // Проверяем монтирование перед вызовом onCleaned
+                     if (!isMountedRef.current) {
+                       console.warn('[OilSplashAttack] ⚠️ Component unmounted, skipping onCleaned call');
+                       return;
+                     }
                      if (onCleaned && typeof onCleaned === 'function') {
                        console.log('[OilSplashAttack] ✅ Calling onCleaned after completion delay');
                        onCleaned();
