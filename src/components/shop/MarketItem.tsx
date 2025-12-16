@@ -1,10 +1,11 @@
-import { memo } from 'react';
-import { motion } from 'framer-motion';
+import { memo, useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Coins, Download, Zap, Shield, Wand2, Lock, Check } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
+import { FloatingCost } from '@/components/ui/FloatingCost';
 
 interface MarketItemProps {
   boost: {
@@ -22,6 +23,7 @@ interface MarketItemProps {
   onInspect?: () => void;
   category?: 'utility' | 'exploit' | 'defense';
   isPurchasing?: boolean; // Флаг загрузки покупки
+  onPurchaseComplete?: () => void; // Callback после завершения покупки
 }
 
 // Определяем категорию по типу буста
@@ -46,11 +48,21 @@ const categoryIcons = {
 };
 
 // ОПТИМИЗАЦИЯ: React.memo для предотвращения лишних ререндеров
-export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect, category, isPurchasing = false }: MarketItemProps) {
+export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coins, onPurchase, onInspect, category, isPurchasing = false, onPurchaseComplete }: MarketItemProps) {
   const { t } = useLanguage();
   const canAfford = coins >= boost.cost_coins;
   const boostCategory = category || getBoostCategory(boost.type);
   const CategoryIcon = categoryIcons[boostCategory];
+  
+  // Состояния для анимаций
+  const [buttonState, setButtonState] = useState<'idle' | 'processing' | 'acquired'>('idle');
+  const [progress, setProgress] = useState(0);
+  const [showFloatingCost, setShowFloatingCost] = useState(false);
+  const [floatingCostPos, setFloatingCostPos] = useState({ x: 0, y: 0 });
+  const [isGlitching, setIsGlitching] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const previousPurchasingRef = useRef(isPurchasing);
 
   // Определяем, является ли товар расходником (consumable)
   // Все бусты (50/50, атаки, защита, утилиты) - расходники, их можно покупать многократно
@@ -106,8 +118,69 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
   // Определяем "уровень" из inventoryCount (для визуализации)
   const level = inventoryCount > 0 ? Math.min(inventoryCount, 99) : 1;
 
+  // Обработка изменения состояния покупки
+  useEffect(() => {
+    // Когда покупка начинается
+    if (isPurchasing && !previousPurchasingRef.current) {
+      setButtonState('processing');
+      setProgress(0);
+      
+      // Получаем позицию кнопки для floating cost
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        setFloatingCostPos({
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2
+        });
+        setShowFloatingCost(true);
+      }
+      
+      // Анимация прогресс-бара (600ms)
+      const startTime = Date.now();
+      const duration = 600;
+      const interval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const newProgress = Math.min((elapsed / duration) * 100, 100);
+        setProgress(newProgress);
+        
+        if (newProgress >= 100) {
+          clearInterval(interval);
+        }
+      }, 16); // ~60fps
+      
+      return () => clearInterval(interval);
+    }
+    
+    // Когда покупка завершается
+    if (!isPurchasing && previousPurchasingRef.current) {
+      setButtonState('acquired');
+      setIsGlitching(true);
+      
+      // Сбрасываем состояние через 1.5 секунды
+      setTimeout(() => {
+        setButtonState('idle');
+        setIsGlitching(false);
+        setProgress(0);
+        if (onPurchaseComplete) {
+          onPurchaseComplete();
+        }
+      }, 1500);
+    }
+    
+    previousPurchasingRef.current = isPurchasing;
+  }, [isPurchasing, onPurchaseComplete]);
+
+  // Обработчик клика на кнопку
+  const handlePurchaseClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (!isPurchasing && canAfford) {
+      onPurchase();
+    }
+  };
+
   return (
     <motion.div
+      ref={cardRef}
       onClick={() => {
         if (onInspect) {
           console.log('[MarketItem] Opening inspect sheet for:', boost.type);
@@ -116,6 +189,15 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
       }}
       whileHover={{ scale: 1.01, y: -1 }}
       whileTap={{ scale: 0.99 }}
+      animate={isGlitching ? {
+        x: [0, -2, 2, -2, 2, 0],
+        scale: [1, 1.01, 0.99, 1.01, 0.99, 1]
+      } : {}}
+      transition={isGlitching ? {
+        duration: 0.3,
+        times: [0, 0.2, 0.4, 0.6, 0.8, 1],
+        ease: 'easeInOut'
+      } : {}}
       className={cn(
         "group relative flex flex-col sm:flex-row sm:items-center gap-3",
         "p-3 sm:p-3 rounded-xl overflow-hidden",
@@ -125,7 +207,8 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
         theme.hoverBorder,
         theme.hoverGlow,
         "hover:bg-zinc-50 dark:hover:bg-zinc-800",
-        onInspect && "cursor-pointer"
+        onInspect && "cursor-pointer",
+        isGlitching && "border-emerald-500 dark:border-emerald-500 shadow-[0_0_20px_rgba(34,197,94,0.5)]"
       )}
     >
       {/* Background Grid Pattern (еле заметный) */}
@@ -270,24 +353,53 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
         ) : (
           // Расходник или еще не купленный перманентный - можно покупать
           <button
-            onClick={(e) => {
-              e.stopPropagation(); // Предотвращаем открытие модалки при клике на кнопку
-              if (!isPurchasing) {
-                onPurchase();
-              }
-            }}
-            disabled={isPurchasing}
+            ref={buttonRef}
+            onClick={handlePurchaseClick}
+            disabled={isPurchasing || buttonState === 'processing'}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-lg",
+              "relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg overflow-hidden",
               "bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10",
               "border border-zinc-300 dark:border-white/10 hover:border-zinc-400 dark:hover:border-white/30",
               "transition-all active:scale-95",
               "text-[10px] font-bold tracking-wider text-zinc-900 dark:text-white",
-              isPurchasing ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+              (isPurchasing || buttonState === 'processing') ? "cursor-not-allowed" : "cursor-pointer",
+              buttonState === 'acquired' && "bg-emerald-500/20 border-emerald-500/50"
             )}
           >
-            <span>{isPurchasing ? '...' : 'GET'}</span>
-            {!isPurchasing && <Download size={12} className="text-zinc-700 dark:text-white/70" />}
+            {/* Прогресс-бар overlay */}
+            {buttonState === 'processing' && (
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-indigo-500/30 to-violet-500/30"
+                initial={{ width: '0%' }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.1, ease: 'linear' }}
+              />
+            )}
+            
+            {/* Контент кнопки */}
+            <span className="relative z-10 flex items-center gap-1.5">
+              {buttonState === 'processing' ? (
+                <>
+                  <span>PROCESSING</span>
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                  >
+                    <Download size={12} className="text-zinc-700 dark:text-white/70" />
+                  </motion.div>
+                </>
+              ) : buttonState === 'acquired' ? (
+                <>
+                  <Check size={12} className="text-emerald-500" />
+                  <span>ACQUIRED</span>
+                </>
+              ) : (
+                <>
+                  <span>GET</span>
+                  <Download size={12} className="text-zinc-700 dark:text-white/70" />
+                </>
+              )}
+            </span>
           </button>
         )}
       </div>
@@ -304,6 +416,18 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
           </div>
         </motion.div>
       )}
+      
+      {/* Floating Cost */}
+      <AnimatePresence>
+        {showFloatingCost && (
+          <FloatingCost
+            cost={boost.cost_coins}
+            x={floatingCostPos.x}
+            y={floatingCostPos.y}
+            onComplete={() => setShowFloatingCost(false)}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }, (prevProps, nextProps) => {

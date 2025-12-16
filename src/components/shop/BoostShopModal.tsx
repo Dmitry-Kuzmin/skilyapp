@@ -10,7 +10,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useUserContext, UserContext } from '@/contexts/UserContext';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';
-import Confetti from 'react-confetti';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { BoostCard } from './BoostCard';
@@ -22,7 +21,8 @@ import { usePremium } from '@/hooks/usePremium';
 import { RewardedAdModal } from '@/components/monetization/RewardedAdModal';
 import { StarsPaymentButton } from '@/components/monetization/StarsPaymentButton';
 import { CryptomusPaymentPreview } from '@/components/monetization/CryptomusPaymentPreview';
-import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
+import { getTelegramWebApp, isTelegramMiniApp, triggerHapticFeedback } from '@/lib/telegram';
+import { NumberTicker } from '@/components/ui/NumberTicker';
 import { dispatchUserEvent } from '@/lib/notification-events';
 import { PAYMENT_CONFIG, isPaymentMethodAvailable } from '@/lib/payment-config';
 import { useOfflineQueue } from '@/hooks/useOfflineQueue';
@@ -129,7 +129,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     itemName: string;
   } | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showConfetti, setShowConfetti] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [paddle, setPaddle] = useState<Paddle | null>(null);
@@ -908,6 +907,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       return;
     }
 
+    // Haptic feedback при клике на покупку (Telegram)
+    if (isTelegramMiniApp()) {
+      triggerHapticFeedback('medium');
+    }
+
     // Устанавливаем флаг загрузки сразу
     setBoostPurchaseLoading(boost.type);
 
@@ -1057,8 +1061,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       trackOfflineAction('boost-purchase', true);
 
       // Анимации и звуки
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 3000);
       sounds.correctAnswer();
       haptics.boostActivated();
 
@@ -1175,17 +1177,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const ModalContent = () => {
     return (
       <div ref={modalContentRef} className="h-full flex flex-col">
-        {/* ОПТИМИЗАЦИЯ: Confetti только когда модалка открыта */}
-        {open && showConfetti && (
-          <Confetti
-            width={window.innerWidth}
-            height={window.innerHeight}
-            recycle={false}
-            numberOfPieces={200}
-            gravity={0.3}
-            onConfettiComplete={() => setShowConfetti(false)}
-          />
-        )}
 
         <div className="relative">
           {isRefreshing && (
@@ -1275,6 +1266,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                       }}
                       category={getBoostCategory(boost.type)}
                       isPurchasing={boostPurchaseLoading === boost.type}
+                      onPurchaseComplete={() => {
+                        // Callback после завершения анимации покупки
+                      }}
                     />
                   ))}
                   {filteredPremiumBoosts.map((boost) => (
@@ -1290,6 +1284,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                       }}
                       category={getBoostCategory(boost.type)}
                       isPurchasing={boostPurchaseLoading === boost.type}
+                      onPurchaseComplete={() => {
+                        // Callback после завершения анимации покупки
+                      }}
                     />
                   ))}
                 </div>
@@ -1410,8 +1407,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                       description: t('boostShop.coins.successDescription', { amount: pack.amount }),
                                       duration: 5000,
                                     });
-                                    setShowConfetti(true);
-                                    setTimeout(() => setShowConfetti(false), 3000);
                                   }}
                                   variant="default"
                                   size="default"
@@ -2031,7 +2026,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             }}
           >
             <Coins className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />
-            <span className="text-sm font-bold font-mono text-yellow-600 dark:text-yellow-500">{coins}</span>
+            <NumberTicker 
+              value={coins} 
+              className="text-sm font-bold font-mono text-yellow-600 dark:text-yellow-500"
+              shouldFlash={true}
+            />
             <History className="w-3 h-3 text-zinc-500 dark:text-white/40 ml-0.5" />
           </button>
         </div>
@@ -2155,8 +2154,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               description: 'Тебе начислено 20 монет за просмотр рекламы',
             });
             
-            setShowConfetti(true);
-            setTimeout(() => setShowConfetti(false), 3000);
           } catch (error: any) {
             console.error('[BoostShop] Error claiming ad reward:', error);
             toast({

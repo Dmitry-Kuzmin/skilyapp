@@ -1361,7 +1361,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000;
 
             if (secondsRemaining <= 0) {
-              log('[DuelBattleFullscreen] ⏱️ Timer expired for question', currentIndex + 1);
+              log('[DuelBattleFullscreen] ⏱️ Timer expired for question', currentIndexRef.current + 1);
               setTimeLeft(0);
               questionEndTimeRef.current = null;
               if (timerIntervalRef.current) {
@@ -1383,7 +1383,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, handleTimeout, setTimeLeft, currentIndex]);
+  }, [isAnswered, isWaitingForOpponent, hasFinishedMyQuestions]);
 
   // ОПТИМИЗАЦИЯ: Сброс дополнительных состояний при смене вопроса
   useEffect(() => {

@@ -75,6 +75,7 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   const [cleanPercent, setCleanPercent] = useState(0);
   const [phase, setPhase] = useState<SpillPhase>('warning'); 
   const [shake, setShake] = useState(0);
+  const [showCompletionMessage, setShowCompletionMessage] = useState(false);
   
   // КРИТИЧНО: Обновляем ref при изменении phase и cleanPercent
   useEffect(() => {
@@ -87,7 +88,7 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
 
   // --- Configuration ---
   // КРИТИЧНО: Адаптивный размер губки - больше на desktop для быстрой очистки
-  const SPONGE_SIZE = isDesktop ? 360 : 160; // Увеличено с 280 до 360 на desktop для более быстрой очистки
+  const SPONGE_SIZE = isDesktop ? 420 : 120; // Desktop: 420, Mobile: 120 (уменьшено с 160 для более точной очистки)
   const REQUIRED_CLEAN_PERCENTAGE = 85; // Увеличено до 85 для более сбалансированной очистки
   
   // Fluid Physics Config - оптимизировано для desktop
@@ -109,6 +110,7 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     if (!isActive) {
       animationStartedRef.current = false;
       currentExpiresAtRef.current = null;
+      setShowCompletionMessage(false);
       return;
     }
   }, [isActive]);
@@ -891,10 +893,11 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     ctx.globalCompositeOperation = 'destination-out';
     const radius = SPONGE_SIZE / 2;
     // КРИТИЧНО: Увеличенные параметры очистки для desktop - более мощная губка
-    const effectiveRadius = isDesktop ? radius * 1.2 : radius * 0.7; // Desktop: 1.2 (увеличено с 1.0), Mobile: 0.7 (норма)
-    const scrubRadius = isDesktop ? radius * 1.0 : radius * 0.6; // Desktop: 1.0 (увеличено с 0.85), Mobile: 0.6 (норма)
-    const scrubDistance = isDesktop ? radius * 0.8 : radius * 0.4; // Desktop: 0.8 (увеличено с 0.65), Mobile: 0.4 (норма)
-    const scrubCount = isDesktop ? 12 : 6; // Desktop: 12 точек (увеличено с 8), Mobile: 6 точек (норма)
+    // Mobile: уменьшены коэффициенты для более точной очистки
+    const effectiveRadius = isDesktop ? radius * 1.3 : radius * 0.5; // Desktop: 1.3, Mobile: 0.5 (уменьшено с 0.7)
+    const scrubRadius = isDesktop ? radius * 1.1 : radius * 0.4; // Desktop: 1.1, Mobile: 0.4 (уменьшено с 0.6)
+    const scrubDistance = isDesktop ? radius * 0.9 : radius * 0.25; // Desktop: 0.9, Mobile: 0.25 (уменьшено с 0.4)
+    const scrubCount = isDesktop ? 14 : 4; // Desktop: 14 точек, Mobile: 4 точки (уменьшено с 6)
     
     // Scrubbing с нормализованными координатами
     ctx.beginPath();
