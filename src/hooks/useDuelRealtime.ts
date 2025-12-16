@@ -86,6 +86,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
   });
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
   const myPlayerIdRef = useRef<string | null | undefined>(myPlayerId);
+  const resolvedExploitIdsRef = useRef<Set<string>>(new Set()); // КРИТИЧНО: Список resolved exploit IDs для фильтрации
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
   const [lastEventAt, setLastEventAt] = useState(() => Date.now());
   const markEvent = () => setLastEventAt(Date.now());
@@ -270,6 +271,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           
             const newExploits = exploits
             .filter(e => e.attacker_player_id !== myPlayerId) // Только атаки НЕ от меня
+            .filter(e => !resolvedExploitIdsRef.current.has(e.id)) // КРИТИЧНО: Фильтруем уже resolved exploits
             .map(e => ({
               id: e.id, // КРИТИЧНО: Сохраняем ID для resolve_exploit
               type: e.exploit_type,
@@ -358,6 +360,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
                 }));
                 
                 const newExploits = fallbackExploits
+                  .filter(e => !resolvedExploitIdsRef.current.has(e.id)) // КРИТИЧНО: Фильтруем уже resolved exploits
                   .map(e => ({
                     id: e.id, // КРИТИЧНО: Сохраняем ID для resolve_exploit
                     type: e.exploit_type,
@@ -785,6 +788,13 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               isForCurrentPlayer: true,
               is_active: true
             });
+            
+            // КРИТИЧНО: Проверяем, не был ли этот exploit уже resolved
+            if (newExploit.id && resolvedExploitIdsRef.current.has(newExploit.id)) {
+              console.log('[useDuelRealtime] ⚠️ Ignoring already resolved exploit from realtime:', newExploit.id);
+              return;
+            }
+            
             log('[useDuelRealtime] 🎯 АТАКА ПОЛУЧЕНА! Exploit type:', newExploit.exploit_type);
             
             // Добавляем в состояние
@@ -1280,6 +1290,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             }));
             
             const newExploitsToAdd = newExploits
+              .filter(e => !resolvedExploitIdsRef.current.has(e.id)) // КРИТИЧНО: Фильтруем уже resolved exploits
               .map(e => ({
                 id: e.id, // КРИТИЧНО: Сохраняем ID для resolve_exploit
                 type: e.exploit_type,
@@ -1386,6 +1397,8 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
   // 🆕 Функция для удаления exploit из состояния (после успешной очистки)
   const removeExploit = useCallback((exploitId: string) => {
     console.log('[useDuelRealtime] 🗑️ Removing exploit from state:', exploitId);
+    // КРИТИЧНО: Добавляем ID в список resolved, чтобы предотвратить повторное добавление
+    resolvedExploitIdsRef.current.add(exploitId);
     setState(prev => {
       const filtered = (prev.activeExploits || []).filter(e => e.id !== exploitId);
       if (filtered.length === prev.activeExploits?.length) {
@@ -1395,7 +1408,8 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       console.log('[useDuelRealtime] ✅ Exploit removed from state:', {
         exploitId,
         remainingExploits: filtered.length,
-        previousCount: prev.activeExploits?.length || 0
+        previousCount: prev.activeExploits?.length || 0,
+        resolvedExploitIds: Array.from(resolvedExploitIdsRef.current)
       });
       return {
         ...prev,
