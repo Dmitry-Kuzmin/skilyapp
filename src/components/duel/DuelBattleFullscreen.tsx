@@ -102,7 +102,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const { activeDuel, saveActiveDuel, updateActiveDuel } = useActiveDuel();
   const { fetchQuestions, fetchPlayers, fetchBoostInventory, fetchBetInfo } = useDuelData(duelId, profileId);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
-  const { state, refreshExploits } = useDuelRealtime(duelId, myPlayerId);
+  const { state, refreshExploits, removeExploit } = useDuelRealtime(duelId, myPlayerId);
   const [duelCode, setDuelCode] = useState<string | null>(null);
   
   // 🆕 Состояние для активных exploits
@@ -2177,12 +2177,27 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       {/* 🆕 Слой спецэффектов (высокий z-index) */}
       {(() => {
         // КРИТИЧНО: Проверяем ВСЕ возможные типы атаки "Масло"
-        const screenInjector = state.activeExploits?.find(e => 
-          e.type === 'screen_injector' || 
-          e.type === 'data_leak' || 
-          e.type === 'oil_spill'
-        );
-        const policeRaid = state.activeExploits?.find(e => e.type === 'police_backdoor');
+        // Также фильтруем истекшие exploits (с буфером 5 секунд для компенсации лага)
+        const now = Date.now();
+        const NETWORK_LATENCY_BUFFER_MS = 5000;
+        const screenInjector = state.activeExploits?.find(e => {
+          const isCorrectType = e.type === 'screen_injector' || 
+                                e.type === 'data_leak' || 
+                                e.type === 'oil_spill';
+          if (!isCorrectType) return false;
+          
+          // Проверяем, не истек ли exploit (с буфером)
+          const isExpired = e.expiresAt <= now;
+          const expiredBy = now - e.expiresAt;
+          // Игнорируем только если истек более чем на 5 секунд
+          return !isExpired || expiredBy <= NETWORK_LATENCY_BUFFER_MS;
+        });
+        const policeRaid = state.activeExploits?.find(e => {
+          if (e.type !== 'police_backdoor') return false;
+          const isExpired = e.expiresAt <= now;
+          const expiredBy = now - e.expiresAt;
+          return !isExpired || expiredBy <= NETWORK_LATENCY_BUFFER_MS;
+        });
         const policePassed = activeExploits.get('police_backdoor')?.passed || false;
         
         // КРИТИЧНО: Проверяем passed статус для всех возможных типов
@@ -2270,9 +2285,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 exploitId={screenInjector.id}
                 onCleaned={() => {
                   console.log('[DuelBattleFullscreen] 🛢️ OilSplashAttack cleaned, exploit type:', screenInjector.type);
+                  
+                  // КРИТИЧНО: Удаляем exploit из состояния useDuelRealtime
+                  if (screenInjector.id) {
+                    removeExploit(screenInjector.id);
+                  }
+                  
+                  // КРИТИЧНО: Обновляем passed статус в локальном Map
                   setActiveExploits(prev => {
                     const updated = new Map(prev);
-                    // КРИТИЧНО: Обновляем passed статус для правильного типа
                     const exploitType = screenInjector.type;
                     const current = updated.get(exploitType);
                     if (current) {

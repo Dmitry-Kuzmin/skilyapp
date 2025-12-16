@@ -1383,5 +1383,63 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     }
   }, [duelId, profileId, recoverActiveExploits, connectionStatus]);
 
-  return { state, broadcast, connectionStatus, lastEventAt, refreshExploits };
+  // 🆕 Функция для удаления exploit из состояния (после успешной очистки)
+  const removeExploit = useCallback((exploitId: string) => {
+    console.log('[useDuelRealtime] 🗑️ Removing exploit from state:', exploitId);
+    setState(prev => {
+      const filtered = (prev.activeExploits || []).filter(e => e.id !== exploitId);
+      if (filtered.length === prev.activeExploits?.length) {
+        // Ничего не изменилось
+        return prev;
+      }
+      console.log('[useDuelRealtime] ✅ Exploit removed from state:', {
+        exploitId,
+        remainingExploits: filtered.length,
+        previousCount: prev.activeExploits?.length || 0
+      });
+      return {
+        ...prev,
+        activeExploits: filtered
+      };
+    });
+  }, []);
+
+  // 🆕 Функция для фильтрации истекших exploits (проверяем каждые 2 секунды)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = Date.now();
+      setState(prev => {
+        if (!prev.activeExploits || prev.activeExploits.length === 0) {
+          return prev;
+        }
+        
+        // Фильтруем истекшие exploits (с буфером 5 секунд для компенсации лага)
+        const NETWORK_LATENCY_BUFFER_MS = 5000;
+        const validExploits = prev.activeExploits.filter(e => {
+          const isExpired = e.expiresAt <= now;
+          const expiredBy = now - e.expiresAt;
+          // Удаляем только если истек более чем на 5 секунд
+          return !isExpired || expiredBy <= NETWORK_LATENCY_BUFFER_MS;
+        });
+        
+        if (validExploits.length === prev.activeExploits.length) {
+          return prev; // Ничего не изменилось
+        }
+        
+        console.log('[useDuelRealtime] 🧹 Cleaned up expired exploits:', {
+          removed: prev.activeExploits.length - validExploits.length,
+          remaining: validExploits.length
+        });
+        
+        return {
+          ...prev,
+          activeExploits: validExploits
+        };
+      });
+    }, 2000); // Проверяем каждые 2 секунды
+    
+    return () => clearInterval(interval);
+  }, []); // Запускаем только один раз
+
+  return { state, broadcast, connectionStatus, lastEventAt, refreshExploits, removeExploit };
 }
