@@ -1092,7 +1092,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   // ОПТИМИЗАЦИЯ: Мемоизируем вычисления safe area (должно быть выше useEffect, который их использует)
   const isTelegramMobile = safeArea.platform === 'ios' || safeArea.platform === 'android';
-  const isTelegramDesktop = safeArea.platform === 'telegram' && !isTelegramMobile;
+  // КРИТИЧНО: Telegram Desktop может иметь платформу 'tdesktop', 'macos', 'windows', 'linux', 'web'
+  // Используем функцию из lib/telegram для правильного определения
+  const isTelegramDesktop = !isTelegramMobile && (
+    safeArea.platform === 'tdesktop' ||
+    safeArea.platform === 'macos' ||
+    safeArea.platform === 'windows' ||
+    safeArea.platform === 'linux' ||
+    safeArea.platform === 'web' ||
+    safeArea.platform === 'telegram'
+  );
 
   const safeAreaValues = useMemo(() => {
     // Вычисляем общий верхний отступ: системный safe area + отступ от нативной панели Telegram
@@ -1495,24 +1504,53 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
         try {
           // КРИТИЧНО: Обновляем сессию перед вызовом RPC (особенно важно для Telegram Desktop)
+          let currentSession = null;
           try {
             const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            currentSession = session;
+            
             if (sessionError) {
-              console.warn('[DuelBattleFullscreen] ⚠️ Session check error (continuing anyway):', sessionError);
+              console.warn('[DuelBattleFullscreen] ⚠️ Session check error (continuing anyway):', {
+                error: sessionError,
+                platform: safeArea.platform,
+                isTelegramDesktop
+              });
             }
             
-            // Если сессия истекает в ближайшее время (< 5 минут), обновляем её
-            if (session?.expires_at && session.expires_at - Date.now() / 1000 < 300) {
-              console.log('[DuelBattleFullscreen] 🔄 Session expiring soon, refreshing...');
-              const { error: refreshError } = await supabase.auth.refreshSession();
-              if (refreshError) {
-                console.warn('[DuelBattleFullscreen] ⚠️ Failed to refresh session (continuing anyway):', refreshError);
-              } else {
-                console.log('[DuelBattleFullscreen] ✅ Session refreshed successfully');
+            if (!session) {
+              console.warn('[DuelBattleFullscreen] ⚠️ No active session found!', {
+                platform: safeArea.platform,
+                isTelegramDesktop,
+                profileId
+              });
+            } else {
+              const expiresIn = session.expires_at ? session.expires_at - Date.now() / 1000 : null;
+              console.log('[DuelBattleFullscreen] 📋 Session info:', {
+                hasSession: true,
+                expiresIn: expiresIn ? `${Math.round(expiresIn)}s` : 'unknown',
+                platform: safeArea.platform,
+                isTelegramDesktop
+              });
+              
+              // Если сессия истекает в ближайшее время (< 5 минут), обновляем её
+              if (expiresIn !== null && expiresIn < 300) {
+                console.log('[DuelBattleFullscreen] 🔄 Session expiring soon, refreshing...');
+                const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
+                if (refreshError) {
+                  console.warn('[DuelBattleFullscreen] ⚠️ Failed to refresh session (continuing anyway):', refreshError);
+                } else {
+                  console.log('[DuelBattleFullscreen] ✅ Session refreshed successfully', {
+                    newExpiresIn: refreshedSession?.expires_at ? `${Math.round(refreshedSession.expires_at - Date.now() / 1000)}s` : 'unknown'
+                  });
+                }
               }
             }
           } catch (sessionCheckError) {
-            console.warn('[DuelBattleFullscreen] ⚠️ Error checking/refreshing session (continuing anyway):', sessionCheckError);
+            console.warn('[DuelBattleFullscreen] ⚠️ Error checking/refreshing session (continuing anyway):', {
+              error: sessionCheckError,
+              platform: safeArea.platform,
+              isTelegramDesktop
+            });
           }
 
           // 🆕 Используем RPC функцию вместо Edge Function для надежности в Telegram Mini Apps
@@ -1552,7 +1590,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               message: rpcError.message,
               code: rpcError.code,
               details: rpcError.details,
-              hint: rpcError.hint
+              hint: rpcError.hint,
+              platform: safeArea.platform,
+              isTelegramDesktop,
+              profileId,
+              duelId,
+              boostType,
+              hasSession: !!await supabase.auth.getSession().then(r => r.data.session)
             });
             throw rpcError;
           }
