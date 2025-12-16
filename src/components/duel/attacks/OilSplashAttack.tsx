@@ -75,7 +75,7 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
 
   // --- Configuration ---
   // КРИТИЧНО: Адаптивный размер губки - больше на desktop для быстрой очистки
-  const SPONGE_SIZE = isDesktop ? 240 : 160; // Увеличено с 160 до 240 на desktop
+  const SPONGE_SIZE = isDesktop ? 320 : 160; // Увеличено с 240 до 320 на desktop для еще более быстрой очистки
   const REQUIRED_CLEAN_PERCENTAGE = 80; // Снижено с 97 до 80 для более легкого завершения
   
   // Fluid Physics Config - оптимизировано для desktop
@@ -708,8 +708,9 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
                    checkProgressDebounceRef.current = null;
                  }
                  
-                 // КРИТИЧНО: Меняем фазу на completed перед вызовом onCleaned
+                 // КРИТИЧНО: Меняем фазу на completed и показываем уведомление
                  setPhase('completed');
+                 setShowCompletionMessage(true);
                  
                  // КРИТИЧНО: Деактивируем exploit на сервере через RPC
                  if (exploitId) {
@@ -729,15 +730,19 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
                    console.warn('[OilSplashAttack] ⚠️ No exploitId provided, skipping server-side resolve');
                  }
                  
-                 // КРИТИЧНО: Используем безопасный вызов с небольшой задержкой для визуализации
+                 // КРИТИЧНО: Скрываем уведомление через 2 секунды и вызываем onCleaned
                  setTimeout(() => {
-                   if (onCleaned && typeof onCleaned === 'function') {
-                     console.log('[OilSplashAttack] ✅ Calling onCleaned after completion delay');
-                     onCleaned();
-                   } else {
-                     console.error('[OilSplashAttack] ❌ onCleaned is not a function:', typeof onCleaned);
-                   }
-                 }, 1500); // Даем 1.5 секунды на показ сообщения о завершении
+                   setShowCompletionMessage(false);
+                   // Небольшая задержка перед вызовом onCleaned для плавного перехода
+                   setTimeout(() => {
+                     if (onCleaned && typeof onCleaned === 'function') {
+                       console.log('[OilSplashAttack] ✅ Calling onCleaned after completion delay');
+                       onCleaned();
+                     } else {
+                       console.error('[OilSplashAttack] ❌ onCleaned is not a function:', typeof onCleaned);
+                     }
+                   }, 300); // Небольшая задержка для плавного исчезновения
+                 }, 2000); // Показываем уведомление 2 секунды
             }
           } catch (e: any) {
             console.error('[OilSplashAttack] ❌ Error in checkProgress RAF:', e);
@@ -819,15 +824,16 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     
     ctx.globalCompositeOperation = 'destination-out';
     const radius = SPONGE_SIZE / 2;
-    // КРИТИЧНО: Увеличиваем эффективный радиус очистки на desktop (с 0.7 до 1.0)
-    const effectiveRadius = isDesktop ? radius * 1.0 : radius * 0.7;
-    const scrubRadius = isDesktop ? radius * 0.8 : radius * 0.6;
-    const scrubDistance = isDesktop ? radius * 0.6 : radius * 0.4;
+    // КРИТИЧНО: Увеличиваем эффективный радиус очистки на desktop для еще более быстрой очистки
+    const effectiveRadius = isDesktop ? radius * 1.2 : radius * 0.7; // Увеличено с 1.0 до 1.2 на desktop
+    const scrubRadius = isDesktop ? radius * 1.0 : radius * 0.6; // Увеличено с 0.8 до 1.0 на desktop
+    const scrubDistance = isDesktop ? radius * 0.8 : radius * 0.4; // Увеличено с 0.6 до 0.8 на desktop
+    const scrubCount = isDesktop ? 10 : 6; // Больше точек скрабирования на desktop
     
     // Scrubbing с нормализованными координатами
     ctx.beginPath();
     ctx.arc(canvasX, canvasY, effectiveRadius, 0, Math.PI*2);
-    for(let i=0; i<6; i++) {
+    for(let i=0; i<scrubCount; i++) {
         const a = Math.random() * Math.PI*2;
         const d = Math.random() * scrubDistance;
         ctx.arc(canvasX + Math.cos(a)*d, canvasY + Math.sin(a)*d, scrubRadius, 0, Math.PI*2);
@@ -1177,9 +1183,9 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
       )}
 
       {/* COMPLETION MESSAGE */}
-      {phase === 'completed' && (
+      {phase === 'completed' && showCompletionMessage && (
         <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
-          <div className="bg-green-600/95 backdrop-blur-md border-4 border-green-400 px-12 py-8 rounded-2xl shadow-2xl text-center animate-fade-in">
+          <div className="bg-green-600/95 backdrop-blur-md border-4 border-green-400 px-12 py-8 rounded-2xl shadow-2xl text-center animate-fade-in transition-opacity duration-300">
             <div className="flex flex-col items-center gap-4">
               <div className="text-6xl animate-bounce">✅</div>
               <h2 className="text-3xl font-bold text-white font-mono tracking-wider">
