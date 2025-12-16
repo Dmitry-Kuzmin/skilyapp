@@ -1585,6 +1585,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           });
 
           if (rpcError) {
+            // Проверяем сессию для диагностики
+            const { data: { session: errorSession } } = await supabase.auth.getSession();
             console.error('[DuelBattleFullscreen] ❌❌❌ RPC ERROR ❌❌❌:', {
               error: rpcError,
               message: rpcError.message,
@@ -1596,7 +1598,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               profileId,
               duelId,
               boostType,
-              hasSession: !!await supabase.auth.getSession().then(r => r.data.session)
+              hasSession: !!errorSession,
+              sessionExpiresAt: errorSession?.expires_at,
+              sessionExpiresIn: errorSession?.expires_at ? `${Math.round(errorSession.expires_at - Date.now() / 1000)}s` : 'N/A'
             });
             throw rpcError;
           }
