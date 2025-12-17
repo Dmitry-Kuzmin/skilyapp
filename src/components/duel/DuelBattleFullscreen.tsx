@@ -45,6 +45,7 @@ import { lazy, Suspense } from 'react';
 import { useDuelHeartbeat } from '@/hooks/useDuelHeartbeat';
 
 // 🆕 Lazy loading для модалок (разрывает возможные циклические зависимости)
+// КРИТИЧНО: Все модалки должны быть lazy для предотвращения TDZ ошибок
 const ExitDuelModal = lazy(() => import('./ExitDuelModal').then(m => ({ default: m.ExitDuelModal })));
 const AutoWinTimer = lazy(() => import('./AutoWinTimer').then(m => ({ default: m.AutoWinTimer })));
 const OpponentConnectionStatus = lazy(() => import('./OpponentConnectionStatus').then(m => ({ default: m.OpponentConnectionStatus })));

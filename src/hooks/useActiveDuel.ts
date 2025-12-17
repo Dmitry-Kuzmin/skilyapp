@@ -21,6 +21,29 @@ export function useActiveDuel() {
   const [activeDuel, setActiveDuel] = useState<ActiveDuelState | null>(null);
   const [isChecking, setIsChecking] = useState(true);
 
+  // КРИТИЧНО: Объявляем checkDuelStatus ПЕРЕД useEffect, который его использует
+  // Это предотвращает TDZ (Temporal Dead Zone) ошибки
+  const checkDuelStatus = async (duelId: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase
+        .from('duels')
+        .select('status')
+        .eq('id', duelId)
+        .single();
+      
+      if (error) {
+        console.error('[useActiveDuel] Error checking duel status:', error);
+        return false;
+      }
+      
+      // Дуэль активна если статус 'active' или 'waiting'
+      return data?.status === 'active' || data?.status === 'waiting';
+    } catch (error) {
+      console.error('[useActiveDuel] Exception checking duel status:', error);
+      return false;
+    }
+  };
+
   // Загружаем сохраненное состояние при монтировании (БЕЗ запросов к БД)
   useEffect(() => {
     const saved = localStorage.getItem(ACTIVE_DUEL_STORAGE_KEY);
@@ -81,27 +104,6 @@ export function useActiveDuel() {
       setIsChecking(false);
     }
   }, []);
-
-  const checkDuelStatus = async (duelId: string): Promise<boolean> => {
-    try {
-      const { data, error } = await supabase
-        .from('duels')
-        .select('status')
-        .eq('id', duelId)
-        .single();
-      
-      if (error) {
-        console.error('[useActiveDuel] Error checking duel status:', error);
-        return false;
-      }
-      
-      // Дуэль активна если статус 'active' или 'waiting'
-      return data?.status === 'active' || data?.status === 'waiting';
-    } catch (error) {
-      console.error('[useActiveDuel] Exception checking duel status:', error);
-      return false;
-    }
-  };
 
   const saveActiveDuel = useCallback((state: Omit<ActiveDuelState, 'timestamp'>) => {
     const stateWithTimestamp: ActiveDuelState = {
