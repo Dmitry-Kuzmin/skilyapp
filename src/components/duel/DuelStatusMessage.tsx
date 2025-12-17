@@ -1,8 +1,7 @@
 import { motion } from 'framer-motion';
 import { UserX, LogOut, Trophy, AlertTriangle, Clock, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-type DuelStatus = 'not_started' | 'player_left' | 'opponent_left' | 'technical_draw' | 'under_review' | 'abandoned';
+import type { DuelStatus } from '@/features/duel/shared';
 
 interface DuelStatusMessageProps {
   status: DuelStatus;

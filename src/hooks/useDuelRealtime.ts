@@ -2,6 +2,10 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { useUserContext } from '@/contexts/UserContext';
+import type { ActiveExploit, DuelRealtimeState } from '@/features/duel/shared';
+
+// Re-export для обратной совместимости
+export type { ActiveExploit, DuelRealtimeState } from '@/features/duel/shared';
 
 // ОПТИМИЗАЦИЯ: Условное логирование только в development
 const isDev = import.meta.env.DEV;
@@ -20,37 +24,6 @@ const logWarn = (...args: any[]) => {
 const debugFetch = (data: any) => {
   // Отключено для стабильности
 };
-
-// 🆕 Интерфейс для активных exploits
-export interface ActiveExploit {
-  id?: string; // ID exploit из БД (для resolve_exploit)
-  type: string;
-  data: {
-    duration_ms?: number;
-    popup_count?: number;
-    delay_ms?: number;
-    shuffle_duration_ms?: number;
-    [key: string]: any;
-  };
-  receivedAt: number;
-  expiresAt: number;
-}
-
-export interface DuelRealtimeState {
-  opponentJoined: boolean;
-  opponentScore: number;
-  opponentAnswered: boolean;
-  opponentAnswerData: any | null;
-  duelStarted: boolean;
-  duelFinished: boolean;
-  currentQuestion: number;
-  opponentCorrectCount: number;
-  myScore: number;
-  opponentActivityStatus: 'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline';
-  opponentLastSeen: Date | null;
-  // 🆕 Активные exploits (для State Recovery)
-  activeExploits?: ActiveExploit[];
-}
 
 export function useDuelRealtime(duelId: string | null, myPlayerId?: string | null) {
   const { profileId } = useUserContext();

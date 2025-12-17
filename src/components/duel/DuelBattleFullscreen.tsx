@@ -43,6 +43,7 @@ import { PoliceBackdoorAttack } from './attacks/PoliceBackdoorAttack';
 import { InputLagWrapper } from './attacks/InputLagWrapper';
 import { lazy, Suspense } from 'react';
 import { useDuelHeartbeat } from '@/hooks/useDuelHeartbeat';
+import { GRACE_PERIOD_MS, AUTO_WIN_TIMEOUT_MS } from '@/features/duel/shared';
 
 // 🆕 Lazy loading для модалок (разрывает возможные циклические зависимости)
 // КРИТИЧНО: Все модалки должны быть lazy для предотвращения TDZ ошибок
@@ -583,36 +584,29 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     try {
       log('[DuelBattleFullscreen] 🏆 Claiming technical win...');
       
-      const { data, error } = await supabase.rpc('claim_technical_win', {
-        p_duel_id: duelId,
-        p_profile_id: profileId,
-      });
+      // КРИТИЧНО: Используем сервисный файл вместо прямого RPC вызова
+      // Это предотвращает циклические зависимости
+      const { claimTechnicalWin } = await import('@/services/duelTechnicalWin');
+      const result = await claimTechnicalWin(duelId, profileId);
 
-      if (error) {
-        logError('[DuelBattleFullscreen] Error claiming technical win:', error);
+      if (!result.success) {
+        logError('[DuelBattleFullscreen] Error claiming technical win:', result.error);
         toast.error('Ошибка при получении победы', {
-          description: error.message,
+          description: result.error || 'Неизвестная ошибка',
         });
         return;
       }
 
-      if (data?.success) {
-        log('[DuelBattleFullscreen] ✅ Technical win claimed successfully');
-        toast.success('🏆 Техническая победа!', {
-          description: 'Оппонент отключился',
-          duration: 3000,
-        });
-        
-        // Переходим к результатам
-        setTimeout(() => {
-          onDuelFinished();
-        }, 2000);
-      } else {
-        logWarn('[DuelBattleFullscreen] Technical win claim failed:', data?.error);
-        toast.warning('Не удалось получить победу', {
-          description: data?.error || 'Неизвестная ошибка',
-        });
-      }
+      log('[DuelBattleFullscreen] ✅ Technical win claimed successfully');
+      toast.success('🏆 Техническая победа!', {
+        description: 'Оппонент отключился',
+        duration: 3000,
+      });
+      
+      // Переходим к результатам
+      setTimeout(() => {
+        onDuelFinished();
+      }, 2000);
     } catch (error) {
       logError('[DuelBattleFullscreen] Exception claiming technical win:', error);
       toast.error('Ошибка при получении победы');
@@ -625,9 +619,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       setShowAutoWinTimer(false);
       return;
     }
-
-    const GRACE_PERIOD_MS = 10000; // 10 секунд grace period
-    const AUTO_WIN_TIMEOUT_MS = 60000; // 60 секунд до авто-победы
 
     const updateTimer = () => {
       const timeSinceLastSeen = Date.now() - opponentLastSeen.getTime();

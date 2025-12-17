@@ -1,21 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import type { ActiveDuelState } from '@/features/duel/shared';
+import { ACTIVE_DUEL_STORAGE_KEY, MAX_STORAGE_AGE_MS, STALE_DUEL_AGE_MS } from '@/features/duel/shared';
 
-export interface ActiveDuelState {
-  duelId: string;
-  duelCode: string | null;
-  mode: 'battle' | 'waiting';
-  currentIndex?: number;
-  myScore: number;
-  opponentScore: number;
-  totalQuestions: number;
-  myName: string;
-  opponentName: string;
-  timestamp: number; // Для проверки актуальности
-}
-
-const ACTIVE_DUEL_STORAGE_KEY = 'active_duel_state';
-const MAX_STORAGE_AGE_MS = 30 * 60 * 1000; // 30 минут
+// Re-export для обратной совместимости
+export type { ActiveDuelState } from '@/features/duel/shared';
 
 export function useActiveDuel() {
   // КРИТИЧНО: Синхронная проверка зависших дуэлей ДО инициализации состояния
@@ -28,7 +17,6 @@ export function useActiveDuel() {
       const state: ActiveDuelState = JSON.parse(saved);
       
       // КРИТИЧНО: Синхронная проверка возраста - если дуэль старше 15 минут, сразу очищаем
-      const STALE_DUEL_AGE_MS = 15 * 60 * 1000; // 15 минут
       const age = Date.now() - (state.timestamp || 0);
       
       if (age > MAX_STORAGE_AGE_MS) {

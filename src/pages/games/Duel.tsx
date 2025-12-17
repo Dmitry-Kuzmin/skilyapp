@@ -28,8 +28,7 @@ import { Switch } from '@/components/ui/switch';
 import { useLumiToast } from '@/hooks/useLumiToast';
 import { toast } from 'sonner';
 import { useActiveDuel } from '@/hooks/useActiveDuel';
-
-type GameMode = 'menu' | 'create' | 'join' | 'battle' | 'result';
+import type { GameMode } from '@/features/duel/shared';
 
 const INSURANCE_RATE = 0.15;
 const COVERAGE_RATE = 0.6;
