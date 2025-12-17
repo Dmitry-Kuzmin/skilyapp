@@ -2,7 +2,8 @@ import { motion } from 'framer-motion';
 import { memo } from 'react';
 import { getImageUrl } from '@/utils/imageUtils';
 import { InputLagWrapper } from './attacks/InputLagWrapper';
-import { EncryptionFlashlightProvider, EncryptedText } from './attacks/EncryptionFlashlight';
+import { EncryptionFlashlight } from './attacks/EncryptionFlashlight';
+import { Scrambler } from '@/utils/scramble';
 
 interface QuestionOption {
   id: string;
@@ -60,15 +61,15 @@ export const DuelQuestionCard = memo(({
   const answerOptions = (question.question_snapshot.answer_options || [])
     .sort((a, b) => a.position - b.position);
 
+  // Контент карточки
   const cardContent = (
     <div className="bg-card/95 backdrop-blur-sm border border-border rounded-3xl p-4 md:p-6 lg:p-8 shadow-2xl flex-1 flex flex-col overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
-      {/* Question Image - скрываем в зашифрованном слое */}
+      {/* Question Image */}
       {question.question_snapshot.image_url && getImageUrl(question.question_snapshot.image_url) && (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="mb-6 rounded-2xl overflow-hidden bg-muted/50"
-          style={cryptolockerActive && !isAnswered ? { display: 'none' } : {}}
         >
           <img
             src={getImageUrl(question.question_snapshot.image_url) || ''}
@@ -79,17 +80,9 @@ export const DuelQuestionCard = memo(({
       )}
 
       {/* Question Text */}
-      {cryptolockerActive && !isAnswered ? (
-        <EncryptedText className="mb-6">
-          <h2 className="text-xl md:text-2xl font-bold leading-relaxed break-words min-h-[60px] md:min-h-[80px]">
-            {questionText}
-          </h2>
-        </EncryptedText>
-      ) : (
-        <h2 className="text-xl md:text-2xl font-bold mb-6 leading-relaxed text-foreground break-words">
-          {questionText}
-        </h2>
-      )}
+      <h2 className="text-xl md:text-2xl font-bold mb-6 leading-relaxed text-foreground break-words min-h-[60px] md:min-h-[80px]">
+        {cryptolockerActive && !isAnswered ? <Scrambler>{questionText}</Scrambler> : questionText}
+      </h2>
 
       {/* Answer Options */}
       <div className="grid gap-3">
@@ -149,15 +142,9 @@ export const DuelQuestionCard = memo(({
                   {isCorrect ? '✓' : '✗'}
                 </motion.div>
               )}
-              {cryptolockerActive && !isAnswered ? (
-                <EncryptedText className="block pr-10 text-base break-words hyphens-auto">
-                  {optionText}
-                </EncryptedText>
-              ) : (
-                <span className="block pr-10 text-base break-words hyphens-auto">
-                  {optionText}
-                </span>
-              )}
+              <span className="block pr-10 text-base break-words hyphens-auto">
+                {cryptolockerActive && !isAnswered ? <Scrambler>{optionText}</Scrambler> : optionText}
+              </span>
             </motion.button>
           );
 
@@ -187,13 +174,13 @@ export const DuelQuestionCard = memo(({
     </div>
   );
 
-  // Обертываем весь контент в провайдер фонарика, если атака активна
+  // Если cryptolocker активен - оборачиваем весь контент в один EncryptionFlashlight
   if (cryptolockerActive && !isAnswered) {
-    const radius = typeof window !== 'undefined' && window.innerWidth < 768 ? 120 : 160;
+    const radius = typeof window !== 'undefined' && window.innerWidth < 768 ? 140 : 180;
     return (
-      <EncryptionFlashlightProvider isActive={true} flashlightRadius={radius}>
+      <EncryptionFlashlight isActive={true} flashlightRadius={radius}>
         {cardContent}
-      </EncryptionFlashlightProvider>
+      </EncryptionFlashlight>
     );
   }
 
