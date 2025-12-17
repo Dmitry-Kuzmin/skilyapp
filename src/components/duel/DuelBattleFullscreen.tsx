@@ -613,6 +613,41 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [duelId, profileId, onDuelFinished]);
 
+  // 🆕 Auto-Win логика: отслеживание отключения оппонента и запуск таймера
+  useEffect(() => {
+    if (!isDuelActive || !opponentLastSeen || opponentIsConnected) {
+      setShowAutoWinTimer(false);
+      return;
+    }
+
+    const GRACE_PERIOD_MS = 10000; // 10 секунд grace period
+    const AUTO_WIN_TIMEOUT_MS = 60000; // 60 секунд до авто-победы
+
+    const updateTimer = () => {
+      const timeSinceLastSeen = Date.now() - opponentLastSeen.getTime();
+
+      // Если прошло больше grace period, но меньше timeout - показываем таймер
+      if (timeSinceLastSeen > GRACE_PERIOD_MS && timeSinceLastSeen < AUTO_WIN_TIMEOUT_MS) {
+        const remaining = AUTO_WIN_TIMEOUT_MS - timeSinceLastSeen;
+        setAutoWinTimeRemaining(Math.ceil(remaining / 1000));
+        setShowAutoWinTimer(true);
+      } else if (timeSinceLastSeen >= AUTO_WIN_TIMEOUT_MS) {
+        // Время вышло - вызываем claim_technical_win
+        setShowAutoWinTimer(false);
+        handleAutoWin();
+      } else {
+        setShowAutoWinTimer(false);
+      }
+    };
+
+    // Обновляем сразу
+    updateTimer();
+
+    // Обновляем каждую секунду
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [isDuelActive, opponentLastSeen, opponentIsConnected, handleAutoWin]);
+
   // Обновление статуса активности при чтении вопроса
   useEffect(() => {
     if (!duelId || !profileId || !questions.length || !state.duelStarted) return;
