@@ -272,12 +272,9 @@ export default function Duel() {
 
                     if (error || !data) {
                         console.error('[Duel] Error checking duel status for restore:', error);
-                        // Fallback: используем сохраненный режим
-                        if (activeDuel.mode === 'battle') {
-                            handleDuelStarted(activeDuel.duelId);
-                        } else if (activeDuel.mode === 'waiting') {
-                            setMode('create');
-                        }
+                        // КРИТИЧНО: При ошибке проверки - очищаем зависшее состояние
+                        console.log('[Duel] ⚠️ Error checking duel, clearing stale state');
+                        clearActiveDuel();
                         return;
                     }
 
@@ -306,12 +303,9 @@ export default function Duel() {
                     }
                 } catch (err) {
                     console.error('[Duel] Exception checking duel status for restore:', err);
-                    // Fallback: используем сохраненный режим
-                    if (activeDuel.mode === 'battle') {
-                        handleDuelStarted(activeDuel.duelId);
-                    } else if (activeDuel.mode === 'waiting') {
-                        setMode('create');
-                    }
+                    // КРИТИЧНО: При исключении - очищаем зависшее состояние
+                    console.log('[Duel] ⚠️ Exception checking duel, clearing stale state');
+                    clearActiveDuel();
                 }
             };
 
