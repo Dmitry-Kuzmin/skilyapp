@@ -42,6 +42,10 @@ import { OilSplashAttack } from './attacks/OilSplashAttack';
 import { PoliceBackdoorAttack } from './attacks/PoliceBackdoorAttack';
 import { InputLagWrapper } from './attacks/InputLagWrapper';
 import { ExitDuelModal } from './ExitDuelModal';
+import { useDuelHeartbeat } from '@/hooks/useDuelHeartbeat';
+import { AutoWinTimer } from './AutoWinTimer';
+import { OpponentConnectionStatus } from './OpponentConnectionStatus';
+import { ReconnectionModal } from './ReconnectionModal';
 
 // КРИТИЧНО: Мемоизированный компонент для OilSplashAttack
 // Предотвращает повторный рендеринг при неизменных props
@@ -97,6 +101,50 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       console.log(`SELECT * FROM duel_active_exploits WHERE duel_id = '${duelId}' ORDER BY activated_at DESC LIMIT 5;`);
     }
   }, [duelId]);
+
+  // 🆕 Проверка переподключения при монтировании (если страница была перезагружена)
+  useEffect(() => {
+    if (!duelId || !profileId) return;
+
+    const checkReconnection = async () => {
+      try {
+        // Проверяем, есть ли активная дуэль
+        const { data: duel } = await supabase
+          .from('duels')
+          .select('status')
+          .eq('id', duelId)
+          .single();
+
+        if (duel?.status === 'active') {
+          // Проверяем, был ли игрок отключен
+          const { data: myPlayer } = await supabase
+            .from('duel_players')
+            .select('is_connected, last_heartbeat_at')
+            .eq('duel_id', duelId)
+            .eq('user_id', profileId)
+            .single();
+
+          // Если был отключен или heartbeat старый - показываем модалку
+          if (!myPlayer?.is_connected || !myPlayer?.last_heartbeat_at) {
+            const timeSinceLastHeartbeat = myPlayer?.last_heartbeat_at
+              ? Date.now() - new Date(myPlayer.last_heartbeat_at).getTime()
+              : Infinity;
+
+            // Если прошло больше 10 секунд - показываем модалку
+            if (timeSinceLastHeartbeat > 10000) {
+              setShowReconnectionModal(true);
+            }
+          }
+        }
+      } catch (error) {
+        logError('[DuelBattleFullscreen] Error checking reconnection:', error);
+      }
+    };
+
+    // Небольшая задержка для загрузки данных
+    const timeout = setTimeout(checkReconnection, 1000);
+    return () => clearTimeout(timeout);
+  }, [duelId, profileId]);
 
   const [isWaitingHidden, setIsWaitingHidden] = useState(false);
   const [showSurrenderModal, setShowSurrenderModal] = useState(false);
@@ -252,7 +300,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const [opponentPhotoUrl, setOpponentPhotoUrl] = useState<string | null>(null);
   const [opponentActivityStatus, setOpponentActivityStatus] = useState<'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline'>('online');
   const [opponentLastSeen, setOpponentLastSeen] = useState<Date | null>(null);
+  const [opponentIsConnected, setOpponentIsConnected] = useState<boolean>(true);
+  const [showReconnectionModal, setShowReconnectionModal] = useState(false);
+  const [isReconnecting, setIsReconnecting] = useState(false);
+  const [reconnectAttempt, setReconnectAttempt] = useState(0);
   const previousActivityStatusRef = useRef<'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline'>('online');
+  
+  // 🆕 Auto-Win состояния
+  const [showAutoWinTimer, setShowAutoWinTimer] = useState(false);
+  const [autoWinTimeRemaining, setAutoWinTimeRemaining] = useState(60); // секунды
+  const isDuelActive = state.duelStarted && !state.duelFinished;
 
   // Settings states
   const [showDuelSettings, setShowDuelSettings] = useState(false);
@@ -460,57 +517,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // ОПТИМИЗАЦИЯ: Heartbeat используется только как fallback при отсутствии Realtime
   // Realtime подписка отслеживает активность в реальном времени через useDuelRealtime
   // Heartbeat вызывается только если Realtime не работает (каждые 60 секунд)
-  useEffect(() => {
-    if (!duelId || !profileId || !state.duelStarted) return;
-
-    let heartbeatInterval: NodeJS.Timeout | null = null;
-    let lastRealtimeEvent = state.lastEventAt || Date.now();
-    const REALTIME_TIMEOUT = 30000; // 30 секунд без событий = Realtime не работает
-
-    // Проверяем, работает ли Realtime (есть ли события)
-    const checkRealtimeHealth = () => {
-      const timeSinceLastEvent = Date.now() - lastRealtimeEvent;
-      return timeSinceLastEvent < REALTIME_TIMEOUT && state.connectionStatus === 'connected';
-    };
-
-    // Heartbeat только как fallback
-    heartbeatInterval = setInterval(async () => {
-      // Если Realtime работает, heartbeat не нужен
-      if (checkRealtimeHealth()) {
-        log('[DuelBattleFullscreen] Realtime active, skipping heartbeat');
-        return;
-      }
-
-      // Realtime не работает - используем heartbeat как fallback
-      log('[DuelBattleFullscreen] Realtime inactive, using heartbeat fallback');
-      try {
-        const { data, error } = await supabase.functions.invoke('duel-manager', {
-          body: {
-            action: 'heartbeat',
-            duel_id: duelId,
-            profile_id: profileId
-          }
-        });
-
-        if (error) {
-          logError('[DuelBattleFullscreen] Heartbeat error:', error);
-        } else if (data?.opponent_status) {
-          setOpponentActivityStatus(data.opponent_status);
-        }
-      } catch (error) {
-        logError('[DuelBattleFullscreen] Heartbeat exception:', error);
-      }
-    }, 60000); // Увеличено до 60 секунд - только fallback
-
-    // Обновляем lastRealtimeEvent при событиях Realtime
-    // (useDuelRealtime уже отслеживает изменения через lastEventAt)
-
-    return () => {
-      if (heartbeatInterval) {
-        clearInterval(heartbeatInterval);
-      }
-    };
-  }, [duelId, profileId, state.duelStarted, state.lastEventAt, state.connectionStatus]);
+  // 🆕 Heartbeat для отслеживания активности (используем новый хук)
+  useDuelHeartbeat({
+    duelId: isDuelActive ? duelId : null,
+    profileId: isDuelActive ? profileId : null,
+    enabled: isDuelActive,
+    interval: 5000, // 5 секунд
+  });
 
   // Синхронизация статуса активности из Realtime
   useEffect(() => {
@@ -521,6 +534,119 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       setOpponentLastSeen(state.opponentLastSeen);
     }
   }, [state.opponentActivityStatus, state.opponentLastSeen]);
+
+  // 🆕 Отслеживание статуса оппонента (is_connected, last_heartbeat_at)
+  useEffect(() => {
+    if (!isDuelActive || !duelId || !profileId || !myPlayerId) return;
+
+    const fetchOpponentStatus = async () => {
+      try {
+        // Получаем данные оппонента из duel_players
+        const { data: players } = await supabase
+          .from('duel_players')
+          .select('id, user_id, is_connected, last_heartbeat_at')
+          .eq('duel_id', duelId);
+
+        if (!players || players.length < 2) return;
+
+        const opponent = players.find((p: any) => p.user_id !== profileId);
+        if (!opponent) return;
+
+        setOpponentIsConnected(opponent.is_connected || false);
+        
+        if (opponent.last_heartbeat_at) {
+          setOpponentLastSeen(new Date(opponent.last_heartbeat_at));
+        }
+      } catch (error) {
+        logError('[DuelBattleFullscreen] Error fetching opponent status:', error);
+      }
+    };
+
+    // Загружаем сразу
+    fetchOpponentStatus();
+
+    // Обновляем каждые 5 секунд
+    const interval = setInterval(fetchOpponentStatus, 5000);
+    return () => clearInterval(interval);
+  }, [isDuelActive, duelId, profileId, myPlayerId]);
+
+  // 🆕 Auto-Win логика: отслеживание отключения оппонента и запуск таймера
+  useEffect(() => {
+    if (!isDuelActive || !opponentLastSeen || opponentIsConnected) {
+      setShowAutoWinTimer(false);
+      return;
+    }
+
+    const GRACE_PERIOD_MS = 10000; // 10 секунд grace period
+    const AUTO_WIN_TIMEOUT_MS = 60000; // 60 секунд до авто-победы
+
+    const updateTimer = () => {
+      const timeSinceLastSeen = Date.now() - opponentLastSeen.getTime();
+
+      // Если прошло больше grace period, но меньше timeout - показываем таймер
+      if (timeSinceLastSeen > GRACE_PERIOD_MS && timeSinceLastSeen < AUTO_WIN_TIMEOUT_MS) {
+        const remaining = AUTO_WIN_TIMEOUT_MS - timeSinceLastSeen;
+        setAutoWinTimeRemaining(Math.ceil(remaining / 1000));
+        setShowAutoWinTimer(true);
+      } else if (timeSinceLastSeen >= AUTO_WIN_TIMEOUT_MS) {
+        // Время вышло - вызываем claim_technical_win
+        setShowAutoWinTimer(false);
+        handleAutoWin();
+      } else {
+        setShowAutoWinTimer(false);
+      }
+    };
+
+    // Обновляем сразу
+    updateTimer();
+
+    // Обновляем каждую секунду
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [isDuelActive, opponentLastSeen, opponentIsConnected, handleAutoWin]);
+
+  // 🆕 Обработчик авто-победы
+  const handleAutoWin = useCallback(async () => {
+    if (!duelId || !profileId) return;
+
+    try {
+      log('[DuelBattleFullscreen] 🏆 Claiming technical win...');
+      
+      const { data, error } = await supabase.rpc('claim_technical_win', {
+        p_duel_id: duelId,
+        p_profile_id: profileId,
+      });
+
+      if (error) {
+        logError('[DuelBattleFullscreen] Error claiming technical win:', error);
+        toast.error('Ошибка при получении победы', {
+          description: error.message,
+        });
+        return;
+      }
+
+      if (data?.success) {
+        log('[DuelBattleFullscreen] ✅ Technical win claimed successfully');
+        toast.success('🏆 Техническая победа!', {
+          description: 'Оппонент отключился',
+          duration: 3000,
+        });
+        
+        // Переходим к результатам
+        setTimeout(() => {
+          onDuelFinished();
+        }, 2000);
+      } else {
+        logWarn('[DuelBattleFullscreen] Technical win claim failed:', data?.error);
+        toast.warning('Не удалось получить победу', {
+          description: data?.error || 'Неизвестная ошибка',
+        });
+      }
+    } catch (error) {
+      logError('[DuelBattleFullscreen] Exception claiming technical win:', error);
+      toast.error('Ошибка при получении победы');
+    }
+  }, [duelId, profileId, onDuelFinished]);
 
   // Обновление статуса активности при чтении вопроса
   useEffect(() => {
@@ -2152,23 +2278,35 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             : 'mb-3 md:mb-4' // Обычный отступ для браузера
           }`}>
           {/* Scores - Enhanced - Центрированы в мобильной версии Telegram */}
-          <DuelScoreBoard
-            myScore={myScore}
-            opponentScore={opponentScore}
-            myName={myName}
-            opponentName={opponentName}
-            myPhotoUrl={myPhotoUrl}
-            opponentPhotoUrl={opponentPhotoUrl}
-            myInsuranceActive={myInsuranceActive}
-            myCoverageDisplay={myCoverageDisplay}
-            opponentInsuranceActive={opponentInsuranceActive}
-            opponentCoverageDisplay={opponentCoverageDisplay}
-            opponentActivityStatus={opponentActivityStatus}
-            opponentAnswered={state.opponentAnswered}
-            betInfo={betInfo}
-            seasonBonusDisplay={seasonBonusDisplay}
-            isTelegramMobile={isTelegramMobile}
-          />
+          <div className="relative">
+            <DuelScoreBoard
+              myScore={myScore}
+              opponentScore={opponentScore}
+              myName={myName}
+              opponentName={opponentName}
+              myPhotoUrl={myPhotoUrl}
+              opponentPhotoUrl={opponentPhotoUrl}
+              myInsuranceActive={myInsuranceActive}
+              myCoverageDisplay={myCoverageDisplay}
+              opponentInsuranceActive={opponentInsuranceActive}
+              opponentCoverageDisplay={opponentCoverageDisplay}
+              opponentActivityStatus={opponentActivityStatus}
+              opponentAnswered={state.opponentAnswered}
+              betInfo={betInfo}
+              seasonBonusDisplay={seasonBonusDisplay}
+              isTelegramMobile={isTelegramMobile}
+            />
+            
+            {/* 🆕 Opponent Connection Status */}
+            {opponentLastSeen && (
+              <div className="absolute -top-2 -right-2 z-30">
+                <OpponentConnectionStatus
+                  isConnected={opponentIsConnected}
+                  timeSinceLastHeartbeat={Date.now() - opponentLastSeen.getTime()}
+                />
+              </div>
+            )}
+          </div>
 
           {/* Right Side - Boosts & Combo */}
           <div className={`flex items-center gap-1.5 flex-wrap ${isTelegramMobile ? 'w-full justify-center mt-1' : ''}`}>
@@ -2238,8 +2376,18 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -50 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="flex-1 flex flex-col min-h-0"
+          className="flex-1 flex flex-col min-h-0 relative"
         >
+          {/* 🆕 Auto-Win Timer Overlay */}
+          {showAutoWinTimer && (
+            <div className="absolute inset-0 bg-zinc-900/80 backdrop-blur-sm rounded-xl z-50 flex items-center justify-center">
+              <AutoWinTimer
+                timeRemaining={autoWinTimeRemaining}
+                onComplete={handleAutoWin}
+              />
+            </div>
+          )}
+          
           <DuelQuestionCard
             question={currentQuestion}
             selectedAnswer={selectedAnswer}
@@ -2424,6 +2572,52 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         onOpenChange={setShowSurrenderModal}
         duelId={duelId}
         onSurrender={onExit}
+      />
+
+      {/* 🆕 Reconnection Modal */}
+      <ReconnectionModal
+        open={showReconnectionModal}
+        onResume={async () => {
+          setIsReconnecting(true);
+          setReconnectAttempt(prev => prev + 1);
+          
+          // Пытаемся восстановить соединение
+          try {
+            // Отправляем heartbeat для обновления статуса
+            await supabase.functions.invoke('duel-manager', {
+              body: {
+                action: 'heartbeat',
+                duel_id: duelId,
+                profile_id: profileId,
+              },
+            });
+            
+            // Ждем немного и проверяем статус
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Проверяем, что дуэль еще активна
+            const { data: duel } = await supabase
+              .from('duels')
+              .select('status')
+              .eq('id', duelId)
+              .single();
+            
+            if (duel?.status === 'active') {
+              setShowReconnectionModal(false);
+              setIsReconnecting(false);
+              toast.success('Соединение восстановлено!');
+            } else {
+              toast.error('Дуэль уже завершена');
+              onDuelFinished();
+            }
+          } catch (error) {
+            logError('[DuelBattleFullscreen] Reconnection error:', error);
+            toast.error('Не удалось восстановить соединение');
+            setIsReconnecting(false);
+          }
+        }}
+        onSurrender={onExit}
+        isReconnecting={isReconnecting}
       />
     </div>
   );
