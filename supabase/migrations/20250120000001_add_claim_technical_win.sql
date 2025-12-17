@@ -24,6 +24,18 @@ DECLARE
   v_opponent_score INTEGER;
   v_bet_amount INTEGER;
   v_is_opponent_connected BOOLEAN;
+  -- Переменные для обработки ставок
+  v_bet_row RECORD;
+  v_opponent_user_id UUID;
+  v_total_pot INTEGER;
+  v_winner_payout INTEGER;
+  v_host_user_id UUID;
+  v_host_outcome TEXT;
+  v_opponent_outcome TEXT;
+  v_host_season_sp INTEGER;
+  v_opponent_season_sp INTEGER;
+  v_opponent_coverage INTEGER;
+  v_host_coverage INTEGER;
 BEGIN
   -- 1. Блокируем строку дуэли для избежания Race Condition
   -- Если кто-то другой уже завершает дуэль, мы подождем
@@ -128,11 +140,135 @@ BEGIN
     )
   );
 
-  -- 9. (Опционально) Распределяем ставки
-  -- IF v_bet_amount > 0 THEN 
-  --   -- Здесь должна быть логика settleBetPayout из Edge Function
-  --   -- Для упрощения оставляем комментарий
-  -- END IF;
+  -- 9. Распределяем ставки (если есть)
+  -- КРИТИЧНО: Победитель получает весь банк (betAmount * 2), так как оппонент отключился
+  -- Ставки уже списаны до начала матча (Hold), поэтому просто переводим победителю
+  IF v_bet_amount > 0 THEN
+    -- Получаем данные о ставке
+    SELECT * INTO v_bet_row
+    FROM public.duel_bets
+    WHERE duel_id = p_duel_id
+    LIMIT 1;
+
+    -- Получаем ID оппонента
+    SELECT user_id INTO v_opponent_user_id
+    FROM public.duel_players
+    WHERE id = v_opponent_player_id;
+
+    -- Получаем host_user из дуэли
+    SELECT host_user INTO v_host_user_id
+    FROM public.duels
+    WHERE id = p_duel_id;
+
+    IF v_bet_row IS NOT NULL AND v_opponent_user_id IS NOT NULL THEN
+      -- Банк полностью игрокам - комиссия убрана
+      v_total_pot := v_bet_amount * 2;
+      v_winner_payout := v_total_pot;
+
+      -- Начисляем монеты победителю
+      PERFORM public.increment_profile_value(
+        p_profile_id := p_profile_id,
+        p_column := 'coins',
+        p_amount := v_winner_payout
+      );
+
+      -- Записываем транзакцию
+      INSERT INTO public.duel_transactions (
+        duel_id,
+        user_id,
+        amount,
+        transaction_type
+      ) VALUES (
+        p_duel_id,
+        p_profile_id,
+        v_winner_payout,
+        'win'
+      );
+
+      -- Обработка страховки (если включена)
+      -- ПРИМЕЧАНИЕ: Полная логика страховки из Edge Function может быть добавлена позже
+      -- Здесь базовая версия - возвращаем страховку проигравшему, если она была
+      IF v_bet_row.host_user = p_profile_id AND v_bet_row.opponent_insurance_enabled THEN
+        -- Победитель - хост, возвращаем страховку оппоненту
+        IF v_bet_row.opponent_coverage_rate > 0 THEN
+          v_opponent_coverage := CEIL(v_bet_amount * v_bet_row.opponent_coverage_rate);
+          PERFORM public.increment_profile_value(
+            p_profile_id := v_opponent_user_id,
+            p_column := 'coins',
+            p_amount := v_opponent_coverage
+          );
+          INSERT INTO public.duel_transactions (
+            duel_id, user_id, amount, transaction_type
+          ) VALUES (
+            p_duel_id, v_opponent_user_id, v_opponent_coverage, 'insurance_refund'
+          );
+        END IF;
+      ELSIF v_bet_row.opponent_user = p_profile_id AND v_bet_row.host_insurance_enabled THEN
+        -- Победитель - оппонент, возвращаем страховку хосту
+        IF v_bet_row.host_coverage_rate > 0 THEN
+          v_host_coverage := CEIL(v_bet_amount * v_bet_row.host_coverage_rate);
+          PERFORM public.increment_profile_value(
+            p_profile_id := v_host_user_id,
+            p_column := 'coins',
+            p_amount := v_host_coverage
+          );
+          INSERT INTO public.duel_transactions (
+            duel_id, user_id, amount, transaction_type
+          ) VALUES (
+            p_duel_id, v_host_user_id, v_host_coverage, 'insurance_refund'
+          );
+        END IF;
+      END IF;
+
+      -- Определяем исходы для расчета Season SP
+      v_host_outcome := CASE 
+        WHEN v_host_user_id = p_profile_id THEN 'win'
+        ELSE 'lose'
+      END;
+      v_opponent_outcome := CASE 
+        WHEN v_opponent_user_id = p_profile_id THEN 'win'
+        ELSE 'lose'
+      END;
+
+      -- Расчет Season SP (упрощенная версия)
+      -- ПРИМЕЧАНИЕ: Полная логика с risk multiplier может быть добавлена позже
+      v_host_season_sp := CASE 
+        WHEN v_host_outcome = 'win' THEN 20
+        ELSE 5
+      END;
+      v_opponent_season_sp := CASE 
+        WHEN v_opponent_outcome = 'win' THEN 20
+        ELSE 5
+      END;
+
+      -- Обновляем статус ставки
+      UPDATE public.duel_bets
+      SET 
+        status = 'settled',
+        season_sp_host = v_host_season_sp,
+        season_sp_opponent = v_opponent_season_sp
+      WHERE duel_id = p_duel_id;
+
+      -- Записываем в историю ставок
+      INSERT INTO public.duel_bet_history (
+        bet_id,
+        duel_id,
+        result,
+        payout_host,
+        payout_opponent,
+        season_sp_host,
+        season_sp_opponent
+      ) VALUES (
+        v_bet_row.id,
+        p_duel_id,
+        CASE WHEN v_host_user_id = p_profile_id THEN 'host_win' ELSE 'opponent_win' END,
+        CASE WHEN v_host_user_id = p_profile_id THEN v_winner_payout ELSE 0 END,
+        CASE WHEN v_opponent_user_id = p_profile_id THEN v_winner_payout ELSE 0 END,
+        v_host_season_sp,
+        v_opponent_season_sp
+      );
+    END IF;
+  END IF;
 
   RETURN jsonb_build_object(
     'success', true,
