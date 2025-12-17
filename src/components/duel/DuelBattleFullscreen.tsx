@@ -1446,7 +1446,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
 
     // 🆕 Определяем, является ли буст Root Mode exploit (атакой)
-    const rootModeExploits = ['screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall'];
+    const rootModeExploits = ['screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall', 'cryptolocker'];
     const isExploit = rootModeExploits.includes(boostType);
 
     // 🆕 Названия бустов для отображения
@@ -1456,6 +1456,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       gps_spoofing: 'GPS Spoofing',
       police_backdoor: 'Police Backdoor',
       firewall: 'Firewall',
+      cryptolocker: 'Cryptolocker',
       rewind: 'Rewind',
     };
 
@@ -1813,7 +1814,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       // Количество остается прежним, так как RPC функция не выполнила уменьшение
       
       // Определяем isExploit заново для catch блока
-      const rootModeExploits = ['screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall'];
+      const rootModeExploits = ['screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall', 'cryptolocker'];
       const isExploitError = rootModeExploits.includes(boostType);
       
       if (!isExploitError) {
@@ -1982,6 +1983,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // 🆕 Определяем активные exploits
   const inputLagExploit = state.activeExploits?.find(e => e.type === 'input_lag');
   const inputLagActive = !!inputLagExploit && !activeExploits.get('input_lag')?.passed;
+  const cryptolockerExploit = state.activeExploits?.find(e => e.type === 'cryptolocker');
+  const cryptolockerActive = !!cryptolockerExploit && !activeExploits.get('cryptolocker')?.passed;
 
   // УБРАНО: Countdown экран - сразу начинаем битву без задержки
 
@@ -2192,6 +2195,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             onAnswer={handleAnswer}
             inputLagActive={!!activeExploits.get('input_lag') && !activeExploits.get('input_lag')?.passed}
             inputLagDelay={1500}
+            cryptolockerActive={cryptolockerActive}
           />
         </motion.div>
       </div>

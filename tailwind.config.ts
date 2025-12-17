@@ -120,6 +120,10 @@ export default {
           "0%, 100%": { top: "0%" },
           "50%": { top: "100%" },
         },
+        "scan-vertical": {
+          "0%": { transform: "translateY(-100%)" },
+          "100%": { transform: "translateY(100%)" },
+        },
         meshMove: {
           "0%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
@@ -159,6 +163,7 @@ export default {
         "slide-up": "slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
         "spin-slow": "spin-slow 12s linear infinite",
         shake: "shake 0.5s cubic-bezier(.36,.07,.19,.97) both infinite",
+        "scan-vertical": "scan-vertical 3s linear infinite",
       },
     },
   },

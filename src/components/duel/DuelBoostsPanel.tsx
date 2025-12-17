@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Sparkles, Timer, HelpCircle, SkipForward, Globe, Zap, ChevronDown, X, Droplets } from 'lucide-react';
+import { Sparkles, Timer, HelpCircle, SkipForward, Globe, Zap, ChevronDown, X, Droplets, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { memo } from 'react';
 
@@ -60,6 +60,7 @@ export const DuelBoostsPanel = memo(({
           gps_spoofing: { icon: Zap, label: 'GPS Spoof', gradient: 'from-cyan-500 via-blue-500 to-cyan-600', bg: 'bg-gradient-to-br from-cyan-500/90 to-cyan-600/90' },
           police_backdoor: { icon: Zap, label: 'Backdoor', gradient: 'from-yellow-500 via-amber-500 to-yellow-600', bg: 'bg-gradient-to-br from-yellow-500/90 to-yellow-600/90' },
           firewall: { icon: Zap, label: 'Firewall', gradient: 'from-blue-500 via-indigo-500 to-blue-600', bg: 'bg-gradient-to-br from-blue-500/90 to-blue-600/90' },
+          cryptolocker: { icon: Lock, label: 'Cryptolocker', gradient: 'from-emerald-500 via-cyan-500 to-emerald-600', bg: 'bg-gradient-to-br from-emerald-500/90 to-emerald-600/90' },
         }[boost.boost_type] || { icon: Zap, label: boost.boost_type, gradient: 'from-gray-500 to-gray-600', bg: 'bg-gradient-to-br from-gray-500/90 to-gray-600/90' };
 
         const BoostIcon = boostConfig.icon;

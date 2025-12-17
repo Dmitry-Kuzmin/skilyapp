@@ -10,7 +10,7 @@ interface BoostFeedbackProps {
 export const BoostFeedback: React.FC<BoostFeedbackProps> = ({ isActive, boostName, boostType }) => {
   // Определяем иконку и цвет в зависимости от типа буста
   const getBoostStyle = () => {
-    const isExploit = ['screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall'].includes(boostType);
+    const isExploit = ['screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall', 'cryptolocker'].includes(boostType);
     
     if (isExploit) {
       return {

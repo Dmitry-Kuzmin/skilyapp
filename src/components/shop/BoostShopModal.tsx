@@ -1144,7 +1144,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   // Функция определения категории буста по типу
   const getBoostCategory = (type: string): 'utility' | 'exploit' | 'defense' => {
     // Атака (exploit)
-    if (['screen_injector', 'input_lag', 'spam_attack'].includes(type)) {
+    if (['screen_injector', 'input_lag', 'spam_attack', 'cryptolocker'].includes(type)) {
       return 'exploit';
     }
     // Защита (defense)
