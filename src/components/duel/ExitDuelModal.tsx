@@ -49,10 +49,22 @@ export function ExitDuelModal({
   }, [duelId, open]);
 
   const handleSurrender = async () => {
-    if (!profileId || !duelId) return;
+    if (!profileId || !duelId) {
+      console.error('[ExitDuelModal] Missing required data:', {
+        hasProfileId: !!profileId,
+        hasDuelId: !!duelId
+      });
+      toast.error('Недостаточно данных для выхода из дуэли');
+      return;
+    }
 
     setIsSurrendering(true);
     try {
+      console.log('[ExitDuelModal] Calling surrender action:', {
+        duel_id: duelId,
+        profile_id: profileId
+      });
+
       const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'surrender',
@@ -70,19 +82,44 @@ export function ExitDuelModal({
           name: error.name
         });
         
-        // Пытаемся получить детали ошибки
+        // Пытаемся получить детали ошибки из ответа
         let errorMessage = 'Ошибка при выходе из дуэли';
+        let errorDetails = 'Попробуйте еще раз или обновите страницу';
+        
         try {
-          // Supabase FunctionsHttpError может содержать response
-          if (error.context && typeof error.context.json === 'function') {
-            const errorData = await error.context.json();
-            console.error('[ExitDuelModal] Error data from response:', errorData);
-            if (errorData?.error) {
-              errorMessage = errorData.error;
-            } else if (errorData?.details) {
-              errorMessage = `${errorData.error || 'Ошибка'}: ${errorData.details}`;
+          // Supabase FunctionsHttpError может содержать response в context
+          if (error.context) {
+            // Пытаемся получить response из context
+            const response = error.context as any;
+            if (response?.json) {
+              const errorData = await response.json();
+              console.error('[ExitDuelModal] Error data from response:', errorData);
+              if (errorData?.error) {
+                errorMessage = errorData.error;
+              }
+              if (errorData?.details) {
+                errorDetails = errorData.details;
+              }
+            } else if (response?.text) {
+              const errorText = await response.text();
+              console.error('[ExitDuelModal] Error text from response:', errorText);
+              try {
+                const errorData = JSON.parse(errorText);
+                if (errorData?.error) {
+                  errorMessage = errorData.error;
+                }
+                if (errorData?.details) {
+                  errorDetails = errorData.details;
+                }
+              } catch (e) {
+                // Если не JSON, используем текст как есть
+                errorMessage = errorText || errorMessage;
+              }
             }
-          } else if (error.message) {
+          }
+          
+          // Если не удалось извлечь из context, пробуем message
+          if (errorMessage === 'Ошибка при выходе из дуэли' && error.message) {
             errorMessage = error.message;
           }
         } catch (e) {
@@ -91,20 +128,29 @@ export function ExitDuelModal({
         
         toast.error(errorMessage, {
           duration: 5000,
-          description: 'Попробуйте еще раз или обновите страницу'
+          description: errorDetails
         });
         setIsSurrendering(false);
         return;
       }
 
-      if (data?.surrendered) {
+      console.log('[ExitDuelModal] Surrender response:', data);
+
+      // Проверяем успешный ответ
+      if (data?.success || data?.surrendered) {
         toast.info('Вы сдались. Соперник получает победу.');
         onSurrender();
         onOpenChange(false);
+      } else {
+        console.warn('[ExitDuelModal] Unexpected response format:', data);
+        toast.error('Неожиданный ответ от сервера');
+        setIsSurrendering(false);
       }
     } catch (error) {
       console.error('[ExitDuelModal] Exception surrendering:', error);
-      toast.error('Ошибка при выходе из дуэли');
+      toast.error('Ошибка при выходе из дуэли', {
+        description: error instanceof Error ? error.message : 'Неизвестная ошибка'
+      });
       setIsSurrendering(false);
     }
   };

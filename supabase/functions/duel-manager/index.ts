@@ -5124,10 +5124,27 @@ Deno.serve(async (req) => {
 
       case 'surrender': {
         const { duel_id } = params;
-        const userProfileId = params.profile_id || profileId;
+        // profile_id уже извлечен из body в начале функции, используем его напрямую
+        const userProfileId = profileId;
+
+        console.log('[surrender] Starting surrender action:', {
+          duel_id,
+          userProfileId,
+          profileId,
+          paramsKeys: Object.keys(params)
+        });
 
         if (!duel_id || !userProfileId) {
-          return new Response(JSON.stringify({ error: 'duel_id and profile_id are required' }), {
+          console.error('[surrender] Missing required parameters:', {
+            hasDuelId: !!duel_id,
+            hasUserProfileId: !!userProfileId,
+            duel_id,
+            userProfileId
+          });
+          return new Response(JSON.stringify({ 
+            error: 'duel_id and profile_id are required',
+            details: `duel_id: ${duel_id ? 'provided' : 'missing'}, profile_id: ${userProfileId ? 'provided' : 'missing'}`
+          }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
@@ -5141,14 +5158,35 @@ Deno.serve(async (req) => {
           .single();
 
         if (duelError || !duel) {
-          return new Response(JSON.stringify({ error: 'Duel not found' }), {
+          console.error('[surrender] Duel not found:', {
+            duel_id,
+            error: duelError?.message,
+            code: duelError?.code
+          });
+          return new Response(JSON.stringify({ 
+            error: 'Duel not found',
+            details: duelError?.message || 'Duel does not exist'
+          }), {
             status: 404,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
 
+        console.log('[surrender] Duel found:', {
+          duel_id,
+          status: duel.status,
+          bet_amount: duel.bet_amount
+        });
+
         if (duel.status !== 'active') {
-          return new Response(JSON.stringify({ error: 'Duel is not active' }), {
+          console.warn('[surrender] Duel is not active:', {
+            duel_id,
+            current_status: duel.status
+          });
+          return new Response(JSON.stringify({ 
+            error: 'Duel is not active',
+            details: `Current status: ${duel.status}`
+          }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
@@ -5160,24 +5198,86 @@ Deno.serve(async (req) => {
           .select('id, user_id, score, correct_count')
           .eq('duel_id', duel_id);
 
-        if (playersError || !players || players.length < 2) {
-          return new Response(JSON.stringify({ error: 'Not enough players' }), {
+        if (playersError) {
+          console.error('[surrender] Error fetching players:', {
+            duel_id,
+            error: playersError.message,
+            code: playersError.code
+          });
+          return new Response(JSON.stringify({ 
+            error: 'Failed to fetch players',
+            details: playersError.message
+          }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        if (!players || players.length < 2) {
+          console.error('[surrender] Not enough players:', {
+            duel_id,
+            playersCount: players?.length || 0,
+            players: players?.map((p: any) => ({ id: p.id, user_id: p.user_id }))
+          });
+          return new Response(JSON.stringify({ 
+            error: 'Not enough players',
+            details: `Found ${players?.length || 0} players, expected at least 2`
+          }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
 
+        console.log('[surrender] Players found:', {
+          playersCount: players.length,
+          playerUserIds: players.map((p: any) => p.user_id),
+          surrenderingUserId: userProfileId
+        });
+
         const surrenderingPlayer = players.find((p: any) => p.user_id === userProfileId);
         const opponentPlayer = players.find((p: any) => p.user_id !== userProfileId);
 
-        if (!surrenderingPlayer || !opponentPlayer) {
-          return new Response(JSON.stringify({ error: 'Player not found' }), {
+        if (!surrenderingPlayer) {
+          console.error('[surrender] Surrendering player not found:', {
+            duel_id,
+            userProfileId,
+            availableUserIds: players.map((p: any) => p.user_id)
+          });
+          return new Response(JSON.stringify({ 
+            error: 'Player not found',
+            details: `User ${userProfileId} is not a participant in this duel`
+          }), {
             status: 404,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
 
+        if (!opponentPlayer) {
+          console.error('[surrender] Opponent player not found:', {
+            duel_id,
+            surrenderingPlayerId: surrenderingPlayer.id,
+            availableUserIds: players.map((p: any) => p.user_id)
+          });
+          return new Response(JSON.stringify({ 
+            error: 'Opponent not found',
+            details: 'Could not find opponent player'
+          }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        console.log('[surrender] Players identified:', {
+          surrenderingPlayerId: surrenderingPlayer.id,
+          opponentPlayerId: opponentPlayer.id
+        });
+
         // Помечаем игрока как сдавшегося
+        console.log('[surrender] Updating player status:', {
+          playerId: surrenderingPlayer.id,
+          userId: userProfileId
+        });
+
         const { error: updateError } = await supabase
           .from('duel_players')
           .update({
@@ -5188,8 +5288,15 @@ Deno.serve(async (req) => {
           .eq('id', surrenderingPlayer.id);
 
         if (updateError) {
-          console.error('[surrender] Error updating player:', updateError);
+          console.error('[surrender] Error updating player (with surrendered):', {
+            error: updateError.message,
+            code: updateError.code,
+            details: updateError.details,
+            hint: updateError.hint
+          });
+          
           // Пробуем обновить без поля surrendered (на случай если миграция не применена)
+          console.log('[surrender] Attempting fallback update without surrendered field');
           const { error: fallbackError } = await supabase
             .from('duel_players')
             .update({
@@ -5199,15 +5306,23 @@ Deno.serve(async (req) => {
             .eq('id', surrenderingPlayer.id);
 
           if (fallbackError) {
-            console.error('[surrender] Fallback update also failed:', fallbackError);
+            console.error('[surrender] Fallback update also failed:', {
+              error: fallbackError.message,
+              code: fallbackError.code,
+              details: fallbackError.details
+            });
             return new Response(JSON.stringify({ 
               error: 'Failed to update player status',
-              details: updateError.message 
+              details: updateError.message || 'Could not update player status. Please check if migration is applied.'
             }), {
               status: 500,
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             });
+          } else {
+            console.log('[surrender] ✅ Fallback update succeeded (surrendered field may not exist)');
           }
+        } else {
+          console.log('[surrender] ✅ Player status updated successfully');
         }
 
         // Завершаем дуэль - оппонент побеждает
@@ -5216,8 +5331,15 @@ Deno.serve(async (req) => {
         const isDraw = opponentScore === surrenderingScore;
         const winnerUserId = isDraw ? null : opponentPlayer.user_id;
 
+        console.log('[surrender] Calculating results:', {
+          opponentScore,
+          surrenderingScore,
+          isDraw,
+          winnerUserId
+        });
+
         // Обновляем статус дуэли
-        await supabase
+        const { error: duelUpdateError } = await supabase
           .from('duels')
           .update({
             status: 'finished',
@@ -5225,20 +5347,38 @@ Deno.serve(async (req) => {
           })
           .eq('id', duel_id);
 
+        if (duelUpdateError) {
+          console.error('[surrender] Error updating duel status:', {
+            error: duelUpdateError.message,
+            code: duelUpdateError.code
+          });
+          // Не прерываем выполнение, так как игрок уже помечен как сдавшийся
+        } else {
+          console.log('[surrender] ✅ Duel status updated to finished');
+        }
+
         // Обновляем статистику
-        await supabase.rpc('upsert_duel_stats', {
+        const { error: opponentStatsError } = await supabase.rpc('upsert_duel_stats', {
           p_user_id: opponentPlayer.user_id,
           p_is_win: !isDraw,
           p_is_draw: isDraw,
           p_score: opponentScore
         });
 
-        await supabase.rpc('upsert_duel_stats', {
+        if (opponentStatsError) {
+          console.error('[surrender] Error updating opponent stats:', opponentStatsError);
+        }
+
+        const { error: surrenderingStatsError } = await supabase.rpc('upsert_duel_stats', {
           p_user_id: surrenderingPlayer.user_id,
           p_is_win: false,
           p_is_draw: isDraw,
           p_score: surrenderingScore
         });
+
+        if (surrenderingStatsError) {
+          console.error('[surrender] Error updating surrendering player stats:', surrenderingStatsError);
+        }
 
         // Обрабатываем ставки
         if (duel.bet_amount > 0) {
