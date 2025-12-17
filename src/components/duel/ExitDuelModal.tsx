@@ -25,28 +25,42 @@ export function ExitDuelModal({
   const [isSurrendering, setIsSurrendering] = useState(false);
   const [betAmount, setBetAmount] = useState<number>(0);
 
-  // Загружаем информацию о ставке
+  // Загружаем информацию о ставке (используем ту же логику, что и fetchBetInfo)
   useEffect(() => {
     if (!duelId || !open) return;
 
     const fetchBetInfo = async () => {
       try {
         console.log('[ExitDuelModal] Fetching bet info for duel:', duelId);
-        const { data, error } = await supabase
+        
+        // Сначала проверяем bet_amount в duels (как в fetchBetInfo)
+        const { data: duelData, error: duelError } = await supabase
           .from('duels')
           .select('bet_amount')
           .eq('id', duelId)
           .single();
 
-        if (error) {
-          console.error('[ExitDuelModal] Error fetching bet info:', error);
+        if (duelError) {
+          console.error('[ExitDuelModal] Error fetching duel bet_amount:', duelError);
+          setBetAmount(0);
           return;
         }
 
-        console.log('[ExitDuelModal] Bet info loaded:', data);
-        setBetAmount(data?.bet_amount || 0);
+        // Используем ту же логику проверки, что и в fetchBetInfo
+        const betAmountValue = duelData?.bet_amount && duelData.bet_amount > 0 
+          ? Number(duelData.bet_amount) 
+          : 0;
+
+        console.log('[ExitDuelModal] Bet info loaded:', {
+          bet_amount: duelData?.bet_amount,
+          betAmountValue,
+          rawValue: duelData?.bet_amount
+        });
+        
+        setBetAmount(betAmountValue);
       } catch (error) {
         console.error('[ExitDuelModal] Exception fetching bet info:', error);
+        setBetAmount(0);
       }
     };
 
@@ -239,7 +253,10 @@ export function ExitDuelModal({
                   transition={{ delay: 0.3 }}
                   className="px-6 py-6"
                 >
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className={cn(
+                    "grid gap-3",
+                    betAmount > 0 ? "grid-cols-3" : "grid-cols-2"
+                  )}>
                     {/* Победа врагу */}
                     <div className="flex flex-col items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
                       <Trophy className="w-5 h-5 text-red-500" />
@@ -248,19 +265,12 @@ export function ExitDuelModal({
                       </span>
                     </div>
 
-                    {/* Потеря монет */}
-                    {betAmount > 0 ? (
+                    {/* Потеря монет - показываем только если есть ставка */}
+                    {betAmount > 0 && (
                       <div className="flex flex-col items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
                         <Coins className="w-5 h-5 text-red-500" />
                         <span className="text-xs font-semibold text-zinc-300 text-center leading-tight">
                           -{betAmount} монет
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl opacity-50">
-                        <Coins className="w-5 h-5 text-red-500/50" />
-                        <span className="text-xs font-semibold text-zinc-400 text-center leading-tight">
-                          Нет ставки
                         </span>
                       </div>
                     )}
