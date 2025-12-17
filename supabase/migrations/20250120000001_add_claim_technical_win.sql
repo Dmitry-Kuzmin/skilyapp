@@ -1,8 +1,14 @@
+-- Добавляем поле winner_id в таблицу duels (если его еще нет)
+ALTER TABLE public.duels
+ADD COLUMN IF NOT EXISTS winner_id UUID REFERENCES profiles(id) ON DELETE SET NULL;
+
 -- RPC функция для безопасного получения технической победы при отключении оппонента
--- Проверяет на сервере, что оппонент действительно офлайн > 60 секунд
+-- Проверяет на сервере, что оппонент действительно офлайн > 50 секунд
+-- КРИТИЧНО: Тот, кто остался онлайн и вызвал эту функцию, ВСЕГДА побеждает (Technical Win)
+-- Отключение оппонента = автоматическое поражение, независимо от счета
 CREATE OR REPLACE FUNCTION public.claim_technical_win(
   p_duel_id UUID,
-  p_profile_id UUID
+  p_profile_id UUID -- ID того, кто ЗАЯВЛЯЕТ о победе (оставшийся игрок)
 )
 RETURNS JSONB
 LANGUAGE plpgsql
@@ -16,122 +22,95 @@ DECLARE
   v_time_since_heartbeat INTERVAL;
   v_my_score INTEGER;
   v_opponent_score INTEGER;
-  v_winner_user_id UUID;
-  v_is_draw BOOLEAN;
   v_bet_amount INTEGER;
-  v_host_user UUID;
+  v_is_opponent_connected BOOLEAN;
 BEGIN
-  -- Проверяем, что дуэль существует и активна
-  SELECT status, bet_amount, host_user
-  INTO v_duel_status, v_bet_amount, v_host_user
+  -- 1. Блокируем строку дуэли для избежания Race Condition
+  -- Если кто-то другой уже завершает дуэль, мы подождем
+  SELECT status, bet_amount
+  INTO v_duel_status, v_bet_amount
   FROM public.duels
-  WHERE id = p_duel_id;
+  WHERE id = p_duel_id
+  FOR UPDATE; -- <--- ВАЖНО: предотвращает одновременные вызовы
 
   IF NOT FOUND THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error', 'Duel not found'
-    );
+    RETURN jsonb_build_object('success', false, 'error', 'Duel not found');
   END IF;
 
   IF v_duel_status != 'active' THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error', format('Duel is not active, current status: %s', v_duel_status)
-    );
+    RETURN jsonb_build_object('success', false, 'error', 'Duel is already finished');
   END IF;
 
-  -- Получаем ID игроков
-  SELECT id INTO v_my_player_id
+  -- 2. Получаем ID игроков
+  SELECT id, score INTO v_my_player_id, v_my_score
   FROM public.duel_players
   WHERE duel_id = p_duel_id AND user_id = p_profile_id;
 
   IF NOT FOUND THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error', 'Player not found in duel'
-    );
+    RETURN jsonb_build_object('success', false, 'error', 'You are not in this duel');
   END IF;
 
-  SELECT id INTO v_opponent_player_id
+  SELECT id, last_heartbeat_at, score, is_connected
+  INTO v_opponent_player_id, v_opponent_last_heartbeat, v_opponent_score, v_is_opponent_connected
   FROM public.duel_players
-  WHERE duel_id = p_duel_id AND user_id != p_profile_id;
+  WHERE duel_id = p_duel_id AND user_id != p_profile_id
+  LIMIT 1; -- <--- Защита, если вдруг записей больше
 
   IF NOT FOUND THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error', 'Opponent not found'
-    );
+    RETURN jsonb_build_object('success', false, 'error', 'Opponent not found');
   END IF;
 
-  -- Получаем последний heartbeat оппонента
-  SELECT last_heartbeat_at, score
-  INTO v_opponent_last_heartbeat, v_opponent_score
-  FROM public.duel_players
-  WHERE id = v_opponent_player_id;
-
-  -- Получаем свой счет
-  SELECT score INTO v_my_score
-  FROM public.duel_players
-  WHERE id = v_my_player_id;
-
-  -- Вычисляем время с последнего heartbeat
+  -- 3. Вычисляем время с последнего heartbeat
   IF v_opponent_last_heartbeat IS NULL THEN
-    v_time_since_heartbeat := INTERVAL '1000 seconds'; -- Если heartbeat никогда не был - считаем офлайн
+    -- Если соперник зашел в лобби, но ни разу не пинганул - считаем что он отвалился давно
+    v_time_since_heartbeat := INTERVAL '1000 seconds'; 
   ELSE
     v_time_since_heartbeat := NOW() - v_opponent_last_heartbeat;
   END IF;
 
-  -- КРИТИЧНО: Проверяем на сервере, что оппонент действительно офлайн > 50 секунд
-  -- (50 секунд вместо 60 для учета задержек сети)
+  -- 4. СЕРВЕРНАЯ ПРОВЕРКА (Grace Period)
+  -- 50 секунд - разумный буфер (клиент ждет 60, сервер разрешает после 50)
   IF EXTRACT(EPOCH FROM v_time_since_heartbeat) < 50 THEN
     RETURN jsonb_build_object(
       'success', false,
-      'error', 'Opponent is still online or grace period not expired',
-      'time_since_heartbeat_seconds', EXTRACT(EPOCH FROM v_time_since_heartbeat)
+      'error', 'Opponent is still theoretically online',
+      'debug_seconds', EXTRACT(EPOCH FROM v_time_since_heartbeat)
     );
   END IF;
 
-  -- Проверяем, что оппонент действительно отключен
-  SELECT is_connected INTO v_is_draw FROM public.duel_players WHERE id = v_opponent_player_id;
-  -- Если оппонент помечен как подключенный, но heartbeat старый - обновляем статус
-  IF v_is_draw THEN
+  -- 5. Обновляем статус оппонента (для чистоты данных)
+  IF v_is_opponent_connected THEN
     UPDATE public.duel_players
-    SET is_connected = false, activity_status = 'offline'
+    SET is_connected = false, activity_status = 'timeout'
     WHERE id = v_opponent_player_id;
   END IF;
 
-  -- Определяем победителя
-  v_is_draw := (v_my_score = v_opponent_score);
-  v_winner_user_id := CASE WHEN v_is_draw THEN NULL ELSE p_profile_id END;
-
-  -- Завершаем дуэль
+  -- 6. ФИКСИРУЕМ ПОБЕДУ
+  -- Тот, кто остался - победил. Оппонент - проиграл (дисконнект).
+  -- КРИТИЧНО: Отключение = автоматическое поражение, независимо от счета
   UPDATE public.duels
-  SET status = 'finished', finished_at = NOW()
+  SET 
+    status = 'finished', 
+    finished_at = NOW(),
+    winner_id = p_profile_id -- <--- Записываем победителя в саму дуэль
   WHERE id = p_duel_id;
 
-  -- Обновляем статистику
+  -- 7. Обновляем статистику (ВСЕГДА победа для заявителя, ВСЕГДА поражение для оппонента)
   PERFORM public.upsert_duel_stats(
     p_user_id := p_profile_id,
-    p_is_win := NOT v_is_draw,
-    p_is_draw := v_is_draw,
+    p_is_win := true, -- ВСЕГДА ПОБЕДА
+    p_is_draw := false,
     p_score := v_my_score
   );
 
   PERFORM public.upsert_duel_stats(
     p_user_id := (SELECT user_id FROM public.duel_players WHERE id = v_opponent_player_id),
-    p_is_win := false,
-    p_is_draw := v_is_draw,
+    p_is_win := false, -- ВСЕГДА ПОРАЖЕНИЕ
+    p_is_draw := false,
     p_score := v_opponent_score
   );
 
-  -- Обрабатываем ставки (если есть)
-  IF v_bet_amount > 0 THEN
-    -- Здесь должна быть логика settleBetPayout, но для упрощения возвращаем информацию
-    -- В реальности нужно вызвать функцию обработки ставок
-  END IF;
-
-  -- Логируем инцидент
+  -- 8. Логируем инцидент
   INSERT INTO public.duel_incidents (
     duel_id,
     player_id,
@@ -142,24 +121,30 @@ BEGIN
     v_opponent_player_id,
     'timeout',
     jsonb_build_object(
-      'claimed_by', p_profile_id,
-      'time_since_heartbeat_seconds', EXTRACT(EPOCH FROM v_time_since_heartbeat),
+      'winner_by_claim', p_profile_id,
+      'offline_seconds', EXTRACT(EPOCH FROM v_time_since_heartbeat),
       'my_score', v_my_score,
       'opponent_score', v_opponent_score
     )
   );
 
+  -- 9. (Опционально) Распределяем ставки
+  -- IF v_bet_amount > 0 THEN 
+  --   -- Здесь должна быть логика settleBetPayout из Edge Function
+  --   -- Для упрощения оставляем комментарий
+  -- END IF;
+
   RETURN jsonb_build_object(
     'success', true,
-    'winner_user_id', v_winner_user_id,
-    'is_draw', v_is_draw,
+    'winner_id', p_profile_id,
+    'reason', 'opponent_timeout',
     'my_score', v_my_score,
     'opponent_score', v_opponent_score,
-    'time_since_heartbeat_seconds', EXTRACT(EPOCH FROM v_time_since_heartbeat)
+    'offline_seconds', EXTRACT(EPOCH FROM v_time_since_heartbeat)
   );
 END;
 $$;
 
 -- Комментарий к функции
-COMMENT ON FUNCTION public.claim_technical_win IS 'Safely claims a technical win when opponent is offline > 50 seconds. Server-side verification prevents cheating.';
+COMMENT ON FUNCTION public.claim_technical_win IS 'Safely claims a technical win when opponent is offline > 50 seconds. Server-side verification prevents cheating. The player who stays online ALWAYS wins, regardless of score. Disconnect = automatic forfeit.';
 
