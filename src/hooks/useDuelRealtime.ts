@@ -593,7 +593,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         async (payload) => {
           // КРИТИЧНО: Логируем ВСЕ события, даже если они не для нас (ВСЕГДА, не только в dev)
           const newExploit = payload.new as any;
-          const currentMyPlayerId = myPlayerIdRef.current;
+          let currentMyPlayerId = myPlayerIdRef.current; // let, т.к. может быть изменен ниже
           const isForMe = currentMyPlayerId && newExploit?.target_player_id === currentMyPlayerId;
           
           console.log('[useDuelRealtime] 🔔🔔🔔🔔🔔 POSTGRES_CHANGES EVENT RECEIVED FOR duel_active_exploits 🔔🔔🔔🔔🔔:', {
