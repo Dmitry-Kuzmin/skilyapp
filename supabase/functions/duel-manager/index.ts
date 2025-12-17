@@ -1331,7 +1331,8 @@ Deno.serve(async (req) => {
       actionType: typeof action,
       actionValue: JSON.stringify(action),
       hasFindMatch: action === 'find_match',
-      switchCases: ['create_notification', 'check_status', 'find_match', 'submit_answer', 'use_boost', 'bot_use_boost', 'finish_duel', 'cancel_duel', 'bot_answer']
+      hasSurrender: action === 'surrender',
+      switchCases: ['create_notification', 'check_status', 'find_match', 'submit_answer', 'use_boost', 'bot_use_boost', 'finish_duel', 'cancel_duel', 'bot_answer', 'surrender', 'handle_disconnect', 'auto_finish']
     });
 
     switch (action) {

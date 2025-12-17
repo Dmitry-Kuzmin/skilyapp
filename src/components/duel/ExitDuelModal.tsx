@@ -31,17 +31,22 @@ export function ExitDuelModal({
 
     const fetchBetInfo = async () => {
       try {
+        console.log('[ExitDuelModal] Fetching bet info for duel:', duelId);
         const { data, error } = await supabase
           .from('duels')
           .select('bet_amount')
           .eq('id', duelId)
           .single();
 
-        if (!error && data) {
-          setBetAmount(data.bet_amount || 0);
+        if (error) {
+          console.error('[ExitDuelModal] Error fetching bet info:', error);
+          return;
         }
+
+        console.log('[ExitDuelModal] Bet info loaded:', data);
+        setBetAmount(data?.bet_amount || 0);
       } catch (error) {
-        console.error('[ExitDuelModal] Error fetching bet info:', error);
+        console.error('[ExitDuelModal] Exception fetching bet info:', error);
       }
     };
 
