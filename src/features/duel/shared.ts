@@ -12,6 +12,7 @@
 // ============================================================================
 
 export const ACTIVE_DUEL_STORAGE_KEY = 'active_duel_state';
+export const DUEL_RESULT_SNAPSHOT_KEY = 'duel_last_result_snapshot';
 export const MAX_STORAGE_AGE_MS = 30 * 60 * 1000; // 30 минут
 export const STALE_DUEL_AGE_MS = 15 * 60 * 1000; // 15 минут
 
@@ -102,5 +103,34 @@ export interface ClaimTechnicalWinResult {
   offline_seconds?: number;
   error?: string;
   debug_seconds?: number;
+}
+
+/**
+ * Снимок результатов дуэли для сохранения перед переходом к экрану результатов
+ * Используется для предотвращения race condition когда activeDuel очищается
+ */
+export interface DuelResultSnapshot {
+  duelId: string;
+  duel: any; // Данные дуэли из БД
+  players: any[]; // Массив игроков с профилями
+  myPlayer: any; // Данные моего игрока
+  opponentPlayer: any; // Данные оппонента
+  myAnswers: any[]; // Мои ответы
+  opponentAnswers: any[]; // Ответы оппонента
+  results: {
+    isWinner: boolean;
+    isDraw: boolean;
+    myScore: number;
+    opponentScore: number;
+    myCorrect: number;
+    opponentCorrect: number;
+    opponentName: string;
+    opponentAvatar: string | null;
+    betAmount: number;
+    winnings: number;
+    insuranceRefund: number;
+    insuranceUsed: boolean;
+  };
+  timestamp: number; // Время создания snapshot
 }
 

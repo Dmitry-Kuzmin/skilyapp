@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { saveDuelResultSnapshot, loadDuelResultSnapshot, clearDuelResultSnapshot } from "@/utils/duelResultSnapshot";
+import type { DuelResultSnapshot } from "@/features/duel/shared";
 
 interface DuelResultData {
   duel: any;
@@ -34,6 +36,22 @@ export function useDuelResults(duelId: string | null, profileId: string | null) 
     queryKey: ["duel-results", duelId, profileId],
     queryFn: async () => {
       if (!duelId || !profileId) return null;
+
+      // 🆕 FIX: Проверяем snapshot ПЕРЕД запросом к БД (fallback для race condition)
+      const snapshot = loadDuelResultSnapshot(duelId);
+      if (snapshot) {
+        console.log('[useDuelResults] ✅ Using snapshot data (race condition fix)');
+        // Конвертируем snapshot в формат DuelResultData
+        return {
+          duel: snapshot.duel,
+          players: snapshot.players,
+          myPlayer: snapshot.myPlayer,
+          opponentPlayer: snapshot.opponentPlayer,
+          myAnswers: snapshot.myAnswers,
+          opponentAnswers: snapshot.opponentAnswers,
+          results: snapshot.results,
+        };
+      }
 
       // ОПТИМИЗАЦИЯ: Объединяем все запросы в Promise.all для параллельной загрузки
       // ИСПРАВЛЕНИЕ: Используем maybeSingle() вместо single() для обработки race condition
@@ -140,7 +158,7 @@ export function useDuelResults(duelId: string | null, profileId: string | null) 
         }
       }
 
-      return {
+      const resultData = {
         duel: duelData,
         players,
         myPlayer,
@@ -162,6 +180,16 @@ export function useDuelResults(duelId: string | null, profileId: string | null) 
           insuranceUsed: duelData.insurance_used || false,
         },
       };
+
+      // 🆕 FIX: Сохраняем snapshot для предотвращения race condition при следующей загрузке
+      const snapshot: DuelResultSnapshot = {
+        ...resultData,
+        timestamp: Date.now(),
+      };
+      saveDuelResultSnapshot(snapshot);
+      console.log('[useDuelResults] ✅ Snapshot saved for future use');
+
+      return resultData;
     },
     enabled: !!duelId && !!profileId,
     staleTime: 30 * 1000, // 30 секунд - результаты дуэли редко меняются

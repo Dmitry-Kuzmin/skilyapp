@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { dispatchUserEvent } from '@/lib/notification-events';
 import { cn } from '@/lib/utils';
 import { useDuelResults } from '@/hooks/useDuelResults';
+import { clearDuelResultSnapshot } from '@/utils/duelResultSnapshot';
 import { DataLaunderingButton } from './DataLaunderingButton';
 import { useVignetteBanner } from '@/hooks/useVignetteBanner';
 import { useInterstitialBanner } from '@/hooks/useInterstitialBanner';
@@ -33,6 +34,16 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   
   // ОПТИМИЗАЦИЯ: Используем React Query хук вместо прямых запросов
   const { data: duelResultsData, isLoading: loading, refetch } = useDuelResults(duelId, profileId);
+
+  // 🆕 FIX: Очищаем snapshot при размонтировании компонента (выход с экрана результатов)
+  useEffect(() => {
+    return () => {
+      if (duelId) {
+        clearDuelResultSnapshot();
+        console.log('[DuelResult] ✅ Snapshot cleared on exit');
+      }
+    };
+  }, [duelId]);
   
   const [results, setResults] = useState<any>(null);
   const [myAnswers, setMyAnswers] = useState<any[]>([]);
