@@ -41,10 +41,39 @@ export function useActiveDuel() {
         return;
       }
 
-      // ОПТИМИЗАЦИЯ: Не проверяем статус на сервере при загрузке (экономим запросы)
-      // Проверка будет выполнена только при попытке восстановить дуэль
-      console.log('[useActiveDuel] ✅ Active duel found in localStorage, restoring state');
-      setActiveDuel(state);
+      // КРИТИЧНО: Проверяем возраст - если дуэль старше 15 минут, считаем её зависшей
+      const STALE_DUEL_AGE_MS = 15 * 60 * 1000; // 15 минут
+      if (age > STALE_DUEL_AGE_MS) {
+        console.log('[useActiveDuel] ⚠️ Duel is stale (>15 min), clearing state');
+        localStorage.removeItem(ACTIVE_DUEL_STORAGE_KEY);
+        setActiveDuel(null);
+        setIsChecking(false);
+        return;
+      }
+
+      // КРИТИЧНО: Проверяем статус дуэли на сервере перед восстановлением
+      // Если дуэль уже завершена или не существует - очищаем localStorage
+      checkDuelStatus(state.duelId).then((isActive) => {
+        if (!isActive) {
+          console.log('[useActiveDuel] ⚠️ Duel is no longer active, clearing stale state');
+          localStorage.removeItem(ACTIVE_DUEL_STORAGE_KEY);
+          setActiveDuel(null);
+          setIsChecking(false);
+          return;
+        }
+        
+        console.log('[useActiveDuel] ✅ Active duel found in localStorage, restoring state');
+        setActiveDuel(state);
+        setIsChecking(false);
+      }).catch((error) => {
+        console.error('[useActiveDuel] Error checking duel status:', error);
+        // При ошибке проверки - очищаем состояние для безопасности
+        localStorage.removeItem(ACTIVE_DUEL_STORAGE_KEY);
+        setActiveDuel(null);
+        setIsChecking(false);
+      });
+      
+      return; // Не устанавливаем isChecking здесь, ждем результата проверки
     } catch (error) {
       console.error('[useActiveDuel] Error loading saved state:', error);
       localStorage.removeItem(ACTIVE_DUEL_STORAGE_KEY);

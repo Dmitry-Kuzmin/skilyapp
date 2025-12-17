@@ -283,8 +283,9 @@ export default function Duel() {
 
                     // Определяем правильный экран на основе актуального статуса
                     if (data.status === 'finished') {
-                        // Дуэль завершена - переходим к результатам
-                        console.log('[Duel] ✅ Duel is finished, going to results');
+                        // Дуэль завершена - очищаем состояние и переходим к результатам
+                        console.log('[Duel] ✅ Duel is finished, clearing state and going to results');
+                        clearActiveDuel(); // Очищаем зависшее состояние
                         handleDuelFinished();
                     } else if (data.status === 'active') {
                         // Дуэль активна - проверяем режим сохраненного состояния
