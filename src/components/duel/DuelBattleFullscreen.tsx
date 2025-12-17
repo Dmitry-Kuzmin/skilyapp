@@ -41,11 +41,14 @@ import { useBotOpponent } from '@/hooks/useBotOpponent';
 import { OilSplashAttack } from './attacks/OilSplashAttack';
 import { PoliceBackdoorAttack } from './attacks/PoliceBackdoorAttack';
 import { InputLagWrapper } from './attacks/InputLagWrapper';
-import { ExitDuelModal } from './ExitDuelModal';
+import { lazy, Suspense } from 'react';
 import { useDuelHeartbeat } from '@/hooks/useDuelHeartbeat';
-import { AutoWinTimer } from './AutoWinTimer';
-import { OpponentConnectionStatus } from './OpponentConnectionStatus';
-import { ReconnectionModal } from './ReconnectionModal';
+
+// 🆕 Lazy loading для модалок (разрывает возможные циклические зависимости)
+const ExitDuelModal = lazy(() => import('./ExitDuelModal').then(m => ({ default: m.ExitDuelModal })));
+const AutoWinTimer = lazy(() => import('./AutoWinTimer').then(m => ({ default: m.AutoWinTimer })));
+const OpponentConnectionStatus = lazy(() => import('./OpponentConnectionStatus').then(m => ({ default: m.OpponentConnectionStatus })));
+const ReconnectionModal = lazy(() => import('./ReconnectionModal').then(m => ({ default: m.ReconnectionModal })));
 
 // КРИТИЧНО: Мемоизированный компонент для OilSplashAttack
 // Предотвращает повторный рендеринг при неизменных props
@@ -309,7 +312,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // 🆕 Auto-Win состояния
   const [showAutoWinTimer, setShowAutoWinTimer] = useState(false);
   const [autoWinTimeRemaining, setAutoWinTimeRemaining] = useState(60); // секунды
-  const isDuelActive = state.duelStarted && !state.duelFinished;
+  
+  // КРИТИЧНО: Вычисляем isDuelActive с проверкой на существование state
+  const isDuelActive = Boolean(state?.duelStarted && !state?.duelFinished);
 
   // Settings states
   const [showDuelSettings, setShowDuelSettings] = useState(false);
@@ -2300,10 +2305,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             {/* 🆕 Opponent Connection Status */}
             {opponentLastSeen && (
               <div className="absolute -top-2 -right-2 z-30">
-                <OpponentConnectionStatus
-                  isConnected={opponentIsConnected}
-                  timeSinceLastHeartbeat={Date.now() - opponentLastSeen.getTime()}
-                />
+                <Suspense fallback={null}>
+                  <OpponentConnectionStatus
+                    isConnected={opponentIsConnected}
+                    timeSinceLastHeartbeat={Date.now() - opponentLastSeen.getTime()}
+                  />
+                </Suspense>
               </div>
             )}
           </div>
@@ -2381,10 +2388,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           {/* 🆕 Auto-Win Timer Overlay */}
           {showAutoWinTimer && (
             <div className="absolute inset-0 bg-zinc-900/80 backdrop-blur-sm rounded-xl z-50 flex items-center justify-center">
-              <AutoWinTimer
-                timeRemaining={autoWinTimeRemaining}
-                onComplete={handleAutoWin}
-              />
+              <Suspense fallback={null}>
+                <AutoWinTimer
+                  timeRemaining={autoWinTimeRemaining}
+                  onComplete={handleAutoWin}
+                />
+              </Suspense>
             </div>
           )}
           
@@ -2567,15 +2576,18 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       })()}
 
       {/* Модалка сдачи */}
-      <ExitDuelModal
-        open={showSurrenderModal}
-        onOpenChange={setShowSurrenderModal}
-        duelId={duelId}
-        onSurrender={onExit}
-      />
+      <Suspense fallback={null}>
+        <ExitDuelModal
+          open={showSurrenderModal}
+          onOpenChange={setShowSurrenderModal}
+          duelId={duelId}
+          onSurrender={onExit}
+        />
+      </Suspense>
 
       {/* 🆕 Reconnection Modal */}
-      <ReconnectionModal
+      <Suspense fallback={null}>
+        <ReconnectionModal
         open={showReconnectionModal}
         onResume={async () => {
           setIsReconnecting(true);
