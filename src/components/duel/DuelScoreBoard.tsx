@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Swords, Shield, Zap, Coins, Sparkles } from 'lucide-react';
 import { OpponentActivityIndicator } from './OpponentActivityIndicator';
+import { CompactConnectionStatusIndicator } from './CompactConnectionStatusIndicator';
 import { memo } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -63,6 +64,9 @@ interface DuelScoreBoardProps {
   } | null;
   seasonBonusDisplay: number;
   isTelegramMobile: boolean;
+  // 🆕 Пропсы для компактного индикатора статуса подключения
+  opponentIsConnected?: boolean;
+  opponentLastSeen?: Date | null;
 }
 
 export const DuelScoreBoard = memo(({
@@ -81,6 +85,8 @@ export const DuelScoreBoard = memo(({
   betInfo,
   seasonBonusDisplay,
   isTelegramMobile,
+  opponentIsConnected = true,
+  opponentLastSeen = null,
 }: DuelScoreBoardProps) => {
   return (
     <div className={cn(
@@ -205,6 +211,12 @@ export const DuelScoreBoard = memo(({
               showTooltip={true}
             />
           </div>
+
+          {/* 🆕 Компактный индикатор статуса подключения с таймером авто-победы */}
+          <CompactConnectionStatusIndicator
+            lastSeen={opponentLastSeen}
+            isConnected={opponentIsConnected}
+          />
 
           {/* Иконка страховки рядом с фото */}
           {opponentInsuranceActive && (

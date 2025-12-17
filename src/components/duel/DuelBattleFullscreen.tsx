@@ -24,6 +24,7 @@ import { QuestionProgressBar } from '@/components/QuestionProgressBar';
 import { DuelSettingsMenu } from './DuelSettingsMenu';
 import { Bookmark, BookmarkCheck } from 'lucide-react';
 import { OpponentActivityIndicator } from './OpponentActivityIndicator';
+import { CompactConnectionStatusIndicator } from './CompactConnectionStatusIndicator';
 import { useDuelData } from '@/hooks/useDuelData';
 import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
 import { DuelTimer } from './DuelTimer';
@@ -39,7 +40,7 @@ import { useDuelGame } from '@/hooks/useDuelGame';
 import { useBotOpponent } from '@/hooks/useBotOpponent';
 import { lazy, Suspense } from 'react';
 import { useDuelHeartbeat } from '@/hooks/useDuelHeartbeat';
-import { GRACE_PERIOD_MS, AUTO_WIN_TIMEOUT_MS } from '@/features/duel/shared';
+import { GRACE_PERIOD_MS, UNSTABLE_THRESHOLD_MS, AUTO_WIN_TIMEOUT_MS } from '@/features/duel/shared';
 
 // 🆕 Lazy loading для модалок (разрывает возможные циклические зависимости)
 // КРИТИЧНО: Все модалки должны быть lazy для предотвращения TDZ ошибок
@@ -536,9 +537,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [state.opponentActivityStatus, state.opponentLastSeen]);
 
-  // 🆕 Отслеживание статуса оппонента (is_connected, last_heartbeat_at)
+  // 🆕 Отслеживание статуса оппонента с DEBOUNCE (убирает спам уведомлений)
+  // КРИТИЧНО: Используем debounce для стабильности - не реагируем на кратковременные пропадания сигнала
   useEffect(() => {
     if (!isDuelActive || !duelId || !profileId || !myPlayerId) return;
+
+    let debounceTimeout: NodeJS.Timeout | null = null;
+    let lastKnownStatus: { isConnected: boolean; lastSeen: Date | null } | null = null;
 
     const fetchOpponentStatus = async () => {
       try {
@@ -553,11 +558,42 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         const opponent = players.find((p: any) => p.user_id !== profileId);
         if (!opponent) return;
 
-        setOpponentIsConnected(opponent.is_connected || false);
-        
-        if (opponent.last_heartbeat_at) {
-          setOpponentLastSeen(new Date(opponent.last_heartbeat_at));
+        const newIsConnected = opponent.is_connected || false;
+        const newLastSeen = opponent.last_heartbeat_at ? new Date(opponent.last_heartbeat_at) : null;
+
+        // DEBOUNCE: Если статус изменился на "отключен", ждем GRACE_PERIOD_MS перед обновлением
+        if (!newIsConnected && lastKnownStatus?.isConnected) {
+          // Оппонент только что отключился - запускаем debounce
+          if (debounceTimeout) clearTimeout(debounceTimeout);
+          
+          debounceTimeout = setTimeout(() => {
+            // Проверяем еще раз - может он уже вернулся
+            fetchOpponentStatus();
+          }, GRACE_PERIOD_MS);
+          
+          return; // Не обновляем статус сразу
         }
+
+        // Если оппонент вернулся или статус стабильный - обновляем сразу
+        if (newIsConnected || !lastKnownStatus) {
+          if (debounceTimeout) {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = null;
+          }
+          
+          setOpponentIsConnected(newIsConnected);
+          if (newLastSeen) {
+            setOpponentLastSeen(newLastSeen);
+          }
+        } else {
+          // Оппонент офлайн, но мы уже прошли debounce - обновляем
+          setOpponentIsConnected(newIsConnected);
+          if (newLastSeen) {
+            setOpponentLastSeen(newLastSeen);
+          }
+        }
+
+        lastKnownStatus = { isConnected: newIsConnected, lastSeen: newLastSeen };
       } catch (error) {
         logError('[DuelBattleFullscreen] Error fetching opponent status:', error);
       }
@@ -566,9 +602,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     // Загружаем сразу
     fetchOpponentStatus();
 
-    // Обновляем каждые 5 секунд
-    const interval = setInterval(fetchOpponentStatus, 5000);
-    return () => clearInterval(interval);
+    // Обновляем каждые 3 секунды (чаще для более точного таймера)
+    const interval = setInterval(fetchOpponentStatus, 3000);
+    
+    return () => {
+      if (debounceTimeout) clearTimeout(debounceTimeout);
+      clearInterval(interval);
+    };
   }, [isDuelActive, duelId, profileId, myPlayerId]);
 
   // 🆕 Обработчик авто-победы (объявляем ПЕРЕД useEffect, который его использует)
@@ -607,35 +647,24 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [duelId, profileId, onDuelFinished]);
 
-  // 🆕 Auto-Win логика: отслеживание отключения оппонента и запуск таймера
+  // 🆕 Auto-Win логика: отслеживание отключения оппонента (БЕЗ блокирующего overlay)
+  // КРИТИЧНО: Игра продолжается, таймер показывается только в компактном индикаторе
   useEffect(() => {
     if (!isDuelActive || !opponentLastSeen || opponentIsConnected) {
-      setShowAutoWinTimer(false);
-      return;
+      return; // Не блокируем игру
     }
 
-    const updateTimer = () => {
+    const checkAutoWin = () => {
       const timeSinceLastSeen = Date.now() - opponentLastSeen.getTime();
 
-      // Если прошло больше grace period, но меньше timeout - показываем таймер
-      if (timeSinceLastSeen > GRACE_PERIOD_MS && timeSinceLastSeen < AUTO_WIN_TIMEOUT_MS) {
-        const remaining = AUTO_WIN_TIMEOUT_MS - timeSinceLastSeen;
-        setAutoWinTimeRemaining(Math.ceil(remaining / 1000));
-        setShowAutoWinTimer(true);
-      } else if (timeSinceLastSeen >= AUTO_WIN_TIMEOUT_MS) {
-        // Время вышло - вызываем claim_technical_win
-        setShowAutoWinTimer(false);
+      // Если прошло больше AUTO_WIN_TIMEOUT_MS - вызываем claim_technical_win
+      if (timeSinceLastSeen >= AUTO_WIN_TIMEOUT_MS) {
         handleAutoWin();
-      } else {
-        setShowAutoWinTimer(false);
       }
     };
 
-    // Обновляем сразу
-    updateTimer();
-
-    // Обновляем каждую секунду
-    const interval = setInterval(updateTimer, 1000);
+    // Проверяем каждую секунду (таймер обновляется в CompactConnectionStatusIndicator)
+    const interval = setInterval(checkAutoWin, 1000);
     return () => clearInterval(interval);
   }, [isDuelActive, opponentLastSeen, opponentIsConnected, handleAutoWin]);
 
@@ -2286,6 +2315,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               betInfo={betInfo}
               seasonBonusDisplay={seasonBonusDisplay}
               isTelegramMobile={isTelegramMobile}
+              opponentIsConnected={opponentIsConnected}
+              opponentLastSeen={opponentLastSeen}
             />
             
             {/* 🆕 Opponent Connection Status */}
@@ -2371,18 +2402,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className="flex-1 flex flex-col min-h-0 relative"
         >
-          {/* 🆕 Auto-Win Timer Overlay */}
-          {showAutoWinTimer && (
-            <div className="absolute inset-0 bg-zinc-900/80 backdrop-blur-sm rounded-xl z-50 flex items-center justify-center">
-              <Suspense fallback={null}>
-                <AutoWinTimer
-                  timeRemaining={autoWinTimeRemaining}
-                  onComplete={handleAutoWin}
-                />
-              </Suspense>
-            </div>
-          )}
-          
+          {/* УБРАНО: Блокирующий Auto-Win Timer Overlay - теперь используется компактный индикатор */}
           <DuelQuestionCard
             question={currentQuestion}
             selectedAnswer={selectedAnswer}

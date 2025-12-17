@@ -15,7 +15,8 @@ export const ACTIVE_DUEL_STORAGE_KEY = 'active_duel_state';
 export const MAX_STORAGE_AGE_MS = 30 * 60 * 1000; // 30 минут
 export const STALE_DUEL_AGE_MS = 15 * 60 * 1000; // 15 минут
 
-export const GRACE_PERIOD_MS = 10000; // 10 секунд grace period для отключений
+export const GRACE_PERIOD_MS = 7000; // 7 секунд grace period для отключений (убирает дребезг)
+export const UNSTABLE_THRESHOLD_MS = 15000; // 15 секунд - статус "нестабильно"
 export const AUTO_WIN_TIMEOUT_MS = 60000; // 60 секунд до авто-победы
 
 // ============================================================================
