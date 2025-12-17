@@ -41,6 +41,7 @@ import { useBotOpponent } from '@/hooks/useBotOpponent';
 import { OilSplashAttack } from './attacks/OilSplashAttack';
 import { PoliceBackdoorAttack } from './attacks/PoliceBackdoorAttack';
 import { InputLagWrapper } from './attacks/InputLagWrapper';
+import { DuelSurrenderModal } from './DuelSurrenderModal';
 
 // КРИТИЧНО: Мемоизированный компонент для OilSplashAttack
 // Предотвращает повторный рендеринг при неизменных props
@@ -98,6 +99,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   }, [duelId]);
 
   const [isWaitingHidden, setIsWaitingHidden] = useState(false);
+  const [showSurrenderModal, setShowSurrenderModal] = useState(false);
   const { profileId } = useUserContext();
   const { activeDuel, saveActiveDuel, updateActiveDuel } = useActiveDuel();
   const { fetchQuestions, fetchPlayers, fetchBoostInventory, fetchBetInfo } = useDuelData(duelId, profileId);
@@ -879,8 +881,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
     // Обработчик для выхода из дуэли
     const handleBack = () => {
-      log('[DuelBattleFullscreen] BackButton clicked - exiting duel');
-      onExit();
+      log('[DuelBattleFullscreen] BackButton clicked - showing surrender modal');
+      setShowSurrenderModal(true);
     };
 
     // Вешаем обработчик
@@ -1950,7 +1952,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
         <div className="text-center space-y-4">
           <p className="text-lg text-destructive">Ошибка загрузки вопроса</p>
-          <Button onClick={onExit}>Выйти</Button>
+          <Button onClick={() => setShowSurrenderModal(true)}>Выйти</Button>
         </div>
       </div>
     );
@@ -2053,7 +2055,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           <QuestionProgressBar
             currentIndex={currentIndex}
             totalQuestions={questions.length}
-            onClose={!isTelegramMobile && !isTelegramDesktop ? onExit : undefined}
+            onClose={!isTelegramMobile && !isTelegramDesktop ? () => setShowSurrenderModal(true) : undefined}
             showClose={!isTelegramMobile && !isTelegramDesktop}
             showQuestionMap={false}
             onToggleBookmark={profileId ? toggleBookmark : undefined}
@@ -2363,6 +2365,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           </>
         );
       })()}
+
+      {/* Модалка сдачи */}
+      <DuelSurrenderModal
+        open={showSurrenderModal}
+        onOpenChange={setShowSurrenderModal}
+        duelId={duelId}
+        onSurrender={onExit}
+      />
     </div>
   );
 }

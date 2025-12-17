@@ -5122,6 +5122,155 @@ Deno.serve(async (req) => {
         });
       }
 
+      case 'surrender': {
+        const { duel_id } = params;
+        const userProfileId = params.profile_id || profileId;
+
+        if (!duel_id || !userProfileId) {
+          return new Response(JSON.stringify({ error: 'duel_id and profile_id are required' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Получаем информацию о дуэли
+        const { data: duel, error: duelError } = await supabase
+          .from('duels')
+          .select('status, bet_amount, host_user, num_questions')
+          .eq('id', duel_id)
+          .single();
+
+        if (duelError || !duel) {
+          return new Response(JSON.stringify({ error: 'Duel not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        if (duel.status !== 'active') {
+          return new Response(JSON.stringify({ error: 'Duel is not active' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Получаем игроков
+        const { data: players, error: playersError } = await supabase
+          .from('duel_players')
+          .select('id, user_id, score, correct_count')
+          .eq('duel_id', duel_id);
+
+        if (playersError || !players || players.length < 2) {
+          return new Response(JSON.stringify({ error: 'Not enough players' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        const surrenderingPlayer = players.find((p: any) => p.user_id === userProfileId);
+        const opponentPlayer = players.find((p: any) => p.user_id !== userProfileId);
+
+        if (!surrenderingPlayer || !opponentPlayer) {
+          return new Response(JSON.stringify({ error: 'Player not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Помечаем игрока как сдавшегося
+        await supabase
+          .from('duel_players')
+          .update({
+            is_connected: false,
+            activity_status: 'offline',
+            surrendered: true
+          })
+          .eq('id', surrenderingPlayer.id);
+
+        // Завершаем дуэль - оппонент побеждает
+        const opponentScore = opponentPlayer.score || 0;
+        const surrenderingScore = surrenderingPlayer.score || 0;
+        const isDraw = opponentScore === surrenderingScore;
+        const winnerUserId = isDraw ? null : opponentPlayer.user_id;
+
+        // Обновляем статус дуэли
+        await supabase
+          .from('duels')
+          .update({
+            status: 'finished',
+            finished_at: new Date().toISOString()
+          })
+          .eq('id', duel_id);
+
+        // Обновляем статистику
+        await supabase.rpc('upsert_duel_stats', {
+          p_user_id: opponentPlayer.user_id,
+          p_is_win: !isDraw,
+          p_is_draw: isDraw,
+          p_score: opponentScore
+        });
+
+        await supabase.rpc('upsert_duel_stats', {
+          p_user_id: surrenderingPlayer.user_id,
+          p_is_win: false,
+          p_is_draw: isDraw,
+          p_score: surrenderingScore
+        });
+
+        // Обрабатываем ставки
+        if (duel.bet_amount > 0) {
+          await settleBetPayout({
+            supabaseClient: supabase,
+            duelId: duel_id,
+            betAmount: duel.bet_amount,
+            hostUserId: duel.host_user,
+            players: players.map((p: any) => ({
+              id: p.id,
+              user_id: p.user_id,
+              score: p.score || 0,
+              correct_count: p.correct_count || 0
+            })),
+            winnerUserId,
+            isDraw,
+          });
+        }
+
+        // Создаем уведомление для оппонента
+        const surrenderingPlayerName = await getOpponentName(userProfileId, supabase).catch(() => 'Игрок');
+        await createNotification({
+          duel_id,
+          type: 'opponent_left',
+          metadata: {
+            opponent_name: surrenderingPlayerName,
+            reason: 'surrender'
+          }
+        }, opponentPlayer.user_id, supabase).catch(err => {
+          console.error('[surrender] Error creating notification:', err);
+        });
+
+        // Логируем инцидент
+        await supabase
+          .from('duel_incidents')
+          .insert({
+            duel_id,
+            player_id: surrenderingPlayer.id,
+            incident_type: 'surrender',
+            metadata: {
+              timestamp: new Date().toISOString(),
+              surrendering_score: surrenderingScore,
+              opponent_score: opponentScore
+            }
+          });
+
+        return new Response(JSON.stringify({
+          success: true,
+          surrendered: true,
+          message: 'Duel surrendered, opponent wins'
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       case 'mark_technical_draw': {
         const { duel_id } = params;
 
