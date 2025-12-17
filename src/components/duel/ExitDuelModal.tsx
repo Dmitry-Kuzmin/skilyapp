@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { HeartCrack, Trophy, Coins, TrendingDown, X } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { HeartCrack, Trophy, Coins, TrendingDown } from 'lucide-react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { useUserContext } from '@/contexts/UserContext';
@@ -63,7 +63,36 @@ export function ExitDuelModal({
 
       if (error) {
         console.error('[ExitDuelModal] Error surrendering:', error);
-        toast.error('Ошибка при выходе из дуэли');
+        console.error('[ExitDuelModal] Error details:', {
+          message: error.message,
+          context: error.context,
+          status: error.status,
+          name: error.name
+        });
+        
+        // Пытаемся получить детали ошибки
+        let errorMessage = 'Ошибка при выходе из дуэли';
+        try {
+          // Supabase FunctionsHttpError может содержать response
+          if (error.context && typeof error.context.json === 'function') {
+            const errorData = await error.context.json();
+            console.error('[ExitDuelModal] Error data from response:', errorData);
+            if (errorData?.error) {
+              errorMessage = errorData.error;
+            } else if (errorData?.details) {
+              errorMessage = `${errorData.error || 'Ошибка'}: ${errorData.details}`;
+            }
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+        } catch (e) {
+          console.error('[ExitDuelModal] Error parsing error response:', e);
+        }
+        
+        toast.error(errorMessage, {
+          duration: 5000,
+          description: 'Попробуйте еще раз или обновите страницу'
+        });
         setIsSurrendering(false);
         return;
       }

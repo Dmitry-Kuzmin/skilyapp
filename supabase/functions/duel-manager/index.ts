@@ -5178,7 +5178,7 @@ Deno.serve(async (req) => {
         }
 
         // Помечаем игрока как сдавшегося
-        await supabase
+        const { error: updateError } = await supabase
           .from('duel_players')
           .update({
             is_connected: false,
@@ -5186,6 +5186,29 @@ Deno.serve(async (req) => {
             surrendered: true
           })
           .eq('id', surrenderingPlayer.id);
+
+        if (updateError) {
+          console.error('[surrender] Error updating player:', updateError);
+          // Пробуем обновить без поля surrendered (на случай если миграция не применена)
+          const { error: fallbackError } = await supabase
+            .from('duel_players')
+            .update({
+              is_connected: false,
+              activity_status: 'offline'
+            })
+            .eq('id', surrenderingPlayer.id);
+
+          if (fallbackError) {
+            console.error('[surrender] Fallback update also failed:', fallbackError);
+            return new Response(JSON.stringify({ 
+              error: 'Failed to update player status',
+              details: updateError.message 
+            }), {
+              status: 500,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+        }
 
         // Завершаем дуэль - оппонент побеждает
         const opponentScore = opponentPlayer.score || 0;
@@ -5249,7 +5272,7 @@ Deno.serve(async (req) => {
         });
 
         // Логируем инцидент
-        await supabase
+        const { error: incidentError } = await supabase
           .from('duel_incidents')
           .insert({
             duel_id,
@@ -5261,6 +5284,18 @@ Deno.serve(async (req) => {
               opponent_score: opponentScore
             }
           });
+
+        if (incidentError) {
+          console.error('[surrender] Error logging incident:', incidentError);
+          // Не прерываем выполнение, так как это только логирование
+        }
+
+        console.log('[surrender] ✅ Duel surrendered successfully:', {
+          duel_id,
+          surrenderingPlayer: userProfileId,
+          opponentPlayer: opponentPlayer.user_id,
+          winner: winnerUserId
+        });
 
         return new Response(JSON.stringify({
           success: true,
