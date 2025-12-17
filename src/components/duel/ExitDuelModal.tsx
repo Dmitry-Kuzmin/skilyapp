@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { HeartCrack, Trophy, Coins, TrendingDown } from 'lucide-react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -7,6 +7,7 @@ import { useUserContext } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { haptics } from '@/lib/haptics';
 
 interface ExitDuelModalProps {
   open: boolean;
@@ -24,6 +25,13 @@ export function ExitDuelModal({
   const { profileId } = useUserContext();
   const [isSurrendering, setIsSurrendering] = useState(false);
   const [betAmount, setBetAmount] = useState<number>(0);
+  
+  // Hold-to-confirm state
+  const [holdProgress, setHoldProgress] = useState(0);
+  const [isHolding, setIsHolding] = useState(false);
+  const holdIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const holdStartTimeRef = useRef<number | null>(null);
+  const HOLD_DURATION_MS = 1500; // 1.5 секунды удержания
 
   // Загружаем информацию о ставке (используем ту же логику, что и fetchBetInfo)
   useEffect(() => {
@@ -67,7 +75,27 @@ export function ExitDuelModal({
     fetchBetInfo();
   }, [duelId, open]);
 
-  const handleSurrender = async () => {
+  // Haptic feedback при открытии модалки
+  useEffect(() => {
+    if (open) {
+      haptics.warning();
+    }
+  }, [open]);
+
+  // Очистка hold-to-confirm при закрытии модалки
+  useEffect(() => {
+    if (!open) {
+      setIsHolding(false);
+      setHoldProgress(0);
+      if (holdIntervalRef.current) {
+        clearInterval(holdIntervalRef.current);
+        holdIntervalRef.current = null;
+      }
+      holdStartTimeRef.current = null;
+    }
+  }, [open]);
+
+  const handleSurrender = useCallback(async () => {
     if (!profileId || !duelId) {
       console.error('[ExitDuelModal] Missing required data:', {
         hasProfileId: !!profileId,
@@ -172,7 +200,47 @@ export function ExitDuelModal({
       });
       setIsSurrendering(false);
     }
-  };
+  }, [profileId, duelId, onSurrender, onOpenChange]);
+
+  // Hold-to-confirm логика
+  useEffect(() => {
+    if (!isHolding) {
+      if (holdIntervalRef.current) {
+        clearInterval(holdIntervalRef.current);
+        holdIntervalRef.current = null;
+      }
+      setHoldProgress(0);
+      holdStartTimeRef.current = null;
+      return;
+    }
+
+    holdStartTimeRef.current = Date.now();
+    
+    holdIntervalRef.current = setInterval(() => {
+      if (!holdStartTimeRef.current) return;
+      
+      const elapsed = Date.now() - holdStartTimeRef.current;
+      const progress = Math.min((elapsed / HOLD_DURATION_MS) * 100, 100);
+      setHoldProgress(progress);
+
+      if (elapsed >= HOLD_DURATION_MS) {
+        // Удержание завершено - вызываем surrender
+        setIsHolding(false);
+        if (holdIntervalRef.current) {
+          clearInterval(holdIntervalRef.current);
+          holdIntervalRef.current = null;
+        }
+        handleSurrender();
+      }
+    }, 16); // ~60fps обновление
+
+    return () => {
+      if (holdIntervalRef.current) {
+        clearInterval(holdIntervalRef.current);
+        holdIntervalRef.current = null;
+      }
+    };
+  }, [isHolding, handleSurrender]);
 
   const handleStay = () => {
     onOpenChange(false);
@@ -213,9 +281,28 @@ export function ExitDuelModal({
                     }}
                     className="relative"
                   >
-                    <HeartCrack 
-                      className="w-16 h-16 text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]"
-                    />
+                    <motion.div
+                      animate={{
+                        scale: [1, 1.05, 1],
+                        rotate: [0, -1, 1, -1, 1, 0],
+                      }}
+                      transition={{
+                        scale: {
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        },
+                        rotate: {
+                          duration: 3,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }
+                      }}
+                    >
+                      <HeartCrack 
+                        className="w-16 h-16 text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]"
+                      />
+                    </motion.div>
                     <motion.div
                       className="absolute inset-0 rounded-full bg-red-500/20 blur-xl"
                       animate={{
@@ -309,32 +396,56 @@ export function ExitDuelModal({
                     Остаться в бою
                   </Button>
 
-                  {/* Destructive: Surrender Button */}
-                  <Button
-                    onClick={handleSurrender}
-                    disabled={isSurrendering}
-                    variant="outline"
-                    className={cn(
-                      "w-full h-12",
-                      "bg-transparent",
-                      "border-2 border-red-500/50",
-                      "text-red-500",
-                      "font-semibold",
-                      "hover:bg-red-500/10",
-                      "hover:border-red-500",
-                      "active:scale-[0.98]",
-                      "transition-all duration-200"
-                    )}
-                  >
-                    {isSurrendering ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <span className="w-4 h-4 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" />
-                        Выход...
+                  {/* Destructive: Surrender Button with Hold-to-Confirm */}
+                  <div className="relative">
+                    <Button
+                      onMouseDown={() => !isSurrendering && setIsHolding(true)}
+                      onMouseUp={() => setIsHolding(false)}
+                      onMouseLeave={() => setIsHolding(false)}
+                      onTouchStart={() => !isSurrendering && setIsHolding(true)}
+                      onTouchEnd={() => setIsHolding(false)}
+                      disabled={isSurrendering}
+                      variant="outline"
+                      className={cn(
+                        "w-full h-12 relative overflow-hidden",
+                        "bg-transparent",
+                        "border-2 border-red-500/50",
+                        "text-red-500",
+                        "font-semibold",
+                        "hover:bg-red-500/10",
+                        "hover:border-red-500",
+                        "active:scale-[0.98]",
+                        "transition-all duration-200",
+                        isHolding && "border-red-500"
+                      )}
+                    >
+                      {/* Progress bar overlay */}
+                      {isHolding && (
+                        <motion.div
+                          className="absolute inset-0 bg-red-500/20"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${holdProgress}%` }}
+                          transition={{ duration: 0.1 }}
+                        />
+                      )}
+                      
+                      <span className="relative z-10 flex items-center justify-center gap-2">
+                        {isSurrendering ? (
+                          <>
+                            <span className="w-4 h-4 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" />
+                            Выход...
+                          </>
+                        ) : isHolding ? (
+                          <>
+                            <span className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                            Удерживайте... {Math.round(holdProgress)}%
+                          </>
+                        ) : (
+                          'Сдаться (Поражение)'
+                        )}
                       </span>
-                    ) : (
-                      'Сдаться (Поражение)'
-                    )}
-                  </Button>
+                    </Button>
+                  </div>
                 </motion.div>
               </div>
       </SheetContent>

@@ -48,3 +48,4 @@ export function FloatingCost({ cost, x, y, onComplete }: FloatingCostProps) {
 
 
 
+
