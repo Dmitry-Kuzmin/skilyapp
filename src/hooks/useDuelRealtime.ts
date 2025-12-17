@@ -199,13 +199,13 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         // Fallback: если RPC не работает, пробуем прямой запрос
         console.log('[useDuelRealtime] 🔄 Falling back to direct query in recoverActiveExploits...');
         const { data: fallbackExploits, error: fallbackError } = await supabase
-          .from('duel_active_exploits')
-          .select('*')
-          .eq('duel_id', duelId)
+        .from('duel_active_exploits')
+        .select('*')
+        .eq('duel_id', duelId)
           .neq('attacker_player_id', targetPlayerId)
-          .eq('is_active', true)
-          .gt('expires_at', new Date().toISOString())
-          .order('activated_at', { ascending: false });
+        .eq('is_active', true)
+        .gt('expires_at', new Date().toISOString())
+        .order('activated_at', { ascending: false });
         
         if (fallbackError) {
           exploitsError = fallbackError;
@@ -269,7 +269,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             expiresAt: e.expiresAt
           }));
           
-            const newExploits = exploits
+          const newExploits = exploits
             .filter(e => e.attacker_player_id !== myPlayerId) // Только атаки НЕ от меня
             .filter(e => !resolvedExploitIdsRef.current.has(e.id)) // КРИТИЧНО: Фильтруем уже resolved exploits
             .map(e => ({

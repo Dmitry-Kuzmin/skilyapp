@@ -50,7 +50,7 @@ const useBoostSchema = z.object({
     // Safe Mode
     'fifty_fifty', 'time_extend', 'hint', 'skip', 'translate', 'rewind',
     // Root Mode (Exploits)
-    'screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall'
+    'screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall', 'cryptolocker'
   ]),
   language: z.enum(['ru', 'en']).optional() // Для translate бустера
 });
@@ -3646,6 +3646,13 @@ Deno.serve(async (req) => {
             duration_ms: 30000, // Firewall активен до конца вопроса или 30 секунд
           };
           console.log('[use_boost] Firewall activated');
+        } else if (boost_type === 'cryptolocker') {
+          boostEffect = {
+            success: true,
+            encrypted: true,
+            duration_ms: 30000, // 30 секунд шифрования
+          };
+          console.log('[use_boost] Cryptolocker activated');
         }
 
         // 🆕 Получаем информацию о бусте из БД для определения target_type
@@ -3688,7 +3695,7 @@ Deno.serve(async (req) => {
             .from('duel_players')
             .select('id, user_id, is_bot')
             .eq('duel_id', duel_id);
-          
+
           // КРИТИЧНО: Логируем результат запроса игроков
           console.log('[use_boost] 🔍🔍🔍 Players query result:', {
             playersCount: players?.length || 0,
@@ -4232,6 +4239,13 @@ Deno.serve(async (req) => {
             block_duration_ms: 8000,
             captcha_required: true,
           };
+        } else if (boostType === 'cryptolocker') {
+          boostEffect = {
+            success: true,
+            boost_type: 'cryptolocker',
+            encrypted: true,
+            duration_ms: 30000,
+          };
         }
 
         // Получаем информацию о бусте из БД
@@ -4296,6 +4310,7 @@ Deno.serve(async (req) => {
                      boostType === 'input_lag' ? 'Input Lag активирован!' :
                      boostType === 'gps_spoofing' ? 'GPS Spoofing активирован!' :
                      boostType === 'police_backdoor' ? 'Police Backdoor активирован!' :
+                     boostType === 'cryptolocker' ? 'Cryptolocker активирован! 🔒' :
                      'Бот использовал буст!',
             icon: '⚡',
             metadata: {

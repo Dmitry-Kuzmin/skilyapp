@@ -340,6 +340,13 @@ BEGIN
         'active', true,
         'duration_ms', v_duration_ms
       );
+    WHEN 'cryptolocker' THEN
+      v_duration_ms := 30000; -- 30 секунд шифрования
+      v_boost_effect := jsonb_build_object(
+        'success', true,
+        'encrypted', true,
+        'duration_ms', v_duration_ms
+      );
     -- Safe Mode Boosts (не создают exploit, возвращают эффект)
     WHEN 'fifty_fifty' THEN
       IF p_duel_question_id IS NOT NULL THEN
