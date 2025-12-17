@@ -1,14 +1,17 @@
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useMemo, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Swords, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useActiveDuel } from '@/hooks/useActiveDuel';
+import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 
 export const ActiveDuelWidget = memo(function ActiveDuelWidget() {
   const navigate = useNavigate();
-  const { activeDuel } = useActiveDuel();
+  const { activeDuel, clearActiveDuel } = useActiveDuel();
+  const [isValidating, setIsValidating] = useState(true);
+  const [isValid, setIsValid] = useState(false);
 
   // ОПТИМИЗАЦИЯ: Мемоизируем вычисления для предотвращения лишних ре-рендеров
   const progress = useMemo(() => {
@@ -18,13 +21,64 @@ export const ActiveDuelWidget = memo(function ActiveDuelWidget() {
       : 0;
   }, [activeDuel]);
 
+  // КРИТИЧНО: Проверяем статус дуэли при монтировании и при изменении activeDuel
+  useEffect(() => {
+    if (!activeDuel) {
+      setIsValidating(false);
+      setIsValid(false);
+      return;
+    }
+
+    setIsValidating(true);
+    
+    // Проверяем статус дуэли на сервере
+    const validateDuel = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('duels')
+          .select('status')
+          .eq('id', activeDuel.duelId)
+          .maybeSingle();
+
+        if (error || !data) {
+          console.log('[ActiveDuelWidget] ⚠️ Duel not found or error, clearing state');
+          clearActiveDuel();
+          setIsValid(false);
+          setIsValidating(false);
+          return;
+        }
+
+        // Дуэль валидна только если статус 'active' или 'waiting'
+        const isValidStatus = data.status === 'active' || data.status === 'waiting';
+        
+        if (!isValidStatus) {
+          console.log('[ActiveDuelWidget] ⚠️ Duel is finished/cancelled, clearing state');
+          clearActiveDuel();
+          setIsValid(false);
+        } else {
+          setIsValid(true);
+        }
+      } catch (error) {
+        console.error('[ActiveDuelWidget] Error validating duel:', error);
+        // При ошибке - очищаем для безопасности
+        clearActiveDuel();
+        setIsValid(false);
+      } finally {
+        setIsValidating(false);
+      }
+    };
+
+    validateDuel();
+  }, [activeDuel, clearActiveDuel]);
+
   // ОПТИМИЗАЦИЯ: Мемоизируем обработчик для предотвращения лишних ре-рендеров
   const handleReturnToDuel = useCallback(() => {
     if (!activeDuel) return;
     navigate(`/games/duel?duelId=${activeDuel.duelId}`);
   }, [activeDuel, navigate]);
 
-  if (!activeDuel) return null;
+  // Не показываем виджет если нет activeDuel, идет валидация или дуэль невалидна
+  if (!activeDuel || isValidating || !isValid) return null;
 
   return (
     <motion.div

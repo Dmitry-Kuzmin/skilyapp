@@ -76,25 +76,31 @@ export function useActiveDuel() {
 
       // КРИТИЧНО: Проверяем статус дуэли на сервере перед восстановлением
       // Если дуэль уже завершена или не существует - очищаем localStorage
-      checkDuelStatus(state.duelId).then((isActive) => {
-        if (!isActive) {
-          console.log('[useActiveDuel] ⚠️ Duel is no longer active, clearing stale state');
+      checkDuelStatus(state.duelId)
+        .then((isActive) => {
+          if (!isActive) {
+            console.log('[useActiveDuel] ⚠️ Duel is no longer active, clearing stale state');
+            localStorage.removeItem(ACTIVE_DUEL_STORAGE_KEY);
+            setActiveDuel(null);
+            setIsChecking(false);
+            return;
+          }
+          
+          console.log('[useActiveDuel] ✅ Active duel found in localStorage, restoring state');
+          setActiveDuel(state);
+          setIsChecking(false);
+        })
+        .catch((error) => {
+          console.error('[useActiveDuel] Error checking duel status:', error);
+          // При ошибке проверки - очищаем состояние для безопасности
           localStorage.removeItem(ACTIVE_DUEL_STORAGE_KEY);
           setActiveDuel(null);
           setIsChecking(false);
-          return;
-        }
-        
-        console.log('[useActiveDuel] ✅ Active duel found in localStorage, restoring state');
-        setActiveDuel(state);
-        setIsChecking(false);
-      }).catch((error) => {
-        console.error('[useActiveDuel] Error checking duel status:', error);
-        // При ошибке проверки - очищаем состояние для безопасности
-        localStorage.removeItem(ACTIVE_DUEL_STORAGE_KEY);
-        setActiveDuel(null);
-        setIsChecking(false);
-      });
+        });
+      
+      // КРИТИЧНО: Не устанавливаем isChecking в finally, так как мы ждем результата checkDuelStatus
+      // isChecking будет установлен в false внутри then/catch
+      return;
       
       return; // Не устанавливаем isChecking здесь, ждем результата проверки
     } catch (error) {
