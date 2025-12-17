@@ -79,11 +79,17 @@ export const DuelQuestionCard = memo(({
       )}
 
       {/* Question Text */}
-      <EncryptionFlashlight isActive={cryptolockerActive && !isAnswered}>
+      {cryptolockerActive && !isAnswered ? (
+        <EncryptionFlashlight isActive={true} flashlightRadius={typeof window !== 'undefined' && window.innerWidth < 768 ? 120 : 160}>
+          <h2 className="text-xl md:text-2xl font-bold mb-6 leading-relaxed text-foreground break-words min-h-[60px] md:min-h-[80px]">
+            <Scrambler>{questionText}</Scrambler>
+          </h2>
+        </EncryptionFlashlight>
+      ) : (
         <h2 className="text-xl md:text-2xl font-bold mb-6 leading-relaxed text-foreground break-words">
-          <Scrambler>{questionText}</Scrambler>
+          {questionText}
         </h2>
-      </EncryptionFlashlight>
+      )}
 
       {/* Answer Options */}
       <div className="grid gap-3">
@@ -111,8 +117,8 @@ export const DuelQuestionCard = memo(({
               ? option.text_en
               : option.text_es;
 
-          const buttonElement = (
-            <EncryptionFlashlight isActive={cryptolockerActive && !isAnswered}>
+          const buttonElement = cryptolockerActive && !isAnswered ? (
+            <EncryptionFlashlight isActive={true} flashlightRadius={typeof window !== 'undefined' && window.innerWidth < 768 ? 100 : 130}>
               <motion.button
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -149,6 +155,42 @@ export const DuelQuestionCard = memo(({
                 </span>
               </motion.button>
             </EncryptionFlashlight>
+          ) : (
+            <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.05 }}
+              onClick={() => !isAnswered && !isEliminated && onAnswer(option.id)}
+              disabled={isAnswered || isEliminated}
+              whileHover={!isAnswered && !isEliminated ? { scale: 1.02 } : {}}
+              whileTap={!isAnswered && !isEliminated ? { scale: 0.98 } : {}}
+              className={`p-3 md:p-4 rounded-2xl border-2 text-left transition-all font-semibold text-sm md:text-base leading-snug relative overflow-hidden min-h-[48px] md:min-h-[60px] break-words hyphens-auto w-full ${
+                showResult
+                  ? isCorrect
+                    ? 'bg-green-500/20 border-green-500 text-foreground shadow-lg'
+                    : isSelected
+                      ? 'bg-red-500/20 border-red-500 text-foreground shadow-lg'
+                      : 'bg-muted/30 border-border/30 opacity-50'
+                  : isSelected
+                    ? 'bg-primary/20 border-primary shadow-lg'
+                    : 'bg-card border-border hover:border-primary/50 hover:bg-primary/10 hover:shadow-md'
+              }`}
+            >
+              {showResult && (isCorrect || isSelected) && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className={`absolute top-2 md:top-3 right-2 md:right-3 w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center font-bold text-white ${
+                    isCorrect ? 'bg-green-500' : 'bg-red-500'
+                  }`}
+                >
+                  {isCorrect ? '✓' : '✗'}
+                </motion.div>
+              )}
+              <span className="block pr-10 text-base break-words hyphens-auto">
+                {optionText}
+              </span>
+            </motion.button>
           );
 
           // 🆕 Обертываем в InputLagWrapper если лаг активен

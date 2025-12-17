@@ -10,14 +10,14 @@ interface EncryptionFlashlightProps {
 export const EncryptionFlashlight: React.FC<EncryptionFlashlightProps> = ({ 
   isActive, 
   children, 
-  flashlightRadius = 120 
+  flashlightRadius = 140 
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isTouch, setIsTouch] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
 
   // Offset the flashlight above the finger on touch devices
-  const TOUCH_Y_OFFSET = 90;
+  const TOUCH_Y_OFFSET = 100;
 
   const handleMove = useCallback((clientX: number, clientY: number, isTouchInput: boolean) => {
     if (!containerRef.current || !isActive) return;
@@ -66,7 +66,7 @@ export const EncryptionFlashlight: React.FC<EncryptionFlashlightProps> = ({
   return (
     <div 
       ref={containerRef}
-      className="relative w-full overflow-hidden select-none font-mono touch-none rounded-lg bg-zinc-950 cursor-none"
+      className="relative w-full overflow-visible select-none font-mono touch-none cursor-none"
       onMouseMove={onMouseMove}
       onTouchMove={onTouchMove}
       onMouseLeave={() => setIsHovering(false)}
@@ -78,7 +78,7 @@ export const EncryptionFlashlight: React.FC<EncryptionFlashlightProps> = ({
     >
       {/* LAYER 1: Encrypted Background (Matrix Rain effect feel) */}
       <div 
-        className="relative w-full h-full text-emerald-500/40 transition-all duration-500 opacity-30 blur-[2px]"
+        className="relative w-full h-full text-emerald-500/60 transition-all duration-500 opacity-50 blur-[1px]"
         aria-hidden="true"
       >
         <ScrambleContext.Provider value={true}>
@@ -92,27 +92,27 @@ export const EncryptionFlashlight: React.FC<EncryptionFlashlightProps> = ({
         style={{
             clipPath: 'circle(var(--radius) at var(--x) var(--y))',
             WebkitClipPath: 'circle(var(--radius) at var(--x) var(--y))',
-            background: 'radial-gradient(circle at var(--x) var(--y), rgba(0, 24, 45, 0.95) 0%, rgba(0,0,0,0.4) 100%)',
+            background: 'radial-gradient(circle at var(--x) var(--y), rgba(0, 0, 0, 0.3) 0%, rgba(0,0,0,0.6) 100%)',
         }}
       >
-        {/* INNER SCANNER BEAM ANIMATION */}
+        {/* INNER SCANNER BEAM ANIMATION - более тонкий эффект */}
         <div 
-            className="absolute w-full h-[300%] top-[-100%] left-0 bg-gradient-to-b from-transparent via-cyan-500/20 to-transparent animate-scan-vertical pointer-events-none"
+            className="absolute w-full h-[200%] top-[-50%] left-0 bg-gradient-to-b from-transparent via-cyan-400/15 to-transparent animate-scan-vertical pointer-events-none"
             style={{
-                maskImage: 'radial-gradient(circle at var(--x) var(--y), black 0%, transparent 70%)',
+                maskImage: 'radial-gradient(circle at var(--x) var(--y), black 0%, transparent 60%)',
                 WebkitMaskImage: 'radial-gradient(circle var(--radius) at var(--x) var(--y), black 0%, transparent 100%)'
             }}
         />
         
-        {/* The Clean Text */}
-        <div className="text-cyan-400 drop-shadow-[0_0_8px_rgba(0,240,255,0.6)]">
+        {/* The Clean Text - улучшенная читаемость с лучшим контрастом */}
+        <div className="text-foreground drop-shadow-[0_1px_3px_rgba(0,0,0,0.9),0_0_8px_rgba(255,255,255,0.3)]">
             <ScrambleContext.Provider value={false}>
                 {children}
             </ScrambleContext.Provider>
         </div>
       </div>
 
-      {/* LAYER 3: PREMIUM HUD OVERLAY */}
+      {/* LAYER 3: Упрощенный HUD OVERLAY - более минималистичный */}
       <div 
           className="absolute top-0 left-0 pointer-events-none z-30 overflow-visible"
           style={{
@@ -121,47 +121,58 @@ export const EncryptionFlashlight: React.FC<EncryptionFlashlightProps> = ({
               height: 'calc(var(--radius) * 2)',
           }}
       >
-          <svg viewBox="0 0 200 200" className="w-full h-full text-cyan-400 overflow-visible drop-shadow-[0_0_5px_rgba(0,240,255,0.8)]">
+          <svg viewBox="0 0 200 200" className="w-full h-full text-emerald-400/60 overflow-visible">
               <defs>
-                  <linearGradient id="hud-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#00f0ff" stopOpacity="0.8" />
-                      <stop offset="100%" stopColor="#00ff41" stopOpacity="0.8" />
+                  <linearGradient id="crypto-hud-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity="0.6" />
+                      <stop offset="100%" stopColor="#34d399" stopOpacity="0.6" />
                   </linearGradient>
+                  {/* Glow effect */}
+                  <filter id="glow">
+                      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                      <feMerge>
+                          <feMergeNode in="coloredBlur"/>
+                          <feMergeNode in="SourceGraphic"/>
+                      </feMerge>
+                  </filter>
               </defs>
 
-              {/* Outer Rotating Dashed Ring */}
-              <g className="animate-[spin_10s_linear_infinite] origin-center">
-                  <circle cx="100" cy="100" r="95" fill="none" stroke="url(#hud-grad)" strokeWidth="0.5" strokeDasharray="10 20" opacity="0.4" />
-                  <circle cx="100" cy="100" r="98" fill="none" stroke="currentColor" strokeWidth="0.2" strokeDasharray="50 150" opacity="0.6" />
-              </g>
+              {/* Outer Ring - более тонкий */}
+              <circle 
+                  cx="100" 
+                  cy="100" 
+                  r="95" 
+                  fill="none" 
+                  stroke="url(#crypto-hud-grad)" 
+                  strokeWidth="1" 
+                  strokeDasharray="8 12" 
+                  opacity="0.5"
+                  className="animate-[spin_8s_linear_infinite] origin-center"
+                  style={{ transformOrigin: '100px 100px' }}
+              />
 
-              {/* Inner Counter-Rotating Ring */}
-              <g className="animate-[spin_15s_linear_infinite_reverse] origin-center">
-                  <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 8" opacity="0.3" />
-              </g>
+              {/* Inner Ring - статичный */}
+              <circle 
+                  cx="100" 
+                  cy="100" 
+                  r="75" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="0.5" 
+                  strokeDasharray="4 8" 
+                  opacity="0.3" 
+              />
 
-              {/* Static Brackets */}
-              <path d="M 60 40 L 40 40 L 40 60" fill="none" stroke="currentColor" strokeWidth="2" />
-              <path d="M 140 40 L 160 40 L 160 60" fill="none" stroke="currentColor" strokeWidth="2" />
-              <path d="M 60 160 L 40 160 L 40 140" fill="none" stroke="currentColor" strokeWidth="2" />
-              <path d="M 140 160 L 160 160 L 160 140" fill="none" stroke="currentColor" strokeWidth="2" />
+              {/* Corner Brackets - упрощенные */}
+              <path d="M 70 50 L 50 50 L 50 70" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
+              <path d="M 130 50 L 150 50 L 150 70" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
+              <path d="M 70 150 L 50 150 L 50 130" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
+              <path d="M 130 150 L 150 150 L 150 130" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
 
-              {/* Center Reticle */}
-              <circle cx="100" cy="100" r="3" fill="currentColor" className="animate-pulse" />
-              <line x1="90" y1="100" x2="110" y2="100" stroke="currentColor" strokeWidth="1" opacity="0.5" />
-              <line x1="100" y1="90" x2="100" y2="110" stroke="currentColor" strokeWidth="1" opacity="0.5" />
-
-              {/* Dynamic Data Text */}
-              <text x="100" y="30" fontSize="8" fill="currentColor" textAnchor="middle" fontFamily="monospace" className="tracking-widest font-bold">
-                  SCANNING...
-              </text>
-              
-              {/* Tech Deco at bottom */}
-              <rect x="70" y="175" width="60" height="2" fill="currentColor" opacity="0.5" />
-              <rect x="70" y="178" width="20" height="2" fill="#00ff41" className="animate-[pulse_0.5s_ease-in-out_infinite]" />
-              <text x="100" y="190" fontSize="6" fill="currentColor" textAnchor="middle" fontFamily="monospace" opacity="0.8">
-                 {isTouch ? 'TOUCH_INPUT' : 'COORD: [X,Y]'}
-              </text>
+              {/* Center Reticle - упрощенный */}
+              <circle cx="100" cy="100" r="2.5" fill="currentColor" opacity="0.8" className="animate-pulse" />
+              <line x1="85" y1="100" x2="115" y2="100" stroke="currentColor" strokeWidth="0.8" opacity="0.4" />
+              <line x1="100" y1="85" x2="100" y2="115" stroke="currentColor" strokeWidth="0.8" opacity="0.4" />
           </svg>
       </div>
     </div>
