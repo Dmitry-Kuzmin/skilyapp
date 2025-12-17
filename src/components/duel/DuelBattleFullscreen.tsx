@@ -37,10 +37,6 @@ import { useQuestionBookmark } from '@/hooks/useQuestionBookmark';
 import { useDuelTimeout } from '@/hooks/useDuelTimeout';
 import { useDuelGame } from '@/hooks/useDuelGame';
 import { useBotOpponent } from '@/hooks/useBotOpponent';
-// 🆕 Компоненты атак
-import { OilSplashAttack } from './attacks/OilSplashAttack';
-import { PoliceBackdoorAttack } from './attacks/PoliceBackdoorAttack';
-import { InputLagWrapper } from './attacks/InputLagWrapper';
 import { lazy, Suspense } from 'react';
 import { useDuelHeartbeat } from '@/hooks/useDuelHeartbeat';
 import { GRACE_PERIOD_MS, AUTO_WIN_TIMEOUT_MS } from '@/features/duel/shared';
@@ -52,16 +48,12 @@ const AutoWinTimer = lazy(() => import('./AutoWinTimer').then(m => ({ default: m
 const OpponentConnectionStatus = lazy(() => import('./OpponentConnectionStatus').then(m => ({ default: m.OpponentConnectionStatus })));
 const ReconnectionModal = lazy(() => import('./ReconnectionModal').then(m => ({ default: m.ReconnectionModal })));
 
-// КРИТИЧНО: Мемоизированный компонент для OilSplashAttack
-// Предотвращает повторный рендеринг при неизменных props
-const OilSplashAttackMemoized = memo(OilSplashAttack, (prevProps, nextProps) => {
-  // Перерендериваем только если изменились критичные props
-  return (
-    prevProps.isActive === nextProps.isActive &&
-    prevProps.expiresAt === nextProps.expiresAt &&
-    prevProps.exploitId === nextProps.exploitId
-  );
-});
+// КРИТИЧНО: Lazy loading для всех компонентов атак
+// Это предотвращает циклические зависимости и TDZ ошибки при сборке
+const OilSplashAttack = lazy(() => import('./attacks/OilSplashAttack').then(m => ({ default: m.OilSplashAttack })));
+const PoliceBackdoorAttack = lazy(() => import('./attacks/PoliceBackdoorAttack').then(m => ({ default: m.PoliceBackdoorAttack })));
+const InputLagWrapper = lazy(() => import('./attacks/InputLagWrapper').then(m => ({ default: m.InputLagWrapper })));
+const EncryptionFlashlight = lazy(() => import('./attacks/EncryptionFlashlight').then(m => ({ default: m.EncryptionFlashlight })));
 
 // ОПТИМИЗАЦИЯ: Условное логирование только в development
 const isDev = import.meta.env.DEV;
@@ -2515,11 +2507,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             {/* КРИТИЧНО: Рендерим для всех возможных типов атаки "Масло" */}
             {/* ИЗМЕНЕНО: Убрали проверку expiresAt - доверяем факту получения, а не времени */}
             {screenInjector && !screenInjectorPassed && (
-              <OilSplashAttackMemoized
-                isActive={true}
-                expiresAt={screenInjector.expiresAt}
-                exploitId={screenInjector.id}
-                onCleaned={() => {
+              <Suspense fallback={null}>
+                <OilSplashAttack
+                  isActive={true}
+                  expiresAt={screenInjector.expiresAt}
+                  exploitId={screenInjector.id}
+                  onCleaned={() => {
                   console.log('[DuelBattleFullscreen] 🛢️ OilSplashAttack cleaned, exploit type:', screenInjector.type);
                   
                   // КРИТИЧНО: Удаляем exploit из состояния useDuelRealtime
@@ -2544,14 +2537,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                     return updated;
                   });
                 }}
-              />
+                />
+              </Suspense>
             )}
 
             {/* Полиция (Police Backdoor) */}
             {policeRaid && !policePassed && (
-              <PoliceBackdoorAttack
-                isActive={true}
-                onUnlock={() => {
+              <Suspense fallback={null}>
+                <PoliceBackdoorAttack
+                  isActive={true}
+                  onUnlock={() => {
                   setActiveExploits(prev => {
                     const updated = new Map(prev);
                     const current = updated.get('police_backdoor');
@@ -2561,7 +2556,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                     return updated;
                   });
                 }}
-              />
+                />
+              </Suspense>
             )}
           </>
         );

@@ -1,9 +1,12 @@
 import { motion } from 'framer-motion';
-import { memo } from 'react';
+import { memo, lazy, Suspense } from 'react';
 import { getImageUrl } from '@/utils/imageUtils';
-import { InputLagWrapper } from './attacks/InputLagWrapper';
-import { EncryptionFlashlight } from './attacks/EncryptionFlashlight';
 import { Scrambler } from '@/utils/scramble';
+
+// КРИТИЧНО: Lazy loading для компонентов атак
+// Это предотвращает циклические зависимости и TDZ ошибки при сборке
+const InputLagWrapper = lazy(() => import('./attacks/InputLagWrapper').then(m => ({ default: m.InputLagWrapper })));
+const EncryptionFlashlight = lazy(() => import('./attacks/EncryptionFlashlight').then(m => ({ default: m.EncryptionFlashlight })));
 
 interface QuestionOption {
   id: string;
@@ -151,16 +154,17 @@ export const DuelQuestionCard = memo(({
           // 🆕 Обертываем в InputLagWrapper если лаг активен
           if (inputLagActive && !isAnswered && !isEliminated) {
             return (
-              <InputLagWrapper
-                key={option.id}
-                isActive={inputLagActive}
-                delayMs={inputLagDelay}
-                onClick={() => onAnswer(option.id)}
-                disabled={isAnswered || isEliminated}
-                className="w-full"
-              >
-                {buttonElement}
-              </InputLagWrapper>
+              <Suspense key={option.id} fallback={buttonElement}>
+                <InputLagWrapper
+                  isActive={inputLagActive}
+                  delayMs={inputLagDelay}
+                  onClick={() => onAnswer(option.id)}
+                  disabled={isAnswered || isEliminated}
+                  className="w-full"
+                >
+                  {buttonElement}
+                </InputLagWrapper>
+              </Suspense>
             );
           }
 
@@ -178,9 +182,11 @@ export const DuelQuestionCard = memo(({
   if (cryptolockerActive && !isAnswered) {
     const radius = typeof window !== 'undefined' && window.innerWidth < 768 ? 140 : 180;
     return (
-      <EncryptionFlashlight isActive={true} flashlightRadius={radius}>
-        {cardContent}
-      </EncryptionFlashlight>
+      <Suspense fallback={cardContent}>
+        <EncryptionFlashlight isActive={true} flashlightRadius={radius}>
+          {cardContent}
+        </EncryptionFlashlight>
+      </Suspense>
     );
   }
 
