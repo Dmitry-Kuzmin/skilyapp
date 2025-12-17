@@ -2,8 +2,7 @@ import { motion } from 'framer-motion';
 import { memo } from 'react';
 import { getImageUrl } from '@/utils/imageUtils';
 import { InputLagWrapper } from './attacks/InputLagWrapper';
-import { EncryptionFlashlight } from './attacks/EncryptionFlashlight';
-import { Scrambler } from '@/utils/scramble';
+import { EncryptionFlashlightProvider, EncryptedText } from './attacks/EncryptionFlashlight';
 
 interface QuestionOption {
   id: string;
@@ -61,14 +60,15 @@ export const DuelQuestionCard = memo(({
   const answerOptions = (question.question_snapshot.answer_options || [])
     .sort((a, b) => a.position - b.position);
 
-  return (
+  const cardContent = (
     <div className="bg-card/95 backdrop-blur-sm border border-border rounded-3xl p-4 md:p-6 lg:p-8 shadow-2xl flex-1 flex flex-col overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
-      {/* Question Image */}
+      {/* Question Image - скрываем в зашифрованном слое */}
       {question.question_snapshot.image_url && getImageUrl(question.question_snapshot.image_url) && (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="mb-6 rounded-2xl overflow-hidden bg-muted/50"
+          style={cryptolockerActive && !isAnswered ? { display: 'none' } : {}}
         >
           <img
             src={getImageUrl(question.question_snapshot.image_url) || ''}
@@ -80,11 +80,11 @@ export const DuelQuestionCard = memo(({
 
       {/* Question Text */}
       {cryptolockerActive && !isAnswered ? (
-        <EncryptionFlashlight isActive={true} flashlightRadius={typeof window !== 'undefined' && window.innerWidth < 768 ? 120 : 160}>
-          <h2 className="text-xl md:text-2xl font-bold mb-6 leading-relaxed text-foreground break-words min-h-[60px] md:min-h-[80px]">
-            <Scrambler>{questionText}</Scrambler>
+        <EncryptedText className="mb-6">
+          <h2 className="text-xl md:text-2xl font-bold leading-relaxed break-words min-h-[60px] md:min-h-[80px]">
+            {questionText}
           </h2>
-        </EncryptionFlashlight>
+        </EncryptedText>
       ) : (
         <h2 className="text-xl md:text-2xl font-bold mb-6 leading-relaxed text-foreground break-words">
           {questionText}
@@ -117,45 +117,7 @@ export const DuelQuestionCard = memo(({
               ? option.text_en
               : option.text_es;
 
-          const buttonElement = cryptolockerActive && !isAnswered ? (
-            <EncryptionFlashlight isActive={true} flashlightRadius={typeof window !== 'undefined' && window.innerWidth < 768 ? 100 : 130}>
-              <motion.button
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                onClick={() => !isAnswered && !isEliminated && onAnswer(option.id)}
-                disabled={isAnswered || isEliminated}
-                whileHover={!isAnswered && !isEliminated ? { scale: 1.02 } : {}}
-                whileTap={!isAnswered && !isEliminated ? { scale: 0.98 } : {}}
-                className={`p-3 md:p-4 rounded-2xl border-2 text-left transition-all font-semibold text-sm md:text-base leading-snug relative overflow-hidden min-h-[48px] md:min-h-[60px] break-words hyphens-auto w-full ${
-                  showResult
-                    ? isCorrect
-                      ? 'bg-green-500/20 border-green-500 text-foreground shadow-lg'
-                      : isSelected
-                        ? 'bg-red-500/20 border-red-500 text-foreground shadow-lg'
-                        : 'bg-muted/30 border-border/30 opacity-50'
-                    : isSelected
-                      ? 'bg-primary/20 border-primary shadow-lg'
-                      : 'bg-card border-border hover:border-primary/50 hover:bg-primary/10 hover:shadow-md'
-                }`}
-              >
-                {showResult && (isCorrect || isSelected) && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className={`absolute top-2 md:top-3 right-2 md:right-3 w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center font-bold text-white ${
-                      isCorrect ? 'bg-green-500' : 'bg-red-500'
-                    }`}
-                  >
-                    {isCorrect ? '✓' : '✗'}
-                  </motion.div>
-                )}
-                <span className="block pr-10 text-base break-words hyphens-auto">
-                  <Scrambler>{optionText}</Scrambler>
-                </span>
-              </motion.button>
-            </EncryptionFlashlight>
-          ) : (
+          const buttonElement = (
             <motion.button
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -187,9 +149,15 @@ export const DuelQuestionCard = memo(({
                   {isCorrect ? '✓' : '✗'}
                 </motion.div>
               )}
-              <span className="block pr-10 text-base break-words hyphens-auto">
-                {optionText}
-              </span>
+              {cryptolockerActive && !isAnswered ? (
+                <EncryptedText className="block pr-10 text-base break-words hyphens-auto">
+                  {optionText}
+                </EncryptedText>
+              ) : (
+                <span className="block pr-10 text-base break-words hyphens-auto">
+                  {optionText}
+                </span>
+              )}
             </motion.button>
           );
 
@@ -218,6 +186,18 @@ export const DuelQuestionCard = memo(({
       </div>
     </div>
   );
+
+  // Обертываем весь контент в провайдер фонарика, если атака активна
+  if (cryptolockerActive && !isAnswered) {
+    const radius = typeof window !== 'undefined' && window.innerWidth < 768 ? 120 : 160;
+    return (
+      <EncryptionFlashlightProvider isActive={true} flashlightRadius={radius}>
+        {cardContent}
+      </EncryptionFlashlightProvider>
+    );
+  }
+
+  return cardContent;
 });
 
 DuelQuestionCard.displayName = 'DuelQuestionCard';
