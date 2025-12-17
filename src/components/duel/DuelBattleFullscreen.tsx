@@ -41,7 +41,7 @@ import { useBotOpponent } from '@/hooks/useBotOpponent';
 import { OilSplashAttack } from './attacks/OilSplashAttack';
 import { PoliceBackdoorAttack } from './attacks/PoliceBackdoorAttack';
 import { InputLagWrapper } from './attacks/InputLagWrapper';
-import { DuelSurrenderModal } from './DuelSurrenderModal';
+import { ExitDuelModal } from './ExitDuelModal';
 
 // КРИТИЧНО: Мемоизированный компонент для OilSplashAttack
 // Предотвращает повторный рендеринг при неизменных props
@@ -2367,7 +2367,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       })()}
 
       {/* Модалка сдачи */}
-      <DuelSurrenderModal
+      <ExitDuelModal
         open={showSurrenderModal}
         onOpenChange={setShowSurrenderModal}
         duelId={duelId}
