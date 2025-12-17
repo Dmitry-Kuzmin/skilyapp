@@ -182,11 +182,11 @@ export function useDuelResults(duelId: string | null, profileId: string | null) 
       };
 
       // 🆕 FIX: Сохраняем snapshot для предотвращения race condition при следующей загрузке
-      const snapshot: DuelResultSnapshot = {
+      const resultSnapshot: DuelResultSnapshot = {
         ...resultData,
         timestamp: Date.now(),
       };
-      saveDuelResultSnapshot(snapshot);
+      saveDuelResultSnapshot(resultSnapshot);
       console.log('[useDuelResults] ✅ Snapshot saved for future use');
 
       return resultData;
