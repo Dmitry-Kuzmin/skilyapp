@@ -20,6 +20,7 @@ import { DataLaunderingButton } from './DataLaunderingButton';
 import { useVignetteBanner } from '@/hooks/useVignetteBanner';
 import { useInterstitialBanner } from '@/hooks/useInterstitialBanner';
 import { usePremium } from '@/hooks/usePremium';
+import { AnimatedCounter } from '@/components/AnimatedCounter';
 
 interface DuelResultProps {
   duelId: string;
@@ -52,6 +53,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   const [rewards, setRewards] = useState<{ sp: number; xp: number; bonusCoins: number; insuranceRefund?: number } | null>(null);
   const rewardsAppliedRef = useRef(false);
   const notificationSentRef = useRef(false);
+  const counterAnimationCompleteRef = useRef(false);
 
   // Обновляем состояние при загрузке данных
   useEffect(() => {
@@ -143,6 +145,19 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
     }
   }, [results]);
 
+  // Вибрация при завершении анимации счетчика (через 1.5 секунды после появления результатов)
+  useEffect(() => {
+    if (results && !counterAnimationCompleteRef.current) {
+      counterAnimationCompleteRef.current = true;
+      const timer = setTimeout(() => {
+        // Вибрация успеха при завершении анимации счетчика
+        haptics.correctAnswer();
+      }, 1500); // Время анимации счетчика
+      
+      return () => clearTimeout(timer);
+    }
+  }, [results]);
+
   // Вычисляем bonusCoins из results
   useEffect(() => {
     if (results) {
@@ -177,7 +192,93 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   }
 
   return (
-    <div className="fixed inset-0 bg-background overflow-y-auto pt-safe z-40">
+    <div className="fixed inset-0 bg-background overflow-y-auto pt-safe z-40 relative">
+      {/* Ambient Background Orbs - Premium Depth Effect */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        {results.isWinner && (
+          <>
+            <motion.div
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.4, 0.5, 0.4],
+                x: [0, 50, 0],
+                y: [0, -30, 0],
+              }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/40 rounded-full blur-[120px]"
+            />
+            <motion.div
+              animate={{
+                scale: [1, 1.3, 1],
+                opacity: [0.3, 0.45, 0.3],
+                x: [0, -40, 0],
+                y: [0, 40, 0],
+              }}
+              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-500/40 rounded-full blur-[120px]"
+            />
+            <motion.div
+              animate={{
+                scale: [1, 1.15, 1],
+                opacity: [0.25, 0.35, 0.25],
+                x: [0, 30, 0],
+                y: [0, -50, 0],
+              }}
+              transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+              className="absolute top-1/2 right-1/3 w-80 h-80 bg-violet-500/30 rounded-full blur-[120px]"
+            />
+          </>
+        )}
+        {!results.isWinner && !results.isDraw && (
+          <>
+            <motion.div
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.4, 0.3],
+                x: [0, 50, 0],
+                y: [0, -30, 0],
+              }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-1/4 left-1/4 w-96 h-96 bg-red-500/30 rounded-full blur-[120px]"
+            />
+            <motion.div
+              animate={{
+                scale: [1, 1.3, 1],
+                opacity: [0.2, 0.35, 0.2],
+                x: [0, -40, 0],
+                y: [0, 40, 0],
+              }}
+              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-orange-500/25 rounded-full blur-[120px]"
+            />
+          </>
+        )}
+        {results.isDraw && (
+          <>
+            <motion.div
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.4, 0.3],
+                x: [0, 50, 0],
+                y: [0, -30, 0],
+              }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/30 rounded-full blur-[120px]"
+            />
+            <motion.div
+              animate={{
+                scale: [1, 1.3, 1],
+                opacity: [0.25, 0.35, 0.25],
+                x: [0, -40, 0],
+                y: [0, 40, 0],
+              }}
+              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-500/25 rounded-full blur-[120px]"
+            />
+          </>
+        )}
+      </div>
+
       <div className="min-h-screen w-full max-w-2xl mx-auto px-4 py-8 pb-24 space-y-6 relative z-10">
         <AnimatePresence>
           {results.isWinner && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={200} gravity={0.25} style={{ position: 'fixed', top: 0, left: 0, zIndex: 50 }} />}
@@ -190,27 +291,49 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           transition={{ type: "spring", duration: 0.7, bounce: 0.4 }}
           className="text-center space-y-6 relative pt-8 md:pt-12"
         >
-          {/* Animated Trophy/Icon */}
+          {/* Animated Trophy/Icon - Premium 3D Effect */}
           <motion.div
             animate={results.isWinner ? {
-              rotate: [0, -5, 5, -5, 0],
-              scale: [1, 1.1, 1, 1.05, 1]
-            } : results.isDraw ? {
+              y: [0, -10, 0],
+              rotate: [0, -3, 3, -3, 0],
               scale: [1, 1.05, 1]
+            } : results.isDraw ? {
+              y: [0, -5, 0],
+              scale: [1, 1.03, 1]
             } : {
-              scale: [1, 0.95, 1]
+              y: [0, -3, 0],
+              scale: [1, 0.98, 1]
             }}
             transition={{ 
-              duration: results.isWinner ? 1 : 2, 
-              repeat: results.isWinner ? Infinity : (results.isDraw ? Infinity : 0), 
-              repeatDelay: results.isWinner ? 3 : 2 
+              duration: results.isWinner ? 3 : 4, 
+              repeat: Infinity, 
+              ease: "easeInOut"
             }}
             className="relative inline-block"
           >
             {results.isWinner && (
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 blur-3xl opacity-50 animate-pulse" />
-                <Trophy className="relative h-24 w-24 mx-auto text-yellow-400 drop-shadow-2xl" />
+                {/* Radial Glow Effect */}
+                <motion.div
+                  animate={{
+                    scale: [1, 1.3, 1],
+                    opacity: [0.5, 0.7, 0.5],
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 rounded-full blur-3xl"
+                  style={{ width: '200%', height: '200%', left: '-50%', top: '-50%' }}
+                />
+                {/* Secondary Glow */}
+                <motion.div
+                  animate={{
+                    scale: [1, 1.5, 1],
+                    opacity: [0.3, 0.5, 0.3],
+                  }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                  className="absolute inset-0 bg-gradient-to-br from-yellow-300 to-orange-600 rounded-full blur-2xl"
+                  style={{ width: '150%', height: '150%', left: '-25%', top: '-25%' }}
+                />
+                <Trophy className="relative h-24 w-24 mx-auto text-yellow-400 drop-shadow-[0_0_30px_rgba(251,191,36,0.8)]" />
               </div>
             )}
             {!results.isWinner && !results.isDraw && (
@@ -277,7 +400,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           </div>
         </motion.div>
 
-        {/* Score Cards - Modern Glass Design */}
+        {/* Score Cards - Premium Glassmorphism Design */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -290,22 +413,30 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
             transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
             className="relative group"
           >
-            {/* Glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-indigo-500/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            {/* Hover Glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-indigo-500/30 rounded-[32px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            <div className="relative bg-card/80 dark:bg-zinc-900/40 backdrop-blur-xl rounded-3xl p-6 border border-border/50 dark:border-white/10 shadow-lg">
-              <div className="text-center space-y-3">
-                <motion.div
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="text-6xl font-black bg-gradient-to-br from-blue-500 to-indigo-500 bg-clip-text text-transparent"
-                >
-                  {results.myScore}
-                </motion.div>
-                <div className="text-sm font-bold text-foreground/80">Вы</div>
-                <div className="flex items-center justify-center gap-2 bg-muted/50 dark:bg-white/10 rounded-xl px-3 py-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 dark:text-green-400" />
-                  <span className="text-sm font-bold text-foreground">{results.myCorrect}/{totalQuestions}</span>
+            {/* Premium Glass Card */}
+            <div className="relative overflow-hidden bg-slate-900/60 dark:bg-black/40 backdrop-blur-xl rounded-[32px] p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+              {/* Top highlight for depth */}
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              
+              {/* Inner glow */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+              
+              {/* Noise texture overlay */}
+              <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+
+              <div className="text-center space-y-3 relative z-10">
+                <AnimatedCounter
+                  value={results.myScore}
+                  duration={1500}
+                  className="text-6xl font-black bg-gradient-to-b from-blue-400 via-blue-300 to-white bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]"
+                />
+                <div className="text-sm font-semibold uppercase tracking-wider text-zinc-400">Вы</div>
+                <div className="flex items-center justify-center gap-2 bg-white/5 backdrop-blur-sm rounded-xl px-3 py-2 border border-white/10">
+                  <CheckCircle2 className="w-4 h-4 text-green-400" />
+                  <span className="text-sm font-bold text-zinc-200">{results.myCorrect}/{totalQuestions}</span>
                 </div>
               </div>
             </div>
@@ -317,42 +448,64 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
             transition={{ delay: 0.3, type: "spring", stiffness: 100 }}
             className="relative group"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-zinc-500/20 to-zinc-600/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            {/* Hover Glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-zinc-500/20 to-zinc-600/20 rounded-[32px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            <div className="relative bg-card/80 dark:bg-zinc-900/40 backdrop-blur-xl rounded-3xl p-6 border border-border/50 dark:border-white/10 overflow-hidden shadow-lg">
+            {/* Premium Glass Card */}
+            <div className="relative overflow-hidden bg-slate-900/60 dark:bg-black/40 backdrop-blur-xl rounded-[32px] p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+              {/* Top highlight for depth */}
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              
+              {/* Inner glow */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+              
+              {/* Noise texture overlay */}
+              <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+              
               {/* Subtle animated background */}
-              <div className="absolute inset-0 opacity-20">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-zinc-400/20 dark:bg-zinc-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-              </div>
+              <motion.div
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.1, 0.15, 0.1],
+                }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-0 right-0 w-32 h-32 bg-zinc-500/20 rounded-full blur-3xl"
+              />
+
               <div className="text-center space-y-3 relative z-10">
-                <div className="text-6xl font-black text-muted-foreground dark:text-zinc-300">
-                  {results.opponentScore}
-                </div>
-                <div className="text-sm font-bold text-muted-foreground/80 dark:text-zinc-400 truncate px-2 max-w-[150px] md:max-w-none mx-auto" title={results.opponentName}>{results.opponentName}</div>
-                <div className="flex items-center justify-center gap-2 bg-muted/50 dark:bg-white/10 rounded-xl px-3 py-2 backdrop-blur-sm">
-                  <Target className="w-4 h-4 text-orange-500 dark:text-orange-400" />
-                  <span className="text-sm font-bold text-foreground">{results.opponentCorrect}/{totalQuestions}</span>
+                <AnimatedCounter
+                  value={results.opponentScore}
+                  duration={1500}
+                  className="text-6xl font-black text-zinc-300 drop-shadow-[0_0_15px_rgba(0,0,0,0.3)]"
+                />
+                <div className="text-sm font-semibold uppercase tracking-wider text-zinc-500 truncate px-2 max-w-[150px] md:max-w-none mx-auto" title={results.opponentName}>{results.opponentName}</div>
+                <div className="flex items-center justify-center gap-2 bg-white/5 backdrop-blur-sm rounded-xl px-3 py-2 border border-white/10">
+                  <Target className="w-4 h-4 text-orange-400" />
+                  <span className="text-sm font-bold text-zinc-200">{results.opponentCorrect}/{totalQuestions}</span>
                 </div>
               </div>
             </div>
           </motion.div>
         </motion.div>
 
-        {/* Rewards Section - Completely Redesigned */}
+        {/* Rewards Section - Premium Glassmorphism with Sparkles */}
         {rewards && (
           <motion.div
             initial={{ y: 30, opacity: 0, scale: 0.95 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             transition={{ delay: 0.5 }}
-            className="relative overflow-hidden rounded-3xl border border-border/50 dark:border-white/10 bg-card/80 dark:bg-zinc-900/40 backdrop-blur-xl p-6 shadow-lg"
+            className="relative overflow-hidden rounded-[32px] border border-white/10 bg-slate-900/60 dark:bg-black/40 backdrop-blur-xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
           >
+            {/* Top highlight for depth */}
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+            
             {/* Animated background gradient */}
             <motion.div
               animate={{
                 backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
               }}
               transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-indigo-500/5 to-blue-500/5 opacity-40 rounded-3xl overflow-hidden"
+              className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-indigo-500/5 to-blue-500/5 opacity-40 rounded-[32px] overflow-hidden"
               style={{ backgroundSize: "200% 200%" }}
             />
             
@@ -362,15 +515,18 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
               <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-blue-500/10 to-transparent rounded-full blur-3xl" />
             </div>
 
+            {/* Noise texture overlay */}
+            <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+
             <div className="relative z-10 space-y-5">
               <div className="flex items-center justify-center gap-2">
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                 >
-                  <Sparkles className="w-6 h-6 text-indigo-400" />
+                  <Sparkles className="w-6 h-6 text-indigo-400 drop-shadow-[0_0_10px_rgba(129,140,248,0.5)]" />
                 </motion.div>
-                <h3 className="text-xl font-black bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
+                <h3 className="text-xl font-black bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
                   Награды
                 </h3>
               </div>
@@ -379,39 +535,79 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
                 {/* Season Points */}
                 <motion.div
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="relative bg-muted/30 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-blue-500/30 dark:border-blue-500/20 text-center space-y-2 overflow-hidden group"
+                  className="relative bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-blue-500/30 text-center space-y-2 overflow-hidden group"
                 >
                   {/* Hover glow */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  
+                  {/* Rotating glow orb */}
                   <motion.div
                     animate={{ rotate: [0, 360] }}
                     transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 dark:bg-blue-500/5 rounded-full blur-xl"
+                    className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-full blur-xl"
                   />
-                  <Star className="relative z-10 w-8 h-8 text-blue-500 dark:text-blue-400 mx-auto fill-blue-500/20 dark:fill-blue-400/20" />
-                  <div className="relative z-10 text-xs font-bold text-muted-foreground dark:text-zinc-400 uppercase tracking-wider">Season Points</div>
-                  <div className="relative z-10 text-3xl font-black bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent">
-                    +{rewards.sp}
+                  
+                  {/* Sparkle effect on icon */}
+                  <div className="relative z-10">
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.2, 1],
+                        opacity: [0.8, 1, 0.8],
+                      }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="absolute inset-0 flex items-center justify-center"
+                    >
+                      <div className="w-8 h-8 bg-blue-500/20 rounded-full blur-md" />
+                    </motion.div>
+                    <Star className="relative z-10 w-8 h-8 text-blue-400 mx-auto fill-blue-500/20 drop-shadow-[0_0_15px_rgba(59,130,246,0.6)]" />
                   </div>
+                  
+                  <div className="relative z-10 text-xs font-semibold uppercase tracking-wider text-zinc-400">Season Points</div>
+                  <AnimatedCounter
+                    value={rewards.sp}
+                    duration={1500}
+                    prefix="+"
+                    className="relative z-10 text-3xl font-black bg-gradient-to-br from-blue-400 to-blue-300 bg-clip-text text-transparent"
+                  />
                 </motion.div>
 
                 {/* XP */}
                 <motion.div
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="relative bg-muted/30 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-indigo-500/30 dark:border-indigo-500/20 text-center space-y-2 overflow-hidden group"
+                  className="relative bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-indigo-500/30 text-center space-y-2 overflow-hidden group"
                 >
                   {/* Hover glow */}
                   <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  
+                  {/* Rotating glow orb */}
                   <motion.div
                     animate={{ rotate: [360, 0] }}
                     transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-0 left-0 w-16 h-16 bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-xl"
+                    className="absolute top-0 left-0 w-16 h-16 bg-indigo-500/10 rounded-full blur-xl"
                   />
-                  <Zap className="relative z-10 w-8 h-8 text-indigo-500 dark:text-indigo-400 mx-auto fill-indigo-500/20 dark:fill-indigo-400/20" />
-                  <div className="relative z-10 text-xs font-bold text-muted-foreground dark:text-zinc-400 uppercase tracking-wider">Опыт</div>
-                  <div className="relative z-10 text-3xl font-black bg-gradient-to-br from-indigo-500 to-indigo-600 dark:from-indigo-400 dark:to-indigo-600 bg-clip-text text-transparent">
-                    +{rewards.xp}
+                  
+                  {/* Sparkle effect on icon */}
+                  <div className="relative z-10">
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.2, 1],
+                        opacity: [0.8, 1, 0.8],
+                      }}
+                      transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                      className="absolute inset-0 flex items-center justify-center"
+                    >
+                      <div className="w-8 h-8 bg-indigo-500/20 rounded-full blur-md" />
+                    </motion.div>
+                    <Zap className="relative z-10 w-8 h-8 text-indigo-400 mx-auto fill-indigo-500/20 drop-shadow-[0_0_15px_rgba(129,140,248,0.6)]" />
                   </div>
+                  
+                  <div className="relative z-10 text-xs font-semibold uppercase tracking-wider text-zinc-400">Опыт</div>
+                  <AnimatedCounter
+                    value={rewards.xp}
+                    duration={1500}
+                    prefix="+"
+                    className="relative z-10 text-3xl font-black bg-gradient-to-br from-indigo-400 to-indigo-300 bg-clip-text text-transparent"
+                  />
                 </motion.div>
               </div>
             </div>
@@ -542,21 +738,46 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           </motion.div>
         )}
 
-        {/* Action Buttons */}
+        {/* Action Buttons - Premium with Shine Effect */}
         <motion.div
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.8 }}
           className="grid grid-cols-2 gap-4 pt-4"
         >
-          <Button
-            onClick={onRematch}
-            size="lg"
-            className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-400 hover:to-indigo-400 text-white font-bold h-14 rounded-2xl shadow-lg shadow-blue-500/30"
+          <motion.div
+            className="relative group overflow-hidden rounded-2xl"
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
           >
-            <RotateCcw className="w-5 h-5 mr-2" />
-            Реванш
-          </Button>
+            {/* Shine effect - пробегающий блик */}
+            <motion.div
+              animate={{
+                x: ['-100%', '200%'],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                repeatDelay: 1,
+                ease: "easeInOut",
+              }}
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
+            />
+            
+            <Button
+              onClick={onRematch}
+              size="lg"
+              className="relative w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 hover:from-blue-400 hover:via-indigo-400 hover:to-violet-400 text-white font-bold h-14 rounded-2xl shadow-[0_0_20px_-5px_rgba(99,102,241,0.4)] border-0 overflow-hidden"
+            >
+              {/* Noise texture overlay */}
+              <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+              <div className="relative z-10 flex items-center justify-center">
+                <RotateCcw className="w-5 h-5 mr-2" />
+                Реванш
+              </div>
+            </Button>
+          </motion.div>
+          
           <Button
             onClick={() => {
               // Показываем Interstitial при возврате в меню (только для обычных пользователей, один раз за сессию)
@@ -570,7 +791,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
             }}
             size="lg"
             variant="outline"
-            className="border-border/50 dark:border-white/20 bg-muted/30 dark:bg-white/5 hover:bg-muted/50 dark:hover:bg-white/10 text-foreground font-bold h-14 rounded-2xl backdrop-blur-sm"
+            className="border-white/10 bg-white/5 hover:bg-white/10 text-zinc-200 font-bold h-14 rounded-2xl backdrop-blur-sm"
           >
             <Home className="w-5 h-5 mr-2" />
             В меню
