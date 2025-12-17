@@ -40,10 +40,11 @@ export const TelegramNavigation = () => {
     const handleBack = () => {
       console.log('[TelegramNavigation] BackButton clicked, current path:', location.pathname);
       
-      // Специальная обработка для дуэли - всегда выходим из дуэли на страницу игр
+      // Специальная обработка для дуэли - НЕ обрабатываем здесь, если мы в активной битве
+      // DuelBattleFullscreen сам обработает BackButton и покажет модалку подтверждения
       if (location.pathname.includes('/duel') || location.pathname.includes('/games/duel')) {
-        console.log('[TelegramNavigation] Exiting duel via BackButton');
-        navigate('/games');
+        console.log('[TelegramNavigation] Duel detected - letting DuelBattleFullscreen handle BackButton');
+        // Не обрабатываем - DuelBattleFullscreen покажет модалку
         return;
       }
       

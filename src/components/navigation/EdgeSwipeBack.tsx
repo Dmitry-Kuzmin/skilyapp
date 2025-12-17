@@ -50,8 +50,11 @@ export const EdgeSwipeBack: React.FC = () => {
       startRef.current.active = false;
       e.preventDefault();
       e.stopPropagation();
+      // Для дуэли - НЕ обрабатываем здесь, DuelBattleFullscreen сам обработает свайп
+      // и покажет модалку подтверждения
       if (location.pathname.includes("/duel") || location.pathname.includes("/games/duel")) {
-        navigate("/games");
+        // Не обрабатываем - DuelBattleFullscreen покажет модалку
+        return;
       } else {
         navigate(-1);
       }

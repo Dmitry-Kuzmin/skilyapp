@@ -879,20 +879,72 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     // Показываем BackButton в дуэли
     webApp.BackButton.show();
 
-    // Обработчик для выхода из дуэли
+    // Обработчик для выхода из дуэли - открываем модалку подтверждения
     const handleBack = () => {
-      log('[DuelBattleFullscreen] BackButton clicked - showing surrender modal');
+      log('[DuelBattleFullscreen] BackButton clicked - showing exit confirmation modal');
       setShowSurrenderModal(true);
     };
 
-    // Вешаем обработчик
+    // Вешаем обработчик сразу - TelegramNavigation теперь не обрабатывает дуэли
     webApp.BackButton.onClick(handleBack);
 
     // Cleanup
     return () => {
       webApp.BackButton.offClick(handleBack);
     };
-  }, [onExit]);
+  }, []);
+
+  // Обработка свайпа назад (слева направо) на мобиле
+  useEffect(() => {
+    if (!isTelegramMiniApp()) return;
+
+    const EDGE_ZONE_PX = 16;
+    const startRef = { x: 0, y: 0, active: false };
+
+    const onTouchStart = (e: TouchEvent) => {
+      const t = e.touches[0];
+      // Исключаем область навигации (нижние 100px)
+      const isInNavArea = t.clientY >= window.innerHeight - 100;
+      if (t.clientX <= EDGE_ZONE_PX && !isInNavArea) {
+        startRef.x = t.clientX;
+        startRef.y = t.clientY;
+        startRef.active = true;
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!startRef.active) return;
+      const t = e.touches[0];
+      const dx = t.clientX - startRef.x;
+      const dy = Math.abs(t.clientY - startRef.y);
+      
+      // Свайп назад (слева направо) обнаружен
+      if (dx > 60 && dy < 50) {
+        startRef.active = false;
+        e.preventDefault();
+        e.stopPropagation();
+        log('[DuelBattleFullscreen] Swipe back detected - showing exit confirmation modal');
+        setShowSurrenderModal(true);
+      }
+    };
+
+    const reset = () => {
+      startRef.active = false;
+    };
+
+    // Добавляем обработчики на document для перехвата всех свайпов
+    document.addEventListener('touchstart', onTouchStart, { passive: true });
+    document.addEventListener('touchmove', onTouchMove, { passive: false });
+    document.addEventListener('touchend', reset);
+    document.addEventListener('touchcancel', reset);
+
+    return () => {
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend', reset);
+      document.removeEventListener('touchcancel', reset);
+    };
+  }, []);
 
   // Sync opponent score from realtime - основной способ обновления счета
   useEffect(() => {
