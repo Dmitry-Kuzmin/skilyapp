@@ -98,15 +98,13 @@ export function useActiveDuel() {
           setIsChecking(false);
         });
       
-      // КРИТИЧНО: Не устанавливаем isChecking в finally, так как мы ждем результата checkDuelStatus
-      // isChecking будет установлен в false внутри then/catch
+      // КРИТИЧНО: НЕ устанавливаем isChecking в false здесь!
+      // Мы ждем результата checkDuelStatus, который установит isChecking в false в then/catch
+      // Если установить здесь - виджет может показаться до завершения проверки
       return;
-      
-      return; // Не устанавливаем isChecking здесь, ждем результата проверки
     } catch (error) {
       console.error('[useActiveDuel] Error loading saved state:', error);
       localStorage.removeItem(ACTIVE_DUEL_STORAGE_KEY);
-    } finally {
       setIsChecking(false);
     }
   }, []);
