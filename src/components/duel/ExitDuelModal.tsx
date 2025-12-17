@@ -202,6 +202,24 @@ export function ExitDuelModal({
     }
   }, [profileId, duelId, onSurrender, onOpenChange]);
 
+  // Глобальные обработчики для mouse событий (десктоп)
+  useEffect(() => {
+    if (!isHolding) return;
+
+    const handleMouseUp = () => {
+      setIsHolding(false);
+    };
+
+    // Добавляем глобальные обработчики для десктопа
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mouseleave', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mouseleave', handleMouseUp);
+    };
+  }, [isHolding]);
+
   // Hold-to-confirm логика
   useEffect(() => {
     if (!isHolding) {
@@ -399,10 +417,20 @@ export function ExitDuelModal({
                   {/* Destructive: Surrender Button with Hold-to-Confirm */}
                   <div className="relative">
                     <Button
-                      onMouseDown={() => !isSurrendering && setIsHolding(true)}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        if (!isSurrendering) {
+                          setIsHolding(true);
+                        }
+                      }}
                       onMouseUp={() => setIsHolding(false)}
                       onMouseLeave={() => setIsHolding(false)}
-                      onTouchStart={() => !isSurrendering && setIsHolding(true)}
+                      onTouchStart={(e) => {
+                        e.preventDefault();
+                        if (!isSurrendering) {
+                          setIsHolding(true);
+                        }
+                      }}
                       onTouchEnd={() => setIsHolding(false)}
                       disabled={isSurrendering}
                       variant="outline"
@@ -416,7 +444,7 @@ export function ExitDuelModal({
                         "hover:border-red-500",
                         "active:scale-[0.98]",
                         "transition-all duration-200",
-                        isHolding && "border-red-500"
+                        isHolding && "border-red-500 ring-2 ring-red-500/50"
                       )}
                     >
                       {/* Progress bar overlay */}
@@ -438,10 +466,13 @@ export function ExitDuelModal({
                         ) : isHolding ? (
                           <>
                             <span className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
-                            Удерживайте... {Math.round(holdProgress)}%
+                            <span className="font-bold">Удерживайте...</span> {Math.round(holdProgress)}%
                           </>
                         ) : (
-                          'Сдаться (Поражение)'
+                          <>
+                            <span>Сдаться (Поражение)</span>
+                            <span className="text-[10px] opacity-60 font-normal">• Удерживайте 1.5 сек</span>
+                          </>
                         )}
                       </span>
                     </Button>
