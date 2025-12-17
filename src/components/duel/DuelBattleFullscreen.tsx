@@ -90,6 +90,29 @@ interface DuelBattleFullscreenProps {
 }
 
 export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, onWidgetExpand }: DuelBattleFullscreenProps) {
+  // КРИТИЧНО: Объявляем ВСЕ хуки и переменные ПЕРЕД их использованием в useEffect
+  // Это предотвращает TDZ (Temporal Dead Zone) ошибки при сборке
+  const { profileId } = useUserContext();
+  const [isWaitingHidden, setIsWaitingHidden] = useState(false);
+  const [showSurrenderModal, setShowSurrenderModal] = useState(false);
+  const { activeDuel, saveActiveDuel, updateActiveDuel } = useActiveDuel();
+  const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
+  const { state, refreshExploits, removeExploit } = useDuelRealtime(duelId, myPlayerId);
+  const { fetchQuestions, fetchPlayers, fetchBoostInventory, fetchBetInfo } = useDuelData(duelId, profileId);
+  const [duelCode, setDuelCode] = useState<string | null>(null);
+  
+  // 🆕 Состояние для активных exploits
+  const [activeExploits, setActiveExploits] = useState<Map<string, { expiresAt: number; passed?: boolean }>>(new Map());
+  
+  // 🆕 Состояния для переподключения и авто-победы (объявляем ДО useEffect)
+  const [showReconnectionModal, setShowReconnectionModal] = useState(false);
+  const [isReconnecting, setIsReconnecting] = useState(false);
+  const [reconnectAttempt, setReconnectAttempt] = useState(0);
+  const [opponentIsConnected, setOpponentIsConnected] = useState<boolean>(true);
+  const [opponentLastSeen, setOpponentLastSeen] = useState<Date | null>(null);
+  const [showAutoWinTimer, setShowAutoWinTimer] = useState(false);
+  const [autoWinTimeRemaining, setAutoWinTimeRemaining] = useState(60);
+  
   // КРИТИЧНО: Логируем duelId при монтировании для отладки
   useEffect(() => {
     if (duelId) {
@@ -142,18 +165,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     const timeout = setTimeout(checkReconnection, 1000);
     return () => clearTimeout(timeout);
   }, [duelId, profileId]);
-
-  const [isWaitingHidden, setIsWaitingHidden] = useState(false);
-  const [showSurrenderModal, setShowSurrenderModal] = useState(false);
-  const { profileId } = useUserContext();
-  const { activeDuel, saveActiveDuel, updateActiveDuel } = useActiveDuel();
-  const { fetchQuestions, fetchPlayers, fetchBoostInventory, fetchBetInfo } = useDuelData(duelId, profileId);
-  const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
-  const { state, refreshExploits, removeExploit } = useDuelRealtime(duelId, myPlayerId);
-  const [duelCode, setDuelCode] = useState<string | null>(null);
-  
-  // 🆕 Состояние для активных exploits
-  const [activeExploits, setActiveExploits] = useState<Map<string, { expiresAt: number; passed?: boolean }>>(new Map());
   
   // 🆕 Обработка активных exploits из Realtime
   useEffect(() => {
@@ -296,16 +307,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const [myPhotoUrl, setMyPhotoUrl] = useState<string | null>(null);
   const [opponentPhotoUrl, setOpponentPhotoUrl] = useState<string | null>(null);
   const [opponentActivityStatus, setOpponentActivityStatus] = useState<'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline'>('online');
-  const [opponentLastSeen, setOpponentLastSeen] = useState<Date | null>(null);
-  const [opponentIsConnected, setOpponentIsConnected] = useState<boolean>(true);
-  const [showReconnectionModal, setShowReconnectionModal] = useState(false);
-  const [isReconnecting, setIsReconnecting] = useState(false);
-  const [reconnectAttempt, setReconnectAttempt] = useState(0);
   const previousActivityStatusRef = useRef<'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline'>('online');
-  
-  // 🆕 Auto-Win состояния
-  const [showAutoWinTimer, setShowAutoWinTimer] = useState(false);
-  const [autoWinTimeRemaining, setAutoWinTimeRemaining] = useState(60); // секунды
   
   // КРИТИЧНО: Вычисляем isDuelActive с проверкой на существование state
   const isDuelActive = Boolean(state?.duelStarted && !state?.duelFinished);
