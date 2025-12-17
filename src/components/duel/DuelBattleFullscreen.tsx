@@ -2631,7 +2631,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         }}
         onSurrender={onExit}
         isReconnecting={isReconnecting}
-      />
+        />
+      </Suspense>
     </div>
   );
 }
