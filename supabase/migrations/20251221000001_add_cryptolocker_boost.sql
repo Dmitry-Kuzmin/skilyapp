@@ -2,7 +2,7 @@
 -- Add Cryptolocker Boost (Encryption Layer Attack)
 -- ============================================
 
--- Добавляем новый буст Cryptolocker в категорию OFFENSE
+-- Добавляем новый буст Cryptolocker в категорию OFFENSE (Root Mode)
 INSERT INTO public.boost_definitions (
   type,
   name_ru,
@@ -11,7 +11,10 @@ INSERT INTO public.boost_definitions (
   description_es,
   icon,
   cost_coins,
-  is_premium
+  is_premium,
+  mode,
+  category,
+  target_type
 ) VALUES (
   'cryptolocker',
   'Cryptolocker',
@@ -20,7 +23,10 @@ INSERT INTO public.boost_definitions (
   'Encripta el texto de la pregunta y las respuestas. Para leer, debes mover el cursor/dedo por la pantalla',
   '🔒',
   40,
-  false
+  false,
+  'root',
+  'exploit',
+  'opponent'
 )
 ON CONFLICT (type) DO UPDATE SET
   name_ru = EXCLUDED.name_ru,
@@ -29,5 +35,8 @@ ON CONFLICT (type) DO UPDATE SET
   description_es = EXCLUDED.description_es,
   icon = EXCLUDED.icon,
   cost_coins = EXCLUDED.cost_coins,
-  is_premium = EXCLUDED.is_premium;
+  is_premium = EXCLUDED.is_premium,
+  mode = EXCLUDED.mode,
+  category = EXCLUDED.category,
+  target_type = EXCLUDED.target_type;
 
