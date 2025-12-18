@@ -36,6 +36,8 @@ import { useDuelSync } from '@/hooks/useDuelSync';
 import { useDuelSettings } from '@/hooks/useDuelSettings';
 import { useQuestionBookmark } from '@/hooks/useQuestionBookmark';
 import { useDuelTimeout } from '@/hooks/useDuelTimeout';
+import { saveDuelResultSnapshot } from '@/utils/duelResultSnapshot';
+import type { DuelResultSnapshot } from '@/features/duel/shared';
 import { useDuelGame } from '@/hooks/useDuelGame';
 import { useBotOpponent } from '@/hooks/useBotOpponent';
 import { lazy, Suspense } from 'react';
@@ -406,10 +408,121 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         sounds.victory();
         toast.success('🏁 Финиш! Подводим итоги...', { duration: 2000 });
 
-        setTimeout(() => {
-          log('[DuelBattleFullscreen] 🚀 Transitioning to results');
-          onDuelFinished();
-        }, 500);
+        // 🆕 CRITICAL FIX: Создаем snapshot ПЕРЕД вызовом onDuelFinished
+        // Это гарантирует что данные будут доступны для экрана результатов
+        // даже если activeDuel будет очищен до загрузки данных из БД
+        const createSnapshot = async () => {
+          try {
+            log('[DuelBattleFullscreen] 📸 Creating snapshot before transition...');
+            
+            // Загружаем необходимые данные для snapshot
+            const [duelResult, playersResult] = await Promise.all([
+              supabase.from('duels').select('*').eq('id', duelId).maybeSingle(),
+              supabase
+                .from('duel_players')
+                .select('*, profiles(id, username, first_name, photo_url)')
+                .eq('duel_id', duelId),
+            ]);
+
+            if (duelResult.data && playersResult.data && playersResult.data.length >= 2) {
+              const players = playersResult.data;
+              const myPlayer = players.find((p: any) => p.user_id === profileId);
+              const opponentPlayer = players.find((p: any) => p.user_id !== profileId);
+
+              if (myPlayer && opponentPlayer) {
+                const myPlayerId = myPlayer.id;
+                const opponentPlayerId = opponentPlayer.id;
+
+                // Загружаем ответы
+                const [myAnswersResult, opponentAnswersResult] = await Promise.all([
+                  supabase
+                    .from('duel_answers')
+                    .select('*, duel_questions(*)')
+                    .eq('duel_id', duelId)
+                    .eq('player_id', myPlayerId)
+                    .order('created_at'),
+                  supabase
+                    .from('duel_answers')
+                    .select('*, duel_questions(*)')
+                    .eq('duel_id', duelId)
+                    .eq('player_id', opponentPlayerId)
+                    .order('created_at'),
+                ]);
+
+                const myAnswers = myAnswersResult.data || [];
+                const opponentAnswers = opponentAnswersResult.data || [];
+
+                // Вычисляем результаты
+                const myScoreFinal = myPlayer.score || myScore;
+                const opponentScoreFinal = opponentPlayer.score || opponentScore;
+                const myCorrect = myPlayer.correct_count || 0;
+                const opponentCorrect = opponentPlayer.correct_count || 0;
+                const opponent = opponentPlayer.profiles || {};
+                const duelData = duelResult.data;
+
+                const isWinner = myScoreFinal > opponentScoreFinal;
+                const isDraw = myScoreFinal === opponentScoreFinal;
+
+                let winnings = 0;
+                let insuranceRefund = 0;
+                if (duelData.bet_amount > 0) {
+                  if (isWinner) {
+                    winnings = duelData.bet_amount * 2;
+                  } else if (isDraw) {
+                    winnings = duelData.bet_amount;
+                  }
+                  if (!isWinner && !isDraw && duelData.insurance_used) {
+                    insuranceRefund = Math.floor(duelData.bet_amount * 0.5);
+                  }
+                }
+
+                // Создаем snapshot
+                const snapshot: DuelResultSnapshot = {
+                  duelId,
+                  duel: duelData,
+                  players,
+                  myPlayer,
+                  opponentPlayer,
+                  myAnswers,
+                  opponentAnswers,
+                  results: {
+                    isWinner,
+                    isDraw,
+                    myScore: myScoreFinal,
+                    opponentScore: opponentScoreFinal,
+                    myCorrect,
+                    opponentCorrect,
+                    opponentName: opponent?.username || opponent?.first_name || opponentName,
+                    opponentAvatar: opponent?.photo_url || null,
+                    betAmount: duelData.bet_amount || 0,
+                    winnings,
+                    insuranceRefund,
+                    insuranceUsed: duelData.insurance_used || false,
+                  },
+                  timestamp: Date.now(),
+                };
+
+                saveDuelResultSnapshot(snapshot);
+                log('[DuelBattleFullscreen] ✅ Snapshot created successfully');
+              } else {
+                log('[DuelBattleFullscreen] ⚠️ Could not find players for snapshot');
+              }
+            } else {
+              log('[DuelBattleFullscreen] ⚠️ Could not load duel data for snapshot, will be created by useDuelResults');
+            }
+          } catch (error) {
+            logError('[DuelBattleFullscreen] ❌ Error creating snapshot:', error);
+            // Продолжаем переход даже если snapshot не создан - useDuelResults создаст его
+          }
+        };
+
+        // Создаем snapshot и только потом переходим к результатам
+        createSnapshot().then(() => {
+          setTimeout(() => {
+            log('[DuelBattleFullscreen] 🚀 Transitioning to results');
+            onDuelFinished();
+          }, 500);
+        });
       } else {
         // IMPROVED: Show waiting screen ONLY if opponent hasn't finished yet
         log('[DuelBattleFullscreen] ⏳ Opponent still playing - showing waiting screen');

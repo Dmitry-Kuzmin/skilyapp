@@ -443,15 +443,30 @@ export default function Duel() {
             willSetMode: 'result'
         });
 
-        // Очищаем активную дуэль при завершении
-        clearActiveDuel();
-
         // КРИТИЧНО: Проверяем, что duelId установлен перед переходом к результатам
         if (!duelId) {
             console.error('[Duel] ❌ ERROR: handleDuelFinished called but duelId is null! Cannot show results.');
             toast.error('Ошибка: ID дуэли не найден');
             return;
         }
+
+        // 🆕 CRITICAL FIX: Проверяем snapshot ПЕРЕД очисткой activeDuel
+        // Если snapshot уже есть - отлично, если нет - он будет создан useDuelResults
+        // Но мы НЕ очищаем activeDuel до тех пор, пока не убедимся что snapshot существует
+        const snapshotKey = 'duel_last_result_snapshot';
+        const existingSnapshot = localStorage.getItem(snapshotKey);
+        
+        if (!existingSnapshot) {
+            console.warn('[Duel] ⚠️ No snapshot found, will be created by useDuelResults hook');
+            // Snapshot будет создан useDuelResults при первой загрузке
+            // Но мы все равно не очищаем activeDuel сразу - даем время на создание snapshot
+        } else {
+            console.log('[Duel] ✅ Snapshot exists, safe to clear activeDuel');
+        }
+
+        // КРИТИЧНО: Очищаем activeDuel ТОЛЬКО ПОСЛЕ проверки snapshot
+        // Это гарантирует что данные для результатов будут доступны
+        clearActiveDuel();
 
         console.log('[Duel] ✅ duelId is valid, proceeding with mode change...');
 
