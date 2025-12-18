@@ -1450,12 +1450,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     // Исправленная высота прогресс-бара (реальная высота компонента около 50-60px)
     const PROGRESS_BAR_HEIGHT = 64;
 
-    // 🆕 CRITICAL FIX: Для Telegram Mini App ОБНУЛЯЕМ отступы - полагаемся на глобальный Layout
-    // Layout уже обработал safe area и применил padding-top к контейнеру
-    // Внутри компонента работаем от 0 - прогресс-бар должен быть в самом верху контентной области
+    // 🆕 CRITICAL FIX: Для Telegram Mini App используем raw safeArea.top (один раз, без двойного padding)
+    // Прогресс-бар должен начинаться сразу под системной строкой состояния (челкой iPhone)
+    // Используем safeArea.top напрямую, без добавления telegramNavPadding и contentTop
     // Для обычных мобильных браузеров поднимаем прогресс-бар выше на 15px
     const progressBarTop = isInTelegramMiniApp
-      ? 0 // FORCE ZERO - глобальный Layout уже обработал safe area, работаем от 0
+      ? Math.round(safeArea.top > 0 ? safeArea.top : 20) // Используем raw safeArea.top (обычно 44-47px на iOS), fallback 20px для desktop/web
       : isTelegramMobile
       ? totalTopPadding - 15 // Для обычных мобильных браузеров поднимаем выше
       : totalTopPadding;
@@ -1465,12 +1465,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     const progressBarRealHeight = PROGRESS_BAR_HEIGHT + (isTelegramMobile ? 8 : 16); // 4px top + 4px bottom padding
     
     // 🆕 CRITICAL FIX: Для Telegram Mini App контент начинается РОВНО там, где заканчивается прогресс-бар
-    // progressBarTop = 0, поэтому contentTopPadding = только высота прогресс-бара + небольшой отступ
+    // contentTopPadding = progressBarTop (позиция прогресс-бара) + высота прогресс-бара + небольшой отступ (4px)
     // ВАЖНО: progressBarRealHeight уже включает paddingTop (4px) и paddingBottom (4px)
-    // Для Telegram Mini App вычитаем 4px чтобы убрать gap (компенсируем paddingBottom прогресс-бара)
+    // Добавляем 4px для небольшого breathing room между прогресс-баром и контентом
     const contentTopPadding =
       isInTelegramMiniApp
-        ? progressBarRealHeight - 4 // Только высота прогресс-бара минус paddingBottom (4px) для устранения gap
+        ? progressBarTop + progressBarRealHeight + 4 // Позиция прогресс-бара + высота + небольшой отступ (4px)
         : isTelegramMobile
         ? progressBarTop + progressBarRealHeight + 8 // Нормальный отступ для обычных мобильных браузеров
         : progressBarTop + progressBarRealHeight + 16; // Для десктопа больше воздуха

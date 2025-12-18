@@ -179,11 +179,12 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
     const hasTelegramWebApp = !!window.Telegram?.WebApp;
     const platformMobile = typeof isTelegramMobilePlatform === 'boolean' ? isTelegramMobilePlatform : isMobile;
     // КРИТИЧНО: Отступы применяются только если это Telegram И мобильная платформа (не браузерная ширина)
-    // 🆕 CRITICAL FIX: ВАЖНО - применяем padding для страницы дуэли тоже!
-    // DuelBattleFullscreen теперь использует progressBarTop = 0, полагаясь на Layout
-    const shouldApplyPadding = isTelegramApp && platformMobile;
+    // 🆕 CRITICAL FIX: НЕ применяем padding для страницы дуэли - DuelBattleFullscreen сам управляет отступами
+    // DuelBattleFullscreen использует raw safeArea.top напрямую, без двойного padding
+    const isDuelPage = location.pathname.includes('/games/duel');
+    const shouldApplyPadding = isTelegramApp && platformMobile && !isDuelPage;
     
-    console.log('[Layout] isTelegramApp:', isTelegramApp, 'isMobile:', isMobile, 'hasTelegramWebApp:', hasTelegramWebApp, 'shouldApplyPadding:', shouldApplyPadding);
+    console.log('[Layout] isTelegramApp:', isTelegramApp, 'isMobile:', isMobile, 'hasTelegramWebApp:', hasTelegramWebApp, 'isDuelPage:', isDuelPage, 'shouldApplyPadding:', shouldApplyPadding);
     
     if (mainContentRef.current && shouldApplyPadding) {
       const topInsetStr = getComputedStyle(document.documentElement)
@@ -205,16 +206,18 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
         finalValue: getComputedStyle(mainContentRef.current).paddingTop
       });
     } else if (mainContentRef.current) {
-      // Убираем padding-top если не нужно применять
+      // 🆕 CRITICAL FIX: Явно убираем padding-top для страницы дуэли или если не нужно применять
       mainContentRef.current.style.paddingTop = '0px';
-      console.log('[Layout] Removed padding-top (not Telegram mobile)');
+      console.log('[Layout] Removed padding-top (not Telegram mobile or duel page)');
     }
   }, [isTelegramApp, isMobile, isTelegramMobilePlatform, location.pathname]); // Также при изменении маршрута или размера экрана
   
   // Также применяем при изменении CSS переменных (только для мобильных)
+  // 🆕 CRITICAL FIX: Отключаем для страницы дуэли
   useEffect(() => {
     const platformMobile = typeof isTelegramMobilePlatform === 'boolean' ? isTelegramMobilePlatform : isMobile;
-    if (!isTelegramApp || !platformMobile || !mainContentRef.current) return;
+    const isDuelPage = location.pathname.includes('/games/duel');
+    if (!isTelegramApp || !platformMobile || !mainContentRef.current || isDuelPage) return;
     
     const observer = new MutationObserver(() => {
       if (mainContentRef.current) {
