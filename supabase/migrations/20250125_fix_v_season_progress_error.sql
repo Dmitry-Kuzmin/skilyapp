@@ -51,14 +51,28 @@ BEGIN
   WITH 
     sessions AS (
       SELECT 
-        COUNT(DISTINCT gs.id)::INTEGER as tests_count,
-        COUNT(DISTINCT gqa.question_id)::INTEGER as total_questions,
-        COUNT(DISTINCT CASE WHEN gqa.is_correct THEN gqa.question_id END)::INTEGER as correct_answers
-      FROM game_sessions gs
-      LEFT JOIN game_question_answers gqa ON gqa.session_id = gs.id
-      WHERE gs.user_id = p_user_id
+        COUNT(*)::INTEGER as tests_count,
+        COALESCE(SUM(total_questions), 0)::INTEGER as total_questions,
+        COALESCE(SUM(score), 0)::INTEGER as correct_answers
+      FROM game_sessions
+      WHERE user_id = p_user_id
+        AND game_type IN ('test_exam', 'test_practice')
+    ),
+    progress AS (
+      SELECT 
+        COUNT(*) FILTER (WHERE is_answered = true) as answered_count,
+        COUNT(*) FILTER (WHERE is_answered = true AND is_correct = true) as correct_count
+      FROM user_progress
+      WHERE user_id = p_user_id
     )
-  SELECT * INTO v_stats FROM sessions;
+  SELECT 
+    s.tests_count,
+    s.total_questions,
+    s.correct_answers,
+    COALESCE(p.answered_count, 0) as unique_questions_answered
+  INTO v_stats 
+  FROM sessions s
+  CROSS JOIN LATERAL (SELECT * FROM progress) p;
 
   -- 3. Готовность (процент тем, уникальные вопросы)
   WITH 
@@ -68,10 +82,10 @@ BEGIN
           (COUNT(DISTINCT tp.topic_id)::NUMERIC / NULLIF((SELECT COUNT(*) FROM topics), 0)) * 100, 
           1
         )::NUMERIC as topics_covered_percent,
-        COUNT(DISTINCT gqa.question_id)::INTEGER as unique_questions_answered,
+        COUNT(DISTINCT up.question_id)::INTEGER as unique_questions_answered,
         COUNT(DISTINCT tp.topic_id)::INTEGER as topics_with_answers
       FROM topic_progress tp
-      LEFT JOIN game_question_answers gqa ON gqa.user_id = p_user_id
+      LEFT JOIN user_progress up ON up.user_id = p_user_id AND up.is_answered = true
       WHERE tp.user_id = p_user_id
     )
   SELECT * INTO v_readiness FROM readiness;

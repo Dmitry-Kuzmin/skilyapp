@@ -37,6 +37,44 @@ export async function sendMessage(options: SendMessageOptions): Promise<any> {
 // =====================================================
 // /start - Приветствие и главное меню
 // =====================================================
+// =====================================================
+// Установка Menu Button WebApp (выполняется один раз при старте)
+// =====================================================
+export async function setupMenuButton(): Promise<void> {
+  if (!BOT_TOKEN) {
+    console.warn('[setupMenuButton] BOT_TOKEN not found');
+    return;
+  }
+
+  const MINI_APP_URL = Deno.env.get('MINI_APP_URL') || 'https://skilyapp.com';
+  
+  try {
+    const response = await fetch(`${TELEGRAM_API}/setChatMenuButton`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        menu_button: {
+          type: 'web_app',
+          text: '🚀 В БОЙ',
+          web_app: {
+            url: MINI_APP_URL
+          }
+        }
+      })
+    });
+
+    const result = await response.json();
+    
+    if (result.ok) {
+      console.log('[setupMenuButton] ✅ Menu Button WebApp установлен успешно');
+    } else {
+      console.error('[setupMenuButton] ❌ Ошибка установки Menu Button:', result.description);
+    }
+  } catch (error) {
+    console.error('[setupMenuButton] ❌ Ошибка при установке Menu Button:', error);
+  }
+}
+
 export async function handleStart(message: TelegramMessage, supabase: any): Promise<void> {
   const user = message.from;
   if (!user) return;

@@ -27,6 +27,21 @@ const EXPRESS_OPTION_LABELS = ['A', 'B', 'C', 'D', 'E'];
 console.log('[Telegram Bot] Starting webhook handler...');
 
 // =====================================================
+// Установка Menu Button WebApp при старте (один раз)
+// =====================================================
+// КРИТИЧНО: Это устанавливает Menu Button как WebApp, а не просто URL
+// Это позволяет приложению открываться на весь экран (fullscreen)
+if (BOT_TOKEN) {
+  import('./commands.ts').then(async (commands) => {
+    try {
+      await commands.setupMenuButton();
+    } catch (error) {
+      console.error('[Telegram Bot] Failed to setup Menu Button:', error);
+    }
+  });
+}
+
+// =====================================================
 // Главный обработчик
 // =====================================================
 serve(async (req) => {
