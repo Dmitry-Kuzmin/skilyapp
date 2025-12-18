@@ -1455,11 +1455,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
     // Вычисляем отступ для контента:
     // Для десктопа добавляем отступ, чтобы контент не заезжал под фиксированный прогресс-бар
-    // 🆕 CRITICAL FIX: Для мобильной версии используем минимальный отступ (8px) чтобы убрать огромную дыру, но не перекрывать прогресс-бар
+    // 🆕 CRITICAL FIX: Для мобильной версии используем минимальный отступ (2px) чтобы убрать огромную дыру
+    // Прогресс-бар имеет paddingTop/paddingBottom по 4px каждый, поэтому реальная высота больше PROGRESS_BAR_HEIGHT
+    const progressBarRealHeight = PROGRESS_BAR_HEIGHT + (isTelegramMobile ? 8 : 16); // 4px top + 4px bottom padding
     const contentTopPadding =
       isTelegramMobile
-        ? progressBarTop + PROGRESS_BAR_HEIGHT + 8 // Минимальный отступ 8px для мобильной версии
-        : progressBarTop + PROGRESS_BAR_HEIGHT + 16; // Для десктопа больше воздуха
+        ? progressBarTop + progressBarRealHeight + 2 // Минимальный отступ 2px для мобильной версии (убирает дыру)
+        : progressBarTop + progressBarRealHeight + 16; // Для десктопа больше воздуха
 
     return {
       totalTopPadding,
@@ -2400,17 +2402,18 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       {/* Main Content */}
       {/* Используем единую систему отступов через CSS переменные */}
       {/* Динамический отступ от панели прогресса: totalTopPadding + высота панели */}
-      {/* 🆕 CRITICAL FIX: Используем нормальный paddingTop для всех версий, но минимальный для мобильной */}
+      {/* 🆕 CRITICAL FIX: Для мобильной версии используем минимальный paddingTop и убираем gap чтобы прижать ScoreBlock */}
       <div
-        className="flex flex-col justify-start gap-2 p-3 md:p-4 pb-6 max-w-4xl mx-auto"
+        className={`flex flex-col justify-start p-3 md:p-4 pb-6 max-w-4xl mx-auto ${isTelegramMobile ? 'gap-0' : 'gap-2'}`}
         style={{
           paddingTop: `${contentTopPadding}px`
         }}
       >
         {/* Header - Scores & Boosts - Premium Design */}
+        {/* 🆕 CRITICAL FIX: Для мобильной версии убираем gap и используем минимальный margin-top чтобы прижать к прогресс-бару */}
         <div 
           className={`relative z-20 ${isTelegramMobile 
-            ? 'flex flex-col gap-1' // Компактная вертикальная компоновка
+            ? 'flex flex-col gap-0 -mt-1' // Компактная вертикальная компоновка + отрицательный margin для прилипания
             : 'flex items-center justify-between gap-3 flex-wrap'
           }`}
         >
