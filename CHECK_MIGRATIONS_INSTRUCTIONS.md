@@ -62,3 +62,4 @@ npm run check:pdd-migrations
 4. Нажми Run
 5. Повтори для всех миграций
 
+

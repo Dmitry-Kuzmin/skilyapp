@@ -105,3 +105,4 @@ import { AppButton, AppProgressBar } from '@/components/shared/ui';
 **Дата:** 2025-12-18  
 **Статус:** ✅ Базовая интеграция завершена, готово к тестированию
 
+

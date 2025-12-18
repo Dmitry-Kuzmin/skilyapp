@@ -37,3 +37,4 @@ USING (
   AND (auth.role() = 'authenticated' OR auth.role() = 'service_role')
 );
 
+

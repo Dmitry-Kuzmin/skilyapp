@@ -146,7 +146,30 @@ export function LearnCountryHome() {
             <Sparkles className="w-5 h-5 text-primary" />
             Быстрые действия
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Экзамен - только для России */}
+            {country === 'russia' && (
+              <Card 
+                className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02] border-2 border-primary/50 hover:border-primary bg-gradient-to-br from-primary/10 to-primary/5"
+                onClick={() => navigate(`/test/exam-russia`)}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-full bg-gradient-to-br from-red-500 to-orange-600">
+                      <Target className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg mb-1">Экзамен ПДД</h3>
+                      <p className="text-sm text-muted-foreground">
+                        20 вопросов, 2 ошибки, режим экзамена
+                      </p>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-all" />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             <Card 
               className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02] border-2 hover:border-primary/50"
               onClick={() => navigate(`/learn/${country}/test/random?count=20`)}

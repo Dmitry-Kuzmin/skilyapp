@@ -98,8 +98,12 @@ const PaymentSuccess = lazy(() => import("../pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("../pages/PaymentCancel"));
 // Purchase обрабатывается в App.tsx (без AppProviders)
 const InviteLanding = lazy(() => import("../pages/InviteLanding"));
-const LearnCountrySelector = lazy(() => import("../pages/learn/LearnCountrySelector"));
-const LearnCountryHome = lazy(() => import("../pages/learn/LearnCountryHome"));
+const LearnCountrySelector = lazy(() => 
+  import("../pages/learn/LearnCountrySelector").then((module) => ({ default: module.LearnCountrySelector }))
+);
+const LearnCountryHome = lazy(() => 
+  import("../pages/learn/LearnCountryHome").then((module) => ({ default: module.LearnCountryHome }))
+);
 
 export function AppRoutes() {
   // КРИТИЧНО: AppRoutes рендерится внутри AppProviders, поэтому UserContext доступен
