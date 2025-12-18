@@ -24,7 +24,6 @@ import {
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useUserContext } from '@/contexts/UserContext';
-import { ContextSwitcher } from '@/components/shared';
 
 export function LearnCountryHome() {
   const { country } = useParams<{ country: CountryCode }>();
@@ -63,13 +62,13 @@ export function LearnCountryHome() {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-6 max-w-6xl">
-        {/* Умный переключатель контекста (в строке чипсов) */}
+        {/* Заголовок */}
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6 flex items-center justify-between"
+          className="mb-8"
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 mb-2">
             <span className="text-4xl">{countryData.flag}</span>
             <div>
               <h1 className="text-3xl font-bold">{countryData.name}</h1>
@@ -78,7 +77,6 @@ export function LearnCountryHome() {
               </p>
             </div>
           </div>
-          <ContextSwitcher />
         </motion.div>
 
         {/* Статистика */}

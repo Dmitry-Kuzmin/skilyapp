@@ -1,6 +1,7 @@
 import React, { useMemo, useCallback, useState, lazy, Suspense } from 'react';
 import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Car, Zap, FileText, Coins, Gauge } from 'lucide-react';
 import { UnifiedModal } from '@/components/ui/unified-modal';
+import { ContextSwitcher } from '@/components/shared';
 
 // Lazy load heavy dashboard components
 const DailyRewards = lazy(() => import('./DailyRewards').then(m => ({ default: m.DailyRewards })));
@@ -168,14 +169,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
         {/* Header */}
         <div className="mb-6 animate-fade-in">
           <div className="flex items-center gap-1.5 sm:gap-3 flex-nowrap min-w-0 max-w-full">
-            {/* Online Status Badge */}
-            <div className={themeClasses.onlineBadgeClass}>
-              <div className="relative">
-                <Circle className="w-2 h-2 text-emerald-400 fill-emerald-400" />
-                <div className="absolute inset-0 w-2 h-2 bg-emerald-400 rounded-full animate-ping opacity-75" />
-              </div>
-              <span className={`text-[11px] sm:text-xs font-semibold ${themeClasses.onlineTextClass}`}>{t('dashboard.onlineStatus')}</span>
-            </div>
+            {/* Умный переключатель контекста (Страна | Категория) */}
+            <ContextSwitcher className="shrink-0" />
 
             {/* License Badge */}
             <div className={themeClasses.licenseBadgeClass}>
