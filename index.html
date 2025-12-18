@@ -742,32 +742,73 @@
     
     <!-- 🚀 Дополнительный fallback: expand() после загрузки всех скриптов -->
     <script>
+      // КРИТИЧНО: Проверяем, что это действительно Mini App, а не обычный сайт
+      function checkAndExpand() {
+        if (!window.Telegram || !window.Telegram.WebApp) {
+          console.error('[Telegram Expand] ❌❌❌ NOT A MINI APP! window.Telegram.WebApp отсутствует');
+          console.error('[Telegram Expand] Это означает, что приложение открыто как обычный сайт, а не как Mini App');
+          console.error('[Telegram Expand] Menu Button должен быть type: "web_app", а не type: "url"');
+          return false;
+        }
+        
+        const tg = window.Telegram.WebApp;
+        
+        // КРИТИЧНО: Проверяем, что это не мок
+        const isMock = tg.initData === 'mock_init_data' || 
+                      (tg.initDataUnsafe?.user?.id === 123456789);
+        
+        if (isMock) {
+          console.error('[Telegram Expand] ❌❌❌ Это мок, не реальный Telegram WebApp');
+          return false;
+        }
+        
+        // КРИТИЧНО: Логируем состояние ДО expand()
+        console.error('[Telegram Expand] 🔍 Состояние ДО expand():', {
+          platform: tg.platform,
+          version: tg.version,
+          isExpanded: tg.isExpanded,
+          viewportHeight: tg.viewportHeight,
+          initData: tg.initData ? 'present' : 'missing',
+          hasUser: !!tg.initDataUnsafe?.user
+        });
+        
+        try {
+          tg.expand();
+          console.error('[Telegram Expand] ✅✅✅ expand() вызван');
+          
+          // Проверяем состояние ПОСЛЕ expand()
+          setTimeout(() => {
+            console.error('[Telegram Expand] 🔍 Состояние ПОСЛЕ expand():', {
+              isExpanded: tg.isExpanded,
+              viewportHeight: tg.viewportHeight,
+              viewportStableHeight: tg.viewportStableHeight
+            });
+            
+            if (!tg.isExpanded) {
+              console.error('[Telegram Expand] ❌❌❌ isExpanded = false после expand()!');
+              console.error('[Telegram Expand] Возможные причины:');
+              console.error('[Telegram Expand] 1. Main App в BotFather не настроен на Fullscreen');
+              console.error('[Telegram Expand] 2. Menu Button открывает как обычный сайт (type: url вместо web_app)');
+              console.error('[Telegram Expand] 3. Telegram игнорирует expand() для этой платформы/версии');
+            }
+          }, 100);
+        } catch(e) {
+          console.error('[Telegram Expand] ❌ Ошибка при вызове expand():', e);
+        }
+        
+        return true;
+      }
+      
       // Этот скрипт выполняется после загрузки всех модулей
       window.addEventListener('load', function() {
-        console.log('[Telegram Expand LOAD] 🚀 window.load event fired');
-        if (window.Telegram && window.Telegram.WebApp) {
-          try {
-            window.Telegram.WebApp.expand();
-            console.log('[Telegram Expand LOAD] ✅✅✅ expand() called on window.load');
-          } catch(e) {
-            console.error('[Telegram Expand LOAD] ❌ Error:', e);
-          }
-        } else {
-          console.warn('[Telegram Expand LOAD] ⚠️ Telegram WebApp not found on window.load');
-        }
+        console.error('[Telegram Expand LOAD] 🚀 window.load event fired');
+        checkAndExpand();
       });
       
       // Также пробуем на DOMContentLoaded
       document.addEventListener('DOMContentLoaded', function() {
-        console.log('[Telegram Expand DOM] 🚀 DOMContentLoaded event fired');
-        if (window.Telegram && window.Telegram.WebApp) {
-          try {
-            window.Telegram.WebApp.expand();
-            console.log('[Telegram Expand DOM] ✅✅✅ expand() called on DOMContentLoaded');
-          } catch(e) {
-            console.error('[Telegram Expand DOM] ❌ Error:', e);
-          }
-        }
+        console.error('[Telegram Expand DOM] 🚀 DOMContentLoaded event fired');
+        checkAndExpand();
       });
     </script>
   </body>
