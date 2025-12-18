@@ -154,39 +154,23 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      toast.success('Соединение восстановлено', {
-        description: 'Можете продолжать игру',
-        icon: <Wifi className="w-4 h-4" />,
-      });
+      // Убрано: toast уведомление - статус показывается в индикаторе рядом с аватаром
     };
 
     const handleOffline = () => {
       setIsOnline(false);
-      toast.error('Потеряно соединение с интернетом', {
-        description: 'Проверьте подключение к сети',
-        icon: <WifiOff className="w-4 h-4" />,
-        duration: Infinity,
-      });
+      // Убрано: toast уведомление - статус показывается в индикаторе рядом с аватаром
     };
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // Check opponent connection
-    const checkOpponentConnection = setInterval(() => {
-      const timeSinceLastActivity = Date.now() - lastOpponentActivityRef.current;
-      if (timeSinceLastActivity > 45000 && !answered) {
-        toast.warning('У соперника могут быть проблемы с сетью', {
-          description: 'Ожидаем подключения...',
-          icon: <WifiOff className="w-4 h-4" />,
-        });
-      }
-    }, 10000);
+    // Убрано: проверка соединения оппонента с toast уведомлениями
+    // Статус соединения оппонента показывается через CompactConnectionStatusIndicator
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
-      clearInterval(checkOpponentConnection);
     };
   }, [answered]);
 

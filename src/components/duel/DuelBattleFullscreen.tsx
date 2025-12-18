@@ -48,7 +48,6 @@ import { GRACE_PERIOD_MS, UNSTABLE_THRESHOLD_MS, AUTO_WIN_TIMEOUT_MS } from '@/f
 // КРИТИЧНО: Все модалки должны быть lazy для предотвращения TDZ ошибок
 const ExitDuelModal = lazy(() => import('./ExitDuelModal').then(m => ({ default: m.ExitDuelModal })));
 const AutoWinTimer = lazy(() => import('./AutoWinTimer').then(m => ({ default: m.AutoWinTimer })));
-const OpponentConnectionStatus = lazy(() => import('./OpponentConnectionStatus').then(m => ({ default: m.OpponentConnectionStatus })));
 const ReconnectionModal = lazy(() => import('./ReconnectionModal').then(m => ({ default: m.ReconnectionModal })));
 
 // КРИТИЧНО: Lazy loading для всех компонентов атак
@@ -2508,18 +2507,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               opponentIsConnected={opponentIsConnected}
               opponentLastSeen={opponentLastSeen}
             />
-            
-            {/* 🆕 Opponent Connection Status */}
-            {opponentLastSeen && (
-              <div className="absolute -top-2 -right-2 z-30">
-                <Suspense fallback={null}>
-                  <OpponentConnectionStatus
-                    isConnected={opponentIsConnected}
-                    timeSinceLastHeartbeat={Date.now() - opponentLastSeen.getTime()}
-                  />
-                </Suspense>
-              </div>
-            )}
           </div>
 
           {/* Right Side - Boosts & Combo */}
@@ -2827,7 +2814,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             if (duel?.status === 'active') {
               setShowReconnectionModal(false);
               setIsReconnecting(false);
-              toast.success('Соединение восстановлено!');
+              // Убрано: toast уведомление - статус показывается в индикаторе рядом с аватаром
             } else {
               toast.error('Дуэль уже завершена');
               transitionToResults();
