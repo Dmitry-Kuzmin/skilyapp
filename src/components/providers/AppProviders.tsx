@@ -11,6 +11,7 @@ import { createAsyncStoragePersister } from "@/lib/queryPersister";
 // ОПТИМИЗАЦИЯ: Полный UserProvider загружается lazy только в приложении
 // На лендинге используется легкий LandingUserProvider БЕЗ Supabase
 import { UserProvider } from "@/contexts/UserContext";
+import { PDDProvider } from "@/contexts/PDDContext";
 // ОПТИМИЗАЦИЯ: Toaster, Sonner, TooltipProvider перемещены сюда из App.tsx
 // Они тянут Radix UI (@radix-ui/react-toast, @radix-ui/react-tooltip), поэтому не должны грузиться на лендинге
 import { Toaster } from "@/components/ui/toaster";
@@ -79,75 +80,77 @@ export function AppProviders({ children }: AppProvidersProps) {
       <Toaster />
       <Sonner />
       <UserProvider>
-        <PersistQueryClientProvider
-          client={queryClient}
-          persistOptions={{
-            persister,
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
-            dehydrateOptions: {
-              // КРИТИЧНО: Фильтруем что персистим в IndexedDB
-              // Сохраняем только "медленные" данные, НЕ ephemeral/realtime
-              shouldDehydrateQuery: (query) => {
-                // Только успешные запросы
-                if (query.state.status !== 'success') {
-                  return false;
-                }
+        <PDDProvider>
+          <PersistQueryClientProvider
+            client={queryClient}
+            persistOptions={{
+              persister,
+              maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
+              dehydrateOptions: {
+                // КРИТИЧНО: Фильтруем что персистим в IndexedDB
+                // Сохраняем только "медленные" данные, НЕ ephemeral/realtime
+                shouldDehydrateQuery: (query) => {
+                  // Только успешные запросы
+                  if (query.state.status !== 'success') {
+                    return false;
+                  }
 
-                // КРИТИЧНО: Безопасная проверка типа queryKey
-                const root = String(query.queryKey[0] ?? '');
-                
-                // Пустой key - не сохраняем
-                if (!root) {
-                  return false;
-                }
+                  // КРИТИЧНО: Безопасная проверка типа queryKey
+                  const root = String(query.queryKey[0] ?? '');
+                  
+                  // Пустой key - не сохраняем
+                  if (!root) {
+                    return false;
+                  }
 
-                // ❌ НЕ сохраняем ephemeral/realtime данные
-                const ephemeralKeys = [
-                  'online-players',
-                  'duel-notifications',
-                  'live-game-state',
-                  'active-duel',
-                  'duel-players',
-                  'websocket-status',
-                  'system-status',
-                  'active-sessions',
-                ];
+                  // ❌ НЕ сохраняем ephemeral/realtime данные
+                  const ephemeralKeys = [
+                    'online-players',
+                    'duel-notifications',
+                    'live-game-state',
+                    'active-duel',
+                    'duel-players',
+                    'websocket-status',
+                    'system-status',
+                    'active-sessions',
+                  ];
 
-                if (ephemeralKeys.includes(root)) {
-                  return false;
-                }
+                  if (ephemeralKeys.includes(root)) {
+                    return false;
+                  }
 
-                // ✅ Сохраняем "медленные" и стабильные данные
-                const persistentRoots = [
-                  'dashboard',
-                  'dashboard-complete',
-                  'topics',
-                  'subtopics',
-                  'materials',
-                  'user-progress',
-                  'test-questions',
-                  'road-signs',
-                  'sequential-tests',
-                  'premium-status',
-                  'cosmetics',
-                  'inventory',
-                  'boost-inventory',
-                  'challenge-bank-count',
-                  'exam-readiness',
-                  'duel-pass-info',
-                  'partners',
-                  'profile',
-                  'daily-bonus',
-                ];
+                  // ✅ Сохраняем "медленные" и стабильные данные
+                  const persistentRoots = [
+                    'dashboard',
+                    'dashboard-complete',
+                    'topics',
+                    'subtopics',
+                    'materials',
+                    'user-progress',
+                    'test-questions',
+                    'road-signs',
+                    'sequential-tests',
+                    'premium-status',
+                    'cosmetics',
+                    'inventory',
+                    'boost-inventory',
+                    'challenge-bank-count',
+                    'exam-readiness',
+                    'duel-pass-info',
+                    'partners',
+                    'profile',
+                    'daily-bonus',
+                  ];
 
-                return persistentRoots.includes(root);
+                  return persistentRoots.includes(root);
+                },
               },
-            },
-          }}
-        >
-          <ReconnectHandler />
-          {children}
-        </PersistQueryClientProvider>
+            }}
+          >
+            <ReconnectHandler />
+            {children}
+          </PersistQueryClientProvider>
+        </PDDProvider>
       </UserProvider>
     </TooltipProvider>
   );

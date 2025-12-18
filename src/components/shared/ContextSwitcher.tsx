@@ -6,11 +6,12 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
-import { CountryCode, COUNTRIES_CONFIG, getLicenseCategoriesForCountry, getLicenseCategory, LicenseCategoryConfig } from '@/types/pdd';
+import { CountryCode, COUNTRIES_CONFIG, getLicenseCategoriesForCountry, getLicenseCategory, LicenseCategoryConfig, LicenseCategory } from '@/types/pdd';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ContextSettingsSheet } from './ContextSettingsSheet';
+import { usePDDContext } from '@/contexts/PDDContext';
 
 interface ContextSwitcherProps {
   className?: string;
@@ -19,14 +20,15 @@ interface ContextSwitcherProps {
 export function ContextSwitcher({ className }: ContextSwitcherProps) {
   const navigate = useNavigate();
   const { resolvedTheme } = useTheme();
+  const { selectedCountry, selectedCategory, setSelectedCountry, setSelectedCategory } = usePDDContext();
   const [sheetOpen, setSheetOpen] = useState(false);
   
   // Определяем тему для адаптивных стилей
   const isDarkTheme = useMemo(() => (resolvedTheme ?? 'dark') !== 'light', [resolvedTheme]);
   
-  // Получаем текущий выбор из localStorage
-  const currentCountry = (localStorage.getItem('pdd_selected_country') || 'russia') as CountryCode;
-  const currentCategory = localStorage.getItem('pdd_selected_category') || 'B';
+  // Используем значения из контекста
+  const currentCountry = selectedCountry;
+  const currentCategory = selectedCategory;
   
   const countryData = COUNTRIES_CONFIG[currentCountry];
   const categoryData = getLicenseCategory(currentCountry, currentCategory);
@@ -35,9 +37,10 @@ export function ContextSwitcher({ className }: ContextSwitcherProps) {
   const availableCategories = getLicenseCategoriesForCountry(currentCountry);
   const displayCategory = categoryData || availableCategories[0] || { code: 'B', name: 'B', nameFull: 'Легковая', icon: '🚗' };
 
-  const handleApply = (country: CountryCode, category: string) => {
-    localStorage.setItem('pdd_selected_country', country);
-    localStorage.setItem('pdd_selected_category', category);
+  const handleApply = (country: CountryCode, category: LicenseCategory) => {
+    // Обновляем контекст (он сам сохранит в localStorage)
+    setSelectedCountry(country);
+    setSelectedCategory(category);
     
     // Если страна изменилась, редиректим на новую страну
     if (country !== currentCountry) {
@@ -45,6 +48,9 @@ export function ContextSwitcher({ className }: ContextSwitcherProps) {
     }
     
     setSheetOpen(false);
+    
+    // Не перезагружаем страницу - контекст обновится реактивно
+    // Все компоненты, использующие usePDDContext, автоматически обновятся
   };
 
   // Адаптивные стили под тему Dashboard

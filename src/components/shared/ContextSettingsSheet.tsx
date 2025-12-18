@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { CountryCode, COUNTRIES_CONFIG, getLicenseCategoriesForCountry, LicenseCategoryConfig } from '@/types/pdd';
+import { CountryCode, COUNTRIES_CONFIG, getLicenseCategoriesForCountry, LicenseCategoryConfig, LicenseCategory } from '@/types/pdd';
 import {
   Sheet,
   SheetContent,
@@ -21,8 +21,8 @@ interface ContextSettingsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   currentCountry: CountryCode;
-  currentCategory: string;
-  onApply: (country: CountryCode, category: string) => void;
+  currentCategory: LicenseCategory;
+  onApply: (country: CountryCode, category: LicenseCategory) => void;
 }
 
 export function ContextSettingsSheet({
@@ -33,7 +33,7 @@ export function ContextSettingsSheet({
   onApply,
 }: ContextSettingsSheetProps) {
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>(currentCountry);
-  const [selectedCategory, setSelectedCategory] = useState<string>(currentCategory);
+  const [selectedCategory, setSelectedCategory] = useState<LicenseCategory>(currentCategory);
 
   // Обновляем состояние при открытии
   useEffect(() => {
