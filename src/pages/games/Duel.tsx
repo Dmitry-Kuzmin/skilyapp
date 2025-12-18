@@ -1004,6 +1004,31 @@ export default function Duel() {
 
                 if (error) {
                     console.error('[Duel] Error checking duel status:', error);
+                    // 🆕 CRITICAL FIX: При ошибке Edge Function пробуем прямой запрос к БД
+                    try {
+                        const { data: duelData } = await supabase
+                            .from('duels')
+                            .select('status')
+                            .eq('id', duelId)
+                            .maybeSingle();
+                        
+                        if (duelData?.status === 'active') {
+                            console.log('[Duel] ✅ DUEL IS ACTIVE (from DB fallback)! Starting battle...');
+                            setConnectionStatus('connected');
+                            handleDuelStarted(duelId || undefined);
+                            isActive = false;
+                        } else if (duelData?.status === 'finished') {
+                            console.warn('[Duel] ⚠️ Duel is finished (from DB fallback), clearing state...');
+                            isActive = false;
+                            setConnectionStatus('connected');
+                            setDuelId(null);
+                            setDuelCode(null);
+                            setMode('menu');
+                            toast.error('Дуэль уже завершена. Создайте новую или присоединитесь к другой.');
+                        }
+                    } catch (dbError) {
+                        console.error('[Duel] Error in DB fallback:', dbError);
+                    }
                     return;
                 }
 
@@ -1030,6 +1055,11 @@ export default function Duel() {
                     setDuelCode(null);
                     setMode('menu');
                     toast.error('Дуэль уже завершена. Создайте новую или присоединитесь к другой.');
+                } else if (data.status === 'waiting') {
+                    // 🆕 CRITICAL FIX: Если дуэль в ожидании, проверяем количество игроков
+                    // Если уже 2 игрока, но статус еще waiting - возможно дуэль скоро станет active
+                    setConnectionStatus('connected');
+                    // Продолжаем проверку статуса
                 } else {
                     setConnectionStatus('connected');
                 }

@@ -81,12 +81,53 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
     return () => clearInterval(timer);
   }, [duelCode]);
 
-  // Handle opponent joined - убрано toast, только логирование
+  // 🆕 CRITICAL FIX: При присоединении оппонента проверяем статус дуэли и переходим к игре
   useEffect(() => {
-    if (state.opponentJoined) {
-      console.log('[DuelLobby] Opponent joined!');
+    if (state.opponentJoined && duelId && profileId) {
+      console.log('[DuelLobby] Opponent joined! Checking duel status...');
+      
+      // Проверяем статус дуэли через Edge Function
+      const checkStatusAndStart = async () => {
+        try {
+          const { data, error } = await supabase.functions.invoke('duel-manager', {
+            body: {
+              action: 'check_status',
+              duel_id: duelId,
+              profile_id: profileId
+            }
+          });
+
+          if (error) {
+            console.error('[DuelLobby] Error checking status after opponent joined:', error);
+            // Пробуем прямой запрос к БД как fallback
+            const { data: duelData } = await supabase
+              .from('duels')
+              .select('status')
+              .eq('id', duelId)
+              .maybeSingle();
+            
+            if (duelData?.status === 'active') {
+              console.log('[DuelLobby] ✅ Duel is active (from DB), starting battle...');
+              onDuelStarted();
+            }
+            return;
+          }
+
+          if (data?.status === 'active') {
+            console.log('[DuelLobby] ✅ Duel is active after opponent joined! Starting battle...');
+            onDuelStarted();
+          } else if (data?.status === 'finished') {
+            console.warn('[DuelLobby] ⚠️ Duel is finished, cannot start');
+            toast.error('Дуэль уже завершена');
+          }
+        } catch (err) {
+          console.error('[DuelLobby] Exception checking status after opponent joined:', err);
+        }
+      };
+
+      checkStatusAndStart();
     }
-  }, [state.opponentJoined]);
+  }, [state.opponentJoined, duelId, profileId, onDuelStarted]);
 
   // Handle duel started from realtime - сразу переходим к битве
   useEffect(() => {

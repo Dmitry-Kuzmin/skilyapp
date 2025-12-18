@@ -24,6 +24,7 @@ import { AchievementsWidget } from "./navigation/AchievementsWidget";
 import { useActiveDuel } from "@/hooks/useActiveDuel";
 import { ActiveDuelWidget } from "./navigation/ActiveDuelWidget";
 import { useSessionManager } from "@/hooks/useSessionManager";
+import { supabase } from "@/integrations/supabase/client";
 import { ReferralModal } from "./ReferralModal";
 import { EdgeSwipeBack } from "./navigation/EdgeSwipeBack";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -237,12 +238,47 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
   }, [isTelegramApp, isMobile, isTelegramMobilePlatform]);
 
   // Заменяем раздел "Игры" на "Дуэль" если есть активная дуэль
+  // 🆕 CRITICAL FIX: Проверяем статус дуэли перед показом кнопки "Дуэль"
+  const [duelStatus, setDuelStatus] = useState<'active' | 'waiting' | 'finished' | 'unknown'>('unknown');
+  
+  useEffect(() => {
+    if (!activeDuel) {
+      setDuelStatus('unknown');
+      return;
+    }
+
+    // Проверяем статус дуэли
+    const checkDuelStatus = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('duels')
+          .select('status')
+          .eq('id', activeDuel.duelId)
+          .maybeSingle();
+        
+        if (error || !data) {
+          console.warn('[Layout] Error checking duel status for menu button:', error);
+          setDuelStatus('unknown');
+          return;
+        }
+        
+        setDuelStatus(data.status as 'active' | 'waiting' | 'finished');
+      } catch (err) {
+        console.error('[Layout] Exception checking duel status:', err);
+        setDuelStatus('unknown');
+      }
+    };
+
+    checkDuelStatus();
+  }, [activeDuel]);
+
   // ОПТИМИЗАЦИЯ: Мемоизируем navigation для предотвращения лишних ре-рендеров
+  // 🆕 CRITICAL FIX: Показываем "Дуэль" только если дуэль активна или в ожидании, НЕ если finished
   const navigation = useMemo<NavigationItem[]>(() => [
     { name: t("home"), href: "/dashboard", icon: Home, matchPaths: ["/dashboard"] },
     { name: t("tests"), href: "/tests", icon: FileText, matchPaths: ["/tests", "/test"] },
     { name: t("learning"), href: "/learning", icon: BookOpen, matchPaths: ["/learning", "/learning-map", "/topic", "/subtopic"] },
-    activeDuel 
+    (activeDuel && (duelStatus === 'active' || duelStatus === 'waiting' || duelStatus === 'unknown'))
       ? { 
           name: "Дуэль", 
           href: `/games/duel?duelId=${activeDuel.duelId}`, 
@@ -251,7 +287,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
           matchPaths: ["/games/duel"]
         }
       : { name: t("games"), href: "/games", icon: Gamepad2, matchPaths: ["/games"] },
-  ], [t, activeDuel]);
+  ], [t, activeDuel, duelStatus]);
 
   // ОПТИМИЗАЦИЯ: Prefetching для критических маршрутов при hover
   useEffect(() => {

@@ -1348,17 +1348,28 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     let pollingInterval: NodeJS.Timeout | null = null;
     
     const pollingWrapper = async () => {
+      // 🆕 CRITICAL FIX: Проверяем флаг остановки в начале
       if (pollingStoppedRef.current) {
         if (pollingInterval) {
           clearInterval(pollingInterval);
           pollingInterval = null;
         }
-        return; // Остановлен из-за finished статуса
+        return;
       }
+      
       await performPolling();
+      
+      // 🆕 CRITICAL FIX: Проверяем флаг после выполнения (может быть установлен в performPolling)
+      if (pollingStoppedRef.current) {
+        if (pollingInterval) {
+          clearInterval(pollingInterval);
+          pollingInterval = null;
+        }
+      }
     };
     
     pollingInterval = setInterval(() => {
+      // 🆕 CRITICAL FIX: Проверяем флаг перед каждым вызовом
       if (pollingStoppedRef.current) {
         if (pollingInterval) {
           clearInterval(pollingInterval);
