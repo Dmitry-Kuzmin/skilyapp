@@ -1464,10 +1464,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     
     // 🆕 CRITICAL FIX: Для Telegram Mini App контент должен начинаться РОВНО там, где заканчивается прогресс-бар
     // Используем точную высоту прогресс-бара БЕЗ дополнительных отступов
-    // Вычитаем 4px чтобы убрать gap между прогресс-баром и контентом (компенсируем padding прогресс-бара)
+    // ВАЖНО: progressBarRealHeight уже включает paddingTop (4px) и paddingBottom (4px)
+    // Вычитаем 8px чтобы полностью убрать gap (компенсируем padding прогресс-бара + внутренние отступы)
     const contentTopPadding =
       isInTelegramMiniApp
-        ? progressBarTop + progressBarRealHeight - 4 // Контент начинается сразу после прогресс-бара (вычитаем 4px для устранения gap)
+        ? progressBarTop + progressBarRealHeight - 8 // Контент начинается сразу после прогресс-бара (вычитаем 8px для полного устранения gap)
         : isTelegramMobile
         ? progressBarTop + progressBarRealHeight + 8 // Нормальный отступ для обычных мобильных браузеров
         : progressBarTop + progressBarRealHeight + 16; // Для десктопа больше воздуха
@@ -2421,10 +2422,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         }}
       >
         {/* Header - Scores & Boosts - Premium Design */}
-        {/* 🆕 CRITICAL FIX: Для Telegram Mini App убираем gap чтобы убрать отступ между блоками */}
+        {/* 🆕 CRITICAL FIX: Для Telegram Mini App убираем gap и используем отрицательный margin-top чтобы прижать к прогресс-бару */}
         <div 
           className={`relative z-20 ${isInTelegramMiniApp
-            ? 'flex flex-col gap-0' // Компактная вертикальная компоновка БЕЗ gap и БЕЗ отрицательного margin
+            ? 'flex flex-col gap-0 -mt-1' // Компактная вертикальная компоновка БЕЗ gap + небольшой отрицательный margin для прилипания
             : isTelegramMobile
             ? 'flex flex-col gap-1' // Нормальный gap для обычных мобильных браузеров
             : 'flex items-center justify-between gap-3 flex-wrap'
