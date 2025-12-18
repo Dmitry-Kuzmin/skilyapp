@@ -23,6 +23,8 @@ import { usePremium } from '@/hooks/usePremium';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { useActiveDuel } from '@/hooks/useActiveDuel';
 import type { DuelResultSnapshot } from '@/features/duel/shared';
+import { isTelegramMiniApp, getTelegramWebApp } from '@/lib/telegram';
+import { generateDuelResultImage } from '@/utils/generateDuelResultImage';
 
 interface DuelResultProps {
   duelId: string;
@@ -205,6 +207,61 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
   const handleQuestionClick = (answer: any) => {
     setSelectedQuestion(answer.duel_questions);
     setShowAIWidget(true);
+  };
+
+  const handleShareToStory = async () => {
+    if (!results || !isTelegramMiniApp()) {
+      return;
+    }
+
+    const webApp = getTelegramWebApp();
+    if (!webApp || !webApp.shareToStory) {
+      toast.error('Функция шаринга недоступна');
+      return;
+    }
+
+    try {
+      // Показываем загрузку
+      toast.loading('Генерируем изображение...', { id: 'share-story' });
+
+      // Генерируем изображение результата
+      const imageDataUrl = await generateDuelResultImage({
+        myScore: results.myScore,
+        opponentScore: results.opponentScore,
+        opponentName: results.opponentName || 'Оппонент',
+        isWinner: results.isWinner,
+        isDraw: results.isDraw,
+      });
+
+      // Вызываем shareToStory
+      // Telegram может требовать HTTP/HTTPS URL, но попробуем сначала с data URL
+      // Если не сработает, нужно будет загружать изображение на сервер
+      const shareText = results.isWinner 
+        ? `Я разнес его со счетом ${results.myScore}:${results.opponentScore}! 🏆 Попробуй обыграть меня.`
+        : results.isDraw
+        ? `Ничья ${results.myScore}:${results.opponentScore}! 🤝 Попробуй обыграть меня.`
+        : `Результат дуэли: ${results.myScore}:${results.opponentScore}. Попробуй обыграть меня!`;
+
+      // Пробуем два варианта синтаксиса (в зависимости от версии Telegram WebApp)
+      try {
+        // Вариант 1: объект с параметрами
+        if (typeof webApp.shareToStory === 'function') {
+          webApp.shareToStory({
+            media_url: imageDataUrl,
+            text: shareText,
+          });
+        }
+      } catch (error) {
+        // Вариант 2: два аргумента (старый синтаксис)
+        console.log('[DuelResult] Trying alternative shareToStory syntax');
+        webApp.shareToStory(imageDataUrl, { text: shareText });
+      }
+
+      toast.success('Результат опубликован в Stories!', { id: 'share-story' });
+    } catch (error) {
+      console.error('[DuelResult] Error sharing to story:', error);
+      toast.error('Не удалось поделиться в Stories', { id: 'share-story' });
+    }
   };
 
   if (loading || !results) {
@@ -772,50 +829,74 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="grid grid-cols-2 gap-4 pt-4"
+          className="space-y-4 pt-4"
         >
-          <Button
-            onClick={() => {
-              // 🆕 CRITICAL FIX: Очищаем activeDuel при выходе с экрана результатов (Delayed Cleanup)
-              console.log('[DuelResult] 🧹 Cleaning up activeDuel on rematch');
-              clearActiveDuel();
-              clearDuelResultSnapshot();
-              onRematch();
-            }}
-            size="lg"
-            className="relative w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 hover:from-blue-400 hover:via-indigo-400 hover:to-violet-400 text-white font-bold h-14 rounded-2xl shadow-[0_0_20px_-5px_rgba(99,102,241,0.4)] border-0 overflow-hidden"
-          >
-            {/* Noise texture overlay */}
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
-            <div className="relative z-10 flex items-center justify-center">
-              <RotateCcw className="w-5 h-5 mr-2" />
-              Реванш
-            </div>
-          </Button>
-          
-          <Button
-            onClick={() => {
-              // 🆕 CRITICAL FIX: Очищаем activeDuel при выходе с экрана результатов (Delayed Cleanup)
-              console.log('[DuelResult] 🧹 Cleaning up activeDuel on back to menu');
-              clearActiveDuel();
-              clearDuelResultSnapshot();
-              
-              // Показываем Interstitial при возврате в меню (только для обычных пользователей, один раз за сессию)
-              if (!isPremium) {
-                setShouldShowInterstitial(true);
-              }
-              // Небольшая задержка для показа Interstitial перед навигацией
-              setTimeout(() => {
-                onBackToMenu();
-              }, 100);
-            }}
-            size="lg"
-            variant="outline"
-            className="border-white/10 bg-white/5 hover:bg-white/10 text-zinc-200 font-bold h-14 rounded-2xl backdrop-blur-sm"
-          >
-            <Home className="w-5 h-5 mr-2" />
-            В меню
-          </Button>
+          {/* Share to Story Button - только при победе и только в Telegram Mini App */}
+          {results.isWinner && isTelegramMiniApp() && (
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.9 }}
+            >
+              <Button
+                onClick={handleShareToStory}
+                size="lg"
+                className="relative w-full bg-white text-black hover:bg-zinc-100 font-bold h-14 rounded-2xl shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.4)] hover:scale-[1.01] transition-all border-0 overflow-hidden"
+              >
+                {/* Noise texture overlay */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+                <div className="relative z-10 flex items-center justify-center">
+                  <Share2 className="w-5 h-5 mr-2" />
+                  Поделиться в Stories
+                </div>
+              </Button>
+            </motion.div>
+          )}
+
+          <div className="grid grid-cols-2 gap-4">
+            <Button
+              onClick={() => {
+                // 🆕 CRITICAL FIX: Очищаем activeDuel при выходе с экрана результатов (Delayed Cleanup)
+                console.log('[DuelResult] 🧹 Cleaning up activeDuel on rematch');
+                clearActiveDuel();
+                clearDuelResultSnapshot();
+                onRematch();
+              }}
+              size="lg"
+              className="relative w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 hover:from-blue-400 hover:via-indigo-400 hover:to-violet-400 text-white font-bold h-14 rounded-2xl shadow-[0_0_20px_-5px_rgba(99,102,241,0.4)] border-0 overflow-hidden"
+            >
+              {/* Noise texture overlay */}
+              <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+              <div className="relative z-10 flex items-center justify-center">
+                <RotateCcw className="w-5 h-5 mr-2" />
+                Реванш
+              </div>
+            </Button>
+            
+            <Button
+              onClick={() => {
+                // 🆕 CRITICAL FIX: Очищаем activeDuel при выходе с экрана результатов (Delayed Cleanup)
+                console.log('[DuelResult] 🧹 Cleaning up activeDuel on back to menu');
+                clearActiveDuel();
+                clearDuelResultSnapshot();
+                
+                // Показываем Interstitial при возврате в меню (только для обычных пользователей, один раз за сессию)
+                if (!isPremium) {
+                  setShouldShowInterstitial(true);
+                }
+                // Небольшая задержка для показа Interstitial перед навигацией
+                setTimeout(() => {
+                  onBackToMenu();
+                }, 100);
+              }}
+              size="lg"
+              variant="outline"
+              className="border-white/10 bg-white/5 hover:bg-white/10 text-zinc-200 font-bold h-14 rounded-2xl backdrop-blur-sm"
+            >
+              <Home className="w-5 h-5 mr-2" />
+              В меню
+            </Button>
+          </div>
         </motion.div>
       </div>
 
