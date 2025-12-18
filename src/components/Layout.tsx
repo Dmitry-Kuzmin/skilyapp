@@ -173,14 +173,17 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
   }, [isTelegramApp]);
 
   // КРИТИЧНО: Применяем отступы только для мобильных устройств в Telegram, не для десктопа
+  // 🆕 CRITICAL FIX: Отключаем padding-top для страницы дуэли, так как DuelBattleFullscreen сам управляет отступами
   useEffect(() => {
     // Проверяем наличие Telegram WebApp дополнительно
     const hasTelegramWebApp = !!window.Telegram?.WebApp;
     const platformMobile = typeof isTelegramMobilePlatform === 'boolean' ? isTelegramMobilePlatform : isMobile;
     // КРИТИЧНО: Отступы применяются только если это Telegram И мобильная платформа (не браузерная ширина)
-    const shouldApplyPadding = isTelegramApp && platformMobile;
+    // 🆕 CRITICAL FIX: НЕ применяем padding для страницы дуэли - DuelBattleFullscreen сам управляет отступами
+    const isDuelPage = location.pathname.includes('/games/duel');
+    const shouldApplyPadding = isTelegramApp && platformMobile && !isDuelPage;
     
-    console.log('[Layout] isTelegramApp:', isTelegramApp, 'isMobile:', isMobile, 'hasTelegramWebApp:', hasTelegramWebApp, 'shouldApplyPadding:', shouldApplyPadding);
+    console.log('[Layout] isTelegramApp:', isTelegramApp, 'isMobile:', isMobile, 'hasTelegramWebApp:', hasTelegramWebApp, 'isDuelPage:', isDuelPage, 'shouldApplyPadding:', shouldApplyPadding);
     
     if (mainContentRef.current && shouldApplyPadding) {
       const topInsetStr = getComputedStyle(document.documentElement)
@@ -201,16 +204,19 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
         systemSafeArea: systemSafeArea,
         finalValue: getComputedStyle(mainContentRef.current).paddingTop
       });
-    } else if (mainContentRef.current && !shouldApplyPadding) {
+    } else if (mainContentRef.current) {
+      // 🆕 CRITICAL FIX: Явно убираем padding-top для страницы дуэли или если не нужно применять
       mainContentRef.current.style.paddingTop = '0px';
-      console.log('[Layout] Removed padding-top (not Telegram mobile)');
+      console.log('[Layout] Removed padding-top (not Telegram mobile or duel page)');
     }
   }, [isTelegramApp, isMobile, isTelegramMobilePlatform, location.pathname]); // Также при изменении маршрута или размера экрана
   
   // Также применяем при изменении CSS переменных (только для мобильных)
+  // 🆕 CRITICAL FIX: Отключаем для страницы дуэли
   useEffect(() => {
     const platformMobile = typeof isTelegramMobilePlatform === 'boolean' ? isTelegramMobilePlatform : isMobile;
-    if (!isTelegramApp || !platformMobile || !mainContentRef.current) return;
+    const isDuelPage = location.pathname.includes('/games/duel');
+    if (!isTelegramApp || !platformMobile || !mainContentRef.current || isDuelPage) return;
     
     const observer = new MutationObserver(() => {
       if (mainContentRef.current) {

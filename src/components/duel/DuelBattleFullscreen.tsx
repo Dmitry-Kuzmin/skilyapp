@@ -1450,10 +1450,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     // Исправленная высота прогресс-бара (реальная высота компонента около 50-60px)
     const PROGRESS_BAR_HEIGHT = 64;
 
-    // 🆕 CRITICAL FIX: Для Telegram Mini App НЕ вычитаем 15px - это создавало огромный зазор
+    // 🆕 CRITICAL FIX: Для Telegram Mini App используем полный отступ
+    // Теперь Layout НЕ применяет padding-top для страницы дуэли, поэтому используем полный расчет
     // Для обычных мобильных браузеров поднимаем прогресс-бар выше на 15px
     const progressBarTop = isInTelegramMiniApp
-      ? totalTopPadding // Для Telegram Mini App используем полный отступ (не вычитаем 15px)
+      ? totalTopPadding // Для Telegram Mini App используем полный отступ (Layout больше не добавляет padding-top)
       : isTelegramMobile
       ? totalTopPadding - 15 // Для обычных мобильных браузеров поднимаем выше
       : totalTopPadding;
