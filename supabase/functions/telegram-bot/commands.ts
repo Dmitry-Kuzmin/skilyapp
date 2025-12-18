@@ -137,8 +137,18 @@ export async function setupMenuButtonForUser(chatId: number): Promise<void> {
 }
 
 export async function handleStart(message: TelegramMessage, supabase: any): Promise<void> {
+  console.log('[handleStart] 🚀 ФУНКЦИЯ ВЫЗВАНА! message.chat.id:', message.chat?.id, 'message.from.id:', message.from?.id);
+  
   const user = message.from;
-  if (!user) return;
+  if (!user) {
+    console.error('[handleStart] ❌ message.from отсутствует!');
+    return;
+  }
+  
+  if (!message.chat) {
+    console.error('[handleStart] ❌ message.chat отсутствует!');
+    return;
+  }
 
   // КРИТИЧНО: Устанавливаем Menu Button как WebApp для этого пользователя
   // Это позволяет приложению открываться на весь экран (fullscreen)

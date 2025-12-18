@@ -141,7 +141,15 @@ async function handleMessage(message: any, supabase: any): Promise<void> {
     
     switch (command) {
       case 'start':
-        await commands.handleStart(message, supabase);
+        console.log('[Telegram Bot] 🚀 Обработка команды /start, вызываю handleStart...');
+        try {
+          await commands.handleStart(message, supabase);
+          console.log('[Telegram Bot] ✅ handleStart завершился успешно');
+        } catch (error) {
+          console.error('[Telegram Bot] ❌ Ошибка в handleStart:', error);
+          console.error('[Telegram Bot] Error stack:', error.stack);
+          throw error; // Пробрасываем ошибку дальше
+        }
         break;
       case 'stats':
         await commands.handleStats(message, supabase);
