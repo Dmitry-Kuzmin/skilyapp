@@ -2321,11 +2321,18 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   // УБРАНО: Countdown экран - сразу начинаем битву без задержки
 
+  // 🆕 CRITICAL FIX: Нейтрализуем глобальный Layout padding через отрицательный margin-top
+  // Это позволяет нам полностью контролировать позиционирование внутри компонента
+  const rootMarginTop = isInTelegramMiniApp ? -totalTopPadding : 0;
+  
   return (
     <div
       className="fixed inset-0 bg-background z-50 overflow-y-auto"
       style={{
-        paddingTop: `${totalTopPadding}px`,
+        marginTop: `${rootMarginTop}px`, // Нейтрализуем Layout padding
+        paddingTop: isInTelegramMiniApp 
+          ? `${Math.round(safeArea.top > 0 ? safeArea.top : 20)}px` // Используем raw safeArea.top для учета челки
+          : `${totalTopPadding}px`,
         paddingLeft: `${totalLeftPadding}px`,
         paddingRight: `${totalRightPadding}px`,
         paddingBottom: `${totalBottomPadding}px`,
@@ -2372,10 +2379,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       </div>
 
       {/* Unified Progress Bar - переиспользуемый компонент */}
+      {/* 🆕 CRITICAL FIX: Переход на relative позиционирование - элементы идут в естественном потоке */}
       <div
-        className="absolute left-0 right-0 z-[5] bg-background/95 backdrop-blur-md border-b border-border/30"
+        className="relative z-[5] bg-background/95 backdrop-blur-md border-b border-border/30"
         style={{
-          top: `${progressBarTop}px`,
           paddingLeft: `${totalLeftPadding}px`,
           paddingRight: `${totalRightPadding}px`,
           paddingTop: isTelegramMobile || isTelegramDesktop ? '4px' : '8px',
@@ -2412,22 +2419,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       </div>
 
       {/* Main Content */}
-      {/* Используем единую систему отступов через CSS переменные */}
-      {/* Динамический отступ от панели прогресса: totalTopPadding + высота панели */}
-      {/* 🆕 CRITICAL FIX: Для Telegram Mini App используем точный paddingTop без дополнительных отступов */}
+      {/* 🆕 CRITICAL FIX: Переход на естественный поток - элементы идут друг за другом без вычислений */}
       <div
-        className={`flex flex-col justify-start ${isInTelegramMiniApp ? 'px-3 md:px-4 pb-6 gap-0' : 'p-3 md:p-4 pb-6'} ${isTelegramMobile ? 'gap-1' : 'gap-2'} max-w-4xl mx-auto`}
-        style={{
-          paddingTop: isInTelegramMiniApp 
-            ? `${contentTopPadding}px` // Используем точный отступ от прогресс-бара (без дополнительных отступов)
-            : `${contentTopPadding}px`
-        }}
+        className={`flex flex-col justify-start ${isInTelegramMiniApp ? 'px-3 md:px-4 pb-6 gap-2' : 'p-3 md:p-4 pb-6'} ${isTelegramMobile ? 'gap-1' : 'gap-2'} max-w-4xl mx-auto`}
       >
         {/* Header - Scores & Boosts - Premium Design */}
-        {/* 🆕 CRITICAL FIX: Для Telegram Mini App убираем gap и используем отрицательный margin-top чтобы прижать к прогресс-бару */}
+        {/* 🆕 CRITICAL FIX: Естественный поток - элементы идут друг за другом с фиксированным gap */}
         <div 
           className={`relative z-20 ${isInTelegramMiniApp
-            ? 'flex flex-col gap-0 -mt-1' // Компактная вертикальная компоновка БЕЗ gap + небольшой отрицательный margin для прилипания
+            ? 'flex flex-col gap-2' // Компактная вертикальная компоновка с фиксированным gap
             : isTelegramMobile
             ? 'flex flex-col gap-1' // Нормальный gap для обычных мобильных браузеров
             : 'flex items-center justify-between gap-3 flex-wrap'
