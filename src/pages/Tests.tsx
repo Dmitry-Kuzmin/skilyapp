@@ -12,6 +12,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTopics } from "@/hooks/useTopics";
 import { useUserProgress } from "@/hooks/useUserProgress";
 import { useChallengeBankCount } from "@/hooks/useChallengeBankCount";
+import { usePDDContext } from "@/contexts/PDDContext";
+import { usePDDTickets } from "@/hooks/usePDDTickets";
+import { COUNTRIES_CONFIG } from "@/types/pdd";
 import { motion } from "framer-motion";
 import { getImageUrl } from "@/utils/imageUtils";
 
@@ -32,9 +35,14 @@ const Tests = () => {
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
   const { language, t } = useLanguage();
+  
+  // Получаем выбранную страну из контекста
+  const { selectedCountry } = usePDDContext();
+  const countryData = COUNTRIES_CONFIG[selectedCountry];
 
   // ОПТИМИЗАЦИЯ: Используем React Query хуки вместо прямых запросов
   const { data: dbTopics = [], isLoading: topicsLoading } = useTopics();
+  const { data: tickets = [], isLoading: ticketsLoading } = usePDDTickets(selectedCountry);
   const { data: userProgress = [] } = useUserProgress(profileId);
   const { data: challengeBankCount = 0 } = useChallengeBankCount(profileId);
 
@@ -495,7 +503,7 @@ const Tests = () => {
               </div>
             </div>
 
-            {/* Topics Section */}
+            {/* Topics Section (для Испании) или Билеты (для России) */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -507,15 +515,57 @@ const Tests = () => {
                   <div className="p-2 rounded-xl bg-card border border-border">
                     <BookOpen className="w-6 h-6 text-indigo-400" />
                   </div>
-                  {t('testsPage.topicsTitle')}
+                  {selectedCountry === 'russia' ? 'Билеты ПДД' : t('testsPage.topicsTitle')}
                 </h3>
                 <Badge className="text-sm md:text-base px-3 md:px-4 py-1 md:py-2 font-bold bg-card border border-border">
-                  {topics.length}
+                  {selectedCountry === 'russia' ? tickets.length : topics.length}
                 </Badge>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {topics.map((topic, i) => {
+              {/* Для России: показываем билеты */}
+              {selectedCountry === 'russia' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {tickets.slice(0, 12).map((ticket, i) => (
+                    <motion.div
+                      key={ticket.ticket_number}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: i * 0.03 }}
+                      whileHover={{ scale: 1.02, y: -4 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => navigate(`/learn/${selectedCountry}/ticket/${ticket.ticket_number}`)}
+                      className="group relative overflow-hidden rounded-[2rem] p-6 cursor-pointer border border-border bg-card/60 dark:bg-card/40 backdrop-blur-sm hover:bg-card/80 dark:hover:bg-card/60 shadow-lg hover:shadow-xl transition-all duration-150 h-[180px]"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 group-hover:from-blue-500/20 group-hover:via-indigo-500/20 group-hover:to-purple-500/20 transition-all duration-500" />
+                      <div className="relative z-10 h-full flex flex-col justify-between">
+                        <div className="flex items-start justify-between">
+                          <motion.div
+                            whileHover={{ rotate: 12, scale: 1.1 }}
+                            className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20 text-foreground border border-border shadow-xl"
+                          >
+                            {ticket.ticket_number}
+                          </motion.div>
+                          {ticket.completed && (
+                            <Crown className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                          )}
+                        </div>
+                        <div className="space-y-1">
+                          <div className="font-black text-lg line-clamp-2 leading-tight text-foreground">
+                            Билет {ticket.ticket_number}
+                          </div>
+                          <div className="text-sm font-bold flex items-center gap-1.5 text-muted-foreground">
+                            <BookOpen className="w-3 h-3" />
+                            <span>{ticket.questions_count} вопросов</span>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                /* Для Испании: показываем темы */
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {topics.map((topic, i) => {
                   const coverImageUrl = topic.cover_image ? getImageUrl(topic.cover_image, 'test-covers') || topic.cover_image : null;
                   const hasCoverImage = !!coverImageUrl;
 

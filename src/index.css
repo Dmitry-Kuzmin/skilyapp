@@ -779,8 +779,6 @@ All colors MUST be HSL.
 
   /* Telegram Mini App Specific Styles */
   .telegram-app-container {
-    min-height: calc(var(--tg-viewport-stable-height, 100vh) - var(--sat) - var(--sab));
-    min-height: -webkit-fill-available;
     display: flex;
     flex-direction: column;
     height: auto;
@@ -788,9 +786,16 @@ All colors MUST be HSL.
     background-color: hsl(var(--background)); /* Обеспечиваем правильный фон */
   }
 
+  /* Min-height только для Telegram WebApp - чтобы footer прижимался к низу */
+  html.telegram-webapp .telegram-app-container,
+  body.telegram-webapp .telegram-app-container {
+    min-height: calc(var(--tg-viewport-stable-height, 100vh) - var(--sat) - var(--sab));
+    min-height: -webkit-fill-available;
+  }
+
   /* Основной контент - единая система отступов */
   .telegram-main-content {
-    flex: 1;
+    flex: 0 1 auto; /* Для обычных страниц - не растягивается, если контента мало */
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
@@ -798,6 +803,12 @@ All colors MUST be HSL.
     min-height: 0; /* Важно для flex-контейнеров - позволяет скроллиться */
     /* Отступ снизу для нижней навигации */
     padding-bottom: calc(5rem + var(--app-safe-bottom) + var(--app-content-bottom));
+  }
+
+  /* Для Telegram WebApp - main растягивается чтобы заполнить пространство */
+  html.telegram-webapp .telegram-main-content,
+  body.telegram-webapp .telegram-main-content {
+    flex: 1;
   }
   
   /* Верхний отступ ТОЛЬКО для Telegram WebApp на МОБИЛЬНЫХ устройствах */
@@ -869,8 +880,9 @@ All colors MUST be HSL.
 
   /* Device-specific optimizations */
   @supports (-webkit-touch-callout: none) {
-    /* iOS specific styles */
-    .telegram-app-container {
+    /* iOS specific styles - min-height только для Telegram */
+    html.telegram-webapp .telegram-app-container,
+    body.telegram-webapp .telegram-app-container {
       min-height: -webkit-fill-available;
     }
   }

@@ -1,7 +1,15 @@
 import React, { useMemo, useCallback, useState, lazy, Suspense } from 'react';
-import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Car, Zap, FileText, Coins, Gauge } from 'lucide-react';
+import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Car, Zap, FileText, Coins, Gauge, BookOpen, ArrowRight, Loader2, Target } from 'lucide-react';
 import { UnifiedModal } from '@/components/ui/unified-modal';
 import { ContextSwitcher } from '@/components/shared';
+import { usePDDContext } from '@/contexts/PDDContext';
+import { usePDDTickets } from '@/hooks/usePDDTickets';
+import { useTopics } from '@/hooks/useTopics';
+import { useNavigate } from 'react-router-dom';
+import { COUNTRIES_CONFIG } from '@/types/pdd';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
 
 // Lazy load heavy dashboard components
 const DailyRewards = lazy(() => import('./DailyRewards').then(m => ({ default: m.DailyRewards })));
@@ -60,6 +68,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [cockpitOpen, setCockpitOpen] = useState(false);
   const { t } = useLanguage();
   const { resolvedTheme } = useTheme();
+  const navigate = useNavigate();
+  
+  // Получаем выбранную страну и категорию из контекста
+  const { selectedCountry, selectedCategory } = usePDDContext();
+  const countryData = COUNTRIES_CONFIG[selectedCountry];
+  
+  // Загружаем билеты для России или темы для Испании
+  const { data: tickets, isLoading: ticketsLoading } = usePDDTickets(selectedCountry);
+  const { data: topics = [], isLoading: topicsLoading } = useTopics();
   
   // ОПТИМИЗАЦИЯ: Мемоизируем вычисление isDarkTheme для избежания лишних пересчетов
   const isDarkTheme = useMemo(() => (resolvedTheme ?? 'dark') !== 'light', [resolvedTheme]);
