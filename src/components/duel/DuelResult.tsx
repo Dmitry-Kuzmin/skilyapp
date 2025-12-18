@@ -21,6 +21,7 @@ import { useVignetteBanner } from '@/hooks/useVignetteBanner';
 import { useInterstitialBanner } from '@/hooks/useInterstitialBanner';
 import { usePremium } from '@/hooks/usePremium';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
+import { useActiveDuel } from '@/hooks/useActiveDuel';
 
 interface DuelResultProps {
   duelId: string;
@@ -48,6 +49,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
   const [shouldShowInterstitial, setShouldShowInterstitial] = useState(false);
+  const { clearActiveDuel } = useActiveDuel();
   
   // Выбираем случайный эффект фейерверка при монтировании компонента
   const [selectedConfettiEffect] = useState(() => {
@@ -769,7 +771,13 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           className="grid grid-cols-2 gap-4 pt-4"
         >
           <Button
-            onClick={onRematch}
+            onClick={() => {
+              // 🆕 CRITICAL FIX: Очищаем activeDuel при выходе с экрана результатов (Delayed Cleanup)
+              console.log('[DuelResult] 🧹 Cleaning up activeDuel on rematch');
+              clearActiveDuel();
+              clearDuelResultSnapshot();
+              onRematch();
+            }}
             size="lg"
             className="relative w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 hover:from-blue-400 hover:via-indigo-400 hover:to-violet-400 text-white font-bold h-14 rounded-2xl shadow-[0_0_20px_-5px_rgba(99,102,241,0.4)] border-0 overflow-hidden"
           >
@@ -783,6 +791,11 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           
           <Button
             onClick={() => {
+              // 🆕 CRITICAL FIX: Очищаем activeDuel при выходе с экрана результатов (Delayed Cleanup)
+              console.log('[DuelResult] 🧹 Cleaning up activeDuel on back to menu');
+              clearActiveDuel();
+              clearDuelResultSnapshot();
+              
               // Показываем Interstitial при возврате в меню (только для обычных пользователей, один раз за сессию)
               if (!isPremium) {
                 setShouldShowInterstitial(true);

@@ -279,10 +279,15 @@ export default function Duel() {
 
                     // Определяем правильный экран на основе актуального статуса
                     if (data.status === 'finished') {
-                        // Дуэль завершена - очищаем состояние и переходим к результатам
-                        console.log('[Duel] ✅ Duel is finished, clearing state and going to results');
-                        clearActiveDuel(); // Очищаем зависшее состояние
-                        handleDuelFinished();
+                        // Дуэль завершена - НЕ очищаем activeDuel (Delayed Cleanup strategy)
+                        // Данные нужны для экрана результатов, очистка произойдет при выходе
+                        console.log('[Duel] ✅ Duel is finished, going to results (keeping activeDuel for data)');
+                        // Устанавливаем duelId если его нет
+                        if (!duelId && activeDuel.duelId) {
+                            setDuelId(activeDuel.duelId);
+                        }
+                        // Переходим к результатам без очистки activeDuel
+                        setMode('result');
                     } else if (data.status === 'active') {
                         // Дуэль активна - проверяем режим сохраненного состояния
                         if (activeDuel.mode === 'waiting') {
@@ -450,23 +455,11 @@ export default function Duel() {
             return;
         }
 
-        // 🆕 CRITICAL FIX: Проверяем snapshot ПЕРЕД очисткой activeDuel
-        // Если snapshot уже есть - отлично, если нет - он будет создан useDuelResults
-        // Но мы НЕ очищаем activeDuel до тех пор, пока не убедимся что snapshot существует
-        const snapshotKey = 'duel_last_result_snapshot';
-        const existingSnapshot = localStorage.getItem(snapshotKey);
-        
-        if (!existingSnapshot) {
-            console.warn('[Duel] ⚠️ No snapshot found, will be created by useDuelResults hook');
-            // Snapshot будет создан useDuelResults при первой загрузке
-            // Но мы все равно не очищаем activeDuel сразу - даем время на создание snapshot
-        } else {
-            console.log('[Duel] ✅ Snapshot exists, safe to clear activeDuel');
-        }
-
-        // КРИТИЧНО: Очищаем activeDuel ТОЛЬКО ПОСЛЕ проверки snapshot
-        // Это гарантирует что данные для результатов будут доступны
-        clearActiveDuel();
+        // 🆕 CRITICAL FIX: "Delayed Cleanup" Strategy
+        // НЕ очищаем activeDuel при переходе к результатам - данные должны остаться
+        // Очистка произойдет только когда пользователь уйдет с экрана результатов
+        // Это гарантирует 100% наличие данных для useDuelResults и устраняет race condition
+        console.log('[Duel] ✅ Keeping activeDuel data for results screen (will be cleared on exit)');
 
         console.log('[Duel] ✅ duelId is valid, proceeding with mode change...');
 
