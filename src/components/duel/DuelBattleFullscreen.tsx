@@ -2414,9 +2414,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       </div>
 
       {/* Main Content */}
-      {/* 🆕 CRITICAL FIX: Переход на естественный поток - элементы идут друг за другом без вычислений */}
+      {/* 🆕 CRITICAL FIX: Естественный поток - элементы идут друг за другом */}
       <div
-        className={`flex flex-col justify-start ${isInTelegramMiniApp ? 'px-3 md:px-4 pb-6 gap-2' : 'p-3 md:p-4 pb-6'} ${isTelegramMobile ? 'gap-1' : 'gap-2'} max-w-4xl mx-auto`}
+        className={`flex flex-col justify-start flex-1 ${isInTelegramMiniApp ? 'px-3 md:px-4 pb-6' : 'p-3 md:p-4 pb-6'} max-w-4xl mx-auto`}
+        style={{
+          gap: isInTelegramMiniApp ? '8px' : isTelegramMobile ? '4px' : '8px'
+        }}
       >
         {/* Header - Scores & Boosts - Premium Design */}
         {/* 🆕 CRITICAL FIX: Естественный поток - элементы идут друг за другом с фиксированным gap */}
