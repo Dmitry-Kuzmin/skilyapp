@@ -326,19 +326,29 @@
         'use strict';
         
         // Версия скрипта для отслеживания обновлений
-        const SCRIPT_VERSION = 'v3.0-expand-fix-aggressive';
+        const SCRIPT_VERSION = 'v4.0-expand-fix-ultra-aggressive';
         
-        // КРИТИЧНО: Логируем ВСЕГДА, даже если console еще не готов
+        // КРИТИЧНО: Логируем ВСЕГДА с максимальной видимостью
+        // Используем console.error для максимальной заметности в логах
         try {
-          console.log('[Telegram Expand] 🚀 Script version:', SCRIPT_VERSION, 'loaded at', new Date().toISOString());
-          console.log('[Telegram Expand] 📋 Document readyState:', document.readyState);
-          console.log('[Telegram Expand] 📋 Window.Telegram exists:', typeof window !== 'undefined' && !!window.Telegram);
-          console.log('[Telegram Expand] 📋 Window.Telegram.WebApp exists:', typeof window !== 'undefined' && !!window.Telegram?.WebApp);
+          console.error('═══════════════════════════════════════════════════════');
+          console.error('[Telegram Expand HEAD] 🚀🚀🚀 SCRIPT LOADED 🚀🚀🚀');
+          console.error('[Telegram Expand HEAD] Version:', SCRIPT_VERSION);
+          console.error('[Telegram Expand HEAD] Time:', new Date().toISOString());
+          console.error('[Telegram Expand HEAD] Document readyState:', document.readyState);
+          console.error('[Telegram Expand HEAD] Window.Telegram exists:', typeof window !== 'undefined' && !!window.Telegram);
+          console.error('[Telegram Expand HEAD] Window.Telegram.WebApp exists:', typeof window !== 'undefined' && !!window.Telegram?.WebApp);
+          if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+            console.error('[Telegram Expand HEAD] WebApp platform:', window.Telegram.WebApp.platform);
+            console.error('[Telegram Expand HEAD] WebApp version:', window.Telegram.WebApp.version);
+            console.error('[Telegram Expand HEAD] WebApp isExpanded:', window.Telegram.WebApp.isExpanded);
+          }
+          console.error('═══════════════════════════════════════════════════════');
         } catch (e) {
           // Fallback если console не доступен
           if (typeof window !== 'undefined') {
             window._telegramExpandLog = window._telegramExpandLog || [];
-            window._telegramExpandLog.push('[Telegram Expand] Script loaded: ' + SCRIPT_VERSION);
+            window._telegramExpandLog.push('[Telegram Expand HEAD] Script loaded: ' + SCRIPT_VERSION);
           }
         }
         
@@ -370,13 +380,18 @@
                   tg.expand();
                   expandCalled = true;
                   expandAttempts++;
-                  console.log('[Telegram Expand] ✅✅✅ expand() called successfully (attempt', expandAttempts + ') in index.html');
-                  console.log('[Telegram Expand] 📊 WebApp state after expand():', {
+                  // Используем console.error для максимальной видимости
+                  console.error('═══════════════════════════════════════════════════════');
+                  console.error('[Telegram Expand HEAD] ✅✅✅ EXPAND() CALLED ✅✅✅');
+                  console.error('[Telegram Expand HEAD] Attempt:', expandAttempts);
+                  console.error('[Telegram Expand HEAD] WebApp state:', {
                     isExpanded: tg.isExpanded,
                     platform: tg.platform,
                     version: tg.version,
-                    viewportHeight: tg.viewportHeight
+                    viewportHeight: tg.viewportHeight,
+                    viewportStableHeight: tg.viewportStableHeight
                   });
+                  console.error('═══════════════════════════════════════════════════════');
                   
                   // Вызываем еще раз через небольшую задержку для надежности
                   if (expandAttempts < MAX_EXPAND_ATTEMPTS) {
@@ -563,6 +578,16 @@
           }
         };
         
+        // Используем console.error для максимальной видимости
+        try {
+          console.error('═══════════════════════════════════════════════════════');
+          console.error('[Telegram Expand BODY] 🚀🚀🚀 BODY SCRIPT STARTED 🚀🚀🚀');
+          console.error('[Telegram Expand BODY] Time:', new Date().toISOString());
+          console.error('[Telegram Expand BODY] Document readyState:', document.readyState);
+          console.error('[Telegram Expand BODY] Window exists:', typeof window !== 'undefined');
+          console.error('═══════════════════════════════════════════════════════');
+        } catch(e) {}
+        
         log('[Telegram Expand BODY] 🚀 EARLY SCRIPT STARTED in body tag');
         log('[Telegram Expand BODY] 📋 Document readyState:', document.readyState);
         log('[Telegram Expand BODY] 📋 Window exists:', typeof window !== 'undefined');
@@ -601,6 +626,13 @@
               
               if (typeof tg.expand === 'function') {
                 tg.expand();
+                // Используем console.error для максимальной видимости
+                try {
+                  console.error('═══════════════════════════════════════════════════════');
+                  console.error('[Telegram Expand BODY] ✅✅✅ EXPAND() CALLED IN BODY ✅✅✅');
+                  console.error('[Telegram Expand BODY] isExpanded:', tg.isExpanded);
+                  console.error('═══════════════════════════════════════════════════════');
+                } catch(e) {}
                 log('[Telegram Expand BODY] ✅✅✅ expand() called in BODY script!');
                 
                 // Вызываем еще раз через 50ms для надежности

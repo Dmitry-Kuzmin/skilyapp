@@ -318,29 +318,43 @@ const App = () => {
     // Вызываем сразу
     forceExpand();
     
+    // КРИТИЧНО: Логируем состояние для диагностики
+    console.error('[App] 🔍 Telegram WebApp DIAGNOSTICS:', {
+      platform: tg.platform,
+      version: tg.version,
+      isExpanded: tg.isExpanded,
+      viewportHeight: tg.viewportHeight,
+      viewportStableHeight: tg.viewportStableHeight,
+      hasExpand: typeof tg.expand === 'function',
+      hasReady: typeof tg.ready === 'function',
+      hasOnEvent: typeof tg.onEvent === 'function'
+    });
+    
     // Вызываем на разных событиях для максимальной надежности
     if (typeof tg.onEvent === 'function') {
       // Вызываем при изменении viewport
       tg.onEvent('viewport_changed', () => {
-        console.log('[App] viewport_changed - calling expand()');
+        console.error('[App] 📐 viewport_changed - calling expand()');
         forceExpand();
       });
       
       // Вызываем при изменении safe area
       tg.onEvent('safeAreaChanged', () => {
-        console.log('[App] safeAreaChanged - calling expand()');
+        console.error('[App] 📐 safeAreaChanged - calling expand()');
         forceExpand();
       });
     }
     
     // Вызываем с задержками для надежности
-    setTimeout(forceExpand, 10);
-    setTimeout(forceExpand, 50);
-    setTimeout(forceExpand, 100);
-    setTimeout(forceExpand, 200);
-    setTimeout(forceExpand, 500);
+    setTimeout(() => { console.error('[App] ⏰ expand() call #1 (10ms)'); forceExpand(); }, 10);
+    setTimeout(() => { console.error('[App] ⏰ expand() call #2 (50ms)'); forceExpand(); }, 50);
+    setTimeout(() => { console.error('[App] ⏰ expand() call #3 (100ms)'); forceExpand(); }, 100);
+    setTimeout(() => { console.error('[App] ⏰ expand() call #4 (200ms)'); forceExpand(); }, 200);
+    setTimeout(() => { console.error('[App] ⏰ expand() call #5 (500ms)'); forceExpand(); }, 500);
+    setTimeout(() => { console.error('[App] ⏰ expand() call #6 (1000ms)'); forceExpand(); }, 1000);
+    setTimeout(() => { console.error('[App] ⏰ expand() call #7 (2000ms)'); forceExpand(); }, 2000);
     
-    console.log('[App] ✅ Telegram WebApp expand() setup complete with multiple fallbacks');
+    console.error('[App] ✅✅✅ Telegram WebApp expand() setup complete with multiple fallbacks');
   }
 
   // Валидация переменных окружения при старте
