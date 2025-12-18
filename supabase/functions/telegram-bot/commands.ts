@@ -86,31 +86,53 @@ export async function setupMenuButtonForUser(chatId: number): Promise<void> {
 
   const MINI_APP_URL = Deno.env.get('MINI_APP_URL') || 'https://skilyapp.com';
   
+  console.log(`[setupMenuButtonForUser] 🚀 Начинаю установку Menu Button для чата ${chatId}`);
+  console.log(`[setupMenuButtonForUser] 📋 URL: ${MINI_APP_URL}`);
+  
   try {
+    const requestBody = {
+      chat_id: chatId,
+      menu_button: {
+        type: 'web_app',
+        text: '🚀 В БОЙ',
+        web_app: {
+          url: MINI_APP_URL
+        }
+      }
+    };
+    
+    console.log(`[setupMenuButtonForUser] 📤 Отправляю запрос:`, JSON.stringify(requestBody, null, 2));
+    
     const response = await fetch(`${TELEGRAM_API}/setChatMenuButton`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        menu_button: {
-          type: 'web_app',
-          text: '🚀 В БОЙ',
-          web_app: {
-            url: MINI_APP_URL
-          }
-        }
-      })
+      body: JSON.stringify(requestBody)
     });
 
-    const result = await response.json();
+    const responseText = await response.text();
+    console.log(`[setupMenuButtonForUser] 📥 Ответ от Telegram API (status ${response.status}):`, responseText);
+    
+    let result;
+    try {
+      result = JSON.parse(responseText);
+    } catch (e) {
+      console.error(`[setupMenuButtonForUser] ❌ Не удалось распарсить ответ:`, e);
+      console.error(`[setupMenuButtonForUser] ❌ Сырой ответ:`, responseText);
+      return;
+    }
     
     if (result.ok) {
-      console.log(`[setupMenuButtonForUser] ✅ Menu Button WebApp установлен для чата ${chatId}`);
+      console.log(`[setupMenuButtonForUser] ✅✅✅ Menu Button WebApp успешно установлен для чата ${chatId}`);
     } else {
-      console.error(`[setupMenuButtonForUser] ❌ Ошибка установки Menu Button для чата ${chatId}:`, result.description);
+      console.error(`[setupMenuButtonForUser] ❌❌❌ Ошибка установки Menu Button для чата ${chatId}:`, {
+        error_code: result.error_code,
+        description: result.description,
+        parameters: result.parameters
+      });
     }
   } catch (error) {
-    console.error(`[setupMenuButtonForUser] ❌ Ошибка при установке Menu Button для чата ${chatId}:`, error);
+    console.error(`[setupMenuButtonForUser] ❌❌❌ Критическая ошибка при установке Menu Button для чата ${chatId}:`, error);
+    console.error(`[setupMenuButtonForUser] Stack:`, error.stack);
   }
 }
 
@@ -120,11 +142,14 @@ export async function handleStart(message: TelegramMessage, supabase: any): Prom
 
   // КРИТИЧНО: Устанавливаем Menu Button как WebApp для этого пользователя
   // Это позволяет приложению открываться на весь экран (fullscreen)
+  console.log(`[handleStart] 🚀 Обработка команды /start для пользователя ${user.id}, чат ${message.chat.id}`);
+  
   try {
     await setupMenuButtonForUser(message.chat.id);
     console.log(`[handleStart] ✅ Menu Button WebApp установлен для пользователя ${user.id}`);
   } catch (error) {
     console.error(`[handleStart] ⚠️ Не удалось установить Menu Button для пользователя ${user.id}:`, error);
+    console.error(`[handleStart] Error stack:`, error.stack);
     // Продолжаем выполнение даже если установка кнопки не удалась
   }
 
