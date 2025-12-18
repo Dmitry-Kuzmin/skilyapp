@@ -567,6 +567,31 @@
         log('[Telegram Expand BODY] 📋 Document readyState:', document.readyState);
         log('[Telegram Expand BODY] 📋 Window exists:', typeof window !== 'undefined');
         
+        // КРИТИЧНО: Диагностика - проверяем, действительно ли это Mini App
+        if (typeof window !== 'undefined') {
+          var isMiniApp = !!(window.Telegram && window.Telegram.WebApp);
+          var hasInitData = isMiniApp && window.Telegram.WebApp.initData && window.Telegram.WebApp.initData !== '';
+          var platform = isMiniApp ? window.Telegram.WebApp.platform : 'unknown';
+          var version = isMiniApp ? window.Telegram.WebApp.version : 'unknown';
+          
+          log('[Telegram Expand BODY] 🔍 DIAGNOSTICS:', {
+            isMiniApp: isMiniApp,
+            hasInitData: hasInitData,
+            platform: platform,
+            version: version,
+            isExpanded: isMiniApp ? window.Telegram.WebApp.isExpanded : false,
+            viewportHeight: isMiniApp ? window.Telegram.WebApp.viewportHeight : 0,
+            userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown'
+          });
+          
+          // КРИТИЧНО: Если это НЕ Mini App, показываем предупреждение
+          if (!isMiniApp) {
+            log('[Telegram Expand BODY] ❌❌❌ NOT A MINI APP! This is opened as regular website.');
+            log('[Telegram Expand BODY] ❌ Menu Button may be configured as "url" instead of "web_app"');
+            log('[Telegram Expand BODY] ❌ expand() will NOT work in regular website mode');
+          }
+        }
+        
         // Функция для немедленного expand()
         function tryExpand() {
           try {
