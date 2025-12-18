@@ -175,19 +175,40 @@ export function applyAnswerToState(
       }
 
       // Добавляем доп. вопросы и время
-      if (result.shouldAddExtra && result.extraQuestionsCount && result.extraTime) {
-        // TODO: Получить доп. вопросы из той же темы
-        // Пока создаем заглушки
-        const extraQuestions: ExtraQuestion[] = Array.from(
-          { length: result.extraQuestionsCount },
-          (_, i) => ({
-            question: state.mainQuestions[state.currentMainIndex - 1], // TODO: заменить на реальные вопросы из темы
+      if (result.shouldAddExtra && result.extraQuestionsCount && result.extraTime && result.blockId) {
+        // Получаем доп. вопросы из того же блока
+        const blockQuestions = newState.allQuestionsByBlock[result.blockId] || [];
+        
+        if (blockQuestions.length === 0) {
+          console.warn(`[russiaExamLogic] Нет вопросов в блоке ${result.blockId} для доп. вопросов`);
+        } else {
+          // Исключаем уже использованные вопросы из основных
+          const usedQuestionIds = new Set(
+            newState.mainQuestions.map(q => q.id)
+          );
+          
+          const availableQuestions = blockQuestions.filter(
+            q => !usedQuestionIds.has(q.id)
+          );
+          
+          // Если доступных вопросов меньше, чем нужно - используем все доступные
+          const questionsToUse = availableQuestions.length >= result.extraQuestionsCount
+            ? availableQuestions
+            : blockQuestions; // fallback: используем все вопросы блока
+          
+          // Перемешиваем и берем нужное количество
+          const shuffled = [...questionsToUse].sort(() => Math.random() - 0.5);
+          const selected = shuffled.slice(0, result.extraQuestionsCount);
+          
+          const extraQuestions: ExtraQuestion[] = selected.map((q) => ({
+            question: q,
             blockId: result.blockId!,
             originalQuestionIndex: state.currentMainIndex - 1,
-          })
-        );
+          }));
+          
+          newState.extraQuestions.push(...extraQuestions);
+        }
         
-        newState.extraQuestions.push(...extraQuestions);
         newState.timeRemaining += result.extraTime;
         newState.extraTimeAdded += result.extraTime;
       }

@@ -2,7 +2,7 @@
  * Хук для управления состоянием экзамена ПДД РФ
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { 
   RussiaExamState, 
   createRussiaExamState,
@@ -16,13 +16,26 @@ import {
 } from '@/utils/russiaExamLogic';
 import { UniversalQuestion } from '@/types/pdd';
 
-export function useRussiaExam(questions: UniversalQuestion[]) {
+export function useRussiaExam(
+  questions: UniversalQuestion[],
+  allQuestionsByBlock?: Record<number, UniversalQuestion[]>
+) {
   const [state, setState] = useState<RussiaExamState | null>(() => {
     if (questions.length === 20) {
-      return createRussiaExamState(questions, 20 * 60);
+      return createRussiaExamState(questions, allQuestionsByBlock, 20 * 60);
     }
     return null;
   });
+  
+  // Обновляем состояние при изменении allQuestionsByBlock
+  useEffect(() => {
+    if (state && allQuestionsByBlock && Object.keys(allQuestionsByBlock).length > 0) {
+      setState(prev => prev ? {
+        ...prev,
+        allQuestionsByBlock,
+      } : null);
+    }
+  }, [allQuestionsByBlock, state]);
 
   const isExtraMode = state?.isExtraMode || false;
   const currentQuestion = useMemo(() => {

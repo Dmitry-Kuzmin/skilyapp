@@ -28,9 +28,12 @@ export interface ExtraQuestion {
  * Состояние экзамена ПДД РФ
  */
 export interface RussiaExamState {
-  // Основные вопросы (20)
+  // Основные вопросы (20) - выбранные для экзамена
   mainQuestions: UniversalQuestion[];
   currentMainIndex: number; // текущий вопрос из основных (0-19)
+  
+  // ВСЕ вопросы по блокам (для генерации доп. вопросов)
+  allQuestionsByBlock: Record<number, UniversalQuestion[]>; // blockId -> вопросы из этого блока
   
   // Ответы на основные вопросы
   mainAnswers: Record<number, {

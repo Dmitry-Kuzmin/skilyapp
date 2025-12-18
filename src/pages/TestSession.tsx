@@ -919,13 +919,20 @@ const TestSession = () => {
   // Преобразуем вопросы ПДД РФ в универсальный формат
   const universalPDDQuestions = useMemo(() => {
     if (mode === 'exam-russia' && pddExamQuestions.data) {
-      return pddExamQuestions.data;
+      return pddExamQuestions.data.selectedQuestions;
     }
     return null;
   }, [mode, pddExamQuestions.data]);
   
+  const allQuestionsByBlock = useMemo(() => {
+    if (mode === 'exam-russia' && pddExamQuestions.data) {
+      return pddExamQuestions.data.allQuestionsByBlock;
+    }
+    return undefined;
+  }, [mode, pddExamQuestions.data]);
+  
   // Хук для управления экзаменом РФ
-  const russiaExam = useRussiaExam(universalPDDQuestions || []);
+  const russiaExam = useRussiaExam(universalPDDQuestions || [], allQuestionsByBlock);
 
   // ОПТИМИЗАЦИЯ: Загружаем вопросы из хуков в зависимости от режима
   useEffect(() => {
