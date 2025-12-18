@@ -2410,20 +2410,23 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       {/* Main Content */}
       {/* Используем единую систему отступов через CSS переменные */}
       {/* Динамический отступ от панели прогресса: totalTopPadding + высота панели */}
-      {/* 🆕 CRITICAL FIX: Для Telegram Mini App используем отрицательный paddingTop чтобы убрать весь отступ */}
+      {/* 🆕 CRITICAL FIX: Для Telegram Mini App используем отрицательный margin-top на контейнере чтобы убрать весь отступ */}
       <div
-        className={`flex flex-col justify-start p-3 md:p-4 pb-6 max-w-4xl mx-auto ${isInTelegramMiniApp ? 'gap-0' : isTelegramMobile ? 'gap-1' : 'gap-2'}`}
+        className={`flex flex-col justify-start ${isInTelegramMiniApp ? 'p-3 md:p-4 pb-6 gap-0' : 'p-3 md:p-4 pb-6'} ${isTelegramMobile ? 'gap-1' : 'gap-2'} max-w-4xl mx-auto`}
         style={{
           paddingTop: isInTelegramMiniApp 
-            ? `${contentTopPadding - 20}px` // Вычитаем 20px чтобы убрать весь отступ в Telegram Mini App
-            : `${contentTopPadding}px`
+            ? '0px' // Убираем paddingTop полностью для Telegram Mini App
+            : `${contentTopPadding}px`,
+          marginTop: isInTelegramMiniApp
+            ? `${-(contentTopPadding - 12)}px` // Отрицательный margin-top чтобы поднять контейнер вверх (12px = padding контейнера)
+            : '0px'
         }}
       >
         {/* Header - Scores & Boosts - Premium Design */}
         {/* 🆕 CRITICAL FIX: Для Telegram Mini App убираем gap и используем отрицательный margin-top чтобы прижать к прогресс-бару */}
         <div 
           className={`relative z-20 ${isInTelegramMiniApp
-            ? 'flex flex-col gap-0 -mt-1' // Компактная вертикальная компоновка + небольшой отрицательный margin
+            ? 'flex flex-col gap-0 -mt-2' // Компактная вертикальная компоновка + отрицательный margin для прилипания
             : isTelegramMobile
             ? 'flex flex-col gap-1' // Нормальный gap для обычных мобильных браузеров
             : 'flex items-center justify-between gap-3 flex-wrap'
