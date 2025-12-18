@@ -682,5 +682,36 @@
     </script>
     <!-- КРИТИЧНО: Основной скрипт приложения - должен загружаться первым -->
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- 🚀 Дополнительный fallback: expand() после загрузки всех скриптов -->
+    <script>
+      // Этот скрипт выполняется после загрузки всех модулей
+      window.addEventListener('load', function() {
+        console.log('[Telegram Expand LOAD] 🚀 window.load event fired');
+        if (window.Telegram && window.Telegram.WebApp) {
+          try {
+            window.Telegram.WebApp.expand();
+            console.log('[Telegram Expand LOAD] ✅✅✅ expand() called on window.load');
+          } catch(e) {
+            console.error('[Telegram Expand LOAD] ❌ Error:', e);
+          }
+        } else {
+          console.warn('[Telegram Expand LOAD] ⚠️ Telegram WebApp not found on window.load');
+        }
+      });
+      
+      // Также пробуем на DOMContentLoaded
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('[Telegram Expand DOM] 🚀 DOMContentLoaded event fired');
+        if (window.Telegram && window.Telegram.WebApp) {
+          try {
+            window.Telegram.WebApp.expand();
+            console.log('[Telegram Expand DOM] ✅✅✅ expand() called on DOMContentLoaded');
+          } catch(e) {
+            console.error('[Telegram Expand DOM] ❌ Error:', e);
+          }
+        }
+      });
+    </script>
   </body>
 </html>
