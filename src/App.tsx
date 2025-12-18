@@ -294,6 +294,20 @@ const LandingRedirect = () => {
 };
 
 const App = () => {
+  // КРИТИЧНО: Принудительно разворачиваем Telegram WebApp в самую первую секунду
+  // Это должно быть синхронно, до первого рендера, чтобы приложение сразу открылось на весь экран
+  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+    const tg = window.Telegram.WebApp;
+    // Вызываем expand() и ready() синхронно, до первого рендера
+    try {
+      tg.expand();
+      tg.ready();
+      console.debug('[App] Telegram WebApp expanded synchronously');
+    } catch (error) {
+      console.warn('[App] Failed to expand Telegram WebApp synchronously:', error);
+    }
+  }
+
   // Валидация переменных окружения при старте
   useEffect(() => {
     try {
