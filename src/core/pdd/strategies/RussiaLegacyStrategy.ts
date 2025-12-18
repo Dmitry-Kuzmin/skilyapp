@@ -1,0 +1,277 @@
+/**
+ * Legacy Strategy для России
+ * Работает с существующими таблицами pdd_russia_questions и pdd_russia_answers
+ * НЕ ТРОГАЕМ - оставляем как есть для стабильности
+ */
+
+import { supabase } from '@/integrations/supabase/client';
+import { CountryCode, UniversalQuestion, PDDRussiaTicket } from '@/types/pdd';
+import { mapRussiaQuestionToUniversal } from '@/utils/pddAdapters';
+import { PDDDataStrategy } from '../PDDDataStrategy';
+import { RUSSIA_EXAM_RULES } from '@/types/pddExam';
+
+/**
+ * Определяет номер блока по номеру вопроса в билете (1-20)
+ */
+function getBlockByQuestionNumber(questionNumber: number): number {
+  if (questionNumber >= 1 && questionNumber <= 5) return 1;
+  if (questionNumber >= 6 && questionNumber <= 10) return 2;
+  if (questionNumber >= 11 && questionNumber <= 15) return 3;
+  if (questionNumber >= 16 && questionNumber <= 20) return 4;
+  return 1;
+}
+
+export class RussiaLegacyStrategy implements PDDDataStrategy {
+  async getTickets(country: CountryCode): Promise<PDDRussiaTicket[]> {
+    if (country !== 'russia') {
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('pdd_russia_questions')
+      .select('ticket_number')
+      .order('ticket_number', { ascending: true });
+
+    if (error) throw error;
+
+    // Группируем по билетам и считаем количество вопросов
+    const ticketsMap = new Map<number, number>();
+    data?.forEach((q) => {
+      const count = ticketsMap.get(q.ticket_number) || 0;
+      ticketsMap.set(q.ticket_number, count + 1);
+    });
+
+    // Преобразуем в массив билетов
+    const tickets: PDDRussiaTicket[] = Array.from(ticketsMap.entries())
+      .map(([ticketNumber, questionsCount]) => ({
+        ticket_number: ticketNumber,
+        questions_count: questionsCount,
+        completed: false, // TODO: получать из user_progress
+        progress: 0, // TODO: вычислять из user_progress
+      }))
+      .sort((a, b) => a.ticket_number - b.ticket_number);
+
+    return tickets;
+  }
+
+  async getTicketQuestions(
+    country: CountryCode,
+    ticketNumber: number
+  ): Promise<UniversalQuestion[]> {
+    if (country !== 'russia') {
+      return [];
+    }
+
+    // Получаем вопросы билета
+    const { data: questions, error: questionsError } = await supabase
+      .from('pdd_russia_questions')
+      .select('*')
+      .eq('ticket_number', ticketNumber)
+      .order('question_number', { ascending: true });
+
+    if (questionsError) throw questionsError;
+
+    if (!questions || questions.length === 0) {
+      return [];
+    }
+
+    // Получаем ответы для всех вопросов
+    const questionIds = questions.map((q) => q.id);
+    const { data: answers, error: answersError } = await supabase
+      .from('pdd_russia_answers')
+      .select('*')
+      .in('question_id', questionIds)
+      .order('position', { ascending: true });
+
+    if (answersError) throw answersError;
+
+    // Группируем ответы по question_id
+    const answersByQuestion = new Map<string, typeof answers>();
+    answers?.forEach((answer) => {
+      const existing = answersByQuestion.get(answer.question_id) || [];
+      existing.push(answer);
+      answersByQuestion.set(answer.question_id, existing);
+    });
+
+    // Преобразуем к универсальному формату
+    const universalQuestions: UniversalQuestion[] = questions.map((q) => {
+      const questionAnswers = answersByQuestion.get(q.id) || [];
+      return mapRussiaQuestionToUniversal(q, questionAnswers);
+    });
+
+    return universalQuestions;
+  }
+
+  async getRandomQuestions(
+    country: CountryCode,
+    count: number
+  ): Promise<UniversalQuestion[]> {
+    if (country !== 'russia') {
+      return [];
+    }
+
+    // Получаем случайные вопросы
+    const { data: questions, error: questionsError } = await supabase
+      .from('pdd_russia_questions')
+      .select('*')
+      .limit(count);
+
+    if (questionsError) throw questionsError;
+
+    if (!questions || questions.length === 0) {
+      return [];
+    }
+
+    // Получаем ответы
+    const questionIds = questions.map((q) => q.id);
+    const { data: answers, error: answersError } = await supabase
+      .from('pdd_russia_answers')
+      .select('*')
+      .in('question_id', questionIds)
+      .order('position', { ascending: true });
+
+    if (answersError) throw answersError;
+
+    // Группируем ответы
+    const answersByQuestion = new Map<string, typeof answers>();
+    answers?.forEach((answer) => {
+      const existing = answersByQuestion.get(answer.question_id) || [];
+      existing.push(answer);
+      answersByQuestion.set(answer.question_id, existing);
+    });
+
+    // Преобразуем к универсальному формату
+    const universalQuestions: UniversalQuestion[] = questions.map((q) => {
+      const questionAnswers = answersByQuestion.get(q.id) || [];
+      return mapRussiaQuestionToUniversal(q, questionAnswers);
+    });
+
+    // Перемешиваем вопросы
+    return universalQuestions.sort(() => Math.random() - 0.5);
+  }
+
+  async getExamQuestions(country: CountryCode): Promise<{
+    selectedQuestions: UniversalQuestion[];
+    allQuestionsByBlock: Record<number, UniversalQuestion[]>;
+  }> {
+    if (country !== 'russia') {
+      return {
+        selectedQuestions: [],
+        allQuestionsByBlock: {},
+      };
+    }
+
+    // Получаем ВСЕ вопросы из БД
+    const { data: allQuestions, error: questionsError } = await supabase
+      .from('pdd_russia_questions')
+      .select('*')
+      .order('ticket_number', { ascending: true })
+      .order('question_number', { ascending: true });
+
+    if (questionsError) throw questionsError;
+
+    if (!allQuestions || allQuestions.length === 0) {
+      return {
+        selectedQuestions: [],
+        allQuestionsByBlock: {},
+      };
+    }
+
+    // Группируем вопросы по блокам (по question_number)
+    const questionsByBlock = new Map<number, typeof allQuestions>();
+    
+    allQuestions.forEach((q) => {
+      const blockId = getBlockByQuestionNumber(q.question_number);
+      const existing = questionsByBlock.get(blockId) || [];
+      existing.push(q);
+      questionsByBlock.set(blockId, existing);
+    });
+
+    // Из каждого блока берем случайную пятерку
+    const selectedQuestions: typeof allQuestions = [];
+    
+    for (let blockId = 1; blockId <= RUSSIA_EXAM_RULES.blocksCount; blockId++) {
+      const blockQuestions = questionsByBlock.get(blockId) || [];
+      
+      if (blockQuestions.length === 0) {
+        console.warn(`[RussiaLegacyStrategy] Блок ${blockId} пуст`);
+        continue;
+      }
+
+      // Перемешиваем и берем первые 5
+      const shuffled = [...blockQuestions].sort(() => Math.random() - 0.5);
+      const selected = shuffled.slice(0, RUSSIA_EXAM_RULES.questionsPerBlock);
+      
+      selectedQuestions.push(...selected);
+    }
+
+    // Получаем ответы для всех выбранных вопросов
+    const questionIds = selectedQuestions.map((q) => q.id);
+    const { data: answers, error: answersError } = await supabase
+      .from('pdd_russia_answers')
+      .select('*')
+      .in('question_id', questionIds)
+      .order('position', { ascending: true });
+
+    if (answersError) throw answersError;
+
+    // Группируем ответы по question_id
+    const answersByQuestion = new Map<string, typeof answers>();
+    answers?.forEach((answer) => {
+      const existing = answersByQuestion.get(answer.question_id) || [];
+      existing.push(answer);
+      answersByQuestion.set(answer.question_id, existing);
+    });
+
+    // Преобразуем к универсальному формату
+    const universalQuestions: UniversalQuestion[] = selectedQuestions.map((q) => {
+      const questionAnswers = answersByQuestion.get(q.id) || [];
+      const universal = mapRussiaQuestionToUniversal(q, questionAnswers);
+      
+      const blockId = getBlockByQuestionNumber(q.question_number);
+      if (!universal.topics) {
+        universal.topics = [];
+      }
+      universal.topics.push(`block_${blockId}`);
+      
+      return universal;
+    });
+
+    // Также получаем ответы для ВСЕХ вопросов (для доп. вопросов)
+    const allQuestionIds = allQuestions.map((q) => q.id);
+    const { data: allAnswers, error: allAnswersError } = await supabase
+      .from('pdd_russia_answers')
+      .select('*')
+      .in('question_id', allQuestionIds)
+      .order('position', { ascending: true });
+
+    if (allAnswersError) throw allAnswersError;
+
+    // Группируем все ответы
+    const allAnswersByQuestion = new Map<string, typeof allAnswers>();
+    allAnswers?.forEach((answer) => {
+      const existing = allAnswersByQuestion.get(answer.question_id) || [];
+      existing.push(answer);
+      allAnswersByQuestion.set(answer.question_id, existing);
+    });
+
+    // Преобразуем ВСЕ вопросы по блокам для доп. вопросов
+    const allUniversalByBlock: Record<number, UniversalQuestion[]> = {};
+    
+    for (let blockId = 1; blockId <= RUSSIA_EXAM_RULES.blocksCount; blockId++) {
+      const blockQuestions = questionsByBlock.get(blockId) || [];
+      
+      // Преобразуем к универсальному формату
+      allUniversalByBlock[blockId] = blockQuestions.map((q) => {
+        const questionAnswers = allAnswersByQuestion.get(q.id) || [];
+        return mapRussiaQuestionToUniversal(q, questionAnswers);
+      });
+    }
+
+    return {
+      selectedQuestions: universalQuestions,
+      allQuestionsByBlock: allUniversalByBlock,
+    };
+  }
+}
+
