@@ -312,7 +312,71 @@
       })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
     </script>
     
-    <script src="https://telegram.org/js/telegram-web-app.js" defer crossorigin="anonymous"></script>
+    <!-- КРИТИЧНО: telegram-web-app.js загружаем БЕЗ defer для мгновенного expand() -->
+    <!-- Убираем defer чтобы скрипт выполнился синхронно и expand() сработал до открытия шторки -->
+    <script src="https://telegram.org/js/telegram-web-app.js" crossorigin="anonymous"></script>
+    
+    <!-- 🚀 КРИТИЧНО: "Атомный" скрипт для мгновенного expand() - выполняется ДО загрузки React -->
+    <!-- Этот скрипт вызывается в ту же миллисекунду, как открывается окно Telegram -->
+    <!-- Решает проблему "гонки" - Telegram получает команду expand() до начала анимации шторки -->
+    <script>
+      (function() {
+        // Функция для принудительного разворачивания приложения
+        function expandTelegramApp() {
+          try {
+            if (window.Telegram && window.Telegram.WebApp) {
+              const tg = window.Telegram.WebApp;
+              
+              // Принудительно разворачиваем на весь экран
+              if (typeof tg.expand === 'function') {
+                tg.expand();
+                console.log('[Telegram Expand] ✅ expand() called immediately in index.html');
+              }
+              
+              // Сообщаем, что приложение готово (убирает лоадер Telegram быстрее)
+              if (typeof tg.ready === 'function') {
+                tg.ready();
+                console.log('[Telegram Expand] ✅ ready() called immediately in index.html');
+              }
+              
+              return true; // Успешно вызвали
+            }
+            return false; // Telegram WebApp еще не загружен
+          } catch (e) {
+            console.warn('[Telegram Expand] ⚠️ Error calling expand():', e);
+            return false;
+          }
+        }
+        
+        // Пытаемся вызвать сразу (на случай если скрипт уже загружен)
+        if (expandTelegramApp()) {
+          console.log('[Telegram Expand] ✅ Telegram WebApp already available, expanded immediately');
+        } else {
+          // Если Telegram WebApp еще не загружен, ждем его загрузки
+          // Используем polling с короткими интервалами для минимальной задержки
+          let attempts = 0;
+          const maxAttempts = 50; // Максимум 500ms ожидания (50 * 10ms)
+          
+          const checkInterval = setInterval(function() {
+            attempts++;
+            
+            if (expandTelegramApp()) {
+              clearInterval(checkInterval);
+              console.log('[Telegram Expand] ✅ Telegram WebApp loaded and expanded after', attempts * 10, 'ms');
+            } else if (attempts >= maxAttempts) {
+              clearInterval(checkInterval);
+              console.warn('[Telegram Expand] ⚠️ Telegram WebApp not found after', maxAttempts * 10, 'ms - may not be in Telegram');
+            }
+          }, 10); // Проверяем каждые 10ms для минимальной задержки
+          
+          // Fallback: также слушаем событие загрузки скрипта
+          document.addEventListener('DOMContentLoaded', function() {
+            expandTelegramApp();
+          });
+        }
+      })();
+    </script>
+    
     <!-- ОПТИМИЗАЦИЯ: telegram-widget.js откладываем до взаимодействия пользователя -->
     <!-- Загружается только при скролле или через 3 секунды после загрузки страницы -->
     <script>
