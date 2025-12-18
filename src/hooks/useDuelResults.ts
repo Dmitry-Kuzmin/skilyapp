@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { saveDuelResultSnapshot, loadDuelResultSnapshot, clearDuelResultSnapshot } from "@/utils/duelResultSnapshot";
 import type { DuelResultSnapshot } from "@/features/duel/shared";
+import { ACTIVE_DUEL_STORAGE_KEY } from "@/features/duel/shared";
+import type { ActiveDuelState } from "@/features/duel/shared";
 
 interface DuelResultData {
   duel: any;
@@ -53,6 +55,22 @@ export function useDuelResults(duelId: string | null, profileId: string | null) 
         };
       }
 
+      // 🆕 CRITICAL FIX: Fallback на activeDuel если snapshot не найден (Delayed Cleanup strategy)
+      // activeDuel должен содержать данные, так как мы не очищаем его при завершении дуэли
+      try {
+        const savedActiveDuel = localStorage.getItem(ACTIVE_DUEL_STORAGE_KEY);
+        if (savedActiveDuel) {
+          const activeDuel: ActiveDuelState = JSON.parse(savedActiveDuel);
+          if (activeDuel.duelId === duelId) {
+            console.log('[useDuelResults] ⚠️ Snapshot not found, but activeDuel exists - will try to load from DB with retry');
+            // Не возвращаем данные из activeDuel напрямую, так как там нет полных данных
+            // Но это означает что данные должны быть в БД, просто нужно подождать
+          }
+        }
+      } catch (error) {
+        // Игнорируем ошибки парсинга activeDuel
+      }
+
       // ОПТИМИЗАЦИЯ: Объединяем все запросы в Promise.all для параллельной загрузки
       // ИСПРАВЛЕНИЕ: Используем maybeSingle() вместо single() для обработки race condition
       // Если данные еще не готовы (Edge Function еще обрабатывает), вернется null
@@ -84,7 +102,27 @@ export function useDuelResults(duelId: string | null, profileId: string | null) 
 
       // Если данных нет (null), значит Edge Function еще обрабатывает
       if (!duelResult.data) {
-        console.warn("[useDuelResults] Duel data is null (race condition), will retry...");
+        console.warn("[useDuelResults] Duel data is null (race condition), will retry...", {
+          duelId,
+          profileId,
+          attempt: 'checking snapshot and activeDuel...'
+        });
+        
+        // 🆕 CRITICAL FIX: Проверяем snapshot еще раз (может быть создан асинхронно)
+        const snapshotRetry = loadDuelResultSnapshot(duelId);
+        if (snapshotRetry) {
+          console.log('[useDuelResults] ✅ Found snapshot on retry!');
+          return {
+            duel: snapshotRetry.duel,
+            players: snapshotRetry.players,
+            myPlayer: snapshotRetry.myPlayer,
+            opponentPlayer: snapshotRetry.opponentPlayer,
+            myAnswers: snapshotRetry.myAnswers,
+            opponentAnswers: snapshotRetry.opponentAnswers,
+            results: snapshotRetry.results,
+          };
+        }
+        
         throw new Error('DUEL_NOT_READY'); // Специальная ошибка для retry
       }
 
@@ -197,17 +235,20 @@ export function useDuelResults(duelId: string | null, profileId: string | null) 
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     // ✅ ИСПРАВЛЕНИЕ: Увеличиваем retry и добавляем задержку для race condition
+    // 🆕 CRITICAL FIX: Увеличено количество попыток и задержка для мобильных устройств
     retry: (failureCount, error: any) => {
       // Если это race condition (дуэль еще не готова), делаем больше попыток
       if (error?.message === 'DUEL_NOT_READY') {
-        return failureCount < 5; // До 5 попыток с задержкой
+        return failureCount < 10; // Увеличено с 5 до 10 попыток для мобильных устройств
       }
       // Для других ошибок - только 1 попытка
       return failureCount < 1;
     },
     retryDelay: (attemptIndex) => {
-      // Экспоненциальная задержка: 500ms, 1000ms, 2000ms, 4000ms, 8000ms
-      return Math.min(500 * Math.pow(2, attemptIndex), 8000);
+      // 🆕 CRITICAL FIX: Увеличена задержка для мобильных устройств
+      // Экспоненциальная задержка: 1000ms, 2000ms, 4000ms, 8000ms, 10000ms, ...
+      // Максимальная задержка увеличена до 10 секунд
+      return Math.min(1000 * Math.pow(2, attemptIndex), 10000);
     },
   });
 }
