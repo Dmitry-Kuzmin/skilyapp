@@ -22,6 +22,7 @@ import { useInterstitialBanner } from '@/hooks/useInterstitialBanner';
 import { usePremium } from '@/hooks/usePremium';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { useActiveDuel } from '@/hooks/useActiveDuel';
+import type { DuelResultSnapshot } from '@/features/duel/shared';
 
 interface DuelResultProps {
   duelId: string;
@@ -29,7 +30,7 @@ interface DuelResultProps {
   onBackToMenu: () => void;
   // 🆕 CRITICAL FIX: Передача данных напрямую из памяти (минуя localStorage)
   // Это решает race condition на мобильных устройствах
-  initialSnapshot?: import('@/features/duel/shared').DuelResultSnapshot | null;
+  initialSnapshot?: DuelResultSnapshot | null;
 }
 
 // Разные варианты эффектов фейерверков/салютов
