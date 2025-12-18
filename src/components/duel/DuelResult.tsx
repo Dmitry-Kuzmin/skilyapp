@@ -28,66 +28,20 @@ interface DuelResultProps {
   onBackToMenu: () => void;
 }
 
-// Разные варианты анимаций поздравления
-const celebrationAnimations = [
-  // Анимация 1: Классическое покачивание с вращением
-  {
-    y: [0, -10, 0],
-    rotate: [0, -3, 3, -3, 0],
-    scale: [1, 1.05, 1],
-    duration: 3,
-  },
-  // Анимация 2: Пульсация с подпрыгиванием
-  {
-    y: [0, -15, 0, -8, 0],
-    scale: [1, 1.1, 1, 1.05, 1],
-    rotate: [0, 5, -5, 0],
-    duration: 2.5,
-  },
-  // Анимация 3: Вращение по кругу с масштабированием
-  {
-    y: [0, -12, -12, 0],
-    x: [0, 8, -8, 0],
-    rotate: [0, 360],
-    scale: [1, 1.08, 1.08, 1],
-    duration: 4,
-  },
-  // Анимация 4: Энергичное подпрыгивание
-  {
-    y: [0, -20, 0, -12, 0],
-    scale: [1, 1.15, 1, 1.08, 1],
-    rotate: [0, -8, 8, -4, 0],
-    duration: 2,
-  },
-  // Анимация 5: Плавное плавание
-  {
-    y: [0, -8, 0, -5, 0],
-    x: [0, 5, -5, 3, 0],
-    rotate: [0, 2, -2, 1, 0],
-    scale: [1, 1.03, 1, 1.02, 1],
-    duration: 3.5,
-  },
-  // Анимация 6: Взрывной эффект
-  {
-    y: [0, -18, 0],
-    scale: [1, 1.2, 1],
-    rotate: [0, -10, 10, -5, 0],
-    duration: 1.8,
-  },
-  // Анимация 7: Элегантное покачивание
-  {
-    y: [0, -6, 0, -4, 0],
-    rotate: [0, -2, 2, 0],
-    scale: [1, 1.04, 1, 1.02, 1],
-    duration: 4.5,
-  },
-  // Анимация 8: Динамичное вращение
-  {
-    y: [0, -14, 0],
-    rotate: [0, 180, 360],
-    scale: [1, 1.12, 1],
-    duration: 3.2,
-  },
+// Разные варианты эффектов фейерверков/салютов
+const confettiEffects = [
+  // Эффект 1: Классический золотой салют
+  { numberOfPieces: 200, gravity: 0.25, colors: ['#FFD700', '#FFA500', '#FF6347', '#FF1493'] },
+  // Эффект 2: Радужный фейерверк
+  { numberOfPieces: 300, gravity: 0.3, colors: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'] },
+  // Эффект 3: Синий-фиолетовый взрыв
+  { numberOfPieces: 250, gravity: 0.2, colors: ['#4A90E2', '#7B68EE', '#9370DB', '#BA55D3'] },
+  // Эффект 4: Зеленый-желтый салют
+  { numberOfPieces: 350, gravity: 0.35, colors: ['#32CD32', '#ADFF2F', '#FFD700', '#FFA500'] },
+  // Эффект 5: Розово-красный фейерверк
+  { numberOfPieces: 280, gravity: 0.28, colors: ['#FF69B4', '#FF1493', '#DC143C', '#FF6347'] },
+  // Эффект 6: Многоцветный взрыв
+  { numberOfPieces: 400, gravity: 0.4, colors: ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3'] },
 ];
 
 export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps) {
@@ -95,9 +49,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   const { isPremium } = usePremium();
   const [shouldShowInterstitial, setShouldShowInterstitial] = useState(false);
   
-  // Выбираем случайную анимацию при монтировании компонента
-  const [selectedAnimation] = useState(() => {
-    return celebrationAnimations[Math.floor(Math.random() * celebrationAnimations.length)];
+  // Выбираем случайный эффект фейерверка при монтировании компонента
+  const [selectedConfettiEffect] = useState(() => {
+    return confettiEffects[Math.floor(Math.random() * confettiEffects.length)];
   });
   
   // ОПТИМИЗАЦИЯ: Используем React Query хук вместо прямых запросов
@@ -348,7 +302,17 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
 
       <div className="min-h-screen w-full max-w-2xl mx-auto px-4 py-8 pb-24 space-y-6 relative z-10">
         <AnimatePresence>
-          {results.isWinner && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={200} gravity={0.25} style={{ position: 'fixed', top: 0, left: 0, zIndex: 50 }} />}
+          {results.isWinner && (
+            <Confetti
+              width={window.innerWidth}
+              height={window.innerHeight}
+              recycle={false}
+              numberOfPieces={selectedConfettiEffect.numberOfPieces}
+              gravity={selectedConfettiEffect.gravity}
+              colors={selectedConfettiEffect.colors}
+              style={{ position: 'fixed', top: 0, left: 0, zIndex: 50 }}
+            />
+          )}
         </AnimatePresence>
 
         {/* Header - Animated Result Status */}
@@ -358,9 +322,13 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           transition={{ type: "spring", duration: 0.7, bounce: 0.4 }}
           className="text-center space-y-6 relative pt-8 md:pt-12"
         >
-          {/* Animated Trophy/Icon - Premium 3D Effect with Random Animations */}
+          {/* Animated Trophy/Icon - Classic Bounce Animation Only */}
           <motion.div
-            animate={results.isWinner ? selectedAnimation : results.isDraw ? {
+            animate={results.isWinner ? {
+              y: [0, -10, 0],
+              rotate: [0, -3, 3, -3, 0],
+              scale: [1, 1.05, 1]
+            } : results.isDraw ? {
               y: [0, -5, 0],
               scale: [1, 1.03, 1]
             } : {
@@ -368,7 +336,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
               scale: [1, 0.98, 1]
             }}
             transition={{ 
-              duration: results.isWinner ? selectedAnimation.duration : 4, 
+              duration: results.isWinner ? 3 : 4, 
               repeat: Infinity, 
               ease: "easeInOut"
             }}
@@ -376,27 +344,28 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           >
             {results.isWinner && (
               <div className="relative">
-                {/* Radial Glow Effect */}
+                {/* Radial Glow Effect - улучшено для светлой темы */}
                 <motion.div
                   animate={{
                     scale: [1, 1.3, 1],
                     opacity: [0.5, 0.7, 0.5],
                   }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 rounded-full blur-3xl"
+                  className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 dark:from-yellow-400 dark:via-orange-500 dark:to-yellow-400 rounded-full blur-3xl"
                   style={{ width: '200%', height: '200%', left: '-50%', top: '-50%' }}
                 />
-                {/* Secondary Glow */}
+                {/* Secondary Glow - улучшено для светлой темы */}
                 <motion.div
                   animate={{
                     scale: [1, 1.5, 1],
                     opacity: [0.3, 0.5, 0.3],
                   }}
                   transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                  className="absolute inset-0 bg-gradient-to-br from-yellow-300 to-orange-600 rounded-full blur-2xl"
+                  className="absolute inset-0 bg-gradient-to-br from-yellow-300 to-orange-600 dark:from-yellow-300 dark:to-orange-600 rounded-full blur-2xl"
                   style={{ width: '150%', height: '150%', left: '-25%', top: '-25%' }}
                 />
-                <Trophy className="relative h-24 w-24 mx-auto text-yellow-400 drop-shadow-[0_0_30px_rgba(251,191,36,0.8)]" />
+                {/* Кубок с улучшенной видимостью в светлой теме */}
+                <Trophy className="relative h-24 w-24 mx-auto text-yellow-600 dark:text-yellow-400 drop-shadow-[0_0_30px_rgba(251,191,36,0.8)] dark:drop-shadow-[0_0_30px_rgba(251,191,36,0.8)]" />
               </div>
             )}
             {!results.isWinner && !results.isDraw && (
@@ -481,9 +450,6 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
 
             {/* Premium Glass Card */}
             <div className="relative overflow-hidden bg-slate-900/60 dark:bg-black/40 backdrop-blur-xl rounded-[32px] p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-              {/* Top highlight for depth */}
-              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-              
               {/* Inner glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
               
@@ -516,9 +482,6 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
 
             {/* Premium Glass Card */}
             <div className="relative overflow-hidden bg-slate-900/60 dark:bg-black/40 backdrop-blur-xl rounded-[32px] p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-              {/* Top highlight for depth */}
-              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-              
               {/* Inner glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
               
@@ -559,9 +522,6 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
             transition={{ delay: 0.5 }}
             className="relative overflow-hidden rounded-[32px] border border-white/10 bg-slate-900/60 dark:bg-black/40 backdrop-blur-xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
           >
-            {/* Top highlight for depth */}
-            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-            
             {/* Animated background gradient */}
             <motion.div
               animate={{
@@ -845,11 +805,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
       {/* AI Widget */}
       {showAIWidget && selectedQuestion && (
         <AIWidget
-          question={selectedQuestion}
-          onClose={() => {
-            setShowAIWidget(false);
-            setSelectedQuestion(null);
-          }}
+          question={selectedQuestion?.question_snapshot?.question_ru || selectedQuestion?.question_ru || 'Вопрос'}
+          correctAnswer={selectedQuestion?.duel_questions?.correct_answer || ''}
+          isCorrect={selectedQuestion?.is_correct || false}
         />
       )}
     </div>
