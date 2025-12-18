@@ -32,17 +32,40 @@ interface DuelResultData {
  * ОПТИМИЗИРОВАННЫЙ хук для загрузки результатов дуэли
  * Объединяет все запросы в batch для минимизации количества запросов
  * Автоматически находит myPlayerId по profileId
+ * 
+ * @param duelId - ID дуэли
+ * @param profileId - ID профиля пользователя
+ * @param initialSnapshot - Начальные данные snapshot (передаются напрямую из памяти, минуя localStorage)
  */
-export function useDuelResults(duelId: string | null, profileId: string | null) {
+export function useDuelResults(
+  duelId: string | null, 
+  profileId: string | null,
+  initialSnapshot?: DuelResultSnapshot | null
+) {
   return useQuery<DuelResultData | null>({
     queryKey: ["duel-results", duelId, profileId],
     queryFn: async () => {
       if (!duelId || !profileId) return null;
 
+      // 🆕 CRITICAL FIX: Используем initialSnapshot если передан (данные из памяти, минуя localStorage)
+      // Это решает race condition на мобильных устройствах где localStorage медленный
+      if (initialSnapshot && initialSnapshot.duelId === duelId) {
+        console.log('[useDuelResults] ✅ Using initialSnapshot data (direct props, bypassing localStorage)');
+        return {
+          duel: initialSnapshot.duel,
+          players: initialSnapshot.players,
+          myPlayer: initialSnapshot.myPlayer,
+          opponentPlayer: initialSnapshot.opponentPlayer,
+          myAnswers: initialSnapshot.myAnswers,
+          opponentAnswers: initialSnapshot.opponentAnswers,
+          results: initialSnapshot.results,
+        };
+      }
+
       // 🆕 FIX: Проверяем snapshot ПЕРЕД запросом к БД (fallback для race condition)
       const snapshot = loadDuelResultSnapshot(duelId);
       if (snapshot) {
-        console.log('[useDuelResults] ✅ Using snapshot data (race condition fix)');
+        console.log('[useDuelResults] ✅ Using snapshot data from localStorage (race condition fix)');
         // Конвертируем snapshot в формат DuelResultData
         return {
           duel: snapshot.duel,

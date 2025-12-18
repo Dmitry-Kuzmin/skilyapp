@@ -27,6 +27,9 @@ interface DuelResultProps {
   duelId: string;
   onRematch: () => void;
   onBackToMenu: () => void;
+  // 🆕 CRITICAL FIX: Передача данных напрямую из памяти (минуя localStorage)
+  // Это решает race condition на мобильных устройствах
+  initialSnapshot?: import('@/features/duel/shared').DuelResultSnapshot | null;
 }
 
 // Разные варианты эффектов фейерверков/салютов
@@ -45,19 +48,19 @@ const confettiEffects = [
   { numberOfPieces: 400, gravity: 0.4, colors: ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3'] },
 ];
 
-export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps) {
+export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }: DuelResultProps) {
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
   const [shouldShowInterstitial, setShouldShowInterstitial] = useState(false);
   const { clearActiveDuel } = useActiveDuel();
   
+  // 🆕 CRITICAL FIX: Передаем initialSnapshot в useDuelResults для обхода localStorage race condition
+  const { data: duelResultsData, isLoading: loading, refetch } = useDuelResults(duelId, profileId, initialSnapshot);
+  
   // Выбираем случайный эффект фейерверка при монтировании компонента
   const [selectedConfettiEffect] = useState(() => {
     return confettiEffects[Math.floor(Math.random() * confettiEffects.length)];
   });
-  
-  // ОПТИМИЗАЦИЯ: Используем React Query хук вместо прямых запросов
-  const { data: duelResultsData, isLoading: loading, refetch } = useDuelResults(duelId, profileId);
 
   // 🆕 FIX: Очищаем snapshot при размонтировании компонента (выход с экрана результатов)
   useEffect(() => {

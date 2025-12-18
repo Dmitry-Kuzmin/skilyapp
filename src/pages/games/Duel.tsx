@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import type { DuelResultSnapshot } from '@/features/duel/shared';
 import { useSearchParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -71,6 +72,8 @@ export default function Duel() {
     const [isJoining, setIsJoining] = useState(false);
     const [isFindingMatch, setIsFindingMatch] = useState(false);
     const hasAutoJoinedRef = useRef(false);
+    // 🆕 CRITICAL FIX: Ref для хранения snapshot (передается напрямую из памяти, минуя localStorage)
+    const duelResultSnapshotRef = useRef<DuelResultSnapshot | null>(null);
     const [duelPreview, setDuelPreview] = useState<{ bet_amount: number; num_questions: number } | null>(null);
 
     // Inline create state
@@ -441,12 +444,20 @@ export default function Duel() {
         }
     };
 
-    const handleDuelFinished = () => {
+    // 🆕 CRITICAL FIX: Принимаем snapshot напрямую из памяти (минуя localStorage)
+    const handleDuelFinished = (snapshot?: DuelResultSnapshot) => {
         console.log('[Duel] 🎯🎯🎯 handleDuelFinished called - transitioning to results', {
             currentMode: mode,
             duelId,
-            willSetMode: 'result'
+            willSetMode: 'result',
+            hasSnapshot: !!snapshot
         });
+
+        // 🆕 CRITICAL FIX: Сохраняем snapshot в ref для передачи в DuelResult (минуя localStorage)
+        if (snapshot) {
+            duelResultSnapshotRef.current = snapshot;
+            console.log('[Duel] ✅ Snapshot saved to ref (direct memory transfer)');
+        }
 
         // КРИТИЧНО: Проверяем, что duelId установлен перед переходом к результатам
         if (!duelId) {
@@ -2094,8 +2105,15 @@ export default function Duel() {
                         {mode === 'result' && duelId && (
                             <DuelResult
                                 duelId={duelId}
-                                onRematch={() => setMode('create')}
-                                onBackToMenu={handleBackToMenu}
+                                onRematch={() => {
+                                    duelResultSnapshotRef.current = null; // Очищаем snapshot при реванше
+                                    setMode('create');
+                                }}
+                                onBackToMenu={() => {
+                                    duelResultSnapshotRef.current = null; // Очищаем snapshot при выходе
+                                    handleBackToMenu();
+                                }}
+                                initialSnapshot={duelResultSnapshotRef.current || undefined}
                             />
                         )}
 

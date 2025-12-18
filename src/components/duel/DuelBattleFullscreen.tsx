@@ -87,7 +87,7 @@ const getSeasonBonusDisplay = (betAmount: number) => {
 interface DuelBattleFullscreenProps {
   duelId: string;
   onExit: () => void;
-  onDuelFinished: () => void;
+  onDuelFinished: (snapshot?: DuelResultSnapshot) => void; // 🆕 CRITICAL FIX: Передаем snapshot напрямую из памяти
   onHide?: () => void;
   onWidgetExpand?: () => void;
 }
@@ -411,7 +411,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         // 🆕 CRITICAL FIX: Создаем snapshot ПЕРЕД вызовом onDuelFinished
         // Это гарантирует что данные будут доступны для экрана результатов
         // даже если activeDuel будет очищен до загрузки данных из БД
-        const createSnapshot = async () => {
+        const createSnapshot = async (): Promise<DuelResultSnapshot | null> => {
           try {
             log('[DuelBattleFullscreen] 📸 Creating snapshot before transition...');
             
@@ -504,23 +504,28 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
                 saveDuelResultSnapshot(snapshot);
                 log('[DuelBattleFullscreen] ✅ Snapshot created successfully');
+                return snapshot; // 🆕 CRITICAL FIX: Возвращаем snapshot для передачи через callback
               } else {
                 log('[DuelBattleFullscreen] ⚠️ Could not find players for snapshot');
+                return null;
               }
             } else {
               log('[DuelBattleFullscreen] ⚠️ Could not load duel data for snapshot, will be created by useDuelResults');
+              return null;
             }
           } catch (error) {
             logError('[DuelBattleFullscreen] ❌ Error creating snapshot:', error);
             // Продолжаем переход даже если snapshot не создан - useDuelResults создаст его
+            return null;
           }
         };
 
-        // Создаем snapshot и только потом переходим к результатам
-        createSnapshot().then(() => {
+        // 🆕 CRITICAL FIX: Создаем snapshot и передаем его напрямую через callback (минуя localStorage)
+        createSnapshot().then((snapshot) => {
           setTimeout(() => {
-            log('[DuelBattleFullscreen] 🚀 Transitioning to results');
-            onDuelFinished();
+            log('[DuelBattleFullscreen] 🚀 Transitioning to results with snapshot');
+            // Передаем snapshot напрямую из памяти - это решает race condition на мобильных устройствах
+            onDuelFinished(snapshot || undefined);
           }, 500);
         });
       } else {
