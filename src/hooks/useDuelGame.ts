@@ -54,6 +54,8 @@ interface UseDuelGameProps {
   fetchPlayers: () => Promise<any>;
   moveToNextQuestion: () => void;
   finishDuel: () => Promise<void>;
+  // Callbacks
+  onWrongAnswer?: () => void; // Callback для screen shake при неправильном ответе
 }
 
 export function useDuelGame({
@@ -91,6 +93,7 @@ export function useDuelGame({
   fetchPlayers,
   moveToNextQuestion,
   finishDuel,
+  onWrongAnswer,
 }: UseDuelGameProps) {
   // КРИТИЧНО: Отслеживаем загрузку игроков для предотвращения race condition
   const playersLoadedRef = useRef(false);
@@ -437,6 +440,10 @@ export function useDuelGame({
         } else {
           sounds.wrongAnswer();
           haptics.wrongAnswer();
+          // 🎯 Screen shake при неправильном ответе
+          if (onWrongAnswer) {
+            onWrongAnswer();
+          }
           // Combo should be 0 after wrong answer
           if (serverCombo !== 0) {
             logWarn('[useDuelGame] Warning: Server returned non-zero combo for incorrect answer:', serverCombo);

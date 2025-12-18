@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { memo, lazy, Suspense } from 'react';
 import { getImageUrl } from '@/utils/imageUtils';
 import { Scrambler } from '@/utils/scramble';
+import { haptics } from '@/lib/haptics';
 
 // КРИТИЧНО: Lazy loading для компонентов атак
 // Это предотвращает циклические зависимости и TDZ ошибки при сборке
@@ -118,7 +119,13 @@ export const DuelQuestionCard = memo(({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
-              onClick={() => !isAnswered && !isEliminated && onAnswer(option.id)}
+              onClick={() => {
+                if (!isAnswered && !isEliminated) {
+                  // Haptic feedback при клике на кнопку ответа
+                  haptics.answerClick();
+                  onAnswer(option.id);
+                }
+              }}
               disabled={isAnswered || isEliminated}
               whileHover={!isAnswered && !isEliminated ? { scale: 1.02 } : {}}
               whileTap={!isAnswered && !isEliminated ? { scale: 0.98 } : {}}
@@ -158,7 +165,12 @@ export const DuelQuestionCard = memo(({
                 <InputLagWrapper
                   isActive={inputLagActive}
                   delayMs={inputLagDelay}
-                  onClick={() => onAnswer(option.id)}
+                  onClick={() => {
+                    if (!isAnswered && !isEliminated) {
+                      haptics.answerClick();
+                      onAnswer(option.id);
+                    }
+                  }}
                   disabled={isAnswered || isEliminated}
                   className="w-full"
                 >

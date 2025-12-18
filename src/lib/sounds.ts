@@ -329,6 +329,32 @@ class SoundManager {
     this.playClick(600, 0.06);
   }
 
+  // Attack sounds
+  attackWhoosh() {
+    // Звук прилетающей атаки (whoosh)
+    const now = this.ensureAudioContext()?.currentTime;
+    if (!now) return;
+    
+    // Создаем эффект "whoosh" - быстрое изменение частоты
+    const oscillator = this.audioContext!.createOscillator();
+    const gainNode = this.audioContext!.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(this.audioContext!.destination);
+    
+    // Быстрое изменение частоты от высокого к низкому (whoosh эффект)
+    oscillator.frequency.setValueAtTime(1200, now);
+    oscillator.frequency.exponentialRampToValueAtTime(400, now + 0.3);
+    oscillator.type = 'sawtooth';
+    
+    gainNode.gain.setValueAtTime(0, now);
+    gainNode.gain.linearRampToValueAtTime(0.12, now + 0.05);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    
+    oscillator.start(now);
+    oscillator.stop(now + 0.3);
+  }
+
   // Enable/disable sounds
   setEnabled(enabled: boolean) {
     this.enabled = enabled;

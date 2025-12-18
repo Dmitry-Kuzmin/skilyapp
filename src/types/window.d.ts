@@ -99,6 +99,9 @@ declare global {
         openInvoice?: (invoiceLink: string, callback: (status: 'paid' | 'cancelled' | 'failed' | 'pending') => void) => void;
         // Open external link in Telegram browser
         openLink?: (url: string) => void;
+        // Closing confirmation (защита от случайного закрытия)
+        enableClosingConfirmation?: () => void;
+        disableClosingConfirmation?: () => void;
       };
     };
   }

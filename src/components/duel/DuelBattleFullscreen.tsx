@@ -107,6 +107,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // 🆕 Состояние для активных exploits
   const [activeExploits, setActiveExploits] = useState<Map<string, { expiresAt: number; passed?: boolean }>>(new Map());
   
+  // 🎯 Screen shake состояние для визуального эффекта при ошибках и атаках
+  const [screenShake, setScreenShake] = useState(false);
+  
   // 🆕 Состояния для переподключения и авто-победы (объявляем ДО useEffect)
   const [showReconnectionModal, setShowReconnectionModal] = useState(false);
   const [isReconnecting, setIsReconnecting] = useState(false);
@@ -124,6 +127,27 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       console.log(`SELECT * FROM duel_active_exploits WHERE duel_id = '${duelId}' ORDER BY activated_at DESC LIMIT 5;`);
     }
   }, [duelId]);
+
+  // 🛡️ Защита от случайного закрытия во время дуэли
+  useEffect(() => {
+    const tg = getTelegramWebApp();
+    if (!tg || !isTelegramMiniApp()) return;
+
+    // Включаем подтверждение закрытия при старте дуэли
+    const tgAny = tg as any;
+    if (typeof tgAny.enableClosingConfirmation === 'function') {
+      tgAny.enableClosingConfirmation();
+      log('[DuelBattleFullscreen] 🛡️ Closing confirmation enabled');
+    }
+
+    // Выключаем при размонтировании (выход из дуэли)
+    return () => {
+      if (typeof tgAny.disableClosingConfirmation === 'function') {
+        tgAny.disableClosingConfirmation();
+        log('[DuelBattleFullscreen] 🛡️ Closing confirmation disabled');
+      }
+    };
+  }, []);
 
   // 🆕 Проверка переподключения при монтировании (если страница была перезагружена)
   useEffect(() => {
@@ -211,6 +235,18 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             receivedAt: new Date(exploit.receivedAt).toISOString(),
             expiresIn: Math.round((exploit.expiresAt - Date.now()) / 1000) + 's'
           });
+          
+          // 🎯 Haptic feedback, звук и screen shake при получении новой атаки
+          const isAttackType = exploit.type === 'screen_injector' || 
+                              exploit.type === 'data_leak' || 
+                              exploit.type === 'oil_spill' ||
+                              exploit.type === 'police_backdoor';
+          if (isAttackType) {
+            haptics.attackReceived();
+            sounds.attackWhoosh();
+            setScreenShake(true);
+            setTimeout(() => setScreenShake(false), 500);
+          }
         }
       });
       
@@ -580,6 +616,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     fetchPlayers,
     moveToNextQuestion,
     finishDuel,
+    // 🎯 Callback для screen shake при неправильном ответе
+    onWrongAnswer: () => {
+      setScreenShake(true);
+      setTimeout(() => setScreenShake(false), 500);
+    },
   });
 
   // Загружаем игроков для хука бота
@@ -1521,6 +1562,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // Timer logic with timestamp fix (endTime pattern) - работает даже при переключении вкладок
   const questionEndTimeRef = useRef<number | null>(null);
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const prevTimerSecondsRef = useRef<number | null>(null); // Для haptic feedback таймера
   const currentIndexRef = useRef<number>(-1); // КРИТИЧНО: Ref для отслеживания изменения currentIndex
   const handleTimeoutRef = useRef(handleTimeout); // КРИТИЧНО: Ref для handleTimeout, чтобы избежать перезапуска
   const TIME_LIMIT_MS = 60000; // 60 seconds
@@ -1619,6 +1661,17 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
       const now = Date.now();
       const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000; // В миллисекундах
+      const seconds = Math.ceil(secondsRemaining / 1000);
+
+      // 🎯 Haptic feedback для таймера (пульсация каждую секунду при < 5 сек)
+      if (seconds <= 5 && seconds > 0 && seconds !== prevTimerSecondsRef.current) {
+        if (seconds <= 2) {
+          haptics.timerCritical(); // Более интенсивная вибрация в критический момент
+        } else {
+          haptics.timerPulse(); // Пульсация как сердцебиение
+        }
+        prevTimerSecondsRef.current = seconds;
+      }
 
       if (secondsRemaining <= 0) {
         // 🛑 Время вышло
@@ -1630,6 +1683,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         });
         setTimeLeft(0);
         questionEndTimeRef.current = null;
+        prevTimerSecondsRef.current = null; // Сбрасываем отслеживание
         if (timerIntervalRef.current) {
           clearInterval(timerIntervalRef.current);
           timerIntervalRef.current = null;
@@ -2532,9 +2586,18 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         <motion.div
           key={currentIndex}
           initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
+          animate={{ 
+            opacity: 1, 
+            x: screenShake ? [0, -10, 10, -10, 10, 0] : 0,
+            y: screenShake ? [0, -5, 5, -5, 5, 0] : 0,
+          }}
           exit={{ opacity: 0, x: -50 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          transition={{ 
+            type: "spring", 
+            stiffness: 300, 
+            damping: 30,
+            ...(screenShake ? { duration: 0.5, ease: "easeOut" } : {})
+          }}
           className="flex flex-col relative mt-2"
         >
           {/* УБРАНО: Блокирующий Auto-Win Timer Overlay - теперь используется компактный индикатор */}

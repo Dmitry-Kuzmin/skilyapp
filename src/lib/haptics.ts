@@ -51,11 +51,18 @@ class HapticManager {
   }
 
   // Answer feedback
+  answerClick() {
+    // Легкая вибрация при клике на кнопку ответа
+    this.trigger('light');
+  }
+
   correctAnswer() {
+    // Приятная вибрация при правильном ответе
     this.notificationOccurred('success');
   }
 
   wrongAnswer() {
+    // Резкая вибрация при неправильном ответе
     this.notificationOccurred('error');
   }
 
@@ -64,19 +71,46 @@ class HapticManager {
     this.trigger('medium');
   }
 
+  // Timer feedback
+  timerPulse() {
+    // Пульсация при приближении к концу времени (как сердцебиение)
+    this.trigger('medium');
+  }
+
+  timerCritical() {
+    // Более интенсивная пульсация в критический момент
+    this.trigger('heavy');
+  }
+
+  // Attack feedback
+  attackReceived() {
+    // Вибрация при получении атаки от соперника
+    this.trigger('heavy');
+    setTimeout(() => this.trigger('medium'), 100);
+  }
+
+  // Screen shake helper (для визуального эффекта)
+  screenShake() {
+    // Вибрация для screen shake эффекта
+    this.trigger('heavy');
+  }
+
   // Special events
   combo() {
     this.trigger('heavy');
   }
 
   victory() {
+    // Серия вибраций при победе
     this.trigger('heavy');
     setTimeout(() => this.trigger('medium'), 100);
     setTimeout(() => this.trigger('light'), 200);
+    setTimeout(() => this.notificationOccurred('success'), 300);
   }
 
   defeat() {
     this.trigger('heavy');
+    setTimeout(() => this.notificationOccurred('error'), 100);
   }
 
   warning() {

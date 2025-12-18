@@ -4501,6 +4501,53 @@ Deno.serve(async (req) => {
           const isDraw = playersWithScores[0].score === playersWithScores[1].score;
           const winnerId = isDraw ? null : playersWithScores[0].id;
 
+          // Build match_summary for compact storage
+          // This allows us to safely delete detailed duel_answers data later
+          const player1 = playersWithScores[0];
+          const player2 = playersWithScores[1];
+          const player1Accuracy = duel.num_questions > 0 
+            ? Math.round((player1.correct_count / duel.num_questions) * 100 * 100) / 100 
+            : 0;
+          const player2Accuracy = duel.num_questions > 0 
+            ? Math.round((player2.correct_count / duel.num_questions) * 100 * 100) / 100 
+            : 0;
+
+          // Get used boosts for both players (if any)
+          const { data: player1Boosts } = await supabase
+            .from('duel_answers')
+            .select('boost_used')
+            .eq('player_id', player1.id)
+            .eq('duel_id', duel_id)
+            .not('boost_used', 'is', null);
+          
+          const { data: player2Boosts } = await supabase
+            .from('duel_answers')
+            .select('boost_used')
+            .eq('player_id', player2.id)
+            .eq('duel_id', duel_id)
+            .not('boost_used', 'is', null);
+
+          const usedBoosts1 = player1Boosts?.map((b: any) => b.boost_used).filter(Boolean) || [];
+          const usedBoosts2 = player2Boosts?.map((b: any) => b.boost_used).filter(Boolean) || [];
+
+          const matchSummary = {
+            player_1_id: player1.user_id,
+            player_1_score: player1.score,
+            player_1_correct: player1.correct_count || 0,
+            player_1_accuracy: player1Accuracy,
+            player_1_boosts: [...new Set(usedBoosts1)], // Remove duplicates
+            player_2_id: player2.user_id,
+            player_2_score: player2.score,
+            player_2_correct: player2.correct_count || 0,
+            player_2_accuracy: player2Accuracy,
+            player_2_boosts: [...new Set(usedBoosts2)], // Remove duplicates
+            total_questions: duel.num_questions,
+            winner_id: isDraw ? null : player1.user_id,
+            is_draw: isDraw,
+            finish_reason: allPlayersFinished ? 'both_finished' : 'timeout',
+            finished_at: new Date().toISOString()
+          };
+
           // CRITICAL FIX: Atomic update using WHERE clause to prevent race condition
           // Only one player can successfully update status from 'active' to 'finished'
           // If update returns no rows, another player already finished the duel
@@ -4509,6 +4556,7 @@ Deno.serve(async (req) => {
             .update({
               status: 'finished',
               finished_at: new Date().toISOString(),
+              match_summary: matchSummary as any, // Save compact match summary
             })
             .eq('id', duel_id)
             .eq('status', 'active') // CRITICAL: Only update if status is still 'active'
