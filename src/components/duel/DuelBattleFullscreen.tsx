@@ -1462,11 +1462,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     // Прогресс-бар имеет paddingTop/paddingBottom по 4px каждый, поэтому реальная высота больше PROGRESS_BAR_HEIGHT
     const progressBarRealHeight = PROGRESS_BAR_HEIGHT + (isTelegramMobile ? 8 : 16); // 4px top + 4px bottom padding
     
-    // 🆕 CRITICAL FIX: Для Telegram Mini App контент должен начинаться сразу после прогресс-бара (без дополнительного отступа)
-    // Вычитаем 15px из contentTopPadding чтобы компенсировать то, что мы НЕ вычли из progressBarTop
+    // 🆕 CRITICAL FIX: Для Telegram Mini App контент должен начинаться РОВНО там, где заканчивается прогресс-бар
+    // Используем точную высоту прогресс-бара без дополнительных отступов
     const contentTopPadding =
       isInTelegramMiniApp
-        ? progressBarTop + progressBarRealHeight - 15 // Компенсируем отсутствие вычитания 15px из progressBarTop
+        ? progressBarTop + progressBarRealHeight // Контент начинается сразу после прогресс-бара (0px gap)
         : isTelegramMobile
         ? progressBarTop + progressBarRealHeight + 8 // Нормальный отступ для обычных мобильных браузеров
         : progressBarTop + progressBarRealHeight + 16; // Для десктопа больше воздуха
@@ -2410,18 +2410,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       {/* Main Content */}
       {/* Используем единую систему отступов через CSS переменные */}
       {/* Динамический отступ от панели прогресса: totalTopPadding + высота панели */}
-      {/* 🆕 CRITICAL FIX: Для Telegram Mini App используем минимальный paddingTop и убираем gap чтобы прижать ScoreBlock */}
+      {/* 🆕 CRITICAL FIX: Для Telegram Mini App используем отрицательный paddingTop чтобы убрать весь отступ */}
       <div
         className={`flex flex-col justify-start p-3 md:p-4 pb-6 max-w-4xl mx-auto ${isInTelegramMiniApp ? 'gap-0' : isTelegramMobile ? 'gap-1' : 'gap-2'}`}
         style={{
-          paddingTop: `${contentTopPadding}px`
+          paddingTop: isInTelegramMiniApp 
+            ? `${contentTopPadding - 20}px` // Вычитаем 20px чтобы убрать весь отступ в Telegram Mini App
+            : `${contentTopPadding}px`
         }}
       >
         {/* Header - Scores & Boosts - Premium Design */}
         {/* 🆕 CRITICAL FIX: Для Telegram Mini App убираем gap и используем отрицательный margin-top чтобы прижать к прогресс-бару */}
         <div 
           className={`relative z-20 ${isInTelegramMiniApp
-            ? 'flex flex-col gap-0 -mt-2' // Компактная вертикальная компоновка + отрицательный margin для прилипания в Telegram Mini App
+            ? 'flex flex-col gap-0 -mt-1' // Компактная вертикальная компоновка + небольшой отрицательный margin
             : isTelegramMobile
             ? 'flex flex-col gap-1' // Нормальный gap для обычных мобильных браузеров
             : 'flex items-center justify-between gap-3 flex-wrap'
