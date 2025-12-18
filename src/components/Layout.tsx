@@ -183,7 +183,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
     // DuelBattleFullscreen теперь использует progressBarTop = 0, полагаясь на Layout
     const shouldApplyPadding = isTelegramApp && platformMobile;
     
-    console.log('[Layout] isTelegramApp:', isTelegramApp, 'isMobile:', isMobile, 'hasTelegramWebApp:', hasTelegramWebApp, 'isDuelPage:', isDuelPage, 'shouldApplyPadding:', shouldApplyPadding);
+    console.log('[Layout] isTelegramApp:', isTelegramApp, 'isMobile:', isMobile, 'hasTelegramWebApp:', hasTelegramWebApp, 'shouldApplyPadding:', shouldApplyPadding);
     
     if (mainContentRef.current && shouldApplyPadding) {
       const topInsetStr = getComputedStyle(document.documentElement)
