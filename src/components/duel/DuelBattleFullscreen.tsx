@@ -1450,10 +1450,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
     // Вычисляем отступ для контента:
     // Для десктопа добавляем отступ, чтобы контент не заезжал под фиксированный прогресс-бар
-    // FIX: Уменьшили отступ для мобильной версии, чтобы убрать огромную дыру между ProgressBar и ScoreBlock
+    // 🆕 CRITICAL FIX: Для мобильной версии убираем отступ полностью - контент должен начинаться сразу после прогресс-бара
+    // ScoreBlock будет иметь отрицательный margin-top чтобы "прилипнуть" к прогресс-бару
     const contentTopPadding =
       isTelegramMobile
-        ? progressBarTop + PROGRESS_BAR_HEIGHT + 2 // Минимальный отступ для мобильной версии (2px вместо 4px)
+        ? progressBarTop + PROGRESS_BAR_HEIGHT // Без дополнительного отступа для мобильной версии
         : progressBarTop + PROGRESS_BAR_HEIGHT + 16; // Для десктопа больше воздуха
 
     return {
@@ -2395,18 +2396,24 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       {/* Main Content */}
       {/* Используем единую систему отступов через CSS переменные */}
       {/* Динамический отступ от панели прогресса: totalTopPadding + высота панели (без зазора в Telegram) */}
-      {/* FIX: Убрали min-h-full и justify-between, добавили justify-start и gap для контроля отступов */}
+      {/* 🆕 CRITICAL FIX: Для мобильной версии убираем paddingTop полностью, используем только отрицательный margin для ScoreBlock */}
       <div
         className="flex flex-col justify-start gap-2 p-3 md:p-4 pb-6 max-w-4xl mx-auto"
         style={{
-          paddingTop: `${contentTopPadding}px`
+          paddingTop: isTelegramMobile ? '0px' : `${contentTopPadding}px`
         }}
       >
         {/* Header - Scores & Boosts - Premium Design */}
-        <div className={`relative z-20 ${isTelegramMobile 
-          ? 'flex flex-col gap-1' // Компактная вертикальная компоновка для мобильной версии
-          : 'flex items-center justify-between gap-3 flex-wrap'
-        }`}>
+        {/* 🆕 CRITICAL FIX: Для мобильной версии используем отрицательный margin-top чтобы прижать ScoreBlock к прогресс-бару */}
+        <div 
+          className={`relative z-20 ${isTelegramMobile 
+            ? 'flex flex-col gap-1' // Компактная вертикальная компоновка
+            : 'flex items-center justify-between gap-3 flex-wrap'
+          }`}
+          style={isTelegramMobile ? {
+            marginTop: `-${contentTopPadding}px` // Отрицательный margin чтобы прижать к прогресс-бару
+          } : undefined}
+        >
           {/* Scores - Enhanced - Центрированы в мобильной версии Telegram */}
           <div className="relative">
             <DuelScoreBoard
