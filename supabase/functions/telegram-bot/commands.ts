@@ -38,7 +38,7 @@ export async function sendMessage(options: SendMessageOptions): Promise<any> {
 // /start - Приветствие и главное меню
 // =====================================================
 // =====================================================
-// Установка Menu Button WebApp (выполняется один раз при старте)
+// Установка Menu Button WebApp (глобально для всех пользователей)
 // =====================================================
 export async function setupMenuButton(): Promise<void> {
   if (!BOT_TOKEN) {
@@ -66,7 +66,7 @@ export async function setupMenuButton(): Promise<void> {
     const result = await response.json();
     
     if (result.ok) {
-      console.log('[setupMenuButton] ✅ Menu Button WebApp установлен успешно');
+      console.log('[setupMenuButton] ✅ Menu Button WebApp установлен глобально');
     } else {
       console.error('[setupMenuButton] ❌ Ошибка установки Menu Button:', result.description);
     }
@@ -75,9 +75,58 @@ export async function setupMenuButton(): Promise<void> {
   }
 }
 
+// =====================================================
+// Установка Menu Button WebApp для конкретного пользователя
+// =====================================================
+export async function setupMenuButtonForUser(chatId: number): Promise<void> {
+  if (!BOT_TOKEN) {
+    console.warn('[setupMenuButtonForUser] BOT_TOKEN not found');
+    return;
+  }
+
+  const MINI_APP_URL = Deno.env.get('MINI_APP_URL') || 'https://skilyapp.com';
+  
+  try {
+    const response = await fetch(`${TELEGRAM_API}/setChatMenuButton`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        menu_button: {
+          type: 'web_app',
+          text: '🚀 В БОЙ',
+          web_app: {
+            url: MINI_APP_URL
+          }
+        }
+      })
+    });
+
+    const result = await response.json();
+    
+    if (result.ok) {
+      console.log(`[setupMenuButtonForUser] ✅ Menu Button WebApp установлен для чата ${chatId}`);
+    } else {
+      console.error(`[setupMenuButtonForUser] ❌ Ошибка установки Menu Button для чата ${chatId}:`, result.description);
+    }
+  } catch (error) {
+    console.error(`[setupMenuButtonForUser] ❌ Ошибка при установке Menu Button для чата ${chatId}:`, error);
+  }
+}
+
 export async function handleStart(message: TelegramMessage, supabase: any): Promise<void> {
   const user = message.from;
   if (!user) return;
+
+  // КРИТИЧНО: Устанавливаем Menu Button как WebApp для этого пользователя
+  // Это позволяет приложению открываться на весь экран (fullscreen)
+  try {
+    await setupMenuButtonForUser(message.chat.id);
+    console.log(`[handleStart] ✅ Menu Button WebApp установлен для пользователя ${user.id}`);
+  } catch (error) {
+    console.error(`[handleStart] ⚠️ Не удалось установить Menu Button для пользователя ${user.id}:`, error);
+    // Продолжаем выполнение даже если установка кнопки не удалась
+  }
 
   // Получаем данные пользователя из БД
   const { data: profile } = await supabase
