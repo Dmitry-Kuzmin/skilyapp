@@ -33,6 +33,11 @@ interface DuelResultData {
  * Объединяет все запросы в batch для минимизации количества запросов
  * Автоматически находит myPlayerId по profileId
  * 
+ * 🎯 ГИБРИДНАЯ ЛОГИКА ВОССТАНОВЛЕНИЯ (каскад приоритетов):
+ * Приоритет 1 (Props): Если есть initialSnapshot в пропсах - используем его (мгновенно)
+ * Приоритет 2 (LocalStorage): Если пропсов нет - пытаемся прочитать snapshot из localStorage (Delayed Cleanup)
+ * Приоритет 3 (Server): Если и там пусто - идем в Supabase за данными дуэли по ID
+ * 
  * @param duelId - ID дуэли
  * @param profileId - ID профиля пользователя
  * @param initialSnapshot - Начальные данные snapshot (передаются напрямую из памяти, минуя localStorage)
@@ -47,10 +52,11 @@ export function useDuelResults(
     queryFn: async () => {
       if (!duelId || !profileId) return null;
 
-      // 🆕 CRITICAL FIX: Используем initialSnapshot если передан (данные из памяти, минуя localStorage)
+      // 🎯 ПРИОРИТЕТ 1: Props (мгновенно, если мы только что пришли с дуэли)
+      // Используем initialSnapshot если передан (данные из памяти, минуя localStorage)
       // Это решает race condition на мобильных устройствах где localStorage медленный
       if (initialSnapshot && initialSnapshot.duelId === duelId) {
-        console.log('[useDuelResults] ✅ Using initialSnapshot data (direct props, bypassing localStorage)');
+        console.log('[useDuelResults] ✅ ПРИОРИТЕТ 1: Using initialSnapshot data (direct props, bypassing localStorage)');
         return {
           duel: initialSnapshot.duel,
           players: initialSnapshot.players,
@@ -62,10 +68,12 @@ export function useDuelResults(
         };
       }
 
-      // 🆕 FIX: Проверяем snapshot ПЕРЕД запросом к БД (fallback для race condition)
+      // 🎯 ПРИОРИТЕТ 2: LocalStorage/Snapshot (если пользователь перезагрузил страницу)
+      // Проверяем snapshot ПЕРЕД запросом к БД (fallback для reload scenario)
+      // Благодаря стратегии "Delayed Cleanup" snapshot остается в localStorage
       const snapshot = loadDuelResultSnapshot(duelId);
-      if (snapshot) {
-        console.log('[useDuelResults] ✅ Using snapshot data from localStorage (race condition fix)');
+      if (snapshot && snapshot.duelId === duelId) {
+        console.log('[useDuelResults] ✅ ПРИОРИТЕТ 2: Using snapshot data from localStorage (reload recovery)');
         // Конвертируем snapshot в формат DuelResultData
         return {
           duel: snapshot.duel,
@@ -78,22 +86,10 @@ export function useDuelResults(
         };
       }
 
-      // 🆕 CRITICAL FIX: Fallback на activeDuel если snapshot не найден (Delayed Cleanup strategy)
-      // activeDuel должен содержать данные, так как мы не очищаем его при завершении дуэли
-      try {
-        const savedActiveDuel = localStorage.getItem(ACTIVE_DUEL_STORAGE_KEY);
-        if (savedActiveDuel) {
-          const activeDuel: ActiveDuelState = JSON.parse(savedActiveDuel);
-          if (activeDuel.duelId === duelId) {
-            console.log('[useDuelResults] ⚠️ Snapshot not found, but activeDuel exists - will try to load from DB with retry');
-            // Не возвращаем данные из activeDuel напрямую, так как там нет полных данных
-            // Но это означает что данные должны быть в БД, просто нужно подождать
-          }
-        }
-      } catch (error) {
-        // Игнорируем ошибки парсинга activeDuel
-      }
-
+      // 🎯 ПРИОРИТЕТ 3: Server Fetch (если сменил устройство или snapshot устарел)
+      // Идем в Supabase за данными дуэли по ID
+      console.log('[useDuelResults] ⚠️ ПРИОРИТЕТ 3: No snapshot found, fetching from server...');
+      
       // ОПТИМИЗАЦИЯ: Объединяем все запросы в Promise.all для параллельной загрузки
       // ИСПРАВЛЕНИЕ: Используем maybeSingle() вместо single() для обработки race condition
       // Если данные еще не готовы (Edge Function еще обрабатывает), вернется null
@@ -131,10 +127,11 @@ export function useDuelResults(
           attempt: 'checking snapshot and activeDuel...'
         });
         
-        // 🆕 CRITICAL FIX: Проверяем snapshot еще раз (может быть создан асинхронно)
+        // 🎯 FALLBACK: Проверяем snapshot еще раз (может быть создан асинхронно или восстановлен)
+        // Это последняя попытка перед retry - может быть snapshot появился пока мы ждали
         const snapshotRetry = loadDuelResultSnapshot(duelId);
-        if (snapshotRetry) {
-          console.log('[useDuelResults] ✅ Found snapshot on retry!');
+        if (snapshotRetry && snapshotRetry.duelId === duelId) {
+          console.log('[useDuelResults] ✅ Found snapshot on retry (reload recovery)!');
           return {
             duel: snapshotRetry.duel,
             players: snapshotRetry.players,

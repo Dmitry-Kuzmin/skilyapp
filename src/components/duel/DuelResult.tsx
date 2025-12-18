@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import { dispatchUserEvent } from '@/lib/notification-events';
 import { cn } from '@/lib/utils';
 import { useDuelResults } from '@/hooks/useDuelResults';
-import { clearDuelResultSnapshot } from '@/utils/duelResultSnapshot';
+import { clearDuelResultSnapshot, loadDuelResultSnapshot } from '@/utils/duelResultSnapshot';
 import { DataLaunderingButton } from './DataLaunderingButton';
 import { useVignetteBanner } from '@/hooks/useVignetteBanner';
 import { useInterstitialBanner } from '@/hooks/useInterstitialBanner';
@@ -57,8 +57,25 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
   const [shouldShowInterstitial, setShouldShowInterstitial] = useState(false);
   const { clearActiveDuel } = useActiveDuel();
   
-  // 🆕 CRITICAL FIX: Передаем initialSnapshot в useDuelResults для обхода localStorage race condition
-  const { data: duelResultsData, isLoading: loading, refetch } = useDuelResults(duelId, profileId, initialSnapshot);
+  // 🎯 ГИБРИДНАЯ ЛОГИКА: Восстанавливаем snapshot из localStorage при монтировании (если нет в props)
+  // Это решает проблему reload - если пользователь перезагрузил страницу, snapshot будет восстановлен
+  const [restoredSnapshot, setRestoredSnapshot] = useState<DuelResultSnapshot | null>(null);
+  
+  useEffect(() => {
+    // Если нет initialSnapshot в props (reload scenario), пытаемся восстановить из localStorage
+    if (!initialSnapshot && duelId) {
+      const savedSnapshot = loadDuelResultSnapshot(duelId);
+      if (savedSnapshot && savedSnapshot.duelId === duelId) {
+        console.log('[DuelResult] ✅ Restored snapshot from localStorage (reload recovery)');
+        setRestoredSnapshot(savedSnapshot);
+      }
+    }
+  }, [duelId, initialSnapshot]);
+  
+  // 🎯 Используем каскад: initialSnapshot (props) -> restoredSnapshot (localStorage) -> null (server fetch)
+  // useDuelResults сам обработает этот каскад внутри
+  const effectiveSnapshot = initialSnapshot || restoredSnapshot;
+  const { data: duelResultsData, isLoading: loading, refetch } = useDuelResults(duelId, profileId, effectiveSnapshot);
   
   // Выбираем случайный эффект фейерверка при монтировании компонента
   const [selectedConfettiEffect] = useState(() => {

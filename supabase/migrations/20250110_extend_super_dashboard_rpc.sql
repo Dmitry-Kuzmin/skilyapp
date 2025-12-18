@@ -190,6 +190,9 @@ BEGIN
 
   -- 8. НОВОЕ: Прогресс сезона пользователя (убираем отдельный запрос get_or_create_season_progress)
   -- Используем активный сезон из предыдущего запроса
+  -- КРИТИЧНО: Инициализируем переменную NULL для предотвращения ошибки 55000
+  v_season_progress := NULL;
+  
   IF v_active_season.id IS NOT NULL THEN
     SELECT 
       usp.id,
@@ -204,11 +207,18 @@ BEGIN
       usp.final_sp,
       usp.created_at,
       usp.updated_at
-    INTO v_season_progress
+    INTO STRICT v_season_progress
     FROM user_season_progress usp
     WHERE usp.user_id = p_user_id 
       AND usp.season_id = v_active_season.id
     LIMIT 1;
+    
+    -- Если запись не найдена, v_season_progress останется NULL
+    -- Это безопасно, так как мы проверяем на NULL в CASE WHEN
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      -- Если записи нет, оставляем NULL - это нормально
+      v_season_progress := NULL;
   END IF;
 
   -- 9. Собираем результат в один SUPER JSON
@@ -348,8 +358,9 @@ BEGIN
       ELSE NULL
     END,
     -- НОВОЕ: Прогресс сезона пользователя (убираем отдельный запрос)
+    -- КРИТИЧНО: Проверяем что v_season_progress не NULL и имеет id перед использованием
     'season_progress', CASE 
-      WHEN v_season_progress.id IS NOT NULL THEN
+      WHEN v_season_progress IS NOT NULL AND v_season_progress.id IS NOT NULL THEN
         json_build_object(
           'id', v_season_progress.id,
           'user_id', v_season_progress.user_id,
