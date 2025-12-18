@@ -90,18 +90,121 @@ export function useDuelResults(
       // Идем в Supabase за данными дуэли по ID
       console.log('[useDuelResults] ⚠️ ПРИОРИТЕТ 3: No snapshot found, fetching from server...');
       
-      // ОПТИМИЗАЦИЯ: Объединяем все запросы в Promise.all для параллельной загрузки
-      // ИСПРАВЛЕНИЕ: Используем maybeSingle() вместо single() для обработки race condition
-      // Если данные еще не готовы (Edge Function еще обрабатывает), вернется null
+      // 🆕 CRITICAL FIX: Используем Edge Function для получения данных дуэли
+      // Это более надежно, чем прямой запрос к БД, так как Edge Function может обработать race condition
+      try {
+        const { data: edgeData, error: edgeError } = await supabase.functions.invoke('duel-manager', {
+          body: {
+            action: 'get_results',
+            duel_id: duelId,
+            profile_id: profileId,
+          },
+        });
+
+        // Если Edge Function вернул ошибку или не поддерживает get_results - используем прямой запрос к БД
+        if (edgeError) {
+          console.log("[useDuelResults] Edge Function error or not supported, using direct DB query:", edgeError.message);
+          // Не выбрасываем ошибку, просто переходим к прямому запросу к БД
+        } else if (edgeData && edgeData.duel && edgeData.players && edgeData.players.length >= 2) {
+          // Если Edge Function вернул данные - используем их
+          const players = edgeData.players;
+          const myPlayer = players.find((p: any) => p.user_id === profileId);
+          const opponentPlayer = players.find((p: any) => p.user_id !== profileId);
+
+          if (myPlayer && opponentPlayer) {
+            const myPlayerId = myPlayer.id;
+            const opponentPlayerId = opponentPlayer.id;
+
+            // Загружаем ответы
+            const [myAnswersResult, opponentAnswersResult] = await Promise.all([
+              supabase
+                .from("duel_answers")
+                .select("*, duel_questions(*)")
+                .eq("duel_id", duelId)
+                .eq("player_id", myPlayerId)
+                .order("created_at"),
+              supabase
+                .from("duel_answers")
+                .select("*, duel_questions(*)")
+                .eq("duel_id", duelId)
+                .eq("player_id", opponentPlayerId)
+                .order("created_at"),
+            ]);
+
+            const myAnswers = myAnswersResult.data || [];
+            const opponentAnswers = opponentAnswersResult.data || [];
+
+            // Вычисляем результаты
+            const myScore = myPlayer.score || 0;
+            const opponentScore = opponentPlayer.score || 0;
+            const myCorrect = myPlayer.correct_count || 0;
+            const opponentCorrect = opponentPlayer.correct_count || 0;
+            const opponent = opponentPlayer.profiles || {};
+            const duelData = edgeData.duel;
+
+            const isWinner = myScore > opponentScore;
+            const isDraw = myScore === opponentScore;
+
+            let winnings = 0;
+            let insuranceRefund = 0;
+            if (duelData.bet_amount > 0) {
+              if (isWinner) {
+                winnings = duelData.bet_amount * 2;
+              } else if (isDraw) {
+                winnings = duelData.bet_amount;
+              }
+              if (!isWinner && !isDraw && duelData.insurance_used) {
+                insuranceRefund = Math.floor(duelData.bet_amount * 0.5);
+              }
+            }
+
+            const resultData = {
+              duel: duelData,
+              players,
+              myPlayer,
+              opponentPlayer,
+              myAnswers,
+              opponentAnswers,
+              results: {
+                isWinner,
+                isDraw,
+                myScore,
+                opponentScore,
+                myCorrect,
+                opponentCorrect,
+                opponentName: opponent?.username || opponent?.first_name || "Соперник",
+                opponentAvatar: opponent?.photo_url || null,
+                betAmount: duelData.bet_amount || 0,
+                winnings,
+                insuranceRefund,
+                insuranceUsed: duelData.insurance_used || false,
+              },
+            };
+
+            // Сохраняем snapshot для будущего использования
+            const resultSnapshot: DuelResultSnapshot = {
+              ...resultData,
+              timestamp: Date.now(),
+            };
+            saveDuelResultSnapshot(resultSnapshot);
+            console.log('[useDuelResults] ✅ Snapshot saved for future use');
+
+            return resultData;
+          }
+        }
+      } catch (edgeError: any) {
+        // Если Edge Function выбросил исключение, логируем и продолжаем с прямым запросом
+        console.log('[useDuelResults] Edge Function exception, trying direct DB query...', edgeError?.message);
+      }
+
+      // Fallback: прямой запрос к БД (если Edge Function не сработал или не вернул данные)
       const [duelResult, playersResult] = await Promise.all([
-        // Загружаем данные дуэли
         supabase
           .from("duels")
           .select("*")
           .eq("id", duelId)
-          .maybeSingle(), // ✅ Исправлено: maybeSingle() не вызовет ошибку если данных нет
+          .maybeSingle(),
 
-        // Загружаем игроков с профилями (batch запрос)
         supabase
           .from("duel_players")
           .select("*, profiles(id, username, first_name, photo_url)")
@@ -110,10 +213,9 @@ export function useDuelResults(
 
       // Если дуэль еще не готова (race condition), выбрасываем специальную ошибку для retry
       if (duelResult.error) {
-        // PGRST116 = no rows returned - это нормально, если Edge Function еще обрабатывает
         if (duelResult.error.code === 'PGRST116') {
           console.warn("[useDuelResults] Duel not ready yet (race condition), will retry...");
-          throw new Error('DUEL_NOT_READY'); // Специальная ошибка для retry
+          throw new Error('DUEL_NOT_READY');
         }
         console.error("[useDuelResults] Error loading duel:", duelResult.error);
         throw duelResult.error;
@@ -128,7 +230,6 @@ export function useDuelResults(
         });
         
         // 🎯 FALLBACK: Проверяем snapshot еще раз (может быть создан асинхронно или восстановлен)
-        // Это последняя попытка перед retry - может быть snapshot появился пока мы ждали
         const snapshotRetry = loadDuelResultSnapshot(duelId);
         if (snapshotRetry && snapshotRetry.duelId === duelId) {
           console.log('[useDuelResults] ✅ Found snapshot on retry (reload recovery)!');
@@ -143,7 +244,7 @@ export function useDuelResults(
           };
         }
         
-        throw new Error('DUEL_NOT_READY'); // Специальная ошибка для retry
+        throw new Error('DUEL_NOT_READY');
       }
 
       if (playersResult.error) {
@@ -254,20 +355,26 @@ export function useDuelResults(
     gcTime: 5 * 60 * 1000, // 5 минут
     refetchOnWindowFocus: false,
     refetchOnMount: false,
-    // ✅ ИСПРАВЛЕНИЕ: Увеличиваем retry и добавляем задержку для race condition
-    // 🆕 CRITICAL FIX: Увеличено количество попыток и задержка для мобильных устройств
+    // ✅ ИСПРАВЛЕНИЕ: Улучшенная логика retry с максимальным лимитом
+    // 🆕 CRITICAL FIX: Ограничиваем количество попыток, чтобы не зацикливаться бесконечно
     retry: (failureCount, error: any) => {
-      // Если это race condition (дуэль еще не готова), делаем больше попыток
+      // Если это race condition (дуэль еще не готова), делаем ограниченное количество попыток
       if (error?.message === 'DUEL_NOT_READY') {
-        return failureCount < 10; // Увеличено с 5 до 10 попыток для мобильных устройств
+        // Максимум 5 попыток с экспоненциальной задержкой (всего ~30 секунд)
+        // Это достаточно для обработки Edge Function, но не зацикливается бесконечно
+        return failureCount < 5;
+      }
+      // Если Edge Function не поддерживает get_results, пробуем только 1 раз прямой запрос
+      if (error?.message === 'EDGE_FUNCTION_ERROR' || error?.message === 'EDGE_FUNCTION_NO_DATA') {
+        return failureCount < 1; // Пробуем прямой запрос только 1 раз
       }
       // Для других ошибок - только 1 попытка
       return failureCount < 1;
     },
     retryDelay: (attemptIndex) => {
-      // 🆕 CRITICAL FIX: Увеличена задержка для мобильных устройств
-      // Экспоненциальная задержка: 1000ms, 2000ms, 4000ms, 8000ms, 10000ms, ...
-      // Максимальная задержка увеличена до 10 секунд
+      // 🆕 CRITICAL FIX: Экспоненциальная задержка с ограничением
+      // 1000ms, 2000ms, 4000ms, 8000ms, 10000ms (максимум)
+      // Всего ~25 секунд на 5 попыток
       return Math.min(1000 * Math.pow(2, attemptIndex), 10000);
     },
   });
