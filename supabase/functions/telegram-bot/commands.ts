@@ -150,18 +150,26 @@ export async function handleStart(message: TelegramMessage, supabase: any): Prom
     return;
   }
 
-  // КРИТИЧНО: Устанавливаем Menu Button как WebApp для этого пользователя
-  // Это позволяет приложению открываться на весь экран (fullscreen)
+  // КРИТИЧНО: Menu Button устанавливается программно, но это может переопределять Main App настройки
+  // ВАЖНО: Если Main App настроен на Fullscreen, Menu Button может игнорировать это
+  // Попробуем установить Menu Button, но если это не работает, пользователь может использовать
+  // кнопку "Open App" в интерфейсе Telegram (которая использует Main App настройки)
   console.log(`[handleStart] 🚀 Обработка команды /start для пользователя ${user.id}, чат ${message.chat.id}`);
   
+  // ВРЕМЕННО ОТКЛЮЧАЕМ: Menu Button может переопределять Main App Fullscreen настройки
+  // Вместо этого используем Main App с кнопкой "Open App" в интерфейсе Telegram
+  // Если нужно включить обратно - раскомментируйте код ниже
+  /*
   try {
     await setupMenuButtonForUser(message.chat.id);
     console.log(`[handleStart] ✅ Menu Button WebApp установлен для пользователя ${user.id}`);
   } catch (error) {
     console.error(`[handleStart] ⚠️ Не удалось установить Menu Button для пользователя ${user.id}:`, error);
     console.error(`[handleStart] Error stack:`, error.stack);
-    // Продолжаем выполнение даже если установка кнопки не удалась
   }
+  */
+  
+  console.log(`[handleStart] ℹ️ Menu Button НЕ устанавливается программно - используйте Main App "Open App" кнопку для Fullscreen`);
 
   // Получаем данные пользователя из БД
   const { data: profile } = await supabase
