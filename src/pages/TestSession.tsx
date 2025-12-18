@@ -6,6 +6,8 @@ import { QuestionProgressBar } from "@/components/QuestionProgressBar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { UniversalQuestionCard } from "@/components/shared/question";
+import { AppButton, AppProgressBar } from "@/components/shared/ui";
 import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -29,6 +31,9 @@ import {
   useQuestionsByTopic,
   useTestInfo,
 } from "@/hooks/useTestQuestionsByMode";
+import { usePDDExamQuestions } from "@/hooks/usePDDExamQuestions";
+import { useRussiaExam } from "@/hooks/useRussiaExam";
+import { mapRussiaQuestionToUniversal } from "@/utils/pddAdapters";
 import { useOfflineQueue } from "@/hooks/useOfflineQueue";
 import { trackOfflineAction } from "@/utils/offlineAnalytics";
 import { useOnlineStatus, checkOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -210,8 +215,9 @@ const TestSession = () => {
     if (location.pathname.includes("/test/challenge-bank")) return "challenge-bank";
     if (location.pathname.includes("/test/module")) return "module";
     if (location.pathname.includes("/test/dgt")) return "dgt";
+    if (location.pathname.includes("/test/exam-russia") || searchParams.get('mode') === 'exam-russia') return "exam-russia";
     return "practice";
-  }, [rawMode, location.pathname]);
+  }, [rawMode, location.pathname, searchParams]);
   
   // Получаем количество вопросов из URL
   const questionCount = parseInt(searchParams.get('count') || '30');
@@ -906,6 +912,20 @@ const TestSession = () => {
   );
   const sequentialQuestions = useSequentialTestQuestions(mode === 'sequential' ? testId || null : null);
   const testInfoData = useTestInfo(mode === 'sequential' ? testId || null : null);
+  
+  // ПДД РФ экзамен
+  const pddExamQuestions = usePDDExamQuestions();
+  
+  // Преобразуем вопросы ПДД РФ в универсальный формат
+  const universalPDDQuestions = useMemo(() => {
+    if (mode === 'exam-russia' && pddExamQuestions.data) {
+      return pddExamQuestions.data;
+    }
+    return null;
+  }, [mode, pddExamQuestions.data]);
+  
+  // Хук для управления экзаменом РФ
+  const russiaExam = useRussiaExam(universalPDDQuestions || []);
 
   // ОПТИМИЗАЦИЯ: Загружаем вопросы из хуков в зависимости от режима
   useEffect(() => {
@@ -976,6 +996,38 @@ const TestSession = () => {
       } else if (moduleQuestions.isLoading) {
         setLoading(true);
       } else if (moduleQuestions.error) {
+        toast.error("Ошибка загрузки вопросов");
+        setLoading(false);
+      }
+    } else if (mode === 'exam-russia') {
+      if (universalPDDQuestions && universalPDDQuestions.length > 0) {
+        // Преобразуем UniversalQuestion обратно в QuestionData для совместимости
+        const convertedQuestions: QuestionData[] = universalPDDQuestions.map((q, idx) => ({
+          id: q.id,
+          question_ru: q.text,
+          question_es: q.text,
+          question_en: q.text,
+          image_url: q.image,
+          explanation_ru: q.explanation || null,
+          explanation_es: q.explanation || null,
+          explanation_en: q.explanation || null,
+          topics: q.topics && q.topics.length > 0 ? { title_ru: q.topics[0], title_es: q.topics[0] } : null,
+          answer_options: q.answers.map(a => ({
+            id: a.id,
+            text_ru: a.text,
+            text_es: a.text,
+            text_en: a.text,
+            is_correct: a.isCorrect,
+            position: a.position || 0,
+          })),
+        }));
+        setQuestions(convertedQuestions);
+        setTestInfo({ id: 'exam_russia', title: '🚦 Экзамен ПДД РФ' });
+        setTimeLeft(russiaExam.timeRemaining);
+        setLoading(false);
+      } else if (pddExamQuestions.isLoading) {
+        setLoading(true);
+      } else if (pddExamQuestions.error) {
         toast.error("Ошибка загрузки вопросов");
         setLoading(false);
       }
@@ -1740,6 +1792,71 @@ useEffect(() => {
     const answerId = optionId || selectedOption;
     if (!answerId) return;
 
+    // Специальная обработка для экзамена ПДД РФ
+    if (mode === 'exam-russia' && russiaExam.currentQuestion) {
+      const selectedAnswer = russiaExam.currentQuestion.answers.find(a => a.id === answerId);
+      const isCorrect = selectedAnswer?.isCorrect || false;
+      
+      const result = russiaExam.handleAnswer(isCorrect);
+      
+      if (!result.shouldContinue) {
+        // Провал экзамена
+        toast.error(result.failureReason || "Экзамен не сдан");
+        // Переходим на результаты
+        navigate('/test/results', {
+          state: {
+            questions: questions,
+            answers: answers,
+            mode: mode,
+            testInfo: testInfo,
+            timeSpent: Math.floor((Date.now() - startTime) / 1000),
+          },
+        });
+        return;
+      }
+      
+      if (result.shouldAddExtra) {
+        toast.info(`Допущена ошибка. Вам будет назначено ${result.extraQuestionsCount} дополнительных вопросов.`);
+      }
+      
+      // Обновляем состояние
+      const newAnswer: Answer = {
+        questionId: russiaExam.currentQuestion.id,
+        selectedAnswerId: answerId,
+        isCorrect,
+      };
+      setAnswers([...answers, newAnswer]);
+      
+      // Если экзамен завершен (сдан или провален)
+      if (russiaExam.status === 'passed' || russiaExam.status === 'failed' || russiaExam.status === 'failed-extra') {
+        navigate('/test/results', {
+          state: {
+            questions: questions,
+            answers: [...answers, newAnswer],
+            mode: mode,
+            testInfo: testInfo,
+            timeSpent: Math.floor((Date.now() - startTime) / 1000),
+            russiaExamStats: russiaExam.stats,
+          },
+        });
+        return;
+      }
+      
+      // Переходим к следующему вопросу
+      if (russiaExam.isExtraMode) {
+        // В режиме доп. вопросов - просто обновляем индекс
+        setCurrentIndex(russiaExam.progress.current - 1);
+      } else {
+        setCurrentIndex(russiaExam.progress.current - 1);
+      }
+      
+      setSelectedOption(null);
+      setIsTransitioning(true);
+      setTimeout(() => setIsTransitioning(false), 300);
+      return;
+    }
+
+    // Обычная логика для других режимов
     const currentQuestion = questions[currentIndex];
     if (!currentQuestion || !currentQuestion.answer_options) {
       toast.error("Ошибка: вопрос не найден");
@@ -2256,7 +2373,31 @@ useEffect(() => {
     );
   }
 
-  const currentQuestion = questions[currentIndex];
+  // Для экзамена РФ используем вопрос из russiaExam
+  const currentQuestion = mode === 'exam-russia' && russiaExam.currentQuestion
+    ? {
+        id: russiaExam.currentQuestion.id,
+        question_ru: russiaExam.currentQuestion.text,
+        question_es: russiaExam.currentQuestion.text,
+        question_en: russiaExam.currentQuestion.text,
+        image_url: russiaExam.currentQuestion.image,
+        explanation_ru: russiaExam.currentQuestion.explanation,
+        explanation_es: russiaExam.currentQuestion.explanation,
+        explanation_en: russiaExam.currentQuestion.explanation,
+        topics: russiaExam.currentQuestion.topics && russiaExam.currentQuestion.topics.length > 0 
+          ? { title_ru: russiaExam.currentQuestion.topics[0], title_es: russiaExam.currentQuestion.topics[0] }
+          : null,
+        answer_options: russiaExam.currentQuestion.answers.map(a => ({
+          id: a.id,
+          text_ru: a.text,
+          text_es: a.text,
+          text_en: a.text,
+          is_correct: a.isCorrect,
+          position: a.position || 0,
+        })),
+      }
+    : questions[currentIndex];
+    
   if (!currentQuestion) {
     return (
       <Layout>
@@ -2270,8 +2411,13 @@ useEffect(() => {
     );
   }
 
-  const progress = questions.length > 0 ? (answers.length / questions.length) * 100 : 0;
-  const errorCount = answers.filter((a) => !a.isCorrect).length;
+  // Для экзамена РФ используем прогресс из russiaExam
+  const progress = mode === 'exam-russia' && russiaExam.progress
+    ? (russiaExam.progress.current / russiaExam.progress.total) * 100
+    : questions.length > 0 ? (answers.length / questions.length) * 100 : 0;
+  const errorCount = mode === 'exam-russia' && russiaExam.stats
+    ? russiaExam.stats.totalErrors
+    : answers.filter((a) => !a.isCorrect).length;
   
   const getQuestionText = (lang: 'ru' | 'es' | 'en'): string => {
     if (lang === 'ru') return currentQuestion.question_ru;
@@ -2349,18 +2495,39 @@ useEffect(() => {
 
         {/* Unified Progress Bar - переиспользуемый компонент */}
         <div className="mb-3 sm:mb-4 -mt-6 sm:-mt-3 md:mt-0">
-          <QuestionProgressBar
-            currentIndex={currentIndex}
-            totalQuestions={questions.length}
-            answers={answers}
-            hideScoreIndicators={mode === "exam"}
-            onClose={!isTelegramApp ? handleClose : undefined}
-            showClose={!isTelegramApp}
-            onShowQuestionMap={() => setShowQuestionMap(true)}
-            showQuestionMap={true}
-            onToggleBookmark={profileId ? toggleBookmark : undefined}
-            isBookmarked={isQuestionBookmarked}
-            bookmarkLoading={bookmarkLoading}
+          {mode === 'exam-russia' && russiaExam.progress ? (
+            <div className="flex items-center gap-2 mb-2">
+              <AppProgressBar
+                current={russiaExam.progress.current}
+                total={russiaExam.progress.total}
+                showLabel
+                label={russiaExam.progress.label}
+                color={russiaExam.isExtraMode ? 'warning' : 'primary'}
+              />
+              {russiaExam.currentBlock && (
+                <span className="text-sm text-muted-foreground">
+                  Блок {russiaExam.currentBlock}
+                  {russiaExam.errorsInCurrentBlock > 0 && (
+                    <span className="text-red-500 ml-1">
+                      ({russiaExam.errorsInCurrentBlock} ошибка)
+                    </span>
+                  )}
+                </span>
+              )}
+            </div>
+          ) : (
+            <QuestionProgressBar
+              currentIndex={currentIndex}
+              totalQuestions={questions.length}
+              answers={answers}
+              hideScoreIndicators={mode === "exam" || mode === "exam-russia"}
+              onClose={!isTelegramApp ? handleClose : undefined}
+              showClose={!isTelegramApp}
+              onShowQuestionMap={() => setShowQuestionMap(true)}
+              showQuestionMap={mode !== 'exam-russia'}
+              onToggleBookmark={profileId ? toggleBookmark : undefined}
+              isBookmarked={isQuestionBookmarked}
+              bookmarkLoading={bookmarkLoading}
             SettingsMenuComponent={
               <TestSettingsMenu
                 open={showTestSettings}
@@ -2400,15 +2567,58 @@ useEffect(() => {
                 )}
               </>
             }
-          />
+            />
+          )}
         </div>
 
 
-        {/* Question Card */}
-        <Card 
-          data-testid="question-card"
-          className="p-3 sm:p-4 md:p-6 bg-background border-border/50 shadow-xl backdrop-blur-sm"
-        >
+        {/* Question Card - используем UniversalQuestionCard для exam-russia */}
+        {mode === 'exam-russia' && russiaExam.currentQuestion ? (
+          <UniversalQuestionCard
+            mode="exam-russia"
+            question={russiaExam.currentQuestion.text}
+            image={russiaExam.currentQuestion.image}
+            answers={russiaExam.currentQuestion.answers.map(a => ({
+              id: a.id,
+              text: a.text,
+              isCorrect: a.isCorrect,
+            }))}
+            selectedAnswerId={selectedOption}
+            showResult={false} // на экзамене не показываем результат сразу
+            disabled={selectedOption !== null}
+            onAnswerClick={(answerId) => {
+              if (mode === "exam-russia") {
+                setSelectedOption(answerId);
+              }
+            }}
+            fontSize={fontSize}
+            header={
+              russiaExam.isExtraMode && (
+                <div className="mb-4 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
+                  <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
+                    ⚠️ Дополнительные вопросы. Права на ошибку больше нет.
+                  </p>
+                </div>
+              )
+            }
+            footer={
+              <div className="flex gap-2 items-center mt-4">
+                <AppButton
+                  context="primary"
+                  onClick={() => handleAnswer()}
+                  disabled={!selectedOption}
+                  className="flex-1"
+                >
+                  Ответить
+                </AppButton>
+              </div>
+            }
+          />
+        ) : (
+          <Card 
+            data-testid="question-card"
+            className="p-3 sm:p-4 md:p-6 bg-background border-border/50 shadow-xl backdrop-blur-sm"
+          >
           {/* Two-column layout: Image on left, Question & Answers on right */}
           {currentQuestion.image_url ? (
             <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[350px_1fr] gap-4 md:gap-6">
@@ -2712,6 +2922,7 @@ useEffect(() => {
             </>
           )}
         </Card>
+        )}
 
         {/* Report Problem Button - под блоком с тестом */}
         <div className="mt-4 sm:mt-5 flex justify-center">

@@ -31,7 +31,14 @@
     "tunnel:url": "./scripts/get-tunnel-url.sh",
     "tunnel:set-url": "node scripts/set-telegram-webapp-url.js",
     "materials:manifest": "node scripts/generate-materials-manifest.cjs",
-    "import:pdd-russia": "node scripts/import-pdd-russia.js"
+    "import:pdd-russia": "node scripts/import-pdd-russia.js",
+    "check:pdd-migrations": "node scripts/check-pdd-russia-migrations.js",
+    "check:pdd-duplicates": "node scripts/check-pdd-duplicates.js check",
+    "clean:pdd-duplicates": "node scripts/check-pdd-duplicates.js clean --confirm",
+    "check:pdd-images": "node scripts/check-pdd-images.js",
+    "reupload:pdd-images": "node scripts/reupload-pdd-images.js",
+    "find:pdd-missing": "node scripts/find-missing-questions.js",
+    "import:pdd-missing": "node scripts/find-and-import-missing-questions.js"
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^5.0.1",

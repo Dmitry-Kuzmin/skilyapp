@@ -65,20 +65,27 @@ async function uploadImageToStorage(imagePath, repoPath) {
     const storagePath = relativePath.replace(/\\/g, '/'); // Нормализуем слэши
     
     // Загружаем в Storage
+    // Используем service_role для обхода RLS
     const { data, error } = await supabase.storage
       .from('pdd_russia')
       .upload(storagePath, fileBuffer, {
         contentType,
         upsert: true, // Перезаписываем, если уже существует
-        cacheControl: '3600'
+        cacheControl: '3600',
+        // Для service_role не нужны дополнительные параметры
       });
     
     if (error) {
       // Если файл уже существует, это не критично
-      if (error.message?.includes('already exists')) {
+      if (error.message?.includes('already exists') || error.message?.includes('duplicate')) {
         console.log(`ℹ️  Изображение уже существует: ${storagePath}`);
+      } else if (error.message?.includes('Bucket not found')) {
+        // Bucket не найден - возможно, нужно создать через Dashboard
+        console.warn(`⚠️  Bucket не найден. Проверь, что bucket 'pdd_russia' создан в Supabase Dashboard`);
+        return null;
       } else {
         console.error(`❌ Ошибка загрузки изображения ${imagePath}:`, error.message);
+        // Продолжаем без изображения - это не критично
         return null;
       }
     }
@@ -159,15 +166,23 @@ async function importQuestion(questionData, repoPath) {
       }
     }
     
-    // Проверяем, существует ли уже вопрос
+    // Проверяем, существует ли уже вопрос по (ticket_number, question_number)
+    // Это правильнее, так как уникальное ограничение именно по этим полям
     const { data: existing } = await supabase
       .from('pdd_russia_questions')
-      .select('id')
-      .eq('source_id', sourceId)
-      .single();
+      .select('id, source_id')
+      .eq('ticket_number', ticketNumber)
+      .eq('question_number', questionNumber)
+      .maybeSingle();
     
     if (existing) {
-      console.log(`⏭️  Вопрос уже существует: Билет ${ticketNumber}, Вопрос ${questionNumber}`);
+      // Если вопрос существует, но source_id отличается - обновляем source_id
+      if (existing.source_id !== sourceId) {
+        await supabase
+          .from('pdd_russia_questions')
+          .update({ source_id: sourceId })
+          .eq('id', existing.id);
+      }
       return existing.id;
     }
     
@@ -192,6 +207,19 @@ async function importQuestion(questionData, repoPath) {
       .single();
     
     if (questionError) {
+      // Если ошибка из-за дубликата - пытаемся найти существующий
+      if (questionError.code === '23505') {
+        const { data: existingDup } = await supabase
+          .from('pdd_russia_questions')
+          .select('id')
+          .eq('ticket_number', ticketNumber)
+          .eq('question_number', questionNumber)
+          .maybeSingle();
+        
+        if (existingDup) {
+          return existingDup.id;
+        }
+      }
       console.error(`❌ Ошибка вставки вопроса:`, questionError);
       return null;
     }
@@ -318,7 +346,24 @@ async function importPenalties(penaltiesPath) {
   try {
     const penaltiesFile = join(penaltiesPath, 'penalties.json');
     const content = readFileSync(penaltiesFile, 'utf-8');
-    const penaltiesData = JSON.parse(content);
+    
+    // Файл может быть JSONL (JSON Lines) - каждая строка это отдельный JSON
+    // Пробуем сначала как обычный JSON, если не получается - парсим построчно
+    let penaltiesData;
+    try {
+      penaltiesData = JSON.parse(content);
+      // Если это не массив, значит это JSONL
+      if (!Array.isArray(penaltiesData)) {
+        penaltiesData = content.split('\n')
+          .filter(line => line.trim())
+          .map(line => JSON.parse(line));
+      }
+    } catch {
+      // Если не получилось - парсим построчно (JSONL)
+      penaltiesData = content.split('\n')
+        .filter(line => line.trim())
+        .map(line => JSON.parse(line));
+    }
     
     let imported = 0;
     

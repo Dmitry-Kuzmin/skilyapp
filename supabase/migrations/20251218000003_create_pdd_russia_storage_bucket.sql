@@ -26,12 +26,19 @@ CREATE POLICY "Anyone can view PDD Russia images"
 ON storage.objects FOR SELECT
 USING (bucket_id = 'pdd_russia');
 
--- Allow authenticated users to upload images
+-- Allow authenticated users and service role to upload images
 CREATE POLICY "Authenticated users can upload PDD Russia images"
 ON storage.objects FOR INSERT
 WITH CHECK (
   bucket_id = 'pdd_russia'
-  AND auth.role() = 'authenticated'
+  AND (auth.role() = 'authenticated' OR auth.role() = 'service_role')
+);
+
+-- Allow service_role to upload (for import scripts)
+CREATE POLICY "Service role can upload PDD Russia images"
+ON storage.objects FOR INSERT
+WITH CHECK (
+  bucket_id = 'pdd_russia'
 );
 
 -- Allow authenticated users to update images

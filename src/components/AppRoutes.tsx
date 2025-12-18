@@ -98,6 +98,8 @@ const PaymentSuccess = lazy(() => import("../pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("../pages/PaymentCancel"));
 // Purchase обрабатывается в App.tsx (без AppProviders)
 const InviteLanding = lazy(() => import("../pages/InviteLanding"));
+const LearnCountrySelector = lazy(() => import("../pages/learn/LearnCountrySelector"));
+const LearnCountryHome = lazy(() => import("../pages/learn/LearnCountryHome"));
 
 export function AppRoutes() {
   // КРИТИЧНО: AppRoutes рендерится внутри AppProviders, поэтому UserContext доступен
@@ -326,6 +328,16 @@ export function AppRoutes() {
         <Route path="/dgt-tests" element={
           <Suspense fallback={<PageSkeleton />}>
             <DGTTestsSimple />
+          </Suspense>
+        } />
+        <Route path="/learn" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <LearnCountrySelector />
+          </Suspense>
+        } />
+        <Route path="/learn/:country" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <LearnCountryHome />
           </Suspense>
         } />
         <Route path="/terms" element={
