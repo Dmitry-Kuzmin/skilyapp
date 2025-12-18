@@ -1,0 +1,29 @@
+# GitHub Actions workflow для автоматической очистки старых данных дуэлей
+# Запускается каждый день в 4:00 UTC
+# 
+# ⚠️ ВАЖНО: Добавьте секреты в GitHub Repository Settings → Secrets:
+# - SUPABASE_URL: URL вашего Supabase проекта
+# - SUPABASE_ANON_KEY: Anon/public ключ из Supabase Dashboard
+
+name: Duel Data Cleanup
+
+on:
+  schedule:
+    # Каждый день в 4:00 UTC (7:00 МСК / 1:00 EST)
+    - cron: '0 4 * * *'
+  workflow_dispatch: # Позволяет запускать вручную через GitHub UI
+
+jobs:
+  cleanup-duel-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Duel Data Cleanup Function
+        run: |
+          curl -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/duel-data-cleanup" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            -v
+          
+          echo "✅ Cleanup completed successfully"
+
