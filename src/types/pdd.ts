@@ -123,6 +123,32 @@ export interface DGTStats {
 
 export type CountryCode = 'russia' | 'spain' | 'ukraine' | 'belarus';
 
+/**
+ * Категории прав для России (ГИБДД)
+ */
+export type RussiaLicenseCategory = 'A' | 'A1' | 'B' | 'BE' | 'C' | 'CE' | 'D' | 'DE' | 'M';
+
+/**
+ * Категории прав для Испании (DGT)
+ */
+export type SpainLicenseCategory = 'A' | 'A1' | 'A2' | 'B' | 'B1' | 'C' | 'C1' | 'D' | 'D1' | 'E' | 'AM';
+
+/**
+ * Универсальный тип категории (зависит от страны)
+ */
+export type LicenseCategory = RussiaLicenseCategory | SpainLicenseCategory | string;
+
+/**
+ * Конфигурация категории прав
+ */
+export interface LicenseCategoryConfig {
+  code: string;
+  name: string;
+  nameFull: string; // полное название (например, "Легковые автомобили")
+  icon: string; // эмодзи иконка
+  description?: string;
+}
+
 export interface CountryData {
   code: CountryCode;
   name: string;
@@ -131,6 +157,7 @@ export interface CountryData {
   isoCode: string; // ISO код (RU, ES, UA, BY)
   examRules: ExamRules;
   available: boolean;
+  licenseCategories?: LicenseCategoryConfig[]; // категории прав для этой страны
 }
 
 export interface CountryDetection {
@@ -185,6 +212,17 @@ export const COUNTRIES_CONFIG: Record<CountryCode, CountryData> = {
       passingScore: 90, // 90% для сдачи
     },
     available: true,
+    licenseCategories: [
+      { code: 'A', name: 'A', nameFull: 'Мотоциклы', icon: '🏍️', description: 'Мотоциклы' },
+      { code: 'A1', name: 'A1', nameFull: 'Легкие мотоциклы', icon: '🛵', description: 'Легкие мотоциклы (до 125 см³)' },
+      { code: 'B', name: 'B', nameFull: 'Легковые автомобили', icon: '🚗', description: 'Легковые автомобили (до 3.5 т)' },
+      { code: 'BE', name: 'BE', nameFull: 'Легковые с прицепом', icon: '🚙', description: 'Легковые с прицепом (более 750 кг)' },
+      { code: 'C', name: 'C', nameFull: 'Грузовые автомобили', icon: '🚚', description: 'Грузовые (более 3.5 т)' },
+      { code: 'CE', name: 'CE', nameFull: 'Грузовые с прицепом', icon: '🚛', description: 'Грузовые с прицепом' },
+      { code: 'D', name: 'D', nameFull: 'Автобусы', icon: '🚌', description: 'Автобусы (более 8 пассажиров)' },
+      { code: 'DE', name: 'DE', nameFull: 'Автобусы с прицепом', icon: '🚎', description: 'Автобусы с прицепом' },
+      { code: 'M', name: 'M', nameFull: 'Мопеды', icon: '🛴', description: 'Мопеды и скутеры' },
+    ],
   },
   spain: {
     code: 'spain',
@@ -200,6 +238,19 @@ export const COUNTRIES_CONFIG: Record<CountryCode, CountryData> = {
       passingScore: 90,
     },
     available: true,
+    licenseCategories: [
+      { code: 'A', name: 'A', nameFull: 'Motocicletas', icon: '🏍️', description: 'Motocicletas' },
+      { code: 'A1', name: 'A1', nameFull: 'Motocicletas ligeras', icon: '🛵', description: 'Motocicletas ligeras (hasta 125 cm³)' },
+      { code: 'A2', name: 'A2', nameFull: 'Motocicletas medias', icon: '🏍️', description: 'Motocicletas medias (hasta 35 kW)' },
+      { code: 'B', name: 'B', nameFull: 'Turismos', icon: '🚗', description: 'Turismos (hasta 3.5 t)' },
+      { code: 'B1', name: 'B1', nameFull: 'Cuadriciclos', icon: '🛻', description: 'Cuadriciclos' },
+      { code: 'C', name: 'C', nameFull: 'Camiones', icon: '🚚', description: 'Camiones (más de 3.5 t)' },
+      { code: 'C1', name: 'C1', nameFull: 'Camiones ligeros', icon: '🚛', description: 'Camiones ligeros (3.5-7.5 t)' },
+      { code: 'D', name: 'D', nameFull: 'Autobuses', icon: '🚌', description: 'Autobuses (más de 8 plazas)' },
+      { code: 'D1', name: 'D1', nameFull: 'Autobuses pequeños', icon: '🚎', description: 'Autobuses pequeños (9-16 plazas)' },
+      { code: 'E', name: 'E', nameFull: 'Remolques', icon: '🚐', description: 'Remolques pesados' },
+      { code: 'AM', name: 'AM', nameFull: 'Ciclomotores', icon: '🛴', description: 'Ciclomotores (hasta 50 cm³)' },
+    ],
   },
   ukraine: {
     code: 'ukraine',
@@ -233,4 +284,17 @@ export const COUNTRIES_CONFIG: Record<CountryCode, CountryData> = {
   },
 };
 
+/**
+ * Получить категории прав для страны
+ */
+export function getLicenseCategoriesForCountry(country: CountryCode): LicenseCategoryConfig[] {
+  return COUNTRIES_CONFIG[country]?.licenseCategories || [];
+}
+
+/**
+ * Получить категорию по коду для страны
+ */
+export function getLicenseCategory(country: CountryCode, categoryCode: string): LicenseCategoryConfig | undefined {
+  return getLicenseCategoriesForCountry(country).find(cat => cat.code === categoryCode);
+}
 

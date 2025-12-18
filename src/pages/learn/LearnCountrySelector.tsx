@@ -12,17 +12,53 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Globe, Sparkles, Loader2, CheckCircle2, ArrowRight, Zap, Shield, Clock, Target } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function LearnCountrySelector() {
   const navigate = useNavigate();
   const { detection, loading, saveCountryChoice } = usePDDCountryDetection();
   const [hoveredCountry, setHoveredCountry] = useState<CountryCode | null>(null);
+  const [isCheckingPreselected, setIsCheckingPreselected] = useState(true);
+
+  // SEAMLESS UX: Проверяем preselected_country из лендинга
+  useEffect(() => {
+    const preselectedCountry = localStorage.getItem('preselected_country') as CountryCode | null;
+    
+    if (preselectedCountry && COUNTRIES_CONFIG[preselectedCountry]?.available) {
+      // Страна уже выбрана на лендинге - пропускаем экран выбора
+      console.log('[LearnCountrySelector] Preselected country found, redirecting:', preselectedCountry);
+      // Сохраняем в основной ключ для приложения
+      saveCountryChoice(preselectedCountry);
+      // Удаляем временный ключ из лендинга
+      localStorage.removeItem('preselected_country');
+      // Редирект на дашборд страны
+      navigate(`/learn/${preselectedCountry}`, { replace: true });
+      return;
+    }
+    
+    setIsCheckingPreselected(false);
+  }, [navigate, saveCountryChoice]);
 
   const handleSelect = (countryId: CountryCode) => {
     saveCountryChoice(countryId);
+    // Также сохраняем для лендинга (если пользователь вернется)
+    localStorage.setItem('preselected_country', countryId);
     navigate(`/learn/${countryId}`);
   };
+
+  // Показываем загрузку пока проверяем preselected_country
+  if (isCheckingPreselected) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Загрузка...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   // Фильтруем только доступные страны
   const availableCountries = Object.values(COUNTRIES_CONFIG).filter(
