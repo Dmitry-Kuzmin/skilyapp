@@ -296,16 +296,51 @@ const LandingRedirect = () => {
 const App = () => {
   // КРИТИЧНО: Принудительно разворачиваем Telegram WebApp в самую первую секунду
   // Это должно быть синхронно, до первого рендера, чтобы приложение сразу открылось на весь экран
+  // АГРЕССИВНЫЙ ПОДХОД: Вызываем expand() множественно и на разных событиях
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     const tg = window.Telegram.WebApp;
-    // Вызываем expand() и ready() синхронно, до первого рендера
-    try {
-      tg.expand();
-      tg.ready();
-      console.debug('[App] Telegram WebApp expanded synchronously');
-    } catch (error) {
-      console.warn('[App] Failed to expand Telegram WebApp synchronously:', error);
+    
+    // Функция для множественного вызова expand()
+    const forceExpand = () => {
+      try {
+        if (typeof tg.expand === 'function') {
+          tg.expand();
+          console.log('[App] ✅ expand() called');
+        }
+        if (typeof tg.ready === 'function') {
+          tg.ready();
+        }
+      } catch (error) {
+        console.warn('[App] Error in forceExpand:', error);
+      }
+    };
+    
+    // Вызываем сразу
+    forceExpand();
+    
+    // Вызываем на разных событиях для максимальной надежности
+    if (typeof tg.onEvent === 'function') {
+      // Вызываем при изменении viewport
+      tg.onEvent('viewport_changed', () => {
+        console.log('[App] viewport_changed - calling expand()');
+        forceExpand();
+      });
+      
+      // Вызываем при изменении safe area
+      tg.onEvent('safeAreaChanged', () => {
+        console.log('[App] safeAreaChanged - calling expand()');
+        forceExpand();
+      });
     }
+    
+    // Вызываем с задержками для надежности
+    setTimeout(forceExpand, 10);
+    setTimeout(forceExpand, 50);
+    setTimeout(forceExpand, 100);
+    setTimeout(forceExpand, 200);
+    setTimeout(forceExpand, 500);
+    
+    console.log('[App] ✅ Telegram WebApp expand() setup complete with multiple fallbacks');
   }
 
   // Валидация переменных окружения при старте

@@ -83,7 +83,41 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
 
     // КРИТИЧНО: вызываем ready() и expand() только один раз
     tg.ready();
-    tg.expand();
+    
+    // АГРЕССИВНЫЙ ПОДХОД: Вызываем expand() множественно для Menu Button
+    const forceExpand = () => {
+      try {
+        if (typeof tg.expand === 'function') {
+          tg.expand();
+          log('✅ expand() called in TelegramProvider');
+        }
+      } catch (e) {
+        log('⚠️ Error calling expand():', e);
+      }
+    };
+    
+    // Вызываем сразу
+    forceExpand();
+    
+    // Вызываем на событиях viewport
+    if (typeof tg.onEvent === 'function') {
+      tg.onEvent('viewport_changed', () => {
+        log('📐 viewport_changed - calling expand()');
+        forceExpand();
+      });
+      
+      tg.onEvent('safeAreaChanged', () => {
+        log('📐 safeAreaChanged - calling expand()');
+        forceExpand();
+      });
+    }
+    
+    // Вызываем с задержками
+    setTimeout(forceExpand, 10);
+    setTimeout(forceExpand, 50);
+    setTimeout(forceExpand, 100);
+    setTimeout(forceExpand, 200);
+    setTimeout(forceExpand, 500);
 
     // Обработка версионности API (решает проблему №5)
     const version = parseFloat(tg.version || '0');

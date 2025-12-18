@@ -30,7 +30,36 @@ export function useInitTelegram() {
 
     // КРИТИЧЕСКИ ВАЖНО: вызываем ready() и expand() сразу
     tg.ready();
-    tg.expand();
+    
+    // АГРЕССИВНЫЙ ПОДХОД: Множественные вызовы expand() для Menu Button
+    const forceExpand = () => {
+      try {
+        if (typeof tg.expand === 'function') {
+          tg.expand();
+          log("[useInitTelegram] ✅ expand() called");
+        }
+      } catch (e) {
+        warn("[useInitTelegram] ⚠️ Error calling expand():", e);
+      }
+    };
+    
+    // Вызываем сразу
+    forceExpand();
+    
+    // Вызываем на событиях
+    if (typeof tg.onEvent === 'function') {
+      tg.onEvent('viewport_changed', () => {
+        log("[useInitTelegram] 📐 viewport_changed - calling expand()");
+        forceExpand();
+      });
+    }
+    
+    // Вызываем с задержками
+    setTimeout(forceExpand, 10);
+    setTimeout(forceExpand, 50);
+    setTimeout(forceExpand, 100);
+    setTimeout(forceExpand, 200);
+    setTimeout(forceExpand, 500);
 
     log("[useInitTelegram] ✅ WebApp ready:", tg.isExpanded);
     
