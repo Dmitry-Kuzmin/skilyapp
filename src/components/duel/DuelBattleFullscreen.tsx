@@ -1450,20 +1450,23 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     // Исправленная высота прогресс-бара (реальная высота компонента около 50-60px)
     const PROGRESS_BAR_HEIGHT = 64;
 
-    // Для мобильной версии Telegram: поднимаем прогресс-бар выше на 15px
-    const progressBarTop = isTelegramMobile
-      ? totalTopPadding - 15
+    // 🆕 CRITICAL FIX: Для Telegram Mini App НЕ вычитаем 15px - это создавало огромный зазор
+    // Для обычных мобильных браузеров поднимаем прогресс-бар выше на 15px
+    const progressBarTop = isInTelegramMiniApp
+      ? totalTopPadding // Для Telegram Mini App используем полный отступ (не вычитаем 15px)
+      : isTelegramMobile
+      ? totalTopPadding - 15 // Для обычных мобильных браузеров поднимаем выше
       : totalTopPadding;
 
     // Вычисляем отступ для контента:
-    // Для десктопа добавляем отступ, чтобы контент не заезжал под фиксированный прогресс-бар
-    // 🆕 CRITICAL FIX: Для Telegram Mini App используем минимальный отступ (0px) чтобы убрать огромную дыру
-    // Для обычных мобильных браузеров используем нормальный отступ
     // Прогресс-бар имеет paddingTop/paddingBottom по 4px каждый, поэтому реальная высота больше PROGRESS_BAR_HEIGHT
     const progressBarRealHeight = PROGRESS_BAR_HEIGHT + (isTelegramMobile ? 8 : 16); // 4px top + 4px bottom padding
+    
+    // 🆕 CRITICAL FIX: Для Telegram Mini App контент должен начинаться сразу после прогресс-бара (без дополнительного отступа)
+    // Вычитаем 15px из contentTopPadding чтобы компенсировать то, что мы НЕ вычли из progressBarTop
     const contentTopPadding =
       isInTelegramMiniApp
-        ? progressBarTop + progressBarRealHeight + 0 // Нулевой отступ для Telegram Mini App (убирает дыру)
+        ? progressBarTop + progressBarRealHeight - 15 // Компенсируем отсутствие вычитания 15px из progressBarTop
         : isTelegramMobile
         ? progressBarTop + progressBarRealHeight + 8 // Нормальный отступ для обычных мобильных браузеров
         : progressBarTop + progressBarRealHeight + 16; // Для десктопа больше воздуха
