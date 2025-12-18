@@ -48,11 +48,18 @@ export const ActiveDuelWidget = memo(function ActiveDuelWidget() {
           return;
         }
 
-        // Дуэль валидна только если статус 'active' или 'waiting'
+        // 🆕 CRITICAL FIX: Завершенная дуэль НЕ очищается автоматически (Delayed Cleanup strategy)
+        // Виджет просто не показывается для завершенных дуэлей, но данные остаются для экрана результатов
         const isValidStatus = data.status === 'active' || data.status === 'waiting';
+        const isFinished = data.status === 'finished';
         
-        if (!isValidStatus) {
-          console.log('[ActiveDuelWidget] ⚠️ Duel is finished/cancelled, clearing state');
+        if (isFinished) {
+          // Завершенная дуэль - не показываем виджет, но НЕ очищаем данные
+          console.log('[ActiveDuelWidget] ✅ Duel is finished, hiding widget (keeping data for results)');
+          setIsValid(false);
+        } else if (!isValidStatus) {
+          // Дуэль отменена или не существует - очищаем
+          console.log('[ActiveDuelWidget] ⚠️ Duel is cancelled/invalid, clearing state');
           clearActiveDuel();
           setIsValid(false);
         } else {

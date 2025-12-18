@@ -45,7 +45,7 @@ export function useActiveDuel() {
 
   // КРИТИЧНО: Объявляем checkDuelStatus ПЕРЕД useEffect, который его использует
   // Это предотвращает TDZ (Temporal Dead Zone) ошибки
-  const checkDuelStatus = async (duelId: string): Promise<boolean> => {
+  const checkDuelStatus = async (duelId: string): Promise<'active' | 'waiting' | 'finished' | 'invalid'> => {
     try {
       const { data, error } = await supabase
         .from('duels')
@@ -55,14 +55,24 @@ export function useActiveDuel() {
       
       if (error) {
         console.error('[useActiveDuel] Error checking duel status:', error);
-        return false;
+        return 'invalid';
       }
       
-      // Дуэль активна если статус 'active' или 'waiting'
-      return data?.status === 'active' || data?.status === 'waiting';
+      if (!data) {
+        return 'invalid';
+      }
+      
+      // Возвращаем статус дуэли
+      if (data.status === 'active' || data.status === 'waiting') {
+        return data.status as 'active' | 'waiting';
+      } else if (data.status === 'finished') {
+        return 'finished';
+      }
+      
+      return 'invalid';
     } catch (error) {
       console.error('[useActiveDuel] Exception checking duel status:', error);
-      return false;
+      return 'invalid';
     }
   };
 
@@ -74,18 +84,29 @@ export function useActiveDuel() {
       return;
     }
 
-    // КРИТИЧНО: Проверяем статус дуэли на сервере перед восстановлением
-    // Если дуэль уже завершена или не существует - очищаем localStorage
+    // 🆕 CRITICAL FIX: Проверяем статус дуэли, но НЕ очищаем если дуэль завершена
+    // Завершенная дуэль должна сохранить данные для экрана результатов (Delayed Cleanup strategy)
     checkDuelStatus(initialActiveDuel.duelId)
-      .then((isActive) => {
-        if (!isActive) {
-          console.log('[useActiveDuel] ⚠️ Duel is no longer active, clearing stale state');
+      .then((status) => {
+        if (status === 'invalid') {
+          // Дуэль не существует или ошибка - очищаем
+          console.log('[useActiveDuel] ⚠️ Duel not found or error, clearing stale state');
           localStorage.removeItem(ACTIVE_DUEL_STORAGE_KEY);
           setActiveDuel(null);
           setIsChecking(false);
           return;
         }
         
+        if (status === 'finished') {
+          // 🆕 CRITICAL FIX: Завершенная дуэль НЕ очищается автоматически
+          // Данные нужны для экрана результатов, очистка произойдет при выходе пользователя
+          console.log('[useActiveDuel] ✅ Duel is finished, keeping data for results screen (Delayed Cleanup)');
+          setActiveDuel(initialActiveDuel);
+          setIsChecking(false);
+          return;
+        }
+        
+        // Дуэль активна или в ожидании - восстанавливаем состояние
         console.log('[useActiveDuel] ✅ Active duel validated, restoring state');
         setActiveDuel(initialActiveDuel);
         setIsChecking(false);
