@@ -2,7 +2,8 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- КРИТИЧНО: Viewport для Telegram Mini App - предотвращает схлопывание шторки -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <!-- Theme color для браузерных панелей - темная тема (zinc-950) -->
     <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
@@ -180,9 +181,9 @@
     <style>
       /* Критический CSS для первого рендера */
       *{margin:0;padding:0;box-sizing:border-box}
-      html{overflow-x:hidden;width:100%}
-      body{min-height:100vh;margin:0;overflow-x:hidden;width:100%;max-width:100vw;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;background:#09090b;color:#fafafa}
-      #root{min-height:100vh;position:relative}
+      html{overflow-x:hidden;width:100%;height:100%}
+      body{min-height:100vh;height:100%;margin:0;padding:0;overflow-x:hidden;width:100%;max-width:100vw;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;background:#09090b;color:#fafafa;display:flex;flex-direction:column}
+      #root{min-height:100vh;height:100%;width:100%;position:relative;display:flex;flex-direction:column;flex:1}
       
       /* SKELETON LOADER - показывается мгновенно пока загружается React */
       .app-skeleton{
@@ -319,61 +320,103 @@
     <!-- 🚀 КРИТИЧНО: "Атомный" скрипт для мгновенного expand() - выполняется ДО загрузки React -->
     <!-- Этот скрипт вызывается в ту же миллисекунду, как открывается окно Telegram -->
     <!-- Решает проблему "гонки" - Telegram получает команду expand() до начала анимации шторки -->
+    <!-- Версия: v2.0 - улучшенная с множественными попытками и cache busting -->
     <script>
       (function() {
+        'use strict';
+        
+        // Версия скрипта для отслеживания обновлений
+        const SCRIPT_VERSION = 'v2.0-expand-fix';
+        console.log('[Telegram Expand] 🚀 Script version:', SCRIPT_VERSION, 'loaded at', new Date().toISOString());
+        
+        let expandCalled = false;
+        let expandAttempts = 0;
+        const MAX_EXPAND_ATTEMPTS = 3; // Вызываем expand() несколько раз для надежности
+        
         // Функция для принудительного разворачивания приложения
-        function expandTelegramApp() {
+        function expandTelegramApp(attemptNumber) {
           try {
             if (window.Telegram && window.Telegram.WebApp) {
               const tg = window.Telegram.WebApp;
               
-              // Принудительно разворачиваем на весь экран
+              // Принудительно разворачиваем на весь экран (вызываем несколько раз для надежности)
               if (typeof tg.expand === 'function') {
                 tg.expand();
-                console.log('[Telegram Expand] ✅ expand() called immediately in index.html');
+                expandCalled = true;
+                expandAttempts++;
+                console.log('[Telegram Expand] ✅ expand() called (attempt', expandAttempts + ') in index.html');
+                
+                // Вызываем еще раз через небольшую задержку для надежности
+                if (expandAttempts < MAX_EXPAND_ATTEMPTS) {
+                  setTimeout(function() {
+                    if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.expand === 'function') {
+                      window.Telegram.WebApp.expand();
+                      expandAttempts++;
+                      console.log('[Telegram Expand] ✅ expand() called again (attempt', expandAttempts + ') for reliability');
+                    }
+                  }, 50);
+                }
               }
               
               // Сообщаем, что приложение готово (убирает лоадер Telegram быстрее)
               if (typeof tg.ready === 'function') {
                 tg.ready();
-                console.log('[Telegram Expand] ✅ ready() called immediately in index.html');
+                console.log('[Telegram Expand] ✅ ready() called in index.html');
               }
               
               return true; // Успешно вызвали
             }
             return false; // Telegram WebApp еще не загружен
           } catch (e) {
-            console.warn('[Telegram Expand] ⚠️ Error calling expand():', e);
+            console.warn('[Telegram Expand] ⚠️ Error calling expand() (attempt', attemptNumber, '):', e);
             return false;
           }
         }
         
         // Пытаемся вызвать сразу (на случай если скрипт уже загружен)
-        if (expandTelegramApp()) {
+        if (expandTelegramApp(1)) {
           console.log('[Telegram Expand] ✅ Telegram WebApp already available, expanded immediately');
         } else {
           // Если Telegram WebApp еще не загружен, ждем его загрузки
-          // Используем polling с короткими интервалами для минимальной задержки
+          // Используем polling с очень короткими интервалами для минимальной задержки
           let attempts = 0;
-          const maxAttempts = 50; // Максимум 500ms ожидания (50 * 10ms)
+          const maxAttempts = 100; // Максимум 500ms ожидания (100 * 5ms)
           
           const checkInterval = setInterval(function() {
             attempts++;
             
-            if (expandTelegramApp()) {
+            if (expandTelegramApp(attempts)) {
               clearInterval(checkInterval);
-              console.log('[Telegram Expand] ✅ Telegram WebApp loaded and expanded after', attempts * 10, 'ms');
+              console.log('[Telegram Expand] ✅ Telegram WebApp loaded and expanded after', attempts * 5, 'ms');
             } else if (attempts >= maxAttempts) {
               clearInterval(checkInterval);
-              console.warn('[Telegram Expand] ⚠️ Telegram WebApp not found after', maxAttempts * 10, 'ms - may not be in Telegram');
+              console.warn('[Telegram Expand] ⚠️ Telegram WebApp not found after', maxAttempts * 5, 'ms - may not be in Telegram');
             }
-          }, 10); // Проверяем каждые 10ms для минимальной задержки
+          }, 5); // Проверяем каждые 5ms для минимальной задержки (быстрее чем 10ms)
           
           // Fallback: также слушаем событие загрузки скрипта
           document.addEventListener('DOMContentLoaded', function() {
-            expandTelegramApp();
+            if (!expandCalled) {
+              expandTelegramApp('DOMContentLoaded');
+            }
+          });
+          
+          // Дополнительный fallback: window.onload
+          window.addEventListener('load', function() {
+            if (!expandCalled && window.Telegram && window.Telegram.WebApp) {
+              expandTelegramApp('window.load');
+            }
           });
         }
+        
+        // КРИТИЧНО: Также вызываем expand() при первом взаимодействии пользователя (на случай если все остальное не сработало)
+        ['touchstart', 'click', 'mousedown'].forEach(function(eventType) {
+          document.addEventListener(eventType, function() {
+            if (!expandCalled && window.Telegram && window.Telegram.WebApp) {
+              expandTelegramApp('user-interaction-' + eventType);
+            }
+          }, { once: true, passive: true });
+        });
       })();
     </script>
     

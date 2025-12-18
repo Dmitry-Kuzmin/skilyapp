@@ -3,10 +3,27 @@
 @tailwind utilities;
 
 /* КРИТИЧНО: Предотвращаем pull-to-refresh на мобильных (причина спонтанных перезагрузок) */
+/* КРИТИЧНО: Минимальная высота для Telegram Mini App - предотвращает схлопывание шторки */
 html, body {
   overscroll-behavior-y: none;
+  height: 100%;
+  min-height: 100vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
   /* Цвет фона для overscroll (когда пользователь скроллит за пределы контента) */
   background-color: hsl(222 47% 11%); /* Темная тема - slate-900 */
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  min-height: 100vh;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 /* Для светлой темы */
