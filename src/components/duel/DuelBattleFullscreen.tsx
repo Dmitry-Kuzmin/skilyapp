@@ -1337,9 +1337,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
     // Вычисляем отступ для контента:
     // Для десктопа добавляем отступ, чтобы контент не заезжал под фиксированный прогресс-бар
+    // FIX: Уменьшили отступ для мобильной версии, чтобы убрать огромную дыру между ProgressBar и ScoreBlock
     const contentTopPadding =
       isTelegramMobile
-        ? progressBarTop + PROGRESS_BAR_HEIGHT + 4 // Минимальный отступ для мобильной версии (4px вместо -20px)
+        ? progressBarTop + PROGRESS_BAR_HEIGHT + 2 // Минимальный отступ для мобильной версии (2px вместо 4px)
         : progressBarTop + PROGRESS_BAR_HEIGHT + 16; // Для десктопа больше воздуха
 
     return {
@@ -2281,22 +2282,18 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       {/* Main Content */}
       {/* Используем единую систему отступов через CSS переменные */}
       {/* Динамический отступ от панели прогресса: totalTopPadding + высота панели (без зазора в Telegram) */}
+      {/* FIX: Убрали min-h-full и justify-between, добавили justify-start и gap для контроля отступов */}
       <div
-        className="min-h-full flex flex-col p-3 md:p-4 pb-6 max-w-4xl mx-auto"
+        className="flex flex-col justify-start gap-2 p-3 md:p-4 pb-6 max-w-4xl mx-auto"
         style={{
           paddingTop: `${contentTopPadding}px`
         }}
       >
         {/* Header - Scores & Boosts - Premium Design */}
         <div className={`relative z-20 ${isTelegramMobile 
-          ? 'flex flex-col gap-1 mb-0' // Компактная вертикальная компоновка для мобильной версии
+          ? 'flex flex-col gap-1' // Компактная вертикальная компоновка для мобильной версии
           : 'flex items-center justify-between gap-3 flex-wrap'
-        } ${isTelegramMobile
-          ? 'mb-0' // Нулевой отступ для мобильной версии Telegram
-          : isTelegramDesktop
-            ? 'mb-3 md:mb-4' // Обычный отступ для десктопной версии
-            : 'mb-3 md:mb-4' // Обычный отступ для браузера
-          }`}>
+        }`}>
           {/* Scores - Enhanced - Центрированы в мобильной версии Telegram */}
           <div className="relative">
             <DuelScoreBoard
@@ -2394,13 +2391,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         </div>
 
         {/* Question Card */}
+        {/* FIX: Убрали flex-1 чтобы карточка не растягивалась и не создавала лишнее пространство */}
         <motion.div
           key={currentIndex}
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -50 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="flex-1 flex flex-col min-h-0 relative"
+          className="flex flex-col relative mt-2"
         >
           {/* УБРАНО: Блокирующий Auto-Win Timer Overlay - теперь используется компактный индикатор */}
           <DuelQuestionCard
