@@ -411,6 +411,13 @@ export default function Duel() {
                 debugFetch({location:'Duel.tsx:370',message:'Duel active - calling handleDuelStarted',data:{id,currentMode:mode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'});
                 // #endregion
                 handleDuelStarted(id); // Передаем id для гарантии
+            } else if (data?.status === 'finished') {
+                // 🆕 CRITICAL FIX: Если дуэль уже завершена при присоединении - это ошибка
+                console.error('[Duel] ❌ Cannot join: duel is already finished');
+                toast.error('Дуэль уже завершена. Создайте новую или присоединитесь к другой.');
+                setMode('menu');
+                setDuelId(null);
+                setDuelCode(null);
             } else {
                 console.log('[Duel] Going to lobby to wait for start');
                 // #region agent log
@@ -1012,6 +1019,17 @@ export default function Duel() {
                     setConnectionStatus('connected');
                     handleDuelStarted(duelId || undefined);
                     isActive = false;
+                } else if (data.status === 'finished') {
+                    // 🆕 CRITICAL FIX: Если дуэль уже завершена, но игрок еще не играл - это ошибка
+                    // Останавливаем проверку и очищаем состояние
+                    console.warn('[Duel] ⚠️ Duel is already finished, but player hasn\'t played yet. Clearing state...');
+                    isActive = false;
+                    setConnectionStatus('connected');
+                    // Очищаем состояние дуэли
+                    setDuelId(null);
+                    setDuelCode(null);
+                    setMode('menu');
+                    toast.error('Дуэль уже завершена. Создайте новую или присоединитесь к другой.');
                 } else {
                     setConnectionStatus('connected');
                 }

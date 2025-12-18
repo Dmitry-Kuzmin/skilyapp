@@ -1057,11 +1057,17 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     };
   }, [duelId, channel, profileId]);
 
+  // 🆕 CRITICAL FIX: Ref для остановки polling при finished статусе
+  const pollingStoppedRef = useRef(false);
+  
   // КРИТИЧНО: Polling fallback для Telegram Mini App (если Realtime не работает)
   // Проверяем новые exploits каждые 2 секунды через прямой запрос к БД
   // ИЗМЕНЕНО: Теперь работает даже без myPlayerId - загружает его из БД если нужно
   useEffect(() => {
     const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
+    
+    // Сбрасываем флаг при монтировании
+    pollingStoppedRef.current = false;
     
     // КРИТИЧНО: Логируем все параметры для диагностики
     console.log('[useDuelRealtime] 🔍 Polling setup check:', {
@@ -1110,6 +1116,28 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         timestamp: new Date().toISOString(),
         willExecute: !!(currentDuelId && currentConnectionStatus === 'connected')
       });
+
+      // 🆕 CRITICAL FIX: Проверяем статус дуэли перед polling
+      // Если дуэль finished, останавливаем polling
+      if (currentDuelId) {
+        try {
+          const { data: duelData } = await supabase
+            .from('duels')
+            .select('status')
+            .eq('id', currentDuelId)
+            .maybeSingle();
+          
+          if (duelData?.status === 'finished') {
+            console.log('[useDuelRealtime] 🛑 Duel is finished, stopping polling...');
+            // Устанавливаем флаг для остановки polling
+            pollingStoppedRef.current = true;
+            return;
+          }
+        } catch (statusError) {
+          logError('[useDuelRealtime] Error checking duel status in polling:', statusError);
+          // Продолжаем polling даже при ошибке проверки статуса
+        }
+      }
       
       try {
         let currentMyPlayerId = myPlayerIdRef.current || cachedMyPlayerId;
@@ -1315,7 +1343,30 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       connectionStatus,
       timestamp: new Date().toISOString()
     });
-    const pollingInterval = setInterval(() => {
+    
+    // 🆕 CRITICAL FIX: Сохраняем ссылку на интервал для возможности остановки из performPolling
+    let pollingInterval: NodeJS.Timeout | null = null;
+    
+    const pollingWrapper = async () => {
+      if (pollingStoppedRef.current) {
+        if (pollingInterval) {
+          clearInterval(pollingInterval);
+          pollingInterval = null;
+        }
+        return; // Остановлен из-за finished статуса
+      }
+      await performPolling();
+    };
+    
+    pollingInterval = setInterval(() => {
+      if (pollingStoppedRef.current) {
+        if (pollingInterval) {
+          clearInterval(pollingInterval);
+          pollingInterval = null;
+        }
+        return;
+      }
+      
       console.log('[useDuelRealtime] ⏰⏰⏰ POLLING INTERVAL TRIGGERED ⏰⏰⏰:', {
         duelId,
         myPlayerId: myPlayerIdRef.current,
@@ -1323,7 +1374,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         connectionStatus,
         timestamp: new Date().toISOString()
       });
-      performPolling();
+      pollingWrapper();
     }, 2000);
     
     return () => {
@@ -1331,7 +1382,11 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         duelId,
         timestamp: new Date().toISOString()
       });
-      clearInterval(pollingInterval);
+      pollingStoppedRef.current = true;
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+        pollingInterval = null;
+      }
     };
   }, [duelId, myPlayerId, profileId, connectionStatus]);
 
