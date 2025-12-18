@@ -2321,17 +2321,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   // УБРАНО: Countdown экран - сразу начинаем битву без задержки
 
-  // 🆕 CRITICAL FIX: Нейтрализуем глобальный Layout padding через отрицательный margin-top
-  // Это позволяет нам полностью контролировать позиционирование внутри компонента
-  const rootMarginTop = isInTelegramMiniApp ? -totalTopPadding : 0;
-  
   return (
     <div
-      className="fixed inset-0 bg-background z-50 overflow-y-auto"
+      className="fixed inset-0 bg-background z-50 overflow-y-auto flex flex-col"
       style={{
-        marginTop: `${rootMarginTop}px`, // Нейтрализуем Layout padding
         paddingTop: isInTelegramMiniApp 
-          ? `${Math.round(safeArea.top > 0 ? safeArea.top : 20)}px` // Используем raw safeArea.top для учета челки
+          ? `${Math.round(safeArea.top > 0 ? safeArea.top : 20)}px` // Используем raw safeArea.top для учета челки (один раз)
           : `${totalTopPadding}px`,
         paddingLeft: `${totalLeftPadding}px`,
         paddingRight: `${totalRightPadding}px`,
