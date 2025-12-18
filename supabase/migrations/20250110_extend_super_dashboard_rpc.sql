@@ -194,31 +194,36 @@ BEGIN
   v_season_progress := NULL;
   
   IF v_active_season.id IS NOT NULL THEN
-    SELECT 
-      usp.id,
-      usp.user_id,
-      usp.season_id,
-      usp.season_points,
-      usp.level,
-      usp.premium_pass_purchased,
-      usp.premium_pass_purchased_at,
-      usp.levels_skipped,
-      usp.final_level,
-      usp.final_sp,
-      usp.created_at,
-      usp.updated_at
-    INTO STRICT v_season_progress
-    FROM user_season_progress usp
-    WHERE usp.user_id = p_user_id 
-      AND usp.season_id = v_active_season.id
-    LIMIT 1;
-    
-    -- Если запись не найдена, v_season_progress останется NULL
-    -- Это безопасно, так как мы проверяем на NULL в CASE WHEN
-  EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-      -- Если записи нет, оставляем NULL - это нормально
-      v_season_progress := NULL;
+    BEGIN
+      SELECT 
+        usp.id,
+        usp.user_id,
+        usp.season_id,
+        usp.season_points,
+        usp.level,
+        usp.premium_pass_purchased,
+        usp.premium_pass_purchased_at,
+        usp.levels_skipped,
+        usp.final_level,
+        usp.final_sp,
+        usp.created_at,
+        usp.updated_at
+      INTO v_season_progress
+      FROM user_season_progress usp
+      WHERE usp.user_id = p_user_id 
+        AND usp.season_id = v_active_season.id
+      LIMIT 1;
+      
+      -- Если запись не найдена, v_season_progress останется NULL
+      -- Это безопасно, так как мы проверяем на NULL в CASE WHEN
+      IF NOT FOUND THEN
+        v_season_progress := NULL;
+      END IF;
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- Если произошла любая ошибка, оставляем NULL
+        v_season_progress := NULL;
+    END;
   END IF;
 
   -- 9. Собираем результат в один SUPER JSON
