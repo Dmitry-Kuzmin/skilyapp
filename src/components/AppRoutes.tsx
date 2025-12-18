@@ -49,6 +49,9 @@ const AdminPartners = lazy(() =>
 const AdminMarketingMaterials = lazy(() =>
   import("../pages/admin/AdminMarketingMaterials").then((module) => ({ default: module.AdminMarketingMaterials }))
 );
+const AdminPDDRussia = lazy(() =>
+  import("../pages/admin/AdminPDDRussia").then((module) => ({ default: module.AdminPDDRussia }))
+);
 const PartnerDashboard = lazy(() => import("../pages/PartnerDashboard"));
 const ModernPartnerDashboard = lazy(() => import("../pages/ModernPartnerDashboard"));
 const PartnerLinkRedirect = lazy(() => import("../pages/PartnerLinkRedirect"));
@@ -292,6 +295,11 @@ export function AppRoutes() {
           <Route path="marketing" element={
             <Suspense fallback={<PageSkeleton />}>
               <AdminMarketingMaterials />
+            </Suspense>
+          } />
+          <Route path="pdd-russia" element={
+            <Suspense fallback={<PageSkeleton />}>
+              <AdminPDDRussia />
             </Suspense>
           } />
         </Route>

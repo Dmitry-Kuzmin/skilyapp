@@ -30,7 +30,8 @@
     "tunnel:start:save": "./scripts/start-tunnel-with-persistent-url.sh",
     "tunnel:url": "./scripts/get-tunnel-url.sh",
     "tunnel:set-url": "node scripts/set-telegram-webapp-url.js",
-    "materials:manifest": "node scripts/generate-materials-manifest.cjs"
+    "materials:manifest": "node scripts/generate-materials-manifest.cjs",
+    "import:pdd-russia": "node scripts/import-pdd-russia.js"
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^5.0.1",

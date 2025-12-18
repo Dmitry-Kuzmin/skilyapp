@@ -14,6 +14,7 @@ import {
   Calendar,
   Eye,
   Users,
+  Flag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -102,6 +103,12 @@ const adminNavItems = [
     label: "Рекламные материалы",
     icon: ImageIcon,
     path: "/admin/marketing",
+  },
+  {
+    id: "pdd-russia",
+    label: "ПДД Россия",
+    icon: Flag,
+    path: "/admin/pdd-russia",
   },
 ];
 
