@@ -5,7 +5,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import { CountryCode, UniversalQuestion, PDDRussiaTicket } from '@/types/pdd';
+import { CountryCode, UniversalQuestion, PDDTicketSummary, PDDRussiaTicket } from '@/types/pdd';
 import { mapRussiaQuestionToUniversal } from '@/utils/pddAdapters';
 import { PDDDataStrategy } from '../PDDDataStrategy';
 import { RUSSIA_EXAM_RULES } from '@/types/pddExam';
@@ -22,7 +22,7 @@ function getBlockByQuestionNumber(questionNumber: number): number {
 }
 
 export class RussiaLegacyStrategy implements PDDDataStrategy {
-  async getTickets(country: CountryCode): Promise<PDDRussiaTicket[]> {
+  async getTickets(country: CountryCode): Promise<PDDTicketSummary[]> {
     if (country !== 'russia') {
       return [];
     }
@@ -42,14 +42,18 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
     });
 
     // Преобразуем в массив билетов
-    const tickets: PDDRussiaTicket[] = Array.from(ticketsMap.entries())
-      .map(([ticketNumber, questionsCount]) => ({
-        ticket_number: ticketNumber,
+    const tickets: PDDTicketSummary[] = Array.from(ticketsMap.entries())
+      .map(([ticketNumber, questionsCount]): PDDTicketSummary => ({
+        id: ticketNumber,
+        number: ticketNumber,
         questions_count: questionsCount,
         completed: false, // TODO: получать из user_progress
         progress: 0, // TODO: вычислять из user_progress
+        metadata: {
+          ticket_number: ticketNumber, // для обратной совместимости
+        },
       }))
-      .sort((a, b) => a.ticket_number - b.ticket_number);
+      .sort((a, b) => a.number - b.number);
 
     return tickets;
   }

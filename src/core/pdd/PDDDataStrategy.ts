@@ -3,7 +3,7 @@
  * Каждая страна имеет свою стратегию получения данных
  */
 
-import { CountryCode, UniversalQuestion, PDDRussiaTicket } from '@/types/pdd';
+import { CountryCode, UniversalQuestion, PDDTicketSummary } from '@/types/pdd';
 
 /**
  * Интерфейс стратегии для работы с данными ПДД
@@ -12,7 +12,7 @@ export interface PDDDataStrategy {
   /**
    * Получить список билетов/тем для страны
    */
-  getTickets(country: CountryCode): Promise<PDDRussiaTicket[]>;
+  getTickets(country: CountryCode): Promise<PDDTicketSummary[]>;
 
   /**
    * Получить вопросы билета/темы

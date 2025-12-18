@@ -1,6 +1,6 @@
 # 🌍 Добавление новой страны
 
-## Быстрый старт (2-4 часа)
+## Быстрый старт (2-4 часа для стандартной страны, 1 день для специфичной)
 
 ### Шаг 1: Добавить конфигурацию страны
 
@@ -30,41 +30,27 @@ export const COUNTRIES_CONFIG: Record<CountryCode, CountryData> = {
 };
 ```
 
-### Шаг 2: Создать стратегию (если нужна специфичная логика)
+### Шаг 2: Зарегистрировать стратегию (автоматически или вручную)
+
+**Вариант A: Автоматическая регистрация (рекомендуется)**
+
+Стратегия создается автоматически при первом обращении. Просто используйте страну в коде - стратегия создастся сама через `DefaultCountryStrategy`.
+
+**Вариант B: Ручная регистрация (если нужна специфичная логика)**
 
 ```typescript
 // src/core/pdd/strategies/UkraineStrategy.ts
 import { PDDDataStrategy } from '../PDDDataStrategy';
-import { CountryCode, UniversalQuestion, PDDRussiaTicket } from '@/types/pdd';
-import { supabase } from '@/integrations/supabase/client';
+import { CountryCode, UniversalQuestion, PDDTicketSummary } from '@/types/pdd';
 
 export class UkraineStrategy implements PDDDataStrategy {
-  async getTickets(country: CountryCode): Promise<PDDRussiaTicket[]> {
-    // Логика получения билетов для Украины
-    // Может работать с единой таблицей pdd_questions (country_code = 'ukraine')
-    // или со своей таблицей pdd_ukraine_questions
+  async getTickets(country: CountryCode): Promise<PDDTicketSummary[]> {
+    // Специфичная логика для Украины
+    // Например, если нужна своя таблица pdd_ukraine_questions
   }
-
-  async getTicketQuestions(country: CountryCode, ticketNumber: number): Promise<UniversalQuestion[]> {
-    // Логика получения вопросов билета
-  }
-
-  async getRandomQuestions(country: CountryCode, count: number): Promise<UniversalQuestion[]> {
-    // Логика получения случайных вопросов
-  }
-
-  async getExamQuestions(country: CountryCode): Promise<{
-    selectedQuestions: UniversalQuestion[];
-    allQuestionsByBlock: Record<number, UniversalQuestion[]>;
-  }> {
-    // Логика получения вопросов для экзамена
-  }
+  // ... остальные методы
 }
-```
 
-### Шаг 3: Зарегистрировать стратегию
-
-```typescript
 // src/core/pdd/strategies/PDDStrategyRegistry.ts
 import { UkraineStrategy } from './UkraineStrategy';
 
@@ -74,7 +60,26 @@ constructor() {
 }
 ```
 
-### Шаг 4: Создать адаптер (если структура данных отличается)
+**Вариант C: Использовать DefaultCountryStrategy (для стандартных стран)**
+
+```typescript
+// src/core/pdd/strategies/PDDStrategyRegistry.ts
+import { DefaultCountryStrategy } from './DefaultCountryStrategy';
+
+constructor() {
+  // РФ - уникальная стратегия
+  this.register('russia', new RussiaLegacyStrategy());
+  
+  // Остальные страны - стандартные (работают с единой таблицей pdd_questions)
+  this.register('ukraine', new DefaultCountryStrategy('ukraine'));
+  this.register('spain', new DefaultCountryStrategy('spain'));
+  // Или просто не регистрировать - создастся автоматически при первом обращении
+}
+```
+
+### Шаг 3: Создать адаптер (если структура данных отличается)
+
+**Примечание:** Если используете `DefaultCountryStrategy` и единую таблицу `pdd_questions`, адаптер не нужен - данные уже в универсальном формате.
 
 ```typescript
 // src/utils/pddAdapters.ts
@@ -99,7 +104,7 @@ export function mapUkraineToUniversal(
 }
 ```
 
-### Шаг 5: Импортировать данные в БД
+### Шаг 4: Импортировать данные в БД
 
 **Вариант A: Единая таблица (рекомендуется для новых стран)**
 
@@ -125,6 +130,11 @@ VALUES ('ukraine', 'B', '...', ...);
 - ✅ Хуки автоматически будут работать через стратегию
 - ✅ Dashboard и Tests адаптируются под страну
 - ✅ Можно добавлять билеты/темы
+
+**Для стандартных стран (используют DefaultCountryStrategy):**
+- ✅ Стратегия создается автоматически
+- ✅ Не нужно создавать отдельный файл стратегии
+- ✅ Просто добавьте конфигурацию и импортируйте данные
 
 ---
 

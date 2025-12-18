@@ -525,15 +525,20 @@ const Tests = () => {
               {/* Для России: показываем билеты */}
               {selectedCountry === 'russia' ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {tickets.slice(0, 12).map((ticket, i) => (
+                  {tickets.slice(0, 12).map((ticket, i) => {
+                    // Поддержка обратной совместимости: ticket_number из metadata или number
+                    const ticketId = typeof ticket.id === 'number' ? ticket.id : ticket.number;
+                    const ticketNumber = ticket.metadata?.ticket_number || ticket.number;
+                    
+                    return (
                     <motion.div
-                      key={ticket.ticket_number}
+                      key={ticket.id}
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: i * 0.03 }}
                       whileHover={{ scale: 1.02, y: -4 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => navigate(`/learn/${selectedCountry}/ticket/${ticket.ticket_number}`)}
+                      onClick={() => navigate(`/learn/${selectedCountry}/ticket/${ticketId}`)}
                       className="group relative overflow-hidden rounded-[2rem] p-6 cursor-pointer border border-border bg-card/60 dark:bg-card/40 backdrop-blur-sm hover:bg-card/80 dark:hover:bg-card/60 shadow-lg hover:shadow-xl transition-all duration-150 h-[180px]"
                     >
                       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 group-hover:from-blue-500/20 group-hover:via-indigo-500/20 group-hover:to-purple-500/20 transition-all duration-500" />
@@ -543,7 +548,7 @@ const Tests = () => {
                             whileHover={{ rotate: 12, scale: 1.1 }}
                             className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20 text-foreground border border-border shadow-xl"
                           >
-                            {ticket.ticket_number}
+                            {ticketNumber}
                           </motion.div>
                           {ticket.completed && (
                             <Crown className="w-5 h-5 text-yellow-500 fill-yellow-500" />
@@ -551,7 +556,7 @@ const Tests = () => {
                         </div>
                         <div className="space-y-1">
                           <div className="font-black text-lg line-clamp-2 leading-tight text-foreground">
-                            Билет {ticket.ticket_number}
+                            {ticket.title || `Билет ${ticketNumber}`}
                           </div>
                           <div className="text-sm font-bold flex items-center gap-1.5 text-muted-foreground">
                             <BookOpen className="w-3 h-3" />
@@ -560,7 +565,8 @@ const Tests = () => {
                         </div>
                       </div>
                     </motion.div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

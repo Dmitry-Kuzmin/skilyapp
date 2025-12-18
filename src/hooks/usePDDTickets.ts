@@ -4,13 +4,13 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { CountryCode, PDDRussiaTicket } from '@/types/pdd';
+import { CountryCode, PDDTicketSummary } from '@/types/pdd';
 import { getPDDStrategy } from '@/core/pdd';
 
 export function usePDDTickets(country: CountryCode) {
   return useQuery({
     queryKey: ['pdd-tickets', country],
-    queryFn: async (): Promise<PDDRussiaTicket[]> => {
+    queryFn: async (): Promise<PDDTicketSummary[]> => {
       const strategy = getPDDStrategy(country);
       return strategy.getTickets(country);
     },

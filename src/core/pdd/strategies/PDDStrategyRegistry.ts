@@ -6,19 +6,28 @@
 import { CountryCode } from '@/types/pdd';
 import { PDDDataStrategy } from '../PDDDataStrategy';
 import { RussiaLegacyStrategy } from './RussiaLegacyStrategy';
+import { DefaultCountryStrategy } from './DefaultCountryStrategy';
 
 /**
  * Реестр стратегий
  * Каждая страна имеет свою стратегию получения данных
+ * 
+ * Стратегии регистрируются автоматически:
+ * - Россия: RussiaLegacyStrategy (работает с legacy таблицами)
+ * - Остальные страны: DefaultCountryStrategy (работает с единой таблицей pdd_questions)
  */
 class PDDStrategyRegistry {
   private strategies: Map<CountryCode, PDDDataStrategy> = new Map();
 
   constructor() {
-    // Регистрируем существующие стратегии
+    // РФ - уникальная стратегия со старой БД
     this.register('russia', new RussiaLegacyStrategy());
-    // TODO: Добавить SpainStrategy когда будет готова
-    // this.register('spain', new SpainStrategy());
+    
+    // Остальные страны - стандартные, используют единую таблицу
+    // Регистрируются автоматически при первом обращении через getStrategy()
+    // Или можно зарегистрировать заранее:
+    // this.register('ukraine', new DefaultCountryStrategy('ukraine'));
+    // this.register('spain', new DefaultCountryStrategy('spain'));
   }
 
   /**
@@ -30,14 +39,17 @@ class PDDStrategyRegistry {
 
   /**
    * Получить стратегию для страны
+   * Автоматически создает DefaultCountryStrategy для новых стран
    */
   getStrategy(country: CountryCode): PDDDataStrategy {
-    const strategy = this.strategies.get(country);
+    let strategy = this.strategies.get(country);
     
     if (!strategy) {
-      // Fallback на стратегию России, если стратегия не найдена
-      console.warn(`[PDDStrategyRegistry] Strategy not found for country: ${country}, using Russia as fallback`);
-      return this.strategies.get('russia')!;
+      // Автоматически создаем DefaultCountryStrategy для новых стран
+      // Это позволяет добавлять страны без изменения кода
+      console.log(`[PDDStrategyRegistry] Auto-creating DefaultCountryStrategy for: ${country}`);
+      strategy = new DefaultCountryStrategy(country);
+      this.register(country, strategy);
     }
     
     return strategy;

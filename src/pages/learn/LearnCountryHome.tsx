@@ -239,16 +239,21 @@ export function LearnCountryHome() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {lastTickets.map((ticket, index) => (
+              {lastTickets.map((ticket, index) => {
+                // Поддержка обратной совместимости
+                const ticketId = typeof ticket.id === 'number' ? ticket.id : ticket.number;
+                const ticketNumber = ticket.metadata?.ticket_number || ticket.number;
+                
+                return (
                 <motion.div
-                  key={ticket.ticket_number}
+                  key={ticket.id}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.1 * index }}
                 >
                   <Card
                     className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
-                    onClick={() => navigate(`/learn/${country}/ticket/${ticket.ticket_number}`)}
+                    onClick={() => navigate(`/learn/${country}/ticket/${ticketId}`)}
                   >
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-3">
@@ -257,7 +262,7 @@ export function LearnCountryHome() {
                             <FileText className="w-4 h-4 text-primary" />
                           </div>
                           <span className="font-semibold">
-                            Билет {ticket.ticket_number}
+                            {ticket.title || `Билет ${ticketNumber}`}
                           </span>
                         </div>
                         {ticket.completed && (
@@ -280,7 +285,8 @@ export function LearnCountryHome() {
                     </CardContent>
                   </Card>
                 </motion.div>
-              ))}
+                );
+              })}
             </div>
           )}
         </motion.div>
