@@ -28,10 +28,77 @@ interface DuelResultProps {
   onBackToMenu: () => void;
 }
 
+// Разные варианты анимаций поздравления
+const celebrationAnimations = [
+  // Анимация 1: Классическое покачивание с вращением
+  {
+    y: [0, -10, 0],
+    rotate: [0, -3, 3, -3, 0],
+    scale: [1, 1.05, 1],
+    duration: 3,
+  },
+  // Анимация 2: Пульсация с подпрыгиванием
+  {
+    y: [0, -15, 0, -8, 0],
+    scale: [1, 1.1, 1, 1.05, 1],
+    rotate: [0, 5, -5, 0],
+    duration: 2.5,
+  },
+  // Анимация 3: Вращение по кругу с масштабированием
+  {
+    y: [0, -12, -12, 0],
+    x: [0, 8, -8, 0],
+    rotate: [0, 360],
+    scale: [1, 1.08, 1.08, 1],
+    duration: 4,
+  },
+  // Анимация 4: Энергичное подпрыгивание
+  {
+    y: [0, -20, 0, -12, 0],
+    scale: [1, 1.15, 1, 1.08, 1],
+    rotate: [0, -8, 8, -4, 0],
+    duration: 2,
+  },
+  // Анимация 5: Плавное плавание
+  {
+    y: [0, -8, 0, -5, 0],
+    x: [0, 5, -5, 3, 0],
+    rotate: [0, 2, -2, 1, 0],
+    scale: [1, 1.03, 1, 1.02, 1],
+    duration: 3.5,
+  },
+  // Анимация 6: Взрывной эффект
+  {
+    y: [0, -18, 0],
+    scale: [1, 1.2, 1],
+    rotate: [0, -10, 10, -5, 0],
+    duration: 1.8,
+  },
+  // Анимация 7: Элегантное покачивание
+  {
+    y: [0, -6, 0, -4, 0],
+    rotate: [0, -2, 2, 0],
+    scale: [1, 1.04, 1, 1.02, 1],
+    duration: 4.5,
+  },
+  // Анимация 8: Динамичное вращение
+  {
+    y: [0, -14, 0],
+    rotate: [0, 180, 360],
+    scale: [1, 1.12, 1],
+    duration: 3.2,
+  },
+];
+
 export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps) {
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
   const [shouldShowInterstitial, setShouldShowInterstitial] = useState(false);
+  
+  // Выбираем случайную анимацию при монтировании компонента
+  const [selectedAnimation] = useState(() => {
+    return celebrationAnimations[Math.floor(Math.random() * celebrationAnimations.length)];
+  });
   
   // ОПТИМИЗАЦИЯ: Используем React Query хук вместо прямых запросов
   const { data: duelResultsData, isLoading: loading, refetch } = useDuelResults(duelId, profileId);
@@ -192,7 +259,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   }
 
   return (
-    <div className="fixed inset-0 bg-background overflow-y-auto pt-safe z-40 relative">
+    <div className="fixed inset-0 bg-background overflow-y-auto overflow-x-hidden pt-safe z-40 relative">
       {/* Ambient Background Orbs - Premium Depth Effect */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         {results.isWinner && (
@@ -291,13 +358,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           transition={{ type: "spring", duration: 0.7, bounce: 0.4 }}
           className="text-center space-y-6 relative pt-8 md:pt-12"
         >
-          {/* Animated Trophy/Icon - Premium 3D Effect */}
+          {/* Animated Trophy/Icon - Premium 3D Effect with Random Animations */}
           <motion.div
-            animate={results.isWinner ? {
-              y: [0, -10, 0],
-              rotate: [0, -3, 3, -3, 0],
-              scale: [1, 1.05, 1]
-            } : results.isDraw ? {
+            animate={results.isWinner ? selectedAnimation : results.isDraw ? {
               y: [0, -5, 0],
               scale: [1, 1.03, 1]
             } : {
@@ -305,7 +368,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
               scale: [1, 0.98, 1]
             }}
             transition={{ 
-              duration: results.isWinner ? 3 : 4, 
+              duration: results.isWinner ? selectedAnimation.duration : 4, 
               repeat: Infinity, 
               ease: "easeInOut"
             }}
@@ -745,38 +808,18 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           transition={{ delay: 0.8 }}
           className="grid grid-cols-2 gap-4 pt-4"
         >
-          <motion.div
-            className="relative group overflow-hidden rounded-2xl"
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.98 }}
+          <Button
+            onClick={onRematch}
+            size="lg"
+            className="relative w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 hover:from-blue-400 hover:via-indigo-400 hover:to-violet-400 text-white font-bold h-14 rounded-2xl shadow-[0_0_20px_-5px_rgba(99,102,241,0.4)] border-0 overflow-hidden"
           >
-            {/* Shine effect - пробегающий блик */}
-            <motion.div
-              animate={{
-                x: ['-100%', '200%'],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                repeatDelay: 1,
-                ease: "easeInOut",
-              }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
-            />
-            
-            <Button
-              onClick={onRematch}
-              size="lg"
-              className="relative w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 hover:from-blue-400 hover:via-indigo-400 hover:to-violet-400 text-white font-bold h-14 rounded-2xl shadow-[0_0_20px_-5px_rgba(99,102,241,0.4)] border-0 overflow-hidden"
-            >
-              {/* Noise texture overlay */}
-              <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
-              <div className="relative z-10 flex items-center justify-center">
-                <RotateCcw className="w-5 h-5 mr-2" />
-                Реванш
-              </div>
-            </Button>
-          </motion.div>
+            {/* Noise texture overlay */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+            <div className="relative z-10 flex items-center justify-center">
+              <RotateCcw className="w-5 h-5 mr-2" />
+              Реванш
+            </div>
+          </Button>
           
           <Button
             onClick={() => {
