@@ -10,6 +10,7 @@ import { COUNTRIES_CONFIG } from '@/types/pdd';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 // Lazy load heavy dashboard components
 const DailyRewards = lazy(() => import('./DailyRewards').then(m => ({ default: m.DailyRewards })));
