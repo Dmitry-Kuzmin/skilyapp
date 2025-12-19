@@ -13,9 +13,18 @@ export function useFeatureFlag(flagKey: string, defaultValue: boolean = true) {
         .from('app_config')
         .select('value')
         .eq('key', flagKey)
-        .single();
+        .maybeSingle(); // Используем maybeSingle вместо single для обработки отсутствующих записей
       
-      if (error || !data) {
+      // Если ошибка доступа (403) или запись не найдена - возвращаем значение по умолчанию
+      if (error) {
+        // Логируем только если это не 404 (запись не найдена)
+        if (error.code !== 'PGRST116') {
+          console.warn(`[useFeatureFlag] Error fetching flag "${flagKey}":`, error.message);
+        }
+        return defaultValue;
+      }
+      
+      if (!data) {
         return defaultValue;
       }
       

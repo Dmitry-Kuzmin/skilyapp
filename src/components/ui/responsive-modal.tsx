@@ -46,17 +46,27 @@ export function ResponsiveModal({
 
   // На мобильных используем Drawer (Vaul) - нативное поведение Telegram
   if (isMobile) {
+    // Vaul принимает snapPoints как массив чисел от 0 до 1
+    const drawerProps: any = {
+      open,
+      onOpenChange,
+      dismissible: !preventClose,
+    };
+    
+    // Добавляем snapPoints только если они переданы
+    if (snapPoints && snapPoints.length > 0) {
+      drawerProps.snapPoints = snapPoints;
+      if (defaultSnap !== undefined) {
+        drawerProps.defaultSnap = defaultSnap;
+      }
+    }
+    
     return (
-      <Drawer 
-        open={open} 
-        onOpenChange={onOpenChange}
-        dismissible={!preventClose}
-        snapPoints={snapPoints}
-        defaultSnap={defaultSnap}
-      >
+      <Drawer {...drawerProps}>
         <DrawerContent
           className={cn(
-            "bg-background border-border border-t-border/50 flex flex-col max-h-[90vh]",
+            "bg-background border-border border-t-border/50 flex flex-col",
+            snapPoints ? "max-h-[100vh]" : "max-h-[90vh]",
             className
           )}
           onInteractOutside={(e) => {
