@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 import { checkRateLimit, getClientIP } from '../_shared/rate-limit.ts';
+import { createPooledSupabaseClient } from '../_shared/supabase-client.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -1313,9 +1314,9 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    // 🔗 CONNECTION POOLING: Используем pooled клиент (порт 6543)
+    // Это критично для масштабирования: Free план выдержит 1000+ пользователей вместо 60
+    const supabase = createPooledSupabaseClient();
 
     // Parse request body first to get profile_id if provided
     const { action, profile_id, ...params } = await req.json();

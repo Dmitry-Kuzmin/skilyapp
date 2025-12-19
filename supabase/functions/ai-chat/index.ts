@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { checkRateLimit, getClientIP } from '../_shared/rate-limit.ts';
+import { createPooledSupabaseClient } from '../_shared/supabase-client.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -287,10 +288,11 @@ Deno.serve(async (req) => {
     // Try to get user if auth header is provided (optional)
     if (authHeader) {
       try {
-        const supabase = createClient(
-          Deno.env.get('SUPABASE_URL') ?? '',
-          Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-          {
+        // 🔗 CONNECTION POOLING: Используем pooled клиент (порт 6543)
+        // Для анонимных запросов используем anon key, но через pooled соединение
+        const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+        const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+        const supabase = createClient(supabaseUrl, supabaseAnonKey, {
             global: { headers: { Authorization: authHeader } }
           }
         );
