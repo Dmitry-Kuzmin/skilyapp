@@ -1,5 +1,5 @@
 /**
- * Создает Supabase клиент с Connection Pooling (порт 6543)
+ * Создает Supabase клиент с Connection Pooling (Transaction Mode)
  * 
  * КРИТИЧНО: Использование Connection Pooler позволяет:
  * - Free план: выдержать 1000+ пользователей (вместо 60)
@@ -8,15 +8,23 @@
  * Без Connection Pooling:
  * - Free план упадет на 65-м пользователе
  * - Pro план упадет на 205-м пользователе
+ * 
+ * ВАЖНО: Supabase JS Client использует REST API (PostgREST), который автоматически
+ * использует Connection Pooler в Transaction Mode для Edge Functions.
+ * 
+ * Источник: https://supabase.com/docs/guides/database/connecting-to-postgres#connection-pooler
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 
 /**
- * Получает URL для Connection Pooler (порт 6543)
+ * Получает URL для Supabase REST API
  * 
  * Формат: https://PROJECT_REF.supabase.co
- * Connection Pooler автоматически использует порт 6543 в Transaction Mode
+ * 
+ * ВАЖНО: Supabase JS Client через SUPABASE_URL использует REST API (PostgREST),
+ * который автоматически использует Connection Pooler в Transaction Mode для Edge Functions.
+ * Это правильный подход для serverless функций.
  */
 function getPooledSupabaseUrl(): string {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -25,29 +33,31 @@ function getPooledSupabaseUrl(): string {
     throw new Error('SUPABASE_URL environment variable is not set');
   }
   
-  // SUPABASE_URL обычно в формате: https://PROJECT_REF.supabase.co
-  // Connection Pooler использует тот же URL, но автоматически подключается через порт 6543
-  // В Supabase JS Client это работает автоматически при использовании стандартного URL
+  // SUPABASE_URL в формате: https://PROJECT_REF.supabase.co
+  // Supabase JS Client использует этот URL для REST API (PostgREST)
+  // REST API автоматически использует Connection Pooler в Transaction Mode
+  // Это идеально для Edge Functions (serverless функций)
   
-  // ВАЖНО: Supabase JS Client автоматически использует Connection Pooler
-  // при подключении через стандартный SUPABASE_URL в Edge Functions
-  // НО для гарантии используем явный формат
-  
-  // Если URL уже правильный формат - используем как есть
   if (supabaseUrl.includes('.supabase.co')) {
     return supabaseUrl;
   }
   
-  // Если это прямой DB URL (с портом 5432) - конвертируем
-  // Но обычно в Edge Functions SUPABASE_URL уже правильный
   return supabaseUrl;
 }
 
 /**
- * Создает Supabase клиент с Connection Pooling
+ * Создает Supabase клиент с Connection Pooling (Transaction Mode)
+ * 
+ * ВАЖНО: Supabase JS Client использует REST API (PostgREST), который автоматически
+ * использует Connection Pooler в Transaction Mode для Edge Functions.
+ * 
+ * Transaction Mode идеален для serverless функций, так как:
+ * - Поддерживает много временных соединений
+ * - Переиспользует соединения эффективно
+ * - Автоматически используется через REST API
  * 
  * @param serviceRoleKey - Service Role Key для административных операций
- * @returns Supabase клиент, подключенный через Connection Pooler
+ * @returns Supabase клиент, подключенный через REST API (использует Connection Pooler)
  */
 export function createPooledSupabaseClient(serviceRoleKey?: string): ReturnType<typeof createClient> {
   const supabaseUrl = getPooledSupabaseUrl();
@@ -57,12 +67,11 @@ export function createPooledSupabaseClient(serviceRoleKey?: string): ReturnType<
     throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is not set');
   }
   
-  // Создаем клиент - Supabase JS Client автоматически использует Connection Pooler
-  // при подключении через Edge Functions
+  // Создаем клиент - Supabase JS Client использует REST API (PostgREST)
+  // REST API автоматически использует Connection Pooler в Transaction Mode
+  // Это правильный подход для Edge Functions (serverless функций)
   const client = createClient(supabaseUrl, key, {
     db: {
-      // Явно указываем использование Connection Pooler
-      // В Edge Functions это работает автоматически через SUPABASE_URL
       schema: 'public',
     },
     auth: {
