@@ -21,6 +21,33 @@ function getBlockByQuestionNumber(questionNumber: number): number {
   return 1;
 }
 
+/**
+ * Батчинг запросов для избежания ошибок 400 из-за слишком длинного URL
+ * Разбивает массив ID на чанки и делает несколько запросов
+ */
+async function fetchAnswersInBatches(questionIds: string[], batchSize: number = 100): Promise<any[]> {
+  const allAnswers: any[] = [];
+  
+  // Разбиваем на батчи
+  for (let i = 0; i < questionIds.length; i += batchSize) {
+    const batch = questionIds.slice(i, i + batchSize);
+    
+    const { data: batchAnswers, error: batchError } = await supabase
+      .from('pdd_russia_answers')
+      .select('*')
+      .in('question_id', batch)
+      .order('position', { ascending: true });
+    
+    if (batchError) throw batchError;
+    
+    if (batchAnswers) {
+      allAnswers.push(...batchAnswers);
+    }
+  }
+  
+  return allAnswers;
+}
+
 export class RussiaLegacyStrategy implements PDDDataStrategy {
   async getTickets(country: CountryCode): Promise<PDDTicketSummary[]> {
     if (country !== 'russia') {
@@ -79,15 +106,9 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
       return [];
     }
 
-    // Получаем ответы для всех вопросов
+    // Получаем ответы для всех вопросов (с батчингом для больших списков)
     const questionIds = questions.map((q) => q.id);
-    const { data: answers, error: answersError } = await supabase
-      .from('pdd_russia_answers')
-      .select('*')
-      .in('question_id', questionIds)
-      .order('position', { ascending: true });
-
-    if (answersError) throw answersError;
+    const answers = await fetchAnswersInBatches(questionIds);
 
     // Группируем ответы по question_id
     const answersByQuestion = new Map<string, typeof answers>();
@@ -126,15 +147,9 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
       return [];
     }
 
-    // Получаем ответы
+    // Получаем ответы (с батчингом для больших списков)
     const questionIds = questions.map((q) => q.id);
-    const { data: answers, error: answersError } = await supabase
-      .from('pdd_russia_answers')
-      .select('*')
-      .in('question_id', questionIds)
-      .order('position', { ascending: true });
-
-    if (answersError) throw answersError;
+    const answers = await fetchAnswersInBatches(questionIds);
 
     // Группируем ответы
     const answersByQuestion = new Map<string, typeof answers>();
@@ -209,15 +224,9 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
       selectedQuestions.push(...selected);
     }
 
-    // Получаем ответы для всех выбранных вопросов
+    // Получаем ответы для всех выбранных вопросов (с батчингом)
     const questionIds = selectedQuestions.map((q) => q.id);
-    const { data: answers, error: answersError } = await supabase
-      .from('pdd_russia_answers')
-      .select('*')
-      .in('question_id', questionIds)
-      .order('position', { ascending: true });
-
-    if (answersError) throw answersError;
+    const answers = await fetchAnswersInBatches(questionIds);
 
     // Группируем ответы по question_id
     const answersByQuestion = new Map<string, typeof answers>();
@@ -242,14 +251,9 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
     });
 
     // Также получаем ответы для ВСЕХ вопросов (для доп. вопросов)
+    // КРИТИЧНО: используем батчинг, т.к. может быть очень много вопросов
     const allQuestionIds = allQuestions.map((q) => q.id);
-    const { data: allAnswers, error: allAnswersError } = await supabase
-      .from('pdd_russia_answers')
-      .select('*')
-      .in('question_id', allQuestionIds)
-      .order('position', { ascending: true });
-
-    if (allAnswersError) throw allAnswersError;
+    const allAnswers = await fetchAnswersInBatches(allQuestionIds);
 
     // Группируем все ответы
     const allAnswersByQuestion = new Map<string, typeof allAnswers>();
