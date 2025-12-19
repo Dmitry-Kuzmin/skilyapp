@@ -804,13 +804,20 @@ All colors MUST be HSL.
     min-height: -webkit-fill-available;
   }
 
-  /* Основной контент - для обычного браузера: НЕ flex-1, footer в конце контента */
+  /* Основной контент - для обычного браузера: footer в конце контента */
   .telegram-main-content {
-    /* Для обычного браузера: НЕ flex-1 - footer появляется только когда доскроллишь */
+    /* Для обычного браузера: минимальная высота больше экрана, чтобы footer был за пределами видимой области */
+    min-height: calc(100vh + 1px);
     /* КРИТИЧНО: Убираем overflow-y: auto для обычного браузера - скроллится вся страница, не только main */
     overflow-x: hidden;
     /* Отступ снизу для нижней навигации - только для мобильных */
     padding-bottom: 0;
+  }
+  
+  /* Для Telegram WebApp - переопределяем min-height через flex */
+  html.telegram-webapp .telegram-main-content,
+  body.telegram-webapp .telegram-main-content {
+    min-height: 0;
   }
 
   /* КРИТИЧНО: Footer НЕ должен быть фиксирован - он скроллится вместе с контентом */

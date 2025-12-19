@@ -384,12 +384,24 @@ const DashboardContent = () => {
 
 // Основной компонент Index - проверяет авторизацию и рендерит нужный контент
 const Index = () => {
+  console.log('[Index] 🚀 Index component rendering started', {
+    timestamp: new Date().toISOString(),
+    pathname: typeof window !== 'undefined' ? window.location.pathname : 'unknown',
+  });
+  
   // КРИТИЧНО: Безопасное получение UserContext - не выбрасывает ошибку если провайдер отсутствует
   // Это позволяет Index работать даже если UserProvider еще не загрузился
   const userContext = useContext(UserContext);
   const isAuthenticated = userContext?.isAuthenticated ?? false;
   const isLoading = userContext?.isLoading ?? true;
   const navigate = useNavigate();
+  
+  console.log('[Index] UserContext state:', {
+    hasUserContext: !!userContext,
+    isAuthenticated,
+    isLoading,
+    profileId: userContext?.profileId,
+  });
   
   // КРИТИЧНО: Если не авторизован, редиректим на главную (где Landing рендерится напрямую)
   // НО: НЕ редиректим если мы в Telegram Mini App - там авторизация может появиться позже
