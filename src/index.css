@@ -792,24 +792,23 @@ All colors MUST be HSL.
   .telegram-app-container {
     display: flex;
     flex-direction: column;
-    min-height: 100vh; /* Sticky footer: всегда минимум высота экрана для обычного браузера */
+    /* Для обычного браузера: НЕ min-height - footer появляется только в конце контента */
     overflow: visible;
     background-color: hsl(var(--background)); /* Обеспечиваем правильный фон */
   }
 
-  /* Min-height для Telegram WebApp - используем viewport stable height */
+  /* Min-height ТОЛЬКО для Telegram WebApp - sticky footer паттерн */
   html.telegram-webapp .telegram-app-container,
   body.telegram-webapp .telegram-app-container {
     min-height: calc(var(--tg-viewport-stable-height, 100vh) - var(--sat) - var(--sab));
     min-height: -webkit-fill-available;
   }
 
-  /* Основной контент - sticky footer паттерн: flex-1 для прижатия footer к низу */
+  /* Основной контент - для обычного браузера: НЕ flex-1, footer в конце контента */
   .telegram-main-content {
-    flex: 1; /* Sticky footer: растягивается чтобы прижать footer к низу когда контента мало */
+    /* Для обычного браузера: НЕ flex-1 - footer появляется только когда доскроллишь */
     /* КРИТИЧНО: Убираем overflow-y: auto для обычного браузера - скроллится вся страница, не только main */
     overflow-x: hidden;
-    min-height: 0; /* Важно для flex-контейнеров - позволяет скроллиться */
     /* Отступ снизу для нижней навигации - только для мобильных */
     padding-bottom: 0;
   }

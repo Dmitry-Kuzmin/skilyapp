@@ -9,12 +9,18 @@ import { PageLoader } from "@/components/PageLoader";
 import { PageSkeleton } from "@/components/PageSkeleton";
 
 // Lazy load всех страниц приложения
-const Index = lazy(() => 
-  import("../pages/Index").catch((error) => {
-    console.error("[AppRoutes] Failed to load Index module:", error);
-    return { default: () => <PageLoader /> };
-  })
-);
+const Index = lazy(() => {
+  console.log('[AppRoutes] 📦 Starting to load Index module...');
+  return import("../pages/Index")
+    .then((module) => {
+      console.log('[AppRoutes] ✅ Index module loaded successfully');
+      return module;
+    })
+    .catch((error) => {
+      console.error("[AppRoutes] ❌ Failed to load Index module:", error);
+      return { default: () => <PageLoader /> };
+    });
+});
 const LearningMap = lazy(() => import("../pages/LearningMap"));
 const TopicDetail = lazy(() => import("../pages/TopicDetail"));
 const SubtopicDetail = lazy(() => import("../pages/SubtopicDetail"));
