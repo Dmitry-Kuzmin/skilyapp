@@ -9,11 +9,19 @@ import { motion } from "framer-motion";
 
 const TopicsMode = () => {
   const navigate = useNavigate();
-  const { selectedCountry } = usePDDContext();
+  
+  // Безопасное получение контекста с fallback
+  let selectedCountry: string = 'russia';
+  try {
+    const context = usePDDContext();
+    selectedCountry = context?.selectedCountry || 'russia';
+  } catch (error) {
+    console.warn('[TopicsMode] PDDContext not available, using default:', error);
+  }
   
   // Безопасная загрузка тем только для России
   const country = selectedCountry || 'russia';
-  const { data: topics = [], isLoading, error } = usePDDTopics(country);
+  const { data: topics = [], isLoading, error } = usePDDTopics(country as any);
 
   const handleTopicSelect = (topicName: string) => {
     if (!topicName) return;

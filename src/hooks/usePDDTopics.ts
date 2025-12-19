@@ -11,6 +11,9 @@ export function usePDDTopics(country: CountryCode) {
     queryKey: ['pdd-topics', country],
     queryFn: async () => {
       try {
+        if (!country || country !== 'russia') {
+          return [];
+        }
         const strategy = getPDDStrategy(country);
         if (strategy.getTopicsWithCounts) {
           return await strategy.getTopicsWithCounts(country);
@@ -23,6 +26,7 @@ export function usePDDTopics(country: CountryCode) {
     },
     enabled: !!country && country === 'russia',
     retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 минут
   });
 }
 
