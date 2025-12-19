@@ -67,6 +67,7 @@ export function useRussiaExam(
       failureReason: result.failureReason,
       extraQuestionsCount: result.extraQuestionsCount,
       extraTime: result.extraTime,
+      blockId: result.blockId,
     };
   }, [state, currentQuestion, isExtraMode]);
 

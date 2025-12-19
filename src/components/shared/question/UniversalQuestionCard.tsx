@@ -120,8 +120,7 @@ export function UniversalQuestionCard({
               {/* Ответы */}
               <div className={cn(
                 "space-y-2 sm:space-y-2.5 mb-4 sm:mb-6",
-                isCompact && "space-y-2",
-                mode === 'exam-russia' && "space-y-3"
+                isCompact && "space-y-2"
               )}>
                 {answers.map((answer) => (
                   <AnswerButton
@@ -135,11 +134,6 @@ export function UniversalQuestionCard({
                     onClick={() => onAnswerClick(answer.id)}
                     fontSize={fontSize}
                     variant={isCompact ? 'compact' : 'standard'}
-                    className={mode === 'exam-russia' ? cn(
-                      "bg-slate-800/50 border-slate-700/50 text-slate-200",
-                      selectedAnswerId === answer.id && "bg-slate-700/70 border-cyan-500/50",
-                      "hover:bg-slate-700/60 hover:border-cyan-400/50"
-                    ) : undefined}
                   />
                 ))}
               </div>
@@ -210,8 +204,7 @@ export function UniversalQuestionCard({
               {/* Ответы */}
               <div className={cn(
                 "space-y-2 sm:space-y-2.5 mb-4 sm:mb-6",
-                isCompact && "space-y-2",
-                mode === 'exam-russia' && "space-y-3"
+                isCompact && "space-y-2"
               )}>
                 {answers.map((answer) => (
                   <AnswerButton
@@ -225,11 +218,6 @@ export function UniversalQuestionCard({
                     onClick={() => onAnswerClick(answer.id)}
                     fontSize={fontSize}
                     variant={isCompact ? 'compact' : 'standard'}
-                    className={mode === 'exam-russia' ? cn(
-                      "bg-slate-800/50 border-slate-700/50 text-slate-200",
-                      selectedAnswerId === answer.id && "bg-slate-700/70 border-cyan-500/50",
-                      "hover:bg-slate-700/60 hover:border-cyan-400/50"
-                    ) : undefined}
                   />
                 ))}
               </div>
