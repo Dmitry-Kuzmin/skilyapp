@@ -1,11 +1,47 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Хук для проверки Feature Flags
  * Позволяет быстро отключать фичи при перегрузке через админ-панель
+ * Автоматически обновляется при изменении флага в админке (через broadcast)
  */
 export function useFeatureFlag(flagKey: string, defaultValue: boolean = true) {
+  const queryClient = useQueryClient();
+  
+  // Слушаем события обновления feature flags
+  useEffect(() => {
+    const handleFlagUpdate = (event: CustomEvent) => {
+      if (event.detail?.key === flagKey) {
+        // Мгновенно инвалидируем кэш для этого флага
+        queryClient.invalidateQueries({ queryKey: ['feature-flag', flagKey] });
+      }
+    };
+    
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === `feature-flag-${flagKey}` && e.newValue) {
+        try {
+          const data = JSON.parse(e.newValue);
+          // Инвалидируем кэш если данные свежие (менее 5 секунд назад)
+          if (Date.now() - data.timestamp < 5000) {
+            queryClient.invalidateQueries({ queryKey: ['feature-flag', flagKey] });
+          }
+        } catch (err) {
+          // Игнорируем ошибки парсинга
+        }
+      }
+    };
+    
+    window.addEventListener('feature-flag-updated', handleFlagUpdate as EventListener);
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('feature-flag-updated', handleFlagUpdate as EventListener);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [flagKey, queryClient]);
+  
   const { data, isLoading } = useQuery({
     queryKey: ['feature-flag', flagKey],
     queryFn: async () => {

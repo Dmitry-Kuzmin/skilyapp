@@ -70,22 +70,38 @@ export function AdminFeatureFlags() {
 
   const toggleFlag = useMutation({
     mutationFn: async ({ key, value }: { key: string; value: boolean }) => {
-      const { error } = await supabase
-        .from('app_config')
-        .upsert({ 
-          key, 
-          value: value as any, 
-          updated_at: new Date().toISOString() 
-        });
-      if (error) throw error;
+      // Используем RPC функцию для обновления флагов (обходит RLS через SECURITY DEFINER)
+      const { error } = await supabase.rpc('update_app_config', {
+        config_key: key,
+        config_value: value as any, // JSONB принимает boolean напрямую
+      });
+      
+      if (error) {
+        console.error('[AdminFeatureFlags] RPC error:', error);
+        throw new Error(error.message || 'Failed to update flag');
+      }
     },
     onSuccess: (_, variables) => {
+      // Инвалидируем кэш React Query
       queryClient.invalidateQueries({ queryKey: ['app-config'] });
       queryClient.invalidateQueries({ queryKey: ['feature-flag'] });
+      
+      // Broadcast событие для мгновенного обновления на всех вкладках
+      const event = new CustomEvent('feature-flag-updated', {
+        detail: { key: variables.key, value: variables.value }
+      });
+      window.dispatchEvent(event);
+      
+      // Также используем localStorage для синхронизации между вкладками
+      localStorage.setItem(`feature-flag-${variables.key}`, JSON.stringify({
+        value: variables.value,
+        timestamp: Date.now()
+      }));
+      
       toast.success(
         variables.value ? 'Флаг включен' : 'Флаг выключен',
         {
-          description: `Feature flag "${variables.key}" обновлен`,
+          description: `Feature flag "${variables.key}" обновлен. Изменения применятся на всех вкладках в течение 1-2 секунд.`,
         }
       );
     },
