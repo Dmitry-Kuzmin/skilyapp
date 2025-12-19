@@ -553,9 +553,9 @@ grep -r "useQuery\|useMutation" src/hooks/ | wc -l
 
 ### ✅ ОБЯЗАТЕЛЬНЫЕ ПРАВИЛА
 
-#### 1. ResponsiveModal - Умный компонент
+#### 1. ResponsiveModal - Умный компонент (ЗОЛОТОЙ СТАНДАРТ)
 
-**ВСЕ новые модалки ДОЛЖНЫ использовать `ResponsiveModal`:**
+**🏆 ВСЕ новые модалки ДОЛЖНЫ использовать `ResponsiveModal` с Vaul для мобильных!**
 
 ```tsx
 import { ResponsiveModal } from "@/components/ui/responsive-modal";
@@ -567,6 +567,7 @@ export function MyModal({ open, onOpenChange }: MyModalProps) {
       onOpenChange={onOpenChange}
       title="Заголовок"
       description="Описание (опционально)"
+      snapPoints={[0.85, 1]} // Опционально: точки остановки для Vaul
     >
       {/* Ваш контент */}
     </ResponsiveModal>
@@ -575,8 +576,23 @@ export function MyModal({ open, onOpenChange }: MyModalProps) {
 ```
 
 **Как работает:**
-- На десктопе (>= 768px): **Dialog** (центрированная модалка)
-- На мобильных (< 768px): **Drawer** (шторка снизу)
+- На десктопе (>= 768px): **Dialog** (Radix UI) - центрированная модалка
+- На мобильных (< 768px): **Drawer** (Vaul) - шторка снизу с нативным поведением iOS
+
+**Почему Vaul - это Золотой стандарт для Telegram Mini App (2025):**
+
+1. **Нативность (Native Feel)**: Пользователи Telegram привыкли смахивать шторки вниз пальцем. Vaul дает эту физику (drag & dismiss). Radix Sheet ощущается как «веб-сайт», а не как «приложение».
+
+2. **Snap Points (Точки остановки)**: Шторка может открываться на 85% экрана (чтобы было видно фон), а если потянуть выше — на 100%. Vaul это умеет из коробки.
+
+3. **Производительность**: Vaul лучше работает с клавиатурой и фокусом на мобильных.
+
+4. **UX**: Плавное открытие, инерция, закрытие свайпом — ощущение "дорогого" приложения.
+
+**⚠️ КРИТИЧЕСКИ ВАЖНО:**
+- ❌ **НИКОГДА** не используйте `UnifiedModal` или `Sheet` из Radix UI для мобильных
+- ✅ **ВСЕГДА** используйте `ResponsiveModal`, который автоматически использует Vaul на мобильных
+- ✅ Для кастомных snap points передавайте `snapPoints={[0.85, 1]}` в `ResponsiveModal`
 
 #### 2. Уведомления - ТОЛЬКО Sonner
 

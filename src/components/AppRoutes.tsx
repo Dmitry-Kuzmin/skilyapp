@@ -52,6 +52,9 @@ const AdminMarketingMaterials = lazy(() =>
 const AdminPDDRussia = lazy(() =>
   import("../pages/admin/AdminPDDRussia").then((module) => ({ default: module.AdminPDDRussia }))
 );
+const AdminFeatureFlags = lazy(() =>
+  import("../components/admin/AdminFeatureFlags").then((module) => ({ default: module.AdminFeatureFlags }))
+);
 const PartnerDashboard = lazy(() => import("../pages/PartnerDashboard"));
 const ModernPartnerDashboard = lazy(() => import("../pages/ModernPartnerDashboard"));
 const PartnerLinkRedirect = lazy(() => import("../pages/PartnerLinkRedirect"));
@@ -256,6 +259,11 @@ export function AppRoutes() {
           <Route index element={
             <Suspense fallback={<PageSkeleton />}>
               <AdminDashboard />
+            </Suspense>
+          } />
+          <Route path="feature-flags" element={
+            <Suspense fallback={<PageSkeleton />}>
+              <AdminFeatureFlags />
             </Suspense>
           } />
           <Route path="reports" element={

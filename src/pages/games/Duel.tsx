@@ -30,6 +30,7 @@ import { useLumiToast } from '@/hooks/useLumiToast';
 import { toast } from 'sonner';
 import { useActiveDuel } from '@/hooks/useActiveDuel';
 import type { GameMode } from '@/features/duel/shared';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 
 const INSURANCE_RATE = 0.15;
 const COVERAGE_RATE = 0.6;
@@ -56,6 +57,7 @@ export default function Duel() {
     const { isAuthenticated, profileId, user, supabaseUser } = useUserContext();
     const { showDuelJoinError, showDuelJoinSuccess, showDuelNotification, ToastContainer } = useLumiToast();
     const { activeDuel, saveActiveDuel, clearActiveDuel, updateActiveDuel, isChecking } = useActiveDuel();
+    const { enabled: duelsEnabled, isLoading: flagsLoading } = useFeatureFlag('duels_enabled', true);
     const [mode, setMode] = useState<GameMode>('menu');
     const [duelId, setDuelId] = useState<string | null>(null);
     const [duelCode, setDuelCode] = useState<string | null>(null);
@@ -1134,6 +1136,33 @@ export default function Duel() {
     }, [duelState.duelStarted, createdCode, duelId, handleDuelStarted]);
 
     // Показываем skeleton screen при начальной загрузке - ПОСЛЕ всех хуков!
+    // 🚦 FEATURE FLAG: Проверка включения дуэлей
+    if (flagsLoading) {
+        return (
+            <Layout>
+                <div className="flex items-center justify-center min-h-screen">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+            </Layout>
+        );
+    }
+
+    if (!duelsEnabled) {
+        return (
+            <Layout>
+                <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
+                    <div className="max-w-md space-y-4">
+                        <Swords className="w-16 h-16 mx-auto text-muted-foreground" />
+                        <h1 className="text-2xl font-bold">Дуэли временно отключены</h1>
+                        <p className="text-muted-foreground">
+                            Функция временно недоступна. Попробуйте позже.
+                        </p>
+                    </div>
+                </div>
+            </Layout>
+        );
+    }
+
     if (isInitialLoading || (!dataLoaded && !isTelegramUser)) {
         return <DuelSkeleton />;
     }

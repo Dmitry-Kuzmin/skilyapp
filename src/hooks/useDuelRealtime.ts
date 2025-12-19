@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { useUserContext } from '@/contexts/UserContext';
 import type { ActiveExploit, DuelRealtimeState } from '@/features/duel/shared';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 
 // Re-export для обратной совместимости
 export type { ActiveExploit, DuelRealtimeState } from '@/features/duel/shared';
@@ -27,6 +28,7 @@ const debugFetch = (data: any) => {
 
 export function useDuelRealtime(duelId: string | null, myPlayerId?: string | null) {
   const { profileId } = useUserContext();
+  const { enabled: realtimeEnabled } = useFeatureFlag('duel_realtime', true);
   
   // ОПТИМИЗАЦИЯ: Логируем только при изменении ключевых параметров (не при каждом рендере)
   const prevParamsRef = useRef<{ duelId: string | null; myPlayerId?: string | null }>({ duelId, myPlayerId });
@@ -396,6 +398,13 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     console.log('[useDuelRealtime] 🔍 DUEL_ID для SQL запросов:', duelId);
     console.log('[useDuelRealtime] 📋 SQL запрос для проверки exploits:');
     console.log(`SELECT * FROM duel_active_exploits WHERE duel_id = '${duelId}' ORDER BY activated_at DESC LIMIT 5;`);
+
+    // 🚦 FEATURE FLAG: Проверка включения real-time для дуэлей
+    if (!realtimeEnabled) {
+      log('[useDuelRealtime] ⚠️ Real-time disabled by feature flag');
+      setConnectionStatus('error');
+      return;
+    }
 
     log('[useDuelRealtime] Initializing channel for duel:', duelId);
     debugFetch({location:'useDuelRealtime.ts:98',message:'Initializing realtime channel',data:{duelId,myPlayerId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'});
@@ -1399,7 +1408,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         pollingInterval = null;
       }
     };
-  }, [duelId, myPlayerId, profileId, connectionStatus]);
+  }, [duelId, myPlayerId, profileId, connectionStatus, realtimeEnabled]);
 
   // ОПТИМИЗАЦИЯ: Мемоизируем broadcast функцию
   const broadcast = useCallback((event: string, data: any) => {

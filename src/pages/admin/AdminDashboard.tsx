@@ -148,6 +148,15 @@ export function AdminDashboard() {
 
   const quickActions = [
     {
+      title: "Feature Flags",
+      description: "Управление функциональностью",
+      icon: Zap,
+      path: "/admin/feature-flags",
+      color: "text-purple-600",
+      bgColor: "bg-purple-50 dark:bg-purple-900/20",
+      delay: 0.05,
+    },
+    {
       title: "Отчёты о проблемах",
       description: "Просмотр и обработка отчётов",
       icon: AlertTriangle,

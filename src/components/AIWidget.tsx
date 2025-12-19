@@ -11,6 +11,7 @@ import remarkGfm from 'remark-gfm';
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { triggerHapticFeedback } from "@/lib/telegram";
+import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 
 type Message = {
   role: "user" | "assistant";
@@ -48,6 +49,7 @@ export const AIWidget = ({
   onToggleTranslation,
   testLanguage = 'es',
 }: AIWidgetProps) => {
+  const { enabled: aiEnabled } = useFeatureFlag('ai_chat_enabled', true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState("");
@@ -58,6 +60,11 @@ export const AIWidget = ({
   const widgetRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
   const { toast } = useToast();
+  
+  // 🚦 FEATURE FLAG: Если AI чат отключен, не показываем виджет
+  if (!aiEnabled) {
+    return null;
+  }
   
   // Определяем язык интерфейса на основе языка теста
   // Используем язык теста для интерфейса, но если showTranslation активен, используем русский
