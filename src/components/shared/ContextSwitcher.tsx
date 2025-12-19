@@ -89,12 +89,9 @@ export function ContextSwitcher({ className }: ContextSwitcherProps) {
       >
         <span className="text-base leading-none">{countryData.flag}</span>
         <span className="whitespace-nowrap">{countryData.name}</span>
-        <span className={isDarkTheme ? 'text-primary/60' : 'text-primary/40'}>|</span>
+        <span className={isDarkTheme ? 'text-white/30' : 'text-slate-400'}>•</span>
         <span className="text-base leading-none">{displayCategory.icon}</span>
         <span className="whitespace-nowrap">{displayCategory.code}</span>
-        <span className={cn('text-[10px] sm:text-[11px] whitespace-nowrap', isDarkTheme ? 'text-white/70' : 'text-slate-500')}>
-          ({displayCategory.nameFull})
-        </span>
         <ChevronDown className={cn('w-3 h-3 ml-0.5', isDarkTheme ? 'text-white/60' : 'text-slate-400')} />
       </button>
 

@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useState, lazy, Suspense } from 'react';
-import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Car, Zap, FileText, Coins, Gauge, BookOpen, ArrowRight, Loader2, Target } from 'lucide-react';
+import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Zap, FileText, Coins, BookOpen, ArrowRight, Loader2, Target, BarChart2 } from 'lucide-react';
 import { UnifiedModal } from '@/components/ui/unified-modal';
 import { ContextSwitcher } from '@/components/shared';
 import { usePDDContext } from '@/contexts/PDDContext';
@@ -93,12 +93,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
     const onlineBadgeClass = isDarkTheme
       ? 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full whitespace-nowrap bg-gradient-to-r from-emerald-500/25 to-emerald-600/25 border border-emerald-400/40 backdrop-blur-sm shadow-lg shadow-emerald-500/20'
       : 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full whitespace-nowrap bg-white/95 border border-emerald-200/80 shadow-[0_12px_34px_rgba(16,185,129,0.25)] backdrop-blur-sm';
-    const licenseBadgeClass = isDarkTheme
-      ? 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full whitespace-nowrap bg-gradient-to-r from-blue-500/25 via-indigo-500/25 to-purple-500/25 border border-blue-400/40 backdrop-blur-sm group hover:border-blue-300/60 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300'
-      : 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full whitespace-nowrap bg-gradient-to-r from-blue-50/95 via-indigo-50/95 to-purple-50/95 border border-indigo-200/80 text-indigo-700 shadow-[0_12px_32px_rgba(99,102,241,0.25)] backdrop-blur-sm';
-    const cockpitButtonClass = isDarkTheme
-      ? 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-slate-700/70 bg-slate-900/70 hover:border-emerald-400/60 hover:bg-slate-800/90 transition-all text-[11px] sm:text-xs font-semibold text-slate-200 whitespace-nowrap backdrop-blur-sm'
-      : 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-slate-200/80 bg-gradient-to-r from-white/95 to-slate-50/95 hover:border-emerald-300 hover:bg-emerald-50/95 transition-all text-[11px] sm:text-xs font-semibold text-slate-600 whitespace-nowrap shadow-[0_10px_30px_rgba(148,163,184,0.3)] backdrop-blur-sm';
     const statValueClass = isDarkTheme ? 'text-sm sm:text-base md:text-lg font-black text-white' : 'text-sm sm:text-base md:text-lg font-black text-slate-900';
     const statLabelBase = 'text-[9px] xs:text-[10px] sm:text-xs font-semibold';
     const statStartButtonText = isDarkTheme ? 'text-indigo-300' : 'text-purple-600';
@@ -132,8 +126,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
       heroBackground,
       heroShadowClass,
       onlineBadgeClass,
-      licenseBadgeClass,
-      cockpitButtonClass,
       statValueClass,
       statLabelBase,
       statStartButtonText,
@@ -185,33 +177,28 @@ export const Dashboard: React.FC<DashboardProps> = ({
         
         {/* Header */}
         <div className="mb-6 animate-fade-in">
-          <div className="flex items-center gap-1.5 sm:gap-3 flex-nowrap min-w-0 max-w-full">
+          <div className="flex items-center justify-between gap-1.5 sm:gap-3 flex-nowrap min-w-0 max-w-full">
             {/* Умный переключатель контекста (Страна | Категория) */}
             <ContextSwitcher className="shrink-0" />
 
-            {/* License Badge */}
-            <div className={themeClasses.licenseBadgeClass}>
-              <Car className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform duration-300" />
-              <span
-                className={
-                  isDarkTheme
-                    ? 'text-[11px] sm:text-xs font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent'
-                    : 'text-[11px] sm:text-xs font-bold text-indigo-600'
-                }
-              >
-                {t('dashboard.licenseStatus')}
-              </span>
-            </div>
+            {/* Кнопка статистики - Ghost стиль */}
             <button
               onClick={() => {
                 playClickSound();
                 setCockpitOpen(true);
               }}
-              className={themeClasses.cockpitButtonClass}
-              aria-label={t('dashboard.cockpitButton')}
+              className={cn(
+                'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full',
+                'border transition-all text-[11px] sm:text-xs font-semibold whitespace-nowrap',
+                'backdrop-blur-sm hover:scale-[1.02] active:scale-[0.98]',
+                isDarkTheme
+                  ? 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10 text-zinc-200'
+                  : 'border-zinc-300/60 bg-white/50 hover:border-zinc-400/80 hover:bg-white/80 text-zinc-700'
+              )}
+              aria-label="Моя статистика"
             >
-              <Gauge className="w-3.5 h-3.5 text-emerald-300" />
-              {t('dashboard.cockpitButton')}
+              <BarChart2 className="w-3.5 h-3.5" />
+              <span>Прогресс</span>
             </button>
            </div>
         </div>
