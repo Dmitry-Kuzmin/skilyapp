@@ -39,6 +39,14 @@ const Tests = () => {
   // Получаем выбранную страну из контекста
   const { selectedCountry } = usePDDContext();
   const countryData = COUNTRIES_CONFIG[selectedCountry];
+  
+  // Логирование для отладки
+  if (import.meta.env.DEV) {
+    console.log('[Tests] Страница загружена:', {
+      selectedCountry,
+      profileId,
+    });
+  }
 
   // ОПТИМИЗАЦИЯ: Используем React Query хуки вместо прямых запросов
   const { data: dbTopics = [], isLoading: topicsLoading } = useTopics();
@@ -380,6 +388,15 @@ const Tests = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {testModes.filter(m => m.id !== 1).map((mode, index) => {
+                  // Логирование для отладки экзамена
+                  if (mode.id === 2 && import.meta.env.DEV) {
+                    console.log('[Tests] Экзамен найден:', {
+                      id: mode.id,
+                      title: mode.title,
+                      route: mode.route,
+                      selectedCountry,
+                    });
+                  }
                   const Icon = mode.icon;
                   const isFeatured = mode.id === 2;
 
@@ -468,6 +485,13 @@ const Tests = () => {
                         if (mode.premium && !isPremium) {
                           // Handle premium
                         } else if (mode.route) {
+                          if (import.meta.env.DEV && mode.id === 2) {
+                            console.log('[Tests] Клик по экзамену:', {
+                              route: mode.route,
+                              selectedCountry,
+                              title: mode.title,
+                            });
+                          }
                           handleStartTest(mode.route);
                         }
                       }}
