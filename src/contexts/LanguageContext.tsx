@@ -975,6 +975,13 @@ const translations: Record<Language, Record<string, any>> = {
         button: "Comenzar gratis",
       },
     },
+    contextSettings: {
+      selectContext: "Seleccionar contexto",
+      readyToStart: "¡Listo para empezar: Categoría {{category}}!",
+      countrySection: "1. País PDD",
+      categorySection: "2. Categoría de licencia",
+      apply: "Aplicar",
+    },
   },
   en: {
     // Navigation
@@ -1896,6 +1903,13 @@ const translations: Record<Language, Record<string, any>> = {
         button: "Start for free",
       },
     },
+    contextSettings: {
+      selectContext: "Select context",
+      readyToStart: "Ready to start: Category {{category}}!",
+      countrySection: "1. PDD Country",
+      categorySection: "2. License Category",
+      apply: "Apply",
+    },
   },
   ru: {
     // Navigation
@@ -2798,6 +2812,13 @@ const translations: Record<Language, Record<string, any>> = {
         description: "Откройте тренировки, тесты, дуэли и аналитику в одном приложении.",
         button: "Начать бесплатно",
       },
+    },
+    contextSettings: {
+      selectContext: "Выбор контекста",
+      readyToStart: "Готов к старту: Категория {{category}}!",
+      countrySection: "1. Страна ПДД",
+      categorySection: "2. Категория прав",
+      apply: "Применить",
     },
   },
 };
