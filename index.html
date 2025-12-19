@@ -705,55 +705,58 @@
     <!-- PWA Service Worker управляется через vite-plugin-pwa -->
     <!-- НЕ удаляем SW вручную - это блокирует offline режим -->
     <script>
-      // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
-      // Версия приложения - меняйте при каждом деплое
-      const APP_VERSION = '2025-12-19-v2';
-      const CACHE_KEY = 'skilyapp_version';
-      
-      // Проверяем версию в localStorage
-      const storedVersion = localStorage.getItem(CACHE_KEY);
-      if (storedVersion !== APP_VERSION) {
-        console.log('[HTML] 🔄 New version detected! Clearing cache...', {
-          stored: storedVersion,
-          current: APP_VERSION,
-        });
+      (function() {
+        'use strict';
         
-        // Очищаем localStorage (кроме важных данных)
-        const importantKeys = ['sb-yffjnqegeiorunyvcxkn-auth-token', 'user_preferences'];
-        const keysToKeep = {};
-        importantKeys.forEach(key => {
-          const value = localStorage.getItem(key);
-          if (value) keysToKeep[key] = value;
-        });
-        localStorage.clear();
-        Object.keys(keysToKeep).forEach(key => {
-          localStorage.setItem(key, keysToKeep[key]);
-        });
+        // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
+        // Версия приложения - меняйте при каждом деплое
+        const APP_VERSION = '2025-12-19-v3';
+        const CACHE_KEY = 'skilyapp_version';
         
-        // Очищаем sessionStorage
-        sessionStorage.clear();
-        
-        // Очищаем кэш через Cache API
-        if ('caches' in window) {
-          caches.keys().then(names => {
-            names.forEach(name => {
-              caches.delete(name);
-              console.log('[HTML] 🗑️ Deleted cache:', name);
-            });
+        // Проверяем версию в localStorage
+        const storedVersion = localStorage.getItem(CACHE_KEY);
+        if (storedVersion !== APP_VERSION) {
+          console.log('[HTML] 🔄 New version detected! Clearing cache...', {
+            stored: storedVersion,
+            current: APP_VERSION,
           });
+          
+          // Очищаем localStorage (кроме важных данных)
+          const importantKeys = ['sb-yffjnqegeiorunyvcxkn-auth-token', 'user_preferences'];
+          const keysToKeep = {};
+          importantKeys.forEach(key => {
+            const value = localStorage.getItem(key);
+            if (value) keysToKeep[key] = value;
+          });
+          localStorage.clear();
+          Object.keys(keysToKeep).forEach(key => {
+            localStorage.setItem(key, keysToKeep[key]);
+          });
+          
+          // Очищаем sessionStorage
+          sessionStorage.clear();
+          
+          // Очищаем кэш через Cache API
+          if ('caches' in window) {
+            caches.keys().then(names => {
+              names.forEach(name => {
+                caches.delete(name);
+                console.log('[HTML] 🗑️ Deleted cache:', name);
+              });
+            });
+          }
+          
+          // Сохраняем новую версию
+          localStorage.setItem(CACHE_KEY, APP_VERSION);
+          
+          // Принудительная перезагрузка с cache busting
+          const url = new URL(window.location.href);
+          url.searchParams.set('_v', Date.now());
+          url.searchParams.set('_clear_cache', '1');
+          console.log('[HTML] 🔄 Reloading with cache bust:', url.toString());
+          window.location.replace(url.toString());
+          return; // Останавливаем выполнение (теперь это легально, так как мы внутри функции)
         }
-        
-        // Сохраняем новую версию
-        localStorage.setItem(CACHE_KEY, APP_VERSION);
-        
-        // Принудительная перезагрузка с cache busting
-        const url = new URL(window.location.href);
-        url.searchParams.set('_v', Date.now());
-        url.searchParams.set('_clear_cache', '1');
-        console.log('[HTML] 🔄 Reloading with cache bust:', url.toString());
-        window.location.replace(url.toString());
-        return; // Останавливаем выполнение
-      }
       
       // КРИТИЧНО: Добавляем версию в URL для принудительной инвалидации кэша
       const CACHE_BUST = '?v=' + Date.now();
@@ -787,16 +790,17 @@
         }
       }, true);
       
-      // Дополнительная проверка: если через 5 секунд нет логов [Main], принудительно очищаем кэш
-      setTimeout(() => {
-        if (!window._mainLoaded) {
-          console.warn('[HTML] ⚠️ Main module not loaded after 5s, forcing cache clear...');
-          localStorage.removeItem(CACHE_KEY);
-          const url = new URL(window.location.href);
-          url.searchParams.set('_force_reload', Date.now());
-          window.location.replace(url.toString());
-        }
-      }, 5000);
+        // Дополнительная проверка: если через 5 секунд нет логов [Main], принудительно очищаем кэш
+        setTimeout(() => {
+          if (!window._mainLoaded) {
+            console.warn('[HTML] ⚠️ Main module not loaded after 5s, forcing cache clear...');
+            localStorage.removeItem(CACHE_KEY);
+            const url = new URL(window.location.href);
+            url.searchParams.set('_force_reload', Date.now());
+            window.location.replace(url.toString());
+          }
+        }, 5000);
+      })(); // Закрываем IIFE
     </script>
     <!-- КРИТИЧНО: Основной скрипт приложения - должен загружаться первым -->
     <script type="module" src="/src/main.tsx"></script>
