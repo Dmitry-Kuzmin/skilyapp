@@ -10,10 +10,14 @@ import { motion } from "framer-motion";
 const TopicsMode = () => {
   const navigate = useNavigate();
   const { selectedCountry } = usePDDContext();
-  const { data: topics = [], isLoading, error } = usePDDTopics(selectedCountry || 'russia');
+  
+  // Безопасная загрузка тем только для России
+  const country = selectedCountry || 'russia';
+  const { data: topics = [], isLoading, error } = usePDDTopics(country);
 
   const handleTopicSelect = (topicName: string) => {
-    navigate(`/test/by-topic?topic=${encodeURIComponent(topicName)}&country=${selectedCountry}&count=30`);
+    if (!topicName) return;
+    navigate(`/test/by-topic?topic=${encodeURIComponent(topicName)}&country=${country}&count=30`);
   };
 
   // Сортируем темы по количеству вопросов (убывание)
