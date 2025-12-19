@@ -297,9 +297,10 @@ export function useDashboardData() {
     staleTime: 30 * 1000, // 30 секунд - данные считаются свежими
     gcTime: 5 * 60 * 1000, // 5 минут - кэш в памяти
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: true, // КРИТИЧНО: Включаем refetchOnMount для продакшена
     refetchOnReconnect: true,
-    retry: 1,
+    retry: 2, // Увеличиваем количество попыток
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Экспоненциальная задержка
   });
 
   // Функция для принудительного обновления
