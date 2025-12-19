@@ -3,8 +3,8 @@
  */
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import { 
-  RussiaExamState, 
+import {
+  RussiaExamState,
   createRussiaExamState,
   getBlockId,
 } from '@/types/pddExam';
@@ -26,21 +26,29 @@ export function useRussiaExam(
     }
     return null;
   });
-  
-  // Обновляем состояние при изменении allQuestionsByBlock
+
+  // Инициализация и сброс состояния при изменении вопросов
   useEffect(() => {
-    if (state && allQuestionsByBlock && Object.keys(allQuestionsByBlock).length > 0) {
-      setState(prev => prev ? {
-        ...prev,
-        allQuestionsByBlock,
-      } : null);
+    if (questions.length === 20) {
+      // Если вопросы загрузились или изменились, создаем новое состояние
+      // Но только если состояние пустое или вопросы ОТЛИЧАЮТСЯ (придумать проверку)
+      // Для простоты: если state null или questions другой длины или testId поменялся (но тут нет testId)
+      // Лучше просто: если пришли валидные вопросы и current ids don't match?
+
+      setState(prevState => {
+        // Если уже есть состояние с ТЕМИ ЖЕ вопросами, не трогаем (избегаем сброса при ререндере)
+        if (prevState && prevState.mainQuestions.length === 20 && prevState.mainQuestions[0].id === questions[0].id) {
+          return prevState;
+        }
+        return createRussiaExamState(questions, allQuestionsByBlock, 20 * 60);
+      });
     }
-  }, [allQuestionsByBlock, state]);
+  }, [questions, allQuestionsByBlock]);
 
   const isExtraMode = state?.isExtraMode || false;
   const currentQuestion = useMemo(() => {
     if (!state) return null;
-    
+
     if (isExtraMode) {
       return state.extraQuestions[state.currentExtraIndex]?.question || null;
     } else {
@@ -78,7 +86,7 @@ export function useRussiaExam(
 
   const progress = useMemo(() => {
     if (!state) return { current: 0, total: 0 };
-    
+
     if (isExtraMode) {
       return {
         current: state.currentExtraIndex + 1,

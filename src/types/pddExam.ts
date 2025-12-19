@@ -31,21 +31,21 @@ export interface RussiaExamState {
   // Основные вопросы (20) - выбранные для экзамена
   mainQuestions: UniversalQuestion[];
   currentMainIndex: number; // текущий вопрос из основных (0-19)
-  
+
   // ВСЕ вопросы по блокам (для генерации доп. вопросов)
   allQuestionsByBlock: Record<number, UniversalQuestion[]>; // blockId -> вопросы из этого блока
-  
+
   // Ответы на основные вопросы
   mainAnswers: Record<number, {
     questionId: string;
     isCorrect: boolean;
     answeredAt: number; // timestamp
   }>;
-  
+
   // Блоки и ошибки
   blocks: ExamBlock[];
   errorsPerBlock: Record<number, number>; // blockId -> количество ошибок
-  
+
   // Дополнительные вопросы
   isExtraMode: boolean; // находимся ли в режиме доп. вопросов
   extraQuestions: ExtraQuestion[]; // очередь доп. вопросов
@@ -55,16 +55,16 @@ export interface RussiaExamState {
     isCorrect: boolean;
     answeredAt: number;
   }>;
-  
+
   // Время
   timeLimit: number; // базовое время (20 минут)
   timeRemaining: number; // оставшееся время
   extraTimeAdded: number; // добавленное время за ошибки
-  
+
   // Статус
   status: 'in-progress' | 'passed' | 'failed' | 'failed-extra';
   failureReason?: string;
-  
+
   // Статистика
   startTime: number;
   endTime?: number;
@@ -123,6 +123,7 @@ export function getBlockQuestionIndices(blockId: number): number[] {
  */
 export function createRussiaExamState(
   questions: UniversalQuestion[],
+  allQuestionsByBlock: Record<number, UniversalQuestion[]> | undefined,
   timeLimit: number = RUSSIA_EXAM_RULES.baseTimeMinutes * 60
 ): RussiaExamState {
   if (questions.length !== RUSSIA_EXAM_RULES.mainQuestionsCount) {
@@ -138,6 +139,7 @@ export function createRussiaExamState(
 
   return {
     mainQuestions: questions,
+    allQuestionsByBlock: allQuestionsByBlock || {},
     currentMainIndex: 0,
     mainAnswers: {},
     blocks,

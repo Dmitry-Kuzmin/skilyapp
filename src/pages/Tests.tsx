@@ -39,49 +39,156 @@ type Topic = {
 
 const TicketCore = ({
   number,
-  status = 'idle',
+  progress = 0,
+  status = 'idle', // 'idle' | 'charging' | 'charged' | 'damaged'
   onClick
 }: {
   number: number;
+  progress?: number;
   status?: 'idle' | 'charging' | 'charged' | 'damaged';
   onClick: () => void;
 }) => {
+  const radius = 38;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (progress / 100) * circumference;
+
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ scale: 1.02, y: -2 }}
-      whileTap={{ scale: 0.98 }}
+      layout
+      initial={{ opacity: 0, scale: 0.5, filter: 'brightness(3)' }}
+      animate={{ opacity: 1, scale: 1, filter: 'brightness(1)' }}
+      whileHover={{ y: -8, scale: 1.02 }}
+      whileTap={{ scale: 0.95 }}
       onClick={onClick}
       className={cn(
-        "relative aspect-square rounded-[24px] overflow-hidden cursor-pointer transition-all duration-300 group shadow-lg",
-        "border border-white/20 backdrop-blur-xl",
-        "before:absolute before:inset-0 before:bg-[url('https://grainy-gradients.vercel.app/noise.svg')] before:opacity-[0.05] before:pointer-events-none",
-        // Idle (Empty Plate)
-        status === 'idle' && "bg-white/5 hover:bg-white/10 hover:border-white/40 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]",
-        // In Progress (Blue Infusion)
-        status === 'charging' && "bg-blue-500/20 border-blue-500/40 animate-[pulse_4s_ease-in-out_infinite]",
-        // Charged (Emerald Infusion)
-        status === 'charged' && "bg-emerald-500/20 border-emerald-500/40 shadow-[0_0_30px_rgba(16,185,129,0.2)]",
-        // Damaged (Red/Warning Infusion)
-        status === 'damaged' && "bg-rose-500/20 border-rose-500/40 shadow-[0_0_20px_rgba(244,63,94,0.15)]"
+        "relative aspect-square rounded-[2rem] overflow-hidden cursor-pointer group transition-all duration-500",
+        "border-[1.5px] shadow-2xl backdrop-blur-md",
+        // Idle
+        status === 'idle' && [
+          "bg-slate-50/50 dark:bg-slate-950/40 border-slate-200/50 dark:border-white/5",
+          "shadow-none hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/40"
+        ],
+        // Charging
+        status === 'charging' && [
+          "bg-orange-50/30 dark:bg-orange-950/20 border-orange-200 dark:border-orange-500/30",
+          "shadow-[0_0_30px_rgba(245,158,11,0.1)] dark:shadow-[0_0_40px_rgba(245,158,11,0.15)]"
+        ],
+        // Charged
+        status === 'charged' && [
+          "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-400/50 dark:border-emerald-500/40",
+          "shadow-[0_10px_30px_rgba(16,185,129,0.15)] dark:shadow-[0_0_40px_rgba(16,185,129,0.2)]"
+        ],
+        // Damaged
+        status === 'damaged' && [
+          "bg-red-50/30 dark:bg-red-950/20 border-red-300 dark:border-red-500/40",
+          "shadow-[0_10px_30px_rgba(239,68,68,0.1)] dark:shadow-[0_0_30px_rgba(239,68,68,0.2)]"
+        ]
       )}
     >
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-4xl font-thin text-white tracking-tighter drop-shadow-sm select-none">
-          {number}
-        </span>
+      {/* Glare effect on hover */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+        <div className="absolute top-[-100%] left-[-100%] w-[300%] h-[300%] bg-gradient-to-br from-white/20 via-transparent to-transparent rotate-[45deg] group-hover:animate-shimmer" />
       </div>
 
-      {/* Done Indicator */}
-      {status === 'charged' && (
-        <div className="absolute top-3 right-3 opacity-60">
-          <Check className="w-4 h-4 text-white" />
-        </div>
-      )}
+      {/* Cyber Background pattern */}
+      <div className="absolute inset-0 opacity-[0.05] dark:opacity-10 pointer-events-none"
+        style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }} />
 
-      {/* Glossy Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+      {/* Internal Glows */}
+      <div className={cn(
+        "absolute inset-0 opacity-10 dark:opacity-20 transition-all duration-500",
+        status === 'charging' && "bg-orange-500/20 blur-3xl",
+        status === 'charged' && "bg-emerald-500/30 blur-3xl",
+        status === 'damaged' && "bg-red-500/20 blur-3xl"
+      )} />
+
+      <div className="relative h-full flex flex-col items-center justify-center gap-1 z-10">
+        <span className={cn(
+          "text-[10px] font-black tracking-[0.2em] uppercase transition-colors duration-500",
+          status === 'idle' ? "text-slate-400/40 dark:text-white/20" : "text-slate-500 dark:text-white/40"
+        )}>
+          Билет
+        </span>
+
+        <div className="relative flex items-center justify-center">
+          {/* Radial Progress for Charging / Damaged */}
+          {(status === 'charging' || status === 'damaged') && (
+            <svg className="absolute w-24 h-24 -rotate-90 pointer-events-none">
+              <circle
+                cx="48"
+                cy="48"
+                r={radius}
+                fill="transparent"
+                stroke="currentColor"
+                strokeWidth="4"
+                className="text-slate-200 dark:text-white/5"
+              />
+              <motion.circle
+                cx="48"
+                cy="48"
+                r={radius}
+                fill="transparent"
+                stroke="currentColor"
+                strokeWidth="5"
+                strokeDasharray={circumference}
+                initial={{ strokeDashoffset: circumference }}
+                animate={{ strokeDashoffset: offset }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                strokeLinecap="round"
+                className={cn(
+                  status === 'charging' ? "text-orange-500 dark:text-orange-400" : "text-red-500",
+                  "drop-shadow-[0_0_8px_currentColor]"
+                )}
+              />
+            </svg>
+          )}
+
+          <span className={cn(
+            "text-4xl sm:text-5xl font-black transition-all duration-500 font-display",
+            status === 'idle'
+              ? "text-slate-300 dark:text-white/20 group-hover:text-slate-900 dark:group-hover:text-white/60"
+              : "text-slate-900 dark:text-white drop-shadow-md",
+            status === 'charged' && "text-emerald-600 dark:text-emerald-50"
+          )}>
+            {number}
+          </span>
+        </div>
+
+        {/* Status Indicators */}
+        <div className="mt-2 h-4 flex items-center justify-center gap-1">
+          {status === 'charged' && (
+            <div className="flex gap-0.5">
+              {[1, 2, 3].map(i => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5 + i * 0.1 }}
+                >
+                  <Star className="w-3 h-3 text-amber-500 dark:text-amber-300 fill-amber-500 dark:fill-amber-300 drop-shadow-[0_0_5px_rgba(245,158,11,0.3)]" />
+                </motion.div>
+              ))}
+            </div>
+          )}
+          {status === 'damaged' && (
+            <motion.div
+              animate={{ opacity: [0.6, 1, 0.6] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="flex items-center gap-1 text-red-500 dark:text-red-400 text-[10px] font-black uppercase tracking-widest"
+            >
+              <AlertIcon className="w-3 h-3" />
+              <span>Повреждён</span>
+            </motion.div>
+          )}
+          {status === 'charging' && (
+            <div className="text-[10px] font-black text-slate-500 dark:text-white/40">{progress}%</div>
+          )}
+        </div>
+      </div>
+
+      {/* Decorative corners */}
+      <div className="absolute top-4 left-4 w-2 h-2 border-t-2 border-l-2 border-slate-200 dark:border-white/20 rounded-tl-sm group-hover:border-slate-400 dark:group-hover:border-white/40 transition-colors" />
+      <div className="absolute bottom-4 right-4 w-2 h-2 border-b-2 border-r-2 border-slate-200 dark:border-white/20 rounded-br-sm group-hover:border-slate-400 dark:group-hover:border-white/40 transition-colors" />
     </motion.div>
   );
 };
@@ -428,6 +535,7 @@ const Tests = () => {
                       </div>
 
                       <button
+                        onClick={handleBannerClick}
                         className="group relative h-16 px-10 rounded-full bg-white text-indigo-600 font-black text-lg shadow-[0_10px_30px_rgba(255,255,255,0.3)] hover:shadow-[0_20px_40px_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 overflow-hidden w-fit"
                       >
                         <Play className="w-6 h-6 fill-indigo-600" />
@@ -752,19 +860,21 @@ const Tests = () => {
                 </Badge>
               </div>
 
-              {/* Для России: показываем билеты в Vision OS Grid */}
+              {/* Для России: показываем билеты в Cyber-Core Grid */}
               {selectedCountry === 'russia' ? (
-                <div className="space-y-8 p-0">
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 p-4">
+                <div className="space-y-8 p-0 sm:p-2">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 sm:gap-6">
                     {tickets.map((ticket, i) => {
                       const ticketId = typeof ticket.id === 'number' ? ticket.id : ticket.number;
                       const ticketNumber = ticket.metadata?.ticket_number || ticket.number;
 
-                      // Расширенная логика статусов
+                      // Расширенная логика статусов для Cyber-Core
                       let status: 'idle' | 'charging' | 'charged' | 'damaged' = 'idle';
                       const progress = ticket.progress || 0;
 
                       if (ticket.completed) {
+                        // Если сдан идеально (без ошибок) - Charged
+                        // Если сдан с ошибками - Damaged (требует пересдачи для идеала)
                         status = (ticket.score && ticket.score >= 100) ? 'charged' : 'damaged';
                       } else if (progress > 0) {
                         status = 'charging';
@@ -774,6 +884,7 @@ const Tests = () => {
                         <TicketCore
                           key={ticket.id}
                           number={ticketNumber}
+                          progress={progress}
                           status={status}
                           onClick={() => navigate(`/learn/${selectedCountry}/ticket/${ticketId}`)}
                         />
@@ -781,25 +892,25 @@ const Tests = () => {
                     })}
                   </div>
 
-                  {/* Legend - Vision OS Style */}
-                  <div className="flex flex-wrap items-center gap-8 p-8 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-xl mx-4">
+                  {/* Legend */}
+                  <div className="flex flex-wrap items-center gap-6 p-6 rounded-[2rem] bg-slate-950/20 border border-white/5 backdrop-blur-md">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
-                        <Check className="w-4 h-4 text-emerald-400" />
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center justify-center">
+                        <Star className="w-5 h-5 text-emerald-400 fill-emerald-400" />
                       </div>
-                      <span className="text-sm font-light text-white/70 tracking-wide">Сдано идеально</span>
+                      <span className="text-xs font-black text-emerald-100/70 uppercase tracking-widest">Charged</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-500/40 flex items-center justify-center">
-                        <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                      <div className="w-10 h-10 rounded-xl bg-orange-500/20 border border-orange-500/50 shadow-[0_0_15px_rgba(245,158,11,0.3)] flex items-center justify-center">
+                        <div className="w-5 h-5 rounded-full border-2 border-orange-400 border-t-transparent animate-spin" />
                       </div>
-                      <span className="text-sm font-light text-white/70 tracking-wide">В процессе</span>
+                      <span className="text-xs font-black text-orange-100/70 uppercase tracking-widest">Charging</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-xl bg-white/5 border border-white/20 flex items-center justify-center">
-                        <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                      <div className="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.3)] flex items-center justify-center">
+                        <AlertIcon className="w-5 h-5 text-red-400" />
                       </div>
-                      <span className="text-sm font-light text-white/70 tracking-wide">Не начато</span>
+                      <span className="text-xs font-black text-red-100/70 uppercase tracking-widest">Damaged</span>
                     </div>
                   </div>
                 </div>

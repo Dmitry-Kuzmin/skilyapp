@@ -17,6 +17,7 @@ interface SegmentedExamProgressProps {
     isCorrect: boolean;
   }>;
   className?: string;
+  miniMode?: boolean;
 }
 
 export function SegmentedExamProgress({
@@ -26,6 +27,7 @@ export function SegmentedExamProgress({
   penaltyQuestions,
   answers,
   className,
+  miniMode = false,
 }: SegmentedExamProgressProps) {
   const mainBlocksCount = 4;
 
@@ -58,7 +60,7 @@ export function SegmentedExamProgress({
           isPenalty && "p-1.5 rounded-xl border-2 border-orange-500/40 bg-orange-500/5 shadow-[0_0_15px_rgba(249,115,22,0.1)]"
         )}
       >
-        {isPenalty && (
+        {isPenalty && !miniMode && (
           <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-orange-500 text-[9px] font-black text-white uppercase tracking-widest shadow-lg">
             <AlertCircle className="w-2.5 h-2.5" />
             <span>Штраф</span>
@@ -125,21 +127,26 @@ export function SegmentedExamProgress({
         {Array.from({ length: mainBlocksCount }).map((_, i) => renderBlock(i))}
       </div>
 
-      {/* Штрафные блоки */}
+      {/* Штрафные блоки - separated by gap */}
       <AnimatePresence mode="popLayout">
         {penaltyQuestions > 0 && (
-          <motion.div
-            layout
-            initial={{ opacity: 0, x: 20, scale: 0.8 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 20, scale: 0.8 }}
-            className="flex gap-4 items-center"
-            style={{ flex: penaltyQuestions / questionsPerBlock }}
-          >
-            {Array.from({ length: penaltyQuestions / questionsPerBlock }).map((_, i) =>
-              renderBlock(mainBlocksCount + i, true)
-            )}
-          </motion.div>
+          <>
+            {/* Visual separator in miniMode */}
+            {miniMode && <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1" />}
+
+            <motion.div
+              layout
+              initial={{ opacity: 0, x: 20, scale: 0.8 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 20, scale: 0.8 }}
+              className={cn("flex gap-2 items-center", miniMode ? "ml-2" : "gap-4")}
+              style={{ flex: penaltyQuestions / questionsPerBlock }}
+            >
+              {Array.from({ length: Math.ceil(penaltyQuestions / questionsPerBlock) }).map((_, i) =>
+                renderBlock(mainBlocksCount + i, true)
+              )}
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>

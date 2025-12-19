@@ -4,8 +4,10 @@ import { useParams, useNavigate, useSearchParams, useLocation } from "react-rout
 import { useUserContext } from "@/contexts/UserContext";
 import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical, Trophy, ArrowRight } from "lucide-react";
 import { QuestionProgressBar } from "@/components/QuestionProgressBar";
-import { SegmentedExamProgress } from "@/components/exam/SegmentedExamProgress";
+import { ExamHeader } from "@/components/exam/ExamHeader";
 import { PenaltyAlert } from "@/components/exam/PenaltyAlert";
+import { useExamTimer } from "@/hooks/useExamTimer";
+import { ExamFailureModal } from "@/components/exam/ExamFailureModal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -266,7 +268,7 @@ const TestSession = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [timeLeft, setTimeLeft] = useState(initialTimeBudget);
+  // Removed local timeLeft state, using hook instead
   const [loading, setLoading] = useState(true);
   const [showQuestionMap, setShowQuestionMap] = useState(false);
   const [dragStartY, setDragStartY] = useState(0);
@@ -289,6 +291,8 @@ const TestSession = () => {
   // Состояние для модального окна штрафа в exam-russia
   const [showPenaltyAlert, setShowPenaltyAlert] = useState(false);
   const [penaltyBlock, setPenaltyBlock] = useState<number | null>(null);
+  const [showFailureModal, setShowFailureModal] = useState(false);
+  const [failureReason, setFailureReason] = useState<string>("");
   const [isAnswerLocked, setIsAnswerLocked] = useState(false);
   const [voiceOver, setVoiceOver] = useState(() => {
     const saved = localStorage.getItem('test-voice-over');
@@ -1000,6 +1004,28 @@ const TestSession = () => {
   // Хук для управления экзаменом РФ
   const russiaExam = useRussiaExam(universalPDDQuestions || [], allQuestionsByBlock);
 
+  // Timer Hook - Manages time robustly (Moved here to have access to state)
+  const { timeLeft, addPenalty, clearTimer } = useExamTimer({
+    examId: mode === 'pdd-ticket'
+      ? `ticket_${ticketIdParam || 'unknown'}`
+      : `russia_exam_${testId || 'random'}`,
+    initialDurationSeconds: 20 * 60,
+    onTimeExpired: (mode === 'exam' || mode === 'exam-russia') ? () => {
+      toast.error("Время вышло! Экзамен не сдан.");
+      navigate('/test/results', {
+        state: {
+          questions: questions,
+          answers: answers,
+          mode: mode,
+          testInfo: testInfo,
+          timeSpent: 20 * 60 + (russiaExam.state?.extraTimeAdded || 0),
+          russiaExamStats: russiaExam.stats,
+        },
+      });
+    } : undefined,
+    sessionId: getOrCreateSessionId()
+  });
+
   // Формируем массив ответов для прогресс-бара РФ
   const russiaExamAnswers = useMemo(() => {
     if (!russiaExam.state) return [];
@@ -1016,6 +1042,26 @@ const TestSession = () => {
 
     return [...main, ...extra];
   }, [russiaExam.state]);
+
+  // Обработка успешного завершения экзамена РФ
+  useEffect(() => {
+    if (mode === 'exam-russia' && russiaExam.status === 'passed') {
+      // Небольшая задержка для завершения анимаций
+      const timer = setTimeout(() => {
+        navigate('/test/results', {
+          state: {
+            questions: questions,
+            answers: answers,
+            mode: mode,
+            testInfo: testInfo,
+            timeSpent: russiaExam.stats?.timeSpent ?? 0,
+            russiaExamStats: russiaExam.stats,
+          },
+        });
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [mode, russiaExam.status, russiaExam.stats, questions, answers, testInfo, navigate]);
 
   // ОПТИМИЗАЦИЯ: Загружаем вопросы из хуков в зависимости от режима
   useEffect(() => {
@@ -1270,7 +1316,8 @@ const TestSession = () => {
         }));
         setQuestions(convertedQuestions);
         setTestInfo({ id: 'exam_russia', title: '🚦 Экзамен ПДД РФ' });
-        setTimeLeft(russiaExam.timeRemaining);
+        // setTimeLeft removed - handled by hook
+
         setLoading(false);
       } else if (pddExamQuestions.isLoading) {
         setLoading(true);
@@ -1348,7 +1395,7 @@ const TestSession = () => {
 
         // Проверяем доступность теста и устанавливаем статус
         if (profileId) {
-          supabase
+          (supabase as any)
             .from("user_test_progress")
             .select("*")
             .eq("user_id", profileId)
@@ -1361,7 +1408,7 @@ const TestSession = () => {
                 return;
               }
               setStartTime(Date.now());
-              supabase
+              (supabase as any)
                 .from("user_test_progress")
                 .upsert({
                   user_id: profileId,
@@ -1381,7 +1428,7 @@ const TestSession = () => {
               if (error?.code === 'PGRST116') {
                 // Запись не найдена - это нормально, создаем новую
                 setStartTime(Date.now());
-                supabase
+                (supabase as any)
                   .from("user_test_progress")
                   .upsert({
                     user_id: profileId,
@@ -1391,8 +1438,8 @@ const TestSession = () => {
                   }, {
                     onConflict: 'user_id,test_id'
                   })
-                  .catch((upsertError) => {
-                    console.error("[TestSession] Ошибка создания прогресса:", upsertError);
+                  .then(({ error: upsertError }) => {
+                    if (upsertError) console.error("[TestSession] Ошибка создания прогресса:", upsertError);
                   });
               } else {
                 // Другая ошибка - логируем, но не блокируем тест
@@ -1482,8 +1529,7 @@ const TestSession = () => {
 
     try {
       console.log('[Bookmark] Checking if bookmarked:', { profileId, questionId: questions[currentIndex].id });
-      const { data, error } = await supabase
-        .from('user_challenge_questions')
+      const { data, error } = await (supabase as any).from('user_challenge_questions')
         .select('id')
         .eq('user_id', profileId)
         .eq('question_id', questions[currentIndex].id)
@@ -1534,7 +1580,7 @@ const TestSession = () => {
       if (isQuestionBookmarked) {
         // Удаляем из закладок
         console.log('[Bookmark] Removing bookmark:', { profileId, questionId });
-        const { error, data } = await supabase
+        const { error, data } = await (supabase as any)
           .from('user_challenge_questions')
           .delete()
           .eq('user_id', profileId)
@@ -1554,7 +1600,7 @@ const TestSession = () => {
         console.log('[Bookmark] Adding bookmark:', { profileId, questionId });
 
         // Сначала проверяем, есть ли уже запись
-        const { data: existing, error: checkError } = await supabase
+        const { data: existing, error: checkError } = await (supabase as any)
           .from('user_challenge_questions')
           .select('id, times_wrong')
           .eq('user_id', profileId)
@@ -1576,7 +1622,7 @@ const TestSession = () => {
         } else {
           // Создаем новую запись с times_wrong = 0 (добавлено вручную)
           console.log('[Bookmark] Inserting new bookmark');
-          const { data: insertData, error: insertError } = await supabase
+          const { data: insertData, error: insertError } = await (supabase as any)
             .from('user_challenge_questions')
             .insert({
               user_id: profileId,
@@ -1668,20 +1714,7 @@ const TestSession = () => {
     return () => clearTimeout(timeoutId);
   }, [currentIndex, questions, loading]);
 
-  useEffect(() => {
-    if ((mode === "exam" || mode === "blitz" || mode === "exam-russia") && timeLeft > 0) {
-      const timer = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            finishTest();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [mode, timeLeft]);
+
 
   const loadQuestions = async () => {
     try {
@@ -1689,7 +1722,7 @@ const TestSession = () => {
 
       // Если это режим Challenge Bank, загружаем вопросы с ошибками
       if (mode === 'challenge-bank' && profileId) {
-        const { data: challengeQuestions, error: challengeError } = await supabase
+        const { data: challengeQuestions, error: challengeError } = await (supabase as any)
           .rpc('get_challenge_bank_questions', {
             p_user_id: profileId,
             p_limit: 30,
@@ -1733,7 +1766,7 @@ const TestSession = () => {
       }
       // Режим Mastery - случайные вопросы для прохождения "до победного"
       else if (mode === 'mastery') {
-        let query = supabase
+        let query = (supabase as any)
           .from("questions_new")
           .select(`
             *,
@@ -1763,7 +1796,7 @@ const TestSession = () => {
       else if (mode === 'hardest') {
         // TODO: Загружать из статистики самые сложные вопросы
         // Пока загружаем случайные вопросы
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
           .from("questions_new")
           .select(`
             *,
@@ -1788,7 +1821,7 @@ const TestSession = () => {
         const category = topic.toUpperCase();
 
         // Загружаем случайные 30 вопросов из DGT базы
-        const { data: dgtQuestions, error: dgtError } = await supabase
+        const { data: dgtQuestions, error: dgtError } = await (supabase as any)
           .rpc('get_random_dgt_questions', {
             p_category: category,
             p_limit: 30
@@ -1854,7 +1887,7 @@ const TestSession = () => {
       }
       // Итоговый тест по модулю: короткий экзамен по одной теме
       else if (mode === "module" && topic) {
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
           .from("questions_new")
           .select(
             `
@@ -1887,7 +1920,7 @@ const TestSession = () => {
       // Если это sequential тест, загружаем вопросы через функцию
       else if (testId) {
         // Получаем информацию о тесте
-        const { data: testData, error: testError } = await supabase
+        const { data: testData, error: testError } = await (supabase as any)
           .from("tests")
           .select(`
             *,
@@ -1906,7 +1939,7 @@ const TestSession = () => {
 
         // Проверяем доступность теста
         if (profileId) {
-          const { data: progressData } = await supabase
+          const { data: progressData } = await (supabase as any)
             .from("user_test_progress")
             .select("*")
             .eq("user_id", profileId)
@@ -1921,7 +1954,7 @@ const TestSession = () => {
 
           // Устанавливаем статус "in_progress" и время начала
           setStartTime(Date.now());
-          await supabase
+          (supabase as any)
             .from("user_test_progress")
             .upsert({
               user_id: profileId,
@@ -1934,7 +1967,7 @@ const TestSession = () => {
         }
 
         // Загружаем вопросы через функцию
-        const { data: questionsData, error: questionsError } = await supabase.rpc(
+        const { data: questionsData, error: questionsError } = await (supabase as any).rpc(
           'get_test_questions',
           { p_test_id: testId }
         );
@@ -1968,7 +2001,7 @@ const TestSession = () => {
         // Получаем информацию о теме (уже загружена через join или загружаем отдельно)
         let topicData = testData.topics;
         if (!topicData && testData.topic_id) {
-          const { data: loadedTopicData } = await supabase
+          const { data: loadedTopicData } = await (supabase as any)
             .from("topics")
             .select("title_ru, title_es")
             .eq("id", testData.topic_id)
@@ -2012,7 +2045,7 @@ const TestSession = () => {
         let profileId = null;
 
         if (user) {
-          const { data: profile } = await supabase
+          const { data: profile } = await (supabase as any)
             .from("profiles")
             .select("id")
             .eq("user_id", user.id)
@@ -2020,7 +2053,7 @@ const TestSession = () => {
           profileId = profile?.id;
         }
 
-        let query = supabase
+        let query = (supabase as any)
           .from("questions_new")
           .select(`
           *,
@@ -2092,18 +2125,18 @@ const TestSession = () => {
       const result = russiaExam.handleAnswer(isCorrect);
 
       if (!result.shouldContinue) {
-        // Провал экзамена
-        toast.error(result.failureReason || "Экзамен не сдан");
-        // Переходим на результаты
-        navigate('/test/results', {
-          state: {
-            questions: questions,
-            answers: answers,
-            mode: mode,
-            testInfo: testInfo,
-            timeSpent: Math.floor((Date.now() - startTime) / 1000),
-          },
-        });
+        // Провал экзамена - показываем модалку вместо мгновенного перехода
+        setFailureReason(result.failureReason || "Экзамен не сдан");
+        setShowFailureModal(true);
+        // Не блокируем UI сразу, позволяем модалке перекрыть всё
+
+        // Обновляем состояние ответа, чтобы пользователь видел свою ошибку под модалкой (если видно)
+        const newAnswer: Answer = {
+          questionId: russiaExam.currentQuestion.id,
+          selectedAnswerId: answerId,
+          isCorrect,
+        };
+        setAnswers([...answers, newAnswer]);
         return;
       }
 
@@ -2113,9 +2146,9 @@ const TestSession = () => {
         setPenaltyBlock(result.blockId || null);
         setShowPenaltyAlert(true);
 
-        // Добавляем штрафное время
+        // Добавляем штрафное время (используем хук таймера)
         if (result.extraTime) {
-          setTimeLeft(prev => prev + result.extraTime);
+          addPenalty(result.extraTime / 60); // Hook expects minutes
           toast.info(`+${Math.floor(result.extraTime / 60)} минут добавлено за ошибку`, {
             icon: "⏱️",
             className: "bg-orange-500 text-white border-none",
@@ -2147,20 +2180,8 @@ const TestSession = () => {
       };
       setAnswers([...answers, newAnswer]);
 
-      // Если экзамен завершен (сдан или провален)
-      if (russiaExam.status === 'passed' || russiaExam.status === 'failed' || russiaExam.status === 'failed-extra') {
-        navigate('/test/results', {
-          state: {
-            questions: questions,
-            answers: [...answers, newAnswer],
-            mode: mode,
-            testInfo: testInfo,
-            timeSpent: Math.floor((Date.now() - startTime) / 1000),
-            russiaExamStats: russiaExam.stats,
-          },
-        });
-        return;
-      }
+      // Если экзамен завершен (сдан или провален) - это теперь обрабатывается в useEffect
+
 
       // Переходим к следующему вопросу
       if (russiaExam.isExtraMode) {
@@ -2254,7 +2275,7 @@ const TestSession = () => {
 
         // Добавляем или обновляем вопрос в Challenge Bank
         // @ts-ignore - таблица user_challenge_questions существует в БД, но типы не обновлены
-        const { data: existing, error: selectError } = await supabase
+        const { data: existing, error: selectError } = await (supabase as any)
           .from('user_challenge_questions')
           .select('id, times_wrong')
           .eq('user_id', profileId)
@@ -2268,7 +2289,7 @@ const TestSession = () => {
         if (existing) {
           // Обновляем существующую запись
           // @ts-ignore - таблица user_challenge_questions существует в БД, но типы не обновлены
-          const { error: updateError } = await supabase
+          const { error: updateError } = await (supabase as any)
             .from('user_challenge_questions')
             .update({
               times_wrong: existing.times_wrong + 1,
@@ -2286,7 +2307,7 @@ const TestSession = () => {
         } else {
           // Создаем новую запись
           // @ts-ignore - таблица user_challenge_questions существует в БД, но типы не обновлены
-          const { error: insertError } = await supabase
+          const { error: insertError } = await (supabase as any)
             .from('user_challenge_questions')
             .insert({
               user_id: profileId,
@@ -2328,17 +2349,18 @@ const TestSession = () => {
             last_attempt_at: new Date().toISOString(),
           };
 
-          await supabase
+          const { error } = await (supabase as any)
             .from("user_progress")
             .upsert(progressData, {
               onConflict: 'user_id,question_id',
-            })
-            .catch((error) => {
-              // Игнорируем ошибки 409 (Conflict) - это нормально при параллельных запросах
-              if (error?.code !== '23505' && !error?.message?.includes('409')) {
-                console.error('[TestSession] Error upserting user_progress:', error);
-              }
             });
+
+          if (error) {
+            // Игнорируем ошибки 409 (Conflict) - это нормально при параллельных запросах
+            if (error.code !== '23505' && !error.message?.includes('409')) {
+              console.error('[TestSession] Error upserting user_progress:', error);
+            }
+          }
         }
       }
     } catch (error) {
@@ -2493,7 +2515,7 @@ const TestSession = () => {
     try {
       // Если это sequential тест, обновляем прогресс через функцию
       if (testId && profileId) {
-        const { error: progressError } = await supabase.rpc('update_test_progress', {
+        const { error: progressError } = await (supabase as any).rpc('update_test_progress', {
           p_user_id: profileId,
           p_test_id: testId,
           p_correct_answers: correctCount,
@@ -2509,7 +2531,7 @@ const TestSession = () => {
       // Для module-теста сохраняем прогресс по теме с мягким порогом (>= 70%)
       if (mode === "module" && profileId && topic) {
         try {
-          await supabase
+          await (supabase as any)
             .from("user_topic_progress")
             .upsert(
               {
@@ -2529,7 +2551,7 @@ const TestSession = () => {
       // Сохраняем в game_sessions для совместимости
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data: profile } = await supabase
+        const { data: profile } = await (supabase as any)
           .from("profiles")
           .select("id")
           .eq("user_id", user.id)
@@ -2553,7 +2575,7 @@ const TestSession = () => {
             duration_seconds: Math.min(Math.max(0, duration), 7200), // Ensure 0-7200 range
           };
 
-          await supabase.from("game_sessions").insert(sessionData);
+          await (supabase as any).from("game_sessions").insert(sessionData);
         }
       }
     } catch (error) {
@@ -2829,76 +2851,16 @@ const TestSession = () => {
             mode === 'exam-russia' ? "sticky top-0 z-50 -mx-4 px-4 py-4 bg-background/95 backdrop-blur-md border-b border-border/50" : "-mt-6 sm:-mt-3 md:mt-0"
           )}>
             {mode === 'exam-russia' && russiaExam.state && russiaExam.progress ? (
-              <div className="max-w-5xl mx-auto space-y-6">
-                {/* Инфо-панель: Таймер, Прогресс и Ошибки в один ряд для десктопа */}
-                <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8">
-                  {/* Таймер (Слева) */}
-                  <div className="flex items-center gap-3 w-full md:w-32 justify-center md:justify-start">
-                    <motion.div
-                      animate={timeLeft < 300 ? {
-                        backgroundColor: ['rgba(239, 68, 68, 0.1)', 'rgba(239, 68, 68, 0.2)', 'rgba(239, 68, 68, 0.1)'],
-                        borderColor: ['rgba(239, 68, 68, 0.3)', 'rgba(239, 68, 68, 0.6)', 'rgba(239, 68, 68, 0.3)'],
-                      } : {}}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-xl border-2 transition-all duration-500 shadow-sm",
-                        timeLeft < 300
-                          ? "border-red-500/50 bg-red-500/10"
-                          : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
-                      )}
-                    >
-                      <Clock className={cn(
-                        "w-5 h-5",
-                        timeLeft < 300 ? "text-red-500" : "text-blue-500"
-                      )} />
-                      <span className={cn(
-                        "font-mono font-black text-2xl tabular-nums tracking-tight",
-                        timeLeft < 300 ? "text-red-500" : "text-slate-900 dark:text-slate-100"
-                      )}>
-                        {formatTime(timeLeft)}
-                      </span>
-                    </motion.div>
-                  </div>
-
-                  {/* SegmentedExamProgress (Центр) */}
-                  <div className="flex-1 w-full max-w-2xl">
-                    <SegmentedExamProgress
-                      currentQuestion={
-                        russiaExam.isExtraMode
-                          ? 20 + russiaExam.progress.current
-                          : russiaExam.progress.current
-                      }
-                      totalMainQuestions={20}
-                      questionsPerBlock={5}
-                      penaltyQuestions={russiaExam.state.extraQuestions.length}
-                      answers={russiaExamAnswers}
-                      className="py-1"
-                    />
-                  </div>
-
-                  {/* Счетчик ошибок (Справа) */}
-                  <div className="flex items-center gap-3 w-full md:w-32 justify-center md:justify-end">
-                    <div className={cn(
-                      "flex flex-col items-center px-4 py-1.5 rounded-xl border-2 transition-all duration-300 shadow-sm",
-                      russiaExam.stats && russiaExam.stats.totalErrors > 0
-                        ? russiaExam.stats.totalErrors >= 2
-                          ? "border-red-500/50 bg-red-500/10"
-                          : "border-orange-500/50 bg-orange-500/10"
-                        : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
-                    )}>
-                      <span className={cn(
-                        "font-black text-lg leading-none",
-                        russiaExam.stats && russiaExam.stats.totalErrors > 0
-                          ? russiaExam.stats.totalErrors >= 2 ? "text-red-600" : "text-orange-600"
-                          : "text-slate-400"
-                      )}>
-                        {russiaExam.stats?.totalErrors || 0}/2
-                      </span>
-                      <span className="text-[10px] uppercase tracking-widest font-bold text-slate-500 mt-0.5">Ошибки</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <ExamHeader
+                timeLeft={timeLeft}
+                totalQuestions={20}
+                currentQuestionIndex={russiaExam.isExtraMode ? 20 + russiaExam.progress.current - 1 : russiaExam.progress.current - 1}
+                extraQuestionsCount={russiaExam.state.extraQuestions.length}
+                answers={russiaExamAnswers}
+                errorsCount={russiaExam.stats?.totalErrors || 0}
+                maxErrors={2} // Max allowed errors
+                mode="exam-russia"
+              />
             ) : (
               <QuestionProgressBar
                 currentIndex={currentIndex}
@@ -3821,28 +3783,48 @@ const TestSession = () => {
 
       {/* Penalty Alert Modal для exam-russia */}
       {mode === 'exam-russia' && (
-        <PenaltyAlert
-          open={showPenaltyAlert}
-          blockNumber={penaltyBlock || 0}
-          questionsAdded={russiaExam.state?.extraQuestions.length || 0}
-          minutesAdded={5}
-          onContinue={() => {
-            setShowPenaltyAlert(false);
-            setPenaltyBlock(null);
-            setIsAnswerLocked(false);
+        <>
+          <PenaltyAlert
+            open={showPenaltyAlert}
+            blockNumber={penaltyBlock || 0}
+            questionsAdded={russiaExam.state?.extraQuestions.length || 0}
+            minutesAdded={5}
+            onContinue={() => {
+              setShowPenaltyAlert(false);
+              setPenaltyBlock(null);
+              setIsAnswerLocked(false);
 
-            // Переходим к следующему вопросу
-            if (russiaExam.isExtraMode) {
-              setCurrentIndex(russiaExam.progress.current - 1);
-            } else {
-              setCurrentIndex(russiaExam.progress.current - 1);
-            }
+              // Переходим к следующему вопросу
+              if (russiaExam.isExtraMode) {
+                setCurrentIndex(russiaExam.progress.current - 1);
+              } else {
+                setCurrentIndex(russiaExam.progress.current - 1);
+              }
 
-            setSelectedOption(null);
-            setIsTransitioning(true);
-            setTimeout(() => setIsTransitioning(false), 300);
-          }}
-        />
+              setSelectedOption(null);
+              setIsTransitioning(true);
+              setTimeout(() => setIsTransitioning(false), 300);
+            }}
+          />
+
+          <ExamFailureModal
+            open={showFailureModal}
+            reason={failureReason}
+            onViewResults={() => {
+              navigate('/test/results', {
+                state: {
+                  questions: questions,
+                  answers: answers,
+                  mode: mode,
+                  testInfo: testInfo,
+                  // Используем timeSpent из статистики, если есть
+                  timeSpent: russiaExam.stats?.timeSpent ?? Math.floor((Date.now() - startTime) / 1000),
+                  russiaExamStats: russiaExam.stats,
+                },
+              });
+            }}
+          />
+        </>
       )}
     </Layout>
   );
