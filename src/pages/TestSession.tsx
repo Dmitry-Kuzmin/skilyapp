@@ -2274,7 +2274,17 @@ useEffect(() => {
             last_attempt_at: new Date().toISOString(),
           };
           
-          await supabase.from("user_progress").upsert(progressData);
+          await supabase
+            .from("user_progress")
+            .upsert(progressData, {
+              onConflict: 'user_id,question_id',
+            })
+            .catch((error) => {
+              // Игнорируем ошибки 409 (Conflict) - это нормально при параллельных запросах
+              if (error?.code !== '23505' && !error?.message?.includes('409')) {
+                console.error('[TestSession] Error upserting user_progress:', error);
+              }
+            });
         }
       }
     } catch (error) {
