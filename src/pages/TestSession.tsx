@@ -2747,8 +2747,24 @@ useEffect(() => {
                 )}
               </>
             }
-            />
-          )}
+            SettingsMenuComponent={
+              <TestSettingsMenu
+                open={showTestSettings}
+                onOpenChange={setShowTestSettings}
+                voiceOver={voiceOver}
+                onVoiceOverChange={setVoiceOver}
+                answerPopularity={answerPopularity}
+                onAnswerPopularityChange={setAnswerPopularity}
+                ambientMusic={ambientMusic}
+                onAmbientMusicChange={setAmbientMusic}
+                fontSize={fontSize}
+                onFontSizeChange={setFontSize}
+                language={testLanguage}
+                onLanguageChange={setTestLanguage}
+                hideLanguageSelector={mode === 'pdd-ticket' || mode === 'exam-russia'}
+              />
+            }
+          />
         </div>
 
 
