@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { checkRateLimit, getClientIP } from '../_shared/rate-limit.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -219,6 +220,38 @@ Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // 🛑 RATE LIMITING - защита от DDoS (AI дорогая операция)
+  const clientIP = getClientIP(req);
+  const rateLimit = await checkRateLimit({
+    identifier: clientIP,
+    limit: 30, // 30 запросов (AI дорогое)
+    windowMs: 60000, // в минуту
+  });
+  
+  if (!rateLimit.allowed) {
+    console.warn('[ai-chat] Rate limit exceeded:', {
+      ip: clientIP,
+      remaining: rateLimit.remaining,
+      resetAt: new Date(rateLimit.resetAt).toISOString(),
+    });
+    
+    return new Response(
+      JSON.stringify({ 
+        error: 'Rate limit exceeded',
+        message: 'AI chat is rate limited. Please wait before trying again.',
+        retryAfter: Math.ceil((rateLimit.resetAt - Date.now()) / 1000),
+      }),
+      { 
+        status: 429,
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+          'Retry-After': String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)),
+        },
+      }
+    );
   }
 
   try {

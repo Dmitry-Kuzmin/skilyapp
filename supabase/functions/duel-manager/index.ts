@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+import { checkRateLimit, getClientIP } from '../_shared/rate-limit.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -1277,6 +1278,38 @@ async function createNotification(body: any, profileId: string, supabase: any): 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // 🛑 RATE LIMITING - защита от DDoS
+  const clientIP = getClientIP(req);
+  const rateLimit = await checkRateLimit({
+    identifier: clientIP,
+    limit: 100, // 100 запросов
+    windowMs: 60000, // в минуту
+  });
+  
+  if (!rateLimit.allowed) {
+    console.warn('[duel-manager] Rate limit exceeded:', {
+      ip: clientIP,
+      remaining: rateLimit.remaining,
+      resetAt: new Date(rateLimit.resetAt).toISOString(),
+    });
+    
+    return new Response(
+      JSON.stringify({ 
+        error: 'Rate limit exceeded',
+        message: 'Too many requests. Please try again later.',
+        retryAfter: Math.ceil((rateLimit.resetAt - Date.now()) / 1000),
+      }),
+      { 
+        status: 429,
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+          'Retry-After': String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)),
+        },
+      }
+    );
   }
 
   try {

@@ -1,177 +1,118 @@
-# ✅ Финальный чеклист - Telegram Stars Payment System
+# ✅ Финальный чеклист защиты
 
-## 🎉 Что уже настроено:
-
-- ✅ Миграция БД создана (`20250120000000_create_telegram_stars_payment_system.sql`)
-- ✅ Edge Functions задеплоены:
-  - `telegram-stars-payment` ✅
-  - `stars-payment-retry` ✅
-- ✅ Frontend компоненты созданы:
-  - `StarsPaymentButton` ✅
-  - `PaywallModal` обновлен ✅
-- ✅ GitHub Actions workflow создан и запушен ✅
-- ✅ Секрет `SUPABASE_ANON_KEY` добавлен в GitHub ✅
+**Статус:** 🟡 Почти готово (90%)  
+**Осталось:** 2 простых шага
 
 ---
 
-## 🧪 Финальное тестирование
+## ✅ Что уже сделано
 
-### Шаг 1: Протестировать GitHub Actions workflow
-
-1. **Откройте GitHub → Actions:**
-   - https://github.com/Dmitry-Kuzmin/sdadim-dgt-prep/actions
-
-2. **Найдите workflow "Stars Payment Retry"**
-
-3. **Запустите вручную:**
-   - Нажмите на workflow
-   - Нажмите **"Run workflow"** (справа вверху)
-   - Выберите ветку `feature/premium-race-game`
-   - Нажмите **"Run workflow"**
-
-4. **Проверьте выполнение:**
-   - Откройте запущенный workflow
-   - Нажмите на job **"retry"**
-   - Проверьте логи - должно быть:
-     ```
-     🔄 Запуск retry начислений Stars Payment...
-     Ответ от функции:
-     {
-       "success": true,
-       "processed": 0,
-       "succeeded": 0,
-       "failed": 0,
-       "manual_review": 0,
-       "errors": [],
-       "timestamp": "..."
-     }
-     ✅ Retry выполнен успешно!
-     ```
-
-**Если видите `✅ Retry выполнен успешно!` - всё работает!**
+- [x] ✅ Upstash база данных создана
+- [x] ✅ Секреты добавлены в Supabase
+- [x] ✅ Rate Limiting добавлен в код:
+  - [x] `duel-manager` (100 запросов/мин)
+  - [x] `coins-spend` (50 запросов/мин)
+  - [x] `ai-chat` (30 запросов/мин)
+- [x] ✅ Миграция Feature Flags создана
+- [x] ✅ Хук `useFeatureFlag` создан
 
 ---
 
-### Шаг 2: Проверить, что миграция применена
+## ⏭️ Что осталось сделать (15 минут)
 
-В Supabase Dashboard → SQL Editor выполните:
+### 1. Применить миграцию Feature Flags (5 минут)
 
+**Шаги:**
+1. Откройте Supabase Dashboard → SQL Editor
+2. Откройте файл: `supabase/migrations/20250101000000_app_config_feature_flags.sql`
+3. Скопируйте весь SQL код
+4. Вставьте в SQL Editor и нажмите **Run**
+
+**Проверка:**
 ```sql
--- Проверить, что таблицы созданы
-SELECT table_name 
-FROM information_schema.tables 
-WHERE table_schema = 'public' 
-  AND table_name IN ('pricing_packages', 'stars_payments');
-
--- Проверить, что пакеты инициализированы
-SELECT package_key, price_coins, premium_days, coins_amount 
-FROM pricing_packages 
-WHERE is_active = true;
+SELECT * FROM app_config;
+-- Должны быть 4 записи
 ```
-
-**Ожидаемый результат:** Должны быть таблицы и 6 пакетов (2 Premium + 4 пакета монет)
 
 ---
 
-### Шаг 3: Проверить Edge Functions
+### 2. Задеплоить Edge Functions (10 минут)
 
-В Supabase Dashboard → Edge Functions:
-
-- ✅ `telegram-stars-payment` - должна быть задеплоена
-- ✅ `stars-payment-retry` - должна быть задеплоена
-
----
-
-### Шаг 4: Проверить переменные окружения
-
-В Supabase Dashboard → Edge Functions → Settings → Secrets:
-
-- ✅ `TELEGRAM_BOT_TOKEN` - должен быть установлен
-
-**Если нет:**
-1. Получите токен от [@BotFather](https://t.me/BotFather)
-2. Добавьте в Supabase Dashboard → Edge Functions → Settings → Secrets
-3. Name: `TELEGRAM_BOT_TOKEN`
-4. Value: ваш токен бота
-
----
-
-### Шаг 5: Настроить Telegram Bot Webhook
-
-**Вариант A: Через браузер (быстрый способ)**
-
-Откройте в браузере (замените `YOUR_BOT_TOKEN`):
-
-```
-https://api.telegram.org/botYOUR_BOT_TOKEN/setWebhook?url=https://yffjnqegeiorunyvcxkn.supabase.co/functions/v1/telegram-stars-payment&allowed_updates=["pre_checkout_query","message"]
-```
-
-**Вариант B: Через скрипт**
-
+**Вариант A: Через Supabase CLI**
 ```bash
-./scripts/setup-telegram-webhook.sh YOUR_BOT_TOKEN
+supabase functions deploy duel-manager
+supabase functions deploy coins-spend
+supabase functions deploy ai-chat
 ```
 
-**Проверка webhook:**
+**Вариант B: Через Dashboard**
+1. Supabase Dashboard → Edge Functions
+2. Для каждой функции:
+   - Откройте функцию
+   - Нажмите **"Deploy"** или **"Redeploy"**
 
-```
-https://api.telegram.org/botYOUR_BOT_TOKEN/getWebhookInfo
-```
-
-Должен вернуться JSON с вашим webhook URL.
+**Функции:**
+- [ ] `duel-manager`
+- [ ] `coins-spend`
+- [ ] `ai-chat`
 
 ---
 
-## ✅ Итоговый статус
+### 3. Отключить Spend Cap (2 минуты) - КРИТИЧНО
 
-### Готово к использованию:
-- ✅ База данных настроена
-- ✅ Edge Functions задеплоены
-- ✅ Frontend компоненты готовы
-- ✅ GitHub Actions настроен
-- ✅ Секреты добавлены
+**Шаги:**
+1. Supabase Dashboard → Settings → Billing
+2. Найдите **"Spend Cap"** или **"Usage Limits"**
+3. **Отключите** (переключите в OFF)
+4. Сохраните
 
-### Осталось настроить:
-- ⏳ `TELEGRAM_BOT_TOKEN` в Supabase (если еще не настроен)
-- ⏳ Telegram Bot Webhook (если еще не настроен)
+**Почему критично:** Без этого при достижении лимитов API перестанет отвечать.
 
 ---
 
-## 🎯 Что будет работать после полной настройки:
+## ✅ Проверка после деплоя
 
-1. **Пользователь нажимает "Оплатить ⭐"** в Telegram Mini App
-2. **Открывается нативное окно Telegram Stars**
-3. **Пользователь оплачивает**
-4. **Telegram отправляет webhook** → `telegram-stars-payment`
-5. **Начисляются награды** (Premium/монеты)
-6. **Если ошибка** → GitHub Actions автоматически повторит через 5 минут
+### Тест Rate Limiting:
 
----
+1. **Нормальный запрос:**
+   ```bash
+   curl -X POST https://your-project.supabase.co/functions/v1/duel-manager \
+     -H "Authorization: Bearer YOUR_TOKEN" \
+     -d '{"action": "create_duel", "num_questions": 10}'
+   ```
+   Должен вернуть 200 OK
 
-## 📊 Мониторинг
+2. **Rate Limit:**
+   - Сделайте 101 запрос подряд
+   - После 100-го должен вернуть 429
 
-### Проверить платежи:
+### Тест Feature Flags:
 
 ```sql
-SELECT 
-  id,
-  stars_amount,
-  status,
-  rewards_status,
-  retry_count,
-  created_at
-FROM stars_payments
-ORDER BY created_at DESC
-LIMIT 10;
+-- В Supabase SQL Editor:
+SELECT * FROM app_config;
+-- Должны быть 4 записи
 ```
-
-### Проверить историю GitHub Actions:
-
-GitHub → Actions → Stars Payment Retry → История запусков
 
 ---
 
-## 🎉 Готово!
+## 🎯 Итоговый статус
 
-Система полностью настроена и готова к использованию!
+После выполнения всех шагов:
 
+- ✅ Rate Limiting работает (защита от DDoS)
+- ✅ Feature Flags готовы (можно отключать фичи)
+- ✅ Spend Cap отключен (нет риска остановки)
+- ✅ **Готово к запуску рекламы!** 🚀
+
+---
+
+## 📊 Готовность: 90% → 100%
+
+**Осталось:** 15 минут работы
+
+1. Применить миграцию (5 мин)
+2. Задеплоить функции (10 мин)
+3. Отключить Spend Cap (2 мин)
+
+**После этого:** Полностью защищено и готово к запуску! 🛡️

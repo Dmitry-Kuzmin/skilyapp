@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit, getClientIP } from '../_shared/rate-limit.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,6 +18,38 @@ const COSTS: Record<string, number> = {
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
+  }
+
+  // 🛑 RATE LIMITING - защита от DDoS (строже для платежных операций)
+  const clientIP = getClientIP(req);
+  const rateLimit = await checkRateLimit({
+    identifier: clientIP,
+    limit: 50, // 50 запросов (строже для платежей)
+    windowMs: 60000, // в минуту
+  });
+  
+  if (!rateLimit.allowed) {
+    console.warn('[coins-spend] Rate limit exceeded:', {
+      ip: clientIP,
+      remaining: rateLimit.remaining,
+      resetAt: new Date(rateLimit.resetAt).toISOString(),
+    });
+    
+    return new Response(
+      JSON.stringify({ 
+        error: 'Rate limit exceeded',
+        message: 'Too many requests. Please try again later.',
+        retryAfter: Math.ceil((rateLimit.resetAt - Date.now()) / 1000),
+      }),
+      { 
+        status: 429,
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+          'Retry-After': String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)),
+        },
+      }
+    );
   }
 
   try {
