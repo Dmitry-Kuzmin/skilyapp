@@ -292,11 +292,12 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
     }
 
     // Получаем вопросы по теме (используем массив topics)
-    // Для массивов в Supabase используем оператор @> (contains) или cs (contains)
+    // Для массивов в Supabase используем фильтрацию через .filter() или оператор cs
+    // Альтернативно можно использовать .contains() для проверки наличия элемента в массиве
     let query = supabase
       .from('pdd_russia_questions')
       .select('*')
-      .contains('topics', [topicName]); // Это должно работать для массивов
+      .contains('topics', [topicName]); // Проверяем, содержит ли массив topics элемент topicName
 
     if (count) {
       query = query.limit(count);
@@ -345,33 +346,45 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
       return [];
     }
 
-    // Получаем все уникальные темы и считаем количество вопросов
-    const { data: questions, error } = await supabase
-      .from('pdd_russia_questions')
-      .select('topics');
+    try {
+      // Получаем все уникальные темы и считаем количество вопросов
+      // ОПТИМИЗАЦИЯ: Загружаем только поле topics, не все данные
+      const { data: questions, error } = await supabase
+        .from('pdd_russia_questions')
+        .select('topics')
+        .limit(10000); // Ограничиваем для безопасности
 
-    if (error) throw error;
-
-    if (!questions || questions.length === 0) {
-      return [];
-    }
-
-    // Группируем по темам
-    const topicsMap = new Map<string, number>();
-    
-    questions.forEach((q) => {
-      if (q.topics && Array.isArray(q.topics)) {
-        q.topics.forEach((topic: string) => {
-          const count = topicsMap.get(topic) || 0;
-          topicsMap.set(topic, count + 1);
-        });
+      if (error) {
+        console.error('[RussiaLegacyStrategy] Error fetching topics:', error);
+        throw error;
       }
-    });
 
-    // Преобразуем в массив и сортируем по количеству вопросов (убывание)
-    return Array.from(topicsMap.entries())
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count);
+      if (!questions || questions.length === 0) {
+        return [];
+      }
+
+      // Группируем по темам
+      const topicsMap = new Map<string, number>();
+      
+      questions.forEach((q) => {
+        if (q.topics && Array.isArray(q.topics)) {
+          q.topics.forEach((topic: string) => {
+            if (topic && topic.trim()) { // Пропускаем пустые темы
+              const count = topicsMap.get(topic) || 0;
+              topicsMap.set(topic, count + 1);
+            }
+          });
+        }
+      });
+
+      // Преобразуем в массив и сортируем по количеству вопросов (убывание)
+      return Array.from(topicsMap.entries())
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count);
+    } catch (error) {
+      console.error('[RussiaLegacyStrategy] Error in getTopicsWithCounts:', error);
+      return []; // Возвращаем пустой массив при ошибке
+    }
   }
 }
 
