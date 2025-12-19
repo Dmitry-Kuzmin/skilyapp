@@ -6,8 +6,7 @@
 import { useState, useMemo } from 'react';
 import { useTheme } from 'next-themes';
 import { CountryCode, COUNTRIES_CONFIG, getLicenseCategoriesForCountry, getLicenseCategory, LicenseCategoryConfig, LicenseCategory } from '@/types/pdd';
-import { Button } from '@/components/ui/button';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Car, Truck, Bus, Bike, Globe, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ContextSettingsSheet } from './ContextSettingsSheet';
 import { usePDDContext } from '@/contexts/PDDContext';
@@ -35,6 +34,29 @@ export function ContextSwitcher({ className }: ContextSwitcherProps) {
   const availableCategories = getLicenseCategoriesForCountry(currentCountry);
   const displayCategory = categoryData || availableCategories[0] || { code: 'B', name: 'B', nameFull: 'Легковая', icon: '🚗' };
 
+  // Маппинг категорий на иконки из lucide-react
+  const getCategoryIcon = (categoryCode: string): LucideIcon => {
+    const code = categoryCode.toUpperCase();
+    if (code.startsWith('A') || code === 'AM' || code === 'M') return Bike;
+    if (code === 'B' || code === 'B1' || code === 'BE') return Car;
+    if (code.startsWith('C') || code === 'CE' || code === 'C1') return Truck;
+    if (code.startsWith('D') || code === 'DE' || code === 'D1') return Bus;
+    return Car; // по умолчанию
+  };
+
+  const CategoryIcon = getCategoryIcon(displayCategory.code);
+
+  // Короткие коды стран для отображения
+  const getCountryCode = (country: CountryCode): string => {
+    const codes: Record<CountryCode, string> = {
+      russia: 'RU',
+      spain: 'ES',
+      ukraine: 'UA',
+      belarus: 'BY',
+    };
+    return codes[country] || country.toUpperCase().slice(0, 2);
+  };
+
   const handleApply = (country: CountryCode, category: LicenseCategory) => {
     // Обновляем контекст (он сам сохранит в localStorage)
     setSelectedCountry(country);
@@ -45,29 +67,28 @@ export function ContextSwitcher({ className }: ContextSwitcherProps) {
     setSheetOpen(false);
   };
 
-  // Адаптивные стили под тему Dashboard
+  // Премиальные стили в стиле Linear/Vercel
   const buttonClass = useMemo(() => {
     if (isDarkTheme) {
       return cn(
-        'h-9 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full',
-        'bg-gradient-to-r from-primary/25 via-primary/20 to-primary/25',
-        'border border-primary/40 backdrop-blur-sm',
-        'shadow-lg shadow-primary/20',
-        'hover:border-primary/60 hover:shadow-xl hover:shadow-primary/30',
-        'flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-semibold',
-        'transition-all duration-200 hover:scale-[1.02]',
-        'text-white',
+        'h-10 px-3 sm:px-4 py-2 rounded-lg',
+        'bg-zinc-900 border border-white/5',
+        'hover:border-white/10 hover:bg-zinc-800/50',
+        'flex items-center gap-2 text-xs font-medium',
+        'transition-all duration-200',
+        'text-zinc-200',
+        'backdrop-blur-sm',
         className
       );
     } else {
       return cn(
-        'h-9 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full',
-        'bg-white/95 border border-primary/30',
-        'shadow-[0_12px_34px_rgba(139,92,246,0.25)] backdrop-blur-sm',
-        'hover:border-primary/50 hover:shadow-[0_16px_40px_rgba(139,92,246,0.35)]',
-        'flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-semibold',
-        'transition-all duration-200 hover:scale-[1.02]',
-        'text-slate-700',
+        'h-10 px-3 sm:px-4 py-2 rounded-lg',
+        'bg-white border border-zinc-200',
+        'hover:border-zinc-300 hover:bg-zinc-50',
+        'flex items-center gap-2 text-xs font-medium',
+        'transition-all duration-200',
+        'text-zinc-700',
+        'shadow-sm',
         className
       );
     }
@@ -79,12 +100,16 @@ export function ContextSwitcher({ className }: ContextSwitcherProps) {
         onClick={() => setSheetOpen(true)}
         className={buttonClass}
       >
-        <span className="text-base leading-none">{countryData.flag}</span>
-        <span className="whitespace-nowrap">{countryData.name}</span>
-        <span className={isDarkTheme ? 'text-white/30' : 'text-slate-400'}>•</span>
-        <span className="text-base leading-none">{displayCategory.icon}</span>
-        <span className="whitespace-nowrap">{displayCategory.code}</span>
-        <ChevronDown className={cn('w-3 h-3 ml-0.5', isDarkTheme ? 'text-white/60' : 'text-slate-400')} />
+        <Globe className={cn('w-3.5 h-3.5', isDarkTheme ? 'text-zinc-400' : 'text-zinc-500')} />
+        <span className="whitespace-nowrap text-xs font-semibold uppercase tracking-tight">
+          {getCountryCode(currentCountry)}
+        </span>
+        <span className={isDarkTheme ? 'text-white/10' : 'text-zinc-300'}>•</span>
+        <CategoryIcon className={cn('w-3.5 h-3.5', isDarkTheme ? 'text-zinc-400' : 'text-zinc-500')} />
+        <span className="whitespace-nowrap text-xs font-semibold">
+          {displayCategory.code}
+        </span>
+        <ChevronDown className={cn('w-3.5 h-3.5 ml-0.5', isDarkTheme ? 'text-zinc-400' : 'text-zinc-500')} />
       </button>
 
       <ContextSettingsSheet
