@@ -281,5 +281,91 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
       allQuestionsByBlock: allUniversalByBlock,
     };
   }
+
+  async getQuestionsByTopic(
+    country: CountryCode,
+    topicName: string,
+    count?: number
+  ): Promise<UniversalQuestion[]> {
+    if (country !== 'russia') {
+      return [];
+    }
+
+    // Получаем вопросы по теме (используем массив topics)
+    let query = supabase
+      .from('pdd_russia_questions')
+      .select('*')
+      .contains('topics', [topicName]);
+
+    if (count) {
+      query = query.limit(count);
+    }
+
+    const { data: questions, error: questionsError } = await query;
+
+    if (questionsError) throw questionsError;
+
+    if (!questions || questions.length === 0) {
+      return [];
+    }
+
+    // Получаем ответы (с батчингом)
+    const questionIds = questions.map((q) => q.id);
+    const answers = await fetchAnswersInBatches(questionIds);
+
+    // Группируем ответы
+    const answersByQuestion = new Map<string, typeof answers>();
+    answers?.forEach((answer) => {
+      const existing = answersByQuestion.get(answer.question_id) || [];
+      existing.push(answer);
+      answersByQuestion.set(answer.question_id, existing);
+    });
+
+    // Преобразуем к универсальному формату
+    const universalQuestions: UniversalQuestion[] = questions.map((q) => {
+      const questionAnswers = answersByQuestion.get(q.id) || [];
+      return mapRussiaQuestionToUniversal(q, questionAnswers);
+    });
+
+    // Перемешиваем вопросы
+    return universalQuestions.sort(() => Math.random() - 0.5);
+  }
+
+  async getTopicsWithCounts(country: CountryCode): Promise<Array<{
+    name: string;
+    count: number;
+  }>> {
+    if (country !== 'russia') {
+      return [];
+    }
+
+    // Получаем все уникальные темы и считаем количество вопросов
+    const { data: questions, error } = await supabase
+      .from('pdd_russia_questions')
+      .select('topics');
+
+    if (error) throw error;
+
+    if (!questions || questions.length === 0) {
+      return [];
+    }
+
+    // Группируем по темам
+    const topicsMap = new Map<string, number>();
+    
+    questions.forEach((q) => {
+      if (q.topics && Array.isArray(q.topics)) {
+        q.topics.forEach((topic: string) => {
+          const count = topicsMap.get(topic) || 0;
+          topicsMap.set(topic, count + 1);
+        });
+      }
+    });
+
+    // Преобразуем в массив и сортируем по количеству вопросов (убывание)
+    return Array.from(topicsMap.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+  }
 }
 

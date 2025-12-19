@@ -74,6 +74,7 @@ const SequentialTests = lazy(() => import("../pages/SequentialTests"));
 const ChallengeBank = lazy(() => import("../pages/ChallengeBank"));
 const TestSession = lazy(() => import("../pages/TestSession"));
 const TestResults = lazy(() => import("../pages/TestResults"));
+const TopicsMode = lazy(() => import("../pages/TopicsMode"));
 const RoadSigns = lazy(() => import("../pages/RoadSigns"));
 const Dictionary = lazy(() => import("../pages/Dictionary"));
 const DataImport = lazy(() => import("../pages/DataImport"));
@@ -144,6 +145,11 @@ export function AppRoutes() {
         <Route path="/tests/challenge-bank" element={
           <Suspense fallback={<PageSkeleton />}>
             <ChallengeBank />
+          </Suspense>
+        } />
+        <Route path="/test/by-topics" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <TopicsMode />
           </Suspense>
         } />
         <Route path="/test/:mode" element={

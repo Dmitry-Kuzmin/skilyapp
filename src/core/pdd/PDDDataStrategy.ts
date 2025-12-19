@@ -37,5 +37,22 @@ export interface PDDDataStrategy {
     selectedQuestions: UniversalQuestion[];
     allQuestionsByBlock: Record<number, UniversalQuestion[]>;
   }>;
+
+  /**
+   * Получить вопросы по теме (для режима "По Темам")
+   */
+  getQuestionsByTopic?(
+    country: CountryCode,
+    topicName: string,
+    count?: number
+  ): Promise<UniversalQuestion[]>;
+
+  /**
+   * Получить список доступных тем с количеством вопросов
+   */
+  getTopicsWithCounts?(country: CountryCode): Promise<Array<{
+    name: string;
+    count: number;
+  }>>;
 }
 

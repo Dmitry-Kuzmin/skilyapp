@@ -14,6 +14,7 @@ import { useUserProgress } from "@/hooks/useUserProgress";
 import { useChallengeBankCount } from "@/hooks/useChallengeBankCount";
 import { usePDDContext } from "@/contexts/PDDContext";
 import { usePDDTickets } from "@/hooks/usePDDTickets";
+import { usePDDTopics } from "@/hooks/usePDDTopics";
 import { COUNTRIES_CONFIG } from "@/types/pdd";
 import { motion } from "framer-motion";
 import { getImageUrl } from "@/utils/imageUtils";
@@ -53,6 +54,7 @@ const Tests = () => {
   const { data: tickets = [], isLoading: ticketsLoading } = usePDDTickets(selectedCountry);
   const { data: userProgress = [] } = useUserProgress(profileId);
   const { data: challengeBankCount = 0 } = useChallengeBankCount(profileId);
+  const { data: pddTopics = [] } = usePDDTopics(selectedCountry);
 
   const [randomQuestionCount, setRandomQuestionCount] = useState(20);
   const [hasSelectedCount, setHasSelectedCount] = useState(false);
@@ -148,6 +150,7 @@ const Tests = () => {
         route: selectedCountry === 'russia' ? "/test/exam-russia" : "/test/exam",
         featured: false,
         gradient: "from-emerald-600 to-teal-600",
+        badge: selectedCountry === 'russia' ? 'Регламент 2025' : undefined,
       },
       {
         id: 3,
@@ -184,15 +187,42 @@ const Tests = () => {
       },
       {
         id: 6,
-        title: t('testsPage.hardest'),
-        description: t('testsPage.hardestDesc'),
+        title: selectedCountry === 'russia' ? 'Топ-50 ловушек ГАИ' : t('testsPage.hardest'),
+        description: selectedCountry === 'russia' 
+          ? 'Самые сложные вопросы, на которых валятся все'
+          : t('testsPage.hardestDesc'),
         icon: AlertTriangle,
-        color: "secondary",
+        color: "destructive",
         premium: false,
         difficulty: "Сложная",
         route: `/test/hardest${selectedCountry === 'russia' ? '?country=russia' : ''}`,
-        gradient: "from-slate-600 to-gray-600",
+        gradient: selectedCountry === 'russia' ? "from-purple-600 to-pink-600" : "from-slate-600 to-gray-600",
+        featured: selectedCountry === 'russia',
       },
+      ...(selectedCountry === 'russia' ? [
+        {
+          id: 7,
+          title: 'По Темам',
+          description: 'Изучайте правила по главам. Выберите тему и прорешайте вопросы только по ней',
+          icon: BookOpen,
+          color: "primary",
+          premium: false,
+          difficulty: "Средняя",
+          route: "/test/by-topics",
+          gradient: "from-blue-600 to-cyan-600",
+        },
+        {
+          id: 8,
+          title: 'Нон-стоп',
+          description: 'Прорешайте все 800 вопросов базы. Прогресс сохраняется между сессиями',
+          icon: Target,
+          color: "warning",
+          premium: false,
+          difficulty: "Сложная",
+          route: "/test/nonstop",
+          gradient: "from-amber-600 to-orange-600",
+        },
+      ] : []),
     ];
 
     return baseModes;
@@ -514,9 +544,16 @@ const Tests = () => {
                             <Icon className={`w-7 h-7 ${theme.icon}`} />
                           </div>
 
-                          <Badge variant="outline" className="border-border text-muted-foreground bg-card/50">
-                            {mode.difficulty}
-                          </Badge>
+                          <div className="flex flex-col items-end gap-2">
+                            <Badge variant="outline" className="border-border text-muted-foreground bg-card/50">
+                              {mode.difficulty}
+                            </Badge>
+                            {mode.badge && (
+                              <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 font-semibold">
+                                {mode.badge}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
 
                         <div>
@@ -553,51 +590,64 @@ const Tests = () => {
                 </Badge>
               </div>
 
-              {/* Для России: показываем билеты */}
+              {/* Для России: показываем билеты в компактной сетке */}
               {selectedCountry === 'russia' ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {tickets.map((ticket, i) => {
-                    // Поддержка обратной совместимости: ticket_number из metadata или number
-                    const ticketId = typeof ticket.id === 'number' ? ticket.id : ticket.number;
-                    const ticketNumber = ticket.metadata?.ticket_number || ticket.number;
-                    
-                    return (
-                    <motion.div
-                      key={ticket.id}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: i * 0.03 }}
-                      whileHover={{ scale: 1.02, y: -4 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => navigate(`/learn/${selectedCountry}/ticket/${ticketId}`)}
-                      className="group relative overflow-hidden rounded-[2rem] p-6 cursor-pointer border border-border bg-card/60 dark:bg-card/40 backdrop-blur-sm hover:bg-card/80 dark:hover:bg-card/60 shadow-lg hover:shadow-xl transition-all duration-150 h-[180px]"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 group-hover:from-blue-500/20 group-hover:via-indigo-500/20 group-hover:to-purple-500/20 transition-all duration-500" />
-                      <div className="relative z-10 h-full flex flex-col justify-between">
-                        <div className="flex items-start justify-between">
-                          <motion.div
-                            whileHover={{ rotate: 12, scale: 1.1 }}
-                            className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20 text-foreground border border-border shadow-xl"
-                          >
-                            {ticketNumber}
-                          </motion.div>
-                          {ticket.completed && (
-                            <Crown className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                <div className="space-y-4">
+                  <div className="grid grid-cols-8 sm:grid-cols-10 md:grid-cols-10 lg:grid-cols-10 xl:grid-cols-10 gap-2 sm:gap-3">
+                    {tickets.map((ticket, i) => {
+                      // Поддержка обратной совместимости: ticket_number из metadata или number
+                      const ticketId = typeof ticket.id === 'number' ? ticket.id : ticket.number;
+                      const ticketNumber = ticket.metadata?.ticket_number || ticket.number;
+                      
+                      // Определяем статус билета (пока упрощенно - можно расширить через user_progress)
+                      const isCompleted = ticket.completed || false;
+                      const hasErrors = ticket.progress && ticket.progress > 0 && ticket.progress < 100;
+                      
+                      return (
+                        <motion.button
+                          key={ticket.id}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: i * 0.01 }}
+                          whileHover={{ scale: 1.1, y: -2 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => navigate(`/learn/${selectedCountry}/ticket/${ticketId}`)}
+                          className={`
+                            aspect-square rounded-xl font-bold text-sm sm:text-base
+                            border-2 transition-all duration-200
+                            flex items-center justify-center relative
+                            ${
+                              isCompleted
+                                ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/30 hover:border-emerald-500/70'
+                                : hasErrors
+                                ? 'bg-amber-500/20 border-amber-500/50 text-amber-400 hover:bg-amber-500/30 hover:border-amber-500/70'
+                                : 'bg-zinc-900/50 border-zinc-800/50 text-zinc-400 hover:bg-zinc-800/70 hover:border-zinc-700/70'
+                            }
+                            shadow-lg hover:shadow-xl
+                          `}
+                        >
+                          {ticketNumber}
+                          {isCompleted && (
+                            <Crown className="absolute -top-1 -right-1 w-3 h-3 text-yellow-500 fill-yellow-500" />
                           )}
-                        </div>
-                        <div className="space-y-1">
-                          <div className="font-black text-lg line-clamp-2 leading-tight text-foreground">
-                            {ticket.title || `Билет ${ticketNumber}`}
-                          </div>
-                          <div className="text-sm font-bold flex items-center gap-1.5 text-muted-foreground">
-                            <BookOpen className="w-3 h-3" />
-                            <span>{ticket.questions_count} вопросов</span>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                    );
-                  })}
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                  <div className="flex items-center gap-4 text-xs sm:text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-emerald-500/20 border border-emerald-500/50" />
+                      <span>Сдан без ошибок</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-amber-500/20 border border-amber-500/50" />
+                      <span>Сдан с ошибками</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-zinc-900/50 border border-zinc-800/50" />
+                      <span>Не пройден</span>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

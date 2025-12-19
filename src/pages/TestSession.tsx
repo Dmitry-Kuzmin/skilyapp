@@ -37,6 +37,7 @@ import { usePDDExamQuestions } from "@/hooks/usePDDExamQuestions";
 import { useRussiaExam } from "@/hooks/useRussiaExam";
 import { mapRussiaQuestionToUniversal } from "@/utils/pddAdapters";
 import { usePDDTicketQuestions, usePDDRandomQuestions } from "@/hooks/usePDDQuestions";
+import { usePDDTopicQuestions } from "@/hooks/usePDDTopics";
 import { usePDDContext } from "@/contexts/PDDContext";
 import { CountryCode } from "@/types/pdd";
 import { useOfflineQueue } from "@/hooks/useOfflineQueue";
@@ -230,6 +231,8 @@ const TestSession = () => {
     if (location.pathname.includes("/test/module")) return "module";
     if (location.pathname.includes("/test/dgt")) return "dgt";
     if (location.pathname.includes("/test/exam-russia") || searchParams.get('mode') === 'exam-russia') return "exam-russia";
+    if (location.pathname.includes("/test/by-topic") || searchParams.get('topic')) return "by-topic";
+    if (location.pathname.includes("/test/nonstop")) return "nonstop";
     return "practice";
   }, [rawMode, location.pathname, searchParams, ticketIdParam]);
   
@@ -927,7 +930,7 @@ const TestSession = () => {
   const dgtQuestions = useDGTQuestions(mode === 'dgt' ? topic || null : null, 30);
   
   // Для России используем ПДД вопросы, для других стран - questions_new
-  const shouldUsePDD = selectedCountry === 'russia' && (mode === 'practice' || mode === 'blitz' || mode === 'exam' || mode === 'mastery' || mode === 'hardest');
+  const shouldUsePDD = selectedCountry === 'russia' && (mode === 'practice' || mode === 'blitz' || mode === 'exam' || mode === 'mastery' || mode === 'hardest' || mode === 'by-topic' || mode === 'nonstop');
   const pddRandomQuestions = usePDDRandomQuestions(
     shouldUsePDD ? selectedCountry : 'russia', // Используем selectedCountry только если shouldUsePDD
     shouldUsePDD ? questionCount : 0
@@ -963,6 +966,14 @@ const TestSession = () => {
   const pddTicketQuestions = usePDDTicketQuestions(
     pddCountry || 'russia',
     ticketNumber || 0
+  );
+
+  // ПДД вопросы по теме (для России)
+  const topicName = searchParams.get('topic');
+  const pddTopicQuestions = usePDDTopicQuestions(
+    selectedCountry || 'russia',
+    topicName || '',
+    questionCount || 30
   );
   
   // Преобразуем вопросы ПДД РФ в универсальный формат
@@ -1013,6 +1024,37 @@ const TestSession = () => {
         setLoading(true);
       } else if (dgtQuestions.error) {
         toast.error("Ошибка загрузки вопросов");
+        setLoading(false);
+      }
+    } else if (mode === 'by-topic') {
+      // Режим по темам для России
+      if (pddTopicQuestions.data && pddTopicQuestions.data.length > 0) {
+        const convertedQuestions: QuestionData[] = pddTopicQuestions.data.map((q) => ({
+          id: q.id,
+          question_ru: q.text,
+          question_es: q.text,
+          question_en: q.text,
+          image_url: q.image,
+          explanation_ru: q.explanation || null,
+          explanation_es: q.explanation || null,
+          explanation_en: q.explanation || null,
+          topics: q.topics && q.topics.length > 0 ? { title_ru: q.topics[0], title_es: q.topics[0] } : null,
+          answer_options: q.answers.map(a => ({
+            id: a.id,
+            text_ru: a.text,
+            text_es: a.text,
+            text_en: a.text,
+            is_correct: a.isCorrect,
+            position: a.position || 0,
+          })),
+        }));
+        setQuestions(convertedQuestions);
+        setTestInfo({ id: `topic_${topicName}`, title: `Тема: ${topicName}` });
+        setLoading(false);
+      } else if (pddTopicQuestions.isLoading) {
+        setLoading(true);
+      } else if (pddTopicQuestions.error) {
+        toast.error("Ошибка загрузки вопросов по теме");
         setLoading(false);
       }
     } else if (mode === 'practice' || mode === 'blitz' || mode === 'exam') {
