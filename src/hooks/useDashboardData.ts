@@ -165,14 +165,36 @@ export function useDashboardData() {
   } = useSafeQuery<DashboardData | null>({
     queryKey: [DASHBOARD_QUERY_KEY, profileId],
     queryFn: async () => {
-      if (!profileId) return null;
+      if (!profileId) {
+        console.warn('[useDashboardData] ⚠️ No profileId, returning null');
+        return null;
+      }
 
-      console.log('[useDashboardData] 🚀 Fetching dashboard with SUPER RPC call');
+      console.log('[useDashboardData] 🚀 Fetching dashboard with SUPER RPC call', {
+        profileId,
+        profileIdType: typeof profileId,
+        timestamp: new Date().toISOString(),
+      });
 
       // SUPER ОПТИМИЗАЦИЯ: Пробуем новый Super RPC
       // КРИТИЧНО: Обрабатываем 404 (функция не найдена) как нормальную ситуацию
-      const { data: superResult, error: superError } = await supabase
-        .rpc('get_dashboard_super', { p_user_id: profileId });
+      console.log('[useDashboardData] 📡 Calling get_dashboard_super RPC...');
+      let superResult, superError;
+      try {
+        const response = await supabase.rpc('get_dashboard_super', { p_user_id: profileId });
+        superResult = response.data;
+        superError = response.error;
+        console.log('[useDashboardData] 📡 RPC response received', {
+          hasData: !!superResult,
+          hasError: !!superError,
+          errorCode: superError?.code,
+          errorMessage: superError?.message,
+        });
+      } catch (e) {
+        console.error('[useDashboardData] ❌ Exception during RPC call:', e);
+        superError = e as any;
+        superResult = null;
+      }
 
       // Если функция не найдена (404) или другая ошибка - используем fallback
       if (superError) {
@@ -210,8 +232,24 @@ export function useDashboardData() {
       } else {
         console.warn('[useDashboardData] ⚠️ Super RPC not available, trying regular RPC');
       }
-      const { data: result, error: rpcError } = await supabase
-        .rpc('get_dashboard_complete', { p_user_id: profileId });
+      
+      console.log('[useDashboardData] 📡 Calling get_dashboard_complete RPC...');
+      let result, rpcError;
+      try {
+        const response = await supabase.rpc('get_dashboard_complete', { p_user_id: profileId });
+        result = response.data;
+        rpcError = response.error;
+        console.log('[useDashboardData] 📡 Regular RPC response received', {
+          hasData: !!result,
+          hasError: !!rpcError,
+          errorCode: rpcError?.code,
+          errorMessage: rpcError?.message,
+        });
+      } catch (e) {
+        console.error('[useDashboardData] ❌ Exception during regular RPC call:', e);
+        rpcError = e as any;
+        result = null;
+      }
 
       if (rpcError) {
         const is404 = rpcError.code === 'PGRST204' || rpcError.message?.includes('404') || rpcError.message?.includes('not found');
@@ -221,8 +259,18 @@ export function useDashboardData() {
         } else {
           console.error('[useDashboardData] ❌ RPC error:', rpcError);
         }
-        console.warn('[useDashboardData] ⚠️ Falling back to old method');
-        return await fetchDashboardFallback(profileId);
+        console.warn('[useDashboardData] ⚠️ Falling back to old method (fetchDashboardFallback)');
+        try {
+          const fallbackData = await fetchDashboardFallback(profileId);
+          console.log('[useDashboardData] ✅ Fallback method completed', {
+            hasData: !!fallbackData,
+            hasProfile: !!fallbackData?.profile,
+          });
+          return fallbackData;
+        } catch (fallbackErr) {
+          console.error('[useDashboardData] ❌ Fallback method failed:', fallbackErr);
+          throw fallbackErr;
+        }
       }
 
       if (!result || result.error) {

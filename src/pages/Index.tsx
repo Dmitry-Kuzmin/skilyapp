@@ -50,6 +50,17 @@ const DashboardContent = () => {
   // Get dashboard data with caching
   const { data: dashboardData, loading, error, refresh: refreshDashboard, invalidateCache } = useDashboardData();
   
+  // ДИАГНОСТИКА: Логируем состояние загрузки
+  useEffect(() => {
+    console.log('[DashboardContent] State:', {
+      profileId,
+      loading,
+      hasData: !!dashboardData,
+      hasError: !!error,
+      errorMessage: error?.message,
+    });
+  }, [profileId, loading, dashboardData, error]);
+  
   // Fallback для weeklyRewards если их нет в dashboardData
   const { data: dailyBonusDefinitions = [] } = useDailyBonusDefinitions();
   

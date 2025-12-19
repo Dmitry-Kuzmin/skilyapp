@@ -494,13 +494,14 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
 
       {/* Main Content with Safe Area Top Padding for Telegram Fullscreen */}
       {/* КРИТИЧНО: Для десктопа явно убираем padding-top */}
-      {/* КРИТИЧНО: Убираем flex-1 для обычного браузера - footer должен скроллиться вместе с контентом */}
+      {/* Sticky footer: main имеет flex-1 через CSS - footer всегда внизу, но не фиксирован при скролле */}
       <main 
         ref={mainContentRef}
         className={cn(
           "telegram-main-content bg-background",
-          // flex-1 применяется только для Telegram WebApp через CSS
-          // Для обычного браузера main не растягивается, footer скроллится нормально
+          // flex-1 применяется через CSS для sticky footer паттерна
+          // Когда контента мало - main растягивается, footer прижат к низу
+          // Когда контента много - всё скроллится вместе, footer в конце контента
         )}
         style={isTelegramApp && isTelegramMobilePlatform === false ? { paddingTop: '0px' } : {}}
       >
