@@ -300,6 +300,25 @@ const DashboardContent = () => {
         </div>
       </div>
     );
+  } else if (!dashboardData && !loading) {
+    // Данные не загрузились, но ошибки нет - показываем скелетон и пытаемся загрузить
+    console.warn('[Index] Dashboard data is null, but no error. ProfileId:', profileId);
+    pageContent = (
+      <div className="min-h-[60vh] bg-[#0f172a] p-6 md:p-10 font-sans text-white flex items-center justify-center rounded-3xl border border-slate-800">
+        <div className="text-center max-w-md space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold mb-1">Загрузка данных...</h2>
+            <p className="text-slate-400">Пожалуйста, подождите</p>
+          </div>
+          <button
+            onClick={() => refreshDashboard(true)}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
+          >
+            Обновить
+          </button>
+        </div>
+      </div>
+    );
   } else if (dashboardData) {
     pageContent = (
     <>

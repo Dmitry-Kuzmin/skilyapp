@@ -227,7 +227,14 @@ export function useDashboardData() {
 
       if (!result || result.error) {
         console.error('[useDashboardData] ❌ No data or error in result:', result);
-        return null;
+        console.warn('[useDashboardData] ⚠️ Trying fallback method');
+        // Пробуем fallback если regular RPC вернул ошибку
+        try {
+          return await fetchDashboardFallback(profileId);
+        } catch (fallbackError) {
+          console.error('[useDashboardData] ❌ Fallback also failed:', fallbackError);
+          return null;
+        }
       }
 
       console.log('[useDashboardData] ✅ Dashboard loaded successfully (regular RPC)', {
@@ -285,7 +292,10 @@ export function useDashboardData() {
 
 // Fallback функция для старого способа загрузки (если новый RPC не работает)
 async function fetchDashboardFallback(profileId: string): Promise<DashboardData | null> {
-  const [profileResult, sessionsResult, bonusResult, tasksResult, achievementsResult, rewardsResult] = await Promise.all([
+  console.log('[fetchDashboardFallback] 🔄 Using fallback method for profileId:', profileId);
+  
+  try {
+    const [profileResult, sessionsResult, bonusResult, tasksResult, achievementsResult, rewardsResult] = await Promise.all([
           supabase
             .from('profiles')
       .select('id, rank, xp, coins, boosts, streak_days, settings')
@@ -366,5 +376,36 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
         recentAchievements: achievementsResult.data || [],
         weeklyRewards: rewardsResult.data || [],
   };
+  } catch (error) {
+    console.error('[fetchDashboardFallback] ❌ Error in fallback:', error);
+    // Возвращаем минимальные данные чтобы приложение не зависло
+    return {
+      profile: {
+        id: profileId,
+        rank: 'Ученик',
+        xp: 0,
+        coins: 0,
+        boosts: 0,
+        streak_days: 0,
+        settings: {},
+      },
+      stats: {
+        tests_completed: 0,
+        total_questions: 0,
+        correct_answers: 0,
+        accuracy: 0,
+      },
+      daily_bonus: {
+        id: null,
+        current_streak: 0,
+        last_claimed_date: null,
+        total_claims: 0,
+        can_claim: false,
+      },
+      dailyTasks: [],
+      recentAchievements: [],
+      weeklyRewards: [],
+    };
+  }
 }
 
