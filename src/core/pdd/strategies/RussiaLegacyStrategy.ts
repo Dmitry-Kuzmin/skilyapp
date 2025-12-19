@@ -292,16 +292,22 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
     }
 
     // Получаем вопросы по теме (используем массив topics)
+    // Для массивов в Supabase используем оператор @> (contains) или cs (contains)
     let query = supabase
       .from('pdd_russia_questions')
       .select('*')
-      .contains('topics', [topicName]);
+      .contains('topics', [topicName]); // Это должно работать для массивов
 
     if (count) {
       query = query.limit(count);
     }
 
     const { data: questions, error: questionsError } = await query;
+    
+    if (questionsError) {
+      console.error('[RussiaLegacyStrategy] Error fetching questions by topic:', questionsError);
+      throw questionsError;
+    }
 
     if (questionsError) throw questionsError;
 

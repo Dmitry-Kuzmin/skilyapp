@@ -10,13 +10,19 @@ export function usePDDTopics(country: CountryCode) {
   return useQuery({
     queryKey: ['pdd-topics', country],
     queryFn: async () => {
-      const strategy = getPDDStrategy(country);
-      if (strategy.getTopicsWithCounts) {
-        return strategy.getTopicsWithCounts(country);
+      try {
+        const strategy = getPDDStrategy(country);
+        if (strategy.getTopicsWithCounts) {
+          return await strategy.getTopicsWithCounts(country);
+        }
+        return [];
+      } catch (error) {
+        console.error('[usePDDTopics] Error fetching topics:', error);
+        return [];
       }
-      return [];
     },
     enabled: !!country && country === 'russia',
+    retry: 1,
   });
 }
 
@@ -31,13 +37,20 @@ export function usePDDTopicQuestions(
   return useQuery({
     queryKey: ['pdd-topic-questions', country, topicName, count],
     queryFn: async () => {
-      const strategy = getPDDStrategy(country);
-      if (strategy.getQuestionsByTopic) {
-        return strategy.getQuestionsByTopic(country, topicName, count);
+      try {
+        const strategy = getPDDStrategy(country);
+        if (strategy.getQuestionsByTopic) {
+          return await strategy.getQuestionsByTopic(country, topicName, count);
+        }
+        return [];
+      } catch (error) {
+        console.error('[usePDDTopicQuestions] Error fetching topic questions:', error);
+        return [];
       }
-      return [];
     },
     enabled: !!country && !!topicName && country === 'russia',
+    retry: 1,
   });
 }
+
 

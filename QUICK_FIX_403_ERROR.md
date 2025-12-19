@@ -57,3 +57,4 @@ SELECT * FROM app_config;
 
 **Файл миграции:** `supabase/migrations/20250101000003_fix_app_config_rls.sql`
 
+

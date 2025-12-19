@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 const TopicsMode = () => {
   const navigate = useNavigate();
   const { selectedCountry } = usePDDContext();
-  const { data: topics = [], isLoading } = usePDDTopics(selectedCountry);
+  const { data: topics = [], isLoading, error } = usePDDTopics(selectedCountry || 'russia');
 
   const handleTopicSelect = (topicName: string) => {
     navigate(`/test/by-topic?topic=${encodeURIComponent(topicName)}&country=${selectedCountry}&count=30`);
@@ -49,6 +49,10 @@ const TopicsMode = () => {
                   className="h-32 rounded-2xl bg-zinc-900/50 border border-zinc-800/50 animate-pulse"
                 />
               ))}
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <p className="text-red-400">Ошибка загрузки тем. Попробуйте обновить страницу.</p>
             </div>
           ) : sortedTopics.length === 0 ? (
             <div className="text-center py-12">
