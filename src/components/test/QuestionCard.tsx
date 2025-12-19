@@ -14,17 +14,17 @@ interface QuestionCardProps {
   'data-testid'?: string;
 }
 
-export function QuestionCard({ 
-  children, 
+export function QuestionCard({
+  children,
   className,
   compact = false,
-  'data-testid': testId 
+  'data-testid': testId
 }: QuestionCardProps) {
   return (
-    <Card 
+    <Card
       data-testid={testId || "question-card"}
       className={cn(
-        "p-3 sm:p-4 md:p-6 bg-background border-border/50 shadow-xl backdrop-blur-sm",
+        "p-3 sm:p-4 md:p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl rounded-2xl backdrop-blur-sm",
         compact && "p-3 sm:p-3",
         className
       )}

@@ -50,20 +50,20 @@ export const AnswerButton = memo(function AnswerButton({
       disabled={disabled}
       className={cn(
         "w-full text-left border-2 transition-all duration-300 font-medium",
-        isCompact 
-          ? "p-2.5 sm:p-3 rounded-lg" 
+        isCompact
+          ? "p-2.5 sm:p-3 rounded-lg"
           : "p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl",
         // Состояния результата
         showResult
           ? isCorrect
             ? "border-emerald-500 bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 shadow-xl shadow-emerald-500/25 animate-fade-in"
             : isSelected
-            ? "border-red-500 bg-gradient-to-r from-red-500/15 to-red-500/5 shadow-xl shadow-red-500/25 animate-fade-in"
-            : "border-border/20 opacity-40"
+              ? "border-red-500 bg-gradient-to-r from-red-500/15 to-red-500/5 shadow-xl shadow-red-500/25 animate-fade-in"
+              : "border-border/20 opacity-40"
           : isSelected
-          ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
-          : "border-border/40 hover:border-accent/60 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg",
-        !disabled && !showResult && "cursor-pointer active:scale-[0.99]",
+            ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
+            : "border-slate-200 dark:border-slate-800 hover:border-blue-500/50 dark:hover:border-blue-400/50 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 hover:scale-[1.01] hover:shadow-md",
+        !disabled && !showResult && "cursor-pointer active:scale-[0.98] active:shadow-inner",
         className
       )}
     >
@@ -75,19 +75,19 @@ export const AnswerButton = memo(function AnswerButton({
         )}>
           {text}
         </span>
-        
+
         {/* Популярность ответа */}
         {showPopularity && showResult && (
           <span className={cn(
             "text-xs sm:text-sm font-bold px-2 py-1 rounded-md shrink-0",
-            isCorrect 
-              ? "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30" 
+            isCorrect
+              ? "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30"
               : "text-muted-foreground"
           )}>
             {popularity || 0}%
           </span>
         )}
-        
+
         {/* Иконки результата */}
         {showResult && isCorrect && (
           <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500/20 animate-scale-in shrink-0">

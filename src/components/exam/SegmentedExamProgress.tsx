@@ -1,19 +1,21 @@
 /**
- * Сегментированный прогресс-бар для экзамена РФ
- * Визуализирует 4 блока по 5 вопросов + штрафные вопросы
+ * Сегментированный прогресс-бар для экзамена РФ (Adaptive Professional)
+ * Визуализирует 4 блока по 5 вопросов + штрафные блоки
  */
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { AlertCircle } from 'lucide-react';
 
 interface SegmentedExamProgressProps {
-  currentQuestion: number; // Текущий вопрос (1-20 для основных, 21+ для штрафных)
+  currentQuestion: number; // Текущий вопрос (1-indexed)
   totalMainQuestions: number; // 20
   questionsPerBlock: number; // 5
-  penaltyQuestions: number; // Количество штрафных вопросов
-  currentBlock: number; // Текущий блок (1-4)
-  errorsByBlock: Record<number, number>; // Ошибки по блокам {1: 1, 2: 0, ...}
-  isExtraMode: boolean; // Режим штрафных вопросов
+  penaltyQuestions: number; // Количество штрафных вопросов (0, 5, 10)
+  answers: Array<{
+    questionId: string;
+    isCorrect: boolean;
+  }>;
   className?: string;
 }
 
@@ -22,134 +24,88 @@ export function SegmentedExamProgress({
   totalMainQuestions,
   questionsPerBlock,
   penaltyQuestions,
-  currentBlock,
-  errorsByBlock,
-  isExtraMode,
+  answers,
   className,
 }: SegmentedExamProgressProps) {
-  const blocksCount = 4;
-  const gapSize = 2; // Отступ между блоками в px
+  const mainBlocksCount = 4;
 
-  // Вычисляем состояние каждого вопроса
-  const getQuestionState = (blockId: number, questionInBlock: number) => {
-    const questionNumber = (blockId - 1) * questionsPerBlock + questionInBlock;
-    
-    if (questionNumber < currentQuestion) {
-      // Пройденный вопрос - проверяем, была ли ошибка
-      const blockErrors = errorsByBlock[blockId] || 0;
-      // Если в этом блоке была ошибка, и это последний вопрос блока - красный
-      if (blockErrors > 0 && questionInBlock === questionsPerBlock) {
-        return 'error';
-      }
-      return 'completed';
+  // Функция для определения состояния конкретного вопроса
+  const getSlotState = (questionIndex: number) => {
+    const answer = answers[questionIndex];
+    const isCurrent = currentQuestion === questionIndex + 1;
+
+    if (answer) {
+      return answer.isCorrect ? 'success' : 'error';
     }
-    
-    if (questionNumber === currentQuestion) {
-      return 'current';
+    if (isCurrent) {
+      return 'active';
     }
-    
-    return 'upcoming';
+    return 'pending';
   };
 
-  // Рендерим один блок
-  const renderBlock = (blockId: number) => {
-    const blockErrors = errorsByBlock[blockId] || 0;
-    const hasError = blockErrors > 0;
-    
+  // Рендеринг одного блока (5 вопросов)
+  const renderBlock = (blockIndex: number, isPenalty = false) => {
+    const startIdx = blockIndex * questionsPerBlock;
+
     return (
       <div
-        key={blockId}
-        className="flex items-center gap-1"
-      >
-        {/* 5 вопросов в блоке */}
-        <div className="flex items-center gap-0.5">
-          {Array.from({ length: questionsPerBlock }).map((_, qIdx) => {
-            const questionInBlock = qIdx + 1;
-            const state = getQuestionState(blockId, questionInBlock);
-            const isCurrentBlock = currentBlock === blockId;
-            const questionNumber = (blockId - 1) * questionsPerBlock + questionInBlock;
-            const isCurrentQuestion = 
-              !isExtraMode && 
-              currentQuestion === questionNumber;
-
-            return (
-              <div
-                key={qIdx}
-                className={cn(
-                  "h-2 w-2 rounded-full transition-all duration-300",
-                  {
-                    // Предстоящий
-                    'bg-muted/30 dark:bg-muted/20': state === 'upcoming',
-                    // Текущий
-                    'bg-primary scale-125 ring-2 ring-primary/50': state === 'current' && isCurrentQuestion,
-                    // Пройденный успешно
-                    'bg-green-500 dark:bg-green-400': state === 'completed' && !hasError,
-                    // Пройденный с ошибкой (последний вопрос блока с ошибкой)
-                    'bg-red-500 dark:bg-red-400': state === 'error',
-                    // Текущий блок (но не текущий вопрос в штрафных)
-                    'bg-primary/50': isCurrentBlock && !isCurrentQuestion && state !== 'completed',
-                  }
-                )}
-              />
-            );
-          })}
-        </div>
-        
-        {/* Отступ между блоками (кроме последнего) */}
-        {blockId < blocksCount && (
-          <div className={cn("h-2 w-1 mx-1 rounded", "bg-border/50")} />
+        key={blockIndex}
+        className={cn(
+          "flex gap-1 flex-1 min-w-0 relative",
+          isPenalty && "p-1 rounded-lg border border-orange-500/30 bg-orange-500/5"
         )}
+      >
+        {isPenalty && (
+          <div className="absolute -top-5 left-1/2 -translate-x-1/2 flex items-center gap-1 text-[10px] font-bold text-orange-500 uppercase tracking-tighter whitespace-nowrap">
+            <AlertCircle className="w-3 h-3" />
+            <span>Штраф</span>
+          </div>
+        )}
+        {Array.from({ length: questionsPerBlock }).map((_, i) => {
+          const qIdx = startIdx + i;
+          const state = getSlotState(qIdx);
+
+          return (
+            <div
+              key={i}
+              className={cn(
+                "h-1.5 rounded-full w-full transition-all duration-300",
+                {
+                  'bg-gray-200 dark:bg-slate-700': state === 'pending',
+                  'bg-blue-600 animate-pulse shadow-[0_0_8px_rgba(37,99,235,0.5)]': state === 'active',
+                  'bg-emerald-500': state === 'success',
+                  'bg-red-500': state === 'error',
+                }
+              )}
+            />
+          );
+        })}
       </div>
     );
   };
 
   return (
-    <div className={cn("flex flex-col gap-3", className)}>
+    <div className={cn("flex gap-3 w-full items-center py-6", className)}>
       {/* Основные блоки */}
-      <div className="flex items-center gap-1">
-        {Array.from({ length: blocksCount }).map((_, idx) => renderBlock(idx + 1))}
+      <div className="flex gap-3 flex-[4] items-center">
+        {Array.from({ length: mainBlocksCount }).map((_, i) => renderBlock(i))}
       </div>
 
-      {/* Штрафные вопросы - анимированное появление */}
+      {/* Штрафные блоки */}
       <AnimatePresence>
         {penaltyQuestions > 0 && (
           <motion.div
-            initial={{ opacity: 0, x: -20, scale: 0.9 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: -20, scale: 0.9 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="flex items-center gap-2"
+            initial={{ opacity: 0, x: 20, width: 0 }}
+            animate={{ opacity: 1, x: 0, width: 'auto' }}
+            className="flex gap-3 items-center"
+            style={{ flex: penaltyQuestions / questionsPerBlock }}
           >
-            <div className="h-px w-4 bg-border" />
-            <div className="flex items-center gap-1">
-              <span className="text-xs font-medium text-orange-600 dark:text-orange-400 mr-1">
-                Штрафные:
-              </span>
-              <div className="flex items-center gap-0.5">
-                {Array.from({ length: penaltyQuestions }).map((_, qIdx) => {
-                  const penaltyQuestionNumber = totalMainQuestions + qIdx + 1;
-                  const isCurrent = currentQuestion === penaltyQuestionNumber;
-                  
-                  return (
-                    <div
-                      key={qIdx}
-                      className={cn(
-                        "h-2 w-2 rounded-full transition-all duration-300",
-                        {
-                          'bg-orange-500 dark:bg-orange-400 scale-125 ring-2 ring-orange-500/50': isCurrent,
-                          'bg-orange-500/50 dark:bg-orange-400/50': !isCurrent && penaltyQuestionNumber < currentQuestion,
-                          'bg-orange-500/30 dark:bg-orange-400/20': penaltyQuestionNumber > currentQuestion,
-                        }
-                      )}
-                    />
-                  );
-                })}
-              </div>
-            </div>
+            {Array.from({ length: penaltyQuestions / questionsPerBlock }).map((_, i) =>
+              renderBlock(mainBlocksCount + i, true)
+            )}
           </motion.div>
         )}
       </AnimatePresence>
     </div>
   );
 }
-

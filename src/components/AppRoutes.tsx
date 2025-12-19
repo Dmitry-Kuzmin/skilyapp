@@ -18,7 +18,7 @@ const Index = lazy(() => {
     })
     .catch((error) => {
       console.error("[AppRoutes] ❌ Failed to load Index module:", error);
-      return { default: () => <PageLoader /> };
+    return { default: () => <PageLoader /> };
     });
 });
 const LearningMap = lazy(() => import("../pages/LearningMap"));

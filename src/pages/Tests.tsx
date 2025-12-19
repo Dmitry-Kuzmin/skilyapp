@@ -545,9 +545,9 @@ const Tests = () => {
                           </div>
 
                           <div className="flex flex-col items-end gap-2">
-                            <Badge variant="outline" className="border-border text-muted-foreground bg-card/50">
-                              {mode.difficulty}
-                            </Badge>
+                          <Badge variant="outline" className="border-border text-muted-foreground bg-card/50">
+                            {mode.difficulty}
+                          </Badge>
                             {mode.badge && (
                               <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 font-semibold">
                                 {mode.badge}
@@ -594,24 +594,24 @@ const Tests = () => {
               {selectedCountry === 'russia' ? (
                 <div className="space-y-4">
                   <div className="grid grid-cols-8 sm:grid-cols-10 md:grid-cols-10 lg:grid-cols-10 xl:grid-cols-10 gap-2 sm:gap-3">
-                    {tickets.map((ticket, i) => {
-                      // Поддержка обратной совместимости: ticket_number из metadata или number
-                      const ticketId = typeof ticket.id === 'number' ? ticket.id : ticket.number;
-                      const ticketNumber = ticket.metadata?.ticket_number || ticket.number;
+                  {tickets.map((ticket, i) => {
+                    // Поддержка обратной совместимости: ticket_number из metadata или number
+                    const ticketId = typeof ticket.id === 'number' ? ticket.id : ticket.number;
+                    const ticketNumber = ticket.metadata?.ticket_number || ticket.number;
                       
                       // Определяем статус билета (пока упрощенно - можно расширить через user_progress)
                       const isCompleted = ticket.completed || false;
                       const hasErrors = ticket.progress && ticket.progress > 0 && ticket.progress < 100;
-                      
-                      return (
+                    
+                    return (
                         <motion.button
-                          key={ticket.id}
+                      key={ticket.id}
                           initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
+                      animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: i * 0.01 }}
                           whileHover={{ scale: 1.1, y: -2 }}
                           whileTap={{ scale: 0.95 }}
-                          onClick={() => navigate(`/learn/${selectedCountry}/ticket/${ticketId}`)}
+                      onClick={() => navigate(`/learn/${selectedCountry}/ticket/${ticketId}`)}
                           className={`
                             aspect-square rounded-xl font-bold text-sm sm:text-base
                             border-2 transition-all duration-200
@@ -625,29 +625,29 @@ const Tests = () => {
                             }
                             shadow-lg hover:shadow-xl
                           `}
-                        >
-                          {ticketNumber}
+                          >
+                            {ticketNumber}
                           {isCompleted && (
                             <Crown className="absolute -top-1 -right-1 w-3 h-3 text-yellow-500 fill-yellow-500" />
                           )}
                         </motion.button>
                       );
                     })}
-                  </div>
+                        </div>
                   <div className="flex items-center gap-4 text-xs sm:text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-emerald-500/20 border border-emerald-500/50" />
                       <span>Сдан без ошибок</span>
-                    </div>
+                          </div>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-amber-500/20 border border-amber-500/50" />
                       <span>Сдан с ошибками</span>
-                    </div>
+                          </div>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-zinc-900/50 border border-zinc-800/50" />
                       <span>Не пройден</span>
-                    </div>
-                  </div>
+                        </div>
+                      </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
