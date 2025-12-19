@@ -501,8 +501,10 @@ export function ContextSettingsSheet({
         open={open}
         onOpenChange={onOpenChange}
         title={dynamicTitle}
-        className="bg-zinc-950 border-zinc-800"
+        className="bg-zinc-950/95 backdrop-blur-xl border-zinc-800 border-t-white/10"
         contentClassName="relative overflow-hidden"
+        snapPoints={[0.85, 1]} // Открывается на 85%, можно потянуть до 100%
+        defaultSnap={0} // По умолчанию на 85% (первый snap point)
       >
         {/* Живой фон */}
         <AnimatedBackground />

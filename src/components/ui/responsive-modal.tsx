@@ -15,6 +15,8 @@ interface ResponsiveModalProps {
   hideCloseButton?: boolean;
   preventClose?: boolean;
   headerContent?: React.ReactNode;
+  snapPoints?: number[]; // Snap points для Vaul Drawer (например, [0.85, 1])
+  defaultSnap?: number; // Индекс snap point по умолчанию (например, 0 для первого)
 }
 
 /**
@@ -37,6 +39,8 @@ export function ResponsiveModal({
   hideCloseButton = false,
   preventClose = false,
   headerContent,
+  snapPoints,
+  defaultSnap,
 }: ResponsiveModalProps) {
   const isMobile = useIsMobile();
 
@@ -47,6 +51,8 @@ export function ResponsiveModal({
         open={open} 
         onOpenChange={onOpenChange}
         dismissible={!preventClose}
+        snapPoints={snapPoints}
+        defaultSnap={defaultSnap}
       >
         <DrawerContent
           className={cn(
