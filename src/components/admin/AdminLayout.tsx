@@ -15,6 +15,7 @@ import {
   Eye,
   Users,
   Flag,
+  ToggleLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -109,6 +110,12 @@ const adminNavItems = [
     label: "ПДД Россия",
     icon: Flag,
     path: "/admin/pdd-russia",
+  },
+  {
+    id: "feature-flags",
+    label: "Настройки заморозок",
+    icon: ToggleLeft,
+    path: "/admin/feature-flags",
   },
 ];
 

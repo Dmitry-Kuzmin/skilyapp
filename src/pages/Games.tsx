@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag, TrendingUp, Crown, Trophy, Brain, Gamepad2 } from "lucide-react";
+import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag, TrendingUp, Crown, Trophy, Brain, Gamepad2, Hourglass, Snowflake, Timer } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,8 @@ import { TermProgressModal } from "@/components/TermProgressModal";
 import { useModal } from "@/hooks/useModal";
 import { motion } from "framer-motion";
 import { useGamesStats, useOnlinePlayers } from "@/hooks/useGamesData";
+import { useFeatureFlag } from "@/hooks/useFeatureFlag";
+import { cn } from "@/lib/utils";
 
 // Fallback игроки для отображения, пока загружаются реальные
 const fallbackPlayers = [
@@ -27,6 +29,7 @@ const Games = () => {
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
   const { openModal: openBoostShop } = useModal('BOOST_SHOP');
+  const { enabled: duelsEnabled } = useFeatureFlag('duels_enabled', true);
   
   // ОПТИМИЗАЦИЯ: Используем React Query hooks вместо useState + useEffect
   const { data: stats, isLoading: isLoadingStats } = useGamesStats(profileId);
@@ -172,125 +175,195 @@ const Games = () => {
             </div>
 
             {/* DUEL HERO CARD - Dashboard Style */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="relative w-full overflow-hidden rounded-[2.5rem] shadow-2xl group cursor-pointer border border-white/10"
-              style={{
-                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)',
-                // ОПТИМИЗАЦИЯ: Явно указываем pointer-events и touch-action для мгновенной отзывчивости
-                pointerEvents: 'auto',
-                touchAction: 'manipulation',
-                WebkitTapHighlightColor: 'transparent'
-              }}
-              onClick={(e) => {
-                // ОПТИМИЗАЦИЯ: Предотвращаем двойные клики и улучшаем обработку
-                e.preventDefault();
-                e.stopPropagation();
-                navigate('/games/duel');
-              }}
-              onTouchStart={(e) => {
-                // ОПТИМИЗАЦИЯ: Обработка touch событий для мгновенной реакции
-                e.stopPropagation();
-              }}
-            >
-              {/* Noise texture */}
-              <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
+            <div className="w-full">
+              <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                      className={cn(
+                        "relative w-full overflow-hidden rounded-[2rem] shadow-2xl group border",
+                        duelsEnabled 
+                          ? "cursor-pointer border-white/10 rounded-[2.5rem]"
+                          : "cursor-not-allowed rounded-[2rem] bg-gradient-to-br from-cyan-900 via-blue-900 to-slate-900 border-cyan-500/30 shadow-[0_0_40px_rgba(8,145,178,0.2)]"
+                      )}
+                      style={duelsEnabled ? {
+                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)',
+                        // ОПТИМИЗАЦИЯ: Явно указываем pointer-events и touch-action для мгновенной отзывчивости
+                        pointerEvents: 'auto',
+                        touchAction: 'manipulation',
+                        WebkitTapHighlightColor: 'transparent'
+                      } : {
+                        pointerEvents: 'auto',
+                        touchAction: 'manipulation',
+                        WebkitTapHighlightColor: 'transparent'
+                      }}
+                      onClick={(e) => {
+                        if (!duelsEnabled) {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          return;
+                        }
+                        // ОПТИМИЗАЦИЯ: Предотвращаем двойные клики и улучшаем обработку
+                        e.preventDefault();
+                        e.stopPropagation();
+                        navigate('/games/duel');
+                      }}
+                      onTouchStart={(e) => {
+                        // ОПТИМИЗАЦИЯ: Обработка touch событий для мгновенной реакции
+                        e.stopPropagation();
+                      }}
+                    >
+              {/* Noise texture - только для активной карточки */}
+              {duelsEnabled && (
+                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
+              )}
 
-              {/* Animated Background Gradients */}
-              <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-fuchsia-500/30 to-purple-600/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 animate-pulse" />
-              <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-indigo-500/30 to-blue-600/30 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4" />
+              {/* Animated Background Gradients - только для активной карточки */}
+              {duelsEnabled && (
+                <>
+                  <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-fuchsia-500/30 to-purple-600/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 animate-pulse" />
+                  <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-indigo-500/30 to-blue-600/30 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4" />
+                </>
+              )}
+
+              {/* Frost Icon для замороженной карточки */}
+              {!duelsEnabled && (
+                <div className="absolute -right-10 -bottom-10 w-56 h-56">
+                  <Snowflake 
+                    className="w-full h-full text-cyan-200/20 rotate-12 animate-pulse" 
+                    style={{
+                      filter: 'drop-shadow(0 0 30px rgba(165, 243, 252, 0.15)) drop-shadow(0 0 60px rgba(165, 243, 252, 0.1))',
+                    }} 
+                  />
+                </div>
+              )}
 
               <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 p-8 md:p-12 items-center">
                 {/* Left Content */}
                 <div className="space-y-8">
                   <div className="space-y-4">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
-                      <Crown className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-                      <span className="text-sm font-bold text-white">Главный режим</span>
+                    <div className={cn(
+                      "inline-flex items-center gap-2 px-4 py-2 rounded-2xl backdrop-blur-md shadow-lg",
+                      duelsEnabled
+                        ? "bg-white/10 border border-white/20"
+                        : "bg-white/10 border border-white/20"
+                    )}>
+                      <Crown className={cn(
+                        "w-4 h-4",
+                        duelsEnabled ? "text-yellow-300 fill-yellow-300" : "text-cyan-300 fill-cyan-300"
+                      )} />
+                      <span className={cn(
+                        "text-sm font-bold",
+                        duelsEnabled ? "text-white" : "text-cyan-300"
+                      )}>Главный режим</span>
                     </div>
-                    <h2 className="text-5xl md:text-7xl font-black text-white tracking-tight leading-[0.9] drop-shadow-lg">
+                    <h2 className={cn(
+                      "text-5xl md:text-7xl font-black tracking-tight leading-[0.9] drop-shadow-lg",
+                      duelsEnabled ? "text-white" : "text-cyan-100"
+                    )}>
                       ДУЭЛЬ
                     </h2>
-                    <p className="text-lg md:text-xl text-white/90 font-medium max-w-md leading-relaxed">
-                      Сразись с другом или случайным соперником в битве знаний. Ставки, рейтинг и слава ждут!
+                    <p className={cn(
+                      "text-lg md:text-xl font-medium max-w-md leading-relaxed",
+                      duelsEnabled
+                        ? "text-white/90"
+                        : "text-cyan-200/80"
+                    )}>
+                      {duelsEnabled
+                        ? "Сразись с другом или случайным соперником в битве знаний. Ставки, рейтинг и слава ждут!"
+                        : "❄️ Арена временно замерзла. Слишком много горячих битв! Мы остужаем сервера, чтобы вы могли вернуться в бой с новыми силами."}
                     </p>
                   </div>
 
                   <div className="flex flex-wrap gap-6 items-center">
                     {/* START Button - Dashboard Style */}
-                    <button
-                      className="group relative h-16 px-10 rounded-full bg-white text-indigo-600 font-black text-lg shadow-[0_10px_30px_rgba(255,255,255,0.3)] hover:shadow-[0_20px_40px_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 overflow-hidden"
-                    >
-                      <Swords className="w-6 h-6" />
-                      <span>ИГРАТЬ</span>
-                      {/* Shimmer */}
-                      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-indigo-100/50 to-transparent" />
-                    </button>
+                    {duelsEnabled ? (
+                      <button
+                        onClick={() => navigate('/games/duel')}
+                        className="group relative h-16 px-10 rounded-full font-black text-lg bg-white text-indigo-600 shadow-[0_10px_30px_rgba(255,255,255,0.3)] hover:shadow-[0_20px_40px_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95 cursor-pointer transition-all duration-300 flex items-center gap-3 overflow-hidden"
+                      >
+                        <Swords className="w-6 h-6" />
+                        <span>ИГРАТЬ</span>
+                        {/* Shimmer */}
+                        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-indigo-100/50 to-transparent" />
+                      </button>
+                    ) : (
+                      <button
+                        disabled
+                        className="mt-6 flex items-center gap-2 px-6 py-3 rounded-xl bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 font-bold tracking-wide cursor-not-allowed backdrop-blur-md shadow-[0_0_15px_rgba(34,211,238,0.1)] hover:bg-cyan-500/15 transition-colors"
+                      >
+                        <Timer className="w-5 h-5" />
+                        <span>Система остывает ❄️</span>
+                      </button>
+                    )}
 
-                    <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10">
-                      <div className="flex -space-x-3">
-                        {(onlinePlayers.length ? onlinePlayers : fallbackPlayers).map((player) => (
-                          <Avatar
-                            key={player.id}
-                            className="w-9 h-9 border-2 border-indigo-400/70 shadow-sm shadow-indigo-500/20 bg-card"
-                          >
-                            {player.photoUrl && player.photoUrl.trim() !== '' ? (
-                              <AvatarImage 
-                                src={player.photoUrl} 
-                                alt={player.name}
-                                className="object-cover"
-                                onError={(e) => {
-                                  // Если изображение не загрузилось, скрываем его
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = 'none';
-                                }}
-                              />
-                            ) : null}
-                            <AvatarFallback className="bg-gradient-to-br from-indigo-400/30 to-purple-400/30 text-white text-xs font-bold">
-                              {player.initials}
-                            </AvatarFallback>
-                          </Avatar>
-                        ))}
+                    {duelsEnabled && (
+                      <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10">
+                        <div className="flex -space-x-3">
+                          {(onlinePlayers.length ? onlinePlayers : fallbackPlayers).map((player) => (
+                            <Avatar
+                              key={player.id}
+                              className="w-9 h-9 border-2 border-indigo-400/70 shadow-sm shadow-indigo-500/20 bg-card"
+                            >
+                              {player.photoUrl && player.photoUrl.trim() !== '' ? (
+                                <AvatarImage 
+                                  src={player.photoUrl} 
+                                  alt={player.name}
+                                  className="object-cover"
+                                  onError={(e) => {
+                                    // Если изображение не загрузилось, скрываем его
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                  }}
+                                />
+                              ) : null}
+                              <AvatarFallback className="bg-gradient-to-br from-indigo-400/30 to-purple-400/30 text-white text-xs font-bold">
+                                {player.initials}
+                              </AvatarFallback>
+                            </Avatar>
+                          ))}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-white font-bold text-sm leading-none">{onlineCount}+</span>
+                          <span className="text-indigo-200 text-[10px] font-bold uppercase tracking-wider">Онлайн</span>
+                        </div>
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-white font-bold text-sm leading-none">{onlineCount}+</span>
-                        <span className="text-indigo-200 text-[10px] font-bold uppercase tracking-wider">Онлайн</span>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 </div>
 
                 {/* Right Visual */}
-                <div className="hidden lg:flex justify-center items-center relative">
-                  <motion.div
-                    animate={{
-                      y: [0, -20, 0],
-                      rotate: [0, 5, 0]
-                    }}
-                    transition={{
-                      duration: 6,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                    className="relative z-10"
-                  >
-                    <div className="w-80 h-80 rounded-[3rem] bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-2xl border border-white/30 flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.2)] transform rotate-6 group-hover:rotate-12 transition-transform duration-700">
-                      <Swords className="w-40 h-40 text-white drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)]" />
-                    </div>
+                {duelsEnabled && (
+                  <div className="hidden lg:flex justify-center items-center relative">
+                    <motion.div
+                      animate={{
+                        y: [0, -20, 0],
+                        rotate: [0, 5, 0]
+                      }}
+                      transition={{
+                        duration: 6,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                      className="relative z-10"
+                    >
+                      <div className="w-80 h-80 rounded-[3rem] bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-2xl border border-white/30 flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.2)] transform rotate-6 group-hover:rotate-12 transition-transform duration-700">
+                        <Swords className="w-40 h-40 text-white drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)] transition-all duration-300" />
+                      </div>
 
-                    {/* Floating elements */}
-                    <div className="absolute -top-10 -right-10 p-5 rounded-3xl bg-gradient-to-br from-yellow-400/30 to-orange-500/30 backdrop-blur-xl border border-yellow-400/40 shadow-xl animate-bounce delay-700">
-                      <Trophy className="w-10 h-10 text-yellow-200" />
-                    </div>
-                    <div className="absolute -bottom-5 -left-10 p-5 rounded-3xl bg-gradient-to-br from-cyan-400/30 to-blue-500/30 backdrop-blur-xl border border-cyan-400/40 shadow-xl animate-bounce delay-1000">
-                      <Zap className="w-10 h-10 text-cyan-200" />
-                    </div>
-                  </motion.div>
-                </div>
+                      {/* Floating elements */}
+                      <div className="absolute -top-10 -right-10 p-5 rounded-3xl bg-gradient-to-br from-yellow-400/30 to-orange-500/30 backdrop-blur-xl border border-yellow-400/40 shadow-xl animate-bounce delay-700">
+                        <Trophy className="w-10 h-10 text-yellow-200" />
+                      </div>
+                      <div className="absolute -bottom-5 -left-10 p-5 rounded-3xl bg-gradient-to-br from-cyan-400/30 to-blue-500/30 backdrop-blur-xl border border-cyan-400/40 shadow-xl animate-bounce delay-1000">
+                        <Zap className="w-10 h-10 text-cyan-200" />
+                      </div>
+                    </motion.div>
+                  </div>
+                )}
               </div>
             </motion.div>
+            </div>
 
             {/* Other Games Grid - Dashboard Style (Darker, Glassmorphism) */}
             <div className="space-y-6">

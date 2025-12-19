@@ -17,9 +17,13 @@ export function useFeatureFlag(flagKey: string, defaultValue: boolean = true) {
       
       // Если ошибка доступа (403) или запись не найдена - возвращаем значение по умолчанию
       if (error) {
-        // Логируем только если это не 404 (запись не найдена)
-        if (error.code !== 'PGRST116') {
-          console.warn(`[useFeatureFlag] Error fetching flag "${flagKey}":`, error.message);
+        // Логируем только если это не 404 (запись не найдена) и не 403 (RLS блокирует)
+        // 403 - это нормально, если пользователь не авторизован или нет доступа
+        if (error.code !== 'PGRST116' && error.code !== 'PGRST301') {
+          // Логируем только в dev режиме
+          if (import.meta.env.DEV) {
+            console.debug(`[useFeatureFlag] Error fetching flag "${flagKey}":`, error.message);
+          }
         }
         return defaultValue;
       }
@@ -42,8 +46,8 @@ export function useFeatureFlag(flagKey: string, defaultValue: boolean = true) {
       
       return defaultValue;
     },
-    staleTime: 5 * 60 * 1000, // Кэш 5 минут
-    refetchInterval: 60 * 1000, // Обновлять каждую минуту (для быстрого отключения)
+    staleTime: 10 * 1000, // Кэш 10 секунд (для быстрого отключения фич)
+    refetchInterval: 15 * 1000, // Обновлять каждые 15 секунд (для мгновенного отключения)
   });
   
   return { enabled: data ?? defaultValue, isLoading };
