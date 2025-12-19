@@ -18,14 +18,14 @@ function useSafeQueryClient() {
 function useSafeQuery<T>(options: Parameters<typeof useQuery<T>>[0] & { enabled?: boolean }) {
   const queryClient = useSafeQueryClient();
   const hasQueryClient = !!queryClient;
-  
+
   // Всегда вызываем useQuery, но с enabled: false если нет queryClient
   // Если QueryClient отсутствует, useQuery может упасть, но мы надеемся что enabled: false предотвратит это
   const queryResult = useQuery<T>({
     ...options,
     enabled: hasQueryClient && (options.enabled !== false),
   });
-  
+
   // Если нет queryClient, возвращаем заглушку
   if (!hasQueryClient) {
     return {
@@ -35,7 +35,7 @@ function useSafeQuery<T>(options: Parameters<typeof useQuery<T>>[0] & { enabled?
       refetch: async () => ({ data: undefined, error: null }),
     };
   }
-  
+
   return queryResult;
 }
 
@@ -136,35 +136,11 @@ const DASHBOARD_QUERY_KEY = 'dashboard-data';
 
 /**
  * SUPER ОПТИМИЗИРОВАННЫЙ хук для получения данных dashboard
- * Использует React Query + SUPER RPC get_dashboard_super
- * БЫЛО: 200+ запросов на загрузку dashboard
- * СТАЛО: 1 SUPER запрос на загрузку ВСЕГО dashboard (включая topics, partners, premium)
- * 
- * SUPER RPC v2.1 возвращает:
- * - Profile (полный с аватаром)
- * - Stats, Readiness, Daily Bonus
- * - Premium Status (без Edge Function!)
- * - Partner Status (без отдельного запроса!)
- * - Topics (список тем)
- * - Daily Bonus Definitions
- * - НОВОЕ: Active Season (активный сезон)
- * - НОВОЕ: Season Progress (прогресс пользователя)
- * - НОВОЕ: Unread Notifications Count
  */
 export function useDashboardData() {
-  // Безопасное обращение к UserContext и QueryClient
   const userContext = useContext(UserContext);
   const profileId = userContext?.profileId ?? null;
   const queryClient = useSafeQueryClient();
-  
-  // ДИАГНОСТИКА: Логируем инициализацию хука
-  console.log('[useDashboardData] Hook initialized', {
-    hasProfileId: !!profileId,
-    profileId,
-    hasQueryClient: !!queryClient,
-    hasUserContext: !!userContext,
-    timestamp: new Date().toISOString(),
-  });
 
   const {
     data,
@@ -174,168 +150,60 @@ export function useDashboardData() {
   } = useSafeQuery<DashboardData | null>({
     queryKey: [DASHBOARD_QUERY_KEY, profileId],
     queryFn: async () => {
-      if (!profileId) {
-        console.warn('[useDashboardData] ⚠️ No profileId, returning null');
-        return null;
-      }
-
-      console.log('[useDashboardData] 🚀 Fetching dashboard with SUPER RPC call', {
-        profileId,
-        profileIdType: typeof profileId,
-        timestamp: new Date().toISOString(),
-      });
+      if (!profileId) return null;
 
       // SUPER ОПТИМИЗАЦИЯ: Пробуем новый Super RPC
-      // КРИТИЧНО: Обрабатываем 404 (функция не найдена) как нормальную ситуацию
-      console.log('[useDashboardData] 📡 Calling get_dashboard_super RPC...');
-      let superResult, superError;
       try {
-        const response = await supabase.rpc('get_dashboard_super', { p_user_id: profileId });
-        superResult = response.data;
-        superError = response.error;
-        console.log('[useDashboardData] 📡 RPC response received', {
-          hasData: !!superResult,
-          hasError: !!superError,
-          errorCode: superError?.code,
-          errorMessage: superError?.message,
-        });
-      } catch (e) {
-        console.error('[useDashboardData] ❌ Exception during RPC call:', e);
-        superError = e as any;
-        superResult = null;
-      }
-
-      // Если функция не найдена (404) или другая ошибка - используем fallback
-      if (superError) {
-        const is404 = superError.code === 'PGRST204' || superError.message?.includes('404') || superError.message?.includes('not found');
-        
-        if (is404) {
-          console.warn('[useDashboardData] ⚠️ Super RPC function not found (404), using fallback');
-        } else {
-          console.error('[useDashboardData] ❌ Super RPC error:', {
-            error: superError,
-            code: superError.code,
-            message: superError.message,
-            details: superError.details,
-            hint: superError.hint,
-            profileId,
-            profileIdType: typeof profileId,
-          });
+        const response = await (supabase as any).rpc('get_dashboard_super', { p_user_id: profileId });
+        if (!response.error && response.data && !response.data.error) {
+          return response.data as DashboardData;
         }
-      } else if (superResult && !superResult.error) {
-        console.log('[useDashboardData] ✅ SUPER RPC success - all data in 1 request!', {
-          profileId,
-          hasPremium: !!superResult.premium,
-          hasPartner: !!superResult.partner,
-          hasTopics: !!superResult.topics,
-        });
-        return superResult as DashboardData;
+      } catch (e) {
+        console.warn('[useDashboardData] get_dashboard_super failed, trying regular RPC');
       }
 
       // Fallback на обычный RPC
-      if (superError) {
-        console.warn('[useDashboardData] ⚠️ Super RPC failed, trying regular RPC', {
-          errorCode: superError.code,
-          errorMessage: superError.message,
-        });
-      } else {
-        console.warn('[useDashboardData] ⚠️ Super RPC not available, trying regular RPC');
-      }
-      
-      console.log('[useDashboardData] 📡 Calling get_dashboard_complete RPC...');
-      let result, rpcError;
       try {
-        const response = await supabase.rpc('get_dashboard_complete', { p_user_id: profileId });
-        result = response.data;
-        rpcError = response.error;
-        console.log('[useDashboardData] 📡 Regular RPC response received', {
-          hasData: !!result,
-          hasError: !!rpcError,
-          errorCode: rpcError?.code,
-          errorMessage: rpcError?.message,
-        });
+        const response = await (supabase as any).rpc('get_dashboard_complete', { p_user_id: profileId });
+        if (!response.error && response.data && !response.data.error) {
+          return response.data as DashboardData;
+        }
       } catch (e) {
-        console.error('[useDashboardData] ❌ Exception during regular RPC call:', e);
-        rpcError = e as any;
-        result = null;
+        console.warn('[useDashboardData] get_dashboard_complete failed, trying fallback');
       }
 
-      if (rpcError) {
-        const is404 = rpcError.code === 'PGRST204' || rpcError.message?.includes('404') || rpcError.message?.includes('not found');
-        
-        if (is404) {
-          console.warn('[useDashboardData] ⚠️ Regular RPC function not found (404), using fallback');
-        } else {
-          console.error('[useDashboardData] ❌ RPC error:', rpcError);
-        }
-        console.warn('[useDashboardData] ⚠️ Falling back to old method (fetchDashboardFallback)');
-        try {
-          const fallbackData = await fetchDashboardFallback(profileId);
-          console.log('[useDashboardData] ✅ Fallback method completed', {
-            hasData: !!fallbackData,
-            hasProfile: !!fallbackData?.profile,
-          });
-          return fallbackData;
-        } catch (fallbackErr) {
-          console.error('[useDashboardData] ❌ Fallback method failed:', fallbackErr);
-          throw fallbackErr;
-        }
-      }
-
-      if (!result || result.error) {
-        console.error('[useDashboardData] ❌ No data or error in result:', result);
-        console.warn('[useDashboardData] ⚠️ Trying fallback method');
-        // Пробуем fallback если regular RPC вернул ошибку
-        try {
-          return await fetchDashboardFallback(profileId);
-        } catch (fallbackError) {
-          console.error('[useDashboardData] ❌ Fallback also failed:', fallbackError);
-          return null;
-        }
-      }
-
-      console.log('[useDashboardData] ✅ Dashboard loaded successfully (regular RPC)', {
-        profileId,
-        testsCompleted: result.stats.tests_completed,
-        xp: result.profile.xp,
-      });
-
-      return result as DashboardData;
+      // Окончательный fallback
+      return await fetchDashboardFallback(profileId);
     },
     enabled: !!profileId,
-    staleTime: 30 * 1000, // 30 секунд - данные считаются свежими
-    gcTime: 5 * 60 * 1000, // 5 минут - кэш в памяти
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnMount: true, // КРИТИЧНО: Включаем refetchOnMount для продакшена
+    refetchOnMount: true,
     refetchOnReconnect: true,
-    retry: 2, // Увеличиваем количество попыток
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Экспоненциальная задержка
+    retry: 2,
   });
 
-  // Функция для принудительного обновления
   const refresh = async (force = false) => {
-    if (!queryClient) return;
+    if (!queryClient || !profileId) return;
     if (force) {
-      // Инвалидируем кэш перед обновлением
       queryClient.invalidateQueries({ queryKey: [DASHBOARD_QUERY_KEY, profileId] });
     }
     await refetch();
   };
 
-  // Функция для инвалидации кэша
   const invalidateCache = () => {
-    if (!queryClient) return;
+    if (!queryClient || !profileId) return;
     queryClient.invalidateQueries({ queryKey: [DASHBOARD_QUERY_KEY, profileId] });
   };
 
-  // Если нет провайдеров - возвращаем заглушку
   if (!userContext || !queryClient) {
     return {
       data: null,
       loading: false,
       error: null,
-      refresh: async () => {},
-      invalidateCache: () => {},
+      refresh: async () => { },
+      invalidateCache: () => { },
     };
   }
 
@@ -348,122 +216,90 @@ export function useDashboardData() {
   };
 }
 
-// Fallback функция для старого способа загрузки (если новый RPC не работает)
 async function fetchDashboardFallback(profileId: string): Promise<DashboardData | null> {
-  console.log('[fetchDashboardFallback] 🔄 Using fallback method for profileId:', profileId);
-  
   try {
     const [profileResult, sessionsResult, bonusResult, tasksResult, achievementsResult, rewardsResult] = await Promise.all([
-          supabase
-            .from('profiles')
-      .select('id, rank, xp, coins, boosts, streak_days, settings')
-            .eq('id', profileId)
-            .maybeSingle(),
-          
-          supabase
-            .from('game_sessions')
-            .select('total_questions, score')
-      .eq('user_id', profileId)
-      .or('game_type.eq.test_exam,game_type.eq.test_practice'),
-          
-          supabase
-            .from('user_daily_bonus')
-            .select('id, current_streak, last_claimed_date, total_claims')
-            .eq('user_id', profileId)
-            .maybeSingle(),
+      supabase
+        .from('profiles')
+        .select('id, rank, xp, coins, boosts, streak_days, settings')
+        .eq('id', profileId)
+        .maybeSingle(),
 
-    supabase
-      .from('daily_tasks')
-      .select('id, task_type, title, progress, max_progress, reward, completed, date')
-      .eq('user_id', profileId)
-      .eq('date', new Date().toISOString().split('T')[0]),
-    
-    supabase
-      .from('achievements')
-      .select('id, achievement_type, title, description, unlocked, progress, max_progress, unlocked_at, created_at')
-      .eq('user_id', profileId)
-      .order('created_at', { ascending: false })
-      .limit(4),
-    
-    supabase
-      .from('daily_bonus_def')
-      .select('day_number, reward, description')
-      .order('day_number', { ascending: true })
-      .limit(7),
-  ]);
+      supabase
+        .from('game_sessions')
+        .select('total_questions, score')
+        .eq('user_id', profileId)
+        .or('game_type.eq.test_exam,game_type.eq.test_practice'),
 
-  if (profileResult.error) throw profileResult.error;
-  if (sessionsResult.error) throw sessionsResult.error;
+      supabase
+        .from('user_daily_bonus')
+        .select('id, current_streak, last_claimed_date, total_claims')
+        .eq('user_id', profileId)
+        .maybeSingle(),
 
-        const profile = profileResult.data;
-  if (!profile) return null;
-        
-        const sessions = sessionsResult.data || [];
-  const testsCompleted = sessions.length;
-  const totalQuestions = sessions.reduce((acc, s) => acc + (s.total_questions || 0), 0);
-  const correctAnswers = sessions.reduce((acc, s) => acc + (s.score || 0), 0);
-        const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+      supabase
+        .from('daily_tasks')
+        .select('id, task_type, title, progress, max_progress, reward, completed, date')
+        .eq('user_id', profileId)
+        .eq('date', new Date().toISOString().split('T')[0]),
 
-        const bonus = bonusResult.data;
-        const today = new Date().toISOString().split('T')[0];
+      supabase
+        .from('achievements')
+        .select('id, achievement_type, title, description, unlocked, progress, max_progress, unlocked_at, created_at')
+        .eq('user_id', profileId)
+        .order('created_at', { ascending: false })
+        .limit(4),
 
-  return {
-          profile: {
-            id: profile.id,
-            rank: profile.rank || 'Ученик',
-            xp: profile.xp || 0,
-            coins: profile.coins || 0,
-            boosts: profile.boosts || 0,
-            streak_days: profile.streak_days || 0,
-      settings: profile.settings || {},
-          },
-          stats: {
-            tests_completed: testsCompleted,
-            total_questions: totalQuestions,
-            correct_answers: correctAnswers,
-            accuracy: accuracy,
-          },
-          daily_bonus: {
-            id: bonus?.id || null,
-            current_streak: bonus?.current_streak || 0,
-            last_claimed_date: bonus?.last_claimed_date || null,
-            total_claims: bonus?.total_claims || 0,
-            can_claim: !bonus?.last_claimed_date || bonus.last_claimed_date !== today,
-          },
-        dailyTasks: tasksResult.data || [],
-        recentAchievements: achievementsResult.data || [],
-        weeklyRewards: rewardsResult.data || [],
-  };
-  } catch (error) {
-    console.error('[fetchDashboardFallback] ❌ Error in fallback:', error);
-    // Возвращаем минимальные данные чтобы приложение не зависло
+      supabase
+        .from('daily_bonus_def')
+        .select('day_number, reward, description')
+        .order('day_number', { ascending: true })
+        .limit(7),
+    ]);
+
+    if (profileResult.error) throw profileResult.error;
+
+    const profile = profileResult.data;
+    if (!profile) return null;
+
+    const sessions = sessionsResult.data || [];
+    const testsCompleted = sessions.length;
+    const totalQuestions = sessions.reduce((acc, s) => acc + (s.total_questions || 0), 0);
+    const correctAnswers = sessions.reduce((acc, s) => acc + (s.score || 0), 0);
+    const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+
+    const bonus = bonusResult.data;
+    const today = new Date().toISOString().split('T')[0];
+
     return {
       profile: {
-        id: profileId,
-        rank: 'Ученик',
-        xp: 0,
-        coins: 0,
-        boosts: 0,
-        streak_days: 0,
-        settings: {},
+        id: profile.id,
+        rank: profile.rank || 'Ученик',
+        xp: profile.xp || 0,
+        coins: profile.coins || 0,
+        boosts: profile.boosts || 0,
+        streak_days: profile.streak_days || 0,
+        settings: profile.settings || {},
       },
       stats: {
-        tests_completed: 0,
-        total_questions: 0,
-        correct_answers: 0,
-        accuracy: 0,
+        tests_completed: testsCompleted,
+        total_questions: totalQuestions,
+        correct_answers: correctAnswers,
+        accuracy: accuracy,
       },
       daily_bonus: {
-        id: null,
-        current_streak: 0,
-        last_claimed_date: null,
-        total_claims: 0,
-        can_claim: false,
+        id: bonus?.id || null,
+        current_streak: bonus?.current_streak || 0,
+        last_claimed_date: bonus?.last_claimed_date || null,
+        total_claims: bonus?.total_claims || 0,
+        can_claim: !bonus?.last_claimed_date || bonus.last_claimed_date !== today,
       },
-      dailyTasks: [],
-      recentAchievements: [],
-      weeklyRewards: [],
+      dailyTasks: tasksResult.data || [],
+      recentAchievements: achievementsResult.data || [],
+      weeklyRewards: rewardsResult.data || [],
     };
+  } catch (error) {
+    console.error('[fetchDashboardFallback] ❌ Error in fallback:', error);
+    return null;
   }
 }
-

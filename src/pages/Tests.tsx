@@ -1,8 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Shuffle, Clock, Zap, Flame, History, AlertTriangle, 
-  Target, TrendingUp, Crown, BookOpen, Gamepad2, Play, ArrowRight, Sparkles
+Star, AlertTriangle as AlertIcon, RotateCcw,
+  CarFront, MapPin, Gauge, Check
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
@@ -18,6 +17,8 @@ import { usePDDTopics } from "@/hooks/usePDDTopics";
 import { COUNTRIES_CONFIG } from "@/types/pdd";
 import { motion } from "framer-motion";
 import { getImageUrl } from "@/utils/imageUtils";
+import { loadTestProgress } from "@/utils/testStorage";
+import { cn } from "@/lib/utils";
 
 // --- Types ---
 type Topic = {
@@ -31,16 +32,67 @@ type Topic = {
   is_premium?: boolean;
 };
 
+// --- Cyber-Core Grid Components ---
+
+const TicketCore = ({
+  number,
+  status = 'idle',
+  onClick
+}: {
+  number: number;
+  status?: 'idle' | 'charging' | 'charged' | 'damaged';
+  onClick: () => void;
+}) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileHover={{ scale: 1.02, y: -2 }}
+      whileTap={{ scale: 0.98 }}
+      onClick={onClick}
+      className={cn(
+        "relative aspect-square rounded-[24px] overflow-hidden cursor-pointer transition-all duration-300 group shadow-lg",
+        "border border-white/20 backdrop-blur-xl",
+        "before:absolute before:inset-0 before:bg-[url('https://grainy-gradients.vercel.app/noise.svg')] before:opacity-[0.05] before:pointer-events-none",
+        // Idle (Empty Plate)
+        status === 'idle' && "bg-white/5 hover:bg-white/10 hover:border-white/40 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]",
+        // In Progress (Blue Infusion)
+        status === 'charging' && "bg-blue-500/20 border-blue-500/40 animate-[pulse_4s_ease-in-out_infinite]",
+        // Charged (Emerald Infusion)
+        status === 'charged' && "bg-emerald-500/20 border-emerald-500/40 shadow-[0_0_30px_rgba(16,185,129,0.2)]",
+        // Damaged (Red/Warning Infusion)
+        status === 'damaged' && "bg-rose-500/20 border-rose-500/40 shadow-[0_0_20px_rgba(244,63,94,0.15)]"
+      )}
+    >
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-4xl font-thin text-white tracking-tighter drop-shadow-sm select-none">
+          {number}
+        </span>
+      </div>
+
+      {/* Done Indicator */}
+      {status === 'charged' && (
+        <div className="absolute top-3 right-3 opacity-60">
+          <Check className="w-4 h-4 text-white" />
+        </div>
+      )}
+
+      {/* Glossy Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+    </motion.div>
+  );
+};
+
 const Tests = () => {
   const navigate = useNavigate();
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
   const { language, t } = useLanguage();
-  
+
   // Получаем выбранную страну из контекста
   const { selectedCountry } = usePDDContext();
   const countryData = COUNTRIES_CONFIG[selectedCountry];
-  
+
   // Логирование для отладки
   if (import.meta.env.DEV) {
     console.log('[Tests] Страница загружена:', {
@@ -58,6 +110,21 @@ const Tests = () => {
 
   const [randomQuestionCount, setRandomQuestionCount] = useState(20);
   const [hasSelectedCount, setHasSelectedCount] = useState(false);
+  const [nonstopProgress, setNonstopProgress] = useState<{ answered: number; total: number } | null>(null);
+
+  // Загружаем прогресс для нон-стоп
+  useEffect(() => {
+    if (selectedCountry === 'russia') {
+      loadTestProgress('nonstop_russia').then(progress => {
+        if (progress && progress.answers.length > 0) {
+          setNonstopProgress({
+            answered: progress.answers.length,
+            total: 800
+          });
+        }
+      }).catch(console.error);
+    }
+  }, [selectedCountry]);
 
   // ОПТИМИЗАЦИЯ: Вычисляем topics с локализацией через useMemo
   const topics = useMemo(() => {
@@ -119,7 +186,38 @@ const Tests = () => {
   };
 
   const handleRandomTestStart = () => {
-    handleStartTest(`/test/practice?count=${randomQuestionCount}`);
+    handleStartTest(`/test/practice?count=${randomQuestionCount}${selectedCountry === 'russia' ? '&country=russia' : ''}`);
+  };
+
+  // --- Умный трекер для России ---
+  const recommendedTicket = useMemo(() => {
+    if (selectedCountry !== 'russia' || tickets.length === 0) return null;
+
+    // 1. Ищем билет в процессе (не завершен, прогресс > 0)
+    // Сортируем так, чтобы взять тот, где прогресс больше (последний активный)
+    const inProgress = [...tickets].filter(t => !t.completed && t.progress > 0)
+      .sort((a, b) => b.progress - a.progress)[0];
+
+    if (inProgress) return { ...inProgress, type: 'continue' as const };
+
+    // 2. Если нет в процессе, ищем первый не начатый
+    const nextNew = tickets.find(t => !t.completed && t.progress === 0);
+    if (nextNew) return { ...nextNew, type: 'next' as const };
+
+    // 3. Если все билеты решены
+    return { type: 'exam' as const, number: 0 };
+  }, [tickets, selectedCountry]);
+
+  const handleBannerClick = () => {
+    if (selectedCountry !== 'russia') return;
+    if (!recommendedTicket) return;
+
+    if (recommendedTicket.type === 'exam') {
+      navigate('/test/exam-russia');
+    } else {
+      const ticketId = (recommendedTicket as any).id || (recommendedTicket as any).number;
+      navigate(`/learn/russia/ticket/${ticketId}`);
+    }
   };
 
   // Адаптируем тесты под выбранную страну
@@ -140,7 +238,7 @@ const Tests = () => {
       {
         id: 2,
         title: selectedCountry === 'russia' ? 'Экзамен ПДД РФ' : (t('testsPage.exam') + " DGT"),
-        description: selectedCountry === 'russia' 
+        description: selectedCountry === 'russia'
           ? 'Полная симуляция официального экзамена ПДД'
           : t('testsPage.examDesc'),
         icon: Clock,
@@ -188,7 +286,7 @@ const Tests = () => {
       {
         id: 6,
         title: selectedCountry === 'russia' ? 'Топ-50 ловушек ГАИ' : t('testsPage.hardest'),
-        description: selectedCountry === 'russia' 
+        description: selectedCountry === 'russia'
           ? 'Самые сложные вопросы, на которых валятся все'
           : t('testsPage.hardestDesc'),
         icon: AlertTriangle,
@@ -279,102 +377,130 @@ const Tests = () => {
               </div>
             </div>
 
-            {/* RANDOM TEST HERO CARD - Dashboard Style */}
+            {/* КОМАНДНЫЙ ЦЕНТР (Россия) или СЛУЧАЙНЫЙ ТЕСТ (Другие) */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               className="relative w-full overflow-hidden rounded-[2.5rem] shadow-2xl group cursor-pointer border border-white/10"
               style={{
-                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)',
+                background: selectedCountry === 'russia'
+                  ? 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #2563eb 100%)'
+                  : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)',
                 pointerEvents: 'auto',
-                touchAction: 'manipulation',
-                WebkitTapHighlightColor: 'transparent'
+                touchAction: 'manipulation'
               }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-              onTouchStart={(e) => {
-                e.stopPropagation();
-              }}
+              onClick={selectedCountry === 'russia' ? handleBannerClick : undefined}
             >
               {/* Noise texture */}
               <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
 
-              {/* Animated Background Gradients */}
-              <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-pink-500/30 to-purple-600/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 animate-pulse" />
-              <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-indigo-500/30 to-blue-600/30 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4" />
-
               <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 p-8 md:p-12 items-center">
                 {/* Left Content */}
                 <div className="space-y-8">
-                  <div className="space-y-4">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
-                      <Crown className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-                      <span className="text-sm font-bold text-white">Рекомендуется</span>
-                    </div>
-                    <h2 className="text-5xl md:text-7xl font-black text-white tracking-tight leading-[0.9] drop-shadow-lg">
-                      {t('testsPage.randomTest').toUpperCase()}
-                    </h2>
-                    <p className="text-lg md:text-xl text-white/90 font-medium max-w-md leading-relaxed">
-                      {t('testsPage.randomTestDesc')}
-                    </p>
-                  </div>
+                  {selectedCountry === 'russia' && recommendedTicket ? (
+                    <div className="space-y-6">
+                      <div className="space-y-4">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
+                          <Sparkles className="w-4 h-4 text-amber-300 fill-amber-300" />
+                          <span className="text-sm font-bold text-white uppercase tracking-wider">
+                            {recommendedTicket.type === 'continue' ? 'Рекомендуем продолжить' :
+                              recommendedTicket.type === 'next' ? 'Твой следующий шаг' : 'Время экзамена'}
+                          </span>
+                        </div>
 
-                  <div className="space-y-4">
-                    {/* Question Count Selector */}
-                    <div>
-                      <p className="text-sm text-white/80 font-semibold mb-3">
-                        {t('testsPage.questionCount')}
+                        <h2 className="text-5xl md:text-7xl font-black text-white tracking-tight leading-[0.9] drop-shadow-lg">
+                          {recommendedTicket.type === 'continue' ? `БИЛЕТ №${recommendedTicket.number}` :
+                            recommendedTicket.type === 'next' ? `БИЛЕТ №${recommendedTicket.number}` :
+                              'ЭКЗАМЕН ГИБДД'}
+                        </h2>
+
+                        <p className="text-lg md:text-xl text-white/90 font-medium max-w-md leading-relaxed">
+                          {recommendedTicket.type === 'continue' ?
+                            `Вы остановились на середине пути. Пора дожать оставшиеся вопросы и закрыть этот билет!` :
+                            recommendedTicket.type === 'next' ?
+                              `Новый рубеж! Начните изучение следующего билета, чтобы стать еще на шаг ближе к правам.` :
+                              `Вы изучили все билеты! Самое время проверить себя в условиях реального экзамена.`}
+                        </p>
+                      </div>
+
+                      <button
+                        className="group relative h-16 px-10 rounded-full bg-white text-indigo-600 font-black text-lg shadow-[0_10px_30px_rgba(255,255,255,0.3)] hover:shadow-[0_20px_40px_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 overflow-hidden w-fit"
+                      >
+                        <Play className="w-6 h-6 fill-indigo-600" />
+                        <span>
+                          {recommendedTicket.type === 'continue' ? 'Продолжить' :
+                            recommendedTicket.type === 'next' ? 'Начать билет' : 'Начать экзамен'}
+                        </span>
+                        <ArrowRight className="w-6 h-6" />
+                        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-indigo-100/50 to-transparent" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
+                        <Crown className="w-4 h-4 text-yellow-300 fill-yellow-300" />
+                        <span className="text-sm font-bold text-white">Рекомендуется</span>
+                      </div>
+                      <h2 className="text-5xl md:text-7xl font-black text-white tracking-tight leading-[0.9] drop-shadow-lg">
+                        {t('testsPage.randomTest').toUpperCase()}
+                      </h2>
+                      <p className="text-lg md:text-xl text-white/90 font-medium max-w-md leading-relaxed">
+                        {t('testsPage.randomTestDesc')}
                       </p>
-                      <div className="flex gap-3">
-                        {[10, 20, 30].map((count) => (
-                          <motion.button
-                            key={count}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCountSelect(count);
-                            }}
-                            className={`
-                              flex-1 px-6 py-3 rounded-xl font-bold text-base transition-all
-                              ${randomQuestionCount === count
-                                ? "bg-white text-indigo-600 shadow-lg shadow-white/30"
-                                : "bg-white/10 text-white hover:bg-white/20 border border-white/20"
-                              }
-                            `}
+
+                      <div className="space-y-4">
+                        <div>
+                          <p className="text-sm text-white/80 font-semibold mb-3">
+                            {t('testsPage.questionCount')}
+                          </p>
+                          <div className="flex gap-3">
+                            {[10, 20, 30].map((count) => (
+                              <motion.button
+                                key={count}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCountSelect(count);
+                                }}
+                                className={`
+                                  flex-1 px-6 py-3 rounded-xl font-bold text-base transition-all
+                                  ${randomQuestionCount === count
+                                    ? "bg-white text-indigo-600 shadow-lg shadow-white/30"
+                                    : "bg-white/10 text-white hover:bg-white/20 border border-white/20"
+                                  }
+                                `}
+                              >
+                                {count}
+                              </motion.button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {hasSelectedCount && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3 }}
                           >
-                            {count}
-                          </motion.button>
-                        ))}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRandomTestStart();
+                              }}
+                              className="group relative h-16 px-10 rounded-full bg-white text-indigo-600 font-black text-lg shadow-[0_10px_30px_rgba(255,255,255,0.3)] hover:shadow-[0_20px_40px_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 overflow-hidden w-full"
+                            >
+                              <Play className="w-6 h-6 fill-indigo-600" />
+                              <span>{t('testsPage.startButton')}</span>
+                              <ArrowRight className="w-6 h-6" />
+                              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-indigo-100/50 to-transparent" />
+                            </button>
+                          </motion.div>
+                        )}
                       </div>
                     </div>
-
-                    {/* Start Button */}
-                    {hasSelectedCount && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRandomTestStart();
-                          }}
-                          className="group relative h-16 px-10 rounded-full bg-white text-indigo-600 font-black text-lg shadow-[0_10px_30px_rgba(255,255,255,0.3)] hover:shadow-[0_20px_40px_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 overflow-hidden w-full"
-                        >
-                          <Play className="w-6 h-6 fill-indigo-600" />
-                          <span>{t('testsPage.startButton')}</span>
-                          <ArrowRight className="w-6 h-6" />
-                          {/* Shimmer */}
-                          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-indigo-100/50 to-transparent" />
-                        </button>
-                      </motion.div>
-                    )}
-                  </div>
+                  )}
                 </div>
 
                 {/* Right Visual */}
@@ -392,15 +518,27 @@ const Tests = () => {
                     className="relative z-10"
                   >
                     <div className="w-80 h-80 rounded-[3rem] bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-2xl border border-white/30 flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.2)] transform rotate-6 group-hover:rotate-12 transition-transform duration-700">
-                      <Shuffle className="w-40 h-40 text-white drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)]" />
+                      {selectedCountry === 'russia' ? (
+                        <CarFront className="w-40 h-40 text-white drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)]" />
+                      ) : (
+                        <Shuffle className="w-40 h-40 text-white drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)]" />
+                      )}
                     </div>
 
                     {/* Floating elements */}
                     <div className="absolute -top-10 -right-10 p-5 rounded-3xl bg-gradient-to-br from-yellow-400/30 to-orange-500/30 backdrop-blur-xl border border-yellow-400/40 shadow-xl animate-bounce delay-700">
-                      <Target className="w-10 h-10 text-yellow-200" />
+                      {selectedCountry === 'russia' ? (
+                        <Gauge className="w-10 h-10 text-yellow-200" />
+                      ) : (
+                        <Target className="w-10 h-10 text-yellow-200" />
+                      )}
                     </div>
                     <div className="absolute -bottom-5 -left-10 p-5 rounded-3xl bg-gradient-to-br from-cyan-400/30 to-blue-500/30 backdrop-blur-xl border border-cyan-400/40 shadow-xl animate-bounce delay-1000">
-                      <Zap className="w-10 h-10 text-cyan-200" />
+                      {selectedCountry === 'russia' ? (
+                        <MapPin className="w-10 h-10 text-cyan-200" />
+                      ) : (
+                        <Zap className="w-10 h-10 text-cyan-200" />
+                      )}
                     </div>
                   </motion.div>
                 </div>
@@ -545,9 +683,9 @@ const Tests = () => {
                           </div>
 
                           <div className="flex flex-col items-end gap-2">
-                          <Badge variant="outline" className="border-border text-muted-foreground bg-card/50">
-                            {mode.difficulty}
-                          </Badge>
+                            <Badge variant="outline" className="border-border text-muted-foreground bg-card/50">
+                              {mode.difficulty}
+                            </Badge>
                             {mode.badge && (
                               <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 font-semibold">
                                 {mode.badge}
@@ -564,6 +702,27 @@ const Tests = () => {
                             {mode.description}
                           </p>
                         </div>
+
+                        {/* Progress Bar for Non-stop */}
+                        {mode.id === 8 && nonstopProgress && (
+                          <div className="mt-2 space-y-2 animate-fade-in">
+                            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-amber-500/80">
+                              <span>Пройдено: {nonstopProgress.answered} / {nonstopProgress.total}</span>
+                              <span className="flex items-center gap-1">
+                                {Math.round((nonstopProgress.answered / nonstopProgress.total) * 100)}%
+                                <CheckCircle className="w-3 h-3" />
+                              </span>
+                            </div>
+                            <div className="h-2 w-full bg-slate-100 dark:bg-slate-800/50 rounded-full overflow-hidden border border-amber-500/20 shadow-inner">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${(nonstopProgress.answered / nonstopProgress.total) * 100}%` }}
+                                transition={{ duration: 1, ease: "easeOut" }}
+                                className="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 shadow-[0_0_15px_rgba(245,158,11,0.4)]"
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </motion.div>
                   );
@@ -590,150 +749,142 @@ const Tests = () => {
                 </Badge>
               </div>
 
-              {/* Для России: показываем билеты в компактной сетке */}
+              {/* Для России: показываем билеты в Vision OS Grid */}
               {selectedCountry === 'russia' ? (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-8 sm:grid-cols-10 md:grid-cols-10 lg:grid-cols-10 xl:grid-cols-10 gap-2 sm:gap-3">
-                  {tickets.map((ticket, i) => {
-                    // Поддержка обратной совместимости: ticket_number из metadata или number
-                    const ticketId = typeof ticket.id === 'number' ? ticket.id : ticket.number;
-                    const ticketNumber = ticket.metadata?.ticket_number || ticket.number;
-                      
-                      // Определяем статус билета (пока упрощенно - можно расширить через user_progress)
-                      const isCompleted = ticket.completed || false;
-                      const hasErrors = ticket.progress && ticket.progress > 0 && ticket.progress < 100;
-                    
-                    return (
-                        <motion.button
-                      key={ticket.id}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: i * 0.01 }}
-                          whileHover={{ scale: 1.1, y: -2 }}
-                          whileTap={{ scale: 0.95 }}
-                      onClick={() => navigate(`/learn/${selectedCountry}/ticket/${ticketId}`)}
-                          className={`
-                            aspect-square rounded-xl font-bold text-sm sm:text-base
-                            border-2 transition-all duration-200
-                            flex items-center justify-center relative
-                            ${
-                              isCompleted
-                                ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/30 hover:border-emerald-500/70'
-                                : hasErrors
-                                ? 'bg-amber-500/20 border-amber-500/50 text-amber-400 hover:bg-amber-500/30 hover:border-amber-500/70'
-                                : 'bg-zinc-900/50 border-zinc-800/50 text-zinc-400 hover:bg-zinc-800/70 hover:border-zinc-700/70'
-                            }
-                            shadow-lg hover:shadow-xl
-                          `}
-                          >
-                            {ticketNumber}
-                          {isCompleted && (
-                            <Crown className="absolute -top-1 -right-1 w-3 h-3 text-yellow-500 fill-yellow-500" />
-                          )}
-                        </motion.button>
+                <div className="space-y-8 p-0">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 p-4">
+                    {tickets.map((ticket, i) => {
+                      const ticketId = typeof ticket.id === 'number' ? ticket.id : ticket.number;
+                      const ticketNumber = ticket.metadata?.ticket_number || ticket.number;
+
+                      // Расширенная логика статусов
+                      let status: 'idle' | 'charging' | 'charged' | 'damaged' = 'idle';
+                      const progress = ticket.progress || 0;
+
+                      if (ticket.completed) {
+                        status = (ticket.score && ticket.score >= 100) ? 'charged' : 'damaged';
+                      } else if (progress > 0) {
+                        status = 'charging';
+                      }
+
+                      return (
+                        <TicketCore
+                          key={ticket.id}
+                          number={ticketNumber}
+                          status={status}
+                          onClick={() => navigate(`/learn/${selectedCountry}/ticket/${ticketId}`)}
+                        />
                       );
                     })}
-                        </div>
-                  <div className="flex items-center gap-4 text-xs sm:text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded bg-emerald-500/20 border border-emerald-500/50" />
-                      <span>Сдан без ошибок</span>
-                          </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded bg-amber-500/20 border border-amber-500/50" />
-                      <span>Сдан с ошибками</span>
-                          </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded bg-zinc-900/50 border border-zinc-800/50" />
-                      <span>Не пройден</span>
-                        </div>
+                  </div>
+
+                  {/* Legend - Vision OS Style */}
+                  <div className="flex flex-wrap items-center gap-8 p-8 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-xl mx-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
+                        <Check className="w-4 h-4 text-emerald-400" />
                       </div>
+                      <span className="text-sm font-light text-white/70 tracking-wide">Сдано идеально</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-500/40 flex items-center justify-center">
+                        <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                      </div>
+                      <span className="text-sm font-light text-white/70 tracking-wide">В процессе</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-xl bg-white/5 border border-white/20 flex items-center justify-center">
+                        <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                      </div>
+                      <span className="text-sm font-light text-white/70 tracking-wide">Не начато</span>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {topics.map((topic, i) => {
-                  const coverImageUrl = topic.cover_image ? getImageUrl(topic.cover_image, 'test-covers') || topic.cover_image : null;
-                  const hasCoverImage = !!coverImageUrl;
+                    const coverImageUrl = topic.cover_image ? getImageUrl(topic.cover_image, 'test-covers') || topic.cover_image : null;
+                    const hasCoverImage = !!coverImageUrl;
 
-                  return (
-                    <motion.div
-                      key={topic.id}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: i * 0.03 }}
-                      whileHover={{ scale: 1.02, y: -4 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleTopicClick(topic.id)}
-                      className="group relative overflow-hidden rounded-[2rem] p-6 cursor-pointer border border-border bg-card/60 dark:bg-card/40 backdrop-blur-sm hover:bg-card/80 dark:hover:bg-card/60 shadow-lg hover:shadow-xl transition-all duration-150 h-[180px]"
-                      style={{
-                        backgroundImage: hasCoverImage ? `url(${coverImageUrl})` : undefined,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat',
-                      }}
-                    >
-                      {/* Background gradient overlay for readability */}
-                      <div className={`
+                    return (
+                      <motion.div
+                        key={topic.id}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: i * 0.03 }}
+                        whileHover={{ scale: 1.02, y: -4 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => handleTopicClick(topic.id)}
+                        className="group relative overflow-hidden rounded-[2rem] p-6 cursor-pointer border border-border bg-card/60 dark:bg-card/40 backdrop-blur-sm hover:bg-card/80 dark:hover:bg-card/60 shadow-lg hover:shadow-xl transition-all duration-150 h-[180px]"
+                        style={{
+                          backgroundImage: hasCoverImage ? `url(${coverImageUrl})` : undefined,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat',
+                        }}
+                      >
+                        {/* Background gradient overlay for readability */}
+                        <div className={`
                         absolute inset-0 transition-all duration-500
                         ${hasCoverImage
-                          ? "bg-gradient-to-br from-black/70 via-black/60 to-black/70 group-hover:from-black/60 group-hover:via-black/50 group-hover:to-black/60"
-                          : "bg-card/60 dark:bg-card/40 group-hover:bg-card/80 dark:group-hover:bg-card/60"
-                        }
+                            ? "bg-gradient-to-br from-black/70 via-black/60 to-black/70 group-hover:from-black/60 group-hover:via-black/50 group-hover:to-black/60"
+                            : "bg-card/60 dark:bg-card/40 group-hover:bg-card/80 dark:group-hover:bg-card/60"
+                          }
                       `} />
 
-                      {/* Accent gradient on hover */}
-                      {!hasCoverImage && (
-                        <div className="absolute inset-0 bg-gradient-to-br from-violet-500/0 to-purple-500/0 group-hover:from-violet-500/20 group-hover:to-purple-500/20 transition-all duration-500" />
-                      )}
+                        {/* Accent gradient on hover */}
+                        {!hasCoverImage && (
+                          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/0 to-purple-500/0 group-hover:from-violet-500/20 group-hover:to-purple-500/20 transition-all duration-500" />
+                        )}
 
-                      <div className="relative z-10 h-full flex flex-col justify-between">
-                        <div className="flex items-start justify-between">
-                          <motion.div
-                            whileHover={{ rotate: 12, scale: 1.1 }}
-                            className={`
+                        <div className="relative z-10 h-full flex flex-col justify-between">
+                          <div className="flex items-start justify-between">
+                            <motion.div
+                              whileHover={{ rotate: 12, scale: 1.1 }}
+                              className={`
                               w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl transition-all shadow-xl
                               ${hasCoverImage
-                                ? "bg-white/25 backdrop-blur-lg text-white border-2 border-white/40"
-                                : "bg-gradient-to-br from-violet-500/20 to-purple-500/20 text-foreground border border-border"
-                              }
+                                  ? "bg-white/25 backdrop-blur-lg text-white border-2 border-white/40"
+                                  : "bg-gradient-to-br from-violet-500/20 to-purple-500/20 text-foreground border border-border"
+                                }
                             `}
-                          >
-                            {topic.number}
-                          </motion.div>
-                          {topic.is_premium && !isPremium && (
-                            <motion.div
-                              animate={{ rotate: [0, 10, -10, 0] }}
-                              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                              className="relative"
                             >
-                              <Sparkles className="w-5 h-5 text-amber-400 drop-shadow-lg" />
-                              <div className="absolute inset-0 bg-amber-400/30 blur-md rounded-full" />
+                              {topic.number}
                             </motion.div>
-                          )}
-                        </div>
+                            {topic.is_premium && !isPremium && (
+                              <motion.div
+                                animate={{ rotate: [0, 10, -10, 0] }}
+                                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                                className="relative"
+                              >
+                                <Sparkles className="w-5 h-5 text-amber-400 drop-shadow-lg" />
+                                <div className="absolute inset-0 bg-amber-400/30 blur-md rounded-full" />
+                              </motion.div>
+                            )}
+                          </div>
 
-                        <div className="space-y-1">
-                          <div className={`
+                          <div className="space-y-1">
+                            <div className={`
                             font-black text-lg line-clamp-2 leading-tight
                             ${hasCoverImage ? "text-white drop-shadow-lg" : "text-foreground"}
                           `}>
-                            {topic.name}
-                          </div>
-                          {topic.questions > 0 && (
-                            <div className={`
+                              {topic.name}
+                            </div>
+                            {topic.questions > 0 && (
+                              <div className={`
                               text-sm font-bold flex items-center gap-1.5
                               ${hasCoverImage ? "text-white/90" : "text-muted-foreground"}
                             `}>
-                              <BookOpen className="w-3 h-3" />
-                              <span>{topic.questions} {t('testsPage.questions')}</span>
-                            </div>
-                          )}
+                                <BookOpen className="w-3 h-3" />
+                                <span>{topic.questions} {t('testsPage.questions')}</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
               )}
             </motion.div>
 

@@ -27,24 +27,24 @@ function getBlockByQuestionNumber(questionNumber: number): number {
  */
 async function fetchAnswersInBatches(questionIds: string[], batchSize: number = 100): Promise<any[]> {
   const allAnswers: any[] = [];
-  
+
   // Разбиваем на батчи
   for (let i = 0; i < questionIds.length; i += batchSize) {
     const batch = questionIds.slice(i, i + batchSize);
-    
+
     const { data: batchAnswers, error: batchError } = await supabase
       .from('pdd_russia_answers')
       .select('*')
       .in('question_id', batch)
       .order('position', { ascending: true });
-    
+
     if (batchError) throw batchError;
-    
+
     if (batchAnswers) {
       allAnswers.push(...batchAnswers);
     }
   }
-  
+
   return allAnswers;
 }
 
@@ -54,7 +54,7 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
       return [];
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('pdd_russia_questions')
       .select('ticket_number')
       .order('ticket_number', { ascending: true });
@@ -94,7 +94,7 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
     }
 
     // Получаем вопросы билета
-    const { data: questions, error: questionsError } = await supabase
+    const { data: questions, error: questionsError } = await (supabase as any)
       .from('pdd_russia_questions')
       .select('*')
       .eq('ticket_number', ticketNumber)
@@ -136,9 +136,13 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
     }
 
     // Получаем случайные вопросы
-    const { data: questions, error: questionsError } = await supabase
+    // ВАЖНО: В текущей конфигурации Supabase нет RPC для ORDER BY random(),
+    // поэтому для 800 вопросов берем все (они фильтруются/перемешиваются в UI если нужно).
+    // Перемешивание происходит на клиенте в конце функции.
+    const { data: questions, error: questionsError } = await (supabase as any)
       .from('pdd_russia_questions')
       .select('*')
+      .order('id', { ascending: true })
       .limit(count);
 
     if (questionsError) throw questionsError;
@@ -198,7 +202,7 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
 
     // Группируем вопросы по блокам (по question_number)
     const questionsByBlock = new Map<number, typeof allQuestions>();
-    
+
     allQuestions.forEach((q) => {
       const blockId = getBlockByQuestionNumber(q.question_number);
       const existing = questionsByBlock.get(blockId) || [];
@@ -208,10 +212,10 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
 
     // Из каждого блока берем случайную пятерку
     const selectedQuestions: typeof allQuestions = [];
-    
+
     for (let blockId = 1; blockId <= RUSSIA_EXAM_RULES.blocksCount; blockId++) {
       const blockQuestions = questionsByBlock.get(blockId) || [];
-      
+
       if (blockQuestions.length === 0) {
         console.warn(`[RussiaLegacyStrategy] Блок ${blockId} пуст`);
         continue;
@@ -220,7 +224,7 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
       // Перемешиваем и берем первые 5
       const shuffled = [...blockQuestions].sort(() => Math.random() - 0.5);
       const selected = shuffled.slice(0, RUSSIA_EXAM_RULES.questionsPerBlock);
-      
+
       selectedQuestions.push(...selected);
     }
 
@@ -240,13 +244,13 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
     const universalQuestions: UniversalQuestion[] = selectedQuestions.map((q) => {
       const questionAnswers = answersByQuestion.get(q.id) || [];
       const universal = mapRussiaQuestionToUniversal(q, questionAnswers);
-      
+
       const blockId = getBlockByQuestionNumber(q.question_number);
       if (!universal.topics) {
         universal.topics = [];
       }
       universal.topics.push(`block_${blockId}`);
-      
+
       return universal;
     });
 
@@ -265,10 +269,10 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
 
     // Преобразуем ВСЕ вопросы по блокам для доп. вопросов
     const allUniversalByBlock: Record<number, UniversalQuestion[]> = {};
-    
+
     for (let blockId = 1; blockId <= RUSSIA_EXAM_RULES.blocksCount; blockId++) {
       const blockQuestions = questionsByBlock.get(blockId) || [];
-      
+
       // Преобразуем к универсальному формату
       allUniversalByBlock[blockId] = blockQuestions.map((q) => {
         const questionAnswers = allAnswersByQuestion.get(q.id) || [];
@@ -304,13 +308,11 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
     }
 
     const { data: questions, error: questionsError } = await query;
-    
+
     if (questionsError) {
       console.error('[RussiaLegacyStrategy] Error fetching questions by topic:', questionsError);
       throw questionsError;
     }
-
-    if (questionsError) throw questionsError;
 
     if (!questions || questions.length === 0) {
       return [];
@@ -347,7 +349,7 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
     }
 
     // Получаем все уникальные темы и считаем количество вопросов
-    const { data: questions, error } = await supabase
+    const { data: questions, error } = await (supabase as any)
       .from('pdd_russia_questions')
       .select('topics');
 
@@ -359,7 +361,7 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
 
     // Группируем по темам
     const topicsMap = new Map<string, number>();
-    
+
     questions.forEach((q) => {
       if (q.topics && Array.isArray(q.topics)) {
         q.topics.forEach((topic: string) => {

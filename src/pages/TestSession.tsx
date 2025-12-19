@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useUserContext } from "@/contexts/UserContext";
-import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical, Trophy } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical, Trophy, ArrowRight } from "lucide-react";
 import { QuestionProgressBar } from "@/components/QuestionProgressBar";
 import { SegmentedExamProgress } from "@/components/exam/SegmentedExamProgress";
 import { PenaltyAlert } from "@/components/exam/PenaltyAlert";
@@ -255,7 +255,8 @@ const TestSession = () => {
   }, [mode, ticketIdParam]);
 
   // Получаем количество вопросов из URL
-  const questionCount = parseInt(searchParams.get('count') || '30');
+  const countParam = searchParams.get('count');
+  const questionCount = countParam ? parseInt(countParam) : (mode === 'nonstop' && selectedCountry === 'russia' ? 800 : 30);
   const blitzDuration = parseInt(searchParams.get('timer') || '300') || 300;
   const initialTimeBudget = mode === "exam" ? 30 * 60 : mode === "blitz" ? blitzDuration : 0;
   const [language, setLanguage] = useState<'ru' | 'es'>('es');
@@ -274,6 +275,7 @@ const TestSession = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const isClosingRef = useRef(false);
+  const hasLoadedProgressRef = useRef<string | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const [contentScrollTop, setContentScrollTop] = useState(0);
   const [testInfo, setTestInfo] = useState<{ id: string; title: string } | null>(null);
@@ -1075,7 +1077,7 @@ const TestSession = () => {
         toast.error("Ошибка загрузки вопросов по теме");
         setLoading(false);
       }
-    } else if (mode === 'practice' || mode === 'blitz' || mode === 'exam') {
+    } else if (mode === 'practice' || mode === 'blitz' || mode === 'exam' || mode === 'nonstop') {
       // Для России используем ПДД вопросы
       if (shouldUsePDD) {
         if (pddRandomQuestions.data && pddRandomQuestions.data.length > 0) {
@@ -1099,6 +1101,31 @@ const TestSession = () => {
             })),
           }));
           setQuestions(convertedQuestions);
+          if (mode === 'nonstop') {
+            setTestInfo({ id: 'nonstop_russia', title: '🚀 Режим Нон-стоп (800)' });
+
+            // Загружаем прогресс для нон-стоп ОДИН РАЗ
+            if (hasLoadedProgressRef.current !== 'nonstop_russia') {
+              hasLoadedProgressRef.current = 'nonstop_russia';
+              loadTestProgress('nonstop_russia').then((savedProgress) => {
+                if (savedProgress && savedProgress.answers.length > 0) {
+                  setAnswers(savedProgress.answers.map(a => ({
+                    questionId: a.questionId,
+                    selectedAnswerId: a.selectedAnswerId,
+                    isCorrect: a.isCorrect,
+                  })));
+                  setCurrentIndex(savedProgress.currentIndex);
+                  toast.info('Прогресс восстановлен');
+                }
+              }).catch(console.error);
+            }
+          } else if (mode === 'practice') {
+            setTestInfo({ id: 'practice_russia', title: '📖 Практика' });
+          } else if (mode === 'blitz') {
+            setTestInfo({ id: 'blitz_russia', title: '⚡️ Блиц' });
+          } else if (mode === 'exam') {
+            setTestInfo({ id: 'exam_russia_training', title: '🚦 Тренировочный Экзамен' });
+          }
           setLoading(false);
         } else if (pddRandomQuestions.isLoading) {
           setLoading(true);
@@ -3140,14 +3167,12 @@ const TestSession = () => {
                           >
                             {currentIndex < questions.length - 1 ? (
                               <>
-                                <span className="hidden sm:inline">Siguiente</span>
-                                <span className="sm:hidden">Siguiente</span>
+                                <span>{selectedCountry === 'russia' ? 'Следующий' : 'Siguiente'}</span>
                                 <ChevronRight className="w-4 h-4 ml-1" />
                               </>
                             ) : (
                               <>
-                                <span className="hidden sm:inline">Finalizar ✓</span>
-                                <span className="sm:hidden">Finalizar</span>
+                                <span>{selectedCountry === 'russia' ? 'Завершить ✓' : 'Finalizar ✓'}</span>
                               </>
                             )}
                           </Button>
@@ -3296,14 +3321,12 @@ const TestSession = () => {
                           >
                             {currentIndex < questions.length - 1 ? (
                               <>
-                                <span className="hidden sm:inline">Siguiente</span>
-                                <span className="sm:hidden">Siguiente</span>
+                                <span>{selectedCountry === 'russia' ? 'Следующий' : 'Siguiente'}</span>
                                 <ChevronRight className="w-4 h-4 ml-1" />
                               </>
                             ) : (
                               <>
-                                <span className="hidden sm:inline">Finalizar ✓</span>
-                                <span className="sm:hidden">Finalizar</span>
+                                <span>{selectedCountry === 'russia' ? 'Завершить ✓' : 'Finalizar ✓'}</span>
                               </>
                             )}
                           </Button>

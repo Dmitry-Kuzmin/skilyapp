@@ -62,36 +62,36 @@ const NavItem = memo(({ item, currentPath, navigate }: { item: NavigationItem; c
   const isDuel = item.isActiveDuel;
   const isActive = isNavigationItemActive(item, currentPath);
   const Icon = item.icon;
-  
+
   const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
     // КРИТИЧНО: Явная обработка клика для мгновенного перехода без задержек
     e.preventDefault();
     e.stopPropagation();
     e.nativeEvent.stopImmediatePropagation();
-    
+
     // Используем requestAnimationFrame для немедленного перехода без блокировки UI
     requestAnimationFrame(() => {
       navigate(item.href);
     });
   }, [item.href, navigate]);
-  
+
   const handleTouchStart = useCallback((e: React.TouchEvent<HTMLAnchorElement>) => {
     // КРИТИЧНО: Обработка touch для мгновенной реакции на мобильных
     e.stopPropagation();
     e.nativeEvent.stopImmediatePropagation();
   }, []);
-  
+
   const handleTouchEnd = useCallback((e: React.TouchEvent<HTMLAnchorElement>) => {
     // КРИТИЧНО: Обработка touchEnd для немедленного перехода
     e.preventDefault();
     e.stopPropagation();
     e.nativeEvent.stopImmediatePropagation();
-    
+
     requestAnimationFrame(() => {
       navigate(item.href);
     });
   }, [item.href, navigate]);
-  
+
   return (
     <NavLink
       to={item.href}
@@ -107,7 +107,7 @@ const NavItem = memo(({ item, currentPath, navigate }: { item: NavigationItem; c
         isDuel && "bg-gradient-to-b from-primary/10 to-blue-500/10"
       )}
       end={false}
-      style={{ 
+      style={{
         // ОПТИМИЗАЦИЯ: Явно указываем pointer-events и touch-action для лучшей отзывчивости
         pointerEvents: 'auto',
         touchAction: 'manipulation',
@@ -149,10 +149,10 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
   const [isTelegramMobilePlatform, setIsTelegramMobilePlatform] = useState<boolean | null>(null);
   const mainContentRef = useRef<HTMLElement>(null);
   const notificationsApi = useNotifications();
-  
+
   // Управление сессиями (только 1 активная сессия одновременно)
   useSessionManager();
-  
+
   // Отслеживаем фактическую платформу Telegram (ios/android vs desktop)
   useEffect(() => {
     if (!isTelegramApp) {
@@ -184,9 +184,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
     // DuelBattleFullscreen использует raw safeArea.top напрямую, без двойного padding
     const isDuelPage = location.pathname.includes('/games/duel');
     const shouldApplyPadding = isTelegramApp && platformMobile && !isDuelPage;
-    
-    console.log('[Layout] isTelegramApp:', isTelegramApp, 'isMobile:', isMobile, 'hasTelegramWebApp:', hasTelegramWebApp, 'isDuelPage:', isDuelPage, 'shouldApplyPadding:', shouldApplyPadding);
-    
+
     if (mainContentRef.current && shouldApplyPadding) {
       const topInsetStr = getComputedStyle(document.documentElement)
         .getPropertyValue('--tg-content-safe-area-inset-top').trim() || '40px';
@@ -194,32 +192,24 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
       const systemSafeArea = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sat') || '0', 10) || 0;
       const fixedPadding = `${topInset + systemSafeArea}px`;
       const computedPadding = `calc(env(safe-area-inset-top, 0px) + ${topInset}px)`;
-      
+
       // Применяем оба варианта для надежности
       mainContentRef.current.style.paddingTop = computedPadding;
       mainContentRef.current.style.setProperty('padding-top', fixedPadding, 'important');
-      
-      console.log('[Layout] Applied padding-top via useEffect:', {
-        computed: computedPadding,
-        fixed: fixedPadding,
-        topInset: topInset,
-        systemSafeArea: systemSafeArea,
-        finalValue: getComputedStyle(mainContentRef.current).paddingTop
-      });
+
     } else if (mainContentRef.current) {
       // 🆕 CRITICAL FIX: Явно убираем padding-top для страницы дуэли или если не нужно применять
       mainContentRef.current.style.paddingTop = '0px';
-      console.log('[Layout] Removed padding-top (not Telegram mobile or duel page)');
     }
   }, [isTelegramApp, isMobile, isTelegramMobilePlatform, location.pathname]); // Также при изменении маршрута или размера экрана
-  
+
   // Также применяем при изменении CSS переменных (только для мобильных)
   // 🆕 CRITICAL FIX: Отключаем для страницы дуэли
   useEffect(() => {
     const platformMobile = typeof isTelegramMobilePlatform === 'boolean' ? isTelegramMobilePlatform : isMobile;
     const isDuelPage = location.pathname.includes('/games/duel');
     if (!isTelegramApp || !platformMobile || !mainContentRef.current || isDuelPage) return;
-    
+
     const observer = new MutationObserver(() => {
       if (mainContentRef.current) {
         const topInset = getComputedStyle(document.documentElement)
@@ -228,19 +218,19 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
         mainContentRef.current.style.paddingTop = computedPadding;
       }
     });
-    
+
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['style']
     });
-    
+
     return () => observer.disconnect();
   }, [isTelegramApp, isMobile, isTelegramMobilePlatform]);
 
   // Заменяем раздел "Игры" на "Дуэль" если есть активная дуэль
   // 🆕 CRITICAL FIX: Проверяем статус дуэли перед показом кнопки "Дуэль"
   const [duelStatus, setDuelStatus] = useState<'active' | 'waiting' | 'finished' | 'unknown'>('unknown');
-  
+
   useEffect(() => {
     if (!activeDuel) {
       setDuelStatus('unknown');
@@ -255,13 +245,13 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
           .select('status')
           .eq('id', activeDuel.duelId)
           .maybeSingle();
-        
+
         if (error || !data) {
           console.warn('[Layout] Error checking duel status for menu button:', error);
           setDuelStatus('unknown');
           return;
         }
-        
+
         setDuelStatus(data.status as 'active' | 'waiting' | 'finished');
       } catch (err) {
         console.error('[Layout] Exception checking duel status:', err);
@@ -279,20 +269,20 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
     { name: t("tests"), href: "/tests", icon: FileText, matchPaths: ["/tests", "/test"] },
     { name: t("learning"), href: "/learning", icon: BookOpen, matchPaths: ["/learning", "/learning-map", "/topic", "/subtopic"] },
     (activeDuel && (duelStatus === 'active' || duelStatus === 'waiting' || duelStatus === 'unknown'))
-      ? { 
-          name: "Дуэль", 
-          href: `/games/duel?duelId=${activeDuel.duelId}`, 
-          icon: Swords,
-          isActiveDuel: true,
-          matchPaths: ["/games/duel"]
-        }
+      ? {
+        name: "Дуэль",
+        href: `/games/duel?duelId=${activeDuel.duelId}`,
+        icon: Swords,
+        isActiveDuel: true,
+        matchPaths: ["/games/duel"]
+      }
       : { name: t("games"), href: "/games", icon: Gamepad2, matchPaths: ["/games"] },
   ], [t, activeDuel, duelStatus]);
 
   // ОПТИМИЗАЦИЯ: Prefetching для критических маршрутов при hover
   useEffect(() => {
     const prefetchRoutes = ['/tests', '/learning', '/games', '/dashboard'];
-    
+
     const handleMouseEnter = (e: MouseEvent) => {
       const target = e.target;
       // Проверяем, что target является элементом с методом closest
@@ -329,8 +319,8 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
 
   // Определяем fullscreen режимы (тесты и игры) - navbar должен быть скрыт
   // ОПТИМИЗАЦИЯ: Мемоизируем isFullscreenMode для предотвращения лишних вычислений
-  const isFullscreenMode = useMemo(() => 
-    location.pathname.startsWith('/test/') || 
+  const isFullscreenMode = useMemo(() =>
+    location.pathname.startsWith('/test/') ||
     location.pathname.includes('/duel') ||
     location.pathname.includes('/race-game') ||
     location.pathname.includes('/guess-the-sign') ||
@@ -363,121 +353,121 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
       <TelegramNavigation />
       {/* Edge Swipe Back Area (Telegram/Mobile) */}
       <EdgeSwipeBack />
-      
+
       {/* УБРАНО: TelegramSafeAreaDebug - debug overlay убран для продакшена */}
-      
+
       {/* Top Navigation for Desktop - Hide only when hideNavigation */}
       {!hideNavigation && (
         <header className={cn(
           "border-b border-border/50 backdrop-blur-xl bg-background/95 sticky top-0 z-50 overflow-x-hidden overflow-y-visible w-full",
           "hidden md:block" // Показываем на десктопе всегда (и в Telegram тоже, если десктоп)
         )} style={{ overflow: 'visible' }}>
-        <div className="container mx-auto px-4 max-w-[1370px]" style={{ overflow: 'visible', position: 'relative' }}>
-          <div className="flex items-center justify-between h-16 min-w-0" style={{ overflow: 'visible', position: 'relative' }}>
-            <NavLink
-              to="/dashboard"
-              className="min-w-0 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl px-1 py-1 transition-colors hover:opacity-90"
-              style={{ overflow: 'visible', position: 'relative', zIndex: 10 }}
-            >
-              <LandingLogo variant="bold" showText={true} />
-            </NavLink>
+          <div className="container mx-auto px-4 max-w-[1370px]" style={{ overflow: 'visible', position: 'relative' }}>
+            <div className="flex items-center justify-between h-16 min-w-0" style={{ overflow: 'visible', position: 'relative' }}>
+              <NavLink
+                to="/dashboard"
+                className="min-w-0 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl px-1 py-1 transition-colors hover:opacity-90"
+                style={{ overflow: 'visible', position: 'relative', zIndex: 10 }}
+              >
+                <LandingLogo variant="bold" showText={true} />
+              </NavLink>
 
-            <nav className="flex gap-1 min-w-0 flex-shrink">
-              {navigation.map((item) => {
-                const desktopActive = isNavigationItemActive(item, location.pathname);
-                return (
-                  <NavLink
-                    key={item.name}
-                    to={item.href}
-                    className={cn(
-                      "flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-150 whitespace-nowrap flex-shrink-0",
-                      // ОПТИМИЗАЦИЯ: Убрано transition-all, оставлен только transition-colors
-                      desktopActive
-                        ? "bg-primary text-primary-foreground shadow-primary"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-                      item.isActiveDuel && "bg-gradient-to-r from-primary/10 to-blue-500/10 border border-primary/20"
-                    )}
-                    style={{
-                      pointerEvents: 'auto',
-                      touchAction: 'manipulation',
-                      WebkitTapHighlightColor: 'transparent',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <item.icon className="w-5 h-5 flex-shrink-0" />
-                    <span className="font-medium">{item.name}</span>
-                  </NavLink>
-                );
-              })}
-            </nav>
-
-            <div className="flex items-center gap-0.5 min-w-0 flex-shrink-0">
-              {isAuthenticated && (
-                <>
-                  {/* Wallet + Achievements widgets в header на больших экранах */}
-                  <div className="hidden lg:flex items-center gap-2 min-w-0 flex-shrink-0 mr-1">
-                    <WalletWidget />
-                    <AchievementsWidget />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-pressed={referralModalOpen}
-                    onClick={() => setReferralModalOpen(true)}
-                    className={cn(
-                      "relative hidden sm:flex flex-shrink-0 -mr-1 h-10 w-10 items-center justify-center rounded-lg transition-all",
-                      referralModalOpen
-                        ? "bg-primary/15 text-primary border-[0.5px] border-white/80 shadow-[0_0_20px_rgba(250,204,21,0.35)]"
-                        : "text-muted-foreground hover:text-primary hover:border-[0.5px] hover:border-white/80 hover:bg-primary/10 hover:h-9 hover:w-9"
-                    )}
-                    title="Реферальная программа"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="w-5 h-5 shrink-0"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
+              <nav className="flex gap-1 min-w-0 flex-shrink">
+                {navigation.map((item) => {
+                  const desktopActive = isNavigationItemActive(item, location.pathname);
+                  return (
+                    <NavLink
+                      key={item.name}
+                      to={item.href}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-150 whitespace-nowrap flex-shrink-0",
+                        // ОПТИМИЗАЦИЯ: Убрано transition-all, оставлен только transition-colors
+                        desktopActive
+                          ? "bg-primary text-primary-foreground shadow-primary"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                        item.isActiveDuel && "bg-gradient-to-r from-primary/10 to-blue-500/10 border border-primary/20"
+                      )}
+                      style={{
+                        pointerEvents: 'auto',
+                        touchAction: 'manipulation',
+                        WebkitTapHighlightColor: 'transparent',
+                        cursor: 'pointer',
+                      }}
                     >
-                      <path fill="currentColor" d="M19.25 14.75h-6.5v4.5H18c.69 0 1.25-.56 1.25-1.25zM9.118 3.958C7.931 3.257 6.71 3.35 6.03 4.03c-.257.258-.377.548-.382.818-.004.262.1.589.445.934.664.665 2.193 1.345 5.103 1.452-.216-1.574-1.083-2.688-2.078-3.276m8.852.072c-.68-.68-1.901-.773-3.088-.072-.995.588-1.863 1.702-2.08 3.276 2.912-.107 4.44-.787 5.105-1.452.346-.345.449-.672.445-.934-.005-.27-.125-.56-.382-.818M4.75 18c0 .69.56 1.25 1.25 1.25h5.25v-4.5h-6.5zm14.5-8c0-.69-.56-1.25-1.25-1.25h-5.25v4.5h6.5zm-14.5 3.25h6.5v-4.5H6c-.69 0-1.25.56-1.25 1.25zm16 4.75A2.75 2.75 0 0 1 18 20.75H6A2.75 2.75 0 0 1 3.25 18v-8a2.75 2.75 0 0 1 2.313-2.713 4 4 0 0 1-.53-.444c-.593-.592-.896-1.296-.885-2.019.012-.714.33-1.362.822-1.854 1.32-1.32 3.349-1.226 4.912-.303A5.7 5.7 0 0 1 12 4.901a5.7 5.7 0 0 1 2.118-2.234c1.563-.923 3.592-1.017 4.912.303.492.492.81 1.14.822 1.854.01.723-.292 1.427-.884 2.019a4 4 0 0 1-.532.444A2.75 2.75 0 0 1 20.75 10z" />
-                    </svg>
-                  </Button>
-                </>
-              )}
-              <div className="flex-shrink-0">
-                <Suspense fallback={null}>
-                  <NotificationsPanel
-                    notificationsApi={notificationsApi}
-                    open={notificationsOpen}
-                    onOpenChange={setNotificationsOpen}
-                    renderTrigger={false}
-                  />
-                </Suspense>
-              </div>
-              {isAuthenticated ? (
+                      <item.icon className="w-5 h-5 flex-shrink-0" />
+                      <span className="font-medium">{item.name}</span>
+                    </NavLink>
+                  );
+                })}
+              </nav>
+
+              <div className="flex items-center gap-0.5 min-w-0 flex-shrink-0">
+                {isAuthenticated && (
+                  <>
+                    {/* Wallet + Achievements widgets в header на больших экранах */}
+                    <div className="hidden lg:flex items-center gap-2 min-w-0 flex-shrink-0 mr-1">
+                      <WalletWidget />
+                      <AchievementsWidget />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-pressed={referralModalOpen}
+                      onClick={() => setReferralModalOpen(true)}
+                      className={cn(
+                        "relative hidden sm:flex flex-shrink-0 -mr-1 h-10 w-10 items-center justify-center rounded-lg transition-all",
+                        referralModalOpen
+                          ? "bg-primary/15 text-primary border-[0.5px] border-white/80 shadow-[0_0_20px_rgba(250,204,21,0.35)]"
+                          : "text-muted-foreground hover:text-primary hover:border-[0.5px] hover:border-white/80 hover:bg-primary/10 hover:h-9 hover:w-9"
+                      )}
+                      title="Реферальная программа"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-5 h-5 shrink-0"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path fill="currentColor" d="M19.25 14.75h-6.5v4.5H18c.69 0 1.25-.56 1.25-1.25zM9.118 3.958C7.931 3.257 6.71 3.35 6.03 4.03c-.257.258-.377.548-.382.818-.004.262.1.589.445.934.664.665 2.193 1.345 5.103 1.452-.216-1.574-1.083-2.688-2.078-3.276m8.852.072c-.68-.68-1.901-.773-3.088-.072-.995.588-1.863 1.702-2.08 3.276 2.912-.107 4.44-.787 5.105-1.452.346-.345.449-.672.445-.934-.005-.27-.125-.56-.382-.818M4.75 18c0 .69.56 1.25 1.25 1.25h5.25v-4.5h-6.5zm14.5-8c0-.69-.56-1.25-1.25-1.25h-5.25v4.5h6.5zm-14.5 3.25h6.5v-4.5H6c-.69 0-1.25.56-1.25 1.25zm16 4.75A2.75 2.75 0 0 1 18 20.75H6A2.75 2.75 0 0 1 3.25 18v-8a2.75 2.75 0 0 1 2.313-2.713 4 4 0 0 1-.53-.444c-.593-.592-.896-1.296-.885-2.019.012-.714.33-1.362.822-1.854 1.32-1.32 3.349-1.226 4.912-.303A5.7 5.7 0 0 1 12 4.901a5.7 5.7 0 0 1 2.118-2.234c1.563-.923 3.592-1.017 4.912.303.492.492.81 1.14.822 1.854.01.723-.292 1.427-.884 2.019a4 4 0 0 1-.532.444A2.75 2.75 0 0 1 20.75 10z" />
+                      </svg>
+                    </Button>
+                  </>
+                )}
                 <div className="flex-shrink-0">
                   <Suspense fallback={null}>
-                    <UserProfilePopover
+                    <NotificationsPanel
                       notificationsApi={notificationsApi}
-                      onOpenNotifications={() => setNotificationsOpen(true)}
+                      open={notificationsOpen}
+                      onOpenChange={setNotificationsOpen}
+                      renderTrigger={false}
                     />
                   </Suspense>
                 </div>
-              ) : (
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => setAuthModalOpen(true)}
-                  className="hidden sm:flex flex-shrink-0"
-                >
-                  <LogIn className="w-5 h-5 mr-2" />
-                  {t('login')}
-                </Button>
-              )}
+                {isAuthenticated ? (
+                  <div className="flex-shrink-0">
+                    <Suspense fallback={null}>
+                      <UserProfilePopover
+                        notificationsApi={notificationsApi}
+                        onOpenNotifications={() => setNotificationsOpen(true)}
+                      />
+                    </Suspense>
+                  </div>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setAuthModalOpen(true)}
+                    className="hidden sm:flex flex-shrink-0"
+                  >
+                    <LogIn className="w-5 h-5 mr-2" />
+                    {t('login')}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
       )}
 
       {/* Wallet Widget Bar - отдельная строка под header на средних экранах (планшеты) */}
@@ -495,7 +485,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
       {/* Main Content with Safe Area Top Padding for Telegram Fullscreen */}
       {/* КРИТИЧНО: Для десктопа явно убираем padding-top */}
       {/* Footer появляется только в конце контента - нужно доскроллить до него */}
-      <main 
+      <main
         ref={mainContentRef}
         className={cn(
           "telegram-main-content bg-background",
@@ -512,7 +502,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
 
       {/* Bottom Navigation for Mobile and Telegram - Скрыт в fullscreen режимах (тесты, игры) или при hideNavigation */}
       {!hideNavigation && (
-        <nav 
+        <nav
           className={cn(
             "app-bottom-nav fixed bottom-0 left-0 right-0 border-t border-border/50 backdrop-blur-xl bg-card/95 z-50",
             "flex flex-col md:hidden",
@@ -524,58 +514,58 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
             touchAction: 'manipulation'
           }}
         >
-        {/* Mobile Wallet Widget - компактная версия для мобильных */}
-        {isAuthenticated && (
-          <div className="px-3 py-2 border-b border-border/50 bg-card/50 flex-shrink-0 flex flex-wrap items-center gap-2">
-            <WalletWidget />
-            <AchievementsWidget variant="mobile" />
-            {/* Active Duel Widget для мобильных */}
-            <ActiveDuelWidget />
+          {/* Mobile Wallet Widget - компактная версия для мобильных */}
+          {isAuthenticated && (
+            <div className="px-3 py-2 border-b border-border/50 bg-card/50 flex-shrink-0 flex flex-wrap items-center gap-2">
+              <WalletWidget />
+              <AchievementsWidget variant="mobile" />
+              {/* Active Duel Widget для мобильных */}
+              <ActiveDuelWidget />
+            </div>
+          )}
+
+          <div className="grid grid-cols-5 gap-1 px-2 py-2 flex-shrink-0">
+            {navigation.map((item) => (
+              <NavItem key={item.name} item={item} currentPath={location.pathname} navigate={navigate} />
+            ))}
+
+            {/* Profile/Login Icon */}
+            <div className="flex flex-col items-center gap-1 py-2 px-3">
+              {isAuthenticated ? (
+                <Suspense fallback={null}>
+                  <UserProfilePopover
+                    notificationsApi={notificationsApi}
+                    onOpenNotifications={handleOpenNotifications}
+                  />
+                </Suspense>
+              ) : (
+                <button
+                  onClick={handleOpenAuth}
+                  className="flex flex-col items-center gap-1 rounded-lg transition-colors duration-150 text-muted-foreground hover:text-foreground"
+                  style={{
+                    // ОПТИМИЗАЦИЯ: Явно указываем pointer-events и touch-action для мгновенной отзывчивости
+                    pointerEvents: 'auto',
+                    touchAction: 'manipulation',
+                    WebkitTapHighlightColor: 'transparent'
+                  }}
+                >
+                  <LogIn className="w-6 h-6" />
+                  <span className="text-xs font-medium">{t('login')}</span>
+                </button>
+              )}
+            </div>
           </div>
-        )}
-        
-        <div className="grid grid-cols-5 gap-1 px-2 py-2 flex-shrink-0">
-          {navigation.map((item) => (
-            <NavItem key={item.name} item={item} currentPath={location.pathname} navigate={navigate} />
-          ))}
-          
-          {/* Profile/Login Icon */}
-          <div className="flex flex-col items-center gap-1 py-2 px-3">
-            {isAuthenticated ? (
-              <Suspense fallback={null}>
-                <UserProfilePopover
-                  notificationsApi={notificationsApi}
-                  onOpenNotifications={handleOpenNotifications}
-                />
-              </Suspense>
-            ) : (
-              <button
-                onClick={handleOpenAuth}
-                className="flex flex-col items-center gap-1 rounded-lg transition-colors duration-150 text-muted-foreground hover:text-foreground"
-                style={{
-                  // ОПТИМИЗАЦИЯ: Явно указываем pointer-events и touch-action для мгновенной отзывчивости
-                  pointerEvents: 'auto',
-                  touchAction: 'manipulation',
-                  WebkitTapHighlightColor: 'transparent'
-                }}
-              >
-                <LogIn className="w-6 h-6" />
-                <span className="text-xs font-medium">{t('login')}</span>
-              </button>
-            )}
-          </div>
-        </div>
-      </nav>
+        </nav>
       )}
 
       {/* Settings Drawer */}
       <Suspense fallback={null}>
         <SettingsDrawer open={settingsOpen} onOpenChange={setSettingsOpen} />
       </Suspense>
-      
+
       {/* Auth Modal for Web Platform */}
       <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
-      
+
       {/* Referral Modal */}
       <ReferralModal open={referralModalOpen} onOpenChange={setReferralModalOpen} />
     </div>

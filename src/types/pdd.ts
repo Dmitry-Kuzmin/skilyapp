@@ -79,6 +79,19 @@ export interface PDDRussiaTicket {
   progress?: number; // процент пройденных вопросов
 }
 
+/**
+ * Краткая сводка по билету (используется в селекторах)
+ */
+export interface PDDTicketSummary {
+  id: number;
+  number: number;
+  questions_count: number;
+  completed: boolean;
+  progress: number;
+  score?: number;
+  metadata?: any;
+}
+
 export interface PDDRussiaStats {
   totalTickets: number;
   completedTickets: number;

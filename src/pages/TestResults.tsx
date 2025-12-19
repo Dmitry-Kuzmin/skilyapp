@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useUserContext } from "@/contexts/UserContext";
 import { usePremium } from "@/hooks/usePremium";
+import { usePDDContext } from "@/contexts/PDDContext";
 import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { TestUpsellBanner } from "@/components/monetization/TestUpsellBanner";
 import { getImageUrl } from "@/utils/imageUtils";
@@ -20,7 +21,6 @@ import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { improvementTips, encouragements } from "@/data/lumiHints";
 import { useVignetteBanner } from "@/hooks/useVignetteBanner";
 import { useInterstitialBanner } from "@/hooks/useInterstitialBanner";
-import { usePremium } from "@/hooks/usePremium";
 
 type TestRewardPayload = {
   coins_awarded?: number;
@@ -71,10 +71,10 @@ const QuestionImageComponent = ({ imageUrl }: { imageUrl: string }) => {
     const loadImage = async () => {
       setIsLoading(true);
       setHasError(false);
-      
+
       // Получаем URL изображения
       const url = getImageUrl(imageUrl);
-      
+
       if (url) {
         setImageSrc(url);
         setIsLoading(false);
@@ -104,9 +104,9 @@ const QuestionImageComponent = ({ imageUrl }: { imageUrl: string }) => {
 
   return (
     <div className="mb-4 rounded-lg overflow-hidden border border-border/50">
-      <img 
-        src={imageSrc} 
-        alt="Pregunta" 
+      <img
+        src={imageSrc}
+        alt="Pregunta"
         className="w-full max-h-48 object-contain bg-muted/30"
         loading="lazy"
         decoding="async"
@@ -132,6 +132,7 @@ const TestResults = () => {
   const navigate = useNavigate();
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
+  const { selectedCountry } = usePDDContext();
   const [shouldShowInterstitial, setShouldShowInterstitial] = useState(false);
   const duelPassSyncRef = useRef(false);
   const [rewards, setRewards] = useState<{
@@ -142,13 +143,15 @@ const TestResults = () => {
   } | null>(null);
   const [showTranslation, setShowTranslation] = useState<Record<string, boolean>>({});
   const [expandedExplanations, setExpandedExplanations] = useState<Record<string, boolean>>({});
-  
+
   // Check if location.state exists
   if (!location.state) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8 text-center">
-          <p className="text-muted-foreground mb-4">No hay datos de resultados del test</p>
+          <p className="text-muted-foreground mb-4">
+            {selectedCountry === 'russia' ? "Нет данных о результатах теста" : "No hay datos de resultados del test"}
+          </p>
           <Button onClick={() => {
             // Показываем Interstitial при возврате (только для обычных пользователей, один раз за сессию)
             if (!isPremium) {
@@ -156,7 +159,7 @@ const TestResults = () => {
             }
             setTimeout(() => navigate("/tests"), 100);
           }}>
-            Volver a los tests
+            {selectedCountry === 'russia' ? "Вернуться к тестам" : "Volver a los tests"}
           </Button>
         </div>
       </Layout>
@@ -182,7 +185,7 @@ const TestResults = () => {
 
   // Синхронизируем награды, переданные с экрана теста (только один раз!)
   const hasShownRewardsRef = useRef(false);
-  
+
   useEffect(() => {
     if (!rewardResult || hasShownRewardsRef.current) return;
 
@@ -257,7 +260,7 @@ const TestResults = () => {
   // Исправляем подсчет - используем уникальные questionId для правильного подсчета
   const correctAnswersMap = new Map<string, Answer>();
   const incorrectAnswersMap = new Map<string, Answer>();
-  
+
   answers.forEach(answer => {
     if (answer.isCorrect) {
       if (!correctAnswersMap.has(answer.questionId)) {
@@ -269,23 +272,23 @@ const TestResults = () => {
       }
     }
   });
-  
+
   const correctAnswers = Array.from(correctAnswersMap.values());
   const incorrectAnswers = Array.from(incorrectAnswersMap.values());
   const correctCount = correctAnswers.length;
   const incorrectCount = incorrectAnswers.length;
   const percentage = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
-  
+
   // Логика определения успешности теста:
   // - Для экзамена: максимум 3 ошибки (из 30 вопросов = 90%)
   // - Для практики: минимум 80% правильных ответов
   // - Для sequential: минимум 80% правильных ответов
   const passed = mode === "exam" ? incorrectCount <= 3 : percentage >= 80;
-  
+
   // Статистика по темам для рекомендаций
   const topicStats: Record<string, { correct: number; incorrect: number; total: number; questions: QuestionData[] }> = {};
   const processedQuestions = new Set<string>();
-  
+
   answers.forEach(answer => {
     const question = questions.find(q => q.id === answer.questionId);
     if (question && question.topics) {
@@ -308,13 +311,13 @@ const TestResults = () => {
       }
     }
   });
-  
+
   // Топики с низкой точностью (для рекомендаций)
   const weakTopics = Object.entries(topicStats)
     .filter(([_, stats]) => stats.total > 0 && (stats.correct / stats.total) < 0.7)
     .sort(([_, a], [__, b]) => (a.correct / a.total) - (b.correct / b.total))
     .slice(0, 3);
-  
+
   // Загружаем следующий тест, если текущий пройден
   useEffect(() => {
     const loadNextTest = async () => {
@@ -470,7 +473,7 @@ const TestResults = () => {
           {!isCorrect && (
             <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
               <p className="text-xs sm:text-sm font-medium text-red-600 dark:text-red-400 mb-1">
-                ❌ Tu respuesta:
+                {selectedCountry === 'russia' ? "❌ Ваш ответ:" : "❌ Tu respuesta:"}
               </p>
               <p className="text-sm">{showTrans ? selectedAnswer?.text_ru : selectedAnswer?.text_es}</p>
             </div>
@@ -478,7 +481,7 @@ const TestResults = () => {
 
           <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
             <p className="text-xs sm:text-sm font-medium text-emerald-600 dark:text-emerald-400 mb-1">
-              ✅ Respuesta correcta:
+              {selectedCountry === 'russia' ? "✅ Правильный ответ:" : "✅ Respuesta correcta:"}
             </p>
             <p className="text-sm">{showTrans ? correctAnswer?.text_ru : correctAnswer?.text_es}</p>
           </div>
@@ -486,7 +489,9 @@ const TestResults = () => {
           {explanation && explanation.trim() && (
             <div className="p-3 rounded-lg bg-secondary/50 border border-secondary">
               <div className="flex items-start justify-between gap-2 mb-1">
-                <p className="text-xs sm:text-sm font-medium">💡 Explicación:</p>
+                <p className="text-xs sm:text-sm font-medium">
+                  {selectedCountry === 'russia' ? "💡 Пояснение:" : "💡 Explicación:"}
+                </p>
                 {isLongExplanation && (
                   <Button
                     variant="ghost"
@@ -540,7 +545,7 @@ const TestResults = () => {
 
   // ОПТИМИЗАЦИЯ: Используем React Query для инвалидации кэша
   const queryClient = useQueryClient();
-  
+
   // Инвалидируем кэш dashboard при монтировании страницы результатов
   useEffect(() => {
     // Это гарантирует, что статистика обновится при следующем визите на dashboard
@@ -574,7 +579,7 @@ const TestResults = () => {
               "absolute inset-0 opacity-10",
               passed ? "bg-gradient-to-br from-emerald-500 to-green-600" : "bg-gradient-to-br from-red-500 to-orange-600"
             )} />
-            
+
             <div className="relative z-10">
               {/* Иконка результата с анимацией */}
               <motion.div
@@ -583,8 +588,8 @@ const TestResults = () => {
                 transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
                 className={cn(
                   "w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 rounded-full flex items-center justify-center border-4",
-                  passed 
-                    ? "bg-emerald-500/20 border-emerald-500/30 shadow-lg shadow-emerald-500/20" 
+                  passed
+                    ? "bg-emerald-500/20 border-emerald-500/30 shadow-lg shadow-emerald-500/20"
                     : "bg-red-500/20 border-red-500/30 shadow-lg shadow-red-500/20"
                 )}
               >
@@ -602,14 +607,16 @@ const TestResults = () => {
                 transition={{ delay: 0.3 }}
                 className={cn(
                   "text-3xl sm:text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r bg-clip-text text-transparent",
-                  passed 
-                    ? "from-emerald-500 to-green-600" 
+                  passed
+                    ? "from-emerald-500 to-green-600"
                     : "from-red-500 to-orange-600"
                 )}
               >
-                {passed ? "🎉 ¡Test Aprobado!" : "😔 Test No Aprobado"}
+                {selectedCountry === 'russia'
+                  ? (passed ? "🎉 Тест Пройден!" : "😔 Тест Не Сдан")
+                  : (passed ? "🎉 ¡Test Aprobado!" : "😔 Test No Aprobado")}
               </motion.h1>
-              
+
               {/* Lumi's Comment */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -617,8 +624,8 @@ const TestResults = () => {
                 transition={{ delay: 0.35 }}
                 className="mb-4 flex items-center justify-center gap-3"
               >
-                <LumiCharacter 
-                  size="md" 
+                <LumiCharacter
+                  size="md"
                   mood={percentage >= 90 ? "celebrating" : percentage >= 70 ? "happy" : percentage >= 50 ? "encouraging" : "encouraging"}
                 />
                 <div className="text-left max-w-md">
@@ -633,14 +640,16 @@ const TestResults = () => {
                   </p>
                 </div>
               </motion.div>
-              
+
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
                 className="text-muted-foreground mb-4 flex items-center justify-center gap-2"
               >
-                {mode === "exam" ? "Modo examen" : mode === "sequential" ? "Тест последовательный" : "Modo práctica"}
+                {selectedCountry === 'russia'
+                  ? (mode === "exam" || mode === "exam-russia" ? "Режим экзамена" : mode === "sequential" ? "Последовательный тест" : mode === "nonstop" ? "Режим Нон-стоп" : "Режим практики")
+                  : (mode === "exam" ? "Modo examen" : mode === "sequential" ? "Тест последовательный" : "Modo práctica")}
               </motion.p>
 
               {/* Награды за тест */}
@@ -690,14 +699,18 @@ const TestResults = () => {
                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                   </div>
                   <p className="text-3xl sm:text-4xl font-bold text-emerald-500">{correctCount}</p>
-                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">Correctas</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                    {selectedCountry === 'russia' ? "Верно" : "Correctas"}
+                  </p>
                 </Card>
                 <Card className="p-4 bg-gradient-to-br from-red-500/10 to-orange-600/5 border-2 border-red-500/20">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <XCircle className="w-5 h-5 text-red-500" />
                   </div>
                   <p className="text-3xl sm:text-4xl font-bold text-red-500">{incorrectCount}</p>
-                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">Errores</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                    {selectedCountry === 'russia' ? "Ошибки" : "Errores"}
+                  </p>
                 </Card>
                 <Card className={cn(
                   "p-4 border-2",
@@ -715,7 +728,9 @@ const TestResults = () => {
                     "text-3xl sm:text-4xl font-bold",
                     passed ? "text-primary" : "text-orange-500"
                   )}>{percentage}%</p>
-                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">Precisión</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                    {selectedCountry === 'russia' ? "Точность" : "Precisión"}
+                  </p>
                 </Card>
               </motion.div>
 
@@ -728,7 +743,7 @@ const TestResults = () => {
                   className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-6"
                 >
                   <Clock className="w-4 h-4" />
-                  <span>Tiempo: {formatTime(timeSpent)}</span>
+                  <span>{selectedCountry === 'russia' ? 'Время' : 'Tiempo'}: {formatTime(timeSpent)}</span>
                 </motion.div>
               )}
 
@@ -823,7 +838,7 @@ const TestResults = () => {
         {(incorrectCount > 0 || correctCount > 0) && (
           <div>
             <h2 className="text-xl sm:text-2xl font-bold mb-4">Revisión de preguntas</h2>
-            
+
             <Tabs defaultValue="incorrect" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-4">
                 <TabsTrigger value="incorrect" className="relative">
@@ -937,7 +952,7 @@ const TestResults = () => {
         )}
 
         <div className="flex flex-col sm:flex-row gap-3 mt-6">
-          <Button 
+          <Button
             onClick={() => {
               // Показываем Interstitial при возврате (только для обычных пользователей, один раз за сессию)
               if (!isPremium) {
@@ -945,13 +960,13 @@ const TestResults = () => {
               }
               setTimeout(() => navigate(mode === "sequential" ? "/tests/sequential" : "/tests"), 100);
             }}
-            variant="outline" 
+            variant="outline"
             className="flex-1"
             size="lg"
           >
             ← Volver a los tests
           </Button>
-          <Button 
+          <Button
             onClick={() => {
               // Показываем Interstitial при возврате на дашборд (только для обычных пользователей, один раз за сессию)
               if (!isPremium) {
