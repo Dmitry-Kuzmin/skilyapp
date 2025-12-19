@@ -156,6 +156,15 @@ export function useDashboardData() {
   const userContext = useContext(UserContext);
   const profileId = userContext?.profileId ?? null;
   const queryClient = useSafeQueryClient();
+  
+  // ДИАГНОСТИКА: Логируем инициализацию хука
+  console.log('[useDashboardData] Hook initialized', {
+    hasProfileId: !!profileId,
+    profileId,
+    hasQueryClient: !!queryClient,
+    hasUserContext: !!userContext,
+    timestamp: new Date().toISOString(),
+  });
 
   const {
     data,
