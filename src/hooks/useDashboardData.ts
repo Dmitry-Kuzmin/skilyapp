@@ -170,22 +170,28 @@ export function useDashboardData() {
       console.log('[useDashboardData] 🚀 Fetching dashboard with SUPER RPC call');
 
       // SUPER ОПТИМИЗАЦИЯ: Пробуем новый Super RPC
+      // КРИТИЧНО: Обрабатываем 404 (функция не найдена) как нормальную ситуацию
       const { data: superResult, error: superError } = await supabase
         .rpc('get_dashboard_super', { p_user_id: profileId });
 
+      // Если функция не найдена (404) или другая ошибка - используем fallback
       if (superError) {
-        console.error('[useDashboardData] ❌ Super RPC error:', {
-          error: superError,
-          code: superError.code,
-          message: superError.message,
-          details: superError.details,
-          hint: superError.hint,
-          profileId,
-          profileIdType: typeof profileId,
-        });
-      }
-
-      if (!superError && superResult && !superResult.error) {
+        const is404 = superError.code === 'PGRST204' || superError.message?.includes('404') || superError.message?.includes('not found');
+        
+        if (is404) {
+          console.warn('[useDashboardData] ⚠️ Super RPC function not found (404), using fallback');
+        } else {
+          console.error('[useDashboardData] ❌ Super RPC error:', {
+            error: superError,
+            code: superError.code,
+            message: superError.message,
+            details: superError.details,
+            hint: superError.hint,
+            profileId,
+            profileIdType: typeof profileId,
+          });
+        }
+      } else if (superResult && !superResult.error) {
         console.log('[useDashboardData] ✅ SUPER RPC success - all data in 1 request!', {
           profileId,
           hasPremium: !!superResult.premium,
@@ -208,7 +214,13 @@ export function useDashboardData() {
         .rpc('get_dashboard_complete', { p_user_id: profileId });
 
       if (rpcError) {
-        console.error('[useDashboardData] ❌ RPC error:', rpcError);
+        const is404 = rpcError.code === 'PGRST204' || rpcError.message?.includes('404') || rpcError.message?.includes('not found');
+        
+        if (is404) {
+          console.warn('[useDashboardData] ⚠️ Regular RPC function not found (404), using fallback');
+        } else {
+          console.error('[useDashboardData] ❌ RPC error:', rpcError);
+        }
         console.warn('[useDashboardData] ⚠️ Falling back to old method');
         return await fetchDashboardFallback(profileId);
       }
