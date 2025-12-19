@@ -790,16 +790,16 @@ All colors MUST be HSL.
 
   /* Telegram Mini App Specific Styles */
   .telegram-app-container {
-    display: flex;
-    flex-direction: column;
-    /* Для обычного браузера: НЕ min-height - footer появляется только в конце контента */
+    /* Для обычного браузера: НЕ flex, НЕ min-height - footer появляется только в конце контента */
     overflow: visible;
     background-color: hsl(var(--background)); /* Обеспечиваем правильный фон */
   }
 
-  /* Min-height ТОЛЬКО для Telegram WebApp - sticky footer паттерн */
+  /* Flex и min-height ТОЛЬКО для Telegram WebApp - sticky footer паттерн */
   html.telegram-webapp .telegram-app-container,
   body.telegram-webapp .telegram-app-container {
+    display: flex;
+    flex-direction: column;
     min-height: calc(var(--tg-viewport-stable-height, 100vh) - var(--sat) - var(--sab));
     min-height: -webkit-fill-available;
   }

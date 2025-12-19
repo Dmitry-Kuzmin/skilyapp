@@ -27,6 +27,8 @@ interface AppProvidersProps {
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
+  console.log('[AppProviders] 🚀 AppProviders component rendering');
+  
   // Слушаем Auth события для отправки уведомлений о критичных изменениях
   useAuthEventListener();
 
@@ -147,8 +149,11 @@ export function AppProviders({ children }: AppProvidersProps) {
               },
             }}
           >
-            <ReconnectHandler />
-            {children}
+          <ReconnectHandler />
+          {(() => {
+            console.log('[AppProviders] Rendering children (AppRoutes)');
+            return children;
+          })()}
           </PersistQueryClientProvider>
         </PDDProvider>
       </UserProvider>

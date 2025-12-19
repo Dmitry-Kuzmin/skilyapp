@@ -358,7 +358,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
   }, [location.pathname]);
 
   return (
-    <div className="telegram-app-container flex flex-col">
+    <div className="telegram-app-container">
       {/* Telegram Navigation Handler */}
       <TelegramNavigation />
       {/* Edge Swipe Back Area (Telegram/Mobile) */}
