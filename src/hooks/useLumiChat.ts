@@ -1,12 +1,13 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { CountryCode } from "@/types/pdd";
 
 export type ChatMessage = {
   role: "user" | "assistant";
   content: string;
 };
 
-export const useLumiChat = () => {
+export const useLumiChat = (country: CountryCode = 'spain') => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +42,10 @@ export const useLumiChat = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
           },
-          body: JSON.stringify({ messages: messagesToSend }),
+          body: JSON.stringify({ 
+            messages: messagesToSend,
+            country: country // Передаем страну для выбора правильного системного промпта
+          }),
         }
       );
 

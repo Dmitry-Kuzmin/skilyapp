@@ -388,8 +388,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
 
 
-          {/* 3. SKILY CHAT (Col: 1, Row: 2) */}
-          <div className="md:col-span-1 lg:col-span-1 lg:row-span-2">
+          {/* 3. SKILY CHAT (Col: 1, Row: 2) - видим на всех разрешениях */}
+          <div className="col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-2">
             <Suspense fallback={<ComponentSkeleton />}>
               <SkilyChat />
             </Suspense>

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { LumiCharacter } from "./LumiCharacter";
 import { LumiMessage } from "./LumiMessage";
 import { useLumiChat } from "@/hooks/useLumiChat";
+import { usePDDContext } from "@/contexts/PDDContext";
 import { cn } from "@/lib/utils";
 
 const suggestedTopics = [
@@ -23,11 +24,12 @@ const placeholders = [
 ];
 
 export const LumiSearchWidget = () => {
+  const { selectedCountry } = usePDDContext();
   const [input, setInput] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, isLoading, error, sendMessage, clearMessages } = useLumiChat();
+  const { messages, isLoading, error, sendMessage, clearMessages } = useLumiChat(selectedCountry);
 
   // Rotate placeholders
   useEffect(() => {

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { LumiCharacter } from "./LumiCharacter";
 import { LumiMessage } from "./LumiMessage";
 import { useLumiChat } from "@/hooks/useLumiChat";
+import { usePDDContext } from "@/contexts/PDDContext";
 
 interface LumiChatWidgetProps {
   onClose?: () => void;
@@ -37,10 +38,11 @@ export const LumiChatWidget = ({
   questionExplanation = null,
   showExplanation = false,
 }: LumiChatWidgetProps) => {
+  const { selectedCountry } = usePDDContext();
   const [input, setInput] = useState("");
   const [isMinimized, setIsMinimized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, isLoading, error, sendMessage } = useLumiChat();
+  const { messages, isLoading, error, sendMessage } = useLumiChat(selectedCountry);
   const [hasShownExplanation, setHasShownExplanation] = useState(false);
 
   // Показываем приветственное сообщение

@@ -3,12 +3,14 @@ import { Maximize2, Minimize2, ArrowRight, Loader2 } from 'lucide-react';
 import { useLumiChat } from '@/hooks/useLumiChat';
 import { playClickSound, playNotificationSound, playTabSwitchSound } from '@/services/audioService';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { usePDDContext } from '@/contexts/PDDContext';
 
 export const SkilyChat = React.memo(() => {
   const { t } = useLanguage();
+  const { selectedCountry } = usePDDContext();
   const [isExpanded, setIsExpanded] = useState(false);
   const [input, setInput] = useState('');
-  const { messages, isLoading, sendMessage, clearMessages } = useLumiChat();
+  const { messages, isLoading, sendMessage, clearMessages } = useLumiChat(selectedCountry);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // Блокировка скролла body при открытом попапе
