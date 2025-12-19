@@ -28,7 +28,7 @@ const captureEarlyError = (error: any, context: any) => {
 
 setTimeout(() => {
   import('./lib/rollbar').then(({ initRollbar, reportError }) => {
-initRollbar();
+    initRollbar();
     console.log('[Main] Rollbar initialized (deferred)');
     
     // Отправляем накопленные ранние ошибки
