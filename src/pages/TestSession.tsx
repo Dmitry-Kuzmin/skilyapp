@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo, memo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useUserContext } from "@/contexts/UserContext";
 import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical, Trophy } from "lucide-react";
@@ -2806,12 +2807,19 @@ const TestSession = () => {
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8">
                   {/* Таймер (Слева) */}
                   <div className="flex items-center gap-3 w-full md:w-32 justify-center md:justify-start">
-                    <div className={cn(
-                      "flex items-center gap-2 px-4 py-2 rounded-xl border-2 transition-all duration-500 shadow-sm",
-                      timeLeft < 300
-                        ? "border-red-500/50 bg-red-500/10 animate-pulse"
-                        : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
-                    )}>
+                    <motion.div
+                      animate={timeLeft < 300 ? {
+                        backgroundColor: ['rgba(239, 68, 68, 0.1)', 'rgba(239, 68, 68, 0.2)', 'rgba(239, 68, 68, 0.1)'],
+                        borderColor: ['rgba(239, 68, 68, 0.3)', 'rgba(239, 68, 68, 0.6)', 'rgba(239, 68, 68, 0.3)'],
+                      } : {}}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-xl border-2 transition-all duration-500 shadow-sm",
+                        timeLeft < 300
+                          ? "border-red-500/50 bg-red-500/10"
+                          : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
+                      )}
+                    >
                       <Clock className={cn(
                         "w-5 h-5",
                         timeLeft < 300 ? "text-red-500" : "text-blue-500"
@@ -2822,7 +2830,7 @@ const TestSession = () => {
                       )}>
                         {formatTime(timeLeft)}
                       </span>
-                    </div>
+                    </motion.div>
                   </div>
 
                   {/* SegmentedExamProgress (Центр) */}
@@ -2924,10 +2932,16 @@ const TestSession = () => {
 
           {/* Question Card - используем UniversalQuestionCard для exam-russia */}
           {mode === 'exam-russia' && russiaExam.currentQuestion ? (
-            <div className={cn(
-              "max-w-4xl mx-auto w-full mt-6",
-              isAnswerLocked && "opacity-50 pointer-events-none"
-            )}>
+            <motion.div
+              key={russiaExam.currentQuestion.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className={cn(
+                "max-w-4xl mx-auto w-full mt-6",
+                isAnswerLocked && "opacity-50 pointer-events-none"
+              )}
+            >
               <UniversalQuestionCard
                 mode="exam-russia"
                 question={russiaExam.currentQuestion.text}
@@ -2965,14 +2979,29 @@ const TestSession = () => {
                       context="primary"
                       onClick={() => handleAnswer()}
                       disabled={!selectedOption || isAnswerLocked}
-                      className="flex-1 h-14 text-lg font-bold rounded-xl shadow-lg shadow-primary/20"
+                      className={cn(
+                        "flex-1 h-16 text-xl font-black rounded-2xl shadow-2xl transition-all duration-300 relative overflow-hidden group",
+                        selectedOption && !isAnswerLocked
+                          ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 scale-100 shadow-slate-900/20"
+                          : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 scale-[0.98] shadow-none"
+                      )}
                     >
-                      Подтвердить ответ
+                      {selectedOption && !isAnswerLocked && (
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                          animate={{ x: ['-100%', '100%'] }}
+                          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                        />
+                      )}
+                      <span className="relative z-10 flex items-center justify-center gap-2">
+                        ПОДТВЕРДИТЬ ОТВЕТ
+                        {selectedOption && <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />}
+                      </span>
                     </AppButton>
                   </div>
                 }
               />
-            </div>
+            </motion.div>
           ) : (
             <Card
               data-testid="question-card"

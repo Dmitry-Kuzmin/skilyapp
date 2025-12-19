@@ -4,13 +4,13 @@ import type { Database } from './types';
 
 // Get environment variables with fallback values
 // Vite replaces import.meta.env.VITE_* at build time
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 
-  import.meta.env.PUBLIC_SUPABASE_URL || 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ||
+  import.meta.env.PUBLIC_SUPABASE_URL ||
   'https://yffjnqegeiorunyvcxkn.supabase.co';
 
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 
-  import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY || 
-  import.meta.env.VITE_SUPABASE_ANON_KEY || 
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
   '';
 
 // Debug: log environment variables (only in development or if explicitly enabled)

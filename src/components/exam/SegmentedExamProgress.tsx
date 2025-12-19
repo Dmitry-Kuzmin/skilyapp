@@ -48,56 +48,92 @@ export function SegmentedExamProgress({
     const startIdx = blockIndex * questionsPerBlock;
 
     return (
-      <div
+      <motion.div
         key={blockIndex}
+        layout
+        initial={isPenalty ? { opacity: 0, scale: 0.9, y: 10 } : false}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
         className={cn(
-          "flex gap-1 flex-1 min-w-0 relative",
-          isPenalty && "p-1 rounded-lg border border-orange-500/30 bg-orange-500/5"
+          "flex gap-1.5 flex-1 min-w-0 relative group",
+          isPenalty && "p-1.5 rounded-xl border-2 border-orange-500/40 bg-orange-500/5 shadow-[0_0_15px_rgba(249,115,22,0.1)]"
         )}
       >
         {isPenalty && (
-          <div className="absolute -top-5 left-1/2 -translate-x-1/2 flex items-center gap-1 text-[10px] font-bold text-orange-500 uppercase tracking-tighter whitespace-nowrap">
-            <AlertCircle className="w-3 h-3" />
+          <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-orange-500 text-[9px] font-black text-white uppercase tracking-widest shadow-lg">
+            <AlertCircle className="w-2.5 h-2.5" />
             <span>Штраф</span>
           </div>
         )}
         {Array.from({ length: questionsPerBlock }).map((_, i) => {
           const qIdx = startIdx + i;
           const state = getSlotState(qIdx);
+          const isCurrent = currentQuestion === qIdx + 1;
 
           return (
-            <div
-              key={i}
-              className={cn(
-                "h-1.5 rounded-full w-full transition-all duration-300",
-                {
-                  'bg-gray-200 dark:bg-slate-700': state === 'pending',
-                  'bg-blue-600 animate-pulse shadow-[0_0_8px_rgba(37,99,235,0.5)]': state === 'active',
-                  'bg-emerald-500': state === 'success',
-                  'bg-red-500': state === 'error',
-                }
-              )}
-            />
+            <div key={i} className="flex-1 relative">
+              <motion.div
+                layoutId={`slot-${qIdx}`}
+                className={cn(
+                  "h-2 rounded-full w-full transition-all duration-500 relative overflow-hidden",
+                  {
+                    'bg-slate-200 dark:bg-slate-800': state === 'pending',
+                    'bg-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.6)]': state === 'active',
+                    'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]': state === 'success',
+                    'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]': state === 'error',
+                  }
+                )}
+              >
+                {state === 'active' && (
+                  <motion.div
+                    className="absolute inset-0 bg-white/30"
+                    animate={{
+                      x: ['-100%', '100%'],
+                    }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                  />
+                )}
+              </motion.div>
+
+              {/* Индикатор текущего вопроса */}
+              <AnimatePresence>
+                {isCurrent && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 5 }}
+                    className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] font-black text-blue-600 dark:text-blue-400"
+                  >
+                    {qIdx + 1}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           );
         })}
-      </div>
+      </motion.div>
     );
   };
 
   return (
-    <div className={cn("flex gap-3 w-full items-center py-6", className)}>
+    <div className={cn("flex gap-4 w-full items-center py-8", className)}>
       {/* Основные блоки */}
-      <div className="flex gap-3 flex-[4] items-center">
+      <div className="flex gap-4 flex-[4] items-center">
         {Array.from({ length: mainBlocksCount }).map((_, i) => renderBlock(i))}
       </div>
 
       {/* Штрафные блоки */}
-      <AnimatePresence>
+      <AnimatePresence mode="popLayout">
         {penaltyQuestions > 0 && (
           <motion.div
-            initial={{ opacity: 0, x: 20, width: 0 }}
-            animate={{ opacity: 1, x: 0, width: 'auto' }}
-            className="flex gap-3 items-center"
+            layout
+            initial={{ opacity: 0, x: 20, scale: 0.8 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 20, scale: 0.8 }}
+            className="flex gap-4 items-center"
             style={{ flex: penaltyQuestions / questionsPerBlock }}
           >
             {Array.from({ length: penaltyQuestions / questionsPerBlock }).map((_, i) =>
