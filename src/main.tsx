@@ -81,6 +81,11 @@ console.log('[Main] ✅✅✅ Script loaded and imports completed ✅✅✅', {
   hasCreateRoot: typeof createRoot !== 'undefined',
 });
 
+// КРИТИЧНО: Помечаем, что main.tsx загрузился (для проверки в index.html)
+if (typeof window !== 'undefined') {
+  window._mainLoaded = true;
+}
+
 // Инициализация Telegram WebApp теперь происходит через TelegramProvider в App.tsx
 // Это гарантирует правильный порядок инициализации и предотвращает множественные вызовы
 
