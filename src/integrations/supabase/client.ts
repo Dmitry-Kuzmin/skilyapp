@@ -39,11 +39,20 @@ if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === '' || SUPABASE_PUB
 }
 
 // Log configuration (without exposing the full key)
-if (import.meta.env.DEV) {
+// КРИТИЧНО: Логируем в продакшене тоже для отладки
+if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
   console.log('🔧 Supabase Configuration:', {
     url: SUPABASE_URL,
     keyPrefix: SUPABASE_PUBLISHABLE_KEY.substring(0, 20) + '...',
     keyLength: SUPABASE_PUBLISHABLE_KEY.length,
+  });
+} else {
+  // В продакшене логируем только URL (без ключа)
+  console.log('[Supabase Client] ✅ Initialized', {
+    url: SUPABASE_URL,
+    hasKey: !!SUPABASE_PUBLISHABLE_KEY && SUPABASE_PUBLISHABLE_KEY.length > 0,
+    keyLength: SUPABASE_PUBLISHABLE_KEY.length,
+    timestamp: new Date().toISOString(),
   });
 }
 
@@ -60,10 +69,21 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     // Это решает race condition - сессия будет готова до редиректа на dashboard
     detectSessionInUrl: true,
   },
-  // ОПТИМИЗАЦИЯ: Глобальные настройки для снижения нагрузки
+  // ДИАГНОСТИКА: Добавляем обработчик ошибок для отладки
   global: {
     headers: {
       'X-Client-Info': 'sdadim-dgt-prep',
+    },
+    fetch: (url, options = {}) => {
+      // Логируем только в случае ошибок
+      return fetch(url, options).catch((error) => {
+        console.error('[Supabase Client] ❌ Fetch error:', {
+          url: typeof url === 'string' ? url : url.toString(),
+          error: error.message,
+          timestamp: new Date().toISOString(),
+        });
+        throw error;
+      });
     },
   },
   db: {
