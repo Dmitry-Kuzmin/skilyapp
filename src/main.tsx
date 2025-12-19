@@ -71,11 +71,14 @@ if (typeof window !== 'undefined') {
 }
 
 // КРИТИЧНО: Логирование сразу после импортов для диагностики
-console.log('[Main] ✅ Script loaded and imports completed', {
+// ВАЖНО: Этот лог должен появиться ПЕРВЫМ в консоли
+console.log('[Main] ✅✅✅ Script loaded and imports completed ✅✅✅', {
   timestamp: new Date().toISOString(),
   userAgent: navigator.userAgent.substring(0, 50),
   location: window.location.href,
   readyState: document.readyState,
+  hasReact: typeof React !== 'undefined',
+  hasCreateRoot: typeof createRoot !== 'undefined',
 });
 
 // Инициализация Telegram WebApp теперь происходит через TelegramProvider в App.tsx
@@ -241,11 +244,18 @@ if ('serviceWorker' in navigator) {
 }
 // --------------------------------------------------------
 
-console.log('[Main] Starting React app initialization...');
+console.log('[Main] 🚀🚀🚀 Starting React app initialization... 🚀🚀🚀', {
+  rootElement: !!rootElement,
+  rootElementId: rootElement?.id,
+  timestamp: new Date().toISOString(),
+});
 
 try {
   const root = createRoot(rootElement);
-  console.log('[Main] React root created successfully');
+  console.log('[Main] ✅ React root created successfully', {
+    root: !!root,
+    timestamp: new Date().toISOString(),
+  });
   
   root.render(
     <StrictMode>
@@ -259,7 +269,10 @@ try {
     </StrictMode>
   );
   
-  console.log('[Main] React app rendered successfully');
+  console.log('[Main] ✅✅✅ React app rendered successfully ✅✅✅', {
+    timestamp: new Date().toISOString(),
+    readyState: document.readyState,
+  });
   
   // КРИТИЧНО: Удаляем skeleton из DOM после монтирования React
   // Это гарантирует что он не мешает взаимодействию и не перекрывает контент
