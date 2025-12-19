@@ -2692,60 +2692,40 @@ useEffect(() => {
           </div>
         )}
 
-        {/* Unified Progress Bar - переиспользуемый компонент */}
+        {/* Unified Progress Bar - используем QuestionProgressBar для всех режимов */}
         <div className="mb-3 sm:mb-4 -mt-6 sm:-mt-3 md:mt-0">
-          {mode === 'exam-russia' && russiaExam.progress ? (
-            <div className="flex items-center gap-2 mb-2">
-              <AppProgressBar
-                current={russiaExam.progress.current}
-                total={russiaExam.progress.total}
-                showLabel
-                label={russiaExam.progress.label}
-                color={russiaExam.isExtraMode ? 'warning' : 'primary'}
-              />
-              {russiaExam.currentBlock && (
-                <span className="text-sm text-muted-foreground">
-                  Блок {russiaExam.currentBlock}
-                  {russiaExam.errorsInCurrentBlock > 0 && (
-                    <span className="text-red-500 ml-1">
-                      ({russiaExam.errorsInCurrentBlock} ошибка)
-                    </span>
-                  )}
-                </span>
-              )}
-            </div>
-          ) : (
-            <QuestionProgressBar
-              currentIndex={currentIndex}
-              totalQuestions={questions.length}
-              answers={answers}
-              hideScoreIndicators={mode === "exam" || mode === "exam-russia"}
-              onClose={!isTelegramApp ? handleClose : undefined}
-              showClose={!isTelegramApp}
-              onShowQuestionMap={() => setShowQuestionMap(true)}
-              showQuestionMap={mode !== 'exam-russia'}
-              onToggleBookmark={profileId ? toggleBookmark : undefined}
-              isBookmarked={isQuestionBookmarked}
-              bookmarkLoading={bookmarkLoading}
-            SettingsMenuComponent={
-              <TestSettingsMenu
-                open={showTestSettings}
-                onOpenChange={setShowTestSettings}
-                voiceOver={voiceOver}
-                onVoiceOverChange={setVoiceOver}
-                answerPopularity={answerPopularity}
-                onAnswerPopularityChange={setAnswerPopularity}
-                ambientMusic={ambientMusic}
-                onAmbientMusicChange={setAmbientMusic}
-                fontSize={fontSize}
-                onFontSizeChange={setFontSize}
-                language={testLanguage}
-                onLanguageChange={setTestLanguage}
-                hideLanguageSelector={mode === 'pdd-ticket' || mode === 'exam-russia'}
-              />
-            }
+          <QuestionProgressBar
+            currentIndex={mode === 'exam-russia' && russiaExam.progress ? russiaExam.progress.current - 1 : currentIndex}
+            totalQuestions={mode === 'exam-russia' && russiaExam.progress ? russiaExam.progress.total : questions.length}
+            answers={answers}
+            hideScoreIndicators={mode === "exam" || mode === "exam-russia"}
+            onClose={!isTelegramApp ? handleClose : undefined}
+            showClose={!isTelegramApp}
+            onShowQuestionMap={() => setShowQuestionMap(true)}
+            showQuestionMap={mode !== 'exam-russia'}
+            onToggleBookmark={profileId ? toggleBookmark : undefined}
+            isBookmarked={isQuestionBookmarked}
+            bookmarkLoading={bookmarkLoading}
             customLeftContent={
               <>
+                {/* Блок для exam-russia */}
+                {mode === 'exam-russia' && russiaExam.currentBlock && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-background/80 backdrop-blur-md shadow-sm border border-border/30">
+                    <span className="text-sm font-semibold text-foreground">
+                      Блок {russiaExam.currentBlock}
+                    </span>
+                    {russiaExam.errorsInCurrentBlock > 0 && (
+                      <span className="text-xs text-red-500 font-medium">
+                        ({russiaExam.errorsInCurrentBlock} ошибка)
+                      </span>
+                    )}
+                    {russiaExam.isExtraMode && (
+                      <span className="text-xs text-yellow-500 font-medium">
+                        (доп. вопросы)
+                      </span>
+                    )}
+                  </div>
+                )}
                 {/* Timer для экзамена и блица */}
                 {(mode === "exam" || mode === "blitz") && (
                   <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background/80 backdrop-blur-md border border-border/50 shadow-sm shrink-0">
