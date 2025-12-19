@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo } from "react";
 import { TelegramUser } from "@/types/window";
 import { getTelegramUser, getPlatform } from "@/core/TelegramInit";
 import { isTelegramMiniApp } from "@/lib/telegram";
@@ -51,7 +51,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         logUserContext("[UserContext] Loading profile for Supabase user:", supabaseUser.id);
 
         // Check cache first - если есть кэш, используем его и НЕ делаем запрос
-        const cachedId = localStorage.getItem(`profile_${supabaseUser.id}`);
+        const cachedId = localStorage.getItem(`profile_${supabaseUser.id} `);
         if (cachedId) {
           logUserContext("[UserContext] ✅ Using cached profileId (no DB request):", cachedId);
           if (isMounted) setProfileId(cachedId);
@@ -67,7 +67,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
         if (isMounted && data && (data as any).id) {
           setProfileId((data as any).id);
-          localStorage.setItem(`profile_${supabaseUser.id}`, (data as any).id);
+          localStorage.setItem(`profile_${supabaseUser.id} `, (data as any).id);
           logUserContext("[UserContext] Loaded profile ID for web user:", (data as any).id);
         }
       } else if (user) {
@@ -75,7 +75,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         logUserContext("[UserContext] Loading profile for Telegram user:", user.id);
 
         // Check cache first - если есть кэш, используем его и НЕ делаем запрос
-        const cachedId = localStorage.getItem(`profile_${user.id}`);
+        const cachedId = localStorage.getItem(`profile_${user.id} `);
         if (cachedId) {
           logUserContext("[UserContext] ✅ Using cached profileId (no DB request):", cachedId);
           if (isMounted) setProfileId(cachedId);
@@ -98,7 +98,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
             logUserContext("[UserContext] Loaded profile ID for Telegram user:", (data as any).id);
             if (isMounted) {
               setProfileId((data as any).id);
-              localStorage.setItem(`profile_${user.id}`, (data as any).id);
+              localStorage.setItem(`profile_${user.id} `, (data as any).id);
             }
           } else if (attempt < 3) { // ОПТИМИЗАЦИЯ: Снижаем retry с 5 до 3
             logUserContext(`[UserContext] Profile not found, retry ${attempt}/3 in 1000ms...`);
