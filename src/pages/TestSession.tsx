@@ -3,6 +3,8 @@ import { useParams, useNavigate, useSearchParams, useLocation } from "react-rout
 import { useUserContext } from "@/contexts/UserContext";
 import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical, Trophy } from "lucide-react";
 import { QuestionProgressBar } from "@/components/QuestionProgressBar";
+import { ExamProgressBar } from "@/components/ExamProgressBar";
+import { ExamPenaltyOverlay } from "@/components/ExamPenaltyOverlay";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -278,6 +280,9 @@ const TestSession = () => {
   const [isQuestionBookmarked, setIsQuestionBookmarked] = useState(false);
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
   const [showTestSettings, setShowTestSettings] = useState(false);
+  // Состояние для оверлея ошибки в exam-russia
+  const [showPenaltyOverlay, setShowPenaltyOverlay] = useState(false);
+  const [penaltyBlock, setPenaltyBlock] = useState<number | null>(null);
   const [voiceOver, setVoiceOver] = useState(() => {
     const saved = localStorage.getItem('test-voice-over');
     return saved ? saved === 'true' : false; // По умолчанию ВЫКЛЮЧЕНА
@@ -2014,10 +2019,6 @@ useEffect(() => {
         return;
       }
       
-      if (result.shouldAddExtra) {
-        toast.info(`Допущена ошибка. Вам будет назначено ${result.extraQuestionsCount} дополнительных вопросов.`);
-      }
-      
       // Обновляем состояние
       const newAnswer: Answer = {
         questionId: russiaExam.currentQuestion.id,
@@ -2025,6 +2026,16 @@ useEffect(() => {
         isCorrect,
       };
       setAnswers([...answers, newAnswer]);
+      
+      // Показываем оверлей ошибки, если была допущена ошибка
+      if (!isCorrect && result.shouldAddExtra && result.blockId) {
+        setPenaltyBlock(result.blockId);
+        setShowPenaltyOverlay(true);
+        // Вибрация при ошибке
+        if (isTelegramApp) {
+          triggerHapticFeedback('error');
+        }
+      }
       
       // Если экзамен завершен (сдан или провален)
       if (russiaExam.status === 'passed' || russiaExam.status === 'failed' || russiaExam.status === 'failed-extra') {
@@ -2041,17 +2052,19 @@ useEffect(() => {
         return;
       }
       
-      // Переходим к следующему вопросу
-      if (russiaExam.isExtraMode) {
-        // В режиме доп. вопросов - просто обновляем индекс
-        setCurrentIndex(russiaExam.progress.current - 1);
-      } else {
-        setCurrentIndex(russiaExam.progress.current - 1);
-      }
-      
-      setSelectedOption(null);
-      setIsTransitioning(true);
-      setTimeout(() => setIsTransitioning(false), 300);
+      // Автоматический переход к следующему вопросу через 500мс (для показа правильности)
+      setTimeout(() => {
+        // Переходим к следующему вопросу
+        if (russiaExam.isExtraMode) {
+          setCurrentIndex(russiaExam.progress.current - 1);
+        } else {
+          setCurrentIndex(russiaExam.progress.current - 1);
+        }
+        
+        setSelectedOption(null);
+        setIsTransitioning(true);
+        setTimeout(() => setIsTransitioning(false), 300);
+      }, 500);
       return;
     }
 
@@ -2656,11 +2669,22 @@ useEffect(() => {
     }
   };
 
+  // Темный режим для exam-russia
+  const isExamRussiaDarkMode = mode === 'exam-russia';
+
   return (
     <Layout>
+      {/* Темный фон для exam-russia */}
+      {isExamRussiaDarkMode && (
+        <div className="fixed inset-0 bg-slate-950 -z-10" />
+      )}
+      
       {/* Layout: В экзамене - центрированный широкий блок, в practice - grid с AI Widget */}
         <div className={cn(
         "mx-auto transition-all duration-300",
+        isExamRussiaDarkMode
+          ? "min-h-screen bg-slate-950"
+          : "",
         !isTelegramApp && isPracticeLikeMode 
           ? "flex flex-col lg:grid lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px] lg:items-start lg:gap-3 xl:gap-4 max-w-full lg:max-w-[1370px] px-2 sm:px-4" 
           : mode === "exam" && !isTelegramApp
@@ -2675,7 +2699,8 @@ useEffect(() => {
             // Для мобильной версии браузера добавляем небольшой отступ сверху
             isTelegramApp 
               ? "px-2 sm:px-4 pt-0" 
-              : "pt-4 sm:pt-1 md:pt-3 pb-2 md:pb-3"
+              : "pt-4 sm:pt-1 md:pt-3 pb-2 md:pb-3",
+            isExamRussiaDarkMode && "bg-slate-950"
           )}
         >
         {/* КРИТИЧНО: Индикатор офлайн статуса */}
@@ -2692,79 +2717,110 @@ useEffect(() => {
           </div>
         )}
 
-        {/* Unified Progress Bar - используем QuestionProgressBar для всех режимов */}
-        <div className="mb-3 sm:mb-4 -mt-6 sm:-mt-3 md:mt-0">
-          <QuestionProgressBar
-            currentIndex={mode === 'exam-russia' && russiaExam.progress ? russiaExam.progress.current - 1 : currentIndex}
-            totalQuestions={mode === 'exam-russia' && russiaExam.progress ? russiaExam.progress.total : questions.length}
-            answers={answers}
-            hideScoreIndicators={mode === "exam" || mode === "exam-russia"}
-            onClose={!isTelegramApp ? handleClose : undefined}
-            showClose={!isTelegramApp}
-            onShowQuestionMap={() => setShowQuestionMap(true)}
-            showQuestionMap={mode !== 'exam-russia'}
-            onToggleBookmark={profileId ? toggleBookmark : undefined}
-            isBookmarked={isQuestionBookmarked}
-            bookmarkLoading={bookmarkLoading}
-            customLeftContent={
-              <>
-                {/* Блок для exam-russia */}
-                {mode === 'exam-russia' && russiaExam.currentBlock && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-background/80 backdrop-blur-md shadow-sm border border-border/30">
-                    <span className="text-sm font-semibold text-foreground">
-                      Блок {russiaExam.currentBlock}
+        {/* Progress Bar - HUD для exam-russia, обычный для остальных */}
+        <div className={cn(
+          "mb-3 sm:mb-4 -mt-6 sm:-mt-3 md:mt-0",
+          isExamRussiaDarkMode && "mb-6"
+        )}>
+          {isExamRussiaDarkMode && russiaExam.progress && russiaExam.state ? (
+            <div className="space-y-4">
+              {/* HUD Header - Таймер и блок */}
+              <div className="flex items-center justify-between">
+                {/* Таймер */}
+                <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-slate-900/80 backdrop-blur-xl border border-cyan-500/30 shadow-lg shadow-cyan-500/10">
+                  <Clock className={cn(
+                    "w-5 h-5",
+                    timeLeft < 300 ? "text-red-400" : "text-cyan-400"
+                  )} />
+                  <span className={cn(
+                    "font-mono font-bold text-xl",
+                    timeLeft < 300 ? "text-red-400" : "text-cyan-400"
+                  )}>
+                    {formatTime(timeLeft)}
+                  </span>
+                </div>
+
+                {/* Информация о блоке */}
+                {russiaExam.currentBlock && (
+                  <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900/80 backdrop-blur-xl border border-slate-700/50">
+                    <span className="text-sm font-semibold text-slate-300">
+                      Блок {russiaExam.currentBlock} из 4
                     </span>
                     {russiaExam.errorsInCurrentBlock > 0 && (
-                      <span className="text-xs text-red-500 font-medium">
-                        ({russiaExam.errorsInCurrentBlock} ошибка)
-                      </span>
-                    )}
-                    {russiaExam.isExtraMode && (
-                      <span className="text-xs text-yellow-500 font-medium">
-                        (доп. вопросы)
+                      <span className="text-xs text-red-400 font-medium">
+                        ⚠️ {russiaExam.errorsInCurrentBlock} ошибка
                       </span>
                     )}
                   </div>
                 )}
-                {/* Timer для экзамена и блица */}
-                {(mode === "exam" || mode === "blitz") && (
-                  <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background/80 backdrop-blur-md border border-border/50 shadow-sm shrink-0">
-                    <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${timeLeft < 300 ? "text-destructive" : "text-foreground/70"}`} />
-                    <span className={`font-mono font-semibold text-xs sm:text-sm ${timeLeft < 300 ? "text-destructive" : "text-foreground"}`}>
-                    {formatTime(timeLeft)}
-                  </span>
-                </div>
-                )}
+              </div>
 
-                {/* Mastery Round Indicator */}
-                {mode === "mastery" && masteryRound > 1 && (
-                  <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-blue-500/10 backdrop-blur-md border border-blue-500/30 shadow-sm shrink-0">
-                    <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
-                    <span className="font-semibold text-xs sm:text-sm text-blue-600 dark:text-blue-400">
-                      Раунд {masteryRound}
-            </span>
-                </div>
-                )}
-              </>
-            }
-            SettingsMenuComponent={
-              <TestSettingsMenu
-                open={showTestSettings}
-                onOpenChange={setShowTestSettings}
-                voiceOver={voiceOver}
-                onVoiceOverChange={setVoiceOver}
-                answerPopularity={answerPopularity}
-                onAnswerPopularityChange={setAnswerPopularity}
-                ambientMusic={ambientMusic}
-                onAmbientMusicChange={setAmbientMusic}
-                fontSize={fontSize}
-                onFontSizeChange={setFontSize}
-                language={testLanguage}
-                onLanguageChange={setTestLanguage}
-                hideLanguageSelector={mode === 'pdd-ticket' || mode === 'exam-russia'}
+              {/* Exam Progress Bar */}
+              <ExamProgressBar
+                currentQuestion={russiaExam.progress.current}
+                totalMainQuestions={20}
+                questionsPerBlock={5}
+                penaltyQuestions={russiaExam.state.extraQuestions.length}
+                currentBlock={russiaExam.currentBlock}
+                errorsByBlock={russiaExam.state.errorsPerBlock || {}}
+                isExtraMode={russiaExam.isExtraMode}
               />
-            }
-          />
+            </div>
+          ) : (
+            <QuestionProgressBar
+              currentIndex={currentIndex}
+              totalQuestions={questions.length}
+              answers={answers}
+              hideScoreIndicators={mode === "exam" || mode === "exam-russia"}
+              onClose={!isTelegramApp ? handleClose : undefined}
+              showClose={!isTelegramApp}
+              onShowQuestionMap={() => setShowQuestionMap(true)}
+              showQuestionMap={mode !== 'exam-russia'}
+              onToggleBookmark={profileId ? toggleBookmark : undefined}
+              isBookmarked={isQuestionBookmarked}
+              bookmarkLoading={bookmarkLoading}
+              customLeftContent={
+                <>
+                  {/* Timer для экзамена и блица */}
+                  {(mode === "exam" || mode === "blitz") && (
+                    <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background/80 backdrop-blur-md border border-border/50 shadow-sm shrink-0">
+                      <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${timeLeft < 300 ? "text-destructive" : "text-foreground/70"}`} />
+                      <span className={`font-mono font-semibold text-xs sm:text-sm ${timeLeft < 300 ? "text-destructive" : "text-foreground"}`}>
+                        {formatTime(timeLeft)}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Mastery Round Indicator */}
+                  {mode === "mastery" && masteryRound > 1 && (
+                    <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-blue-500/10 backdrop-blur-md border border-blue-500/30 shadow-sm shrink-0">
+                      <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
+                      <span className="font-semibold text-xs sm:text-sm text-blue-600 dark:text-blue-400">
+                        Раунд {masteryRound}
+                      </span>
+                    </div>
+                  )}
+                </>
+              }
+              SettingsMenuComponent={
+                <TestSettingsMenu
+                  open={showTestSettings}
+                  onOpenChange={setShowTestSettings}
+                  voiceOver={voiceOver}
+                  onVoiceOverChange={setVoiceOver}
+                  answerPopularity={answerPopularity}
+                  onAnswerPopularityChange={setAnswerPopularity}
+                  ambientMusic={ambientMusic}
+                  onAmbientMusicChange={setAmbientMusic}
+                  fontSize={fontSize}
+                  onFontSizeChange={setFontSize}
+                  language={testLanguage}
+                  onLanguageChange={setTestLanguage}
+                  hideLanguageSelector={mode === 'pdd-ticket' || mode === 'exam-russia'}
+                />
+              }
+            />
+          )}
         </div>
 
 
@@ -2787,10 +2843,15 @@ useEffect(() => {
             onAnswerClick={(answerId) => {
               if (mode === "exam-russia") {
                 setSelectedOption(answerId);
+                // Автоматический переход к следующему вопросу
+                setTimeout(() => {
+                  handleAnswer(answerId);
+                }, 100);
               }
             }}
             onShowExplanation={selectedOption ? () => setShowAIExplanation(true) : undefined}
             fontSize={fontSize}
+            className={isExamRussiaDarkMode ? "bg-slate-900/60 backdrop-blur-xl border-slate-800/50" : undefined}
             header={
               russiaExam.isExtraMode && (
                 <div className="mb-4 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
@@ -2799,18 +2860,6 @@ useEffect(() => {
                   </p>
                 </div>
               )
-            }
-            footer={
-              <div className="flex gap-2 items-center mt-4">
-                <AppButton
-                  context="primary"
-                  onClick={() => handleAnswer()}
-                  disabled={!selectedOption}
-                  className="flex-1"
-                >
-                  Ответить
-                </AppButton>
-              </div>
             }
           />
         ) : (
@@ -3570,6 +3619,20 @@ useEffect(() => {
           showTranslation={showTranslation}
           onToggleTranslation={toggleTranslation}
           testLanguage={testLanguage}
+        />
+      )}
+
+      {/* Penalty Overlay для exam-russia */}
+      {isExamRussiaDarkMode && (
+        <ExamPenaltyOverlay
+          show={showPenaltyOverlay}
+          blockNumber={penaltyBlock || 0}
+          questionsAdded={russiaExam.state?.extraQuestions.length || 0}
+          minutesAdded={5}
+          onClose={() => {
+            setShowPenaltyOverlay(false);
+            setPenaltyBlock(null);
+          }}
         />
       )}
 
