@@ -22,9 +22,9 @@
 https://skilyapp.com
 ```
 
-**Если используете Lovable:**
+**Если используете другой деплой:**
 ```
-https://sdadim-dgt-prep.lovable.app
+https://sdadim-dgt-prep.vercel.app
 ```
 
 ### 3. Обновите секрет

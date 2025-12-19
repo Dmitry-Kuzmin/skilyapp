@@ -358,10 +358,22 @@ const Index = () => {
   const navigate = useNavigate();
   
   // КРИТИЧНО: Если не авторизован, редиректим на главную (где Landing рендерится напрямую)
-  // НЕ рендерим Landing здесь, чтобы избежать бесконечного цикла
+  // НО: НЕ редиректим если мы в Telegram Mini App - там авторизация может появиться позже
+  // Это предотвращает бесконечный цикл редиректов между Landing и Index
   useEffect(() => {
-    if (!isLoading && userContext && !isAuthenticated) {
-      navigate('/', { replace: true });
+    // Проверяем, что мы не в Telegram Mini App
+    const isInTelegram = typeof window !== 'undefined' && 
+                         window.Telegram?.WebApp && 
+                         window.Telegram.WebApp.initData && 
+                         window.Telegram.WebApp.initData !== '' &&
+                         !window.Telegram.WebApp.initData.startsWith('mock_');
+    
+    // Редиректим только если НЕ в Telegram Mini App
+    if (!isLoading && userContext && !isAuthenticated && !isInTelegram) {
+      // КРИТИЧНО: Проверяем, что мы не на главной странице, чтобы избежать бесконечного цикла
+      if (window.location.pathname !== '/') {
+        navigate('/', { replace: true });
+      }
     }
   }, [isLoading, userContext, isAuthenticated, navigate]);
   

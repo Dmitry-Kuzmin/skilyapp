@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
-import { isTelegramMobilePlatformName } from '@/lib/telegram';
+import { isTelegramMobilePlatformName, isTelegramMiniApp } from '@/lib/telegram';
 
 // Типы для Telegram WebApp
 interface WebApp {
@@ -78,46 +78,54 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
       return;
     }
 
+    // КРИТИЧЕСКИ ВАЖНО: Проверяем, что мы действительно в Telegram Mini App
+    // В браузере window.Telegram может быть моком или заглушкой
+    if (!isTelegramMiniApp()) {
+      if (shouldLog) {
+        console.debug('[TelegramProvider] ⚠️ Не в Telegram Mini App, пропускаем инициализацию');
+      }
+      return;
+    }
+
     initializedRef.current = true;
     log('🚀 Инициализация Telegram WebApp (Singleton)');
 
     // КРИТИЧНО: вызываем ready() и expand() только один раз
     tg.ready();
     
-    // АГРЕССИВНЫЙ ПОДХОД: Вызываем expand() множественно для Menu Button
-    const forceExpand = () => {
+    // Вызываем expand() только один раз, если еще не развернуто
+    const callExpand = () => {
       try {
-        if (typeof tg.expand === 'function') {
+        if (typeof tg.expand === 'function' && !tg.isExpanded) {
           tg.expand();
           log('✅ expand() called in TelegramProvider');
+        } else if (tg.isExpanded) {
+          log('ℹ️ WebApp уже развернут');
         }
       } catch (e) {
         log('⚠️ Error calling expand():', e);
       }
     };
     
-    // Вызываем сразу
-    forceExpand();
+    // Вызываем один раз сразу
+    callExpand();
     
-    // Вызываем на событиях viewport
+    // Вызываем на событиях viewport (только если еще не развернуто)
     if (typeof tg.onEvent === 'function') {
       tg.onEvent('viewport_changed', () => {
-        log('📐 viewport_changed - calling expand()');
-        forceExpand();
+        log('📐 viewport_changed - checking expand');
+        if (!tg.isExpanded) {
+          callExpand();
+        }
       });
       
       tg.onEvent('safeAreaChanged', () => {
-        log('📐 safeAreaChanged - calling expand()');
-        forceExpand();
+        log('📐 safeAreaChanged - checking expand');
+        if (!tg.isExpanded) {
+          callExpand();
+        }
       });
     }
-    
-    // Вызываем с задержками
-    setTimeout(forceExpand, 10);
-    setTimeout(forceExpand, 50);
-    setTimeout(forceExpand, 100);
-    setTimeout(forceExpand, 200);
-    setTimeout(forceExpand, 500);
 
     // Обработка версионности API (решает проблему №5)
     const version = parseFloat(tg.version || '0');

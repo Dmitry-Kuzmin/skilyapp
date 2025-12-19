@@ -31,8 +31,9 @@ export function Footer() {
     location.pathname.includes('/four-variants') ||
     location.pathname.includes('/road-race');
 
-  // Скрываем футер в Telegram приложении и в fullscreen режимах (тесты и игры)
-  if (isTelegramApp || isFullscreenMode) {
+  // Скрываем футер только в fullscreen режимах (тесты и игры)
+  // В Telegram App футер показывается (если не fullscreen режим)
+  if (isFullscreenMode) {
     return null;
   }
 

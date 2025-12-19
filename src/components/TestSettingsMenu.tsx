@@ -23,6 +23,7 @@ interface TestSettingsMenuProps {
   onFontSizeChange: (value: number) => void;
   language: 'es' | 'en';
   onLanguageChange: (value: 'es' | 'en') => void;
+  hideLanguageSelector?: boolean; // Скрыть выбор языка (для русских тестов ПДД)
 }
 
 export const TestSettingsMenu = ({
@@ -38,6 +39,7 @@ export const TestSettingsMenu = ({
   onFontSizeChange,
   language,
   onLanguageChange,
+  hideLanguageSelector = false,
 }: TestSettingsMenuProps) => {
   const fontSizeLabels = ['Pequeño', 'Default', 'Grande'];
 
@@ -183,40 +185,45 @@ export const TestSettingsMenu = ({
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="h-px bg-border/30 my-2" />
+          {/* Language selection - скрываем для русских тестов ПДД */}
+          {!hideLanguageSelector && (
+            <>
+              {/* Divider */}
+              <div className="h-px bg-border/30 my-2" />
 
-          {/* Language selection */}
-          <div className="px-2 pb-1">
-            <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">Язык теста</div>
-            <div className="grid grid-cols-2 gap-1.5">
-              <button
-                onClick={() => onLanguageChange('es')}
-                className={cn(
-                  "px-2 py-1.5 rounded-md text-xs font-semibold transition-all",
-                  language === 'es' 
-                    ? "bg-red-600 text-white shadow-sm" 
-                    : "bg-muted/50 hover:bg-muted text-foreground"
-                )}
-              >
-                ES
-              </button>
-              <button
-                onClick={() => onLanguageChange('en')}
-                className={cn(
-                  "px-2 py-1.5 rounded-md text-xs font-semibold transition-all",
-                  language === 'en' 
-                    ? "bg-blue-600 text-white shadow-sm" 
-                    : "bg-muted/50 hover:bg-muted text-foreground"
-                )}
-              >
-                EN
-              </button>
-            </div>
-            <div className="mt-2 text-[9px] text-muted-foreground/70 px-1">
-              Русский доступен через кнопку перевода в тесте
-            </div>
-          </div>
+              {/* Language selection */}
+              <div className="px-2 pb-1">
+                <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">Язык теста</div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    onClick={() => onLanguageChange('es')}
+                    className={cn(
+                      "px-2 py-1.5 rounded-md text-xs font-semibold transition-all",
+                      language === 'es' 
+                        ? "bg-red-600 text-white shadow-sm" 
+                        : "bg-muted/50 hover:bg-muted text-foreground"
+                    )}
+                  >
+                    ES
+                  </button>
+                  <button
+                    onClick={() => onLanguageChange('en')}
+                    className={cn(
+                      "px-2 py-1.5 rounded-md text-xs font-semibold transition-all",
+                      language === 'en' 
+                        ? "bg-blue-600 text-white shadow-sm" 
+                        : "bg-muted/50 hover:bg-muted text-foreground"
+                    )}
+                  >
+                    EN
+                  </button>
+                </div>
+                <div className="mt-2 text-[9px] text-muted-foreground/70 px-1">
+                  Русский доступен через кнопку перевода в тесте
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

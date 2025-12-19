@@ -34,12 +34,13 @@ import {
 import { usePDDExamQuestions } from "@/hooks/usePDDExamQuestions";
 import { useRussiaExam } from "@/hooks/useRussiaExam";
 import { mapRussiaQuestionToUniversal } from "@/utils/pddAdapters";
-import { usePDDTicketQuestions } from "@/hooks/usePDDQuestions";
+import { usePDDTicketQuestions, usePDDRandomQuestions } from "@/hooks/usePDDQuestions";
 import { usePDDContext } from "@/contexts/PDDContext";
 import { CountryCode } from "@/types/pdd";
 import { useOfflineQueue } from "@/hooks/useOfflineQueue";
 import { trackOfflineAction } from "@/utils/offlineAnalytics";
 import { useOnlineStatus, checkOnlineStatus } from "@/hooks/useOnlineStatus";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type QuestionData = {
   id: string;
@@ -218,6 +219,7 @@ const TestSession = () => {
   const { isPremium } = usePremium();
   const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId);
   const { selectedCountry } = usePDDContext();
+  const { language: userLanguage } = useLanguage();
   const mode = useMemo(() => {
     if (rawMode) return rawMode;
     if (location.pathname.includes("/learn/") && ticketIdParam) return "pdd-ticket";
@@ -917,20 +919,28 @@ const TestSession = () => {
     30
   );
   const dgtQuestions = useDGTQuestions(mode === 'dgt' ? topic || null : null, 30);
+  
+  // Для России используем ПДД вопросы, для других стран - questions_new
+  const shouldUsePDD = selectedCountry === 'russia' && (mode === 'practice' || mode === 'blitz' || mode === 'exam' || mode === 'mastery' || mode === 'hardest');
+  const pddRandomQuestions = usePDDRandomQuestions(
+    shouldUsePDD ? selectedCountry : 'russia', // Используем selectedCountry только если shouldUsePDD
+    shouldUsePDD ? questionCount : 0
+  );
+  
   const practiceQuestions = useQuestionsByTopic(
-    mode === 'practice' || mode === 'blitz' || mode === 'exam' ? topic || null : null,
+    (mode === 'practice' || mode === 'blitz' || mode === 'exam') && !shouldUsePDD ? topic || null : null,
     questionCount,
-    mode === 'practice' || mode === 'blitz' || mode === 'exam'
+    (mode === 'practice' || mode === 'blitz' || mode === 'exam') && !shouldUsePDD
   );
   const masteryQuestions = useQuestionsByTopic(
-    mode === 'mastery' ? topic || null : null,
+    mode === 'mastery' && !shouldUsePDD ? topic || null : null,
     questionCount,
-    mode === 'mastery'
+    mode === 'mastery' && !shouldUsePDD
   );
   const hardestQuestions = useQuestionsByTopic(
-    mode === 'hardest' ? null : null,
+    mode === 'hardest' && !shouldUsePDD ? null : null,
     questionCount,
-    mode === 'hardest'
+    mode === 'hardest' && !shouldUsePDD
   );
   const moduleQuestions = useQuestionsByTopic(
     mode === 'module' && topic ? topic : null,
@@ -1000,36 +1010,137 @@ const TestSession = () => {
         setLoading(false);
       }
     } else if (mode === 'practice' || mode === 'blitz' || mode === 'exam') {
-      if (practiceQuestions.data) {
-        setQuestions(practiceQuestions.data);
-        setLoading(false);
-      } else if (practiceQuestions.isLoading) {
-        setLoading(true);
-      } else if (practiceQuestions.error) {
-        toast.error("Ошибка загрузки вопросов");
-        setLoading(false);
+      // Для России используем ПДД вопросы
+      if (shouldUsePDD) {
+        if (pddRandomQuestions.data && pddRandomQuestions.data.length > 0) {
+          const convertedQuestions: QuestionData[] = pddRandomQuestions.data.map((q) => ({
+            id: q.id,
+            question_ru: q.text,
+            question_es: q.text,
+            question_en: q.text,
+            image_url: q.image,
+            explanation_ru: q.explanation || null,
+            explanation_es: q.explanation || null,
+            explanation_en: q.explanation || null,
+            topics: q.topics && q.topics.length > 0 ? { title_ru: q.topics[0], title_es: q.topics[0] } : null,
+            answer_options: q.answers.map(a => ({
+              id: a.id,
+              text_ru: a.text,
+              text_es: a.text,
+              text_en: a.text,
+              is_correct: a.isCorrect,
+              position: a.position || 0,
+            })),
+          }));
+          setQuestions(convertedQuestions);
+          setLoading(false);
+        } else if (pddRandomQuestions.isLoading) {
+          setLoading(true);
+        } else if (pddRandomQuestions.error) {
+          toast.error("Ошибка загрузки вопросов ПДД");
+          setLoading(false);
+        }
+      } else {
+        // Для других стран используем обычные вопросы
+        if (practiceQuestions.data) {
+          setQuestions(practiceQuestions.data);
+          setLoading(false);
+        } else if (practiceQuestions.isLoading) {
+          setLoading(true);
+        } else if (practiceQuestions.error) {
+          toast.error("Ошибка загрузки вопросов");
+          setLoading(false);
+        }
       }
     } else if (mode === 'mastery') {
-      if (masteryQuestions.data) {
-        setQuestions(masteryQuestions.data);
-        setTestInfo({ id: 'mastery_mode', title: '🏆 Режим Мастерства' });
-        setLoading(false);
-      } else if (masteryQuestions.isLoading) {
-        setLoading(true);
-      } else if (masteryQuestions.error) {
-        toast.error("Ошибка загрузки вопросов");
-        setLoading(false);
+      // Для России используем ПДД вопросы
+      if (shouldUsePDD) {
+        if (pddRandomQuestions.data && pddRandomQuestions.data.length > 0) {
+          const convertedQuestions: QuestionData[] = pddRandomQuestions.data.map((q) => ({
+            id: q.id,
+            question_ru: q.text,
+            question_es: q.text,
+            question_en: q.text,
+            image_url: q.image,
+            explanation_ru: q.explanation || null,
+            explanation_es: q.explanation || null,
+            explanation_en: q.explanation || null,
+            topics: q.topics && q.topics.length > 0 ? { title_ru: q.topics[0], title_es: q.topics[0] } : null,
+            answer_options: q.answers.map(a => ({
+              id: a.id,
+              text_ru: a.text,
+              text_es: a.text,
+              text_en: a.text,
+              is_correct: a.isCorrect,
+              position: a.position || 0,
+            })),
+          }));
+          setQuestions(convertedQuestions);
+          setTestInfo({ id: 'mastery_mode', title: '🏆 Режим Мастерства' });
+          setLoading(false);
+        } else if (pddRandomQuestions.isLoading) {
+          setLoading(true);
+        } else if (pddRandomQuestions.error) {
+          toast.error("Ошибка загрузки вопросов ПДД");
+          setLoading(false);
+        }
+      } else {
+        // Для других стран используем обычные вопросы
+        if (masteryQuestions.data) {
+          setQuestions(masteryQuestions.data);
+          setTestInfo({ id: 'mastery_mode', title: '🏆 Режим Мастерства' });
+          setLoading(false);
+        } else if (masteryQuestions.isLoading) {
+          setLoading(true);
+        } else if (masteryQuestions.error) {
+          toast.error("Ошибка загрузки вопросов");
+          setLoading(false);
+        }
       }
     } else if (mode === 'hardest') {
-      if (hardestQuestions.data) {
-        setQuestions(hardestQuestions.data);
-        setTestInfo({ id: 'hardest_questions', title: '⚠️ Сложные Вопросы' });
-        setLoading(false);
-      } else if (hardestQuestions.isLoading) {
-        setLoading(true);
-      } else if (hardestQuestions.error) {
-        toast.error("Ошибка загрузки вопросов");
-        setLoading(false);
+      // Для России используем ПДД вопросы
+      if (shouldUsePDD) {
+        if (pddRandomQuestions.data && pddRandomQuestions.data.length > 0) {
+          const convertedQuestions: QuestionData[] = pddRandomQuestions.data.map((q) => ({
+            id: q.id,
+            question_ru: q.text,
+            question_es: q.text,
+            question_en: q.text,
+            image_url: q.image,
+            explanation_ru: q.explanation || null,
+            explanation_es: q.explanation || null,
+            explanation_en: q.explanation || null,
+            topics: q.topics && q.topics.length > 0 ? { title_ru: q.topics[0], title_es: q.topics[0] } : null,
+            answer_options: q.answers.map(a => ({
+              id: a.id,
+              text_ru: a.text,
+              text_es: a.text,
+              text_en: a.text,
+              is_correct: a.isCorrect,
+              position: a.position || 0,
+            })),
+          }));
+          setQuestions(convertedQuestions);
+          setTestInfo({ id: 'hardest_questions', title: '⚠️ Сложные Вопросы' });
+          setLoading(false);
+        } else if (pddRandomQuestions.isLoading) {
+          setLoading(true);
+        } else if (pddRandomQuestions.error) {
+          toast.error("Ошибка загрузки вопросов ПДД");
+          setLoading(false);
+        }
+      } else {
+        // Для других стран используем обычные вопросы
+        if (hardestQuestions.data) {
+          setQuestions(hardestQuestions.data);
+          setTestInfo({ id: 'hardest_questions', title: '⚠️ Сложные Вопросы' });
+          setLoading(false);
+        } else if (hardestQuestions.isLoading) {
+          setLoading(true);
+        } else if (hardestQuestions.error) {
+          toast.error("Ошибка загрузки вопросов");
+          setLoading(false);
+        }
       }
     } else if (mode === 'module') {
       if (moduleQuestions.data) {
@@ -1256,6 +1367,11 @@ const TestSession = () => {
     pddTicketQuestions.error,
     ticketNumber,
     pddCountry,
+    shouldUsePDD,
+    pddRandomQuestions.data,
+    pddRandomQuestions.isLoading,
+    pddRandomQuestions.error,
+    selectedCountry,
   ]);
 
   // Проверяем, добавлен ли текущий вопрос в закладки
@@ -1868,7 +1984,7 @@ useEffect(() => {
     }
   };
 
-  const practiceLikeModes = ["practice", "blitz", "mastery", "sequential", "module", "challenge-bank", "dgt"];
+  const practiceLikeModes = ["practice", "blitz", "mastery", "sequential", "module", "challenge-bank", "dgt", "pdd-ticket"];
   const isPracticeLikeMode = practiceLikeModes.includes(mode);
 
   const handleAnswer = async (optionId?: string) => {
@@ -2625,6 +2741,7 @@ useEffect(() => {
                 onFontSizeChange={setFontSize}
                 language={testLanguage}
                 onLanguageChange={setTestLanguage}
+                hideLanguageSelector={mode === 'pdd-ticket' || mode === 'exam-russia'}
               />
             }
             customLeftContent={
@@ -2662,6 +2779,7 @@ useEffect(() => {
             question={russiaExam.currentQuestion.text}
             image={russiaExam.currentQuestion.image}
             imageAspectRatio={russiaExam.currentQuestion.image ? getCachedImageAspectRatio(russiaExam.currentQuestion.image) : null}
+            explanation={russiaExam.currentQuestion.explanation || null}
             answers={russiaExam.currentQuestion.answers.map(a => ({
               id: a.id,
               text: a.text,
@@ -2675,6 +2793,7 @@ useEffect(() => {
                 setSelectedOption(answerId);
               }
             }}
+            onShowExplanation={selectedOption ? () => setShowAIExplanation(true) : undefined}
             fontSize={fontSize}
             header={
               russiaExam.isExtraMode && (
@@ -2703,16 +2822,17 @@ useEffect(() => {
             data-testid="question-card"
             className="p-3 sm:p-4 md:p-6 bg-background border-border/50 shadow-xl backdrop-blur-sm"
           >
-          {/* Two-column layout: Image on left, Question & Answers on right */}
+          {/* Layout: для России - вертикальный (изображение сверху), для других стран - двухколоночный */}
           {currentQuestion.image_url ? (
-            <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[350px_1fr] gap-4 md:gap-6">
-              {/* Left Column: Image */}
-              <div className="w-full md:sticky md:top-4 md:self-start">
-                <QuestionImageComponent imageUrl={currentQuestion.image_url} compact />
-            </div>
-
-              {/* Right Column: Question Text & Answers */}
-              <div className="flex flex-col">
+            selectedCountry === 'russia' ? (
+              // Вертикальный layout для России (изображение сверху)
+              <div className="space-y-4 md:space-y-6">
+                {/* Image on top */}
+                <div className="w-full">
+                  <QuestionImageComponent imageUrl={currentQuestion.image_url} compact />
+                </div>
+                {/* Question text and answers below */}
+                <div className="flex flex-col">
                 {/* Question Text */}
                 <div className="mb-4 sm:mb-6">
                   <div className="relative p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
@@ -2720,7 +2840,8 @@ useEffect(() => {
                       {displayQuestion}
                     </h2>
                     {/* Translation Button (Practice Only) - в правом нижнем углу */}
-                    {isPracticeLikeMode && (
+                    {/* Скрываем для русских тестов ПДД - вопросы уже на русском */}
+                    {isPracticeLikeMode && mode !== 'pdd-ticket' && mode !== 'exam-russia' && (
                       <button
                         onClick={toggleTranslation}
                         className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
@@ -2850,25 +2971,183 @@ useEffect(() => {
                       onClick={() => handleAnswer()} 
                       disabled={!selectedOption} 
                       variant={undefined}
-                      className="!flex-1 !font-medium text-sm sm:text-base md:text-lg !bg-slate-900 hover:!bg-slate-800 dark:!bg-slate-50 dark:hover:!bg-slate-100 !text-white dark:!text-slate-900 disabled:!bg-slate-200 dark:disabled:!bg-slate-800 disabled:!text-slate-400 dark:disabled:!text-slate-600 disabled:!cursor-not-allowed disabled:!shadow-none disabled:!opacity-100 h-10 sm:h-11 md:h-12 !rounded-lg transition-all duration-200 !shadow-sm hover:!shadow-md active:scale-[0.98] !border-0"
+                      className="!flex-1 !font-medium text-sm sm:text-base md:text-lg !bg-slate-900 hover:!bg-slate-800 dark:!bg-slate-50 dark:hover:!bg-slate-100 !text-white dark:!text-slate-900 disabled:!bg-zinc-100 disabled:hover:!bg-zinc-100 dark:disabled:!bg-zinc-900 dark:disabled:hover:!bg-zinc-900 disabled:!text-zinc-600 dark:disabled:!text-zinc-400 disabled:!cursor-not-allowed disabled:!shadow-none disabled:!opacity-100 h-10 sm:h-11 md:h-12 !rounded-lg transition-all duration-200 !shadow-sm hover:!shadow-md active:scale-[0.98] !border !border-zinc-300 dark:!border-zinc-700 disabled:!border-zinc-300 dark:disabled:!border-zinc-700"
                     >
-                      Responder
+                      {selectedCountry === 'russia' ? 'Ответить' : 'Responder'}
                 </Button>
               )}
             </div>
               </div>
             </div>
+            ) : (
+              // Двухколоночный layout для других стран
+              <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[350px_1fr] gap-4 md:gap-6">
+                {/* Left Column: Image */}
+                <div className="w-full md:sticky md:top-4 md:self-start">
+                  <QuestionImageComponent imageUrl={currentQuestion.image_url} compact />
+                </div>
+
+                {/* Right Column: Question Text & Answers */}
+                <div className="flex flex-col">
+                  {/* Question Text */}
+                  <div className="mb-4 sm:mb-6">
+                    <div className="relative p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
+                      <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'} pr-12`}>
+                        {displayQuestion}
+                      </h2>
+                      {/* Translation Button (Practice Only) - в правом нижнем углу */}
+                      {/* Скрываем для русских тестов ПДД - вопросы уже на русском */}
+                      {isPracticeLikeMode && mode !== 'pdd-ticket' && mode !== 'exam-russia' && (
+                        <button
+                          onClick={toggleTranslation}
+                          className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
+                          title={showTranslation ? "Показать оригинал" : "Показать перевод на русский"}
+                        >
+                          <Languages className="w-3 h-3" />
+                          <span>{showTranslation ? "ES" : "RU"}</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Answer Options */}
+                  <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
+                    {sortedOptions.map((option, optionIndex) => {
+                      const isSelected = selectedOption === option.id;
+                      const isCorrect = option.is_correct;
+                      const showResult = selectedOption !== null && isPracticeLikeMode;
+                      // Ответы тоже учитывают showTranslation (кнопка перевода)
+                      const displayText = showTranslation 
+                        ? option.text_ru 
+                        : (testLanguage === 'en' ? option.text_en : option.text_es);
+                      
+                      // Mock popularity data
+                      const mockPopularity = isCorrect ? Math.floor(75 + Math.random() * 20) : Math.floor(5 + Math.random() * 20);
+
+                      return (
+                        <button
+                          key={option.id}
+                          onClick={() => {
+                            if (mode === "exam") {
+                              setSelectedOption(option.id);
+                            } else if (!selectedOption) {
+                              setSelectedOption(option.id);
+                              handleAnswer(option.id);
+                            }
+                          }}
+                          disabled={isPracticeLikeMode && selectedOption !== null}
+                          className={`
+                            w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 font-medium
+                            ${showResult
+                              ? isCorrect
+                                ? "border-emerald-500 bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 shadow-xl shadow-emerald-500/25 animate-fade-in"
+                                : isSelected
+                                ? "border-red-500 bg-gradient-to-r from-red-500/15 to-red-500/5 shadow-xl shadow-red-500/25 animate-fade-in"
+                                : "border-border/20 opacity-40"
+                              : isSelected
+                                ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
+                                : "border-border/40 hover:border-accent/60 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
+                            }
+                            ${selectedOption === null && "cursor-pointer active:scale-[0.99]"}
+                          `}
+                        >
+                          <div className="flex items-center justify-between gap-2 sm:gap-3">
+                            <span className={`flex-1 ${fontSizeClasses[fontSize]} transition-opacity duration-300 leading-relaxed ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                              {displayText}
+                            </span>
+                            
+                            {/* Answer Popularity - как на driving-tests.org */}
+                            {answerPopularity && showResult && (
+                              <span className={cn(
+                                "text-xs sm:text-sm font-bold px-2 py-1 rounded-md shrink-0",
+                                isCorrect ? "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30" : "text-muted-foreground"
+                              )}>
+                                {mockPopularity}%
+                              </span>
+                            )}
+                            
+                            {showResult && isCorrect && (
+                              <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500/20 animate-scale-in shrink-0">
+                                <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400" />
+                              </div>
+                            )}
+                            {showResult && isSelected && !isCorrect && (
+                              <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-red-500/20 animate-scale-in shrink-0">
+                                <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Explanation убрано - теперь показывается через Lumi */}
+
+                  {/* Navigation Buttons - с аватаром Lumi на мобильном */}
+                  <div className="flex gap-2 items-center">
+                    {/* Lumi Avatar - на маленьких экранах в браузере и в Telegram (всегда видна в practice режиме) */}
+                    {isPracticeLikeMode && (
+                      <button
+                        onClick={() => setShowAIExplanation(true)}
+                        className="group w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-400 hover:via-orange-400 hover:to-orange-500 shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 shrink-0 relative overflow-hidden lg:hidden ring-2 ring-orange-400/50 hover:ring-orange-300/80"
+                        aria-label="Спросить Skily"
+                      >
+                        {/* Пульсирующий эффект */}
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-60 animate-pulse" />
+                        {/* Светящийся эффект при hover */}
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-300 to-orange-300 opacity-0 group-hover:opacity-40 transition-opacity duration-300 blur-sm" />
+                        {/* Lumi аватар */}
+                        <LumiCharacter size="sm" mood="happy" animate={true} className="relative z-10 transform group-hover:scale-110 transition-transform duration-300" />
+                        {/* Внешнее свечение */}
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-20 blur-xl group-hover:opacity-30 transition-opacity duration-300" />
+                      </button>
+                    )}
+                    
+                    {isPracticeLikeMode && selectedOption ? (
+                      <Button
+                        onClick={nextQuestion} 
+                        className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 h-10 sm:h-11 md:h-12"
+                      >
+                        {currentIndex < questions.length - 1 ? (
+                          <>
+                            <span className="hidden sm:inline">Siguiente</span>
+                            <span className="sm:hidden">Siguiente</span>
+                            <ChevronRight className="w-4 h-4 ml-1" />
+                          </>
+                        ) : (
+                          <>
+                            <span className="hidden sm:inline">Finalizar ✓</span>
+                            <span className="sm:hidden">Finalizar</span>
+                          </>
+                        )}
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => handleAnswer()} 
+                        disabled={!selectedOption} 
+                        variant={undefined}
+                        className="!flex-1 !font-medium text-sm sm:text-base md:text-lg !bg-slate-900 hover:!bg-slate-800 dark:!bg-slate-50 dark:hover:!bg-slate-100 !text-white dark:!text-slate-900 disabled:!bg-zinc-100 disabled:hover:!bg-zinc-100 dark:disabled:!bg-zinc-900 dark:disabled:hover:!bg-zinc-900 disabled:!text-zinc-600 dark:disabled:!text-zinc-400 disabled:!cursor-not-allowed disabled:!shadow-none disabled:!opacity-100 h-10 sm:h-11 md:h-12 !rounded-lg transition-all duration-200 !shadow-sm hover:!shadow-md active:scale-[0.98] !border !border-zinc-300 dark:!border-zinc-700 disabled:!border-zinc-300 dark:disabled:!border-zinc-700"
+                      >
+                        {selectedCountry === 'russia' ? 'Ответить' : 'Responder'}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )
           ) : (
             // Layout без изображения (вертикальный)
             <>
-          {/* Question Text */}
+              {/* Question Text */}
               <div className="mb-4 sm:mb-6">
                 <div className="relative p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
                   <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'} pr-12`}>
                     {displayQuestion}
                   </h2>
                   {/* Translation Button (Practice Only) - в правом нижнем углу */}
-                  {isPracticeLikeMode && (
+                  {/* Скрываем для русских тестов ПДД - вопросы уже на русском */}
+                  {isPracticeLikeMode && mode !== 'pdd-ticket' && mode !== 'exam-russia' && (
                     <button
                       onClick={toggleTranslation}
                       className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
@@ -2879,7 +3158,7 @@ useEffect(() => {
                     </button>
                   )}
                 </div>
-          </div>
+              </div>
 
           {/* Answer Options */}
           <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
@@ -2997,9 +3276,9 @@ useEffect(() => {
                 onClick={() => handleAnswer()} 
                 disabled={!selectedOption} 
                 variant={undefined}
-                className="!flex-1 !font-medium text-sm sm:text-base md:text-lg !bg-slate-900 hover:!bg-slate-800 dark:!bg-slate-50 dark:hover:!bg-slate-100 !text-white dark:!text-slate-900 disabled:!bg-slate-200 dark:disabled:!bg-slate-800 disabled:!text-slate-400 dark:disabled:!text-slate-600 disabled:!cursor-not-allowed disabled:!shadow-none disabled:!opacity-100 h-10 sm:h-11 md:h-12 !rounded-lg transition-all duration-200 !shadow-sm hover:!shadow-md active:scale-[0.98] !border-0"
+                className="!flex-1 !font-medium text-sm sm:text-base md:text-lg !bg-slate-900 hover:!bg-slate-800 dark:!bg-slate-50 dark:hover:!bg-slate-100 !text-white dark:!text-slate-900 disabled:!bg-zinc-100 disabled:hover:!bg-zinc-100 dark:disabled:!bg-zinc-900 dark:disabled:hover:!bg-zinc-900 disabled:!text-zinc-600 dark:disabled:!text-zinc-400 disabled:!cursor-not-allowed disabled:!shadow-none disabled:!opacity-100 h-10 sm:h-11 md:h-12 !rounded-lg transition-all duration-200 !shadow-sm hover:!shadow-md active:scale-[0.98] !border !border-zinc-300 dark:!border-zinc-700 disabled:!border-zinc-300 dark:disabled:!border-zinc-700"
               >
-                Responder
+                {selectedCountry === 'russia' ? 'Ответить' : 'Responder'}
               </Button>
             )}
           </div>
@@ -3017,7 +3296,7 @@ useEffect(() => {
             className="text-xs sm:text-sm h-9 sm:h-10 px-4 sm:px-5 bg-muted/50 hover:bg-muted border-border/60 hover:border-border text-foreground/80 hover:text-foreground font-medium shadow-sm hover:shadow-md transition-all duration-200 rounded-lg"
           >
             <AlertTriangle className="w-4 h-4 sm:w-4.5 sm:h-4.5 mr-2 text-muted-foreground" />
-            <span>{language === "es" ? "Reportar problema" : "Сообщить о проблеме"}</span>
+            <span>{userLanguage === "es" ? "Reportar problema" : "Сообщить о проблеме"}</span>
           </Button>
         </div>
       </div>
@@ -3257,25 +3536,41 @@ useEffect(() => {
       />
 
 
-      {/* AI Explanation Dialog - работает всегда в practice режиме */}
-      {isPracticeLikeMode && (
+      {/* AI Explanation Dialog - работает в practice режиме и exam-russia */}
+      {(isPracticeLikeMode || mode === 'exam-russia') && (
         <AIExplanationDialog
           open={showAIExplanation}
           onClose={() => setShowAIExplanation(false)}
-          question={showTranslation ? currentQuestion.question_ru : (testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es)}
-          correctAnswer={
-            sortedOptions.find((opt) => opt.is_correct)?.[showTranslation ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] || ''
-          }
-          userAnswer={
-            selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[showTranslation ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] : undefined
-          }
-          isCorrect={selectedOption ? (sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false) : false}
-          explanation={selectedOption ? (showTranslation ? currentQuestion.explanation_ru : (testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es)) : null}
-          explanationRu={selectedOption ? currentQuestion.explanation_ru : null}
-          explanationEs={selectedOption ? currentQuestion.explanation_es : null}
-          explanationEn={selectedOption ? currentQuestion.explanation_en : null}
-          topic={currentQuestion.topics?.title_es}
-          imageUrl={currentQuestion.image_url}
+          question={mode === 'exam-russia' && russiaExam.currentQuestion
+            ? russiaExam.currentQuestion.text
+            : (showTranslation ? currentQuestion.question_ru : (testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es))}
+          correctAnswer={mode === 'exam-russia' && russiaExam.currentQuestion
+            ? russiaExam.currentQuestion.answers.find(a => a.isCorrect)?.text || ''
+            : (sortedOptions.find((opt) => opt.is_correct)?.[showTranslation ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] || '')}
+          userAnswer={mode === 'exam-russia' && russiaExam.currentQuestion && selectedOption
+            ? russiaExam.currentQuestion.answers.find(a => a.id === selectedOption)?.text
+            : (selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[showTranslation ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] : undefined)}
+          isCorrect={mode === 'exam-russia' && russiaExam.currentQuestion && selectedOption
+            ? (russiaExam.currentQuestion.answers.find(a => a.id === selectedOption)?.isCorrect || false)
+            : (selectedOption ? (sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false) : false)}
+          explanation={mode === 'exam-russia' && russiaExam.currentQuestion
+            ? (selectedOption ? russiaExam.currentQuestion.explanation : null)
+            : (selectedOption ? (showTranslation ? currentQuestion.explanation_ru : (testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es)) : null)}
+          explanationRu={mode === 'exam-russia' && russiaExam.currentQuestion
+            ? (selectedOption ? russiaExam.currentQuestion.explanation : null)
+            : (selectedOption ? currentQuestion.explanation_ru : null)}
+          explanationEs={mode === 'exam-russia' && russiaExam.currentQuestion
+            ? (selectedOption ? russiaExam.currentQuestion.explanation : null)
+            : (selectedOption ? currentQuestion.explanation_es : null)}
+          explanationEn={mode === 'exam-russia' && russiaExam.currentQuestion
+            ? (selectedOption ? russiaExam.currentQuestion.explanation : null)
+            : (selectedOption ? currentQuestion.explanation_en : null)}
+          topic={mode === 'exam-russia' && russiaExam.currentQuestion
+            ? (russiaExam.currentQuestion.topics && russiaExam.currentQuestion.topics.length > 0 ? russiaExam.currentQuestion.topics[0] : undefined)
+            : currentQuestion.topics?.title_es}
+          imageUrl={mode === 'exam-russia' && russiaExam.currentQuestion
+            ? russiaExam.currentQuestion.image
+            : currentQuestion.image_url}
           showTranslation={showTranslation}
           onToggleTranslation={toggleTranslation}
           testLanguage={testLanguage}

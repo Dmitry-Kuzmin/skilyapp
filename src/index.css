@@ -5,32 +5,36 @@
 /* КРИТИЧНО: Предотвращаем pull-to-refresh на мобильных (причина спонтанных перезагрузок) */
 html, body {
   overscroll-behavior-y: none;
-  height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
   /* Цвет фона для overscroll (когда пользователь скроллит за пределы контента) */
   background-color: hsl(222 47% 11%); /* Темная тема - slate-900 */
-  display: flex;
-  flex-direction: column;
+  /* КРИТИЧНО: Убираем height: 100% и display: flex для обычного браузера - footer должен скроллиться */
+  /* flex применяется только для Telegram WebApp */
 }
 
 #root {
-  height: 100%;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  /* КРИТИЧНО: Убираем display: flex для обычного браузера - footer должен скроллиться */
+  /* flex применяется только для Telegram WebApp */
 }
 
-/* Min-height только для Telegram WebApp */
+/* Flex и min-height только для Telegram WebApp */
 html.telegram-webapp,
 body.telegram-webapp {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
 }
 
 html.telegram-webapp #root,
 body.telegram-webapp #root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   min-height: 100vh;
 }
 
@@ -788,12 +792,13 @@ All colors MUST be HSL.
   .telegram-app-container {
     display: flex;
     flex-direction: column;
-    height: auto;
+    min-height: 0; /* КРИТИЧНО: Убираем min-height для обычного браузера - footer должен скроллиться */
     overflow: visible;
     background-color: hsl(var(--background)); /* Обеспечиваем правильный фон */
   }
 
   /* Min-height только для Telegram WebApp - чтобы footer прижимался к низу */
+  /* КРИТИЧНО: Применяем только для Telegram WebApp, не для обычного браузера */
   html.telegram-webapp .telegram-app-container,
   body.telegram-webapp .telegram-app-container {
     min-height: calc(var(--tg-viewport-stable-height, 100vh) - var(--sat) - var(--sab));
@@ -803,19 +808,28 @@ All colors MUST be HSL.
   /* Основной контент - единая система отступов */
   .telegram-main-content {
     flex: 0 1 auto; /* Для обычных страниц - не растягивается, если контента мало */
-    overflow-y: auto;
+    /* КРИТИЧНО: Убираем overflow-y: auto для обычного браузера - скроллится вся страница, не только main */
     overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
     min-height: 0; /* Важно для flex-контейнеров - позволяет скроллиться */
-    /* Отступ снизу для нижней навигации */
-    padding-bottom: calc(5rem + var(--app-safe-bottom) + var(--app-content-bottom));
+    /* Отступ снизу для нижней навигации - только для мобильных */
+    padding-bottom: 0;
   }
 
-  /* Для Telegram WebApp - main растягивается чтобы заполнить пространство */
+  /* Для мобильных устройств - добавляем отступ снизу для bottom navigation */
+  @media (max-width: 768px) {
+    .telegram-main-content {
+      padding-bottom: calc(5rem + var(--app-safe-bottom) + var(--app-content-bottom));
+    }
+  }
+
+  /* Для Telegram WebApp - main растягивается и имеет свой скролл */
   html.telegram-webapp .telegram-main-content,
   body.telegram-webapp .telegram-main-content {
     flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    padding-bottom: calc(5rem + var(--app-safe-bottom) + var(--app-content-bottom));
   }
   
   /* Верхний отступ ТОЛЬКО для Telegram WebApp на МОБИЛЬНЫХ устройствах */

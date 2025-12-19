@@ -5,6 +5,7 @@ import { useBackgroundTasks } from "@/hooks/useBackgroundTasks";
 import { useOfflineAnalytics } from "@/utils/offlineAnalytics";
 import { useSession } from "@/hooks/useSession";
 import { validateEnv } from "@/utils/envValidation";
+import { isTelegramMiniApp } from "@/lib/telegram";
 
 // ОПТИМИЗАЦИЯ: Toaster, Sonner, TooltipProvider перемещены в AppProviders
 // Они тянут Radix UI (@radix-ui/react-toast, @radix-ui/react-tooltip), поэтому не должны грузиться на лендинге
@@ -294,67 +295,47 @@ const LandingRedirect = () => {
 };
 
 const App = () => {
-  // КРИТИЧНО: Принудительно разворачиваем Telegram WebApp в самую первую секунду
-  // Это должно быть синхронно, до первого рендера, чтобы приложение сразу открылось на весь экран
-  // АГРЕССИВНЫЙ ПОДХОД: Вызываем expand() множественно и на разных событиях
-  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+  // КРИТИЧНО: Проверяем Telegram WebApp только если мы действительно в Telegram Mini App
+  // В браузере window.Telegram может быть моком или заглушкой
+  if (typeof window !== 'undefined' && window.Telegram?.WebApp && isTelegramMiniApp()) {
     const tg = window.Telegram.WebApp;
     
-    // Функция для множественного вызова expand()
-    const forceExpand = () => {
+    // Вызываем ready() один раз
+    if (typeof tg.ready === 'function') {
+      tg.ready();
+    }
+    
+    // Вызываем expand() только один раз, если еще не развернуто
+    const callExpand = () => {
       try {
-        if (typeof tg.expand === 'function') {
+        if (typeof tg.expand === 'function' && !tg.isExpanded) {
           tg.expand();
-          console.log('[App] ✅ expand() called');
-        }
-        if (typeof tg.ready === 'function') {
-          tg.ready();
+          console.debug('[App] ✅ expand() called');
+        } else if (tg.isExpanded) {
+          console.debug('[App] ℹ️ WebApp уже развернут');
         }
       } catch (error) {
-        console.warn('[App] Error in forceExpand:', error);
+        console.warn('[App] Error calling expand():', error);
       }
     };
     
-    // Вызываем сразу
-    forceExpand();
+    // Вызываем один раз сразу
+    callExpand();
     
-    // КРИТИЧНО: Логируем состояние для диагностики
-    console.error('[App] 🔍 Telegram WebApp DIAGNOSTICS:', {
-      platform: tg.platform,
-      version: tg.version,
-      isExpanded: tg.isExpanded,
-      viewportHeight: tg.viewportHeight,
-      viewportStableHeight: tg.viewportStableHeight,
-      hasExpand: typeof tg.expand === 'function',
-      hasReady: typeof tg.ready === 'function',
-      hasOnEvent: typeof tg.onEvent === 'function'
-    });
-    
-    // Вызываем на разных событиях для максимальной надежности
+    // Вызываем на событиях viewport (только если еще не развернуто)
     if (typeof tg.onEvent === 'function') {
-      // Вызываем при изменении viewport
       tg.onEvent('viewport_changed', () => {
-        console.error('[App] 📐 viewport_changed - calling expand()');
-        forceExpand();
+        if (!tg.isExpanded) {
+          callExpand();
+        }
       });
       
-      // Вызываем при изменении safe area
       tg.onEvent('safeAreaChanged', () => {
-        console.error('[App] 📐 safeAreaChanged - calling expand()');
-        forceExpand();
+        if (!tg.isExpanded) {
+          callExpand();
+        }
       });
     }
-    
-    // Вызываем с задержками для надежности
-    setTimeout(() => { console.error('[App] ⏰ expand() call #1 (10ms)'); forceExpand(); }, 10);
-    setTimeout(() => { console.error('[App] ⏰ expand() call #2 (50ms)'); forceExpand(); }, 50);
-    setTimeout(() => { console.error('[App] ⏰ expand() call #3 (100ms)'); forceExpand(); }, 100);
-    setTimeout(() => { console.error('[App] ⏰ expand() call #4 (200ms)'); forceExpand(); }, 200);
-    setTimeout(() => { console.error('[App] ⏰ expand() call #5 (500ms)'); forceExpand(); }, 500);
-    setTimeout(() => { console.error('[App] ⏰ expand() call #6 (1000ms)'); forceExpand(); }, 1000);
-    setTimeout(() => { console.error('[App] ⏰ expand() call #7 (2000ms)'); forceExpand(); }, 2000);
-    
-    console.error('[App] ✅✅✅ Telegram WebApp expand() setup complete with multiple fallbacks');
   }
 
   // Валидация переменных окружения при старте

@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { AlertTriangle, Loader2, CheckCircle2, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { AlertTriangle, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUserContext } from "@/contexts/UserContext";
 import { isTelegramMiniApp } from "@/lib/telegram";
+import { ResponsiveModal } from "@/components/ui/responsive-modal";
 
 interface ReportProblemModalProps {
   open: boolean;
@@ -47,13 +48,6 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
-  const [dragStartY, setDragStartY] = useState(0);
-  const [dragCurrentY, setDragCurrentY] = useState(0);
-  const [contentScrollTop, setContentScrollTop] = useState(0);
-  const isClosingRef = useRef(false);
-  const animationFrameRef = useRef<number | null>(null);
   const { toast } = useToast();
   const { language } = useLanguage();
   const { profileId } = useUserContext();
@@ -134,7 +128,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
         setIsSuccess(false);
         setDescription("");
         setReportType("other");
-        handleCloseModal();
+        onOpenChange(false);
         toast({
           title: language === "es" ? "¡Gracias!" : "Спасибо!",
           description: language === "es"
@@ -157,289 +151,73 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
     }
   };
 
-  const handleCloseModal = useCallback(() => {
-    if (isClosingRef.current || isSubmitting || isSuccess) return;
-    
-    isClosingRef.current = true;
-    setIsClosing(true);
-    setIsDragging(false);
-    setDragStartY(0);
-    setDragCurrentY(0);
-    
-    setTimeout(() => {
-      setDescription("");
-      setReportType("other");
-      setIsClosing(false);
-      isClosingRef.current = false;
-      onOpenChange(false);
-    }, 300);
-  }, [isSubmitting, isSuccess, onOpenChange]);
-
-  // Reset drag state when modal closes and prevent body scroll
+  // Сброс формы при закрытии модалки
   useEffect(() => {
-    if (open) {
-      // Сохраняем текущую позицию скролла перед блокировкой
-      const scrollY = window.scrollY;
-      
-      // Блокируем скролл фона при открытом модальном окне
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-      document.body.style.left = '0';
-      document.body.style.right = '0';
-      
-      // Сохраняем позицию скролла в data-атрибут для восстановления
-      document.body.setAttribute('data-scroll-y', scrollY.toString());
-      
-      // Сбрасываем позицию скролла контента
-      setContentScrollTop(0);
-      isClosingRef.current = false;
-    } else {
-      // Восстанавливаем позицию скролла
-      const scrollY = document.body.getAttribute('data-scroll-y');
-      document.body.removeAttribute('data-scroll-y');
-      
-      // Разблокируем скролл при закрытии
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      
-      // Восстанавливаем позицию скролла
-      if (scrollY) {
-        window.scrollTo(0, parseInt(scrollY, 10));
-      }
-      
-      setIsDragging(false);
-      setIsClosing(false);
-      setDragStartY(0);
-      setDragCurrentY(0);
-      setContentScrollTop(0);
-      isClosingRef.current = false;
-      
-      // Отменяем анимацию если она была активна
-      if (animationFrameRef.current !== null) {
-        cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = null;
-      }
+    if (!open) {
+      // Небольшая задержка для плавной анимации закрытия
+      const timer = setTimeout(() => {
+        if (!isSubmitting && !isSuccess) {
+          setDescription("");
+          setReportType("other");
+        }
+      }, 300);
+      return () => clearTimeout(timer);
     }
-    
-    return () => {
-      // Очистка при размонтировании
-      const scrollY = document.body.getAttribute('data-scroll-y');
-      document.body.removeAttribute('data-scroll-y');
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      if (scrollY) {
-        window.scrollTo(0, parseInt(scrollY, 10));
-      }
-      if (animationFrameRef.current !== null) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [open]);
-
-  // Handle Escape key to close modal
-  useEffect(() => {
-    if (!open) return;
-
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isSubmitting && !isSuccess && !isClosingRef.current) {
-        handleCloseModal();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [open, isSubmitting, isSuccess, handleCloseModal]);
+  }, [open, isSubmitting, isSuccess]);
 
   const handleClose = () => {
-    handleCloseModal();
+    if (!isSubmitting && !isSuccess) {
+      onOpenChange(false);
+    }
   };
 
-  if (!open) return null;
-
   return (
-    <>
-      {/* Backdrop */}
-      <div 
-        className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${
-          isClosing ? 'opacity-0' : 'opacity-100'
-        }`}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (!isDragging && !isClosing && !isClosingRef.current && !isSubmitting && !isSuccess) {
-            handleCloseModal();
-          }
-        }}
-      />
-      
-      {/* Bottom Sheet */}
-      <div 
-        className={`fixed left-0 right-0 z-[100] bg-card border-t border-border rounded-t-2xl sm:rounded-t-3xl shadow-2xl ${
-          !isDragging && !isClosing ? 'transition-transform duration-300 ease-out' : isClosing ? 'transition-transform duration-300 ease-in' : ''
-        } ${
-          !isClosing && !isDragging ? 'translate-y-0' : 'translate-y-full'
-        }`}
-        onClick={(e) => e.stopPropagation()}
-        style={{ 
-          bottom: '0px',
-          height: '80vh',
-          maxHeight: '80vh',
-          transform: isDragging && dragCurrentY > dragStartY 
-            ? `translateY(${dragCurrentY - dragStartY}px)` 
-            : undefined
-        }}
-        onTouchStart={(e) => {
-          if (isClosingRef.current || isClosing || isSubmitting || isSuccess) return;
-          const touch = e.touches[0];
-          if (touch) {
-            // Начинаем драг только если свайп начинается с верхней части модального окна (drag handle или header)
-            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-            const touchY = touch.clientY;
-            const touchX = touch.clientX;
-            const relativeY = touchY - rect.top;
-            
-            // Проверяем, что касание в верхней части (drag handle + header, примерно 120px)
-            // И что контент не прокручен (можно свайпать только когда контент вверху)
-            if (relativeY < 120 && touchX > rect.left && touchX < rect.right && contentScrollTop === 0) {
-              e.stopPropagation();
-              setIsDragging(true);
-              setDragStartY(touch.clientY);
-              setDragCurrentY(touch.clientY);
-            }
-          }
-        }}
-        onTouchMove={(e) => {
-          if (isDragging && !isClosingRef.current && !isClosing && !isSubmitting && !isSuccess) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const touch = e.touches[0];
-            if (touch) {
-              const deltaY = touch.clientY - dragStartY;
-              // Разрешаем свайп только вниз
-              if (deltaY > 0) {
-                // Используем requestAnimationFrame для плавности
-                if (animationFrameRef.current !== null) {
-                  cancelAnimationFrame(animationFrameRef.current);
-                }
-                
-                animationFrameRef.current = requestAnimationFrame(() => {
-                  setDragCurrentY(touch.clientY);
-                });
-              }
-            }
-          }
-        }}
-        onTouchEnd={(e) => {
-          if (isDragging && !isClosingRef.current) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Отменяем анимацию
-            if (animationFrameRef.current !== null) {
-              cancelAnimationFrame(animationFrameRef.current);
-              animationFrameRef.current = null;
-            }
-            
-            const dragDistance = dragCurrentY - dragStartY;
-            // Порог для закрытия: 80px или 20% высоты экрана
-            const threshold = Math.max(80, window.innerHeight * 0.2);
-            
-            if (dragDistance > threshold) {
-              handleCloseModal();
-            } else {
-              // Возвращаем на место с анимацией
-              setIsDragging(false);
-              setDragStartY(0);
-              setDragCurrentY(0);
-            }
-          }
-        }}
-      >
-        {/* Drag Handle */}
-        <div className="flex justify-center pt-3 pb-2">
-          <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
-            </div>
-        
-        {/* Header */}
-        <div className="px-4 sm:px-6 pb-4 border-b border-border">
-          <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="rounded-full bg-orange-100 p-2 dark:bg-orange-900/20">
-                  <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                </div>
-                <div>
-                <h2 className="text-lg sm:text-xl font-semibold">
-                    {language === "es" ? "Reportar problema" : "Сообщить о проблеме"}
-                </h2>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                    {language === "es"
-                      ? "Ayúdanos a mejorar. Describe el problema que encontraste."
-                      : "Помогите нам улучшиться. Опишите проблему, которую вы нашли."}
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                if (!isClosingRef.current && !isSubmitting && !isSuccess && !isClosing) {
-                  handleCloseModal();
-                }
-              }}
-              className="p-2 rounded-lg hover:bg-muted transition-colors"
-              aria-label={language === "es" ? "Cerrar" : "Закрыть"}
-              disabled={isSubmitting || isClosingRef.current || isClosing}
-            >
-              <X className="w-5 h-5" />
-            </button>
+    <ResponsiveModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title={language === "es" ? "Reportar problema" : "Сообщить о проблеме"}
+      description={language === "es"
+        ? "Ayúdanos a mejorar. Describe el problema que encontraste."
+        : "Помогите нам улучшиться. Опишите проблему, которую вы нашли."}
+      className="max-w-2xl"
+      preventClose={isSubmitting || isSuccess}
+      headerContent={
+        <div className="flex items-center gap-3 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-border">
+          <div className="rounded-full bg-orange-100 p-2 dark:bg-orange-900/20 shrink-0">
+            <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
           </div>
-                </div>
-
-        {/* Content */}
-        <div 
-          className="overflow-y-auto px-4 sm:px-6 py-4" 
-          style={{ maxHeight: 'calc(80vh - 120px)' }}
-          onScroll={(e) => {
-            // Отслеживаем позицию скролла контента
-            setContentScrollTop(e.currentTarget.scrollTop);
-          }}
-          onTouchStart={(e) => {
-            // Предотвращаем начало свайпа при скролле контента
-            if (isDragging) {
-              e.stopPropagation();
-            }
-          }}
-        >
-          {isSuccess ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <div className="mb-4 rounded-full bg-emerald-100 p-4 dark:bg-emerald-900/20">
-                <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-emerald-600 dark:text-emerald-400 mb-2">
-                {language === "es" ? "¡Reporte enviado!" : "Отчет отправлен!"}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {language === "es"
-                  ? "Gracias por tu feedback. Revisaremos el problema lo antes posible."
-                  : "Спасибо за обратную связь. Мы рассмотрим проблему как можно скорее."}
-              </p>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+              {language === "es" ? "Reportar problema" : "Сообщить о проблеме"}
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              {language === "es"
+                ? "Ayúdanos a mejorar. Describe el problema que encontraste."
+                : "Помогите нам улучшиться. Опишите проблему, которую вы нашли."}
+            </p>
+          </div>
+        </div>
+      }
+    >
+      <div className="space-y-4">
+        {isSuccess ? (
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <div className="mb-4 rounded-full bg-emerald-100 p-4 dark:bg-emerald-900/20">
+              <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
             </div>
-          ) : (
-            <>
+            <h3 className="text-xl font-semibold text-emerald-600 dark:text-emerald-400 mb-2">
+              {language === "es" ? "¡Reporte enviado!" : "Отчет отправлен!"}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {language === "es"
+                ? "Gracias por tu feedback. Revisaremos el problema lo antes posible."
+                : "Спасибо за обратную связь. Мы рассмотрим проблему как можно скорее."}
+            </p>
+          </div>
+        ) : (
+          <>
             {questionText && (
-                <div className="rounded-lg border border-border/50 bg-muted/30 p-3 mb-4">
+              <div className="rounded-lg border border-border/50 bg-muted/30 p-3">
                 <p className="text-xs font-medium text-muted-foreground mb-1">
                   {language === "es" ? "Pregunta:" : "Вопрос:"}
                 </p>
@@ -491,7 +269,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
                 </p>
               </div>
 
-                <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end pt-2 pb-4">
+              <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end pt-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -521,9 +299,8 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
             </form>
           </>
         )}
-        </div>
       </div>
-    </>
+    </ResponsiveModal>
   );
 }
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * Скрипт для импорта данных из старой базы Lovable в новую базу Supabase
+ * Скрипт для импорта данных из старой базы Supabase в новую базу Supabase
  * 
- * ВАЖНО: Этот скрипт требует доступа к старой базе данных Lovable
+ * ВАЖНО: Этот скрипт требует доступа к старой базе данных
  * Если у вас нет доступа, используйте скрипт create-test-data.js для создания тестовых данных
  */
 
@@ -20,7 +20,7 @@ if (!NEW_SERVICE_ROLE_KEY) {
   process.exit(1);
 }
 
-// Старая база данных Lovable (замените на ваши данные)
+// Старая база данных (замените на ваши данные)
 const OLD_PROJECT_ID = process.env.OLD_PROJECT_ID || 'ijijcrucqqnnjbkclqhb';
 const OLD_SUPABASE_URL = `https://${OLD_PROJECT_ID}.supabase.co`;
 const OLD_SERVICE_ROLE_KEY = process.env.OLD_SERVICE_ROLE_KEY || '';

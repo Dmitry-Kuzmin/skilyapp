@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
 import { visualizer } from "rollup-plugin-visualizer";
 import type { Plugin } from "vite";
 // SSG: Prerender будет выполняться через отдельный скрипт (scripts/prerender.js)
@@ -13,7 +12,6 @@ export default defineConfig(({ mode }) => {
 
   const plugins = [
     react(),
-    mode === "development" && componentTagger(),
     // ⚠️ ОТКЛЮЧЕНО: Service Worker вызывает проблемы с кэшированием старого кода
     // PWA Plugin для Offline-First архитектуры (критично для Telegram Mini App)
     // Раскомментировать при необходимости:

@@ -32,10 +32,10 @@
    - `STRIPE_SUCCESS_URL` = `https://abc123.ngrok-free.app/success`
    - `STRIPE_CANCEL_URL` = `https://abc123.ngrok-free.app/cancel`
 
-#### Вариант В: Для Lovable/деплоя
+#### Вариант В: Для деплоя
 - Используйте URL вашего деплоя:
-  - `STRIPE_SUCCESS_URL` = `https://your-app.lovable.app/success`
-  - `STRIPE_CANCEL_URL` = `https://your-app.lovable.app/cancel`
+  - `STRIPE_SUCCESS_URL` = `https://your-app.vercel.app/success`
+  - `STRIPE_CANCEL_URL` = `https://your-app.vercel.app/cancel`
 
 ---
 

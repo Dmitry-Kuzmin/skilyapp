@@ -1147,21 +1147,7 @@ export default function Duel() {
         );
     }
 
-    if (!duelsEnabled) {
-        return (
-            <Layout>
-                <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
-                    <div className="max-w-md space-y-4">
-                        <Swords className="w-16 h-16 mx-auto text-muted-foreground" />
-                        <h1 className="text-2xl font-bold">Дуэли временно отключены</h1>
-                        <p className="text-muted-foreground">
-                            Функция временно недоступна. Попробуйте позже.
-                        </p>
-                    </div>
-                </div>
-            </Layout>
-        );
-    }
+    // Убрали отдельный экран ошибки - теперь блокируем кнопку в Games.tsx
 
     if (isInitialLoading || (!dataLoaded && !isTelegramUser)) {
         return <DuelSkeleton />;

@@ -31,12 +31,24 @@ const Landing = () => {
   // КРИТИЧНО: Проверка Telegram авторизации для автоматического редиректа
   // В десктопной версии Telegram initData может появиться с задержкой (Race Condition)
   useEffect(() => {
+    // КРИТИЧНО: Проверяем, что мы не на /dashboard, чтобы избежать бесконечного цикла
+    if (location.pathname === '/dashboard') {
+      setIsCheckingTelegram(false);
+      return;
+    }
+
     let attempts = 0;
     const maxAttempts = 20; // 5 секунд максимум (20 * 250ms)
     let timeoutId: NodeJS.Timeout | null = null;
     let webAppDetected = false;
+    let hasRedirected = false; // Флаг для предотвращения повторных редиректов
 
     const checkTelegram = () => {
+      // КРИТИЧНО: Если уже редиректили, прекращаем проверки
+      if (hasRedirected || location.pathname === '/dashboard') {
+        return;
+      }
+
       attempts++;
 
       // Проверяем наличие Telegram WebApp
@@ -69,21 +81,30 @@ const Landing = () => {
       // Index (dashboard) сам проверит реальную авторизацию из Supabase
       // Если есть реальный Telegram user или initData -> редирект
       if ((telegramUser && telegramUser.id !== 123456789 && telegramUser.username !== 'test_user') || hasAuth) {
-        console.log('[Landing] Telegram user/auth detected, redirecting to dashboard:', telegramUser?.first_name || 'via initData');
-        navigate('/dashboard', { replace: true });
+        if (!hasRedirected) {
+          console.log('[Landing] Telegram user/auth detected, redirecting to dashboard:', telegramUser?.first_name || 'via initData');
+          hasRedirected = true;
+          navigate('/dashboard', { replace: true });
+        }
         return;
       }
 
       // Б. Если мы точно в Мини-аппе (есть initData) -> редирект на дашборд
       // UserContext там обработает авторизацию, даже если пользователь еще не найден
-      if (isTelegramMiniApp()) {
+      // КРИТИЧНО: В DEV режиме isTelegramMiniApp() может вернуть true даже без initData
+      // Поэтому проверяем также наличие реального initData
+      const isMiniApp = isTelegramMiniApp();
+      const hasRealInitData = webApp?.initData && webApp.initData !== '' && !webApp.initData.startsWith('mock_');
+      
+      if (isMiniApp && hasRealInitData && !hasRedirected) {
         console.log('[Landing] Telegram Mini App detected with initData, redirecting to dashboard');
+        hasRedirected = true;
         navigate('/dashboard', { replace: true });
         return;
       }
 
       // В. Если WebApp обнаружен, но initData еще нет -> продолжаем попытки
-      if (hasWebApp && attempts < maxAttempts) {
+      if (hasWebApp && !hasRealInitData && attempts < maxAttempts) {
         console.log(`[Landing] WebApp detected, waiting for initData (attempt ${attempts}/${maxAttempts})`);
         timeoutId = setTimeout(checkTelegram, 250);
         return;
@@ -91,8 +112,9 @@ const Landing = () => {
 
       // Г. Если WebApp был обнаружен, но таймаут истек -> редирект на дашборд
       // UserContext там обработает авторизацию, когда initData появится
-      if (webAppDetected && attempts >= maxAttempts) {
+      if (webAppDetected && attempts >= maxAttempts && !hasRedirected) {
         console.log('[Landing] WebApp detected but timeout reached, redirecting to dashboard for auth handling');
+        hasRedirected = true;
         navigate('/dashboard', { replace: true });
         return;
       }
@@ -105,9 +127,9 @@ const Landing = () => {
       }
 
       // Е. Продолжаем попытки на случай задержки загрузки
-      if (attempts < maxAttempts) {
+      if (attempts < maxAttempts && !hasRedirected) {
         timeoutId = setTimeout(checkTelegram, 250);
-      } else {
+      } else if (!hasRedirected) {
         // Финальный fallback - показываем лендинг
         console.log('[Landing] Max attempts reached, showing landing page');
         setIsCheckingTelegram(false);
@@ -122,7 +144,7 @@ const Landing = () => {
         clearTimeout(timeoutId);
       }
     };
-  }, [navigate, webApp]); // АРХИТЕКТУРА: Зависим от webApp из TelegramProvider
+  }, [navigate, webApp, location.pathname]); // Добавили location.pathname для отслеживания изменений пути
 
   useEffect(() => {
     // КРИТИЧНО: Landing НЕ проверяет авторизацию - это делает Index

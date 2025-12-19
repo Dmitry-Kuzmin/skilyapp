@@ -10,6 +10,7 @@ import { QuestionCard } from '@/components/test/QuestionCard';
 import { QuestionImage } from '@/components/test/QuestionImage';
 import { QuestionText } from '@/components/test/QuestionText';
 import { AnswerButton } from '@/components/test/AnswerButton';
+import { LumiCharacter } from '@/components/lumi/LumiCharacter';
 import { cn } from '@/lib/utils';
 
 export type QuestionMode = 'exam' | 'practice' | 'duel' | 'learning' | 'exam-russia';
@@ -19,6 +20,7 @@ interface UniversalQuestionCardProps {
   question: string;
   image?: string | null;
   imageAspectRatio?: number | null; // Для адаптивного layout
+  explanation?: string | null; // Объяснение к вопросу
   answers: Array<{
     id: string;
     text: string;
@@ -32,6 +34,7 @@ interface UniversalQuestionCardProps {
   
   // Обработчики
   onAnswerClick: (answerId: string) => void;
+  onShowExplanation?: () => void; // Для открытия Lumi/Skily
   
   // Настройки режима
   mode?: QuestionMode;
@@ -56,11 +59,13 @@ export function UniversalQuestionCard({
   question,
   image,
   imageAspectRatio,
+  explanation,
   answers,
   selectedAnswerId,
   showResult = false,
   disabled = false,
   onAnswerClick,
+  onShowExplanation,
   mode = 'practice',
   showTimer = false,
   showExplanationButton = false,
@@ -133,6 +138,42 @@ export function UniversalQuestionCard({
                 ))}
               </div>
 
+              {/* Объяснение или кнопка Lumi - показываем после ответа */}
+              {selectedAnswerId && (
+                <div className="mt-4">
+                  {explanation && !onShowExplanation ? (
+                    // Простое объяснение, если нет кнопки Lumi
+                    <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
+                      <p className="text-xs sm:text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                        💡 Объяснение:
+                      </p>
+                      <p className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed whitespace-pre-line">
+                        {explanation}
+                      </p>
+                    </div>
+                  ) : onShowExplanation ? (
+                    // Кнопка Lumi для открытия объяснения
+                    <button
+                      onClick={onShowExplanation}
+                      className="group w-full p-4 rounded-xl bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-orange-600/10 border border-yellow-500/30 dark:border-yellow-500/20 hover:from-yellow-500/20 hover:via-orange-500/20 hover:to-orange-600/20 transition-all duration-300 flex items-center gap-3"
+                    >
+                      <div className="relative w-12 h-12 shrink-0">
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-60 animate-pulse" />
+                        <LumiCharacter size="sm" mood="happy" animate={true} className="relative z-10 transform group-hover:scale-110 transition-transform duration-300" />
+                      </div>
+                      <div className="flex-1 text-left">
+                        <p className="text-sm font-semibold text-foreground mb-1">
+                          💡 Спросить Skily
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Получить объяснение к вопросу
+                        </p>
+                      </div>
+                    </button>
+                  ) : null}
+                </div>
+              )}
+
               {/* Дополнительный контент */}
               {children}
             </div>
@@ -181,6 +222,42 @@ export function UniversalQuestionCard({
                 ))}
               </div>
 
+              {/* Объяснение или кнопка Lumi - показываем после ответа */}
+              {selectedAnswerId && (
+                <div className="mt-4">
+                  {explanation && !onShowExplanation ? (
+                    // Простое объяснение, если нет кнопки Lumi
+                    <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
+                      <p className="text-xs sm:text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                        💡 Объяснение:
+                      </p>
+                      <p className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed whitespace-pre-line">
+                        {explanation}
+                      </p>
+                    </div>
+                  ) : onShowExplanation ? (
+                    // Кнопка Lumi для открытия объяснения
+                    <button
+                      onClick={onShowExplanation}
+                      className="group w-full p-4 rounded-xl bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-orange-600/10 border border-yellow-500/30 dark:border-yellow-500/20 hover:from-yellow-500/20 hover:via-orange-500/20 hover:to-orange-600/20 transition-all duration-300 flex items-center gap-3"
+                    >
+                      <div className="relative w-12 h-12 shrink-0">
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-60 animate-pulse" />
+                        <LumiCharacter size="sm" mood="happy" animate={true} className="relative z-10 transform group-hover:scale-110 transition-transform duration-300" />
+                      </div>
+                      <div className="flex-1 text-left">
+                        <p className="text-sm font-semibold text-foreground mb-1">
+                          💡 Спросить Skily
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Получить объяснение к вопросу
+                        </p>
+                      </div>
+                    </button>
+                  ) : null}
+                </div>
+              )}
+
               {/* Дополнительный контент */}
               {children}
             </div>
@@ -218,6 +295,42 @@ export function UniversalQuestionCard({
               />
             ))}
           </div>
+
+          {/* Объяснение или кнопка Lumi - показываем после ответа */}
+          {selectedAnswerId && (
+            <div className="mt-4">
+              {explanation && !onShowExplanation ? (
+                // Простое объяснение, если нет кнопки Lumi
+                <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
+                  <p className="text-xs sm:text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                    💡 Объяснение:
+                  </p>
+                  <p className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed whitespace-pre-line">
+                    {explanation}
+                  </p>
+                </div>
+              ) : onShowExplanation ? (
+                // Кнопка Lumi для открытия объяснения
+                <button
+                  onClick={onShowExplanation}
+                  className="group w-full p-4 rounded-xl bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-orange-600/10 border border-yellow-500/30 dark:border-yellow-500/20 hover:from-yellow-500/20 hover:via-orange-500/20 hover:to-orange-600/20 transition-all duration-300 flex items-center gap-3"
+                >
+                  <div className="relative w-12 h-12 shrink-0">
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-60 animate-pulse" />
+                    <LumiCharacter size="sm" mood="happy" animate={true} className="relative z-10 transform group-hover:scale-110 transition-transform duration-300" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-sm font-semibold text-foreground mb-1">
+                      💡 Спросить Skily
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Получить объяснение к вопросу
+                    </p>
+                  </div>
+                </button>
+              ) : null}
+            </div>
+          )}
 
           {/* Дополнительный контент */}
           {children}

@@ -455,7 +455,7 @@ async function sendTelegramNotification(
   try {
     const text = `${icon} <b>${title}</b>\n\n${message}`;
     
-    const MINI_APP_URL = Deno.env.get('MINI_APP_URL') || 'https://sdadim-dgt-prep.lovable.app';
+    const MINI_APP_URL = Deno.env.get('MINI_APP_URL') || 'https://sdadim-dgt-prep.vercel.app';
 
     // Формируем inline keyboard если есть CTA
     const replyMarkup = ctaText && ctaDeeplink ? {

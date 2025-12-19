@@ -366,11 +366,11 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
       
       {/* УБРАНО: TelegramSafeAreaDebug - debug overlay убран для продакшена */}
       
-      {/* Top Navigation for Desktop - Hide in Telegram or when hideNavigation */}
+      {/* Top Navigation for Desktop - Hide only when hideNavigation */}
       {!hideNavigation && (
         <header className={cn(
           "border-b border-border/50 backdrop-blur-xl bg-background/95 sticky top-0 z-50 overflow-x-hidden overflow-y-visible w-full",
-          isTelegramApp ? "hidden" : "hidden md:block"
+          "hidden md:block" // Показываем на десктопе всегда (и в Telegram тоже, если десктоп)
         )} style={{ overflow: 'visible' }}>
         <div className="container mx-auto px-4 max-w-[1370px]" style={{ overflow: 'visible', position: 'relative' }}>
           <div className="flex items-center justify-between h-16 min-w-0" style={{ overflow: 'visible', position: 'relative' }}>
@@ -494,9 +494,14 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
 
       {/* Main Content with Safe Area Top Padding for Telegram Fullscreen */}
       {/* КРИТИЧНО: Для десктопа явно убираем padding-top */}
+      {/* КРИТИЧНО: Убираем flex-1 для обычного браузера - footer должен скроллиться вместе с контентом */}
       <main 
         ref={mainContentRef}
-        className="telegram-main-content flex-1 bg-background"
+        className={cn(
+          "telegram-main-content bg-background",
+          // flex-1 применяется только для Telegram WebApp через CSS
+          // Для обычного браузера main не растягивается, footer скроллится нормально
+        )}
         style={isTelegramApp && isTelegramMobilePlatform === false ? { paddingTop: '0px' } : {}}
       >
         {children}
