@@ -29,7 +29,11 @@ const WelcomeOverlay = lazy(() => import("@/components/dashboard-new/WelcomeOver
 // Внутренний компонент для авторизованных пользователей
 // Это позволяет вызывать все хуки в правильном порядке
 const DashboardContent = () => {
+  console.log('[DashboardContent] 🚀 Component rendering started');
+  
   const { profileId } = useUserContext();
+  console.log('[DashboardContent] ProfileId from context:', profileId);
+  
   const { toast } = useToast();
   const { isPremium, isTrial, daysRemaining } = usePremium();
   const { balance } = useCoins();
@@ -410,15 +414,21 @@ const Index = () => {
   // КРИТИЧНО: Показываем loader пока идет загрузка авторизации или пока UserProvider не готов
   // Это предотвращает белый экран при перезагрузке страницы
   if (isLoading || !userContext) {
+    console.log('[Index] Showing PageLoader - waiting for auth', {
+      isLoading,
+      hasUserContext: !!userContext,
+    });
     return <PageLoader />;
   }
   
   // КРИТИЧНО: Проверяем авторизацию и рендерим нужный компонент
   // Все хуки вызываются внутри DashboardContent, что соблюдает правила хуков
   if (!isAuthenticated) {
+    console.log('[Index] Showing PageLoader - not authenticated');
     return <PageLoader />; // Показываем loader пока идет редирект
   }
 
+  console.log('[Index] ✅ Rendering DashboardContent');
   return <DashboardContent />;
 };
 

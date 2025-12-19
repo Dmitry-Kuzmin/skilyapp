@@ -814,6 +814,13 @@ All colors MUST be HSL.
     padding-bottom: 0;
   }
 
+  /* КРИТИЧНО: Footer НЕ должен быть фиксирован - он скроллится вместе с контентом */
+  footer {
+    position: static !important;
+    bottom: auto !important;
+    top: auto !important;
+  }
+
   /* Для мобильных устройств - добавляем отступ снизу для bottom navigation */
   @media (max-width: 768px) {
     .telegram-main-content {
