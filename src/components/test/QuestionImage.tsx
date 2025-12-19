@@ -109,7 +109,7 @@ export const QuestionImage = memo(function QuestionImage({
         <img 
           src={imageSrc} 
           alt={alt}
-          className="w-full h-auto object-cover block"
+          className="w-full h-auto object-contain block"
           loading="lazy"
           decoding="async"
           fetchPriority={compact ? 'auto' : 'high'}
@@ -118,7 +118,10 @@ export const QuestionImage = memo(function QuestionImage({
           style={{
             aspectRatio: imageAspectRatio ? `${imageAspectRatio}` : 'auto',
             minHeight: compact ? '200px' : '180px',
-            maxHeight: compact ? '500px' : '288px',
+            // Для горизонтальных изображений увеличиваем maxHeight
+            maxHeight: imageAspectRatio && imageAspectRatio > 1.2 
+              ? (compact ? '600px' : '500px') 
+              : (compact ? '500px' : '400px'),
           }}
           onError={() => {
             setHasError(true);

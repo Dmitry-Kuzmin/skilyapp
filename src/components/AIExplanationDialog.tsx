@@ -74,14 +74,14 @@ export function AIExplanationDialog({
       let explanationToShow = null;
       
       // Приоритет: showTranslation > explanation (который уже зависит от testLanguage)
-      if (showTranslation && explanationRu) {
+      if (showTranslation && explanationRu && explanationRu.trim()) {
         explanationToShow = explanationRu;
-      } else if (explanation) {
+      } else if (explanation && explanation.trim()) {
         // explanation уже содержит правильный язык в зависимости от testLanguage
         explanationToShow = explanation;
       }
       
-      if (explanationToShow) {
+      if (explanationToShow && explanationToShow.trim()) {
       // Добавляем explanation как первое сообщение (без вызова AI - экономим токены!)
       setMessages([
         {

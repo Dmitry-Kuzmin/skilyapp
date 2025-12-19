@@ -344,6 +344,11 @@ export function AppRoutes() {
             <LearnCountryHome />
           </Suspense>
         } />
+        <Route path="/learn/:country/ticket/:ticketId" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <TestSession />
+          </Suspense>
+        } />
         <Route path="/terms" element={
           <Suspense fallback={<PageSkeleton />}>
             <Terms />

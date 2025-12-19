@@ -222,6 +222,9 @@ export default defineConfig(({ mode }) => {
     minifyWhitespace: true,
     // КРИТИЧНО: Сохраняем имена для отладки и стабильности React
     keepNames: true, // Изменено с false на true для стабильности React
+    // ОПТИМИЗАЦИЯ: Удаляем console.log/warn/error в production для производительности
+    // В Telegram Mini App на Android синхронные console.log могут фризить интерфейс
+    drop: mode === 'production' ? ['console', 'debugger'] : [],
   },
   };
 });

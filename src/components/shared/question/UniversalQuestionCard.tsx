@@ -18,6 +18,7 @@ interface UniversalQuestionCardProps {
   // Данные вопроса
   question: string;
   image?: string | null;
+  imageAspectRatio?: number | null; // Для адаптивного layout
   answers: Array<{
     id: string;
     text: string;
@@ -54,6 +55,7 @@ interface UniversalQuestionCardProps {
 export function UniversalQuestionCard({
   question,
   image,
+  imageAspectRatio,
   answers,
   selectedAnswerId,
   showResult = false,
@@ -76,6 +78,10 @@ export function UniversalQuestionCard({
   const isCompact = compact || mode === 'duel';
   const isExam = mode === 'exam' || mode === 'exam-russia';
   const showTranslation = showTranslationButton && mode !== 'exam' && mode !== 'exam-russia';
+  
+  // Определяем, горизонтальное ли изображение (aspectRatio > 1.2)
+  // Для горизонтальных изображений используем вертикальный layout (изображение сверху)
+  const isLandscapeImage = imageAspectRatio !== null && imageAspectRatio > 1.2;
 
   return (
     <QuestionCard compact={isCompact} className={className}>
@@ -86,54 +92,100 @@ export function UniversalQuestionCard({
         </div>
       )}
 
-      {/* Двухколоночный layout: изображение слева, вопрос справа */}
+      {/* Адаптивный layout: для горизонтальных изображений - вертикальный, для вертикальных - двухколоночный */}
       {image ? (
-        <div className={cn(
-          "grid gap-4 md:gap-6",
-          isCompact 
-            ? "grid-cols-1 md:grid-cols-[280px_1fr]" 
-            : "grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[350px_1fr]"
-        )}>
-          {/* Левая колонка: Изображение */}
-          <div className="w-full md:sticky md:top-4 md:self-start">
-            <QuestionImage imageUrl={image} compact={isCompact} />
-          </div>
-
-          {/* Правая колонка: Текст вопроса и ответы */}
-          <div className="flex flex-col">
-            <QuestionText
-              text={question}
-              fontSize={fontSize}
-              showTranslation={showTranslation}
-              onToggleTranslation={onToggleTranslation}
-              translationLabel={translationLabel}
-            />
-
-            {/* Ответы */}
-            <div className={cn(
-              "space-y-2 sm:space-y-2.5 mb-4 sm:mb-6",
-              isCompact && "space-y-2"
-            )}>
-              {answers.map((answer) => (
-                <AnswerButton
-                  key={answer.id}
-                  id={answer.id}
-                  text={answer.text}
-                  isCorrect={answer.isCorrect}
-                  isSelected={selectedAnswerId === answer.id}
-                  showResult={showResult}
-                  disabled={disabled}
-                  onClick={() => onAnswerClick(answer.id)}
-                  fontSize={fontSize}
-                  variant={isCompact ? 'compact' : 'standard'}
-                />
-              ))}
+        isLandscapeImage ? (
+          // Вертикальный layout для горизонтальных изображений (изображение сверху, текст снизу)
+          <div className="space-y-4 md:space-y-6">
+            {/* Изображение сверху */}
+            <div className="w-full">
+              <QuestionImage imageUrl={image} compact={isCompact} />
             </div>
 
-            {/* Дополнительный контент */}
-            {children}
+            {/* Текст вопроса и ответы снизу */}
+            <div className="flex flex-col">
+              <QuestionText
+                text={question}
+                fontSize={fontSize}
+                showTranslation={showTranslation}
+                onToggleTranslation={onToggleTranslation}
+                translationLabel={translationLabel}
+              />
+
+              {/* Ответы */}
+              <div className={cn(
+                "space-y-2 sm:space-y-2.5 mb-4 sm:mb-6",
+                isCompact && "space-y-2"
+              )}>
+                {answers.map((answer) => (
+                  <AnswerButton
+                    key={answer.id}
+                    id={answer.id}
+                    text={answer.text}
+                    isCorrect={answer.isCorrect}
+                    isSelected={selectedAnswerId === answer.id}
+                    showResult={showResult}
+                    disabled={disabled}
+                    onClick={() => onAnswerClick(answer.id)}
+                    fontSize={fontSize}
+                    variant={isCompact ? 'compact' : 'standard'}
+                  />
+                ))}
+              </div>
+
+              {/* Дополнительный контент */}
+              {children}
+            </div>
           </div>
-        </div>
+        ) : (
+          // Двухколоночный layout для вертикальных изображений (изображение слева, текст справа)
+          <div className={cn(
+            "grid gap-4 md:gap-6",
+            isCompact 
+              ? "grid-cols-1 md:grid-cols-[280px_1fr]" 
+              : "grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[350px_1fr]"
+          )}>
+            {/* Левая колонка: Изображение */}
+            <div className="w-full md:sticky md:top-4 md:self-start">
+              <QuestionImage imageUrl={image} compact={isCompact} />
+            </div>
+
+            {/* Правая колонка: Текст вопроса и ответы */}
+            <div className="flex flex-col">
+              <QuestionText
+                text={question}
+                fontSize={fontSize}
+                showTranslation={showTranslation}
+                onToggleTranslation={onToggleTranslation}
+                translationLabel={translationLabel}
+              />
+
+              {/* Ответы */}
+              <div className={cn(
+                "space-y-2 sm:space-y-2.5 mb-4 sm:mb-6",
+                isCompact && "space-y-2"
+              )}>
+                {answers.map((answer) => (
+                  <AnswerButton
+                    key={answer.id}
+                    id={answer.id}
+                    text={answer.text}
+                    isCorrect={answer.isCorrect}
+                    isSelected={selectedAnswerId === answer.id}
+                    showResult={showResult}
+                    disabled={disabled}
+                    onClick={() => onAnswerClick(answer.id)}
+                    fontSize={fontSize}
+                    variant={isCompact ? 'compact' : 'standard'}
+                  />
+                ))}
+              </div>
+
+              {/* Дополнительный контент */}
+              {children}
+            </div>
+          </div>
+        )
       ) : (
         // Layout без изображения (вертикальный)
         <>

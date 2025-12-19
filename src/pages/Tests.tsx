@@ -199,10 +199,10 @@ const Tests = () => {
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 animate-fade-in">
               <div>
                 <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight mb-2">
-                  {t('testsPage.title')}
+                  {selectedCountry === 'russia' ? 'Билеты ПДД' : t('testsPage.title')}
                 </h1>
                 <p className="text-muted-foreground font-medium text-lg">
-                  {t('testsPage.subtitle')}
+                  {selectedCountry === 'russia' ? 'Выберите билет для изучения' : t('testsPage.subtitle')}
                 </p>
               </div>
 
@@ -525,7 +525,7 @@ const Tests = () => {
               {/* Для России: показываем билеты */}
               {selectedCountry === 'russia' ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {tickets.slice(0, 12).map((ticket, i) => {
+                  {tickets.map((ticket, i) => {
                     // Поддержка обратной совместимости: ticket_number из metadata или number
                     const ticketId = typeof ticket.id === 'number' ? ticket.id : ticket.number;
                     const ticketNumber = ticket.metadata?.ticket_number || ticket.number;

@@ -34,6 +34,9 @@ import {
 import { usePDDExamQuestions } from "@/hooks/usePDDExamQuestions";
 import { useRussiaExam } from "@/hooks/useRussiaExam";
 import { mapRussiaQuestionToUniversal } from "@/utils/pddAdapters";
+import { usePDDTicketQuestions } from "@/hooks/usePDDQuestions";
+import { usePDDContext } from "@/contexts/PDDContext";
+import { CountryCode } from "@/types/pdd";
 import { useOfflineQueue } from "@/hooks/useOfflineQueue";
 import { trackOfflineAction } from "@/utils/offlineAnalytics";
 import { useOnlineStatus, checkOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -171,7 +174,7 @@ const QuestionImageComponent = memo(({ imageUrl, compact = false }: { imageUrl: 
           <img 
             src={imageSrc} 
             alt="Вопрос" 
-            className="w-full h-auto object-cover block"
+            className="w-full h-auto object-contain block"
             loading="lazy"
             decoding="async"
             // ОПТИМИЗАЦИЯ: fetchPriority для первого изображения вопроса (может быть LCP)
@@ -183,7 +186,10 @@ const QuestionImageComponent = memo(({ imageUrl, compact = false }: { imageUrl: 
             style={{
               aspectRatio: imageAspectRatio ? `${imageAspectRatio}` : 'auto',
               minHeight: compact ? '200px' : '180px',
-              maxHeight: compact ? '500px' : '288px',
+              // Для горизонтальных изображений увеличиваем maxHeight
+              maxHeight: imageAspectRatio && imageAspectRatio > 1.2 
+                ? (compact ? '600px' : '500px') 
+                : (compact ? '500px' : '400px'),
             }}
             onError={() => {
               if (import.meta.env.DEV) {
@@ -203,21 +209,42 @@ const TestSession = () => {
   const topic = params.topic;
   const testId = params.testId;
   const rawMode = params.mode;
+  const countryParam = params.country as CountryCode | undefined;
+  const ticketIdParam = params.ticketId;
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
   const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId);
+  const { selectedCountry } = usePDDContext();
   const mode = useMemo(() => {
     if (rawMode) return rawMode;
+    if (location.pathname.includes("/learn/") && ticketIdParam) return "pdd-ticket";
     if (location.pathname.includes("/test/sequential")) return "sequential";
     if (location.pathname.includes("/test/challenge-bank")) return "challenge-bank";
     if (location.pathname.includes("/test/module")) return "module";
     if (location.pathname.includes("/test/dgt")) return "dgt";
     if (location.pathname.includes("/test/exam-russia") || searchParams.get('mode') === 'exam-russia') return "exam-russia";
     return "practice";
-  }, [rawMode, location.pathname, searchParams]);
+  }, [rawMode, location.pathname, searchParams, ticketIdParam]);
+  
+  // Определяем страну для ПДД билета
+  const pddCountry = useMemo(() => {
+    if (mode === 'pdd-ticket') {
+      return countryParam || selectedCountry || 'russia';
+    }
+    return null;
+  }, [mode, countryParam, selectedCountry]);
+  
+  // Определяем номер билета
+  const ticketNumber = useMemo(() => {
+    if (mode === 'pdd-ticket' && ticketIdParam) {
+      const parsed = parseInt(ticketIdParam);
+      return isNaN(parsed) ? null : parsed;
+    }
+    return null;
+  }, [mode, ticketIdParam]);
   
   // Получаем количество вопросов из URL
   const questionCount = parseInt(searchParams.get('count') || '30');
@@ -916,13 +943,22 @@ const TestSession = () => {
   // ПДД РФ экзамен
   const pddExamQuestions = usePDDExamQuestions();
   
+  // ПДД билет (для любой страны)
+  const pddTicketQuestions = usePDDTicketQuestions(
+    pddCountry || 'russia',
+    ticketNumber || 0
+  );
+  
   // Преобразуем вопросы ПДД РФ в универсальный формат
   const universalPDDQuestions = useMemo(() => {
     if (mode === 'exam-russia' && pddExamQuestions.data) {
       return pddExamQuestions.data.selectedQuestions;
     }
+    if (mode === 'pdd-ticket' && pddTicketQuestions.data) {
+      return pddTicketQuestions.data;
+    }
     return null;
-  }, [mode, pddExamQuestions.data]);
+  }, [mode, pddExamQuestions.data, pddTicketQuestions.data]);
   
   const allQuestionsByBlock = useMemo(() => {
     if (mode === 'exam-russia' && pddExamQuestions.data) {
@@ -1037,6 +1073,41 @@ const TestSession = () => {
       } else if (pddExamQuestions.error) {
         toast.error("Ошибка загрузки вопросов");
         setLoading(false);
+      }
+    } else if (mode === 'pdd-ticket') {
+      if (universalPDDQuestions && universalPDDQuestions.length > 0) {
+        // Преобразуем UniversalQuestion обратно в QuestionData для совместимости
+        const convertedQuestions: QuestionData[] = universalPDDQuestions.map((q) => ({
+          id: q.id,
+          question_ru: q.text,
+          question_es: q.text,
+          question_en: q.text,
+          image_url: q.image,
+          explanation_ru: q.explanation || null,
+          explanation_es: q.explanation || null,
+          explanation_en: q.explanation || null,
+          topics: q.topics && q.topics.length > 0 ? { title_ru: q.topics[0], title_es: q.topics[0] } : null,
+          answer_options: q.answers.map(a => ({
+            id: a.id,
+            text_ru: a.text,
+            text_es: a.text,
+            text_en: a.text,
+            is_correct: a.isCorrect,
+            position: a.position || 0,
+          })),
+        }));
+        setQuestions(convertedQuestions);
+        setTestInfo({ 
+          id: `pdd_ticket_${ticketNumber}`, 
+          title: `Билет ${ticketNumber}` 
+        });
+        setLoading(false);
+      } else if (pddTicketQuestions.isLoading) {
+        setLoading(true);
+      } else if (pddTicketQuestions.error) {
+        toast.error("Ошибка загрузки вопросов билета");
+        setLoading(false);
+        navigate(`/learn/${pddCountry}`);
       }
     } else if (mode === 'sequential' && testId) {
       if (sequentialQuestions.data && testInfoData.data) {
@@ -1180,6 +1251,11 @@ const TestSession = () => {
     topic,
     profileId,
     navigate,
+    universalPDDQuestions,
+    pddTicketQuestions.isLoading,
+    pddTicketQuestions.error,
+    ticketNumber,
+    pddCountry,
   ]);
 
   // Проверяем, добавлен ли текущий вопрос в закладки
@@ -2585,6 +2661,7 @@ useEffect(() => {
             mode="exam-russia"
             question={russiaExam.currentQuestion.text}
             image={russiaExam.currentQuestion.image}
+            imageAspectRatio={russiaExam.currentQuestion.image ? getCachedImageAspectRatio(russiaExam.currentQuestion.image) : null}
             answers={russiaExam.currentQuestion.answers.map(a => ({
               id: a.id,
               text: a.text,

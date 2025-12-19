@@ -5,7 +5,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import { CountryCode, UniversalQuestion, PDDTicketSummary, PDDRussiaTicket } from '@/types/pdd';
+import { CountryCode, UniversalQuestion, PDDTicketSummary } from '@/types/pdd';
 import { mapRussiaQuestionToUniversal } from '@/utils/pddAdapters';
 import { PDDDataStrategy } from '../PDDDataStrategy';
 import { RUSSIA_EXAM_RULES } from '@/types/pddExam';

@@ -483,7 +483,7 @@ const TestResults = () => {
             <p className="text-sm">{showTrans ? correctAnswer?.text_ru : correctAnswer?.text_es}</p>
           </div>
 
-          {explanation && (
+          {explanation && explanation.trim() && (
             <div className="p-3 rounded-lg bg-secondary/50 border border-secondary">
               <div className="flex items-start justify-between gap-2 mb-1">
                 <p className="text-xs sm:text-sm font-medium">💡 Explicación:</p>

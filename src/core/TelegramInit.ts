@@ -5,6 +5,8 @@ import {
   getTelegramUser as getTelegramUserFromLib 
 } from "@/lib/telegram";
 import { extractDeepLink, DeepLinkData } from "@/lib/telegramNotifications";
+// КРИТИЧНО: Статический импорт для гарантии Singleton-экземпляра клиента
+import { supabase } from "@/integrations/supabase/client";
 
 export function initTelegram() {
   if (typeof window === 'undefined') return null;
@@ -107,8 +109,8 @@ function handleDeepLink(deepLink: DeepLinkData): void {
  */
 async function linkUserToPartner(partnerCode: string): Promise<void> {
   try {
-    // Импортируем Supabase только когда нужно
-    const { supabase } = await import('@/integrations/supabase/client');
+    // КРИТИЧНО: Используем статический импорт для гарантии Singleton-экземпляра
+    // Это предотвращает создание нескольких экземпляров клиента Supabase
     
     // Получаем текущего пользователя
     const { data: { user } } = await supabase.auth.getUser();
