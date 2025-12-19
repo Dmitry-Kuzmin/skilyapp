@@ -101,12 +101,7 @@ const PaymentSuccess = lazy(() => import("../pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("../pages/PaymentCancel"));
 // Purchase обрабатывается в App.tsx (без AppProviders)
 const InviteLanding = lazy(() => import("../pages/InviteLanding"));
-const LearnCountrySelector = lazy(() => 
-  import("../pages/learn/LearnCountrySelector").then((module) => ({ default: module.LearnCountrySelector }))
-);
-const LearnCountryHome = lazy(() => 
-  import("../pages/learn/LearnCountryHome").then((module) => ({ default: module.LearnCountryHome }))
-);
+// УДАЛЕНО: LearnCountrySelector и LearnCountryHome - больше не используются, Dashboard автоматически перестраивается
 
 export function AppRoutes() {
   // КРИТИЧНО: AppRoutes рендерится внутри AppProviders, поэтому UserContext доступен
@@ -342,16 +337,8 @@ export function AppRoutes() {
             <DGTTestsSimple />
           </Suspense>
         } />
-        <Route path="/learn" element={
-          <Suspense fallback={<PageSkeleton />}>
-            <LearnCountrySelector />
-          </Suspense>
-        } />
-        <Route path="/learn/:country" element={
-          <Suspense fallback={<PageSkeleton />}>
-            <LearnCountryHome />
-          </Suspense>
-        } />
+        {/* УДАЛЕНО: /learn и /learn/:country - теперь Dashboard автоматически перестраивается под выбранную страну */}
+        {/* Оставляем только /learn/:country/ticket/:ticketId для прямых ссылок на билеты */}
         <Route path="/learn/:country/ticket/:ticketId" element={
           <Suspense fallback={<PageSkeleton />}>
             <TestSession />

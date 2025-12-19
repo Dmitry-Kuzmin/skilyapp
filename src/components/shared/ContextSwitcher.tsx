@@ -4,7 +4,6 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import { CountryCode, COUNTRIES_CONFIG, getLicenseCategoriesForCountry, getLicenseCategory, LicenseCategoryConfig, LicenseCategory } from '@/types/pdd';
 import { Button } from '@/components/ui/button';
@@ -18,7 +17,6 @@ interface ContextSwitcherProps {
 }
 
 export function ContextSwitcher({ className }: ContextSwitcherProps) {
-  const navigate = useNavigate();
   const { resolvedTheme } = useTheme();
   const { selectedCountry, selectedCategory, setSelectedCountry, setSelectedCategory } = usePDDContext();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -42,15 +40,9 @@ export function ContextSwitcher({ className }: ContextSwitcherProps) {
     setSelectedCountry(country);
     setSelectedCategory(category);
     
-    // Если страна изменилась, редиректим на новую страну
-    if (country !== currentCountry) {
-      navigate(`/learn/${country}`, { replace: true });
-    }
-    
+    // НЕ делаем редирект - остаёмся на текущей странице
+    // Dashboard и другие компоненты автоматически обновятся через usePDDContext
     setSheetOpen(false);
-    
-    // Не перезагружаем страницу - контекст обновится реактивно
-    // Все компоненты, использующие usePDDContext, автоматически обновятся
   };
 
   // Адаптивные стили под тему Dashboard

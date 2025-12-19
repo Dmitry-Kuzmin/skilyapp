@@ -250,35 +250,50 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
       return universal;
     });
 
-    // Также получаем ответы для ВСЕХ вопросов (для доп. вопросов)
-    // КРИТИЧНО: используем батчинг, т.к. может быть очень много вопросов
-    const allQuestionIds = allQuestions.map((q) => q.id);
-    const allAnswers = await fetchAnswersInBatches(allQuestionIds);
+    // ОПТИМИЗАЦИЯ: Загружаем ответы для ВСЕХ вопросов в фоне (для доп. вопросов)
+    // Это может быть медленно, поэтому делаем это асинхронно после возврата основных вопросов
+    const loadAllAnswersInBackground = async () => {
+      try {
+        const allQuestionIds = allQuestions.map((q) => q.id);
+        const allAnswers = await fetchAnswersInBatches(allQuestionIds);
 
-    // Группируем все ответы
-    const allAnswersByQuestion = new Map<string, typeof allAnswers>();
-    allAnswers?.forEach((answer) => {
-      const existing = allAnswersByQuestion.get(answer.question_id) || [];
-      existing.push(answer);
-      allAnswersByQuestion.set(answer.question_id, existing);
-    });
+        // Группируем все ответы
+        const allAnswersByQuestion = new Map<string, typeof allAnswers>();
+        allAnswers?.forEach((answer) => {
+          const existing = allAnswersByQuestion.get(answer.question_id) || [];
+          existing.push(answer);
+          allAnswersByQuestion.set(answer.question_id, existing);
+        });
 
-    // Преобразуем ВСЕ вопросы по блокам для доп. вопросов
-    const allUniversalByBlock: Record<number, UniversalQuestion[]> = {};
-    
-    for (let blockId = 1; blockId <= RUSSIA_EXAM_RULES.blocksCount; blockId++) {
-      const blockQuestions = questionsByBlock.get(blockId) || [];
-      
-      // Преобразуем к универсальному формату
-      allUniversalByBlock[blockId] = blockQuestions.map((q) => {
-        const questionAnswers = allAnswersByQuestion.get(q.id) || [];
-        return mapRussiaQuestionToUniversal(q, questionAnswers);
-      });
-    }
+        // Преобразуем ВСЕ вопросы по блокам для доп. вопросов
+        const allUniversalByBlock: Record<number, UniversalQuestion[]> = {};
+        
+        for (let blockId = 1; blockId <= RUSSIA_EXAM_RULES.blocksCount; blockId++) {
+          const blockQuestions = questionsByBlock.get(blockId) || [];
+          
+          // Преобразуем к универсальному формату
+          allUniversalByBlock[blockId] = blockQuestions.map((q) => {
+            const questionAnswers = allAnswersByQuestion.get(q.id) || [];
+            return mapRussiaQuestionToUniversal(q, questionAnswers);
+          });
+        }
 
+        return allUniversalByBlock;
+      } catch (error) {
+        console.error('[RussiaLegacyStrategy] Ошибка загрузки всех ответов в фоне:', error);
+        return {};
+      }
+    };
+
+    // Загружаем в фоне, но не ждем завершения
+    const allQuestionsByBlockPromise = loadAllAnswersInBackground();
+
+    // Возвращаем основные вопросы сразу, а все вопросы загружаются в фоне
+    // ВАЖНО: usePDDExamQuestions должен обработать это правильно
     return {
       selectedQuestions: universalQuestions,
-      allQuestionsByBlock: allUniversalByBlock,
+      allQuestionsByBlock: {}, // Временно пустой, загрузится позже
+      _allQuestionsByBlockPromise: allQuestionsByBlockPromise, // Для асинхронной загрузки
     };
   }
 }
