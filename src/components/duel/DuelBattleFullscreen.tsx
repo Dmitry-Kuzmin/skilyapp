@@ -600,7 +600,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   }, [createDuelResultSnapshot, createSnapshotFromServerData, onDuelFinished]);
 
   // ОПТИМИЗАЦИЯ: Мемоизируем finishDuel с useCallback (должно быть выше useDuelGame)
-  const finishDuel = useCallback(async () => {
+  // 🆕 CRITICAL FIX: Принимаем callerHasFinished как параметр, чтобы обойти проблему closure
+  const finishDuel = useCallback(async (callerHasFinished?: boolean) => {
     log('[DuelBattleFullscreen] Finishing duel - I completed all questions');
 
     // IMPROVED: Don't set hasFinishedMyQuestions here - it's already set when showing waiting screen
@@ -639,8 +640,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           transitionToResults(data);
         }, 300);
       } else {
-        // IMPROVED: Show waiting screen ONLY if I have actually finished
-        if (hasFinishedMyQuestions) {
+        // 🆕 CRITICAL FIX: Используем переданный параметр вместо state из closure
+        // Это решает проблему, когда hasFinishedMyQuestions ещё false из-за асинхронности React
+        const hasActuallyFinished = callerHasFinished ?? hasFinishedMyQuestions;
+        if (hasActuallyFinished) {
           log('[DuelBattleFullscreen] ⏳ Opponent still playing - showing waiting screen');
           setIsWaitingForOpponent(true);
           toast.info('⏳ Ждём соперника...', { duration: 3000 });

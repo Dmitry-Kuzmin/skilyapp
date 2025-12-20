@@ -53,7 +53,7 @@ interface UseDuelGameProps {
   fetchQuestions: () => Promise<any[]>;
   fetchPlayers: () => Promise<any>;
   moveToNextQuestion: () => void;
-  finishDuel: () => Promise<void>;
+  finishDuel: (callerHasFinished?: boolean) => Promise<void>;
   // Callbacks
   onWrongAnswer?: () => void; // Callback для screen shake при неправильном ответе
 }
@@ -476,7 +476,8 @@ export function useDuelGame({
 
         setHasFinishedMyQuestions(true);
         // Call finishDuel to check if both players finished
-        finishDuel();
+        // 🆕 CRITICAL FIX: Передаём true напрямую, чтобы обойти проблему closure
+        finishDuel(true);
       } else {
         // Normal transition to next question
         log('[useDuelGame] Transitioning to next question in 1500ms');
@@ -492,7 +493,7 @@ export function useDuelGame({
         if (currentIndex < questions.length - 1) {
           moveToNextQuestion();
         } else {
-          finishDuel();
+          finishDuel(true);
         }
       }, 1500);
     }
