@@ -25,6 +25,8 @@ interface MaterialViewerProps {
   onComplete?: () => void;
   isCompleted?: boolean;
   className?: string;
+  hideHeader?: boolean;
+  hideIllustrations?: boolean;
 }
 
 export const MaterialViewer = ({
@@ -33,19 +35,35 @@ export const MaterialViewer = ({
   onComplete,
   isCompleted = false,
   className,
+  hideHeader = false,
+  hideIllustrations = false,
 }: MaterialViewerProps) => {
   const { language: contextLanguage } = useLanguage();
   const [isMarkingComplete, setIsMarkingComplete] = useState(false);
   const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
-  
+  const contentRef = useState<HTMLDivElement | null>(null);
+
   // Используем язык из пропа, если передан, иначе из контекста
   const language = propLanguage || contextLanguage;
-  
+
+  // Accordion Logic
+  const handleAccordionClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    const trigger = target.closest('.hb-accordion-trigger');
+
+    if (trigger) {
+      const item = trigger.closest('.hb-accordion-item');
+      if (item) {
+        item.classList.toggle('is-open');
+      }
+    }
+  };
+
   // Определяем доступные переводы
   const hasRu = !!(material.content_ru && material.content_ru.trim());
   const hasEs = !!(material.content_es && material.content_es.trim());
   const hasEn = !!(material.content_en && material.content_en.trim());
-  
+
   // Fallback логика: если перевода нет, используем испанский (оригинал) или русский
   const getContent = () => {
     switch (language) {
@@ -72,7 +90,7 @@ export const MaterialViewer = ({
         return material.title_ru || material.title_es || material.title_en || "";
     }
   };
-  
+
   // Проверяем, есть ли перевод для текущего языка
   const hasTranslation = () => {
     switch (language) {
@@ -86,7 +104,7 @@ export const MaterialViewer = ({
         return false;
     }
   };
-  
+
   // Определяем язык оригинала (fallback)
   const getOriginalLanguage = () => {
     if (hasEs) return "es";
@@ -94,7 +112,7 @@ export const MaterialViewer = ({
     if (hasEn) return "en";
     return "es";
   };
-  
+
   const isShowingFallback = !hasTranslation() && getOriginalLanguage() !== language;
 
   const handleComplete = async () => {
@@ -115,17 +133,18 @@ export const MaterialViewer = ({
   // Render HTML content safely with enhanced styling
   const renderContent = () => {
     const content = getContent();
-    
+
     // If content is HTML, render it directly with enhanced styles
     if (content.includes("<") || content.includes("&lt;")) {
       return (
         <div
           className="material-content"
           dangerouslySetInnerHTML={{ __html: content }}
+          onClick={handleAccordionClick}
         />
       );
     }
-    
+
     // Otherwise, treat as plain text with line breaks
     return (
       <div className="whitespace-pre-wrap text-foreground/90 leading-relaxed">
@@ -133,7 +152,7 @@ export const MaterialViewer = ({
           // Detect headings (lines that look like headings)
           const isHeading = line.trim().match(/^[А-ЯЁ0-9\s.]{5,}$/) && line.length < 100;
           const isSubheading = line.trim().match(/^\d+\.\s+[А-ЯЁ]/);
-          
+
           if (isHeading) {
             return (
               <h2 key={index} className="text-2xl font-bold mt-8 mb-4 text-foreground">
@@ -162,68 +181,70 @@ export const MaterialViewer = ({
   };
 
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Header Card */}
-      <Card className="p-6 bg-gradient-to-br from-primary/5 via-background to-secondary/5 border-primary/20">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <FileText className="w-6 h-6 text-primary" />
+      {!hideHeader && (
+        <Card className="p-6 bg-gradient-to-br from-primary/5 via-background to-secondary/5 border-primary/20">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h1 className="text-3xl font-bold text-foreground">{getTitle()}</h1>
+                  {isShowingFallback && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs">
+                        <Languages className="w-3 h-3 mr-1" />
+                        {language === "ru" ? "Перевод на русский недоступен" :
+                          language === "en" ? "English translation unavailable" :
+                            "Traducción al español no disponible"}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {getOriginalLanguage() === "es" ? "Показан оригинал (испанский)" :
+                          getOriginalLanguage() === "ru" ? "Показан оригинал (русский)" :
+                            "Показан оригинал (английский)"}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="flex-1">
-                <h1 className="text-3xl font-bold text-foreground">{getTitle()}</h1>
-                {isShowingFallback && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">
-                      <Languages className="w-3 h-3 mr-1" />
-                      {language === "ru" ? "Перевод на русский недоступен" : 
-                       language === "en" ? "English translation unavailable" : 
-                       "Traducción al español no disponible"}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {getOriginalLanguage() === "es" ? "Показан оригинал (испанский)" :
-                       getOriginalLanguage() === "ru" ? "Показан оригинал (русский)" :
-                       "Показан оригинал (английский)"}
-                    </span>
-                  </div>
-                )}
-              </div>
+              {material.source_pdf && (
+                <a
+                  href={material.source_pdf}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group"
+                >
+                  <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  {language === "ru" ? "Открыть оригинальный PDF" :
+                    language === "en" ? "Open original PDF" :
+                      "Abrir PDF original"}
+                </a>
+              )}
             </div>
-            {material.source_pdf && (
-              <a
-                href={material.source_pdf}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group"
-              >
-                <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                {language === "ru" ? "Открыть оригинальный PDF" :
-                 language === "en" ? "Open original PDF" :
-                 "Abrir PDF original"}
-              </a>
+            {isCompleted && (
+              <Badge className="bg-success/20 text-success border-success/50 px-3 py-1.5">
+                <CheckCircle2 className="w-4 h-4 mr-1.5" />
+                {language === "ru" ? "Изучено" :
+                  language === "en" ? "Completed" :
+                    "Completado"}
+              </Badge>
             )}
           </div>
-          {isCompleted && (
-            <Badge className="bg-success/20 text-success border-success/50 px-3 py-1.5">
-              <CheckCircle2 className="w-4 h-4 mr-1.5" />
-              {language === "ru" ? "Изучено" :
-               language === "en" ? "Completed" :
-               "Completado"}
-            </Badge>
-          )}
-        </div>
-      </Card>
+        </Card>
+      )}
 
       {/* Images Gallery */}
-      {material.images && material.images.length > 0 && (
-        <Card className="p-6">
-          <div className="flex items-center gap-2 mb-4">
+      {material.images && material.images.length > 0 && !hideIllustrations && (
+        <Card className="p-4 md:p-6">
+          <div className="flex items-center gap-2 mb-3">
             <ImageIcon className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-semibold">
+            <h2 className="text-lg font-semibold">
               {language === "ru" ? "Иллюстрации" :
-               language === "en" ? "Illustrations" :
-               "Ilustraciones"}
+                language === "en" ? "Illustrations" :
+                  "Ilustraciones"}
             </h2>
             <Badge variant="outline" className="ml-auto">
               {material.images.length}
@@ -255,8 +276,8 @@ export const MaterialViewer = ({
                       <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
                       <p className="text-sm">
                         {language === "ru" ? "Изображение не загружено" :
-                         language === "en" ? "Image not loaded" :
-                         "Imagen no cargada"}
+                          language === "en" ? "Image not loaded" :
+                            "Imagen no cargada"}
                       </p>
                     </div>
                   </div>
@@ -269,13 +290,13 @@ export const MaterialViewer = ({
       )}
 
       {/* Content Card */}
-      <Card className="p-6 md:p-8 lg:p-10">
+      <Card className="p-4 md:p-6 lg:p-8">
         <div className="prose prose-lg prose-slate max-w-none dark:prose-invert dark:prose-slate">
           <style>{`
             /* Общие стили для материала */
             .material-content,
             .material-content-wrapper {
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+              font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
               font-size: 1.125rem;
               line-height: 1.75;
               color: hsl(var(--foreground) / 0.95);
@@ -284,11 +305,12 @@ export const MaterialViewer = ({
             
             /* Заголовок материала */
             .material-header {
-              margin-bottom: 3rem;
-              padding-bottom: 1.5rem;
+              margin-bottom: 2rem;
+              padding-bottom: 1rem;
               border-bottom: 2px solid hsl(var(--border) / 0.5);
             }
             .material-title {
+              font-family: 'Outfit', sans-serif;
               font-size: 2.25rem;
               font-weight: 800;
               line-height: 1.2;
@@ -306,43 +328,47 @@ export const MaterialViewer = ({
             /* Заголовки разделов */
             .material-content h1,
             .material-content-wrapper h1 {
-              font-size: 2rem;
+              font-family: 'Outfit', sans-serif;
+              font-size: 1.75rem;
               font-weight: 800;
               line-height: 1.25;
               letter-spacing: -0.02em;
               color: hsl(var(--foreground));
-              margin-top: 3rem;
-              margin-bottom: 1.5rem;
-              padding-bottom: 0.75rem;
+              margin-top: 1.5rem;
+              margin-bottom: 1rem;
+              padding-bottom: 0.5rem;
               border-bottom: 2px solid hsl(var(--border) / 0.5);
             }
             
             .material-content h2,
             .material-content-wrapper h2,
             .section-heading {
+              font-family: 'Outfit', sans-serif;
               font-size: 1.625rem;
               font-weight: 700;
               line-height: 1.3;
               letter-spacing: -0.015em;
               color: hsl(var(--foreground));
-              margin-top: 2.5rem;
-              margin-bottom: 1.25rem;
+              margin-top: 1.75rem;
+              margin-bottom: 1rem;
             }
             
             .material-content h3,
             .material-content-wrapper h3,
             .subsection-heading {
+              font-family: 'Outfit', sans-serif;
               font-size: 1.375rem;
               font-weight: 600;
               line-height: 1.4;
               letter-spacing: -0.01em;
               color: hsl(var(--foreground) / 0.95);
-              margin-top: 2rem;
-              margin-bottom: 1rem;
+              margin-top: 1.5rem;
+              margin-bottom: 0.75rem;
             }
             
             .material-content h4,
             .material-content-wrapper h4 {
+              font-family: 'Outfit', sans-serif;
               font-size: 1.125rem;
               font-weight: 600;
               line-height: 1.5;
@@ -355,14 +381,253 @@ export const MaterialViewer = ({
             .material-content p,
             .material-content-wrapper p,
             .content-paragraph {
-              margin-bottom: 1.5rem;
-              line-height: 1.75;
+              margin-bottom: 1.25rem;
+              line-height: 1.8;
               color: hsl(var(--foreground) / 0.95);
               font-size: 1.125rem;
               text-align: left;
               hyphens: auto;
               -webkit-hyphens: auto;
               -moz-hyphens: auto;
+            }
+            /* --- PREMIUM TYPOGRAPHY --- */
+            .hb-hero-title {
+                font-family: 'Outfit', sans-serif;
+                font-size: clamp(2.25rem, 6vw, 3.5rem);
+                font-weight: 900;
+                line-height: 1.1;
+                letter-spacing: -0.04em;
+                background: linear-gradient(to right, hsl(var(--foreground)), hsl(var(--foreground) / 0.7));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin: 2.5rem 0 1rem;
+            }
+
+            .hb-hero-subtitle {
+                font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+                font-weight: 500;
+                color: hsl(var(--muted-foreground));
+                line-height: 1.5;
+                margin-bottom: 3.5rem;
+                max-width: 65ch;
+            }
+
+            .hb-tag {
+                display: inline-flex;
+                align-items: center;
+                padding: 0.2rem 0.6rem;
+                border-radius: 6px;
+                font-size: 0.65rem;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 0.5rem;
+                width: fit-content;
+            }
+
+            .hb-tag-new { background: hsl(var(--emerald-500) / 0.15); color: hsl(var(--emerald-600)); border: 1px solid hsl(var(--emerald-500) / 0.2); }
+            .hb-tag-critical { background: hsl(var(--red-500) / 0.15); color: hsl(var(--red-600)); border: 1px solid hsl(var(--red-500) / 0.2); }
+
+            /* --- PREMIUM ACCORDION UI --- */
+            .hb-accordion {
+                margin: 2rem 0;
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .hb-category-label {
+                font-family: 'Outfit', sans-serif;
+                font-size: 0.7rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.2em;
+                color: hsl(var(--muted-foreground));
+                margin: 3rem 0 1rem;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .hb-category-label::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: linear-gradient(to right, hsl(var(--border)), transparent);
+            }
+
+            .hb-accordion-item {
+                background: hsl(var(--card) / 0.4);
+                border: 1px solid hsl(var(--border) / 0.5);
+                border-radius: 0.75rem;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+
+            .hb-accordion-item:hover {
+                border-color: hsl(var(--primary) / 0.3);
+                background: hsl(var(--card) / 0.6);
+            }
+
+            .hb-accordion-item.is-open {
+                background: hsl(var(--card));
+                border-color: hsl(var(--primary) / 0.4);
+                box-shadow: 0 4px 20px -5px rgb(0 0 0 / 0.1);
+            }
+
+            .hb-accordion-trigger {
+                padding: 1.1rem 1.5rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                cursor: pointer;
+                user-select: none;
+                width: 100%;
+                background: transparent;
+            }
+
+            .hb-acc-term-wrapper {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                flex: 1;
+            }
+
+            .hb-acc-term {
+                font-family: 'Outfit', sans-serif;
+                font-size: 1.05rem;
+                font-weight: 600;
+                color: hsl(var(--foreground));
+                letter-spacing: -0.01em;
+            }
+
+            .hb-acc-icon {
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: hsl(var(--muted-foreground));
+                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                font-size: 1.25rem;
+            }
+
+            .hb-accordion-item.is-open .hb-acc-icon {
+                transform: rotate(45deg);
+                color: hsl(var(--primary));
+            }
+
+            /* Stable Grid Animation */
+            .hb-accordion-content {
+                display: grid;
+                grid-template-rows: 0fr;
+                transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                background: hsl(var(--primary) / 0.02);
+            }
+
+            .hb-accordion-item.is-open .hb-accordion-content {
+                grid-template-rows: 1fr;
+                border-top: 1px solid hsl(var(--border) / 0.4);
+            }
+
+            .hb-desc {
+                min-height: 0;
+                overflow: hidden;
+                padding: 0 1.5rem;
+                opacity: 0;
+                transform: translateY(-10px);
+                transition: all 0.4s ease;
+                visibility: hidden;
+            }
+
+            .hb-accordion-item.is-open .hb-desc {
+                padding: 1.25rem 1.5rem;
+                opacity: 1;
+                transform: translateY(0);
+                visibility: visible;
+            }
+
+            .hb-tag-new.tiny, .hb-tag-critical.tiny {
+                font-family: 'Outfit', sans-serif;
+                font-weight: 700;
+                font-size: 0.6rem;
+                text-transform: uppercase;
+                letter-spacing: 0.12em;
+                padding: 0.35rem 0.75rem;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                line-height: 1;
+                margin: 0 1rem 0 auto; /* Push to right */
+                border-radius: 6px;
+                backdrop-filter: blur(8px);
+                transition: all 0.3s ease;
+                min-width: 80px;
+                text-align: center;
+            }
+
+            .hb-tag-new.tiny {
+                border: 1px solid hsl(var(--emerald-500) / 0.3);
+                color: hsl(var(--emerald-500));
+                background: linear-gradient(to bottom, hsl(var(--emerald-500) / 0.05), transparent);
+                box-shadow: inset 0 1px 0 0 hsl(var(--emerald-500) / 0.1);
+            }
+
+            .hb-tag-critical.tiny {
+                border: 1px solid hsl(var(--red-500) / 0.3);
+                color: hsl(var(--red-500));
+                background: linear-gradient(to bottom, hsl(var(--red-500) / 0.05), transparent);
+                box-shadow: inset 0 1px 0 0 hsl(var(--red-500) / 0.1);
+            }
+
+            /* Make accordion trigger layout handle the pushed tag */
+            .hb-accordion-trigger {
+                display: grid;
+                grid-template-columns: 1fr auto auto; /* Text | Tag | Icon */
+                gap: 1rem;
+                align-items: center;
+            }
+            
+            .hb-acc-term-wrapper {
+                display: block; /* Override flex */
+            }
+
+            /* --- REFINED RULE CARDS --- */
+            .hb-rule-card-v2 {
+                padding: 1.75rem;
+                margin: 2rem 0;
+                border-radius: 1.25rem;
+                background: linear-gradient(135deg, hsl(var(--card) / 0.5), transparent);
+                border: 1px solid hsl(var(--border) / 0.6);
+                display: grid;
+                grid-template-columns: 56px 1fr;
+                gap: 1.5rem;
+                align-items: flex-start;
+            }
+
+            .hb-rule-num-v2 {
+                font-family: 'Outfit', sans-serif;
+                font-size: 1.25rem;
+                font-weight: 800;
+                color: hsl(var(--primary));
+                background: hsl(var(--primary) / 0.1);
+                width: 56px;
+                height: 56px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 1rem;
+                flex-shrink: 0;
+            }
+            
+            .info-box-premium {
+                padding: 1.5rem;
+                border-radius: 1.25rem;
+                background: hsl(var(--primary) / 0.05);
+                border-left: 4px solid hsl(var(--primary));
+                margin: 1.5rem 0;
+                font-size: 1rem;
+                color: hsl(var(--foreground));
             }
             
             /* Первый параграф после заголовка */
@@ -381,7 +646,7 @@ export const MaterialViewer = ({
             .material-content-wrapper ul,
             .material-content-wrapper ol,
             .styled-list {
-              margin: 1.75rem 0;
+              margin: 1.25rem 0;
               padding-left: 1.75rem;
               line-height: 1.75;
             }
@@ -928,7 +1193,7 @@ export const MaterialViewer = ({
               .tip-box,
               .warning-box,
               .question-block {
-                padding: 1.25rem 1.5rem;
+                padding: 1rem 1.25rem;
               }
             }
           `}</style>
@@ -950,15 +1215,15 @@ export const MaterialViewer = ({
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   {language === "ru" ? "Отмечаем..." :
-                   language === "en" ? "Marking..." :
-                   "Marcando..."}
+                    language === "en" ? "Marking..." :
+                      "Marcando..."}
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   {language === "ru" ? "Отметить как изученное" :
-                   language === "en" ? "Mark as completed" :
-                   "Marcar como completado"}
+                    language === "en" ? "Mark as completed" :
+                      "Marcar como completado"}
                 </>
               )}
             </Button>

@@ -45,6 +45,11 @@ const submitAnswerSchema = z.object({
   is_timeout: z.boolean().optional()
 });
 
+const getResultsSchema = z.object({
+  duel_id: z.string().uuid(),
+  profile_id: z.string().uuid(),
+});
+
 const useBoostSchema = z.object({
   duel_id: z.string().uuid(),
   duel_question_id: z.string().uuid().optional(),
@@ -377,7 +382,7 @@ const BOT_NAMES = [
   'Евгений', 'Валерия', 'Алекс', 'София', 'Кирилл', 'Алиса', 'Станислав', 'Вероника',
   'Артур', 'Арина', 'Даниил', 'Елизавета', 'Георгий', 'Милана', 'Тимур', 'Амелия',
   'Марк', 'Василиса', 'Лев', 'Ангелина', 'Федор', 'Диана', 'Григорий', 'Карина',
-  
+
   // Испанские имена
   'Carlos', 'María', 'José', 'Ana', 'Luis', 'Carmen', 'Juan', 'Laura',
   'Miguel', 'Isabel', 'Francisco', 'Patricia', 'Antonio', 'Sofía', 'Manuel', 'Lucía',
@@ -386,7 +391,7 @@ const BOT_NAMES = [
   'Daniel', 'Beatriz', 'Sergio', 'Raquel', 'Pablo', 'Mónica', 'Álvaro', 'Eva',
   'Adrián', 'Lorena', 'Rubén', 'Silvia', 'Óscar', 'Rocío', 'Víctor', 'Nerea',
   'Iván', 'Celia', 'Jorge', 'Inés', 'Raúl', 'Marina', 'Gonzalo', 'Carla',
-  
+
   // Английские имена
   'James', 'Emma', 'Michael', 'Olivia', 'William', 'Sophia', 'David', 'Isabella',
   'Richard', 'Charlotte', 'Joseph', 'Amelia', 'Thomas', 'Mia', 'Charles', 'Harper',
@@ -418,9 +423,9 @@ function generateBotProfile(playerLevel: number, winStreak: number = 0): {
   // 0-2 победы: Easy/Medium (даем кайфануть)
   // 3-5 побед: Hard (начинаем давить)
   // 5+ побед: Insane (бот-убийца, почти непобедим)
-  
+
   let difficulty: 'easy' | 'medium' | 'hard' | 'insane' = 'medium';
-  
+
   if (winStreak >= 5) {
     difficulty = 'insane'; // Бот-убийца для фармеров
   } else if (winStreak >= 3) {
@@ -455,16 +460,16 @@ function simulateBotAnswer(botDifficulty: 'easy' | 'medium' | 'hard' | 'insane',
   // Medium: 70-80% (стандартная сложность)
   // Hard: 85-90% (начинает давить на фармеров)
   // Insane: 95-99% (бот-убийца, почти непобедим)
-  
+
   const baseAccuracies = {
     easy: 0.65,      // 65% базовая точность
     medium: 0.75,    // 75% базовая точность
     hard: 0.875,     // 87.5% базовая точность
     insane: 0.97,    // 97% базовая точность (почти непобедим)
   };
-  
+
   const baseAccuracy = baseAccuracies[botDifficulty] || 0.75;
-  
+
   // Модификаторы на основе сложности вопроса
   const difficultyModifiers = {
     easy: 0.15,   // +15% для легких вопросов
@@ -1288,23 +1293,23 @@ Deno.serve(async (req) => {
     limit: 100, // 100 запросов
     windowMs: 60000, // в минуту
   });
-  
+
   if (!rateLimit.allowed) {
     console.warn('[duel-manager] Rate limit exceeded:', {
       ip: clientIP,
       remaining: rateLimit.remaining,
       resetAt: new Date(rateLimit.resetAt).toISOString(),
     });
-    
+
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: 'Rate limit exceeded',
         message: 'Too many requests. Please try again later.',
         retryAfter: Math.ceil((rateLimit.resetAt - Date.now()) / 1000),
       }),
-      { 
+      {
         status: 429,
-        headers: { 
+        headers: {
           ...corsHeaders,
           'Content-Type': 'application/json',
           'Retry-After': String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)),
@@ -1451,7 +1456,7 @@ Deno.serve(async (req) => {
             if (error) {
               // Если batch запрос не работает (RLS), fallback на отдельные запросы
               console.warn('[get_players] Batch query failed, falling back to individual queries:', error.message);
-              
+
               const profilePromises = userIds.map(async (userId) => {
                 const { data: profile, error: singleError } = await supabase
                   .from('profiles')
@@ -1506,7 +1511,7 @@ Deno.serve(async (req) => {
             // Если bot_name нет, используем name из БД
             // Только если оба отсутствуют, генерируем имя на основе ID
             let botName = p.bot_name || p.name;
-            
+
             if (!botName) {
               // Fallback: генерируем детерминированное имя на основе ID бота для консистентности
               const botNameIndex = parseInt(p.id.replace(/-/g, '').slice(0, 8), 16) % BOT_NAMES.length;
@@ -1515,7 +1520,7 @@ Deno.serve(async (req) => {
             } else {
               console.log('[get_players] ✅ Using bot name from DB:', botName);
             }
-            
+
             console.log('[get_players] Processing bot player:', {
               playerId: p.id,
               botName,
@@ -1645,6 +1650,86 @@ Deno.serve(async (req) => {
         console.log('[Duel Manager] Found', questions?.length || 0, 'questions');
 
         return new Response(JSON.stringify({ questions }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      case 'get_results': {
+        const validated = getResultsSchema.parse(params);
+        const { duel_id, profile_id } = validated;
+
+        console.log('[get_results] Fetching results for duel:', duel_id, 'profile_id:', profile_id);
+
+        // Fetch duel, players, and answers in a single batch-like query if possible, or parallelize
+        const [duelResult, playersResult, answersResult] = await Promise.all([
+          supabase.from('duels').select('*').eq('id', duel_id).single(),
+          supabase.from('duel_players').select('*, profiles(id, username, first_name, photo_url)').eq('duel_id', duel_id),
+          supabase.from('duel_answers').select('*, duel_questions(*)').eq('duel_id', duel_id)
+        ]);
+
+        if (duelResult.error || !duelResult.data) {
+          console.error('[get_results] Duel not found:', duelResult.error);
+          return new Response(JSON.stringify({ error: 'Duel not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        const duel = duelResult.data;
+        const players = playersResult.data || [];
+        const allAnswers = answersResult.data || [];
+
+        if (players.length < 2) {
+          console.warn('[get_results] Not enough players yet:', players.length);
+          return new Response(JSON.stringify({ error: 'DUEL_NOT_READY', message: 'Not enough players' }), {
+            status: 202, // Accepted but not finished
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        const myPlayer = players.find((p: any) => p.user_id === profile_id);
+        const opponentPlayer = players.find((p: any) => p.user_id !== profile_id);
+
+        if (!myPlayer || !opponentPlayer) {
+          console.error('[get_results] Player not found in duel participants');
+          return new Response(JSON.stringify({ error: 'Player not authorized' }), {
+            status: 403,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Filter answers
+        const myAnswers = allAnswers.filter((a: any) => a.player_id === myPlayer.id);
+        const opponentAnswers = allAnswers.filter((a: any) => a.player_id === opponentPlayer.id);
+
+        // Ensure both players have finished (if status is not finished yet)
+        if (duel.status !== 'finished' && duel.status !== 'technical_draw' && duel.status !== 'cancelled') {
+          const myFinished = myAnswers.length >= duel.num_questions;
+          const opponentFinished = opponentAnswers.length >= duel.num_questions;
+
+          if (!myFinished || !opponentFinished) {
+            console.log('[get_results] Duel still active, players not finished:', { myFinished, opponentFinished });
+            // We return the partial data anyway, but mark it as NOT_READY for the hook to retry if it wants full results
+            return new Response(JSON.stringify({
+              error: 'DUEL_NOT_READY',
+              message: 'Players still answering',
+              duel,
+              players,
+              myAnswers,
+              opponentAnswers
+            }), {
+              status: 202,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+        }
+
+        return new Response(JSON.stringify({
+          duel,
+          players,
+          myAnswers,
+          opponentAnswers
+        }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
@@ -1835,17 +1920,17 @@ Deno.serve(async (req) => {
               bet_type: typeof params.bet_type,
             }
           });
-          return new Response(JSON.stringify({ 
-            error: 'Validation failed', 
+          return new Response(JSON.stringify({
+            error: 'Validation failed',
             message: validationError.message,
             details: validationError.issues,
-            received: params 
+            received: params
           }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
-        
+
         const {
           num_questions,
           categories,
@@ -1905,17 +1990,17 @@ Deno.serve(async (req) => {
           expires_at: new Date(Date.now() + 30000).toISOString(), // 30 секунд
           matched: false
         };
-        
+
         // Добавляем categories только если они есть
         if (categories && Array.isArray(categories) && categories.length > 0) {
           queueData.categories = categories;
         }
-        
+
         console.log('[find_match] 📝 Inserting into queue:', {
           ...queueData,
           profile_id: `${queueData.profile_id.substring(0, 8)}...`
         });
-        
+
         const { data: queueEntry, error: queueInsertError } = await supabase
           .from('duel_matchmaking_queue')
           .insert(queueData)
@@ -1938,7 +2023,7 @@ Deno.serve(async (req) => {
               bet_type,
             }
           });
-          return new Response(JSON.stringify({ 
+          return new Response(JSON.stringify({
             error: 'Failed to join matchmaking queue',
             details: queueInsertError.message,
             code: queueInsertError.code
@@ -2058,7 +2143,7 @@ Deno.serve(async (req) => {
           // Автозапуск дуэли (логика из join_duel)
           try {
             console.log('[find_match] 🚀 AUTO-START: 2 players detected, starting duel...');
-            
+
             const { data: allQuestions, error: questionsError } = await supabase
               .from('questions_new')
               .select(`
@@ -2133,8 +2218,8 @@ Deno.serve(async (req) => {
             // Не прерываем выполнение, дуэль создана, но не запущена
           }
 
-          return new Response(JSON.stringify({ 
-            duel, 
+          return new Response(JSON.stringify({
+            duel,
             code,
             opponent_type: 'real',
             auto_started: true
@@ -2248,7 +2333,7 @@ Deno.serve(async (req) => {
         // Автозапуск дуэли с ботом (аналогично реальному сопернику)
         try {
           console.log('[find_match] 🚀 AUTO-START with bot: starting duel...');
-          
+
           const { data: allQuestions, error: questionsError } = await supabase
             .from('questions_new')
             .select(`
@@ -2323,8 +2408,8 @@ Deno.serve(async (req) => {
           // Не прерываем выполнение, дуэль создана, но не запущена
         }
 
-        return new Response(JSON.stringify({ 
-          duel, 
+        return new Response(JSON.stringify({
+          duel,
           code,
           opponent_type: 'bot',
           bot_name: botProfile.name,
@@ -2774,7 +2859,7 @@ Deno.serve(async (req) => {
             console.error('[join_duel] Error message:', autoStartError?.message);
             console.error('[join_duel] Error stack:', autoStartError?.stack);
             console.error('[join_duel] Error details:', JSON.stringify(autoStartError, null, 2));
-            
+
             // КРИТИЧНО: Не возвращаем ошибку 500 - это блокирует присоединение игрока
             // Вместо этого логируем ошибку и возвращаем успешный ответ, но без auto_started
             // Вопросы можно будет сгенерировать позже через start_duel action
@@ -3232,8 +3317,8 @@ Deno.serve(async (req) => {
           // Если пытаемся ответить не на следующий вопрос - отклоняем
           if (nextQuestionPosition !== null && question.position !== nextQuestionPosition) {
             console.warn(`[bot_answer] ⚠️ Bot tried to answer question ${question.position}, but next question is ${nextQuestionPosition}`);
-            return new Response(JSON.stringify({ 
-              error: `Bot must answer questions in order. Expected position ${nextQuestionPosition}, got ${question.position}` 
+            return new Response(JSON.stringify({
+              error: `Bot must answer questions in order. Expected position ${nextQuestionPosition}, got ${question.position}`
             }), {
               status: 400,
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -3251,7 +3336,7 @@ Deno.serve(async (req) => {
         // ВАЖНО: Бот ВСЕГДА должен отвечать на вопрос, пропуски запрещены
         // Выбираем правильный или неправильный ответ
         const allOptions = (question.question_snapshot as any).answer_options || [];
-        
+
         if (allOptions.length === 0) {
           return new Response(JSON.stringify({ error: 'Question has no answer options' }), {
             status: 400,
@@ -3285,7 +3370,7 @@ Deno.serve(async (req) => {
 
         // Вычисляем очки (бот не получает комбо бонусы для упрощения)
         const timeLimit = 60000;
-        
+
         // Естественное время ответа бота зависит от сложности вопроса и бота
         // Легкие вопросы - быстрее, сложные - медленнее
         // Сильные боты отвечают быстрее на легкие вопросы
@@ -3294,9 +3379,9 @@ Deno.serve(async (req) => {
           medium: { min: 15000, max: 35000 },  // 15-35 секунд для средних
           hard: { min: 25000, max: 50000 },   // 25-50 секунд для сложных
         };
-        
+
         const timeRange = difficultyTimeModifiers[questionDifficulty as keyof typeof difficultyTimeModifiers] || difficultyTimeModifiers.medium;
-        
+
         // Сильные боты отвечают быстрее
         const botSpeedModifier = {
           easy: 1.0,    // Без изменений
@@ -3304,16 +3389,16 @@ Deno.serve(async (req) => {
           hard: 0.8,    // На 20% быстрее
           insane: 0.7, // На 30% быстрее
         }[botDifficulty] || 1.0;
-        
+
         const adjustedMin = Math.floor(timeRange.min * botSpeedModifier);
         const adjustedMax = Math.floor(timeRange.max * botSpeedModifier);
         const timeRemain = Math.floor(Math.random() * (adjustedMax - adjustedMin) + adjustedMin);
-        
+
         // Ограничиваем время ответа разумными пределами (не меньше 5 секунд, не больше 55 секунд)
         const clampedTimeRemain = Math.max(5000, Math.min(55000, timeRemain));
-        
+
         const points = isCorrect ? calculateScore(questionDifficulty, clampedTimeRemain, timeLimit, 0) : 0;
-        
+
         console.log(`[bot_answer] ⏱️ Bot answer timing:`, {
           botDifficulty,
           questionDifficulty,
@@ -3351,69 +3436,69 @@ Deno.serve(async (req) => {
         // Всегда уведомляем о каждом ответе бота
         console.log('[bot_answer] Creating progress notification for human player');
 
-          const { data: duel } = await supabase
-            .from('duels')
-            .select('num_questions')
-            .eq('id', duel_id)
-            .single();
+        const { data: duel } = await supabase
+          .from('duels')
+          .select('num_questions')
+          .eq('id', duel_id)
+          .single();
 
-          // Total answers including current one
-          const { count: botAnswersCount } = await supabase
-            .from('duel_answers')
-            .select('*', { count: 'exact', head: true })
-            .eq('player_id', botPlayer.id)
-            .eq('duel_id', duel_id);
+        // Total answers including current one
+        const { count: botAnswersCount } = await supabase
+          .from('duel_answers')
+          .select('*', { count: 'exact', head: true })
+          .eq('player_id', botPlayer.id)
+          .eq('duel_id', duel_id);
 
-          const totalAnswers = (botAnswersCount || 0);
-          const progress = duel ? Math.round((totalAnswers / duel.num_questions) * 100) : 0;
+        const totalAnswers = (botAnswersCount || 0);
+        const progress = duel ? Math.round((totalAnswers / duel.num_questions) * 100) : 0;
 
-          // Находим реального игрока (не бота) - ищем игрока с user_id (не null)
-          const { data: humanPlayer } = await supabase
-            .from('duel_players')
-            .select('user_id')
-            .eq('duel_id', duel_id)
-            .not('user_id', 'is', null)
-            .eq('is_bot', false)
-            .single();
+        // Находим реального игрока (не бота) - ищем игрока с user_id (не null)
+        const { data: humanPlayer } = await supabase
+          .from('duel_players')
+          .select('user_id')
+          .eq('duel_id', duel_id)
+          .not('user_id', 'is', null)
+          .eq('is_bot', false)
+          .single();
 
-          // Сохраняем humanPlayer для использования ниже
-          const savedHumanPlayer = humanPlayer;
+        // Сохраняем humanPlayer для использования ниже
+        const savedHumanPlayer = humanPlayer;
 
-          if (savedHumanPlayer?.user_id) {
-            const botName = botPlayer.bot_name || 'Бот';
-            
-            console.log('[bot_answer] Notification metadata:', {
+        if (savedHumanPlayer?.user_id) {
+          const botName = botPlayer.bot_name || 'Бот';
+
+          console.log('[bot_answer] Notification metadata:', {
+            is_correct: isCorrect,
+            question_number: question.position,
+            progress,
+            totalAnswers,
+            bot_name: botName
+          });
+
+          // Уведомляем о каждом ответе бота
+          // Используем тип 'answer' для правильных ответов, 'progress' для неправильных
+          const notifResult = await createNotification({
+            duel_id,
+            type: isCorrect ? 'answer' : 'progress',
+            metadata: {
               is_correct: isCorrect,
               question_number: question.position,
-              progress,
-              totalAnswers,
-              bot_name: botName
-            });
-
-            // Уведомляем о каждом ответе бота
-            // Используем тип 'answer' для правильных ответов, 'progress' для неправильных
-            const notifResult = await createNotification({
-              duel_id,
-              type: isCorrect ? 'answer' : 'progress',
-              metadata: {
-                is_correct: isCorrect,
-                question_number: question.position,
-                progress: progress >= 25 && progress % 25 === 0 ? progress : undefined, // Процент только на milestones (25%, 50%, 75%)
-                opponent_name: botName, // Имя бота для правильного отображения в уведомлении
-              }
-            }, humanPlayer.user_id, supabase).catch(err => {
-              console.error('[bot_answer] Error creating progress notification:', err);
-              return false;
-            });
-
-            if (!notifResult) {
-              console.warn('[bot_answer] Failed to create progress notification - human player might not be found');
-            } else {
-              console.log('[bot_answer] ✅ Progress notification created successfully');
+              progress: progress >= 25 && progress % 25 === 0 ? progress : undefined, // Процент только на milestones (25%, 50%, 75%)
+              opponent_name: botName, // Имя бота для правильного отображения в уведомлении
             }
+          }, humanPlayer.user_id, supabase).catch(err => {
+            console.error('[bot_answer] Error creating progress notification:', err);
+            return false;
+          });
+
+          if (!notifResult) {
+            console.warn('[bot_answer] Failed to create progress notification - human player might not be found');
           } else {
-            console.warn('[bot_answer] ⚠️ Human player not found in duel');
+            console.log('[bot_answer] ✅ Progress notification created successfully');
           }
+        } else {
+          console.warn('[bot_answer] ⚠️ Human player not found in duel');
+        }
 
         // КРИТИЧНО: Проверяем, закончил ли бот все вопросы
         // Если да - автоматически завершаем дуэль
@@ -3433,7 +3518,7 @@ Deno.serve(async (req) => {
 
         if (botFinishedAllQuestions && duelData?.status !== 'finished') {
           console.log('[bot_answer] 🤖 Bot finished all questions, checking if human player also finished...');
-          
+
           // Получаем ID реального игрока
           let humanPlayerId: string | null = null;
           if (savedHumanPlayer?.user_id) {
@@ -3459,7 +3544,7 @@ Deno.serve(async (req) => {
 
             if (humanFinishedAllQuestions) {
               console.log('[bot_answer] ✅ Both players finished, finishing duel automatically');
-              
+
               // Оба игрока закончили - завершаем дуэль
               // Используем внутреннюю логику finish_duel
               const { data: allPlayers } = await supabase
@@ -3724,7 +3809,7 @@ Deno.serve(async (req) => {
             currentPlayerId: player.id,
             currentPlayerUserId: profileId
           });
-          
+
           // Получаем всех игроков дуэли (КРИТИЧНО: включаем is_bot для правильной фильтрации)
           const { data: players, error: playersError } = await supabase
             .from('duel_players')
@@ -3734,10 +3819,10 @@ Deno.serve(async (req) => {
           // КРИТИЧНО: Логируем результат запроса игроков
           console.log('[use_boost] 🔍🔍🔍 Players query result:', {
             playersCount: players?.length || 0,
-            players: players?.map(p => ({ 
-              id: p.id, 
-              user_id: p.user_id, 
-              is_bot: p.is_bot 
+            players: players?.map(p => ({
+              id: p.id,
+              user_id: p.user_id,
+              is_bot: p.is_bot
             })) || [],
             playersError: playersError ? {
               message: playersError.message,
@@ -3762,7 +3847,7 @@ Deno.serve(async (req) => {
               currentPlayerUserId: profileId
             });
             // Не создаем exploit, если игроков нет
-            return new Response(JSON.stringify({ 
+            return new Response(JSON.stringify({
               error: 'No players found in duel',
               details: 'Cannot create exploit - no players in duel',
               boostEffect: boostEffect // Возвращаем эффект для клиента
@@ -3771,20 +3856,20 @@ Deno.serve(async (req) => {
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             });
           }
-          
+
           if (players.length >= 2) {
             // КРИТИЧНО: Находим соперника правильно - это игрок, который НЕ является текущим и НЕ является ботом
             // ВАЖНО: Если есть бот, выбираем реального игрока; если ботов нет, выбираем любого другого игрока
             const opponent = players.find(p => p.id !== player.id && !p.is_bot);
-            
+
             // КРИТИЧНО: Детальное логирование для диагностики проблемы с ID
             console.log('[use_boost] 🔍🔍🔍 Finding opponent for exploit (DETAILED):', {
               totalPlayers: players.length,
               currentPlayerId: player.id,
               currentPlayerUserId: profileId,
-              allPlayers: players.map(p => ({ 
-                id: p.id, 
-                user_id: p.user_id, 
+              allPlayers: players.map(p => ({
+                id: p.id,
+                user_id: p.user_id,
                 is_bot: p.is_bot,
                 isCurrentPlayer: p.id === player.id,
                 willBeOpponent: p.id !== player.id && !p.is_bot
@@ -3799,7 +3884,7 @@ Deno.serve(async (req) => {
               opponentUserIdEqualsCurrentUserId: opponent?.user_id === profileId,
               note: 'Opponent must be different from current player and not a bot'
             });
-            
+
             // КРИТИЧНО: Дополнительная проверка - убеждаемся, что opponent не является текущим игроком
             if (opponent && opponent.id === player.id) {
               console.error('[use_boost] ❌❌❌ CRITICAL ERROR: Opponent equals current player!', {
@@ -3807,7 +3892,7 @@ Deno.serve(async (req) => {
                 playerId: player.id,
                 players: players.map(p => ({ id: p.id, user_id: p.user_id, is_bot: p.is_bot }))
               });
-              return new Response(JSON.stringify({ 
+              return new Response(JSON.stringify({
                 error: 'Invalid opponent - opponent equals current player',
                 details: 'Opponent ID matches current player ID'
               }), {
@@ -3815,7 +3900,7 @@ Deno.serve(async (req) => {
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
               });
             }
-            
+
             // КРИТИЧНО: Проверяем, что opponent не является текущим игроком по user_id
             if (opponent && opponent.user_id === profileId) {
               console.error('[use_boost] ❌❌❌ CRITICAL ERROR: Opponent user_id equals current user_id!', {
@@ -3825,7 +3910,7 @@ Deno.serve(async (req) => {
                 playerId: player.id,
                 players: players.map(p => ({ id: p.id, user_id: p.user_id, is_bot: p.is_bot }))
               });
-              return new Response(JSON.stringify({ 
+              return new Response(JSON.stringify({
                 error: 'Invalid opponent - opponent user_id matches current user_id',
                 details: 'Opponent user_id matches current user_id'
               }), {
@@ -3833,14 +3918,14 @@ Deno.serve(async (req) => {
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
               });
             }
-            
+
             if (opponent) {
               // Вычисляем время истечения эффекта
               const durationMs = boostEffect.duration_ms || 10000;
               const now = Date.now();
               const expiresAt = new Date(now + durationMs).toISOString();
               const activatedAt = new Date(now).toISOString();
-              
+
               // КРИТИЧНО: Вычисляем время в секундах для удобства
               const durationSeconds = Math.round(durationMs / 1000);
               const expiresAtTimestamp = now + durationMs;
@@ -3870,7 +3955,7 @@ Deno.serve(async (req) => {
                   playerUserId: profileId,
                   opponentUserId: opponent.user_id
                 });
-                return new Response(JSON.stringify({ 
+                return new Response(JSON.stringify({
                   error: 'Cannot create exploit - attacker equals target',
                   details: 'Attacker player ID matches target player ID'
                 }), {
@@ -3878,7 +3963,7 @@ Deno.serve(async (req) => {
                   headers: { ...corsHeaders, 'Content-Type': 'application/json' },
                 });
               }
-              
+
               const exploitData = {
                 duel_id,
                 target_player_id: opponent.id,
@@ -3889,7 +3974,7 @@ Deno.serve(async (req) => {
                 activated_at: activatedAt,
                 is_active: true,
               };
-              
+
               // КРИТИЧНО: Детальное логирование перед вставкой с проверкой всех ID
               console.log('[use_boost] 💾💾💾 Inserting exploit to DB (VERIFIED):', {
                 exploitData,
@@ -3941,9 +4026,9 @@ Deno.serve(async (req) => {
                   duelId,
                   timestamp: new Date().toISOString(),
                 });
-                
+
                 // Пробрасываем ошибку, чтобы клиент мог её обработать
-                return new Response(JSON.stringify({ 
+                return new Response(JSON.stringify({
                   error: 'Failed to save exploit',
                   details: exploitError.message,
                   code: exploitError.code
@@ -4032,7 +4117,7 @@ Deno.serve(async (req) => {
                   },
                   note: 'This query simulates what the receiving client will do to find exploits targeting them'
                 });
-                
+
                 // КРИТИЧНО: Если exploit не найден через основной запрос, но найден через прямой запрос по target_player_id
                 // это означает, что логика фильтрации на клиенте может быть неправильной
                 if ((!verifyExploit || verifyExploit.length === 0) && verifyExploitByTarget && verifyExploitByTarget.length > 0) {
@@ -4051,9 +4136,9 @@ Deno.serve(async (req) => {
             } else {
               // КРИТИЧНО: Детальное логирование, если opponent не найден
               console.error('[use_boost] ❌❌❌ OPPONENT NOT FOUND FOR EXPLOIT ❌❌❌:', {
-                players: players.map(p => ({ 
-                  id: p.id, 
-                  user_id: p.user_id, 
+                players: players.map(p => ({
+                  id: p.id,
+                  user_id: p.user_id,
                   is_bot: p.is_bot,
                   isCurrentPlayer: p.id === player.id,
                   willBeOpponent: p.id !== player.id && !p.is_bot
@@ -4064,10 +4149,10 @@ Deno.serve(async (req) => {
                 boost_type,
                 note: 'Exploit will NOT be created because opponent is not found. This may indicate that the duel has only one player or the second player has not joined yet.'
               });
-              
+
               // КРИТИЧНО: Exploit НЕ создается, если opponent не найден
               // Это правильное поведение - нельзя создать атаку без цели
-              return new Response(JSON.stringify({ 
+              return new Response(JSON.stringify({
                 error: 'Opponent not found',
                 details: 'Cannot create exploit - opponent player not found in duel',
                 boostEffect: boostEffect // Возвращаем эффект для клиента, но не сохраняем в БД
@@ -4080,17 +4165,17 @@ Deno.serve(async (req) => {
             // КРИТИЧНО: Детальное логирование, если игроков недостаточно
             console.warn('[use_boost] ⚠️⚠️⚠️ NOT ENOUGH PLAYERS FOR EXPLOIT ⚠️⚠️⚠️:', {
               playersCount: players?.length || 0,
-              players: players?.map(p => ({ 
-                id: p.id, 
-                user_id: p.user_id, 
-                is_bot: p.is_bot 
+              players: players?.map(p => ({
+                id: p.id,
+                user_id: p.user_id,
+                is_bot: p.is_bot
               })) || [],
               currentPlayerId: player.id,
               currentPlayerUserId: profileId,
               duel_id,
               note: 'Exploit requires at least 2 players in the duel'
             });
-            
+
             // КРИТИЧНО: Если игроков меньше 2, это может быть проблема с запросом или дуэль еще не началась
             // Проверяем, может быть второй игрок еще не присоединился
             const { data: allPlayersCheck } = await supabase
@@ -4098,12 +4183,12 @@ Deno.serve(async (req) => {
               .select('id, user_id, is_bot, created_at')
               .eq('duel_id', duel_id)
               .order('created_at', { ascending: true });
-            
+
             console.warn('[use_boost] 🔍🔍🔍 Double-checking players in DB:', {
               allPlayersCount: allPlayersCheck?.length || 0,
-              allPlayers: allPlayersCheck?.map(p => ({ 
-                id: p.id, 
-                user_id: p.user_id, 
+              allPlayers: allPlayersCheck?.map(p => ({
+                id: p.id,
+                user_id: p.user_id,
                 is_bot: p.is_bot,
                 created_at: p.created_at
               })) || [],
@@ -4121,8 +4206,8 @@ Deno.serve(async (req) => {
               code: boostDefError.code,
               details: boostDefError.details
             } : null,
-            reason: !boostDef 
-              ? 'boostDef not found in DB' 
+            reason: !boostDef
+              ? 'boostDef not found in DB'
               : boostDef.target_type !== 'opponent' && boostDef.target_type !== 'both'
                 ? `target_type is "${boostDef.target_type}", expected "opponent" or "both"`
                 : 'unknown reason'
@@ -4299,7 +4384,7 @@ Deno.serve(async (req) => {
 
           if (players && players.length >= 2) {
             const opponent = players.find(p => p.user_id !== null && !p.is_bot);
-            
+
             if (opponent) {
               const durationMs = boostEffect.duration_ms || 10000;
               const expiresAt = new Date(Date.now() + durationMs).toISOString();
@@ -4336,17 +4421,17 @@ Deno.serve(async (req) => {
 
         if (humanPlayer?.user_id) {
           const botName = botPlayer.bot_name || botPlayer.name || 'Бот';
-          
+
           await createNotification({
             duel_id,
             type: 'boost',
             title: `⚠️ ${botName} использовал буст!`,
             message: boostType === 'screen_injector' ? 'Data Leak активирован! 🛢️' :
-                     boostType === 'input_lag' ? 'Input Lag активирован!' :
-                     boostType === 'gps_spoofing' ? 'GPS Spoofing активирован!' :
-                     boostType === 'police_backdoor' ? 'Police Backdoor активирован!' :
-                     boostType === 'cryptolocker' ? 'Cryptolocker активирован! 🔒' :
-                     'Бот использовал буст!',
+              boostType === 'input_lag' ? 'Input Lag активирован!' :
+                boostType === 'gps_spoofing' ? 'GPS Spoofing активирован!' :
+                  boostType === 'police_backdoor' ? 'Police Backdoor активирован!' :
+                    boostType === 'cryptolocker' ? 'Cryptolocker активирован! 🔒' :
+                      'Бот использовал буст!',
             icon: '⚡',
             metadata: {
               boost_type: boostType,
@@ -4539,11 +4624,11 @@ Deno.serve(async (req) => {
           // This allows us to safely delete detailed duel_answers data later
           const player1 = playersWithScores[0];
           const player2 = playersWithScores[1];
-          const player1Accuracy = duel.num_questions > 0 
-            ? Math.round((player1.correct_count / duel.num_questions) * 100 * 100) / 100 
+          const player1Accuracy = duel.num_questions > 0
+            ? Math.round((player1.correct_count / duel.num_questions) * 100 * 100) / 100
             : 0;
-          const player2Accuracy = duel.num_questions > 0 
-            ? Math.round((player2.correct_count / duel.num_questions) * 100 * 100) / 100 
+          const player2Accuracy = duel.num_questions > 0
+            ? Math.round((player2.correct_count / duel.num_questions) * 100 * 100) / 100
             : 0;
 
           // Get used boosts for both players (if any)
@@ -4553,7 +4638,7 @@ Deno.serve(async (req) => {
             .eq('player_id', player1.id)
             .eq('duel_id', duel_id)
             .not('boost_used', 'is', null);
-          
+
           const { data: player2Boosts } = await supabase
             .from('duel_answers')
             .select('boost_used')
@@ -4647,7 +4732,7 @@ Deno.serve(async (req) => {
             for (const player of playersWithScores) {
               if (player.user_id) { // Только для реальных игроков (не ботов)
                 const isWin = player.id === winnerId && !isDraw;
-                
+
                 if (isWin) {
                   // Победа над ботом - увеличиваем win_streak
                   await supabase.rpc('increment_profile_value', {
@@ -5224,7 +5309,7 @@ Deno.serve(async (req) => {
             duel_id,
             userProfileId
           });
-          return new Response(JSON.stringify({ 
+          return new Response(JSON.stringify({
             error: 'duel_id and profile_id are required',
             details: `duel_id: ${duel_id ? 'provided' : 'missing'}, profile_id: ${userProfileId ? 'provided' : 'missing'}`
           }), {
@@ -5246,7 +5331,7 @@ Deno.serve(async (req) => {
             error: duelError?.message,
             code: duelError?.code
           });
-          return new Response(JSON.stringify({ 
+          return new Response(JSON.stringify({
             error: 'Duel not found',
             details: duelError?.message || 'Duel does not exist'
           }), {
@@ -5266,7 +5351,7 @@ Deno.serve(async (req) => {
             duel_id,
             current_status: duel.status
           });
-          return new Response(JSON.stringify({ 
+          return new Response(JSON.stringify({
             error: 'Duel is not active',
             details: `Current status: ${duel.status}`
           }), {
@@ -5287,7 +5372,7 @@ Deno.serve(async (req) => {
             error: playersError.message,
             code: playersError.code
           });
-          return new Response(JSON.stringify({ 
+          return new Response(JSON.stringify({
             error: 'Failed to fetch players',
             details: playersError.message
           }), {
@@ -5302,7 +5387,7 @@ Deno.serve(async (req) => {
             playersCount: players?.length || 0,
             players: players?.map((p: any) => ({ id: p.id, user_id: p.user_id }))
           });
-          return new Response(JSON.stringify({ 
+          return new Response(JSON.stringify({
             error: 'Not enough players',
             details: `Found ${players?.length || 0} players, expected at least 2`
           }), {
@@ -5326,7 +5411,7 @@ Deno.serve(async (req) => {
             userProfileId,
             availableUserIds: players.map((p: any) => p.user_id)
           });
-          return new Response(JSON.stringify({ 
+          return new Response(JSON.stringify({
             error: 'Player not found',
             details: `User ${userProfileId} is not a participant in this duel`
           }), {
@@ -5341,7 +5426,7 @@ Deno.serve(async (req) => {
             surrenderingPlayerId: surrenderingPlayer.id,
             availableUserIds: players.map((p: any) => p.user_id)
           });
-          return new Response(JSON.stringify({ 
+          return new Response(JSON.stringify({
             error: 'Opponent not found',
             details: 'Could not find opponent player'
           }), {
@@ -5377,7 +5462,7 @@ Deno.serve(async (req) => {
             details: updateError.details,
             hint: updateError.hint
           });
-          
+
           // Пробуем обновить без поля surrendered (на случай если миграция не применена)
           console.log('[surrender] Attempting fallback update without surrendered field');
           const { error: fallbackError } = await supabase
@@ -5394,7 +5479,7 @@ Deno.serve(async (req) => {
               code: fallbackError.code,
               details: fallbackError.details
             });
-            return new Response(JSON.stringify({ 
+            return new Response(JSON.stringify({
               error: 'Failed to update player status',
               details: updateError.message || 'Could not update player status. Please check if migration is applied.'
             }), {

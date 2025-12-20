@@ -37,38 +37,40 @@ const RussiaHandbook = () => {
     return (
         <Layout>
             <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-secondary/5 pb-20">
-                <div className="container mx-auto px-4 py-8 lg:py-12 max-w-6xl">
+                <div className="container mx-auto px-4 py-6 md:py-8 max-w-6xl">
 
                     {/* Header Section */}
-                    <div className="space-y-6 mb-12">
-                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                            <div className="space-y-4">
+                    <div className="space-y-6 mb-10">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                            <div className="space-y-3">
                                 <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-4 py-1.5 w-fit text-[10px] uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 font-bold shadow-sm">
                                     <GraduationCap className="w-3.5 h-3.5" />
                                     <span>База знаний РФ</span>
                                 </div>
-                                <h1 className="text-4xl lg:text-5xl font-black text-foreground tracking-tight">
+                                <h1 className="text-3xl lg:text-4xl font-black text-foreground tracking-tight">
                                     Учебник <span className="text-emerald-600 dark:text-emerald-400">ПДД</span>
                                 </h1>
-                                <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed">
-                                    Официальные правила дорожного движения Российской Федерации с последними изменениями от 2024 года.
+                                <p className="text-muted-foreground text-sm max-w-2xl leading-relaxed">
+                                    Официальные правила дорожного движения РФ (ред. 2024).
                                 </p>
                             </div>
-                            <div className="flex gap-3">
+                            <div className="flex gap-2">
                                 <Button
                                     variant="outline"
+                                    size="sm"
                                     onClick={() => navigate('/learning')}
-                                    className="rounded-xl border-border/50 bg-card hover:bg-muted"
+                                    className="rounded-xl border-border/50 bg-card hover:bg-muted font-semibold"
                                 >
-                                    <ChevronLeft className="w-4 h-4 mr-2" />
+                                    <ChevronLeft className="w-4 h-4 mr-1.5" />
                                     Назад
                                 </Button>
                                 <Button
-                                    className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20 shadow-lg"
+                                    size="sm"
+                                    className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20 shadow-lg font-semibold"
                                     onClick={() => window.open('http://www.consultant.ru/document/cons_doc_LAW_2709/', '_blank')}
                                 >
-                                    <ExternalLink className="w-4 h-4 mr-2" />
-                                    Официальный текст
+                                    <ExternalLink className="w-4 h-4 mr-1.5" />
+                                    Оригинал
                                 </Button>
                             </div>
                         </div>
@@ -77,9 +79,9 @@ const RussiaHandbook = () => {
                         <div className="relative group max-w-2xl">
                             <div className="absolute inset-0 bg-emerald-500/20 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5 group-focus-within:text-emerald-500 transition-colors" />
-                            <Input
-                                placeholder="Поиск по разделам, правилам или ключевым словам..."
-                                className="h-14 pl-12 pr-4 text-lg rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-sm"
+                            <input
+                                placeholder="Поиск по разделам или правилам..."
+                                className="w-full h-12 pl-12 pr-4 text-base rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-sm"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />

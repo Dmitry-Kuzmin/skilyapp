@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   BookOpen,
   SignpostBig,
@@ -25,108 +26,188 @@ import { useNavigate } from "react-router-dom";
 import LearningMap from "./LearningMap";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePDDContext } from "@/contexts/PDDContext";
+
+interface Resource {
+  id: string;
+  title: string;
+  description: string;
+  icon: any;
+  path?: string;
+  badge?: string;
+  premium?: boolean;
+  comingSoon?: boolean;
+  gradient: string;
+  iconBg: string;
+}
+
+interface SupportResource {
+  id: string;
+  title: string;
+  description: string;
+  icon: any;
+  action: string;
+  color: string;
+  bg: string;
+  isExternal?: boolean;
+}
 
 const Learning = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
+  const { selectedCountry } = usePDDContext();
 
-  const moduleResources = [
-    {
-      id: "dgt",
-      title: t('learningPage.materials.dgtExams'),
-      description: t('learningPage.materials.dgtExamsDesc'),
-      icon: Car,
-      badge: t('learningPage.materials.updateBadge'),
-      path: "/dgt-tests",
-      gradient: "from-blue-500/10 to-cyan-500/10",
-      iconBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-    },
-    {
-      id: "handbook",
-      title: "Учебник ПДД РФ",
-      description: "Полный курс правил дорожного движения России со всеми комментариями и иллюстрациями.",
-      icon: BookOpen,
-      badge: "NEW",
-      path: "/learn/russia/handbook",
-      gradient: "from-emerald-500/10 to-teal-500/10",
-      iconBg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-    },
-    {
-      id: "signs",
-      title: t('learningPage.materials.roadSigns'),
-      description: t('learningPage.materials.roadSignsDesc'),
-      icon: SignpostBig,
-      path: "/road-signs",
-      gradient: "from-orange-500/10 to-red-500/10",
-      iconBg: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
-    },
-    {
-      id: "dictionary",
-      title: t('learningPage.materials.dictionary'),
-      description: t('learningPage.materials.dictionaryDesc'),
-      icon: Languages,
-      path: "/dictionary",
-      gradient: "from-purple-500/10 to-pink-500/10",
-      iconBg: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
-    },
-    {
-      id: "videos",
-      title: t('learningPage.materials.videoCourse'),
-      description: t('learningPage.materials.videoCourseDesc'),
-      icon: Video,
-      premium: true,
-      comingSoon: true,
-      gradient: "from-yellow-500/10 to-amber-500/10",
-      iconBg: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400",
-    },
-  ];
+  // Ресурсы для модуля обучения (Материалы)
+  const moduleResources = useMemo<Resource[]>(() => {
+    const commonResources: Resource[] = [
+      {
+        id: "signs",
+        title: t('learningPage.materials.roadSigns'),
+        description: t('learningPage.materials.roadSignsDesc'),
+        icon: SignpostBig,
+        path: "/road-signs",
+        gradient: "from-orange-500/10 to-red-500/10",
+        iconBg: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
+      },
+      {
+        id: "dictionary",
+        title: t('learningPage.materials.dictionary'),
+        description: t('learningPage.materials.dictionaryDesc'),
+        icon: Languages,
+        path: "/dictionary",
+        gradient: "from-purple-500/10 to-pink-500/10",
+        iconBg: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+      },
+      {
+        id: "videos",
+        title: t('learningPage.materials.videoCourse'),
+        description: t('learningPage.materials.videoCourseDesc'),
+        icon: Video,
+        premium: true,
+        comingSoon: true,
+        gradient: "from-yellow-500/10 to-amber-500/10",
+        iconBg: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400",
+      },
+    ];
 
-  const supportResources = [
-    {
-      id: "guide",
-      title: t('learningPage.support.appGuide'),
-      description: t('learningPage.support.appGuideDesc'),
-      icon: BookMarked,
-      action: "/help",
-      color: "text-indigo-600 dark:text-indigo-400",
-      bg: "bg-indigo-500/10",
-    },
-    {
-      id: "support",
-      title: t('learningPage.support.helpSupport'),
-      description: t('learningPage.support.helpSupportDesc'),
-      icon: LifeBuoy,
-      action: "/help",
-      color: "text-emerald-600 dark:text-emerald-400",
-      bg: "bg-emerald-500/10",
-    },
-  ];
+    if (selectedCountry === 'russia' || language === 'ru') {
+      return [
+        {
+          id: "handbook",
+          title: t('learningPage.materials.handbook'),
+          description: t('learningPage.materials.handbookDesc'),
+          icon: BookOpen,
+          badge: "NEW",
+          path: "/learn/russia/handbook",
+          gradient: "from-emerald-500/10 to-teal-500/10",
+          iconBg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+        },
+        {
+          id: "pdd-tickets",
+          title: "Билеты ПДД РФ",
+          description: "40 официальных билетов ГИБДД (A, B, M) для подготовки к экзамену в России.",
+          icon: Car,
+          badge: "2024",
+          path: "/tests",
+          gradient: "from-blue-500/10 to-cyan-500/10",
+          iconBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+        },
+        ...commonResources.filter(r => r.id !== 'videos'),
+      ];
+    }
 
-  const blogHighlights = [
-    {
-      id: "map",
-      title: t('learningPage.blog.mapGuide'),
-      tag: t('learningPage.blog.guides'),
-      path: "/blog",
-      readTime: "5 мин",
-    },
-    {
-      id: "tests",
-      title: t('learningPage.blog.habitsGuide'),
-      tag: t('learningPage.blog.tips'),
-      path: "/blog",
-      readTime: "7 мин",
-    },
-    {
-      id: "errors",
-      title: t('learningPage.blog.topErrors'),
-      tag: t('learningPage.blog.statistics'),
-      path: "/blog/top-10-oshibok-na-ekzamene-dgt",
-      readTime: "16 мин",
-    },
-  ];
+    return [
+      {
+        id: "dgt",
+        title: t('learningPage.materials.dgtExams'),
+        description: t('learningPage.materials.dgtExamsDesc'),
+        icon: Car,
+        badge: t('learningPage.materials.updateBadge'),
+        path: "/dgt-tests",
+        gradient: "from-blue-500/10 to-cyan-500/10",
+        iconBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+      },
+      ...commonResources,
+    ];
+  }, [language, selectedCountry, t]);
 
-  const ideaTiles = [
+  // Ресурсы поддержки
+  const supportResources = useMemo<SupportResource[]>(() => {
+    const commonSupport: SupportResource[] = [
+      {
+        id: "guide",
+        title: t('learningPage.support.appGuide'),
+        description: t('learningPage.support.appGuideDesc'),
+        icon: BookMarked,
+        action: "/help",
+        color: "text-indigo-600 dark:text-indigo-400",
+        bg: "bg-indigo-500/10",
+      },
+      {
+        id: "support",
+        title: t('learningPage.support.helpSupport'),
+        description: t('learningPage.support.helpSupportDesc'),
+        icon: LifeBuoy,
+        action: "/help",
+        color: "text-emerald-600 dark:text-emerald-400",
+        bg: "bg-emerald-500/10",
+      },
+    ];
+
+    if (language === 'ru') {
+      return [
+        ...commonSupport,
+        {
+          id: "telegram",
+          title: t('learningPage.support.tgChannel'),
+          description: t('learningPage.support.tgChannelDesc'),
+          icon: Users,
+          action: "https://t.me/sdadim_es", // Пример ссылки
+          color: "text-blue-500",
+          bg: "bg-blue-500/10",
+          isExternal: true,
+        },
+      ];
+    }
+
+    return commonSupport;
+  }, [language, t]);
+
+  // Хайлайты блога (можно фильтровать по языку в будущем)
+  const blogHighlights = useMemo(() => {
+    const highlights = [
+      {
+        id: "map",
+        title: t('learningPage.blog.mapGuide'),
+        tag: t('learningPage.blog.guides'),
+        path: "/blog/kak-ispolzovat-kartu-obucheniya",
+        readTime: "5 мин",
+      },
+      {
+        id: "tests",
+        title: t('learningPage.blog.habitsGuide'),
+        tag: t('learningPage.blog.tips'),
+        path: "/blog/5-privychek-podgotovki",
+        readTime: "7 мин",
+      },
+    ];
+
+    // Добавляем специфичный контент для DGT если язык не русский
+    if (language !== 'ru') {
+      highlights.push({
+        id: "errors",
+        title: t('learningPage.blog.topErrors'),
+        tag: t('learningPage.blog.statistics'),
+        path: "/blog/top-10-oshibok-na-ekzamene-dgt",
+        readTime: "16 мин",
+      });
+    }
+
+    return highlights;
+  }, [language, t]);
+
+  // Плитки идей
+  const ideaTiles = useMemo(() => [
     {
       title: t('learningPage.ideas.gamesDuels'),
       description: t('learningPage.ideas.gamesDuelsDesc'),
@@ -148,9 +229,10 @@ const Learning = () => {
       action: "/tests/sequential",
       gradient: "from-teal-500/10 to-cyan-500/10",
     },
-  ];
+  ], [t]);
 
-  const quickActions = [
+  // Быстрые действия
+  const quickActions = useMemo(() => [
     {
       title: t('learningPage.quickActions.blog'),
       description: t('learningPage.quickActions.blogDesc'),
@@ -165,7 +247,7 @@ const Learning = () => {
       action: "/help",
       count: t('learningPage.blog.fullGuide'),
     },
-  ];
+  ], [t]);
 
   return (
     <Layout>
@@ -284,7 +366,13 @@ const Learning = () => {
                   <button
                     key={item.id}
                     type="button"
-                    onClick={() => navigate(item.action)}
+                    onClick={() => {
+                      if ('isExternal' in item && item.isExternal) {
+                        window.open(item.action, '_blank');
+                      } else {
+                        navigate(item.action);
+                      }
+                    }}
                     className="group w-full rounded-xl border border-border/60 bg-background/60 hover:bg-background/80 px-4 py-3.5 flex items-center gap-3 transition-all duration-300 hover:border-primary/40 hover:shadow-md"
                   >
                     <div className={cn(

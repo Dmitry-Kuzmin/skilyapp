@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Trophy, RotateCcw, Home, Share2, Sparkles, Target, Zap, Award, TrendingUp, Coins, CheckCircle2, XCircle, Shield, Star, Gift, Flame, ChevronRight } from 'lucide-react';
+import { Trophy, RotateCcw, Home, Share2, Sparkles, Target, Zap, Award, TrendingUp, Coins, CheckCircle2, XCircle, Shield, Star, Gift, Flame, ChevronRight, RefreshCw, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,6 +25,9 @@ import { useActiveDuel } from '@/hooks/useActiveDuel';
 import type { DuelResultSnapshot } from '@/features/duel/shared';
 import { isTelegramMiniApp, getTelegramWebApp } from '@/lib/telegram';
 import { generateDuelResultImage } from '@/utils/generateDuelResultImage';
+
+// ОПТИМИЗАЦИЯ: Условное логирование только в development
+const isDev = import.meta.env.DEV;
 
 interface DuelResultProps {
   duelId: string;
@@ -56,11 +59,11 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
   const { isPremium } = usePremium();
   const [shouldShowInterstitial, setShouldShowInterstitial] = useState(false);
   const { clearActiveDuel } = useActiveDuel();
-  
+
   // 🎯 ГИБРИДНАЯ ЛОГИКА: Восстанавливаем snapshot из localStorage при монтировании (если нет в props)
   // Это решает проблему reload - если пользователь перезагрузил страницу, snapshot будет восстановлен
   const [restoredSnapshot, setRestoredSnapshot] = useState<DuelResultSnapshot | null>(null);
-  
+
   useEffect(() => {
     // Если нет initialSnapshot в props (reload scenario), пытаемся восстановить из localStorage
     if (!initialSnapshot && duelId) {
@@ -71,12 +74,12 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
       }
     }
   }, [duelId, initialSnapshot]);
-  
+
   // 🎯 Используем каскад: initialSnapshot (props) -> restoredSnapshot (localStorage) -> null (server fetch)
   // useDuelResults сам обработает этот каскад внутри
   const effectiveSnapshot = initialSnapshot || restoredSnapshot;
-  const { data: duelResultsData, isLoading: loading, refetch } = useDuelResults(duelId, profileId, effectiveSnapshot);
-  
+  const { data: duelResultsData, isLoading: loading, refetch, error } = useDuelResults(duelId, profileId, effectiveSnapshot);
+
   // Выбираем случайный эффект фейерверка при монтировании компонента
   const [selectedConfettiEffect] = useState(() => {
     return confettiEffects[Math.floor(Math.random() * confettiEffects.length)];
@@ -91,7 +94,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
       }
     };
   }, [duelId]);
-  
+
   const [results, setResults] = useState<any>(null);
   const [myAnswers, setMyAnswers] = useState<any[]>([]);
   const [showAIWidget, setShowAIWidget] = useState(false);
@@ -106,7 +109,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
     if (duelResultsData) {
       setResults(duelResultsData.results);
       setMyAnswers(duelResultsData.myAnswers);
-      
+
       // Отправляем уведомление сопернику
       if (!notificationSentRef.current && duelResultsData.opponentPlayer?.user_id) {
         notificationSentRef.current = true;
@@ -199,7 +202,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
         // Вибрация успеха при завершении анимации счетчика
         haptics.correctAnswer();
       }, 1500); // Время анимации счетчика
-      
+
       return () => clearTimeout(timer);
     }
   }, [results]);
@@ -253,11 +256,11 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
       // Вызываем shareToStory
       // Telegram может требовать HTTP/HTTPS URL, но попробуем сначала с data URL
       // Если не сработает, нужно будет загружать изображение на сервер
-      const shareText = results.isWinner 
-        ? `Я разнес его со счетом ${results.myScore}:${results.opponentScore}! 🏆 Попробуй обыграть меня.`
+      const shareText = results.isWinner
+        ? `Я разнес его со счетом ${results.myScore}:${results.opponentScore} ! 🏆 Попробуй обыграть меня.`
         : results.isDraw
-        ? `Ничья ${results.myScore}:${results.opponentScore}! 🤝 Попробуй обыграть меня.`
-        : `Результат дуэли: ${results.myScore}:${results.opponentScore}. Попробуй обыграть меня!`;
+          ? `Ничья ${results.myScore}:${results.opponentScore} ! 🤝 Попробуй обыграть меня.`
+          : `Результат дуэли: ${results.myScore}:${results.opponentScore}. Попробуй обыграть меня!`;
 
       // Пробуем два варианта синтаксиса (в зависимости от версии Telegram WebApp)
       try {
@@ -281,12 +284,54 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
     }
   };
 
-  if (loading || !results) {
+  if (loading || (!results && !error)) {
     return (
-      <div className="fixed inset-0 bg-background flex items-center justify-center">
-        <div className="text-center space-y-4">
+      <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
+        <div className="text-center space-y-4 px-6">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-muted-foreground">Подсчитываем результаты...</p>
+          <p className="text-muted-foreground animate-pulse text-lg font-medium">Подсчитываем результаты...</p>
+          <p className="text-xs text-muted-foreground/60">Это может занять несколько секунд</p>
+
+          {/* Скрытая кнопка сброса через 10 секунд ожидания */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 10 }}
+          >
+            <Button variant="ghost" size="sm" onClick={() => refetch()} className="text-xs">
+              Загрузить принудительно
+            </Button>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error && !results) {
+    return (
+      <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
+        <div className="text-center space-y-6 px-6 max-w-sm">
+          <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto">
+            <XCircle className="w-10 h-10 text-red-500" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold">Ошибка загрузки</h2>
+            <p className="text-muted-foreground">Не удалось получить результаты дуэли. Попробуйте обновить данные.</p>
+          </div>
+          <div className="flex flex-col gap-3">
+            <Button onClick={() => refetch()} className="w-full">
+              Повторить попытку
+            </Button>
+            <Button variant="outline" onClick={onBackToMenu} className="w-full">
+              Вернуться в меню
+            </Button>
+          </div>
+          {isDev && (
+            <p className="text-[10px] text-muted-foreground/40 font-mono break-all">
+              {error instanceof Error ? error.message : JSON.stringify(error)}
+            </p>
+          )}
         </div>
       </div>
     );
@@ -415,9 +460,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
               y: [0, -3, 0],
               scale: [1, 0.98, 1]
             }}
-            transition={{ 
-              duration: results.isWinner ? 3 : 4, 
-              repeat: Infinity, 
+            transition={{
+              duration: results.isWinner ? 3 : 4,
+              repeat: Infinity,
               ease: "easeInOut"
             }}
             className="relative inline-block"
@@ -431,7 +476,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                     opacity: [0.5, 0.7, 0.5],
                   }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 dark:from-yellow-400 dark:via-orange-500 dark:to-yellow-400 rounded-full blur-3xl"
+                  className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 dark:from-yellow-400 dark:via-orange-500 dark:to-yellow-400 rounded-full blur-[120px]"
                   style={{ width: '200%', height: '200%', left: '-50%', top: '-50%' }}
                 />
                 {/* Secondary Glow - улучшено для светлой темы */}
@@ -452,9 +497,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
               <div className="relative">
                 {/* Subtle glow for defeat */}
                 <div className="absolute inset-0 bg-gradient-to-r from-zinc-500/20 to-zinc-600/20 blur-2xl opacity-30" />
-                <motion.div 
+                <motion.div
                   className="text-7xl md:text-8xl relative z-10"
-                  animate={{ 
+                  animate={{
                     opacity: [0.6, 0.8, 0.6],
                   }}
                   transition={{ duration: 2, repeat: Infinity }}
@@ -467,9 +512,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
               <div className="relative">
                 {/* Subtle glow for draw */}
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 blur-2xl opacity-30" />
-                <motion.div 
+                <motion.div
                   className="text-7xl md:text-8xl relative z-10"
-                  animate={{ 
+                  animate={{
                     opacity: [0.7, 0.9, 0.7],
                   }}
                   transition={{ duration: 2, repeat: Infinity }}
@@ -513,7 +558,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
         </motion.div>
 
         {/* Score Cards - Premium Glassmorphism Design */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
@@ -532,7 +577,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
             <div className="relative overflow-hidden bg-slate-900/60 dark:bg-black/40 backdrop-blur-xl rounded-[32px] p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
               {/* Inner glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
-              
+
               {/* Noise texture overlay */}
               <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
 
@@ -564,10 +609,10 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
             <div className="relative overflow-hidden bg-slate-900/60 dark:bg-black/40 backdrop-blur-xl rounded-[32px] p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
               {/* Inner glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
-              
+
               {/* Noise texture overlay */}
               <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
-              
+
               {/* Subtle animated background */}
               <motion.div
                 animate={{
@@ -611,7 +656,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
               className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-indigo-500/5 to-blue-500/5 opacity-40 rounded-[32px] overflow-hidden"
               style={{ backgroundSize: "200% 200%" }}
             />
-            
+
             {/* Subtle mesh gradient overlay */}
             <div className="absolute inset-0 opacity-30">
               <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-br from-indigo-500/10 to-transparent rounded-full blur-3xl" />
@@ -642,18 +687,18 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                 >
                   {/* Hover glow */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  
+
                   {/* Rotating glow orb */}
                   <motion.div
                     animate={{ rotate: [0, 360] }}
                     transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                     className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-full blur-xl"
                   />
-                  
+
                   {/* Sparkle effect on icon */}
                   <div className="relative z-10">
                     <motion.div
-                      animate={{ 
+                      animate={{
                         scale: [1, 1.2, 1],
                         opacity: [0.8, 1, 0.8],
                       }}
@@ -664,7 +709,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                     </motion.div>
                     <Star className="relative z-10 w-8 h-8 text-blue-400 mx-auto fill-blue-500/20 drop-shadow-[0_0_15px_rgba(59,130,246,0.6)]" />
                   </div>
-                  
+
                   <div className="relative z-10 text-xs font-semibold uppercase tracking-wider text-zinc-400">Season Points</div>
                   <AnimatedCounter
                     value={rewards.sp}
@@ -681,18 +726,18 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                 >
                   {/* Hover glow */}
                   <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  
+
                   {/* Rotating glow orb */}
                   <motion.div
                     animate={{ rotate: [360, 0] }}
                     transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                     className="absolute top-0 left-0 w-16 h-16 bg-indigo-500/10 rounded-full blur-xl"
                   />
-                  
+
                   {/* Sparkle effect on icon */}
                   <div className="relative z-10">
                     <motion.div
-                      animate={{ 
+                      animate={{
                         scale: [1, 1.2, 1],
                         opacity: [0.8, 1, 0.8],
                       }}
@@ -703,7 +748,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                     </motion.div>
                     <Zap className="relative z-10 w-8 h-8 text-indigo-400 mx-auto fill-indigo-500/20 drop-shadow-[0_0_15px_rgba(129,140,248,0.6)]" />
                   </div>
-                  
+
                   <div className="relative z-10 text-xs font-semibold uppercase tracking-wider text-zinc-400">Опыт</div>
                   <AnimatedCounter
                     value={rewards.xp}
@@ -745,7 +790,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                     <span className="font-bold text-green-600 dark:text-green-400">Выигрыш:</span>
                     <span className="font-black text-2xl text-green-600 dark:text-green-400">+{results.winnings}</span>
                   </motion.div>
-                  
+
                   {/* DATA LAUNDERING - Удвоение выигрыша за рекламу */}
                   <motion.div
                     initial={{ y: 10, opacity: 0 }}
@@ -753,8 +798,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                     transition={{ delay: 0.2 }}
                     className="mt-3"
                   >
-                    <DataLaunderingButton 
-                      winnings={results.winnings} 
+                    <DataLaunderingButton
+                      winnings={results.winnings}
                       duelId={duelId}
                     />
                   </motion.div>
@@ -817,9 +862,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                             </div>
                             <div className="flex-1">
                               <p className="text-sm text-foreground/90 line-clamp-2">
-                                {answer.duel_questions?.question_snapshot?.question_ru || 
-                                 answer.duel_questions?.question_ru || 
-                                 'Вопрос'}
+                                {answer.duel_questions?.question_snapshot?.question_ru ||
+                                  answer.duel_questions?.question_ru ||
+                                  'Вопрос'}
                               </p>
                             </div>
                           </div>
@@ -889,14 +934,14 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                 Реванш
               </div>
             </Button>
-            
+
             <Button
               onClick={() => {
                 // 🆕 CRITICAL FIX: Очищаем activeDuel при выходе с экрана результатов (Delayed Cleanup)
                 console.log('[DuelResult] 🧹 Cleaning up activeDuel on back to menu');
                 clearActiveDuel();
                 clearDuelResultSnapshot();
-                
+
                 // Показываем Interstitial при возврате в меню (только для обычных пользователей, один раз за сессию)
                 if (!isPremium) {
                   setShouldShowInterstitial(true);

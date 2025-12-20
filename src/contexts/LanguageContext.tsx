@@ -63,7 +63,7 @@ const translations: Record<Language, Record<string, any>> = {
     profile: "Perfil",
     login: "Iniciar sesión",
     logout: "Cerrar sesión",
-    
+
     // Profile
     editProfile: "Editar perfil",
     changeName: "Cambiar nombre",
@@ -76,7 +76,7 @@ const translations: Record<Language, Record<string, any>> = {
     linkAccount: "Vincular cuenta",
     accountLinked: "Cuenta vinculada ✅",
     loginWithEmail: "Iniciar sesión con email",
-    
+
     // Settings
     settings: "Configuración",
     language: "Idioma",
@@ -86,12 +86,12 @@ const translations: Record<Language, Record<string, any>> = {
     system: "Sistema",
     sound: "Sonido",
     notifications: "Notificaciones",
-    
+
     // Links
     achievements: "Mis logros",
     duelHistory: "Historia de duelos",
     support: "Soporte",
-    
+
     // Messages
     nameSaved: "Nombre guardado",
     avatarUploaded: "Avatar subido",
@@ -104,14 +104,14 @@ const translations: Record<Language, Record<string, any>> = {
     fileTooLarge: "Archivo demasiado grande (máx. 3MB)",
     onlyImages: "Solo se pueden subir imágenes",
     accountsLinked: "Cuentas vinculadas exitosamente",
-    
+
     // Account & Auth
     accountsAndLogin: "Cuentas y acceso",
     telegramLinked: "Telegram vinculado",
     emailLinked: "Email vinculado",
     linkEmailAccount: "Vincular cuenta de email",
     authPrompt: "Inicia sesión con email para guardar tu progreso",
-    
+
     // Auth Modal
     auth: {
       identification: "Identificación",
@@ -185,7 +185,7 @@ const translations: Record<Language, Record<string, any>> = {
         close: "Cerrar",
       },
     },
-    
+
     // Other
     version: "v1.0.0 © 2025 Sdadim",
     dashboard: {
@@ -209,7 +209,7 @@ const translations: Record<Language, Record<string, any>> = {
     },
     online: "En línea",
     xpProgress: "XP hasta siguiente nivel",
-    
+
     // Tests Page
     practiceTests: "Pruebas de práctica",
     practiceMode: "Modo práctica",
@@ -327,7 +327,7 @@ const translations: Record<Language, Record<string, any>> = {
         level: "Nivel",
       },
     },
-    
+
     // Learning map / curriculum
     completed: "Completado",
     in_progress: "En progreso",
@@ -337,7 +337,7 @@ const translations: Record<Language, Record<string, any>> = {
     progress: "Progreso",
     continue_topic: "Continuar módulo",
     block: "Bloque",
-    
+
     // Footer
     footer: {
       companyDescription: "Plataforma educativa para la preparación de exámenes DGT en España",
@@ -905,6 +905,8 @@ const translations: Record<Language, Record<string, any>> = {
         roadSignsDesc: "Catálogo de señales con ejemplos de situaciones y búsqueda rápida",
         dictionary: "Diccionario de términos",
         dictionaryDesc: "Términos españoles de tráfico con traducción y audio",
+        handbook: "Manual de Tráfico Ruso",
+        handbookDesc: "Curso completo de normas de tráfico rusas con todos los comentarios e ilustraciones oficiales.",
         videoCourse: "Curso de video",
         videoCourseDesc: "Serie de análisis cortos de los temas más complejos de la teoría",
         comingSoon: "Próximamente",
@@ -914,8 +916,10 @@ const translations: Record<Language, Record<string, any>> = {
         helpAndGuides: "Ayuda y guías",
         appGuide: "Guía de la aplicación",
         appGuideDesc: "Cómo funcionan los niveles, XP, recompensas y suscripciones",
-        helpSupport: "Ayuda y soporte",
-        helpSupportDesc: "FAQ, instrucciones y acceso rápido al soporte",
+        helpSupport: "Ayuda y Soporte",
+        helpSupportDesc: "FAQ, instrucciones y contacto rápido con soporte",
+        tgChannel: "Canal de Telegram",
+        tgChannelDesc: "Últimas noticias, desgloses de tareas y comunidad en Telegram",
       },
       blog: {
         title: "Blog",
@@ -992,7 +996,7 @@ const translations: Record<Language, Record<string, any>> = {
     profile: "Profile",
     login: "Login",
     logout: "Logout",
-    
+
     // Profile
     editProfile: "Edit profile",
     changeName: "Change name",
@@ -1005,7 +1009,7 @@ const translations: Record<Language, Record<string, any>> = {
     linkAccount: "Link account",
     accountLinked: "Account linked ✅",
     loginWithEmail: "Login with email",
-    
+
     // Settings
     settings: "Settings",
     language: "Language",
@@ -1015,12 +1019,12 @@ const translations: Record<Language, Record<string, any>> = {
     system: "System",
     sound: "Sound",
     notifications: "Notifications",
-    
+
     // Links
     achievements: "My achievements",
     duelHistory: "Duel history",
     support: "Support",
-    
+
     // Messages
     nameSaved: "Name saved",
     avatarUploaded: "Avatar uploaded",
@@ -1033,14 +1037,14 @@ const translations: Record<Language, Record<string, any>> = {
     fileTooLarge: "File too large (max 3MB)",
     onlyImages: "Only images allowed",
     accountsLinked: "Accounts linked successfully",
-    
+
     // Account & Auth
     accountsAndLogin: "Accounts & Login",
     telegramLinked: "Telegram linked",
     emailLinked: "Email linked",
     linkEmailAccount: "Link email account",
     authPrompt: "Login with email to save your progress",
-    
+
     // Auth Modal
     auth: {
       identification: "Identification",
@@ -1114,7 +1118,7 @@ const translations: Record<Language, Record<string, any>> = {
         close: "Close",
       },
     },
-    
+
     // Other
     version: "v1.0.0 © 2025 Sdadim",
     online: "Online",
@@ -1137,7 +1141,7 @@ const translations: Record<Language, Record<string, any>> = {
       },
       startButton: "Start",
     },
-    
+
     // Tests Page
     practiceTests: "Practice Tests",
     practiceMode: "Practice mode",
@@ -1255,7 +1259,7 @@ const translations: Record<Language, Record<string, any>> = {
         level: "Level",
       },
     },
-    
+
     // Learning map / curriculum
     completed: "Completed",
     in_progress: "In progress",
@@ -1265,7 +1269,7 @@ const translations: Record<Language, Record<string, any>> = {
     progress: "Progress",
     continue_topic: "Continue module",
     block: "Block",
-    
+
     // Footer
     footer: {
       companyDescription: "Interactive learning platform for road safety education in Spain",
@@ -1833,6 +1837,8 @@ const translations: Record<Language, Record<string, any>> = {
         roadSignsDesc: "Catalog of signs with situation examples and quick search",
         dictionary: "Term dictionary",
         dictionaryDesc: "Spanish traffic terms with translation and audio",
+        handbook: "Russian Traffic Rules Handbook",
+        handbookDesc: "Full course of Russian traffic rules with all official comments and illustrations.",
         videoCourse: "Video course",
         videoCourseDesc: "Series of short breakdowns of the most complex theory topics",
         comingSoon: "Coming soon",
@@ -1842,8 +1848,10 @@ const translations: Record<Language, Record<string, any>> = {
         helpAndGuides: "Help and guides",
         appGuide: "App guide",
         appGuideDesc: "How levels, XP, rewards and subscriptions work",
-        helpSupport: "Help and support",
-        helpSupportDesc: "FAQ, instructions and quick access to support",
+        helpSupport: "Help & Support",
+        helpSupportDesc: "FAQ, instructions and quick contact with support",
+        tgChannel: "Telegram Channel",
+        tgChannelDesc: "Latest news, task breakdowns and community on Telegram",
       },
       blog: {
         title: "Blog",
@@ -1920,7 +1928,7 @@ const translations: Record<Language, Record<string, any>> = {
     profile: "Профиль",
     login: "Войти",
     logout: "Выйти",
-    
+
     // Profile
     editProfile: "Редактировать профиль",
     changeName: "Изменить имя",
@@ -1933,7 +1941,7 @@ const translations: Record<Language, Record<string, any>> = {
     linkAccount: "Связать аккаунт",
     accountLinked: "Аккаунт связан ✅",
     loginWithEmail: "Войти через email",
-    
+
     // Settings
     settings: "Настройки",
     language: "Язык",
@@ -1943,12 +1951,12 @@ const translations: Record<Language, Record<string, any>> = {
     system: "Системная",
     sound: "Звук",
     notifications: "Уведомления",
-    
+
     // Links
     achievements: "Мои достижения",
     duelHistory: "История дуэлей",
     support: "Поддержка",
-    
+
     // Messages
     nameSaved: "Имя сохранено",
     avatarUploaded: "Аватар загружен",
@@ -1961,14 +1969,14 @@ const translations: Record<Language, Record<string, any>> = {
     fileTooLarge: "Файл слишком большой (макс. 3MB)",
     onlyImages: "Можно загружать только изображения",
     accountsLinked: "Аккаунты успешно связаны",
-    
+
     // Account & Auth
     accountsAndLogin: "Аккаунты и вход",
     telegramLinked: "Telegram связан",
     emailLinked: "Email связан",
     linkEmailAccount: "Связать email аккаунт",
     authPrompt: "Войдите через email, чтобы сохранить прогресс",
-    
+
     // Auth Modal
     auth: {
       identification: "Идентификация",
@@ -2042,12 +2050,12 @@ const translations: Record<Language, Record<string, any>> = {
         close: "Закрыть",
       },
     },
-    
+
     // Other
     version: "v1.0.0 © 2025 Sdadim",
     online: "Онлайн",
     xpProgress: "XP до следующего уровня",
-    
+
     // Tests Page
     practiceTests: "Тесты для практики",
     practiceMode: "Режим практики",
@@ -2165,7 +2173,7 @@ const translations: Record<Language, Record<string, any>> = {
         level: "Уровень",
       },
     },
-    
+
     // Learning map / curriculum
     completed: "Изучено",
     in_progress: "В процессе",
@@ -2175,7 +2183,7 @@ const translations: Record<Language, Record<string, any>> = {
     progress: "Прогресс",
     continue_topic: "Продолжить тему",
     block: "Блок",
-    
+
     // Footer
     footer: {
       companyDescription: "Образовательная платформа для подготовки к экзаменам DGT в Испании",
@@ -2743,6 +2751,8 @@ const translations: Record<Language, Record<string, any>> = {
         roadSignsDesc: "Каталог знаков с примерами ситуаций и быстрым поиском",
         dictionary: "Словарь терминов",
         dictionaryDesc: "Испанские термины ПДД с переводом и озвучкой",
+        handbook: "Учебник ПДД РФ",
+        handbookDesc: "Полный курс правил дорожного движения России со всеми комментариями и иллюстрациями.",
         videoCourse: "Видеокурс",
         videoCourseDesc: "Серия коротких разборов самых сложных тем теории",
         comingSoon: "Скоро",
@@ -2754,6 +2764,8 @@ const translations: Record<Language, Record<string, any>> = {
         appGuideDesc: "Как устроены уровни, XP, награды и подписки",
         helpSupport: "Помощь и поддержка",
         helpSupportDesc: "FAQ, инструкции и быстрый выход на поддержку",
+        tgChannel: "Telegram-канал",
+        tgChannelDesc: "Свежие новости, разборы задач и комьюнити в Telegram",
       },
       blog: {
         title: "Блог",
@@ -2932,7 +2944,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (profileId) {
       // ОПТИМИЗАЦИЯ: Динамически создаем клиент только при наличии profileId
       const supabase = await getSupabaseClient();
-      
+
       const { data: currentProfile } = await supabase
         .from('profiles')
         .select('settings')
@@ -2959,13 +2971,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       const value = helpCenterTranslations[language][key];
       return typeof value === 'string' ? applyParams(value, params) : key;
     }
-    
+
     // Then check language overrides (for partial locales)
     const overrideValue = resolveFromObject(languageOverrides[language], key);
     if (typeof overrideValue === 'string') {
       return applyParams(overrideValue, params);
     }
-    
+
     // Fallback to base translations (Spanish as base)
     const baseTranslations = translations[language] || translations.es;
     const resolved = resolveFromObject(baseTranslations, key);

@@ -29,6 +29,8 @@ export interface Database {
           equipped_avatar: string
           assistant_mood: string
           assistant_last_interaction: string
+          settings: Json | null
+          active_country: string | null
           created_at: string | null
           updated_at: string | null
         }
