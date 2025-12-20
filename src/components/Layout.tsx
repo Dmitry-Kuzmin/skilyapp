@@ -179,27 +179,37 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
     // Проверяем наличие Telegram WebApp дополнительно
     const hasTelegramWebApp = !!window.Telegram?.WebApp;
     const platformMobile = typeof isTelegramMobilePlatform === 'boolean' ? isTelegramMobilePlatform : isMobile;
-    // КРИТИЧНО: Отступы применяются только если это Telegram И мобильная платформа (не браузерная ширина)
-    // 🆕 CRITICAL FIX: НЕ применяем padding для страницы дуэли - DuelBattleFullscreen сам управляет отступами
-    // DuelBattleFullscreen использует raw safeArea.top напрямую, без двойного padding
     const isDuelPage = location.pathname.includes('/games/duel');
+    // В Telegram на мобилках ВСЕГДА нужен отступ сверху, чтобы UI кнопки не перекрывали контент
     const shouldApplyPadding = isTelegramApp && platformMobile && !isDuelPage;
 
     if (mainContentRef.current && shouldApplyPadding) {
-      const topInsetStr = getComputedStyle(document.documentElement)
-        .getPropertyValue('--tg-content-safe-area-inset-top').trim() || '40px';
-      const topInset = parseInt(topInsetStr, 10) || 40;
-      const systemSafeArea = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sat') || '0', 10) || 0;
-      const fixedPadding = `${topInset + systemSafeArea}px`;
-      const computedPadding = `calc(env(safe-area-inset-top, 0px) + ${topInset}px)`;
+      const webApp = window.Telegram?.WebApp;
 
-      // Применяем оба варианта для надежности
+      // 1. Пытаемся получить программный safe area от Telegram (>= 7.10)
+      const tgInsetTop = webApp?.contentSafeAreaInset?.top || webApp?.safeAreaInset?.top || 0;
+
+      // 2. Получаем из CSS данных (бывает надежнее)
+      const cssInsetTopStr = getComputedStyle(document.documentElement)
+        .getPropertyValue('--tg-content-safe-area-inset-top').trim();
+      const cssInsetTop = parseInt(cssInsetTopStr, 10) || 0;
+
+      // 3. Выбираем максимальное из доступных или дефолтное значение
+      // 48px - стандартная высота хедера Telegram с кнопками
+      const finalInsetTop = Math.max(tgInsetTop, cssInsetTop, 48);
+
+      const systemSafeArea = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sat') || '0', 10) || 0;
+      const fixedPadding = `${finalInsetTop + systemSafeArea}px`;
+      const computedPadding = `calc(env(safe-area-inset-top, 0px) + ${finalInsetTop}px)`;
+
+      // Применяем через style и custom property для использования в детских компонентах
       mainContentRef.current.style.paddingTop = computedPadding;
       mainContentRef.current.style.setProperty('padding-top', fixedPadding, 'important');
+      document.documentElement.style.setProperty('--app-top-offset', fixedPadding);
 
     } else if (mainContentRef.current) {
-      // 🆕 CRITICAL FIX: Явно убираем padding-top для страницы дуэли или если не нужно применять
       mainContentRef.current.style.paddingTop = '0px';
+      document.documentElement.style.setProperty('--app-top-offset', '0px');
     }
   }, [isTelegramApp, isMobile, isTelegramMobilePlatform, location.pathname]); // Также при изменении маршрута или размера экрана
 

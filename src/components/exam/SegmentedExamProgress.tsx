@@ -56,8 +56,11 @@ export function SegmentedExamProgress({
         initial={isPenalty ? { opacity: 0, scale: 0.9, y: 10 } : false}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className={cn(
-          "flex gap-1.5 flex-1 min-w-0 relative group",
-          isPenalty && "p-1.5 rounded-xl border-2 border-orange-500/40 bg-orange-500/5 shadow-[0_0_15px_rgba(249,115,22,0.1)]"
+          "flex gap-1 flex-1 min-w-0 relative group items-center",
+          miniMode ? "gap-0.5" : "gap-1.5",
+          isPenalty && (miniMode
+            ? "px-1 py-0.5 rounded-lg border border-orange-500/30 bg-orange-500/5"
+            : "p-1.5 rounded-xl border-2 border-orange-500/40 bg-orange-500/5 shadow-[0_0_15px_rgba(249,115,22,0.1)]")
         )}
       >
         {isPenalty && !miniMode && (
@@ -76,7 +79,8 @@ export function SegmentedExamProgress({
               <motion.div
                 layoutId={`slot-${qIdx}`}
                 className={cn(
-                  "h-2 rounded-full w-full transition-all duration-500 relative overflow-hidden",
+                  "rounded-full w-full transition-all duration-500 relative overflow-hidden",
+                  miniMode ? "h-1.5" : "h-2",
                   {
                     'bg-slate-200 dark:bg-slate-800': state === 'pending',
                     'bg-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.6)]': state === 'active',
@@ -121,32 +125,36 @@ export function SegmentedExamProgress({
   };
 
   return (
-    <div className={cn("flex gap-4 w-full items-center py-8", className)}>
+    <div className={cn(
+      "flex w-full items-center",
+      miniMode ? "gap-1.5 py-2" : "gap-4 py-8",
+      className
+    )}>
       {/* Основные блоки */}
-      <div className="flex gap-4 flex-[4] items-center">
+      <div className={cn("flex items-center min-w-0", miniMode ? "gap-1.5 flex-[4]" : "gap-4 flex-[4]")}>
         {Array.from({ length: mainBlocksCount }).map((_, i) => renderBlock(i))}
       </div>
 
       {/* Штрафные блоки - separated by gap */}
       <AnimatePresence mode="popLayout">
         {penaltyQuestions > 0 && (
-          <>
-            {/* Visual separator in miniMode */}
-            {miniMode && <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1" />}
+          <motion.div
+            layout
+            initial={{ opacity: 0, x: 10, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 10, scale: 0.9 }}
+            className={cn("flex items-center min-w-0 transition-all duration-300", miniMode ? "gap-1 ml-1" : "gap-4")}
+            style={{ flex: (penaltyQuestions / questionsPerBlock) }}
+          >
+            {/* Visual separator */}
+            <div className={cn("h-4 w-px bg-slate-200 dark:bg-slate-700 mx-0.5 shrink-0", !miniMode && "h-8")} />
 
-            <motion.div
-              layout
-              initial={{ opacity: 0, x: 20, scale: 0.8 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 20, scale: 0.8 }}
-              className={cn("flex gap-2 items-center", miniMode ? "ml-2" : "gap-4")}
-              style={{ flex: penaltyQuestions / questionsPerBlock }}
-            >
+            <div className={cn("flex gap-1.5 flex-1 min-w-0", miniMode && "gap-1")}>
               {Array.from({ length: Math.ceil(penaltyQuestions / questionsPerBlock) }).map((_, i) =>
                 renderBlock(mainBlocksCount + i, true)
               )}
-            </motion.div>
-          </>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
