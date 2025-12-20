@@ -102,13 +102,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const { state, refreshExploits, removeExploit } = useDuelRealtime(duelId, myPlayerId);
   const { fetchQuestions, fetchPlayers, fetchBoostInventory, fetchBetInfo } = useDuelData(duelId, profileId);
   const [duelCode, setDuelCode] = useState<string | null>(null);
-  
+
   // 🆕 Состояние для активных exploits
   const [activeExploits, setActiveExploits] = useState<Map<string, { expiresAt: number; passed?: boolean }>>(new Map());
-  
+
   // 🎯 Screen shake состояние для визуального эффекта при ошибках и атаках
   const [screenShake, setScreenShake] = useState(false);
-  
+
   // 🆕 Состояния для переподключения и авто-победы (объявляем ДО useEffect)
   const [showReconnectionModal, setShowReconnectionModal] = useState(false);
   const [isReconnecting, setIsReconnecting] = useState(false);
@@ -117,7 +117,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const [opponentLastSeen, setOpponentLastSeen] = useState<Date | null>(null);
   const [showAutoWinTimer, setShowAutoWinTimer] = useState(false);
   const [autoWinTimeRemaining, setAutoWinTimeRemaining] = useState(60);
-  
+
   // КРИТИЧНО: Логируем duelId при монтировании для отладки
   useEffect(() => {
     if (duelId) {
@@ -191,7 +191,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     const timeout = setTimeout(checkReconnection, 1000);
     return () => clearTimeout(timeout);
   }, [duelId, profileId]);
-  
+
   // 🆕 Обработка активных exploits из Realtime
   useEffect(() => {
     // КРИТИЧНО: Детальное логирование для отладки в Telegram (ВСЕГДА, не только в dev)
@@ -217,16 +217,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     // КРИТИЧНО: Используем функциональное обновление для сохранения passed статуса
     setActiveExploits(prev => {
       const exploitsMap = new Map<string, { expiresAt: number; passed?: boolean }>();
-      
+
       state.activeExploits.forEach(exploit => {
         const existing = prev.get(exploit.type);
         const isNew = !existing;
-        
+
         exploitsMap.set(exploit.type, {
           expiresAt: exploit.expiresAt,
           passed: existing?.passed || false, // Сохраняем passed статус если был
         });
-        
+
         // КРИТИЧНО: Логируем добавление нового exploit (ВСЕГДА, не только в dev)
         if (isNew) {
           console.log('[DuelBattleFullscreen] ✅ New exploit added to Map:', exploit.type, {
@@ -234,12 +234,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             receivedAt: new Date(exploit.receivedAt).toISOString(),
             expiresIn: Math.round((exploit.expiresAt - Date.now()) / 1000) + 's'
           });
-          
+
           // 🎯 Haptic feedback, звук и screen shake при получении новой атаки
-          const isAttackType = exploit.type === 'screen_injector' || 
-                              exploit.type === 'data_leak' || 
-                              exploit.type === 'oil_spill' ||
-                              exploit.type === 'police_backdoor';
+          const isAttackType = exploit.type === 'screen_injector' ||
+            exploit.type === 'data_leak' ||
+            exploit.type === 'oil_spill' ||
+            exploit.type === 'police_backdoor';
           if (isAttackType) {
             haptics.attackReceived();
             sounds.attackWhoosh();
@@ -248,7 +248,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           }
         }
       });
-      
+
       console.log('[DuelBattleFullscreen] 📊 Final exploits Map:', {
         mapSize: exploitsMap.size,
         mapEntries: Array.from(exploitsMap.entries()).map(([type, data]) => ({
@@ -257,7 +257,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           passed: data.passed
         }))
       });
-      
+
       return exploitsMap;
     });
   }, [state.activeExploits]);
@@ -346,7 +346,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const [opponentPhotoUrl, setOpponentPhotoUrl] = useState<string | null>(null);
   const [opponentActivityStatus, setOpponentActivityStatus] = useState<'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline'>('online');
   const previousActivityStatusRef = useRef<'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline'>('online');
-  
+
   // КРИТИЧНО: Вычисляем isDuelActive с проверкой на существование state
   const isDuelActive = Boolean(state?.duelStarted && !state?.duelFinished);
 
@@ -370,23 +370,23 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     coverageOpponent: number;
   } | null>(null);
   // ОПТИМИЗАЦИЯ: Мемоизируем вычисления для предотвращения лишних пересчетов
-  const myInsuranceActive = useMemo(() => 
+  const myInsuranceActive = useMemo(() =>
     betInfo ? (betInfo.isHost ? betInfo.hostInsurance : betInfo.opponentInsurance) : false,
     [betInfo]
   );
-  const myCoverageDisplay = useMemo(() => 
+  const myCoverageDisplay = useMemo(() =>
     betInfo ? Math.round(((betInfo.isHost ? betInfo.coverageHost : betInfo.coverageOpponent) || 0) * 100) : 0,
     [betInfo]
   );
-  const opponentInsuranceActive = useMemo(() => 
+  const opponentInsuranceActive = useMemo(() =>
     betInfo ? (betInfo.isHost ? betInfo.opponentInsurance : betInfo.hostInsurance) : false,
     [betInfo]
   );
-  const opponentCoverageDisplay = useMemo(() => 
+  const opponentCoverageDisplay = useMemo(() =>
     betInfo ? Math.round(((betInfo.isHost ? betInfo.coverageOpponent : betInfo.coverageHost) || 0) * 100) : 0,
     [betInfo]
   );
-  const seasonBonusDisplay = useMemo(() => 
+  const seasonBonusDisplay = useMemo(() =>
     betInfo ? getSeasonBonusDisplay(betInfo.betAmount) : 0,
     [betInfo]
   );
@@ -414,7 +414,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const createDuelResultSnapshot = useCallback(async (): Promise<DuelResultSnapshot | null> => {
     try {
       log('[DuelBattleFullscreen] 📸 Creating snapshot before transition...');
-      
+
       // Загружаем необходимые данные для snapshot
       const [duelResult, playersResult] = await Promise.all([
         supabase.from('duels').select('*').eq('id', duelId).maybeSingle(),
@@ -725,12 +725,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         if (!newIsConnected && lastKnownStatus?.isConnected) {
           // Оппонент только что отключился - запускаем debounce
           if (debounceTimeout) clearTimeout(debounceTimeout);
-          
+
           debounceTimeout = setTimeout(() => {
             // Проверяем еще раз - может он уже вернулся
             fetchOpponentStatus();
           }, GRACE_PERIOD_MS);
-          
+
           return; // Не обновляем статус сразу
         }
 
@@ -740,7 +740,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             clearTimeout(debounceTimeout);
             debounceTimeout = null;
           }
-          
+
           setOpponentIsConnected(newIsConnected);
           if (newLastSeen) {
             setOpponentLastSeen(newLastSeen);
@@ -764,7 +764,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
     // Обновляем каждые 3 секунды (чаще для более точного таймера)
     const interval = setInterval(fetchOpponentStatus, 3000);
-    
+
     return () => {
       if (debounceTimeout) clearTimeout(debounceTimeout);
       clearInterval(interval);
@@ -777,7 +777,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
     try {
       log('[DuelBattleFullscreen] 🏆 Claiming technical win...');
-      
+
       // КРИТИЧНО: Используем сервисный файл вместо прямого RPC вызова
       // Это предотвращает циклические зависимости
       const { claimTechnicalWin } = await import('@/services/duelTechnicalWin');
@@ -796,7 +796,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         description: 'Оппонент отключился',
         duration: 3000,
       });
-      
+
       // Переходим к результатам с snapshot
       setTimeout(() => {
         transitionToResults();
@@ -1223,7 +1223,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       const t = e.touches[0];
       const dx = t.clientX - startRef.x;
       const dy = Math.abs(t.clientY - startRef.y);
-      
+
       // Свайп назад (слева направо) обнаружен
       if (dx > 60 && dy < 50) {
         startRef.active = false;
@@ -1461,6 +1461,21 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [state.duelStarted, duelId, profileId]);
 
+  // КРИТИЧНО: Обработка завершения дуэли (когда Realtime говорит, что дуэль закончена)
+  useEffect(() => {
+    // 🆕 CRITICAL FIX: Переходим к результатам только если МЫ ТОЖЕ закончили
+    // Если соперник закончил, а мы еще нет - мы НЕ должны блокировать экран
+    if (state.duelFinished && !hasTransitionedRef.current) {
+      if (hasFinishedMyQuestions) {
+        log('[DuelBattleFullscreen] 🏁 Realtime: Duel finished and I am finished too. Transitioning...');
+        transitionToResults();
+      } else {
+        log('[DuelBattleFullscreen] ⏳ Realtime: Opponent finished, but I am still playing. Staying in game.');
+        // Мы НЕ ставим setIsWaitingForOpponent(true), так как мы еще играем!
+      }
+    }
+  }, [state.duelFinished, hasFinishedMyQuestions, transitionToResults]);
+
   // ОПТИМИЗАЦИЯ: Мемоизируем вычисления safe area (должно быть выше useEffect, который их использует)
   const isTelegramMobile = safeArea.platform === 'ios' || safeArea.platform === 'android';
   // 🆕 CRITICAL FIX: Определяем именно Telegram Mini App (не просто мобильный браузер)
@@ -1499,13 +1514,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     const progressBarTop = isInTelegramMiniApp
       ? Math.round(safeArea.top > 0 ? safeArea.top : 20) // Используем raw safeArea.top (обычно 44-47px на iOS), fallback 20px для desktop/web
       : isTelegramMobile
-      ? totalTopPadding - 15 // Для обычных мобильных браузеров поднимаем выше
-      : totalTopPadding;
+        ? totalTopPadding - 15 // Для обычных мобильных браузеров поднимаем выше
+        : totalTopPadding;
 
     // Вычисляем отступ для контента:
     // Прогресс-бар имеет paddingTop/paddingBottom по 4px каждый, поэтому реальная высота больше PROGRESS_BAR_HEIGHT
     const progressBarRealHeight = PROGRESS_BAR_HEIGHT + (isTelegramMobile ? 8 : 16); // 4px top + 4px bottom padding
-    
+
     // 🆕 CRITICAL FIX: Для Telegram Mini App контент начинается РОВНО там, где заканчивается прогресс-бар
     // contentTopPadding = progressBarTop (позиция прогресс-бара) + высота прогресс-бара + небольшой отступ (4px)
     // ВАЖНО: progressBarRealHeight уже включает paddingTop (4px) и paddingBottom (4px)
@@ -1514,8 +1529,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       isInTelegramMiniApp
         ? progressBarTop + progressBarRealHeight + 4 // Позиция прогресс-бара + высота + небольшой отступ (4px)
         : isTelegramMobile
-        ? progressBarTop + progressBarRealHeight + 8 // Нормальный отступ для обычных мобильных браузеров
-        : progressBarTop + progressBarRealHeight + 16; // Для десктопа больше воздуха
+          ? progressBarTop + progressBarRealHeight + 8 // Нормальный отступ для обычных мобильных браузеров
+          : progressBarTop + progressBarRealHeight + 16; // Для десктопа больше воздуха
 
     return {
       totalTopPadding,
@@ -1640,7 +1655,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       currentTime: new Date().toISOString(),
       timeLimitMs: TIME_LIMIT_MS
     });
-    
+
     // КРИТИЧНО: Принудительно проверяем exploits при старте таймера (для Telegram Mini App)
     // Это нужно, потому что polling может не запуститься вовремя или потерять контекст
     if (refreshExploits) {
@@ -1705,7 +1720,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
     // Запускаем таймер сразу
     timerIntervalRef.current = setInterval(updateTimer, 250); // Обновляем 4 раза в секунду для плавности
-    
+
     // КРИТИЧНО: Также обновляем сразу при запуске (на случай если прошло время)
     updateTimer();
 
@@ -1725,9 +1740,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         // Мгновенный пересчет при возвращении
         const now = Date.now();
         const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000;
-        
+
         log('[DuelBattleFullscreen] 👁️ Tab became visible, recalculating timer. Remaining:', secondsRemaining, 'ms');
-        
+
         if (secondsRemaining <= 0) {
           setTimeLeft(0);
           questionEndTimeRef.current = null;
@@ -1738,7 +1753,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           handleTimeout();
         } else {
           setTimeLeft(secondsRemaining);
-          
+
           // КРИТИЧНО: Всегда перезапускаем интервал при возвращении на вкладку
           // Браузер может замедлить или остановить интервалы в фоновых вкладках
           // Перезапуск гарантирует, что таймер продолжит работать корректно
@@ -1746,7 +1761,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             clearInterval(timerIntervalRef.current);
             timerIntervalRef.current = null;
           }
-          
+
           log('[DuelBattleFullscreen] 🔄 Restarting timer interval after tab visibility');
           timerIntervalRef.current = setInterval(() => {
             if (!questionEndTimeRef.current) {
@@ -1854,7 +1869,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       if (navigator.vibrate) {
         navigator.vibrate(50);
       }
-      
+
       // Показываем Hacking Overlay
       setBoostFeedback({
         isActive: true,
@@ -1923,9 +1938,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       // 🆕 Показываем toast для Root Mode exploits
       if (isExploit) {
         const toastId = toast.loading("INITIALIZING EXPLOIT...", {
-          style: { 
-            background: '#000', 
-            color: '#fff', 
+          style: {
+            background: '#000',
+            color: '#fff',
             border: '1px solid #ef4444',
             fontFamily: 'monospace'
           }
@@ -1937,7 +1952,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           try {
             const { data: { session }, error: sessionError } = await supabase.auth.getSession();
             currentSession = session;
-            
+
             if (sessionError) {
               console.warn('[DuelBattleFullscreen] ⚠️ Session check error (continuing anyway):', {
                 error: sessionError,
@@ -1945,7 +1960,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 isTelegramDesktop
               });
             }
-            
+
             if (!session) {
               console.warn('[DuelBattleFullscreen] ⚠️ No active session found!', {
                 platform: safeArea.platform,
@@ -1960,7 +1975,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 platform: safeArea.platform,
                 isTelegramDesktop
               });
-              
+
               // Если сессия истекает в ближайшее время (< 5 минут), обновляем её
               if (expiresIn !== null && expiresIn < 300) {
                 console.log('[DuelBattleFullscreen] 🔄 Session expiring soon, refreshing...');
@@ -2050,9 +2065,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           toast.success("MALWARE UPLOADED", {
             id: toastId,
             description: "Атака успешно отправлена сопернику",
-            style: { 
-              background: '#020617', 
-              color: '#4ade80', 
+            style: {
+              background: '#020617',
+              color: '#4ade80',
               border: '1px solid #4ade80',
               fontFamily: 'monospace'
             },
@@ -2060,12 +2075,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             duration: 3000,
           });
 
-      // Уменьшаем количество буста локально (не синхронизируем с БД - буст уже использован)
-      setBoosts(prev => prev.map(b => 
-        b.boost_type === boostType 
-          ? { ...b, quantity: Math.max(0, b.quantity - 1) }
-          : b
-      ));
+          // Уменьшаем количество буста локально (не синхронизируем с БД - буст уже использован)
+          setBoosts(prev => prev.map(b =>
+            b.boost_type === boostType
+              ? { ...b, quantity: Math.max(0, b.quantity - 1) }
+              : b
+          ));
         } catch (error: any) {
           // Ошибка
           console.error('[DuelBattleFullscreen] ❌❌❌ BOOST ATTACK ERROR ❌❌❌:', {
@@ -2084,7 +2099,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
           // КРИТИЧНО: Пытаемся определить тип ошибки и показать более информативное сообщение
           let errorDescription = 'Не удалось отправить атаку';
-          
+
           if (error?.code === 'PGRST301' || error?.message?.includes('JWT')) {
             errorDescription = 'Ошибка авторизации. Попробуйте перезагрузить страницу.';
             console.log('[DuelBattleFullscreen] 🔄 Auth error detected, attempting session refresh...');
@@ -2095,16 +2110,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               console.error('[DuelBattleFullscreen] Failed to refresh session:', refreshError);
             }
           } else if (error?.message) {
-            errorDescription = error.message.length > 50 
-              ? error.message.substring(0, 50) + '...' 
+            errorDescription = error.message.length > 50
+              ? error.message.substring(0, 50) + '...'
               : error.message;
           }
 
           if (navigator.vibrate) {
             navigator.vibrate(500); // Длинная вибрация ошибки
           }
-          
-          toast.error("UPLOAD FAILED", { 
+
+          toast.error("UPLOAD FAILED", {
             id: toastId,
             description: errorDescription,
             style: {
@@ -2124,7 +2139,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           if (sessionError) {
             console.warn('[DuelBattleFullscreen] ⚠️ Session check error (Safe Mode, continuing anyway):', sessionError);
           }
-          
+
           // Если сессия истекает в ближайшее время (< 5 минут), обновляем её
           if (session?.expires_at && session.expires_at - Date.now() / 1000 < 300) {
             console.log('[DuelBattleFullscreen] 🔄 Session expiring soon (Safe Mode), refreshing...');
@@ -2186,8 +2201,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         }
 
         // Уменьшаем количество буста локально (не синхронизируем с БД - буст уже использован)
-        setBoosts(prev => prev.map(b => 
-          b.boost_type === boostType 
+        setBoosts(prev => prev.map(b =>
+          b.boost_type === boostType
             ? { ...b, quantity: Math.max(0, b.quantity - 1) }
             : b
         ));
@@ -2197,16 +2212,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       setUsedBoosts(prev => prev.filter(b => b !== boostType));
       // Скрываем overlay при ошибке
       setBoostFeedback(prev => ({ ...prev, isActive: false }));
-      
+
       // ВАЖНО: При ошибке НЕ уменьшаем количество буста - он не был использован
       // Количество остается прежним, так как RPC функция не выполнила уменьшение
-      
+
       // Определяем isExploit заново для catch блока
       const rootModeExploits = ['screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall', 'cryptolocker'];
       const isExploitError = rootModeExploits.includes(boostType);
-      
+
       if (!isExploitError) {
-      toast.error('Не удалось использовать буст');
+        toast.error('Не удалось использовать буст');
       }
     }
   }, [
@@ -2380,7 +2395,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     <div
       className="fixed inset-0 bg-background z-50 overflow-y-auto flex flex-col"
       style={{
-        paddingTop: isInTelegramMiniApp 
+        paddingTop: isInTelegramMiniApp
           ? `${Math.round(safeArea.top > 0 ? safeArea.top + 40 : 60)}px` // Используем raw safeArea.top + 40px для breathing room (комфортный отступ от Telegram header)
           : `${totalTopPadding}px`,
         paddingLeft: `${totalLeftPadding}px`,
@@ -2478,13 +2493,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       >
         {/* Header - Scores & Boosts - Premium Design */}
         {/* 🆕 CRITICAL FIX: Естественный поток - элементы идут друг за другом с фиксированным gap */}
-        <div 
+        <div
           className={`relative z-20 ${isInTelegramMiniApp
             ? 'flex flex-col gap-2' // Компактная вертикальная компоновка с фиксированным gap
             : isTelegramMobile
-            ? 'flex flex-col gap-1' // Нормальный gap для обычных мобильных браузеров
-            : 'flex items-center justify-between gap-3 flex-wrap'
-          }`}
+              ? 'flex flex-col gap-1' // Нормальный gap для обычных мобильных браузеров
+              : 'flex items-center justify-between gap-3 flex-wrap'
+            }`}
         >
           {/* Scores - Enhanced - Центрированы в мобильной версии Telegram */}
           <div className="relative">
@@ -2557,14 +2572,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 codeVersion: '2025-12-15-v2', // Версия кода для проверки обновления
               });
               return (
-            <DuelBoostsPanel
-              boosts={boosts}
-              usedBoosts={usedBoosts}
-              isAnswered={isAnswered}
-              translatePopoverOpen={translatePopoverOpen}
-              onBoostUse={handleBoostUse}
-              onTranslatePopoverChange={setTranslatePopoverOpen}
-            />
+                <DuelBoostsPanel
+                  boosts={boosts}
+                  usedBoosts={usedBoosts}
+                  isAnswered={isAnswered}
+                  translatePopoverOpen={translatePopoverOpen}
+                  onBoostUse={handleBoostUse}
+                  onTranslatePopoverChange={setTranslatePopoverOpen}
+                />
               );
             })()}
           </div>
@@ -2575,15 +2590,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         <motion.div
           key={currentIndex}
           initial={{ opacity: 0, x: 50 }}
-          animate={{ 
-            opacity: 1, 
+          animate={{
+            opacity: 1,
             x: screenShake ? [0, -10, 10, -10, 10, 0] : 0,
             y: screenShake ? [0, -5, 5, -5, 5, 0] : 0,
           }}
           exit={{ opacity: 0, x: -50 }}
-          transition={{ 
-            type: "spring", 
-            stiffness: 300, 
+          transition={{
+            type: "spring",
+            stiffness: 300,
             damping: 30,
             ...(screenShake ? { duration: 0.5, ease: "easeOut" } : {})
           }}
@@ -2618,11 +2633,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         const now = Date.now();
         const NETWORK_LATENCY_BUFFER_MS = 5000;
         const screenInjector = state.activeExploits?.find(e => {
-          const isCorrectType = e.type === 'screen_injector' || 
-                                e.type === 'data_leak' || 
-                                e.type === 'oil_spill';
+          const isCorrectType = e.type === 'screen_injector' ||
+            e.type === 'data_leak' ||
+            e.type === 'oil_spill';
           if (!isCorrectType) return false;
-          
+
           // Проверяем, не истек ли exploit (с буфером)
           const isExpired = e.expiresAt <= now;
           const expiredBy = now - e.expiresAt;
@@ -2636,12 +2651,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           return !isExpired || expiredBy <= NETWORK_LATENCY_BUFFER_MS;
         });
         const policePassed = activeExploits.get('police_backdoor')?.passed || false;
-        
+
         // КРИТИЧНО: Проверяем passed статус для всех возможных типов
-        const screenInjectorPassed = 
-          activeExploits.get('screen_injector')?.passed || 
-          activeExploits.get('data_leak')?.passed || 
-          activeExploits.get('oil_spill')?.passed || 
+        const screenInjectorPassed =
+          activeExploits.get('screen_injector')?.passed ||
+          activeExploits.get('data_leak')?.passed ||
+          activeExploits.get('oil_spill')?.passed ||
           false;
 
         // КРИТИЧНО: Детальное логирование ВСЕХ exploits для отладки (ВСЕГДА, не только в dev)
@@ -2671,7 +2686,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           const shouldRender = !screenInjectorPassed;
           const isExpired = screenInjector.expiresAt <= Date.now();
           const timeRemaining = screenInjector.expiresAt - Date.now();
-          
+
           console.log('[DuelBattleFullscreen] 🛢️ Oil Attack (Screen Injector/Data Leak) check:', {
             screenInjector,
             screenInjectorType: screenInjector.type,
@@ -2688,7 +2703,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             allActiveExploits: state.activeExploits?.map(e => e.type) || [],
             note: 'Rendering based on state presence, not expiresAt (Telegram latency compensation)'
           });
-          
+
           // КРИТИЧНО: Если должен рендериться, но не рендерится - логируем предупреждение
           if (shouldRender) {
             console.log('[DuelBattleFullscreen] ✅✅✅ OilSplashAttack SHOULD BE RENDERING NOW! ✅✅✅', {
@@ -2722,30 +2737,30 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                   expiresAt={screenInjector.expiresAt}
                   exploitId={screenInjector.id}
                   onCleaned={() => {
-                  console.log('[DuelBattleFullscreen] 🛢️ OilSplashAttack cleaned, exploit type:', screenInjector.type);
-                  
-                  // КРИТИЧНО: Удаляем exploit из состояния useDuelRealtime
-                  if (screenInjector.id) {
-                    removeExploit(screenInjector.id);
-                  }
-                  
-                  // КРИТИЧНО: Обновляем passed статус в локальном Map
-                  setActiveExploits(prev => {
-                    const updated = new Map(prev);
-                    const exploitType = screenInjector.type;
-                    const current = updated.get(exploitType);
-                    if (current) {
-                      updated.set(exploitType, { ...current, passed: true });
-                    } else {
-                      // Fallback: если не нашли по типу, пробуем screen_injector
-                      const fallback = updated.get('screen_injector');
-                      if (fallback) {
-                        updated.set('screen_injector', { ...fallback, passed: true });
-                      }
+                    console.log('[DuelBattleFullscreen] 🛢️ OilSplashAttack cleaned, exploit type:', screenInjector.type);
+
+                    // КРИТИЧНО: Удаляем exploit из состояния useDuelRealtime
+                    if (screenInjector.id) {
+                      removeExploit(screenInjector.id);
                     }
-                    return updated;
-                  });
-                }}
+
+                    // КРИТИЧНО: Обновляем passed статус в локальном Map
+                    setActiveExploits(prev => {
+                      const updated = new Map(prev);
+                      const exploitType = screenInjector.type;
+                      const current = updated.get(exploitType);
+                      if (current) {
+                        updated.set(exploitType, { ...current, passed: true });
+                      } else {
+                        // Fallback: если не нашли по типу, пробуем screen_injector
+                        const fallback = updated.get('screen_injector');
+                        if (fallback) {
+                          updated.set('screen_injector', { ...fallback, passed: true });
+                        }
+                      }
+                      return updated;
+                    });
+                  }}
                 />
               </Suspense>
             )}
@@ -2756,15 +2771,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 <PoliceBackdoorAttack
                   isActive={true}
                   onUnlock={() => {
-                  setActiveExploits(prev => {
-                    const updated = new Map(prev);
-                    const current = updated.get('police_backdoor');
-                    if (current) {
-                      updated.set('police_backdoor', { ...current, passed: true });
-                    }
-                    return updated;
-                  });
-                }}
+                    setActiveExploits(prev => {
+                      const updated = new Map(prev);
+                      const current = updated.get('police_backdoor');
+                      if (current) {
+                        updated.set('police_backdoor', { ...current, passed: true });
+                      }
+                      return updated;
+                    });
+                  }}
                 />
               </Suspense>
             )}
@@ -2785,48 +2800,48 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       {/* 🆕 Reconnection Modal */}
       <Suspense fallback={null}>
         <ReconnectionModal
-        open={showReconnectionModal}
-        onResume={async () => {
-          setIsReconnecting(true);
-          setReconnectAttempt(prev => prev + 1);
-          
-          // Пытаемся восстановить соединение
-          try {
-            // Отправляем heartbeat для обновления статуса
-            await supabase.functions.invoke('duel-manager', {
-              body: {
-                action: 'heartbeat',
-                duel_id: duelId,
-                profile_id: profileId,
-              },
-            });
-            
-            // Ждем немного и проверяем статус
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            // Проверяем, что дуэль еще активна
-            const { data: duel } = await supabase
-              .from('duels')
-              .select('status')
-              .eq('id', duelId)
-              .single();
-            
-            if (duel?.status === 'active') {
-              setShowReconnectionModal(false);
+          open={showReconnectionModal}
+          onResume={async () => {
+            setIsReconnecting(true);
+            setReconnectAttempt(prev => prev + 1);
+
+            // Пытаемся восстановить соединение
+            try {
+              // Отправляем heartbeat для обновления статуса
+              await supabase.functions.invoke('duel-manager', {
+                body: {
+                  action: 'heartbeat',
+                  duel_id: duelId,
+                  profile_id: profileId,
+                },
+              });
+
+              // Ждем немного и проверяем статус
+              await new Promise(resolve => setTimeout(resolve, 2000));
+
+              // Проверяем, что дуэль еще активна
+              const { data: duel } = await supabase
+                .from('duels')
+                .select('status')
+                .eq('id', duelId)
+                .single();
+
+              if (duel?.status === 'active') {
+                setShowReconnectionModal(false);
+                setIsReconnecting(false);
+                // Убрано: toast уведомление - статус показывается в индикаторе рядом с аватаром
+              } else {
+                toast.error('Дуэль уже завершена');
+                transitionToResults();
+              }
+            } catch (error) {
+              logError('[DuelBattleFullscreen] Reconnection error:', error);
+              toast.error('Не удалось восстановить соединение');
               setIsReconnecting(false);
-              // Убрано: toast уведомление - статус показывается в индикаторе рядом с аватаром
-            } else {
-              toast.error('Дуэль уже завершена');
-              transitionToResults();
             }
-          } catch (error) {
-            logError('[DuelBattleFullscreen] Reconnection error:', error);
-            toast.error('Не удалось восстановить соединение');
-            setIsReconnecting(false);
-          }
-        }}
-        onSurrender={onExit}
-        isReconnecting={isReconnecting}
+          }}
+          onSurrender={onExit}
+          isReconnecting={isReconnecting}
         />
       </Suspense>
     </div>
