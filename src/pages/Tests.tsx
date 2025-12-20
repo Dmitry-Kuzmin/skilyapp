@@ -771,7 +771,12 @@ const Tests = () => {
                               title: mode.title,
                             });
                           }
-                          handleStartTest(mode.route);
+                          let finalRoute = mode.route;
+                          // Для экзамена добавляем уникальный ID сессии, чтобы сбросить таймер
+                          if (mode.id === 2 || mode.route.includes('exam')) {
+                            finalRoute += (finalRoute.includes('?') ? '&' : '?') + `session=${Date.now()}`;
+                          }
+                          handleStartTest(finalRoute);
                         }
                       }}
                       onTouchStart={(e) => {

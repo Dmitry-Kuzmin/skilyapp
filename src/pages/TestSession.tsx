@@ -1008,7 +1008,7 @@ const TestSession = () => {
   const { timeLeft, addPenalty, clearTimer } = useExamTimer({
     examId: mode === 'pdd-ticket'
       ? `ticket_${ticketIdParam || 'unknown'}`
-      : `russia_exam_${testId || 'random'}`,
+      : `russia_exam_${testId || searchParams.get('session') || 'random'}`,
     initialDurationSeconds: 20 * 60,
     onTimeExpired: (mode === 'exam' || mode === 'exam-russia') ? () => {
       toast.error("Время вышло! Экзамен не сдан.");
@@ -1062,6 +1062,44 @@ const TestSession = () => {
       return () => clearTimeout(timer);
     }
   }, [mode, russiaExam.status, russiaExam.stats, questions, answers, testInfo, navigate]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if typing in input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      const currentQ = mode === 'exam-russia' ? russiaExam.currentQuestion : questions[currentIndex];
+      if (!currentQ) return;
+
+      const currentAnswers = mode === 'exam-russia'
+        ? russiaExam.currentQuestion?.answers
+        : currentQ.answer_options;
+
+      if (!currentAnswers) return;
+
+      // Select option 1-9
+      if (/^[1-9]$/.test(e.key)) {
+        const index = parseInt(e.key) - 1;
+        if (index < currentAnswers.length) {
+          const answerId = currentAnswers[index].id;
+          if (!isAnswerLocked) {
+            setSelectedOption(answerId);
+          }
+        }
+      }
+
+      // Confirm with Enter
+      if (e.key === 'Enter') {
+        if (selectedOption && !isAnswerLocked) {
+          handleAnswer();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mode, russiaExam.currentQuestion, questions, currentIndex, selectedOption, isAnswerLocked]);
 
   // ОПТИМИЗАЦИЯ: Загружаем вопросы из хуков в зависимости от режима
   useEffect(() => {
@@ -2969,7 +3007,7 @@ const TestSession = () => {
                       onClick={() => handleAnswer()}
                       disabled={!selectedOption || isAnswerLocked}
                       className={cn(
-                        "flex-1 h-16 text-xl font-black rounded-2xl shadow-2xl transition-all duration-300 relative overflow-hidden group",
+                        "flex-1 h-12 sm:h-14 text-lg font-bold rounded-xl shadow-lg transition-all duration-300 relative overflow-hidden group",
                         selectedOption && !isAnswerLocked
                           ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 scale-100 shadow-slate-900/20"
                           : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 scale-[0.98] shadow-none"
@@ -2983,8 +3021,8 @@ const TestSession = () => {
                         />
                       )}
                       <span className="relative z-10 flex items-center justify-center gap-2">
-                        ПОДТВЕРДИТЬ ОТВЕТ
-                        {selectedOption && <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />}
+                        ПОДТВЕРДИТЬ
+                        {selectedOption && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
                       </span>
                     </AppButton>
                   </div>
