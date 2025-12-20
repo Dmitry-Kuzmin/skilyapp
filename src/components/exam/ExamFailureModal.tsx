@@ -27,11 +27,11 @@ export function ExamFailureModal({
             {open && (
                 <Dialog open={open} onOpenChange={() => { }}>
                     <DialogContent
-                        className="sm:max-w-md border-none bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl shadow-2xl rounded-[2rem] overflow-hidden"
+                        className="sm:max-w-md border-none bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl rounded-t-[2rem] sm:rounded-[2rem] p-0"
                         onInteractOutside={(e) => e.preventDefault()}
                         onEscapeKeyDown={(e) => e.preventDefault()}
                     >
-                        <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 via-transparent to-red-500/5 pointer-events-none" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 via-transparent to-red-500/10 pointer-events-none" />
 
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -69,10 +69,10 @@ export function ExamFailureModal({
                                 </div>
                             </DialogHeader>
 
-                            <div className="mt-8">
+                            <div className="mt-8 pb-6 px-4 sm:px-0 sm:pb-0">
                                 <Button
                                     onClick={onViewResults}
-                                    className="w-full h-14 rounded-2xl text-lg font-black transition-all duration-300 shadow-xl bg-red-600 hover:bg-red-700 text-white shadow-red-600/20"
+                                    className="w-full h-14 rounded-2xl text-lg font-black transition-all duration-300 shadow-xl bg-red-600 hover:bg-red-700 text-white shadow-red-600/20 active:scale-95"
                                 >
                                     <motion.div
                                         className="flex items-center gap-2"

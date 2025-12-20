@@ -31,12 +31,12 @@ export function PenaltyAlert({
   onContinue,
 }: PenaltyAlertProps) {
   const [canContinue, setCanContinue] = useState(false);
-  const [countdown, setCountdown] = useState(2);
+  const [countdown, setCountdown] = useState(1);
 
   useEffect(() => {
     if (open) {
       setCanContinue(false);
-      setCountdown(2);
+      setCountdown(1);
 
       const timer = setInterval(() => {
         setCountdown((prev) => {
@@ -58,11 +58,11 @@ export function PenaltyAlert({
       {open && (
         <Dialog open={open} onOpenChange={() => { }}>
           <DialogContent
-            className="sm:max-w-md border-none bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl shadow-2xl rounded-[2rem] overflow-hidden"
+            className="sm:max-w-md border-none bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl rounded-t-[2rem] sm:rounded-[2rem] p-0"
             onInteractOutside={(e) => e.preventDefault()}
             onEscapeKeyDown={(e) => e.preventDefault()}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-orange-500/5 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-orange-500/10 pointer-events-none" />
 
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -121,15 +121,15 @@ export function PenaltyAlert({
                 </p>
               </DialogHeader>
 
-              <div className="mt-8">
+              <div className="mt-8 pb-6 px-4 sm:px-0 sm:pb-0">
                 <Button
                   onClick={onContinue}
                   disabled={!canContinue}
                   className={cn(
-                    "w-full h-14 rounded-2xl text-lg font-black transition-all duration-300 shadow-xl",
+                    "w-full h-14 rounded-2xl text-lg font-black transition-all duration-300 shadow-xl active:scale-95",
                     canContinue
                       ? "bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 shadow-slate-900/20 dark:shadow-white/10"
-                      : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 shadow-none"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 shadow-none opacity-80"
                   )}
                 >
                   {canContinue ? (
@@ -138,7 +138,7 @@ export function PenaltyAlert({
                       animate={{ opacity: 1, y: 0 }}
                       className="flex items-center gap-2"
                     >
-                      ПРОДОЛЖИТЬ <ArrowRight className="w-5 h-5" />
+                      ПРОДОЛЖИТЬ <ArrowRight className="w-5 h-5 animate-pulse" />
                     </motion.div>
                   ) : (
                     `ПОДОЖДИТЕ (${countdown}с)`
