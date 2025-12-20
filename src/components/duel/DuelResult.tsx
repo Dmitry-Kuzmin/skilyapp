@@ -95,8 +95,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
     };
   }, [duelId]);
 
-  const [results, setResults] = useState<any>(null);
-  const [myAnswers, setMyAnswers] = useState<any[]>([]);
+  const [results, setResults] = useState<any>(duelResultsData?.results || null);
+  const [myAnswers, setMyAnswers] = useState<any[]>(duelResultsData?.myAnswers || []);
   const [showAIWidget, setShowAIWidget] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<any>(null);
   const [rewards, setRewards] = useState<{ sp: number; xp: number; bonusCoins: number; insuranceRefund?: number } | null>(null);
@@ -107,8 +107,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
   // Обновляем состояние при загрузке данных
   useEffect(() => {
     if (duelResultsData) {
-      setResults(duelResultsData.results);
-      setMyAnswers(duelResultsData.myAnswers);
+      if (!results) setResults(duelResultsData.results);
+      if (myAnswers.length === 0) setMyAnswers(duelResultsData.myAnswers);
 
       // Отправляем уведомление сопернику
       if (!notificationSentRef.current && duelResultsData.opponentPlayer?.user_id) {
@@ -120,7 +120,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
         });
       }
     }
-  }, [duelResultsData, duelId]);
+  }, [duelResultsData, duelId, results, myAnswers.length]);
 
   // Получаем общее количество вопросов из данных дуэли
   const totalQuestions = duelResultsData?.duel?.num_questions || myAnswers.length || 10;
@@ -296,7 +296,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 10 }}
+            transition={{ delay: 5 }}
           >
             <Button variant="ghost" size="sm" onClick={() => refetch()} className="text-xs">
               Загрузить принудительно

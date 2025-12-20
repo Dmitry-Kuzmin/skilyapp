@@ -520,12 +520,84 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [duelId, profileId, myScore, opponentScore, opponentName]);
 
+  // 🆕 Функция для сборки snapshot из данных от сервера (finish_duel response)
+  const createSnapshotFromServerData = useCallback((data: any): DuelResultSnapshot | null => {
+    try {
+      if (!data.duel_data || !data.players_data) return null;
+
+      const players = data.players_data;
+      const myPlayer = players.find((p: any) => p.user_id === profileId);
+      const opponentPlayer = players.find((p: any) => p.user_id !== profileId);
+
+      if (!myPlayer || !opponentPlayer) return null;
+
+      const myScoreFinal = myPlayer.score;
+      const opponentScoreFinal = opponentPlayer.score;
+      const isWinner = myScoreFinal > opponentScoreFinal;
+      const isDraw = myScoreFinal === opponentScoreFinal;
+
+      const duelData = data.duel_data;
+      let winnings = 0;
+      let insuranceRefund = 0;
+
+      if (duelData.bet_amount > 0) {
+        if (isWinner) winnings = duelData.bet_amount * 2;
+        else if (isDraw) winnings = duelData.bet_amount;
+
+        if (!isWinner && !isDraw && (duelData.insurance_used || duelData.host_insurance_enabled)) {
+          insuranceRefund = Math.floor(duelData.bet_amount * 0.5);
+        }
+      }
+
+      const opponentProfile = opponentPlayer.profiles || {};
+
+      return {
+        duelId,
+        duel: duelData,
+        players,
+        myPlayer,
+        opponentPlayer,
+        myAnswers: data.my_answers || [],
+        opponentAnswers: data.opponent_answers || [],
+        results: {
+          isWinner,
+          isDraw,
+          myScore: myScoreFinal,
+          opponentScore: opponentScoreFinal,
+          myCorrect: myPlayer.correct_count || 0,
+          opponentCorrect: opponentPlayer.correct_count || 0,
+          opponentName: opponentProfile.username || opponentProfile.first_name || opponentPlayer.name || 'Соперник',
+          opponentAvatar: opponentProfile.photo_url || null,
+          betAmount: duelData.bet_amount || 0,
+          winnings,
+          insuranceRefund,
+          insuranceUsed: !!(duelData.insurance_used || duelData.host_insurance_enabled)
+        },
+        timestamp: Date.now()
+      };
+    } catch (err) {
+      logError('[DuelBattleFullscreen] Error building snapshot from server data:', err);
+      return null;
+    }
+  }, [duelId, profileId]);
+
   // 🆕 CRITICAL FIX: Обертка для onDuelFinished, которая всегда создает snapshot
-  const transitionToResults = useCallback(async () => {
-    const snapshot = await createDuelResultSnapshot();
+  const transitionToResults = useCallback(async (serverData?: any) => {
+    let snapshot: DuelResultSnapshot | null = null;
+
+    if (serverData && serverData.duel_data) {
+      log('[DuelBattleFullscreen] ⚡ Building snapshot from server response data');
+      snapshot = createSnapshotFromServerData(serverData);
+    }
+
+    if (!snapshot) {
+      log('[DuelBattleFullscreen] 📸 Creating snapshot via standard fetching');
+      snapshot = await createDuelResultSnapshot();
+    }
+
     log('[DuelBattleFullscreen] 🚀 Transitioning to results with snapshot');
     onDuelFinished(snapshot || undefined);
-  }, [createDuelResultSnapshot, onDuelFinished]);
+  }, [createDuelResultSnapshot, createSnapshotFromServerData, onDuelFinished]);
 
   // ОПТИМИЗАЦИЯ: Мемоизируем finishDuel с useCallback (должно быть выше useDuelGame)
   const finishDuel = useCallback(async () => {
@@ -562,9 +634,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         toast.success('🏁 Финиш! Подводим итоги...', { duration: 2000 });
 
         // 🆕 CRITICAL FIX: Используем общую функцию для создания snapshot
+        // Передаем data напрямую в transitionToResults для мгновенного перехода
         setTimeout(() => {
-          transitionToResults();
-        }, 500);
+          transitionToResults(data);
+        }, 300);
       } else {
         // IMPROVED: Show waiting screen ONLY if I have actually finished
         if (hasFinishedMyQuestions) {

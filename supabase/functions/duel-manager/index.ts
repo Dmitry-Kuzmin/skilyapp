@@ -4515,7 +4515,7 @@ Deno.serve(async (req) => {
         // Check if all players have finished
         const { data: allPlayers } = await supabase
           .from('duel_players')
-          .select('id, user_id, score, correct_count, is_bot')
+          .select('id, user_id, score, correct_count, is_bot, profiles(id, username, first_name, photo_url)')
           .eq('duel_id', duel_id);
 
         if (!allPlayers || allPlayers.length < 2) {
@@ -4803,10 +4803,23 @@ Deno.serve(async (req) => {
             }
           }
 
+          // 🆕 OPTIMIZATION: Return full results data for immediate snapshot creation
+          const { data: allAnswers } = await supabase
+            .from('duel_answers')
+            .select('*, duel_questions(*)')
+            .eq('duel_id', duel_id);
+
+          const myAnswers = allAnswers?.filter((a: any) => a.player_id === currentPlayer.id) || [];
+          const opponentAnswers = allAnswers?.filter((a: any) => a.player_id === opponentPlayer?.id) || [];
+
           return new Response(JSON.stringify({
             success: true,
             finished: true,
-            reason: allPlayersFinished ? 'both_finished' : 'timeout'
+            reason: allPlayersFinished ? 'both_finished' : 'timeout',
+            duel_data: duel,
+            players_data: allPlayers,
+            my_answers: myAnswers,
+            opponent_answers: opponentAnswers
           }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
