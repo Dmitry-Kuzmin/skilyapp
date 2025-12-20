@@ -33,7 +33,6 @@ export interface DuelResultSnapshot {
 export const saveDuelResultSnapshot = (snapshot: DuelResultSnapshot) => {
   try {
     localStorage.setItem(`duel_result_${snapshot.duelId}`, JSON.stringify(snapshot));
-    // Также сохраняем как последний результат
     localStorage.setItem('last_duel_result', JSON.stringify(snapshot));
   } catch (e) {
     console.error('Error saving duel result snapshot:', e);
@@ -92,9 +91,8 @@ export function useDuelResults(duelId: string, profileId: string | null, initial
   return useQuery<DuelResultData, Error>({
     queryKey: ["duel-results", duelId, profileId],
     queryFn: async (): Promise<DuelResultData> => {
-      // 1. Сначала проверяем snapshot (самый быстрый способ)
+      // 1. Snapshot check
       if (initialSnapshot && initialSnapshot.duelId === duelId) {
-        console.log('[useDuelResults] ✅ Using initial snapshot from props');
         return {
           duel: initialSnapshot.duel,
           players: initialSnapshot.players,
@@ -106,10 +104,8 @@ export function useDuelResults(duelId: string, profileId: string | null, initial
         };
       }
 
-      // 2. Проверяем localStorage
       const savedSnapshot = loadDuelResultSnapshot(duelId);
       if (savedSnapshot && savedSnapshot.duelId === duelId) {
-        console.log('[useDuelResults] ✅ Using snapshot from localStorage');
         return {
           duel: savedSnapshot.duel,
           players: savedSnapshot.players,
@@ -121,44 +117,35 @@ export function useDuelResults(duelId: string, profileId: string | null, initial
         };
       }
 
-      console.log('[useDuelResults] 🔄 Fetching results from server/DB...', { duelId, profileId });
-
-      // 3. Пытаемся получить результаты через Edge Function (генеральный и надежный способ)
+      // 2. Fetch from Edge Function
       try {
         const { data: edgeData, error: edgeError } = await supabase.functions.invoke('duel-manager', {
           body: { action: 'get_results', duel_id: duelId, profile_id: profileId },
         });
 
         if (edgeError) {
-          console.log("[useDuelResults] Edge Function invoke error:", edgeError.message);
+          console.warn("[useDuelResults] Edge Function invoke error:", edgeError.message);
         } else if (edgeData?.error === 'DUEL_NOT_READY') {
-          console.warn("[useDuelResults] Edge Function reports DUEL_NOT_READY:", edgeData.message);
           throw new Error('DUEL_NOT_READY');
-        } else if (edgeData && edgeData.duel && edgeData.players && edgeData.players.length >= 2) {
-          const players = edgeData.players;
+        } else if (edgeData && edgeData.duel) {
+          const players = edgeData.players || [];
           const myPlayer = players.find((p: any) => p.user_id === profileId);
           const opponentPlayer = players.find((p: any) => p.user_id !== profileId);
 
           if (myPlayer && opponentPlayer) {
             const myAnswers = edgeData.myAnswers || [];
             const opponentAnswers = edgeData.opponentAnswers || [];
-
-            const myScore = myPlayer.score || 0;
-            const opponentScore = opponentPlayer.score || 0;
-            const myCorrect = myPlayer.correct_count || 0;
-            const opponentCorrect = opponentPlayer.correct_count || 0;
             const opponentProfile = opponentPlayer.profiles || {};
             const duelData = edgeData.duel;
 
-            const isWinner = myScore > opponentScore;
-            const isDraw = myScore === opponentScore;
+            const isWinner = (myPlayer.score || 0) > (opponentPlayer.score || 0);
+            const isDraw = (myPlayer.score || 0) === (opponentPlayer.score || 0);
 
             let winnings = 0;
             let insuranceRefund = 0;
             if (duelData.bet_amount > 0) {
               if (isWinner) winnings = duelData.bet_amount * 2;
               else if (isDraw) winnings = duelData.bet_amount;
-
               if (!isWinner && !isDraw && (duelData.insurance_used || duelData.host_insurance_enabled)) {
                 insuranceRefund = Math.floor(duelData.bet_amount * 0.5);
               }
@@ -174,10 +161,10 @@ export function useDuelResults(duelId: string, profileId: string | null, initial
               results: {
                 isWinner,
                 isDraw,
-                myScore,
-                opponentScore,
-                myCorrect,
-                opponentCorrect,
+                myScore: myPlayer.score || 0,
+                opponentScore: opponentPlayer.score || 0,
+                myCorrect: myPlayer.correct_count || 0,
+                opponentCorrect: opponentPlayer.correct_count || 0,
                 opponentName: opponentProfile?.username || opponentProfile?.first_name || opponentPlayer?.name || "Соперник",
                 opponentAvatar: opponentProfile?.photo_url || null,
                 betAmount: duelData.bet_amount || 0,
@@ -188,35 +175,27 @@ export function useDuelResults(duelId: string, profileId: string | null, initial
             };
 
             saveDuelResultSnapshot({ ...resultData, duelId, timestamp: Date.now() });
-            console.log('[useDuelResults] ✅ Results loaded from Edge Function');
             return resultData;
           }
         }
       } catch (err: any) {
         if (err.message === 'DUEL_NOT_READY') throw err;
-        console.error('[useDuelResults] Edge Function generic error:', err);
+        console.error('[useDuelResults] Edge Function error:', err);
       }
 
-      // 4. Fallback: Прямой запрос к БД
+      // 3. Last Fallback: Direct DB Query
       const [duelRes, playersRes] = await Promise.all([
         supabase.from('duels').select('*').eq('id', duelId).maybeSingle(),
         supabase.from('duel_players').select('*, profiles(*)').eq('duel_id', duelId)
       ]);
 
-      if (duelRes.error) throw duelRes.error;
-      if (!(duelRes as any).data) throw new Error('DUEL_NOT_READY');
-
+      if (duelRes.error || !duelRes.data) throw new Error('DUEL_NOT_READY');
       const duelData = (duelRes as any).data;
-      if (duelData.status !== 'finished' && duelData.status !== 'technical_draw' && duelData.status !== 'cancelled') {
-        throw new Error('DUEL_NOT_READY');
-      }
-
-      const players = playersRes.data || [];
-      if (players.length < 2) throw new Error('DUEL_NOT_READY');
-
+      const players = (playersRes as any).data || [];
       const myPlayer = players.find((p: any) => p.user_id === profileId);
       const opponentPlayer = players.find((p: any) => p.user_id !== profileId);
-      if (!myPlayer || !opponentPlayer) throw new Error('Wait for opponent...');
+
+      if (!myPlayer || !opponentPlayer || players.length < 2) throw new Error('DUEL_NOT_READY');
 
       const [myAnsRes, oppAnsRes] = await Promise.all([
         supabase.from('duel_answers').select('*, duel_questions(*)').eq('duel_id', duelId).eq('player_id', myPlayer.id).order('created_at'),
@@ -225,22 +204,8 @@ export function useDuelResults(duelId: string, profileId: string | null, initial
 
       const myAnswers = myAnsRes.data || [];
       const opponentAnswers = oppAnsRes.data || [];
-
-      const myScore = myPlayer.score || 0;
-      const opponentScore = opponentPlayer.score || 0;
-      const opponentProfile = opponentPlayer.profiles || {};
-
-      const isWinner = myScore > opponentScore;
-      const isDraw = myScore === opponentScore;
-      let winnings = 0;
-      let insuranceRefund = 0;
-      if (duelData.bet_amount > 0) {
-        if (isWinner) winnings = duelData.bet_amount * 2;
-        else if (isDraw) winnings = duelData.bet_amount;
-        if (!isWinner && !isDraw && (duelData.insurance_used || duelData.host_insurance_enabled)) {
-          insuranceRefund = Math.floor(duelData.bet_amount * 0.5);
-        }
-      }
+      const isWinner = (myPlayer.score || 0) > (opponentPlayer.score || 0);
+      const isDraw = (myPlayer.score || 0) === (opponentPlayer.score || 0);
 
       const finalData: DuelResultData = {
         duel: duelData,
@@ -252,15 +217,15 @@ export function useDuelResults(duelId: string, profileId: string | null, initial
         results: {
           isWinner,
           isDraw,
-          myScore,
-          opponentScore,
+          myScore: myPlayer.score || 0,
+          opponentScore: opponentPlayer.score || 0,
           myCorrect: myPlayer.correct_count || 0,
           opponentCorrect: opponentPlayer.correct_count || 0,
-          opponentName: opponentProfile?.username || opponentProfile?.first_name || opponentPlayer?.name || "Соперник",
-          opponentAvatar: opponentProfile?.photo_url || null,
+          opponentName: opponentPlayer.profiles?.username || opponentPlayer.profiles?.first_name || opponentPlayer?.name || "Соперник",
+          opponentAvatar: opponentPlayer.profiles?.photo_url || null,
           betAmount: duelData.bet_amount || 0,
-          winnings,
-          insuranceRefund,
+          winnings: isWinner ? (duelData.bet_amount * 2) : (isDraw ? duelData.bet_amount : 0),
+          insuranceRefund: (!isWinner && !isDraw && duelData.insurance_used) ? Math.floor(duelData.bet_amount * 0.5) : 0,
           insuranceUsed: !!(duelData.insurance_used || duelData.host_insurance_enabled),
         }
       };
@@ -269,12 +234,13 @@ export function useDuelResults(duelId: string, profileId: string | null, initial
       return finalData;
     },
     enabled: !!duelId && !!profileId,
-    staleTime: 30 * 1000,
-    gcTime: 5 * 60 * 1000,
+    staleTime: 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     retry: (failureCount, error: any) => {
-      if (error?.message === 'DUEL_NOT_READY') return failureCount < 5;
+      // 🆕 Увеличиваем до 7 ретраев (всего около 40 секунд)
+      if (error?.message === 'DUEL_NOT_READY') return failureCount < 7;
       return failureCount < 1;
     },
-    retryDelay: (attemptIndex) => Math.min(1000 * Math.pow(2, attemptIndex), 10000),
+    retryDelay: (attemptIndex) => Math.min(1000 * Math.pow(2, attemptIndex), 8000),
   });
 }

@@ -1698,18 +1698,20 @@ Deno.serve(async (req) => {
           });
         }
 
-        // Filter answers
         const myAnswers = allAnswers.filter((a: any) => a.player_id === myPlayer.id);
         const opponentAnswers = allAnswers.filter((a: any) => a.player_id === opponentPlayer.id);
 
         // Ensure both players have finished (if status is not finished yet)
         if (duel.status !== 'finished' && duel.status !== 'technical_draw' && duel.status !== 'cancelled') {
           const myFinished = myAnswers.length >= duel.num_questions;
-          const opponentFinished = opponentAnswers.length >= duel.num_questions;
+          const opponentFinished = opponentAnswers.length >= duel.num_questions || opponentPlayer.is_bot;
 
+          // If current player finished but duel is still active, maybe wait or return partial
           if (!myFinished || !opponentFinished) {
             console.log('[get_results] Duel still active, players not finished:', { myFinished, opponentFinished });
-            // We return the partial data anyway, but mark it as NOT_READY for the hook to retry if it wants full results
+
+            // If it's a bot match and I'm finished, why is it NOT finished?
+            // This might happen if finish_duel was not called yet.
             return new Response(JSON.stringify({
               error: 'DUEL_NOT_READY',
               message: 'Players still answering',
