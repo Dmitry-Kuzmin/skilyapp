@@ -322,7 +322,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     setIsWaitingForOpponent,
     hasFinishedMyQuestions,
     setHasFinishedMyQuestions,
-    hasFinishedMyQuestionsRef,
     isFinishingRef,
     isVerifyingRef,
     hasTransitionedRef,
@@ -568,8 +567,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         }, 500);
       } else {
         // IMPROVED: Show waiting screen ONLY if I have actually finished
-        // Use Ref to avoid closure issues
-        if (hasFinishedMyQuestionsRef.current) {
+        if (hasFinishedMyQuestions) {
           log('[DuelBattleFullscreen] ⏳ Opponent still playing - showing waiting screen');
           setIsWaitingForOpponent(true);
           toast.info('⏳ Ждём соперника...', { duration: 3000 });
@@ -580,8 +578,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     } catch (error) {
       logError('[DuelBattleFullscreen] ❌ Error finishing duel:', error);
       toast.error('Ошибка завершения дуэли');
+      // IMPROVED: Keep waiting state - don't reset on error
+      // Player stays on waiting screen, realtime will handle transition when opponent finishes
+      // setIsWaitingForOpponent(false); // ← REMOVED
+      // setHasFinishedMyQuestions(false); // ← REMOVED
     }
-  }, [duelId, profileId, setIsWaitingForOpponent, transitionToResults]);
+  }, [duelId, profileId, hasFinishedMyQuestions, setIsWaitingForOpponent, transitionToResults]);
 
   // ОПТИМИЗАЦИЯ: Используем хук для логики игры
   const { hydrateQuestions, syncPlayers, syncQuestions, handleAnswer } = useDuelGame({
@@ -1089,9 +1091,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // useDuelRealtime уже подписывается на изменения статуса дуэли через Realtime
   // Это намного эффективнее чем периодические проверки
   useEffect(() => {
-    // CRITICAL: We transition to results if we finished our questions and the duel is finished,
-    // regardless of whether we are currently in 'waiting' state or still in 'battle' state.
-    if (!hasFinishedMyQuestions) {
+    if (!isWaitingForOpponent || !hasFinishedMyQuestions) {
       return;
     }
 
@@ -1472,10 +1472,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     if (state.duelFinished && !hasTransitionedRef.current) {
       if (hasFinishedMyQuestions) {
         log('[DuelBattleFullscreen] 🏁 Realtime: Duel finished and I am finished too. Transitioning...');
-        hasTransitionedRef.current = true; // CRITICAL: Stop further transitions
         transitionToResults();
       } else {
         log('[DuelBattleFullscreen] ⏳ Realtime: Opponent finished, but I am still playing. Staying in game.');
+        // Мы НЕ ставим setIsWaitingForOpponent(true), так как мы еще играем!
       }
     }
   }, [state.duelFinished, hasFinishedMyQuestions, transitionToResults]);

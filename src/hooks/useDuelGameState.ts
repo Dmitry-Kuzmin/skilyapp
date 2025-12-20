@@ -6,17 +6,17 @@ export interface UseDuelGameStateReturn {
   setQuestions: React.Dispatch<React.SetStateAction<any[]>>;
   currentIndex: number;
   setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
-
+  
   // Answer state
   selectedAnswer: string | null;
   setSelectedAnswer: React.Dispatch<React.SetStateAction<string | null>>;
   isAnswered: boolean;
   setIsAnswered: React.Dispatch<React.SetStateAction<boolean>>;
-
+  
   // Timer state
   timeLeft: number;
   setTimeLeft: React.Dispatch<React.SetStateAction<number>>;
-
+  
   // Score state
   myScore: number;
   setMyScore: React.Dispatch<React.SetStateAction<number>>;
@@ -24,7 +24,7 @@ export interface UseDuelGameStateReturn {
   setOpponentScore: React.Dispatch<React.SetStateAction<number>>;
   combo: number;
   setCombo: React.Dispatch<React.SetStateAction<number>>;
-
+  
   // Boosts state
   boosts: any[];
   setBoosts: React.Dispatch<React.SetStateAction<any[]>>;
@@ -34,19 +34,18 @@ export interface UseDuelGameStateReturn {
   setEliminatedOptions: React.Dispatch<React.SetStateAction<string[]>>;
   translationLanguage: 'ru' | 'en' | null;
   setTranslationLanguage: React.Dispatch<React.SetStateAction<'ru' | 'en' | null>>;
-
+  
   // Loading state
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   isLoadingRef: React.MutableRefObject<boolean>;
-
+  
   // Waiting state
   isWaitingForOpponent: boolean;
   setIsWaitingForOpponent: React.Dispatch<React.SetStateAction<boolean>>;
   hasFinishedMyQuestions: boolean;
   setHasFinishedMyQuestions: React.Dispatch<React.SetStateAction<boolean>>;
-  hasFinishedMyQuestionsRef: React.MutableRefObject<boolean>;
-
+  
   // Refs
   isFinishingRef: React.MutableRefObject<boolean>;
   isVerifyingRef: React.MutableRefObject<boolean>;
@@ -70,7 +69,6 @@ export function useDuelGameState() {
   const [translationLanguage, setTranslationLanguage] = useState<'ru' | 'en' | null>(null);
   const [isWaitingForOpponent, setIsWaitingForOpponent] = useState(false);
   const [hasFinishedMyQuestions, setHasFinishedMyQuestions] = useState(false);
-  const hasFinishedMyQuestionsRef = useRef(false);
   const isFinishingRef = useRef(false);
   const isVerifyingRef = useRef(false);
   const hasTransitionedRef = useRef(false);
@@ -106,17 +104,7 @@ export function useDuelGameState() {
     isWaitingForOpponent,
     setIsWaitingForOpponent,
     hasFinishedMyQuestions,
-    setHasFinishedMyQuestions: (val: boolean | ((prev: boolean) => boolean)) => {
-      if (typeof val === 'function') {
-        const newVal = (val as Function)(hasFinishedMyQuestionsRef.current);
-        hasFinishedMyQuestionsRef.current = newVal;
-        setHasFinishedMyQuestions(newVal);
-      } else {
-        hasFinishedMyQuestionsRef.current = val;
-        setHasFinishedMyQuestions(val);
-      }
-    },
-    hasFinishedMyQuestionsRef,
+    setHasFinishedMyQuestions,
     isFinishingRef,
     isVerifyingRef,
     hasTransitionedRef,
