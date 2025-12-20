@@ -322,7 +322,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     setIsWaitingForOpponent,
     hasFinishedMyQuestions,
     setHasFinishedMyQuestions,
-    hasFinishedMyQuestionsRef,
     isFinishingRef,
     isVerifyingRef,
     hasTransitionedRef,
@@ -640,10 +639,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           transitionToResults(data);
         }, 300);
       } else {
-        // 🆕 CRITICAL FIX: Используем ref вместо state для проверки
-        // Ref обновляется синхронно в setHasFinishedMyQuestions,
-        // поэтому содержит актуальное значение (решает проблему closure)
-        if (hasFinishedMyQuestionsRef.current) {
+        // IMPROVED: Show waiting screen ONLY if I have actually finished
+        if (hasFinishedMyQuestions) {
           log('[DuelBattleFullscreen] ⏳ Opponent still playing - showing waiting screen');
           setIsWaitingForOpponent(true);
           toast.info('⏳ Ждём соперника...', { duration: 3000 });
@@ -659,7 +656,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       // setIsWaitingForOpponent(false); // ← REMOVED
       // setHasFinishedMyQuestions(false); // ← REMOVED
     }
-  }, [duelId, profileId, hasFinishedMyQuestionsRef, setIsWaitingForOpponent, transitionToResults]);
+  }, [duelId, profileId, hasFinishedMyQuestions, setIsWaitingForOpponent, transitionToResults]);
 
   // ОПТИМИЗАЦИЯ: Используем хук для логики игры
   const { hydrateQuestions, syncPlayers, syncQuestions, handleAnswer } = useDuelGame({
