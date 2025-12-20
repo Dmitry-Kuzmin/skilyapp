@@ -4525,9 +4525,10 @@ Deno.serve(async (req) => {
           });
         }
 
-        // OPTIMIZED: Reduced delay from 500ms to 200ms for faster results transition
-        // 200ms is sufficient for database commit while minimizing wait time
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // CRITICAL FIX: Увеличена задержка с 200ms до 500ms для надёжности
+        // Это гарантирует, что последний ответ точно записан в БД перед подсчётом
+        console.log('[finish_duel] Waiting 500ms for DB commit...');
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         // CRITICAL FIX: Check duel status FIRST before counting answers
         // This prevents race condition where both players try to finish simultaneously
