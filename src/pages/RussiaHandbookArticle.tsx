@@ -8,7 +8,8 @@ import {
     AlertTriangle,
     BookOpen,
     Loader2,
-    Sparkles
+    Sparkles,
+    ArrowRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

@@ -100,7 +100,6 @@ const RefundPolicy = lazy(() =>
 const HelpCenter = lazy(() => import("../pages/HelpCenter"));
 const HandbookRussia = lazy(() => import("../pages/RussiaHandbook"));
 const HandbookRussiaArticle = lazy(() => import("../pages/RussiaHandbookArticle"));
-const LandingPremium = lazy(() => import("../pages/LandingPremium"));
 const Partners = lazy(() => import("../pages/Partners"));
 const Blog = lazy(() => import("../pages/Blog"));
 const Article = lazy(() => import("../pages/Article"));
