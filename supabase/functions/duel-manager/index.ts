@@ -1703,8 +1703,12 @@ Deno.serve(async (req) => {
 
         // Ensure both players have finished (if status is not finished yet)
         if (duel.status !== 'finished' && duel.status !== 'technical_draw' && duel.status !== 'cancelled') {
-          const myFinished = myAnswers.length >= duel.num_questions;
-          const opponentFinished = opponentAnswers.length >= duel.num_questions || opponentPlayer.is_bot;
+          // КРИТИЧНО: Используем Set для подсчета уникальных ответов, чтобы избежать ложных срабатываний при дубликатах
+          const myUniqueAnswers = new Set(myAnswers.map((a: any) => a.duel_question_id));
+          const opponentUniqueAnswers = new Set(opponentAnswers.map((a: any) => a.duel_question_id));
+
+          const myFinished = myUniqueAnswers.size >= duel.num_questions;
+          const opponentFinished = opponentUniqueAnswers.size >= duel.num_questions || opponentPlayer.is_bot;
 
           // If current player finished but duel is still active, maybe wait or return partial
           if (!myFinished || !opponentFinished) {
@@ -4511,7 +4515,7 @@ Deno.serve(async (req) => {
         // Check if all players have finished
         const { data: allPlayers } = await supabase
           .from('duel_players')
-          .select('id, user_id, score, correct_count')
+          .select('id, user_id, score, correct_count, is_bot')
           .eq('duel_id', duel_id);
 
         if (!allPlayers || allPlayers.length < 2) {
@@ -4573,7 +4577,7 @@ Deno.serve(async (req) => {
               hasFinished: answerCount >= duel.num_questions
             });
 
-            if (answerCount < duel.num_questions) {
+            if (!player.is_bot && answerCount < duel.num_questions) {
               allFinished = false;
             }
           }

@@ -99,7 +99,7 @@ export function useDuelGame({
   const playersLoadedRef = useRef(false);
   // Hydrate questions from localStorage
   const hydrateQuestions = useCallback((questionList: any[]) => {
-    log('[useDuelGame] 💧 Hydrating questions:', { 
+    log('[useDuelGame] 💧 Hydrating questions:', {
       count: questionList?.length || 0,
       firstQuestion: questionList?.[0] ? {
         id: questionList[0].id,
@@ -120,8 +120,9 @@ export function useDuelGame({
         return;
       }
 
-      if (stored.mode === 'waiting') {
-        setCurrentIndex(Math.max(questionList.length - 1, 0));
+      if (stored.mode === 'waiting' && (questionList?.length || 0) > 0) {
+        log('[useDuelGame] ⏳ Storing from waiting mode - verified questions exist');
+        setCurrentIndex(Math.max((questionList?.length || 1) - 1, 0));
         setHasFinishedMyQuestions(true);
         setIsWaitingForOpponent(true);
         return;
@@ -157,11 +158,11 @@ export function useDuelGame({
       setMyScore(players.myScore);
       setOpponentScore(players.opponentScore);
       setMyName(players.myName);
-      
+
       // Проверяем, является ли соперник ботом
       const myPlayer = players.players.find((p) => p.user_id === profileId);
       const opponent = players.players.find((p) => p.user_id !== profileId);
-      
+
       // Устанавливаем имя соперника с учетом бота
       if (opponent?.is_bot) {
         // Для бота используем bot_name из данных (приоритет) или name
@@ -175,7 +176,7 @@ export function useDuelGame({
       if (myPlayer?.profiles?.photo_url) {
         setMyPhotoUrl(getImageUrl(myPlayer.profiles.photo_url));
       }
-      
+
       // Для бота используем null, чтобы показывался fallback с инициалами
       // Для реального игрока - его фото
       if (opponent?.is_bot) {
@@ -200,7 +201,7 @@ export function useDuelGame({
       log('[useDuelGame] ⚠️ Questions already loading, skipping sync');
       return;
     }
-    
+
     // КРИТИЧНО: Проверяем что игроки загружены перед загрузкой вопросов
     // Это предотвращает race condition когда вопросы загружаются до создания игроков (особенно ботов)
     if (!playersLoadedRef.current) {
@@ -213,19 +214,19 @@ export function useDuelGame({
         // Пытаемся загрузить вопросы даже если игроки не загружены (fallback)
       }
     }
-    
+
     // КРИТИЧНО: Retry логика для загрузки вопросов (может быть race condition при создании дуэли)
     const maxRetries = 5;
     const retryDelay = 1000; // 1 секунда между попытками
-    
+
     try {
       isLoadingRef.current = true;
       setLoading(true);
       log('[useDuelGame] 🔄 Loading questions...', { duelId, profileId, playersLoaded: playersLoadedRef.current });
-      
+
       let questionList: any[] | null = null;
       let lastError: any = null;
-      
+
       // Пытаемся загрузить вопросы с retry
       for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
@@ -234,7 +235,7 @@ export function useDuelGame({
             log('[useDuelGame] ✅ Questions loaded:', { count: questionList.length, attempt: attempt + 1 });
             break; // Успешно загрузили, выходим из цикла
           }
-          
+
           // Если вопросы пустые, пробуем еще раз
           if (attempt < maxRetries - 1) {
             logWarn(`[useDuelGame] ⚠️ Questions empty, retrying in ${retryDelay}ms... (attempt ${attempt + 1}/${maxRetries})`);
@@ -243,23 +244,23 @@ export function useDuelGame({
         } catch (error: any) {
           lastError = error;
           const isNotFoundError = error?.message?.includes('не найдены') || error?.message?.includes('not found');
-          
+
           // Если это ошибка "не найдены" и не последняя попытка - ретраим
           if (isNotFoundError && attempt < maxRetries - 1) {
             logWarn(`[useDuelGame] ⚠️ Questions not found, retrying in ${retryDelay}ms... (attempt ${attempt + 1}/${maxRetries})`);
             await new Promise(resolve => setTimeout(resolve, retryDelay));
             continue;
           }
-          
+
           // Для других ошибок или последней попытки - пробрасываем ошибку
           throw error;
         }
       }
-      
+
       if (!questionList || questionList.length === 0) {
         throw lastError || new Error('Вопросы не найдены после всех попыток');
       }
-      
+
       hydrateQuestions(questionList);
     } catch (error) {
       logError('[useDuelGame] Failed to load questions after retries:', error);
@@ -306,7 +307,7 @@ export function useDuelGame({
     }
 
     const question = questions[currentIndex];
-    
+
     // Проверяем, что вопрос существует и имеет необходимые поля
     if (!question || !question.id) {
       logError('[useDuelGame] Invalid question:', { question, currentIndex, questionsLength: questions.length });

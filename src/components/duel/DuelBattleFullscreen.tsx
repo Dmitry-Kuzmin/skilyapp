@@ -566,10 +566,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           transitionToResults();
         }, 500);
       } else {
-        // IMPROVED: Show waiting screen ONLY if opponent hasn't finished yet
-        log('[DuelBattleFullscreen] ⏳ Opponent still playing - showing waiting screen');
-        setIsWaitingForOpponent(true);
-        toast.info('⏳ Ждём соперника...', { duration: 3000 });
+        // IMPROVED: Show waiting screen ONLY if I have actually finished
+        if (hasFinishedMyQuestions) {
+          log('[DuelBattleFullscreen] ⏳ Opponent still playing - showing waiting screen');
+          setIsWaitingForOpponent(true);
+          toast.info('⏳ Ждём соперника...', { duration: 3000 });
+        } else {
+          log('[DuelBattleFullscreen] ⚠️ finish_duel returned not finished, but I still have questions. Ignoring.');
+        }
       }
     } catch (error) {
       logError('[DuelBattleFullscreen] ❌ Error finishing duel:', error);
@@ -579,7 +583,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       // setIsWaitingForOpponent(false); // ← REMOVED
       // setHasFinishedMyQuestions(false); // ← REMOVED
     }
-  }, [duelId, profileId, setIsWaitingForOpponent, transitionToResults]);
+  }, [duelId, profileId, hasFinishedMyQuestions, setIsWaitingForOpponent, transitionToResults]);
 
   // ОПТИМИЗАЦИЯ: Используем хук для логики игры
   const { hydrateQuestions, syncPlayers, syncQuestions, handleAnswer } = useDuelGame({
@@ -1414,7 +1418,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         const stateToSave = {
           duelId,
           duelCode,
-          mode: isWaitingForOpponent ? 'waiting' : 'battle',
+          mode: (isWaitingForOpponent ? 'waiting' : 'battle') as "waiting" | "battle",
           currentIndex: isWaitingForOpponent ? undefined : currentIndex, // Не сохраняем currentIndex в режиме ожидания
           myScore,
           opponentScore,
@@ -2255,7 +2259,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // Display opponent's progress in real-time
   // If hidden, DuelWaitingReplay will show widget via portal and return null
   // ============================================================================
-  if (isWaitingForOpponent) {
+  // КРИТИЧНО: Экран ожидания показываем ТОЛЬКО если мы реально ответили на все вопросы
+  if (isWaitingForOpponent && hasFinishedMyQuestions) {
     return (
       <DuelWaitingReplay
         duelId={duelId}
