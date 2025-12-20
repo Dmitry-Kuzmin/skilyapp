@@ -4525,6 +4525,59 @@ Deno.serve(async (req) => {
           });
         }
 
+        // 🆕 CRITICAL FIX: Быстрый путь для игр с ботом
+        // Если соперник - бот, проверяем только ответы текущего игрока
+        const opponentPlayer = allPlayers.find((p: any) => p.id !== currentPlayer.id);
+        const isOpponentBot = opponentPlayer?.is_bot === true;
+
+        if (isOpponentBot) {
+          console.log('[finish_duel] 🤖 Opponent is BOT - fast path enabled');
+
+          // Считаем ответы текущего игрока (уже посчитаны выше в answeredCount)
+          const myAnswerCount = answeredCount || 0;
+
+          console.log('[finish_duel] Bot game check:', {
+            myAnswerCount,
+            requiredQuestions: duel.num_questions,
+            iHaveFinished: myAnswerCount >= duel.num_questions
+          });
+
+          // Если я ответил на все вопросы - игра завершена (бот автоматически "закончил")
+          if (myAnswerCount >= duel.num_questions) {
+            console.log('[finish_duel] ✅ BOT GAME: I finished all questions - completing duel NOW');
+
+            // Собираем данные для результатов
+            const { data: allAnswers } = await supabase
+              .from('duel_answers')
+              .select('*, duel_questions(*)')
+              .eq('duel_id', duel_id);
+
+            const myAnswers = allAnswers?.filter((a: any) => a.player_id === currentPlayer.id) || [];
+
+            // Обновляем статус дуэли на finished
+            await supabase
+              .from('duels')
+              .update({
+                status: 'finished',
+                finished_at: new Date().toISOString()
+              })
+              .eq('id', duel_id)
+              .eq('status', 'active');
+
+            return new Response(JSON.stringify({
+              success: true,
+              finished: true,
+              reason: 'bot_opponent_auto_finish',
+              duel_data: duel,
+              players_data: allPlayers,
+              my_answers: myAnswers,
+              opponent_answers: []
+            }), {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+        }
+
         // CRITICAL FIX: Увеличена задержка с 200ms до 500ms для надёжности
         // Это гарантирует, что последний ответ точно записан в БД перед подсчётом
         console.log('[finish_duel] Waiting 500ms for DB commit...');
