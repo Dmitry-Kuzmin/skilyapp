@@ -1203,6 +1203,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       }
 
       try {
+        log('[DuelBattleFullscreen] 🔄 POLLING: Checking duel status...');
+
         const { data: duel, error } = await supabase
           .from('duels')
           .select('status')
@@ -1210,18 +1212,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           .single();
 
         if (error) {
-          logError('[DuelBattleFullscreen] Error checking duel status:', error);
+          logError('[DuelBattleFullscreen] POLLING Error checking duel status:', error);
           return;
         }
 
         if (!duel) {
-          logWarn('[DuelBattleFullscreen] Duel not found');
+          logWarn('[DuelBattleFullscreen] POLLING Duel not found');
           return;
         }
 
+        log('[DuelBattleFullscreen] 🔄 POLLING: Duel status =', duel.status);
+
         // КРИТИЧНО: Если статус finished - переходим немедленно
         if (duel.status === 'finished' && !hasTransitionedRef.current) {
-          log('[DuelBattleFullscreen] ✅✅✅ FALLBACK: Duel status is FINISHED! Transitioning NOW');
+          log('[DuelBattleFullscreen] ✅✅✅ POLLING: Duel status is FINISHED! Transitioning NOW');
           hasTransitionedRef.current = true;
 
           try {
@@ -1236,19 +1240,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           transitionToResults();
         }
       } catch (error) {
-        logError('[DuelBattleFullscreen] Error in fallback check:', error);
+        logError('[DuelBattleFullscreen] POLLING Error in fallback check:', error);
       }
     };
 
     // Проверяем сразу при монтировании
     checkDuelStatus();
 
-    // Затем каждые 3 секунды
+    // 🆕 CRITICAL FIX: Увеличена частота polling с 3 сек до 1 сек для Telegram Mini App
+    // Telegram может блокировать Realtime, поэтому полагаемся на polling
     const interval = setInterval(() => {
       if (!hasTransitionedRef.current) {
         checkDuelStatus();
       }
-    }, 3000);
+    }, 1000);
 
     return () => {
       clearInterval(interval);
