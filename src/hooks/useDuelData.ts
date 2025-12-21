@@ -57,15 +57,27 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       return cache.questions;
     }
 
-    // КРИТИЧНО: Функция для проверки статуса дуэли
+    // КРИТИЧНО: Функция для проверки статуса дуэли (с обработкой ошибок)
     const checkDuelStatus = async (): Promise<'waiting' | 'active' | 'finished' | null> => {
-      const { data: duelData } = await supabase
-        .from('duels')
-        .select('status')
-        .eq('id', duelId)
-        .single();
-      
-      return duelData?.status as any || null;
+      try {
+        const { data: duelData, error } = await supabase
+          .from('duels')
+          .select('status')
+          .eq('id', duelId)
+          .single();
+
+        if (error) {
+          // Игнорируем PGRST116 (No rows found) - это нормально, если дуэль не загрузилась
+          if (error.code !== 'PGRST116') {
+            console.warn(`[useDuelData] ⚠️ checkDuelStatus error:`, error.message);
+          }
+          return null;
+        }
+        return duelData?.status as any || null;
+      } catch (e) {
+        console.warn(`[useDuelData] ⚠️ checkDuelStatus exception:`, e);
+        return null;
+      }
     };
 
     const loadViaEdge = async () => {
@@ -99,7 +111,7 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
           if (data?.questions?.length) {
             return data.questions;
           }
-          
+
           // Если вопросов нет, проверяем статус и ждем если дуэль еще "waiting"
           const status = await checkDuelStatus();
           if (status === 'waiting' && attempt < maxRetries - 1) {
@@ -108,7 +120,7 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
             await new Promise((resolve) => setTimeout(resolve, delay));
             continue;
           }
-          
+
           break;
         } catch (err) {
           if (attempt === maxRetries - 1) {
@@ -124,7 +136,7 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
     const loadDirect = async (retries = 5): Promise<any[]> => {
       for (let attempt = 0; attempt < retries; attempt++) {
         console.log(`[useDuelData] 🔍 Loading questions directly from DB for duel: ${duelId} (attempt ${attempt + 1}/${retries})`);
-        
+
         const { data, error } = await supabase
           .from("duel_questions")
           .select("*")
@@ -141,7 +153,23 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
             hint: error.hint,
             attempt: attempt + 1
           });
-          
+
+          // SP-3: Обработка 406 Not Acceptable (типичная проблема с RLS/Headers)
+          if (error.code === '406' || error.message?.includes('Not Acceptable') || error.code === 'PGRST116') {
+            console.log(`[useDuelData] 🚨 406/RLS Error detected. Attempting RPC immediately...`);
+            try {
+              const { data: rpcData, error: rpcError } = await supabase
+                .rpc('get_duel_questions_raw', { p_duel_id: duelId });
+
+              if (!rpcError && rpcData?.length) {
+                console.log(`[useDuelData] ✅ Questions loaded via RPC (rescue from 406):`, rpcData.length);
+                return rpcData;
+              }
+            } catch (e) {
+              console.warn(`[useDuelData] ⚠️ RPC rescue failed:`, e);
+            }
+          }
+
           if (attempt < retries - 1) {
             const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
             await new Promise((resolve) => setTimeout(resolve, delay));
@@ -161,10 +189,27 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
           return data;
         }
 
+        // КРИТИЧНО: RPC Фоллбэк - если прямой запрос вернул пусто но без ошибки (или RLS скрыл)
+        // Или если мы хотим попробовать RPC
+        try {
+          console.log(`[useDuelData] 🔄 Attempting RPC get_duel_questions_raw (fallback)...`);
+          const { data: rpcData, error: rpcError } = await supabase
+            .rpc('get_duel_questions_raw', { p_duel_id: duelId });
+
+          if (!rpcError && rpcData?.length) {
+            console.log(`[useDuelData] ✅ Questions loaded via RPC get_duel_questions_raw:`, rpcData.length);
+            return rpcData;
+          } else if (rpcError) {
+            console.warn(`[useDuelData] ⚠️ RPC get_duel_questions_raw failed:`, rpcError.message);
+          }
+        } catch (e) {
+          console.warn(`[useDuelData] ⚠️ RPC get_duel_questions_raw exception:`, e);
+        }
+
         // КРИТИЧНО: Если вопросов нет, проверяем статус дуэли и количество игроков
         const status = await checkDuelStatus();
         console.log(`[useDuelData] 📊 Duel status: ${status}`);
-        
+
         // КРИТИЧНО: Если дуэль "waiting" и есть 2 игрока - пытаемся запустить вручную
         if (status === 'waiting' && attempt >= 2) {
           // Проверяем количество игроков
@@ -172,14 +217,14 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
             .from('duel_players')
             .select('id, user_id, is_bot')
             .eq('duel_id', duelId);
-          
+
           const realPlayers = playersData?.filter(p => !p.is_bot) || [];
           console.log('[useDuelData] 🔍 Checking players for manual start:', {
             totalPlayers: playersData?.length || 0,
             realPlayers: realPlayers.length,
             players: playersData?.map(p => ({ id: p.id, user_id: p.user_id, is_bot: p.is_bot }))
           });
-          
+
           // Если есть 2 реальных игрока - пытаемся запустить дуэль вручную
           if (realPlayers.length === 2) {
             console.log('[useDuelData] 🚀 2 players detected in waiting duel, attempting manual start...');
@@ -191,7 +236,7 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
                   profile_id: profileId
                 }
               });
-              
+
               if (startError) {
                 console.error('[useDuelData] ❌ Error starting duel manually:', startError);
               } else {
@@ -205,7 +250,7 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
             }
           }
         }
-        
+
         // Если дуэль еще "waiting" и есть попытки - ждем и повторяем
         if (status === 'waiting' && attempt < retries - 1) {
           const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
@@ -213,7 +258,7 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
           await new Promise((resolve) => setTimeout(resolve, delay));
           continue;
         }
-        
+
         // Если дуэль уже "active" или "finished", но вопросов нет - это ошибка
         if (status === 'active' || status === 'finished') {
           console.error('[useDuelData] ❌ Duel is active/finished but no questions found!', {
@@ -223,19 +268,19 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
           });
           throw new Error(`Вопросы не найдены для дуэли ${duelId}. Статус дуэли: ${status}`);
         }
-        
+
         // Если статус "waiting" и это последняя попытка - ошибка
         if (status === 'waiting' && attempt === retries - 1) {
           throw new Error(`Вопросы еще не сгенерированы. Статус дуэли: ${status}. Попробуйте обновить страницу через несколько секунд.`);
         }
       }
-      
+
       throw new Error(`Не удалось загрузить вопросы после ${retries} попыток`);
     };
 
     let questions = null;
     let edgeError = null;
-    
+
     try {
       console.log('[useDuelData] 🚀 Attempting to load questions via Edge Function...');
       questions = await loadViaEdge();
@@ -266,7 +311,7 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
           .select('status, started_at')
           .eq('id', duelId)
           .single();
-        
+
         console.error('[useDuelData] ❌ Both methods failed:', {
           edgeError: edgeError?.message || edgeError,
           directError: directError?.message || directError,
@@ -275,12 +320,12 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
           startedAt: duelData?.started_at,
           profileId
         });
-        
+
         // Если дуэль еще "waiting", даем более понятное сообщение
         if (duelData?.status === 'waiting') {
           throw new Error(`Вопросы еще не сгенерированы. Статус дуэли: ${duelData.status}. Подождите несколько секунд и обновите страницу.`);
         }
-        
+
         throw new Error(`Не удалось загрузить вопросы. Edge Function: ${edgeError?.message || 'ошибка'}. Прямой запрос: ${directError?.message || 'ошибка'}. Статус дуэли: ${duelData?.status || 'unknown'}`);
       }
     }
@@ -328,7 +373,7 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       const opponent = players.find((p) => p.user_id !== profileId);
 
       const myName = myPlayer?.name || myPlayer?.profiles?.first_name || myPlayer?.profiles?.username || "Ты";
-      
+
       // Проверяем, является ли соперник ботом
       let opponentName = "Соперник";
       if (opponent?.is_bot) {
@@ -371,13 +416,13 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       .from("duel_players")
       .select("*, profiles(first_name, username, photo_url)")
       .eq("duel_id", duelId);
-    
+
     // Убеждаемся, что bot_name загружен для ботов
-    console.log('[useDuelData] Loaded players:', data?.map((p: any) => ({ 
-      user_id: p.user_id, 
-      is_bot: p.is_bot, 
-      bot_name: p.bot_name, 
-      name: p.name 
+    console.log('[useDuelData] Loaded players:', data?.map((p: any) => ({
+      user_id: p.user_id,
+      is_bot: p.is_bot,
+      bot_name: p.bot_name,
+      name: p.name
     })));
 
     if (!data?.length) {
@@ -387,11 +432,11 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
     // Обогащаем только реальных игроков (не ботов)
     const realPlayers = data.filter((p: any) => !p.is_bot);
     const playersWithProfiles = await enrichPlayersWithProfiles(realPlayers);
-    
+
     // Добавляем ботов обратно с их именами
     const bots = data.filter((p: any) => p.is_bot);
     const allPlayers = [...playersWithProfiles, ...bots];
-    
+
     const result = buildResult(allPlayers);
     cache.players = result;
     return result;
@@ -414,14 +459,14 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       profileIdType: typeof profileId,
       timestamp: new Date().toISOString(),
     });
-    
+
     let loadout: { slot_1_boost_type: string | null; slot_2_boost_type: string | null; slot_3_boost_type: string | null } | null = null;
     let loadoutError: any = null;
-    
+
     try {
       const { data: rpcData, error: rpcError } = await supabase
         .rpc('get_user_loadout', { p_user_id: profileId });
-      
+
       if (rpcError) {
         console.warn('[useDuelData] ⚠️ RPC function failed, trying direct query:', {
           rpcError,
@@ -450,15 +495,15 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       console.warn('[useDuelData] ⚠️ RPC exception, trying direct query:', rpcException);
       loadoutError = rpcException;
     }
-    
+
     // Fallback: прямой запрос (если RPC не работает)
     if (loadoutError && !loadout) {
       console.log('[useDuelData] 🔄 Trying direct query as fallback...');
       const { data: directData, error: directError } = await supabase
-      .from("user_loadouts")
-      .select("slot_1_boost_type, slot_2_boost_type, slot_3_boost_type")
-      .eq("user_id", profileId)
-      .maybeSingle();
+        .from("user_loadouts")
+        .select("slot_1_boost_type, slot_2_boost_type, slot_3_boost_type")
+        .eq("user_id", profileId)
+        .maybeSingle();
 
       if (directError) {
         console.warn('[useDuelData] ⚠️ Error loading loadout (both RPC and direct failed, continuing without loadout):', {
@@ -466,17 +511,17 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
           directError,
           code: directError.code,
           message: directError.message,
-        profileId,
-          hint: directError.code === 'PGRST116' 
+          profileId,
+          hint: directError.code === 'PGRST116'
             ? 'Loadout does not exist - this is OK, will show all boosts'
             : 'This might be an RLS policy issue. Check if migrations are applied.'
-      });
-      // Продолжаем без loadout - покажем все бусты из инвентаря
+        });
+        // Продолжаем без loadout - покажем все бусты из инвентаря
         loadout = null;
-    } else {
+      } else {
         loadout = directData;
         console.log('[useDuelData] ✅ Loadout loaded via direct query:', loadout);
-    }
+      }
     }
 
     // КРИТИЧНО: Доверяем данным из базы - если в слоте есть буст, значит пользователь имел право его туда положить
@@ -506,7 +551,7 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       loadoutBoostsLength: loadoutBoosts.length,
       willFilter: loadoutBoosts.length > 0,
       willShowAll: loadoutBoosts.length === 0,
-      note: loadoutBoosts.length === 0 
+      note: loadoutBoosts.length === 0
         ? 'No boosts selected in loadout - will show all boosts'
         : `Showing ${loadoutBoosts.length} boost(s) from loadout (trusting DB data)`,
     });
@@ -518,15 +563,15 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       profileIdType: typeof profileId,
       timestamp: new Date().toISOString(),
     });
-    
+
     // Пробуем сначала через RPC функцию (обходит RLS)
     let boosts: BoostInventoryItem[] = [];
     let error: any = null;
-    
+
     try {
       const { data: rpcData, error: rpcError } = await supabase
         .rpc('get_user_boost_inventory', { p_user_id: profileId });
-      
+
       if (rpcError) {
         console.warn('[useDuelData] ⚠️ RPC function failed, trying direct query:', {
           rpcError,
@@ -548,14 +593,14 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       console.warn('[useDuelData] ⚠️ RPC exception, trying direct query:', rpcException);
       error = rpcException;
     }
-    
+
     // Fallback: прямой запрос (если RPC не работает)
     if (error || boosts.length === 0) {
       console.log('[useDuelData] 🔄 Trying direct query as fallback...');
       const { data: directData, error: directError } = await supabase
-      .from("boost_inventory")
-      .select("boost_type, quantity")
-      .eq("user_id", profileId);
+        .from("boost_inventory")
+        .select("boost_type, quantity")
+        .eq("user_id", profileId);
 
       if (directError) {
         console.error('[useDuelData] ❌ Error loading boost inventory (both RPC and direct failed):', {
@@ -565,16 +610,16 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
           message: directError.message,
           details: directError.details,
           hint: directError.hint,
-        profileId,
+          profileId,
           profileIdType: typeof profileId,
           timestamp: new Date().toISOString(),
           hint2: 'This might be an RLS policy issue. Check if migrations 20251215000005 and 20251215000006 are applied.',
           hint3: 'Check if profileId matches profiles.id and if auth.uid() matches profiles.user_id',
-      });
-      // НЕ выбрасываем ошибку - возвращаем пустой массив, чтобы игра продолжалась
-      // Бусты просто не будут отображаться
-      return [];
-    }
+        });
+        // НЕ выбрасываем ошибку - возвращаем пустой массив, чтобы игра продолжалась
+        // Бусты просто не будут отображаться
+        return [];
+      }
 
       if (directData && directData.length > 0) {
         boosts = directData;
@@ -590,7 +635,7 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       profileId,
       timestamp: new Date().toISOString(),
     });
-    
+
     if (boosts.length === 0) {
       console.warn('[useDuelData] ⚠️ Boost inventory is empty. This might mean:');
       console.warn('  1. User has no boosts purchased');
@@ -603,31 +648,31 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
     if (loadoutBoosts.length > 0) {
       console.log('[useDuelData] Filtering by loadout. Looking for:', loadoutBoosts);
       console.log('[useDuelData] Available boost types in inventory:', boosts.map(b => b.boost_type));
-      
+
       // Загружаем определения бустов для получения иконок и названий
       const { data: boostDefinitions } = await supabase
         .from("boost_definitions")
         .select("type, icon, name_ru")
         .in("type", loadoutBoosts);
-      
+
       const definitionsMap = new Map(
         (boostDefinitions || []).map(b => [b.type, { icon: b.icon, name_ru: b.name_ru }])
       );
-      
+
       // Создаем мапу для быстрого поиска количества бустов
       const boostsMap = new Map(boosts.map(b => [b.boost_type, b.quantity]));
-      
+
       // Формируем список бустов из loadout (даже если их нет в инвентаре - показываем с количеством 0)
       const filteredBoosts = loadoutBoosts.map(boostType => {
         const definition = definitionsMap.get(boostType);
         return {
-        boost_type: boostType,
+          boost_type: boostType,
           quantity: boostsMap.get(boostType) || 0,
           icon: definition?.icon || null,
           name_ru: definition?.name_ru || boostType
         };
       });
-      
+
       boosts = filteredBoosts;
       console.log('[useDuelData] Filtered boosts by loadout:', boosts.map(b => ({ type: b.boost_type, quantity: b.quantity, icon: b.icon })));
     } else {
@@ -637,11 +682,11 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
           .from("boost_definitions")
           .select("type, icon, name_ru")
           .in("type", boosts.map(b => b.boost_type));
-        
+
         const definitionsMap = new Map(
           (boostDefinitions || []).map(b => [b.type, { icon: b.icon, name_ru: b.name_ru }])
         );
-        
+
         boosts = boosts.map(b => {
           const definition = definitionsMap.get(b.boost_type);
           return {
