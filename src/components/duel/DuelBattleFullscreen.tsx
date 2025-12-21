@@ -2483,7 +2483,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   return (
     <div
-      className="fixed inset-0 bg-background z-50 overflow-y-auto flex flex-col"
+      className="duel-fullscreen fixed inset-0 bg-background z-50 overflow-y-auto flex flex-col"
       style={{
         paddingTop: isInTelegramMiniApp
           ? `${Math.round(safeArea.top > 0 ? safeArea.top + 40 : 60)}px` // Используем raw safeArea.top + 40px для breathing room (комфортный отступ от Telegram header)
