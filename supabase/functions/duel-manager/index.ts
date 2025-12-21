@@ -47,7 +47,7 @@ const submitAnswerSchema = z.object({
 
 const getResultsSchema = z.object({
   duel_id: z.string().uuid(),
-  profile_id: z.string().uuid(),
+  profile_id: z.string().uuid().optional(),
 });
 
 const useBoostSchema = z.object({
@@ -1656,7 +1656,17 @@ Deno.serve(async (req) => {
 
       case 'get_results': {
         const validated = getResultsSchema.parse(params);
-        const { duel_id, profile_id } = validated;
+        const { duel_id } = validated;
+        // 🆕 FIX: Используем profile_id из params или fallback на profileId из JWT
+        const profile_id = validated.profile_id || profileId;
+
+        if (!profile_id) {
+          console.error('[get_results] No profile_id provided and no JWT profile');
+          return new Response(JSON.stringify({ error: 'profile_id is required' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
 
         console.log('[get_results] Fetching results for duel:', duel_id, 'profile_id:', profile_id);
 
