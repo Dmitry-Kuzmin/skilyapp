@@ -37,14 +37,30 @@ export const TelegramNavigation = () => {
     const webApp = getTelegramWebApp();
     if (!webApp) return;
 
+    // КРИТИЧНО: Проверяем, это дуэльная страница или дашборд
+    const isDuelPage = location.pathname.includes('/duel') || location.pathname.includes('/games/duel');
+    const isDashboard = location.pathname === '/dashboard' || location.pathname === '/';
+
+    // Для дуэльных страниц НЕ регистрируем обработчик здесь
+    // DuelBattleFullscreen и DuelResult сами управляют BackButton
+    if (isDuelPage) {
+      console.log('[TelegramNavigation] Duel page detected - not registering global handler');
+      return; // Выходим из useEffect - cleanup не нужен
+    }
+
     const handleBack = () => {
       console.log('[TelegramNavigation] BackButton clicked, current path:', location.pathname);
 
-      // Специальная обработка для дуэли - НЕ обрабатываем здесь, если мы в активной битве
-      // DuelBattleFullscreen сам обработает BackButton и покажет модалку подтверждения
-      if (location.pathname.includes('/duel') || location.pathname.includes('/games/duel')) {
-        console.log('[TelegramNavigation] Duel detected - letting DuelBattleFullscreen handle BackButton');
-        // Не обрабатываем - DuelBattleFullscreen покажет модалку
+      // На дашборде закрываем приложение
+      if (isDashboard) {
+        console.log('[TelegramNavigation] Dashboard - closing app');
+        if (typeof webApp.close === "function") {
+          try {
+            webApp.close();
+          } catch (error) {
+            console.warn("[TelegramNavigation] Unable to close WebApp:", error);
+          }
+        }
         return;
       }
 
@@ -53,14 +69,6 @@ export const TelegramNavigation = () => {
         navigate(-1);
       } else {
         navigate("/dashboard");
-        // Если мы уже на главном экране, закрываем Mini App
-        if (typeof webApp.close === "function") {
-          try {
-            webApp.close();
-          } catch (error) {
-            console.warn("[TelegramNavigation] Unable to close WebApp:", error);
-          }
-        }
       }
     };
 
@@ -79,16 +87,18 @@ export const TelegramNavigation = () => {
     const webApp = getTelegramWebApp();
     if (!webApp) return;
 
-    const isMainScreen = location.pathname === "/";
+    const isDashboard = location.pathname === '/dashboard' || location.pathname === '/';
     const isDuelPage = location.pathname.includes('/duel') || location.pathname.includes('/games/duel');
 
-    // В дуэли BackButton всегда должен быть виден и работать
-    if (isMainScreen) {
+    // На дашборде скрываем BackButton - приложение закрывается через системные средства
+    // На дуэльных страницах компоненты сами управляют BackButton
+    if (isDashboard) {
       webApp.BackButton.hide();
-    } else {
-      // Показываем BackButton для всех страниц, включая дуэль
+    } else if (!isDuelPage) {
+      // На остальных страницах показываем BackButton
       webApp.BackButton.show();
     }
+    // Для duel-страниц ничего не делаем - компоненты сами управляют
   }, [isTelegramReady, location.pathname]);
 
   // Handle safe area insets updates
