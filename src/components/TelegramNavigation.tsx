@@ -29,17 +29,17 @@ export const TelegramNavigation = () => {
       window.clearInterval(interval);
     };
   }, [isTelegramReady]);
-  
+
   // Инициализируем BackButton один раз и вешаем стабильный обработчик
   useEffect(() => {
     if (!isTelegramReady) return;
-    
+
     const webApp = getTelegramWebApp();
     if (!webApp) return;
 
     const handleBack = () => {
       console.log('[TelegramNavigation] BackButton clicked, current path:', location.pathname);
-      
+
       // Специальная обработка для дуэли - НЕ обрабатываем здесь, если мы в активной битве
       // DuelBattleFullscreen сам обработает BackButton и покажет модалку подтверждения
       if (location.pathname.includes('/duel') || location.pathname.includes('/games/duel')) {
@@ -47,7 +47,7 @@ export const TelegramNavigation = () => {
         // Не обрабатываем - DuelBattleFullscreen покажет модалку
         return;
       }
-      
+
       // Обычная навигация назад
       if (window.history.length > 1) {
         navigate(-1);
@@ -75,7 +75,7 @@ export const TelegramNavigation = () => {
   // Управляем отображением BackButton в зависимости от текущего маршрута
   useEffect(() => {
     if (!isTelegramReady) return;
-    
+
     const webApp = getTelegramWebApp();
     if (!webApp) return;
 
@@ -94,7 +94,7 @@ export const TelegramNavigation = () => {
   // Handle safe area insets updates
   useEffect(() => {
     if (!isTelegramReady) return;
-    
+
     const webApp = getTelegramWebApp();
     if (!webApp) return;
 
@@ -121,7 +121,7 @@ export const TelegramNavigation = () => {
       const left = (webApp as any).viewportSafeAreaInsetLeft ?? webApp.safeAreaInset?.left ?? 0;
       const right = (webApp as any).viewportSafeAreaInsetRight ?? webApp.safeAreaInset?.right ?? 0;
       const { isMobilePlatform } = getPlatformInfo();
-      
+
       console.log('[TelegramNavigation] 📏 Обновление safe area insets:', {
         top,
         bottom,
@@ -131,7 +131,7 @@ export const TelegramNavigation = () => {
         usingViewportProperties: !!(webApp as any).viewportSafeAreaInsetTop,
         usingSafeAreaInset: !!webApp.safeAreaInset,
       });
-      
+
       document.documentElement.style.setProperty('--tg-safe-area-inset-top', `${top}px`);
       document.documentElement.style.setProperty('--tg-safe-area-inset-bottom', `${bottom}px`);
       document.documentElement.style.setProperty('--tg-safe-area-inset-left', `${left}px`);
@@ -155,12 +155,12 @@ export const TelegramNavigation = () => {
     const updateContentSafeAreaInsets = () => {
       // Определяем платформу (мобильная или десктоп)
       const { platform, isMobilePlatform } = getPlatformInfo();
-      
+
       // Для мобильных устройств используем contentSafeAreaInset из Telegram API
       // Для десктопа отступы не нужны (нет нативной панели Telegram)
       let contentTop = 0;
       let contentBottom = 0;
-      
+
       // Логируем ВСЕ доступные свойства для отладки
       console.log('[TelegramNavigation] 🔍 Проверка всех safe area свойств:', {
         platform,
@@ -172,20 +172,25 @@ export const TelegramNavigation = () => {
         safeAreaInset: webApp.safeAreaInset,
         contentSafeAreaInset: webApp.contentSafeAreaInset,
       });
-      
+
+      // Минимальный отступ для мобильных устройств Telegram (высота хедера с кнопками)
+      const MIN_MOBILE_TOP_INSET = 56;
+
       if (isMobilePlatform && webApp.contentSafeAreaInset) {
         // Используем contentSafeAreaInset.top из Telegram API
-        // УМЕНЬШАЕМ В 2 РАЗА, как просил пользователь
-        contentTop = Math.round((webApp.contentSafeAreaInset.top || 0) / 2);
-        contentBottom = Math.round((webApp.contentSafeAreaInset.bottom || 0) / 2);
+        // Берём максимум из API и минимального значения для надёжности
+        contentTop = Math.max(webApp.contentSafeAreaInset.top || 0, MIN_MOBILE_TOP_INSET);
+        contentBottom = webApp.contentSafeAreaInset.bottom || 0;
       } else if (isMobilePlatform && webApp.safeAreaInset) {
         // Fallback: используем safeAreaInset если contentSafeAreaInset недоступен
-        // УМЕНЬШАЕМ В 2 РАЗА
-        contentTop = Math.round((webApp.safeAreaInset.top || 0) / 2);
-        contentBottom = Math.round((webApp.safeAreaInset.bottom || 0) / 2);
+        contentTop = Math.max(webApp.safeAreaInset.top || 0, MIN_MOBILE_TOP_INSET);
+        contentBottom = webApp.safeAreaInset.bottom || 0;
+      } else if (isMobilePlatform) {
+        // Fallback для мобильных если API не возвращает значения
+        contentTop = MIN_MOBILE_TOP_INSET;
       }
       // Для десктопа contentTop и contentBottom остаются 0
-      
+
       console.log('[TelegramNavigation] ✅ Setting content safe area insets:', {
         platform,
         isMobile: isMobilePlatform,
@@ -193,12 +198,12 @@ export const TelegramNavigation = () => {
         contentBottom,
         willApplyPadding: contentTop > 0 || contentBottom > 0,
       });
-      
+
       // КРИТИЧНО: Устанавливаем единую систему отступов
       // Для десктопа всегда 0, для мобильных - значения из Telegram API
       document.documentElement.style.setProperty('--app-content-top', `${contentTop}px`);
       document.documentElement.style.setProperty('--app-content-bottom', `${contentBottom}px`);
-      
+
       // Также сохраняем для обратной совместимости
       // КРИТИЧНО: Для десктопа устанавливаем 0, чтобы не было отступов
       if (isMobilePlatform && webApp.contentSafeAreaInset) {
@@ -213,7 +218,7 @@ export const TelegramNavigation = () => {
         document.documentElement.style.setProperty('--tg-content-safe-area-inset-left', '0px');
         document.documentElement.style.setProperty('--tg-content-safe-area-inset-right', '0px');
       }
-      
+
       // Добавляем класс на body/html для CSS селекторов
       document.body.classList.add('telegram-webapp');
       document.documentElement.classList.add('telegram-webapp');

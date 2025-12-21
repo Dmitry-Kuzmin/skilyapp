@@ -113,6 +113,30 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
     };
   }, [duelId]);
 
+  // 🆕 FIX: Обработка Telegram BackButton на экране результатов
+  useEffect(() => {
+    if (!isTelegramMiniApp()) return;
+
+    const webApp = getTelegramWebApp();
+    if (!webApp || !webApp.BackButton) return;
+
+    // Показываем BackButton
+    webApp.BackButton.show();
+
+    const handleBack = () => {
+      console.log('[DuelResult] BackButton clicked - going back to menu');
+      clearActiveDuel();
+      clearDuelResultSnapshot();
+      onBackToMenu();
+    };
+
+    webApp.BackButton.onClick(handleBack);
+
+    return () => {
+      webApp.BackButton.offClick(handleBack);
+    };
+  }, [onBackToMenu, clearActiveDuel]);
+
   const [results, setResults] = useState<any>(duelResultsData?.results || null);
   const [myAnswers, setMyAnswers] = useState<any[]>(duelResultsData?.myAnswers || []);
   const [showAIWidget, setShowAIWidget] = useState(false);
@@ -253,8 +277,14 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
     }
 
     const webApp = getTelegramWebApp();
-    if (!webApp || !webApp.shareToStory) {
-      toast.error('Функция шаринга недоступна');
+    if (!webApp) {
+      toast.error('Telegram WebApp недоступен');
+      return;
+    }
+
+    // Проверяем доступность shareToStory (доступна с версии 7.8+)
+    if (!webApp.shareToStory) {
+      toast.error('Обновите Telegram для публикации в Stories');
       return;
     }
 
@@ -271,31 +301,26 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
         isDraw: results.isDraw,
       });
 
-      // Вызываем shareToStory
-      // Telegram может требовать HTTP/HTTPS URL, но попробуем сначала с data URL
-      // Если не сработает, нужно будет загружать изображение на сервер
+      // Telegram shareToStory требует URL медиа (для data URL используем media_url напрямую)
+      // Документация: https://core.telegram.org/bots/webapps#sharetostory
       const shareText = results.isWinner
-        ? `Я разнес его со счетом ${results.myScore}:${results.opponentScore} ! 🏆 Попробуй обыграть меня.`
+        ? `Я выиграл со счетом ${results.myScore}:${results.opponentScore}! 🏆`
         : results.isDraw
-          ? `Ничья ${results.myScore}:${results.opponentScore} ! 🤝 Попробуй обыграть меня.`
-          : `Результат дуэли: ${results.myScore}:${results.opponentScore}. Попробуй обыграть меня!`;
+          ? `Ничья ${results.myScore}:${results.opponentScore}! 🤝`
+          : `Результат: ${results.myScore}:${results.opponentScore}`;
 
-      // Пробуем два варианта синтаксиса (в зависимости от версии Telegram WebApp)
-      try {
-        // Вариант 1: объект с параметрами
-        if (typeof webApp.shareToStory === 'function') {
-          webApp.shareToStory({
-            media_url: imageDataUrl,
-            text: shareText,
-          });
+      console.log('[DuelResult] Calling shareToStory with image length:', imageDataUrl.length);
+
+      // Вызываем shareToStory (синтаксис: media_url, optional_params)
+      webApp.shareToStory(imageDataUrl, {
+        text: shareText,
+        widget_link: {
+          url: 'https://t.me/dgt_prep_bot',
+          name: 'Попробуй обыграть меня!'
         }
-      } catch (error) {
-        // Вариант 2: два аргумента (старый синтаксис)
-        console.log('[DuelResult] Trying alternative shareToStory syntax');
-        webApp.shareToStory(imageDataUrl, { text: shareText });
-      }
+      });
 
-      toast.success('Результат опубликован в Stories!', { id: 'share-story' });
+      toast.success('Открываем редактор Stories...', { id: 'share-story' });
     } catch (error) {
       console.error('[DuelResult] Error sharing to story:', error);
       toast.error('Не удалось поделиться в Stories', { id: 'share-story' });
@@ -591,8 +616,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
             {/* Hover Glow effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-indigo-500/30 rounded-[32px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            {/* Premium Glass Card */}
-            <div className="relative overflow-hidden bg-slate-900/60 dark:bg-black/40 backdrop-blur-xl rounded-[32px] p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+            {/* Premium Glass Card - улучшено для светлой темы */}
+            <div className="relative overflow-hidden bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl rounded-[32px] p-6 border border-slate-200 dark:border-white/10 shadow-xl dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
               {/* Inner glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
 
@@ -603,12 +628,12 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                 <AnimatedCounter
                   value={results.myScore}
                   duration={1500}
-                  className="text-6xl font-black bg-gradient-to-b from-blue-400 via-blue-300 to-white bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]"
+                  className="text-6xl font-black bg-gradient-to-b from-blue-600 via-blue-500 to-blue-400 dark:from-blue-400 dark:via-blue-300 dark:to-white bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]"
                 />
-                <div className="text-sm font-semibold uppercase tracking-wider text-zinc-400">Вы</div>
-                <div className="flex items-center justify-center gap-2 bg-white/5 backdrop-blur-sm rounded-xl px-3 py-2 border border-white/10">
-                  <CheckCircle2 className="w-4 h-4 text-green-400" />
-                  <span className="text-sm font-bold text-zinc-200">{results.myCorrect}/{totalQuestions}</span>
+                <div className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Вы</div>
+                <div className="flex items-center justify-center gap-2 bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-xl px-3 py-2 border border-slate-200 dark:border-white/10">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 dark:text-green-400" />
+                  <span className="text-sm font-bold text-slate-700 dark:text-zinc-200">{results.myCorrect}/{totalQuestions}</span>
                 </div>
               </div>
             </div>
@@ -623,8 +648,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
             {/* Hover Glow effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-zinc-500/20 to-zinc-600/20 rounded-[32px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            {/* Premium Glass Card */}
-            <div className="relative overflow-hidden bg-slate-900/60 dark:bg-black/40 backdrop-blur-xl rounded-[32px] p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+            {/* Premium Glass Card - улучшено для светлой темы */}
+            <div className="relative overflow-hidden bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl rounded-[32px] p-6 border border-slate-200 dark:border-white/10 shadow-xl dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
               {/* Inner glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
 
@@ -645,12 +670,12 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                 <AnimatedCounter
                   value={results.opponentScore}
                   duration={1500}
-                  className="text-6xl font-black text-zinc-300 drop-shadow-[0_0_15px_rgba(0,0,0,0.3)]"
+                  className="text-6xl font-black text-slate-600 dark:text-zinc-300 drop-shadow-[0_0_15px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_0_15px_rgba(0,0,0,0.3)]"
                 />
-                <div className="text-sm font-semibold uppercase tracking-wider text-zinc-500 truncate px-2 max-w-[150px] md:max-w-none mx-auto" title={results.opponentName}>{results.opponentName}</div>
-                <div className="flex items-center justify-center gap-2 bg-white/5 backdrop-blur-sm rounded-xl px-3 py-2 border border-white/10">
-                  <Target className="w-4 h-4 text-orange-400" />
-                  <span className="text-sm font-bold text-zinc-200">{results.opponentCorrect}/{totalQuestions}</span>
+                <div className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-500 truncate px-2 max-w-[150px] md:max-w-none mx-auto" title={results.opponentName}>{results.opponentName}</div>
+                <div className="flex items-center justify-center gap-2 bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-xl px-3 py-2 border border-slate-200 dark:border-white/10">
+                  <Target className="w-4 h-4 text-orange-500 dark:text-orange-400" />
+                  <span className="text-sm font-bold text-slate-700 dark:text-zinc-200">{results.opponentCorrect}/{totalQuestions}</span>
                 </div>
               </div>
             </div>
@@ -663,7 +688,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
             initial={{ y: 30, opacity: 0, scale: 0.95 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             transition={{ delay: 0.5 }}
-            className="relative overflow-hidden rounded-[32px] border border-white/10 bg-slate-900/60 dark:bg-black/40 backdrop-blur-xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+            className="relative overflow-hidden rounded-[32px] border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl p-6 shadow-xl dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
           >
             {/* Animated background gradient */}
             <motion.div
@@ -701,7 +726,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                 {/* Season Points */}
                 <motion.div
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="relative bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-blue-500/30 text-center space-y-2 overflow-hidden group"
+                  className="relative bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-blue-200 dark:border-blue-500/30 text-center space-y-2 overflow-hidden group"
                 >
                   {/* Hover glow */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -728,7 +753,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                     <Star className="relative z-10 w-8 h-8 text-blue-400 mx-auto fill-blue-500/20 drop-shadow-[0_0_15px_rgba(59,130,246,0.6)]" />
                   </div>
 
-                  <div className="relative z-10 text-xs font-semibold uppercase tracking-wider text-zinc-400">Season Points</div>
+                  <div className="relative z-10 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Season Points</div>
                   <AnimatedCounter
                     value={rewards.sp}
                     duration={1500}
@@ -740,7 +765,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                 {/* XP */}
                 <motion.div
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="relative bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-indigo-500/30 text-center space-y-2 overflow-hidden group"
+                  className="relative bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-indigo-200 dark:border-indigo-500/30 text-center space-y-2 overflow-hidden group"
                 >
                   {/* Hover glow */}
                   <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -767,7 +792,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                     <Zap className="relative z-10 w-8 h-8 text-indigo-400 mx-auto fill-indigo-500/20 drop-shadow-[0_0_15px_rgba(129,140,248,0.6)]" />
                   </div>
 
-                  <div className="relative z-10 text-xs font-semibold uppercase tracking-wider text-zinc-400">Опыт</div>
+                  <div className="relative z-10 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Опыт</div>
                   <AnimatedCounter
                     value={rewards.xp}
                     duration={1500}
@@ -921,10 +946,14 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
               <Button
                 onClick={handleShareToStory}
                 size="lg"
-                className="relative w-full bg-white text-black hover:bg-zinc-100 font-bold h-14 rounded-2xl shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.4)] hover:scale-[1.01] transition-all border-0 overflow-hidden"
+                className="relative w-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-400 hover:via-purple-400 hover:to-indigo-400 text-white font-bold h-14 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all border-0 overflow-hidden"
               >
-                {/* Noise texture overlay */}
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+                {/* Shimmer effect */}
+                <motion.div
+                  animate={{ x: ['-100%', '100%'] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
+                />
                 <div className="relative z-10 flex items-center justify-center">
                   <Share2 className="w-5 h-5 mr-2" />
                   Поделиться в Stories
@@ -971,7 +1000,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
               }}
               size="lg"
               variant="outline"
-              className="border-white/10 bg-white/5 hover:bg-white/10 text-zinc-200 font-bold h-14 rounded-2xl backdrop-blur-sm"
+              className="border-slate-300 dark:border-white/20 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-slate-700 dark:text-zinc-200 font-bold h-14 rounded-2xl backdrop-blur-sm shadow-sm"
             >
               <Home className="w-5 h-5 mr-2" />
               В меню
