@@ -474,24 +474,15 @@ export function useDuelGame({
         isFinishingRef.current = true;
         log('[useDuelGame] ✅ Last question answered - checking duel status');
 
-        // 🔍 DEBUG MARKER: timerCritical (heavy) = entering last question logic
-        haptics.timerCritical();
-
         setHasFinishedMyQuestions(true);
 
         // 🆕 CRITICAL FIX: Показываем экран ожидания СРАЗУ, до ответа от finishDuel
         // Это гарантирует, что polling начнётся даже если сетевой запрос зависнет в Telegram
         setIsWaitingForOpponent(true);
 
-        // 🔍 DEBUG MARKER: selection_changed = waiting screen set
-        haptics.selectionChanged();
-
         // Call finishDuel to check if both players finished
         // 🆕 CRITICAL FIX: Передаём true напрямую, чтобы обойти проблему closure
         finishDuel(true);
-
-        // 🔍 DEBUG MARKER: warning notification = finishDuel called (async, won't wait)
-        haptics.warning();
       } else {
         // Normal transition to next question
         log('[useDuelGame] Transitioning to next question in 1500ms');
