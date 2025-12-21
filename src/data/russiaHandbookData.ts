@@ -814,213 +814,84 @@ export const russiaHandbookSections: HandbookSection[] = [
             <div class="pro-handbook">
                 <div class="hb-hero">
                     <h1 class="hb-hero-title">Обязанности пешеходов</h1>
-                    <p class="hb-hero-subtitle">Глава 4. Правила движения пешеходов, перехода дороги и взаимодействия с транспортом. ПДД РФ 2025.</p>
+                    <p class="hb-hero-subtitle">Глава 4. ПДД РФ 2025</p>
                 </div>
-
-                <h3 class="hb-category-title">4.1 Где должны двигаться пешеходы</h3>
 
                 <div class="hb-rule-card-v2">
                     <div class="hb-rule-num-v2">4.1</div>
                     <div class="hb-rule-content">
-                        <p style="font-size: 1.05rem; line-height: 1.7; margin-bottom: 1rem;">
-                            Пешеходы должны двигаться по <strong>тротуарам</strong>, <strong>пешеходным дорожкам</strong>, <strong>велопешеходным дорожкам</strong>, а при их отсутствии — по <strong>обочинам</strong>.
-                        </p>
-                        <p style="font-size: 1.05rem; line-height: 1.7; margin-bottom: 1rem;">
-                            Пешеходы, перевозящие или переносящие громоздкие предметы, а также лица в инвалидных колясках, могут двигаться по краю проезжей части, если создают помехи другим пешеходам.
-                        </p>
-                        <em style="font-size: 0.85em; opacity: 0.7;">(в ред. Постановлений Правительства РФ от 22.03.2014 N 221, от 24.11.2018 N 1414)</em>
+                        <p>Пешеходы должны двигаться по <strong>тротуарам</strong>, <strong>пешеходным дорожкам</strong>, <strong>велопешеходным дорожкам</strong>, а при их отсутствии — по <strong>обочинам</strong>. Лица с громоздкими предметами или в инвалидных колясках могут двигаться по краю проезжей части, если создают помехи другим.</p>
+                        <p style="margin-top: 0.5rem;"><strong>При отсутствии тротуаров:</strong> по велосипедной дорожке (уступая велосипедистам/СИМ), в один ряд по краю проезжей части, на дорогах с разделительной полосой — по внешнему краю.</p>
+                        <p style="margin-top: 0.5rem; padding: 0.5rem; background: hsl(var(--orange-500) / 0.1); border-radius: 0.25rem;"><strong>⚠️ По краю дороги — НАВСТРЕЧУ движению ТС.</strong> Исключение: инвалидные коляски, ведущие мотоцикл/мопед/велосипед/СИМ — по ходу движения.</p>
                     </div>
                 </div>
 
-                <div class="info-box-premium" style="margin-top: 1.5rem; border-left-color: hsl(var(--primary));">
-                    <p style="margin-bottom: 0.75rem;"><strong>📍 При отсутствии тротуаров</strong> пешеходы могут:</p>
-                    <ul class="styled-list">
-                        <li>Двигаться по велосипедной дорожке (уступая велосипедистам и СИМ).</li>
-                        <li>Идти <strong>в один ряд</strong> по краю проезжей части.</li>
-                        <li>На дорогах с разделительной полосой — по внешнему краю.</li>
-                    </ul>
-                </div>
-
-                <div class="hb-rule-card-v2" style="margin-top: 1.5rem; border-left-color: hsl(var(--orange-500));">
-                    <div class="hb-rule-num-v2" style="background: linear-gradient(135deg, hsl(var(--orange-500)), hsl(var(--orange-600)));">⚠️</div>
+                <div class="hb-rule-card-v2" style="margin-top: 0.75rem; border-left-color: hsl(var(--yellow-500));">
+                    <div class="hb-rule-num-v2" style="background: hsl(var(--yellow-600));">🔦</div>
                     <div class="hb-rule-content">
-                        <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem;">Направление движения по краю дороги</p>
-                        <p style="font-size: 1.05rem; line-height: 1.7;">
-                            При движении по краю проезжей части пешеходы должны идти <strong style="color: hsl(var(--primary));">НАВСТРЕЧУ</strong> движению транспортных средств.
-                        </p>
-                        <p style="font-size: 0.95rem; margin-top: 0.75rem; opacity: 0.9;">
-                            <strong>Исключение:</strong> лица в инвалидных колясках и ведущие мотоцикл, мопед, велосипед, СИМ — следуют <em>по ходу движения</em> ТС.
-                        </p>
+                        <p><strong>Световозвращатели</strong> (темное время/недостаточная видимость):</p>
+                        <p>• В населенных пунктах — рекомендуется. • <strong style="color: hsl(var(--red-500));">Вне населенных пунктов — ОБЯЗАНЫ</strong> иметь и обеспечить видимость.</p>
                     </div>
                 </div>
 
-                <div class="hb-rule-card-v2" style="margin-top: 1.5rem; border-left-color: hsl(var(--yellow-500)); background: linear-gradient(135deg, hsl(var(--yellow-500) / 0.08), transparent);">
-                    <div class="hb-rule-num-v2" style="background: linear-gradient(135deg, hsl(var(--yellow-500)), hsl(var(--yellow-600)));">🔦</div>
-                    <div class="hb-rule-content">
-                        <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem;">Световозвращающие элементы</p>
-                        <p style="font-size: 1rem; line-height: 1.7; margin-bottom: 0.75rem;">
-                            При движении в <strong>темное время суток</strong> или при недостаточной видимости:
-                        </p>
-                        <ul class="styled-list" style="margin-bottom: 0.75rem;">
-                            <li><strong>В населенных пунктах</strong> — рекомендуется иметь световозвращатели.</li>
-                            <li><strong>Вне населенных пунктов</strong> — <span style="color: hsl(var(--red-500)); font-weight: 700;">ОБЯЗАНЫ</span> иметь и обеспечить их видимость.</li>
-                        </ul>
-                        <em style="font-size: 0.85em; opacity: 0.7;">(в ред. Постановления Правительства РФ от 14.11.2014 N 1197)</em>
-                    </div>
-                </div>
-
-                <h3 class="hb-category-title">4.2 Организованные колонны и группы детей</h3>
-
-                <div class="hb-rule-card-v2">
+                <div class="hb-rule-card-v2" style="margin-top: 0.75rem;">
                     <div class="hb-rule-num-v2">4.2</div>
                     <div class="hb-rule-content">
-                        <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem;">Организованные пешие колонны</p>
-                        <p style="font-size: 1rem; line-height: 1.7; margin-bottom: 1rem;">
-                            Движение по проезжей части разрешается только <strong>по направлению движения ТС</strong>, по правой стороне, не более чем по <strong>4 человека в ряд</strong>.
-                        </p>
-                        
-                        <div style="background: hsl(var(--muted) / 0.3); border-radius: 0.75rem; padding: 1rem; margin-bottom: 1rem;">
-                            <p style="font-weight: 600; margin-bottom: 0.5rem;">🚩 Сопровождение колонны:</p>
-                            <p style="font-size: 0.95rem; line-height: 1.6;">
-                                Спереди и сзади <strong>с левой стороны</strong> — сопровождающие с <strong>красными флажками</strong>.<br>
-                                Ночью: спереди — <strong>белый фонарь</strong>, сзади — <strong>красный</strong>.
-                            </p>
-                        </div>
-
-                        <div style="background: linear-gradient(135deg, hsl(var(--orange-500) / 0.1), transparent); border-left: 3px solid hsl(var(--orange-500)); border-radius: 0 0.5rem 0.5rem 0; padding: 1rem;">
-                            <p style="font-weight: 600; margin-bottom: 0.5rem;">👶 Группы детей</p>
-                            <p style="font-size: 0.95rem; line-height: 1.6;">
-                                Только по тротуарам и пешеходным дорожкам (при отсутствии — по обочинам).<br>
-                                <strong style="color: hsl(var(--orange-500));">Только в светлое время суток и только в сопровождении взрослых!</strong>
-                            </p>
-                        </div>
+                        <p><strong>Организованные колонны</strong> — по направлению движения ТС, по правой стороне, не более 4 человек в ряд. Сопровождающие с левой стороны: <strong>красные флажки</strong>, ночью — спереди белый фонарь, сзади красный.</p>
+                        <p style="margin-top: 0.5rem; padding: 0.5rem; background: hsl(var(--orange-500) / 0.1); border-radius: 0.25rem;"><strong>👶 Группы детей</strong> — только по тротуарам/пешеходным дорожкам (обочинам), только днем, только с взрослыми.</p>
                     </div>
                 </div>
 
-                <h3 class="hb-category-title">4.3 Переход дороги</h3>
-
-                <div class="hb-rule-card-v2" style="border-left-color: hsl(var(--primary));">
+                <div class="hb-rule-card-v2" style="margin-top: 0.75rem; border-left-color: hsl(var(--primary));">
                     <div class="hb-rule-num-v2">4.3</div>
                     <div class="hb-rule-content">
-                        <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem;">Где переходить дорогу</p>
-                        <p style="font-size: 1rem; line-height: 1.7; margin-bottom: 1rem;">
-                            Пешеходы должны переходить дорогу по <strong>пешеходным переходам</strong> (наземным, подземным, надземным), а при их отсутствии — на перекрестках <strong>по линии тротуаров или обочин</strong>.
-                        </p>
-
-                        <div style="background: hsl(var(--muted) / 0.3); border-radius: 0.75rem; padding: 1rem; margin-bottom: 1rem;">
-                            <p style="font-weight: 600; margin-bottom: 0.5rem;">↗️ Диагональный переход</p>
-                            <p style="font-size: 0.95rem; line-height: 1.6;">
-                                На регулируемом перекрестке допускается переход по диагонали <strong>только при наличии разметки 1.14.3</strong>.
-                                <br><em style="font-size: 0.85em; opacity: 0.7;">(в ред. Постановления Правительства РФ от 06.10.2022 N 1769)</em>
-                            </p>
-                        </div>
-
-                        <p style="font-size: 1rem; line-height: 1.7; margin-bottom: 0.75rem;">
-                            <strong>При отсутствии в зоне видимости</strong> перехода или перекрестка разрешается переходить:
-                        </p>
-                        <ul class="styled-list">
-                            <li>Под прямым углом к краю проезжей части.</li>
-                            <li>На участках без разделительной полосы и ограждений.</li>
-                            <li>Там, где дорога хорошо просматривается в обе стороны.</li>
-                        </ul>
-                        <p style="font-size: 0.9rem; margin-top: 0.75rem; opacity: 0.8;">
-                            <em>Требования п. 4.3 не распространяются на велосипедные зоны.</em>
-                        </p>
+                        <p><strong>Переход дороги:</strong> по пешеходным переходам (наземным, подземным, надземным), при отсутствии — на перекрестках по линии тротуаров/обочин. Диагональный переход — только при разметке 1.14.3.</p>
+                        <p style="margin-top: 0.5rem;"><strong>Вне зоны видимости перехода/перекрестка:</strong> под прямым углом, без разделительной полосы и ограждений, где дорога просматривается в обе стороны. <em style="opacity: 0.7;">Не применяется к велозонам.</em></p>
                     </div>
                 </div>
 
-                <h3 class="hb-category-title">4.4 Сигналы регулирования</h3>
-
-                <div class="hb-rule-card-v2">
+                <div class="hb-rule-card-v2" style="margin-top: 0.75rem;">
                     <div class="hb-rule-num-v2">4.4</div>
                     <div class="hb-rule-content">
-                        <p style="font-size: 1rem; line-height: 1.7;">
-                            В местах, где движение регулируется, пешеходы должны руководствоваться сигналами <strong>регулировщика</strong>, <strong>пешеходного светофора</strong>, а при его отсутствии — <strong>транспортного светофора</strong>.
-                        </p>
+                        <p><strong>Регулируемые места:</strong> руководствоваться сигналами регулировщика → пешеходного светофора → транспортного светофора.</p>
                     </div>
                 </div>
 
-                <h3 class="hb-category-title">4.5 Безопасность перехода</h3>
-
-                <div class="hb-rule-card-v2" style="border-left-color: hsl(var(--orange-500));">
+                <div class="hb-rule-card-v2" style="margin-top: 0.75rem; border-left-color: hsl(var(--orange-500));">
                     <div class="hb-rule-num-v2">4.5</div>
                     <div class="hb-rule-content">
-                        <p style="font-size: 1rem; line-height: 1.7; margin-bottom: 1rem;">
-                            На переходах пешеходы могут выходить на проезжую часть <strong>после того, как</strong> оценят расстояние до приближающихся ТС, их скорость и убедятся в безопасности перехода.
-                        </p>
-                        <div style="background: linear-gradient(135deg, hsl(var(--red-500) / 0.1), transparent); border-left: 3px solid hsl(var(--red-500)); border-radius: 0 0.5rem 0.5rem 0; padding: 1rem;">
-                            <p style="font-weight: 600; margin-bottom: 0.5rem;">⚠️ Вне пешеходного перехода:</p>
-                            <ul class="styled-list" style="margin: 0;">
-                                <li>Не создавать помех для движения ТС.</li>
-                                <li>Не выходить из-за стоящего ТС, не убедившись в отсутствии приближающихся ТС.</li>
-                            </ul>
-                        </div>
+                        <p>На переходах выходить на проезжую часть <strong>после оценки</strong> расстояния до ТС, их скорости и убедившись в безопасности.</p>
+                        <p style="margin-top: 0.5rem; padding: 0.5rem; background: hsl(var(--red-500) / 0.1); border-radius: 0.25rem;"><strong>⚠️ Вне перехода:</strong> не создавать помех ТС, не выходить из-за стоящего ТС без проверки.</p>
                     </div>
                 </div>
 
-                <h3 class="hb-category-title">4.6 На проезжей части</h3>
-
-                <div class="hb-rule-card-v2" style="border-left-color: hsl(var(--red-500));">
+                <div class="hb-rule-card-v2" style="margin-top: 0.75rem; border-left-color: hsl(var(--red-500));">
                     <div class="hb-rule-num-v2">4.6</div>
                     <div class="hb-rule-content">
-                        <p style="font-size: 1rem; line-height: 1.7; margin-bottom: 1rem;">
-                            Выйдя на проезжую часть, пешеходы <strong>не должны задерживаться или останавливаться</strong>, если это не связано с обеспечением безопасности.
-                        </p>
-                        <div style="background: hsl(var(--muted) / 0.3); border-radius: 0.75rem; padding: 1rem;">
-                            <p style="font-weight: 600; margin-bottom: 0.5rem;">🏝️ Не успели перейти?</p>
-                            <p style="font-size: 0.95rem; line-height: 1.6;">
-                                Остановитесь на <strong>островке безопасности</strong> или на линии, разделяющей потоки. Продолжайте переход, убедившись в безопасности и с учетом сигнала светофора.
-                            </p>
-                        </div>
+                        <p>На проезжей части <strong>не задерживаться и не останавливаться</strong>. Не успели перейти — остановиться на островке безопасности или разделительной линии, продолжать с учетом светофора.</p>
                     </div>
                 </div>
 
-                <h3 class="hb-category-title" style="color: hsl(var(--red-500));">4.7 Спецтранспорт</h3>
-
-                <div class="hb-rule-card-v2" style="border-left-color: hsl(var(--red-500)); background: linear-gradient(135deg, hsl(var(--red-500) / 0.05), transparent);">
-                    <div class="hb-rule-num-v2" style="background: linear-gradient(135deg, hsl(var(--red-500)), hsl(var(--red-600)));">🚨</div>
+                <div class="hb-rule-card-v2" style="margin-top: 0.75rem; border-left-color: hsl(var(--red-500)); background: hsl(var(--red-500) / 0.03);">
+                    <div class="hb-rule-num-v2" style="background: hsl(var(--red-600));">🚨</div>
                     <div class="hb-rule-content">
-                        <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem;">При приближении спецтранспорта</p>
-                        <p style="font-size: 1rem; line-height: 1.7; margin-bottom: 0.75rem;">
-                            При приближении ТС с <strong>проблесковым маячком синего цвета</strong> (или синего и красного) <strong>И звуковым сигналом</strong> пешеходы обязаны:
-                        </p>
-                        <ul class="styled-list" style="margin-bottom: 0.75rem;">
-                            <li><strong>Воздержаться</strong> от перехода дороги.</li>
-                            <li>Если на проезжей части — <strong>незамедлительно освободить</strong> её.</li>
-                        </ul>
-                        <em style="font-size: 0.85em; opacity: 0.7;">(п. 4.7 в ред. Постановления Правительства РФ от 14.11.2014 N 1197)</em>
+                        <p><strong>4.7 Спецтранспорт:</strong> при приближении ТС с проблесковым маячком синего/красного цвета И звуковым сигналом — <strong>воздержаться от перехода</strong>. На проезжей части — <strong>незамедлительно освободить</strong>.</p>
                     </div>
                 </div>
 
-                <h3 class="hb-category-title">4.8 Ожидание транспорта</h3>
-
-                <div class="hb-rule-card-v2">
+                <div class="hb-rule-card-v2" style="margin-top: 0.75rem;">
                     <div class="hb-rule-num-v2">4.8</div>
                     <div class="hb-rule-content">
-                        <p style="font-size: 1rem; line-height: 1.7; margin-bottom: 1rem;">
-                            Ожидать маршрутное ТС и такси разрешается только на <strong>приподнятых посадочных площадках</strong>, при их отсутствии — на тротуаре или обочине.
-                        </p>
-                        <p style="font-size: 1rem; line-height: 1.7; margin-bottom: 1rem;">
-                            На остановках без приподнятых площадок — выходить на проезжую часть для посадки можно <strong>только после остановки ТС</strong>. После высадки — немедленно освободить проезжую часть.
-                        </p>
-                        <p style="font-size: 0.95rem; opacity: 0.9;">
-                            При движении к остановке через проезжую часть — руководствоваться пунктами <strong>4.4 – 4.7</strong>.
-                        </p>
+                        <p><strong>Ожидание транспорта:</strong> на посадочных площадках, при отсутствии — на тротуаре/обочине. Выход на проезжую часть для посадки — только после остановки ТС. После высадки — немедленно освободить. К остановке через проезжую часть — по п. 4.4–4.7.</p>
                     </div>
                 </div>
 
-                <div class="info-box-premium" style="margin-top: 2rem; background: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--primary) / 0.05)); border-left-color: hsl(var(--primary));">
-                    <p style="font-size: 1.1em; font-weight: 600; margin-bottom: 0.75rem;">📋 Резюме главы 4</p>
-                    <ul class="styled-list">
-                        <li>Двигаться по тротуарам, при их отсутствии — по обочинам.</li>
-                        <li>По краю дороги — <strong>навстречу</strong> движению ТС.</li>
-                        <li>Вне населенных пунктов ночью — обязательны световозвращатели.</li>
-                        <li>Переходить по переходам, на перекрестках — по линии тротуаров.</li>
-                        <li>При спецсигналах — немедленно освободить дорогу.</li>
-                    </ul>
+                <div style="margin-top: 1rem; padding: 0.75rem; background: hsl(var(--primary) / 0.08); border-radius: 0.5rem; border-left: 3px solid hsl(var(--primary));">
+                    <p style="font-weight: 600; margin-bottom: 0.25rem;">📋 Ключевое:</p>
+                    <p style="font-size: 0.9rem;">Тротуары/обочины • Навстречу ТС • Световозвращатели вне НП обязательны • По переходам • При спецсигналах — освободить дорогу</p>
                 </div>
-
             </div>
         `
     }
 ];
+

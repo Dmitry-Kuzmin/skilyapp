@@ -78,7 +78,25 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
   // 🎯 Используем каскад: initialSnapshot (props) -> restoredSnapshot (localStorage) -> null (server fetch)
   // useDuelResults сам обработает этот каскад внутри
   const effectiveSnapshot = initialSnapshot || restoredSnapshot;
+
+  // 🔍 DEBUG: Логируем состояние snapshot для отладки проблемы с Telegram
+  console.log('[DuelResult] 📊 Snapshot status:', {
+    hasInitialSnapshot: !!initialSnapshot,
+    hasRestoredSnapshot: !!restoredSnapshot,
+    hasEffectiveSnapshot: !!effectiveSnapshot,
+    duelId,
+    profileId
+  });
+
   const { data: duelResultsData, isLoading: loading, refetch, error } = useDuelResults(duelId, profileId, effectiveSnapshot);
+
+  // 🔍 DEBUG: Логируем состояние загрузки
+  console.log('[DuelResult] 📊 Loading status:', {
+    loading,
+    hasData: !!duelResultsData,
+    hasResults: !!duelResultsData?.results,
+    error: error?.message
+  });
 
   // Выбираем случайный эффект фейерверка при монтировании компонента
   const [selectedConfettiEffect] = useState(() => {
