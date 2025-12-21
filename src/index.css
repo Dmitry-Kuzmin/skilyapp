@@ -926,25 +926,12 @@ All colors MUST be HSL.
     padding-bottom: calc(5rem + var(--app-safe-bottom) + var(--app-content-bottom));
   }
 
-  /* Верхний отступ ТОЛЬКО для Telegram WebApp на МОБИЛЬНЫХ устройствах */
-  /* Используем единую систему на основе Telegram WebApp API */
-  /* Для мобильных: используем contentSafeAreaInset.top из Telegram API */
-  /* Для десктопа: 0px (нет нативной панели Telegram) */
-  /* КРИТИЧНО: Применяем только для мобильных (max-width: 768px) */
+  /* Верхний отступ для Telegram WebApp на МОБИЛЬНЫХ устройствах */
+  /* КРИТИЧНО: padding-top теперь применяется глобально к body.telegram-mobile-app */
+  /* В @layer base выше (строки 418-430) */
+  /* Здесь оставляем только исключения для специфичных элементов */
   @media (max-width: 768px) {
-
-    html.telegram-webapp .telegram-main-content,
-    body.telegram-webapp .telegram-main-content {
-      padding-top: calc(var(--app-safe-top) + var(--app-content-top)) !important;
-    }
-
-    /* ИСКЛЮЧЕНИЕ: Страница дуэлей сама управляет своими отступами */
-    html.telegram-webapp .telegram-main-content.duel-page,
-    body.telegram-webapp .telegram-main-content.duel-page,
-    html.telegram-webapp .telegram-main-content:has(.duel-fullscreen),
-    body.telegram-webapp .telegram-main-content:has(.duel-fullscreen) {
-      padding-top: 0 !important;
-    }
+    /* telegram-main-content НЕ нуждается в padding-top, т.к. body уже имеет его */
   }
 
   /* КРИТИЧНО: Для десктопных Telegram WebApp убираем отступы независимо от ширины */

@@ -34,9 +34,9 @@ export function useBotOpponent({
       return;
     }
 
-    console.log('[useBotOpponent] 🔍 Looking for bot in players:', players.map((p: any) => ({ 
-      id: p.id, 
-      user_id: p.user_id, 
+    console.log('[useBotOpponent] 🔍 Looking for bot in players:', players.map((p: any) => ({
+      id: p.id,
+      user_id: p.user_id,
       is_bot: p.is_bot,
       bot_name: p.bot_name,
       name: p.name
@@ -44,11 +44,11 @@ export function useBotOpponent({
 
     const botPlayer = players.find((p: any) => p.is_bot === true);
     if (botPlayer) {
-      console.log('[useBotOpponent] ✅ Bot found:', { 
-        id: botPlayer.id, 
-        bot_name: botPlayer.bot_name, 
+      console.log('[useBotOpponent] ✅ Bot found:', {
+        id: botPlayer.id,
+        bot_name: botPlayer.bot_name,
         name: botPlayer.name,
-        score: botPlayer.score 
+        score: botPlayer.score
       });
     } else {
       console.log('[useBotOpponent] ⚠️ Bot not found in players');
@@ -71,7 +71,10 @@ export function useBotOpponent({
       console.log('[useBotOpponent] ⚠️ No profileId');
       return;
     }
-    
+
+    // Получаем сложность бота для расчёта времени ответа
+    const botDifficulty = (botPlayerRef.current as any).bot_difficulty || 'medium';
+
     // КРИТИЧНО: Бот должен отвечать строго по порядку (position 1, 2, 3, 4, 5...)
     // Не используем currentQuestionId игрока - бот отвечает независимо от игрока
     const processBotAnswers = async () => {
@@ -99,11 +102,11 @@ export function useBotOpponent({
         // КРИТИЧНО: Находим СЛЕДУЮЩИЙ вопрос по порядку (минимальный position среди неотвеченных)
         // Это гарантирует, что бот отвечает строго по порядку: 1, 2, 3, 4, 5...
         let nextQuestion: { id: string; position: number } | null = null;
-        
+
         for (const question of allQuestions) {
-          if (!answeredQuestionIds.has(question.id) && 
-              !processedQuestions.current.has(question.id) && 
-              !activeTimers.current.has(question.id)) {
+          if (!answeredQuestionIds.has(question.id) &&
+            !processedQuestions.current.has(question.id) &&
+            !activeTimers.current.has(question.id)) {
             // Нашли первый неотвеченный вопрос по порядку
             nextQuestion = { id: question.id, position: question.position };
             break; // Важно: останавливаемся на первом найденном
@@ -117,7 +120,7 @@ export function useBotOpponent({
 
         const questionToAnswer = nextQuestion.id;
         const questionIndexToAnswer = nextQuestion.position - 1; // position начинается с 1
-        
+
         if (questionIndexToAnswer >= 0 && questionIndexToAnswer < totalQuestions) {
           console.log('[useBotOpponent] ✅ Next question in order:', questionToAnswer, `position ${nextQuestion.position} (${questionIndexToAnswer + 1}/${totalQuestions})`);
           startBotAnswerTimer(questionToAnswer, questionIndexToAnswer);
@@ -127,14 +130,33 @@ export function useBotOpponent({
       }
     };
 
+    // 🎯 УМНАЯ СИСТЕМА ТАЙМИНГОВ БОТА
+    // Реалистичные задержки 3-12 секунд, зависящие от сложности бота
+    const calculateBotThinkingTime = (): number => {
+      // Базовые диапазоны в миллисекундах (min, max)
+      const thinkingRanges: Record<string, { min: number; max: number }> = {
+        easy: { min: 5000, max: 12000 },      // 5-12 сек - думает дольше
+        medium: { min: 4000, max: 10000 },    // 4-10 сек - стандартно  
+        hard: { min: 3000, max: 8000 },       // 3-8 сек - быстрее
+        insane: { min: 2000, max: 6000 },     // 2-6 сек - очень быстро
+      };
+
+      const range = thinkingRanges[botDifficulty] || thinkingRanges.medium;
+
+      // Добавляем небольшую случайную вариацию (+/- 20%) для естественности
+      const baseTime = Math.floor(Math.random() * (range.max - range.min) + range.min);
+      const variation = baseTime * (Math.random() * 0.4 - 0.2); // ±20%
+
+      return Math.max(2000, Math.min(15000, Math.round(baseTime + variation))); // Ограничиваем 2-15 сек
+    };
+
     // Функция для запуска таймера ответа бота
     const startBotAnswerTimer = (questionToAnswer: string, questionIndexToAnswer: number) => {
-      // Имитация "мышления" бота: задержка 20-60 секунд для реалистичности
-      // Это создает иллюзию, что соперник действительно думает над ответом
-      const thinkingTime = Math.floor(Math.random() * 40000) + 20000; // 20-60 секунд
+      // 🎯 Умное время "мышления" бота: 2-15 секунд (реалистично как живой игрок)
+      const thinkingTime = calculateBotThinkingTime();
       const botName = botPlayerRef.current.bot_name || botPlayerRef.current.name || 'Bot';
 
-      console.log(`[useBotOpponent] 🤖 ${botName} is thinking about question ${questionIndexToAnswer + 1}/${totalQuestions}... (will answer in ${Math.round(thinkingTime / 1000)}s)`);
+      console.log(`[useBotOpponent] 🤖 ${botName} (${botDifficulty}) is thinking about question ${questionIndexToAnswer + 1}/${totalQuestions}... (will answer in ${(thinkingTime / 1000).toFixed(1)}s)`);
 
       const timer = setTimeout(async () => {
         // Помечаем вопрос как обработанный
@@ -167,13 +189,17 @@ export function useBotOpponent({
             new_score: data?.new_score
           });
 
-          // После успешного ответа проверяем, есть ли еще вопросы для ответа
-          // Это позволяет боту продолжать отвечать даже когда игрок закончил все вопросы
+          // 🚀 Сразу запускаем следующий вопрос (минимальная задержка 500мс для естественности)
+          // Это гарантирует, что бот продолжит отвечать без зависаний
           setTimeout(() => {
             processBotAnswers();
-          }, 1000);
+          }, 500);
         } catch (error) {
           console.error('[useBotOpponent] ❌ Exception submitting bot answer:', error);
+          // При ошибке всё равно пытаемся продолжить (fallback)
+          setTimeout(() => {
+            processBotAnswers();
+          }, 2000);
         }
       }, thinkingTime);
 
@@ -214,7 +240,7 @@ export function useBotOpponent({
     }
 
     const botDifficulty = (botPlayerRef.current as any).bot_difficulty || 'medium';
-    
+
     // Определяем вероятность использования буста в зависимости от сложности
     // Easy: 0% (не используют бусты)
     // Medium: 20% каждые 12 секунд

@@ -98,7 +98,10 @@ export const TelegramNavigation = () => {
       // На остальных страницах показываем BackButton
       webApp.BackButton.show();
     }
-    // Для duel-страниц ничего не делаем - компоненты сами управляют
+
+    // КРИТИЧНО: Управляем классом duel-active для отключения глобального padding
+    document.body.classList.toggle('duel-active', isDuelPage);
+    // Для duel-страниц ничего не делаем - компоненты сами управляют BackButton
   }, [isTelegramReady, location.pathname]);
 
   // Handle safe area insets updates
@@ -284,7 +287,7 @@ export const TelegramNavigation = () => {
         webApp.offEvent('viewportChanged', handleViewportChanged);   // Альтернативное имя
       }
     };
-  }, [isTelegramReady]);
+  }, [isTelegramReady, location.pathname]); // КРИТИЧНО: Добавлен location.pathname для обновления при навигации
 
   return null; // This component only manages Telegram WebApp buttons
 };
