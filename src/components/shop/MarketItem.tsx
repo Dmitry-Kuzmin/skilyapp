@@ -53,7 +53,7 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
   const canAfford = coins >= boost.cost_coins;
   const boostCategory = category || getBoostCategory(boost.type);
   const CategoryIcon = categoryIcons[boostCategory];
-  
+
   // Состояния для анимаций
   const [buttonState, setButtonState] = useState<'idle' | 'processing' | 'acquired'>('idle');
   const [progress, setProgress] = useState(0);
@@ -75,17 +75,17 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
   // Цветовые схемы для категорий
   const theme = boostCategory === 'exploit'
     ? {
-        border: 'border-red-500/30',
-        bg: 'bg-red-500/5',
-        icon: 'text-red-500',
-        glow: 'shadow-red-500/20',
-        hoverBorder: 'group-hover:border-red-500/50',
-        hoverGlow: 'group-hover:shadow-[0_0_30px_-5px_rgba(239,68,68,0.4)]',
-        powerBar: 'bg-red-500',
-        text: 'group-hover:text-red-400',
-      }
+      border: 'border-red-500/30',
+      bg: 'bg-red-500/5',
+      icon: 'text-red-500',
+      glow: 'shadow-red-500/20',
+      hoverBorder: 'group-hover:border-red-500/50',
+      hoverGlow: 'group-hover:shadow-[0_0_30px_-5px_rgba(239,68,68,0.4)]',
+      powerBar: 'bg-red-500',
+      text: 'group-hover:text-red-400',
+    }
     : boostCategory === 'defense'
-    ? {
+      ? {
         border: 'border-cyan-500/30',
         bg: 'bg-cyan-500/5',
         icon: 'text-cyan-400',
@@ -95,7 +95,7 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
         powerBar: 'bg-cyan-500',
         text: 'group-hover:text-cyan-400',
       }
-    : {
+      : {
         border: 'border-emerald-500/30',
         bg: 'bg-emerald-500/5',
         icon: 'text-emerald-400',
@@ -124,7 +124,7 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
     if (isPurchasing && !previousPurchasingRef.current) {
       setButtonState('processing');
       setProgress(0);
-      
+
       // Получаем позицию кнопки для floating cost
       if (buttonRef.current) {
         const rect = buttonRef.current.getBoundingClientRect();
@@ -134,7 +134,7 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
         });
         setShowFloatingCost(true);
       }
-      
+
       // Анимация прогресс-бара (600ms)
       const startTime = Date.now();
       const duration = 600;
@@ -142,20 +142,20 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
         const elapsed = Date.now() - startTime;
         const newProgress = Math.min((elapsed / duration) * 100, 100);
         setProgress(newProgress);
-        
+
         if (newProgress >= 100) {
           clearInterval(interval);
         }
       }, 16); // ~60fps
-      
+
       return () => clearInterval(interval);
     }
-    
+
     // Когда покупка завершается
     if (!isPurchasing && previousPurchasingRef.current) {
       setButtonState('acquired');
       setIsGlitching(true);
-      
+
       // Сбрасываем состояние через 1.5 секунды
       setTimeout(() => {
         setButtonState('idle');
@@ -166,7 +166,7 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
         }
       }, 1500);
     }
-    
+
     previousPurchasingRef.current = isPurchasing;
   }, [isPurchasing, onPurchaseComplete]);
 
@@ -212,7 +212,7 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
       )}
     >
       {/* Background Grid Pattern (еле заметный) */}
-      <div 
+      <div
         className="absolute inset-0 opacity-[0.01] dark:opacity-[0.02] mix-blend-overlay pointer-events-none"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
@@ -249,14 +249,13 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
         "bg-zinc-100 dark:bg-black/50 border border-zinc-300 dark:border-white/10",
         theme.iconBg || "shadow-[inset_0_0_15px_rgba(0,0,0,0.1)] dark:shadow-[inset_0_0_15px_rgba(0,0,0,0.3)]"
       )}>
-        <span 
+        <span
           className={cn("text-xl", theme.icon)}
           style={{
-            filter: `drop-shadow(0 0 8px ${
-              boostCategory === 'exploit' ? 'rgba(239, 68, 68, 0.6)' : 
-              boostCategory === 'defense' ? 'rgba(6, 182, 212, 0.6)' : 
-              'rgba(34, 197, 94, 0.6)'
-            })`
+            filter: `drop-shadow(0 0 8px ${boostCategory === 'exploit' ? 'rgba(239, 68, 68, 0.6)' :
+                boostCategory === 'defense' ? 'rgba(6, 182, 212, 0.6)' :
+                  'rgba(34, 197, 94, 0.6)'
+              })`
           }}
         >
           {boost.icon}
@@ -285,8 +284,8 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
           )}
           {/* Badge количества для перманентных (если нужно) */}
           {inventoryCount > 0 && !isConsumable && (
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className="text-[10px] px-1 py-0 min-w-[18px] text-center border-emerald-500/50 dark:border-success/50 text-emerald-600 dark:text-success bg-emerald-500/20 dark:bg-success/10 flex-shrink-0"
             >
               {inventoryCount}
@@ -297,10 +296,10 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
           <p className="text-xs text-zinc-600 dark:text-white/60 line-clamp-2 sm:line-clamp-1 leading-relaxed break-words">
             {displayDescription}
           </p>
-          {/* Градиент внизу текста, намекающий "читай дальше" */}
-          <div className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-white dark:from-[#0f1014] to-transparent pointer-events-none sm:hidden" />
+          {/* Убираем gradient overlay на мобильных - он вызывал черную полоску */}
         </div>
-        <div className="flex items-center gap-2 mt-1">
+        {/* UTL/ATK/DEF bar - скрываем на маленьких экранах */}
+        <div className="hidden sm:flex items-center gap-2 mt-1">
           <span className={cn(
             "text-[9px] font-mono tracking-widest uppercase opacity-70 dark:opacity-60",
             theme.text
@@ -322,7 +321,7 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
           <Coins className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />
           <span className="text-yellow-600 dark:text-yellow-500">{boost.cost_coins}</span>
         </div>
-        
+
         {boost.is_premium ? (
           <div className={cn(
             "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg",
@@ -375,7 +374,7 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
                 transition={{ duration: 0.1, ease: 'linear' }}
               />
             )}
-            
+
             {/* Контент кнопки */}
             <span className="relative z-10 flex items-center gap-1.5">
               {buttonState === 'processing' ? (
@@ -416,7 +415,7 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
           </div>
         </motion.div>
       )}
-      
+
       {/* Floating Cost */}
       <AnimatePresence>
         {showFloatingCost && (

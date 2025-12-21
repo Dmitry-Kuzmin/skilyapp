@@ -1967,7 +1967,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     );
   };
 
-  // 🏆 Premium Header Design
+  // 🏆 BLACK MARKET Header Design
   const headerContent = (
     <div className="relative overflow-hidden">
       {/* Gradient background */}
@@ -1990,11 +1990,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </div>
 
             <div className="min-w-0">
-              <h2 className="text-lg md:text-xl font-bold text-foreground truncate">
-                {t('boostShop.title') || 'Магазин'}
+              <h2 className="text-base md:text-lg font-black text-foreground truncate tracking-wide font-mono uppercase">
+                BLACK MARKET
               </h2>
-              <p className="text-xs text-muted-foreground truncate">
-                {t('boostShop.subtitle') || 'Бусты, монеты и Premium'}
+              <p className="text-[10px] text-muted-foreground truncate font-mono tracking-widest uppercase opacity-70">
+                ILLEGAL SOFTWARE DEPOT
               </p>
             </div>
           </div>
