@@ -3950,7 +3950,7 @@ Deno.serve(async (req) => {
                 targetPlayerId: opponent.id,
                 attackerPlayerId: player.id,
                 boostType: boost_type,
-                duelId,
+                duel_id,
                 timestamp: new Date().toISOString(),
               });
 
@@ -3972,7 +3972,7 @@ Deno.serve(async (req) => {
                   targetPlayerId: opponent.id,
                   attackerPlayerId: player.id,
                   boostType: boost_type,
-                  duelId,
+                  duel_id,
                   timestamp: new Date().toISOString(),
                 });
 
@@ -3994,7 +3994,7 @@ Deno.serve(async (req) => {
                   exploitType: boost_type,
                   expiresAt,
                   activatedAt,
-                  duelId,
+                  duel_id,
                   timestamp: new Date().toISOString(),
                   insertedExploit: insertedExploit,
                 });
