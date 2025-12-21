@@ -46,31 +46,31 @@ export const isTelegramDesktopPlatformName = (platform?: string | null) => {
 export const hasTelegramWebApp = () => {
   if (typeof window === 'undefined') return false;
   if (!window.Telegram?.WebApp) return false;
-  
+
   const webApp = window.Telegram.WebApp;
-  
+
   // Проверяем, что это не мок
-  const isMockData = webApp.initData === 'mock_init_data' || 
-                     webApp.initData?.startsWith('mock_') ||
-                     (webApp.initDataUnsafe?.user?.id === 123456789 && 
-                      webApp.initDataUnsafe?.user?.username === 'test_user');
-  
+  const isMockData = webApp.initData === 'mock_init_data' ||
+    webApp.initData?.startsWith('mock_') ||
+    (webApp.initDataUnsafe?.user?.id === 123456789 &&
+      webApp.initDataUnsafe?.user?.username === 'test_user');
+
   if (isMockData) {
     return false;
   }
-  
+
   // Проверяем наличие platform и version (эти свойства есть всегда в реальном Telegram WebApp)
   const platform = webApp.platform;
-  const isValidPlatform = platform === 'web' || 
-                          platform === 'ios' || 
-                          platform === 'android' || 
-                          platform === 'tdesktop' || 
-                          platform === 'macos' || 
-                          platform === 'windows' || 
-                          platform === 'linux';
-  
+  const isValidPlatform = platform === 'web' ||
+    platform === 'ios' ||
+    platform === 'android' ||
+    platform === 'tdesktop' ||
+    platform === 'macos' ||
+    platform === 'windows' ||
+    platform === 'linux';
+
   const hasVersion = webApp.version && typeof webApp.version === 'string';
-  
+
   // Возвращаем true если есть валидная платформа и версия (даже без initData)
   return isValidPlatform && hasVersion;
 };
@@ -78,54 +78,54 @@ export const hasTelegramWebApp = () => {
 export const isTelegramMiniApp = () => {
   // Проверка: только если действительно в Telegram Web App
   if (typeof window === 'undefined') return false;
-  
+
   // Проверяем, что window.Telegram существует и это не мок
   if (!window.Telegram || !window.Telegram.WebApp) return false;
-  
+
   const webApp = window.Telegram.WebApp;
-  
+
   // КРИТИЧНО: Проверяем, что это НЕ мок из index.html
   // Мок имеет initData = 'mock_init_data' - это не валидный Telegram initData
-  const isMockData = webApp.initData === 'mock_init_data' || 
-                     webApp.initData?.startsWith('mock_') ||
-                     (webApp.initDataUnsafe?.user?.id === 123456789 && 
-                      webApp.initDataUnsafe?.user?.username === 'test_user');
-  
+  const isMockData = webApp.initData === 'mock_init_data' ||
+    webApp.initData?.startsWith('mock_') ||
+    (webApp.initDataUnsafe?.user?.id === 123456789 &&
+      webApp.initDataUnsafe?.user?.username === 'test_user');
+
   if (isMockData) {
     if (import.meta.env.DEV) {
       console.debug('[Telegram] Mock detected, not a real Telegram Web App');
     }
     return false;
   }
-  
+
   // В dev режиме: если есть Telegram WebApp с версией - считаем что это Telegram
   // (даже без initData, так как в dev может не быть авторизации)
   const hasVersion = webApp.version && typeof webApp.version === 'string';
   const hasPlatform = webApp.platform && typeof webApp.platform === 'string';
-  
+
   // В dev режиме: достаточно версии и платформы
   if (import.meta.env.DEV) {
     return hasVersion && hasPlatform;
   }
-  
+
   // В production: строгая проверка с initData/user
   const hasInitData = webApp.initData && webApp.initData !== '';
   const hasUserData = !!webApp.initDataUnsafe?.user;
-  
+
   if (!hasInitData && !hasUserData) {
     return false;
   }
-  
+
   // Дополнительная проверка: platform должен быть валидной Telegram платформой
   const platform = webApp.platform;
-  const isValidPlatform = platform === 'web' || 
-                          platform === 'ios' || 
-                          platform === 'android' || 
-                          platform === 'tdesktop' || 
-                          platform === 'macos' || 
-                          platform === 'windows' || 
-                          platform === 'linux';
-  
+  const isValidPlatform = platform === 'web' ||
+    platform === 'ios' ||
+    platform === 'android' ||
+    platform === 'tdesktop' ||
+    platform === 'macos' ||
+    platform === 'windows' ||
+    platform === 'linux';
+
   // Возвращаем true только если есть данные, платформа валидна И есть версия
   return (hasInitData || hasUserData) && isValidPlatform && hasVersion;
 };
@@ -134,7 +134,7 @@ export const getTelegramUser = () => {
   const webApp = getTelegramWebApp();
   if (webApp?.initDataUnsafe?.user) {
     const user = webApp.initDataUnsafe.user;
-    
+
     // КРИТИЧНО: Фильтруем mock-данные
     // Mock имеет id = 123456789 и username = 'test_user'
     const isMock = user.id === 123456789 && user.username === 'test_user';
@@ -142,10 +142,49 @@ export const getTelegramUser = () => {
       console.log('[Telegram] Mock user detected in getTelegramUser, returning null');
       return null;
     }
-    
+
     return user;
   }
   return null;
+};
+
+/**
+ * Проверяет, есть ли у пользователя Telegram Premium подписка
+ * Только Premium пользователи могут публиковать Stories
+ * @returns boolean - true если пользователь имеет Telegram Premium
+ */
+export const hasTelegramPremium = (): boolean => {
+  const webApp = getTelegramWebApp();
+  if (!webApp?.initDataUnsafe?.user) {
+    return false;
+  }
+
+  // is_premium доступен в WebAppUser объекте
+  return !!webApp.initDataUnsafe.user.is_premium;
+};
+
+/**
+ * Проверяет, может ли пользователь публиковать в Stories
+ * Требования: Telegram Mini App + Telegram Premium + shareToStory API
+ * @returns boolean - true если пользователь может шарить в Stories
+ */
+export const canShareToStory = (): boolean => {
+  if (!isTelegramMiniApp()) {
+    return false;
+  }
+
+  const webApp = getTelegramWebApp();
+  if (!webApp) {
+    return false;
+  }
+
+  // Проверяем доступность API shareToStory (версия 7.8+)
+  if (!webApp.shareToStory) {
+    return false;
+  }
+
+  // Проверяем Premium статус
+  return hasTelegramPremium();
 };
 
 export const initTelegramApp = () => {
@@ -155,13 +194,13 @@ export const initTelegramApp = () => {
       // КРИТИЧЕСКИ ВАЖНО: вызываем ready() и expand() в самом начале
       webApp.ready();
       webApp.expand();
-      
+
       // Отключаем вертикальные свайпы чтобы приложение не сворачивалось при скролле
       if (typeof webApp.disableVerticalSwipes === 'function') {
         webApp.disableVerticalSwipes();
         console.log('[Telegram] ✅ Vertical swipes disabled');
       }
-      
+
       // Логируем состояние WebApp для отладки
       console.log('[Telegram] ✅ WebApp initialized:', {
         platform: webApp.platform,
@@ -172,7 +211,7 @@ export const initTelegramApp = () => {
         safeAreaInset: webApp.safeAreaInset,
         contentSafeAreaInset: webApp.contentSafeAreaInset,
       });
-      
+
       return true;
     } catch (error) {
       console.error('[Telegram] ❌ Initialization error:', error);

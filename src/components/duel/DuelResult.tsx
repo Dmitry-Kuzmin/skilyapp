@@ -23,7 +23,7 @@ import { usePremium } from '@/hooks/usePremium';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { useActiveDuel } from '@/hooks/useActiveDuel';
 import type { DuelResultSnapshot } from '@/features/duel/shared';
-import { isTelegramMiniApp, getTelegramWebApp } from '@/lib/telegram';
+import { isTelegramMiniApp, getTelegramWebApp, canShareToStory, hasTelegramPremium } from '@/lib/telegram';
 import { generateDuelResultImage } from '@/utils/generateDuelResultImage';
 
 // ОПТИМИЗАЦИЯ: Условное логирование только в development
@@ -96,6 +96,22 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
     hasData: !!duelResultsData,
     hasResults: !!duelResultsData?.results,
     error: error?.message
+  });
+
+  // 🔍 DEBUG: Логируем состояние shareToStory для диагностики проблемы
+  const webAppDebug = getTelegramWebApp();
+  console.log('[DuelResult] 📊 ShareToStory Debug:', {
+    isTelegramMiniApp: isTelegramMiniApp(),
+    hasTelegramPremium: hasTelegramPremium(),
+    hasShareToStoryAPI: !!webAppDebug?.shareToStory,
+    canShareToStory: canShareToStory(),
+    webAppVersion: webAppDebug?.version,
+    userIsPremium: webAppDebug?.initDataUnsafe?.user?.is_premium,
+    userData: webAppDebug?.initDataUnsafe?.user ? {
+      id: webAppDebug.initDataUnsafe.user.id,
+      username: webAppDebug.initDataUnsafe.user.username,
+      is_premium: webAppDebug.initDataUnsafe.user.is_premium
+    } : null
   });
 
   // Выбираем случайный эффект фейерверка при монтировании компонента
@@ -936,8 +952,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
           transition={{ delay: 0.8 }}
           className="space-y-4 pt-4"
         >
-          {/* Share to Story Button - только при победе и только в Telegram Mini App */}
-          {results.isWinner && isTelegramMiniApp() && (
+          {/* Share to Story Button - показываем только если canShareToStory() = true */}
+          {/* Требования: Telegram Mini App + Telegram Premium + shareToStory API */}
+          {canShareToStory() && (
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -946,7 +963,12 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
               <Button
                 onClick={handleShareToStory}
                 size="lg"
-                className="relative w-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-400 hover:via-purple-400 hover:to-indigo-400 text-white font-bold h-14 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all border-0 overflow-hidden"
+                className={cn(
+                  "relative w-full font-bold h-14 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all border-0 overflow-hidden text-white",
+                  results.isWinner && "bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-400 hover:via-purple-400 hover:to-indigo-400",
+                  results.isDraw && "bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 hover:from-blue-400 hover:via-indigo-400 hover:to-purple-400",
+                  !results.isWinner && !results.isDraw && "bg-gradient-to-r from-slate-500 via-slate-600 to-slate-500 hover:from-slate-400 hover:via-slate-500 hover:to-slate-400"
+                )}
               >
                 {/* Shimmer effect */}
                 <motion.div

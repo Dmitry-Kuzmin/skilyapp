@@ -4536,12 +4536,12 @@ Deno.serve(async (req) => {
         }
 
         // 🆕 CRITICAL FIX: Быстрый путь для игр с ботом
-        // Если соперник - бот, проверяем только ответы текущего игрока
+        // Если соперник - бот, бот МОМЕНТАЛЬНО отвечает на все оставшиеся вопросы
         const opponentPlayer = allPlayers.find((p: any) => p.id !== currentPlayer.id);
         const isOpponentBot = opponentPlayer?.is_bot === true;
 
         if (isOpponentBot) {
-          console.log('[finish_duel] 🤖 Opponent is BOT - fast path enabled');
+          console.log('[finish_duel] 🤖 Opponent is BOT - completing bot answers first');
 
           // Считаем ответы текущего игрока (уже посчитаны выше в answeredCount)
           const myAnswerCount = answeredCount || 0;
@@ -4552,17 +4552,138 @@ Deno.serve(async (req) => {
             iHaveFinished: myAnswerCount >= duel.num_questions
           });
 
-          // Если я ответил на все вопросы - игра завершена (бот автоматически "закончил")
+          // Если я ответил на все вопросы - бот должен доответить и игра завершается
           if (myAnswerCount >= duel.num_questions) {
-            console.log('[finish_duel] ✅ BOT GAME: I finished all questions - completing duel NOW');
+            console.log('[finish_duel] ✅ BOT GAME: I finished - making bot answer remaining questions NOW');
 
-            // Собираем данные для результатов
+            // Получаем все вопросы дуэли
+            const { data: allDuelQuestions } = await supabase
+              .from('duel_questions')
+              .select('id, position, correct_option_ids, question_snapshot')
+              .eq('duel_id', duel_id)
+              .order('position', { ascending: true });
+
+            if (!allDuelQuestions || allDuelQuestions.length === 0) {
+              console.error('[finish_duel] ❌ No questions found for duel');
+              throw new Error('No questions found for duel');
+            }
+
+            // Получаем ответы бота
+            const { data: botAnswers } = await supabase
+              .from('duel_answers')
+              .select('duel_question_id')
+              .eq('duel_id', duel_id)
+              .eq('player_id', opponentPlayer.id);
+
+            const answeredQuestionIds = new Set((botAnswers || []).map((a: any) => a.duel_question_id));
+
+            // Находим вопросы, на которые бот ещё не ответил
+            const unansweredQuestions = allDuelQuestions.filter(
+              (q: any) => !answeredQuestionIds.has(q.id)
+            );
+
+            console.log('[finish_duel] 🤖 Bot unanswered questions:', {
+              total: allDuelQuestions.length,
+              answered: answeredQuestionIds.size,
+              remaining: unansweredQuestions.length
+            });
+
+            // Бот отвечает на все оставшиеся вопросы МОМЕНТАЛЬНО
+            const botDifficulty = opponentPlayer.bot_difficulty || 'medium';
+            let botTotalScore = opponentPlayer.score || 0;
+            let botCorrectCount = opponentPlayer.correct_count || 0;
+            const botAnswersToInsert: any[] = [];
+
+            for (const question of unansweredQuestions) {
+              const questionDifficulty = (question.question_snapshot as any)?.difficulty || 'medium';
+
+              // Симулируем ответ бота
+              const botSimulation = simulateBotAnswer(botDifficulty, questionDifficulty);
+              const correctIds = (question.correct_option_ids as string[]) || [];
+              const allOptions = (question.question_snapshot as any)?.answer_options || [];
+
+              // Выбираем ответ
+              let selectedOptionId: string | null = null;
+              if (botSimulation.willBeCorrect && correctIds.length > 0) {
+                selectedOptionId = correctIds[Math.floor(Math.random() * correctIds.length)];
+              } else {
+                const wrongOptions = allOptions.filter((opt: any) => !correctIds.includes(opt.id));
+                if (wrongOptions.length > 0) {
+                  selectedOptionId = wrongOptions[Math.floor(Math.random() * wrongOptions.length)].id;
+                } else if (allOptions.length > 0) {
+                  selectedOptionId = allOptions[Math.floor(Math.random() * allOptions.length)].id;
+                }
+              }
+
+              // Fallback если ничего не выбрано
+              if (!selectedOptionId && allOptions.length > 0) {
+                selectedOptionId = allOptions[0].id;
+              }
+
+              const isCorrect = selectedOptionId ? correctIds.includes(selectedOptionId) : false;
+
+              // Рассчитываем очки (время ответа рандомное 5-30 сек)
+              const timeTakenMs = Math.floor(Math.random() * 25000) + 5000;
+              const timeRemain = 60000 - timeTakenMs;
+              const points = isCorrect ? calculateScore(questionDifficulty, timeRemain, 60000, 0) : 0;
+
+              botTotalScore += points;
+              if (isCorrect) botCorrectCount++;
+
+              botAnswersToInsert.push({
+                duel_id: duel_id,
+                player_id: opponentPlayer.id,
+                duel_question_id: question.id,
+                selected_option_id: selectedOptionId,
+                is_correct: isCorrect,
+                is_skipped: false,
+                time_taken_ms: timeTakenMs,
+                points_awarded: points,
+                combo_at_time: 0,
+                boost_used: null,
+              });
+
+              console.log(`[finish_duel] 🤖 Bot answered Q${question.position}: ${isCorrect ? '✅' : '❌'} (${points} pts)`);
+            }
+
+            // Вставляем все ответы бота одной транзакцией
+            if (botAnswersToInsert.length > 0) {
+              const { error: insertError } = await supabase
+                .from('duel_answers')
+                .insert(botAnswersToInsert);
+
+              if (insertError) {
+                console.error('[finish_duel] ❌ Error inserting bot answers:', insertError);
+              } else {
+                console.log(`[finish_duel] ✅ Inserted ${botAnswersToInsert.length} bot answers`);
+              }
+
+              // Обновляем счёт бота
+              await supabase
+                .from('duel_players')
+                .update({
+                  score: botTotalScore,
+                  correct_count: botCorrectCount,
+                })
+                .eq('id', opponentPlayer.id);
+
+              console.log(`[finish_duel] 🤖 Bot final score: ${botTotalScore} (${botCorrectCount} correct)`);
+            }
+
+            // Собираем данные для результатов (после добавления ответов бота)
             const { data: allAnswers } = await supabase
               .from('duel_answers')
               .select('*, duel_questions(*)')
               .eq('duel_id', duel_id);
 
             const myAnswers = allAnswers?.filter((a: any) => a.player_id === currentPlayer.id) || [];
+            const opponentAnswers = allAnswers?.filter((a: any) => a.player_id === opponentPlayer.id) || [];
+
+            // Получаем обновлённые данные игроков (со свежими счетами)
+            const { data: updatedPlayers } = await supabase
+              .from('duel_players')
+              .select('id, user_id, score, correct_count, is_bot, bot_name, name, profiles(id, username, first_name, photo_url)')
+              .eq('duel_id', duel_id);
 
             // Обновляем статус дуэли на finished
             await supabase
@@ -4574,14 +4695,16 @@ Deno.serve(async (req) => {
               .eq('id', duel_id)
               .eq('status', 'active');
 
+            console.log('[finish_duel] ✅ BOT GAME COMPLETED - both players have all answers');
+
             return new Response(JSON.stringify({
               success: true,
               finished: true,
-              reason: 'bot_opponent_auto_finish',
+              reason: 'bot_opponent_completed',
               duel_data: duel,
-              players_data: allPlayers,
+              players_data: updatedPlayers || allPlayers,
               my_answers: myAnswers,
-              opponent_answers: []
+              opponent_answers: opponentAnswers
             }), {
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             });

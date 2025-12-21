@@ -5,6 +5,8 @@ export interface TelegramUser {
   username?: string;
   language_code?: string;
   photo_url?: string;
+  /** Имеет ли пользователь Telegram Premium подписку */
+  is_premium?: boolean;
 }
 
 export interface PuzzleCodeData {
@@ -102,9 +104,20 @@ declare global {
         // Closing confirmation (защита от случайного закрытия)
         enableClosingConfirmation?: () => void;
         disableClosingConfirmation?: () => void;
+        // Share to Stories (требует Telegram Premium, доступно с версии 7.8+)
+        shareToStory?: (
+          mediaUrl: string,
+          params?: {
+            text?: string;
+            widget_link?: {
+              url: string;
+              name?: string;
+            };
+          }
+        ) => void;
       };
     };
   }
 }
 
-export {};
+export { };
