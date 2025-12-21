@@ -5,6 +5,7 @@ import { isTelegramMiniApp } from "@/lib/telegram";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 import { useTelegram } from "@/contexts/TelegramContext";
+import { setGlobalProfileId } from "@/hooks/useRequireProfile";
 
 interface UserContextType {
   user: TelegramUser | null;
@@ -54,7 +55,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
         const cachedId = localStorage.getItem(`profile_${supabaseUser.id}`);
         if (cachedId) {
           logUserContext("[UserContext] ✅ Using cached profileId (no DB request):", cachedId);
-          if (isMounted) setProfileId(cachedId);
+          if (isMounted) {
+            setProfileId(cachedId);
+            setGlobalProfileId(cachedId); // 🔒 Синхронизация с глобальным синглтоном
+          }
           return; // ОПТИМИЗАЦИЯ: Не делаем запрос, если есть кэш
         }
 
@@ -67,6 +71,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
         if (isMounted && data && (data as any).id) {
           setProfileId((data as any).id);
+          setGlobalProfileId((data as any).id); // 🔒 Синхронизация с глобальным синглтоном
           localStorage.setItem(`profile_${supabaseUser.id}`, (data as any).id);
           logUserContext("[UserContext] Loaded profile ID for web user:", (data as any).id);
         }
@@ -78,7 +83,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
         const cachedId = localStorage.getItem(`profile_${user.id}`);
         if (cachedId) {
           logUserContext("[UserContext] ✅ Using cached profileId (no DB request):", cachedId);
-          if (isMounted) setProfileId(cachedId);
+          if (isMounted) {
+            setProfileId(cachedId);
+            setGlobalProfileId(cachedId); // 🔒 Синхронизация с глобальным синглтоном
+          }
           return; // ОПТИМИЗАЦИЯ: Не делаем запрос, если есть кэш
         }
 
@@ -98,6 +106,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
             logUserContext("[UserContext] Loaded profile ID for Telegram user:", (data as any).id);
             if (isMounted) {
               setProfileId((data as any).id);
+              setGlobalProfileId((data as any).id); // 🔒 Синхронизация с глобальным синглтоном
               localStorage.setItem(`profile_${user.id}`, (data as any).id);
             }
           } else if (attempt < 3) { // ОПТИМИЗАЦИЯ: Снижаем retry с 5 до 3
@@ -394,6 +403,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       if (result?.profile?.id) {
         logUserContext("[UserContext] Setting profileId from backend response:", result.profile.id);
         setProfileId(result.profile.id);
+        setGlobalProfileId(result.profile.id); // 🔒 Синхронизация с глобальным синглтоном
         localStorage.setItem(`profile_${userData.id}`, result.profile.id);
 
         // КРИТИЧНО: Связываем пользователя с партнером после создания профиля
