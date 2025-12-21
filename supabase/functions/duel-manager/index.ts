@@ -184,49 +184,6 @@ async function settleBetPayout({
   return;
 }
 
-const hostOutcome = isDraw
-  ? 'draw'
-  : winnerUserId === hostUserId
-    ? 'win'
-    : 'lose';
-const opponentOutcome = isDraw
-  ? 'draw'
-  : winnerUserId === opponentUserId
-    ? 'win'
-    : 'lose';
-
-const hostSeasonSp = calculateSeasonReward(betAmount, hostOutcome as 'win' | 'lose' | 'draw');
-const opponentSeasonSp = calculateSeasonReward(betAmount, opponentOutcome as 'win' | 'lose' | 'draw');
-
-if (betRow) {
-  await supabase
-    .from('duel_bets')
-    .update({
-      status: 'settled',
-      season_sp_host: hostSeasonSp,
-      season_sp_opponent: opponentSeasonSp,
-    })
-    .eq('duel_id', duelId);
-
-  await supabase.from('duel_bet_history').insert({
-    bet_id: betRow.id,
-    duel_id: duelId,
-    result: isDraw
-      ? 'draw'
-      : winnerUserId === hostUserId
-        ? 'host_win'
-        : 'opponent_win',
-    payout_host: hostPayout,
-    payout_opponent: opponentPayout,
-    season_sp_host: hostSeasonSp,
-    season_sp_opponent: opponentSeasonSp,
-    insurance_refund_host: hostInsuranceRefund,
-    insurance_refund_opponent: opponentInsuranceRefund,
-  });
-}
-}
-
-
 // Generate readable 4-character code
 function generateDuelCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude confusing chars
