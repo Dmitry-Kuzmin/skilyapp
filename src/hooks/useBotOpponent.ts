@@ -12,7 +12,8 @@ interface BotOpponentProps {
 
 /**
  * Хук для имитации ответов бота-соперника
- * Автоматически отправляет ответы за бота с реалистичной задержкой (20-60 секунд)
+ * Автоматически отправляет ответы за бота с реалистичной задержкой (2-15 секунд)
+ * Время ответа зависит от сложности бота: easy=5-12с, medium=4-10с, hard=3-8с, insane=2-6с
  */
 export function useBotOpponent({
   duelId,
@@ -80,13 +81,15 @@ export function useBotOpponent({
     const processBotAnswers = async () => {
       try {
         // Загружаем все вопросы дуэли, отсортированные по position
-        const { data: allQuestions } = await supabase
+        const questionsResult = await supabase
           .from('duel_questions')
           .select('id, position')
           .eq('duel_id', duelId)
           .order('position', { ascending: true });
 
-        if (!allQuestions || allQuestions.length === 0) {
+        const allQuestions: { id: string; position: number }[] = questionsResult.data || [];
+
+        if (allQuestions.length === 0) {
           return;
         }
 

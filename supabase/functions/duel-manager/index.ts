@@ -480,13 +480,13 @@ function simulateBotAnswer(botDifficulty: 'easy' | 'medium' | 'hard' | 'insane',
   const modifier = difficultyModifiers[questionDifficulty as keyof typeof difficultyModifiers] || 0;
   const accuracy = Math.min(0.99, Math.max(0.50, baseAccuracy + modifier));
 
-  // 🛡️ АДАПТИВНАЯ СКОРОСТЬ ОТВЕТА
-  // Чем сложнее бот - тем быстрее отвечает (реалистично для сильных игроков)
+  // 🎯 УМНЫЕ ТАЙМИНГИ ОТВЕТОВ БОТА
+  // Реалистичные времена как у живого игрока (ускорены для лучшего UX)
   const delayRanges = {
-    easy: { min: 30000, max: 60000 },      // 30-60 секунд (медленно думает)
-    medium: { min: 20000, max: 50000 },     // 20-50 секунд (стандартно)
-    hard: { min: 15000, max: 35000 },      // 15-35 секунд (быстрее)
-    insane: { min: 10000, max: 25000 },    // 10-25 секунд (очень быстро, как про)
+    easy: { min: 8000, max: 25000 },       // 8-25 секунд (думает дольше)
+    medium: { min: 6000, max: 18000 },     // 6-18 секунд (стандартно)
+    hard: { min: 4000, max: 12000 },       // 4-12 секунд (быстрее)
+    insane: { min: 3000, max: 8000 },      // 3-8 секунд (очень быстро, как про)
   };
 
   const range = delayRanges[botDifficulty] || delayRanges.medium;
