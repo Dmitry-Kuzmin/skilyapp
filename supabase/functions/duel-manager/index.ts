@@ -881,28 +881,36 @@ async function createNotification(body: any, profileId: string, supabase: any): 
       });
     }
 
-    // Находим оппонента: если есть имя бота в metadata, используем его; иначе ищем по user_id
-    let opponentId: string | null = null;
-    const opponentPlayer = players.find((p: any) => {
-      // Если это бот и имя бота уже в metadata - используем его
-      if (p.is_bot && metadata.opponent_name) {
-        return true;
-      }
-      // Иначе ищем по user_id
-      return p.user_id && p.user_id !== profileId;
-    });
+    // Находим оппонента: если есть recipient_profile_id в body, используем его напрямую
+    // Иначе ищем оппонента: если есть имя бота в metadata, используем его; иначе ищем по user_id
+    let opponentId: string | null = body.recipient_profile_id || null;
+    let opponentPlayer = null;
 
-    // Если оппонент - бот и имя уже передано в metadata, пропускаем поиск по user_id
-    if (opponentPlayer?.is_bot && metadata.opponent_name) {
-      opponentId = null; // Для бота user_id не нужен, имя уже в metadata
-      console.log('[create_notification] Bot opponent detected, using name from metadata:', metadata.opponent_name);
+    if (opponentId) {
+      console.log('[create_notification] Recipient provided explicitly:', opponentId);
+      opponentPlayer = players.find(p => p.user_id === opponentId);
     } else {
-      opponentId = opponentPlayer?.user_id || null;
+      opponentPlayer = players.find((p: any) => {
+        // Если это бот и имя бота уже в metadata - используем его
+        if (p.is_bot && metadata.opponent_name) {
+          return true;
+        }
+        // Иначе ищем по user_id
+        return p.user_id && p.user_id !== profileId;
+      });
+
+      // Если оппонент - бот и имя уже передано в metadata, пропускаем поиск по user_id
+      if (opponentPlayer?.is_bot && metadata.opponent_name) {
+        opponentId = null; // Для бота user_id не нужен, имя уже в metadata
+        console.log('[create_notification] Bot opponent detected, using name from metadata:', metadata.opponent_name);
+      } else {
+        opponentId = opponentPlayer?.user_id || null;
+      }
     }
 
     // Если оппонент не найден и это не бот с именем в metadata - ошибка
     if (!opponentId && !(opponentPlayer?.is_bot && metadata.opponent_name)) {
-      console.warn('[create_notification] Opponent not found. Players:', players, 'profileId:', profileId);
+      console.warn('[create_notification] Opponent not found. Players:', players, 'profileId:', profileId, 'recipientId:', body.recipient_profile_id);
       return new Response(JSON.stringify({ error: 'Opponent not found' }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -2041,30 +2049,27 @@ Deno.serve(async (req) => {
           try {
             console.log('[find_match] 🚀 AUTO-START: 2 players detected, starting duel...');
 
-            const { data: allQuestions, error: questionsError } = await supabase
-              .from('questions_new')
-              .select(`
-                id, question_ru, question_es, question_en, image_url, difficulty,
-                answer_options(id, text_ru, text_es, text_en, is_correct, position)
-              `);
+            // Auto-start: Load questions using RPC with randomization
+            console.log('[find_match] Loading questions for 2 real players via RPC...');
+            const { data: allQuestions, error: questionsError } = await supabase.rpc('get_random_duel_questions', {
+              p_limit: num_questions + 10, // Fetch a few more for shuffling
+              p_categories: (categories && categories.length > 0) ? categories : null,
+              p_difficulty: (difficulty && difficulty !== 'mix') ? difficulty : null
+            });
 
-            if (questionsError) {
-              console.error('[find_match] ❌ Error loading questions:', questionsError);
-              throw questionsError;
+            if (questionsError || !allQuestions || allQuestions.length === 0) {
+              console.error('[find_match] ❌ Error loading questions via RPC:', questionsError);
+              throw new Error('No questions found with filters');
             }
 
-            if (!allQuestions || allQuestions.length === 0) {
-              console.error('[find_match] ❌ No questions found in database');
-              throw new Error('No questions found');
-            }
+            console.log(`[find_match] ✅ Total questions for shuffle: ${allQuestions.length}`);
 
-            console.log(`[find_match] ✅ Total questions loaded: ${allQuestions.length}`);
-
+            // We still shuffle with the seed to ensure both players get SAME questions in SAME order
             const rng = mulberry32(questionSeed);
             const shuffled = fisherYatesShuffle(allQuestions, rng);
             const selectedQuestions = shuffled.slice(0, num_questions);
 
-            console.log(`[find_match] ✅ Selected ${selectedQuestions.length} random questions using seed ${questionSeed}`);
+            console.log(`[find_match] ✅ Selected ${selectedQuestions.length} questions using seed ${questionSeed}`);
 
             // Insert duel questions
             const duelQuestions = selectedQuestions.map((q: any, idx: number) => ({
@@ -2231,30 +2236,24 @@ Deno.serve(async (req) => {
         try {
           console.log('[find_match] 🚀 AUTO-START with bot: starting duel...');
 
-          const { data: allQuestions, error: questionsError } = await supabase
-            .from('questions_new')
-            .select(`
-              id, question_ru, question_es, question_en, image_url, difficulty,
-              answer_options(id, text_ru, text_es, text_en, is_correct, position)
-            `);
+          // Auto-start with bot: Load questions using RPC
+          console.log('[find_match] Loading questions for bot duel via RPC...');
+          const { data: allQuestions, error: questionsError } = await supabase.rpc('get_random_duel_questions', {
+            p_limit: num_questions + 10,
+            p_categories: (categories && categories.length > 0) ? categories : null,
+            p_difficulty: (difficulty && difficulty !== 'mix') ? difficulty : null
+          });
 
-          if (questionsError) {
-            console.error('[find_match] ❌ Error loading questions:', questionsError);
-            throw questionsError;
-          }
-
-          if (!allQuestions || allQuestions.length === 0) {
-            console.error('[find_match] ❌ No questions found in database');
+          if (questionsError || !allQuestions || allQuestions.length === 0) {
+            console.error('[find_match] ❌ Error loading questions for bot via RPC:', questionsError);
             throw new Error('No questions found');
           }
-
-          console.log(`[find_match] ✅ Total questions loaded: ${allQuestions.length}`);
 
           const rng = mulberry32(questionSeed);
           const shuffled = fisherYatesShuffle(allQuestions, rng);
           const selectedQuestions = shuffled.slice(0, num_questions);
 
-          console.log(`[find_match] ✅ Selected ${selectedQuestions.length} random questions using seed ${questionSeed}`);
+          console.log(`[find_match] ✅ Bot duel: Selected ${selectedQuestions.length} random questions using seed ${questionSeed}`);
 
           // Insert duel questions
           const duelQuestions = selectedQuestions.map((q: any, idx: number) => ({
@@ -2298,6 +2297,20 @@ Deno.serve(async (req) => {
               started_at: new Date().toISOString(),
             })
             .eq('id', duel.id);
+
+          // Create start notification for BOT duel
+          try {
+            await createNotification({
+              duel_id: duel.id,
+              recipient_profile_id: profileId, // Уведомляем человека
+              type: 'start',
+              metadata: {
+                opponent_name: botProfile.name
+              }
+            }, profileId, supabase);
+          } catch (notifErr) {
+            console.error('[find_match] Error creating bot start notification:', notifErr);
+          }
 
           console.log('[find_match] ✅ Duel with bot auto-started successfully');
         } catch (autoStartError) {
@@ -2726,24 +2739,33 @@ Deno.serve(async (req) => {
 
             console.log('[join_duel] ✅✅✅ Duel status updated to ACTIVE successfully!');
 
-            // Create start notification for host (first player)
-            // Wrap in try-catch to prevent notification errors from breaking duel start
+            // Create start notification
+            // ВАЖНО: Передаем имя соперника в metadata для консистентности уведомления
             try {
-              const notifResult = await createNotification({
+              // Для поиска соперника (реального игрока)
+              const realOpponent = realPlayers.find(p => p.user_id !== profileId);
+              let opponentDisplayName = 'Игрок';
+
+              if (realOpponent) {
+                const { data: oppProfile } = await supabase
+                  .from('profiles')
+                  .select('first_name, username')
+                  .eq('id', realOpponent.user_id)
+                  .single();
+                opponentDisplayName = oppProfile?.first_name || oppProfile?.username || 'Игрок';
+              }
+
+              await createNotification({
                 duel_id: duel.id,
                 type: 'start',
-                metadata: {}
+                metadata: {
+                  opponent_name: opponentDisplayName
+                }
               }, profileId, supabase);
 
-              if (!notifResult) {
-                console.warn('[join_duel] Failed to create start notification - continuing anyway');
-              } else {
-                console.log('[join_duel] ✅ Start notification created successfully');
-              }
+              console.log('[join_duel] ✅ Start notification created successfully');
             } catch (notifErr: any) {
               console.error('[join_duel] Error creating start notification:', notifErr);
-              console.error('[join_duel] Notification error details:', JSON.stringify(notifErr, null, 2));
-              // Continue anyway - notification failure shouldn't block duel start
             }
 
             console.log('[join_duel] ✅ Returning response with auto_started: true');
@@ -3376,6 +3398,7 @@ Deno.serve(async (req) => {
           // Используем тип 'answer' для правильных ответов, 'progress' для неправильных
           const notifResult = await createNotification({
             duel_id,
+            recipient_profile_id: humanPlayer.user_id, // Явно указываем получателя
             type: isCorrect ? 'answer' : 'progress',
             metadata: {
               is_correct: isCorrect,
@@ -3383,7 +3406,7 @@ Deno.serve(async (req) => {
               progress: progress >= 25 && progress % 25 === 0 ? progress : undefined, // Процент только на milestones (25%, 50%, 75%)
               opponent_name: botName, // Имя бота для правильного отображения в уведомлении
             }
-          }, humanPlayer.user_id, supabase).catch(err => {
+          }, profileId, supabase).catch(err => {
             console.error('[bot_answer] Error creating progress notification:', err);
             return false;
           });

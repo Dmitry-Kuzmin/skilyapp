@@ -360,7 +360,11 @@ export function useDuelGame({
 
           if (resultError) {
             lastError = resultError;
-            logWarn(`[useDuelGame] ⚠️ Submit answer attempt ${attempt + 1} failed:`, {
+
+            // Специальная обработка для 429 (Too Many Requests)
+            const isRateLimited = resultError?.status === 429 || resultError?.message?.includes('429');
+
+            logWarn(`[useDuelGame] ⚠️ Submit answer attempt ${attempt + 1} failed${isRateLimited ? ' (Rate Limited)' : ''}:`, {
               message: resultError?.message,
               status: resultError?.status,
               error: resultError,
@@ -369,8 +373,12 @@ export function useDuelGame({
 
             // Если это не последняя попытка, ждем перед повтором
             if (attempt < maxRetries - 1) {
-              const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-              log(`[useDuelGame] ⏳ Retrying submit_answer in ${delay}ms...`);
+              // Если 429 - ждем дольше (4-10 секунд), иначе стандартный экспоненциальный бэкофф
+              const delay = isRateLimited
+                ? (4000 + Math.random() * 3000)
+                : Math.min(1000 * Math.pow(2, attempt), 5000);
+
+              log(`[useDuelGame] ⏳ Retrying submit_answer in ${Math.round(delay)}ms...`);
               await new Promise(resolve => setTimeout(resolve, delay));
               continue;
             }
