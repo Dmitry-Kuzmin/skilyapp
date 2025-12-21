@@ -4535,142 +4535,59 @@ Deno.serve(async (req) => {
           });
         }
 
-        // 🆕 CRITICAL FIX: Быстрый путь для игр с ботом
-        // Если соперник - бот, бот МОМЕНТАЛЬНО отвечает на все оставшиеся вопросы
+        // 🆕 РЕАЛИСТИЧНАЯ ЛОГИКА ДЛЯ ИГР С БОТОМ
+        // Бот отвечает параллельно с игроком через useBotOpponent на клиенте
+        // Если бот ещё не закончил - показываем экран ожидания
         const opponentPlayer = allPlayers.find((p: any) => p.id !== currentPlayer.id);
         const isOpponentBot = opponentPlayer?.is_bot === true;
 
         if (isOpponentBot) {
-          console.log('[finish_duel] 🤖 Opponent is BOT - completing bot answers first');
+          console.log('[finish_duel] 🤖 Opponent is BOT - checking bot progress');
 
-          // Считаем ответы текущего игрока (уже посчитаны выше в answeredCount)
+          // Считаем ответы текущего игрока
           const myAnswerCount = answeredCount || 0;
 
-          console.log('[finish_duel] Bot game check:', {
+          // Считаем ответы бота
+          const { count: botAnswerCount } = await supabase
+            .from('duel_answers')
+            .select('*', { count: 'exact', head: true })
+            .eq('duel_id', duel_id)
+            .eq('player_id', opponentPlayer.id);
+
+          const botAnswers = botAnswerCount || 0;
+          const requiredQuestions = duel.num_questions;
+
+          console.log('[finish_duel] Bot game status:', {
             myAnswerCount,
-            requiredQuestions: duel.num_questions,
-            iHaveFinished: myAnswerCount >= duel.num_questions
+            botAnswers,
+            requiredQuestions,
+            iHaveFinished: myAnswerCount >= requiredQuestions,
+            botHasFinished: botAnswers >= requiredQuestions
           });
 
-          // Если я ответил на все вопросы - бот должен доответить и игра завершается
-          if (myAnswerCount >= duel.num_questions) {
-            console.log('[finish_duel] ✅ BOT GAME: I finished - making bot answer remaining questions NOW');
+          // Если я ответил на все вопросы
+          if (myAnswerCount >= requiredQuestions) {
+            // Проверяем закончил ли бот
+            if (botAnswers < requiredQuestions) {
+              // Бот ещё не закончил - показываем экран ожидания
+              console.log('[finish_duel] ⏳ BOT GAME: I finished, bot has', botAnswers, 'of', requiredQuestions, 'answers. Waiting...');
 
-            // Получаем все вопросы дуэли
-            const { data: allDuelQuestions } = await supabase
-              .from('duel_questions')
-              .select('id, position, correct_option_ids, question_snapshot')
-              .eq('duel_id', duel_id)
-              .order('position', { ascending: true });
-
-            if (!allDuelQuestions || allDuelQuestions.length === 0) {
-              console.error('[finish_duel] ❌ No questions found for duel');
-              throw new Error('No questions found for duel');
-            }
-
-            // Получаем ответы бота
-            const { data: botAnswers } = await supabase
-              .from('duel_answers')
-              .select('duel_question_id')
-              .eq('duel_id', duel_id)
-              .eq('player_id', opponentPlayer.id);
-
-            const answeredQuestionIds = new Set((botAnswers || []).map((a: any) => a.duel_question_id));
-
-            // Находим вопросы, на которые бот ещё не ответил
-            const unansweredQuestions = allDuelQuestions.filter(
-              (q: any) => !answeredQuestionIds.has(q.id)
-            );
-
-            console.log('[finish_duel] 🤖 Bot unanswered questions:', {
-              total: allDuelQuestions.length,
-              answered: answeredQuestionIds.size,
-              remaining: unansweredQuestions.length
-            });
-
-            // Бот отвечает на все оставшиеся вопросы МОМЕНТАЛЬНО
-            const botDifficulty = opponentPlayer.bot_difficulty || 'medium';
-            let botTotalScore = opponentPlayer.score || 0;
-            let botCorrectCount = opponentPlayer.correct_count || 0;
-            const botAnswersToInsert: any[] = [];
-
-            for (const question of unansweredQuestions) {
-              const questionDifficulty = (question.question_snapshot as any)?.difficulty || 'medium';
-
-              // Симулируем ответ бота
-              const botSimulation = simulateBotAnswer(botDifficulty, questionDifficulty);
-              const correctIds = (question.correct_option_ids as string[]) || [];
-              const allOptions = (question.question_snapshot as any)?.answer_options || [];
-
-              // Выбираем ответ
-              let selectedOptionId: string | null = null;
-              if (botSimulation.willBeCorrect && correctIds.length > 0) {
-                selectedOptionId = correctIds[Math.floor(Math.random() * correctIds.length)];
-              } else {
-                const wrongOptions = allOptions.filter((opt: any) => !correctIds.includes(opt.id));
-                if (wrongOptions.length > 0) {
-                  selectedOptionId = wrongOptions[Math.floor(Math.random() * wrongOptions.length)].id;
-                } else if (allOptions.length > 0) {
-                  selectedOptionId = allOptions[Math.floor(Math.random() * allOptions.length)].id;
+              return new Response(JSON.stringify({
+                success: true,
+                finished: false,
+                reason: 'waiting_for_bot',
+                message: 'Ждём ответов бота...',
+                bot_progress: {
+                  answered: botAnswers,
+                  total: requiredQuestions,
+                  remaining: requiredQuestions - botAnswers
                 }
-              }
-
-              // Fallback если ничего не выбрано
-              if (!selectedOptionId && allOptions.length > 0) {
-                selectedOptionId = allOptions[0].id;
-              }
-
-              const isCorrect = selectedOptionId ? correctIds.includes(selectedOptionId) : false;
-
-              // Рассчитываем очки (время ответа рандомное 5-30 сек)
-              const timeTakenMs = Math.floor(Math.random() * 25000) + 5000;
-              const timeRemain = 60000 - timeTakenMs;
-              const points = isCorrect ? calculateScore(questionDifficulty, timeRemain, 60000, 0) : 0;
-
-              botTotalScore += points;
-              if (isCorrect) botCorrectCount++;
-
-              botAnswersToInsert.push({
-                duel_id: duel_id,
-                player_id: opponentPlayer.id,
-                duel_question_id: question.id,
-                selected_option_id: selectedOptionId,
-                is_correct: isCorrect,
-                is_skipped: false,
-                time_taken_ms: timeTakenMs,
-                points_awarded: points,
-                combo_at_time: 0,
-                boost_used: null,
+              }), {
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
               });
-
-              console.log(`[finish_duel] 🤖 Bot answered Q${question.position}: ${isCorrect ? '✅' : '❌'} (${points} pts)`);
             }
 
-            // Вставляем все ответы бота одной транзакцией
-            if (botAnswersToInsert.length > 0) {
-              const { error: insertError } = await supabase
-                .from('duel_answers')
-                .insert(botAnswersToInsert);
-
-              if (insertError) {
-                console.error('[finish_duel] ❌ Error inserting bot answers:', insertError);
-              } else {
-                console.log(`[finish_duel] ✅ Inserted ${botAnswersToInsert.length} bot answers`);
-              }
-
-              // Обновляем счёт бота
-              await supabase
-                .from('duel_players')
-                .update({
-                  score: botTotalScore,
-                  correct_count: botCorrectCount,
-                })
-                .eq('id', opponentPlayer.id);
-
-              console.log(`[finish_duel] 🤖 Bot final score: ${botTotalScore} (${botCorrectCount} correct)`);
-            }
-
-            // Собираем данные для результатов (после добавления ответов бота)
+            // Собираем данные для результатов
             const { data: allAnswers } = await supabase
               .from('duel_answers')
               .select('*, duel_questions(*)')
@@ -4679,7 +4596,7 @@ Deno.serve(async (req) => {
             const myAnswers = allAnswers?.filter((a: any) => a.player_id === currentPlayer.id) || [];
             const opponentAnswers = allAnswers?.filter((a: any) => a.player_id === opponentPlayer.id) || [];
 
-            // Получаем обновлённые данные игроков (со свежими счетами)
+            // Получаем обновлённые данные игроков
             const { data: updatedPlayers } = await supabase
               .from('duel_players')
               .select('id, user_id, score, correct_count, is_bot, bot_name, name, profiles(id, username, first_name, photo_url)')
@@ -4695,12 +4612,12 @@ Deno.serve(async (req) => {
               .eq('id', duel_id)
               .eq('status', 'active');
 
-            console.log('[finish_duel] ✅ BOT GAME COMPLETED - both players have all answers');
+            console.log('[finish_duel] ✅ BOT GAME COMPLETED');
 
             return new Response(JSON.stringify({
               success: true,
               finished: true,
-              reason: 'bot_opponent_completed',
+              reason: 'bot_game_both_finished',
               duel_data: duel,
               players_data: updatedPlayers || allPlayers,
               my_answers: myAnswers,

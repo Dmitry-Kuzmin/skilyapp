@@ -704,15 +704,36 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     },
   });
 
-  // Загружаем игроков для хука бота
+  // Загружаем игроков для хука бота (с retry и логированием)
   const [players, setPlayers] = useState<any[]>([]);
   useEffect(() => {
     const loadPlayers = async () => {
+      console.log('[DuelBattleFullscreen] 🔍 Loading players for bot opponent hook...');
       const playersData = await fetchPlayers();
-      if (playersData?.players) {
+
+      if (playersData?.players && playersData.players.length > 0) {
+        console.log('[DuelBattleFullscreen] ✅ Players loaded:', playersData.players.map((p: any) => ({
+          id: p.id,
+          is_bot: p.is_bot,
+          bot_name: p.bot_name,
+          name: p.name
+        })));
         setPlayers(playersData.players);
+
+        // Проверяем есть ли бот
+        const botPlayer = playersData.players.find((p: any) => p.is_bot === true);
+        if (botPlayer) {
+          console.log('[DuelBattleFullscreen] 🤖 Bot found in players:', botPlayer.bot_name || botPlayer.name);
+        } else {
+          console.log('[DuelBattleFullscreen] ℹ️ No bot in this duel (PvP mode)');
+        }
+      } else {
+        console.log('[DuelBattleFullscreen] ⚠️ No players loaded, retrying in 1s...');
+        // Retry через 1 секунду
+        setTimeout(loadPlayers, 1000);
       }
     };
+
     if (duelId && profileId) {
       loadPlayers();
     }
