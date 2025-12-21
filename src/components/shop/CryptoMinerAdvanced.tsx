@@ -71,7 +71,7 @@ export function CryptoMinerAdvanced({ className }: CryptoMinerAdvancedProps) {
             return;
         }
 
-        haptics.buttonPress();
+        haptics.buttonClick();
         setShowAdModal(true);
     };
 
