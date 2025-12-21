@@ -475,6 +475,11 @@ export function useDuelGame({
         log('[useDuelGame] ✅ Last question answered - checking duel status');
 
         setHasFinishedMyQuestions(true);
+
+        // 🆕 CRITICAL FIX: Показываем экран ожидания СРАЗУ, до ответа от finishDuel
+        // Это гарантирует, что polling начнётся даже если сетевой запрос зависнет в Telegram
+        setIsWaitingForOpponent(true);
+
         // Call finishDuel to check if both players finished
         // 🆕 CRITICAL FIX: Передаём true напрямую, чтобы обойти проблему closure
         finishDuel(true);
