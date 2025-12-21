@@ -268,15 +268,18 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
   // Вычисляем bonusCoins из results
   useEffect(() => {
     if (results) {
-      const bonusCoins = results.isWinner ? 10 : (results.isDraw ? 5 : 0);
+      // КРИТИЧНО: Награды должны совпадать с логикой на бэкенде (duel-manager/index.ts)
+      // Для дуэлей без ставок: Победа = 20 монет, Ничья = 10 монет
+      const baseReward = results.isWinner ? 20 : (results.isDraw ? 10 : 0);
+
       setRewards(prev => prev ? {
         ...prev,
-        bonusCoins,
+        bonusCoins: baseReward,
         insuranceRefund: results.insuranceRefund
       } : {
         sp: 0,
         xp: 0,
-        bonusCoins,
+        bonusCoins: baseReward,
         insuranceRefund: results.insuranceRefund
       });
     }

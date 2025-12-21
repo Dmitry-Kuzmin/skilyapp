@@ -338,13 +338,15 @@ export function useDuelGame({
             setTimeout(() => reject(new Error('Timeout: Edge Function не ответил за 20 секунд')), 20000);
           });
 
+          const timeTaken = Math.max(0, Math.min(60000, 60000 - timeLeft));
           const requestBody = {
             action: 'submit_answer',
             duel_id: duelId,
             profile_id: profileId,
             duel_question_id: question.id,
             selected_option_id: optionId,
-            time_taken_ms: Math.max(0, Math.min(60000, 60000 - timeLeft)),
+            time_taken_ms: timeTaken,
+            is_timeout: false // В handleAnswer мы всегда передаем не таймаут
           };
 
           log('[useDuelGame] Request body:', requestBody);

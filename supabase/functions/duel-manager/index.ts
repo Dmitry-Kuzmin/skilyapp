@@ -153,7 +153,12 @@ const calculateSeasonReward = (
   return BASE_WIN_SP_NO_BET;
 };
 
-// Комиссия убрана - банк полностью игрокам
+const BASE_WIN_COINS_NO_BET = 20;
+const BASE_DRAW_COINS_NO_BET = 10;
+
+// ВАЖНО: Мы больше не начисляем монеты в Edge Function.
+// Теперь это делает Postgres Trigger "on_duel_finished_payout" в базе данных.
+// Это гарантирует 100% надежность (атомарность) начисления при обновлении статуса дуэли.
 async function settleBetPayout({
   supabaseClient,
   duelId,
@@ -167,182 +172,58 @@ async function settleBetPayout({
   duelId: string;
   betAmount: number;
   hostUserId: string;
-  players: Array<{ user_id: string }>;
+  players: Array<{ user_id: string; id: string }>;
   winnerUserId: string | null;
   isDraw: boolean;
 }) {
-  if (!betAmount || betAmount <= 0) return;
-
   const supabase = supabaseClient;
-  const { data: betRow } = await supabase
+  console.log(`[settleBetPayout] ℹ️ Payout calculation skipped in Edge Function. Trigger will handle it. Duel: ${duelId}`);
+
+  // Мы возвращаем 0/null для всех выплат, так как они произойдут в базе асинхронно
+  // Фронтенд увидит актуальный баланс при следующем обновлении дашборда
+  return;
+}
+
+const hostOutcome = isDraw
+  ? 'draw'
+  : winnerUserId === hostUserId
+    ? 'win'
+    : 'lose';
+const opponentOutcome = isDraw
+  ? 'draw'
+  : winnerUserId === opponentUserId
+    ? 'win'
+    : 'lose';
+
+const hostSeasonSp = calculateSeasonReward(betAmount, hostOutcome as 'win' | 'lose' | 'draw');
+const opponentSeasonSp = calculateSeasonReward(betAmount, opponentOutcome as 'win' | 'lose' | 'draw');
+
+if (betRow) {
+  await supabase
     .from('duel_bets')
-    .select('*')
-    .eq('duel_id', duelId)
-    .maybeSingle();
-
-  const opponentUserId =
-    betRow?.opponent_user ||
-    players.find((p) => p.user_id !== hostUserId)?.user_id ||
-    null;
-
-  if (!opponentUserId) {
-    console.warn('[settleBetPayout] Opponent user not found for duel', duelId);
-    return;
-  }
-
-  const totalPot = betAmount * 2;
-  // Банк полностью игрокам - комиссия убрана
-  const winnerPayout = totalPot;
-
-  const creditCoins = async (userId: string, amount: number) => {
-    if (!userId || !amount) return;
-    await supabase.rpc('increment_profile_value', {
-      p_profile_id: userId,
-      p_column: 'coins',
-      p_amount: amount,
-    });
-  };
-
-  const insertTransaction = async (userId: string, amount: number, type: string) => {
-    await supabase.from('duel_transactions').insert({
-      duel_id: duelId,
-      user_id: userId,
-      amount,
-      transaction_type: type,
-    });
-  };
-
-  const hostCoverage = betRow && betRow.host_insurance_enabled
-    ? Math.ceil(betAmount * (betRow.host_coverage_rate || 0))
-    : 0;
-  const opponentCoverage = betRow && betRow.opponent_insurance_enabled
-    ? Math.ceil(betAmount * (betRow.opponent_coverage_rate || 0))
-    : 0;
-
-  let hostPayout = 0;
-  let opponentPayout = 0;
-  let hostInsuranceRefund = 0;
-  let opponentInsuranceRefund = 0;
-
-  if (isDraw) {
-    await creditCoins(hostUserId, betAmount);
-    await creditCoins(opponentUserId, betAmount);
-    await insertTransaction(hostUserId, betAmount, 'refund');
-    await insertTransaction(opponentUserId, betAmount, 'refund');
-    hostPayout = betAmount;
-    opponentPayout = betAmount;
-
-    if (betRow?.host_insurance_premium) {
-      await creditCoins(hostUserId, betRow.host_insurance_premium);
-      await insertTransaction(hostUserId, betRow.host_insurance_premium, 'insurance_refund');
-      hostInsuranceRefund = betRow.host_insurance_premium;
-    }
-    if (betRow?.opponent_insurance_premium) {
-      await creditCoins(opponentUserId, betRow.opponent_insurance_premium);
-      await insertTransaction(opponentUserId, betRow.opponent_insurance_premium, 'insurance_refund');
-      opponentInsuranceRefund = betRow.opponent_insurance_premium;
-    }
-  } else if (winnerUserId) {
-    await creditCoins(winnerUserId, winnerPayout);
-    await insertTransaction(winnerUserId, winnerPayout, 'win');
-    // Комиссия убрана - банк полностью игрокам
-
-    // Бонусные монеты за серии и underdog
-    let bonusCoins = 0;
-    let bonusReason = '';
-
-    // Проверяем серию побед (3 победы подряд = +15 монет)
-    const { data: winnerStats } = await supabase
-      .from('duel_stats')
-      .select('current_streak')
-      .eq('user_id', winnerUserId)
-      .maybeSingle();
-
-    if (winnerStats && winnerStats.current_streak >= 3) {
-      bonusCoins += 15;
-      bonusReason = `серия ${winnerStats.current_streak} побед`;
-    }
-
-    // Проверяем underdog бонус (победа над игроком с большим XP = +10 монет)
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, xp')
-      .in('id', [winnerUserId, hostUserId === winnerUserId ? opponentUserId : hostUserId]);
-
-    if (profiles && profiles.length === 2) {
-      const winnerProfile = profiles.find(p => p.id === winnerUserId);
-      const loserProfile = profiles.find(p => p.id !== winnerUserId);
-
-      if (winnerProfile && loserProfile && (loserProfile.xp || 0) > (winnerProfile.xp || 0) + 500) {
-        bonusCoins += 10;
-        bonusReason = bonusReason ? `${bonusReason}, underdog` : 'underdog';
-      }
-    }
-
-    // Начисляем бонусные монеты
-    if (bonusCoins > 0) {
-      await creditCoins(winnerUserId, bonusCoins);
-      await insertTransaction(winnerUserId, bonusCoins, 'win');
-      console.log(`[settleBetPayout] Bonus coins awarded: ${bonusCoins} for ${bonusReason}`);
-    }
-
-    if (winnerUserId === hostUserId) {
-      hostPayout = winnerPayout + bonusCoins;
-      if (opponentCoverage > 0) {
-        await creditCoins(opponentUserId, opponentCoverage);
-        await insertTransaction(opponentUserId, opponentCoverage, 'insurance_refund');
-        opponentInsuranceRefund = opponentCoverage;
-      }
-    } else {
-      opponentPayout = winnerPayout + bonusCoins;
-      if (hostCoverage > 0) {
-        await creditCoins(hostUserId, hostCoverage);
-        await insertTransaction(hostUserId, hostCoverage, 'insurance_refund');
-        hostInsuranceRefund = hostCoverage;
-      }
-    }
-  }
-
-  const hostOutcome = isDraw
-    ? 'draw'
-    : winnerUserId === hostUserId
-      ? 'win'
-      : 'lose';
-  const opponentOutcome = isDraw
-    ? 'draw'
-    : winnerUserId === opponentUserId
-      ? 'win'
-      : 'lose';
-
-  const hostSeasonSp = calculateSeasonReward(betAmount, hostOutcome as 'win' | 'lose' | 'draw');
-  const opponentSeasonSp = calculateSeasonReward(betAmount, opponentOutcome as 'win' | 'lose' | 'draw');
-
-  if (betRow) {
-    await supabase
-      .from('duel_bets')
-      .update({
-        status: 'settled',
-        season_sp_host: hostSeasonSp,
-        season_sp_opponent: opponentSeasonSp,
-      })
-      .eq('duel_id', duelId);
-
-    await supabase.from('duel_bet_history').insert({
-      bet_id: betRow.id,
-      duel_id: duelId,
-      result: isDraw
-        ? 'draw'
-        : winnerUserId === hostUserId
-          ? 'host_win'
-          : 'opponent_win',
-      payout_host: hostPayout,
-      payout_opponent: opponentPayout,
+    .update({
+      status: 'settled',
       season_sp_host: hostSeasonSp,
       season_sp_opponent: opponentSeasonSp,
-      insurance_refund_host: hostInsuranceRefund,
-      insurance_refund_opponent: opponentInsuranceRefund,
-    });
-  }
+    })
+    .eq('duel_id', duelId);
+
+  await supabase.from('duel_bet_history').insert({
+    bet_id: betRow.id,
+    duel_id: duelId,
+    result: isDraw
+      ? 'draw'
+      : winnerUserId === hostUserId
+        ? 'host_win'
+        : 'opponent_win',
+    payout_host: hostPayout,
+    payout_opponent: opponentPayout,
+    season_sp_host: hostSeasonSp,
+    season_sp_opponent: opponentSeasonSp,
+    insurance_refund_host: hostInsuranceRefund,
+    insurance_refund_opponent: opponentInsuranceRefund,
+  });
+}
 }
 
 
@@ -4784,6 +4665,8 @@ Deno.serve(async (req) => {
             .from('duels')
             .update({
               status: 'finished',
+              winner_id: isDraw ? null : player1.user_id,
+              is_draw: isDraw,
               finished_at: new Date().toISOString(),
               match_summary: matchSummary as any, // Save compact match summary
             })

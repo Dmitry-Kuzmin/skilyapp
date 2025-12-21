@@ -1,393 +1,450 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Swords, X, Loader2, CheckCircle2, Hash, TrendingUp, Zap, Sparkles, Copy, Check } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import {
+  Swords, X, Loader2, CheckCircle2, Hash, Zap, Sparkles,
+  Copy, Check, Users, Search, Coins, Minus, Plus, Share2,
+  ArrowRight, Shield, Activity, Globe
+} from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useUserContext } from '@/contexts/UserContext';
-import { getHumanReadableError, extractErrorFromResponse } from '@/utils/errorMessages';
-import { Slider } from '@/components/ui/slider';
-import { Separator } from '@/components/ui/separator';
+import { extractErrorFromResponse } from '@/utils/errorMessages';
+import { ResponsiveModal } from '@/components/ui/responsive-modal';
+import { LoadoutSelector } from '@/components/duel/LoadoutSelector';
+import { cn } from '@/lib/utils';
+import { isTelegramMiniApp } from '@/lib/telegram';
 
 interface DuelCreateModalProps {
   open: boolean;
   onClose: () => void;
+  initialTab?: 'random' | 'friend';
   onDuelCreated: (id: string, code: string) => void;
 }
 
-export function DuelCreateModal({ open, onClose, onDuelCreated }: DuelCreateModalProps) {
+export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCreated }: DuelCreateModalProps) {
   const { profileId } = useUserContext();
-  const [isCreating, setIsCreating] = useState(false);
+  const [activeTab, setActiveTab] = useState<'random' | 'friend'>(initialTab);
+  const [step, setStep] = useState<'config' | 'searching' | 'success'>('config');
+
+  const [isProcessing, setIsProcessing] = useState(false);
   const [numQuestions, setNumQuestions] = useState(10);
-  const [difficulty, setDifficulty] = useState('mix');
-  const [step, setStep] = useState<'config' | 'creating' | 'success'>('config');
+  const [betAmount, setBetAmount] = useState(10);
+  const [userCoins, setUserCoins] = useState(0);
+  const [joinCode, setJoinCode] = useState('');
+  const [isJoining, setIsJoining] = useState(false);
   const [createdDuelCode, setCreatedDuelCode] = useState<string | null>(null);
   const [createdDuelId, setCreatedDuelId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const handleCreate = async () => {
-    if (!profileId) {
-      toast.error('Загрузка профиля...');
+  const joinInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (open) {
+      setActiveTab(initialTab);
+      setStep('config');
+      setJoinCode('');
+      setBetAmount(10);
+
+      const loadCoins = async () => {
+        if (!profileId) return;
+        const { data } = await supabase.from('profiles').select('coins').eq('id', profileId).single();
+        if (data) setUserCoins(data.coins || 0);
+      };
+      loadCoins();
+
+      if (initialTab === 'friend') {
+        setTimeout(() => joinInputRef.current?.focus(), 600);
+      }
+    }
+  }, [open, initialTab, profileId]);
+
+  const handleAction = async (action: 'find_match' | 'create_duel') => {
+    if (!profileId) return;
+    if (betAmount > userCoins) {
+      toast.error(`Недостаточно монет! Баланс: ${userCoins}`);
       return;
     }
 
-    setIsCreating(true);
-    setStep('creating');
+    setIsProcessing(true);
+    if (action === 'find_match') setStep('searching');
 
     try {
       const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: {
-          action: 'create_duel',
+          action,
           profile_id: profileId,
           num_questions: numQuestions,
-          difficulty: difficulty,
+          difficulty: 'mix',
+          bet_amount: betAmount,
+          bet_type: betAmount > 0 ? 'fixed' : 'none',
         },
       });
 
       if (error) throw error;
 
-      setCreatedDuelCode(data.duel.code);
-      setCreatedDuelId(data.duel.id);
-      setStep('success');
-      
-      // Auto-copy code to clipboard
-      try {
-        await navigator.clipboard.writeText(data.duel.code);
-        setCopied(true);
-        toast.success('Дуэль создана! Код скопирован в буфер обмена 🎮');
-        setTimeout(() => setCopied(false), 3000);
-      } catch (error) {
-      toast.success('Дуэль создана! 🎮');
+      if (action === 'find_match') {
+        setTimeout(() => onDuelCreated(data.duel.id, data.duel.code), 1800);
+      } else {
+        setCreatedDuelCode(data.duel.code);
+        setCreatedDuelId(data.duel.id);
+        setStep('success');
+        navigator.clipboard.writeText(data.duel.code);
       }
-      
-        setIsCreating(false);
     } catch (error: any) {
-      const extractedError = extractErrorFromResponse(error);
-      const humanError = getHumanReadableError(extractedError, 'create');
-      toast.error(humanError);
+      toast.error(extractErrorFromResponse(error) || 'Ошибка');
       setStep('config');
-      setIsCreating(false);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const handleCopyCode = async () => {
-    if (!createdDuelCode) return;
-    
+  const handleJoinByCode = async () => {
+    if (!profileId || joinCode.length < 4) return;
+    setIsJoining(true);
     try {
-      await navigator.clipboard.writeText(createdDuelCode);
-      setCopied(true);
-      toast.success('Код скопирован!');
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      toast.error('Не удалось скопировать код');
+      const { data, error } = await supabase.functions.invoke('duel-manager', {
+        body: { action: 'join_duel', profile_id: profileId, code: joinCode.toUpperCase() },
+      });
+      if (error) throw error;
+      onDuelCreated(data.duel.id, data.duel.code);
+    } catch (error: any) {
+      toast.error(extractErrorFromResponse(error) || 'Код не найден');
+    } finally {
+      setIsJoining(false);
     }
   };
-
-  const handleGoToLobby = () => {
-    if (createdDuelId && createdDuelCode) {
-      onDuelCreated(createdDuelId, createdDuelCode);
-      setStep('config');
-      setCreatedDuelCode(null);
-      setCreatedDuelId(null);
-      onClose();
-    }
-  };
-
-  // Reset state when modal closes
-  useEffect(() => {
-    if (!open) {
-      setStep('config');
-      setCreatedDuelCode(null);
-      setCreatedDuelId(null);
-      setCopied(false);
-      setIsCreating(false);
-    }
-  }, [open]);
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[520px] p-0 gap-0 border-2 shadow-2xl rounded-2xl sm:rounded-3xl overflow-hidden">
-        <AnimatePresence mode="wait">
-          {step === 'config' && (
-            <motion.div
-              key="config"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-              className="bg-background"
-            >
-              {/* Header */}
-              <DialogHeader className="px-6 pt-6 pb-5 border-b bg-gradient-to-b from-background to-muted/20">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-blue-500/10 flex items-center justify-center border border-primary/20">
-                      <Swords className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <DialogTitle className="text-2xl font-bold leading-tight">
-                        Создать дуэль
-                      </DialogTitle>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Настройте параметры битвы
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={onClose}
-                    className="h-9 w-9 rounded-xl hover:bg-muted transition-colors"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </DialogHeader>
+    <ResponsiveModal
+      open={open}
+      onOpenChange={(isOpen) => !isOpen && onClose()}
+      hideCloseButton
+      className="p-0 border-none sm:max-w-[500px] overflow-visible"
+    >
+      <div className="relative bg-background sm:rounded-[2.5rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col min-h-[580px]">
+        {/* Background Visuals */}
+        <div className="absolute top-0 inset-x-0 h-[280px] bg-gradient-to-b from-primary/10 via-primary/5 to-transparent pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none" />
+        <div className="absolute top-60 -left-20 w-48 h-48 bg-violet-500/5 rounded-full blur-[60px] pointer-events-none" />
 
-              {/* Content */}
-              <div className="px-6 py-6 space-y-6 bg-background">
-                {/* Number of Questions */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-base font-semibold flex items-center gap-2.5">
-                      <Hash className="h-4 w-4 text-primary" />
-                      Количество вопросов
-                    </Label>
-                    <div className="flex items-baseline gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20">
-                      <span className="text-3xl font-bold text-primary">{numQuestions}</span>
-                      <span className="text-xs text-muted-foreground font-medium">вопросов</span>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-3 pt-2">
-                    <Slider
-                      value={[numQuestions]}
-                      onValueChange={(value) => setNumQuestions(value[0])}
-                      min={5}
-                      max={30}
-                      step={5}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground px-1 font-medium">
-                      <span>5</span>
-                      <span>10</span>
-                      <span>15</span>
-                      <span>20</span>
-                      <span>25</span>
-                      <span>30</span>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator className="bg-border/60" />
-
-                {/* Difficulty */}
-                <div className="space-y-3">
-                  <Label className="text-base font-semibold flex items-center gap-2.5">
-                    <TrendingUp className="h-4 w-4 text-primary" />
-                    Сложность
-                  </Label>
-                  <Select value={difficulty} onValueChange={setDifficulty}>
-                    <SelectTrigger className="h-12 w-full rounded-xl border-2 hover:border-primary/50 transition-colors">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="rounded-xl">
-                      <SelectItem value="easy">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
-                          <span>Легкая</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="medium">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
-                          <span>Средняя</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="hard">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                          <span>Сложная</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="mix">
-                        <div className="flex items-center gap-2.5">
-                          <Sparkles className="h-4 w-4 text-primary" />
-                          <span>Смешанная</span>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <Separator className="bg-border/60" />
-
-                {/* Info Cards */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-2xl border-2 bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/20 dark:to-blue-900/10 border-blue-200/50 dark:border-blue-800/30 hover:border-blue-300 dark:hover:border-blue-700/50 transition-all duration-200 hover:shadow-md">
-                    <div className="flex items-center gap-2.5 mb-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-blue-500/20 dark:bg-blue-500/30 flex items-center justify-center border border-blue-500/30">
-                        <Zap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <span className="text-sm font-semibold text-foreground">Скорость</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground font-medium">
-                      Бонус до +40%
-                    </p>
-                  </div>
-                  <div className="p-4 rounded-2xl border-2 bg-gradient-to-br from-amber-50 to-orange-100/50 dark:from-amber-950/20 dark:to-orange-900/10 border-amber-200/50 dark:border-amber-800/30 hover:border-amber-300 dark:hover:border-amber-700/50 transition-all duration-200 hover:shadow-md">
-                    <div className="flex items-center gap-2.5 mb-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-amber-500/20 dark:bg-amber-500/30 flex items-center justify-center border border-amber-500/30">
-                        <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                      </div>
-                      <span className="text-sm font-semibold text-foreground">Комбо</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground font-medium">
-                      Бонус до +20%
-                    </p>
-                  </div>
-                </div>
+        {/* Modal Header */}
+        <div className="relative z-20 flex items-center justify-between px-8 pt-8 pb-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-xl shadow-indigo-500/20">
+              <Swords className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-black tracking-tight text-foreground leading-none uppercase">БИТВА ЗНАНИЙ</h2>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="flex w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.4)]" />
+                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Арена активна</span>
               </div>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-10 h-10 rounded-full bg-secondary/80 flex items-center justify-center hover:bg-secondary transition-all active:scale-90 hover:rotate-90"
+          >
+            <X className="w-5 h-5 text-muted-foreground" />
+          </button>
+        </div>
 
-              {/* Footer */}
-              <div className="px-6 py-5 border-t bg-gradient-to-b from-muted/30 to-background">
-                <Button
-                  onClick={handleCreate}
-                  disabled={isCreating}
-                  size="lg"
-                  className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                >
-                  {isCreating ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Создание...
-                    </>
-                  ) : (
-                    <>
-                      <Swords className="mr-2 h-5 w-5" />
-                  Создать дуэль
-                    </>
-                  )}
-                </Button>
-              </div>
-            </motion.div>
-          )}
-
-          {step === 'creating' && (
-            <motion.div
-              key="creating"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-background p-12 text-center rounded-3xl"
-            >
+        <div className="flex-1 relative z-20 px-8 pb-8 flex flex-col overflow-y-auto scrollbar-none">
+          <AnimatePresence mode="wait">
+            {step === 'config' && (
               <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                className="w-16 h-16 mx-auto mb-5 rounded-full border-4 border-primary border-t-transparent"
-              />
-              <h3 className="text-xl font-semibold mb-2">Создание дуэли...</h3>
-              <p className="text-sm text-muted-foreground">Подготовка к битве</p>
-            </motion.div>
-          )}
-
-          {step === 'success' && createdDuelCode && (
-            <motion.div
-              key="success"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-background"
-            >
-              {/* Header */}
-              <DialogHeader className="px-6 pt-6 pb-5 border-b bg-gradient-to-b from-background to-muted/20">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 flex items-center justify-center border border-emerald-500/20">
-                      <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
-                    </div>
-                    <div>
-                      <DialogTitle className="text-2xl font-bold leading-tight">
-                        Дуэль создана!
-                      </DialogTitle>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Поделитесь кодом с другом
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleGoToLobby}
-                    className="h-9 w-9 rounded-xl hover:bg-muted transition-colors"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </DialogHeader>
-
-              {/* Content */}
-              <div className="px-6 py-6 space-y-6 bg-background">
-                <div className="text-center space-y-3">
-                  <p className="text-sm font-semibold text-muted-foreground">Код дуэли</p>
-                  <button
-                    onClick={handleCopyCode}
-                    className="group relative inline-flex items-center gap-3 px-6 py-4 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-2xl border-2 border-emerald-500/30 hover:border-emerald-500/50 transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/20 active:scale-95"
-                  >
-                    <span className="font-mono text-4xl font-black tracking-wider text-emerald-600 dark:text-emerald-400 select-all">
-                      {createdDuelCode}
-                    </span>
-                    <div className="flex-shrink-0">
-                      {copied ? (
-                        <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                          <Check className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                        </div>
-                      ) : (
-                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 group-hover:bg-emerald-500/20 flex items-center justify-center transition-colors">
-                          <Copy className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                        </div>
-                      )}
-                    </div>
-                    {copied && (
-                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-emerald-600 text-white text-xs font-medium rounded-md whitespace-nowrap">
-                        Скопировано!
-                      </div>
-                    )}
-                  </button>
-                  <p className="text-xs text-muted-foreground">
-                    {copied ? 'Код скопирован в буфер обмена' : 'Нажмите на код, чтобы скопировать'}
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-foreground mb-1">Ожидание соперника</p>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        Поделитесь кодом с другом. Дуэль начнется автоматически, когда он присоединится.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <Button
-                  onClick={handleGoToLobby}
-                  size="lg"
-                  className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                key="config"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 1.05 }}
+                className="space-y-6 pt-4"
               >
-                  Перейти в лобби
-                </Button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </DialogContent>
-    </Dialog>
+                {/* Modern Segmented Control */}
+                <div className="flex p-1.5 bg-secondary/40 rounded-2xl backdrop-blur-md border border-white/10 dark:border-white/5 relative">
+                  <motion.div
+                    className="absolute inset-y-1.5 rounded-xl bg-background shadow-lg border border-black/5"
+                    animate={{
+                      x: activeTab === 'random' ? '0%' : '100%',
+                      width: 'calc(50% - 6px)'
+                    }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                  <button
+                    onClick={() => setActiveTab('random')}
+                    className={cn(
+                      "flex-1 relative z-10 py-3 text-sm font-black transition-all flex items-center justify-center gap-2",
+                      activeTab === 'random' ? "text-primary" : "text-muted-foreground opacity-70 hover:opacity-100"
+                    )}
+                  >
+                    <Zap className={cn("w-4 h-4", activeTab === 'random' && "fill-primary/20")} />
+                    СЛУЧАЙНЫЙ
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('friend')}
+                    className={cn(
+                      "flex-1 relative z-10 py-3 text-sm font-black transition-all flex items-center justify-center gap-2",
+                      activeTab === 'friend' ? "text-primary" : "text-muted-foreground opacity-70 hover:opacity-100"
+                    )}
+                  >
+                    <Users className={cn("w-4 h-4", activeTab === 'friend' && "fill-primary/20")} />
+                    С ДРУГОМ
+                  </button>
+                </div>
+
+                {activeTab === 'random' && (
+                  <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest pl-1">Ставка</Label>
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-black border border-amber-500/20">
+                          <Coins className="w-3.5 h-3.5" />
+                          {userCoins.toLocaleString()}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-4 gap-3">
+                        {[0, 10, 50, 100].map((amount) => (
+                          <button
+                            key={amount}
+                            onClick={() => setBetAmount(amount)}
+                            disabled={amount > userCoins}
+                            className={cn(
+                              "relative h-14 rounded-2xl border-2 transition-all flex flex-col items-center justify-center overflow-hidden",
+                              betAmount === amount
+                                ? "border-primary bg-primary/5 shadow-inner scale-105"
+                                : "border-secondary bg-secondary/20 hover:border-primary/30",
+                              amount > userCoins && "opacity-30 cursor-not-allowed grayscale"
+                            )}
+                          >
+                            <span className={cn("text-base font-black leading-none", betAmount === amount ? "text-primary" : "text-muted-foreground")}>
+                              {amount === 0 ? 'FREE' : amount}
+                            </span>
+                            {betAmount === amount && (
+                              <motion.div layoutId="bet-glow" className="absolute inset-0 bg-primary/5 blur-xl" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="p-6 rounded-[2rem] bg-secondary/20 border border-secondary/50 space-y-4 relative overflow-hidden group">
+                      <Activity className="absolute -right-4 -top-4 w-24 h-24 text-primary/5 group-hover:scale-110 transition-transform" />
+                      <div className="relative z-10 flex items-center justify-between">
+                        <span className="text-[11px] font-black text-muted-foreground uppercase tracking-widest leading-none">Количество вопросов</span>
+                        <span className="text-3xl font-black text-primary drop-shadow-[0_0_10px_rgba(79,70,229,0.2)]">{numQuestions}</span>
+                      </div>
+                      <div className="relative z-10 flex items-center gap-5">
+                        <Button variant="outline" size="icon" onClick={() => setNumQuestions(prev => Math.max(5, prev - 5))} className="rounded-xl h-11 w-11 border-none bg-background shadow-sm active:scale-90 transition-all">
+                          <Minus className="w-5 h-5 text-primary" />
+                        </Button>
+                        <div className="flex-1 h-2 rounded-full bg-primary/10 overflow-hidden">
+                          <motion.div className="h-full bg-gradient-to-r from-indigo-500 to-violet-600 shadow-[0_0_10px_rgba(79,70,229,0.5)]" animate={{ width: `${(numQuestions / 30) * 100}%` }} transition={{ type: "spring", stiffness: 200, damping: 20 }} />
+                        </div>
+                        <Button variant="outline" size="icon" onClick={() => setNumQuestions(prev => Math.min(30, prev + 5))} className="rounded-xl h-11 w-11 border-none bg-background shadow-sm active:scale-90 transition-all">
+                          <Plus className="w-5 h-5 text-primary" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="relative pt-2">
+                      <LoadoutSelector />
+                    </div>
+
+                    <Button
+                      onClick={() => handleAction('find_match')}
+                      disabled={isProcessing}
+                      className="w-full h-16 rounded-[1.5rem] bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 text-white font-black text-xl shadow-2xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all group overflow-hidden"
+                    >
+                      <AnimatePresence mode="wait">
+                        {isProcessing ? (
+                          <motion.div key="loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3">
+                            <Loader2 className="w-6 h-6 animate-spin" />
+                            <span>ЗАВИСАНИЕ...</span>
+                          </motion.div>
+                        ) : (
+                          <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3">
+                            <Search className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                            <span>НАЧАТЬ ПОИСК</span>
+                            <motion.div animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 2 }}><ArrowRight className="w-5 h-5" /></motion.div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </Button>
+                  </div>
+                )}
+
+                {activeTab === 'friend' && (
+                  <div className="space-y-8 pt-4 animate-in slide-in-from-bottom-4 duration-500">
+                    <div className="space-y-5">
+                      <div className="flex items-center gap-2 pl-1">
+                        <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center"><Shield className="w-3.5 h-3.5 text-primary" /></div>
+                        <span className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">Присоединиться к битве</span>
+                      </div>
+                      <div className="relative">
+                        <div className="flex justify-center gap-4">
+                          {[0, 1, 2, 3].map((i) => (
+                            <div key={i} className={cn(
+                              "w-16 h-20 rounded-[1.25rem] bg-secondary/30 border-2 flex items-center justify-center text-4xl font-black transition-all relative overflow-hidden",
+                              joinCode.length === i ? "border-primary bg-primary/5 shadow-[0_0_20px_rgba(79,70,229,0.1)] scale-110" : "border-secondary/50",
+                              joinCode[i] ? "border-primary/50 text-foreground" : "text-muted-foreground/30"
+                            )}>
+                              {joinCode[i] || "•"}
+                              {joinCode.length === i && (
+                                <motion.div
+                                  className="absolute bottom-4 inset-x-4 h-1 bg-primary rounded-full shadow-[0_0_8px_rgba(79,70,229,1)]"
+                                  animate={{ opacity: [1, 0] }}
+                                  transition={{ repeat: Infinity, duration: 1 }}
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        <Input
+                          ref={joinInputRef}
+                          value={joinCode}
+                          onChange={(e) => setJoinCode(e.target.value.toUpperCase().slice(0, 4))}
+                          className="absolute inset-0 opacity-0 cursor-default"
+                          maxLength={4}
+                        />
+                      </div>
+                      <AnimatePresence>
+                        {joinCode.length === 4 && (
+                          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }}>
+                            <Button
+                              onClick={handleJoinByCode}
+                              disabled={isJoining}
+                              className="w-full h-16 rounded-[1.5rem] bg-indigo-500 text-white font-black text-base shadow-xl shadow-indigo-500/20 hover:bg-indigo-600 transition-all"
+                            >
+                              {isJoining ? <Loader2 className="w-5 h-5 animate-spin" /> : <div className="flex items-center gap-2"><span>ПОДКЛЮЧИТЬСЯ К СЕССИИ</span><ArrowRight className="w-5 h-5" /></div>}
+                            </Button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+
+                    <div className="relative py-2 mt-4">
+                      <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-secondary/50" /></div>
+                      <div className="relative flex justify-center"><span className="bg-background px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-40 italic">ИЛИ ПРОВЕСТИ СВОЮ</span></div>
+                    </div>
+
+                    <div className="p-8 rounded-[2.5rem] bg-secondary/10 border border-secondary/50 text-center space-y-5 relative overflow-hidden group">
+                      <Globe className="absolute -right-6 -bottom-6 w-32 h-32 text-indigo-500/5 group-hover:rotate-12 transition-transform duration-1000" />
+                      <h4 className="font-black text-xs uppercase tracking-widest text-foreground relative z-10">Создать защищенную комнату</h4>
+                      <p className="text-xs text-muted-foreground font-medium max-w-[200px] mx-auto relative z-10">Сгенерируй код и отправь его другу для мгновенного начала</p>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleAction('create_duel')}
+                        disabled={isProcessing}
+                        className="w-full h-14 rounded-2xl border-2 border-indigo-500/20 hover:bg-indigo-500/5 hover:border-indigo-500 text-indigo-600 dark:text-indigo-400 font-black transition-all relative z-10 shadow-sm"
+                      >
+                        {isProcessing ? <Loader2 className="animate-spin w-5 h-5" /> : <div className="flex items-center justify-center gap-2"><Sparkles className="w-5 h-5" /><span>СГЕНЕРИРОВАТЬ КЛЮЧ</span></div>}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {step === 'searching' && (
+              <motion.div
+                key="searching"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex flex-col items-center justify-center py-24 text-center"
+              >
+                <div className="relative w-48 h-48 mb-12">
+                  {/* Animated Pulse Rings */}
+                  <motion.div animate={{ scale: [1, 1.8], opacity: [0.5, 0] }} transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }} className="absolute inset-0 bg-primary/20 rounded-full" />
+                  <motion.div animate={{ scale: [1, 2.2], opacity: [0.3, 0] }} transition={{ duration: 2, repeat: Infinity, delay: 0.5, ease: "easeOut" }} className="absolute inset-0 bg-primary/10 rounded-full" />
+
+                  {/* Rotating Scanner Circle */}
+                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }} className="absolute inset-2 border-2 border-dashed border-primary/40 rounded-full" />
+                  <motion.div animate={{ rotate: -360 }} transition={{ duration: 5, repeat: Infinity, ease: "linear" }} className="absolute inset-6 border border-primary/20 rounded-full" />
+
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="w-24 h-24 rounded-[2rem] bg-primary shadow-[0_20px_50px_rgba(79,70,229,0.5)] flex items-center justify-center"
+                    >
+                      <Search className="w-10 h-10 text-white" />
+                    </motion.div>
+                  </div>
+                </div>
+                <h3 className="text-4xl font-black uppercase tracking-tight text-foreground">СКАНЕР...</h3>
+                <p className="text-xs font-black text-primary animate-pulse tracking-[0.4em] uppercase mt-3">ПОДБОР РАВНОГО ПРОТИВНИКА</p>
+                <Button onClick={() => setStep('config')} variant="ghost" className="mt-14 text-muted-foreground hover:text-destructive font-black opacity-60 hover:opacity-100 transition-all uppercase tracking-widest text-[10px]">Прервать соединение</Button>
+              </motion.div>
+            )}
+
+            {step === 'success' && createdDuelCode && (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-10 py-10 text-center"
+              >
+                <div className="relative w-24 h-24 mx-auto">
+                  <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }} transition={{ duration: 3, repeat: Infinity }} className="absolute inset-0 bg-emerald-500 rounded-full blur-2xl" />
+                  <div className="relative z-10 w-full h-full rounded-3xl bg-emerald-500 flex items-center justify-center shadow-[0_20px_40px_rgba(16,185,129,0.4)]">
+                    <CheckCircle2 className="w-12 h-12 text-white" />
+                  </div>
+                </div>
+                <div>
+                  <h2 className="text-4xl font-black text-foreground leading-none uppercase tracking-tight">ДОСТУП ОТКРЫТ</h2>
+                  <p className="text-sm text-muted-foreground font-medium mt-3 italic opacity-80">Передай этот код оппоненту для входа</p>
+                </div>
+
+                <div
+                  onClick={() => {
+                    navigator.clipboard.writeText(createdDuelCode);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                    toast.success('Скопировано');
+                  }}
+                  className="group relative p-12 rounded-[3.5rem] bg-secondary/10 border-4 border-secondary border-dashed cursor-pointer hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all flex items-center justify-center"
+                >
+                  <span className="text-7xl font-black tracking-[0.1em] text-emerald-500 font-mono drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                    {createdDuelCode}
+                  </span>
+                  <div className={cn(
+                    "absolute top-6 right-6 p-2.5 rounded-xl transition-all",
+                    copied ? "bg-emerald-500 text-white" : "bg-white/80 dark:bg-zinc-800 text-emerald-500 border border-secondary shadow-sm"
+                  )}>
+                    {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                  </div>
+                  {copied && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-black text-emerald-500 uppercase tracking-widest">Код успешно скопирован</motion.div>
+                  )}
+                </div>
+
+                <div className="flex gap-4 pt-6">
+                  <Button
+                    onClick={() => onDuelCreated(createdDuelId!, createdDuelCode!)}
+                    className="flex-1 h-18 rounded-[1.75rem] bg-foreground text-background font-black text-xl hover:scale-[1.05] transition-all shadow-2xl"
+                  >
+                    ВОЙТИ В ЛОББИ
+                  </Button>
+                  {isTelegramMiniApp() && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.origin + '/games/duel?join=' + createdDuelCode)}&text=${encodeURIComponent(`Сразись со мной в дуэли! Код: ${createdDuelCode}`)}`;
+                        (window as any).Telegram?.WebApp?.openTelegramLink?.(shareUrl);
+                      }}
+                      className="h-18 w-18 rounded-[1.75rem] border-2 flex-shrink-0 hover:bg-primary/5 hover:border-primary transition-all group"
+                    >
+                      <Share2 className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                    </Button>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    </ResponsiveModal>
   );
 }

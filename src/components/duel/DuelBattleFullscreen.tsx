@@ -739,6 +739,32 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [duelId, profileId, fetchPlayers, state.duelStarted]);
 
+  // 🔄 CRITICAL FIX: Добавляем Polling для перехода к результатам, когда ждём бота
+  // Это страховка, если Realtime не сработает или бот закончит позже
+  useEffect(() => {
+    let pollingInterval: NodeJS.Timeout | null = null;
+
+    if (isWaitingForOpponent && duelId && profileId) {
+      const isBotDuel = players.some(p => p.is_bot);
+
+      if (isBotDuel) {
+        log('[DuelBattleFullscreen] 🕒 Starting polling for bot completion...');
+
+        pollingInterval = setInterval(() => {
+          log('[DuelBattleFullscreen] 🔄 Polling: checking if bot finished...');
+          finishDuel(true); // Передаем true, чтобы подтвердить, что мы УЖЕ закончили
+        }, 3000); // Опрашиваем раз в 3 секунды
+      }
+    }
+
+    return () => {
+      if (pollingInterval) {
+        log('[DuelBattleFullscreen] 🛑 Stopping polling');
+        clearInterval(pollingInterval);
+      }
+    };
+  }, [isWaitingForOpponent, duelId, profileId, players, finishDuel]);
+
   // Подключаем хук для автоматических ответов бота
   const currentQuestionId = questions[currentIndex]?.id || null;
   useBotOpponent({
@@ -2742,7 +2768,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         // КРИТИЧНО: Проверяем ВСЕ возможные типы атаки "Масло"
         // Также фильтруем истекшие exploits (с буфером 5 секунд для компенсации лага)
         const now = Date.now();
-        const NETWORK_LATENCY_BUFFER_MS = 5000;
+        const NETWORK_LATENCY_BUFFER_MS = 10000; // 10 секунд буфера
         const screenInjector = state.activeExploits?.find(e => {
           const isCorrectType = e.type === 'screen_injector' ||
             e.type === 'data_leak' ||
@@ -2750,9 +2776,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           if (!isCorrectType) return false;
 
           // Проверяем, не истек ли exploit (с буфером)
+          // КРИТИЧНО: Не скрываем атаку, пока не прошло 10 секунд с моментаexpiresAt
           const isExpired = e.expiresAt <= now;
           const expiredBy = now - e.expiresAt;
-          // Игнорируем только если истек более чем на 5 секунд
           return !isExpired || expiredBy <= NETWORK_LATENCY_BUFFER_MS;
         });
         const policeRaid = state.activeExploits?.find(e => {
