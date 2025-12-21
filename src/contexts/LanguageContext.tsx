@@ -363,6 +363,7 @@ const translations: Record<Language, Record<string, any>> = {
     },
     boostShop: {
       title: "Tienda",
+      subtitle: "Impulsos, monedas y Premium",
       tabs: {
         boosts: "Impulsos",
         coins: "Monedas",
@@ -1300,6 +1301,7 @@ const translations: Record<Language, Record<string, any>> = {
     },
     boostShop: {
       title: "Shop",
+      subtitle: "Boosts, coins & Premium",
       tabs: {
         boosts: "Boosts",
         coins: "Coins",
@@ -2219,6 +2221,7 @@ const translations: Record<Language, Record<string, any>> = {
     },
     boostShop: {
       title: "Магазин",
+      subtitle: "Бусты, монеты и Premium",
       tabs: {
         boosts: "Бусты",
         coins: "Монеты",

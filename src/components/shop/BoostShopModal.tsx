@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useContext, useMemo, useCallback } from 'react';
-import { ResponsiveModal } from '@/components/ui/responsive-modal';
+import { ResponsiveModal, ModalSkeleton } from '@/components/ui/responsive-modal';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -1769,8 +1769,17 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 style={{ WebkitOverflowScrolling: 'touch' }}
               >
                 {loadingHistory ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
+                  <div className="space-y-3 animate-pulse">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div key={i} className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl">
+                        <div className="w-10 h-10 bg-muted rounded-lg" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-3 bg-muted rounded w-2/3" />
+                          <div className="h-2 bg-muted rounded w-1/3" />
+                        </div>
+                        <div className="h-4 bg-muted rounded w-16" />
+                      </div>
+                    ))}
                   </div>
                 ) : (() => {
                   const filtered = filterCategory === 'all'
@@ -1945,50 +1954,63 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     );
   };
 
-  // Кастомный заголовок в стиле BLACK MARKET
+  // 🏆 Premium Header Design
   const headerContent = (
-    <div className="px-4 md:px-6 py-3 md:py-4 border-b border-zinc-300 dark:border-white/10 shrink-0 bg-zinc-50 dark:bg-black/95 backdrop-blur-xl relative pr-12 md:pr-14">
-      {/* Noise texture */}
-      <div
-        className="absolute inset-0 opacity-[0.02] dark:opacity-[0.02] mix-blend-overlay pointer-events-none"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-          backgroundRepeat: 'repeat'
-        }}
-      />
+    <div className="relative overflow-hidden">
+      {/* Gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-violet-600/10 via-purple-600/5 to-indigo-600/10 dark:from-violet-600/20 dark:via-purple-600/10 dark:to-indigo-600/20" />
 
-      <div className="flex items-center justify-between gap-2 relative z-10">
-        <div className="flex items-center gap-2 md:gap-3 min-w-0">
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-red-500/30 to-orange-500/30 rounded-lg blur-sm" />
-            <ShoppingBag className="relative w-4 h-4 md:w-5 md:h-5 text-red-500 dark:text-red-400 flex-shrink-0 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" />
+      {/* Animated glow */}
+      <div className="absolute -top-20 -right-20 w-40 h-40 bg-violet-500/20 rounded-full blur-3xl" />
+      <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-purple-500/15 rounded-full blur-2xl" />
+
+      <div className="relative px-4 md:px-5 py-4 md:py-5 border-b border-border/30 pr-12">
+        <div className="flex items-center justify-between gap-3">
+          {/* Left: Title & subtitle */}
+          <div className="flex items-center gap-3 min-w-0">
+            {/* Icon container */}
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl blur-md opacity-60" />
+              <div className="relative w-11 h-11 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <ShoppingBag className="w-5 h-5 text-white" />
+              </div>
+            </div>
+
+            <div className="min-w-0">
+              <h2 className="text-lg md:text-xl font-bold text-foreground truncate">
+                {t('boostShop.title') || 'Магазин'}
+              </h2>
+              <p className="text-xs text-muted-foreground truncate">
+                {t('boostShop.subtitle') || 'Бусты, монеты и Premium'}
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-base md:text-lg font-black truncate text-zinc-900 dark:text-white tracking-wider font-mono">
-              BLACK MARKET
-            </h2>
-            <p className="text-[10px] font-mono text-zinc-600 dark:text-white/40 tracking-widest uppercase">
-              ILLEGAL SOFTWARE DEPOT
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+
+          {/* Right: Coin balance */}
           <button
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-100 dark:bg-black/40 border border-yellow-500/40 dark:border-yellow-500/20 hover:border-yellow-500/60 dark:hover:border-yellow-500/40 transition-all cursor-pointer backdrop-blur-sm"
             onClick={async () => {
               setActiveTab('history');
               if (transactions.length === 0) {
                 await loadTransactionHistory();
               }
             }}
+            className={cn(
+              "flex items-center gap-2 px-3 py-2 rounded-xl shrink-0",
+              "bg-yellow-500/10 dark:bg-yellow-500/15",
+              "border border-yellow-500/30 dark:border-yellow-500/40",
+              "hover:bg-yellow-500/20 hover:border-yellow-500/50",
+              "transition-all duration-200",
+              "shadow-sm hover:shadow-md"
+            )}
           >
-            <Coins className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />
+            <div className="w-6 h-6 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-sm">
+              <Coins className="w-3.5 h-3.5 text-white" />
+            </div>
             <NumberTicker
               value={coins}
-              className="text-sm font-bold font-mono text-yellow-600 dark:text-yellow-500"
+              className="text-sm font-bold font-mono text-yellow-600 dark:text-yellow-400"
               shouldFlash={true}
             />
-            <History className="w-3 h-3 text-zinc-500 dark:text-white/40 ml-0.5" />
           </button>
         </div>
       </div>
@@ -2003,11 +2025,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         headerContent={headerContent}
         className="max-w-5xl"
         contentClassName="scrollbar-none"
+        snapPoints={[0.92, 1]}
+        activeSnapPoint={0.92}
+        hideHandle={true}
       >
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
-          </div>
+          <ModalSkeleton rows={4} />
         ) : (
           <ModalContent />
         )}
