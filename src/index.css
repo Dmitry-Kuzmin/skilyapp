@@ -129,29 +129,39 @@ iframe[id^="telegram-login"] {
   --tg-theme-button-text-color: var(--primary-foreground);
   --tg-theme-secondary-bg-color: var(--card);
 
-  /* Telegram WebApp Safe Area Insets - единая система отступов */
-  /* Используем Telegram WebApp API для получения правильных значений */
+  /* ============================================================================
+   * TELEGRAM SAFE AREA SYSTEM
+   * ============================================================================
+   * Telegram автоматически устанавливает эти CSS-переменные:
+   * --tg-safe-area-inset-top/bottom/left/right - системные отступы (notch, home indicator)
+   * --tg-content-safe-area-inset-top/bottom/left/right - отступы от UI Telegram (кнопка назад)
+   * 
+   * Мы используем их напрямую с fallback для случаев когда Telegram не установил значения
+   * ============================================================================ */
+
+  /* Fallback значения для случаев когда Telegram ещё не установил переменные */
+  /* 64px - высота для iPhone 16 Pro с кнопкой назад Telegram */
   --tg-safe-area-inset-top: 0px;
   --tg-safe-area-inset-bottom: 0px;
   --tg-safe-area-inset-left: 0px;
   --tg-safe-area-inset-right: 0px;
+  --tg-content-safe-area-inset-top: 0px;
+  --tg-content-safe-area-inset-bottom: 0px;
+  --tg-content-safe-area-inset-left: 0px;
+  --tg-content-safe-area-inset-right: 0px;
 
   /* Viewport stable height - стабильная высота без клавиатуры */
   --tg-viewport-stable-height: 100vh;
 
-  /* Единая система отступов для Telegram WebApp */
-  /* Используем env() для системных safe areas + Telegram API для content safe areas */
+  /* Единая система отступов - комбинируем системные safe-area + Telegram content safe-area */
+  /* Используем env() для системных safe areas (notch) */
   --app-safe-top: env(safe-area-inset-top, 0px);
   --app-safe-bottom: env(safe-area-inset-bottom, 0px);
   --app-safe-left: env(safe-area-inset-left, 0px);
   --app-safe-right: env(safe-area-inset-right, 0px);
 
-  /* Отступы для основного контента в Telegram WebApp */
-  /* Будет обновлено через TelegramNavigation на основе Telegram WebApp API */
-  /* Для мобильных: используем contentSafeAreaInset.top из Telegram API */
-  /* Для десктопа: 0px (нет нативной панели Telegram) */
-  --app-content-top: 0px;
-  --app-content-bottom: 0px;
+  /* КРИТИЧНО: Минимальный fallback для Telegram Mobile (64px для iPhone 16) */
+  --tg-mobile-header-fallback: 64px;
 }
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
@@ -401,17 +411,29 @@ All colors MUST be HSL.
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
 
-    /* ОПТИМИЗАЦИЯ: Системные шрифты уже оптимизированы браузером */
-    /* font-display: swap применяется только к @font-face */
-    /* Если в будущем будут добавлены кастомные шрифты, добавить:
-     * @font-face {
-     *   font-family: 'CustomFont';
-     *   src: url('font.woff2') format('woff2');
-     *   font-display: swap; // Предотвращает блокировку рендеринга
-     *   size-adjust: 100%; // Предотвращает CLS (если шрифт-заглушка Arial)
-     * }
+  /* ============================================================================
+   * ГЛОБАЛЬНЫЙ ОТСТУП ДЛЯ TELEGRAM MOBILE
+   * ============================================================================
+   * Применяется ко ВСЕМ страницам в Telegram на мобильных устройствах
+   * Использует нативные CSS-переменные Telegram с надёжным fallback
+   * ============================================================================ */
+  body.telegram-mobile-app {
+    /* Используем max() для выбора наибольшего значения между:
+     * 1. Нативной переменной Telegram (--tg-content-safe-area-inset-top)
+     * 2. Системной safe-area (env(safe-area-inset-top))
+     * 3. Минимальным fallback (64px для iPhone 16)
      */
+    padding-top: max(var(--tg-content-safe-area-inset-top, 0px),
+        var(--tg-safe-area-inset-top, 0px),
+        env(safe-area-inset-top, 0px),
+        var(--tg-mobile-header-fallback)) !important;
+  }
+
+  /* Исключение для duel-страниц - они сами управляют отступами */
+  body.telegram-mobile-app.duel-active {
+    padding-top: 0 !important;
   }
 
   /* ОПТИМИЗАЦИЯ: Reduce motion для пользователей с предпочтениями */

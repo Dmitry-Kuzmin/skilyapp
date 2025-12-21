@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { DuelResultSnapshot } from '@/features/duel/shared';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +18,7 @@ import { AuthModalNew as AuthModal } from '@/components/AuthModalNew';
 import { useUserContext } from '@/contexts/UserContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Card } from '@/components/ui/card';
-import { isTelegramMiniApp } from '@/lib/telegram';
+import { isTelegramMiniApp, getTelegramWebApp } from '@/lib/telegram';
 import { supabase } from '@/integrations/supabase/client';
 import { dispatchUserEvent } from '@/lib/notification-events';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -49,7 +49,7 @@ const getSeasonBonusPreview = (bet: number) => bet > 0 ? Math.round(20 * getRisk
 // 🆕 Helper для debug fetch (только в dev режиме)
 // УДАЛЕНО: debug fetch вызовы убраны для стабильности - они вызывали ERR_CONNECTION_REFUSED
 const debugFetch = (data: any) => {
-  // Отключено для стабильности
+    // Отключено для стабильности
 };
 
 export default function Duel() {
@@ -106,6 +106,63 @@ export default function Duel() {
 
     // Initialize notifications for duel page - только после загрузки данных
     useNotifications({ showToasts: dataLoaded, playSounds: dataLoaded });
+
+    const navigate = useNavigate();
+
+    // 🆕 Telegram BackButton и swipe-back для экрана настройки дуэли (не для battle/results)
+    useEffect(() => {
+        // Только для menu режима (экран настройки)
+        if (mode !== 'menu' || !isTelegramMiniApp()) return;
+
+        const webApp = getTelegramWebApp();
+        if (!webApp || !webApp.BackButton) return;
+
+        webApp.BackButton.show();
+
+        const handleBack = () => {
+            console.log('[Duel] BackButton clicked - navigating to dashboard');
+            navigate('/dashboard');
+        };
+
+        webApp.BackButton.onClick(handleBack);
+
+        // 🆕 Swipe-back от левого края
+        const EDGE_ZONE_PX = 20;
+        const MIN_SWIPE_DISTANCE = 100;
+        const startRef = { x: 0, y: 0, active: false };
+
+        const onTouchStart = (e: TouchEvent) => {
+            const t = e.touches[0];
+            if (t.clientX <= EDGE_ZONE_PX) {
+                startRef.x = t.clientX;
+                startRef.y = t.clientY;
+                startRef.active = true;
+            }
+        };
+
+        const onTouchEnd = (e: TouchEvent) => {
+            if (!startRef.active) return;
+            startRef.active = false;
+
+            const t = e.changedTouches[0];
+            const dx = t.clientX - startRef.x;
+            const dy = Math.abs(t.clientY - startRef.y);
+
+            if (dx > MIN_SWIPE_DISTANCE && dy < 100) {
+                console.log('[Duel] Swipe-back detected - navigating to dashboard');
+                navigate('/dashboard');
+            }
+        };
+
+        document.addEventListener('touchstart', onTouchStart, { passive: true });
+        document.addEventListener('touchend', onTouchEnd, { passive: true });
+
+        return () => {
+            webApp.BackButton.offClick(handleBack);
+            document.removeEventListener('touchstart', onTouchStart);
+            document.removeEventListener('touchend', onTouchEnd);
+        };
+    }, [mode, navigate]);
 
     // Initial loading - показываем skeleton до полной загрузки
     useEffect(() => {
@@ -166,14 +223,14 @@ export default function Duel() {
 
     // Define handleDuelStarted early so it can be used in useEffect dependencies
     const handleDuelStarted = useCallback((targetDuelId?: string) => {
-        debugFetch({location:'Duel.tsx:156',message:'handleDuelStarted called',data:{targetDuelId,currentDuelId:duelId,currentMode:mode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'});
+        debugFetch({ location: 'Duel.tsx:156', message: 'handleDuelStarted called', data: { targetDuelId, currentDuelId: duelId, currentMode: mode }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
         const activeDuelId = targetDuelId || duelId;
         console.log('[Duel] ⚡ DUEL STARTED! Switching to battle mode. DuelId:', activeDuelId);
 
         if (!activeDuelId) {
             console.error('[Duel] ❌ Cannot start battle: no duelId');
             // #region agent log
-            debugFetch({location:'Duel.tsx:160',message:'Cannot start - no duelId',data:{targetDuelId,currentDuelId:duelId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'});
+            debugFetch({ location: 'Duel.tsx:160', message: 'Cannot start - no duelId', data: { targetDuelId, currentDuelId: duelId }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
             // #endregion
             return;
         }
@@ -182,7 +239,7 @@ export default function Duel() {
         if (targetDuelId && targetDuelId !== duelId) {
             setDuelId(targetDuelId);
             // #region agent log
-            debugFetch({location:'Duel.tsx:166',message:'Updating duelId',data:{targetDuelId,oldDuelId:duelId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'});
+            debugFetch({ location: 'Duel.tsx:166', message: 'Updating duelId', data: { targetDuelId, oldDuelId: duelId }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
             // #endregion
         }
 
@@ -191,7 +248,7 @@ export default function Duel() {
 
         // Immediate state change
         // #region agent log
-        debugFetch({location:'Duel.tsx:174',message:'Setting mode to battle',data:{activeDuelId,previousMode:mode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'});
+        debugFetch({ location: 'Duel.tsx:174', message: 'Setting mode to battle', data: { activeDuelId, previousMode: mode }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
         // #endregion
         setMode('battle');
 
@@ -201,7 +258,7 @@ export default function Duel() {
             setTimeout(() => {
                 console.log(`[Duel] Battle mode retry #${index + 1}`);
                 // #region agent log
-                debugFetch({location:'Duel.tsx:181',message:'Battle mode retry',data:{retryIndex:index+1,delay,activeDuelId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'});
+                debugFetch({ location: 'Duel.tsx:181', message: 'Battle mode retry', data: { retryIndex: index + 1, delay, activeDuelId }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
                 // #endregion
                 setMode('battle');
             }, delay);
@@ -363,7 +420,7 @@ export default function Duel() {
 
     const handleDuelJoined = async (id: string, code: string, autoStarted?: boolean) => {
         // #region agent log
-        debugFetch({location:'Duel.tsx:339',message:'handleDuelJoined called',data:{id,code,autoStarted,currentMode:mode,currentDuelId:duelId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'});
+        debugFetch({ location: 'Duel.tsx:339', message: 'handleDuelJoined called', data: { id, code, autoStarted, currentMode: mode, currentDuelId: duelId }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
         // #endregion
         if (!id || !code) {
             console.error('[Duel] ❌ Invalid parameters for handleDuelJoined:', { id, code });
@@ -376,14 +433,14 @@ export default function Duel() {
             setDuelId(id);
             setDuelCode(code);
             // #region agent log
-            debugFetch({location:'Duel.tsx:348',message:'Duel ID and code set',data:{id,code},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'});
+            debugFetch({ location: 'Duel.tsx:348', message: 'Duel ID and code set', data: { id, code }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
             // #endregion
 
             // Если дуэль автозапустилась, сразу переходим к битве
             if (autoStarted) {
                 console.log('[Duel] ✅ AUTO-STARTED = TRUE, going straight to battle!');
                 // #region agent log
-                debugFetch({location:'Duel.tsx:352',message:'Auto-started - calling handleDuelStarted',data:{id,currentMode:mode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'});
+                debugFetch({ location: 'Duel.tsx:352', message: 'Auto-started - calling handleDuelStarted', data: { id, currentMode: mode }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
                 // #endregion
                 handleDuelStarted(id); // Передаем id для гарантии
                 return;
@@ -391,7 +448,7 @@ export default function Duel() {
 
             // Check if duel is already active (fallback check)
             // #region agent log
-            debugFetch({location:'Duel.tsx:359',message:'Checking duel status from DB',data:{id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'});
+            debugFetch({ location: 'Duel.tsx:359', message: 'Checking duel status from DB', data: { id }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
             // #endregion
             const { data, error } = await supabase
                 .from('duels')
@@ -400,7 +457,7 @@ export default function Duel() {
                 .maybeSingle();
 
             // #region agent log
-            debugFetch({location:'Duel.tsx:365',message:'Duel status check result',data:{hasError:!!error,status:data?.status},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'});
+            debugFetch({ location: 'Duel.tsx:365', message: 'Duel status check result', data: { hasError: !!error, status: data?.status }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
             // #endregion
             if (error) {
                 console.error('[Duel] Error checking duel status:', error);
@@ -410,7 +467,7 @@ export default function Duel() {
             if (data?.status === 'active') {
                 console.log('[Duel] Duel already active, going straight to battle!');
                 // #region agent log
-                debugFetch({location:'Duel.tsx:370',message:'Duel active - calling handleDuelStarted',data:{id,currentMode:mode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'});
+                debugFetch({ location: 'Duel.tsx:370', message: 'Duel active - calling handleDuelStarted', data: { id, currentMode: mode }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
                 // #endregion
                 handleDuelStarted(id); // Передаем id для гарантии
             } else if (data?.status === 'finished') {
@@ -423,14 +480,14 @@ export default function Duel() {
             } else {
                 console.log('[Duel] Going to lobby to wait for start');
                 // #region agent log
-                debugFetch({location:'Duel.tsx:374',message:'Setting mode to create (lobby)',data:{currentMode:mode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'});
+                debugFetch({ location: 'Duel.tsx:374', message: 'Setting mode to create (lobby)', data: { currentMode: mode }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
                 // #endregion
                 setMode('create');
             }
         } catch (error) {
             console.error('[Duel] ❌ Error in handleDuelJoined:', error);
             // #region agent log
-            debugFetch({location:'Duel.tsx:377',message:'Error in handleDuelJoined',data:{errorMessage:error instanceof Error ? error.message : String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'});
+            debugFetch({ location: 'Duel.tsx:377', message: 'Error in handleDuelJoined', data: { errorMessage: error instanceof Error ? error.message : String(error) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
             // #endregion
             // При ошибке возвращаемся в меню
             setMode('menu');
@@ -532,7 +589,7 @@ export default function Duel() {
     // Handle inline join
     const handleInlineJoin = async (code: string) => {
         // #region agent log
-        debugFetch({location:'Duel.tsx:466',message:'handleInlineJoin called',data:{code,hasAutoJoined:hasAutoJoinedRef.current,isJoining,profileId,dataLoaded},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'});
+        debugFetch({ location: 'Duel.tsx:466', message: 'handleInlineJoin called', data: { code, hasAutoJoined: hasAutoJoinedRef.current, isJoining, profileId, dataLoaded }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' });
         // #endregion
         if (!code || code.length !== 4) {
             return;
@@ -540,14 +597,14 @@ export default function Duel() {
 
         if (!profileId || !dataLoaded) {
             // #region agent log
-            debugFetch({location:'Duel.tsx:472',message:'Early return - missing data',data:{profileId,dataLoaded},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'});
+            debugFetch({ location: 'Duel.tsx:472', message: 'Early return - missing data', data: { profileId, dataLoaded }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' });
             // #endregion
             return; // Не показываем ошибку до загрузки данных
         }
 
         if (hasAutoJoinedRef.current) {
             // #region agent log
-            debugFetch({location:'Duel.tsx:475',message:'Early return - already joined',data:{hasAutoJoined:hasAutoJoinedRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'});
+            debugFetch({ location: 'Duel.tsx:475', message: 'Early return - already joined', data: { hasAutoJoined: hasAutoJoinedRef.current }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' });
             // #endregion
             return;
         }
@@ -555,7 +612,7 @@ export default function Duel() {
         hasAutoJoinedRef.current = true;
         setIsJoining(true);
         // #region agent log
-        debugFetch({location:'Duel.tsx:479',message:'Starting join process',data:{code,profileId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'});
+        debugFetch({ location: 'Duel.tsx:479', message: 'Starting join process', data: { code, profileId }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' });
         // #endregion
 
         try {
@@ -573,7 +630,7 @@ export default function Duel() {
             });
 
             // #region agent log
-            debugFetch({location:'Duel.tsx:496',message:'join_duel response received',data:{hasError:!!error,autoStarted:data?.auto_started,duelStatus:data?.duel?.status,duelId:data?.duel?.id,playerId:data?.player?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'});
+            debugFetch({ location: 'Duel.tsx:496', message: 'join_duel response received', data: { hasError: !!error, autoStarted: data?.auto_started, duelStatus: data?.duel?.status, duelId: data?.duel?.id, playerId: data?.player?.id }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
             // #endregion
             console.log('[Duel] join_duel response:', { data, error });
 
@@ -598,7 +655,7 @@ export default function Duel() {
             showDuelJoinSuccess(data.auto_started);
 
             // #region agent log
-            debugFetch({location:'Duel.tsx:519',message:'Calling handleDuelJoined',data:{duelId:data.duel.id,duelCode:data.duel.code,autoStarted:data.auto_started,currentMode:mode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'});
+            debugFetch({ location: 'Duel.tsx:519', message: 'Calling handleDuelJoined', data: { duelId: data.duel.id, duelCode: data.duel.code, autoStarted: data.auto_started, currentMode: mode }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
             // #endregion
             // Передаем auto_started в handleDuelJoined для правильной обработки
             handleDuelJoined(data.duel.id, data.duel.code, data.auto_started);
@@ -606,12 +663,12 @@ export default function Duel() {
             hasAutoJoinedRef.current = false;
             setIsJoining(false);
             // #region agent log
-            debugFetch({location:'Duel.tsx:522',message:'Join completed successfully',data:{duelId:data.duel.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'});
+            debugFetch({ location: 'Duel.tsx:522', message: 'Join completed successfully', data: { duelId: data.duel.id }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' });
             // #endregion
         } catch (error: any) {
             console.error('[Duel] ❌ Error in handleInlineJoin:', error);
             // #region agent log
-            debugFetch({location:'Duel.tsx:524',message:'Join error occurred',data:{errorMessage:error?.message,errorCode:error?.code},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'});
+            debugFetch({ location: 'Duel.tsx:524', message: 'Join error occurred', data: { errorMessage: error?.message, errorCode: error?.code }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' });
             // #endregion
 
             // Показываем ошибку пользователю
@@ -763,12 +820,12 @@ export default function Duel() {
             // Валидация и подготовка данных
             const numQuestionsValue = Number(numQuestions);
             const betAmountValue = Number(betAmount);
-            
+
             // Проверка на валидные числа
             if (isNaN(numQuestionsValue) || numQuestionsValue < 5 || numQuestionsValue > 30) {
                 throw new Error(`Неверное количество вопросов: ${numQuestionsValue}. Должно быть от 5 до 30.`);
             }
-            
+
             if (isNaN(betAmountValue) || betAmountValue < 0 || betAmountValue > 10000) {
                 throw new Error(`Неверная ставка: ${betAmountValue}. Должна быть от 0 до 10000.`);
             }
@@ -810,7 +867,7 @@ export default function Duel() {
                     context: error.context,
                     stack: error.stack
                 });
-                
+
                 // Пытаемся извлечь детали из error.context (это Response объект)
                 if (error.context && typeof error.context.json === 'function') {
                     try {
@@ -833,7 +890,7 @@ export default function Duel() {
                         }
                     }
                 }
-                
+
                 throw error;
             }
 
@@ -858,7 +915,7 @@ export default function Duel() {
             }
         } catch (error: any) {
             console.error('[Duel] ❌ Error finding match:', error);
-            
+
             // Пытаемся извлечь детали ошибки из ответа Edge Function
             let errorMessage = 'Ошибка при поиске соперника';
             let errorDetails: any = null;
@@ -898,7 +955,7 @@ export default function Duel() {
             } else if (errorDetails?.error) {
                 errorMessage = errorDetails.error;
             }
-            
+
             // Показываем ошибку в toast (для длинных сообщений используем description)
             if (errorMessage.includes('\n')) {
                 const [title, ...lines] = errorMessage.split('\n');
@@ -1013,7 +1070,7 @@ export default function Duel() {
                             .select('status')
                             .eq('id', duelId)
                             .maybeSingle();
-                        
+
                         if (duelData?.status === 'active') {
                             console.log('[Duel] ✅ DUEL IS ACTIVE (from DB fallback)! Starting battle...');
                             setConnectionStatus('connected');
@@ -1079,7 +1136,7 @@ export default function Duel() {
             if (checkCount >= MAX_CHECKS || !isActive) {
                 return;
             }
-            
+
             // Используем requestIdleCallback если доступен, иначе setTimeout
             if ('requestIdleCallback' in window) {
                 requestIdleCallback(() => {
@@ -1097,7 +1154,7 @@ export default function Duel() {
                 }, 1000);
             }
         };
-        
+
         const interval = setTimeout(scheduleNextCheck, 1000);
 
         return () => {
@@ -1267,7 +1324,7 @@ export default function Duel() {
                                             >
                                                 <div className="flex flex-col items-center gap-1 md:flex-row md:items-center md:gap-2 mb-1.5 md:mb-2">
                                                     <Swords className="w-4 h-4 md:w-5 md:h-5 text-white/70" />
-                                                    <span className="text-xs md:text-sm text-white/70 font-medium text-center md:text-left">Всего дуэлей</span>
+                                                    <span className="text-xs md:text-sm text-white/70 font-medium text-center md:text-left whitespace-nowrap">Всего</span>
                                                 </div>
                                                 <div className="text-2xl md:text-4xl font-black text-white text-center md:text-left">
                                                     {dataLoaded ? duelStats.totalDuels : '—'}
@@ -1694,8 +1751,8 @@ export default function Duel() {
                                                                         className="relative bg-gradient-to-br from-white/95 via-emerald-50/90 to-teal-50/90 dark:from-emerald-950/50 dark:via-emerald-950/40 dark:to-teal-950/40 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border-2 border-emerald-500/50 ring-2 ring-emerald-500/10 cursor-pointer group hover:border-emerald-500/70 hover:ring-emerald-500/20 transition-all duration-200 shadow-md hover:shadow-lg"
                                                                         onClick={handleCopyCode}
                                                                         style={{
-                                                                            boxShadow: copied 
-                                                                                ? 'rgba(16, 185, 129, 0.35) 0px 0px 30px' 
+                                                                            boxShadow: copied
+                                                                                ? 'rgba(16, 185, 129, 0.35) 0px 0px 30px'
                                                                                 : 'rgba(16, 185, 129, 0.08) 0px 0px 15px'
                                                                         }}
                                                                     >
@@ -1722,7 +1779,7 @@ export default function Duel() {
                                                                                 )}
                                                                             </motion.div>
                                                                         </div>
-                                                                        
+
                                                                         {/* Label in border - рамка с текстом */}
                                                                         <div className="relative z-10">
                                                                             <div className="absolute inset-x-0 top-0 flex items-center justify-center">
@@ -1774,7 +1831,7 @@ export default function Duel() {
                                                                                 <span className="text-xs text-muted-foreground ml-1">игроков</span>
                                                                             </div>
                                                                         </motion.div>
-                                                                        
+
                                                                         <motion.div
                                                                             initial={{ scale: 0.9, opacity: 0 }}
                                                                             animate={{ scale: 1, opacity: 1 }}
@@ -1800,7 +1857,7 @@ export default function Duel() {
                                                                                 Поделиться
                                                                             </Button>
                                                                         )}
-                                                                        
+
                                                                         {!duelState.opponentJoined && (
                                                                             <Button
                                                                                 onClick={handleCancelDuel}
