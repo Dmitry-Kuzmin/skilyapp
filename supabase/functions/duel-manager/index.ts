@@ -1973,18 +1973,43 @@ Deno.serve(async (req) => {
             .delete()
             .in('id', [queueEntry.id, matchedOpponent.id]);
 
+          // Проверяем баланс соперника прямо сейчас (на случай если он все потратил пока ждал)
+          const { data: opponentProfile } = await supabase
+            .from('profiles')
+            .select('coins')
+            .eq('id', matchedOpponent.profile_id)
+            .single();
+
+          if (bet_amount > 0 && (opponentProfile?.coins || 0) < bet_amount) {
+            console.warn(`[find_match] ⚠️ Opponent ${matchedOpponent.profile_id} no longer has enough coins. Match cancelled.`);
+            // Не создаем дуэль, возвращаем ошибку - игрок попробует еще раз
+            return new Response(JSON.stringify({ error: 'Opponent no longer has enough coins' }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+
           // Создаем дуэль (используем логику из create_duel)
-          const hostInsurance = bet_amount > 0 ? getInsuranceConfig(bet_amount, {
+          const joinerInsurance = bet_amount > 0 ? getInsuranceConfig(bet_amount, {
             enabled: insurance_enabled,
             rate: insurance_rate,
             coverageRate: insurance_coverage_rate
-          }) : { enabled: false, rate: 0, coverageRate: 0, premium: 0 };
+          }) : { enabled: false, rate: 0, coverage_rate: 0, premium: 0 };
 
           if (bet_amount > 0) {
+            // Deduct from JOINER (current user)
             await supabase.rpc('increment_profile_value', {
               p_profile_id: profileId,
               p_column: 'coins',
-              p_amount: -(bet_amount + (hostInsurance.premium || 0))
+              p_amount: -(bet_amount + (joinerInsurance.premium || 0))
+            });
+
+            // Deduct from HOST (matched opponent)
+            // Note: Host has no insurance here as it's not and option in matchmaking queue yet
+            await supabase.rpc('increment_profile_value', {
+              p_profile_id: matchedOpponent.profile_id,
+              p_column: 'coins',
+              p_amount: -bet_amount
             });
           }
 
@@ -2008,7 +2033,7 @@ Deno.serve(async (req) => {
             .from('duels')
             .insert({
               code,
-              host_user: profileId,
+              host_user: matchedOpponent.profile_id, // Person who was waiting is the host
               num_questions,
               categories,
               difficulty,
@@ -2020,6 +2045,34 @@ Deno.serve(async (req) => {
             .single();
 
           if (duelError) throw duelError;
+
+          // Record transactions for both players
+          if (bet_amount > 0) {
+            // Transaction for Joiner
+            await supabase.from('duel_transactions').insert({
+              duel_id: duel.id,
+              user_id: profileId,
+              amount: -bet_amount,
+              transaction_type: 'bet'
+            });
+
+            if (joinerInsurance.premium > 0) {
+              await supabase.from('duel_transactions').insert({
+                duel_id: duel.id,
+                user_id: profileId,
+                amount: -joinerInsurance.premium,
+                transaction_type: 'insurance_premium'
+              });
+            }
+
+            // Transaction for Host
+            await supabase.from('duel_transactions').insert({
+              duel_id: duel.id,
+              user_id: matchedOpponent.profile_id,
+              amount: -bet_amount,
+              transaction_type: 'bet'
+            });
+          }
 
           // Добавляем хост
           await supabase
@@ -2194,6 +2247,25 @@ Deno.serve(async (req) => {
           .single();
 
         if (duelError) throw duelError;
+
+        // Record bet transaction for human player in BOT duel
+        if (bet_amount > 0) {
+          await supabase.from('duel_transactions').insert({
+            duel_id: duel.id,
+            user_id: profileId,
+            amount: -bet_amount,
+            transaction_type: 'bet'
+          });
+
+          if (hostInsurance.premium > 0) {
+            await supabase.from('duel_transactions').insert({
+              duel_id: duel.id,
+              user_id: profileId,
+              amount: -hostInsurance.premium,
+              transaction_type: 'insurance_premium'
+            });
+          }
+        }
 
         // Добавляем хост
         await supabase

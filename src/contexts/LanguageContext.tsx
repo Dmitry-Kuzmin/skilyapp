@@ -542,6 +542,10 @@ const translations: Record<Language, Record<string, any>> = {
         win: "Victoria en duelo",
         refund: "Devolución de apuesta",
         commission: "Comisión del sistema",
+        win_payout: "Ganancia en duelo",
+        base_payout: "Recompensa por duelo",
+        insurance_premium: "Seguro de duelo",
+        insurance_refund: "Reembolso de seguro",
       },
     },
     profileMenu: {
@@ -1474,6 +1478,10 @@ const translations: Record<Language, Record<string, any>> = {
         win: "Duel win",
         refund: "Bet refund",
         commission: "System fee",
+        win_payout: "Duel win payout",
+        base_payout: "Duel reward",
+        insurance_premium: "Duel insurance",
+        insurance_refund: "Insurance refund",
       },
     },
     profileMenu: {
@@ -2388,6 +2396,10 @@ const translations: Record<Language, Record<string, any>> = {
         win: "Выигрыш в дуэли",
         refund: "Возврат ставки",
         commission: "Комиссия системы",
+        win_payout: "Выигрыш в дуэли",
+        base_payout: "Награда за дуэль",
+        insurance_premium: "Страховка дуэли",
+        insurance_refund: "Возврат страховки",
       },
     },
     profileMenu: {

@@ -74,16 +74,16 @@ interface Transaction {
 export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   // БЕЗОПАСНОЕ использование UserContext - может быть undefined если модалка открыта вне UserProvider
   const userContext = useContext(UserContext);
-  
+
   // Ранний возврат, если UserContext отсутствует (модалка открыта вне UserProvider)
   if (!userContext) {
     return null;
   }
-  
+
   const profileId = userContext.profileId ?? null;
   const platform = userContext.platform ?? 'web';
   const queryClient = useQueryClient();
-  
+
   // Если UserContext отсутствует, закрываем модалку
   useEffect(() => {
     if (open && !userContext) {
@@ -91,7 +91,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       onOpenChange(false);
     }
   }, [open, userContext, onOpenChange]);
-  
+
   const { isPremium } = usePremium();
   const { t, language } = useLanguage();
   const dateLocale = localeMap[language] || 'en-US';
@@ -101,7 +101,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const showStarsPayment = isPaymentMethodAvailable('telegram_stars', currentPlatform);
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
-  
+
   // Логирование для отладки (только в dev или при открытии модалки)
   useEffect(() => {
     if (open) {
@@ -118,7 +118,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
   const [coins, setCoins] = useState(0);
-  
+
   // Состояние для предварительного экрана Cryptomus
   const [cryptomusPreview, setCryptomusPreview] = useState<{
     open: boolean;
@@ -166,7 +166,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const [activeTab, setActiveTab] = useState<'boosts' | 'coins' | 'premium' | 'history'>('boosts');
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [showRewardedAdModal, setShowRewardedAdModal] = useState(false);
-  
+
   // Реф для контейнера с контентом модалки (для сброса скролла)
   const modalContentRef = useRef<HTMLDivElement>(null);
 
@@ -251,12 +251,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   ] as const;
 
   const hasLoadedRef = useRef(false);
-  
+
   useEffect(() => {
     if (open && !hasLoadedRef.current && profileId) {
       console.log('[BoostShopModal] Загрузка данных, profileId:', profileId);
       hasLoadedRef.current = true;
-        loadData();
+      loadData();
     } else if (!open) {
       // Сбрасываем флаг при закрытии
       hasLoadedRef.current = false;
@@ -264,7 +264,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       console.warn('[BoostShopModal] Модалка открыта, но profileId отсутствует');
     } else if (open && hasLoadedRef.current) {
       console.log('[BoostShopModal] Данные уже загружены, пропускаем');
-      }
+    }
   }, [open, profileId]);
 
   // Загружаем историю транзакций при переключении на вкладку "История"
@@ -276,7 +276,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         loadTransactionHistory();
       }, 150);
     }
-    
+
     return () => {
       if (historyLoadTimeoutRef.current) {
         clearTimeout(historyLoadTimeoutRef.current);
@@ -287,7 +287,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   // Сбрасываем скролл контента при переключении вкладок и при открытии модалки
   useEffect(() => {
     if (!open) return;
-    
+
     // Небольшая задержка для того, чтобы контент успел отрендериться
     const timeoutId = setTimeout(() => {
       // Находим скроллируемый контейнер внутри модалки
@@ -297,7 +297,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         scrollableContainer.scrollTop = 0;
       }
     }, 100);
-    
+
     return () => clearTimeout(timeoutId);
   }, [activeTab, open]);
 
@@ -373,7 +373,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const getInventoryCount = (boostType: string) => {
     return inventory.find(i => i.boost_type === boostType)?.quantity || 0;
   };
-  
+
   // Функция для получения читаемого названия буста
   const getBoostDisplayName = (boostType?: string, fallback?: string): string => {
     return translateBoostField(boostType, 'name', fallback);
@@ -450,8 +450,16 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         return { icon: Gift, description: t('boostShop.transactions.refund'), category: 'earn' };
       case 'commission':
         return { icon: Coins, description: t('boostShop.transactions.commission'), category: 'spend' };
+      case 'win_payout':
+        return { icon: Trophy, description: t('boostShop.transactions.win_payout'), category: 'earn' };
+      case 'base_payout':
+        return { icon: Trophy, description: t('boostShop.transactions.base_payout'), category: 'earn' };
+      case 'insurance_premium':
+        return { icon: Shield, description: t('boostShop.transactions.insurance_premium'), category: 'spend' };
+      case 'insurance_refund':
+        return { icon: Shield, description: t('boostShop.transactions.insurance_refund'), category: 'earn' };
       case 'referral_earned':
-    return {
+        return {
           icon: Users,
           description: t('boostShop.transactions.referralReward', {
             name: metadata?.name || t('boostShop.transactions.referralFallbackName'),
@@ -469,11 +477,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
   const loadTransactionHistory = async () => {
     if (!profileId) return;
-    
+
     setLoadingHistory(true);
     try {
       const allTransactions: Transaction[] = [];
-      
+
       // Load purchases to enrich Premium transaction metadata with prices
       const { data: purchasesForEnrichment } = await supabaseClient
         .from('purchases')
@@ -481,7 +489,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         .eq('user_id', profileId)
         .eq('status', 'completed')
         .order('completed_at', { ascending: false });
-      
+
       // Create a map of session_id -> purchase data for quick lookup
       const purchaseMap = new Map<string, any>();
       if (purchasesForEnrichment) {
@@ -490,13 +498,13 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           purchaseMap.set(sessionId, p);
         });
       }
-      
+
       // 1. Load new transactions table через RPC (обходит RLS для Telegram)
       const { data: newTransactions, error: transactionsError } = await supabaseClient.rpc('get_user_transactions', {
         p_user_id: profileId,
         p_limit: 100
       });
-      
+
       if (transactionsError) {
         console.error('[BoostShop] Ошибка загрузки транзакций через RPC:', transactionsError);
         // Fallback к прямому запросу
@@ -517,13 +525,13 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   ...enrichedMetadata,
                   price: purchase.price,
                   currency: purchase.currency || 'EUR',
-                  subscription_type: purchase.metadata?.subscription_type || 
-                    (tx.transaction_type.includes('yearly') ? 'yearly' : 
-                     tx.transaction_type.includes('forever') ? 'forever' : 'monthly')
+                  subscription_type: purchase.metadata?.subscription_type ||
+                    (tx.transaction_type.includes('yearly') ? 'yearly' :
+                      tx.transaction_type.includes('forever') ? 'forever' : 'monthly')
                 };
               }
             }
-            
+
             const info = getTransactionInfo(tx.transaction_type, enrichedMetadata);
             allTransactions.push({
               id: tx.id,
@@ -548,13 +556,13 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 ...enrichedMetadata,
                 price: purchase.price,
                 currency: purchase.currency || 'EUR',
-                subscription_type: purchase.metadata?.subscription_type || 
-                  (tx.transaction_type.includes('yearly') ? 'yearly' : 
-                   tx.transaction_type.includes('forever') ? 'forever' : 'monthly')
+                subscription_type: purchase.metadata?.subscription_type ||
+                  (tx.transaction_type.includes('yearly') ? 'yearly' :
+                    tx.transaction_type.includes('forever') ? 'forever' : 'monthly')
               };
             }
           }
-          
+
           const info = getTransactionInfo(tx.transaction_type, enrichedMetadata);
           allTransactions.push({
             id: tx.id,
@@ -568,7 +576,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           });
         });
       }
-      
+
       // 2. Load duel transactions (bets and winnings)
       const { data: duelTx } = await supabaseClient
         .from('duel_transactions')
@@ -576,7 +584,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         .eq('user_id', profileId)
         .order('created_at', { ascending: false })
         .limit(50);
-      
+
       if (duelTx) {
         duelTx.forEach(tx => {
           const info = getTransactionInfo(tx.transaction_type);
@@ -591,7 +599,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           });
         });
       }
-      
+
       // 3. Load purchases (Stripe)
       const { data: purchases } = await supabaseClient
         .from('purchases')
@@ -600,17 +608,17 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         .eq('status', 'completed')
         .order('completed_at', { ascending: false })
         .limit(20);
-      
+
       if (purchases) {
         purchases.forEach(purchase => {
           let description = '';
           let amount = 0;
-          
+
           if (purchase.item_type === 'coins_pack') {
             const coinsAmount = purchase.metadata?.coins_amount || 0;
             // Определяем тип транзакции в зависимости от метода оплаты
             let transactionType = 'coins_purchase_paddle'; // По умолчанию Paddle
-            
+
             if (purchase.cryptomus_order_id) {
               transactionType = 'coins_purchase_cryptomus';
             } else if (purchase.paddle_transaction_id) {
@@ -618,7 +626,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             } else if (purchase.metadata?.payment_method === 'telegram_stars' || purchase.metadata?.gateway === 'telegram_stars') {
               transactionType = 'coins_purchase_telegram_stars';
             }
-            
+
             // Используем универсальный перевод для покупок монет
             description = t('boostShop.transactions.coinsPurchasePaddle', { amount: coinsAmount });
             amount = coinsAmount;
@@ -627,14 +635,14 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             const subscriptionType = purchase.metadata?.subscription_type || 'monthly';
             description = getPremiumPurchaseDescription(subscriptionType, price);
             amount = 0; // Premium не дает монет напрямую
-            
+
             // Добавляем Premium покупку в историю с ценой в евро
             allTransactions.push({
               id: purchase.id,
               amount: 0, // amount остается 0, но цена будет в описании и metadata
-              type: subscriptionType === 'forever' ? 'premium_purchase_forever' : 
-                    subscriptionType === 'yearly' ? 'premium_purchase_yearly' : 
-                    'premium_purchase_monthly',
+              type: subscriptionType === 'forever' ? 'premium_purchase_forever' :
+                subscriptionType === 'yearly' ? 'premium_purchase_yearly' :
+                  'premium_purchase_monthly',
               description,
               created_at: purchase.completed_at || purchase.created_at,
               category: 'purchase',
@@ -645,7 +653,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             description = t('boostShop.transactions.duelPassPurchase');
             amount = 0;
           }
-          
+
           if (amount > 0) {
             allTransactions.push({
               id: purchase.id,
@@ -660,7 +668,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           }
         });
       }
-      
+
       // 4. Load referral transactions
       const { data: referrals } = await supabaseClient
         .from('referrals')
@@ -668,7 +676,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         .or(`referrer_id.eq.${profileId},referred_id.eq.${profileId}`)
         .order('created_at', { ascending: false })
         .limit(20);
-      
+
       if (referrals) {
         referrals.forEach(ref => {
           const isReferrer = ref.reward_given;
@@ -696,12 +704,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           });
         });
       }
-      
+
       // Sort all transactions by date
-      allTransactions.sort((a, b) => 
+      allTransactions.sort((a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
-      
+
       setTransactions(allTransactions);
     } catch (error) {
       console.error('[BoostShop] Error loading transaction history:', error);
@@ -746,11 +754,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
       // Получаем partner_code из localStorage (если пользователь пришел через партнерскую ссылку)
       const partnerCode = localStorage.getItem('partner_code');
-      
+
       // Создаем Paddle Transaction через Edge Function
       const { data, error } = await supabaseClient.functions.invoke("paddle-payment", {
-        body: { 
-          user_id: profileId, 
+        body: {
+          user_id: profileId,
           catalog_key: catalogKey,
           ...(partnerCode ? { partner_code: partnerCode } : {}),
         },
@@ -802,10 +810,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       // В веб-версии используем overlay для лучшего UX
       const isTelegram = isTelegramMiniApp();
       const webApp = getTelegramWebApp();
-      
+
       // Формируем URL чекаута с параметрами для темной темы (если поддерживается)
       const paddleCheckoutUrl = `https://checkout.paddle.com/transaction/${data.transaction_id}`;
-      
+
       // В Telegram всегда используем прямой редирект через openLink
       // Это откроет чекаут в системном браузере, где он будет выглядеть лучше
       if (isTelegram && webApp) {
@@ -813,9 +821,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           transactionId: data.transaction_id,
           url: paddleCheckoutUrl
         });
-        
+
         setPurchaseLoading(null);
-        
+
         // Используем openLink для открытия в системном браузере
         // Это обеспечит лучший UX и корректное отображение чекаута
         if ((webApp as any).openLink) {
@@ -826,14 +834,14 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         }
         return;
       }
-      
+
       // Для веб-версии используем overlay через Paddle SDK
       if (paddleInstance) {
         console.log("[BoostShop] Opening Paddle checkout overlay (web):", {
           transactionId: data.transaction_id,
           displayMode: "overlay"
         });
-        
+
         try {
           // Overlay - открывается попап прямо на сайте (рекомендуется для веба)
           // ВАЖНО: Paddle имеет ограниченную кастомизацию через SDK
@@ -852,7 +860,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           setPurchaseLoading(null);
         } catch (error) {
           console.error("[BoostShop] Failed to open Paddle checkout overlay:", error);
-          
+
           // Fallback: если overlay не открылся, используем редирект
           console.warn("[BoostShop] Overlay failed, falling back to redirect");
           setPurchaseLoading(null);
@@ -862,7 +870,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         // Fallback: если SDK не инициализирован, используем редирект
         console.warn("[BoostShop] Paddle SDK not initialized, using fallback redirect");
         console.warn("[BoostShop] Make sure VITE_PADDLE_CLIENT_TOKEN is set and project is redeployed");
-        
+
         console.log("[BoostShop] Redirecting to Paddle checkout:", paddleCheckoutUrl);
         setPurchaseLoading(null);
         window.location.href = paddleCheckoutUrl;
@@ -921,10 +929,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         throw new Error('profileId не установлен. Пожалуйста, обновите страницу и войдите снова.');
       }
 
-      console.log('[BoostShop] Начало покупки:', { 
-        profileId, 
-        boostType: boost.type, 
-        cost: boost.cost_coins, 
+      console.log('[BoostShop] Начало покупки:', {
+        profileId,
+        boostType: boost.type,
+        cost: boost.cost_coins,
         currentCoins: coins,
         online: navigator.onLine,
       });
@@ -932,23 +940,23 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       // OFFLINE-FIRST: Если offline - добавляем в очередь
       if (!navigator.onLine) {
         console.log('[BoostShop] Offline mode detected, queuing boost purchase');
-        
+
         await enqueueOfflineAction('coin-spend', {
           itemId: boost.type,
           cost: boost.cost_coins,
           type: 'boost',
           boost_name: boost.name_ru,
         });
-        
+
         // Оптимистичное обновление UI
         setCoins(prev => prev - boost.cost_coins);
-        
+
         // Оптимистично обновляем инвентарь (локально)
         setInventory(prev => {
           const existing = prev.find(i => i.boost_type === boost.type);
           if (existing) {
-            return prev.map(i => 
-              i.boost_type === boost.type 
+            return prev.map(i =>
+              i.boost_type === boost.type
                 ? { ...i, quantity: i.quantity + 1 }
                 : i
             );
@@ -956,18 +964,18 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             return [...prev, { boost_type: boost.type, quantity: 1 }];
           }
         });
-        
+
         trackOfflineAction('boost-purchase', true);
-        
+
         toast({
           title: t('boostShop.toasts.successTitle') || 'Буст куплен!',
           description: 'Покупка сохранена локально. Применится при восстановлении сети.',
         });
-        
+
         // Анимации (локально)
         sounds.correctAnswer();
         haptics.boostActivated();
-        
+
         return;
       }
 
@@ -1023,18 +1031,18 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           details: inventoryError.details,
           hint: inventoryError.hint
         });
-        
+
         // Откатываем списание монет при ошибке
         const { error: rollbackError } = await supabaseClient.rpc('increment_profile_value', {
           p_profile_id: profileId,
           p_column: 'coins',
           p_amount: boost.cost_coins
         });
-        
+
         if (rollbackError) {
           console.error('[BoostShop] Ошибка отката монет:', rollbackError);
         }
-        
+
         throw new Error(`Не удалось добавить буст в инвентарь: ${inventoryError.message || inventoryError.code || 'Неизвестная ошибка'}`);
       }
 
@@ -1048,7 +1056,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           p_amount: -boost.cost_coins,
           p_metadata: { boost_type: boost.type, boost_name: boost.name_ru }
         });
-        
+
         if (transactionError) {
           console.warn('[BoostShop] Ошибка создания транзакции (не критично):', transactionError);
         } else {
@@ -1057,7 +1065,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       } catch (txError) {
         console.warn('[BoostShop] Исключение при создании транзакции (не критично):', txError);
       }
-      
+
       trackOfflineAction('boost-purchase', true);
 
       // Анимации и звуки
@@ -1115,15 +1123,15 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       });
     } catch (error: any) {
       console.error('[BoostShop] Ошибка покупки:', error);
-      
+
       const errorMessage = error?.message || error?.error?.message || 'Неизвестная ошибка';
       console.error('[BoostShop] Детали ошибки:', {
         message: errorMessage,
         fullError: error
       });
-      
+
       trackOfflineAction('boost-purchase', false, errorMessage);
-      
+
       toast({
         title: t('boostShop.toasts.purchaseErrorTitle'),
         description: errorMessage.includes('RLS')
@@ -1157,7 +1165,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
   // Состояние фильтра категорий
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'exploit' | 'defense' | 'utility' | 'premium'>('all');
-  
+
   // Состояние для просмотра деталей товара (Inspect Sheet)
   const [selectedBoostForInspect, setSelectedBoostForInspect] = useState<Boost | null>(null);
 
@@ -1184,7 +1192,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full"></div>
             </div>
           )}
-          
+
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full flex flex-col h-full">
             <div className="px-4 pt-4 pb-0 shrink-0">
               <TabsList className="grid w-full grid-cols-4 bg-muted/50 border border-border">
@@ -1208,8 +1216,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </div>
 
             {/* Boosts Tab */}
-            <TabsContent 
-              value="boosts" 
+            <TabsContent
+              value="boosts"
               className="p-3 md:p-4 space-y-4 mt-3 md:mt-4"
             >
               {/* Фильтры категорий */}
@@ -1235,12 +1243,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                         ? color === 'red'
                           ? "bg-red-500/10 border-red-500/50 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.3)]"
                           : color === 'cyan'
-                          ? "bg-cyan-500/10 border-cyan-500/50 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                          : color === 'emerald'
-                          ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(34,197,94,0.3)]"
-                          : color === 'amber'
-                          ? "bg-amber-500/10 border-amber-500/50 text-amber-400 shadow-[0_0_15px_rgba(255,215,0,0.3)]"
-                          : "bg-indigo-500/10 border-indigo-500/50 text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.3)]"
+                            ? "bg-cyan-500/10 border-cyan-500/50 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
+                            : color === 'emerald'
+                              ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(34,197,94,0.3)]"
+                              : color === 'amber'
+                                ? "bg-amber-500/10 border-amber-500/50 text-amber-400 shadow-[0_0_15px_rgba(255,215,0,0.3)]"
+                                : "bg-indigo-500/10 border-indigo-500/50 text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.3)]"
                         : "bg-zinc-100 dark:bg-white/5 border-zinc-300 dark:border-white/10 text-zinc-700 dark:text-white/60 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-white/10"
                     )}
                   >
@@ -1299,8 +1307,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsContent>
 
             {/* Coins Tab */}
-            <TabsContent 
-              value="coins" 
+            <TabsContent
+              value="coins"
               className="p-4 md:p-6 space-y-4 mt-3 md:mt-4"
             >
               <div className="space-y-3">
@@ -1320,18 +1328,17 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     const description = t(pack.descriptionKey ?? 'boostShop.coins.purpose');
                     const helperText = t(pack.helperKey ?? 'boostShop.coins.deliveryHint');
                     return (
-                    <Card
-                      key={idx}
-                        className={`group relative overflow-hidden rounded-3xl border bg-card p-4 md:p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 ${
-                          isBestValue
+                      <Card
+                        key={idx}
+                        className={`group relative overflow-hidden rounded-3xl border bg-card p-4 md:p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 ${isBestValue
                             ? 'border-violet-500/50 shadow-[0_15px_40px_rgba(139,92,246,0.35)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.35)] scale-[1.02] ring-2 ring-violet-500/30'
                             : isHighlighted
                               ? 'border-yellow-400/50 shadow-[0_15px_40px_rgba(251,191,36,0.25)] dark:shadow-[0_15px_40px_rgba(251,191,36,0.25)]'
                               : 'border-border hover:border-violet-500/30'
-                        }`}
+                          }`}
                       >
-                      <div className="flex flex-col gap-4 md:gap-5">
-                        <div className="flex items-start gap-4">
+                        <div className="flex flex-col gap-4 md:gap-5">
+                          <div className="flex items-start gap-4">
                             {/* Best Value бейдж - размещаем слева от иконки, не перекрывая цену */}
                             {isBestValue && (
                               <div className="absolute -top-2 left-4 z-10">
@@ -1340,42 +1347,40 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                 </Badge>
                               </div>
                             )}
-                            <div className={`relative w-16 h-16 rounded-3xl flex items-center justify-center flex-shrink-0 overflow-hidden ${
-                              isBestValue
+                            <div className={`relative w-16 h-16 rounded-3xl flex items-center justify-center flex-shrink-0 overflow-hidden ${isBestValue
                                 ? 'bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500 text-white shadow-lg shadow-violet-500/50'
                                 : isHighlighted
                                   ? 'bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 text-slate-900'
                                   : 'bg-gradient-to-br from-yellow-500/20 via-amber-500/30 to-orange-500/20 border border-yellow-500/30'
-                            }`}>
-                            {/* Эффект свечения для всех иконок */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 via-transparent to-orange-500/20 blur-sm" />
-                            <Coins className={`relative w-8 h-8 ${
-                              isBestValue || isHighlighted 
-                                ? 'drop-shadow-lg' 
-                                : 'text-yellow-400 drop-shadow-md'
-                            }`} />
-                            {/* Дополнительные монеты для эффекта "кучи" */}
-                            {!isBestValue && !isHighlighted && (
-                              <>
-                                <Coins className="absolute w-5 h-5 text-yellow-500/40 -top-1 -right-1 rotate-12" />
-                                <Coins className="absolute w-4 h-4 text-amber-500/30 -bottom-1 -left-1 -rotate-12" />
-                              </>
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
+                              }`}>
+                              {/* Эффект свечения для всех иконок */}
+                              <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 via-transparent to-orange-500/20 blur-sm" />
+                              <Coins className={`relative w-8 h-8 ${isBestValue || isHighlighted
+                                  ? 'drop-shadow-lg'
+                                  : 'text-yellow-400 drop-shadow-md'
+                                }`} />
+                              {/* Дополнительные монеты для эффекта "кучи" */}
+                              {!isBestValue && !isHighlighted && (
+                                <>
+                                  <Coins className="absolute w-5 h-5 text-yellow-500/40 -top-1 -right-1 rotate-12" />
+                                  <Coins className="absolute w-4 h-4 text-amber-500/30 -bottom-1 -left-1 -rotate-12" />
+                                </>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
                               <p className="text-xl font-bold text-foreground truncate">
-                              {t('boostShop.coins.packLabel', { amount: pack.amount })}
-                            </p>
+                                {t('boostShop.coins.packLabel', { amount: pack.amount })}
+                              </p>
                               <p className="text-xs text-muted-foreground">
                                 {description}
                               </p>
-                            {pack.bonus > 0 && (
+                              {pack.bonus > 0 && (
                                 <div className="flex items-center gap-1.5 text-sm font-bold mt-1.5 text-emerald-600 dark:text-emerald-400">
                                   <Sparkles className="w-4 h-4" />
-                                {t('boostShop.coins.bonusLabel', { bonus: pack.bonus })}
+                                  {t('boostShop.coins.bonusLabel', { bonus: pack.bonus })}
                                 </div>
-                            )}
-                          </div>
+                              )}
+                            </div>
                             <div className="text-right flex-shrink-0">
                               <span className="text-2xl font-black text-foreground">{pack.price}</span>
                               {pricePerCoin && (
@@ -1384,7 +1389,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                 </p>
                               )}
                             </div>
-                        </div>
+                          </div>
 
                           <div className="flex flex-col gap-3">
                             <div className="flex items-center text-xs text-muted-foreground gap-2">
@@ -1392,7 +1397,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                               <span className="text-center">{helperText}</span>
                               <div className="h-px flex-1 bg-border" />
                             </div>
-                            
+
                             {/* Главная кнопка покупки */}
                             <div className="flex flex-col gap-2">
                               {/* Telegram Stars (приоритетный метод в Telegram) */}
@@ -1410,25 +1415,22 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                   }}
                                   variant="default"
                                   size="default"
-                                  className={`w-full h-12 font-semibold text-base ${
-                                    isHighlighted 
-                                      ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' 
+                                  className={`w-full h-12 font-semibold text-base ${isHighlighted
+                                      ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110'
                                       : 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50'
-                                  } transition-all duration-200 hover:scale-[1.01] ${
-                                    isBestValue ? 'ring-2 ring-violet-400/50' : ''
-                                  }`}
+                                    } transition-all duration-200 hover:scale-[1.01] ${isBestValue ? 'ring-2 ring-violet-400/50' : ''
+                                    }`}
                                 />
                               )}
-                              
+
                               {/* Paddle (основной метод для web) - главная кнопка */}
                               {!showStarsPayment && showPaddlePayment && (
                                 <Button
                                   size="lg"
                                   aria-label={t('boostShop.coins.buyPackAria', { amount: pack.amount })}
                                   onClick={() => handleCoinPurchase(pack.catalogKey)}
-                                  className={`w-full h-12 font-semibold text-base bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0 shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 transition-all duration-200 hover:scale-[1.01] ${
-                                    isBestValue ? 'ring-2 ring-violet-400/50' : ''
-                                  }`}
+                                  className={`w-full h-12 font-semibold text-base bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0 shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 transition-all duration-200 hover:scale-[1.01] ${isBestValue ? 'ring-2 ring-violet-400/50' : ''
+                                    }`}
                                   disabled={!profileId || purchaseLoading === pack.catalogKey || paddleLoading}
                                 >
                                   {purchaseLoading === pack.catalogKey ? (
@@ -1444,7 +1446,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                   )}
                                 </Button>
                               )}
-                              
+
                               {/* Крипто как опция (маленькая ссылка) */}
                               {showCryptomusPayment && (
                                 <button
@@ -1457,12 +1459,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                       });
                                       return;
                                     }
-                                    
+
                                     try {
                                       const { data, error } = await supabaseClient.functions.invoke("cryptomus-payment", {
                                         body: { user_id: profileId, catalog_key: pack.catalogKey },
                                       });
-                                      
+
                                       if (error) {
                                         console.error("[BoostShop] Cryptomus error:", error);
                                         toast({
@@ -1472,7 +1474,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                         });
                                         return;
                                       }
-                                      
+
                                       if (data?.error) {
                                         toast({
                                           title: t('boostShop.toasts.errorTitle'),
@@ -1481,10 +1483,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                         });
                                         return;
                                       }
-                                      
+
                                       if (data?.url && data?.orderId) {
                                         const amount = pack.priceValue || 0;
-                                        
+
                                         setCryptomusPreview({
                                           open: true,
                                           paymentUrl: data.url,
@@ -1516,7 +1518,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                 </button>
                               )}
                             </div>
-                            
+
                             {/* Сообщение если нет доступных методов */}
                             {!showStarsPayment && !showCryptomusPayment && !showPaddlePayment && (
                               <div className="text-sm text-muted-foreground text-center py-2 w-full">
@@ -1524,8 +1526,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                               </div>
                             )}
                           </div>
-                      </div>
-                    </Card>
+                        </div>
+                      </Card>
                     );
                   })}
                 </div>
@@ -1537,8 +1539,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsContent>
 
             {/* Premium & Duel Pass Tab */}
-            <TabsContent 
-              value="premium" 
+            <TabsContent
+              value="premium"
               className="p-3 md:p-4 space-y-4 mt-3 md:mt-4"
             >
               <div className="space-y-4">
@@ -1547,7 +1549,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   {/* Премиум градиент фон */}
                   <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 via-orange-500/15 to-yellow-400/20 dark:from-yellow-500/20 dark:via-orange-500/15 dark:to-yellow-500/20" />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-yellow-300/10 via-transparent to-transparent" />
-                  
+
                   {/* Контент */}
                   <div className="relative p-5 md:p-6 space-y-5">
                     {/* Заголовок */}
@@ -1574,19 +1576,19 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                         </Badge>
                       )}
                     </div>
-                    
+
                     {/* Преимущества */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-background/50 backdrop-blur-sm border border-border/50">
                         <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center mt-0.5">
                           <Check className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-                      </div>
+                        </div>
                         <span className="text-sm font-medium">{t('boostShop.premium.benefits.unlimitedTests')}</span>
                       </div>
                       <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-background/50 backdrop-blur-sm border border-border/50">
                         <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center mt-0.5">
                           <Check className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-                      </div>
+                        </div>
                         <span className="text-sm font-medium">{t('boostShop.premium.benefits.bonusCoins')}</span>
                       </div>
                       <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-background/50 backdrop-blur-sm border border-border/50">
@@ -1610,25 +1612,25 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                         <div className="space-y-3">
                           <div>
                             <p className="text-xs font-medium text-muted-foreground mb-1">
-                          {t('boostShop.premium.monthlyLabel')}
-                        </p>
+                              {t('boostShop.premium.monthlyLabel')}
+                            </p>
                             <div className="flex items-baseline gap-1">
                               <span className="text-2xl md:text-3xl font-bold text-foreground">€9.99</span>
                               <span className="text-xs text-muted-foreground">/мес</span>
                             </div>
                           </div>
-                        <Button 
-                          size="sm" 
+                          <Button
+                            size="sm"
                             variant={isPremium ? "outline" : "default"}
                             className="w-full h-10 font-semibold"
-                          onClick={() => setPaywallOpen(true)}
-                          disabled={isPremium}
-                        >
-                          {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
-                        </Button>
+                            onClick={() => setPaywallOpen(true)}
+                            disabled={isPremium}
+                          >
+                            {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
+                          </Button>
                         </div>
                       </Card>
-                      
+
                       {/* Годовой тариф */}
                       <Card className="relative overflow-hidden p-4 border-2 border-primary/50 bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10 hover:border-primary/70 transition-all hover:shadow-xl hover:scale-[1.02]">
                         {/* Бейдж "Популярно" */}
@@ -1637,7 +1639,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                             {t('boostShop.premium.popularBadge') || 'Популярно'}
                           </Badge>
                         </div>
-                        
+
                         <div className="space-y-3">
                           <div>
                             <p className="text-xs font-medium text-muted-foreground mb-1">
@@ -1649,8 +1651,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                             </div>
                             <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-1">{t('boostShop.premium.savingsLabel')}</p>
                           </div>
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             className="w-full h-10 font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white border-0 shadow-md"
                             onClick={() => setPaywallOpen(true)}
                             disabled={isPremium}
@@ -1659,7 +1661,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                           </Button>
                         </div>
                       </Card>
-                      
+
                       {/* Lifetime тариф */}
                       <Card className="relative overflow-hidden p-4 border-2 border-yellow-500/50 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-yellow-500/10 hover:border-yellow-500/70 transition-all hover:shadow-xl hover:scale-[1.02]">
                         {/* Бейдж "Лучший" */}
@@ -1668,7 +1670,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                             {t('boostShop.premium.bestBadge')}
                           </Badge>
                         </div>
-                        
+
                         <div className="space-y-3">
                           <div>
                             <p className="text-xs font-medium text-muted-foreground mb-1">
@@ -1679,14 +1681,14 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">{t('boostShop.premium.lifetimeSuffix')}</p>
                           </div>
-                        <Button 
-                          size="sm" 
+                          <Button
+                            size="sm"
                             className="w-full h-10 font-semibold bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-0 shadow-md"
-                          onClick={() => setPaywallOpen(true)}
-                          disabled={isPremium}
-                        >
-                          {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
-                        </Button>
+                            onClick={() => setPaywallOpen(true)}
+                            disabled={isPremium}
+                          >
+                            {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
+                          </Button>
                         </div>
                       </Card>
                     </div>
@@ -1698,14 +1700,14 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   {/* Градиент фон для Duel Pass */}
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10" />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
-                  
+
                   <div className="relative p-5 md:p-6 space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="relative">
                         <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/60 rounded-xl blur-sm opacity-50" />
                         <div className="relative bg-gradient-to-br from-primary to-primary/80 p-2.5 rounded-xl shadow-lg">
                           <Trophy className="w-6 h-6 md:w-7 md:h-7 text-white" />
-                    </div>
+                        </div>
                       </div>
                       <div>
                         <h3 className="text-lg md:text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
@@ -1716,12 +1718,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                         </p>
                       </div>
                     </div>
-                    
+
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       {t('boostShop.duelPass.description')}
                     </p>
-                    
-                    <Button 
+
+                    <Button
                       className="w-full h-11 font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white shadow-md"
                       onClick={() => {
                         toast({
@@ -1739,8 +1741,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsContent>
 
             {/* History Tab */}
-            <TabsContent 
-              value="history" 
+            <TabsContent
+              value="history"
               className="p-0 h-full flex flex-col mt-3 md:mt-4"
             >
               <div className="px-3 md:px-4 pt-1 pb-3 border-b border-border/50 shrink-0 space-y-3">
@@ -1753,7 +1755,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     {t('boostShop.history.operationsCount', { count: transactions.length })}
                   </span>
                 </div>
-                
+
                 {/* Filters */}
                 <div className="flex items-center gap-1 flex-wrap">
                   <Button
@@ -1802,9 +1804,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   </Button>
                 </div>
               </div>
-              
-              <div 
-                className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-4" 
+
+              <div
+                className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-4"
                 data-vaul-no-drag
                 style={{ WebkitOverflowScrolling: 'touch' }}
               >
@@ -1813,10 +1815,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
                   </div>
                 ) : (() => {
-                  const filtered = filterCategory === 'all' 
-                    ? transactions 
+                  const filtered = filterCategory === 'all'
+                    ? transactions
                     : transactions.filter(tx => tx.category === filterCategory);
-                  
+
                   if (filtered.length === 0) {
                     return (
                       <div className="text-center py-12 text-muted-foreground">
@@ -1898,7 +1900,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                       </div>
                     );
                   }
-                  
+
                   return (
                     <div className="space-y-2 pb-4">
                       {filtered.map((tx, idx) => {
@@ -1906,71 +1908,68 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                         const isPositive = tx.amount > 0;
                         const isPurchase = tx.category === 'purchase';
                         const isReward = tx.category === 'reward';
-                        
+
                         return (
                           <div
                             key={tx.id || idx}
                             className="group relative overflow-hidden rounded-xl border border-border/50 bg-card hover:bg-card hover:border-border hover:shadow-sm transition-colors duration-150"
-                            style={{ 
+                            style={{
                               animation: `fadeIn 0.2s ease-out ${Math.min(idx * 0.01, 0.3)}s both`,
                             }}
                           >
                             <div className="flex items-center justify-between p-3">
                               <div className="flex items-center gap-2.5 flex-1 min-w-0">
                                 {/* Иконка - упрощенная версия */}
-                                <div className={`flex-shrink-0 ${
-                                  isPositive 
-                                    ? 'bg-green-500/10 text-green-600 dark:text-green-400' 
+                                <div className={`flex-shrink-0 ${isPositive
+                                    ? 'bg-green-500/10 text-green-600 dark:text-green-400'
                                     : isPurchase
                                       ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
                                       : isReward
                                         ? 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400'
                                         : 'bg-red-500/10 text-red-600 dark:text-red-400'
-                                } p-2 rounded-lg`}>
-                                <IconComponent className="h-4 w-4" />
-                              </div>
-                                
+                                  } p-2 rounded-lg`}>
+                                  <IconComponent className="h-4 w-4" />
+                                </div>
+
                                 {/* Описание */}
-                              <div className="flex-1 min-w-0">
+                                <div className="flex-1 min-w-0">
                                   <p className="text-sm font-medium text-foreground truncate">
                                     {tx.description}
                                   </p>
-                                <div className="flex items-center gap-2 mt-0.5">
-                                  <p className="text-xs text-muted-foreground">
-                                    {formatTransactionDate(tx.created_at)}
-                                  </p>
+                                  <div className="flex items-center gap-2 mt-0.5">
+                                    <p className="text-xs text-muted-foreground">
+                                      {formatTransactionDate(tx.created_at)}
+                                    </p>
                                     {tx.category && (isPurchase || isReward) && (
-                                      <Badge 
-                                        variant="secondary" 
-                                        className={`text-xs h-4 px-1.5 ${
-                                          isPurchase 
-                                            ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' 
+                                      <Badge
+                                        variant="secondary"
+                                        className={`text-xs h-4 px-1.5 ${isPurchase
+                                            ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
                                             : 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400'
-                                        }`}
+                                          }`}
                                       >
                                         {isPurchase
-                                        ? t('boostShop.history.badges.purchase')
+                                          ? t('boostShop.history.badges.purchase')
                                           : t('boostShop.history.badges.reward')}
-                                    </Badge>
-                                  )}
+                                      </Badge>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                              
+
                               {/* Сумма */}
                               <div className="flex-shrink-0 ml-2">
-                              {tx.metadata?.price && tx.amount === 0 ? (
+                                {tx.metadata?.price && tx.amount === 0 ? (
                                   <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
                                     €{tx.metadata.price}
                                   </span>
-                              ) : (
-                                  <span className={`text-sm font-bold ${
-                                    isPositive 
-                                      ? 'text-green-600 dark:text-green-400' 
+                                ) : (
+                                  <span className={`text-sm font-bold ${isPositive
+                                      ? 'text-green-600 dark:text-green-400'
                                       : 'text-red-600 dark:text-red-400'
-                                  }`}>
+                                    }`}>
                                     {isPositive ? '+' : ''}{tx.amount}
-                            </span>
+                                  </span>
                                 )}
                               </div>
                             </div>
@@ -1992,14 +1991,14 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const headerContent = (
     <div className="px-4 md:px-6 py-3 md:py-4 border-b border-zinc-300 dark:border-white/10 shrink-0 bg-zinc-50 dark:bg-black/95 backdrop-blur-xl relative pr-12 md:pr-14">
       {/* Noise texture */}
-      <div 
+      <div
         className="absolute inset-0 opacity-[0.02] dark:opacity-[0.02] mix-blend-overlay pointer-events-none"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
           backgroundRepeat: 'repeat'
         }}
       />
-      
+
       <div className="flex items-center justify-between gap-2 relative z-10">
         <div className="flex items-center gap-2 md:gap-3 min-w-0">
           <div className="relative">
@@ -2016,7 +2015,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           </div>
         </div>
         <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-          <button 
+          <button
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-100 dark:bg-black/40 border border-yellow-500/40 dark:border-yellow-500/20 hover:border-yellow-500/60 dark:hover:border-yellow-500/40 transition-all cursor-pointer backdrop-blur-sm"
             onClick={async () => {
               setActiveTab('history');
@@ -2026,8 +2025,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             }}
           >
             <Coins className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />
-            <NumberTicker 
-              value={coins} 
+            <NumberTicker
+              value={coins}
               className="text-sm font-bold font-mono text-yellow-600 dark:text-yellow-500"
               shouldFlash={true}
             />
@@ -2055,12 +2054,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           <ModalContent />
         )}
       </ResponsiveModal>
-      
+
       {/* Nested Modals - рендерим только когда нужно */}
       {paywallOpen && (
         <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
       )}
-      
+
       {cryptomusPreview && (
         <CryptomusPaymentPreview
           open={cryptomusPreview.open}
@@ -2092,12 +2091,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         onRewardClaimed={async () => {
           // Вызываем Edge Function для начисления награды
           if (!profileId) return;
-          
+
           try {
             // Retry логика для мобильных устройств (где могут быть проблемы с сетью)
             const maxRetries = 3;
             let lastError: any = null;
-            
+
             for (let attempt = 0; attempt < maxRetries; attempt++) {
               try {
                 const { data, error } = await supabaseClient.functions.invoke('ad-reward', {
@@ -2111,12 +2110,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 if (error) {
                   console.error(`[BoostShop] Error claiming ad reward (attempt ${attempt + 1}/${maxRetries}):`, error);
                   lastError = error;
-                  
+
                   // Если это последняя попытка, выбрасываем ошибку
                   if (attempt === maxRetries - 1) {
                     throw error;
                   }
-                  
+
                   // Ждем перед следующей попыткой (экспоненциальная задержка)
                   const delay = Math.min(1000 * Math.pow(2, attempt), 3000);
                   await new Promise(resolve => setTimeout(resolve, delay));
@@ -2129,12 +2128,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               } catch (err: any) {
                 console.error(`[BoostShop] Exception during ad reward claim (attempt ${attempt + 1}/${maxRetries}):`, err);
                 lastError = err;
-                
+
                 // Если это последняя попытка, выбрасываем ошибку
                 if (attempt === maxRetries - 1) {
                   throw err;
                 }
-                
+
                 // Ждем перед следующей попыткой
                 const delay = Math.min(1000 * Math.pow(2, attempt), 3000);
                 await new Promise(resolve => setTimeout(resolve, delay));
@@ -2148,12 +2147,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               console.error('[BoostShop] Error loading data after reward:', loadError);
               // Не критично, просто логируем
             }
-            
+
             toast({
               title: '✨ Монеты получены!',
               description: 'Тебе начислено 20 монет за просмотр рекламы',
             });
-            
+
           } catch (error: any) {
             console.error('[BoostShop] Error claiming ad reward:', error);
             toast({
@@ -2174,19 +2173,19 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         const inspectCanAfford = coins >= inspectBoost.cost_coins;
         const inspectIsConsumable = !inspectBoost.is_premium;
         const inspectIsButtonDisabled = !inspectIsConsumable && inspectInventoryCount > 0;
-        
+
         const inspectTheme = inspectCategory === 'exploit'
           ? {
-              border: 'border-red-500/30',
-              icon: 'text-red-500',
-              bg: 'bg-red-500/20',
-              text: 'text-red-400',
-              buttonBg: 'bg-red-500/20 hover:bg-red-500/30',
-              buttonBorder: 'border-red-500/50',
-              buttonShadow: 'shadow-[0_0_20px_rgba(239,68,68,0.3)]',
-            }
+            border: 'border-red-500/30',
+            icon: 'text-red-500',
+            bg: 'bg-red-500/20',
+            text: 'text-red-400',
+            buttonBg: 'bg-red-500/20 hover:bg-red-500/30',
+            buttonBorder: 'border-red-500/50',
+            buttonShadow: 'shadow-[0_0_20px_rgba(239,68,68,0.3)]',
+          }
           : inspectCategory === 'defense'
-          ? {
+            ? {
               border: 'border-cyan-500/30',
               icon: 'text-cyan-400',
               bg: 'bg-cyan-500/20',
@@ -2195,7 +2194,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               buttonBorder: 'border-cyan-500/50',
               buttonShadow: 'shadow-[0_0_20px_rgba(6,182,212,0.3)]',
             }
-          : {
+            : {
               border: 'border-emerald-500/30',
               icon: 'text-emerald-400',
               bg: 'bg-emerald-500/20',
@@ -2207,7 +2206,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
         return (
           <ResponsiveModal
-            open={!!selectedBoostForInspect} 
+            open={!!selectedBoostForInspect}
             onOpenChange={(open) => {
               console.log('[BoostShopModal] ResponsiveModal onOpenChange:', open, 'selectedBoost:', selectedBoostForInspect?.type);
               if (!open) {
@@ -2217,116 +2216,115 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             className="bg-white dark:bg-[#0f1014] border-t border-zinc-200 dark:border-white/10 max-h-[80vh] relative"
             contentClassName="p-6 relative"
           >
-              {/* Noise texture */}
-              <div 
-                className="absolute inset-0 opacity-[0.01] dark:opacity-[0.02] mix-blend-overlay pointer-events-none z-0"
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'repeat'
-                }}
-              />
-              
-              <div className="relative z-10">
-                {/* Header */}
-                <div className="flex items-center gap-4 mb-6">
-                  <div className={cn(
-                    "w-16 h-16 rounded-xl flex items-center justify-center",
-                    "bg-zinc-100 dark:bg-black/50 border border-zinc-300 dark:border-white/10",
-                    inspectTheme.buttonShadow
-                  )}>
-                    <span 
-                      className={cn("text-3xl", inspectTheme.icon)}
-                      style={{
-                        filter: `drop-shadow(0 0 12px ${
-                          inspectCategory === 'exploit' ? 'rgba(239, 68, 68, 0.8)' : 
-                          inspectCategory === 'defense' ? 'rgba(6, 182, 212, 0.8)' : 
-                          'rgba(34, 197, 94, 0.8)'
+            {/* Noise texture */}
+            <div
+              className="absolute inset-0 opacity-[0.01] dark:opacity-[0.02] mix-blend-overlay pointer-events-none z-0"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'repeat'
+              }}
+            />
+
+            <div className="relative z-10">
+              {/* Header */}
+              <div className="flex items-center gap-4 mb-6">
+                <div className={cn(
+                  "w-16 h-16 rounded-xl flex items-center justify-center",
+                  "bg-zinc-100 dark:bg-black/50 border border-zinc-300 dark:border-white/10",
+                  inspectTheme.buttonShadow
+                )}>
+                  <span
+                    className={cn("text-3xl", inspectTheme.icon)}
+                    style={{
+                      filter: `drop-shadow(0 0 12px ${inspectCategory === 'exploit' ? 'rgba(239, 68, 68, 0.8)' :
+                          inspectCategory === 'defense' ? 'rgba(6, 182, 212, 0.8)' :
+                            'rgba(34, 197, 94, 0.8)'
                         })`
-                      }}
-                    >
-                      {inspectBoost.icon}
-                    </span>
+                    }}
+                  >
+                    {inspectBoost.icon}
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <div className="text-[10px] font-mono text-zinc-600 dark:text-white/40 mb-1">
+                    {inspectCategory === 'exploit' ? 'ATK' : inspectCategory === 'defense' ? 'DEF' : 'UTL'}_MODULE v.{inspectInventoryCount || 1}
                   </div>
-                  <div className="flex-1">
-                    <div className="text-[10px] font-mono text-zinc-600 dark:text-white/40 mb-1">
-                      {inspectCategory === 'exploit' ? 'ATK' : inspectCategory === 'defense' ? 'DEF' : 'UTL'}_MODULE v.{inspectInventoryCount || 1}
+                  <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">
+                    {translateBoostField(inspectBoost.type, 'name', inspectBoost.name_ru)}
+                  </h2>
+                  {inspectInventoryCount > 0 && inspectIsConsumable && (
+                    <div className="text-xs font-mono text-emerald-600 dark:text-emerald-400">
+                      STOCK: {inspectInventoryCount}
                     </div>
-                    <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">
-                      {translateBoostField(inspectBoost.type, 'name', inspectBoost.name_ru)}
-                    </h2>
-                    {inspectInventoryCount > 0 && inspectIsConsumable && (
-                      <div className="text-xs font-mono text-emerald-600 dark:text-emerald-400">
-                        STOCK: {inspectInventoryCount}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Full Description */}
-                <div className="bg-zinc-50 dark:bg-white/5 p-4 rounded-xl border border-zinc-200 dark:border-white/5 mb-6">
-                  <h3 className="text-xs font-mono text-zinc-600 dark:text-white/40 mb-2 uppercase tracking-wider">System Effect</h3>
-                  <p className="text-sm text-zinc-700 dark:text-white/80 leading-relaxed">
-                    {translateBoostField(inspectBoost.type, 'description', inspectBoost.description_ru)}
-                  </p>
-                </div>
-
-                {/* Specs Grid */}
-                <div className="grid grid-cols-2 gap-3 mb-8">
-                  <div className="p-3 rounded-lg bg-zinc-100 dark:bg-black/30 border border-zinc-200 dark:border-white/5">
-                    <div className="text-[10px] text-zinc-500 dark:text-white/30 font-mono mb-1">DURATION</div>
-                    <div className="text-sm text-zinc-900 dark:text-white font-bold">1 Round</div>
-                  </div>
-                  <div className="p-3 rounded-lg bg-zinc-100 dark:bg-black/30 border border-zinc-200 dark:border-white/5">
-                    <div className="text-[10px] text-zinc-500 dark:text-white/30 font-mono mb-1">TARGET</div>
-                    <div className="text-sm text-zinc-900 dark:text-white font-bold">
-                      {inspectCategory === 'exploit' ? 'Enemy System' : inspectCategory === 'defense' ? 'Self' : 'Both'}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Big Action Button */}
-                <button
-                  onClick={() => {
-                    handlePurchase(inspectBoost);
-                    setSelectedBoostForInspect(null);
-                  }}
-                  disabled={!inspectCanAfford || inspectBoost.is_premium || inspectIsButtonDisabled}
-                  className={cn(
-                    "w-full py-4 rounded-xl font-bold text-lg transition-all",
-                    "flex items-center justify-center gap-2",
-                    inspectBoost.is_premium || inspectIsButtonDisabled || !inspectCanAfford
-                      ? "bg-gray-500/10 text-gray-400 border border-gray-500/30 cursor-not-allowed"
-                      : cn(
-                          inspectTheme.buttonBg,
-                          inspectTheme.text,
-                          inspectTheme.buttonBorder,
-                          inspectTheme.buttonShadow,
-                          "active:scale-95"
-                        )
                   )}
-                >
-                  {inspectBoost.is_premium ? (
-                    <>
-                      <Lock className="w-5 h-5" />
-                      <span>LOCKED</span>
-                    </>
-                  ) : !inspectCanAfford ? (
-                    <span>INSUFFICIENT FUNDS</span>
-                  ) : inspectIsButtonDisabled ? (
-                    <>
-                      <Check className="w-5 h-5" />
-                      <span>OWNED</span>
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-5 h-5" />
-                      <span>INSTALL MODULE</span>
-                      <Coins className="w-5 h-5 text-yellow-500" />
-                      <span className="text-yellow-500">{inspectBoost.cost_coins}</span>
-                    </>
-                  )}
-                </button>
+                </div>
               </div>
+
+              {/* Full Description */}
+              <div className="bg-zinc-50 dark:bg-white/5 p-4 rounded-xl border border-zinc-200 dark:border-white/5 mb-6">
+                <h3 className="text-xs font-mono text-zinc-600 dark:text-white/40 mb-2 uppercase tracking-wider">System Effect</h3>
+                <p className="text-sm text-zinc-700 dark:text-white/80 leading-relaxed">
+                  {translateBoostField(inspectBoost.type, 'description', inspectBoost.description_ru)}
+                </p>
+              </div>
+
+              {/* Specs Grid */}
+              <div className="grid grid-cols-2 gap-3 mb-8">
+                <div className="p-3 rounded-lg bg-zinc-100 dark:bg-black/30 border border-zinc-200 dark:border-white/5">
+                  <div className="text-[10px] text-zinc-500 dark:text-white/30 font-mono mb-1">DURATION</div>
+                  <div className="text-sm text-zinc-900 dark:text-white font-bold">1 Round</div>
+                </div>
+                <div className="p-3 rounded-lg bg-zinc-100 dark:bg-black/30 border border-zinc-200 dark:border-white/5">
+                  <div className="text-[10px] text-zinc-500 dark:text-white/30 font-mono mb-1">TARGET</div>
+                  <div className="text-sm text-zinc-900 dark:text-white font-bold">
+                    {inspectCategory === 'exploit' ? 'Enemy System' : inspectCategory === 'defense' ? 'Self' : 'Both'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Big Action Button */}
+              <button
+                onClick={() => {
+                  handlePurchase(inspectBoost);
+                  setSelectedBoostForInspect(null);
+                }}
+                disabled={!inspectCanAfford || inspectBoost.is_premium || inspectIsButtonDisabled}
+                className={cn(
+                  "w-full py-4 rounded-xl font-bold text-lg transition-all",
+                  "flex items-center justify-center gap-2",
+                  inspectBoost.is_premium || inspectIsButtonDisabled || !inspectCanAfford
+                    ? "bg-gray-500/10 text-gray-400 border border-gray-500/30 cursor-not-allowed"
+                    : cn(
+                      inspectTheme.buttonBg,
+                      inspectTheme.text,
+                      inspectTheme.buttonBorder,
+                      inspectTheme.buttonShadow,
+                      "active:scale-95"
+                    )
+                )}
+              >
+                {inspectBoost.is_premium ? (
+                  <>
+                    <Lock className="w-5 h-5" />
+                    <span>LOCKED</span>
+                  </>
+                ) : !inspectCanAfford ? (
+                  <span>INSUFFICIENT FUNDS</span>
+                ) : inspectIsButtonDisabled ? (
+                  <>
+                    <Check className="w-5 h-5" />
+                    <span>OWNED</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-5 h-5" />
+                    <span>INSTALL MODULE</span>
+                    <Coins className="w-5 h-5 text-yellow-500" />
+                    <span className="text-yellow-500">{inspectBoost.cost_coins}</span>
+                  </>
+                )}
+              </button>
+            </div>
           </ResponsiveModal>
         );
       })()}
