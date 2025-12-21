@@ -9,6 +9,9 @@ FOR SELECT
 TO authenticated, anon
 USING (true);
 
+-- ВАЖНО: Удаляем старую функцию перед созданием новой (PostgreSQL требует DROP при изменении дефолтов)
+DROP FUNCTION IF EXISTS get_dashboard_super(UUID);
+
 -- Ensure get_dashboard_super exists (fixing 404 error)
 CREATE OR REPLACE FUNCTION get_dashboard_super(p_user_id UUID)
 RETURNS JSON AS $$
