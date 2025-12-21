@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 import { sounds } from '@/lib/sounds';
 import { DuelWidget } from './DuelWidget';
 import { createPortal } from 'react-dom';
+import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
 
 interface OpponentAnswer {
   question_number: number;
@@ -1219,7 +1220,7 @@ export function DuelWaitingReplay({
                 } else if (reloadedAnswers && reloadedAnswers.length > 0) {
                   const formatted = reloadedAnswers.map((ans: any) => {
                     let pos = questionPositionsRef.current.get(ans.duel_question_id);
-                    
+
                     // Если позиция не найдена, используем порядок по created_at
                     if (!pos || pos === 0) {
                       const sortedAnswers = [...reloadedAnswers].sort((a: any, b: any) =>
@@ -1228,7 +1229,7 @@ export function DuelWaitingReplay({
                       pos = sortedAnswers.findIndex((a: any) => a.id === ans.id) + 1;
                       if (pos === 0) pos = 1; // Минимум 1
                     }
-                    
+
                     if (!pos || pos === 0) {
                       console.warn('[DuelWaitingReplay] Answer without position in reload:', {
                         answerId: ans.id,
@@ -1236,7 +1237,7 @@ export function DuelWaitingReplay({
                       });
                       pos = 1; // Fallback на 1
                     }
-                    
+
                     return {
                       question_number: pos,
                       is_correct: ans.is_correct,
@@ -1649,53 +1650,53 @@ export function DuelWaitingReplay({
                       .sort((a, b) => a.question_number - b.question_number) // Сортируем по номеру вопроса
                       .slice(-3) // Берем последние 3 по порядку
                       .map((answer, idx) => (
-                      <motion.div
-                        key={`${answer.question_number}-${idx}`}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className={`flex items-center justify-between p-2 rounded-lg text-sm ${answer.is_skipped
-                          ? 'bg-muted/20'
-                          : answer.is_correct
-                            ? 'bg-green-500/10'
-                            : 'bg-red-500/10'
-                          }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          {answer.is_skipped ? (
-                            <>
-                              <Clock className="w-4 h-4 text-muted-foreground" />
-                              <span className="text-muted-foreground">
-                                Вопрос {answer.question_number} пропущен
-                              </span>
-                            </>
-                          ) : answer.is_correct ? (
-                            <>
-                              <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
-                              <span className="font-medium">
-                                Вопрос {answer.question_number} — Правильно
-                              </span>
-                            </>
-                          ) : (
-                            <>
-                              <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
-                              <span className="font-medium">
-                                Вопрос {answer.question_number} — Неправильно
-                              </span>
-                            </>
-                          )}
-                        </div>
-                        {!answer.is_skipped && (
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span>{(answer.time_taken_ms / 1000).toFixed(1)}с</span>
-                            {answer.points_awarded > 0 && (
-                              <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                                +{answer.points_awarded}
-                              </Badge>
+                        <motion.div
+                          key={`${answer.question_number}-${idx}`}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className={`flex items-center justify-between p-2 rounded-lg text-sm ${answer.is_skipped
+                            ? 'bg-muted/20'
+                            : answer.is_correct
+                              ? 'bg-green-500/10'
+                              : 'bg-red-500/10'
+                            }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            {answer.is_skipped ? (
+                              <>
+                                <Clock className="w-4 h-4 text-muted-foreground" />
+                                <span className="text-muted-foreground">
+                                  Вопрос {answer.question_number} пропущен
+                                </span>
+                              </>
+                            ) : answer.is_correct ? (
+                              <>
+                                <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
+                                <span className="font-medium">
+                                  Вопрос {answer.question_number} — Правильно
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
+                                <span className="font-medium">
+                                  Вопрос {answer.question_number} — Неправильно
+                                </span>
+                              </>
                             )}
                           </div>
-                        )}
-                      </motion.div>
-                    ))}
+                          {!answer.is_skipped && (
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <span>{(answer.time_taken_ms / 1000).toFixed(1)}с</span>
+                              {answer.points_awarded > 0 && (
+                                <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                                  +{answer.points_awarded}
+                                </Badge>
+                              )}
+                            </div>
+                          )}
+                        </motion.div>
+                      ))}
                   </div>
                 )}
               </Card>
