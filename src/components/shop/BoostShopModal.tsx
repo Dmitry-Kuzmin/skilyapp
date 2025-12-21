@@ -1152,23 +1152,62 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           )}
 
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full flex flex-col h-full">
-            <div className="px-4 pt-4 pb-0 shrink-0">
-              <TabsList className="grid w-full grid-cols-4 bg-muted/50 border border-border">
-                <TabsTrigger value="boosts" className="text-xs truncate data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500/20 data-[state=active]:to-purple-500/20 data-[state=active]:text-violet-300 data-[state=active]:shadow-[0_0_20px_rgba(139,92,246,0.3)]">
-                  <Zap className="w-3 h-3 mr-1 flex-shrink-0" />
-                  <span className="truncate">{t('boostShop.tabs.boosts')}</span>
+            {/* Premium Pill-style Tabs */}
+            <div className="px-3 md:px-4 pt-3 pb-0 shrink-0">
+              <TabsList className="grid w-full grid-cols-4 h-11 p-1 bg-muted/40 dark:bg-muted/20 rounded-xl border border-border/50">
+                <TabsTrigger
+                  value="boosts"
+                  className={cn(
+                    "text-xs font-medium rounded-lg transition-all duration-200",
+                    "data-[state=active]:bg-background data-[state=active]:shadow-sm",
+                    "data-[state=active]:text-foreground",
+                    "hover:text-foreground/80"
+                  )}
+                >
+                  <Zap className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
+                  <span className="hidden sm:inline">{t('boostShop.tabs.boosts')}</span>
+                  <span className="sm:hidden">⚡</span>
                 </TabsTrigger>
-                <TabsTrigger value="coins" className="text-xs truncate data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500/20 data-[state=active]:to-purple-500/20 data-[state=active]:text-violet-300 data-[state=active]:shadow-[0_0_20px_rgba(139,92,246,0.3)]">
-                  <Coins className="w-3 h-3 mr-1 flex-shrink-0" />
-                  <span className="truncate">{t('boostShop.tabs.coins')}</span>
+                <TabsTrigger
+                  value="coins"
+                  className={cn(
+                    "text-xs font-medium rounded-lg transition-all duration-200",
+                    "data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500/20 data-[state=active]:to-amber-500/20",
+                    "data-[state=active]:text-yellow-600 dark:data-[state=active]:text-yellow-400",
+                    "data-[state=active]:shadow-sm",
+                    "hover:text-foreground/80"
+                  )}
+                >
+                  <Coins className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
+                  <span className="hidden sm:inline">{t('boostShop.tabs.coins')}</span>
+                  <span className="sm:hidden">🪙</span>
                 </TabsTrigger>
-                <TabsTrigger value="premium" className="text-xs truncate data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500/20 data-[state=active]:to-purple-500/20 data-[state=active]:text-violet-300 data-[state=active]:shadow-[0_0_20px_rgba(139,92,246,0.3)]">
-                  <Crown className="w-3 h-3 mr-1 flex-shrink-0" />
-                  <span className="truncate">{t('boostShop.tabs.premium')}</span>
+                <TabsTrigger
+                  value="premium"
+                  className={cn(
+                    "text-xs font-medium rounded-lg transition-all duration-200",
+                    "data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500/20 data-[state=active]:to-purple-500/20",
+                    "data-[state=active]:text-violet-600 dark:data-[state=active]:text-violet-400",
+                    "data-[state=active]:shadow-sm",
+                    "hover:text-foreground/80"
+                  )}
+                >
+                  <Crown className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
+                  <span className="hidden sm:inline">{t('boostShop.tabs.premium')}</span>
+                  <span className="sm:hidden">👑</span>
                 </TabsTrigger>
-                <TabsTrigger value="history" className="text-xs truncate data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500/20 data-[state=active]:to-purple-500/20 data-[state=active]:text-violet-300 data-[state=active]:shadow-[0_0_20px_rgba(139,92,246,0.3)]">
-                  <History className="w-3 h-3 mr-1 flex-shrink-0" />
-                  <span className="truncate">{t('boostShop.tabs.history')}</span>
+                <TabsTrigger
+                  value="history"
+                  className={cn(
+                    "text-xs font-medium rounded-lg transition-all duration-200",
+                    "data-[state=active]:bg-background data-[state=active]:shadow-sm",
+                    "data-[state=active]:text-foreground",
+                    "hover:text-foreground/80"
+                  )}
+                >
+                  <History className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
+                  <span className="hidden sm:inline">{t('boostShop.tabs.history')}</span>
+                  <span className="sm:hidden">📋</span>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -1499,202 +1538,176 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             {/* Premium & Duel Pass Tab */}
             <TabsContent
               value="premium"
-              className="p-3 md:p-4 space-y-4 mt-3 md:mt-4"
+              className="p-3 md:p-4 space-y-4 mt-2 md:mt-3"
             >
               <div className="space-y-4">
-                {/* Premium Subscription */}
-                <Card className="relative overflow-hidden p-0 border-0 shadow-xl">
-                  {/* Премиум градиент фон */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 via-orange-500/15 to-yellow-400/20 dark:from-yellow-500/20 dark:via-orange-500/15 dark:to-yellow-500/20" />
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-yellow-300/10 via-transparent to-transparent" />
+                {/* Premium Header */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600 p-5 md:p-6">
+                  {/* Decorative elements */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full blur-xl translate-y-1/2 -translate-x-1/2" />
 
-                  {/* Контент */}
-                  <div className="relative p-5 md:p-6 space-y-5">
-                    {/* Заголовок */}
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="relative">
-                          <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl blur-sm opacity-50" />
-                          <div className="relative bg-gradient-to-br from-yellow-400 to-orange-500 p-2.5 rounded-xl shadow-lg">
-                            <Crown className="w-6 h-6 md:w-7 md:h-7 text-white" />
-                          </div>
-                        </div>
-                        <div>
-                          <h3 className="text-lg md:text-xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 dark:from-yellow-400 dark:to-orange-400 bg-clip-text text-transparent">
-                            {t('boostShop.premium.title')}
-                          </h3>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {t('boostShop.premium.subtitle') || 'Получите максимум от обучения'}
-                          </p>
-                        </div>
-                      </div>
-                      {isPremium && (
-                        <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-md px-3 py-1">
-                          {t('boostShop.premium.activeBadge')}
-                        </Badge>
-                      )}
-                    </div>
-
-                    {/* Преимущества */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-background/50 backdrop-blur-sm border border-border/50">
-                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center mt-0.5">
-                          <Check className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-                        </div>
-                        <span className="text-sm font-medium">{t('boostShop.premium.benefits.unlimitedTests')}</span>
-                      </div>
-                      <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-background/50 backdrop-blur-sm border border-border/50">
-                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center mt-0.5">
-                          <Check className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-                        </div>
-                        <span className="text-sm font-medium">{t('boostShop.premium.benefits.bonusCoins')}</span>
-                      </div>
-                      <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-background/50 backdrop-blur-sm border border-border/50">
-                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center mt-0.5">
-                          <Check className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-                        </div>
-                        <span className="text-sm font-medium">{t('boostShop.premium.benefits.duelPassRewards')}</span>
-                      </div>
-                      <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-background/50 backdrop-blur-sm border border-border/50">
-                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center mt-0.5">
-                          <Check className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-                        </div>
-                        <span className="text-sm font-medium">{t('boostShop.premium.benefits.instantHints')}</span>
-                      </div>
-                    </div>
-
-                    {/* Тарифы */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-                      {/* Месячный тариф */}
-                      <Card className="relative overflow-hidden p-4 border-2 border-border/50 hover:border-primary/50 transition-all hover:shadow-lg">
-                        <div className="space-y-3">
-                          <div>
-                            <p className="text-xs font-medium text-muted-foreground mb-1">
-                              {t('boostShop.premium.monthlyLabel')}
-                            </p>
-                            <div className="flex items-baseline gap-1">
-                              <span className="text-2xl md:text-3xl font-bold text-foreground">€9.99</span>
-                              <span className="text-xs text-muted-foreground">/мес</span>
-                            </div>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant={isPremium ? "outline" : "default"}
-                            className="w-full h-10 font-semibold"
-                            onClick={() => setPaywallOpen(true)}
-                            disabled={isPremium}
-                          >
-                            {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
-                          </Button>
-                        </div>
-                      </Card>
-
-                      {/* Годовой тариф */}
-                      <Card className="relative overflow-hidden p-4 border-2 border-primary/50 bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10 hover:border-primary/70 transition-all hover:shadow-xl hover:scale-[1.02]">
-                        {/* Бейдж "Популярно" */}
-                        <div className="absolute top-2 right-2">
-                          <Badge className="bg-gradient-to-r from-primary to-primary/80 text-white border-0 shadow-md text-xs px-2 py-0.5">
-                            {t('boostShop.premium.popularBadge') || 'Популярно'}
-                          </Badge>
-                        </div>
-
-                        <div className="space-y-3">
-                          <div>
-                            <p className="text-xs font-medium text-muted-foreground mb-1">
-                              {t('boostShop.premium.yearlyLabel') || 'Годовая подписка'}
-                            </p>
-                            <div className="flex items-baseline gap-1">
-                              <span className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">€59.99</span>
-                              <span className="text-xs text-muted-foreground">{t('boostShop.premium.yearlySuffix')}</span>
-                            </div>
-                            <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-1">{t('boostShop.premium.savingsLabel')}</p>
-                          </div>
-                          <Button
-                            size="sm"
-                            className="w-full h-10 font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white border-0 shadow-md"
-                            onClick={() => setPaywallOpen(true)}
-                            disabled={isPremium}
-                          >
-                            {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
-                          </Button>
-                        </div>
-                      </Card>
-
-                      {/* Lifetime тариф */}
-                      <Card className="relative overflow-hidden p-4 border-2 border-yellow-500/50 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-yellow-500/10 hover:border-yellow-500/70 transition-all hover:shadow-xl hover:scale-[1.02]">
-                        {/* Бейдж "Лучший" */}
-                        <div className="absolute top-2 right-2">
-                          <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 shadow-md text-xs px-2 py-0.5">
-                            {t('boostShop.premium.bestBadge')}
-                          </Badge>
-                        </div>
-
-                        <div className="space-y-3">
-                          <div>
-                            <p className="text-xs font-medium text-muted-foreground mb-1">
-                              {t('boostShop.premium.lifetimeLabel')}
-                            </p>
-                            <div className="flex items-baseline gap-1">
-                              <span className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 dark:from-yellow-400 dark:to-orange-400 bg-clip-text text-transparent">€99.99</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1">{t('boostShop.premium.lifetimeSuffix')}</p>
-                          </div>
-                          <Button
-                            size="sm"
-                            className="w-full h-10 font-semibold bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-0 shadow-md"
-                            onClick={() => setPaywallOpen(true)}
-                            disabled={isPremium}
-                          >
-                            {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
-                          </Button>
-                        </div>
-                      </Card>
-                    </div>
-                  </div>
-                </Card>
-
-                {/* Duel Pass */}
-                <Card className="relative overflow-hidden p-0 border-0 shadow-lg">
-                  {/* Градиент фон для Duel Pass */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10" />
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
-
-                  <div className="relative p-5 md:p-6 space-y-4">
+                  <div className="relative flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/60 rounded-xl blur-sm opacity-50" />
-                        <div className="relative bg-gradient-to-br from-primary to-primary/80 p-2.5 rounded-xl shadow-lg">
-                          <Trophy className="w-6 h-6 md:w-7 md:h-7 text-white" />
-                        </div>
+                      <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                        <Crown className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-lg md:text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                          {t('boostShop.duelPass.title')}
-                        </h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {t('boostShop.duelPass.subtitle') || 'Соревнуйтесь и получайте награды'}
-                        </p>
+                        <h3 className="text-xl font-bold text-white">{t('boostShop.premium.title')}</h3>
+                        <p className="text-sm text-white/70">{t('boostShop.premium.subtitle') || 'Получи максимум от обучения'}</p>
                       </div>
                     </div>
-
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {t('boostShop.duelPass.description')}
-                    </p>
-
-                    <Button
-                      className="w-full h-11 font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white shadow-md"
-                      onClick={() => {
-                        toast({
-                          title: t('boostShop.duelPass.toastTitle'),
-                          description: t('boostShop.duelPass.toastDescription'),
-                        });
-                      }}
-                    >
-                      <Trophy className="w-4 h-4 mr-2" />
-                      {t('boostShop.duelPass.button')}
-                    </Button>
+                    {isPremium && (
+                      <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm px-3 py-1">
+                        <Check className="w-3 h-3 mr-1" />
+                        {t('boostShop.premium.activeBadge')}
+                      </Badge>
+                    )}
                   </div>
-                </Card>
+
+                  {/* Benefits Grid */}
+                  <div className="relative grid grid-cols-2 gap-2 mt-5">
+                    {[
+                      { icon: '∞', text: t('boostShop.premium.benefits.unlimitedTests') },
+                      { icon: '💰', text: t('boostShop.premium.benefits.bonusCoins') },
+                      { icon: '🏆', text: t('boostShop.premium.benefits.duelPassRewards') },
+                      { icon: '💡', text: t('boostShop.premium.benefits.instantHints') },
+                    ].map((benefit, i) => (
+                      <div key={i} className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2">
+                        <span className="text-lg">{benefit.icon}</span>
+                        <span className="text-xs text-white font-medium">{benefit.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Pricing Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Monthly */}
+                  <div className={cn(
+                    "relative p-4 rounded-xl border-2 transition-all duration-200",
+                    "bg-card hover:shadow-lg",
+                    isPremium ? "border-muted opacity-60" : "border-border hover:border-violet-500/50"
+                  )}>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">{t('boostShop.premium.monthlyLabel')}</p>
+                        <div className="flex items-baseline gap-1 mt-1">
+                          <span className="text-2xl font-bold">€9.99</span>
+                          <span className="text-xs text-muted-foreground">/мес</span>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant={isPremium ? "outline" : "default"}
+                        className="w-full"
+                        onClick={() => setPaywallOpen(true)}
+                        disabled={isPremium}
+                      >
+                        {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Yearly - Popular */}
+                  <div className={cn(
+                    "relative p-4 rounded-xl border-2 transition-all duration-200",
+                    isPremium
+                      ? "border-muted bg-card opacity-60"
+                      : "border-violet-500 bg-gradient-to-br from-violet-500/10 to-purple-500/10 shadow-lg scale-[1.02]"
+                  )}>
+                    {!isPremium && (
+                      <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
+                        <Badge className="bg-gradient-to-r from-violet-500 to-purple-500 text-white border-0 shadow-md text-[10px] px-2.5">
+                          {t('boostShop.premium.popularBadge') || 'Популярно'}
+                        </Badge>
+                      </div>
+                    )}
+                    <div className="space-y-3 pt-1">
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">{t('boostShop.premium.yearlyLabel') || 'Год'}</p>
+                        <div className="flex items-baseline gap-1 mt-1">
+                          <span className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 dark:from-violet-400 dark:to-purple-400 bg-clip-text text-transparent">€59.99</span>
+                          <span className="text-xs text-muted-foreground">{t('boostShop.premium.yearlySuffix')}</span>
+                        </div>
+                        <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-1">{t('boostShop.premium.savingsLabel')}</p>
+                      </div>
+                      <Button
+                        size="sm"
+                        className={cn(
+                          "w-full",
+                          !isPremium && "bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white shadow-md"
+                        )}
+                        onClick={() => setPaywallOpen(true)}
+                        disabled={isPremium}
+                      >
+                        {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Lifetime - Best */}
+                  <div className={cn(
+                    "relative p-4 rounded-xl border-2 transition-all duration-200",
+                    isPremium
+                      ? "border-muted bg-card opacity-60"
+                      : "border-amber-500/50 bg-gradient-to-br from-amber-500/10 to-orange-500/10 hover:shadow-lg"
+                  )}>
+                    {!isPremium && (
+                      <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
+                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 shadow-md text-[10px] px-2.5">
+                          {t('boostShop.premium.bestBadge')}
+                        </Badge>
+                      </div>
+                    )}
+                    <div className="space-y-3 pt-1">
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">{t('boostShop.premium.lifetimeLabel')}</p>
+                        <div className="flex items-baseline gap-1 mt-1">
+                          <span className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">€99.99</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">{t('boostShop.premium.lifetimeSuffix')}</p>
+                      </div>
+                      <Button
+                        size="sm"
+                        className={cn(
+                          "w-full",
+                          !isPremium && "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-md"
+                        )}
+                        onClick={() => setPaywallOpen(true)}
+                        disabled={isPremium}
+                      >
+                        {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Duel Pass Card */}
+                <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br from-primary/5 to-primary/10 p-5">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg shrink-0">
+                      <Trophy className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-bold text-foreground">{t('boostShop.duelPass.title')}</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">{t('boostShop.duelPass.subtitle') || 'Соревнуйся и получай награды'}</p>
+                      <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{t('boostShop.duelPass.description')}</p>
+                    </div>
+                  </div>
+                  <Button
+                    className="w-full mt-4 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white shadow-md"
+                    onClick={() => {
+                      toast({
+                        title: t('boostShop.duelPass.toastTitle'),
+                        description: t('boostShop.duelPass.toastDescription'),
+                      });
+                    }}
+                  >
+                    <Trophy className="w-4 h-4 mr-2" />
+                    {t('boostShop.duelPass.button')}
+                  </Button>
+                </div>
               </div>
             </TabsContent>
 
