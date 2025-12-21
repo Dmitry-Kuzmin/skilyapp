@@ -14,7 +14,7 @@ import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { BoostCard } from './BoostCard';
 import { MarketItem } from './MarketItem';
-import { CryptoMinerAdButton } from './CryptoMinerAdButton';
+import { CryptoMinerAdvanced } from './CryptoMinerAdvanced';
 // Removed framer-motion import for better performance
 import { PaywallModal } from '@/components/monetization/PaywallModal';
 import { usePremium } from '@/hooks/usePremium';
@@ -1312,9 +1312,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               className="p-4 md:p-6 space-y-4 mt-3 md:mt-4"
             >
               <div className="space-y-3">
-                {/* CRYPTO MINER - Киберпанк-стиль реклама за монеты (только для non-Premium) */}
+                {/* CRYPTO MINER V2 - Advanced Edition с анимациями и частицами */}
                 {!isPremium && (
-                  <CryptoMinerAdButton />
+                  <CryptoMinerAdvanced />
                 )}
 
                 <div className="grid gap-4">
@@ -1331,10 +1331,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                       <Card
                         key={idx}
                         className={`group relative overflow-hidden rounded-3xl border bg-card p-4 md:p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 ${isBestValue
-                            ? 'border-violet-500/50 shadow-[0_15px_40px_rgba(139,92,246,0.35)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.35)] scale-[1.02] ring-2 ring-violet-500/30'
-                            : isHighlighted
-                              ? 'border-yellow-400/50 shadow-[0_15px_40px_rgba(251,191,36,0.25)] dark:shadow-[0_15px_40px_rgba(251,191,36,0.25)]'
-                              : 'border-border hover:border-violet-500/30'
+                          ? 'border-violet-500/50 shadow-[0_15px_40px_rgba(139,92,246,0.35)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.35)] scale-[1.02] ring-2 ring-violet-500/30'
+                          : isHighlighted
+                            ? 'border-yellow-400/50 shadow-[0_15px_40px_rgba(251,191,36,0.25)] dark:shadow-[0_15px_40px_rgba(251,191,36,0.25)]'
+                            : 'border-border hover:border-violet-500/30'
                           }`}
                       >
                         <div className="flex flex-col gap-4 md:gap-5">
@@ -1348,16 +1348,16 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                               </div>
                             )}
                             <div className={`relative w-16 h-16 rounded-3xl flex items-center justify-center flex-shrink-0 overflow-hidden ${isBestValue
-                                ? 'bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500 text-white shadow-lg shadow-violet-500/50'
-                                : isHighlighted
-                                  ? 'bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 text-slate-900'
-                                  : 'bg-gradient-to-br from-yellow-500/20 via-amber-500/30 to-orange-500/20 border border-yellow-500/30'
+                              ? 'bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500 text-white shadow-lg shadow-violet-500/50'
+                              : isHighlighted
+                                ? 'bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 text-slate-900'
+                                : 'bg-gradient-to-br from-yellow-500/20 via-amber-500/30 to-orange-500/20 border border-yellow-500/30'
                               }`}>
                               {/* Эффект свечения для всех иконок */}
                               <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 via-transparent to-orange-500/20 blur-sm" />
                               <Coins className={`relative w-8 h-8 ${isBestValue || isHighlighted
-                                  ? 'drop-shadow-lg'
-                                  : 'text-yellow-400 drop-shadow-md'
+                                ? 'drop-shadow-lg'
+                                : 'text-yellow-400 drop-shadow-md'
                                 }`} />
                               {/* Дополнительные монеты для эффекта "кучи" */}
                               {!isBestValue && !isHighlighted && (
@@ -1416,8 +1416,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                   variant="default"
                                   size="default"
                                   className={`w-full h-12 font-semibold text-base ${isHighlighted
-                                      ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110'
-                                      : 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50'
+                                    ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110'
+                                    : 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50'
                                     } transition-all duration-200 hover:scale-[1.01] ${isBestValue ? 'ring-2 ring-violet-400/50' : ''
                                     }`}
                                 />
@@ -1921,12 +1921,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                               <div className="flex items-center gap-2.5 flex-1 min-w-0">
                                 {/* Иконка - упрощенная версия */}
                                 <div className={`flex-shrink-0 ${isPositive
-                                    ? 'bg-green-500/10 text-green-600 dark:text-green-400'
-                                    : isPurchase
-                                      ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
-                                      : isReward
-                                        ? 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400'
-                                        : 'bg-red-500/10 text-red-600 dark:text-red-400'
+                                  ? 'bg-green-500/10 text-green-600 dark:text-green-400'
+                                  : isPurchase
+                                    ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                                    : isReward
+                                      ? 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400'
+                                      : 'bg-red-500/10 text-red-600 dark:text-red-400'
                                   } p-2 rounded-lg`}>
                                   <IconComponent className="h-4 w-4" />
                                 </div>
@@ -1944,8 +1944,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                       <Badge
                                         variant="secondary"
                                         className={`text-xs h-4 px-1.5 ${isPurchase
-                                            ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
-                                            : 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400'
+                                          ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                                          : 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400'
                                           }`}
                                       >
                                         {isPurchase
@@ -1965,8 +1965,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                   </span>
                                 ) : (
                                   <span className={`text-sm font-bold ${isPositive
-                                      ? 'text-green-600 dark:text-green-400'
-                                      : 'text-red-600 dark:text-red-400'
+                                    ? 'text-green-600 dark:text-green-400'
+                                    : 'text-red-600 dark:text-red-400'
                                     }`}>
                                     {isPositive ? '+' : ''}{tx.amount}
                                   </span>
@@ -2237,8 +2237,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     className={cn("text-3xl", inspectTheme.icon)}
                     style={{
                       filter: `drop-shadow(0 0 12px ${inspectCategory === 'exploit' ? 'rgba(239, 68, 68, 0.8)' :
-                          inspectCategory === 'defense' ? 'rgba(6, 182, 212, 0.8)' :
-                            'rgba(34, 197, 94, 0.8)'
+                        inspectCategory === 'defense' ? 'rgba(6, 182, 212, 0.8)' :
+                          'rgba(34, 197, 94, 0.8)'
                         })`
                     }}
                   >
