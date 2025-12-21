@@ -4917,6 +4917,39 @@ Deno.serve(async (req) => {
         }
       }
 
+      // 🆕 NEW ACTION: Быстрый endpoint для polling статуса дуэли
+      // Используется в Telegram Mini App где прямые запросы к БД возвращают 406
+      case 'get_duel_status': {
+        const { duel_id } = params;
+
+        if (!duel_id) {
+          return new Response(JSON.stringify({ error: 'duel_id is required' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        const { data: duel, error: duelError } = await supabase
+          .from('duels')
+          .select('id, status')
+          .eq('id', duel_id)
+          .single();
+
+        if (duelError || !duel) {
+          return new Response(JSON.stringify({ error: 'Duel not found', details: duelError?.message }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        return new Response(JSON.stringify({
+          status: duel.status,
+          duel_id: duel.id
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       case 'heartbeat': {
         const { duel_id } = params;
         const userProfileId = params.profile_id || profileId;

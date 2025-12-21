@@ -1203,28 +1203,32 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       }
 
       try {
-        log('[DuelBattleFullscreen] 🔄 POLLING: Checking duel status...');
+        log('[DuelBattleFullscreen] 🔄 POLLING: Checking duel status via Edge Function...');
 
-        const { data: duel, error } = await supabase
-          .from('duels')
-          .select('status')
-          .eq('id', duelId)
-          .single();
+        // 🆕 CRITICAL FIX: Используем Edge Function вместо прямого запроса к БД
+        // Telegram Mini App возвращает 406 на прямые запросы к Supabase
+        const { data, error } = await supabase.functions.invoke('duel-manager', {
+          body: {
+            action: 'get_duel_status',
+            duel_id: duelId,
+            profile_id: profileId
+          },
+        });
 
         if (error) {
           logError('[DuelBattleFullscreen] POLLING Error checking duel status:', error);
           return;
         }
 
-        if (!duel) {
-          logWarn('[DuelBattleFullscreen] POLLING Duel not found');
+        if (!data || !data.status) {
+          logWarn('[DuelBattleFullscreen] POLLING No status returned');
           return;
         }
 
-        log('[DuelBattleFullscreen] 🔄 POLLING: Duel status =', duel.status);
+        log('[DuelBattleFullscreen] 🔄 POLLING: Duel status =', data.status);
 
         // КРИТИЧНО: Если статус finished - переходим немедленно
-        if (duel.status === 'finished' && !hasTransitionedRef.current) {
+        if (data.status === 'finished' && !hasTransitionedRef.current) {
           log('[DuelBattleFullscreen] ✅✅✅ POLLING: Duel status is FINISHED! Transitioning NOW');
           hasTransitionedRef.current = true;
 
