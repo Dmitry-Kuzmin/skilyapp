@@ -482,76 +482,65 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     try {
       const allTransactions: Transaction[] = [];
 
-      // Load purchases to enrich Premium transaction metadata with prices
-      const { data: purchasesForEnrichment } = await supabaseClient
-        .from('purchases')
-        .select('id, item_type, price, currency, metadata, completed_at, created_at')
-        .eq('user_id', profileId)
-        .eq('status', 'completed')
-        .order('completed_at', { ascending: false });
+      // 🚀 ОПТИМИЗАЦИЯ: Параллельная загрузка всех источников данных
+      const [
+        purchasesResult,
+        transactionsResult,
+        duelTxResult,
+        referralsResult
+      ] = await Promise.all([
+        // 1. Purchases (для enrichment + отображения)
+        supabaseClient
+          .from('purchases')
+          .select('id, item_type, price, currency, metadata, completed_at, created_at, status')
+          .eq('user_id', profileId)
+          .eq('status', 'completed')
+          .order('completed_at', { ascending: false })
+          .limit(30),
 
-      // Create a map of session_id -> purchase data for quick lookup
-      const purchaseMap = new Map<string, any>();
-      if (purchasesForEnrichment) {
-        purchasesForEnrichment.forEach(p => {
-          const sessionId = p.metadata?.session_id || p.id;
-          purchaseMap.set(sessionId, p);
-        });
-      }
+        // 2. Transactions через RPC
+        supabaseClient.rpc('get_user_transactions', {
+          p_user_id: profileId,
+          p_limit: 100
+        }),
 
-      // 1. Load new transactions table через RPC (обходит RLS для Telegram)
-      const { data: newTransactions, error: transactionsError } = await supabaseClient.rpc('get_user_transactions', {
-        p_user_id: profileId,
-        p_limit: 100
-      });
-
-      if (transactionsError) {
-        console.error('[BoostShop] Ошибка загрузки транзакций через RPC:', transactionsError);
-        // Fallback к прямому запросу
-        const { data: fallbackTx } = await supabaseClient
-          .from('transactions')
-          .select('id, amount, transaction_type, metadata, created_at')
+        // 3. Duel transactions
+        supabaseClient
+          .from('duel_transactions')
+          .select('id, amount, transaction_type, created_at')
           .eq('user_id', profileId)
           .order('created_at', { ascending: false })
-          .limit(100);
-        if (fallbackTx) {
-          fallbackTx.forEach(tx => {
-            // Enrich Premium transactions with price from purchases
-            let enrichedMetadata = { ...tx.metadata };
-            if (tx.transaction_type?.startsWith('premium_purchase_') && tx.metadata?.session_id) {
-              const purchase = purchaseMap.get(tx.metadata.session_id);
-              if (purchase && purchase.price) {
-                enrichedMetadata = {
-                  ...enrichedMetadata,
-                  price: purchase.price,
-                  currency: purchase.currency || 'EUR',
-                  subscription_type: purchase.metadata?.subscription_type ||
-                    (tx.transaction_type.includes('yearly') ? 'yearly' :
-                      tx.transaction_type.includes('forever') ? 'forever' : 'monthly')
-                };
-              }
-            }
+          .limit(50),
 
-            const info = getTransactionInfo(tx.transaction_type, enrichedMetadata);
-            allTransactions.push({
-              id: tx.id,
-              amount: tx.amount,
-              type: tx.transaction_type,
-              description: info.description,
-              created_at: tx.created_at,
-              category: info.category,
-              icon: info.icon,
-              metadata: enrichedMetadata
-            });
-          });
-        }
-      } else if (newTransactions) {
+        // 4. Referrals
+        supabaseClient
+          .from('referrals')
+          .select('referred_bonus, referral_bonus, reward_given, created_at, reward_given_at, referred:referred_id(first_name)')
+          .or(`referrer_id.eq.${profileId},referred_id.eq.${profileId}`)
+          .order('created_at', { ascending: false })
+          .limit(20)
+      ]);
+
+      // Create purchase map for enrichment
+      const purchaseMap = new Map<string, any>();
+      const purchases = purchasesResult.data || [];
+      purchases.forEach(p => {
+        const sessionId = p.metadata?.session_id || p.id;
+        purchaseMap.set(sessionId, p);
+      });
+
+      // Process transactions
+      const newTransactions = transactionsResult.data;
+      if (transactionsResult.error) {
+        console.error('[BoostShop] RPC error, using empty array:', transactionsResult.error.message);
+      }
+
+      if (newTransactions) {
         newTransactions.forEach(tx => {
-          // Enrich Premium transactions with price from purchases
           let enrichedMetadata = { ...tx.metadata };
           if (tx.transaction_type?.startsWith('premium_purchase_') && tx.metadata?.session_id) {
             const purchase = purchaseMap.get(tx.metadata.session_id);
-            if (purchase && purchase.price) {
+            if (purchase?.price) {
               enrichedMetadata = {
                 ...enrichedMetadata,
                 price: purchase.price,
@@ -577,14 +566,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         });
       }
 
-      // 2. Load duel transactions (bets and winnings)
-      const { data: duelTx } = await supabaseClient
-        .from('duel_transactions')
-        .select('id, amount, transaction_type, created_at')
-        .eq('user_id', profileId)
-        .order('created_at', { ascending: false })
-        .limit(50);
-
+      // Process duel transactions
+      const duelTx = duelTxResult.data;
       if (duelTx) {
         duelTx.forEach(tx => {
           const info = getTransactionInfo(tx.transaction_type);
@@ -600,83 +583,58 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         });
       }
 
-      // 3. Load purchases (Stripe)
-      const { data: purchases } = await supabaseClient
-        .from('purchases')
-        .select('id, item_type, price, currency, status, metadata, created_at, completed_at')
-        .eq('user_id', profileId)
-        .eq('status', 'completed')
-        .order('completed_at', { ascending: false })
-        .limit(20);
+      // Process purchases
+      purchases.forEach(purchase => {
+        let description = '';
+        let amount = 0;
+        let transactionType = 'coins_purchase_paddle';
 
-      if (purchases) {
-        purchases.forEach(purchase => {
-          let description = '';
-          let amount = 0;
+        if (purchase.item_type === 'coins_pack') {
+          const coinsAmount = purchase.metadata?.coins_amount || 0;
 
-          if (purchase.item_type === 'coins_pack') {
-            const coinsAmount = purchase.metadata?.coins_amount || 0;
-            // Определяем тип транзакции в зависимости от метода оплаты
-            let transactionType = 'coins_purchase_paddle'; // По умолчанию Paddle
-
-            if (purchase.cryptomus_order_id) {
-              transactionType = 'coins_purchase_cryptomus';
-            } else if (purchase.paddle_transaction_id) {
-              transactionType = 'coins_purchase_paddle';
-            } else if (purchase.metadata?.payment_method === 'telegram_stars' || purchase.metadata?.gateway === 'telegram_stars') {
-              transactionType = 'coins_purchase_telegram_stars';
-            }
-
-            // Используем универсальный перевод для покупок монет
-            description = t('boostShop.transactions.coinsPurchasePaddle', { amount: coinsAmount });
-            amount = coinsAmount;
-          } else if (purchase.item_type === 'premium') {
-            const price = purchase.price || purchase.metadata?.price || 0;
-            const subscriptionType = purchase.metadata?.subscription_type || 'monthly';
-            description = getPremiumPurchaseDescription(subscriptionType, price);
-            amount = 0; // Premium не дает монет напрямую
-
-            // Добавляем Premium покупку в историю с ценой в евро
-            allTransactions.push({
-              id: purchase.id,
-              amount: 0, // amount остается 0, но цена будет в описании и metadata
-              type: subscriptionType === 'forever' ? 'premium_purchase_forever' :
-                subscriptionType === 'yearly' ? 'premium_purchase_yearly' :
-                  'premium_purchase_monthly',
-              description,
-              created_at: purchase.completed_at || purchase.created_at,
-              category: 'purchase',
-              icon: CreditCard,
-              metadata: { ...purchase.metadata, price, subscription_type: subscriptionType, currency: purchase.currency || 'EUR' }
-            });
-          } else if (purchase.item_type === 'duel_pass') {
-            description = t('boostShop.transactions.duelPassPurchase');
-            amount = 0;
+          if (purchase.metadata?.payment_method === 'telegram_stars' || purchase.metadata?.gateway === 'telegram_stars') {
+            transactionType = 'coins_purchase_telegram_stars';
           }
 
-          if (amount > 0) {
-            allTransactions.push({
-              id: purchase.id,
-              amount: amount,
-              type: transactionType, // Paddle, Cryptomus или Telegram Stars
-              description,
-              created_at: purchase.completed_at || purchase.created_at,
-              category: 'purchase',
-              icon: CreditCard,
-              metadata: purchase.metadata
-            });
-          }
-        });
-      }
+          description = t('boostShop.transactions.coinsPurchasePaddle', { amount: coinsAmount });
+          amount = coinsAmount;
+        } else if (purchase.item_type === 'premium') {
+          const price = purchase.price || purchase.metadata?.price || 0;
+          const subscriptionType = purchase.metadata?.subscription_type || 'monthly';
+          description = getPremiumPurchaseDescription(subscriptionType, price);
 
-      // 4. Load referral transactions
-      const { data: referrals } = await supabaseClient
-        .from('referrals')
-        .select('referred_bonus, referral_bonus, reward_given, created_at, reward_given_at, referred:referred_id(first_name)')
-        .or(`referrer_id.eq.${profileId},referred_id.eq.${profileId}`)
-        .order('created_at', { ascending: false })
-        .limit(20);
+          allTransactions.push({
+            id: purchase.id,
+            amount: 0,
+            type: subscriptionType === 'forever' ? 'premium_purchase_forever' :
+              subscriptionType === 'yearly' ? 'premium_purchase_yearly' : 'premium_purchase_monthly',
+            description,
+            created_at: purchase.completed_at || purchase.created_at,
+            category: 'purchase',
+            icon: CreditCard,
+            metadata: { ...purchase.metadata, price, subscription_type: subscriptionType, currency: purchase.currency || 'EUR' }
+          });
+        } else if (purchase.item_type === 'duel_pass') {
+          description = t('boostShop.transactions.duelPassPurchase');
+          amount = 0;
+        }
 
+        if (amount > 0) {
+          allTransactions.push({
+            id: `purchase_${purchase.id}`,
+            amount,
+            type: transactionType,
+            description,
+            created_at: purchase.completed_at || purchase.created_at,
+            category: 'purchase',
+            icon: CreditCard,
+            metadata: purchase.metadata
+          });
+        }
+      });
+
+      // Process referrals
+      const referrals = referralsResult.data;
       if (referrals) {
         referrals.forEach(ref => {
           const isReferrer = ref.reward_given;
@@ -705,7 +663,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         });
       }
 
-      // Sort all transactions by date
+      // Sort by date (newest first)
       allTransactions.sort((a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
