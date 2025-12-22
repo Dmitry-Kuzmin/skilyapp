@@ -6,11 +6,12 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { 
-  TelegramUpdate, 
+import {
+  TelegramUpdate,
   TelegramCallbackQuery,
+  TelegramInlineQuery,
   AnswerCallbackQueryOptions,
-  EditMessageTextOptions 
+  EditMessageTextOptions
 } from './types.ts';
 import * as commands from './commands.ts';
 import * as keyboards from './keyboards.ts';
@@ -48,8 +49,8 @@ serve(async (req) => {
   try {
     // Проверка метода
     if (req.method === 'GET') {
-      return new Response(JSON.stringify({ 
-        status: 'ok', 
+      return new Response(JSON.stringify({
+        status: 'ok',
         bot: 'DGT Prep Bot',
         version: '1.0.0'
       }), {
@@ -73,6 +74,8 @@ serve(async (req) => {
       await handleMessage(update.message, supabase);
     } else if (update.callback_query) {
       await handleCallbackQuery(update.callback_query, supabase);
+    } else if (update.inline_query) {
+      await handleInlineQuery(update.inline_query);
     } else {
       console.log('[Telegram Bot] Unknown update type:', Object.keys(update));
     }
@@ -138,7 +141,7 @@ async function handleMessage(message: any, supabase: any): Promise<void> {
       await handleLinkToken(rawParam, user, message, supabase);
       return;
     }
-    
+
     switch (command) {
       case 'start':
         console.log('[Telegram Bot] 🚀 Обработка команды /start, вызываю handleStart...');
@@ -256,7 +259,7 @@ async function handleCallbackQuery(query: TelegramCallbackQuery, supabase: any):
         text: '🏠 Главное меню\n\nВыбери действие:',
         reply_markup: keyboards.getMainMenuKeyboard()
       });
-    } 
+    }
     else if (data === 'stats') {
       await showStats(message.chat.id, user.id, supabase);
     }
@@ -362,6 +365,142 @@ async function handleCallbackQuery(query: TelegramCallbackQuery, supabase: any):
       text: '❌ Произошла ошибка. Попробуй позже.',
       show_alert: true
     });
+  }
+}
+
+// =====================================================
+// Обработка inline-запросов (для шеринга статей)
+// =====================================================
+
+// Данные статей для inline-результатов
+const ARTICLES_DATA: Record<string, { title: string; description: string; category: string; readTime: number }> = {
+  'novye-voprosy-dgt-2025': {
+    title: 'Новые типы вопросов DGT в 2025',
+    description: 'Свежие требования экзамена и рабочие приёмы подготовки с помощью Skilyapp.',
+    category: 'Актуально',
+    readTime: 15
+  },
+  'gamifikaciya-podgotovki': {
+    title: 'Геймификация подготовки: держи темп 60 дней',
+    description: 'Как превращать подготовку в игру: рейтинги, награды и напоминания Skilyapp.',
+    category: 'Советы',
+    readTime: 9
+  },
+  'pervaya-poezdka-s-instruktorom': {
+    title: 'Первая поездка с инструктором',
+    description: 'Чего ожидать на первом практическом занятии и как к нему подготовиться.',
+    category: 'Подготовка',
+    readTime: 8
+  },
+  'kak-russkim-sdat-dgt': {
+    title: 'Как русским сдать DGT с первого раза',
+    description: 'Полное руководство для русскоязычных: от записи до получения прав.',
+    category: 'Подготовка',
+    readTime: 16
+  },
+  'tipichnye-oshibki-na-ekzamene': {
+    title: 'Типичные ошибки на экзамене DGT',
+    description: 'Разбираем самые частые ошибки и как их избежать.',
+    category: 'Советы',
+    readTime: 12
+  }
+};
+
+async function handleInlineQuery(query: TelegramInlineQuery): Promise<void> {
+  const queryText = query.query.trim().toLowerCase();
+  console.log(`[Telegram Bot] Inline query from @${query.from.username || query.from.id}: "${queryText}"`);
+
+  const results: any[] = [];
+
+  // Формат запроса: article:slug
+  if (queryText.startsWith('article:')) {
+    const slug = queryText.replace('article:', '').trim();
+    const article = ARTICLES_DATA[slug];
+
+    if (article) {
+      // Создаём красивую карточку статьи
+      results.push({
+        type: 'article',
+        id: `article_${slug}`,
+        title: article.title,
+        description: `${article.category} • ${article.readTime} мин чтения`,
+        input_message_content: {
+          message_text: `📚 <b>${article.title}</b>\n\n${article.description}\n\n🏷 ${article.category} • ⏱ ${article.readTime} мин`,
+          parse_mode: 'HTML'
+        },
+        reply_markup: {
+          inline_keyboard: [[
+            {
+              text: '📖 Читать в Skily',
+              url: `https://skilyapp.com/blog/${slug}`
+            }
+          ], [
+            {
+              text: '🚀 Открыть Skily',
+              url: 'https://t.me/SkilyAppBot/app'
+            }
+          ]]
+        },
+        thumb_url: 'https://skilyapp.com/og-image.png',
+        thumb_width: 512,
+        thumb_height: 512
+      });
+    }
+  }
+
+  // Если нет результатов, показываем все статьи
+  if (results.length === 0) {
+    for (const [slug, article] of Object.entries(ARTICLES_DATA)) {
+      results.push({
+        type: 'article',
+        id: `article_${slug}`,
+        title: article.title,
+        description: `${article.category} • ${article.readTime} мин чтения`,
+        input_message_content: {
+          message_text: `📚 <b>${article.title}</b>\n\n${article.description}\n\n🏷 ${article.category} • ⏱ ${article.readTime} мин`,
+          parse_mode: 'HTML'
+        },
+        reply_markup: {
+          inline_keyboard: [[
+            {
+              text: '📖 Читать в Skily',
+              url: `https://skilyapp.com/blog/${slug}`
+            }
+          ], [
+            {
+              text: '🚀 Открыть Skily',
+              url: 'https://t.me/SkilyAppBot/app'
+            }
+          ]]
+        },
+        thumb_url: 'https://skilyapp.com/og-image.png',
+        thumb_width: 512,
+        thumb_height: 512
+      });
+    }
+  }
+
+  // Отправляем результаты
+  try {
+    const response = await fetch(`${TELEGRAM_API}/answerInlineQuery`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        inline_query_id: query.id,
+        results: results.slice(0, 50), // Telegram лимит - 50 результатов
+        cache_time: 300, // Кешируем на 5 минут
+        is_personal: false
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('[Telegram Bot] answerInlineQuery error:', error);
+    } else {
+      console.log(`[Telegram Bot] ✅ Answered inline query with ${results.length} results`);
+    }
+  } catch (error) {
+    console.error('[Telegram Bot] Failed to answer inline query:', error);
   }
 }
 
@@ -490,9 +629,9 @@ async function showProgress(chatId: number, telegramId: number, supabase: any): 
 
 // Показать настройки уведомлений
 async function showNotificationSettings(
-  chatId: number, 
-  messageId: number, 
-  telegramId: number, 
+  chatId: number,
+  messageId: number,
+  telegramId: number,
   supabase: any
 ): Promise<void> {
   const { profile, settings } = await loadNotificationSettings(telegramId, supabase);

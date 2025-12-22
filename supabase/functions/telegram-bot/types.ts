@@ -47,11 +47,20 @@ export interface TelegramCallbackQuery {
   data?: string;
 }
 
+export interface TelegramInlineQuery {
+  id: string;
+  from: TelegramUser;
+  query: string;
+  offset: string;
+  chat_type?: 'sender' | 'private' | 'group' | 'supergroup' | 'channel';
+}
+
 export interface TelegramUpdate {
   update_id: number;
   message?: TelegramMessage;
   edited_message?: TelegramMessage;
   callback_query?: TelegramCallbackQuery;
+  inline_query?: TelegramInlineQuery;
 }
 
 export interface InlineKeyboardButton {
