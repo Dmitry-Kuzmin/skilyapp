@@ -1281,7 +1281,9 @@ Deno.serve(async (req) => {
 
         return new Response(JSON.stringify({
           status: duel.status,
-          started_at: duel.started_at
+          started_at: duel.started_at,
+          host_user: duel.host_user,
+          num_questions: duel.num_questions
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -1313,6 +1315,29 @@ Deno.serve(async (req) => {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
+
+        // 🆕 НОВОЕ: Загружаем количество ответов для каждого игрока
+        const { data: answersData, error: answersError } = await supabase
+          .from('duel_answers')
+          .select('player_id')
+          .eq('duel_id', duel_id);
+
+        const answersCountMap = new Map();
+        if (!answersError && answersData) {
+          answersData.forEach((ans: any) => {
+            const count = answersCountMap.get(ans.player_id) || 0;
+            answersCountMap.set(ans.player_id, count + 1);
+          });
+        }
+
+        // Загружаем инфо о дуэли для num_questions
+        const { data: duelInfo } = await supabase
+          .from('duels')
+          .select('num_questions')
+          .eq('id', duel_id)
+          .single();
+
+        const totalQuestions = duelInfo?.num_questions || 10;
 
         // ОПТИМИЗАЦИЯ: Загружаем профили одним batch запросом вместо множества отдельных
         const userIds = players.map((p: any) => p.user_id).filter(Boolean);
@@ -1405,11 +1430,14 @@ Deno.serve(async (req) => {
               bot_difficulty: p.bot_difficulty
             });
 
+            const answeredCount = answersCountMap.get(p.id) || 0;
             return {
               id: p.id,
               user_id: p.user_id,
               score: p.score || 0,
               correct_count: p.correct_count || 0,
+              answered_count: answeredCount,
+              is_finished: answeredCount >= totalQuestions,
               name: botName,
               bot_name: botName, // Дублируем для совместимости
               is_bot: true,
@@ -1476,11 +1504,14 @@ Deno.serve(async (req) => {
             name
           });
 
+          const answeredCount = answersCountMap.get(p.id) || 0;
           return {
             id: p.id,
             user_id: p.user_id,
             score: p.score || 0,
             correct_count: p.correct_count || 0,
+            answered_count: answeredCount,
+            is_finished: answeredCount >= totalQuestions,
             name: name
           };
         });
