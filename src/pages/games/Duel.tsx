@@ -718,7 +718,10 @@ export default function Duel() {
             // Сбрасываем состояние для возможности повторной попытки
             hasAutoJoinedRef.current = false;
             setIsJoining(false);
-            setJoinError(error.message || JSON.stringify(error));
+            const detailedError = error.status
+                ? `${error.status}: ${error.message || JSON.stringify(error)}`
+                : error.message || JSON.stringify(error);
+            setJoinError(detailedError);
             setJoinCode(''); // Clear code on error to allow retry
 
             // Убеждаемся, что режим остается в 'menu' или 'join' при ошибке
@@ -1314,7 +1317,7 @@ export default function Duel() {
                     <span>MODE: {mode}</span>
                 </div>
                 {joinError && (
-                    <div style={{ padding: '4px', background: 'rgba(255,0,0,0.2)', border: '1px solid #ff0000', color: '#ff4444', fontSize: '10px', marginTop: '4px', borderRadius: '4px', overflowWrap: 'break-word' }}>
+                    <div style={{ padding: '4px', background: 'rgba(255,0,0,0.2)', border: '1px solid #ff0000', color: '#ff4444', fontSize: '10px', marginTop: '4px', borderRadius: '4px', overflowWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
                         ERR: {joinError}
                     </div>
                 )}

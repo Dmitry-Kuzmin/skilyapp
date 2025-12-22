@@ -1169,9 +1169,13 @@ Deno.serve(async (req) => {
     // Это критично для масштабирования: Free план выдержит 1000+ пользователей вместо 60
     const supabase = createPooledSupabaseClient();
 
+    // 0. Логируем начало обработки
+    console.log('[Duel Manager] 📥 New request received');
+
     // 1. Проверяем наличие тела запроса, чтобы избежать SyntaxError
     const contentType = req.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
+      console.warn('[Duel Manager] ⚠️ Invalid content-type:', contentType);
       return new Response(JSON.stringify({ error: 'Body must be JSON' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -1182,6 +1186,7 @@ Deno.serve(async (req) => {
     try {
       const text = await req.text();
       if (!text) {
+        console.warn('[Duel Manager] ⚠️ Empty body');
         return new Response(JSON.stringify({ error: 'Empty request body' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -1189,7 +1194,7 @@ Deno.serve(async (req) => {
       }
       body = JSON.parse(text);
     } catch (e) {
-      console.error('[Duel Manager] JSON Parse Error:', e);
+      console.error('[Duel Manager] ❌ JSON Parse Error:', e);
       return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -1197,7 +1202,7 @@ Deno.serve(async (req) => {
     }
 
     const { action, profile_id, ...params } = body;
-    console.log('[Duel Manager] Action:', action, 'Profile ID:', profile_id);
+    console.log('[Duel Manager] 🎯 Action:', action, 'Profile ID:', profile_id);
 
     let profileId: string | null = profile_id || null;
 
@@ -2508,6 +2513,82 @@ Deno.serve(async (req) => {
           success: true,
           refunded: duel.bet_amount
         }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      case 'start_duel_now': {
+        const { duel_id } = params;
+        if (!duel_id) {
+          console.warn('[start_duel_now] ⚠️ Missing duel_id');
+          return new Response(JSON.stringify({ error: 'Missing duel_id' }), { status: 400, headers: corsHeaders });
+        }
+
+        console.log('[start_duel_now] 🚀 Manual start for duel:', duel_id, 'by:', profileId);
+
+        // 1. Get duel info
+        const { data: duel, error: duelError } = await supabase
+          .from('duels')
+          .select('*')
+          .eq('id', duel_id)
+          .single();
+
+        if (duelError || !duel) {
+          console.warn('[start_duel_now] ⚠️ Duel not found');
+          return new Response(JSON.stringify({ error: 'Duel not found' }), { status: 404, headers: corsHeaders });
+        }
+
+        if (duel.status !== 'waiting') {
+          console.warn('[start_duel_now] ⚠️ Duel not in waiting status:', duel.status);
+          return new Response(JSON.stringify({ error: 'Duel already started' }), { status: 400, headers: corsHeaders });
+        }
+
+        // 2. Generate questions
+        console.log('[start_duel_now] Loading questions from questions_new...');
+        const { data: allQuestions, error: questionsError } = await supabase
+          .from('questions_new')
+          .select(`
+            id, question_ru, question_es, question_en, image_url, difficulty,
+            answer_options(id, text_ru, text_es, text_en, is_correct, position)
+          `);
+
+        if (questionsError || !allQuestions || allQuestions.length === 0) {
+          console.error('[start_duel_now] ❌ Questions error:', questionsError);
+          return new Response(JSON.stringify({ error: 'Failed to load questions' }), { status: 500, headers: corsHeaders });
+        }
+
+        const rng = mulberry32(duel.question_seed);
+        const shuffled = fisherYatesShuffle(allQuestions, rng);
+        const selectedQuestions = shuffled.slice(0, duel.num_questions);
+
+        const duelQuestions = selectedQuestions.map((q, idx) => ({
+          duel_id: duel.id,
+          question_id: q.id,
+          position: idx + 1,
+          question_snapshot: {
+            question_ru: q.question_ru,
+            question_es: q.question_es,
+            question_en: q.question_en,
+            image_url: q.image_url,
+            answer_options: q.answer_options || [],
+            difficulty: q.difficulty,
+          },
+          correct_option_ids: (q.answer_options || [])
+            .filter((opt: any) => opt.is_correct)
+            .map((opt: any) => opt.id),
+        }));
+
+        const { error: insertError } = await supabase.from('duel_questions').insert(duelQuestions);
+        if (insertError) {
+          console.error('[start_duel_now] ❌ Error inserting questions:', insertError);
+          return new Response(JSON.stringify({ error: 'Failed to save questions' }), { status: 500, headers: corsHeaders });
+        }
+
+        // 3. Update status
+        await supabase.from('duels').update({ status: 'active', started_at: new Date().toISOString() }).eq('id', duel.id);
+
+        console.log('[start_duel_now] ✅ Duel started manually!');
+        return new Response(JSON.stringify({ success: true }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
