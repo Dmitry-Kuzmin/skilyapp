@@ -1169,10 +1169,28 @@ Deno.serve(async (req) => {
     // Это критично для масштабирования: Free план выдержит 1000+ пользователей вместо 60
     const supabase = createPooledSupabaseClient();
 
-    // Parse request body first to get profile_id if provided
-    const { action, profile_id, ...params } = await req.json();
+    // 1. Проверяем наличие тела запроса, чтобы избежать SyntaxError
+    const contentType = req.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      return new Response(JSON.stringify({ error: 'Body must be JSON' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
-    console.log('[Duel Manager] Action:', action, 'Profile ID from client:', profile_id);
+    let body;
+    try {
+      body = await req.json();
+    } catch (e) {
+      console.error('[Duel Manager] JSON Parse Error:', e);
+      return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const { action, profile_id, ...params } = body;
+    console.log('[Duel Manager] Action:', action, 'Profile ID:', profile_id);
 
     let profileId: string | null = profile_id || null;
 

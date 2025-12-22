@@ -644,17 +644,21 @@ export default function Duel() {
         setMode('menu'); // Остаемся в меню, но показываем лоадер через isJoining state
 
         try {
-            console.log('[Duel] ⚡ Invoking join_duel with code:', code);
+            console.log('[Duel] ⚡ Invoking join_duel with code:', code, 'Profile:', profileId);
+
+            // Добавляем логирование параметров вызова
+            const invokeParams = {
+                action: 'join_duel',
+                profile_id: profileId,
+                code: code.toUpperCase(),
+                insurance_enabled: joinInsuranceEnabled,
+                insurance_rate: joinInsuranceEnabled ? INSURANCE_RATE : 0,
+                insurance_coverage_rate: joinInsuranceEnabled ? COVERAGE_RATE : 0,
+            };
+            console.log('[Duel] Invoke parameters:', invokeParams);
 
             const { data, error } = await supabase.functions.invoke('duel-manager', {
-                body: {
-                    action: 'join_duel',
-                    profile_id: profileId,
-                    code: code.toUpperCase(),
-                    insurance_enabled: joinInsuranceEnabled,
-                    insurance_rate: joinInsuranceEnabled ? INSURANCE_RATE : 0,
-                    insurance_coverage_rate: joinInsuranceEnabled ? COVERAGE_RATE : 0,
-                },
+                body: invokeParams,
             });
 
             // #region agent log
@@ -1263,6 +1267,37 @@ export default function Duel() {
     // Lobby also fullscreen without footer
     return (
         <>
+            {/* 🛠 DEBUG OVERLAY - ВСЕГДА ВВЕРХУ */}
+            <div style={{
+                position: 'fixed',
+                top: '50px',
+                left: '20px',
+                right: '20px',
+                zIndex: 9999,
+                background: 'rgba(0,0,0,0.9)',
+                border: '1px solid #00ff00',
+                color: '#00ff00',
+                fontSize: '11px',
+                padding: '10px',
+                borderRadius: '8px',
+                pointerEvents: 'none',
+                fontFamily: 'monospace',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '4px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+                backdropFilter: 'blur(8px)'
+            }}>
+                <div style={{ fontWeight: 'bold', borderBottom: '1px solid rgba(0,255,0,0.2)', paddingBottom: '4px', marginBottom: '4px' }}>🛡️ SDADIM DEBUG</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>URI: {window.location.pathname}</span>
+                    <span>CODE: <b style={{ color: '#fff' }}>{searchParams.get('code') || new URLSearchParams(window.location.search).get('code') || 'NONE'}</b></span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>STATE: {isJoining ? '🚀 JOINING...' : '😴 IDLE'}</span>
+                    <span>PROF: {profileId ? '✅ OK' : '⏳ WAIT'}</span>
+                </div>
+            </div>
             <ToastContainer />
             {mode === 'create' && duelCode ? (
                 <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 flex items-center justify-center p-4">
@@ -1785,30 +1820,6 @@ export default function Duel() {
                                                                         }}
                                                                     >
                                                                         {/* Code with Copy Icon - рядом с кодом */}
-                                                                        {/* 🛠 DEBUG OVERLAY (Здесь он точно будет виден) */}
-                                                                        <div style={{
-                                                                            position: 'fixed',
-                                                                            top: '60px',
-                                                                            left: '10px',
-                                                                            right: '10px',
-                                                                            zIndex: 1000,
-                                                                            background: 'rgba(0,255,0,0.1)',
-                                                                            border: '1px solid #00ff00',
-                                                                            color: '#00ff00',
-                                                                            fontSize: '10px',
-                                                                            padding: '8px',
-                                                                            borderRadius: '8px',
-                                                                            pointerEvents: 'none',
-                                                                            fontFamily: 'monospace',
-                                                                            display: 'flex',
-                                                                            flexDirection: 'column',
-                                                                            gap: '2px',
-                                                                            backdropFilter: 'blur(4px)'
-                                                                        }}>
-                                                                            <div>CODE: {searchParams.get('code') || new URLSearchParams(window.location.search).get('code') || 'MISSING'}</div>
-                                                                            <div>STATE: {isJoining ? 'JOINING...' : 'IDLE'} | PROF: {profileId ? 'OK' : 'WAIT'}</div>
-                                                                        </div>
-
                                                                         <div className="flex items-center justify-center gap-3 mb-3 relative z-10">
                                                                             <motion.div
                                                                                 key={createdCode}
