@@ -80,7 +80,7 @@ export const AboutTab: React.FC = () => {
                     <SettingRow
                         icon={<MessageSquare className="w-4 h-4 text-slate-400" />}
                         label="Связаться с поддержкой"
-                        onClick={() => window.open('https://t.me/sdadimtutbot', '_blank')}
+                        onClick={() => window.open('https://t.me/skilyapp_bot', '_blank')}
                     >
                         <ChevronRight className="w-4 h-4 text-slate-400" />
                     </SettingRow>

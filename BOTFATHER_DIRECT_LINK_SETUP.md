@@ -5,7 +5,7 @@
 ### Шаг 1: Откройте BotFather
 
 1. Откройте [@BotFather](https://t.me/BotFather) в Telegram
-2. Отправьте команду `/newlink` или выберите существующего бота `@sdadimtutbot`
+2. Отправьте команду `/newlink` или выберите существующего бота `@skilyapp_bot`
 3. Выберите опцию "Create Direct Link" / "Создать прямую ссылку"
 
 ---
@@ -91,14 +91,14 @@ Aplicación de preparación para el examen de conducir. Practica con preguntas r
 
 **Предлагается автоматически:**
 ```
-t.me/sdadimtutbot/directlink
+t.me/skilyapp_bot/directlink
 ```
 
 ✅ **Оставьте как есть** - это правильный формат!
 
 **Или можно изменить на:**
-- `t.me/sdadimtutbot/app` (если хотите использовать `/app`)
-- `t.me/sdadimtutbot/start` (если хотите использовать `/start`)
+- `t.me/skilyapp_bot/app` (если хотите использовать `/app`)
+- `t.me/skilyapp_bot/start` (если хотите использовать `/start`)
 
 ⚠️ **Важно:** 
 - Ссылка должна быть уникальной для вашего бота
@@ -111,7 +111,7 @@ t.me/sdadimtutbot/directlink
 
 1. **Нажмите кнопку "Create"** / **"Создать"**
 2. BotFather подтвердит создание ссылки
-3. Вы получите финальную ссылку вида: `https://t.me/sdadimtutbot/directlink`
+3. Вы получите финальную ссылку вида: `https://t.me/skilyapp_bot/directlink`
 
 ---
 
@@ -124,7 +124,7 @@ t.me/sdadimtutbot/directlink
    - Открывается сразу в Telegram Web App
 
 2. **В партнерских ссылках:**
-   - Можно комбинировать с параметрами: `https://t.me/sdadimtutbot/directlink?startapp=PARTNER_CODE`
+   - Можно комбинировать с параметрами: `https://t.me/skilyapp_bot/directlink?startapp=PARTNER_CODE`
 
 3. **В социальных сетях:**
    - Поделиться ссылкой в постах
@@ -139,17 +139,17 @@ t.me/sdadimtutbot/directlink
 
 ### Простая ссылка:
 ```
-https://t.me/sdadimtutbot/directlink
+https://t.me/skilyapp_bot/directlink
 ```
 
 ### С параметром для партнеров:
 ```
-https://t.me/sdadimtutbot/directlink?startapp=PARTNER_CODE
+https://t.me/skilyapp_bot/directlink?startapp=PARTNER_CODE
 ```
 
 ### С параметром для рефералов:
 ```
-https://t.me/sdadimtutbot/directlink?startapp=ref_REFERRAL_CODE
+https://t.me/skilyapp_bot/directlink?startapp=ref_REFERRAL_CODE
 ```
 
 ---
@@ -180,7 +180,7 @@ https://t.me/sdadimtutbot/directlink?startapp=ref_REFERRAL_CODE
 
 1. Откройте [@BotFather](https://t.me/BotFather)
 2. Отправьте `/mybots`
-3. Выберите `@sdadimtutbot`
+3. Выберите `@skilyapp_bot`
 4. Выберите "Links" / "Ссылки"
 5. Выберите нужную ссылку
 6. Выберите "Edit" / "Редактировать"
@@ -196,7 +196,7 @@ https://t.me/sdadimtutbot/directlink?startapp=ref_REFERRAL_CODE
 - [ ] Заполнил Title (название приложения)
 - [ ] Заполнил Description (описание)
 - [ ] Загрузил обложку (или пропустил)
-- [ ] Проверил предложенную ссылку (`t.me/sdadimtutbot/directlink`)
+- [ ] Проверил предложенную ссылку (`t.me/skilyapp_bot/directlink`)
 - [ ] Нажал "Create" / "Создать"
 - [ ] Получил финальную ссылку
 - [ ] Протестировал ссылку (открыл в Telegram)
@@ -213,7 +213,7 @@ https://t.me/sdadimtutbot/directlink?startapp=ref_REFERRAL_CODE
 
 **Финальная ссылка будет:**
 ```
-https://t.me/sdadimtutbot/directlink
+https://t.me/skilyapp_bot/directlink
 ```
 
 

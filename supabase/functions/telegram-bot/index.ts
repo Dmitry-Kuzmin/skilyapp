@@ -273,7 +273,7 @@ async function handleCallbackQuery(query: TelegramCallbackQuery, supabase: any):
 
 Чтобы бросить вызов, напиши в любом чате:
 
-<code>@sdadimtutbot дуэль</code>
+<code>@skilyapp_bot дуэль</code>
 
 Я создам красивую карточку с приглашением! 🎴
 
@@ -460,7 +460,7 @@ async function handleInlineQuery(query: TelegramInlineQuery): Promise<void> {
           inline_keyboard: [[
             {
               text: '📖 Читать статью',
-              url: `https://t.me/sdadimtutbot/app?startapp=blog_${slug}`
+              url: `https://t.me/skilyapp_bot/app?startapp=blog_${slug}`
             }
           ]]
         },
@@ -495,7 +495,7 @@ async function handleInlineQuery(query: TelegramInlineQuery): Promise<void> {
         inline_keyboard: [[
           {
             text: '🎮 Принять вызов!',
-            url: `https://t.me/sdadimtutbot/app?startapp=duel_new`
+            url: `https://t.me/skilyapp_bot/app?startapp=duel_new`
           }
         ]]
       },
@@ -519,7 +519,7 @@ async function handleInlineQuery(query: TelegramInlineQuery): Promise<void> {
           inline_keyboard: [[
             {
               text: '📖 Читать статью',
-              url: `https://t.me/sdadimtutbot/app?startapp=blog_${slug}`
+              url: `https://t.me/skilyapp_bot/app?startapp=blog_${slug}`
             }
           ]]
         },
@@ -554,7 +554,7 @@ async function handleInlineQuery(query: TelegramInlineQuery): Promise<void> {
         inline_keyboard: [[
           {
             text: '🎮 Принять вызов!',
-            url: `https://t.me/sdadimtutbot/app?startapp=duel_new`
+            url: `https://t.me/skilyapp_bot/app?startapp=duel_new`
           }
         ]]
       },

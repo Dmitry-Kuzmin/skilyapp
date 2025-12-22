@@ -451,13 +451,13 @@ export default function Partners() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-4"
           >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-bold">
-                <Crown className="h-4 w-4" />
-                <span>{currentContent.title}</span>
-              </div>
-              <h1 className="text-4xl md:text-6xl font-black bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
-                {currentContent.title}
-              </h1>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-bold">
+              <Crown className="h-4 w-4" />
+              <span>{currentContent.title}</span>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-black bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+              {currentContent.title}
+            </h1>
             <p className="text-xl text-slate-400 max-w-2xl mx-auto">
               {currentContent.subtitle}
             </p>
@@ -466,26 +466,26 @@ export default function Partners() {
 
         {/* Info Sections */}
         <div className="grid md:grid-cols-2 gap-8 mb-16">
-            {currentContent.sections.map((section, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50 backdrop-blur-sm"
-              >
-                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                  {index === 0 && <Users className="h-6 w-6 text-primary" />}
-                  {index === 1 && <TrendingUp className="h-6 w-6 text-primary" />}
-                  {index === 2 && <Gift className="h-6 w-6 text-primary" />}
-                  {index === 3 && <Sparkles className="h-6 w-6 text-primary" />}
-                  {section.title}
-                </h2>
-                <p className="text-slate-300 leading-relaxed whitespace-pre-line">
-                  {section.content}
-                </p>
-              </motion.div>
-            ))}
+          {currentContent.sections.map((section, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50 backdrop-blur-sm"
+            >
+              <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                {index === 0 && <Users className="h-6 w-6 text-primary" />}
+                {index === 1 && <TrendingUp className="h-6 w-6 text-primary" />}
+                {index === 2 && <Gift className="h-6 w-6 text-primary" />}
+                {index === 3 && <Sparkles className="h-6 w-6 text-primary" />}
+                {section.title}
+              </h2>
+              <p className="text-slate-300 leading-relaxed whitespace-pre-line">
+                {section.content}
+              </p>
+            </motion.div>
+          ))}
         </div>
 
         {/* Registration Form */}
@@ -495,270 +495,270 @@ export default function Partners() {
           transition={{ delay: 0.4 }}
           className="max-w-4xl mx-auto"
         >
-            <Card className="bg-slate-900/80 border-slate-800 backdrop-blur-xl">
-              <CardHeader>
-                <CardTitle className="text-2xl text-white">{currentContent.form.title}</CardTitle>
-                <CardDescription className="text-slate-300">
-                  {currentContent.form.subtitle}
-                </CardDescription>
-              </CardHeader>
-              {/* Status messages moved outside CardHeader to fix DOM nesting (div cannot be inside p) */}
-                {loadingProfile && (
-                <div className="px-6 pb-0">
-                  <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
-                    <p className="text-sm text-primary flex items-center gap-2">
-                      <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
-                      {currentContent.form.loadingProfile}
-                    </p>
-                  </div>
-                  </div>
-                )}
-                {isAlreadyPartner && (
-                <div className="px-6 pb-0">
-                  <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-                    <p className="text-sm text-green-300 flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4" />
-                      {currentContent.form.alreadyPartner}
-                    </p>
-                    <p className="text-xs text-green-400/80 mt-1">
-                      {currentContent.form.redirecting}
-                    </p>
-                  </div>
-                  </div>
-                )}
-                {!isAuthenticated && !loadingProfile && (
-                <div className="px-6 pb-0">
-                  <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                    <p className="text-sm text-amber-300">
-                      {currentContent.form.needAuth}{" "}
-                      <Button
-                        variant="link"
-                        className="p-0 h-auto text-amber-300 hover:text-amber-200"
-                        onClick={() => setAuthModalOpen(true)}
-                      >
-                        {currentContent.form.login}
-                      </Button>
-                    </p>
-                  </div>
-                  </div>
-                )}
-                {isAuthenticated && !loadingProfile && !isAlreadyPartner && (formData.name || formData.email) && (
-                <div className="px-6 pb-0">
-                  <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
-                    <p className="text-sm text-primary flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4" />
-                      {currentContent.form.autoFilled}
-                    </p>
-                  </div>
-                  </div>
-                )}
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Personal Info */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-bold flex items-center gap-2 text-white">
-                      <User className="h-5 w-5 text-primary" />
-                      {currentContent.form.personalInfo}
-                    </h3>
-                    
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="name" className="text-slate-200">{currentContent.form.name} *</Label>
-                        <Input
-                          id="name"
-                          value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          required
-                          disabled={loadingProfile || isAlreadyPartner}
-                          placeholder="John Doe"
-                          className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="email" className="text-slate-200">{currentContent.form.email} *</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          required
-                          disabled={loadingProfile || isAlreadyPartner}
-                          placeholder="email@example.com"
-                          className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Channel Info */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-bold flex items-center gap-2 text-white">
-                      <LinkIcon className="h-5 w-5 text-primary" />
-                      {currentContent.form.channelInfo}
-                    </h3>
-                    
-                    <div>
-                      <Label htmlFor="channel_name" className="text-slate-200">{currentContent.form.channelName} *</Label>
-                      <Input
-                        id="channel_name"
-                        value={formData.channel_name}
-                        onChange={(e) => setFormData({ ...formData, channel_name: e.target.value })}
-                        required
-                        placeholder="My DGT Channel"
-                        className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="channel_url" className="text-slate-200">{currentContent.form.channelUrl} *</Label>
-                      <Input
-                        id="channel_url"
-                        type="url"
-                        value={formData.channel_url}
-                        onChange={(e) => setFormData({ ...formData, channel_url: e.target.value })}
-                        required
-                        placeholder="https://t.me/mychannel"
-                        className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="subscribers_count" className="text-slate-200">{currentContent.form.subscribers} *</Label>
-                      <Input
-                        id="subscribers_count"
-                        type="number"
-                        min="0"
-                        value={formData.subscribers_count}
-                        onChange={(e) => setFormData({ ...formData, subscribers_count: e.target.value })}
-                        required
-                        placeholder="1000"
-                        className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Social Links */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-bold flex items-center gap-2 text-white">
-                      <Users className="h-5 w-5 text-primary" />
-                      {currentContent.form.socialLinks}
-                    </h3>
-                    
-                    <div className="grid md:grid-cols-3 gap-4">
-                      <div>
-                        <Label htmlFor="telegram" className="text-slate-200">{currentContent.form.telegram}</Label>
-                        <Input
-                          id="telegram"
-                          value={formData.telegram}
-                          onChange={(e) => setFormData({ ...formData, telegram: e.target.value })}
-                          placeholder="@username"
-                          className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="instagram" className="text-slate-200">{currentContent.form.instagram}</Label>
-                        <Input
-                          id="instagram"
-                          value={formData.instagram}
-                          onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
-                          placeholder="@username"
-                          className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="youtube" className="text-slate-200">{currentContent.form.youtube}</Label>
-                        <Input
-                          id="youtube"
-                          value={formData.youtube}
-                          onChange={(e) => setFormData({ ...formData, youtube: e.target.value })}
-                          placeholder="Channel URL"
-                          className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Partner Type */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-bold flex items-center gap-2 text-white">
-                      {formData.partner_type === "barter" ? (
-                        <Gift className="h-5 w-5 text-primary" />
-                      ) : (
-                        <DollarSign className="h-5 w-5 text-primary" />
-                      )}
-                      {currentContent.form.partnerType}
-                    </h3>
-                    
-                    <Select
-                      value={formData.partner_type}
-                      onValueChange={(value: "barter" | "revenue_share") =>
-                        setFormData({ ...formData, partner_type: value })
-                      }
+          <Card className="bg-slate-900/80 border-slate-800 backdrop-blur-xl">
+            <CardHeader>
+              <CardTitle className="text-2xl text-white">{currentContent.form.title}</CardTitle>
+              <CardDescription className="text-slate-300">
+                {currentContent.form.subtitle}
+              </CardDescription>
+            </CardHeader>
+            {/* Status messages moved outside CardHeader to fix DOM nesting (div cannot be inside p) */}
+            {loadingProfile && (
+              <div className="px-6 pb-0">
+                <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
+                  <p className="text-sm text-primary flex items-center gap-2">
+                    <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+                    {currentContent.form.loadingProfile}
+                  </p>
+                </div>
+              </div>
+            )}
+            {isAlreadyPartner && (
+              <div className="px-6 pb-0">
+                <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
+                  <p className="text-sm text-green-300 flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4" />
+                    {currentContent.form.alreadyPartner}
+                  </p>
+                  <p className="text-xs text-green-400/80 mt-1">
+                    {currentContent.form.redirecting}
+                  </p>
+                </div>
+              </div>
+            )}
+            {!isAuthenticated && !loadingProfile && (
+              <div className="px-6 pb-0">
+                <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                  <p className="text-sm text-amber-300">
+                    {currentContent.form.needAuth}{" "}
+                    <Button
+                      variant="link"
+                      className="p-0 h-auto text-amber-300 hover:text-amber-200"
+                      onClick={() => setAuthModalOpen(true)}
                     >
-                      <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="barter">
-                          <div className="flex items-center gap-2">
-                            <Gift className="h-4 w-4 text-primary" />
-                            {currentContent.form.barter}
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="revenue_share">
-                          <div className="flex items-center gap-2">
-                            <DollarSign className="h-4 w-4 text-primary" />
-                            {currentContent.form.revenueShare}
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    
-                    {formData.partner_type === "barter" && (
-                      <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
-                        <p className="text-sm text-slate-300">
-                          {currentContent.form.barterDesc}
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                      {currentContent.form.login}
+                    </Button>
+                  </p>
+                </div>
+              </div>
+            )}
+            {isAuthenticated && !loadingProfile && !isAlreadyPartner && (formData.name || formData.email) && (
+              <div className="px-6 pb-0">
+                <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
+                  <p className="text-sm text-primary flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4" />
+                    {currentContent.form.autoFilled}
+                  </p>
+                </div>
+              </div>
+            )}
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Personal Info */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold flex items-center gap-2 text-white">
+                    <User className="h-5 w-5 text-primary" />
+                    {currentContent.form.personalInfo}
+                  </h3>
 
-                  {/* Description */}
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="name" className="text-slate-200">{currentContent.form.name} *</Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        required
+                        disabled={loadingProfile || isAlreadyPartner}
+                        placeholder="John Doe"
+                        className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email" className="text-slate-200">{currentContent.form.email} *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        required
+                        disabled={loadingProfile || isAlreadyPartner}
+                        placeholder="email@example.com"
+                        className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Channel Info */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold flex items-center gap-2 text-white">
+                    <LinkIcon className="h-5 w-5 text-primary" />
+                    {currentContent.form.channelInfo}
+                  </h3>
+
                   <div>
-                    <Label htmlFor="description" className="text-slate-200">{currentContent.form.description}</Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      placeholder="Tell us about your channel, audience, and how you plan to promote the app..."
-                      rows={4}
+                    <Label htmlFor="channel_name" className="text-slate-200">{currentContent.form.channelName} *</Label>
+                    <Input
+                      id="channel_name"
+                      value={formData.channel_name}
+                      onChange={(e) => setFormData({ ...formData, channel_name: e.target.value })}
+                      required
+                      placeholder="My DGT Channel"
                       className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
                     />
                   </div>
 
-                  <Button
-                    type="submit"
-                    disabled={loading || !isAuthenticated || loadingProfile || isAlreadyPartner}
-                    className="w-full bg-gradient-to-r from-primary via-primary/80 to-primary hover:from-primary/90 hover:via-primary/70 hover:to-primary/90 text-white shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    size="lg"
-                  >
-                    {loading ? (
-                      <>
-                        <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                        {currentContent.form.submitting}
-                      </>
+                  <div>
+                    <Label htmlFor="channel_url" className="text-slate-200">{currentContent.form.channelUrl} *</Label>
+                    <Input
+                      id="channel_url"
+                      type="url"
+                      value={formData.channel_url}
+                      onChange={(e) => setFormData({ ...formData, channel_url: e.target.value })}
+                      required
+                      placeholder="https://t.me/mychannel"
+                      className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="subscribers_count" className="text-slate-200">{currentContent.form.subscribers} *</Label>
+                    <Input
+                      id="subscribers_count"
+                      type="number"
+                      min="0"
+                      value={formData.subscribers_count}
+                      onChange={(e) => setFormData({ ...formData, subscribers_count: e.target.value })}
+                      required
+                      placeholder="1000"
+                      className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Social Links */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold flex items-center gap-2 text-white">
+                    <Users className="h-5 w-5 text-primary" />
+                    {currentContent.form.socialLinks}
+                  </h3>
+
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="telegram" className="text-slate-200">{currentContent.form.telegram}</Label>
+                      <Input
+                        id="telegram"
+                        value={formData.telegram}
+                        onChange={(e) => setFormData({ ...formData, telegram: e.target.value })}
+                        placeholder="@username"
+                        className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="instagram" className="text-slate-200">{currentContent.form.instagram}</Label>
+                      <Input
+                        id="instagram"
+                        value={formData.instagram}
+                        onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                        placeholder="@username"
+                        className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="youtube" className="text-slate-200">{currentContent.form.youtube}</Label>
+                      <Input
+                        id="youtube"
+                        value={formData.youtube}
+                        onChange={(e) => setFormData({ ...formData, youtube: e.target.value })}
+                        placeholder="Channel URL"
+                        className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Partner Type */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold flex items-center gap-2 text-white">
+                    {formData.partner_type === "barter" ? (
+                      <Gift className="h-5 w-5 text-primary" />
                     ) : (
-                      <>
-                        <CheckCircle2 className="h-4 w-4 mr-2" />
-                        {currentContent.form.submit}
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </>
+                      <DollarSign className="h-5 w-5 text-primary" />
                     )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </motion.div>
+                    {currentContent.form.partnerType}
+                  </h3>
+
+                  <Select
+                    value={formData.partner_type}
+                    onValueChange={(value: "barter" | "revenue_share") =>
+                      setFormData({ ...formData, partner_type: value })
+                    }
+                  >
+                    <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="barter">
+                        <div className="flex items-center gap-2">
+                          <Gift className="h-4 w-4 text-primary" />
+                          {currentContent.form.barter}
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="revenue_share">
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="h-4 w-4 text-primary" />
+                          {currentContent.form.revenueShare}
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {formData.partner_type === "barter" && (
+                    <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
+                      <p className="text-sm text-slate-300">
+                        {currentContent.form.barterDesc}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Description */}
+                <div>
+                  <Label htmlFor="description" className="text-slate-200">{currentContent.form.description}</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Tell us about your channel, audience, and how you plan to promote the app..."
+                    rows={4}
+                    className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={loading || !isAuthenticated || loadingProfile || isAlreadyPartner}
+                  className="w-full bg-gradient-to-r from-primary via-primary/80 to-primary hover:from-primary/90 hover:via-primary/70 hover:to-primary/90 text-white shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  size="lg"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                      {currentContent.form.submitting}
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      {currentContent.form.submit}
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
 
       {/* Footer */}
@@ -774,11 +774,11 @@ export default function Partners() {
               <LandingLogo variant="bold" showText={true} className="scale-75" />
             </button>
             <p className="text-sm text-slate-400 max-w-md text-center">
-              {language === 'ru' 
-                ? 'Мы помогаем русскоязычным ученикам сдать экзамен DGT' 
-                : language === 'es' 
-                ? 'Ayudamos a estudiantes de habla rusa a aprobar el examen DGT'
-                : 'We help Russian-speaking students pass the DGT exam'}
+              {language === 'ru'
+                ? 'Мы помогаем русскоязычным ученикам сдать экзамен DGT'
+                : language === 'es'
+                  ? 'Ayudamos a estudiantes de habla rusa a aprobar el examen DGT'
+                  : 'We help Russian-speaking students pass the DGT exam'}
             </p>
           </div>
 
@@ -872,7 +872,7 @@ export default function Partners() {
               </h3>
               <div className="space-y-3">
                 <a
-                  href="https://t.me/sdadimtutbot"
+                  href="https://t.me/skilyapp_bot"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-sm text-slate-400 hover:text-primary transition-colors"
@@ -894,7 +894,7 @@ export default function Partners() {
           {/* Social Links */}
           <div className="flex flex-wrap justify-center gap-6 mb-8">
             <a
-              href="https://t.me/sdadimtutbot"
+              href="https://t.me/skilyapp_bot"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Telegram"
@@ -903,7 +903,7 @@ export default function Partners() {
               <MessageCircle className="h-5 w-5" />
             </a>
             <a
-              href="https://t.me/sdadimtutbot"
+              href="https://t.me/skilyapp_bot"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Support"

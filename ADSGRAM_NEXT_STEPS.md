@@ -4,7 +4,7 @@
 
 - [x] Приложение создано в AdsGram
 - [x] PlatformID: 17830
-- [x] Telegram direct link: https://t.me/sdadimtutbot/dashboard
+- [x] Telegram direct link: https://t.me/skilyapp_bot/dashboard
 - [x] Web app url: https://skilyapp.com/
 - [x] Bot ID: 8065301889
 

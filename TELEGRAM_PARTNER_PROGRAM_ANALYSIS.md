@@ -89,7 +89,7 @@
 ### Шаг 1: Настроить в BotFather
 
 1. Открыть [@BotFather](https://t.me/BotFather)
-2. Команда `/mybots` → выбрать бота `@sdadimtutbot`
+2. Команда `/mybots` → выбрать бота `@skilyapp_bot`
 3. Выбрать "Partner Program"
 4. Настроить:
    - **Комиссия:** 17% (или другая)
@@ -99,7 +99,7 @@
 
 Telegram Partner Program использует специальный формат `start_param`:
 ```
-https://t.me/sdadimtutbot/app?startapp=PARTNER_CODE
+https://t.me/skilyapp_bot/app?startapp=PARTNER_CODE
 ```
 
 **Где `PARTNER_CODE` - это код партнера.**
@@ -169,7 +169,7 @@ WHERE telegram_partner_code IS NOT NULL;
 
 1. **Включить Partner Program в BotFather:**
    ```
-   /mybots → @sdadimtutbot → Partner Program → Enable
+   /mybots → @skilyapp_bot → Partner Program → Enable
    Установить комиссию: 17%
    Установить срок: 1 год
    ```

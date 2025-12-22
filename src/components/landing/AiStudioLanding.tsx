@@ -133,7 +133,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         <div className="flex items-center gap-3 flex-wrap justify-end ml-auto">
           <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-white transition-colors">
             <Smartphone size={16} />
-            <button onClick={() => window.open("https://t.me/sdadimtutbot", "_blank")}>
+            <button onClick={() => window.open("https://t.me/skilyapp_bot", "_blank")}>
               {copy.controls.telegramApp}
             </button>
           </div>
@@ -166,10 +166,10 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           <div className="relative overflow-hidden rounded-[2rem] bg-slate-900/80 backdrop-blur-xl border border-amber-500/30 shadow-2xl">
             {/* Subtle gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-yellow-500/10 pointer-events-none" />
-            
+
             {/* Grid pattern overlay */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none opacity-50" />
-            
+
             <div className="relative p-6 md:p-8 flex flex-col sm:flex-row items-center gap-6">
               {/* Avatar and Info */}
               <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -224,10 +224,10 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           <div className="relative overflow-hidden rounded-[2rem] bg-slate-900/80 backdrop-blur-xl border border-slate-800/50 shadow-2xl">
             {/* Subtle gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-fuchsia-500/5 pointer-events-none" />
-            
+
             {/* Grid pattern overlay */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none opacity-50" />
-            
+
             <div className="relative p-6 md:p-8 flex flex-col sm:flex-row items-center gap-6">
               {/* Avatar and Info */}
               <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -689,11 +689,11 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
             <span>{language === 'ru' ? 'SaaS / Mobile Gaming / EdTech' : language === 'es' ? 'SaaS / Juegos Móviles / EdTech' : 'SaaS / Mobile Gaming / EdTech'}</span>
           </div>
           <p className="text-slate-400 text-sm leading-relaxed">
-            {language === 'ru' ? 
+            {language === 'ru' ?
               'SkilyApp — это программная платформа с собственными играми, AI-технологиями и системой геймификации. Мы не продаем доступ к экзаменам или сертификаты. Все наши игры, алгоритмы и интерактивный опыт являются нашей собственной интеллектуальной собственностью.' :
               language === 'es' ?
-              'SkilyApp es una plataforma de software con juegos propios, tecnologías de IA y sistema de gamificación. No vendemos acceso a exámenes ni certificados. Todos nuestros juegos, algoritmos y experiencia interactiva son nuestra propiedad intelectual.' :
-              'SkilyApp is a software platform with proprietary games, AI technologies, and gamification system. We do not sell exam access or certificates. All our games, algorithms, and interactive experience are our own intellectual property.'
+                'SkilyApp es una plataforma de software con juegos propios, tecnologías de IA y sistema de gamificación. No vendemos acceso a exámenes ni certificados. Todos nuestros juegos, algoritmos y experiencia interactiva son nuestra propiedad intelectual.' :
+                'SkilyApp is a software platform with proprietary games, AI technologies, and gamification system. We do not sell exam access or certificates. All our games, algorithms, and interactive experience are our own intellectual property.'
             }
           </p>
           <button

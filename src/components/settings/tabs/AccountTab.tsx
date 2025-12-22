@@ -77,7 +77,7 @@ export const AccountTab: React.FC = () => {
     // Telegram Link State
     const [telegramLinkToken, setTelegramLinkToken] = useState<string | null>(null);
     const [generatingToken, setGeneratingToken] = useState(false);
-    const telegramBotUsername = 'sdadimtutbot';
+    const telegramBotUsername = 'skilyapp_bot';
 
     // Синхронизируем локальный стейт при получении данных
     useEffect(() => {

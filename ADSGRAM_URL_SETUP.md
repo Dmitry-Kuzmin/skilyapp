@@ -59,9 +59,9 @@ https://skilyapp.com  (если есть кастомный домен)
 
 2. **Используйте эту ссылку в форме:**
    ```
-   https://t.me/sdadimtutbot/webapp
+   https://t.me/skilyapp_bot/webapp
    ```
-   (замените `sdadimtutbot` на имя вашего бота)
+   (замените `skilyapp_bot` на имя вашего бота)
 
 **Если Menu Button уже настроен:**
 - Откройте бота в Telegram
@@ -85,7 +85,7 @@ https://skilyapp.com  (если есть кастомный домен)
 
 ```
 App name: Skily
-Telegram direct link: https://t.me/sdadimtutbot/webapp
+Telegram direct link: https://t.me/skilyapp_bot/webapp
 Web app url: https://skily-app.vercel.app
 Bot ID: 123456789
 Test platform: ✓ (поставьте галочку для тестирования)

@@ -12,7 +12,7 @@
 
 1. Откройте **@BotFather** в Telegram
 2. Отправьте `/mybots`
-3. Выберите вашего бота (`@sdadimtutbot`)
+3. Выберите вашего бота (`@skilyapp_bot`)
 
 ### 2. Настройте Main App
 

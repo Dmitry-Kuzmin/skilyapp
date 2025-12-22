@@ -22,15 +22,15 @@
 https://t.me/ВАШ_БОТ/app?startapp=ref_КОД
 ```
 
-**Для твоего бота (`sdadimtutbot`) и кода `E2A9AB`:**
+**Для твоего бота (`skilyapp_bot`) и кода `E2A9AB`:**
 ```
-https://t.me/sdadimtutbot/app?startapp=ref_E2A9AB
+https://t.me/skilyapp_bot/app?startapp=ref_E2A9AB
 ```
 
 **Как протестировать:**
 
 #### Способ 1: Через кнопку в боте
-1. Открой бота в Telegram: `@sdadimtutbot`
+1. Открой бота в Telegram: `@skilyapp_bot`
 2. Отправь команду `/start`
 3. Если у тебя есть кнопка, которая открывает Web App с этой ссылкой — нажми на неё
 
@@ -58,7 +58,7 @@ https://t.me/sdadimtutbot/app?startapp=ref_E2A9AB
 #### Способ 3: Прямая ссылка в браузере (для теста)
 Открой эту ссылку в браузере на телефоне:
 ```
-https://t.me/sdadimtutbot/app?startapp=ref_E2A9AB
+https://t.me/skilyapp_bot/app?startapp=ref_E2A9AB
 ```
 
 Телеграм спросит, открыть ли это в Web App — выбери "Да".
@@ -90,7 +90,7 @@ https://skilyapp.com/join/E2A9AB
 
 **2. Протестируй через Telegram Web App ссылку:**
 ```
-https://t.me/sdadimtutbot/app?startapp=ref_E2A9AB
+https://t.me/skilyapp_bot/app?startapp=ref_E2A9AB
 ```
 Должно: открыть Web App → показать экран загрузки → сохранить код → редирект
 
@@ -109,7 +109,7 @@ sessionStorage.getItem('referral_code')
   - Открывается в браузере Telegram (не в Web App)
   - Работает как обычный сайт
   
-- `https://t.me/sdadimtutbot/app?startapp=ref_E2A9AB`
+- `https://t.me/skilyapp_bot/app?startapp=ref_E2A9AB`
   - Открывается внутри Telegram Web App
   - Полный доступ к Telegram API
   - Лучший UX для пользователей
@@ -120,10 +120,10 @@ sessionStorage.getItem('referral_code')
 
 Если нужно изменить username бота, установи переменную окружения:
 ```env
-VITE_TELEGRAM_BOT_USERNAME=sdadimtutbot
+VITE_TELEGRAM_BOT_USERNAME=skilyapp_bot
 ```
 
-Сейчас в коде используется хардкод `sdadimtutbot` в `ProfileModal.tsx`, но в `Referrals.tsx` используется переменная окружения.
+Сейчас в коде используется хардкод `skilyapp_bot` в `ProfileModal.tsx`, но в `Referrals.tsx` используется переменная окружения.
 
 
 

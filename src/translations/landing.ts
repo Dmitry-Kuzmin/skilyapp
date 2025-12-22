@@ -176,7 +176,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       challengeBankDescription:
         "Guarda automáticamente las preguntas falladas y te avisa cuando toca repasarlas.",
       telegramTitle: "Telegram Mini App",
-      telegramDescription: "Estudia desde cualquier chat con @sdadimtutbot.",
+      telegramDescription: "Estudia desde cualquier chat con @skilyapp_bot.",
     },
     comparison: {
       label: "Evolución vs tradición",
@@ -258,7 +258,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { label: "Términos de suscripción", href: "/subscription-terms" },
         { label: "Política de reembolso", href: "/refund-policy" },
         { label: "Precios", href: "/pricing" },
-        { label: "Soporte", href: "https://t.me/sdadimtutbot", external: true },
+        { label: "Soporte", href: "https://t.me/skilyapp_bot", external: true },
         { label: "Afiliados", href: "/partners" },
       ],
       note: "© 2025 Skilyapp. Plataforma de aprendizaje interactivo para la seguridad vial.",
@@ -329,7 +329,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       challengeBankDescription:
         "Automatically saves missed questions and notifies you when it is time to review.",
       telegramTitle: "Telegram Mini App",
-      telegramDescription: "Study inside any chat with @sdadimtutbot.",
+      telegramDescription: "Study inside any chat with @skilyapp_bot.",
     },
     comparison: {
       label: "Evolution vs tradition",
@@ -411,7 +411,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { label: "Subscription Terms", href: "/subscription-terms" },
         { label: "Refund Policy", href: "/refund-policy" },
         { label: "Pricing", href: "/pricing" },
-        { label: "Support", href: "https://t.me/sdadimtutbot", external: true },
+        { label: "Support", href: "https://t.me/skilyapp_bot", external: true },
         { label: "Affiliates", href: "/partners" },
       ],
       note: "© 2025 Skilyapp. Interactive learning platform for road safety education.",
@@ -476,7 +476,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       challengeBankDescription:
         "Автоматически сохраняет ошибки и напоминает, когда их повторить.",
       telegramTitle: "Telegram Mini App",
-      telegramDescription: "Учись прямо в чате с ботом @sdadimtutbot.",
+      telegramDescription: "Учись прямо в чате с ботом @skilyapp_bot.",
     },
     comparison: {
       label: "Эволюция против традиций",
@@ -558,7 +558,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { label: "Условия подписки", href: "/subscription-terms" },
         { label: "Политика возврата", href: "/refund-policy" },
         { label: "Цены", href: "/pricing" },
-        { label: "Поддержка", href: "https://t.me/sdadimtutbot", external: true },
+        { label: "Поддержка", href: "https://t.me/skilyapp_bot", external: true },
         { label: "Партнёрам", href: "/partners" },
       ],
       note: "© 2025 Skilyapp. Интерактивная платформа для изучения безопасности дорожного движения.",

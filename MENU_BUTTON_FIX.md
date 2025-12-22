@@ -16,7 +16,7 @@
 
 1. Откройте **@BotFather** в Telegram
 2. Отправьте `/mybots`
-3. Выберите вашего бота (`@sdadimtutbot`)
+3. Выберите вашего бота (`@skilyapp_bot`)
 4. Выберите **Bot Settings** → **Menu Button**
 5. **ВАЖНО:** Измените URL на **корневой** (без `/dashboard`):
    ```
@@ -24,7 +24,7 @@
    ```
    **НЕ** используйте:
    - ❌ `https://skilyapp.com/dashboard`
-   - ❌ `t.me/sdadimtutbot/dashboard`
+   - ❌ `t.me/skilyapp_bot/dashboard`
    
 6. Нажмите **Save**
 
