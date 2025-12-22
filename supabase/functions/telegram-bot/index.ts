@@ -437,7 +437,7 @@ async function handleInlineQuery(query: TelegramInlineQuery): Promise<void> {
           ], [
             {
               text: '🚀 Открыть Skily',
-              url: 'https://t.me/SkilyAppBot/app'
+              url: 'https://t.me/sdadimtutbot/app'
             }
           ]]
         },
@@ -469,7 +469,7 @@ async function handleInlineQuery(query: TelegramInlineQuery): Promise<void> {
           ], [
             {
               text: '🚀 Открыть Skily',
-              url: 'https://t.me/SkilyAppBot/app'
+              url: 'https://t.me/sdadimtutbot/app'
             }
           ]]
         },
