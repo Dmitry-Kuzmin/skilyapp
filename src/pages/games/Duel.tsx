@@ -80,6 +80,7 @@ export default function Duel() {
     const [joinCode, setJoinCode] = useState('');
     const [isJoining, setIsJoining] = useState(false);
     const [isFindingMatch, setIsFindingMatch] = useState(false);
+    const [joinError, setJoinError] = useState<string | null>(null);
     const hasAutoJoinedRef = useRef(false);
     // 🆕 CRITICAL FIX: Ref для хранения snapshot (передается напрямую из памяти, минуя localStorage)
     const duelResultSnapshotRef = useRef<DuelResultSnapshot | null>(null);
@@ -717,6 +718,7 @@ export default function Duel() {
             // Сбрасываем состояние для возможности повторной попытки
             hasAutoJoinedRef.current = false;
             setIsJoining(false);
+            setJoinError(error.message || JSON.stringify(error));
             setJoinCode(''); // Clear code on error to allow retry
 
             // Убеждаемся, что режим остается в 'menu' или 'join' при ошибке
@@ -1311,6 +1313,11 @@ export default function Duel() {
                     <span>REF: {hasAutoJoinedRef.current ? 'TRUE' : 'FALSE'}</span>
                     <span>MODE: {mode}</span>
                 </div>
+                {joinError && (
+                    <div style={{ padding: '4px', background: 'rgba(255,0,0,0.2)', border: '1px solid #ff0000', color: '#ff4444', fontSize: '10px', marginTop: '4px', borderRadius: '4px', overflowWrap: 'break-word' }}>
+                        ERR: {joinError}
+                    </div>
+                )}
             </div>
             <ToastContainer />
             {mode === 'create' && duelCode ? (

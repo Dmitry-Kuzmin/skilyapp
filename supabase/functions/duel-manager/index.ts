@@ -1180,7 +1180,14 @@ Deno.serve(async (req) => {
 
     let body;
     try {
-      body = await req.json();
+      const text = await req.text();
+      if (!text) {
+        return new Response(JSON.stringify({ error: 'Empty request body' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      body = JSON.parse(text);
     } catch (e) {
       console.error('[Duel Manager] JSON Parse Error:', e);
       return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
@@ -2520,17 +2527,43 @@ Deno.serve(async (req) => {
           });
         }
 
-        const { data: duel, error: duelError } = await supabase
+        let { data: duel, error: duelError } = await supabase
           .from('duels')
           .select('*')
           .eq('code', code)
-          .single();
+          .maybeSingle();
 
-        if (duelError || !duel) {
-          return new Response(JSON.stringify({ error: 'Duel not found' }), {
-            status: 404,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
+        if (duelError) {
+          console.error('[join_duel] ❌ Error finding duel:', duelError);
+          throw duelError;
+        }
+
+        // 🛡️ AUTO-CREATE FALLBACK: If duel not found, create it on the fly!
+        // This handles cases where the bot generates a code but doesn't store it yet.
+        if (!duel) {
+          console.log('[join_duel] ⚠️ Duel not found, auto-creating with code:', code);
+          const { data: newDuel, error: createError } = await supabase
+            .from('duels')
+            .insert({
+              code,
+              host_user: profileId,
+              status: 'waiting',
+              num_questions: 10,
+              difficulty: 'mix',
+              question_seed: Math.floor(Math.random() * 1000000),
+              bet_amount: 0,
+              bet_type: 'none'
+            })
+            .select()
+            .single();
+
+          if (createError) {
+            console.error('[join_duel] ❌ Error auto-creating duel:', createError);
+            throw createError;
+          }
+
+          duel = newDuel;
+          console.log('[join_duel] ✅ Auto-created duel:', duel.id);
         }
 
         // Check if duel is still waiting
