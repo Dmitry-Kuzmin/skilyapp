@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getTelegramWebApp, isTelegramMiniApp, isTelegramMobilePlatformName, syncTelegramColors } from "@/lib/telegram";
 import { useSettingsStore } from "@/store/settingsStore";
-import { useTheme } from "@/components/theme-provider";
+import { useTheme } from "next-themes";
 
 
 export const TelegramNavigation = () => {
