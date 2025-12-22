@@ -66,13 +66,13 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
         // If no referral code, try to generate one
         if (!data.referral_code) {
           const { data: newCode, error: codeError } = await supabase.rpc('generate_referral_code');
-          
+
           if (!codeError && newCode) {
             await supabase
               .from('profiles')
               .update({ referral_code: newCode })
               .eq('id', profileId);
-            
+
             setReferralData({ ...data, referral_code: newCode });
           } else {
             setReferralData(data);
@@ -112,10 +112,10 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-        
+
         const successful = document.execCommand('copy');
         textArea.remove();
-        
+
         if (successful) {
           setCopied(true);
           toast.success(t('referral.linkCopied'));
@@ -128,7 +128,7 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
     }
   };
 
-  const referralLink = referralData?.referral_code 
+  const referralLink = referralData?.referral_code
     ? `${window.location.origin}/join/${referralData.referral_code}`
     : '';
 
@@ -137,103 +137,94 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
       open={isOpen}
       onOpenChange={handleOpenChange}
       title={t('referral.title')}
-      showTitleBar={false}
+      description={t('referral.subtitle')}
       className="max-w-lg p-0 overflow-hidden"
       loading={loading && !referralData}
       skeletonVariant="default"
       modalRouteKey="referral"
     >
-        <div className="px-6 pt-6 pb-6 space-y-6">
-          {/* Main Content */}
-          <div className="space-y-4">
-            <div>
-              <h2 className="text-2xl font-bold mb-1 text-foreground">
-                {t('referral.title')}
-              </h2>
-              <p className="text-sm text-foreground/70">
-                {t('referral.subtitle')}
-              </p>
-            </div>
+      <div className="px-8 py-6 space-y-6">
+        {/* Main Content */}
+        <div className="space-y-4">
+          {/* How it works */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">
+              {t('referral.howItWorks')}
+            </h3>
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+                  <Zap className="h-3.5 w-3.5 text-foreground/70" />
+                </div>
+                <p className="text-sm text-foreground leading-tight">{t('referral.step1')}</p>
+              </div>
 
-            {/* How it works */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-foreground">
-                {t('referral.howItWorks')}
-              </h3>
-              <div className="space-y-2.5">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
-                    <Zap className="h-3.5 w-3.5 text-foreground/70" />
-                  </div>
-                  <p className="text-sm text-foreground">{t('referral.step1')}</p>
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+                  <Crown className="h-3.5 w-3.5 text-foreground/70" />
                 </div>
-                
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
-                    <Crown className="h-3.5 w-3.5 text-foreground/70" />
-                  </div>
-                  <p className="text-sm text-foreground" dangerouslySetInnerHTML={{ __html: t('referral.step2') }} />
+                <p className="text-sm text-foreground leading-tight" dangerouslySetInnerHTML={{ __html: t('referral.step2') }} />
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+                  <MessageCircle className="h-3.5 w-3.5 text-foreground/70" />
                 </div>
-                
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
-                    <MessageCircle className="h-3.5 w-3.5 text-foreground/70" />
-                  </div>
-                  <p className="text-sm text-foreground" dangerouslySetInnerHTML={{ __html: t('referral.step3') }} />
-                </div>
+                <p className="text-sm text-foreground leading-tight" dangerouslySetInnerHTML={{ __html: t('referral.step3') }} />
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Referral Link Section */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-foreground">
-                {t('referral.yourLink')}
-              </h3>
-              {referralData && (
-                <span className="text-sm text-foreground/70" dangerouslySetInnerHTML={{ __html: t('referral.usedBy', { count: referralData.total_referrals || 0 }) }} />
-              )}
-            </div>
-            <div className="flex gap-2 items-center bg-muted/50 rounded-lg p-3 border border-border">
-              <LinkIcon className="h-4 w-4 text-foreground/60 shrink-0" />
-              <span className="flex-1 font-mono text-sm text-foreground truncate">
-                {loading ? t('referral.loading') : referralLink}
-              </span>
-              <Button
-                onClick={handleCopyLink}
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "h-8 w-8 rounded-full border border-border/60 bg-background/90 transition-all",
-                  copied
-                    ? "text-emerald-600 border-emerald-400/80 bg-emerald-50 dark:bg-emerald-500/10"
-                    : "text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/10"
-                )}
-              >
-                {copied ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
+        {/* Referral Link Section */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-foreground">
+              {t('referral.yourLink')}
+            </h3>
+            {referralData && (
+              <span className="text-sm text-foreground/70" dangerouslySetInnerHTML={{ __html: t('referral.usedBy', { count: referralData.total_referrals || 0 }) }} />
+            )}
           </div>
-
-          {/* Footer Link */}
-          <div className="pt-4 border-t border-border">
+          <div className="flex gap-2 items-center bg-muted/50 rounded-lg p-3 border border-border">
+            <LinkIcon className="h-4 w-4 text-foreground/60 shrink-0" />
+            <span className="flex-1 font-mono text-sm text-foreground truncate">
+              {loading ? t('referral.loading') : referralLink}
+            </span>
             <Button
-              variant="link"
-              className="text-xs text-muted-foreground hover:text-foreground p-0 h-auto"
-              onClick={() => {
-                onOpenChange(false);
-                navigate('/help#rewards-referral');
-              }}
+              onClick={handleCopyLink}
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "h-8 w-8 rounded-full border border-border/60 bg-background/90 transition-all",
+                copied
+                  ? "text-emerald-600 border-emerald-400/80 bg-emerald-50 dark:bg-emerald-500/10"
+                  : "text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/10"
+              )}
             >
-              {t('referral.viewTerms')}
+              {copied ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
             </Button>
           </div>
         </div>
+
+        {/* Footer Link */}
+        <div className="pt-4 border-t border-border">
+          <Button
+            variant="link"
+            className="text-xs text-muted-foreground hover:text-foreground p-0 h-auto"
+            onClick={() => {
+              onOpenChange(false);
+              navigate('/help#rewards-referral');
+            }}
+          >
+            {t('referral.viewTerms')}
+          </Button>
+        </div>
+      </div>
     </UnifiedModal>
   );
 }

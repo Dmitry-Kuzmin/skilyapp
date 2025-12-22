@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import Layout from "@/components/Layout";
 import { useUserContext } from "@/contexts/UserContext";
 import { usePremium } from "@/hooks/usePremium";
@@ -347,28 +348,32 @@ const Games = () => {
                       {duelsEnabled && (
                         <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10">
                           <div className="flex -space-x-3">
-                            {(onlinePlayers.length ? onlinePlayers : fallbackPlayers).map((player) => (
-                              <Avatar
-                                key={player.id}
-                                className="w-9 h-9 border-2 border-indigo-400/70 shadow-sm shadow-indigo-500/20 bg-card"
-                              >
-                                {player.photoUrl && player.photoUrl.trim() !== '' ? (
-                                  <AvatarImage
-                                    src={player.photoUrl}
-                                    alt={player.name}
-                                    className="object-cover"
-                                    onError={(e) => {
-                                      // Если изображение не загрузилось, скрываем его
-                                      const target = e.target as HTMLImageElement;
-                                      target.style.display = 'none';
-                                    }}
+                            {(onlinePlayers.length ? onlinePlayers : fallbackPlayers).map((player) => {
+                              const isRealUser = player.id && !player.id.startsWith('fallback-');
+
+                              if (isRealUser) {
+                                return (
+                                  <UserAvatar
+                                    key={player.id}
+                                    profileId={player.id}
+                                    size="sm"
+                                    className="-ml-3 first:ml-0 border-2 border-indigo-400/70"
+                                    showPremiumGlow={false}
                                   />
-                                ) : null}
-                                <AvatarFallback className="bg-gradient-to-br from-indigo-400/30 to-purple-400/30 text-white text-xs font-bold">
-                                  {player.initials}
-                                </AvatarFallback>
-                              </Avatar>
-                            ))}
+                                );
+                              }
+
+                              return (
+                                <Avatar
+                                  key={player.id}
+                                  className="w-9 h-9 border-2 border-indigo-400/70 shadow-sm shadow-indigo-500/20 bg-card -ml-3 first:ml-0"
+                                >
+                                  <AvatarFallback className="bg-gradient-to-br from-indigo-400/30 to-purple-400/30 text-white text-xs font-bold">
+                                    {player.initials}
+                                  </AvatarFallback>
+                                </Avatar>
+                              );
+                            })}
                           </div>
                           <div className="flex flex-col">
                             <span className="text-white font-bold text-sm leading-none">{onlineCount}+</span>

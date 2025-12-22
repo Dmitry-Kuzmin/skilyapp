@@ -5,7 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from 'sonner';
+import { toast as sonnerToast } from 'sonner';
+
+// Совместимость с shadcn toast синтаксисом для sonner
+const toast = (options: { title: string; description?: string; variant?: 'default' | 'destructive' }) => {
+  if (options.variant === 'destructive') {
+    sonnerToast.error(options.title, { description: options.description });
+  } else {
+    sonnerToast.success(options.title, { description: options.description });
+  }
+};
+
 import {
   Calendar,
   Trophy,
@@ -122,7 +132,7 @@ interface CronLog {
 }
 
 export function AdminSeasonsManagement() {
-  
+
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [loading, setLoading] = useState(true);
   const [rewards, setRewards] = useState<Record<number, LeaderboardReward[]>>({});
@@ -266,7 +276,7 @@ export function AdminSeasonsManagement() {
       // Если есть завершившиеся сезоны, автоматически распределяем призы
       if (checkData?.seasons_found > 0 && checkData?.seasons) {
         const seasonsToProcess = checkData.seasons as Array<{ season_id: number }>;
-        
+
         toast({
           title: "Найдены завершившиеся сезоны",
           description: `Найдено ${seasonsToProcess.length} сезонов. Начинаю автоматическое распределение призов...`,
@@ -608,17 +618,17 @@ export function AdminSeasonsManagement() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button 
-              variant="outline" 
-              onClick={checkEndedSeasons} 
+            <Button
+              variant="outline"
+              onClick={checkEndedSeasons}
               disabled={checkSeasonsLoading}
               className="gap-2 hover:bg-primary/10 hover:border-primary/30 transition-all"
             >
               <RefreshCw className={cn("w-4 h-4", checkSeasonsLoading && "animate-spin")} />
               Проверить сезоны
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={planNextSeason}
               className="gap-2 hover:bg-primary/10 hover:border-primary/30 transition-all"
             >
@@ -627,7 +637,7 @@ export function AdminSeasonsManagement() {
             </Button>
             <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
               <DialogTrigger asChild>
-                <Button 
+                <Button
                   className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all"
                   onClick={resetSeasonForm}
                 >
@@ -635,21 +645,21 @@ export function AdminSeasonsManagement() {
                   Создать сезон
                 </Button>
               </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Создать новый сезон</DialogTitle>
-                <DialogDescription>
-                  Сезон длится 30 дней. Призы лидерборда можно настроить после создания.
-                </DialogDescription>
-              </DialogHeader>
-              <SeasonForm
-                form={seasonForm}
-                setForm={setSeasonForm}
-                onSubmit={createSeason}
-                onCancel={() => setCreateDialogOpen(false)}
-              />
-            </DialogContent>
-          </Dialog>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Создать новый сезон</DialogTitle>
+                  <DialogDescription>
+                    Сезон длится 30 дней. Призы лидерборда можно настроить после создания.
+                  </DialogDescription>
+                </DialogHeader>
+                <SeasonForm
+                  form={seasonForm}
+                  setForm={setSeasonForm}
+                  onSubmit={createSeason}
+                  onCancel={() => setCreateDialogOpen(false)}
+                />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </motion.div>
@@ -1166,7 +1176,7 @@ function SeasonCard({
                   {(() => {
                     const rewardsDistributed = stats?.total_rewards_distributed || 0;
                     const hasRewards = seasonRewards.length > 0;
-                    
+
                     if (rewardsDistributed > 0) {
                       return (
                         <div className="flex items-center gap-2 text-green-600">
@@ -1194,28 +1204,28 @@ function SeasonCard({
               )}
             </div>
             <div className="flex items-center gap-2">
-              {new Date(season.end_date) <= new Date() && 
-               !(stats?.total_rewards_distributed) && (
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={onDistributeRewards}
-                  disabled={distributeRewardsLoading}
-                  className="gap-2"
-                >
-                  {distributeRewardsLoading ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      Обработка...
-                    </>
-                  ) : (
-                    <>
-                      <Trophy className="w-4 h-4" />
-                      Распределить призы
-                    </>
-                  )}
-                </Button>
-              )}
+              {new Date(season.end_date) <= new Date() &&
+                !(stats?.total_rewards_distributed) && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={onDistributeRewards}
+                    disabled={distributeRewardsLoading}
+                    className="gap-2"
+                  >
+                    {distributeRewardsLoading ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        Обработка...
+                      </>
+                    ) : (
+                      <>
+                        <Trophy className="w-4 h-4" />
+                        Распределить призы
+                      </>
+                    )}
+                  </Button>
+                )}
               <Button
                 variant="outline"
                 size="sm"

@@ -14,6 +14,7 @@ interface ProfileData {
   username: string | null;
   photo_url: string | null;
   equipped_avatar: string | null;
+  telegram_id: number | null;
 }
 
 const PROFILE_QUERY_KEY = "profile-data";
@@ -39,7 +40,7 @@ export function useProfileData() {
       // ОДИН запрос вместо множества - получаем все нужные поля сразу
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, coins, xp, streak_days, rank, boosts, first_name, last_name, username, photo_url, equipped_avatar")
+        .select("id, coins, xp, streak_days, rank, boosts, first_name, last_name, username, photo_url, equipped_avatar, telegram_id")
         .eq("id", profileId)
         .single();
 

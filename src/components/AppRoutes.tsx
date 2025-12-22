@@ -74,7 +74,6 @@ const FourVariantsGame = lazy(() => import("../pages/games/FourVariantsGame"));
 const RoadRace = lazy(() => import("../pages/games/RoadRace"));
 const FlashCardsGame = lazy(() => import("../pages/games/FlashCardsGame"));
 const IntersectionGame = lazy(() => import("../pages/games/IntersectionGame"));
-const Referrals = lazy(() => import("../pages/Referrals"));
 const ReferralRedirect = lazy(() => import("../components/ReferralRedirect").then(m => ({ default: m.ReferralRedirect })));
 const PartnerRedirect = lazy(() => import("../components/PartnerRedirect").then(m => ({ default: m.PartnerRedirect })));
 const SequentialTests = lazy(() => import("../pages/SequentialTests"));
@@ -106,7 +105,6 @@ const Blog = lazy(() => import("../pages/Blog"));
 const Article = lazy(() => import("../pages/Article"));
 const DuelLeaderboard = lazy(() => import("../pages/DuelLeaderboard"));
 const Inventory = lazy(() => import("../pages/Inventory"));
-const Settings = lazy(() => import("../pages/Settings"));
 const PaymentSuccess = lazy(() => import("../pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("../pages/PaymentCancel"));
 // Purchase обрабатывается в App.tsx (без AppProviders)
@@ -249,11 +247,6 @@ export function AppRoutes() {
           <IntersectionGame />
         </Suspense>
       } />
-      <Route path="/referrals" element={
-        <Suspense fallback={<PageSkeleton />}>
-          <Referrals />
-        </Suspense>
-      } />
       <Route path="/join/:code" element={
         <Suspense fallback={<PageSkeleton />}>
           <ReferralRedirect />
@@ -344,7 +337,7 @@ export function AppRoutes() {
             <AdminPDDRussia />
           </Suspense>
         } />
-      </Route>
+      </Route >
       <Route path="/road-signs" element={
         <Suspense fallback={<PageSkeleton />}>
           <RoadSigns />
@@ -437,11 +430,6 @@ export function AppRoutes() {
           <Inventory />
         </Suspense>
       } />
-      <Route path="/settings" element={
-        <Suspense fallback={<PageSkeleton />}>
-          <Settings />
-        </Suspense>
-      } />
       {/* /purchase обрабатывается в App.tsx (без AppProviders) */}
       <Route path="/purchase/success" element={
         <Suspense fallback={<PageSkeleton />}>
@@ -474,7 +462,7 @@ export function AppRoutes() {
           <NotFound />
         </Suspense>
       } />
-    </Routes>
+    </Routes >
   );
 }
 

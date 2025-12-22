@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Trophy, Crown, Award, Star, Calendar, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,7 @@ interface Champion {
     first_name?: string | null;
     username?: string | null;
     photo_url?: string | null;
+    id: string;
   };
   final_duel_pass_level: number;
   final_duel_pass_xp: number;
@@ -82,7 +84,8 @@ export function HallOfFameModal() {
           profiles:user_id (
             first_name,
             username,
-            photo_url
+            photo_url,
+            id
           )
         `)
         .lte("final_position", 10)
@@ -310,11 +313,11 @@ export function HallOfFameModal() {
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {top3.map((champion, index) => {
                           const name = champion.profile?.first_name || champion.profile?.username || "Игрок";
-                          const rank = champion.final_duel_pass_level >= 26 ? "diamond" : 
-                                      champion.final_duel_pass_level >= 21 ? "platinum" :
-                                      champion.final_duel_pass_level >= 16 ? "gold" :
-                                      champion.final_duel_pass_level >= 11 ? "silver" :
-                                      champion.final_duel_pass_level >= 6 ? "bronze" : "rookie";
+                          const rank = champion.final_duel_pass_level >= 26 ? "diamond" :
+                            champion.final_duel_pass_level >= 21 ? "platinum" :
+                              champion.final_duel_pass_level >= 16 ? "gold" :
+                                champion.final_duel_pass_level >= 11 ? "silver" :
+                                  champion.final_duel_pass_level >= 6 ? "bronze" : "rookie";
 
                           return (
                             <Card
@@ -335,15 +338,11 @@ export function HallOfFameModal() {
                                 </div>
 
                                 <div className="flex items-center justify-center">
-                                  <div className="relative">
-                                    <RankFrame rank={rank as RankType} />
-                                    <Avatar className="w-16 h-16 border-4 border-primary/30">
-                                      <AvatarImage src={champion.profile?.photo_url} alt={name} />
-                                      <AvatarFallback className="font-bold">
-                                        {name[0].toUpperCase()}
-                                      </AvatarFallback>
-                                    </Avatar>
-                                  </div>
+                                  <UserAvatar
+                                    profileId={champion.profile?.id}
+                                    size="xl"
+                                    showPremiumGlow={champion.position === 1}
+                                  />
                                 </div>
 
                                 <div className="text-center space-y-1">
@@ -376,13 +375,11 @@ export function HallOfFameModal() {
                             return (
                               <div key={champion.user_id} className="text-center space-y-2">
                                 <div className="relative inline-block">
-                                  <RankFrame rank="silver" />
-                                  <Avatar className="w-12 h-12 border-2 border-blue-400/30">
-                                    <AvatarImage src={champion.profile?.photo_url} alt={name} />
-                                    <AvatarFallback className="font-bold text-sm">
-                                      {name[0].toUpperCase()}
-                                    </AvatarFallback>
-                                  </Avatar>
+                                  <UserAvatar
+                                    profileId={champion.profile?.id}
+                                    size="lg"
+                                    showPremiumGlow={false}
+                                  />
                                 </div>
                                 <div>
                                   <p className="font-semibold text-xs">{name}</p>

@@ -1,18 +1,6 @@
--- Fix RLS for duel_questions to ensure users can download questions
-ALTER TABLE public.duel_questions ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Users can view questions" ON public.duel_questions;
-
-CREATE POLICY "Users can view questions"
-ON public.duel_questions
-FOR SELECT
-TO authenticated, anon
-USING (true);
-
--- ВАЖНО: Удаляем старую функцию перед созданием новой (PostgreSQL требует DROP при изменении дефолтов)
+-- Исправление get_dashboard_super: добавляем premium данные
 DROP FUNCTION IF EXISTS get_dashboard_super(UUID);
 
--- Ensure get_dashboard_super exists (fixing 404 error)
 CREATE OR REPLACE FUNCTION get_dashboard_super(p_user_id UUID)
 RETURNS JSON AS $$
 DECLARE
@@ -29,7 +17,7 @@ DECLARE
     v_subscription_expires_at TIMESTAMPTZ;
     v_premium_forever_purchased_at TIMESTAMPTZ;
 BEGIN
-    -- Profile
+    -- Profile + Premium fields
     SELECT json_build_object(
         'id', id,
         'rank', rank,
@@ -84,35 +72,51 @@ BEGIN
         'topics_with_answers', 0
     ) INTO readiness_data;
 
-    -- Daily Bonus
-    SELECT json_build_object(
-        'id', id,
-        'current_streak', current_streak,
-        'last_claimed_date', last_claimed_date,
-        'total_claims', total_claims,
-        'can_claim', (last_claimed_date IS NULL OR last_claimed_date < CURRENT_DATE)
-    ) INTO bonus_data FROM user_daily_bonus WHERE user_id = p_user_id;
+    -- Daily Bonus (with exception handling)
+    BEGIN
+        SELECT json_build_object(
+            'id', id,
+            'current_streak', current_streak,
+            'last_claimed_date', last_claimed_date,
+            'total_claims', total_claims,
+            'can_claim', (last_claimed_date IS NULL OR last_claimed_date < CURRENT_DATE)
+        ) INTO bonus_data FROM user_daily_bonus WHERE user_id = p_user_id;
+    EXCEPTION WHEN undefined_table THEN
+        bonus_data := NULL;
+    END;
 
-    -- Active Season
-    SELECT json_build_object(
-        'id', id,
-        'season_number', season_number,
-        'name_ru', name_ru,
-        'name_es', name_es,
-        'name_en', name_en,
-        'theme', theme,
-        'start_date', start_date,
-        'end_date', end_date,
-        'days_remaining', EXTRACT(DAY FROM (end_date - NOW()))
-    ) INTO active_season_data FROM duel_seasons WHERE NOW() BETWEEN start_date AND end_date LIMIT 1;
+    -- Active Season (with exception handling)
+    BEGIN
+        SELECT json_build_object(
+            'id', id,
+            'season_number', season_number,
+            'name_ru', name_ru,
+            'name_es', name_es,
+            'name_en', name_en,
+            'theme', theme,
+            'start_date', start_date,
+            'end_date', end_date,
+            'days_remaining', EXTRACT(DAY FROM (end_date - NOW()))
+        ) INTO active_season_data FROM duel_pass_seasons WHERE is_active = true AND NOW() BETWEEN start_date AND end_date LIMIT 1;
+    EXCEPTION WHEN undefined_table THEN
+        active_season_data := NULL;
+    END;
 
-    -- Season Progress
-    SELECT row_to_json(sp) INTO season_progress_data FROM duel_season_progress sp 
-    WHERE user_id = p_user_id AND season_id = (active_season_data->>'id')::INT;
+    -- Season Progress (with exception handling)
+    BEGIN
+        SELECT row_to_json(sp) INTO season_progress_data FROM user_season_progress sp 
+        WHERE user_id = p_user_id AND season_id = (active_season_data->>'id')::INT;
+    EXCEPTION WHEN undefined_table THEN
+        season_progress_data := NULL;
+    END;
 
-    -- Notifications
-    SELECT COUNT(*) INTO notif_count FROM duel_notifications 
-    WHERE profile_id = p_user_id AND (is_read IS FALSE OR is_read IS NULL);
+    -- Notifications (with exception handling)
+    BEGIN
+        SELECT COUNT(*) INTO notif_count FROM duel_notifications 
+        WHERE user_id = p_user_id AND (is_read IS FALSE OR is_read IS NULL);
+    EXCEPTION WHEN undefined_table THEN
+        notif_count := 0;
+    END;
 
     SELECT json_build_object(
         'profile', profile_data,
@@ -129,7 +133,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Grant permissions specifically for this function
+-- Grant permissions
 GRANT EXECUTE ON FUNCTION get_dashboard_super(UUID) TO authenticated;
 GRANT EXECUTE ON FUNCTION get_dashboard_super(UUID) TO anon;
 GRANT EXECUTE ON FUNCTION get_dashboard_super(UUID) TO service_role;

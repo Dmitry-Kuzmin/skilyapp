@@ -1,6 +1,6 @@
 import { ReactNode, useState, useEffect, useRef, useMemo, useCallback, memo, lazy, Suspense } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Home, FileText, BookOpen, Gamepad2, User, Crown, LogIn, Swords } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -9,7 +9,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "./ui/button";
 // ОПТИМИЗАЦИЯ: Тяжелые компоненты lazy-loaded - не попадают в initial bundle
 // SettingsDrawer удалён — используется глобальный UnifiedSettingsDrawer из AppProviders
-import { ProfileModal } from "./ProfileModal";
 import { AuthModalNew as AuthModal } from "./AuthModalNew";
 import { TelegramNavigation } from "./TelegramNavigation";
 import { isTelegramMiniApp, isTelegramMobilePlatformName } from "@/lib/telegram";
@@ -28,6 +27,7 @@ import { ReferralModal } from "./ReferralModal";
 import { EdgeSwipeBack } from "./navigation/EdgeSwipeBack";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useSmartHeader } from "@/hooks/useSmartHeader";
 
 interface LayoutProps {
   children: ReactNode;
@@ -117,6 +117,22 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
   const [isTelegramMobilePlatform, setIsTelegramMobilePlatform] = useState<boolean | null>(null);
   const mainContentRef = useRef<HTMLElement>(null);
   const notificationsApi = useNotifications();
+
+  // Smart Header - прячется при скролле вниз, появляется при скролле вверх
+  // ОПТИМИЗАЦИЯ: Inline проверка fullscreen режима для хука
+  const isInFullscreenMode = location.pathname.startsWith('/test/') ||
+    location.pathname.includes('/duel') ||
+    location.pathname.includes('/race-game') ||
+    location.pathname.includes('/guess-the-sign') ||
+    location.pathname.includes('/matching') ||
+    location.pathname.includes('/four-variants') ||
+    location.pathname.includes('/road-race');
+
+  const { hidden: headerHidden, isScrolled: headerScrolled } = useSmartHeader({
+    disabled: isInFullscreenMode || hideNavigation,
+    hideThreshold: 100,
+    glassThreshold: 10,
+  });
 
   // Управление сессиями (только 1 активная сессия одновременно)
   useSessionManager();
@@ -446,7 +462,8 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
             </div>
           </div>
         </header>
-      )}
+      )
+      }
 
       {/* Wallet Widget Bar - отдельная строка под header на средних экранах (планшеты) */}
       {!hideNavigation && isAuthenticated && !isTelegramApp && (
@@ -479,62 +496,64 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
       <Footer />
 
       {/* Bottom Navigation for Mobile and Telegram - Скрыт в fullscreen режимах (тесты, игры) или при hideNavigation */}
-      {!hideNavigation && (
-        <nav
-          className={cn(
-            "app-bottom-nav fixed bottom-0 left-0 right-0 border-t border-border/50 backdrop-blur-xl bg-card/95 z-50",
-            "flex flex-col md:hidden",
-            isFullscreenMode && "!hidden"
-          )}
-          style={{
-            // ОПТИМИЗАЦИЯ: Явно указываем pointer-events для лучшей отзывчивости
-            pointerEvents: 'auto',
-            touchAction: 'manipulation'
-          }}
-        >
-          {/* Mobile Wallet Widget - компактная версия для мобильных */}
-          {isAuthenticated && (
-            <div className="px-3 py-2 border-b border-border/50 bg-card/50 flex-shrink-0 flex flex-wrap items-center gap-2">
-              <WalletWidget />
-              <AchievementsWidget variant="mobile" />
-              {/* Active Duel Widget для мобильных */}
-              <ActiveDuelWidget />
-            </div>
-          )}
+      {
+        !hideNavigation && (
+          <nav
+            className={cn(
+              "app-bottom-nav fixed bottom-0 left-0 right-0 border-t border-border/50 backdrop-blur-xl bg-card/95 z-50",
+              "flex flex-col md:hidden",
+              isFullscreenMode && "!hidden"
+            )}
+            style={{
+              // ОПТИМИЗАЦИЯ: Явно указываем pointer-events для лучшей отзывчивости
+              pointerEvents: 'auto',
+              touchAction: 'manipulation'
+            }}
+          >
+            {/* Mobile Wallet Widget - компактная версия для мобильных */}
+            {isAuthenticated && (
+              <div className="px-3 py-2 border-b border-border/50 bg-card/50 flex-shrink-0 flex flex-wrap items-center gap-2">
+                <WalletWidget />
+                <AchievementsWidget variant="mobile" />
+                {/* Active Duel Widget для мобильных */}
+                <ActiveDuelWidget />
+              </div>
+            )}
 
-          <div className="grid grid-cols-5 gap-1 px-2 py-2 flex-shrink-0">
-            {navigation.map((item) => (
-              <NavItem key={item.name} item={item} currentPath={location.pathname} navigate={navigate} />
-            ))}
+            <div className="grid grid-cols-5 gap-1 px-2 py-2 flex-shrink-0">
+              {navigation.map((item) => (
+                <NavItem key={item.name} item={item} currentPath={location.pathname} navigate={navigate} />
+              ))}
 
-            {/* Profile/Login Icon */}
-            <div className="flex flex-col items-center gap-1 py-2 px-3">
-              {isAuthenticated ? (
-                <Suspense fallback={null}>
-                  <UserProfilePopover
-                    notificationsApi={notificationsApi}
-                    onOpenNotifications={handleOpenNotifications}
-                  />
-                </Suspense>
-              ) : (
-                <button
-                  onClick={handleOpenAuth}
-                  className="flex flex-col items-center gap-1 rounded-lg transition-colors duration-150 text-muted-foreground hover:text-foreground"
-                  style={{
-                    // ОПТИМИЗАЦИЯ: Явно указываем pointer-events и touch-action для мгновенной отзывчивости
-                    pointerEvents: 'auto',
-                    touchAction: 'manipulation',
-                    WebkitTapHighlightColor: 'transparent'
-                  }}
-                >
-                  <LogIn className="w-6 h-6" />
-                  <span className="text-xs font-medium">{t('login')}</span>
-                </button>
-              )}
+              {/* Profile/Login Icon */}
+              <div className="flex flex-col items-center gap-1 py-2 px-3">
+                {isAuthenticated ? (
+                  <Suspense fallback={null}>
+                    <UserProfilePopover
+                      notificationsApi={notificationsApi}
+                      onOpenNotifications={handleOpenNotifications}
+                    />
+                  </Suspense>
+                ) : (
+                  <button
+                    onClick={handleOpenAuth}
+                    className="flex flex-col items-center gap-1 rounded-lg transition-colors duration-150 text-muted-foreground hover:text-foreground"
+                    style={{
+                      // ОПТИМИЗАЦИЯ: Явно указываем pointer-events и touch-action для мгновенной отзывчивости
+                      pointerEvents: 'auto',
+                      touchAction: 'manipulation',
+                      WebkitTapHighlightColor: 'transparent'
+                    }}
+                  >
+                    <LogIn className="w-6 h-6" />
+                    <span className="text-xs font-medium">{t('login')}</span>
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-        </nav>
-      )}
+          </nav>
+        )
+      }
 
       {/* Settings Drawer — удалён, используется глобальный UnifiedSettingsDrawer из AppProviders */}
 
@@ -543,7 +562,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
 
       {/* Referral Modal */}
       <ReferralModal open={referralModalOpen} onOpenChange={setReferralModalOpen} />
-    </div>
+    </div >
   );
 });
 

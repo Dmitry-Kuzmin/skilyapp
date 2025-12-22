@@ -3,10 +3,9 @@
 
 const isClient = typeof window !== "undefined";
 const isTelegramAudioEnv = isClient && !!(window as any).Telegram?.WebApp;
-const enableAudioDebug =
+const shouldLogAudio =
   import.meta.env.VITE_DEBUG_AUDIO === "true" ||
   (import.meta.env.DEV && import.meta.env.VITE_DEBUG_ALL === "true");
-const shouldLogAudio = isTelegramAudioEnv || enableAudioDebug;
 
 const audioLog = (...args: any[]) => {
   if (shouldLogAudio) {
@@ -35,7 +34,7 @@ let isUnlocked = false;
 // Initialize AudioContext
 const getAudioContext = (): AudioContext | null => {
   if (!isClient) return null;
-  
+
   if (!audioContext) {
     try {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
@@ -43,7 +42,7 @@ const getAudioContext = (): AudioContext | null => {
         audioWarn('AudioContext не поддерживается');
         return null;
       }
-      
+
       audioContext = new AudioContextClass();
       audioLog('✅ AudioContext создан', {
         state: audioContext.state,
@@ -55,7 +54,7 @@ const getAudioContext = (): AudioContext | null => {
       return null;
     }
   }
-  
+
   return audioContext;
 };
 
@@ -64,13 +63,13 @@ const unlockAudioContext = async (): Promise<boolean> => {
   if (isUnlocked) {
     return true;
   }
-  
+
   const ctx = getAudioContext();
   if (!ctx) {
     audioWarn('AudioContext не создан');
     return false;
   }
-  
+
   try {
     // Check if context is suspended
     if (ctx.state === 'suspended') {
@@ -78,14 +77,14 @@ const unlockAudioContext = async (): Promise<boolean> => {
       await ctx.resume();
       audioLog('✅ AudioContext resumed, state:', ctx.state);
     }
-    
+
     // Unlock by playing a silent buffer (critical for Telegram WebApp)
     const buffer = ctx.createBuffer(1, 1, 22050);
     const source = ctx.createBufferSource();
     source.buffer = buffer;
     source.connect(ctx.destination);
     source.start(0);
-    
+
     isUnlocked = true;
     audioLog('🔓 AudioContext разблокирован, state:', ctx.state);
     return true;
@@ -98,20 +97,20 @@ const unlockAudioContext = async (): Promise<boolean> => {
 // Setup auto-unlock on first user interaction
 const setupAutoUnlock = () => {
   if (!isClient) return;
-  
+
   const unlockEvents = ['click', 'touchstart', 'keydown', 'mousedown'];
   const unlockHandler = async (event?: Event) => {
     if (isUnlocked) return;
-    
+
     audioLog('🔓 Попытка разблокировки через событие:', event?.type);
     await unlockAudioContext();
   };
-  
+
   unlockEvents.forEach(eventType => {
     document.addEventListener(eventType, unlockHandler, { once: true, passive: true, capture: true });
     window.addEventListener(eventType, unlockHandler, { once: true, passive: true, capture: true });
   });
-  
+
   audioLog('🔓 Автоматическая разблокировка настроена');
 };
 
@@ -127,24 +126,24 @@ if (isClient) {
 const ensureAudioReady = async (): Promise<AudioContext | null> => {
   const ctx = getAudioContext();
   if (!ctx) return null;
-  
+
   // Если контекст suspended и еще не разблокирован, тихо возвращаем null
   // Не показываем предупреждения для hover звуков до первого взаимодействия
   if (ctx.state === 'suspended' && !isUnlocked) {
     return null;
   }
-  
+
   // Try to unlock if needed (только если уже был разблокирован ранее)
   if (!isUnlocked || ctx.state === 'suspended') {
     await unlockAudioContext();
   }
-  
+
   // Double check state
   if (ctx.state === 'suspended') {
     // Тихая проверка - не показываем предупреждение для hover звуков
     return null;
   }
-  
+
   return ctx;
 };
 
@@ -160,7 +159,7 @@ const playSound = async (soundFunction: (ctx: AudioContext, t: number) => void, 
     if (!silent) audioWarn('AudioContext не готов к воспроизведению');
     return;
   }
-  
+
   try {
     const t = ctx.currentTime;
     soundFunction(ctx, t);
@@ -181,11 +180,11 @@ export const playEngineSound = () => {
     // 1. THE TURBINE (Futuristic Electric Whine)
     const oscTurbine = ctx.createOscillator();
     const gainTurbine = ctx.createGain();
-    
+
     oscTurbine.type = 'sine';
     oscTurbine.frequency.setValueAtTime(150, t);
     oscTurbine.frequency.exponentialRampToValueAtTime(600, t + 1.5);
-    
+
     gainTurbine.gain.setValueAtTime(0, t);
     gainTurbine.gain.linearRampToValueAtTime(0.4, t + 0.5);
     gainTurbine.gain.exponentialRampToValueAtTime(0.01, t + 1.8);
@@ -201,7 +200,7 @@ export const playEngineSound = () => {
     oscHum.type = 'triangle';
     oscHum.frequency.setValueAtTime(60, t);
     oscHum.frequency.linearRampToValueAtTime(120, t + 1.5);
-    
+
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
     filter.frequency.value = 200;
@@ -224,8 +223,8 @@ export const playBiometricSound = () => {
     masterGain.gain.value = 0.15;
     masterGain.connect(ctx.destination);
 
-    const notes = [523.25, 659.25, 783.99]; 
-    
+    const notes = [523.25, 659.25, 783.99];
+
     notes.forEach((freq, index) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -270,7 +269,7 @@ export const playHoverSound = () => {
 
     osc.type = 'sine';
     osc.frequency.setValueAtTime(2000, t);
-    
+
     gain.gain.setValueAtTime(0, t);
     gain.gain.linearRampToValueAtTime(0.02, t + 0.01);
     gain.gain.linearRampToValueAtTime(0, t + 0.05);
@@ -292,7 +291,7 @@ export const playTabSwitchSound = () => {
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(200, t);
     osc.frequency.exponentialRampToValueAtTime(600, t + 0.15);
-    
+
     const localGain = ctx.createGain();
     localGain.gain.setValueAtTime(0, t);
     localGain.gain.linearRampToValueAtTime(0.5, t + 0.05);
@@ -315,12 +314,12 @@ export const playAlertSound = () => {
       const osc = ctx.createOscillator();
       osc.type = 'sine';
       osc.frequency.setValueAtTime(440, time);
-      
+
       const localGain = ctx.createGain();
       localGain.gain.setValueAtTime(0, time);
       localGain.gain.linearRampToValueAtTime(0.5, time + 0.05);
       localGain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
-      
+
       osc.connect(localGain);
       localGain.connect(ctx.destination);
       osc.start(time);
@@ -336,11 +335,11 @@ export const playErrorSound = () => {
   playSound((ctx, t) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    
+
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(150, t);
     osc.frequency.linearRampToValueAtTime(100, t + 0.2);
-    
+
     gain.gain.setValueAtTime(0.15, t);
     gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
 
@@ -362,9 +361,9 @@ export const playSuccessSound = () => {
     freqs.forEach((f, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = 'triangle'; 
+      osc.type = 'triangle';
       osc.frequency.setValueAtTime(f, t + i * 0.05);
-      
+
       gain.gain.setValueAtTime(0, t + i * 0.05);
       gain.gain.linearRampToValueAtTime(0.1, t + i * 0.05 + 0.05);
       gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.05 + 0.6);
@@ -389,13 +388,13 @@ export const playLevelUpSound = () => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'square';
-      
+
       const filter = ctx.createBiquadFilter();
       filter.type = 'lowpass';
       filter.frequency.value = 2000;
 
       osc.frequency.setValueAtTime(f, t + i * 0.08);
-      
+
       gain.gain.setValueAtTime(0, t + i * 0.08);
       gain.gain.linearRampToValueAtTime(0.1, t + i * 0.08 + 0.05);
       gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.08 + 0.4);
@@ -418,14 +417,14 @@ export const playCelebrationSound = () => {
 
     // Триумфальный аккорд
     const freqs = [523.25, 659.25, 783.99, 1046.5]; // C, E, G, C (мажорный аккорд)
-    
+
     freqs.forEach((f, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'triangle';
-      
+
       osc.frequency.setValueAtTime(f, t);
-      
+
       gain.gain.setValueAtTime(0, t);
       gain.gain.linearRampToValueAtTime(0.15, t + 0.1);
       gain.gain.linearRampToValueAtTime(0.1, t + 0.5);
@@ -443,10 +442,10 @@ export const playCelebrationSound = () => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
-      
+
       const startTime = t + 0.3 + i * 0.1;
       osc.frequency.setValueAtTime(f, startTime);
-      
+
       gain.gain.setValueAtTime(0, startTime);
       gain.gain.linearRampToValueAtTime(0.1, startTime + 0.05);
       gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.8);
@@ -468,19 +467,19 @@ export const playCelebrationSoundFanfare = () => {
 
     // Восходящая мелодия фанфар
     const fanfareNotes = [523.25, 659.25, 783.99, 987.77, 1174.66, 1318.51, 1567.98]; // C, E, G, B, D, E, G
-    
+
     fanfareNotes.forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'square';
-      
+
       const filter = ctx.createBiquadFilter();
       filter.type = 'lowpass';
       filter.frequency.value = 3000;
-      
+
       const startTime = t + i * 0.08;
       osc.frequency.setValueAtTime(freq, startTime);
-      
+
       gain.gain.setValueAtTime(0, startTime);
       gain.gain.linearRampToValueAtTime(0.12, startTime + 0.03);
       gain.gain.linearRampToValueAtTime(0.08, startTime + 0.15);
@@ -504,20 +503,20 @@ export const playCelebrationSoundBells = () => {
 
     // Колокольный звон
     const bellFreqs = [523.25, 659.25, 783.99, 1046.5, 1318.51]; // C, E, G, C, E
-    
+
     bellFreqs.forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
-      
+
       const filter = ctx.createBiquadFilter();
       filter.type = 'lowpass';
       filter.frequency.value = freq * 2;
       filter.Q.value = 5;
-      
+
       const startTime = t + i * 0.1;
       osc.frequency.setValueAtTime(freq, startTime);
-      
+
       gain.gain.setValueAtTime(0, startTime);
       gain.gain.linearRampToValueAtTime(0.15, startTime + 0.05);
       gain.gain.exponentialRampToValueAtTime(0.001, startTime + 1.5);
@@ -547,21 +546,21 @@ export const playCelebrationSoundSynth = () => {
       { freq: 1108.73, time: 0.4 }, // C#
       { freq: 1318.51, time: 0.5 }, // E
     ];
-    
+
     synthNotes.forEach((note, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sawtooth';
-      
+
       const filter = ctx.createBiquadFilter();
       filter.type = 'lowpass';
       filter.frequency.setValueAtTime(2000, t + note.time);
       filter.frequency.exponentialRampToValueAtTime(8000, t + note.time + 0.2);
       filter.frequency.exponentialRampToValueAtTime(2000, t + note.time + 0.4);
-      
+
       const startTime = t + note.time;
       osc.frequency.setValueAtTime(note.freq, startTime);
-      
+
       gain.gain.setValueAtTime(0, startTime);
       gain.gain.linearRampToValueAtTime(0.1, startTime + 0.05);
       gain.gain.linearRampToValueAtTime(0.05, startTime + 0.2);
@@ -589,14 +588,14 @@ export const playCelebrationSoundOrchestral = () => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'triangle';
-      
+
       const filter = ctx.createBiquadFilter();
       filter.type = 'lowpass';
       filter.frequency.value = 500;
-      
+
       const startTime = t + i * 0.15;
       osc.frequency.setValueAtTime(freq, startTime);
-      
+
       gain.gain.setValueAtTime(0, startTime);
       gain.gain.linearRampToValueAtTime(0.12, startTime + 0.2);
       gain.gain.linearRampToValueAtTime(0.08, startTime + 1);
@@ -615,10 +614,10 @@ export const playCelebrationSoundOrchestral = () => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
-      
+
       const startTime = t + 0.2 + i * 0.1;
       osc.frequency.setValueAtTime(freq, startTime);
-      
+
       gain.gain.setValueAtTime(0, startTime);
       gain.gain.linearRampToValueAtTime(0.1, startTime + 0.05);
       gain.gain.linearRampToValueAtTime(0.06, startTime + 0.3);
@@ -636,10 +635,10 @@ export const playCelebrationSoundOrchestral = () => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
-      
+
       const startTime = t + 0.6 + i * 0.08;
       osc.frequency.setValueAtTime(freq, startTime);
-      
+
       gain.gain.setValueAtTime(0, startTime);
       gain.gain.linearRampToValueAtTime(0.08, startTime + 0.03);
       gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.8);
@@ -668,19 +667,19 @@ export const playCelebrationSoundPop = () => {
       { freq: 1318.51, time: 0.2 }, // E
       { freq: 1567.98, time: 0.25 }, // G
     ];
-    
+
     popNotes.forEach((note) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'square';
-      
+
       const filter = ctx.createBiquadFilter();
       filter.type = 'lowpass';
       filter.frequency.value = 4000;
-      
+
       const startTime = t + note.time;
       osc.frequency.setValueAtTime(note.freq, startTime);
-      
+
       gain.gain.setValueAtTime(0, startTime);
       gain.gain.linearRampToValueAtTime(0.12, startTime + 0.01);
       gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.15);
@@ -718,10 +717,10 @@ export const playNotificationSound = () => {
   playSound((ctx, t) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    
+
     osc.type = 'sine';
     osc.frequency.setValueAtTime(1200, t);
-    
+
     gain.gain.setValueAtTime(0, t);
     gain.gain.linearRampToValueAtTime(0.2, t + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.001, t + 1.0);
@@ -762,7 +761,7 @@ export const playStartupSound = () => {
     oscHigh.connect(gainHigh);
     gain.connect(masterGain);
     gainHigh.connect(masterGain);
-    
+
     osc.start(t);
     osc.stop(t + 1.0);
     oscHigh.start(t);

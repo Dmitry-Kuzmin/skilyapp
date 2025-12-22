@@ -5,11 +5,12 @@
  */
 
 import React, { useContext, useState, useEffect } from 'react';
-import { User, Camera, LogOut, Check, MessageSquare, Mail, Pencil, Save, X } from 'lucide-react';
+import { User, Camera, LogOut, Check, MessageSquare, Mail, Pencil, Save, X, ExternalLink, Copy, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { UserContext } from '@/contexts/UserContext';
 import { useSettingsStore } from '@/store/settingsStore';
 import { toast } from 'sonner';
@@ -72,6 +73,11 @@ export const AccountTab: React.FC = () => {
     const [editedFirstName, setEditedFirstName] = useState('');
     const [editedLastName, setEditedLastName] = useState('');
     const [isSaving, setIsSaving] = useState(false);
+
+    // Telegram Link State
+    const [telegramLinkToken, setTelegramLinkToken] = useState<string | null>(null);
+    const [generatingToken, setGeneratingToken] = useState(false);
+    const telegramBotUsername = 'sdadimtutbot';
 
     // Синхронизируем локальный стейт при получении данных
     useEffect(() => {
@@ -153,16 +159,59 @@ export const AccountTab: React.FC = () => {
         }
     };
 
-    const handleConnectTelegram = () => {
+    const getTelegramDeepLink = (token?: string | null) => {
+        if (token) {
+            return `https://t.me/${telegramBotUsername}?start=link_${token}`;
+        }
+        return `https://t.me/${telegramBotUsername}`;
+    };
+
+    const handleConnectTelegram = async () => {
         triggerHaptic('medium');
-        if (userContext?.platform === 'telegram') {
-            toast.info('Вы уже используете Telegram');
+
+        if (userContext?.platform === 'telegram' || profileData?.telegram_id) {
+            toast.info('Ваш Telegram уже привязан');
             return;
         }
 
-        // Открываем бота для привязки аккаунта
-        const botUsername = 'sdadimtutbot';
-        window.open(`https://t.me/${botUsername}?start=link_account`, '_blank');
+        if (!supabaseUser) {
+            toast.error('Необходима авторизация');
+            return;
+        }
+
+        try {
+            setGeneratingToken(true);
+            const { data, error } = await supabase.rpc('create_telegram_link_token');
+
+            if (error) throw error;
+
+            if (data) {
+                setTelegramLinkToken(data);
+                toast.success('Открой Telegram — бот уже ждёт тебя');
+                window.open(getTelegramDeepLink(data), '_blank');
+            }
+        } catch (error: any) {
+            console.error('Failed to generate link token:', error);
+            toast.error(error.message || 'Не удалось создать токен');
+        } finally {
+            setGeneratingToken(false);
+        }
+    };
+
+    const copyTelegramLink = () => {
+        if (!telegramLinkToken) return;
+        const linkText = `/start link_${telegramLinkToken}`;
+        navigator.clipboard.writeText(linkText).then(() => {
+            triggerHaptic('light');
+            toast.success('Команда скопирована! Отправь её боту');
+        }).catch(() => {
+            toast.error('Не удалось скопировать');
+        });
+    };
+
+    const openTelegramBot = () => {
+        triggerHaptic('medium');
+        window.open(getTelegramDeepLink(telegramLinkToken), '_blank');
     };
 
     return (
@@ -174,14 +223,11 @@ export const AccountTab: React.FC = () => {
                     <div className="flex items-start gap-4">
                         {/* Аватар */}
                         <div className="relative shrink-0">
-                            <Avatar className="w-16 h-16 ring-2 ring-white dark:ring-slate-700 shadow-lg">
-                                <AvatarImage src={photoUrl || undefined} className="object-cover" />
-                                <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-500 text-white font-bold text-2xl">
-                                    {profileData?.equipped_avatar && profileData.equipped_avatar.length <= 4
-                                        ? profileData.equipped_avatar
-                                        : firstName.charAt(0).toUpperCase()}
-                                </AvatarFallback>
-                            </Avatar>
+                            <UserAvatar
+                                profileId={profileData?.id}
+                                size="xl"
+                                showPremiumGlow={false}
+                            />
 
                             <button
                                 onClick={() => {
@@ -271,28 +317,83 @@ export const AccountTab: React.FC = () => {
             <div>
                 <SectionTitle title="Подключённые аккаунты" />
                 <div className="space-y-1">
-                    {/* Telegram */}
-                    <SettingRow
-                        icon={<MessageSquare className="w-4 h-4 text-sky-500" />}
-                        label="Telegram"
-                        description={user?.id ? `@${user.username || 'подключено'}` : "Не подключено"}
-                    >
-                        {user?.id ? (
-                            <span className="flex items-center gap-1.5 text-emerald-500 text-xs font-semibold bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-full">
-                                <Check className="w-3.5 h-3.5" />
-                                Активно
-                            </span>
-                        ) : (
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-xs h-8 hover:border-sky-500 hover:text-sky-500"
-                                onClick={handleConnectTelegram}
-                            >
-                                Подключить
-                            </Button>
+                    <div className="space-y-2">
+                        <SettingRow
+                            icon={<MessageSquare className="w-4 h-4 text-sky-500" />}
+                            label="Telegram"
+                            description={profileData?.telegram_id ? "Аккаунт успешно привязан" : "Подключи бота для уведомлений"}
+                        >
+                            {profileData?.telegram_id || userContext?.platform === 'telegram' ? (
+                                <span className="flex items-center gap-1.5 text-emerald-500 text-xs font-semibold bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                                    <Check className="w-3.5 h-3.5" />
+                                    Активно
+                                </span>
+                            ) : (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-xs h-8 hover:border-sky-500 hover:text-sky-500 transition-all rounded-lg"
+                                    onClick={handleConnectTelegram}
+                                    disabled={generatingToken}
+                                >
+                                    {generatingToken ? 'Подготовка...' : 'Подключить'}
+                                </Button>
+                            )}
+                        </SettingRow>
+
+                        {/* Расширенная карточка привязки Telegram */}
+                        {telegramLinkToken && !profileData?.telegram_id && (
+                            <div className="relative overflow-hidden p-4 rounded-2xl border border-sky-500/20 bg-sky-500/5 mt-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                                <div className="absolute top-0 right-0 p-2">
+                                    <button
+                                        onClick={() => setTelegramLinkToken(null)}
+                                        className="p-1 rounded-full hover:bg-sky-500/10 text-slate-400 transition-colors"
+                                    >
+                                        <X className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+                                <div className="space-y-3">
+                                    <p className="text-xs text-slate-600 dark:text-slate-400 max-w-[90%] leading-relaxed">
+                                        Мы открыли Telegram. Если не сработало — нажми кнопку ниже или вставь команду в чат вручную:
+                                    </p>
+
+                                    <div className="flex items-center gap-2 p-2.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 group transition-all focus-within:ring-2 focus-within:ring-sky-500/20">
+                                        <code className="flex-1 text-[11px] font-mono font-medium text-slate-700 dark:text-slate-300 break-all">
+                                            /start link_{telegramLinkToken}
+                                        </code>
+                                        <button
+                                            onClick={copyTelegramLink}
+                                            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-sky-500 transition-all active:scale-90"
+                                            title="Копировать"
+                                        >
+                                            <Copy className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        <Button
+                                            onClick={openTelegramBot}
+                                            variant="default"
+                                            className="flex-1 bg-sky-500 hover:bg-sky-600 text-white shadow-lg shadow-sky-500/20 h-9 rounded-xl text-xs font-semibold"
+                                        >
+                                            <ExternalLink className="w-3.5 h-3.5 mr-2" />
+                                            Открыть бота
+                                        </Button>
+                                        <Button
+                                            onClick={() => setTelegramLinkToken(null)}
+                                            variant="outline"
+                                            className="px-4 h-9 rounded-xl text-xs border-slate-200 dark:border-slate-800 transition-all hover:bg-slate-50 dark:hover:bg-slate-800"
+                                        >
+                                            Скрыть
+                                        </Button>
+                                    </div>
+                                    <p className="text-[10px] text-center text-slate-400 dark:text-slate-500 italic">
+                                        Токен действителен 10 минут
+                                    </p>
+                                </div>
+                            </div>
                         )}
-                    </SettingRow>
+                    </div>
 
                     {/* Google */}
                     <SettingRow

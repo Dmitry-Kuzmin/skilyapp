@@ -3,11 +3,11 @@
  * 
  * Управление Passkeys в Settings
  * Регистрация новых устройств + удаление старых
- * Премиальный дизайн (Linear/Vercel стиль)
+ * Премиальный дизайн (Linear/Vercel стиль + Auth Form style)
  */
 
 import { useState, useEffect } from 'react';
-import { Fingerprint, Smartphone, Laptop, Trash2, Plus, Loader2, AlertCircle } from 'lucide-react';
+import { Fingerprint, Smartphone, Laptop, Trash2, Plus, Loader2, AlertCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/lib/toast';
@@ -29,15 +29,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-// ОПТИМИЗАЦИЯ: Импортируем только нужную функцию из date-fns
+import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
-// ОПТИМИЗАЦИЯ: Импортируем только русскую локаль (tree-shaking работает)
 import { ru } from 'date-fns/locale/ru';
+import { triggerHaptic } from '@/lib/haptics';
+import { cn } from '@/lib/utils';
 
 // Автогенерация названия устройства
 function getAutoDeviceName(): string {
   const ua = navigator.userAgent;
-  
   if (/iPhone/.test(ua)) return 'iPhone';
   if (/iPad/.test(ua)) return 'iPad';
   if (/Macintosh/.test(ua)) {
@@ -74,25 +74,18 @@ export function PasskeyManager() {
       if (supported) {
         const available = await isPlatformAuthenticatorAvailable();
         setIsAvailable(available);
-        
-        // Загружаем passkeys только если доступен platform authenticator
-        if (available) {
-          loadPasskeys();
-        } else {
-          setIsLoading(false);
-        }
+        if (available) loadPasskeys();
+        else setIsLoading(false);
       } else {
         setIsLoading(false);
       }
     };
-
     checkSupport();
   }, []);
 
   const loadPasskeys = async () => {
     setIsLoading(true);
     const result = await listPasskeys();
-    
     if (result.success && result.passkeys) {
       setPasskeys(result.passkeys);
     } else {
@@ -102,105 +95,72 @@ export function PasskeyManager() {
         variant: 'destructive',
       });
     }
-    
     setIsLoading(false);
   };
 
   const handleRegister = async () => {
+    triggerHaptic('medium');
     setIsRegistering(true);
-
-    // Автогенерация названия если не указано
     const finalDeviceName = deviceName.trim() || getAutoDeviceName();
-    
     const result = await registerPasskey({ deviceName: finalDeviceName });
 
     if (result.success) {
-      toast({
-        title: '✅ Passkey добавлен',
-        description: `Устройство "${deviceName}" успешно зарегистрировано`,
+      toast.success('Passkey добавлен', {
+        description: `Устройство "${finalDeviceName}" успешно зарегистрировано`,
       });
-
       setDeviceName('');
       setShowRegisterForm(false);
       loadPasskeys();
     } else {
-      toast({
-        title: 'Ошибка регистрации',
+      toast.error('Ошибка регистрации', {
         description: result.error || 'Не удалось добавить Passkey',
-        variant: 'destructive',
       });
     }
-
     setIsRegistering(false);
   };
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-
+    triggerHaptic('medium');
     const result = await deletePasskey(deleteTarget.id);
 
     if (result.success) {
-      toast({
-        title: '✅ Passkey удалён',
+      toast.success('Passkey удалён', {
         description: `Устройство "${deleteTarget.device_name || 'Без названия'}" удалено`,
       });
-
       setPasskeys((prev) => prev.filter((p) => p.id !== deleteTarget.id));
     } else {
-      toast({
-        title: 'Ошибка удаления',
+      toast.error('Ошибка удаления', {
         description: result.error || 'Не удалось удалить Passkey',
-        variant: 'destructive',
       });
     }
-
     setDeleteTarget(null);
   };
 
-  // Определяем иконку по транспорту
   const getDeviceIcon = (transports: string[] | null) => {
     if (!transports || transports.includes('internal')) {
-      return <Fingerprint className="w-5 h-5 text-blue-400" />;
+      return <Fingerprint className="w-5 h-5 text-sky-400 group-hover:scale-110 transition-transform" />;
     }
     if (transports.includes('usb')) {
-      return <Laptop className="w-5 h-5 text-violet-400" />;
+      return <Laptop className="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform" />;
     }
-    return <Smartphone className="w-5 h-5 text-emerald-400" />;
+    return <Smartphone className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />;
   };
 
-  // Форматирование даты
   const formatDate = (date: string | null) => {
     if (!date) return 'Никогда';
     return formatDistanceToNow(new Date(date), { addSuffix: true, locale: ru });
   };
 
-  // Не поддерживается
   if (!isSupported) {
     return (
-      <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-6">
-        <div className="flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-yellow-500 mt-0.5" />
+      <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5 backdrop-blur-sm">
+        <div className="flex items-start gap-4">
+          <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
           <div className="space-y-1">
-            <h3 className="font-semibold text-sm text-zinc-200">Passkeys не поддерживаются</h3>
-            <p className="text-sm text-zinc-400">
-              Ваш браузер не поддерживает WebAuthn. Попробуйте обновить браузер или используйте Chrome/Safari.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Не доступен platform authenticator
-  if (!isAvailable) {
-    return (
-      <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-6">
-        <div className="flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-yellow-500 mt-0.5" />
-          <div className="space-y-1">
-            <h3 className="font-semibold text-sm text-zinc-200">Биометрия не доступна</h3>
-            <p className="text-sm text-zinc-400">
-              На этом устройстве нет Face ID, Touch ID или Windows Hello. Passkeys недоступны.
+            <h3 className="text-sm font-bold text-white tracking-tight">Passkeys не поддерживаются</h3>
+            <p className="text-[11px] text-zinc-500 font-medium leading-tight">
+              Ваш браузер не поддерживает современную биометрию. Используйте Safari, Chrome или Edge.
             </p>
           </div>
         </div>
@@ -210,163 +170,207 @@ export function PasskeyManager() {
 
   return (
     <div className="space-y-6">
-      {/* Заголовок секции */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h3 className="text-lg font-semibold tracking-tight text-zinc-200">
+      {/* Header Area */}
+      <div className="flex items-center justify-between px-1">
+        <div className="space-y-0.5">
+          <h3 className="text-lg font-black tracking-tight text-white italic">
             Passkeys
           </h3>
-          <p className="text-sm text-zinc-500">
+          <p className="text-[11px] text-zinc-500 font-medium">
             Вход без пароля через биометрию
           </p>
         </div>
 
-        {!showRegisterForm && (
-          <Button
-            onClick={() => setShowRegisterForm(true)}
-            className="h-9 bg-white text-black hover:bg-white/90 font-medium shadow-[0_0_20px_-5px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)] transition-all duration-200 hover:scale-[1.01]"
+        <AnimatePresence>
+          {!showRegisterForm && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+            >
+              <Button
+                onClick={() => {
+                  triggerHaptic('light');
+                  setShowRegisterForm(true);
+                }}
+                className="h-10 px-5 bg-white text-black hover:bg-zinc-200 font-black text-[11px] uppercase tracking-wider rounded-xl shadow-xl shadow-white/5"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Добавить
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Registration Deck */}
+      <AnimatePresence>
+        {showRegisterForm && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="group relative overflow-hidden rounded-3xl border border-white/5 bg-zinc-900/40 p-6 backdrop-blur-2xl shadow-2xl"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Добавить устройство
-          </Button>
+            {/* Ambient Shadow glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-sky-500/5 to-transparent opacity-50 pointer-events-none" />
+
+            <div className="relative z-10 space-y-5">
+              <div className="space-y-2">
+                <label className="text-[9px] font-black uppercase tracking-[0.25em] text-zinc-500 ml-1">
+                  Название устройства
+                </label>
+                <Input
+                  type="text"
+                  placeholder="MacBook Pro, iPhone 15, Windows PC..."
+                  value={deviceName}
+                  onChange={(e) => setDeviceName(e.target.value)}
+                  maxLength={50}
+                  className="h-14 bg-zinc-950/80 border-white/5 focus:border-sky-500/50 rounded-2xl text-white text-center font-medium placeholder:text-zinc-700 transition-all"
+                  disabled={isRegistering}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button
+                  onClick={handleRegister}
+                  disabled={isRegistering || (deviceName === '' && !isRegistering)}
+                  className={cn(
+                    "flex-1 h-12 rounded-2xl font-black text-sm transition-all shadow-lg",
+                    "bg-gradient-to-r from-sky-400 to-blue-500 text-white shadow-sky-500/20 hover:shadow-sky-500/40 hover:scale-[1.02] active:scale-[0.98]",
+                    "disabled:opacity-50 disabled:grayscale disabled:scale-100"
+                  )}
+                >
+                  {isRegistering ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Fingerprint className="w-5 h-5" />
+                      <span>Зарегистрировать</span>
+                    </div>
+                  )}
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    triggerHaptic('light');
+                    setShowRegisterForm(false);
+                    setDeviceName('');
+                  }}
+                  variant="ghost"
+                  className="px-6 h-12 bg-zinc-900 border border-white/5 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-2xl font-bold text-sm"
+                  disabled={isRegistering}
+                >
+                  Отмена
+                </Button>
+              </div>
+
+              <p className="text-[10px] text-center text-zinc-600 font-medium px-4">
+                Название опционально. После нажатия браузер запросит Face ID, Touch ID или Windows Hello
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* List Area */}
+      <div className="space-y-3">
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <Loader2 className="w-8 h-8 animate-spin text-sky-500/50" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-700 transition-pulse animate-pulse">Считывание ключей...</span>
+          </div>
+        ) : passkeys.length === 0 ? (
+          !showRegisterForm && (
+            <div className="rounded-3xl border border-white/5 bg-zinc-900/20 p-12 text-center space-y-4 backdrop-blur-sm">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-zinc-900 border border-white/5 shadow-inner">
+                <Fingerprint className="w-8 h-8 text-zinc-700" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-bold text-zinc-400 italic">Нет активных ключей</h4>
+                <p className="text-[11px] text-zinc-600 font-medium">
+                  Добавьте устройство для сверхбыстрого входа
+                </p>
+              </div>
+            </div>
+          )
+        ) : (
+          <div className="space-y-2">
+            <label className="text-[9px] font-black uppercase tracking-[0.25em] text-zinc-600 px-1">
+              Твои ключи доступа
+            </label>
+            <div className="grid gap-2">
+              {passkeys.map((passkey) => (
+                <motion.div
+                  layout
+                  key={passkey.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="group flex items-center justify-between p-4 rounded-2xl bg-zinc-900/30 border border-white/5 hover:bg-zinc-900/50 transition-all duration-300"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-zinc-950 border border-white/5 shadow-xl group-hover:border-sky-500/30 transition-colors">
+                      {getDeviceIcon(passkey.transports)}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-black text-white italic tracking-tight uppercase">
+                        {passkey.device_name || 'Generic Device'}
+                      </h4>
+                      <p className="text-[10px] text-zinc-500 font-medium">
+                        {passkey.last_used_at ? (
+                          <>Активен {formatDate(passkey.last_used_at)}</>
+                        ) : (
+                          <>Добавлен {formatDate(passkey.created_at)}</>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={() => {
+                      triggerHaptic('light');
+                      setDeleteTarget(passkey);
+                    }}
+                    variant="ghost"
+                    size="icon"
+                    className="w-10 h-10 rounded-xl bg-zinc-950/50 border border-white/5 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </motion.div>
+              ))}
+            </div>
+          </div>
         )}
       </div>
 
-      {/* Форма регистрации */}
-      {showRegisterForm && (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-xl p-6 space-y-4">
-          <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-              Название устройства
-            </label>
-            <Input
-              type="text"
-              placeholder="MacBook Pro, iPhone 15, Windows PC..."
-              value={deviceName}
-              onChange={(e) => setDeviceName(e.target.value)}
-              maxLength={50}
-              className="h-12 bg-zinc-900 border-zinc-800 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
-              disabled={isRegistering}
-            />
-          </div>
-
-          <div className="flex gap-3">
-            <Button
-              onClick={handleRegister}
-              disabled={isRegistering}
-              className="flex-1 h-10 bg-white text-black hover:bg-white/90 font-medium disabled:opacity-50"
-            >
-              {isRegistering ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Регистрация...
-                </>
-              ) : (
-                <>
-                  <Fingerprint className="w-4 h-4 mr-2" />
-                  Зарегистрировать
-                </>
-              )}
-            </Button>
-
-            <Button
-              onClick={() => {
-                setShowRegisterForm(false);
-                setDeviceName('');
-              }}
-              variant="outline"
-              className="px-4 h-10 border-zinc-800 bg-transparent hover:bg-zinc-800"
-              disabled={isRegistering}
-            >
-              Отмена
-            </Button>
-          </div>
-
-          <p className="text-xs text-zinc-500">
-            Название опционально (автоматически определится). После нажатия браузер запросит Face ID, Touch ID или Windows Hello
-          </p>
-        </div>
-      )}
-
-      {/* Список устройств */}
-      {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-zinc-500" />
-        </div>
-      ) : passkeys.length === 0 ? (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 backdrop-blur-xl p-12 text-center space-y-3">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-zinc-800/50">
-            <Fingerprint className="w-6 h-6 text-zinc-500" />
-          </div>
-          <div className="space-y-1">
-            <h4 className="font-medium text-zinc-300">Нет зарегистрированных устройств</h4>
-            <p className="text-sm text-zinc-500">
-              Добавьте первое устройство для быстрого входа
-            </p>
-          </div>
-        </div>
-      ) : (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-xl overflow-hidden">
-          <div className="divide-y divide-zinc-800">
-            {passkeys.map((passkey) => (
-              <div
-                key={passkey.id}
-                className="flex items-center justify-between p-4 hover:bg-zinc-800/30 transition-colors group"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-zinc-800/50">
-                    {getDeviceIcon(passkey.transports)}
-                  </div>
-
-                  <div className="space-y-1">
-                    <p className="font-medium text-sm text-zinc-200">
-                      {passkey.device_name || 'Устройство без названия'}
-                    </p>
-                    <p className="text-xs text-zinc-500">
-                      {passkey.last_used_at ? (
-                        <>Использовалось {formatDate(passkey.last_used_at)}</>
-                      ) : (
-                        <>Добавлено {formatDate(passkey.created_at)}</>
-                      )}
-                    </p>
-                  </div>
-                </div>
-
-                <Button
-                  onClick={() => setDeleteTarget(passkey)}
-                  variant="ghost"
-                  size="icon"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/10 hover:text-red-400"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Диалог удаления */}
+      {/* Delete Dialog - Premium UI */}
       <AlertDialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
-        <AlertDialogContent className="bg-zinc-900 border-zinc-800">
+        <AlertDialogContent className="bg-zinc-950 border-white/10 rounded-3xl p-8 shadow-2xl backdrop-blur-3xl overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500/0 via-red-500/40 to-red-500/0" />
+
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-zinc-200">
-              Удалить Passkey?
+            <AlertDialogTitle className="text-xl font-black text-white italic tracking-tighter flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                <Trash2 className="w-5 h-5 text-red-500" />
+              </div>
+              Удалить ключ?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-400">
-              Вы уверены, что хотите удалить устройство "
-              {deleteTarget?.device_name || 'Без названия'}"? Это действие нельзя отменить.
+            <AlertDialogDescription className="text-sm text-zinc-400 font-medium leading-relaxed pt-2">
+              Вы собираетесь отозвать доступ для устройства <span className="text-white font-bold">"{deleteTarget?.device_name}"</span>.
+              Для входа с этого девайса потребуется пароль.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="border-zinc-800 bg-transparent hover:bg-zinc-800">
+
+          <AlertDialogFooter className="mt-8 gap-3 sm:gap-0">
+            <AlertDialogCancel className="bg-zinc-900 border-white/5 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-2xl h-12 font-bold px-6">
               Отмена
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-red-500 hover:bg-red-600 text-white"
+              className="bg-red-500 hover:bg-red-600 text-white rounded-2xl h-12 font-black px-6 shadow-lg shadow-red-500/20"
             >
-              Удалить
+              Удалить доступ
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -374,4 +378,3 @@ export function PasskeyManager() {
     </div>
   );
 }
-

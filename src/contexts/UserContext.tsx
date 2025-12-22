@@ -51,29 +51,27 @@ export function UserProvider({ children }: { children: ReactNode }) {
         // For web users - get profile by user_id
         logUserContext("[UserContext] Loading profile for Supabase user:", supabaseUser.id);
 
-        // Check cache first - если есть кэш, используем его и НЕ делаем запрос
-        const cachedId = localStorage.getItem(`profile_${supabaseUser.id}`);
-        if (cachedId) {
-          logUserContext("[UserContext] ✅ Using cached profileId (no DB request):", cachedId);
-          if (isMounted) {
-            setProfileId(cachedId);
-            setGlobalProfileId(cachedId); // 🔒 Синхронизация с глобальным синглтоном
-          }
-          return; // ОПТИМИЗАЦИЯ: Не делаем запрос, если есть кэш
-        }
-
-        // Только если нет кэша - делаем запрос
-        const { data } = await supabase
+        // КРИТИЧНО: Всегда запрашиваем актуальный ID из базы при входе, чтобы избежать stale cache
+        const { data, error } = await supabase
           .from('profiles')
           .select('id')
           .eq('user_id', supabaseUser.id)
           .maybeSingle();
 
-        if (isMounted && data && (data as any).id) {
-          setProfileId((data as any).id);
-          setGlobalProfileId((data as any).id); // 🔒 Синхронизация с глобальным синглтоном
-          localStorage.setItem(`profile_${supabaseUser.id}`, (data as any).id);
-          logUserContext("[UserContext] Loaded profile ID for web user:", (data as any).id);
+        if (error) {
+          console.error("[UserContext] Error fetching profile:", error);
+          // Fallback на кэш только если база легла
+          const cachedId = localStorage.getItem(`profile_${supabaseUser.id}`);
+          if (isMounted && cachedId) {
+            setProfileId(cachedId);
+            setGlobalProfileId(cachedId);
+          }
+        } else if (isMounted && data && (data as any).id) {
+          const actualProfileId = (data as any).id;
+          setProfileId(actualProfileId);
+          setGlobalProfileId(actualProfileId);
+          localStorage.setItem(`profile_${supabaseUser.id}`, actualProfileId);
+          logUserContext("[UserContext] ✅ Profile ID synced from DB:", actualProfileId);
         }
       } else if (user) {
         // For Telegram users - get profile by telegram_id with retry

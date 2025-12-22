@@ -2030,7 +2030,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               </div>
               <NumberTicker
                 value={coins}
-                className="text-sm font-bold font-mono text-yellow-600 dark:text-yellow-400"
+                className="text-sm font-bold font-mono text-amber-600 dark:text-yellow-400"
                 shouldFlash={true}
               />
             </button>

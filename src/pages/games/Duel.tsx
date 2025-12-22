@@ -16,7 +16,6 @@ import { DuelSkeleton } from '@/components/duel/DuelSkeleton';
 import { LoadoutSelector } from '@/components/duel/LoadoutSelector';
 import { AuthModalNew as AuthModal } from '@/components/AuthModalNew';
 import { useUserContext } from '@/contexts/UserContext';
-import { useNotifications } from '@/hooks/useNotifications';
 import { Card } from '@/components/ui/card';
 import { isTelegramMiniApp, getTelegramWebApp } from '@/lib/telegram';
 import { supabase } from '@/integrations/supabase/client';
@@ -104,8 +103,6 @@ export default function Duel() {
     // Use realtime hook when duel is created
     const { state: duelState } = useDuelRealtime(createdCode && duelId ? duelId : null);
 
-    // Initialize notifications for duel page - только после загрузки данных
-    useNotifications({ showToasts: dataLoaded, playSounds: dataLoaded });
 
     const navigate = useNavigate();
 
@@ -559,7 +556,7 @@ export default function Duel() {
         }, 100);
     };
 
-    const handleBackToMenu = () => {
+    const handleBackToMenu = useCallback(() => {
         // Очищаем активную дуэль при выходе в меню
         clearActiveDuel();
 
@@ -571,7 +568,7 @@ export default function Duel() {
         setCreatedCode(null);
         setCopied(false);
         hasAutoJoinedRef.current = false;
-    };
+    }, [clearActiveDuel]);
 
     // Check if user needs to login
     const handleActionClick = (action: () => void) => {

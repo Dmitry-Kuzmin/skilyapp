@@ -22,7 +22,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Layout from "@/components/Layout";
-import { toast } from 'sonner';
+import { toast as sonnerToast } from 'sonner';
+
+// Совместимость с shadcn toast синтаксисом для sonner
+const toast = (options: { title: string; description?: string; variant?: 'default' | 'destructive' }) => {
+  if (options.variant === 'destructive') {
+    sonnerToast.error(options.title, { description: options.description });
+  } else {
+    sonnerToast.success(options.title, { description: options.description });
+  }
+};
+
 import { supabase } from "@/integrations/supabase/client";
 import { loadXLSX } from "@/utils/xlsxLoader";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -54,7 +64,7 @@ const Admin = () => {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [terms, setTerms] = useState<any[]>([]);
-  
+
   const [syncing, setSyncing] = useState(false);
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [metricsLoading, setMetricsLoading] = useState(true);
@@ -71,7 +81,7 @@ const Admin = () => {
 
   const checkAdminAccess = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       toast({
         title: "Access denied",
@@ -160,7 +170,7 @@ const Admin = () => {
       const { data, error } = await supabase.functions.invoke("sync-google-sheets", {
         body: { syncType }
       });
-      
+
       if (error) throw error;
 
       let message = '';
@@ -174,7 +184,7 @@ const Admin = () => {
 ⚠️ Вопросов пропущено: ${data.questionsSkipped || 0}
         `.trim();
       }
-      
+
       if (syncType === 'all' || syncType === 'terms') {
         if (message) message += '\n\n';
         message += `
@@ -185,7 +195,7 @@ const Admin = () => {
 ⚠️ Терминов пропущено: ${data.termsSkipped || 0}
         `.trim();
       }
-      
+
       if (syncType === 'all' || syncType === 'signs') {
         if (message) message += '\n\n';
         message += `
@@ -198,15 +208,15 @@ const Admin = () => {
       }
 
       const hasErrors = (syncType === 'all' || syncType === 'questions' ? (data.questionsSkipped || 0) > 0 : false) ||
-                        (syncType === 'all' || syncType === 'terms' ? (data.termsSkipped || 0) > 0 : false) ||
-                        (syncType === 'all' || syncType === 'signs' ? (data.signsSkipped || 0) > 0 : false);
+        (syncType === 'all' || syncType === 'terms' ? (data.termsSkipped || 0) > 0 : false) ||
+        (syncType === 'all' || syncType === 'signs' ? (data.signsSkipped || 0) > 0 : false);
 
       toast({
         title: !hasErrors ? "Синхронизация успешна!" : "Синхронизация завершена с предупреждениями",
         description: message,
         variant: !hasErrors ? "default" : "destructive",
       });
-      
+
       setSyncWarnings([...(data.warnings || []), ...(data.termsWarnings || []), ...(data.signsWarnings || [])]);
       setLastSync(new Date().toLocaleString("ru-RU"));
       await fetchDashboardMetrics();
@@ -306,10 +316,10 @@ const Admin = () => {
     try {
       // Note: answer_options table was removed. Question deletion now works directly.
       // Delete all answer options first (foreign key constraint) - REMOVED
-      
+
       // Delete all question tags
       await supabase.from("question_tags").delete().neq("question_id", "00000000-0000-0000-0000-000000000000");
-      
+
       // Delete all questions
       const { error } = await supabase.from("questions_new").delete().neq("id", "00000000-0000-0000-0000-000000000000");
 
@@ -539,7 +549,7 @@ const Admin = () => {
                 <TabsTrigger value="list">Список тем</TabsTrigger>
                 <TabsTrigger value="upload">Загрузить обложку</TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="list" className="space-y-4">
                 {topicsLoading ? (
                   <div className="flex items-center justify-center py-8">
@@ -557,11 +567,10 @@ const Admin = () => {
                     {topics.map((topic) => (
                       <Card
                         key={topic.id}
-                        className={`cursor-pointer transition-all hover:shadow-md ${
-                          selectedTopicForCover === topic.id
+                        className={`cursor-pointer transition-all hover:shadow-md ${selectedTopicForCover === topic.id
                             ? 'ring-2 ring-primary'
                             : ''
-                        }`}
+                          }`}
                         onClick={() => setSelectedTopicForCover(topic.id)}
                       >
                         <div className="relative">
@@ -621,7 +630,7 @@ const Admin = () => {
                   </div>
                 )}
               </TabsContent>
-              
+
               <TabsContent value="upload" className="space-y-4">
                 {topicsLoading ? (
                   <div className="flex items-center justify-center py-8">
@@ -660,8 +669,8 @@ const Admin = () => {
                         currentCoverUrl={topics.find(t => t.id === selectedTopicForCover)?.cover_image}
                         onUploadComplete={(url) => {
                           // Обновляем локальное состояние
-                          setTopics(prev => prev.map(t => 
-                            t.id === selectedTopicForCover 
+                          setTopics(prev => prev.map(t =>
+                            t.id === selectedTopicForCover
                               ? { ...t, cover_image: url || undefined }
                               : t
                           ));
@@ -794,8 +803,8 @@ const Admin = () => {
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Формат Excel файла: столбцы "Tema (ES)", "Тема (RU)", "Pregunta (ES)", "Вопрос (RU)", 
-            "Opciones (ES)" (через запятую), "Варианты (RU)" (через запятую), "Respuesta Correcta (ES)", 
+            Формат Excel файла: столбцы "Tema (ES)", "Тема (RU)", "Pregunta (ES)", "Вопрос (RU)",
+            "Opciones (ES)" (через запятую), "Варианты (RU)" (через запятую), "Respuesta Correcta (ES)",
             "Правильный Ответ (RU)", "Explicación (ES)", "Пояснение (RU)"
           </AlertDescription>
         </Alert>

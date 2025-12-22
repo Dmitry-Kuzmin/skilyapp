@@ -129,8 +129,7 @@ export const DuelQuestionCard = memo(({
               disabled={isAnswered || isEliminated}
               whileHover={!isAnswered && !isEliminated ? { scale: 1.02 } : {}}
               whileTap={!isAnswered && !isEliminated ? { scale: 0.98 } : {}}
-              className={`p-3 md:p-4 rounded-2xl border-2 text-left transition-all font-semibold text-sm md:text-base leading-snug relative overflow-hidden min-h-[48px] md:min-h-[60px] break-words hyphens-auto w-full ${
-                showResult
+              className={`p-3 md:p-4 rounded-2xl border-2 text-left transition-all font-semibold text-sm md:text-base leading-snug relative overflow-hidden min-h-[48px] md:min-h-[60px] break-words hyphens-auto w-full select-none ${showResult
                   ? isCorrect
                     ? 'bg-green-500/20 border-green-500 text-foreground shadow-lg'
                     : isSelected
@@ -139,15 +138,14 @@ export const DuelQuestionCard = memo(({
                   : isSelected
                     ? 'bg-primary/20 border-primary shadow-lg'
                     : 'bg-card border-border hover:border-primary/50 hover:bg-primary/10 hover:shadow-md'
-              }`}
+                }`}
             >
               {showResult && (isCorrect || isSelected) && (
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className={`absolute top-2 md:top-3 right-2 md:right-3 w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center font-bold text-white ${
-                    isCorrect ? 'bg-green-500' : 'bg-red-500'
-                  }`}
+                  className={`absolute top-2 md:top-3 right-2 md:right-3 w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center font-bold text-white ${isCorrect ? 'bg-green-500' : 'bg-red-500'
+                    }`}
                 >
                   {isCorrect ? '✓' : '✗'}
                 </motion.div>

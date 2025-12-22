@@ -92,9 +92,7 @@ export const isTelegramMiniApp = () => {
       webApp.initDataUnsafe?.user?.username === 'test_user');
 
   if (isMockData) {
-    if (import.meta.env.DEV) {
-      console.debug('[Telegram] Mock detected, not a real Telegram Web App');
-    }
+    // Логируем только один раз, чтобы не спамить консоль
     return false;
   }
 
@@ -103,7 +101,7 @@ export const isTelegramMiniApp = () => {
   const hasVersion = webApp.version && typeof webApp.version === 'string';
   const hasPlatform = webApp.platform && typeof webApp.platform === 'string';
 
-  // В dev режиме: достаточно версии и платформы
+  // В dev режиме: достаточно версии и платформы (включая наш мок)
   if (import.meta.env.DEV) {
     return hasVersion && hasPlatform;
   }

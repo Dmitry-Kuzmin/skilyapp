@@ -35,6 +35,7 @@ const DuelPassLeaderboardModal = lazy(() => import("@/components/leaderboard/Due
 const PerformanceMonitor = lazy(() => import("@/components/PerformanceMonitor").then(m => ({ default: m.PerformanceMonitor })));
 const GlobalModalManager = lazy(() => import("@/components/GlobalModalManager").then(m => ({ default: m.GlobalModalManager })));
 const PasskeyOnboardingWrapper = lazy(() => import("@/components/PasskeyOnboardingWrapper").then(m => ({ default: m.PasskeyOnboardingWrapper })));
+const UnifiedSettingsDrawer = lazy(() => import("@/components/settings/UnifiedSettingsDrawer").then(m => ({ default: m.UnifiedSettingsDrawer })));
 
 // ОПТИМИЗАЦИЯ: AppProviders lazy - НЕ попадает в initial bundle для лендинга
 // Это критично для производительности - Supabase/Query грузятся только для /app/*
@@ -81,7 +82,7 @@ const IndexErrorFallback = () => {
   );
 };
 
-const Index = lazy(() => 
+const Index = lazy(() =>
   import("./pages/Index").catch((error) => {
     console.error("[App] Failed to load Index (dashboard) module:", error);
     if (error?.message?.includes('MIME type') || error?.message?.includes('text/html')) {
@@ -122,7 +123,7 @@ const TestsErrorFallback = () => {
   );
 };
 
-const Tests = lazy(() => 
+const Tests = lazy(() =>
   import("./pages/Tests").catch((error) => {
     console.error("[App] Failed to load Tests module:", error);
     if (error?.message?.includes('MIME type') || error?.message?.includes('text/html')) {
@@ -223,7 +224,7 @@ function RefundPolicyErrorFallback() {
 }
 
 // Обработка ошибок для lazy loading RefundPolicy
-const RefundPolicy = lazy(() => 
+const RefundPolicy = lazy(() =>
   import("./pages/RefundPolicy").catch((error) => {
     console.error("[App] Failed to load RefundPolicy module:", error);
     // Если ошибка связана с MIME type, это проблема с сервером/Vercel
@@ -253,7 +254,7 @@ const ScrollToTop = () => {
     // Прокручиваем наверх при каждой смене роута
     // ОПТИМИЗАЦИЯ SSG: Проверка window для безопасности
     if (typeof window === 'undefined') return;
-    
+
     // Используем requestAnimationFrame для плавности и избежания конфликтов с рендерингом
     requestAnimationFrame(() => {
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
@@ -300,17 +301,17 @@ const App = () => {
     pathname: typeof window !== 'undefined' ? window.location.pathname : 'unknown',
     readyState: typeof document !== 'undefined' ? document.readyState : 'unknown',
   });
-  
+
   // КРИТИЧНО: Проверяем Telegram WebApp только если мы действительно в Telegram Mini App
   // В браузере window.Telegram может быть моком или заглушкой
   if (typeof window !== 'undefined' && window.Telegram?.WebApp && isTelegramMiniApp()) {
     const tg = window.Telegram.WebApp;
-    
+
     // Вызываем ready() один раз
     if (typeof tg.ready === 'function') {
       tg.ready();
     }
-    
+
     // Вызываем expand() только один раз, если еще не развернуто
     const callExpand = () => {
       try {
@@ -324,10 +325,10 @@ const App = () => {
         console.warn('[App] Error calling expand():', error);
       }
     };
-    
+
     // Вызываем один раз сразу
     callExpand();
-    
+
     // Вызываем на событиях viewport (только если еще не развернуто)
     if (typeof tg.onEvent === 'function') {
       tg.onEvent('viewport_changed', () => {
@@ -335,7 +336,7 @@ const App = () => {
           callExpand();
         }
       });
-      
+
       tg.onEvent('safeAreaChanged', () => {
         if (!tg.isExpanded) {
           callExpand();
@@ -356,13 +357,13 @@ const App = () => {
 
   // OFFLINE-FIRST: Детектор первого запуска
   const [isFirstRun, setIsFirstRun] = useState(false);
-  
+
   // OFFLINE-FIRST: Инициализация analytics
   useOfflineAnalytics();
-  
+
   // Обработка сессии с фильтрацией ошибок
   useSession();
-  
+
   useEffect(() => {
     // Проверяем, есть ли кэш (это не первый запуск)
     const checkFirstRun = async () => {
@@ -370,10 +371,10 @@ const App = () => {
         // Проверяем IndexedDB
         const { get } = await import('idb-keyval');
         const cache = await get('SDADIM_REACT_QUERY_OFFLINE_CACHE');
-        
+
         // ОПТИМИЗАЦИЯ SSG: Проверка navigator для безопасности
         const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
-        
+
         // Если кэша нет И мы offline - это первый запуск без интернета
         if (!cache && !isOnline) {
           console.warn('[App] First run without internet - cache not available');
@@ -386,15 +387,15 @@ const App = () => {
         setIsFirstRun(false);
       }
     };
-    
+
     checkFirstRun();
   }, []);
-  
+
   // ОПТИМИЗАЦИЯ: QueryClient и persister вынесены в AppProviders для lazy loading
-  
+
   // ОПТИМИЗАЦИЯ: Фоновые задачи (не блокируют рендеринг)
   useBackgroundTasks();
-  
+
   // ОПТИМИЗАЦИЯ SSG: Определяем basename для GitHub Pages безопасно
   // Используем useState + useEffect чтобы избежать проблем с window в SSG билде
   const [basename, setBasename] = useState('/');
@@ -414,11 +415,11 @@ const App = () => {
   // Обработка редиректа из 404.html для GitHub Pages
   useEffect(() => {
     if (typeof window !== 'undefined' && isGitHubPages) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const redirectPath = urlParams.get('p');
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectPath = urlParams.get('p');
       if (redirectPath) {
-      // Удаляем query параметр и перенаправляем на правильный путь
-      window.history.replaceState({}, '', basename + redirectPath);
+        // Удаляем query параметр и перенаправляем на правильный путь
+        window.history.replaceState({}, '', basename + redirectPath);
       }
     }
   }, [basename, isGitHubPages]);
@@ -427,23 +428,23 @@ const App = () => {
   // ОПТИМИЗАЦИЯ SSG: Все обращения к window.location обёрнуты в проверку
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
+
     const currentPath = window.location.pathname;
     const currentSearch = window.location.search;
-    
+
     // Проверяем наличие ~and~ в URL (признак проблемы с 404.html на Vercel)
     if (currentPath.includes('~and~') || currentSearch.includes('~and~')) {
       console.warn('[App] Detected ~and~ pattern in URL, cleaning up...');
-      
+
       // Очищаем путь от ~and~
       const cleanPath = currentPath.replace(/~and~/g, '&');
       // Очищаем query параметры от ~and~
       const cleanSearch = currentSearch.replace(/~and~/g, '&');
-      
+
       // Восстанавливаем правильный URL
       const cleanUrl = cleanPath + cleanSearch + window.location.hash;
       window.history.replaceState({}, '', cleanUrl);
-      
+
       // КРИТИЧНО: НЕ делаем автоматическую перезагрузку - это вызывает спонтанные релоады
       // React Router сам обработает изменение URL без перезагрузки страницы
       // window.location.reload(); // УДАЛЕНО - вызывает спонтанные перезагрузки
@@ -513,21 +514,22 @@ const App = () => {
                 <AppProviders>
                   <Suspense fallback={<LightFallback />}>
                     <CosmeticsPreviewProvider>
-                <Suspense fallback={null}>
-                  <DeepLinkHandler />
+                      <Suspense fallback={null}>
+                        <DeepLinkHandler />
                         {/* OAuthCallbackHandler отключен - используем /auth/callback маршрут для OAuth */}
                         {/* Если нужно обрабатывать токены на других страницах - можно включить с проверкой pathname */}
                         {/* <OAuthCallbackHandler /> */}
-                  <HallOfFameModal />
-                  <DuelPassLeaderboardModal />
-                </Suspense>
+                        <HallOfFameModal />
+                        <DuelPassLeaderboardModal />
+                      </Suspense>
                       <AppRoutes />
                       {/* Глобальный менеджер модалок должен быть внутри провайдеров,
                           чтобы работали UserContext и QueryClient */}
                       <Suspense fallback={null}>
-                <GlobalModalManager />
-                <PerformanceMonitor />
+                        <GlobalModalManager />
+                        <PerformanceMonitor />
                         <PasskeyOnboardingWrapper />
+                        <UnifiedSettingsDrawer />
                       </Suspense>
                     </CosmeticsPreviewProvider>
                   </Suspense>

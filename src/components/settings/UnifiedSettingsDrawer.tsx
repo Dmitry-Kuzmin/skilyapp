@@ -42,7 +42,7 @@ interface NavItem {
 // === NAVIGATION ===
 const navItems: NavItem[] = [
     { id: 'account', label: 'Аккаунт', icon: <User className="w-4 h-4" />, description: 'Профиль и связи' },
-    { id: 'security', label: 'Безопасность', icon: <Shield className="w-4 h-4" />, description: 'Passkeys и вход' },
+    { id: 'security', label: 'Настройки', icon: <Shield className="w-4 h-4" />, description: 'Passkeys и вход' },
     { id: 'general', label: 'Основные', icon: <Settings className="w-4 h-4" />, description: 'Язык и тема' },
     { id: 'cockpit', label: 'Кокпит', icon: <Gauge className="w-4 h-4" />, description: 'Звук и вибрация' },
     { id: 'notifications', label: 'Уведомления', icon: <Bell className="w-4 h-4" />, description: 'Push-уведомления' },
@@ -54,12 +54,11 @@ const navItems: NavItem[] = [
 // === MAIN COMPONENT ===
 export const UnifiedSettingsDrawer: React.FC = () => {
     const isMobile = useIsMobile();
-    const [activeSection, setActiveSection] = useState<SettingsSection>('account');
-    const { isOpen, closeSettings, userLevel, userTitle } = useSettingsStore();
+    const { isOpen, closeSettings, userLevel, userTitle, activeTab, setActiveTab } = useSettingsStore();
 
     const handleSectionChange = (section: SettingsSection) => {
         triggerHaptic('light');
-        setActiveSection(section);
+        setActiveTab(section);
     };
 
     const handleClose = () => {
@@ -69,7 +68,7 @@ export const UnifiedSettingsDrawer: React.FC = () => {
 
     // === RENDER CONTENT ===
     const renderContent = () => {
-        switch (activeSection) {
+        switch (activeTab) {
             case 'account': return <AccountTab />;
             case 'security': return <SecurityTab />;
             case 'general': return <GeneralTab />;
@@ -100,14 +99,15 @@ export const UnifiedSettingsDrawer: React.FC = () => {
                         key={item.id}
                         onClick={() => handleSectionChange(item.id)}
                         className={cn(
-                            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all",
-                            activeSection === item.id
-                                ? "bg-white dark:bg-slate-800 shadow-sm text-slate-900 dark:text-white"
-                                : "text-slate-600 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-800/50"
+                            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group select-none",
+                            activeTab === item.id
+                                ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
+                                : "hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400"
                         )}
                     >
                         <span className={cn(
-                            activeSection === item.id ? "text-indigo-500" : "text-slate-400"
+                            "transition-colors",
+                            activeTab === item.id ? "text-indigo-500" : "text-slate-400"
                         )}>
                             {item.icon}
                         </span>
@@ -126,8 +126,8 @@ export const UnifiedSettingsDrawer: React.FC = () => {
                     key={item.id}
                     onClick={() => handleSectionChange(item.id)}
                     className={cn(
-                        "flex items-center gap-2 px-3 py-2 rounded-lg whitespace-nowrap text-sm font-medium transition-all shrink-0",
-                        activeSection === item.id
+                        "flex items-center gap-2 px-3 py-2 rounded-lg whitespace-nowrap text-sm font-medium transition-all shrink-0 select-none",
+                        activeTab === item.id
                             ? "bg-indigo-500 text-white"
                             : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400"
                     )}
@@ -148,7 +148,7 @@ export const UnifiedSettingsDrawer: React.FC = () => {
                         <Settings className="w-4 h-4 text-white" />
                     </div>
                     <div>
-                        <h2 className="text-base font-semibold text-slate-900 dark:text-white">Настройки</h2>
+                        <h2 className="text-base font-semibold text-slate-900 dark:text-white select-none">Настройки</h2>
                         <p className="text-xs text-slate-500 dark:text-slate-400">
                             Уровень {userLevel} • {userTitle}
                         </p>
@@ -178,10 +178,10 @@ export const UnifiedSettingsDrawer: React.FC = () => {
                 <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                     <div>
                         <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                            {navItems.find(n => n.id === activeSection)?.label}
+                            {navItems.find(n => n.id === activeTab)?.label}
                         </h2>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
-                            {navItems.find(n => n.id === activeSection)?.description}
+                            {navItems.find(n => n.id === activeTab)?.description}
                         </p>
                     </div>
                     <Button variant="ghost" size="icon" onClick={handleClose}>

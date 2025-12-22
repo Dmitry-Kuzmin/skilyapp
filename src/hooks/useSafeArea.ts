@@ -96,16 +96,20 @@ export function useSafeArea() {
     // КРИТИЧЕСКИ ВАЖНО: слушаем оба варианта имени события
     // viewport_changed - официальное событие Telegram (iOS/macOS)
     // viewportChanged - альтернативное имя (может использоваться в некоторых версиях)
-    webApp.onEvent("viewport_changed", updateSafeArea);
-    webApp.onEvent("viewportChanged", updateSafeArea);
-    webApp.onEvent("safeAreaChanged", updateSafeArea);
-    webApp.onEvent("contentSafeAreaChanged", updateSafeArea);
+    if (typeof webApp.onEvent === 'function') {
+      webApp.onEvent("viewport_changed", updateSafeArea);
+      webApp.onEvent("viewportChanged", updateSafeArea);
+      webApp.onEvent("safeAreaChanged", updateSafeArea);
+      webApp.onEvent("contentSafeAreaChanged", updateSafeArea);
+    }
 
     return () => {
-      webApp.offEvent("viewport_changed", updateSafeArea);
-      webApp.offEvent("viewportChanged", updateSafeArea);
-      webApp.offEvent("safeAreaChanged", updateSafeArea);
-      webApp.offEvent("contentSafeAreaChanged", updateSafeArea);
+      if (typeof webApp.offEvent === 'function') {
+        webApp.offEvent("viewport_changed", updateSafeArea);
+        webApp.offEvent("viewportChanged", updateSafeArea);
+        webApp.offEvent("safeAreaChanged", updateSafeArea);
+        webApp.offEvent("contentSafeAreaChanged", updateSafeArea);
+      }
     };
   }, []);
 

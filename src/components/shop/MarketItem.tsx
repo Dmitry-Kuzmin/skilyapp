@@ -324,8 +324,8 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
 
       {/* Правая часть: Цена + Кнопка (фиксированный размер) */}
       <div className="relative z-10 flex items-center gap-3 shrink-0 ml-auto">
-        <div className="font-mono text-yellow-600 dark:text-yellow-500 font-bold flex items-center gap-1 text-[12px] sm:text-sm">
-          <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-600 dark:text-yellow-500" />
+        <div className="font-mono text-amber-600 dark:text-yellow-500 font-bold flex items-center gap-1 text-[12px] sm:text-sm">
+          <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600 dark:text-yellow-500" />
           <span>{boost.cost_coins}</span>
         </div>
 
@@ -333,7 +333,7 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
           boost.is_premium ? (
             <div className={cn(
               "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg",
-              "bg-gold/10 text-gold border border-gold/30",
+              "bg-gold/10 text-amber-600 dark:text-gold border border-gold/30",
               "text-[10px] font-bold tracking-wider"
             )}>
               <Lock className="w-3 h-3" />
@@ -365,11 +365,11 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
               disabled={isPurchasing || buttonState === 'processing'}
               className={cn(
                 "relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg overflow-hidden",
-                "bg-white/5 hover:bg-white/10",
-                "border border-white/10 hover:border-white/20",
+                "bg-zinc-900 dark:bg-white/5 hover:bg-zinc-800 dark:hover:bg-white/10",
+                "border border-zinc-800 dark:border-white/10 hover:border-zinc-700 dark:hover:border-white/20",
                 "transition-all active:scale-95",
                 "text-[10px] font-bold tracking-wider text-white",
-                "hover:shadow-[0_0_15px_rgba(255,255,255,0.15)]",
+                "hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_0_15px_rgba(255,255,255,0.15)]",
                 (isPurchasing || buttonState === 'processing') ? "cursor-not-allowed" : "cursor-pointer",
                 buttonState === 'acquired' && "bg-emerald-500/20 border-emerald-500/50 shadow-[0_0_15px_rgba(34,197,94,0.4)]"
               )}

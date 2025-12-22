@@ -1,6 +1,5 @@
 import React, { useMemo, useCallback, useState, lazy, Suspense } from 'react';
-import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Zap, FileText, Coins, BookOpen, ArrowRight, Loader2, Target, BarChart2 } from 'lucide-react';
-import { UnifiedModal } from '@/components/ui/unified-modal';
+import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Zap, FileText, Coins, BookOpen, ArrowRight, Loader2, Target, BarChart2, Settings } from 'lucide-react';
 import { ContextSwitcher } from '@/components/shared';
 import { usePDDContext } from '@/contexts/PDDContext';
 import { usePDDTickets } from '@/hooks/usePDDTickets';
@@ -18,7 +17,6 @@ const SkilyChat = lazy(() => import('./SkilyChat').then(m => ({ default: m.Skily
 const ExamReadiness = lazy(() => import('./ExamReadiness').then(m => ({ default: m.ExamReadiness })));
 const PremiumCard = lazy(() => import('./PremiumCard').then(m => ({ default: m.PremiumCard })));
 const DuelPassInfo = lazy(() => import('./DuelPassInfo').then(m => ({ default: m.DuelPassInfo })));
-const CockpitSettingsPanel = lazy(() => import('./CockpitSettingsPanel').then(m => ({ default: m.CockpitSettingsPanel })));
 const DuelPassSeasonModal = lazy(() => import('../monetization/DuelPassSeasonModal').then(m => ({ default: m.DuelPassSeasonModal })));
 
 // Fallback component for lazy loading
@@ -30,6 +28,7 @@ import { playClickSound, playHoverSound, playAlertSound, playSuccessSound } from
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from 'next-themes';
 import { useModalRoute } from '@/hooks/useModalRoute';
+import { useSettingsStore } from '@/store/settingsStore';
 
 interface DashboardProps {
   stats: {
@@ -54,9 +53,9 @@ interface DashboardProps {
   };
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ 
-  stats, 
-  onStartQuiz, 
+export const Dashboard: React.FC<DashboardProps> = ({
+  stats,
+  onStartQuiz,
   onClaimReward,
   hasClaimedToday,
   onGetPremium,
@@ -66,22 +65,22 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [examReadinessExpanded, setExamReadinessExpanded] = React.useState(false);
   const [statsModalOpen, setStatsModalOpen] = useState(false);
   const [selectedStatType, setSelectedStatType] = useState<'xp' | 'tests' | 'coins'>('xp');
-  const [cockpitOpen, setCockpitOpen] = useState(false);
+  const { openSettings } = useSettingsStore();
   const { t } = useLanguage();
   const { resolvedTheme } = useTheme();
   const navigate = useNavigate();
-  
+
   // Получаем выбранную страну и категорию из контекста
   const { selectedCountry, selectedCategory } = usePDDContext();
   const countryData = COUNTRIES_CONFIG[selectedCountry];
-  
+
   // Загружаем билеты для России или темы для Испании
   const { data: tickets, isLoading: ticketsLoading } = usePDDTickets(selectedCountry);
   const { data: topics = [], isLoading: topicsLoading } = useTopics();
-  
+
   // ОПТИМИЗАЦИЯ: Мемоизируем вычисление isDarkTheme для избежания лишних пересчетов
   const isDarkTheme = useMemo(() => (resolvedTheme ?? 'dark') !== 'light', [resolvedTheme]);
-  
+
   // ОПТИМИЗАЦИЯ: Мемоизируем все вычисления классов для избежания пересчетов при каждом рендере
   const themeClasses = useMemo(() => {
     // УБРАНО: pageBgClass - используем фон из Layout (bg-background) для единообразия
@@ -122,7 +121,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     const xpIconColor = isDarkTheme ? 'text-yellow-100' : 'text-amber-600';
     const testsIconColor = isDarkTheme ? 'text-blue-100' : 'text-indigo-600';
     const coinsIconColor = isDarkTheme ? 'text-amber-100' : 'text-amber-600';
-    
+
     return {
       heroBackground,
       heroShadowClass,
@@ -145,17 +144,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
       coinsIconColor,
     };
   }, [isDarkTheme]);
-  
+
   // ОПТИМИЗАЦИЯ: Мемоизируем вычисление heroStatusKey
-  const heroStatusKey = useMemo(() => 
+  const heroStatusKey = useMemo(() =>
     stats.averageScore >= 75
       ? 'dashboard.heroStatus.ready'
       : stats.averageScore >= 50
-      ? 'dashboard.heroStatus.progress'
-      : 'dashboard.heroStatus.start',
+        ? 'dashboard.heroStatus.progress'
+        : 'dashboard.heroStatus.start',
     [stats.averageScore]
   );
-  
+
   // ОПТИМИЗАЦИЯ: Мемоизируем обработчики событий
   const handleStartQuiz = useCallback(() => {
     playClickSound();
@@ -175,7 +174,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   return (
     <div className="w-full px-4 sm:px-6 lg:px-10 pt-4 md:pt-6 pb-6 md:pb-8 font-sans">
       <div className="max-w-[1370px] mx-auto space-y-6">
-        
+
         {/* Header */}
         <div className="mb-6 animate-fade-in">
           <div className="flex items-center justify-between gap-1.5 sm:gap-3 flex-nowrap min-w-0 max-w-full">
@@ -186,7 +185,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <button
               onClick={() => {
                 playClickSound();
-                setCockpitOpen(true);
+                openSettings();
               }}
               className={cn(
                 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full',
@@ -196,19 +195,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   ? 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10 text-zinc-200'
                   : 'border-zinc-300/60 bg-white/50 hover:border-zinc-400/80 hover:bg-white/80 text-zinc-700'
               )}
-              aria-label="Моя статистика"
+              aria-label="Настройки"
             >
-              <BarChart2 className="w-3.5 h-3.5" />
-              <span>Прогресс</span>
+              <Settings className="w-3.5 h-3.5" />
+              <span>Настройки</span>
             </button>
-           </div>
+          </div>
         </div>
 
         {/* BENTO GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up">
-          
+
           {/* 1. HERO CARD (Col: 2, Row: 2) */}
-          <div 
+          <div
             onMouseEnter={playHoverSound}
             className="md:col-span-2 lg:col-span-2 lg:row-span-2 relative overflow-hidden rounded-[2.5rem] text-white p-8 md:p-10 flex flex-col justify-between shadow-2xl group"
             style={{
@@ -216,19 +215,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
             }}
           >
             {/* КРИТИЧНО: LCP оптимизация - используем <img> вместо background-image для fetchpriority */}
-            <img 
-              src="https://grainy-gradients.vercel.app/noise.svg" 
-              alt="" 
+            <img
+              src="https://grainy-gradients.vercel.app/noise.svg"
+              alt=""
               className={`absolute inset-0 w-full h-full object-cover ${themeClasses.heroNoiseOpacity} mix-blend-overlay pointer-events-none`}
               fetchpriority="high"
               loading="eager"
               decoding="async"
               aria-hidden="true"
             />
-            
+
             {/* Дополнительный градиентный overlay для глубины */}
             <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-indigo-900/20 pointer-events-none"></div>
-            
+
             <div className="relative z-10 flex flex-col h-full justify-between">
               {/* Top section: Level badge - улучшенное выравнивание */}
               <div className="flex justify-between items-start mb-4">
@@ -251,16 +250,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </div>
 
                 {/* START Button - улучшенный размер и выравнивание */}
-                <button 
+                <button
                   onClick={handleStartQuiz}
                   className="group relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 flex-shrink-0 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 transform-gpu"
                 >
                   {/* Glow effect */}
                   <div className="absolute inset-[-15%] rounded-full opacity-60 group-hover:opacity-100 transition-all duration-500 pointer-events-none bg-gradient-to-br from-white/40 via-purple-200/30 to-indigo-200/40 blur-xl"></div>
-                  
+
                   {/* White circle background */}
                   <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white via-purple-50/90 to-indigo-50/90 shadow-[0_20px_50px_rgba(255,255,255,0.4)]"></div>
-                  
+
                   {/* Inner content */}
                   <div className="relative z-10 flex flex-col items-center justify-center">
                     <Power size={24} className={`sm:w-7 sm:h-7 md:w-8 md:h-8 ${isDarkTheme ? 'text-indigo-600' : 'text-indigo-600'} mb-1 sm:mb-2 drop-shadow-lg`} />
@@ -280,7 +279,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 >
                   {/* Hover glow effect */}
                   <div className={themeClasses.xpOverlayClass} />
-                  
+
                   {/* Shimmer effect - только при hover */}
                   <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/8 to-transparent" />
 
@@ -289,7 +288,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <div className="relative w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-lg xs:rounded-xl bg-gradient-to-br from-yellow-400/30 via-orange-500/25 to-yellow-500/30 border border-yellow-400/50 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-md shadow-yellow-500/25">
                       <Zap className={`w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 ${themeClasses.xpIconColor} relative z-10`} />
                     </div>
-                    
+
                     {/* Text content - компактный */}
                     <div className="flex-1 min-w-0 overflow-hidden">
                       <div className={`${themeClasses.statLabelBase} ${isDarkTheme ? 'text-yellow-100/90' : 'text-yellow-700/90'} truncate`}>
@@ -310,7 +309,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 >
                   {/* Hover glow effect */}
                   <div className={themeClasses.testsOverlayClass} />
-                  
+
                   {/* Shimmer effect - только при hover */}
                   <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/8 to-transparent" />
 
@@ -319,7 +318,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <div className="relative w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-lg xs:rounded-xl bg-gradient-to-br from-blue-400/30 via-indigo-500/25 to-blue-500/30 border border-blue-400/50 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-md shadow-blue-500/25">
                       <FileText className={`w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 ${themeClasses.testsIconColor} relative z-10`} />
                     </div>
-                    
+
                     {/* Text content - компактный */}
                     <div className="flex-1 min-w-0 overflow-hidden">
                       <div className={`${themeClasses.statLabelBase} ${isDarkTheme ? 'text-blue-100/90' : 'text-blue-700/90'} truncate`}>
@@ -339,7 +338,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 >
                   {/* Hover glow effect */}
                   <div className={themeClasses.coinsOverlayClass} />
-                  
+
                   {/* Shimmer effect - только при hover */}
                   <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/8 to-transparent" />
 
@@ -348,7 +347,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <div className="relative w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-lg xs:rounded-xl bg-gradient-to-br from-amber-400/30 via-yellow-500/25 to-amber-500/30 border border-amber-400/50 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-md shadow-amber-500/25">
                       <Coins className={`w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 ${themeClasses.coinsIconColor} relative z-10`} />
                     </div>
-                    
+
                     {/* Text content - компактный */}
                     <div className="flex-1 min-w-0 overflow-hidden">
                       <div className={`${themeClasses.statLabelBase} ${isDarkTheme ? 'text-amber-100/90' : 'text-amber-700/90'} truncate`}>
@@ -367,10 +366,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
           {/* 2. DAILY REWARDS (Col: 1, Row: 2) */}
           <div className="md:col-span-1 lg:col-span-1 lg:row-span-2">
             <Suspense fallback={<ComponentSkeleton />}>
-              <DailyRewards 
-                currentStreak={stats.currentStreak} 
-                hasClaimedToday={hasClaimedToday} 
-                onClaim={onClaimReward} 
+              <DailyRewards
+                currentStreak={stats.currentStreak}
+                hasClaimedToday={hasClaimedToday}
+                onClaim={onClaimReward}
               />
             </Suspense>
           </div>
@@ -385,11 +384,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
           {/* 4. EXAM READINESS (Col: 1, Row: 1) - расширяется до 2 колонок */}
           <div className={`transition-all duration-500 ease-in-out ${examReadinessExpanded
-              ? 'md:col-span-2 lg:col-span-2 lg:row-span-2' 
-              : 'md:col-span-1 lg:col-span-1'
-          }`}>
+            ? 'md:col-span-2 lg:col-span-2 lg:row-span-2'
+            : 'md:col-span-1 lg:col-span-1'
+            }`}>
             <Suspense fallback={<ComponentSkeleton />}>
-              <ExamReadiness 
+              <ExamReadiness
                 averageScore={stats.averageScore}
                 testsCompleted={stats.testsCompleted}
                 status={readinessStatus?.status}
@@ -422,17 +421,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
 
 
-      <UnifiedModal
-        title="Панель пилота"
-        open={cockpitOpen}
-        onOpenChange={setCockpitOpen}
-        className="max-w-3xl max-h-[85vh]"
-        contentClassName="max-h-[calc(85vh-80px)]"
-      >
-        <Suspense fallback={<ComponentSkeleton />}>
-          <CockpitSettingsPanel />
-        </Suspense>
-      </UnifiedModal>
 
       {/* Duel Pass Season Modal */}
       <Suspense fallback={null}>
@@ -445,15 +433,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
 // Wrapper component для DuelPassSeasonModal с useModalRoute
 const DuelPassSeasonModalWrapper = () => {
   const { isOpen, closeModal } = useModalRoute('duel-pass-season');
-  
+
   return (
-    <DuelPassSeasonModal 
-      open={isOpen} 
+    <DuelPassSeasonModal
+      open={isOpen}
       onOpenChange={(open) => {
         if (!open) {
           closeModal();
         }
-      }} 
+      }}
     />
   );
 };

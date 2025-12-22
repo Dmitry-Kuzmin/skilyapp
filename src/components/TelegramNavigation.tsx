@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getTelegramWebApp, isTelegramMiniApp, isTelegramMobilePlatformName } from "@/lib/telegram";
+import { useSettingsStore } from "@/store/settingsStore";
+
 
 export const TelegramNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isTelegramReady, setTelegramReady] = useState(() => isTelegramMiniApp());
+  const { isOpen: isSettingsOpen, closeSettings } = useSettingsStore();
 
   // Пуллим доступность Telegram WebApp после монтирования,
   // чтобы не пропустить момент, когда initData появится чуть позже.
@@ -31,6 +34,7 @@ export const TelegramNavigation = () => {
   }, [isTelegramReady]);
 
   // Инициализируем BackButton один раз и вешаем стабильный обработчик
+  // КРИТИЧНО: Добавлен isSettingsOpen в зависимости
   useEffect(() => {
     if (!isTelegramReady) return;
 
@@ -41,15 +45,24 @@ export const TelegramNavigation = () => {
     const isDuelPage = location.pathname.includes('/duel') || location.pathname.includes('/games/duel');
     const isDashboard = location.pathname === '/dashboard' || location.pathname === '/';
 
-    // Для дуэльных страниц НЕ регистрируем обработчик здесь
+    // Для дуэльных страниц НЕ регистрируем обработчик здесь, ЕСЛИ настройки закрыты
     // DuelBattleFullscreen и DuelResult сами управляют BackButton
-    if (isDuelPage) {
+    if (isDuelPage && !isSettingsOpen) {
       console.log('[TelegramNavigation] Duel page detected - not registering global handler');
       return; // Выходим из useEffect - cleanup не нужен
     }
 
+    const version = parseFloat(webApp.version || '0');
+    const supportsBackButton = version >= 6.1;
+
     const handleBack = () => {
       console.log('[TelegramNavigation] BackButton clicked, current path:', location.pathname);
+
+      // Если открыты настройки - закрываем их
+      if (isSettingsOpen) {
+        closeSettings();
+        return;
+      }
 
       // На дашборде закрываем приложение
       if (isDashboard) {
@@ -72,13 +85,28 @@ export const TelegramNavigation = () => {
       }
     };
 
-    webApp.BackButton.onClick(handleBack);
-    webApp.MainButton.hide();
+    if (supportsBackButton && webApp.BackButton) {
+      try {
+        webApp.BackButton.onClick(handleBack);
+      } catch (e) {
+        console.warn('[TelegramNavigation] Error registering BackButton.onClick:', e);
+      }
+    }
+
+    if (webApp.MainButton) {
+      try {
+        webApp.MainButton.hide();
+      } catch (e) { }
+    }
 
     return () => {
-      webApp.BackButton.offClick(handleBack);
+      if (supportsBackButton && webApp.BackButton) {
+        try {
+          webApp.BackButton.offClick(handleBack);
+        } catch (e) { }
+      }
     };
-  }, [isTelegramReady, navigate, location.pathname]);
+  }, [isTelegramReady, navigate, location.pathname, isSettingsOpen, closeSettings]);
 
   // Управляем отображением BackButton в зависимости от текущего маршрута
   useEffect(() => {
@@ -90,19 +118,25 @@ export const TelegramNavigation = () => {
     const isDashboard = location.pathname === '/dashboard' || location.pathname === '/';
     const isDuelPage = location.pathname.includes('/duel') || location.pathname.includes('/games/duel');
 
-    // На дашборде скрываем BackButton - приложение закрывается через системные средства
-    // На дуэльных страницах компоненты сами управляют BackButton
-    if (isDashboard) {
-      webApp.BackButton.hide();
+    const version = parseFloat(webApp.version || '0');
+    const supportsBackButton = version >= 6.1;
+
+    // На дашборде скрываем BackButton, ЕСЛИ настройки закрыты
+    // На дуэльных страницах компоненты сами управляют BackButton, ЕСЛИ настройки закрыты
+    if (isSettingsOpen) {
+      // Всегда показываем BackButton если открыты настройки
+      if (supportsBackButton && webApp.BackButton) webApp.BackButton.show();
+    } else if (isDashboard) {
+      if (supportsBackButton && webApp.BackButton) webApp.BackButton.hide();
     } else if (!isDuelPage) {
       // На остальных страницах показываем BackButton
-      webApp.BackButton.show();
+      if (supportsBackButton && webApp.BackButton) webApp.BackButton.show();
     }
 
     // КРИТИЧНО: Управляем классом duel-active для отключения глобального padding
     document.body.classList.toggle('duel-active', isDuelPage);
     // Для duel-страниц ничего не делаем - компоненты сами управляют BackButton
-  }, [isTelegramReady, location.pathname]);
+  }, [isTelegramReady, location.pathname, isSettingsOpen]);
 
   // Handle safe area insets updates
   useEffect(() => {

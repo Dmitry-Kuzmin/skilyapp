@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ProfileModal } from "@/components/ProfileModal";
 import { ReferralModal } from "@/components/ReferralModal";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -23,9 +23,12 @@ import { useNavigate } from "react-router-dom";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { cn } from "@/lib/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSettingsStore } from "@/store/settingsStore";
 import {
   Settings,
+  BarChart3,
   Gift,
+  Coins,
   HelpCircle,
   LogOut,
   ChevronRight,
@@ -42,8 +45,8 @@ import {
   Flame,
   Star,
   Shield,
-  Sun,
-  Moon,
+  Star,
+  Shield,
   Globe,
   Smartphone,
   Palette
@@ -96,7 +99,15 @@ const useAvatarData = (profileId: string | null) => {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('photo_url, first_name, last_name, username')
+        .select(`
+          photo_url, 
+          first_name, 
+          last_name, 
+          username, 
+          subscription_status, 
+          premium_forever_purchased_at,
+          settings
+        `)
         .eq('id', profileId)
         .single();
 
@@ -120,8 +131,9 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { previewSkin, previewBadges, previewSticker } = useCosmeticsPreview();
+  const { openSettings } = useSettingsStore();
+
   const [open, setOpen] = useState(false);
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [referralModalOpen, setReferralModalOpen] = useState(false);
   const isMiniApp = isTelegramMiniApp();
   const { unreadCount } = notificationsApi;
@@ -129,9 +141,26 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
   // ОПТИМИЗАЦИЯ: Мемоизируем вычисления для предотвращения лишних ре-рендеров
   const hasUnreadNotifications = useMemo(() => unreadCount > 0, [unreadCount]);
 
-  // ОПТИМИЗАЦИЯ: Используем React Query для аватара - дедупликация автоматическая!
   const { data: profile, isLoading: loading } = useAvatarData(profileId);
   const showSkeleton = loading && !profile;
+
+  // КРИТИЧНО: Расширенная проверка премиума для надежности
+  const isProfilePremium = useMemo(() => {
+    if (isPremium) return true;
+    if (!profile) return false;
+
+    // Проверка по статусу (lifetime или pro)
+    if (profile.subscription_status === 'pro' || profile.subscription_status === 'lifetime') return true;
+
+    // Проверка на покупку "Навсегда"
+    if (profile.premium_forever_purchased_at) return true;
+
+    // Проверка через настройки (иногда там дублируется)
+    if (profile.settings?.subscription_type === 'lifetime' || profile.settings?.is_premium === true) return true;
+
+    return false;
+  }, [isPremium, profile]);
+
 
   const avatarColor = useMemo(() => generateAvatarColor(profileId || ''), [profileId]);
   const initials = useMemo(() => getInitials(profile?.first_name || user?.first_name), [profile?.first_name, user?.first_name]);
@@ -178,37 +207,46 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
 
   const quickActions = [
     {
-      key: 'security',
-      icon: Shield,
-      label: 'Безопасность',
-      action: () => navigate('/settings'),
+      key: 'settings',
+      icon: Settings,
+      label: 'Настройки',
+      action: () => {
+        // Открываем Unified Settings
+        useSettingsStore.getState().openSettings('general');
+      },
     },
     {
       key: 'invite',
       icon: Gift,
       label: t('profileMenu.invite'),
       action: () => setReferralModalOpen(true),
+      trailing: (
+        <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black animate-pulse">
+            +100
+            <Coins className="w-3 h-3 text-yellow-500" />
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </div>
+      )
     },
   ];
 
   const supportLinks = [
     {
-      key: 'legal',
-      icon: ScrollText,
-      label: t('profileMenu.legal'),
-      action: () => navigate('/terms'),
-    },
-    {
       key: 'help',
-      icon: HelpCircle,
       label: t('profileMenu.helpCenter'),
       action: () => navigate('/help'),
     },
     {
       key: 'blog',
-      icon: Newspaper,
       label: t('profileMenu.blog'),
       action: () => navigate('/blog'),
+    },
+    {
+      key: 'legal',
+      label: t('profileMenu.legal'),
+      action: () => navigate('/terms'),
     },
   ];
 
@@ -220,172 +258,16 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
             type="button"
             className="relative group z-10"
             style={{ pointerEvents: 'auto' }}
+            onClick={() => setOpen(true)}
           >
             {showSkeleton && loading ? (
               <Skeleton className="h-10 w-10 rounded-full" />
             ) : (
-              <div className="relative">
-                {/* Premium animated border - вращающийся градиент - скрываем если есть previewSkin */}
-                {isPremium && !previewSkin && (
-                  <div
-                    className="absolute -inset-0.5 rounded-full animate-premium-rotate pointer-events-none"
-                    style={{
-                      background: 'linear-gradient(45deg, #fbbf24, #f59e0b, #f97316, #ea580c, #f97316, #f59e0b, #fbbf24)',
-                      backgroundSize: '200% 200%',
-                    }}
-                  >
-                    <div className="absolute inset-0.5 rounded-full bg-background" />
-                  </div>
-                )}
-                <Avatar className={cn(
-                  "h-10 w-10 transition-all cursor-pointer relative z-10",
-                  isPremium && !previewSkin
-                    ? "ring-0 animate-premium-glow"
-                    : "ring-2 ring-border hover:ring-primary",
-                  previewSkin && previewSkin.rarity === "legendary" && "ring-2 ring-yellow-400/50 shadow-yellow-500/30",
-                  previewSkin && previewSkin.rarity === "epic" && "ring-2 ring-blue-400/50 shadow-blue-500/30",
-                  previewSkin && previewSkin.rarity === "rare" && "ring-2 ring-blue-400/30"
-                )}>
-                  {(() => {
-                    const photoUrl = profile?.photo_url || user?.photo_url;
-                    // Всегда показываем фото, если оно есть
-                    if (photoUrl) {
-                      return (
-                        <AvatarImage
-                          src={photoUrl}
-                          alt={profile?.first_name || user?.first_name || 'User'}
-                          className={cn(
-                            isPremium && "relative z-10",
-                            previewSkin && previewSkin.metadata.animated && "animate-pulse"
-                          )}
-                          onError={(e) => {
-                            // При ошибке загрузки скрываем изображение, показывается fallback
-                            console.warn('[UserProfilePopover] Avatar image failed to load:', photoUrl);
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      );
-                    }
-                    return null;
-                  })()}
-                  <AvatarFallback
-                    className={cn(
-                      "text-white font-bold text-sm relative z-10 overflow-hidden",
-                      isPremium && !previewSkin && "bg-gradient-to-br from-yellow-500/90 to-orange-500/90",
-                      previewSkin?.metadata.animated && "animate-pulse"
-                    )}
-                    style={
-                      previewSkin
-                        ? {
-                          background: previewSkin.metadata.color
-                            ? `radial-gradient(circle at 30% 30%, ${previewSkin.metadata.color}ff, ${previewSkin.metadata.color}cc 40%, ${previewSkin.metadata.color}88 100%)`
-                            : "radial-gradient(circle at 30% 30%, #6366f1ff, #8b5cf6cc 40%, #6366f188 100%)",
-                        }
-                        : !isPremium
-                          ? { backgroundColor: avatarColor }
-                          : undefined
-                    }
-                  >
-                    {/* Эффекты скина */}
-                    {previewSkin?.metadata.effect === "sparkle" && (
-                      <Sparkles className="absolute top-0.5 right-0.5 w-3 h-3 animate-spin text-white/90" />
-                    )}
-                    {previewSkin?.metadata.effect === "fire" && (
-                      <Flame className="absolute top-0.5 right-0.5 w-3 h-3 text-orange-400 animate-bounce" />
-                    )}
-                    {previewSkin?.metadata.effect === "shine" && (
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer rounded-full" />
-                    )}
-                    {previewSkin?.rarity === "legendary" && (
-                      <>
-                        <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-yellow-300 rounded-full animate-ping" style={{ animationDelay: '0s' }} />
-                        <div className="absolute bottom-1/4 right-1/4 w-0.5 h-0.5 bg-orange-300 rounded-full animate-ping" style={{ animationDelay: '0.3s' }} />
-                      </>
-                    )}
-                    <span className="relative z-10">{initials}</span>
-                  </AvatarFallback>
-                  {/* Overlay эффекты скина поверх фото */}
-                  {previewSkin && (profile?.photo_url || user?.photo_url) && (
-                    <div className="absolute inset-0 rounded-full pointer-events-none z-20">
-                      {/* Эффекты скина поверх фото */}
-                      {previewSkin.metadata.effect === "sparkle" && (
-                        <>
-                          <Sparkles className="absolute top-0.5 right-0.5 w-3 h-3 animate-spin text-white/90 drop-shadow-lg" />
-                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,rgba(255,255,255,0.1)_100%)] animate-pulse rounded-full" />
-                        </>
-                      )}
-                      {previewSkin.metadata.effect === "fire" && (
-                        <>
-                          <Flame className="absolute top-0.5 right-0.5 w-3 h-3 text-orange-400 animate-bounce drop-shadow-lg" />
-                          <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-orange-500/30 to-transparent rounded-full" />
-                        </>
-                      )}
-                      {previewSkin.metadata.effect === "shine" && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer rounded-full" />
-                      )}
-                      {/* Частицы для легендарных поверх фото */}
-                      {previewSkin.rarity === "legendary" && (
-                        <>
-                          <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-yellow-300 rounded-full animate-ping" style={{ animationDelay: '0s' }} />
-                          <div className="absolute bottom-1/4 right-1/4 w-0.5 h-0.5 bg-orange-300 rounded-full animate-ping" style={{ animationDelay: '0.3s' }} />
-                        </>
-                      )}
-                      {/* Градиентная рамка скина поверх фото */}
-                      <div
-                        className={cn(
-                          "absolute inset-0 rounded-full border-2 opacity-60",
-                          previewSkin.rarity === "legendary" && "border-yellow-400/60",
-                          previewSkin.rarity === "epic" && "border-blue-400/60",
-                          previewSkin.rarity === "rare" && "border-blue-400/40",
-                          previewSkin.rarity === "common" && "border-gray-400/40"
-                        )}
-                      />
-                    </div>
-                  )}
-                </Avatar>
-                {/* Бейджи рядом с аватаром (максимум 3) */}
-                {previewBadges.length > 0 && (
-                  <div className="absolute -bottom-1 -right-1 flex items-center gap-0.5 z-20">
-                    {previewBadges.slice(0, 3).map((badge, index) => (
-                      <div
-                        key={badge.id}
-                        className={cn(
-                          "w-4 h-4 rounded-full flex items-center justify-center text-[8px] shadow-lg",
-                          badge.rarity === "legendary" && "bg-gradient-to-br from-yellow-500/80 via-orange-500/80 to-yellow-500/80 ring-1 ring-yellow-400/50",
-                          badge.rarity === "epic" && "bg-gradient-to-br from-blue-500/80 via-pink-500/80 to-blue-500/80 ring-1 ring-blue-400/50",
-                          badge.rarity === "rare" && "bg-gradient-to-br from-blue-500/80 via-cyan-500/80 to-blue-500/80 ring-1 ring-blue-400/30",
-                          badge.rarity === "common" && "bg-gradient-to-br from-gray-500/80 via-gray-400/80 to-gray-500/80",
-                          badge.metadata.animated && "animate-bounce"
-                        )}
-                        style={{
-                          color: badge.metadata.color || "#6366f1",
-                        }}
-                        title={badge.name_ru}
-                      >
-                        {badge.metadata.icon === "trophy" && <Trophy className="w-2.5 h-2.5" />}
-                        {badge.metadata.icon === "flame" && "🔥"}
-                        {badge.metadata.icon === "star" && "⭐"}
-                        {badge.metadata.icon === "crown" && "👑"}
-                        {badge.metadata.icon === "calendar" && "📅"}
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {/* Стикер рядом с аватаром - только смайлик без фона */}
-                {previewSticker && (
-                  <div className="absolute -top-1 -left-1 flex items-center justify-center text-2xl z-20 drop-shadow-lg">
-                    {previewSticker.metadata.emoji || "😊"}
-                  </div>
-                )}
-                {/* Premium Crown Icon - только если не skeleton и нет previewSkin */}
-                {!showSkeleton && isPremium && !previewSkin && (
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg border-2 border-background animate-crown-bounce z-20">
-                    <Crown className="w-2.5 h-2.5 text-white fill-white drop-shadow-md" />
-                    {/* Анимированное свечение вокруг короны */}
-                    <div className="absolute inset-0 rounded-full bg-yellow-400/40 animate-ping" style={{ animationDuration: '2s' }} />
-                  </div>
-                )}
-              </div>
+              <UserAvatar
+                profileId={profileId}
+                size="md"
+                previewSkin={previewSkin}
+              />
             )}
             {!showSkeleton && (
               hasUnreadNotifications ? (
@@ -408,97 +290,48 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
         >
           <div className="p-4 space-y-4">
             {/* Header - кликабельный для редактирования */}
-            <div className="flex items-start gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               <button
                 onClick={() => {
                   setOpen(false);
-                  setProfileModalOpen(true);
+                  useSettingsStore.getState().openSettings('account');
                 }}
-                className="flex-1 flex items-center gap-3 hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors focus:outline-none focus-visible:outline-none focus-visible:ring-0 text-left"
+                className="flex-1 flex items-center gap-3 hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors focus:outline-none focus-visible:outline-none focus-visible:ring-0 text-left min-w-0 overflow-hidden"
               >
                 <div className="relative">
-                  {/* Premium animated border - вращающийся градиент - скрываем если есть previewSkin */}
-                  {isPremium && !previewSkin && (
-                    <div
-                      className="absolute -inset-0.5 rounded-full animate-premium-rotate pointer-events-none"
-                      style={{
-                        background: 'linear-gradient(45deg, #fbbf24, #f59e0b, #f97316, #ea580c, #f97316, #f59e0b, #fbbf24)',
-                        backgroundSize: '200% 200%',
-                      }}
-                    >
-                      <div className="absolute inset-0.5 rounded-full bg-background" />
-                    </div>
-                  )}
-                  <Avatar className={cn(
-                    "h-10 w-10 relative z-10",
-                    isPremium && !previewSkin ? "ring-0 animate-premium-glow" : ""
-                  )}>
-                    {(() => {
-                      const photoUrl = profile?.photo_url || user?.photo_url;
-                      if (photoUrl) {
-                        return (
-                          <AvatarImage
-                            src={photoUrl}
-                            alt={profile?.first_name || user?.first_name || 'User'}
-                            className={isPremium ? "relative z-10" : ""}
-                            onError={(e) => {
-                              console.warn('[UserProfilePopover] Avatar image failed to load:', photoUrl);
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
-                        );
-                      }
-                      return null;
-                    })()}
-                    <AvatarFallback
-                      className={cn(
-                        "text-white font-bold text-sm relative z-10",
-                        isPremium && !previewSkin && "bg-gradient-to-br from-yellow-500/90 to-orange-500/90"
-                      )}
-                      style={!isPremium || previewSkin ? { backgroundColor: previewSkin ? undefined : avatarColor } : undefined}
-                    >
-                      {initials}
-                    </AvatarFallback>
-                  </Avatar>
-                  {/* Premium Crown Icon в попапе - скрываем если есть previewSkin */}
-                  {isPremium && !previewSkin && (
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg border-2 border-background animate-crown-bounce z-20">
-                      <Crown className="w-2.5 h-2.5 text-white fill-white relative z-10 drop-shadow-md" />
-                      {/* Анимированное свечение вокруг короны */}
-                      <div className="absolute inset-0 rounded-full bg-yellow-400/40 animate-ping" style={{ animationDuration: '2s' }} />
-                    </div>
-                  )}
+                  <UserAvatar
+                    profileId={profileId}
+                    size="md"
+                    previewSkin={previewSkin}
+                    showPremiumGlow={false}
+                  />
                 </div>
                 <div className="flex-1 min-w-0 text-left">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold text-sm truncate">
+                  <div className="flex items-center gap-2 flex-nowrap min-w-0">
+                    <h3
+                      className="font-semibold text-sm truncate"
+                      title={profile?.first_name || user?.first_name || 'User'}
+                    >
                       {profile?.first_name || user?.first_name || 'User'}
                     </h3>
                     {isPremium && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-200 text-[10px] font-semibold px-2 py-0.5">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-200 text-[10px] font-semibold px-2 py-0.5 shrink-0">
                         <Crown className="w-3 h-3" />
                         {t('profileMenu.proBadge')}
                       </span>
                     )}
-                    <Pencil className="h-3 w-3 text-muted-foreground" />
+                    <Pencil className="h-3 w-3 text-muted-foreground shrink-0" />
                   </div>
                   {supabaseUser?.email && (
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p
+                      className="text-xs text-muted-foreground truncate"
+                      title={supabaseUser.email}
+                    >
                       {supabaseUser.email}
                     </p>
                   )}
                 </div>
               </button>
-              {!isMiniApp && (
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-destructive/40 text-destructive hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-0"
-                  aria-label={t('logout') || 'Sign out'}
-                >
-                  <LogOut className="h-4 w-4" />
-                </button>
-              )}
             </div>
 
             {/* XP Progress */}
@@ -515,27 +348,27 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2 mt-1">
               <Button
                 variant="outline"
-                className="h-9 text-sm"
+                className="h-8 text-[11px] font-medium border-border/30 bg-background/40 hover:bg-accent/40 transition-colors"
                 onClick={() => {
                   setOpen(false);
-                  setProfileModalOpen(true);
+                  navigate('/duel-leaderboard');
                 }}
               >
-                <Settings className="h-4 w-4 mr-1" />
-                {t('settings')}
+                <BarChart3 className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                Статистика
               </Button>
               <Button
                 variant="outline"
-                className="h-9 text-sm"
+                className="h-8 text-[11px] font-medium border-border/30 bg-background/40 hover:bg-accent/40 transition-colors"
                 onClick={() => {
                   setOpen(false);
                   navigate('/inventory');
                 }}
               >
-                <Sparkles className="h-4 w-4 mr-1" />
+                <Sparkles className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
                 {t('profileMenu.inventory')}
               </Button>
             </div>
@@ -550,31 +383,30 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
 
             <Separator />
 
-            {/* Notifications */}
-            <button
-              onClick={() => {
-                setOpen(false);
-                onOpenNotifications?.();
-              }}
-              className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors text-sm relative"
-            >
-              <div className="flex items-center gap-2">
-                <Bell className="h-4 w-4 text-muted-foreground" />
-                <span>{t('notifications') || 'Уведомления'}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                {hasUnreadNotifications && (
-                  <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-semibold bg-red-500 text-white">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </div>
-            </button>
-
-
-            {/* Quick Actions */}
+            {/* Notifications & Quick Actions Group */}
             <div className="space-y-1">
+              {/* Notifications */}
+              <button
+                onClick={() => {
+                  setOpen(false);
+                  onOpenNotifications?.();
+                }}
+                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors text-sm"
+              >
+                <div className="flex items-center gap-2">
+                  <Bell className="h-4 w-4 text-muted-foreground" />
+                  <span>{t('notifications') || 'Уведомления'}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {hasUnreadNotifications && (
+                    <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-semibold bg-red-500 text-white">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </div>
+              </button>
+
               {quickActions.map(({ key, icon: Icon, label, action, trailing }) => (
                 <button
                   key={key}
@@ -593,84 +425,29 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                 </button>
               ))}
 
-              {/* Language Selection */}
-              <div className="space-y-2 px-1">
-                <div className="flex items-center gap-2 mb-1 px-1">
-                  <Globe className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('language')}</span>
-                </div>
-                <SegmentedControl
-                  options={[
-                    { id: 'ru', label: 'RU' },
-                    { id: 'en', label: 'EN' },
-                    { id: 'es', label: 'ES' },
-                  ]}
-                  value={language}
-                  onChange={(val) => handleLanguageChange(val as any)}
-                  className="bg-muted/50"
-                />
-              </div>
 
-              {/* Theme Selection */}
-              <div className="space-y-2 px-1">
-                <div className="flex items-center gap-2 mb-1 px-1">
-                  <Palette className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('profileMenu.appearance')}</span>
-                </div>
-                <SegmentedControl
-                  options={[
-                    { id: 'light', label: t('light'), icon: <Sun className="w-3.5 h-3.5" /> },
-                    { id: 'dark', label: t('dark'), icon: <Moon className="w-3.5 h-3.5" /> },
-                    { id: 'system', label: t('system'), icon: <Settings className="w-3.5 h-3.5" /> },
-                  ]}
-                  value={theme || 'system'}
-                  onChange={(val) => {
-                    setTheme(val);
-                    if (profileId) {
-                      supabaseClient
-                        .from('profiles')
-                        .update({
-                          settings: {
-                            ...(profile?.settings || {}),
-                            theme: val
-                          }
-                        })
-                        .eq('id', profileId);
-                    }
-                    toast.success(t('themeChanged'));
-                  }}
-                  className="bg-muted/50"
-                />
-              </div>
             </div>
-
-            <Separator />
-
-            <div className="space-y-1">
-              {supportLinks.map(({ key, icon: Icon, label, action, trailing }) => (
-                <button
-                  key={key}
-                  type="button"
-                  className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors text-sm"
-                  onClick={() => {
-                    setOpen(false);
-                    action();
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <Icon className="h-4 w-4 text-muted-foreground" />
-                    <span>{label}</span>
-                  </div>
-                  {trailing ?? <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-                </button>
+            <div className="flex flex-nowrap items-center justify-center gap-x-1 px-1 pb-1 overflow-x-auto scrollbar-none">
+              {supportLinks.map(({ key, label, action }, index) => (
+                <div key={key} className="flex items-center shrink-0">
+                  <button
+                    onClick={() => {
+                      setOpen(false);
+                      action();
+                    }}
+                    className="text-[11px] font-medium text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
+                  >
+                    {label}
+                  </button>
+                  {index < supportLinks.length - 1 && (
+                    <span className="mx-2 w-[1px] h-2 bg-muted-foreground/20 shrink-0" />
+                  )}
+                </div>
               ))}
             </div>
           </div>
         </PopoverContent>
       </Popover>
-
-      {/* Profile Modal для расширенных настроек */}
-      <ProfileModal open={profileModalOpen} onOpenChange={setProfileModalOpen} />
 
       {/* Referral Modal */}
       <ReferralModal open={referralModalOpen} onOpenChange={setReferralModalOpen} />

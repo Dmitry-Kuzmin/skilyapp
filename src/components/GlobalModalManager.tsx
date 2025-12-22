@@ -10,7 +10,6 @@ import { AuthModalNew as AuthModal } from '@/components/AuthModalNew';
 import { lazy } from 'react';
 
 // Lazy-loaded модалки (загружаются только при открытии)
-const ProfileModal = lazy(() => import('@/components/ProfileModal').then(m => ({ default: m.ProfileModal })));
 const BoostShopModal = lazy(() => import('@/components/shop/BoostShopModal').then(m => ({ default: m.BoostShopModal })));
 const PaywallModal = lazy(() => import('@/components/monetization/PaywallModal').then(m => ({ default: m.PaywallModal })));
 const DuelPassSeasonModal = lazy(() => import('@/components/monetization/DuelPassSeasonModal').then(m => ({ default: m.DuelPassSeasonModal })));
@@ -34,7 +33,6 @@ const CelebrationModal = lazy(() => import('@/components/dashboard-new/Celebrati
  */
 const MODAL_COMPONENTS: Record<ModalType, React.ComponentType<any> | null> = {
   AUTH: AuthModal,
-  PROFILE: ProfileModal,
   BOOST_SHOP: BoostShopModal,
   PAYWALL: PaywallModal,
   DUEL_PASS: DuelPassSeasonModal,
@@ -115,11 +113,8 @@ export const GlobalModalManager = () => {
           openModal(modalType, props, false);
         }
       });
-      
-      return () => cancelAnimationFrame(rafId);
     }
-  }, [searchParams, stack, openModal]);
-
+  }, [searchParams, openModal]); // ОПТИМИЗАЦИЯ: убрали stack из зависимостей, чтобы избежать race condition при закрытии
   // Обработка кнопки "Назад" на Android/PWA
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
@@ -150,7 +145,7 @@ export const GlobalModalManager = () => {
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.width = '';
-      
+
       if (scrollY) {
         window.scrollTo(0, parseInt(scrollY, 10));
       }
@@ -159,7 +154,7 @@ export const GlobalModalManager = () => {
 
   // Рендерим только на клиенте и после монтирования
   if (typeof window === 'undefined' || !isMounted) return null;
-  
+
   // Проверяем, что document.body существует и готов
   if (!document.body) return null;
 
@@ -171,7 +166,7 @@ export const GlobalModalManager = () => {
   if (!topModal) return null;
 
   const Component = MODAL_COMPONENTS[topModal.type];
-  
+
   if (!Component) {
     if (process.env.NODE_ENV === 'development') {
       console.warn(`[GlobalModalManager] Unknown modal type: ${topModal.type}`);
@@ -241,10 +236,10 @@ export const GlobalModalManager = () => {
   // КРИТИЧНО: Модалки, которые сами создают портал (ResponsiveModal, CelebrationModal и т.д.)
   // не нужно оборачивать в дополнительный div, так как это блокирует клики
   // Проверяем, создает ли модалка свой портал
-  const createsOwnPortal = topModal.type === 'BOOST_SHOP' || 
-                           topModal.type === 'CELEBRATION' ||
-                           topModal.type === 'HALL_OF_FAME' ||
-                           topModal.type === 'DUEL_PASS_LEADERBOARD';
+  const createsOwnPortal = topModal.type === 'BOOST_SHOP' ||
+    topModal.type === 'CELEBRATION' ||
+    topModal.type === 'HALL_OF_FAME' ||
+    topModal.type === 'DUEL_PASS_LEADERBOARD';
 
   if (createsOwnPortal) {
     // Модалка сама создает портал, просто рендерим её

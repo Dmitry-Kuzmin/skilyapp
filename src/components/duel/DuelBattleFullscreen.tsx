@@ -282,8 +282,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     return () => clearInterval(interval);
   }, []);
 
-  // Initialize notifications for this duel
-  useNotifications({ showToasts: true, playSounds: true });
 
   // Get safe area insets from Telegram WebApp API
   const safeArea = useSafeArea();
@@ -2595,8 +2593,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           <QuestionProgressBar
             currentIndex={currentIndex}
             totalQuestions={questions.length}
-            onClose={!isTelegramMobile && !isTelegramDesktop ? () => setShowSurrenderModal(true) : undefined}
-            showClose={!isTelegramMobile && !isTelegramDesktop}
+            onClose={!isTelegramMobile ? () => setShowSurrenderModal(true) : undefined}
+            showClose={!isTelegramMobile}
             showQuestionMap={false}
             onToggleBookmark={profileId ? toggleBookmark : undefined}
             isBookmarked={isQuestionBookmarked}

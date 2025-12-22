@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect, lazy, Suspense, useCallback, useContext } from "react";
+import { useState, useEffect, lazy, Suspense, useCallback, useContext, memo } from "react";
 import { UserContext, useUserContext } from "@/contexts/UserContext";
 // ОПТИМИЗАЦИЯ: Index.tsx lazy loaded, но делаем динамический импорт для чистоты
 // Supabase будет загружаться только когда нужен (в handleClaimBonus)
@@ -27,12 +27,9 @@ const PaywallModal = lazy(() => import("@/components/monetization/PaywallModal")
 const WelcomeOverlay = lazy(() => import("@/components/dashboard-new/WelcomeOverlay").then(m => ({ default: m.WelcomeOverlay })));
 
 // Внутренний компонент для авторизованных пользователей
-// Это позволяет вызывать все хуки в правильном порядке
-const DashboardContent = () => {
-  console.log('[DashboardContent] 🚀 Component rendering started');
-
+// ОПТИМИЗАЦИЯ: Мемоизирован для предотвращения лишних ре-рендеров
+const DashboardContent = memo(function DashboardContent() {
   const { profileId } = useUserContext();
-  console.log('[DashboardContent] ProfileId from context:', profileId);
 
 
   const { isPremium, isTrial, daysRemaining } = usePremium();
@@ -56,17 +53,6 @@ const DashboardContent = () => {
   // Get dashboard data with caching
   const { data: dashboardData, loading, error, refresh: refreshDashboard, invalidateCache } = useDashboardData();
 
-  // ДИАГНОСТИКА: Логируем состояние загрузки
-  useEffect(() => {
-    console.log('[DashboardContent] State:', {
-      profileId,
-      loading,
-      hasData: !!dashboardData,
-      hasError: !!error,
-      errorMessage: error?.message,
-    });
-  }, [profileId, loading, dashboardData, error]);
-
   // Fallback для weeklyRewards если их нет в dashboardData
   const { data: dailyBonusDefinitions = [] } = useDailyBonusDefinitions();
 
@@ -81,18 +67,8 @@ const DashboardContent = () => {
 
 
   const handleClaimBonus = async () => {
-    console.log('[handleClaimBonus] Called', {
-      hasDailyBonus: !!dashboardData?.daily_bonus,
-      profileId,
-      canClaim: dashboardData?.daily_bonus?.can_claim,
-      claimingBonus
-    });
 
     if (!dashboardData?.daily_bonus || !profileId) {
-      console.error('[handleClaimBonus] Missing data:', {
-        hasDailyBonus: !!dashboardData?.daily_bonus,
-        profileId
-      });
       return;
     }
 
@@ -108,14 +84,6 @@ const DashboardContent = () => {
       });
 
       if (error) {
-        console.error('[handleClaimBonus] Edge Function error:', {
-          error,
-          name: error.name,
-          message: error.message,
-          status: (error as any).status,
-          statusText: (error as any).statusText,
-          profileId,
-        });
 
         // Более детальное сообщение об ошибке
         if ((error as any).status === 503) {
@@ -127,10 +95,7 @@ const DashboardContent = () => {
         }
       }
 
-      // Проверяем ответ
-      if (!data) {
-        throw new Error('No data received from server');
-      }
+      if (!data) throw new Error('No data received from server');
 
       // Проверяем, не был ли уже получен бонус сегодня
       if (data.already_claimed) {
@@ -145,17 +110,14 @@ const DashboardContent = () => {
         throw new Error(data?.error || 'Failed to claim daily bonus');
       }
 
-      const { streak, reward, date } = data;
+      const { streak, reward } = data;
 
       if (typeof streak !== 'number' || !reward || typeof reward !== 'object') {
-        console.error('[handleClaimBonus] Invalid response:', data);
         throw new Error('Invalid response from server: missing or invalid streak/reward');
       }
 
       const weekDay = (streak % 7) || 7;
       const weekNumber = Math.ceil(streak / 7);
-
-      console.log('[handleClaimBonus] Claim successful:', { streak, reward, weekDay, date });
 
       // Формируем текст награды
       const rewardText: string[] = [];
@@ -234,7 +196,6 @@ const DashboardContent = () => {
         }, 2000);
       }
     } catch (error: any) {
-      console.error('[handleClaimBonus] Error:', error);
       toast.error('Ошибка', { description: error?.message || 'Не удалось получить награду' });
     } finally {
       setClaimingBonus(false);
@@ -330,28 +291,15 @@ const DashboardContent = () => {
       </Suspense>
     </>
   );
-};
+});
 
 // Основной компонент Index - проверяет авторизацию и рендерит нужный контент
-const Index = () => {
-  console.log('[Index] 🚀 Index component rendering started', {
-    timestamp: new Date().toISOString(),
-    pathname: typeof window !== 'undefined' ? window.location.pathname : 'unknown',
-  });
-
-  // КРИТИЧНО: Безопасное получение UserContext - не выбрасывает ошибку если провайдер отсутствует
-  // Это позволяет Index работать даже если UserProvider еще не загрузился
+const Index = memo(function Index() {
+  // КРИТИЧНО: Безопасное получение UserContext
   const userContext = useContext(UserContext);
   const isAuthenticated = userContext?.isAuthenticated ?? false;
   const isLoading = userContext?.isLoading ?? true;
   const navigate = useNavigate();
-
-  console.log('[Index] UserContext state:', {
-    hasUserContext: !!userContext,
-    isAuthenticated,
-    isLoading,
-    profileId: userContext?.profileId,
-  });
 
   // КРИТИЧНО: Если не авторизован, редиректим на главную (где Landing рендерится напрямую)
   // НО: НЕ редиректим если мы в Telegram Mini App - там авторизация может появиться позже
@@ -373,25 +321,17 @@ const Index = () => {
     }
   }, [isLoading, userContext, isAuthenticated, navigate]);
 
-  // КРИТИЧНО: Показываем loader пока идет загрузка авторизации или пока UserProvider не готов
-  // Это предотвращает белый экран при перезагрузке страницы
+  // Показываем loader пока идет загрузка авторизации
   if (isLoading || !userContext) {
-    console.log('[Index] Showing PageLoader - waiting for auth', {
-      isLoading,
-      hasUserContext: !!userContext,
-    });
     return <PageLoader />;
   }
 
-  // КРИТИЧНО: Проверяем авторизацию и рендерим нужный компонент
-  // Все хуки вызываются внутри DashboardContent, что соблюдает правила хуков
+  // Проверяем авторизацию
   if (!isAuthenticated) {
-    console.log('[Index] Showing PageLoader - not authenticated');
-    return <PageLoader />; // Показываем loader пока идет редирект
+    return <PageLoader />;
   }
 
-  console.log('[Index] ✅ Rendering DashboardContent');
   return <DashboardContent />;
-};
+});
 
 export default Index;

@@ -5,12 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { 
-  GraduationCap, 
-  CheckCircle2, 
-  AlertCircle, 
+import {
+  GraduationCap,
+  CheckCircle2,
+  AlertCircle,
   XCircle,
   TrendingUp,
   Search,
@@ -119,12 +120,12 @@ export function AutoschoolStudentsProgress({ partnerId }: Props) {
 
   const filteredStudents = students.filter(student => {
     const matchesSearch = student.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         student.student_group?.toLowerCase().includes(searchQuery.toLowerCase());
-    
+      student.student_group?.toLowerCase().includes(searchQuery.toLowerCase());
+
     const matchesFilter = filterStatus === 'all' ||
-                         (filterStatus === 'ready' && student.exam_ready) ||
-                         (filterStatus === 'active' && student.is_active);
-    
+      (filterStatus === 'ready' && student.exam_ready) ||
+      (filterStatus === 'active' && student.is_active);
+
     return matchesSearch && matchesFilter;
   });
 
@@ -203,9 +204,9 @@ export function AutoschoolStudentsProgress({ partnerId }: Props) {
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-          <input 
-            type="text" 
-            placeholder="Поиск студента..." 
+          <input
+            type="text"
+            placeholder="Поиск студента..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-10 pr-4 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
@@ -213,19 +214,19 @@ export function AutoschoolStudentsProgress({ partnerId }: Props) {
         </div>
         <div className="flex items-center gap-2">
           <div className="flex bg-zinc-900 border border-zinc-800 rounded-lg p-1">
-            <button 
+            <button
               onClick={() => setFilterStatus('all')}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${filterStatus === 'all' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
               Все
             </button>
-            <button 
+            <button
               onClick={() => setFilterStatus('ready')}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${filterStatus === 'ready' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
               Готовы
             </button>
-            <button 
+            <button
               onClick={() => setFilterStatus('active')}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${filterStatus === 'active' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
@@ -271,7 +272,7 @@ export function AutoschoolStudentsProgress({ partnerId }: Props) {
                 {filteredStudents.map((student, index) => {
                   const readinessConfig = getReadinessConfig(student.readiness_status, student.exam_ready);
                   const ReadinessIcon = readinessConfig.icon;
-                  
+
                   return (
                     <motion.tr
                       key={student.student_id}
@@ -282,12 +283,12 @@ export function AutoschoolStudentsProgress({ partnerId }: Props) {
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <Avatar className="h-10 w-10 border border-zinc-700">
-                            <AvatarImage src={student.avatar_url || undefined} />
-                            <AvatarFallback className="bg-zinc-800 text-zinc-400 text-xs">
-                              {student.full_name?.substring(0, 2).toUpperCase() || "??"}
-                            </AvatarFallback>
-                          </Avatar>
+                          <UserAvatar
+                            profileId={student.user_id}
+                            size="md"
+                            showPremiumGlow={false}
+                            className="border border-zinc-700"
+                          />
                           <div>
                             <p className="text-sm font-medium text-white">
                               {student.full_name || "Без имени"}
@@ -304,11 +305,10 @@ export function AutoschoolStudentsProgress({ partnerId }: Props) {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <span className={`text-sm font-semibold ${
-                          student.accuracy_rate >= 90 ? 'text-emerald-400' :
-                          student.accuracy_rate >= 80 ? 'text-amber-400' :
-                          'text-red-400'
-                        }`}>
+                        <span className={`text-sm font-semibold ${student.accuracy_rate >= 90 ? 'text-emerald-400' :
+                            student.accuracy_rate >= 80 ? 'text-amber-400' :
+                              'text-red-400'
+                          }`}>
                           {student.accuracy_rate.toFixed(1)}%
                         </span>
                       </td>
@@ -316,11 +316,10 @@ export function AutoschoolStudentsProgress({ partnerId }: Props) {
                         <div className="flex items-center justify-end gap-2">
                           <div className="w-20 bg-zinc-800 rounded-full h-2 overflow-hidden">
                             <div
-                              className={`h-full transition-all ${
-                                student.exam_readiness_score >= 80 ? 'bg-emerald-500' :
-                                student.exam_readiness_score >= 60 ? 'bg-amber-500' :
-                                'bg-red-500'
-                              }`}
+                              className={`h-full transition-all ${student.exam_readiness_score >= 80 ? 'bg-emerald-500' :
+                                  student.exam_readiness_score >= 60 ? 'bg-amber-500' :
+                                    'bg-red-500'
+                                }`}
                               style={{ width: `${student.exam_readiness_score}%` }}
                             />
                           </div>
@@ -334,8 +333,8 @@ export function AutoschoolStudentsProgress({ partnerId }: Props) {
                           {student.last_test_at ? (
                             student.days_since_last_test !== null ? (
                               student.days_since_last_test === 0 ? 'Сегодня' :
-                              student.days_since_last_test === 1 ? 'Вчера' :
-                              `${student.days_since_last_test}д`
+                                student.days_since_last_test === 1 ? 'Вчера' :
+                                  `${student.days_since_last_test}д`
                             ) : 'Давно'
                           ) : 'Никогда'}
                         </span>
