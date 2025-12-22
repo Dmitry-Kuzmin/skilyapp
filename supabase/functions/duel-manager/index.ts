@@ -194,6 +194,86 @@ function generateDuelCode(): string {
   return code;
 }
 
+// 🆕 НОВОЕ: Отправка уведомления в Telegram при завершении дуэли
+async function sendDuelCompletionNotification({
+  supabaseClient,
+  recipientTelegramId,
+  opponentName,
+  isWinner,
+  isDraw,
+  myScore,
+  opponentScore,
+  coinsWon,
+  duelCode,
+}: {
+  supabaseClient: ReturnType<typeof createClient>;
+  recipientTelegramId: number | string;
+  opponentName: string;
+  isWinner: boolean;
+  isDraw: boolean;
+  myScore: number;
+  opponentScore: number;
+  coinsWon: number;
+  duelCode: string;
+}) {
+  const TELEGRAM_BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN');
+  if (!TELEGRAM_BOT_TOKEN) {
+    console.warn('[sendDuelCompletionNotification] No TELEGRAM_BOT_TOKEN, skipping');
+    return;
+  }
+
+  let emoji = '🏁';
+  let title = 'Дуэль завершена!';
+  let resultText = '';
+
+  if (isDraw) {
+    emoji = '🤝';
+    title = 'Ничья!';
+    resultText = `Вы с ${opponentName} сыграли вничью.\nСчёт: ${myScore} — ${opponentScore}`;
+  } else if (isWinner) {
+    emoji = '🏆';
+    title = 'Ты победил!';
+    resultText = `Ты победил ${opponentName}!\nСчёт: ${myScore} — ${opponentScore}`;
+    if (coinsWon > 0) {
+      resultText += `\n💰 +${coinsWon} монет`;
+    }
+  } else {
+    emoji = '😔';
+    title = 'Поражение';
+    resultText = `${opponentName} оказался сильнее.\nСчёт: ${myScore} — ${opponentScore}`;
+  }
+
+  const message = `${emoji} <b>${title}</b>\n\n${resultText}\n\n🆔 Код битвы: <code>${duelCode}</code>`;
+
+  const MINI_APP_URL = Deno.env.get('MINI_APP_URL') || 'https://skilyapp.com';
+
+  try {
+    const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: recipientTelegramId,
+        text: message,
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[
+            { text: '📊 Посмотреть детали', web_app: { url: `${MINI_APP_URL}/games/duel` } }
+          ]]
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('[sendDuelCompletionNotification] Telegram API error:', error);
+    } else {
+      console.log('[sendDuelCompletionNotification] ✅ Notification sent to', recipientTelegramId);
+    }
+  } catch (err) {
+    console.error('[sendDuelCompletionNotification] Failed to send:', err);
+  }
+}
+
 // Calculate scoring
 function calculateScore(
   difficulty: string,
@@ -5013,6 +5093,54 @@ Deno.serve(async (req) => {
             winnerUserId: isDraw ? null : playersWithScores[0].user_id,
             isDraw,
           });
+
+          // 🆕 НОВОЕ: Отправляем Telegram уведомления обоим игрокам
+          // Получаем код дуэли для уведомления
+          const { data: duelData } = await supabase
+            .from('duels')
+            .select('code')
+            .eq('id', duel_id)
+            .single();
+          const duelCode = duelData?.code || 'XXXX';
+
+          // Отправляем уведомления каждому игроку
+          for (const player of playersWithScores) {
+            if (!player.user_id || player.is_bot) continue; // Пропускаем ботов
+
+            // Получаем telegram_id игрока
+            const { data: playerProfile } = await supabase
+              .from('profiles')
+              .select('telegram_id, first_name')
+              .eq('id', player.user_id)
+              .single();
+
+            if (!playerProfile?.telegram_id) {
+              console.log(`[finish_duel] Player ${player.user_id} has no telegram_id, skipping notification`);
+              continue;
+            }
+
+            // Находим оппонента
+            const opponent = playersWithScores.find((p: any) => p.user_id !== player.user_id);
+            const opponentName = opponent?.is_bot ? 'Бот' : (opponent?.profiles?.first_name || 'Соперник');
+
+            // Определяем результат для этого игрока
+            const isPlayerWinner = player.id === winnerId;
+            const myScore = player.score || 0;
+            const opponentScore = opponent?.score || 0;
+
+            // Отправляем уведомление
+            await sendDuelCompletionNotification({
+              supabaseClient: supabase,
+              recipientTelegramId: playerProfile.telegram_id,
+              opponentName,
+              isWinner: isPlayerWinner,
+              isDraw,
+              myScore,
+              opponentScore,
+              coinsWon: isPlayerWinner && duel.bet_amount > 0 ? duel.bet_amount * 2 : 0,
+              duelCode,
+            });
+          }
 
           // Create finish notification for opponent
           const opponentPlayer = playersWithScores.find((p: any) => p.user_id !== profile_id);
