@@ -419,19 +419,24 @@ export default function Duel() {
         // Ждем загрузки профиля и основных данных
         if (!dataLoaded || !profileId || isChecking) return;
 
-        const urlCode = searchParams.get('code');
+        // 1. Пытаемся достать из URL (Native Browser way)
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlCode = urlParams.get('code') || searchParams.get('code');
+
+        // 2. Пытаемся достать из Telegram start_param
         const tgStartParam = getTelegramWebApp()?.initDataUnsafe?.start_param;
 
-        // Telegram может передать "duel_XXXX" в start_param
         let code = urlCode;
         if (!code && tgStartParam?.startsWith('duel_')) {
             code = tgStartParam.replace('duel_', '');
-            console.log('[Duel] 🛰️ Extracted code from start_param:', code);
         }
 
+        console.log('[Duel] 🕵️ Checking for code. URL:', urlCode, 'TG:', tgStartParam, 'Final:', code);
+
+        // 3. Если нашли код - запускаем вступление
         if (code && (code.length === 4 || code.length === 6) && !hasAutoJoinedRef.current) {
-            console.log('[Duel] 🔗 Deep link code DETECTED and processing:', code);
-            // Даем небольшую задержку, чтобы профиль точно "прогрелся"
+            console.log('[Duel] 🚀 AUTO-JOIN INITIATED for code:', code);
+            // Даем задержку для стабильности
             setTimeout(() => {
                 handleInlineJoin(code);
             }, 500);
@@ -1780,26 +1785,28 @@ export default function Duel() {
                                                                         }}
                                                                     >
                                                                         {/* Code with Copy Icon - рядом с кодом */}
-                                                                        {/* 🛠 DEBUG OVERLAY (Удалить перед продакшном) */}
+                                                                        {/* 🛠 DEBUG OVERLAY (Здесь он точно будет виден) */}
                                                                         <div style={{
                                                                             position: 'fixed',
-                                                                            top: 0,
-                                                                            left: 0,
-                                                                            right: 0,
-                                                                            zIndex: 9999,
-                                                                            background: 'rgba(0,0,0,0.8)',
+                                                                            top: '60px',
+                                                                            left: '10px',
+                                                                            right: '10px',
+                                                                            zIndex: 1000,
+                                                                            background: 'rgba(0,255,0,0.1)',
+                                                                            border: '1px solid #00ff00',
                                                                             color: '#00ff00',
                                                                             fontSize: '10px',
-                                                                            padding: '4px',
+                                                                            padding: '8px',
+                                                                            borderRadius: '8px',
                                                                             pointerEvents: 'none',
                                                                             fontFamily: 'monospace',
                                                                             display: 'flex',
-                                                                            justifyContent: 'space-between'
+                                                                            flexDirection: 'column',
+                                                                            gap: '2px',
+                                                                            backdropFilter: 'blur(4px)'
                                                                         }}>
-                                                                            <span>URL Code: {searchParams.get('code') || 'null'}</span>
-                                                                            <span>Join status: {isJoining ? 'JOINING...' : 'idle'}</span>
-                                                                            <span>Profile: {profileId ? 'OK' : 'WAIT'}</span>
-                                                                            <span>AutoJoinRef: {hasAutoJoinedRef.current ? 'TRUE' : 'FALSE'}</span>
+                                                                            <div>CODE: {searchParams.get('code') || new URLSearchParams(window.location.search).get('code') || 'MISSING'}</div>
+                                                                            <div>STATE: {isJoining ? 'JOINING...' : 'IDLE'} | PROF: {profileId ? 'OK' : 'WAIT'}</div>
                                                                         </div>
 
                                                                         <div className="flex items-center justify-center gap-3 mb-3 relative z-10">
