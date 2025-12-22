@@ -20,6 +20,7 @@ export interface DeepLinkData {
  * Форматы:
  * - duel_{duel_id} → { action: 'duel', id: duel_id }
  * - test_{topic_id} → { action: 'test', id: topic_id }
+ * - blog_{slug} → { action: 'blog', id: slug }
  * - ref_{code} → { action: 'ref', id: code }
  * - partner_{code} → { action: 'partner', id: code }
  * - {code} (без префикса) → проверяем, партнерский ли это код
@@ -32,7 +33,7 @@ export function parseDeepLink(startParam: string): DeepLinkData | null {
 
   // Проверяем формат action_id
   const parts = startParam.split('_');
-  
+
   if (parts.length === 2) {
     const [action, id] = parts;
     console.log('[Deep Link] Parsed:', { action, id });
@@ -42,7 +43,7 @@ export function parseDeepLink(startParam: string): DeepLinkData | null {
   // Простое действие без ID
   if (parts.length === 1) {
     const code = parts[0];
-    
+
     // КРИТИЧНО: Если код без префикса, проверяем, может это партнерский код
     // Telegram Partner Program может использовать просто код без префикса
     // Проверяем формат (обычно партнерские коды - это 3-6 символов, реферальные - 6)
@@ -51,7 +52,7 @@ export function parseDeepLink(startParam: string): DeepLinkData | null {
       console.log('[Deep Link] Detected possible partner code (no prefix):', code);
       return { action: 'partner', id: code };
     }
-    
+
     console.log('[Deep Link] Parsed simple action:', code);
     return { action: code };
   }
@@ -70,7 +71,7 @@ export function extractDeepLink(): DeepLinkData | null {
   try {
     // Получаем start_param из initData
     const startParam = webApp.initDataUnsafe?.start_param;
-    
+
     if (startParam) {
       console.log('[Deep Link] Found start_param:', startParam);
       return parseDeepLink(startParam);
@@ -79,7 +80,7 @@ export function extractDeepLink(): DeepLinkData | null {
     // Пытаемся получить из URL (fallback)
     const urlParams = new URLSearchParams(window.location.search);
     const startAppParam = urlParams.get('startapp');
-    
+
     if (startAppParam) {
       console.log('[Deep Link] Found startapp param:', startAppParam);
       return parseDeepLink(startAppParam);
@@ -215,10 +216,10 @@ if (typeof document !== 'undefined') {
  */
 export function isAppActive(): boolean {
   if (!isAppVisible) return false;
-  
+
   const inactiveThreshold = 60 * 1000; // 1 минута
   const timeSinceActivity = Date.now() - lastActivityTime;
-  
+
   return timeSinceActivity < inactiveThreshold;
 }
 

@@ -431,13 +431,8 @@ async function handleInlineQuery(query: TelegramInlineQuery): Promise<void> {
         reply_markup: {
           inline_keyboard: [[
             {
-              text: '📖 Читать в Skily',
-              url: `https://skilyapp.com/blog/${slug}`
-            }
-          ], [
-            {
-              text: '🚀 Открыть Skily',
-              url: 'https://t.me/sdadimtutbot/app'
+              text: '📖 Читать статью',
+              url: `https://t.me/sdadimtutbot/app?startapp=blog_${slug}`
             }
           ]]
         },
@@ -463,13 +458,8 @@ async function handleInlineQuery(query: TelegramInlineQuery): Promise<void> {
         reply_markup: {
           inline_keyboard: [[
             {
-              text: '📖 Читать в Skily',
-              url: `https://skilyapp.com/blog/${slug}`
-            }
-          ], [
-            {
-              text: '🚀 Открыть Skily',
-              url: 'https://t.me/sdadimtutbot/app'
+              text: '📖 Читать статью',
+              url: `https://t.me/sdadimtutbot/app?startapp=blog_${slug}`
             }
           ]]
         },
