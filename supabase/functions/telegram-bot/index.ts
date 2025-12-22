@@ -223,9 +223,7 @@ async function handleInlineQuery(query: TelegramInlineQuery) {
 
     const lang = normalizeLanguage(query.from.language_code);
     const duelCode = Math.random().toString(36).substring(2, 6).toUpperCase();
-    // Используем формат startapp для открытия Mini App внутри Telegram
-    // short_name = SkilyApp (из настроек BotFather)
-    const duelUrl = `https://t.me/skilyapp_bot/SkilyApp?startapp=${duelCode}`;
+    const duelUrl = `${MINI_APP_URL}/games/duel?code=${duelCode}`;
 
     const results = [
       {
@@ -238,12 +236,12 @@ async function handleInlineQuery(query: TelegramInlineQuery) {
           parse_mode: "HTML"
         },
         reply_markup: {
-          inline_keyboard: [[{ text: t('inline.duel.button', lang), url: duelUrl }]]
+          inline_keyboard: [[{ text: t('inline.duel.button', lang), web_app: { url: duelUrl } }]]
         }
       }
     ];
 
-    console.log(`[Inline] Sending answer with URL: ${duelUrl}`);
+    console.log(`[Inline] Sending answer with web_app URL: ${duelUrl}`);
     const response = await fetch(`${TELEGRAM_API}/answerInlineQuery`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
