@@ -3,11 +3,12 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Clock, Share2, Twitter } from "lucide-react";
+import { ArrowLeft, Clock, Share2, Twitter, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Page } from "@/components/Page";
+import { switchInlineQuery, canSwitchInlineQuery, isTelegramMiniApp } from "@/lib/telegram";
 
 interface ArticleData {
   slug: string;
@@ -2670,8 +2671,23 @@ const Article = () => {
   }
 
   const shareUrl = `https://skilyapp.com/blog/${article.slug}`;
+  const isTelegram = isTelegramMiniApp();
 
-  const handleShare = async () => {
+  // Шеринг через Telegram inline query (красивые карточки)
+  const handleTelegramShare = () => {
+    // Формируем query для inline-бота: article:slug
+    // Бот создаст красивую карточку с превью статьи
+    const inlineQuery = `article:${article.slug}`;
+    const success = switchInlineQuery(inlineQuery, ['users', 'groups', 'channels']);
+
+    if (!success) {
+      // Fallback на обычный шеринг если switchInlineQuery не работает
+      handleNativeShare();
+    }
+  };
+
+  // Нативный шеринг (Web Share API или копирование)
+  const handleNativeShare = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
@@ -2685,6 +2701,15 @@ const Article = () => {
     } else {
       navigator.clipboard.writeText(shareUrl);
       alert(t("article.share.copied"));
+    }
+  };
+
+  // Основной обработчик шеринга
+  const handleShare = () => {
+    if (isTelegram && canSwitchInlineQuery()) {
+      handleTelegramShare();
+    } else {
+      handleNativeShare();
     }
   };
 
@@ -3118,6 +3143,74 @@ const Article = () => {
                 </div>
               </div>
 
+              {/* Mobile: TOC + Share Block (visible only on mobile) */}
+              <div className="lg:hidden mb-8 space-y-4">
+                {/* Share + Read Time Row */}
+                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-800">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <Clock className="w-4 h-4" />
+                    <span>{t("article.meta.readTime", { minutes: article.readTime })}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("article.share.title")}</p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(shareUrl)}`;
+                        window.open(url, '_blank');
+                      }}
+                      className="h-9 w-9 p-0"
+                    >
+                      <Twitter className="w-4 h-4" />
+                    </Button>
+                    {isTelegram && canSwitchInlineQuery() ? (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={handleTelegramShare}
+                        className="h-9 px-3 bg-[#2AABEE] hover:bg-[#229ED9] text-white gap-1.5"
+                      >
+                        <Send className="w-4 h-4" />
+                        <span className="text-xs font-medium">Telegram</span>
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleShare}
+                        className="h-9 w-9 p-0"
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Table of Contents (Mobile) */}
+                {headings.length > 0 && (
+                  <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-800">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                      {t("article.toc.title")}
+                    </p>
+                    <nav className="space-y-2 max-h-48 overflow-y-auto">
+                      {headings.map((heading, index) => (
+                        <a
+                          key={index}
+                          href={`#${heading.id}`}
+                          className={cn(
+                            "block text-sm transition-colors hover:text-gray-900 dark:hover:text-gray-100",
+                            heading.level === 3 ? "ml-4 text-gray-600 dark:text-gray-400" : "text-gray-700 dark:text-gray-300 font-medium"
+                          )}
+                        >
+                          {heading.text}
+                        </a>
+                      ))}
+                    </nav>
+                  </div>
+                )}
+              </div>
+
               {/* Article Content */}
               <div className="prose prose-lg dark:prose-invert max-w-none 
                 prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 
@@ -3134,7 +3227,7 @@ const Article = () => {
               {/* Share Section */}
               <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">{t("article.share.title")}</p>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                   <Button
                     variant="outline"
                     size="sm"
@@ -3147,15 +3240,26 @@ const Article = () => {
                     <Twitter className="w-4 h-4" />
                     Twitter
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleShare}
-                    className="flex items-center gap-2"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    {t("article.share.button")}
-                  </Button>
+                  {isTelegram && canSwitchInlineQuery() ? (
+                    <Button
+                      size="sm"
+                      onClick={handleTelegramShare}
+                      className="flex items-center gap-2 bg-[#2AABEE] hover:bg-[#229ED9] text-white"
+                    >
+                      <Send className="w-4 h-4" />
+                      Поделиться в Telegram
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleShare}
+                      className="flex items-center gap-2"
+                    >
+                      <Share2 className="w-4 h-4" />
+                      {t("article.share.button")}
+                    </Button>
+                  )}
                 </div>
               </div>
 
@@ -3212,8 +3316,8 @@ const Article = () => {
             </article>
           </main>
 
-          {/* Right Sidebar */}
-          <aside className="lg:col-span-4">
+          {/* Right Sidebar - hidden on mobile, shown on desktop */}
+          <aside className="hidden lg:block lg:col-span-4">
             <div className="sticky top-20 space-y-6">
               {/* Meta Info Card */}
               <div className="p-6 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800">
@@ -3236,14 +3340,26 @@ const Article = () => {
                       >
                         <Twitter className="w-4 h-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleShare}
-                        className="h-9 w-9 p-0"
-                      >
-                        <Share2 className="w-4 h-4" />
-                      </Button>
+                      {isTelegram && canSwitchInlineQuery() ? (
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={handleTelegramShare}
+                          className="h-9 px-3 bg-[#2AABEE] hover:bg-[#229ED9] text-white gap-1.5"
+                        >
+                          <Send className="w-4 h-4" />
+                          <span className="text-xs font-medium">Telegram</span>
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleShare}
+                          className="h-9 w-9 p-0"
+                        >
+                          <Share2 className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>

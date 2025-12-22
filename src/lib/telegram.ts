@@ -59,6 +59,49 @@ export const syncTelegramColors = (isDarkMode: boolean) => {
 };
 
 /**
+ * Открывает выбор чата для отправки inline-сообщения через бота
+ * Используется для красивого шеринга с карточками вместо простых ссылок
+ * @param query - текст для inline-запроса (используется ботом для создания карточки)
+ * @param chatTypes - типы чатов для выбора: 'users', 'bots', 'groups', 'channels'
+ * @returns true если switchInlineQuery успешно вызван, false если недоступен
+ */
+export const switchInlineQuery = (
+  query: string,
+  chatTypes: ('users' | 'bots' | 'groups' | 'channels')[] = ['users', 'groups', 'channels']
+): boolean => {
+  const webApp = getTelegramWebApp();
+  if (!webApp) {
+    console.warn('[Telegram] switchInlineQuery: WebApp not available');
+    return false;
+  }
+
+  try {
+    // switchInlineQuery доступен с версии 6.7
+    if (typeof webApp.switchInlineQuery === 'function') {
+      webApp.switchInlineQuery(query, chatTypes);
+      console.log('[Telegram] ✅ switchInlineQuery called with:', query);
+      return true;
+    } else {
+      console.warn('[Telegram] switchInlineQuery not available in this version');
+      return false;
+    }
+  } catch (error) {
+    console.warn('[Telegram] ⚠️ switchInlineQuery error:', error);
+    return false;
+  }
+};
+
+/**
+ * Проверяет, доступен ли switchInlineQuery
+ * @returns true если switchInlineQuery поддерживается
+ */
+export const canSwitchInlineQuery = (): boolean => {
+  const webApp = getTelegramWebApp();
+  if (!webApp) return false;
+  return typeof webApp.switchInlineQuery === 'function';
+};
+
+/**
  * Принудительная перезагрузка страницы в Telegram Mini App
  * Используется для обновления кеша когда Service Worker недоступен
  */
