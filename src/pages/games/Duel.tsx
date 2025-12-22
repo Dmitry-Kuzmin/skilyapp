@@ -443,8 +443,8 @@ export default function Duel() {
 
         // 3. Если нашли код - запускаем вступление
         if (code && (code.length === 4 || code.length === 6)) {
-            if (hasAutoJoinedRef.current) {
-                console.log('[Duel] ⏭️ Skipping: already joined/joining');
+            if (hasAutoJoinedRef.current || duelId) {
+                console.log('[Duel] ⏭️ Skipping: already joined/joining or in lobby');
                 return;
             }
 
@@ -457,7 +457,7 @@ export default function Duel() {
                 handleInlineJoin(code);
             }, 800);
         }
-    }, [searchParams, dataLoaded, profileId, isChecking, mode]);
+    }, [searchParams, dataLoaded, profileId, isChecking]); // Убрал mode из зависимостей чтобы избежать цикла
 
     // Check if we're waiting for profile to load
     const isLoadingProfile = (user || supabaseUser) && !profileId;
@@ -1287,48 +1287,6 @@ export default function Duel() {
     // Lobby also fullscreen without footer
     return (
         <>
-            {/* 🛠 DEBUG OVERLAY - ВСЕГДА ВВЕРХУ */}
-            <div style={{
-                position: 'fixed',
-                top: '50px',
-                left: '20px',
-                right: '20px',
-                zIndex: 9999,
-                background: 'rgba(0,0,0,0.9)',
-                border: '1px solid #00ff00',
-                color: '#00ff00',
-                fontSize: '11px',
-                padding: '10px',
-                borderRadius: '8px',
-                pointerEvents: 'none',
-                fontFamily: 'monospace',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '4px',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-                backdropFilter: 'blur(8px)'
-            }}>
-                <div style={{ fontWeight: 'bold', borderBottom: '1px solid rgba(0,255,0,0.2)', paddingBottom: '4px', marginBottom: '4px' }}>🛡️ SDADIM DEBUG</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>URI: {window.location.pathname}</span>
-                    <span>CODE: <b style={{ color: '#fff' }}>{searchParams.get('code') || new URLSearchParams(window.location.search).get('code') || 'NONE'}</b></span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>STATE: {isJoining ? '🚀 JOINING...' : '😴 IDLE'}</span>
-                    <span>PROF: {profileId ? '✅ OK' : '⏳ WAIT'}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'rgba(0,255,0,0.6)' }}>
-                    <span>LOAD: {dataLoaded ? '✅' : '❌'}</span>
-                    <span>CHCK: {isChecking ? '⏳' : '✅'}</span>
-                    <span>REF: {hasAutoJoinedRef.current ? 'TRUE' : 'FALSE'}</span>
-                    <span>MODE: {mode}</span>
-                </div>
-                {joinError && (
-                    <div style={{ padding: '4px', background: 'rgba(255,0,0,0.2)', border: '1px solid #ff0000', color: '#ff4444', fontSize: '10px', marginTop: '4px', borderRadius: '4px', overflowWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
-                        ERR: {joinError}
-                    </div>
-                )}
-            </div>
             <ToastContainer />
             {mode === 'create' && duelCode ? (
                 <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 flex items-center justify-center p-4">
