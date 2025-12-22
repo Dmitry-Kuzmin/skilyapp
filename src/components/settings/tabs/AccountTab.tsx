@@ -9,6 +9,7 @@ import { User, Camera, LogOut, Check, MessageSquare, Mail, Pencil, Save, X } fro
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { UserContext } from '@/contexts/UserContext';
 import { useSettingsStore } from '@/store/settingsStore';
 import { toast } from 'sonner';
@@ -60,7 +61,7 @@ const SettingRow: React.FC<{
 export const AccountTab: React.FC = () => {
     const { closeSettings, userLevel } = useSettingsStore();
     const userContext = useContext(UserContext);
-    const { profileData, refresh: refreshProfile, loading: profileLoading } = useProfileData();
+    const { profileData, refresh: refreshProfile } = useProfileData();
 
     const user = userContext?.user;
     const logout = userContext?.logout || (() => { });
@@ -80,10 +81,9 @@ export const AccountTab: React.FC = () => {
         }
     }, [profileData, isEditingName]);
 
-    // КРИТИЧНО: Расширенный поиск фото
+    // КРИТИЧНО: Используем ту же логику что и в ProfileModal
     const photoUrl =
         profileData?.photo_url ||
-        profileData?.avatar_url ||
         user?.photo_url ||
         supabaseUser?.user_metadata?.avatar_url ||
         supabaseUser?.user_metadata?.picture;
@@ -114,6 +114,7 @@ export const AccountTab: React.FC = () => {
                 .update({
                     first_name: editedFirstName.trim(),
                     last_name: editedLastName.trim(),
+                    updated_at: new Date().toISOString()
                 })
                 .eq('id', profileData.id);
 
@@ -173,33 +174,21 @@ export const AccountTab: React.FC = () => {
                     <div className="flex items-start gap-4">
                         {/* Аватар */}
                         <div className="relative shrink-0">
-                            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center overflow-hidden ring-2 ring-white dark:ring-slate-700 shadow-lg">
-                                {photoUrl ? (
-                                    <img
-                                        src={photoUrl}
-                                        alt="Аватар"
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            console.warn('Avatar image failed to load:', photoUrl);
-                                            (e.target as HTMLImageElement).style.display = 'none';
-                                        }}
-                                    />
-                                ) : profileData?.equipped_avatar && profileData.equipped_avatar.length <= 4 ? (
-                                    <span className="text-4xl">
-                                        {profileData.equipped_avatar}
-                                    </span>
-                                ) : (
-                                    <span className="text-2xl font-bold text-white">
-                                        {firstName.charAt(0).toUpperCase()}
-                                    </span>
-                                )}
-                            </div>
+                            <Avatar className="w-16 h-16 ring-2 ring-white dark:ring-slate-700 shadow-lg">
+                                <AvatarImage src={photoUrl || undefined} className="object-cover" />
+                                <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-500 text-white font-bold text-2xl">
+                                    {profileData?.equipped_avatar && profileData.equipped_avatar.length <= 4
+                                        ? profileData.equipped_avatar
+                                        : firstName.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                            </Avatar>
+
                             <button
                                 onClick={() => {
                                     triggerHaptic('light');
                                     toast.info('Аватары можно менять в магазине скинов');
                                 }}
-                                className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-indigo-500 border-2 border-white dark:border-slate-800 flex items-center justify-center hover:bg-indigo-400 transition-all hover:scale-110"
+                                className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-indigo-500 border-2 border-white dark:border-slate-800 flex items-center justify-center hover:bg-indigo-400 transition-all hover:scale-110 shadow-sm"
                             >
                                 <Camera className="w-3.5 h-3.5 text-white" />
                             </button>
@@ -213,14 +202,15 @@ export const AccountTab: React.FC = () => {
                                         value={editedFirstName}
                                         onChange={(e) => setEditedFirstName(e.target.value)}
                                         placeholder="Имя"
-                                        className="h-9 text-sm focus-visible:ring-indigo-500"
+                                        className="h-9 text-sm focus-visible:ring-indigo-500 bg-white dark:bg-slate-900"
                                         disabled={isSaving}
+                                        autoFocus
                                     />
                                     <Input
                                         value={editedLastName}
                                         onChange={(e) => setEditedLastName(e.target.value)}
                                         placeholder="Фамилия"
-                                        className="h-9 text-sm focus-visible:ring-indigo-500"
+                                        className="h-9 text-sm focus-visible:ring-indigo-500 bg-white dark:bg-slate-900"
                                         disabled={isSaving}
                                     />
                                     <div className="flex gap-2">
@@ -228,26 +218,25 @@ export const AccountTab: React.FC = () => {
                                             size="sm"
                                             onClick={handleSaveName}
                                             disabled={isSaving}
-                                            className="h-8 bg-indigo-500 hover:bg-indigo-600"
+                                            className="h-8 bg-indigo-500 hover:bg-indigo-600 px-3"
                                         >
-                                            <Save className="w-3 h-3 mr-1" />
+                                            <Save className="w-3 h-3 mr-1.5" />
                                             Сохранить
                                         </Button>
                                         <Button
                                             size="sm"
-                                            variant="outline"
+                                            variant="ghost"
                                             onClick={handleCancelEdit}
                                             disabled={isSaving}
-                                            className="h-8"
+                                            className="h-8 px-3"
                                         >
-                                            <X className="w-3 h-3 mr-1" />
                                             Отмена
                                         </Button>
                                     </div>
                                 </div>
                             ) : (
                                 <>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 group">
                                         <h3 className="font-semibold text-slate-900 dark:text-white truncate">
                                             {firstName} {lastName}
                                         </h3>
@@ -256,7 +245,7 @@ export const AccountTab: React.FC = () => {
                                                 triggerHaptic('light');
                                                 setIsEditingName(true);
                                             }}
-                                            className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                            className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
                                         >
                                             <Pencil className="w-3.5 h-3.5 text-slate-400" />
                                         </button>
@@ -264,9 +253,11 @@ export const AccountTab: React.FC = () => {
                                     <p className="text-sm text-slate-500 dark:text-slate-400">
                                         @{username}
                                     </p>
-                                    <p className="text-xs text-indigo-500 dark:text-indigo-400 mt-1 font-medium">
-                                        Уровень {userLevel}
-                                    </p>
+                                    <div className="mt-1 flex items-center gap-2">
+                                        <span className="px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-[10px] font-bold text-indigo-500 uppercase tracking-wider">
+                                            Уровень {userLevel}
+                                        </span>
+                                    </div>
                                 </>
                             )}
                         </div>
@@ -287,7 +278,7 @@ export const AccountTab: React.FC = () => {
                         description={user?.id ? `@${user.username || 'подключено'}` : "Не подключено"}
                     >
                         {user?.id ? (
-                            <span className="flex items-center gap-1.5 text-emerald-500 text-xs font-medium bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-full">
+                            <span className="flex items-center gap-1.5 text-emerald-500 text-xs font-semibold bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-full">
                                 <Check className="w-3.5 h-3.5" />
                                 Активно
                             </span>
@@ -312,7 +303,7 @@ export const AccountTab: React.FC = () => {
                             : "Не подключено"}
                     >
                         {supabaseUser?.app_metadata?.provider === 'google' ? (
-                            <span className="flex items-center gap-1.5 text-emerald-500 text-xs font-medium bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-full">
+                            <span className="flex items-center gap-1.5 text-emerald-500 text-xs font-semibold bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-full">
                                 <Check className="w-3.5 h-3.5" />
                                 Активно
                             </span>
@@ -335,10 +326,12 @@ export const AccountTab: React.FC = () => {
                         description={supabaseUser?.email || "Не подключено"}
                     >
                         {supabaseUser?.email ? (
-                            <span className="flex items-center gap-1.5 text-emerald-500 text-xs font-medium bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-full">
-                                <Check className="w-3.5 h-3.5" />
-                                {supabaseUser.email_confirmed_at ? 'Подтверждён' : 'Не подтверждён'}
-                            </span>
+                            <div className="flex flex-col items-end gap-1">
+                                <span className="flex items-center gap-1.5 text-emerald-500 text-xs font-semibold bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-full">
+                                    <Check className="w-3.5 h-3.5" />
+                                    {supabaseUser.email_confirmed_at ? 'Активно' : 'Ожидание'}
+                                </span>
+                            </div>
                         ) : (
                             <Button variant="outline" size="sm" className="text-xs h-8">
                                 Подключить
