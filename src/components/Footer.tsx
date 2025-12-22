@@ -12,7 +12,7 @@ export function Footer() {
   const navigate = useNavigate();
   const isTelegramApp = isTelegramMiniApp();
   const { isAuthenticated } = useUserContext();
-  
+
   // SUPER ОПТИМИЗАЦИЯ: Берем partner из Super RPC Dashboard (нет отдельного запроса!)
   const { data: dashboardData } = useDashboardData();
   const partnerStatus = dashboardData?.partner?.partner_status;
@@ -22,8 +22,8 @@ export function Footer() {
     partnerStatus === "active";
 
   // Определяем fullscreen режимы (тесты и игры) - footer должен быть скрыт
-  const isFullscreenMode = 
-    location.pathname.startsWith('/test/') || 
+  const isFullscreenMode =
+    location.pathname.startsWith('/test/') ||
     location.pathname.includes('/duel') ||
     location.pathname.includes('/race-game') ||
     location.pathname.includes('/guess-the-sign') ||
@@ -51,20 +51,20 @@ export function Footer() {
     [
       { to: "/pricing", label: t("footer.pricing") },
       { to: "/refund-policy", label: t("footer.refundPolicy") },
-      { 
-        to: isPartner ? "/partner/dashboard" : "/partners", 
+      {
+        to: isPartner ? "/partner/dashboard" : "/partners",
         label: isPartner
           ? t("footer.partnerDashboard")
           : partnerStatus === "pending"
             ? t("footer.partnerPending")
-            : t("footer.becomePartner"), 
+            : t("footer.becomePartner"),
       },
     ],
   ];
 
   return (
-    <footer 
-      className="border-t border-border/50 bg-background/95 backdrop-blur-xl pb-4 md:pb-6"
+    <footer
+      className="border-t border-border/50 bg-background/95 backdrop-blur-xl pb-4 md:pb-6 mb-[140px] md:mb-0"
       style={{ position: 'static' }}
     >
       <div className="container mx-auto px-4 py-6">

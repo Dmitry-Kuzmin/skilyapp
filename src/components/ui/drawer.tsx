@@ -4,11 +4,11 @@ import { Drawer as DrawerPrimitive } from "vaul";
 import { cn } from "@/lib/utils";
 
 interface DrawerProps extends React.ComponentProps<typeof DrawerPrimitive.Root> {
-  /** Включить scale эффект фона при открытии */
+  /** Включить scale эффект фона при открытии (default: false из-за проблем с layout в Telegram) */
   shouldScaleBackground?: boolean;
 }
 
-const Drawer = ({ shouldScaleBackground = true, ...props }: DrawerProps) => (
+const Drawer = ({ shouldScaleBackground = false, ...props }: DrawerProps) => (
   <DrawerPrimitive.Root shouldScaleBackground={shouldScaleBackground} {...props} />
 );
 Drawer.displayName = "Drawer";

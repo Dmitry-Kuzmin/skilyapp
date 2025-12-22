@@ -160,7 +160,7 @@ const Games = () => {
   return (
     <>
       <Layout>
-        <div className="min-h-screen bg-background p-6 md:p-10 font-sans pb-24 text-foreground">
+        <div className="min-h-screen bg-background p-6 md:p-10 font-sans pb-6 text-foreground">
           <div className="max-w-[1370px] mx-auto space-y-8">
 
             {/* Page Header */}

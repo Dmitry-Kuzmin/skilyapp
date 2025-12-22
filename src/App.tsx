@@ -35,7 +35,6 @@ const DuelPassLeaderboardModal = lazy(() => import("@/components/leaderboard/Due
 const PerformanceMonitor = lazy(() => import("@/components/PerformanceMonitor").then(m => ({ default: m.PerformanceMonitor })));
 const GlobalModalManager = lazy(() => import("@/components/GlobalModalManager").then(m => ({ default: m.GlobalModalManager })));
 const PasskeyOnboardingWrapper = lazy(() => import("@/components/PasskeyOnboardingWrapper").then(m => ({ default: m.PasskeyOnboardingWrapper })));
-const UnifiedSettingsDrawer = lazy(() => import("@/components/settings/UnifiedSettingsDrawer").then(m => ({ default: m.UnifiedSettingsDrawer })));
 
 // ОПТИМИЗАЦИЯ: AppProviders lazy - НЕ попадает в initial bundle для лендинга
 // Это критично для производительности - Supabase/Query грузятся только для /app/*
@@ -529,7 +528,7 @@ const App = () => {
                         <GlobalModalManager />
                         <PerformanceMonitor />
                         <PasskeyOnboardingWrapper />
-                        <UnifiedSettingsDrawer />
+                        {/* UnifiedSettingsDrawer рендерится в AppProviders через GlobalSettingsManager */}
                       </Suspense>
                     </CosmeticsPreviewProvider>
                   </Suspense>

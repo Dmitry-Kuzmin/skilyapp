@@ -7,6 +7,7 @@ import { ArrowLeft, Clock, Share2, Twitter } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Page } from "@/components/Page";
 
 interface ArticleData {
   slug: string;
@@ -22,16 +23,16 @@ interface ArticleData {
 }
 
 const articles: Record<string, ArticleData> = {
-"novye-voprosy-dgt-2025": {
-  slug: "novye-voprosy-dgt-2025",
-  title: "Новые типы вопросов DGT в 2025: к чему готовиться",
-  description: "Свежие требования экзамена и рабочие приёмы подготовки с помощью Skilyapp.",
-  category: "Актуально",
-  categorySlug: "tips",
-  author: "Команда Skilyapp",
-  publishedAt: "2025-03-02",
-  readTime: 15,
-  content: `
+  "novye-voprosy-dgt-2025": {
+    slug: "novye-voprosy-dgt-2025",
+    title: "Новые типы вопросов DGT в 2025: к чему готовиться",
+    description: "Свежие требования экзамена и рабочие приёмы подготовки с помощью Skilyapp.",
+    category: "Актуально",
+    categorySlug: "tips",
+    author: "Команда Skilyapp",
+    publishedAt: "2025-03-02",
+    readTime: 15,
+    content: `
 # Новые типы вопросов DGT в 2025: к чему готовиться
 
 DGT усиливает блоки про восприятие риска и цифровые навыки. Теперь важно не просто помнить правило, а быстрее анализировать ситуацию. С января 2025 года в экзамене появилось **на 23% больше вопросов** с визуальными сценариями и **на 18% больше** комбинированных заданий, где нужно выбрать несколько правильных ответов.
@@ -161,17 +162,17 @@ DGT усиливает блоки про восприятие риска и ци
 
 Скачайте Skilyapp и начните тренироваться по актуальной версии экзамена уже сегодня. Первая неделя — бесплатно, без ограничений!
   `,
-},
-"analitika-dgt-progress": {
-  slug: "analitika-dgt-progress",
-  title: "Как читать аналитику прогресса и закрывать слабые темы",
-  description: "Методика, которая превращает отчёты Skilyapp в конкретные шаги подготовки.",
-  category: "Подготовка",
-  categorySlug: "preparation",
-  author: "Команда Skilyapp",
-  publishedAt: "2025-03-04",
-  readTime: 14,
-  content: `
+  },
+  "analitika-dgt-progress": {
+    slug: "analitika-dgt-progress",
+    title: "Как читать аналитику прогресса и закрывать слабые темы",
+    description: "Методика, которая превращает отчёты Skilyapp в конкретные шаги подготовки.",
+    category: "Подготовка",
+    categorySlug: "preparation",
+    author: "Команда Skilyapp",
+    publishedAt: "2025-03-04",
+    readTime: 14,
+    content: `
 # Как читать аналитику прогресса и закрывать слабые темы
 
 Цифры в профиле — это подсказки, куда направить время. Вот как их использовать. **Статистика показывает:** кандидаты, которые регулярно анализируют свой прогресс и работают над слабыми темами, повышают точность на **15-25%** за месяц подготовки.
@@ -339,7 +340,7 @@ Skilyapp не просто считает ответы — он подсказы
 
 Откройте аналитику прямо сейчас, найдите свою самую слабую тему и начните работать над ней по нашему алгоритму. Первые результаты увидите уже через 3-4 дня!
   `,
-},
+  },
   "podgotovka-na-russkom-i-ispanskom": {
     slug: "podgotovka-na-russkom-i-ispanskom",
     title: "Как готовиться к DGT, если думаете на русском, а сдаёте на испанском",
@@ -2571,7 +2572,7 @@ const Article = () => {
   useEffect(() => {
     if (article) {
       document.title = `${article.title} | Skilyapp Blog`;
-      
+
       // Обновляем мета-теги
       const metaDescription = document.querySelector('meta[name="description"]');
       if (metaDescription) {
@@ -2987,7 +2988,7 @@ const Article = () => {
           currentList = [];
           listType = null;
         }
-        
+
         const inlineParts = renderInlineText(trimmedLine);
         elements.push(
           <p key={`p-${index}`} className="mb-4 text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -3048,7 +3049,7 @@ const Article = () => {
   const extractHeadings = (content: string) => {
     const headings: { text: string; level: number; id: string }[] = [];
     const lines = content.split("\n");
-    
+
     lines.forEach((line) => {
       const trimmed = line.trim();
       if (trimmed.startsWith("## ") && !trimmed.startsWith("### ")) {
@@ -3061,7 +3062,7 @@ const Article = () => {
         headings.push({ text, level: 3, id });
       }
     });
-    
+
     return headings;
   };
 
@@ -3069,7 +3070,7 @@ const Article = () => {
   const otherArticles = Object.values(articles).filter(a => a.slug !== article.slug).slice(0, 2);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
+    <Page className="min-h-screen bg-white dark:bg-gray-950">
       {/* Minimal Header */}
       <header className="sticky top-0 z-50 bg-white/95 dark:bg-gray-950/95 backdrop-blur-sm border-b border-gray-100 dark:border-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -3114,8 +3115,8 @@ const Article = () => {
                     }),
                   })}</span>
                   <span>{t("article.meta.inCategory", { category: article.category.toLowerCase() })}</span>
-                  </div>
                 </div>
+              </div>
 
               {/* Article Content */}
               <div className="prose prose-lg dark:prose-invert max-w-none 
@@ -3146,17 +3147,17 @@ const Article = () => {
                     <Twitter className="w-4 h-4" />
                     Twitter
                   </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleShare}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleShare}
                     className="flex items-center gap-2"
-                >
+                  >
                     <Share2 className="w-4 h-4" />
-                  {t("article.share.button")}
-                </Button>
+                    {t("article.share.button")}
+                  </Button>
+                </div>
               </div>
-            </div>
 
               {/* Related Articles */}
               {otherArticles.length > 0 && (
@@ -3178,12 +3179,12 @@ const Article = () => {
                           </h3>
                           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
                             {relatedArticle.description}
-                </p>
+                          </p>
                           <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                             <Clock className="w-3 h-3" />
                             {t("article.meta.readTime", { minutes: relatedArticle.readTime })}
-              </div>
-              </div>
+                          </div>
+                        </div>
                       </Card>
                     ))}
                   </div>
@@ -3274,7 +3275,7 @@ const Article = () => {
           </aside>
         </div>
       </div>
-    </div>
+    </Page>
   );
 };
 

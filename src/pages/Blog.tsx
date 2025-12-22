@@ -4,11 +4,11 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  BookOpen, 
-  Search, 
-  Clock, 
-  Calendar, 
+import {
+  BookOpen,
+  Search,
+  Clock,
+  Calendar,
   ArrowRight,
   Newspaper,
   GraduationCap,
@@ -19,6 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LandingLogo } from "@/components/landing/LandingLogo";
+import { Page } from "@/components/Page";
 
 interface Article {
   slug: string;
@@ -179,19 +180,19 @@ const Blog = () => {
   );
 
   const filteredArticles = sortedArticles.filter(article => {
-    const matchesSearch = 
+    const matchesSearch =
       article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       article.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       article.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesCategory = 
+
+    const matchesCategory =
       activeCategory === "all" || article.categorySlug === activeCategory;
 
     return matchesSearch && matchesCategory;
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
+    <Page className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-800/50 shadow-sm" style={{ overflow: 'visible' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ overflow: 'visible' }}>
@@ -246,10 +247,10 @@ const Blog = () => {
                 {categories.map((category) => {
                   const Icon = category.icon;
                   const isActive = activeCategory === category.id;
-                  const count = category.id === "all" 
-                    ? articles.length 
+                  const count = category.id === "all"
+                    ? articles.length
                     : articles.filter(a => a.categorySlug === category.id).length;
-                  
+
                   return (
                     <button
                       key={category.id}
@@ -308,8 +309,8 @@ const Blog = () => {
                       <div className="p-6">
                         {/* Category Badge */}
                         <div className="flex items-center gap-2 mb-3">
-                          <Badge 
-                            variant="secondary" 
+                          <Badge
+                            variant="secondary"
                             className="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/40"
                           >
                             {article.category}
@@ -378,7 +379,7 @@ const Blog = () => {
           </main>
         </div>
       </div>
-    </div>
+    </Page>
   );
 };
 

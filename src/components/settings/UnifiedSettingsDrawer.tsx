@@ -203,7 +203,12 @@ export const UnifiedSettingsDrawer: React.FC = () => {
     // === RENDER ===
     if (isMobile) {
         return (
-            <Drawer open={isOpen} onOpenChange={(open) => !open && closeSettings()}>
+            <Drawer
+                open={isOpen}
+                onOpenChange={(open) => !open && closeSettings()}
+                shouldScaleBackground={false}
+                dismissible={true}
+            >
                 <DrawerContent className="h-[92dvh] max-h-[92dvh]">
                     <MobileContent />
                 </DrawerContent>

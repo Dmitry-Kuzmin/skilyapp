@@ -287,6 +287,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
           className="w-80 p-0"
           align="end"
           sideOffset={8}
+          overlayClassName="bg-black/60 backdrop-blur-[3px]"
         >
           <div className="p-4 space-y-4">
             {/* Header - кликабельный для редактирования */}

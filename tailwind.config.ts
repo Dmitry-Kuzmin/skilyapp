@@ -77,6 +77,19 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      // Telegram Safe Area Utilities
+      padding: {
+        "safe-top": "var(--tg-content-safe-area-inset-top, 0px)",
+        "safe-bottom": "var(--tg-content-safe-area-inset-bottom, 0px)",
+        "safe-left": "var(--tg-content-safe-area-inset-left, 0px)",
+        "safe-right": "var(--tg-content-safe-area-inset-right, 0px)",
+      },
+      height: {
+        "tg-screen": "var(--tg-viewport-stable-height, 100vh)",
+      },
+      minHeight: {
+        "tg-screen": "var(--tg-viewport-stable-height, 100vh)",
+      },
       keyframes: {
         "accordion-down": {
           from: {
@@ -130,19 +143,19 @@ export default {
           "100%": { backgroundPosition: "0% 50%" },
         },
         "premium-glow": {
-          "0%, 100%": { 
-            boxShadow: "0 0 20px rgba(234, 179, 8, 0.4), 0 0 40px rgba(249, 115, 22, 0.2), 0 0 0 3px rgba(234, 179, 8, 0.5)" 
+          "0%, 100%": {
+            boxShadow: "0 0 20px rgba(234, 179, 8, 0.4), 0 0 40px rgba(249, 115, 22, 0.2), 0 0 0 3px rgba(234, 179, 8, 0.5)"
           },
-          "50%": { 
-            boxShadow: "0 0 30px rgba(234, 179, 8, 0.6), 0 0 60px rgba(249, 115, 22, 0.4), 0 0 0 4px rgba(234, 179, 8, 0.7)" 
+          "50%": {
+            boxShadow: "0 0 30px rgba(234, 179, 8, 0.6), 0 0 60px rgba(249, 115, 22, 0.4), 0 0 0 4px rgba(234, 179, 8, 0.7)"
           },
         },
         "premium-rotate": {
-          "0%": { 
+          "0%": {
             transform: "rotate(0deg)",
             backgroundPosition: "0% 50%"
           },
-          "100%": { 
+          "100%": {
             transform: "rotate(360deg)",
             backgroundPosition: "200% 50%"
           },

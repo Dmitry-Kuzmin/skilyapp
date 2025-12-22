@@ -445,7 +445,7 @@ const Tests = () => {
   return (
     <>
       <Layout>
-        <div className="min-h-screen bg-background p-6 md:p-10 font-sans pb-24 text-foreground">
+        <div className="min-h-screen bg-background p-6 md:p-10 font-sans pb-6 text-foreground">
           <div className="max-w-[1370px] mx-auto space-y-8">
 
             {/* Page Header */}
@@ -553,7 +553,7 @@ const Tests = () => {
                         <Crown className="w-4 h-4 text-yellow-300 fill-yellow-300" />
                         <span className="text-sm font-bold text-white">Рекомендуется</span>
                       </div>
-                      <h2 className="text-5xl md:text-7xl font-black text-white tracking-tight leading-[0.9] drop-shadow-lg">
+                      <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tight leading-[0.9] drop-shadow-lg">
                         {t('testsPage.randomTest').toUpperCase()}
                       </h2>
                       <p className="text-lg md:text-xl text-white/90 font-medium max-w-md leading-relaxed">
