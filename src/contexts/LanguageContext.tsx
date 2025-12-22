@@ -450,6 +450,7 @@ const translations: Record<Language, Record<string, any>> = {
       },
       duelPass: {
         title: "Duel Pass",
+        subtitle: "Compite y gana recompensas exclusivas",
         description: "Obtén recompensas exclusivas por cada nivel. Premium duplica todas las recompensas.",
         button: "Abrir Duel Pass",
         toastTitle: "Duel Pass",
@@ -1388,6 +1389,7 @@ const translations: Record<Language, Record<string, any>> = {
       },
       duelPass: {
         title: "Duel Pass",
+        subtitle: "Compete and earn exclusive rewards",
         description: "Earn exclusive rewards for every level! Premium doubles all rewards.",
         button: "Open Duel Pass",
         toastTitle: "Duel Pass",
@@ -2308,6 +2310,7 @@ const translations: Record<Language, Record<string, any>> = {
       },
       duelPass: {
         title: "Duel Pass",
+        subtitle: "Соревнуйся и получай эксклюзивные награды",
         description: "Получайте эксклюзивные награды за каждый уровень! Premium удваивает все награды.",
         button: "Открыть Duel Pass",
         toastTitle: "Duel Pass",

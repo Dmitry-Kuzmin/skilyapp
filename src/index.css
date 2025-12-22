@@ -624,6 +624,29 @@ All colors MUST be HSL.
     animation: gradient 3s ease infinite;
   }
 
+  /* Cyber animations */
+  @keyframes slideDown {
+    from { transform: translateY(-50%); }
+    to { transform: translateY(0%); }
+  }
+
+  .animate-slide-down {
+    animation: slideDown 20s linear infinite;
+  }
+
+  @keyframes cyber-glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+  }
+
+  .animate-cyber-glitch {
+    animation: cyber-glitch 0.2s ease-in-out infinite;
+  }
+
   @keyframes float {
 
     0%,

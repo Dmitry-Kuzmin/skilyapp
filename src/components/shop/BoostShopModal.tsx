@@ -15,7 +15,7 @@ import { haptics } from '@/lib/haptics';
 import { BoostCard } from './BoostCard';
 import { MarketItem } from './MarketItem';
 import { CryptoMinerAdvanced } from './CryptoMinerAdvanced';
-// Removed framer-motion import for better performance
+import { motion, AnimatePresence } from 'framer-motion';
 import { PaywallModal } from '@/components/monetization/PaywallModal';
 import { usePremium } from '@/hooks/usePremium';
 import { RewardedAdModal } from '@/components/monetization/RewardedAdModal';
@@ -31,6 +31,7 @@ import { getPaddleInstance, getPaddleInstanceSync, preloadPaddle } from '@/lib/p
 import type { Paddle } from '@paddle/paddle-js';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const supabaseClient = supabase as any;
 
@@ -1164,9 +1165,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     "hover:text-foreground/80"
                   )}
                 >
-                  <Zap className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
+                  <Zap className="w-3.5 h-3.5 sm:mr-1.5 flex-shrink-0" />
                   <span className="hidden sm:inline">{t('boostShop.tabs.boosts')}</span>
-                  <span className="sm:hidden">⚡</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="coins"
@@ -1178,9 +1178,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     "hover:text-foreground/80"
                   )}
                 >
-                  <Coins className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
+                  <Coins className="w-3.5 h-3.5 sm:mr-1.5 flex-shrink-0" />
                   <span className="hidden sm:inline">{t('boostShop.tabs.coins')}</span>
-                  <span className="sm:hidden">🪙</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="premium"
@@ -1192,9 +1191,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     "hover:text-foreground/80"
                   )}
                 >
-                  <Crown className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
+                  <Crown className="w-3.5 h-3.5 sm:mr-1.5 flex-shrink-0" />
                   <span className="hidden sm:inline">{t('boostShop.tabs.premium')}</span>
-                  <span className="sm:hidden">👑</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="history"
@@ -1205,9 +1203,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     "hover:text-foreground/80"
                   )}
                 >
-                  <History className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
+                  <History className="w-3.5 h-3.5 sm:mr-1.5 flex-shrink-0" />
                   <span className="hidden sm:inline">{t('boostShop.tabs.history')}</span>
-                  <span className="sm:hidden">📋</span>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -1336,10 +1333,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                       >
                         <div className="flex flex-col gap-4 md:gap-5">
                           <div className="flex items-start gap-4">
-                            {/* Best Value бейдж - размещаем слева от иконки, не перекрывая цену */}
+                            {/* Best Value бейдж - яркий красно-оранжевый */}
                             {isBestValue && (
                               <div className="absolute -top-2 left-4 z-10">
-                                <Badge className="bg-gradient-to-r from-violet-500 to-purple-500 text-white border-0 shadow-lg shadow-violet-500/50 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                <Badge className="bg-gradient-to-r from-red-500 via-orange-500 to-amber-500 text-white border-0 shadow-lg shadow-red-500/50 text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">
                                   🔥 ХИТ
                                 </Badge>
                               </div>
@@ -1397,7 +1394,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
                             {/* Главная кнопка покупки */}
                             <div className="flex flex-col gap-2">
-                              {/* Telegram Stars (приоритетный метод в Telegram) */}
                               {showStarsPayment && (
                                 <StarsPaymentButton
                                   packageKey={pack.packageKey}
@@ -1412,22 +1408,28 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                   }}
                                   variant="default"
                                   size="default"
-                                  className={`w-full h-12 font-semibold text-base ${isHighlighted
-                                    ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110'
-                                    : 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50'
-                                    } transition-all duration-200 hover:scale-[1.01] ${isBestValue ? 'ring-2 ring-violet-400/50' : ''
-                                    }`}
+                                  className={cn(
+                                    "w-full h-12 font-semibold text-base transition-all duration-200 hover:scale-[1.01]",
+                                    isBestValue || isHighlighted
+                                      ? 'bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400 text-black hover:brightness-110 shadow-[0_0_20px_rgba(245,158,11,0.4)] font-bold'
+                                      : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50',
+                                    isBestValue && 'ring-2 ring-amber-400/50'
+                                  )}
                                 />
                               )}
 
-                              {/* Paddle (основной метод для web) - главная кнопка */}
                               {!showStarsPayment && showPaddlePayment && (
                                 <Button
                                   size="lg"
                                   aria-label={t('boostShop.coins.buyPackAria', { amount: pack.amount })}
                                   onClick={() => handleCoinPurchase(pack.catalogKey)}
-                                  className={`w-full h-12 font-semibold text-base bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0 shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 transition-all duration-200 hover:scale-[1.01] ${isBestValue ? 'ring-2 ring-violet-400/50' : ''
-                                    }`}
+                                  className={cn(
+                                    "w-full h-12 font-semibold text-base border-0 transition-all duration-200 hover:scale-[1.01]",
+                                    isBestValue || isHighlighted
+                                      ? 'bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400 text-black hover:brightness-110 shadow-[0_0_20px_rgba(245,158,11,0.4)] font-bold'
+                                      : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50',
+                                    isBestValue && 'ring-2 ring-amber-400/50'
+                                  )}
                                   disabled={!profileId || purchaseLoading === pack.catalogKey || paddleLoading}
                                 >
                                   {purchaseLoading === pack.catalogKey ? (
@@ -1646,17 +1648,21 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     </div>
                   </div>
 
-                  {/* Lifetime - Best */}
+                  {/* Lifetime - Best - КОРОЛЕВСКИЙ */}
                   <div className={cn(
                     "relative p-4 rounded-xl border-2 transition-all duration-200",
                     isPremium
                       ? "border-muted bg-card opacity-60"
-                      : "border-amber-500/50 bg-gradient-to-br from-amber-500/10 to-orange-500/10 hover:shadow-lg"
+                      : "border-amber-400 bg-gradient-to-br from-amber-500/15 via-yellow-500/10 to-orange-500/15 shadow-[0_0_30px_rgba(245,158,11,0.2)] hover:shadow-[0_0_40px_rgba(245,158,11,0.3)]"
                   )}>
+                    {/* Корона на фоне */}
+                    {!isPremium && (
+                      <div className="absolute top-2 right-2 text-3xl opacity-20">👑</div>
+                    )}
                     {!isPremium && (
                       <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
-                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 shadow-md text-[10px] px-2.5">
-                          {t('boostShop.premium.bestBadge')}
+                        <Badge className="bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400 text-black border-0 shadow-lg shadow-amber-500/50 text-[10px] px-2.5 font-bold">
+                          👑 {t('boostShop.premium.bestBadge')}
                         </Badge>
                       </div>
                     )}
@@ -1664,29 +1670,29 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                       <div>
                         <p className="text-xs font-medium text-muted-foreground">{t('boostShop.premium.lifetimeLabel')}</p>
                         <div className="flex items-baseline gap-1 mt-1">
-                          <span className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">€99.99</span>
+                          <span className="text-2xl font-black bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-clip-text text-transparent drop-shadow-sm">€99.99</span>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">{t('boostShop.premium.lifetimeSuffix')}</p>
+                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 font-medium">{t('boostShop.premium.lifetimeSuffix')}</p>
                       </div>
                       <Button
                         size="sm"
                         className={cn(
-                          "w-full",
-                          !isPremium && "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-md"
+                          "w-full font-bold",
+                          !isPremium && "bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400 hover:brightness-110 text-black shadow-[0_0_20px_rgba(245,158,11,0.4)] border-0"
                         )}
                         onClick={() => setPaywallOpen(true)}
                         disabled={isPremium}
                       >
-                        {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
+                        {isPremium ? t('boostShop.buttons.active') : <>👑 {t('boostShop.buttons.select')}</>}
                       </Button>
                     </div>
                   </div>
                 </div>
 
-                {/* Duel Pass Card */}
-                <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br from-primary/5 to-primary/10 p-5">
+                {/* Duel Pass Card - изумрудный */}
+                <div className="relative overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 p-5">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg shrink-0">
+                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30 shrink-0">
                       <Trophy className="w-6 h-6 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -1696,7 +1702,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     </div>
                   </div>
                   <Button
-                    className="w-full mt-4 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white shadow-md"
+                    className="w-full mt-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/30"
                     onClick={() => {
                       toast({
                         title: t('boostShop.duelPass.toastTitle'),
@@ -1968,63 +1974,84 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   };
 
   // 🏆 BLACK MARKET Header Design
+  const isMobile = useIsMobile();
+
   const headerContent = (
-    <div className="relative overflow-hidden">
-      {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-violet-600/10 via-purple-600/5 to-indigo-600/10 dark:from-violet-600/20 dark:via-purple-600/10 dark:to-indigo-600/20" />
-
-      {/* Animated glow */}
-      <div className="absolute -top-20 -right-20 w-40 h-40 bg-violet-500/20 rounded-full blur-3xl" />
-      <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-purple-500/15 rounded-full blur-2xl" />
-
-      <div className="relative px-4 md:px-5 py-4 md:py-5 border-b border-border/30 pr-12">
+    <div className="relative">
+      <div className="relative px-4 md:px-5 py-4 md:py-5 border-b border-border/30">
         <div className="flex items-center justify-between gap-3">
           {/* Left: Title & subtitle */}
-          <div className="flex items-center gap-3 min-w-0">
-            {/* Icon container */}
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            {/* Icon container - синий как лого */}
             <div className="relative shrink-0">
-              <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl blur-md opacity-60" />
-              <div className="relative w-11 h-11 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl blur-md opacity-50" />
+              <div className="relative w-11 h-11 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
                 <ShoppingBag className="w-5 h-5 text-white" />
               </div>
             </div>
 
-            <div className="min-w-0">
-              <h2 className="text-base md:text-lg font-black text-foreground truncate tracking-wide font-mono uppercase">
+            <div className="min-w-0 group/title relative">
+              <motion.h2
+                whileHover={{ x: [-1, 1, -1, 1, 0] }}
+                transition={{ duration: 0.2, repeat: Infinity }}
+                className="text-base md:text-lg font-black text-foreground truncate tracking-wide font-mono uppercase relative z-10"
+              >
                 BLACK MARKET
-              </h2>
-              <p className="text-[10px] text-muted-foreground truncate font-mono tracking-widest uppercase opacity-70">
-                ILLEGAL SOFTWARE DEPOT
+                {/* Glitch layers on hover */}
+                <span className="absolute top-0 left-0 -z-10 text-red-500 opacity-0 group-hover/title:opacity-50 group-hover/title:animate-pulse translate-x-[-2px] select-none">BLACK MARKET</span>
+                <span className="absolute top-0 left-0 -z-10 text-cyan-500 opacity-0 group-hover/title:opacity-50 group-hover/title:animate-pulse translate-x-[2px] select-none">BLACK MARKET</span>
+              </motion.h2>
+              <p className="text-[10px] text-muted-foreground truncate font-mono tracking-widest uppercase opacity-70 flex items-center gap-1">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                SECURE ACCESS GRANTED
               </p>
             </div>
           </div>
 
-          {/* Right: Coin balance */}
-          <button
-            onClick={async () => {
-              setActiveTab('history');
-              if (transactions.length === 0) {
-                await loadTransactionHistory();
-              }
-            }}
-            className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-xl shrink-0",
-              "bg-yellow-500/10 dark:bg-yellow-500/15",
-              "border border-yellow-500/30 dark:border-yellow-500/40",
-              "hover:bg-yellow-500/20 hover:border-yellow-500/50",
-              "transition-all duration-200",
-              "shadow-sm hover:shadow-md"
+          {/* Right: Coin balance + Close button */}
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={async () => {
+                setActiveTab('history');
+                if (transactions.length === 0) {
+                  await loadTransactionHistory();
+                }
+              }}
+              className={cn(
+                "flex items-center gap-2 px-3 py-2 rounded-xl",
+                "bg-muted/50 dark:bg-muted/30",
+                "hover:bg-muted/70",
+                "transition-all duration-200",
+                "shadow-sm hover:shadow-md"
+              )}
+            >
+              <div className="w-6 h-6 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-sm">
+                <Coins className="w-3.5 h-3.5 text-white" />
+              </div>
+              <NumberTicker
+                value={coins}
+                className="text-sm font-bold font-mono text-yellow-600 dark:text-yellow-400"
+                shouldFlash={true}
+              />
+            </button>
+
+            {/* Desktop close button - часть flex */}
+            {!isMobile && (
+              <button
+                onClick={() => onOpenChange(false)}
+                className={cn(
+                  "p-2 rounded-lg",
+                  "bg-muted/50 hover:bg-muted",
+                  "text-muted-foreground hover:text-foreground",
+                  "transition-all duration-200",
+                  "opacity-70 hover:opacity-100"
+                )}
+                aria-label="Закрыть"
+              >
+                <X className="w-4 h-4" />
+              </button>
             )}
-          >
-            <div className="w-6 h-6 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-sm">
-              <Coins className="w-3.5 h-3.5 text-white" />
-            </div>
-            <NumberTicker
-              value={coins}
-              className="text-sm font-bold font-mono text-yellow-600 dark:text-yellow-400"
-              shouldFlash={true}
-            />
-          </button>
+          </div>
         </div>
       </div>
     </div>
@@ -2040,7 +2067,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         contentClassName="scrollbar-none"
         snapPoints={[0.92, 1]}
         activeSnapPoint={0.92}
-        hideHandle={true}
       >
         {loading ? (
           <ModalSkeleton rows={4} />
@@ -2207,24 +2233,95 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 setSelectedBoostForInspect(null);
               }
             }}
-            className="bg-white dark:bg-[#0f1014] border-t border-zinc-200 dark:border-white/10 max-h-[80vh] relative"
-            contentClassName="p-6 relative"
+            className={cn(
+              "bg-[#0a0a0f] border border-white/10 max-h-[80vh]",
+              inspectTheme.border
+            )}
+            contentClassName="p-0"
           >
-            {/* Noise texture */}
-            <div
-              className="absolute inset-0 opacity-[0.01] dark:opacity-[0.02] mix-blend-overlay pointer-events-none z-0"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-                backgroundRepeat: 'repeat'
-              }}
+            {/* Cyber background effects */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {/* Binary Background Effect */}
+              <div className="absolute inset-0 opacity-[0.05] font-mono text-[10px] text-white leading-none select-none overflow-hidden">
+                <div className="animate-slide-down flex flex-col gap-1">
+                  {Array.from({ length: 20 }).map((_, i) => (
+                    <div key={i} className="whitespace-nowrap opacity-50">
+                      {Array.from({ length: 10 }).map(() => Math.round(Math.random())).join(' ')}
+                      {' '}{Array.from({ length: 10 }).map(() => Math.round(Math.random())).join(' ')}
+                      {' '}{Array.from({ length: 10 }).map(() => Math.round(Math.random())).join(' ')}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Grid pattern */}
+              <div
+                className="absolute inset-0 opacity-[0.03]"
+                style={{
+                  backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+                  backgroundSize: '20px 20px'
+                }}
+              />
+              {/* Glow effect based on category */}
+              <div className={cn(
+                "absolute -top-20 -right-20 w-40 h-40 rounded-full blur-3xl opacity-30",
+                inspectCategory === 'exploit' && "bg-red-500",
+                inspectCategory === 'defense' && "bg-cyan-500",
+                inspectCategory === 'utility' && "bg-emerald-500"
+              )} />
+              <div className={cn(
+                "absolute -bottom-10 -left-10 w-32 h-32 rounded-full blur-2xl opacity-20",
+                inspectCategory === 'exploit' && "bg-red-500",
+                inspectCategory === 'defense' && "bg-cyan-500",
+                inspectCategory === 'utility' && "bg-emerald-500"
+              )} />
+            </div>
+
+            {/* Scanline effect при появлении */}
+            <motion.div
+              initial={{ top: 0 }}
+              animate={{ top: '100%' }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              className={cn(
+                "absolute left-0 right-0 h-1 pointer-events-none z-20",
+                inspectCategory === 'exploit' && "bg-gradient-to-r from-transparent via-red-500 to-transparent shadow-[0_0_20px_rgba(239,68,68,0.8)]",
+                inspectCategory === 'defense' && "bg-gradient-to-r from-transparent via-cyan-500 to-transparent shadow-[0_0_20px_rgba(6,182,212,0.8)]",
+                inspectCategory === 'utility' && "bg-gradient-to-r from-transparent via-emerald-500 to-transparent shadow-[0_0_20px_rgba(34,197,94,0.8)]"
+              )}
             />
 
-            <div className="relative z-10">
+            {/* Border flash animation */}
+            <motion.div
+              initial={{ opacity: 1 }}
+              animate={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+              className={cn(
+                "absolute inset-0 rounded-xl pointer-events-none z-10",
+                inspectCategory === 'exploit' && "shadow-[inset_0_0_30px_rgba(239,68,68,0.5),0_0_30px_rgba(239,68,68,0.5)]",
+                inspectCategory === 'defense' && "shadow-[inset_0_0_30px_rgba(6,182,212,0.5),0_0_30px_rgba(6,182,212,0.5)]",
+                inspectCategory === 'utility' && "shadow-[inset_0_0_30px_rgba(34,197,94,0.5),0_0_30px_rgba(34,197,94,0.5)]"
+              )}
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                y: 0,
+                x: [0, -2, 2, -1, 1, 0] // Glitch shake
+              }}
+              transition={{
+                duration: 0.3,
+                x: { duration: 0.2, times: [0, 0.2, 0.4, 0.6, 0.8, 1] }
+              }}
+              className="relative z-10 p-5"
+            >
               {/* Header */}
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center gap-4 mb-5">
                 <div className={cn(
                   "w-16 h-16 rounded-xl flex items-center justify-center",
-                  "bg-zinc-100 dark:bg-black/50 border border-zinc-300 dark:border-white/10",
+                  "bg-black/50 border",
+                  inspectTheme.border,
                   inspectTheme.buttonShadow
                 )}>
                   <span
@@ -2240,85 +2337,112 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   </span>
                 </div>
                 <div className="flex-1">
-                  <div className="text-[10px] font-mono text-zinc-600 dark:text-white/40 mb-1">
+                  <div className={cn(
+                    "text-[10px] font-mono mb-1 uppercase tracking-widest",
+                    inspectTheme.text, "opacity-60"
+                  )}>
                     {inspectCategory === 'exploit' ? 'ATK' : inspectCategory === 'defense' ? 'DEF' : 'UTL'}_MODULE v.{inspectInventoryCount || 1}
                   </div>
-                  <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">
+                  <h2 className="text-xl font-bold text-white mb-1">
                     {translateBoostField(inspectBoost.type, 'name', inspectBoost.name_ru)}
                   </h2>
                   {inspectInventoryCount > 0 && inspectIsConsumable && (
-                    <div className="text-xs font-mono text-emerald-600 dark:text-emerald-400">
+                    <div className={cn(
+                      "inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono",
+                      "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                    )}>
+                      <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
                       STOCK: {inspectInventoryCount}
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Full Description */}
-              <div className="bg-zinc-50 dark:bg-white/5 p-4 rounded-xl border border-zinc-200 dark:border-white/5 mb-6">
-                <h3 className="text-xs font-mono text-zinc-600 dark:text-white/40 mb-2 uppercase tracking-wider">System Effect</h3>
-                <p className="text-sm text-zinc-700 dark:text-white/80 leading-relaxed">
+              {/* System Effect Block - Hacker style */}
+              <div className={cn(
+                "p-4 rounded-xl border mb-5",
+                "bg-white/[0.02]",
+                inspectTheme.border
+              )}>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className={cn(
+                    "w-2 h-2 rounded-full animate-pulse",
+                    inspectCategory === 'exploit' && "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]",
+                    inspectCategory === 'defense' && "bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.8)]",
+                    inspectCategory === 'utility' && "bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]"
+                  )} />
+                  <h3 className="text-[10px] font-mono text-white/40 uppercase tracking-widest">
+                    System Effect
+                  </h3>
+                </div>
+                <p className="text-sm text-white/70 leading-relaxed">
                   {translateBoostField(inspectBoost.type, 'description', inspectBoost.description_ru)}
                 </p>
               </div>
 
-              {/* Specs Grid */}
-              <div className="grid grid-cols-2 gap-3 mb-8">
-                <div className="p-3 rounded-lg bg-zinc-100 dark:bg-black/30 border border-zinc-200 dark:border-white/5">
-                  <div className="text-[10px] text-zinc-500 dark:text-white/30 font-mono mb-1">DURATION</div>
-                  <div className="text-sm text-zinc-900 dark:text-white font-bold">1 Round</div>
+              {/* Specs Grid - Terminal style */}
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="p-3 rounded-lg bg-black/30 border border-white/5">
+                  <div className="text-[9px] text-white/30 font-mono mb-1 uppercase tracking-wider">DURATION</div>
+                  <div className="text-sm text-white font-bold font-mono">1 Round</div>
                 </div>
-                <div className="p-3 rounded-lg bg-zinc-100 dark:bg-black/30 border border-zinc-200 dark:border-white/5">
-                  <div className="text-[10px] text-zinc-500 dark:text-white/30 font-mono mb-1">TARGET</div>
-                  <div className="text-sm text-zinc-900 dark:text-white font-bold">
-                    {inspectCategory === 'exploit' ? 'Enemy System' : inspectCategory === 'defense' ? 'Self' : 'Both'}
+                <div className="p-3 rounded-lg bg-black/30 border border-white/5">
+                  <div className="text-[9px] text-white/30 font-mono mb-1 uppercase tracking-wider">TARGET</div>
+                  <div className="text-sm text-white font-bold font-mono">
+                    {inspectCategory === 'exploit' ? 'Enemy' : inspectCategory === 'defense' ? 'Self' : 'Both'}
                   </div>
                 </div>
               </div>
 
-              {/* Big Action Button */}
-              <button
+              {/* Action Button - Neon style */}
+              <motion.button
                 onClick={() => {
                   handlePurchase(inspectBoost);
                   setSelectedBoostForInspect(null);
                 }}
                 disabled={!inspectCanAfford || inspectBoost.is_premium || inspectIsButtonDisabled}
                 className={cn(
-                  "w-full py-4 rounded-xl font-bold text-lg transition-all",
+                  "w-full py-4 rounded-xl font-bold text-base transition-all",
                   "flex items-center justify-center gap-2",
+                  "border",
                   inspectBoost.is_premium || inspectIsButtonDisabled || !inspectCanAfford
-                    ? "bg-gray-500/10 text-gray-400 border border-gray-500/30 cursor-not-allowed"
+                    ? "bg-white/5 text-white/30 border-white/10 cursor-not-allowed"
                     : cn(
                       inspectTheme.buttonBg,
                       inspectTheme.text,
                       inspectTheme.buttonBorder,
                       inspectTheme.buttonShadow,
-                      "active:scale-95"
+                      "active:scale-[0.98] hover:brightness-110"
                     )
                 )}
               >
                 {inspectBoost.is_premium ? (
                   <>
                     <Lock className="w-5 h-5" />
-                    <span>LOCKED</span>
+                    <span className="font-mono tracking-wider">LOCKED</span>
                   </>
                 ) : !inspectCanAfford ? (
-                  <span>INSUFFICIENT FUNDS</span>
+                  <span className="font-mono tracking-wider">INSUFFICIENT FUNDS</span>
                 ) : inspectIsButtonDisabled ? (
                   <>
                     <Check className="w-5 h-5" />
-                    <span>OWNED</span>
+                    <span className="font-mono tracking-wider">OWNED</span>
                   </>
                 ) : (
                   <>
-                    <Download className="w-5 h-5" />
-                    <span>INSTALL MODULE</span>
-                    <Coins className="w-5 h-5 text-yellow-500" />
-                    <span className="text-yellow-500">{inspectBoost.cost_coins}</span>
+                    <Download className="w-5 h-5 text-cyan-400" />
+                    <span className="font-mono tracking-wider">
+                      {inspectCategory === 'exploit' ? 'DEPLOY EXPLOIT' :
+                        inspectCategory === 'defense' ? 'PATCH SYSTEM' : 'INJECT MODULE'}
+                    </span>
+                    <div className="flex items-center gap-1.5 ml-2 px-2 py-0.5 bg-yellow-500/10 border border-yellow-500/20 rounded">
+                      <Coins className="w-4 h-4 text-yellow-500" />
+                      <span className="text-yellow-500 font-mono text-sm">{inspectBoost.cost_coins}</span>
+                    </div>
                   </>
                 )}
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
           </ResponsiveModal>
         );
       })()}

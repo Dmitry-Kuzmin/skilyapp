@@ -21,7 +21,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-[2147483645] bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-200 data-[state=closed]:duration-150",
+      "fixed inset-0 z-[2147483647] bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-200 data-[state=closed]:duration-150",
       className,
     )}
     style={{
@@ -57,7 +57,7 @@ const DialogContent = React.forwardRef<
         <DialogPrimitive.Content
           ref={ref}
           className={cn(
-            "fixed inset-0 z-[2147483646] w-full h-full max-w-none max-h-none p-0 flex flex-col rounded-none border-none bg-background",
+            "fixed inset-0 z-[2147483647] w-full h-full max-w-none max-h-none p-0 flex flex-col rounded-none border-none bg-background",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
             className,
@@ -91,7 +91,7 @@ const DialogContent = React.forwardRef<
           ref={ref}
           className={cn(
             // Базовые стили для bottom sheet
-            "fixed z-[2147483646] gap-4 bg-background shadow-lg transition ease-in-out",
+            "fixed z-[2147483647] gap-4 bg-background shadow-lg transition ease-in-out",
             // Позиционирование снизу без отступов
             "inset-x-0 bottom-0",
             // Скругление сверху
@@ -116,7 +116,7 @@ const DialogContent = React.forwardRef<
         >
           {/* Индикатор для свайпа */}
           <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-muted-foreground/30 rounded-full z-10" />
-          
+
           {/* КРИТИЧНО: Автоматически добавляем скрытые элементы доступности КАК ПРЯМЫХ ПОТОМКОВ
               Radix UI требует, чтобы DialogTitle и DialogDescription были прямыми потомками DialogContent */}
           {autoAccessibility && (
@@ -125,9 +125,9 @@ const DialogContent = React.forwardRef<
               <DialogPrimitive.Description className="sr-only" aria-hidden="true">Содержимое диалогового окна</DialogPrimitive.Description>
             </>
           )}
-          
+
           {children}
-          
+
           {!hideCloseButton && (
             <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10">
               <X className="h-5 w-5" />
@@ -143,68 +143,67 @@ const DialogContent = React.forwardRef<
   return (
     <DialogPortal>
       <DialogOverlay />
-      <DialogPrimitive.Content
-        ref={ref}
-        className={cn(
-          // Базовые стили для dialog (премиум стиль)
-          "fixed left-[50%] top-[50%] z-[2147483646] grid w-full gap-4 border bg-zinc-900 border-zinc-800 border-white/10 p-6 shadow-lg duration-200",
-          // Центрирование
-          "translate-x-[-50%] translate-y-[-50%]",
-          // Максимальная ширина
-          sizeConfig.maxWidth || "max-w-lg",
-          // Максимальная высота
-          sizeConfig.maxHeight || "max-h-[88vh]",
-          // Скругление
-          "rounded-xl",
-          // Анимации (как было)
-          "data-[state=open]:animate-in data-[state=closed]:animate-out",
-          "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-          "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-          "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
-          "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
-          // Overflow
-          "overflow-hidden overflow-y-auto",
-          className,
-        )}
-        onInteractOutside={(e) => {
-          // Предотвращаем закрытие при клике вне окна, если preventClose === true
-          if (preventClose) {
-            e.preventDefault();
-          }
-          // Вызываем оригинальный обработчик, если он был передан
-          props.onInteractOutside?.(e);
-        }}
-        onEscapeKeyDown={(e) => {
-          // Предотвращаем закрытие при ESC, если preventClose === true
-          if (preventClose) {
-            e.preventDefault();
-          }
-          // Вызываем оригинальный обработчик, если он был передан
-          props.onEscapeKeyDown?.(e);
-        }}
-        {...props}
-      >
-        {/* КРИТИЧНО: Автоматически добавляем скрытые элементы доступности КАК ПРЯМЫХ ПОТОМКОВ
+      {/* Обёртка для центрирования без transform (избегаем stacking context проблем) */}
+      <div className="fixed inset-0 z-[2147483647] flex items-center justify-center pointer-events-none">
+        <DialogPrimitive.Content
+          ref={ref}
+          className={cn(
+            // Базовые стили для dialog (премиум стиль)
+            "relative z-[2147483647] grid w-full gap-4 border bg-zinc-900 border-zinc-800 border-white/10 p-6 shadow-lg duration-200 pointer-events-auto",
+            // Максимальная ширина
+            sizeConfig.maxWidth || "max-w-lg",
+            // Максимальная высота
+            sizeConfig.maxHeight || "max-h-[88vh]",
+            // Скругление
+            "rounded-xl",
+            // Анимации (как было)
+            "data-[state=open]:animate-in data-[state=closed]:animate-out",
+            "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+            "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+            // Overflow
+            "overflow-hidden overflow-y-auto",
+            className,
+          )}
+          onInteractOutside={(e) => {
+            // Предотвращаем закрытие при клике вне окна, если preventClose === true
+            if (preventClose) {
+              e.preventDefault();
+            }
+            // Вызываем оригинальный обработчик, если он был передан
+            props.onInteractOutside?.(e);
+          }}
+          onEscapeKeyDown={(e) => {
+            // Предотвращаем закрытие при ESC, если preventClose === true
+            if (preventClose) {
+              e.preventDefault();
+            }
+            // Вызываем оригинальный обработчик, если он был передан
+            props.onEscapeKeyDown?.(e);
+          }}
+          {...props}
+        >
+          {/* КРИТИЧНО: Автоматически добавляем скрытые элементы доступности КАК ПРЯМЫХ ПОТОМКОВ
             Radix UI требует, чтобы DialogTitle и DialogDescription были прямыми потомками DialogContent
             Даже если они есть в children внутри DialogHeader, Radix их не видит */}
-        {autoAccessibility && (
-          <>
-            <DialogPrimitive.Title className="sr-only" aria-hidden="true">Диалоговое окно</DialogPrimitive.Title>
-            <DialogPrimitive.Description className="sr-only" aria-hidden="true">Содержимое диалогового окна</DialogPrimitive.Description>
-          </>
-        )}
-        
-        {children}
-        {!hideCloseButton && (
-          <DialogPrimitive.Close 
-            className="absolute right-4 top-4 z-50 rounded-sm opacity-70 ring-offset-background transition-all duration-200 hover:opacity-100 hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent/30"
-            aria-label="Закрыть модальное окно"
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">Закрыть</span>
-          </DialogPrimitive.Close>
-        )}
-      </DialogPrimitive.Content>
+          {autoAccessibility && (
+            <>
+              <DialogPrimitive.Title className="sr-only" aria-hidden="true">Диалоговое окно</DialogPrimitive.Title>
+              <DialogPrimitive.Description className="sr-only" aria-hidden="true">Содержимое диалогового окна</DialogPrimitive.Description>
+            </>
+          )}
+
+          {children}
+          {!hideCloseButton && (
+            <DialogPrimitive.Close
+              className="absolute right-4 top-4 z-50 rounded-sm opacity-70 ring-offset-background transition-all duration-200 hover:opacity-100 hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent/30"
+              aria-label="Закрыть модальное окно"
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Закрыть</span>
+            </DialogPrimitive.Close>
+          )}
+        </DialogPrimitive.Content>
+      </div>
     </DialogPortal>
   );
 });

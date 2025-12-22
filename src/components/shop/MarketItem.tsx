@@ -178,17 +178,27 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
     }
   };
 
+
   return (
     <motion.div
       ref={cardRef}
+      layoutId={`boost-card-${boost.id}`}
       onClick={() => {
         if (onInspect) {
           console.log('[MarketItem] Opening inspect sheet for:', boost.type);
+          // Haptic feedback для тактильного ощущения
+          try {
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+              window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+            }
+          } catch (e) {
+            // Ignore haptic errors
+          }
           onInspect();
         }
       }}
       whileHover={{ scale: 1.01, y: -1 }}
-      whileTap={{ scale: 0.99 }}
+      whileTap={{ scale: 0.98 }}
       animate={isGlitching ? {
         x: [0, -2, 2, -2, 2, 0],
         scale: [1, 1.01, 0.99, 1.01, 0.99, 1]
@@ -197,10 +207,12 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
         duration: 0.3,
         times: [0, 0.2, 0.4, 0.6, 0.8, 1],
         ease: 'easeInOut'
-      } : {}}
+      } : {
+        layout: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
+      }}
       className={cn(
-        "group relative flex flex-col sm:flex-row sm:items-center gap-3",
-        "p-3 sm:p-3 rounded-xl overflow-hidden",
+        "group relative flex items-center gap-2.5 sm:gap-4", // Всегда в ряд, на мобилках чуть плотнее
+        "p-2 sm:p-3 rounded-xl overflow-hidden",           // Уменьшен padding
         "bg-white dark:bg-zinc-900 border transition-all duration-300",
         "border-zinc-200 dark:border-zinc-800",
         theme.border,
@@ -244,17 +256,16 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
 
       {/* Иконка слева */}
       <div className={cn(
-        "relative z-10 flex-shrink-0",
-        "w-12 h-12 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center",
+        "w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center shrink-0",
         "bg-zinc-100 dark:bg-black/50 border border-zinc-300 dark:border-white/10",
         theme.iconBg || "shadow-[inset_0_0_15px_rgba(0,0,0,0.1)] dark:shadow-[inset_0_0_15px_rgba(0,0,0,0.3)]"
       )}>
         <span
-          className={cn("text-xl", theme.icon)}
+          className={cn("text-lg sm:text-xl", theme.icon)}
           style={{
             filter: `drop-shadow(0 0 8px ${boostCategory === 'exploit' ? 'rgba(239, 68, 68, 0.6)' :
-                boostCategory === 'defense' ? 'rgba(6, 182, 212, 0.6)' :
-                  'rgba(34, 197, 94, 0.6)'
+              boostCategory === 'defense' ? 'rgba(6, 182, 212, 0.6)' :
+                'rgba(34, 197, 94, 0.6)'
               })`
           }}
         >
@@ -263,23 +274,18 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
       </div>
 
       {/* Центральный контент: Название + Описание */}
-      <div className="relative z-10 flex-1 min-w-0 text-left w-full sm:w-auto">
-        <div className="flex items-center gap-2 mb-1 flex-wrap">
-          <h3 className="text-zinc-900 dark:text-white font-bold text-sm sm:text-sm leading-tight break-words sm:truncate group-hover:text-zinc-950 dark:group-hover:text-white transition-colors">
+      <div className="relative z-10 flex-1 min-w-0 text-left">
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <h3 className="text-zinc-900 dark:text-white font-bold text-[13px] sm:text-sm leading-none truncate">
             {displayName}
           </h3>
-          <div className="px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-white/5 border border-zinc-300 dark:border-white/10 text-[9px] font-mono text-zinc-600 dark:text-white/40 flex-shrink-0">
-            v.{level}
-          </div>
-          {/* STOCK Badge (Индикатор запаса для расходников) - рядом с версией */}
+          {/* STOCK Badge */}
           {inventoryCount > 0 && isConsumable && (
             <div className={cn(
-              "px-2 py-0.5 rounded border text-[9px] font-mono font-bold flex items-center gap-1 flex-shrink-0",
-              "bg-emerald-500/20 dark:bg-emerald-500/10 border-emerald-500/40 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400",
-              "shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+              "px-1 py-0 rounded border text-[8px] font-mono font-bold flex items-center shrink-0",
+              "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
             )}>
-              <span className="text-[8px] opacity-70">STOCK:</span>
-              <span className="text-xs">{inventoryCount}</span>
+              <span>{inventoryCount}</span>
             </div>
           )}
           {/* Badge количества для перманентных (если нужно) */}
@@ -293,10 +299,9 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
           )}
         </div>
         <div className="relative">
-          <p className="text-xs text-zinc-600 dark:text-white/60 line-clamp-2 sm:line-clamp-1 leading-relaxed break-words">
+          <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-slate-400 line-clamp-1 leading-tight">
             {displayDescription}
           </p>
-          {/* Убираем gradient overlay на мобильных - он вызывал черную полоску */}
         </div>
         {/* UTL/ATK/DEF bar - скрываем на маленьких экранах */}
         <div className="hidden sm:flex items-center gap-2 mt-1">
@@ -306,115 +311,129 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
           )}>
             {boostCategory === 'exploit' ? 'ATK' : boostCategory === 'defense' ? 'DEF' : 'UTL'}
           </span>
-          <div className="h-0.5 w-8 rounded-full bg-zinc-300 dark:bg-white/10 overflow-hidden">
+          <div className="h-1 w-10 rounded-full bg-zinc-300 dark:bg-white/10 overflow-hidden">
             <div className={cn(
-              "h-full w-2/3", theme.powerBar,
-              "shadow-[0_0_6px_currentColor]"
+              "h-full w-2/3 rounded-full", theme.powerBar,
+              boostCategory === 'exploit' && "shadow-[0_0_10px_rgba(239,68,68,0.8)]",
+              boostCategory === 'defense' && "shadow-[0_0_10px_rgba(6,182,212,0.8)]",
+              boostCategory === 'utility' && "shadow-[0_0_10px_rgba(34,197,94,0.8)]"
             )}></div>
           </div>
         </div>
-      </div>
+      </div >
 
-      {/* Правая часть: Цена + Кнопка */}
-      <div className="relative z-10 flex items-center justify-between sm:justify-end gap-2 flex-shrink-0 w-full sm:w-auto pt-2 sm:pt-0 border-t border-zinc-200 dark:border-zinc-800 sm:border-0">
-        <div className="font-mono text-yellow-600 dark:text-yellow-500 font-bold flex items-center gap-1 text-sm">
-          <Coins className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />
-          <span className="text-yellow-600 dark:text-yellow-500">{boost.cost_coins}</span>
+      {/* Правая часть: Цена + Кнопка (фиксированный размер) */}
+      <div className="relative z-10 flex items-center gap-3 shrink-0 ml-auto">
+        <div className="font-mono text-yellow-600 dark:text-yellow-500 font-bold flex items-center gap-1 text-[12px] sm:text-sm">
+          <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-600 dark:text-yellow-500" />
+          <span>{boost.cost_coins}</span>
         </div>
 
-        {boost.is_premium ? (
-          <div className={cn(
-            "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg",
-            "bg-gold/10 text-gold border border-gold/30",
-            "text-[10px] font-bold tracking-wider"
-          )}>
-            <Lock className="w-3 h-3" />
-            <span>LOCKED</span>
-          </div>
-        ) : !canAfford ? (
-          <div className={cn(
-            "px-2.5 py-1.5 rounded-lg",
-            "bg-zinc-100 dark:bg-white/5 text-zinc-500 dark:text-white/40 border border-zinc-300 dark:border-white/10",
-            "text-[10px] font-bold tracking-wider"
-          )}>
-            INSUFFICIENT
-          </div>
-        ) : isButtonDisabled ? (
-          // Перманентный предмет уже куплен
-          <div className={cn(
-            "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg",
-            "bg-gray-500/20 dark:bg-gray-500/10 text-gray-600 dark:text-gray-400 border border-gray-400/40 dark:border-gray-500/30",
-            "text-[10px] font-bold tracking-wider cursor-not-allowed"
-          )}>
-            <Check className="w-3 h-3" />
-            <span>OWNED</span>
-          </div>
-        ) : (
-          // Расходник или еще не купленный перманентный - можно покупать
-          <button
-            ref={buttonRef}
-            onClick={handlePurchaseClick}
-            disabled={isPurchasing || buttonState === 'processing'}
-            className={cn(
-              "relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg overflow-hidden",
-              "bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10",
-              "border border-zinc-300 dark:border-white/10 hover:border-zinc-400 dark:hover:border-white/30",
-              "transition-all active:scale-95",
-              "text-[10px] font-bold tracking-wider text-zinc-900 dark:text-white",
-              (isPurchasing || buttonState === 'processing') ? "cursor-not-allowed" : "cursor-pointer",
-              buttonState === 'acquired' && "bg-emerald-500/20 border-emerald-500/50"
-            )}
-          >
-            {/* Прогресс-бар overlay */}
-            {buttonState === 'processing' && (
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-indigo-500/30 to-violet-500/30"
-                initial={{ width: '0%' }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.1, ease: 'linear' }}
-              />
-            )}
-
-            {/* Контент кнопки */}
-            <span className="relative z-10 flex items-center gap-1.5">
-              {buttonState === 'processing' ? (
-                <>
-                  <span>PROCESSING</span>
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                  >
-                    <Download size={12} className="text-zinc-700 dark:text-white/70" />
-                  </motion.div>
-                </>
-              ) : buttonState === 'acquired' ? (
-                <>
-                  <Check size={12} className="text-emerald-500" />
-                  <span>ACQUIRED</span>
-                </>
-              ) : (
-                <>
-                  <span>GET</span>
-                  <Download size={12} className="text-zinc-700 dark:text-white/70" />
-                </>
+        {
+          boost.is_premium ? (
+            <div className={cn(
+              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg",
+              "bg-gold/10 text-gold border border-gold/30",
+              "text-[10px] font-bold tracking-wider"
+            )}>
+              <Lock className="w-3 h-3" />
+              <span>LOCKED</span>
+            </div>
+          ) : !canAfford ? (
+            <div className={cn(
+              "px-2.5 py-1.5 rounded-lg",
+              "bg-zinc-100 dark:bg-white/5 text-zinc-500 dark:text-white/40 border border-zinc-300 dark:border-white/10",
+              "text-[10px] font-bold tracking-wider"
+            )}>
+              INSUFFICIENT
+            </div>
+          ) : isButtonDisabled ? (
+            // Перманентный предмет уже куплен
+            <div className={cn(
+              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg",
+              "bg-gray-500/20 dark:bg-gray-500/10 text-gray-600 dark:text-gray-400 border border-gray-400/40 dark:border-gray-500/30",
+              "text-[10px] font-bold tracking-wider cursor-not-allowed"
+            )}>
+              <Check className="w-3 h-3" />
+              <span>OWNED</span>
+            </div>
+          ) : (
+            // Расходник или еще не купленный перманентный - можно покупать
+            <button
+              ref={buttonRef}
+              onClick={handlePurchaseClick}
+              disabled={isPurchasing || buttonState === 'processing'}
+              className={cn(
+                "relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg overflow-hidden",
+                "bg-white/5 hover:bg-white/10",
+                "border border-white/10 hover:border-white/20",
+                "transition-all active:scale-95",
+                "text-[10px] font-bold tracking-wider text-white",
+                "hover:shadow-[0_0_15px_rgba(255,255,255,0.15)]",
+                (isPurchasing || buttonState === 'processing') ? "cursor-not-allowed" : "cursor-pointer",
+                buttonState === 'acquired' && "bg-emerald-500/20 border-emerald-500/50 shadow-[0_0_15px_rgba(34,197,94,0.4)]"
               )}
-            </span>
-          </button>
-        )}
-      </div>
+            >
+              {/* Прогресс-бар overlay с цветом категории */}
+              {buttonState === 'processing' && (
+                <motion.div
+                  className={cn(
+                    "absolute inset-0",
+                    boostCategory === 'exploit' ? "bg-red-500/40" :
+                      boostCategory === 'defense' ? "bg-cyan-500/40" : "bg-emerald-500/40"
+                  )}
+                  initial={{ width: '0%' }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.1, ease: 'linear' }}
+                />
+              )}
+
+              {/* Контент кнопки */}
+              <span className="relative z-10 flex items-center gap-1.5">
+                {buttonState === 'processing' ? (
+                  <>
+                    <span className="font-mono text-[10px] tracking-tighter animate-pulse">DECRYPTING...</span>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }}
+                    >
+                      <Zap size={10} className={cn(
+                        boostCategory === 'exploit' ? "text-red-400" :
+                          boostCategory === 'defense' ? "text-cyan-400" : "text-emerald-400"
+                      )} />
+                    </motion.div>
+                  </>
+                ) : buttonState === 'acquired' ? (
+                  <>
+                    <Check size={12} className="text-emerald-400" />
+                    <span className="text-emerald-400 font-mono tracking-wide">SECURED</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="font-mono tracking-widest font-bold">ACCESS</span>
+                    <Download size={12} className="opacity-70 group-hover:translate-y-0.5 transition-transform" />
+                  </>
+                )}
+              </span>
+            </button>
+          )
+        }
+      </div >
 
       {/* Индикатор выбора (только для перманентных предметов, которые уже куплены) */}
-      {inventoryCount > 0 && !isConsumable && (
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          className="absolute top-1.5 right-1.5 z-20"
-        >
-          <div className="w-4 h-4 rounded-full bg-indigo-500 dark:bg-indigo-500 flex items-center justify-center shadow-[0_0_12px_rgba(99,102,241,0.8)]">
-            <Check className="w-2.5 h-2.5 text-white" />
-          </div>
-        </motion.div>
-      )}
+      {
+        inventoryCount > 0 && !isConsumable && (
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="absolute top-1.5 right-1.5 z-20"
+          >
+            <div className="w-4 h-4 rounded-full bg-indigo-500 dark:bg-indigo-500 flex items-center justify-center shadow-[0_0_12px_rgba(99,102,241,0.8)]">
+              <Check className="w-2.5 h-2.5 text-white" />
+            </div>
+          </motion.div>
+        )
+      }
 
       {/* Floating Cost */}
       <AnimatePresence>
@@ -427,7 +446,7 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
           />
         )}
       </AnimatePresence>
-    </motion.div>
+    </motion.div >
   );
 }, (prevProps, nextProps) => {
   // ОПТИМИЗАЦИЯ: Кастомная функция сравнения для предотвращения лишних ререндеров

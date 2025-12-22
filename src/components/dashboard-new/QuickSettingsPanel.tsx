@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Settings, X, Volume2, Music, Bell, Sun, Moon, 
-  Languages, Type
+import {
+  Settings, X, Volume2, Music, Bell, Sun, Moon,
+  Languages, Type, Globe, Palette
 } from 'lucide-react';
+import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { useTheme } from 'next-themes';
@@ -25,7 +26,7 @@ export const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
   const { theme, setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
   const { profileId } = useUserContext();
-  
+
   const [settings, setSettings] = useState({
     voiceOver: true,
     ambientMusic: false,
@@ -41,7 +42,7 @@ export const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
 
   const loadSettings = async () => {
     if (!profileId) return;
-    
+
     try {
       const { data } = await supabase
         .from('profiles')
@@ -65,7 +66,7 @@ export const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
 
   const updateSetting = async (key: string, value: any) => {
     playClickSound();
-    
+
     setSettings(prev => ({ ...prev, [key]: value }));
 
     if (!profileId) {
@@ -84,7 +85,7 @@ export const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
         .single();
 
       const currentSettings = (currentProfile?.settings as Record<string, any>) || {};
-      
+
       await supabase
         .from('profiles')
         .update({
@@ -134,7 +135,7 @@ export const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
             onClick={() => onOpenChange(false)}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
           />
-          
+
           {/* Panel */}
           <motion.div
             initial={{ x: '100%' }}
@@ -166,75 +167,39 @@ export const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              {/* Theme */}
+              {/* Theme Selection */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-3">
-                  {theme === 'dark' ? (
-                    <Moon className="w-4 h-4 text-slate-400" />
-                  ) : (
-                    <Sun className="w-4 h-4 text-slate-400" />
-                  )}
+                  <Palette className="w-4 h-4 text-slate-400" />
                   <span className="text-sm font-semibold text-slate-300">Тема</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => handleThemeChange('light')}
-                    className={`p-4 rounded-xl border-2 transition-all ${
-                      theme === 'light'
-                        ? 'border-indigo-500/50 bg-indigo-500/10'
-                        : 'border-slate-700/50 bg-slate-800/30 hover:border-slate-600/50'
-                    }`}
-                  >
-                    <Sun className={`w-5 h-5 mx-auto mb-2 ${theme === 'light' ? 'text-indigo-400' : 'text-slate-500'}`} />
-                    <span className={`text-xs font-medium ${theme === 'light' ? 'text-indigo-300' : 'text-slate-400'}`}>
-                      Светлая
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => handleThemeChange('dark')}
-                    className={`p-4 rounded-xl border-2 transition-all ${
-                      theme === 'dark'
-                        ? 'border-indigo-500/50 bg-indigo-500/10'
-                        : 'border-slate-700/50 bg-slate-800/30 hover:border-slate-600/50'
-                    }`}
-                  >
-                    <Moon className={`w-5 h-5 mx-auto mb-2 ${theme === 'dark' ? 'text-indigo-400' : 'text-slate-500'}`} />
-                    <span className={`text-xs font-medium ${theme === 'dark' ? 'text-indigo-300' : 'text-slate-400'}`}>
-                      Тёмная
-                    </span>
-                  </button>
-                </div>
+                <SegmentedControl
+                  options={[
+                    { id: 'light', label: 'Светлая', icon: <Sun className="w-4 h-4" /> },
+                    { id: 'dark', label: 'Тёмная', icon: <Moon className="w-4 h-4" /> },
+                  ]}
+                  value={theme || 'light'}
+                  onChange={(val) => handleThemeChange(val as any)}
+                  className="bg-slate-800/50 border-slate-700/50"
+                />
               </div>
 
-              {/* Language */}
+              {/* Language Selection */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-3">
-                  <Languages className="w-4 h-4 text-slate-400" />
+                  <Globe className="w-4 h-4 text-slate-400" />
                   <span className="text-sm font-semibold text-slate-300">Язык</span>
                 </div>
-                <div className="space-y-2">
-                  {languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => handleLanguageChange(lang.code)}
-                      className={`w-full p-3 rounded-xl border-2 transition-all flex items-center justify-between ${
-                        language === lang.code
-                          ? 'border-indigo-500/50 bg-indigo-500/10'
-                          : 'border-slate-700/50 bg-slate-800/30 hover:border-slate-600/50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-xl">{lang.flag}</span>
-                        <span className={`text-sm font-medium ${language === lang.code ? 'text-indigo-300' : 'text-slate-400'}`}>
-                          {lang.label}
-                        </span>
-                      </div>
-                      {language === lang.code && (
-                        <div className="w-2 h-2 rounded-full bg-indigo-400" />
-                      )}
-                    </button>
-                  ))}
-                </div>
+                <SegmentedControl
+                  options={[
+                    { id: 'ru', label: 'RU', icon: <span className="text-base">🇷🇺</span> },
+                    { id: 'en', label: 'EN', icon: <span className="text-base">🇬🇧</span> },
+                    { id: 'es', label: 'ES', icon: <span className="text-base">🇪🇸</span> },
+                  ]}
+                  value={language}
+                  onChange={(val) => handleLanguageChange(val as any)}
+                  className="bg-slate-800/50 border-slate-700/50"
+                />
               </div>
 
               {/* Audio Settings */}
@@ -243,7 +208,7 @@ export const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
                   <Volume2 className="w-4 h-4 text-slate-400" />
                   <span className="text-sm font-semibold text-slate-300">Звук</span>
                 </div>
-                
+
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 rounded-xl bg-slate-800/30 border border-slate-700/50">
                     <div className="flex items-center gap-3">
@@ -295,11 +260,10 @@ export const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
                     <button
                       key={size.value}
                       onClick={() => updateSetting('fontSize', size.value)}
-                      className={`p-3 rounded-xl border-2 transition-all ${
-                        settings.fontSize === size.value
-                          ? 'border-indigo-500/50 bg-indigo-500/10'
-                          : 'border-slate-700/50 bg-slate-800/30 hover:border-slate-600/50'
-                      }`}
+                      className={`p-3 rounded-xl border-2 transition-all ${settings.fontSize === size.value
+                        ? 'border-indigo-500/50 bg-indigo-500/10'
+                        : 'border-slate-700/50 bg-slate-800/30 hover:border-slate-600/50'
+                        }`}
                     >
                       <div className={`${size.size} font-medium mb-1 ${settings.fontSize === size.value ? 'text-indigo-300' : 'text-slate-400'}`}>
                         Aa

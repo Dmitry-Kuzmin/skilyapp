@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ScanFace, ArrowRight, ShieldCheck, Loader2, Mail } from 'lucide-react';
-import { Drawer } from 'vaul';
+import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UserContext } from '@/contexts/UserContext';
@@ -34,14 +34,14 @@ const DEFAULT_AVATAR = "https://images.unsplash.com/photo-1535713875002-d1d0cf37
 export function AuthModalNew({ open, onClose }: AuthModalProps) {
   // --- State Machine ---
   const [step, setStep] = useState<'email' | 'password-existing' | 'password-new'>('email');
-  
+
   // --- Data & Validation ---
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState<string | null>(null);
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
-  
+
   // --- Loading States ---
   const [checkingEmail, setCheckingEmail] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,7 +50,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const drawerContentRef = useRef<HTMLDivElement>(null);
-  
+
   // --- Refs & Context ---
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
@@ -127,7 +127,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   const { toast } = useToast();
   const { t } = useLanguage();
   const navigate = useNavigate();
-  
+
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   // --- Reset on Close ---
@@ -166,7 +166,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     if (!open) return;
 
     console.log('[AuthModalNew] Loading Telegram widget...');
-    
+
     (window as any).onTelegramAuth = async (user: any) => {
       console.log('[AuthModalNew] 🔔 Telegram auth callback triggered:', {
         hasUser: !!user,
@@ -174,7 +174,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         firstName: user?.first_name,
         username: user?.username
       });
-      
+
       if (!user || !user.id) {
         console.error('[AuthModalNew] ❌ Invalid user data in callback:', user);
         toast({
@@ -185,9 +185,9 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         setTelegramLoading(false);
         return;
       }
-      
+
       setTelegramLoading(true);
-      
+
       try {
         // КРИТИЧНО: Проверяем наличие login функции перед использованием
         if (!login) {
@@ -202,7 +202,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
           return;
         }
-        
+
         await login({
           id: user.id,
           first_name: user.first_name,
@@ -212,14 +212,14 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
           auth_date: user.auth_date,
           hash: user.hash,
         });
-        
+
         toast({
           title: t('auth.success.loggedIn'),
           description: t('auth.success.welcomeUser', { name: user.first_name }),
         });
-        
+
         onClose();
-        
+
         // КРИТИЧНО: Предотвращаем переключение на другую вкладку в Safari
         // Telegram widget может открывать popup/вкладку, поэтому нужно вернуть фокус на текущую
         try {
@@ -231,12 +231,12 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
               console.warn('[AuthModalNew] Could not close opener window:', e);
             }
           }
-          
+
           // Пытаемся вернуть фокус на текущее окно/вкладку
           if (window.focus) {
             window.focus();
           }
-          
+
           // Также пытаемся вернуть фокус через blur/focus
           if (document.hasFocus && !document.hasFocus()) {
             window.blur();
@@ -245,7 +245,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         } catch (e) {
           console.warn('[AuthModalNew] Could not focus window:', e);
         }
-        
+
         // Используем navigate вместо window.location.href для предотвращения проблем
         // с переключением вкладок в Safari. navigate безопаснее и работает корректно
         setTimeout(() => {
@@ -256,7 +256,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
             // Если уже на dashboard, просто обновляем страницу
             window.location.reload();
           }
-          
+
           // Дополнительно пытаемся вернуть фокус после навигации
           setTimeout(() => {
             try {
@@ -287,14 +287,14 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
       }
 
       container.innerHTML = '';
-      
+
       // Проверяем, что callback функция установлена
       if (typeof (window as any).onTelegramAuth !== 'function') {
         console.error('[AuthModalNew] onTelegramAuth callback not set!');
       } else {
         console.log('[AuthModalNew] onTelegramAuth callback is ready');
       }
-      
+
       const script = document.createElement('script');
       script.src = 'https://telegram.org/js/telegram-widget.js?22';
       script.async = true;
@@ -325,7 +325,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
       container.appendChild(script);
       console.log('[AuthModalNew] Telegram widget script appended, waiting for load...');
-      
+
       // КРИТИЧНО: Перехватываем клики на виджете, чтобы предотвратить открытие новых окон/вкладок
       // Telegram widget может открывать popup, нужно предотвратить это
       const handleContainerClick = (e: MouseEvent) => {
@@ -337,14 +337,14 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
           e.stopPropagation();
         }
       };
-      
+
       // Перехватываем клики на контейнере
       container.addEventListener('click', handleContainerClick, true);
-      
+
       // Также перехватываем события открытия новых окон
       const originalOpen = window.open;
       let windowOpenBlocked = false;
-      window.open = function(...args) {
+      window.open = function (...args) {
         if (windowOpenBlocked) {
           console.log('[AuthModalNew] Blocked window.open call:', args);
           // Блокируем открытие новых окон во время авторизации
@@ -352,10 +352,10 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         }
         return originalOpen.apply(this, args);
       };
-      
+
       // Блокируем window.open во время авторизации
       windowOpenBlocked = true;
-      
+
       // Обработка успешной загрузки виджета
       const originalOnLoad = script.onload;
       script.onload = () => {
@@ -387,14 +387,14 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
       setEmailError(t('auth.errors.invalidEmail'));
       return;
     }
-    
+
     setCheckingEmail(true);
     setEmailError(null);
 
     try {
       // Проверяем существование пользователя в Supabase
       const exists = await checkEmailExists(email);
-      
+
       if (exists) {
         // Пытаемся получить данные профиля пользователя через RPC
         try {
@@ -402,8 +402,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
           const { data: profileData, error } = await supabase
             .rpc('get_user_profile_by_email', { p_email: email });
 
-          console.log('[AuthModalNew] RPC Response:', { 
-            data: profileData, 
+          console.log('[AuthModalNew] RPC Response:', {
+            data: profileData,
             error: error,
             errorMessage: error?.message,
             errorDetails: error?.details,
@@ -414,12 +414,12 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
             const profile = profileData[0];
             console.log('[AuthModalNew] Profile data:', profile);
             setUserAvatar(profile.avatar_url || null);
-            
+
             // Формируем имя из доступных полей
             const displayName = [profile.first_name, profile.last_name]
               .filter(Boolean)
               .join(' ') || profile.username || email.split('@')[0];
-            
+
             setUserName(displayName);
           } else {
             console.warn('[AuthModalNew] No profile data found. Error details:', {
@@ -435,7 +435,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
           console.error('[AuthModalNew] Exception fetching profile:', profileError);
           setUserName(email.split('@')[0]);
         }
-        
+
         setCheckingEmail(false);
         setStep('password-existing');
       } else {
@@ -452,7 +452,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!password) return;
-    
+
     setIsSubmitting(true);
 
     try {
@@ -495,9 +495,9 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         if (hasSession) {
           // Сессия создана сразу - пользователь может войти без подтверждения email
           console.log('[AuthModalNew] Session created immediately after signUp');
-          
+
           const newUser = signUpData.user;
-          
+
           // Ждем создания профиля (может быть задержка из-за триггеров в БД)
           let profile = null;
           let attempts = 0;
@@ -507,7 +507,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
               .select('id')
               .eq('user_id', newUser.id)
               .maybeSingle();
-            
+
             if (profileData?.id) {
               profile = profileData;
               break;
@@ -528,7 +528,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
               // Получаем session_id из localStorage (если был сохранен при клике)
               const sessionId = localStorage.getItem('partner_session_id');
-              
+
               // Получаем fingerprint_hash (параллельно, не блокируем процесс)
               const { getFingerprint } = await import('@/lib/fingerprint');
               const fingerprintHash = await getFingerprint();
@@ -590,7 +590,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
           sessionStorage.removeItem('referral_code');
 
           onClose();
-          
+
           // Редиректим на dashboard, так как сессия уже создана
           if (window.location.pathname !== '/dashboard') {
             navigate('/dashboard', { replace: true });
@@ -600,7 +600,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         } else if (userCreated) {
           // Пользователь создан, но требуется подтверждение email
           console.log('[AuthModalNew] Email confirmation required');
-          
+
           toast({
             title: t('auth.success.registered'),
             description: t('auth.success.emailConfirmationRequired'),
@@ -615,7 +615,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
           setStep('email');
           setPassword('');
           setEmail('');
-          
+
           // Показываем дополнительное сообщение через небольшую задержку
           setTimeout(() => {
             toast({
@@ -655,7 +655,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         });
 
         onClose();
-        
+
         // КРИТИЧНО: Ждем обновления сессии перед редиректом
         // Проверяем, что сессия обновилась, и только потом редиректим
         // Используем window.location.href для полного перезапуска приложения
@@ -665,7 +665,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
           const signInMaxAttempts = 15; // Увеличиваем до 15 попыток (3 секунды)
           const checkSignInSession = async () => {
             const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
-            
+
             if (currentSession?.user) {
               console.log('[AuthModalNew] Session confirmed after signIn, redirecting to dashboard');
               if (window.location.pathname !== '/dashboard') {
@@ -675,7 +675,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
               }
               return;
             }
-            
+
             if (signInAttempts >= signInMaxAttempts) {
               console.warn('[AuthModalNew] Max attempts reached after signIn, redirecting anyway');
               // Даже если сессия не подтверждена, редиректим
@@ -687,12 +687,12 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
               }
               return;
             }
-            
+
             signInAttempts++;
             console.log(`[AuthModalNew] Waiting for session after signIn... (attempt ${signInAttempts}/${signInMaxAttempts})`);
             setTimeout(checkSignInSession, 200);
           };
-          
+
           // Начинаем проверку сразу после закрытия модалки
           setTimeout(checkSignInSession, 100);
         })();
@@ -765,7 +765,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         setIsPasskeyAvailable(false);
       }
     };
-    
+
     if (open) {
       checkPasskeyAvailability();
     }
@@ -782,7 +782,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         const vpHeight = window.visualViewport.height;
         const vpTop = window.visualViewport.offsetTop || 0;
         setViewportHeight(vpHeight);
-        
+
         // Определяем, открыта ли клавиатура
         // Клавиатура считается открытой, если viewport уменьшился более чем на 150px
         // Или если есть offsetTop (viewport сдвинулся вверх)
@@ -790,7 +790,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         const heightDiff = initialHeight - vpHeight;
         const keyboardIsOpen = heightDiff > keyboardThreshold || vpTop > 0;
         setIsKeyboardOpen(keyboardIsOpen);
-        
+
         // Позиционируем модалку относительно visualViewport
         if (keyboardIsOpen && drawerContentRef.current) {
           // Используем transform для позиционирования относительно visualViewport
@@ -804,7 +804,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         setViewportHeight(currentHeight);
         const keyboardIsOpen = currentHeight < initialHeight - 150;
         setIsKeyboardOpen(keyboardIsOpen);
-        
+
         if (drawerContentRef.current) {
           drawerContentRef.current.style.transform = '';
         }
@@ -845,15 +845,15 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
         const currentViewportHeight = window.visualViewport?.height || window.innerHeight;
         const inputRect = inputElement.getBoundingClientRect();
-        
+
         // Вычисляем желаемую позицию: поле должно быть в верхней трети видимой области
         const targetTop = currentViewportHeight * 0.2; // 20% от верха viewport
         const inputTop = inputRect.top;
         const scrollContainer = drawerContent.querySelector('[class*="overflow-y-auto"]') as HTMLElement || drawerContent;
-        
+
         // Вычисляем необходимый скролл
         const scrollOffset = inputTop - targetTop;
-        
+
         if (Math.abs(scrollOffset) > 10) {
           scrollContainer.scrollBy({
             top: scrollOffset,
@@ -868,7 +868,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     if (emailInput) {
       const emailHandler = () => handleFocus(emailInput);
       emailInput.addEventListener('focus', emailHandler);
-      
+
       return () => {
         emailInput.removeEventListener('focus', emailHandler);
       };
@@ -879,7 +879,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     if (passwordInput) {
       const passwordHandler = () => handleFocus(passwordInput);
       passwordInput.addEventListener('focus', passwordHandler);
-      
+
       return () => {
         passwordInput?.removeEventListener('focus', passwordHandler);
       };
@@ -888,7 +888,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
   const getPasskeyLabel = () => {
     if (typeof navigator === 'undefined') return 'Устройство';
-    
+
     const ua = navigator.userAgent.toLowerCase();
 
     if (/iphone|ipad|ipod/.test(ua)) {
@@ -914,10 +914,10 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   const modalContent = (
     <>
       {/* Ambient Glow */}
-      <motion.div 
-        animate={{ 
-          background: emailError 
-            ? 'radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.15), transparent 70%)' 
+      <motion.div
+        animate={{
+          background: emailError
+            ? 'radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.15), transparent 70%)'
             : step !== 'email'
               ? 'radial-gradient(circle at 50% 20%, rgba(59, 130, 246, 0.15), transparent 70%)'
               : 'radial-gradient(circle at 50% 100%, rgba(37, 99, 235, 0.1), transparent 70%)'
@@ -927,7 +927,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
       {/* Content */}
       <div className="relative z-10 p-6 sm:p-8 flex flex-col">
-    
+
         {/* --- HEADER SECTION --- */}
         <div className="flex flex-col items-center mb-6 min-h-[140px] justify-end">
           <AnimatePresence mode="wait">
@@ -941,9 +941,9 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                 className="relative mb-2"
               >
                 {userAvatar ? (
-                  <img 
-                    src={userAvatar} 
-                    alt={userName || "User"} 
+                  <img
+                    src={userAvatar}
+                    alt={userName || "User"}
                     className="w-20 h-20 rounded-full border-2 border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.1)] object-cover"
                     onError={(e) => {
                       console.log('[AuthModalNew] Avatar failed to load, using fallback');
@@ -965,7 +965,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
               </motion.div>
             ) : (
               /* Logo State */
-              <motion.div 
+              <motion.div
                 key="logo"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -992,7 +992,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   {step === 'password-existing' && (userName ? t('auth.welcomeBackWithName', { name: userName }) : t('auth.welcomeBack'))}
                   {step === 'password-new' && t('auth.createAccount')}
                 </h2>
-                
+
                 <p className="text-sm text-zinc-500 mt-2 font-medium">
                   {step === 'email' && t('auth.emailPrompt')}
                   {step === 'password-existing' && t('auth.accountVerified')}
@@ -1005,11 +1005,11 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
         {/* --- FORM SECTION --- */}
         <div className="flex-1 flex flex-col w-full max-w-[320px] mx-auto">
-          
+
           {/* --- STEP 1: EMAIL --- */}
           <AnimatePresence mode="popLayout">
             {step === 'email' ? (
-              <motion.div 
+              <motion.div
                 key="step-email"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -1017,88 +1017,88 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                 className="space-y-4"
               >
                 <form onSubmit={handleEmailSubmit} className="space-y-2">
-                  <Input 
+                  <Input
                     ref={emailInputRef}
-                    type="email" 
-                    placeholder={t('auth.emailPlaceholder')} 
+                    type="email"
+                    placeholder={t('auth.emailPlaceholder')}
                     value={email}
                     icon={<Mail className="w-4 h-4" />}
                     onChange={(e) => {
                       setEmail(e.target.value);
-                      if(emailError) setEmailError(null);
+                      if (emailError) setEmailError(null);
                     }}
                     error={emailError ?? undefined}
                     className="bg-zinc-900/50 border-zinc-800 h-14 text-lg text-center placeholder:text-center"
                     rightElement={
-                       <motion.button
-                         type="submit"
-                         disabled={!isValidEmail || checkingEmail}
-                         initial={{ opacity: 0, scale: 0.5 }}
-                         animate={{ 
-                           opacity: isValidEmail ? 1 : 0, 
-                           scale: isValidEmail ? 1 : 0.5,
-                           pointerEvents: isValidEmail ? 'auto' : 'none'
-                         }}
-                         className="bg-white text-black w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-200 transition-colors disabled:opacity-50"
-                       >
-                         {checkingEmail ? (
-                           <Loader2 className="w-4 h-4 animate-spin" />
-                         ) : (
-                           <ArrowRight className="w-4 h-4" />
-                         )}
-                       </motion.button>
+                      <motion.button
+                        type="submit"
+                        disabled={!isValidEmail || checkingEmail}
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{
+                          opacity: isValidEmail ? 1 : 0,
+                          scale: isValidEmail ? 1 : 0.5,
+                          pointerEvents: isValidEmail ? 'auto' : 'none'
+                        }}
+                        className="bg-white text-black w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-200 transition-colors disabled:opacity-50"
+                      >
+                        {checkingEmail ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <ArrowRight className="w-4 h-4" />
+                        )}
+                      </motion.button>
                     }
                   />
-                  
+
                   {/* Micro-hint under input */}
-                    {isValidEmail && !emailError && (
-                      <motion.p 
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                        className="text-[11px] text-center text-zinc-500 font-medium"
-                      >
-                        {t('auth.tapArrow')}
-                      </motion.p>
-                    )}
+                  {isValidEmail && !emailError && (
+                    <motion.p
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                      className="text-[11px] text-center text-zinc-500 font-medium"
+                    >
+                      {t('auth.tapArrow')}
+                    </motion.p>
+                  )}
                 </form>
 
                 {/* Divider & Socials */}
-                <motion.div 
-                  initial={{ opacity: 0 }} 
+                <motion.div
+                  initial={{ opacity: 0 }}
                   animate={{ opacity: 1, transition: { delay: 0.2 } }}
                   className="pt-2"
                 >
-                    <div className="relative flex py-2 items-center">
-                      <div className="flex-grow border-t border-zinc-800"></div>
-                      <span className="flex-shrink-0 mx-4 text-zinc-600 text-[11px] font-medium uppercase tracking-wider">{t('auth.orContinueWith')}</span>
-                      <div className="flex-grow border-t border-zinc-800"></div>
-                    </div>
+                  <div className="relative flex py-2 items-center">
+                    <div className="flex-grow border-t border-zinc-800"></div>
+                    <span className="flex-shrink-0 mx-4 text-zinc-600 text-[11px] font-medium uppercase tracking-wider">{t('auth.orContinueWith')}</span>
+                    <div className="flex-grow border-t border-zinc-800"></div>
+                  </div>
 
                   <div className={cn(
                     "grid gap-3 mt-1",
                     isPasskeyAvailable ? "grid-cols-3" : "grid-cols-2"
                   )}>
                     {isPasskeyAvailable && (
-                      <PasskeyLoginButton 
-                        onSuccess={onClose} 
-                        variant="inline" 
+                      <PasskeyLoginButton
+                        onSuccess={onClose}
+                        variant="inline"
                         label={getPasskeyLabel()}
                       />
                     )}
-                    <Button 
-                      variant="secondary" 
-                      className="bg-zinc-900 h-11 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all" 
+                    <Button
+                      variant="secondary"
+                      className="bg-zinc-900 h-11 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all"
                       onClick={handleGoogleLogin}
                     >
                       <GoogleIcon />
                     </Button>
-                    <Button 
-                      variant="secondary" 
+                    <Button
+                      variant="secondary"
                       disabled={telegramLoading}
-                      className="bg-zinc-900 h-11 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed" 
+                      className="bg-zinc-900 h-11 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {telegramLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <TelegramIcon />}
-                      <div 
-                        id="telegram-login-container-new" 
+                      <div
+                        id="telegram-login-container-new"
                         className="absolute inset-0 flex items-center justify-center pointer-events-auto z-[100] opacity-[0.01] [&>iframe]:!w-full [&>iframe]:!h-full [&>iframe]:!opacity-[0.01] [&>iframe]:!pointer-events-auto"
                         style={{ minHeight: '40px', overflow: 'hidden' }}
                       />
@@ -1115,60 +1115,60 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                 exit={{ opacity: 0, x: 20 }}
                 className="space-y-6"
               >
-                 {/* Email Pill */}
-                 <div className="flex justify-center">
-                    <div 
-                      onClick={handleBackToEmail}
-                      className="
+                {/* Email Pill */}
+                <div className="flex justify-center">
+                  <div
+                    onClick={handleBackToEmail}
+                    className="
                         group flex items-center justify-center gap-3 
                         bg-zinc-900/50 border border-white/5 
                         rounded-full py-1.5 px-4 
                         cursor-pointer hover:bg-zinc-900 hover:border-white/10 transition-all
                       "
-                    >
-                      <span className="text-zinc-300 text-sm font-medium">{email}</span>
-                      <span className="text-[11px] text-blue-400 font-medium group-hover:text-blue-300 transition-colors">
-                        {t('auth.changeEmail')}
-                      </span>
-                    </div>
-                 </div>
+                  >
+                    <span className="text-zinc-300 text-sm font-medium">{email}</span>
+                    <span className="text-[11px] text-blue-400 font-medium group-hover:text-blue-300 transition-colors">
+                      {t('auth.changeEmail')}
+                    </span>
+                  </div>
+                </div>
 
-                 <form onSubmit={handleFinalSubmit} className="space-y-4">
-                   <Input 
-                     ref={passwordInputRef}
-                     type="password" 
-                     label={t('auth.password')}
-                     placeholder={t('auth.passwordPlaceholder')}
-                     value={password}
-                     onChange={(e) => setPassword(e.target.value)}
-                     className="bg-zinc-900/50 border-zinc-800 h-12 text-lg shadow-inner"
-                     autoFocus
-                   />
-                   
-                     <Button 
-                       type="submit"
-                       variant="primary" 
-                       fullWidth 
-                       loading={isSubmitting}
-                       className="h-12 text-[15px] font-semibold"
-                     >
-                       {step === 'password-new' ? t('auth.createAccountButton') : t('auth.signIn')}
-                     </Button>
-                 </form>
+                <form onSubmit={handleFinalSubmit} className="space-y-4">
+                  <Input
+                    ref={passwordInputRef}
+                    type="password"
+                    label={t('auth.password')}
+                    placeholder={t('auth.passwordPlaceholder')}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="bg-zinc-900/50 border-zinc-800 h-12 text-lg shadow-inner"
+                    autoFocus
+                  />
 
-                 {/* Alternatives */}
-                   <div className="space-y-3 text-center">
-                      {step === 'password-existing' && (
-                        <>
-                          <button className="text-xs text-zinc-500 hover:text-zinc-400 transition-colors">
-                            {t('auth.forgotPassword')}
-                          </button>
-                          <p className="text-[11px] text-zinc-600">
-                            {t('auth.alternativeLogin')}
-                          </p>
-                        </>
-                      )}
-                   </div>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    fullWidth
+                    loading={isSubmitting}
+                    className="h-12 text-[15px] font-semibold"
+                  >
+                    {step === 'password-new' ? t('auth.createAccountButton') : t('auth.signIn')}
+                  </Button>
+                </form>
+
+                {/* Alternatives */}
+                <div className="space-y-3 text-center">
+                  {step === 'password-existing' && (
+                    <>
+                      <button className="text-xs text-zinc-500 hover:text-zinc-400 transition-colors">
+                        {t('auth.forgotPassword')}
+                      </button>
+                      <p className="text-[11px] text-zinc-600">
+                        {t('auth.alternativeLogin')}
+                      </p>
+                    </>
+                  )}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -1177,15 +1177,15 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         {/* Legal Footer */}
         <div className="mt-6 text-center text-xs text-zinc-500">
           {t('auth.legalFooter')}{' '}
-          <Link 
-            to="/terms" 
+          <Link
+            to="/terms"
             className="underline underline-offset-4 hover:text-blue-400 transition-colors"
           >
             {t('auth.terms')}
           </Link>
           {' '}и{' '}
-          <Link 
-            to="/privacy" 
+          <Link
+            to="/privacy"
             className="underline underline-offset-4 hover:text-blue-400 transition-colors"
           >
             {t('auth.privacy')}
@@ -1197,105 +1197,45 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     </>
   );
 
-  // На мобилках - Vaul drawer, на десктопе - обычная модалка с framer-motion
-  if (isMobile) {
-    return (
-      <Drawer.Root 
-        open={open} 
-        onOpenChange={onClose}
-        shouldScaleBackground
-        dismissible={!isKeyboardOpen} // Отключаем закрытие свайпом когда клавиатура открыта
-        modal={true}
-        fadeFromIndex={0}
-      >
-        <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
-          <Drawer.Content
-            ref={drawerContentRef}
-            className="bg-zinc-950 flex flex-col rounded-t-[32px] border-t border-white/10 shadow-2xl z-50 focus:outline-none fixed left-0 right-0 bottom-0"
-            style={{
-              maxHeight: viewportHeight && isKeyboardOpen
-                ? `${viewportHeight}px`
-                : viewportHeight
-                  ? `${Math.min(viewportHeight * 0.92, window.innerHeight * 0.85)}px`
-                  : '85vh',
-              height: isKeyboardOpen && viewportHeight ? `${viewportHeight}px` : undefined,
-              // Плавные переходы для адаптации к клавиатуре
-              transition: 'max-height 0.25s ease-out, height 0.25s ease-out, transform 0.25s ease-out'
-            }}
-          >
-            {/* Drawer Handle для мобилок - нативный iOS стиль (скрываем при клавиатуре) */}
-            {!isKeyboardOpen && (
-              <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-800 mt-4" aria-hidden="true" />
-            )}
-            
-            {/* Accessibility title (скрытый) */}
-            <div className="sr-only" role="heading" aria-level={1}>
-              {t('auth.identification')}
-            </div>
-            
-            <div 
-              className="overflow-y-auto flex-1 overscroll-contain" 
-              style={{ 
-                maxHeight: viewportHeight && isKeyboardOpen 
-                  ? `${viewportHeight - 20}px` 
-                  : undefined,
-                // Предотвращаем скролл страницы за модалкой при клавиатуре
-                touchAction: isKeyboardOpen ? 'pan-y' : 'auto'
-              }}
-              // Предотвращаем закрытие Drawer при свайпе внутри области ввода
-              onTouchStart={(e) => {
-                // Останавливаем распространение события, чтобы Drawer не закрывался
-                if (isKeyboardOpen) {
-                  e.stopPropagation();
-                }
-              }}
-              onTouchMove={(e) => {
-                // Предотвращаем закрытие при свайпе во время ввода
-                if (isKeyboardOpen) {
-                  e.stopPropagation();
-                }
-              }}
-            >
-              {modalContent}
-            </div>
-          </Drawer.Content>
-        </Drawer.Portal>
-      </Drawer.Root>
-    );
-  }
-
-  // Desktop - обычная модалка с framer-motion анимациями
+  // На мобилках - Vaul drawer, на десктопе - обычная модалка с ResponsiveModal
   return (
-    <AnimatePresence mode="wait">
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={onClose}
-          />
-
-          {/* Modal Content */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 8 }}
-            transition={{ type: "spring", damping: 30, stiffness: 400, duration: 0.25 }}
-            className="relative z-10 w-[420px] max-w-[95vw] max-h-[90vh] bg-zinc-950 rounded-[32px] border border-white/10 shadow-2xl overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="overflow-y-auto overscroll-contain max-h-[90vh]">
-              {modalContent}
-            </div>
-          </motion.div>
+    <ResponsiveModal
+      open={open}
+      onOpenChange={(isOpen) => !isOpen && onClose()} // onClose вызывается когда open становится false
+      hideCloseButton
+      className="max-w-[420px] bg-zinc-950 p-0 border-white/10"
+      contentClassName="p-0 scrollbar-none"
+      preventClose={isKeyboardOpen} // Не даем закрыть свайпом если открыта клавиатура
+    >
+      <div
+        ref={drawerContentRef}
+        className="flex flex-col"
+        style={{
+          maxHeight: viewportHeight && isKeyboardOpen
+            ? `${viewportHeight}px`
+            : undefined,
+          transition: 'transform 0.25s ease-out'
+        }}
+      >
+        <div
+          className="overflow-y-auto flex-1 overscroll-contain"
+          style={{
+            maxHeight: viewportHeight && isKeyboardOpen
+              ? `${viewportHeight - 20}px`
+              : '85vh',
+            touchAction: isKeyboardOpen ? 'pan-y' : 'auto'
+          }}
+          onTouchStart={(e) => {
+            if (isKeyboardOpen) e.stopPropagation();
+          }}
+          onTouchMove={(e) => {
+            if (isKeyboardOpen) e.stopPropagation();
+          }}
+        >
+          {modalContent}
         </div>
-      )}
-    </AnimatePresence>
+      </div>
+    </ResponsiveModal>
   );
 }
 

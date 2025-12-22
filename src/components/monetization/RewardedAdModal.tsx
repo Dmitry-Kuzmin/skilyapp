@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useRewardedAd, RewardType } from '@/hooks/useRewardedAd';
-import { UnifiedModal } from '@/components/ui/unified-modal';
+import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
-import { Loader2, Video, Coins, Calendar, AlertCircle, Sparkles, CheckCircle2 } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2, Video, Coins, Calendar, Sparkles, CheckCircle2, Zap, Gift, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface RewardedAdModalProps {
   open: boolean;
@@ -17,17 +17,16 @@ interface RewardedAdModalProps {
 }
 
 /**
- * Компонент модалки для показа Rewarded Video рекламы
+ * 🏆 PREMIUM Rewarded Ad Modal
  * 
- * Использование:
- * - Восстановление streak: rewardType="restore_streak"
- * - Получение монет: rewardType="coins", rewardAmount=20
+ * Адаптивная по высоте модалка для показа Rewarded Video рекламы
+ * С premium дизайном и glassmorphism эффектами
  */
 export function RewardedAdModal({
   open,
   onOpenChange,
   rewardType,
-  rewardAmount = 20,
+  rewardAmount = 50,
   onRewardClaimed,
   title,
   description,
@@ -43,67 +42,51 @@ export function RewardedAdModal({
     }
   }, [open, reset]);
 
-  // Если реклама недоступна (Premium пользователь), показываем сообщение
-  if (!isAvailable) {
-    return (
-      <UnifiedModal open={open} onOpenChange={onOpenChange} title="Premium статус">
-        <div className="space-y-4">
-          <div className="bg-zinc-900/50 border border-white/10 rounded-xl p-4">
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
-                <Sparkles className="w-4 h-4 text-indigo-400" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm text-zinc-200 font-medium mb-1">Premium подписка активна</p>
-                <p className="text-xs text-zinc-400">
-                  У тебя Premium подписка! Ты получаешь все награды без просмотра рекламы.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-2 justify-end">
-            <Button 
-              variant="primary"
-              onClick={() => onOpenChange(false)}
-              className="w-full sm:w-auto"
-            >
-              Понятно
-            </Button>
-          </div>
-        </div>
-      </UnifiedModal>
-    );
-  }
-
   const getRewardInfo = () => {
     switch (rewardType) {
       case 'coins':
         return {
           icon: Coins,
-          defaultTitle: `Получить ${rewardAmount} монет`,
-          defaultDescription: 'Посмотри короткое видео и получи монеты',
+          emoji: '🪙',
+          defaultTitle: 'CRYPTO MINER',
+          defaultDescription: 'Добывай криптомонеты! Смотри рекламу и получай награду.',
           rewardText: `+${rewardAmount} монет`,
+          gradient: 'from-yellow-500 to-amber-600',
+          bgGradient: 'from-yellow-500/10 to-amber-500/10',
+          iconColor: 'text-yellow-400',
         };
       case 'restore_streak':
         return {
           icon: Calendar,
+          emoji: '🔥',
           defaultTitle: 'Восстановить серию',
           defaultDescription: 'Посмотри видео и восстанови свою серию ежедневных бонусов',
-          rewardText: 'Серию восстановлено',
+          rewardText: 'Серия восстановлена!',
+          gradient: 'from-orange-500 to-red-600',
+          bgGradient: 'from-orange-500/10 to-red-500/10',
+          iconColor: 'text-orange-400',
         };
       case 'test_attempt':
         return {
-          icon: Video,
+          icon: Zap,
+          emoji: '⚡',
           defaultTitle: 'Дополнительная попытка',
-          defaultDescription: 'Посмотри видео и получи дополнительную попытку прохождения теста',
-          rewardText: 'Попытка восстановлена',
+          defaultDescription: 'Посмотри видео и получи дополнительную попытку',
+          rewardText: 'Попытка восстановлена!',
+          gradient: 'from-violet-500 to-purple-600',
+          bgGradient: 'from-violet-500/10 to-purple-500/10',
+          iconColor: 'text-violet-400',
         };
       default:
         return {
-          icon: Video,
+          icon: Gift,
+          emoji: '🎁',
           defaultTitle: 'Получить награду',
           defaultDescription: 'Посмотри короткое видео и получи награду',
-          rewardText: 'Награда получена',
+          rewardText: 'Награда получена!',
+          gradient: 'from-indigo-500 to-blue-600',
+          bgGradient: 'from-indigo-500/10 to-blue-500/10',
+          iconColor: 'text-indigo-400',
         };
     }
   };
@@ -114,143 +97,236 @@ export function RewardedAdModal({
   const handleShowAd = async () => {
     try {
       setShowReward(false);
-      // Сбрасываем предыдущие ошибки через reset() из хука
       reset();
       const success = await showAd();
-      
+
       if (success) {
-        // Показываем анимацию награды
         setShowReward(true);
-        
-        // Вызываем callback для начисления награды
         await onRewardClaimed();
-        
-        // Автоматически закрываем через 2 секунды
+
+        // Автоматически закрываем через 2.5 секунды
         setTimeout(() => {
           onOpenChange(false);
-        }, 2000);
+        }, 2500);
       }
     } catch (err: any) {
-      // Ошибка уже установлена в хуке, но можем добавить дополнительную обработку
       console.error('[RewardedAdModal] Error:', err);
-      
-      // Если это NotAllowedError, предлагаем пользователю попробовать еще раз
-      if (err.message?.includes('not allowed') || err.message?.includes('NotAllowedError')) {
-        // Ошибка уже установлена в хуке, просто логируем
-        console.warn('[RewardedAdModal] Autoplay blocked, user needs to interact again');
-      }
     }
   };
 
-  return (
-    <UnifiedModal 
-      open={open} 
-      onOpenChange={onOpenChange}
-      title={title || rewardInfo.defaultTitle}
-    >
-      <div className="space-y-4">
-            {/* Состояние: Ожидание просмотра */}
-            {!showReward && (
-              <>
-                <div className="flex flex-col items-center justify-center space-y-3 py-4">
-                  {/* Иконка награды */}
-                  <div className="relative">
-                    <div className="p-4 rounded-xl bg-zinc-900/50 border border-white/10">
-                      <RewardIcon className="w-8 h-8 text-indigo-400" />
-                    </div>
-                  </div>
-                  
-                  {/* Описание */}
-                  <div className="text-center space-y-1">
-                    <p className="text-sm text-zinc-300">
-                      {description || rewardInfo.defaultDescription}
-                    </p>
-                    <p className="text-xs text-zinc-500">
-                      Награда будет начислена после показа рекламы
-                    </p>
-                  </div>
-                  
-                  {/* Индикатор прогресса */}
-                  {loading && (
-                    <div className="w-full max-w-xs space-y-2">
-                      <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-indigo-500 rounded-full transition-all duration-300"
-                          style={{ width: '100%' }}
-                        />
-                      </div>
-                      <p className="text-xs text-zinc-400 text-center">
-                        Реклама загружается...
-                      </p>
-                    </div>
-                  )}
-                </div>
+  // Premium пользователь — не показываем рекламу
+  if (!isAvailable) {
+    return (
+      <ResponsiveModal
+        open={open}
+        onOpenChange={onOpenChange}
+        className="max-w-sm"
+      >
+        <div className="p-5 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+              <Sparkles className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-foreground">Premium активен</h3>
+              <p className="text-xs text-muted-foreground">Награды без рекламы</p>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            У тебя Premium подписка! Ты получаешь все награды без просмотра рекламы.
+          </p>
+          <Button
+            onClick={() => onOpenChange(false)}
+            className="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white"
+          >
+            Понятно
+          </Button>
+        </div>
+      </ResponsiveModal>
+    );
+  }
 
-            {/* Ошибка */}
-            {error && (
-              <div className="bg-zinc-900/50 border border-red-500/20 rounded-xl p-3">
-                <div className="flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-red-400">{error}</p>
+  // Header для модалки
+  const headerContent = (
+    <div className={cn(
+      "relative overflow-hidden px-4 py-4",
+      "bg-gradient-to-br",
+      rewardInfo.bgGradient
+    )}>
+      {/* Decorative glow */}
+      <div className="absolute -top-10 -right-10 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
+
+      <div className="relative flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">{rewardInfo.emoji}</span>
+          <h3 className="font-bold text-foreground tracking-wide">
+            {title || rewardInfo.defaultTitle}
+          </h3>
+        </div>
+        <button
+          onClick={() => onOpenChange(false)}
+          className="p-1.5 rounded-lg bg-background/50 hover:bg-background/80 transition-colors"
+        >
+          <X className="w-4 h-4 text-muted-foreground" />
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <ResponsiveModal
+      open={open}
+      onOpenChange={onOpenChange}
+      headerContent={headerContent}
+      className="max-w-sm"
+      hideHandle={true}
+    >
+      <AnimatePresence mode="wait">
+        {!showReward ? (
+          <motion.div
+            key="waiting"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="p-5 space-y-5"
+          >
+            {/* Icon */}
+            <div className="flex justify-center">
+              <div className={cn(
+                "relative w-16 h-16 rounded-2xl flex items-center justify-center",
+                "bg-gradient-to-br",
+                rewardInfo.bgGradient,
+                "border border-border/50"
+              )}>
+                <RewardIcon className={cn("w-8 h-8", rewardInfo.iconColor)} />
+                {/* Pulse ring */}
+                <div className={cn(
+                  "absolute inset-0 rounded-2xl animate-ping opacity-20",
+                  "bg-gradient-to-br",
+                  rewardInfo.gradient
+                )} style={{ animationDuration: '2s' }} />
+              </div>
+            </div>
+
+            {/* Description */}
+            <div className="text-center space-y-2">
+              <p className="text-sm text-foreground font-medium">
+                {description || rewardInfo.defaultDescription}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Награда будет начислена после показа рекламы
+              </p>
+            </div>
+
+            {/* Loading indicator */}
+            {loading && (
+              <div className="space-y-2">
+                <div className="h-1 bg-muted rounded-full overflow-hidden">
+                  <motion.div
+                    className={cn("h-full rounded-full bg-gradient-to-r", rewardInfo.gradient)}
+                    initial={{ width: '0%' }}
+                    animate={{ width: '100%' }}
+                    transition={{ duration: 2, ease: 'easeInOut' }}
+                  />
                 </div>
+                <p className="text-xs text-center text-muted-foreground">
+                  Загрузка рекламы...
+                </p>
               </div>
             )}
 
-            {/* Кнопки */}
-            <div className="flex gap-2">
+            {/* Error */}
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3">
+                <p className="text-xs text-red-400 text-center">{error}</p>
+              </div>
+            )}
+
+            {/* Buttons */}
+            <div className="flex gap-3">
               <Button
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 disabled={loading}
-                className="flex-1 sm:flex-initial"
+                className="flex-1"
               >
                 Отмена
               </Button>
               <Button
-                variant="primary"
                 onClick={handleShowAd}
                 disabled={loading}
-                className="flex-1 sm:flex-initial"
+                className={cn(
+                  "flex-1 text-white shadow-lg",
+                  "bg-gradient-to-r hover:opacity-90 transition-opacity",
+                  rewardInfo.gradient
+                )}
               >
                 {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Загрузка...
-                  </>
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <>
-                    <Video className="w-4 h-4" />
+                    <Video className="w-4 h-4 mr-2" />
                     Смотреть видео
                   </>
                 )}
               </Button>
             </div>
-          </>
-        )}
-
-        {/* Состояние: Награда получена */}
-        {showReward && (
-          <div className="flex flex-col items-center justify-center space-y-3 py-6">
-            {/* Иконка успеха */}
-            <div className="relative">
-              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="success"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="p-6 flex flex-col items-center justify-center space-y-4"
+          >
+            {/* Success animation */}
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
+              className="relative"
+            >
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                <CheckCircle2 className="w-10 h-10 text-white" />
               </div>
-            </div>
-            
-            {/* Текст награды */}
+              {/* Particles */}
+              {[...Array(8)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+                  animate={{
+                    opacity: 0,
+                    scale: 0,
+                    x: Math.cos(i * 45 * Math.PI / 180) * 50,
+                    y: Math.sin(i * 45 * Math.PI / 180) * 50
+                  }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="absolute top-1/2 left-1/2 w-2 h-2 bg-emerald-400 rounded-full"
+                />
+              ))}
+            </motion.div>
+
             <div className="text-center space-y-1">
-              <p className="text-lg font-semibold text-emerald-400">
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-xl font-bold text-emerald-400"
+              >
                 {rewardInfo.rewardText}
-              </p>
-              <p className="text-xs text-zinc-400">
-                Награда начислена
-              </p>
+              </motion.p>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="text-sm text-muted-foreground"
+              >
+                Награда успешно начислена!
+              </motion.p>
             </div>
-          </div>
+          </motion.div>
         )}
-      </div>
-    </UnifiedModal>
+      </AnimatePresence>
+    </ResponsiveModal>
   );
 }
-

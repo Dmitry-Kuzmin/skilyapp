@@ -101,20 +101,7 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-3">
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <Sparkles className="w-6 h-6 text-primary animate-pulse" />
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
-            {t('achievementsModal.title')}
-          </h2>
-          <Sparkles className="w-6 h-6 text-primary animate-pulse" />
-        </div>
-        <p className="text-muted-foreground text-sm">
-          {t('achievementsModal.description')}
-        </p>
-      </div>
-
-      <Card className="p-4 border border-border/30 shadow-sm bg-gradient-to-br from-card via-card to-primary/5">
+      <Card className="p-4 mt-2 border border-border/30 shadow-sm bg-gradient-to-br from-card via-card to-primary/5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <p className="text-sm text-muted-foreground">{t('achievementsModal.totalXP')}</p>

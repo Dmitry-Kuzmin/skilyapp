@@ -26,7 +26,7 @@ const DrawerOverlay = React.forwardRef<
   <DrawerPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm",
+      "fixed inset-0 z-[2147483647] bg-black/60 backdrop-blur-sm",
       className
     )}
     {...props}
@@ -48,7 +48,7 @@ const DrawerContent = React.forwardRef<
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-50 flex h-auto flex-col",
+        "fixed inset-x-0 bottom-0 z-[2147483647] flex h-auto flex-col",
         "rounded-t-[24px] border-t border-border/50",
         "bg-background/95 backdrop-blur-xl",
         "shadow-[0_-8px_40px_rgba(0,0,0,0.3)]",
@@ -56,10 +56,10 @@ const DrawerContent = React.forwardRef<
       )}
       {...props}
     >
-      {/* Ручка (Handle) - можно скрыть */}
+      {/* Ручка (Handle) - индикатор свайпа */}
       {!hideHandle && (
-        <div className="flex justify-center pt-3 pb-1">
-          <div className="h-1.5 w-12 rounded-full bg-muted-foreground/30" />
+        <div className="flex justify-center pt-3 pb-2">
+          <div className="h-1.5 w-12 rounded-full bg-gradient-to-r from-muted-foreground/40 via-muted-foreground/60 to-muted-foreground/40 shadow-sm" />
         </div>
       )}
       {children}
@@ -69,7 +69,7 @@ const DrawerContent = React.forwardRef<
 DrawerContent.displayName = "DrawerContent";
 
 const DrawerHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("grid gap-1.5 px-4 py-3 text-center sm:text-left", className)} {...props} />
+  <div className={cn("grid gap-1.5 px-8 py-3 text-center sm:text-left", className)} {...props} />
 );
 DrawerHeader.displayName = "DrawerHeader";
 

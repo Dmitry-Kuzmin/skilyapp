@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,9 +15,9 @@ import { toast } from "sonner";
 import { AuthModalNew as AuthModal } from "@/components/AuthModalNew";
 import { useQueryClient } from "@tanstack/react-query";
 import { ActivatePremiumKeyModal } from "@/components/ActivatePremiumKeyModal";
-import { 
-  User, Settings, HelpCircle, LogOut, Zap, Crown, X, Pencil, Camera, Trash2, Sun, Moon, 
-  Gift, ChevronRight, Shield, Bell, Mail, Link as LinkIcon, Check, ExternalLink, Key
+import {
+  User, Settings, HelpCircle, LogOut, Zap, Crown, X, Pencil, Camera, Trash2, Sun, Moon,
+  Gift, ChevronRight, Shield, Bell, Mail, Link as LinkIcon, Check, ExternalLink, Key, Globe, Palette
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useNavigate } from "react-router-dom";
@@ -94,7 +94,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
     try {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
-      
+
       if (!currentUser) {
         setIsAdmin(false);
         return;
@@ -128,7 +128,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
     try {
       setLoading(true);
       let query = supabase.from('profiles').select('*, premium_forever_purchased_at, subscription_type, subscription_status');
-      
+
       if (profileId) {
         // Use profileId if available (most reliable)
         query = query.eq('id', profileId);
@@ -146,7 +146,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
         setLoading(false);
         return;
       }
-      
+
       const { data, error } = await query.single();
 
       if (error) {
@@ -175,9 +175,9 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
         setSubscription(data.subscription_status || 'free');
         setXp(data.xp || 0);
         setNextLevelXp(5000);
-        
+
         // Проверяем Premium Forever
-        const isLifetime = 
+        const isLifetime =
           !!data.premium_forever_purchased_at &&
           data.subscription_type === 'lifetime' &&
           data.subscription_status === 'pro';
@@ -185,7 +185,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
       } else {
         console.warn('[ProfileModal] No profile data returned');
       }
-      
+
       setLoading(false);
     } catch (error) {
       console.error('[ProfileModal] Failed to load profile:', error);
@@ -207,7 +207,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
       const validTheme = ['light', 'dark'].includes(updatedSettings.theme) ? updatedSettings.theme : 'light';
       const validLanguage = ['ru', 'en', 'es'].includes(updatedSettings.language) ? updatedSettings.language : 'ru';
       const validNotifications = typeof updatedSettings.notifications === 'boolean' ? updatedSettings.notifications : true;
-      
+
       const validatedSettings = {
         theme: validTheme,
         language: validLanguage,
@@ -216,7 +216,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
       const { error } = await supabase
         .from('profiles')
-        .update({ 
+        .update({
           settings: validatedSettings,
           updated_at: new Date().toISOString()
         })
@@ -246,7 +246,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
     } catch (error) {
       console.warn('[ProfileModal] ⚠️ Failed to clear Query cache:', error);
     }
-    
+
     onOpenChange(false);
     logout(); // logout сам сделает редирект на лендинг
   };
@@ -254,7 +254,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file || !profileId || !supabaseUser) return;
-    
+
     if (file.size > 3 * 1024 * 1024) {
       toast.error(t('fileTooLarge'));
       return;
@@ -349,9 +349,9 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
   const copyTelegramLink = () => {
     if (!telegramLinkToken) return;
-    
+
     const linkText = `/start link_${telegramLinkToken}`;
-    
+
     navigator.clipboard.writeText(linkText).then(() => {
       toast.success('Команда скопирована! Отправь её боту @sdadimtutbot');
     }).catch(() => {
@@ -369,7 +369,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
       setLoading(true);
       const { error } = await supabase
         .from('profiles')
-        .update({ 
+        .update({
           first_name: editedName.trim(),
           updated_at: new Date().toISOString()
         })
@@ -417,7 +417,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
   const handleLinkTelegram = async () => {
     // Если уже привязан через Mini App, ничего не делаем
     if (hasTelegram) return;
-    
+
     // Генерируем токен для привязки через бота
     await generateTelegramLinkToken();
   };
@@ -455,10 +455,10 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
             </AvatarFallback>
           </Avatar>
           <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-background" />
-              </div>
+        </div>
         <div className="flex-1 min-w-0">
           {isEditingName ? (
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
               <Input
                 ref={nameInputRef}
                 type="text"
@@ -522,9 +522,9 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
           )}
           {profile?.username && (
             <p className="text-xs text-muted-foreground">@{profile.username}</p>
-            )}
+          )}
           <div className="mt-1">
-            <Button 
+            <Button
               variant="ghost"
               size="sm"
               className="h-7 text-xs"
@@ -580,75 +580,52 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
         >
           <Gift className="h-4 w-4 mr-2" />
           {t('profileMenu.invite')}
-            </Button>
-          </div>
+        </Button>
+      </div>
 
-          <Separator />
+      <Separator />
 
-          {/* Settings Section */}
-          <div className="space-y-3">
+      {/* Settings Section */}
+      <div className="space-y-3">
         <h3 className="text-sm font-semibold">{t('settings')}</h3>
-        
-        {/* Language */}
-        <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground">{t('language')}</Label>
-          <RadioGroup
+
+        {/* Language Selection */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Globe className="h-4 w-4 text-muted-foreground" />
+            <Label className="text-sm font-semibold">{t('language')}</Label>
+          </div>
+          <SegmentedControl
+            options={[
+              { id: 'ru', label: 'Русский' },
+              { id: 'en', label: 'English' },
+              { id: 'es', label: 'Español' },
+            ]}
             value={settings.language}
-            onValueChange={(value) => handleLanguageChange(value)}
-            disabled={loading}
-            className="space-y-2"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="es" id="lang-es" />
-              <Label htmlFor="lang-es" className="flex items-center gap-2 cursor-pointer text-sm">
-                <span>🇪🇸</span>
-                <span>Español</span>
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="en" id="lang-en" />
-              <Label htmlFor="lang-en" className="flex items-center gap-2 cursor-pointer text-sm">
-                <span>🇬🇧</span>
-                <span>English</span>
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="ru" id="lang-ru" />
-              <Label htmlFor="lang-ru" className="flex items-center gap-2 cursor-pointer text-sm">
-                <span>🇷🇺</span>
-                <span>Русский</span>
-                </Label>
-            </div>
-          </RadioGroup>
+            onChange={(val) => handleLanguageChange(val)}
+            className="w-full"
+          />
         </div>
 
-        {/* Theme */}
-        <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground">{t('theme')}</Label>
-          <RadioGroup
-            value={currentTheme || 'light'}
-            onValueChange={(value) => {
-              setTheme(value);
-              updateSettings({ theme: value });
+        {/* Theme Selection */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Palette className="h-4 w-4 text-muted-foreground" />
+            <Label className="text-sm font-semibold">{t('theme')}</Label>
+          </div>
+          <SegmentedControl
+            options={[
+              { id: 'light', label: t('light'), icon: <Sun className="h-4 w-4" /> },
+              { id: 'dark', label: t('dark'), icon: <Moon className="h-4 w-4" /> },
+              { id: 'system', label: t('system'), icon: <Settings className="h-4 w-4" /> },
+            ]}
+            value={currentTheme || 'system'}
+            onChange={(val) => {
+              setTheme(val);
+              updateSettings({ theme: val });
             }}
-                  disabled={loading}
-            className="space-y-2"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="light" id="theme-light" />
-              <Label htmlFor="theme-light" className="flex items-center gap-2 cursor-pointer text-sm">
-                <Sun className="h-4 w-4" />
-                <span>{t('light')}</span>
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="dark" id="theme-dark" />
-              <Label htmlFor="theme-dark" className="flex items-center gap-2 cursor-pointer text-sm">
-                <Moon className="h-4 w-4" />
-                <span>{t('dark')}</span>
-              </Label>
-            </div>
-          </RadioGroup>
+            className="w-full"
+          />
         </div>
       </div>
 
@@ -673,7 +650,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
           </div>
         </div>
       )}
-      
+
       {/* Premium Forever Status */}
       {hasPremiumForever && (
         <div className="space-y-3">
@@ -702,7 +679,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
                   <svg className="h-5 w-5 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.169 1.858-.896 6.728-.896 6.728-.517 2.506-2.028 2.95-3.931 1.806l-1.09-.5-1.09-.5c-1.903 1.144-3.414.7-3.931-1.806 0 0-.727-4.87-.896-6.728-.169-1.858.896-2.95 2.028-2.95h7.868c1.132 0 2.197 1.092 2.028 2.95z"/>
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.169 1.858-.896 6.728-.896 6.728-.517 2.506-2.028 2.95-3.931 1.806l-1.09-.5-1.09-.5c-1.903 1.144-3.414.7-3.931-1.806 0 0-.727-4.87-.896-6.728-.169-1.858.896-2.95 2.028-2.95h7.868c1.132 0 2.197 1.092 2.028 2.95z" />
                   </svg>
                 </div>
                 <div>
@@ -733,7 +710,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                 </Button>
               )}
             </div>
-            
+
             {/* Показываем токен, если он сгенерирован */}
             {telegramLinkToken && !hasTelegram && (
               <div className="p-3 rounded-lg border bg-muted/30 space-y-2">
@@ -799,15 +776,15 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
             {hasEmail ? (
               <Check className="h-5 w-5 text-green-500" />
             ) : (
-                  <Button
+              <Button
                 variant="outline"
-                    size="sm"
+                size="sm"
                 className="h-8"
                 onClick={handleLinkEmail}
-                  >
+              >
                 <LinkIcon className="h-4 w-4 mr-1" />
                 {t('profileMenu.connect')}
-                  </Button>
+              </Button>
             )}
           </div>
 
@@ -816,12 +793,12 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center">
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                 </svg>
-                </div>
+              </div>
               <div>
                 <div className="text-sm font-medium">Google</div>
                 {hasGoogle ? (
@@ -844,11 +821,11 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                 {t('profileMenu.connect')}
               </Button>
             )}
-              </div>
-            </div>
           </div>
+        </div>
+      </div>
 
-          <Separator />
+      <Separator />
 
       {/* Quick Actions */}
       <div className="space-y-1">
@@ -861,13 +838,13 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
           </div>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </button>
-          </div>
+      </div>
 
       {/* Admin Panel */}
       {isAdmin && (
         <>
           <Separator />
-          <Button 
+          <Button
             className="w-full"
             variant="outline"
             onClick={() => {
@@ -884,8 +861,8 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
       <Separator />
 
       {/* Logout */}
-      <Button 
-        variant="ghost" 
+      <Button
+        variant="ghost"
         className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
         onClick={handleLogout}
       >
@@ -915,12 +892,12 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
         skeletonVariant="profile"
         modalRouteKey="profile"
       >
-              {profileContent}
+        {profileContent}
       </UnifiedModal>
-      
+
       {/* Auth Modal for linking accounts */}
-      <AuthModal 
-        open={authModalOpen} 
+      <AuthModal
+        open={authModalOpen}
         onClose={() => {
           setAuthModalOpen(false);
           setAuthMode(null);
@@ -928,7 +905,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
           if (profileId) {
             setTimeout(() => loadUserProfile(), 1000);
           }
-        }} 
+        }}
       />
 
       {/* Activate Premium Key Modal */}

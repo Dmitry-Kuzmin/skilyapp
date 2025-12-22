@@ -55,6 +55,7 @@ export function ResponsiveModal({
   onSnapPointChange,
   hideHandle = false,
   fadeFromIndex,
+  fullscreen = false,
 }: ResponsiveModalProps) {
   const isMobile = useIsMobile();
 
@@ -70,14 +71,15 @@ export function ResponsiveModal({
         setActiveSnapPoint={onSnapPointChange}
         fadeFromIndex={fadeFromIndex}
         modal={true}
+        shouldScaleBackground={true}
       >
         <DrawerContent
           className={cn(
             "flex flex-col",
-            snapPoints ? "max-h-[100dvh]" : "max-h-[92dvh]",
+            snapPoints ? "max-h-[100dvh]" : (fullscreen ? "h-[100dvh] max-h-[100dvh]" : "max-h-[92dvh]"),
             className
           )}
-          hideHandle={hideHandle || !!headerContent}
+          hideHandle={hideHandle}
           onInteractOutside={(e) => {
             if (preventClose) {
               e.preventDefault();
@@ -90,7 +92,7 @@ export function ResponsiveModal({
               {headerContent}
             </div>
           ) : title ? (
-            <DrawerHeader className={cn("text-left shrink-0 border-b border-border/30 pb-3", contentClassName)}>
+            <DrawerHeader className="text-left shrink-0 border-b border-border/30 pb-3 px-8">
               <DrawerTitle className="text-foreground">{title}</DrawerTitle>
               {description && (
                 <DrawerDescription className="text-muted-foreground">
@@ -122,19 +124,20 @@ export function ResponsiveModal({
 
   // Desktop: Dialog
   const hasMaxWidth = className?.includes('max-w');
-  const defaultMaxWidth = hasMaxWidth ? '' : 'sm:max-w-[500px]';
+  const defaultMaxWidth = fullscreen ? 'max-w-none w-screen' : (hasMaxWidth ? '' : 'sm:max-w-[500px]');
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
           defaultMaxWidth,
+          fullscreen ? "h-screen rounded-none" : "max-h-[90vh]",
           "bg-background/95 backdrop-blur-xl border-border/50",
-          "flex flex-col max-h-[90vh] p-0",
+          "flex flex-col p-0",
           "shadow-[0_8px_40px_rgba(0,0,0,0.2)]",
           className
         )}
-        hideCloseButton={hideCloseButton}
+        hideCloseButton={hideCloseButton || !!headerContent}
         preventClose={preventClose}
       >
         {headerContent ? (
@@ -142,7 +145,7 @@ export function ResponsiveModal({
             {headerContent}
           </div>
         ) : title ? (
-          <DialogHeader className={cn("shrink-0 px-5 pt-5 pb-4 border-b border-border/30", contentClassName)}>
+          <DialogHeader className="shrink-0 px-8 pt-5 pb-4 border-b border-border/30">
             <DialogTitle className="text-foreground">{title}</DialogTitle>
             {description && (
               <DialogDescription className="text-muted-foreground">
