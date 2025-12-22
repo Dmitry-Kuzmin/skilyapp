@@ -434,14 +434,22 @@ export default function Duel() {
         console.log('[Duel] 🕵️ Checking for code. URL:', urlCode, 'TG:', tgStartParam, 'Final:', code);
 
         // 3. Если нашли код - запускаем вступление
-        if (code && (code.length === 4 || code.length === 6) && !hasAutoJoinedRef.current) {
+        if (code && (code.length === 4 || code.length === 6)) {
+            if (hasAutoJoinedRef.current) {
+                console.log('[Duel] ⏭️ Skipping: already joined/joining');
+                return;
+            }
+
             console.log('[Duel] 🚀 AUTO-JOIN INITIATED for code:', code);
+            // Сразу ставим флаг, чтобы не зациклиться
+            hasAutoJoinedRef.current = true;
+
             // Даем задержку для стабильности
             setTimeout(() => {
                 handleInlineJoin(code);
-            }, 500);
+            }, 800);
         }
-    }, [searchParams, dataLoaded, profileId, isChecking]);
+    }, [searchParams, dataLoaded, profileId, isChecking, mode]);
 
     // Check if we're waiting for profile to load
     const isLoadingProfile = (user || supabaseUser) && !profileId;
@@ -1296,6 +1304,12 @@ export default function Duel() {
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span>STATE: {isJoining ? '🚀 JOINING...' : '😴 IDLE'}</span>
                     <span>PROF: {profileId ? '✅ OK' : '⏳ WAIT'}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'rgba(0,255,0,0.6)' }}>
+                    <span>LOAD: {dataLoaded ? '✅' : '❌'}</span>
+                    <span>CHCK: {isChecking ? '⏳' : '✅'}</span>
+                    <span>REF: {hasAutoJoinedRef.current ? 'TRUE' : 'FALSE'}</span>
+                    <span>MODE: {mode}</span>
                 </div>
             </div>
             <ToastContainer />
