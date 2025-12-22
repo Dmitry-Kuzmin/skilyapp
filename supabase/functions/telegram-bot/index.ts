@@ -236,11 +236,12 @@ async function handleInlineQuery(query: TelegramInlineQuery) {
           parse_mode: "HTML"
         },
         reply_markup: {
-          inline_keyboard: [[{ text: t('inline.duel.button', lang), web_app: { url: duelUrl } }]]
+          inline_keyboard: [[{ text: t('inline.duel.button', lang), url: duelUrl }]]
         }
       }
     ];
 
+    console.log(`[Inline] Sending answer with URL: ${duelUrl}`);
     const response = await fetch(`${TELEGRAM_API}/answerInlineQuery`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
