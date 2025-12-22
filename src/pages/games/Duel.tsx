@@ -53,6 +53,14 @@ const debugFetch = (data: any) => {
 
 export default function Duel() {
     const [searchParams] = useSearchParams();
+
+    // 🔍 Debug logs for initialization
+    useEffect(() => {
+        const code = searchParams.get('code');
+        const startParam = getTelegramWebApp()?.initDataUnsafe?.start_param;
+        console.log('[Duel] 🧩 Component Mounted. URL Code:', code, 'StartParam:', startParam);
+    }, []);
+
     const { isAuthenticated, profileId, user, supabaseUser } = useUserContext();
     const { showDuelJoinError, showDuelJoinSuccess, showDuelNotification, ToastContainer } = useLumiToast();
     const { activeDuel, saveActiveDuel, clearActiveDuel, updateActiveDuel, isChecking } = useActiveDuel();
@@ -406,6 +414,30 @@ export default function Duel() {
         }
     }, [userCoins, dataLoaded, profileId]);
 
+    // Эффект для обработки параметра code из Telegram (Deep Link)
+    useEffect(() => {
+        // Ждем загрузки профиля и основных данных
+        if (!dataLoaded || !profileId || isChecking) return;
+
+        const urlCode = searchParams.get('code');
+        const tgStartParam = getTelegramWebApp()?.initDataUnsafe?.start_param;
+
+        // Telegram может передать "duel_XXXX" в start_param
+        let code = urlCode;
+        if (!code && tgStartParam?.startsWith('duel_')) {
+            code = tgStartParam.replace('duel_', '');
+            console.log('[Duel] 🛰️ Extracted code from start_param:', code);
+        }
+
+        if (code && (code.length === 4 || code.length === 6) && !hasAutoJoinedRef.current) {
+            console.log('[Duel] 🔗 Deep link code DETECTED and processing:', code);
+            // Даем небольшую задержку, чтобы профиль точно "прогрелся"
+            setTimeout(() => {
+                handleInlineJoin(code);
+            }, 500);
+        }
+    }, [searchParams, dataLoaded, profileId, isChecking]);
+
     // Check if we're waiting for profile to load
     const isLoadingProfile = (user || supabaseUser) && !profileId;
 
@@ -585,32 +617,26 @@ export default function Duel() {
 
     // Handle inline join
     const handleInlineJoin = async (code: string) => {
-        // #region agent log
-        debugFetch({ location: 'Duel.tsx:466', message: 'handleInlineJoin called', data: { code, hasAutoJoined: hasAutoJoinedRef.current, isJoining, profileId, dataLoaded }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' });
-        // #endregion
-        if (!code || code.length !== 4) {
+        console.log('[Duel] 🚀 Starting auto-join with code:', code);
+
+        if (!code || (code.length !== 4 && code.length !== 6)) {
+            console.warn('[Duel] ⚠️ Invalid code length:', code?.length);
             return;
         }
 
-        if (!profileId || !dataLoaded) {
-            // #region agent log
-            debugFetch({ location: 'Duel.tsx:472', message: 'Early return - missing data', data: { profileId, dataLoaded }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' });
-            // #endregion
-            return; // Не показываем ошибку до загрузки данных
+        if (!profileId) {
+            console.warn('[Duel] ⚠️ Missing profileId, delaying join...');
+            return;
         }
 
-        if (hasAutoJoinedRef.current) {
-            // #region agent log
-            debugFetch({ location: 'Duel.tsx:475', message: 'Early return - already joined', data: { hasAutoJoined: hasAutoJoinedRef.current }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' });
-            // #endregion
+        if (hasAutoJoinedRef.current && isJoining) {
+            console.log('[Duel] ⏳ Join already in progress, skipping duplicate');
             return;
         }
 
         hasAutoJoinedRef.current = true;
         setIsJoining(true);
-        // #region agent log
-        debugFetch({ location: 'Duel.tsx:479', message: 'Starting join process', data: { code, profileId }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' });
-        // #endregion
+        setMode('menu'); // Остаемся в меню, но показываем лоадер через isJoining state
 
         try {
             console.log('[Duel] ⚡ Invoking join_duel with code:', code);
@@ -1754,6 +1780,28 @@ export default function Duel() {
                                                                         }}
                                                                     >
                                                                         {/* Code with Copy Icon - рядом с кодом */}
+                                                                        {/* 🛠 DEBUG OVERLAY (Удалить перед продакшном) */}
+                                                                        <div style={{
+                                                                            position: 'fixed',
+                                                                            top: 0,
+                                                                            left: 0,
+                                                                            right: 0,
+                                                                            zIndex: 9999,
+                                                                            background: 'rgba(0,0,0,0.8)',
+                                                                            color: '#00ff00',
+                                                                            fontSize: '10px',
+                                                                            padding: '4px',
+                                                                            pointerEvents: 'none',
+                                                                            fontFamily: 'monospace',
+                                                                            display: 'flex',
+                                                                            justifyContent: 'space-between'
+                                                                        }}>
+                                                                            <span>URL Code: {searchParams.get('code') || 'null'}</span>
+                                                                            <span>Join status: {isJoining ? 'JOINING...' : 'idle'}</span>
+                                                                            <span>Profile: {profileId ? 'OK' : 'WAIT'}</span>
+                                                                            <span>AutoJoinRef: {hasAutoJoinedRef.current ? 'TRUE' : 'FALSE'}</span>
+                                                                        </div>
+
                                                                         <div className="flex items-center justify-center gap-3 mb-3 relative z-10">
                                                                             <motion.div
                                                                                 key={createdCode}

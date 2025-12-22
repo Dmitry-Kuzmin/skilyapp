@@ -3,6 +3,7 @@
 // =====================================================
 
 import { InlineKeyboardMarkup } from './types.ts';
+import { t, SupportedLanguage } from './translations.ts';
 
 // URL Mini App / Web (обновлено на прод-домен)
 const MINI_APP_URL = Deno.env.get('MINI_APP_URL') || 'https://skilyapp.com';
@@ -24,18 +25,18 @@ export type NotificationKeyboardState = {
 // =====================================================
 // Главное меню (Modern 2025 - минимализм)
 // =====================================================
-export function getMainMenuKeyboard(): InlineKeyboardMarkup {
+export function getMainMenuKeyboard(lang: SupportedLanguage = 'ru'): InlineKeyboardMarkup {
   return {
     inline_keyboard: [
       [
         {
-          text: '🚀 Открыть Skily',
+          text: t('keyboard.openApp', lang),
           web_app: { url: MINI_APP_URL }
         }
       ],
       [
-        { text: '👤 Профиль', callback_data: 'profile' },
-        { text: '⚔️ Вызвать друга', callback_data: 'duel_inline' }
+        { text: t('keyboard.profile', lang), callback_data: 'profile' },
+        { text: t('keyboard.challengeFriend', lang), callback_data: 'duel_inline' }
       ]
     ]
   };
@@ -44,12 +45,12 @@ export function getMainMenuKeyboard(): InlineKeyboardMarkup {
 // =====================================================
 // Компактное меню с помощью (для быстрых ответов)
 // =====================================================
-export function getQuickMenuKeyboard(): InlineKeyboardMarkup {
+export function getQuickMenuKeyboard(lang: SupportedLanguage = 'ru'): InlineKeyboardMarkup {
   return {
     inline_keyboard: [
       [
         {
-          text: '🚀 Открыть Skily',
+          text: t('keyboard.openApp', lang),
           web_app: { url: MINI_APP_URL }
         }
       ]
@@ -60,19 +61,21 @@ export function getQuickMenuKeyboard(): InlineKeyboardMarkup {
 // =====================================================
 // Меню дуэлей
 // =====================================================
-export function getDuelMenuKeyboard(): InlineKeyboardMarkup {
+export function getDuelMenuKeyboard(lang: SupportedLanguage = 'ru'): InlineKeyboardMarkup {
+  const labels = {
+    ru: { create: '⚔️ Создать дуэль', my: '📜 Мои дуэли', rating: '🏆 Рейтинг', back: '« Назад' },
+    en: { create: '⚔️ Create Duel', my: '📜 My Duels', rating: '🏆 Rating', back: '« Back' },
+    es: { create: '⚔️ Crear Duelo', my: '📜 Mis Duelos', rating: '🏆 Rating', back: '« Atrás' }
+  };
+  const l = labels[lang];
   return {
     inline_keyboard: [
+      [{ text: l.create, web_app: { url: `${DUELS_URL}?mode=create` } }],
       [
-        { text: '⚔️ Создать дуэль', web_app: { url: `${DUELS_URL}?mode=create` } }
+        { text: l.my, web_app: { url: `${DUELS_URL}?mode=list` } },
+        { text: l.rating, web_app: { url: `${DUELS_URL}?mode=leaderboard` } }
       ],
-      [
-        { text: '📜 Мои дуэли', web_app: { url: `${DUELS_URL}?mode=list` } },
-        { text: '🏆 Рейтинг', web_app: { url: `${DUELS_URL}?mode=leaderboard` } }
-      ],
-      [
-        { text: '« Назад', callback_data: 'main_menu' }
-      ]
+      [{ text: l.back, callback_data: 'main_menu' }]
     ]
   };
 }
@@ -80,20 +83,26 @@ export function getDuelMenuKeyboard(): InlineKeyboardMarkup {
 // =====================================================
 // Кнопка с deep link в дуэль
 // =====================================================
-export function getDuelDeepLinkKeyboard(duelId: string): InlineKeyboardMarkup {
+export function getDuelDeepLinkKeyboard(duelId: string, lang: SupportedLanguage = 'ru'): InlineKeyboardMarkup {
+  const labels = {
+    ru: { open: '⚔️ Открыть дуэль', rematch: '🔄 Реванш', main: '« Главное меню' },
+    en: { open: '⚔️ Open Duel', rematch: '🔄 Rematch', main: '« Main Menu' },
+    es: { open: '⚔️ Abrir Duelo', rematch: '🔄 Revancha', main: '« Menú Principal' }
+  };
+  const l = labels[lang];
   return {
     inline_keyboard: [
       [
         {
-          text: '⚔️ Открыть дуэль',
+          text: l.open,
           web_app: { url: `${DUELS_URL}?code=${duelId}` }
         }
       ],
       [
-        { text: '🔄 Реванш', callback_data: 'duel_create' }
+        { text: l.rematch, callback_data: 'duel_create' }
       ],
       [
-        { text: '« Главное меню', callback_data: 'main_menu' }
+        { text: l.main, callback_data: 'main_menu' }
       ]
     ]
   };
@@ -102,23 +111,53 @@ export function getDuelDeepLinkKeyboard(duelId: string): InlineKeyboardMarkup {
 // =====================================================
 // Меню настроек
 // =====================================================
-export function getSettingsKeyboard(): InlineKeyboardMarkup {
+export function getSettingsKeyboard(lang: SupportedLanguage = 'ru'): InlineKeyboardMarkup {
+  const labels = {
+    ru: {
+      notifyBot: '🔔 В боте',
+      notifySite: '🌐 На сайте',
+      langBot: '🌍 В боте',
+      langSite: '🌍 На сайте',
+      quiet: '🌙 Тихий режим',
+      support: '🆘 Поддержка',
+      back: '« Назад'
+    },
+    en: {
+      notifyBot: '🔔 In Bot',
+      notifySite: '🌐 On Site',
+      langBot: '🌍 In Bot',
+      langSite: '🌍 On Site',
+      quiet: '🌙 Quiet Mode',
+      support: '🆘 Support',
+      back: '« Back'
+    },
+    es: {
+      notifyBot: '🔔 En Bot',
+      notifySite: '🌐 En Web',
+      langBot: '🌍 En Bot',
+      langSite: '🌍 En Web',
+      quiet: '🌙 Modo Silencio',
+      support: '🆘 Soporte',
+      back: '« Atrás'
+    }
+  };
+  const l = labels[lang];
   return {
     inline_keyboard: [
       [
-        { text: '🔔 В боте', callback_data: 'settings_notifications' },
-        { text: '🌐 На сайте', web_app: { url: NOTIFICATIONS_URL } }
+        { text: l.notifyBot, callback_data: 'settings_notifications' },
+        { text: l.notifySite, web_app: { url: NOTIFICATIONS_URL } }
       ],
       [
-        { text: '🌍 В боте', callback_data: 'settings_language' },
-        { text: '🌍 На сайте', web_app: { url: LANGUAGE_URL } }
+        { text: l.langBot, callback_data: 'settings_language' },
+        { text: l.langSite, web_app: { url: LANGUAGE_URL } }
       ],
       [
-        { text: '🌙 Тихий режим', callback_data: 'quiet_mode_menu' },
-        { text: '🆘 Поддержка', web_app: { url: SUPPORT_URL } }
+        { text: l.quiet, callback_data: 'quiet_mode_menu' },
+        { text: l.support, web_app: { url: SUPPORT_URL } }
       ],
       [
-        { text: '« Назад', callback_data: 'main_menu' }
+        { text: l.back, callback_data: 'main_menu' }
       ]
     ]
   };
@@ -210,14 +249,17 @@ export function getConfirmationKeyboard(actionData: string): InlineKeyboardMarku
 // =====================================================
 // Кнопка "Открыть в приложении"
 // =====================================================
-export function getOpenAppKeyboard(deeplink?: string): InlineKeyboardMarkup {
+// =====================================================
+// Кнопка "Открыть в приложении" (локализовано)
+// =====================================================
+export function getOpenAppKeyboard(lang: SupportedLanguage = 'ru', deeplink?: string): InlineKeyboardMarkup {
   const url = deeplink ? `${MINI_APP_URL}${deeplink.startsWith('/') ? '' : '/'}${deeplink}` : MINI_APP_URL;
 
   return {
     inline_keyboard: [
       [
         {
-          text: '🚀 Открыть в приложении',
+          text: t('keyboard.openApp', lang),
           web_app: { url }
         }
       ]
@@ -228,11 +270,14 @@ export function getOpenAppKeyboard(deeplink?: string): InlineKeyboardMarkup {
 // =====================================================
 // Назад в главное меню
 // =====================================================
-export function getBackToMenuKeyboard(): InlineKeyboardMarkup {
+// =====================================================
+// Назад в главное меню (локализовано)
+// =====================================================
+export function getBackToMenuKeyboard(lang: SupportedLanguage = 'ru'): InlineKeyboardMarkup {
   return {
     inline_keyboard: [
       [
-        { text: '« Главное меню', callback_data: 'main_menu' }
+        { text: t('keyboard.backToMenu', lang), callback_data: 'main_menu' }
       ]
     ]
   };
@@ -446,3 +491,28 @@ export function getTipActionsKeyboard(
   return keyboard;
 }
 
+// =====================================================
+// Меню советов (локализовано)
+// =====================================================
+export function getTipsMenuKeyboard(lang: SupportedLanguage = 'ru'): InlineKeyboardMarkup {
+  const labels = {
+    ru: { base: '📜 ПДД База', signs: '🛑 Знаки', fines: '💸 Штрафы', tips: '💡 Советы' },
+    en: { base: '📜 Theory', signs: '🛑 Signs', fines: '💸 Fines', tips: '💡 Tips' },
+    es: { base: '📜 Teoría', signs: '🛑 Señales', fines: '💸 Multas', tips: '💡 Consejos' }
+  };
+  const l = labels[lang] || labels.ru;
+
+  return {
+    inline_keyboard: [
+      [
+        { text: l.base, callback_data: 'tips_topic_theory' },
+        { text: l.signs, callback_data: 'tips_topic_signs' }
+      ],
+      [
+        { text: l.fines, callback_data: 'tips_topic_fines' },
+        { text: l.tips, callback_data: 'tips_topic_study' }
+      ],
+      [{ text: t('keyboard.backToMenu', lang), callback_data: 'main_menu' }]
+    ]
+  };
+}
