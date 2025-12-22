@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useUserContext } from "@/contexts/UserContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { cn } from "@/lib/utils";
 import { RewardedAdModal } from "@/components/monetization/RewardedAdModal";
@@ -25,7 +25,7 @@ import {
 const DailyBonus = () => {
   const navigate = useNavigate();
   const { profileId } = useUserContext();
-  const { toast } = useToast();
+  
   const queryClient = useQueryClient();
   
   const [loading, setLoading] = useState(true);

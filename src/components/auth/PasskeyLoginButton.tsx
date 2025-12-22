@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react';
 import { Fingerprint, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/lib/toast';
 import { loginWithPasskey, isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/passkey';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';

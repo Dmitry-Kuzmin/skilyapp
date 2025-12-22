@@ -23,10 +23,12 @@ const Toaster = ({ ...props }: ToasterProps) => {
       className="toaster group"
       position={isTelegram ? "top-center" : "top-right"}
       richColors
+      // Важно: z-index должен быть МАКСИМАЛЬНЫМ (таким же как у модалок проекта)
+      containerAriaLabel="Уведомления"
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-zinc-900 group-[.toaster]:text-zinc-200 group-[.toaster]:border-zinc-800 group-[.toaster]:border-white/10 group-[.toaster]:shadow-lg font-medium rounded-xl",
+            "group toast group-[.toaster]:bg-zinc-900 group-[.toaster]:text-zinc-200 group-[.toaster]:border-zinc-800 group-[.toaster]:border-white/10 group-[.toaster]:shadow-lg font-medium rounded-xl group-[.toaster]:z-[2147483647]",
           description: "group-[.toast]:text-zinc-400",
           actionButton: "group-[.toast]:bg-white group-[.toast]:text-black group-[.toast]:hover:shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]",
           cancelButton: "group-[.toast]:bg-zinc-800 group-[.toast]:text-zinc-300",
@@ -34,8 +36,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={{
         top: `${topOffset}px`,
-        // Для top-center right не нужен, но оставим для совместимости если позиция изменится
         right: isTelegram ? 'auto' : `${safeArea.right + 16}px`,
+        zIndex: 2147483647, // Поверх модалок
       }}
       {...props}
     />

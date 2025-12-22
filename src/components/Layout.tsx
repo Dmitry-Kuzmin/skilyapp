@@ -8,8 +8,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "./ui/button";
 // ОПТИМИЗАЦИЯ: Тяжелые компоненты lazy-loaded - не попадают в initial bundle
-// Эти компоненты тянут Supabase/Radix UI, поэтому они должны загружаться только когда Layout рендерится
-const SettingsDrawer = lazy(() => import("./SettingsDrawer").then(m => ({ default: m.SettingsDrawer })));
+// SettingsDrawer удалён — используется глобальный UnifiedSettingsDrawer из AppProviders
 import { ProfileModal } from "./ProfileModal";
 import { AuthModalNew as AuthModal } from "./AuthModalNew";
 import { TelegramNavigation } from "./TelegramNavigation";
@@ -63,44 +62,14 @@ const NavItem = memo(({ item, currentPath, navigate }: { item: NavigationItem; c
   const isActive = isNavigationItemActive(item, currentPath);
   const Icon = item.icon;
 
-  const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
-    // КРИТИЧНО: Явная обработка клика для мгновенного перехода без задержек
-    e.preventDefault();
-    e.stopPropagation();
-    e.nativeEvent.stopImmediatePropagation();
-
-    // Используем requestAnimationFrame для немедленного перехода без блокировки UI
-    requestAnimationFrame(() => {
-      navigate(item.href);
-    });
-  }, [item.href, navigate]);
-
-  const handleTouchStart = useCallback((e: React.TouchEvent<HTMLAnchorElement>) => {
-    // КРИТИЧНО: Обработка touch для мгновенной реакции на мобильных
-    e.stopPropagation();
-    e.nativeEvent.stopImmediatePropagation();
-  }, []);
-
-  const handleTouchEnd = useCallback((e: React.TouchEvent<HTMLAnchorElement>) => {
-    // КРИТИЧНО: Обработка touchEnd для немедленного перехода
-    e.preventDefault();
-    e.stopPropagation();
-    e.nativeEvent.stopImmediatePropagation();
-
-    requestAnimationFrame(() => {
-      navigate(item.href);
-    });
-  }, [item.href, navigate]);
+  // УПРОЩЕНО: Позволяем NavLink работать нативно, без конфликтующих обработчиков
+  // Предыдущая версия с onTouchEnd + onClick вызывала проблемы с необходимостью нескольких нажатий
 
   return (
     <NavLink
       to={item.href}
-      onClick={handleClick}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
       className={cn(
         "flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-colors duration-150 relative",
-        // ОПТИМИЗАЦИЯ: Убрано transition-all, оставлен только transition-colors для мгновенной отзывчивости
         isActive
           ? "bg-primary/10 text-primary"
           : "text-muted-foreground",
@@ -108,14 +77,13 @@ const NavItem = memo(({ item, currentPath, navigate }: { item: NavigationItem; c
       )}
       end={false}
       style={{
-        // ОПТИМИЗАЦИЯ: Явно указываем pointer-events и touch-action для лучшей отзывчивости
         pointerEvents: 'auto',
         touchAction: 'manipulation',
         WebkitTapHighlightColor: 'transparent',
         WebkitTouchCallout: 'none',
         userSelect: 'none',
         position: 'relative',
-        zIndex: 100 // КРИТИЧНО: Увеличен z-index чтобы быть выше EdgeSwipeBack и других элементов
+        zIndex: 100
       }}
     >
       <Icon className={cn("w-6 h-6", isActive && "animate-bounce-slow")} />
@@ -140,7 +108,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
   const { user, platform, isAuthenticated, logout } = useUserContext();
   const { t } = useLanguage();
   const { activeDuel } = useActiveDuel();
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  // settingsOpen удалён — используется глобальный UnifiedSettingsDrawer
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [referralModalOpen, setReferralModalOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -568,10 +536,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
         </nav>
       )}
 
-      {/* Settings Drawer */}
-      <Suspense fallback={null}>
-        <SettingsDrawer open={settingsOpen} onOpenChange={setSettingsOpen} />
-      </Suspense>
+      {/* Settings Drawer — удалён, используется глобальный UnifiedSettingsDrawer из AppProviders */}
 
       {/* Auth Modal for Web Platform */}
       <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />

@@ -12,15 +12,14 @@ import { createAsyncStoragePersister } from "@/lib/queryPersister";
 // На лендинге используется легкий LandingUserProvider БЕЗ Supabase
 import { UserProvider } from "@/contexts/UserContext";
 import { PDDProvider } from "@/contexts/PDDContext";
-// ОПТИМИЗАЦИЯ: Toaster, Sonner, TooltipProvider перемещены сюда из App.tsx
-// Они тянут Radix UI (@radix-ui/react-toast, @radix-ui/react-tooltip), поэтому не должны грузиться на лендинге
-import { Toaster } from "@/components/ui/toaster";
+// ОПТИМИЗАЦИЯ: Только Sonner для всех уведомлений (унифицированный чёрный стиль)
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReconnectHandler } from "@/components/ReconnectHandler";
 import { useAuthEventListener } from "@/hooks/useAuthEventListener.ts";
 import { preloadPaddle } from "@/lib/paddle";
 import { useIdleInitialization } from "@/hooks/useIdleInitialization";
+import { GlobalSettingsManager } from "@/components/settings";
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -28,7 +27,7 @@ interface AppProvidersProps {
 
 export function AppProviders({ children }: AppProvidersProps) {
   console.log('[AppProviders] 🚀 AppProviders component rendering');
-  
+
   // Слушаем Auth события для отправки уведомлений о критичных изменениях
   useAuthEventListener();
 
@@ -39,7 +38,7 @@ export function AppProviders({ children }: AppProvidersProps) {
   // Это ускоряет открытие формы оплаты (SDK уже готов, не нужно ждать инициализации)
   useEffect(() => {
     const hasIdleCallback = typeof window !== 'undefined' && 'requestIdleCallback' in window;
-    
+
     const preloadPaddleIdle = () => {
       preloadPaddle();
     };
@@ -79,7 +78,6 @@ export function AppProviders({ children }: AppProvidersProps) {
 
   return (
     <TooltipProvider>
-      <Toaster />
       <Sonner />
       <UserProvider>
         <PDDProvider>
@@ -99,7 +97,7 @@ export function AppProviders({ children }: AppProvidersProps) {
 
                   // КРИТИЧНО: Безопасная проверка типа queryKey
                   const root = String(query.queryKey[0] ?? '');
-                  
+
                   // Пустой key - не сохраняем
                   if (!root) {
                     return false;
@@ -149,11 +147,13 @@ export function AppProviders({ children }: AppProvidersProps) {
               },
             }}
           >
-          <ReconnectHandler />
-          {(() => {
-            console.log('[AppProviders] Rendering children (AppRoutes)');
-            return children;
-          })()}
+            <ReconnectHandler />
+            {/* Global Settings Drawer (Zustand controlled) */}
+            <GlobalSettingsManager />
+            {(() => {
+              console.log('[AppProviders] Rendering children (AppRoutes)');
+              return children;
+            })()}
           </PersistQueryClientProvider>
         </PDDProvider>
       </UserProvider>

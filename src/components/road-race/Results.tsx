@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import Confetti from "react-confetti";
 import { useWindowSize } from "@uidotdev/usehooks";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";
 import type { Route, GameStats } from "@/pages/games/RoadRace";
@@ -21,7 +21,7 @@ interface ResultsProps {
 
 export const Results = ({ route, stats, onPlayAgain, onBackToMenu }: ResultsProps) => {
   const { width, height } = useWindowSize();
-  const { toast } = useToast();
+  
   const accuracy = Math.round((stats.correctAnswers / (stats.correctAnswers + stats.incorrectAnswers)) * 100);
   const avgSpeed = Math.round(stats.maxSpeed * 0.75);
 

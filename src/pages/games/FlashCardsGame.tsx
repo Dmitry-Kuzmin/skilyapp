@@ -26,7 +26,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import Layout from "@/components/Layout";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { sounds } from "@/lib/sounds";
@@ -79,7 +79,7 @@ interface GameStats {
 
 const FlashCardsGame = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  
   const { profileId } = useUserContext();
   
   // Состояния

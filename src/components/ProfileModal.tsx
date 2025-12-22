@@ -22,6 +22,7 @@ import {
 import { useTheme } from "next-themes";
 import { useNavigate } from "react-router-dom";
 import { isTelegramMiniApp } from "@/lib/telegram";
+import { useSettingsStore } from "@/store/settingsStore";
 
 interface ProfileModalProps {
   open: boolean;
@@ -563,8 +564,9 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
           variant="outline"
           className="h-10"
           onClick={() => {
-            // Можно открыть настройки или другой модал
-            toast.info(t('settings'));
+            onOpenChange(false);
+            // Открываем UnifiedSettingsDrawer через Zustand
+            useSettingsStore.getState().openSettings();
           }}
         >
           <Settings className="h-4 w-4 mr-2" />

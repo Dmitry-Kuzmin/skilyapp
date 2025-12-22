@@ -1,33 +1,34 @@
-import React, { useState } from 'react';
-import { Power, Fingerprint, Scan, ShieldCheck, Key } from 'lucide-react';
-import { playClickSound, playEngineSound, playBiometricSound, playUnlockSound } from '@/services/audioService';
+import React, { useState, useEffect } from 'react';
+import { Power, Fingerprint, ShieldCheck } from 'lucide-react';
+import { playClickSound, playEngineSound, playBiometricSound } from '@/services/audioService';
 
 interface WelcomeOverlayProps {
   onComplete: () => void;
+  isLoading?: boolean;
+  isPremium?: boolean;
 }
 
-type PreloaderMode = 'mechanical' | 'biometric' | 'elite';
+type PreloaderMode = 'mechanical' | 'biometric';
 
-export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete }) => {
-  const [mode, setMode] = useState<PreloaderMode>('mechanical');
+export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete, isLoading = false, isPremium = false }) => {
+  // Автоматический выбор режима: Bio для премиум, Std для остальных
+  const [mode, setMode] = useState<PreloaderMode>(() => isPremium ? 'biometric' : 'mechanical');
   const [isIgniting, setIsIgniting] = useState(false);
   const [isLaunched, setIsLaunched] = useState(false);
 
   const handleStart = () => {
-    if (isIgniting) return;
-    
+    if (isIgniting || isLoading) return;
+
     setIsIgniting(true);
-    
+
     // Trigger Sound based on mode
     playClickSound();
     if (mode === 'mechanical') {
       playEngineSound();
     } else if (mode === 'biometric') {
       playBiometricSound();
-    } else if (mode === 'elite') {
-      playUnlockSound();
     }
-    
+
     // Ignition sequence timing
     setTimeout(() => {
       setIsLaunched(true);
@@ -44,10 +45,10 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete }) =>
 
   return (
     <div className="fixed inset-0 z-[9999] bg-[#0f172a] flex flex-col items-center justify-center p-6 transition-all duration-500 overflow-hidden selection:bg-indigo-500/30">
-      
+
       {/* Background Ambiance */}
       <div className="absolute inset-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/20 via-[#0f172a] to-[#0f172a]"></div>
-      
+
       {/* ==================================================================
           MODE 1: MECHANICAL (Start Engine) 
          ================================================================== */}
@@ -57,43 +58,45 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete }) =>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none"></div>
 
           <div className="mb-12 text-center space-y-2">
-             <p className="text-indigo-400 text-xs font-mono tracking-[0.3em] animate-pulse">SYSTEM READY</p>
+            <p className={`text-xs font-mono tracking-[0.3em] animate-pulse transition-colors duration-500 ${isLoading ? 'text-amber-500' : 'text-indigo-400'}`}>
+              {isLoading ? 'SYSTEM BOOTING...' : 'SYSTEM READY'}
+            </p>
           </div>
 
-          <button 
+          <button
             onClick={handleStart}
             className={`group relative w-48 h-48 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer active:scale-95 transform-gpu ${isIgniting ? 'animate-shake' : 'hover:scale-105'}`}
           >
             {/* Radial Gradient Glow (Fixes Square Shadow Bug) */}
             <div className={`absolute inset-[-50%] rounded-full transition-all duration-500 pointer-events-none mix-blend-screen ${isIgniting ? 'opacity-100 scale-110' : 'opacity-0 group-hover:opacity-60'}`}
-                 style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.4) 0%, rgba(99,102,241,0) 70%)' }}>
+              style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.4) 0%, rgba(99,102,241,0) 70%)' }}>
             </div>
 
             {/* Metal Ring */}
             <div className="absolute inset-0 rounded-full metal-ring shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_2px_5px_rgba(255,255,255,0.5)] p-3 z-10">
               {/* Inner Dark Plastic */}
               <div className="w-full h-full rounded-full bg-[#111] shadow-[inset_0_5px_15px_rgba(0,0,0,0.9)] p-1.5">
-                
+
                 {/* Button Surface */}
                 <div className={`w-full h-full rounded-full bg-gradient-to-b from-[#2a2a2a] to-[#050505] border-t border-white/10 flex flex-col items-center justify-center relative overflow-hidden transition-all duration-200 ${isIgniting ? 'border-indigo-500/50' : ''}`}>
-                  
+
                   {/* Brushed Metal Texture */}
                   <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 to-transparent"></div>
-                  
+
                   {/* LED Indicator */}
                   <div className="w-16 h-2 rounded-full bg-black/80 mb-4 overflow-hidden border border-white/5 shadow-[inset_0_1px_3px_rgba(0,0,0,1)]">
-                    <div 
+                    <div
                       className={`h-full bg-gradient-to-r from-indigo-600 to-purple-400 shadow-[0_0_10px_rgba(99,102,241,0.8)] transition-all ease-out ${isIgniting ? 'w-full' : 'w-0'}`}
                       style={{ transitionDuration: '1500ms' }}
                     ></div>
                   </div>
 
                   <div className="flex flex-col items-center relative z-10">
-                      <Power size={32} className={`mb-2 drop-shadow-[0_2px_4px_rgba(0,0,0,1)] transition-colors duration-300 ${isIgniting ? 'text-white' : 'text-slate-400 group-hover:text-white'}`} />
-                      <span className={`text-xs font-bold tracking-[0.25em] uppercase transition-colors duration-300 ${isIgniting ? 'text-indigo-400' : 'text-slate-500 group-hover:text-indigo-400'}`}>Engine</span>
-                      <span className="text-[10px] text-slate-700 font-bold tracking-widest uppercase mt-1">Start/Stop</span>
+                    <Power size={32} className={`mb-2 drop-shadow-[0_2px_4px_rgba(0,0,0,1)] transition-colors duration-300 ${isIgniting ? 'text-white' : 'text-slate-400 group-hover:text-white'}`} />
+                    <span className={`text-xs font-bold tracking-[0.25em] uppercase transition-colors duration-300 ${isIgniting ? 'text-indigo-400' : 'text-slate-500 group-hover:text-indigo-400'}`}>Engine</span>
+                    <span className="text-[10px] text-slate-700 font-bold tracking-widest uppercase mt-1">Start/Stop</span>
                   </div>
-                  
+
                   {/* Bottom Gloss Reflection */}
                   <div className="absolute bottom-3 left-1/2 -translate-x-1/2 w-20 h-8 bg-white/5 blur-md rounded-t-full opacity-50"></div>
                 </div>
@@ -101,139 +104,176 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete }) =>
             </div>
           </button>
 
-          <p className={`mt-12 text-slate-500 text-sm font-medium transition-opacity duration-500 ${isIgniting ? 'opacity-0' : 'opacity-100'}`}>
-             Нажми для запуска
+          <p className={`mt-12 text-slate-500 text-sm font-medium transition-all duration-500 ${isIgniting || isLoading ? 'opacity-0 -translate-y-2' : 'opacity-100 translate-y-0'}`}>
+            Нажми для запуска
           </p>
         </div>
       )}
 
       {/* ==================================================================
-          MODE 2: PREMIUM BIOMETRIC (Holographic) 
+          MODE 2: PREMIUM BIOMETRIC (Holographic DNA Scanner) 
          ================================================================== */}
       {mode === 'biometric' && (
         <div className="relative z-10 flex flex-col items-center animate-fade-in">
-          
-          {/* Scanning overlay line */}
+
+          {/* AMBIENT GLOW - Pulsating Sphere */}
+          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full pointer-events-none transition-all duration-1000 ${isIgniting ? 'bg-emerald-500/20 scale-125' : 'bg-cyan-500/10 scale-100'}`} style={{ filter: 'blur(80px)' }}></div>
+
+          {/* SUCCESS PARTICLES - только при успехе */}
           {isIgniting && (
-            <div className="absolute inset-0 z-20 bg-indigo-500/10 animate-pulse pointer-events-none"></div>
+            <>
+              <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-emerald-400 rounded-full animate-[particle1_1s_ease-out_forwards]"></div>
+              <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-emerald-300 rounded-full animate-[particle2_1s_ease-out_0.1s_forwards]"></div>
+              <div className="absolute top-1/2 left-1/2 w-1 h-1 bg-cyan-400 rounded-full animate-[particle3_1s_ease-out_0.2s_forwards]"></div>
+              <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-emerald-500 rounded-full animate-[particle4_1s_ease-out_0.05s_forwards]"></div>
+            </>
           )}
 
-          <div className="mb-8 text-center space-y-2">
-             <p className="text-emerald-400 text-xs font-mono tracking-[0.3em] animate-pulse">SECURE ACCESS REQUIRED</p>
+          <div className="mb-10 text-center space-y-1">
+            <p className={`text-[10px] font-mono tracking-[0.5em] uppercase transition-all duration-700 ${isLoading ? 'text-amber-500 animate-pulse' : isIgniting ? 'text-emerald-400' : 'text-cyan-400 animate-pulse'}`}>
+              {isLoading ? 'Калибровка сенсора...' : isIgniting ? '✓ ОТПЕЧАТОК ПОДТВЕРЖДЁН' : 'Приложите палец'}
+            </p>
           </div>
 
-          <button 
+          <button
             onClick={handleStart}
-            className="group relative w-56 h-56 flex items-center justify-center cursor-pointer focus:outline-none"
+            disabled={isLoading}
+            className="group relative w-52 h-52 flex items-center justify-center cursor-pointer focus:outline-none"
           >
-            {/* Rotating outer ring */}
-            <div className={`absolute inset-0 rounded-full border border-indigo-500/30 border-dashed transition-all ${isIgniting ? 'animate-spin-slow border-emerald-500/50' : ''}`} style={{ transitionDuration: '2s' }}></div>
-            <div className={`absolute inset-2 rounded-full border border-indigo-500/20 border-dotted transition-all ${isIgniting ? 'animate-spin-slow border-emerald-500/30' : ''}`} style={{ animationDirection: 'reverse', transitionDuration: '3s' }}></div>
+            {/* OUTER STATIC RING - No rotation */}
+            <div className={`absolute inset-[-4px] rounded-full border transition-all duration-500 pointer-events-none ${isIgniting ? 'border-emerald-400/50' : 'border-cyan-500/20 group-hover:border-cyan-400/40'}`}></div>
 
-            {/* Hexagon Glass Container */}
-            <div className={`relative w-40 h-40 bg-slate-900/50 backdrop-blur-xl rounded-3xl border border-indigo-500/30 shadow-[0_0_30px_rgba(99,102,241,0.2)] flex items-center justify-center overflow-hidden transition-all duration-500 ${isIgniting ? 'border-emerald-500/50 bg-emerald-900/20 shadow-[0_0_50px_rgba(16,185,129,0.4)]' : 'group-hover:border-indigo-400/50 group-hover:shadow-[0_0_40px_rgba(99,102,241,0.4)]'}`}>
-               
-               {/* Scanning Line */}
-               <div className={`absolute top-0 left-0 w-full h-1 bg-indigo-400 shadow-[0_0_10px_#fff] opacity-0 transition-opacity ${isIgniting ? 'opacity-100 animate-[scan_1.5s_ease-in-out_infinite]' : ''}`}></div>
+            {/* MAIN SCANNER CONTAINER */}
+            <div className={`relative w-44 h-44 rounded-full overflow-hidden transition-all duration-700 ${isIgniting ? 'bg-emerald-950/80 border-2 border-emerald-500/70 shadow-[0_0_60px_rgba(16,185,129,0.5),inset_0_0_30px_rgba(16,185,129,0.2)]' : 'bg-slate-950/70 border-2 border-cyan-500/40 shadow-[0_0_40px_rgba(6,182,212,0.25)] group-hover:border-cyan-400/60 group-hover:shadow-[0_0_50px_rgba(6,182,212,0.4)]'}`}>
 
-               {/* Icon */}
-               <div className="relative z-10 text-indigo-400 transition-all duration-500">
-                  {isIgniting ? (
-                     <Scan size={64} className="text-emerald-400 animate-pulse" />
-                  ) : (
-                     <Fingerprint size={64} strokeWidth={1} className="group-hover:scale-110 transition-transform duration-300" />
-                  )}
-               </div>
+              {/* GLASS REFLECTION */}
+              <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-transparent rounded-full pointer-events-none"></div>
+
+              {/* LASER SCAN LINE */}
+              <div className={`absolute left-0 w-full h-[3px] transition-opacity duration-300 ${isIgniting ? 'opacity-100 bg-gradient-to-r from-transparent via-emerald-400 to-transparent animate-[laserScan_0.8s_ease-in-out_infinite]' : 'opacity-0'}`}
+                style={{ boxShadow: '0 0 15px 3px rgba(52,211,153,0.8), 0 0 30px 6px rgba(52,211,153,0.4)' }}></div>
+
+              {/* FINGERPRINT ICON / SUCCESS ICON */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                {isIgniting ? (
+                  <div className="relative">
+                    <ShieldCheck size={72} className="text-emerald-400 animate-[successPop_0.5s_ease-out]" strokeWidth={1.5} />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-20 h-20 rounded-full border-2 border-emerald-400/50 animate-[ripple_1s_ease-out_infinite]"></div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    {/* Fingerprint with pulse animation */}
+                    <div className={`transition-all duration-500 ${isLoading ? 'opacity-50' : 'group-hover:scale-105'}`}>
+                      <Fingerprint
+                        size={80}
+                        strokeWidth={1.2}
+                        className={`transition-all duration-700 ${isLoading ? 'text-amber-500/50 animate-pulse' : 'text-cyan-400 group-hover:text-cyan-300'}`}
+                      />
+                    </div>
+
+                    {/* Fingerprint glow effect on hover */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-70 transition-opacity duration-500 blur-lg pointer-events-none">
+                      <Fingerprint size={80} strokeWidth={1.2} className="text-cyan-400" />
+                    </div>
+
+                    {/* Touch active indicator - pulsing ring */}
+                    {!isLoading && (
+                      <div className="absolute inset-[-12px] rounded-full border border-cyan-400/20 animate-[touchPulse_1.5s_ease-in-out_infinite] group-hover:border-cyan-400/40"></div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* SCANNING PULSE WAVES - from center */}
+              {!isIgniting && !isLoading && (
+                <>
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="w-16 h-16 rounded-full border border-cyan-400/30 animate-[scanPulse_2s_ease-out_infinite]"></div>
+                  </div>
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="w-16 h-16 rounded-full border border-cyan-400/20 animate-[scanPulse_2s_ease-out_infinite]" style={{ animationDelay: '0.5s' }}></div>
+                  </div>
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="w-16 h-16 rounded-full border border-cyan-400/10 animate-[scanPulse_2s_ease-out_infinite]" style={{ animationDelay: '1s' }}></div>
+                  </div>
+                </>
+              )}
+
+              {/* BOTTOM SENSOR INDICATORS */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${isIgniting ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]' : 'bg-cyan-500/40 group-hover:bg-cyan-400/60'}`}
+                    style={{ transitionDelay: `${i * 100}ms` }}
+                  ></div>
+                ))}
+              </div>
             </div>
           </button>
 
-          <div className="mt-10 h-8 flex items-center justify-center">
+          <div className="mt-10 h-10 flex flex-col items-center justify-center gap-1">
             {isIgniting ? (
-              <div className="flex items-center gap-2 text-emerald-400">
-                <ShieldCheck size={16} />
-                <span className="text-xs font-mono tracking-widest uppercase">Identity Verified</span>
+              <div className="flex items-center gap-2.5 text-emerald-400 animate-fade-in">
+                <div className="flex gap-1">
+                  <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '100ms' }}></div>
+                  <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '200ms' }}></div>
+                </div>
+                <span className="text-xs font-mono tracking-[0.2em] uppercase">Доступ разрешён</span>
               </div>
             ) : (
-              <p className="text-slate-500 text-sm font-medium opacity-60">
-                Нажми для сканирования
+              <p className={`text-sm font-medium transition-all duration-500 ${isLoading ? 'text-amber-500/60' : 'text-slate-400 group-hover:text-cyan-400'}`}>
+                {isLoading ? 'Подождите...' : 'Коснитесь для сканирования'}
               </p>
             )}
           </div>
 
+          {/* CUSTOM ANIMATIONS */}
+          <style>{`
+            @keyframes laserScan {
+              0% { top: 15%; }
+              50% { top: 85%; }
+              100% { top: 15%; }
+            }
+            @keyframes scanPulse {
+              0% { transform: scale(1); opacity: 0.6; }
+              100% { transform: scale(2.5); opacity: 0; }
+            }
+            @keyframes touchPulse {
+              0%, 100% { transform: scale(1); opacity: 0.3; }
+              50% { transform: scale(1.1); opacity: 0.6; }
+            }
+            @keyframes successPop {
+              0% { transform: scale(0.5); opacity: 0; }
+              50% { transform: scale(1.2); }
+              100% { transform: scale(1); opacity: 1; }
+            }
+            @keyframes ripple {
+              0% { transform: scale(1); opacity: 0.6; }
+              100% { transform: scale(1.5); opacity: 0; }
+            }
+            @keyframes particle1 {
+              0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+              100% { transform: translate(-100px, -80px) scale(0); opacity: 0; }
+            }
+            @keyframes particle2 {
+              0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+              100% { transform: translate(90px, -60px) scale(0); opacity: 0; }
+            }
+            @keyframes particle3 {
+              0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+              100% { transform: translate(-70px, 100px) scale(0); opacity: 0; }
+            }
+            @keyframes particle4 {
+              0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+              100% { transform: translate(80px, 90px) scale(0); opacity: 0; }
+            }
+          `}</style>
         </div>
       )}
-
-      {/* ==================================================================
-          MODE 3: ELITE HYPER-KEY (Luxury) 
-         ================================================================== */}
-      {mode === 'elite' && (
-        <div className="relative z-10 flex flex-col items-center animate-fade-in">
-           
-           <div className="mb-12 text-center space-y-2">
-             <p className="text-yellow-500/80 text-xs font-sans tracking-[0.4em] uppercase animate-pulse">Awaiting Authorization</p>
-          </div>
-
-          <button 
-            onClick={handleStart}
-            className={`relative w-24 h-44 rounded-2xl perspective-1000 transition-all duration-700 cursor-pointer ${isIgniting ? 'scale-110 -translate-y-10 opacity-0' : 'hover:-translate-y-2'}`}
-            style={{ transformStyle: 'preserve-3d' }}
-          >
-            {/* Glow */}
-            <div className="absolute inset-0 bg-yellow-500/20 blur-xl rounded-full animate-pulse"></div>
-            
-            {/* Key Body */}
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-black border border-yellow-500/30 rounded-2xl flex flex-col items-center justify-between p-4 shadow-2xl overflow-hidden group">
-               {/* Shimmer */}
-               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-yellow-400/10 to-transparent -translate-x-full animate-[shimmer_3s_infinite]"></div>
-               
-               <div className="text-yellow-500/50">
-                  <div className="text-xs font-bold">DGT</div>
-               </div>
-
-               <div className="relative z-10 flex flex-col items-center gap-2">
-                  <div className="w-10 h-10 rounded-full border border-yellow-500/20 flex items-center justify-center text-yellow-500">
-                    <Key size={18} />
-                  </div>
-                  <div className="w-1 h-8 bg-yellow-500/20 rounded-full overflow-hidden">
-                     <div className="w-full h-full bg-yellow-400 animate-[slideUp_1s_infinite]"></div>
-                  </div>
-               </div>
-
-               <div className="text-[8px] text-yellow-500/40 font-mono uppercase tracking-widest">
-                  Elite Access
-               </div>
-            </div>
-          </button>
-
-          <p className={`mt-12 text-yellow-500/40 text-xs font-medium tracking-widest uppercase transition-opacity duration-500 ${isIgniting ? 'opacity-0' : 'opacity-100'}`}>
-             Вставить ключ
-          </p>
-        </div>
-      )}
-
-      {/* ==================================================================
-          MODE SWITCHER 
-         ================================================================== */}
-      <div className="absolute bottom-8 flex gap-2 md:gap-4 p-2 bg-slate-900/50 backdrop-blur-md rounded-full border border-white/5">
-        <button 
-          onClick={() => setMode('mechanical')}
-          className={`px-3 md:px-4 py-2 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-widest border transition-all ${mode === 'mechanical' ? 'bg-white text-slate-900 border-white' : 'text-slate-500 border-transparent hover:text-slate-300'}`}
-        >
-          Std
-        </button>
-        <button 
-          onClick={() => setMode('biometric')}
-          className={`px-3 md:px-4 py-2 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-widest border transition-all ${mode === 'biometric' ? 'bg-emerald-500 text-white border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'text-slate-500 border-transparent hover:text-emerald-400'}`}
-        >
-          Bio
-        </button>
-        <button 
-          onClick={() => setMode('elite')}
-          className={`px-3 md:px-4 py-2 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-widest border transition-all ${mode === 'elite' ? 'bg-yellow-500 text-black border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.4)]' : 'text-slate-500 border-transparent hover:text-yellow-400'}`}
-        >
-          Elite
-        </button>
-      </div>
 
     </div>
   );

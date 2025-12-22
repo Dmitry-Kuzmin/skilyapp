@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { isTelegramMiniApp, triggerHapticFeedback } from "@/lib/telegram";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -60,7 +60,7 @@ export function AIExplanationDialog({
   const [messageRatings, setMessageRatings] = useState<Record<number, 1 | -1>>({});
   const hasAskedRef = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
+  
   const { t } = useLanguage();
   
   // Определяем язык интерфейса на основе языка теста

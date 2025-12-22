@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react';
 import { Fingerprint, Smartphone, Laptop, Trash2, Plus, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/lib/toast';
 import {
   registerPasskey,
   listPasskeys,

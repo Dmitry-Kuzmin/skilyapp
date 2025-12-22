@@ -6,7 +6,7 @@ import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UserContext } from '@/contexts/UserContext';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/lib/toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';

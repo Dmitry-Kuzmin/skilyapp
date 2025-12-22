@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import Layout from "@/components/Layout";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
@@ -22,7 +22,7 @@ interface MatchPair {
 
 const MatchingGame = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  
   const { profileId } = useUserContext();
   const [pairs, setPairs] = useState<MatchPair[]>([]);
   const [shuffledSpanish, setShuffledSpanish] = useState<MatchPair[]>([]);

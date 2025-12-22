@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface SecurityMetrics {
@@ -47,7 +47,7 @@ interface ActivityLog {
 }
 
 export function AdminSecurityMonitoring() {
-  const { toast } = useToast();
+  
   const [metrics, setMetrics] = useState<SecurityMetrics>({
     totalUsers: 0,
     activeUsers24h: 0,

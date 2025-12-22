@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { useUserContext } from "@/contexts/UserContext";
 import { Loader2, MessageSquare } from "lucide-react";
 import { motion } from "framer-motion";
@@ -26,7 +26,7 @@ export function HelpFeedbackModal({
 }: HelpFeedbackModalProps) {
   const [feedback, setFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+  
   const { user, supabaseUser, profileId, isAuthenticated } = useUserContext();
 
   const handleSubmit = async () => {

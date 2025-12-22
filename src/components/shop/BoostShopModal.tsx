@@ -9,7 +9,7 @@ import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift, Trophy,
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext, UserContext } from '@/contexts/UserContext';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/lib/toast';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { BoostCard } from './BoostCard';

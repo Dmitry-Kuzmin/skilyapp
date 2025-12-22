@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { X, Fuel, Gauge, Trophy, Flame, Zap, MapPin, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";
 import type { Route, Question, GameStats } from "@/pages/games/RoadRace";
@@ -20,7 +20,7 @@ interface RaceGameProps {
 }
 
 export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, onExit }: RaceGameProps) => {
-  const { toast } = useToast();
+  
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [stats, setStats] = useState<GameStats>(initialStats);

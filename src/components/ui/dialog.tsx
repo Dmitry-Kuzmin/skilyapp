@@ -21,7 +21,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-[2147483647] bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-200 data-[state=closed]:duration-150",
+      "fixed inset-0 z-[100000] bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-200 data-[state=closed]:duration-150",
       className,
     )}
     style={{
@@ -57,7 +57,7 @@ const DialogContent = React.forwardRef<
         <DialogPrimitive.Content
           ref={ref}
           className={cn(
-            "fixed inset-0 z-[2147483647] w-full h-full max-w-none max-h-none p-0 flex flex-col rounded-none border-none bg-background",
+            "fixed inset-0 z-[100000] w-full h-full max-w-none max-h-none p-0 flex flex-col rounded-none border-none bg-background",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
             className,
@@ -91,7 +91,7 @@ const DialogContent = React.forwardRef<
           ref={ref}
           className={cn(
             // Базовые стили для bottom sheet
-            "fixed z-[2147483647] gap-4 bg-background shadow-lg transition ease-in-out",
+            "fixed z-[100000] gap-4 bg-background shadow-lg transition ease-in-out",
             // Позиционирование снизу без отступов
             "inset-x-0 bottom-0",
             // Скругление сверху
@@ -144,12 +144,12 @@ const DialogContent = React.forwardRef<
     <DialogPortal>
       <DialogOverlay />
       {/* Обёртка для центрирования без transform (избегаем stacking context проблем) */}
-      <div className="fixed inset-0 z-[2147483647] flex items-center justify-center pointer-events-none">
+      <div className="fixed inset-0 z-[100000] flex items-center justify-center pointer-events-none">
         <DialogPrimitive.Content
           ref={ref}
           className={cn(
             // Базовые стили для dialog (премиум стиль)
-            "relative z-[2147483647] grid w-full gap-4 border bg-zinc-900 border-zinc-800 border-white/10 p-6 shadow-lg duration-200 pointer-events-auto",
+            "relative z-[100000] grid w-full gap-4 border bg-zinc-900 border-zinc-800 border-white/10 p-6 shadow-lg duration-200 pointer-events-auto",
             // Максимальная ширина
             sizeConfig.maxWidth || "max-w-lg",
             // Максимальная высота

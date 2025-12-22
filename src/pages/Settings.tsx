@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { clearServiceWorkerAndCache, hasServiceWorkers } from '@/utils/clearServiceWorker';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/lib/toast';
 
 export default function Settings() {
   const { isAuthenticated, isLoading, supabaseUser } = useUserContext();

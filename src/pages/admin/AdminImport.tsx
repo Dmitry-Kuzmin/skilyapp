@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { importRoadSigns, importLanguageTerms } from "@/utils/importData";
 import { importQuestions } from "@/utils/importQuestions";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +13,7 @@ export function AdminImport() {
   const [loading, setLoading] = useState<{[key: string]: boolean}>({});
   const [imported, setImported] = useState<{[key: string]: boolean}>({});
   const [stats, setStats] = useState<{[key: string]: number}>({});
-  const { toast } = useToast();
+  
 
   useEffect(() => {
     loadStats();

@@ -9,7 +9,12 @@ interface ProfileData {
   streak_days: number;
   rank: string | null;
   boosts: number | null;
-  // Добавляем другие поля по мере необходимости
+  first_name: string | null;
+  last_name: string | null;
+  username: string | null;
+  photo_url: string | null;
+  avatar_url: string | null;
+  equipped_avatar: string | null;
 }
 
 const PROFILE_QUERY_KEY = "profile-data";
@@ -35,7 +40,7 @@ export function useProfileData() {
       // ОДИН запрос вместо множества - получаем все нужные поля сразу
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, coins, xp, streak_days, rank, boosts")
+        .select("id, coins, xp, streak_days, rank, boosts, first_name, last_name, username, photo_url, avatar_url, equipped_avatar")
         .eq("id", profileId)
         .single();
 

@@ -4,7 +4,7 @@ import { ArrowLeft, Check, X, Trophy, Zap, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Layout from "@/components/Layout";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { sounds } from "@/lib/sounds";
@@ -28,7 +28,7 @@ interface GameQuestion {
 
 const FourVariantsGame = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  
   const { profileId } = useUserContext();
   const [terms, setTerms] = useState<LanguageTerm[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<GameQuestion | null>(null);

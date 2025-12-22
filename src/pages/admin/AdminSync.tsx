@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -53,7 +53,7 @@ export function AdminSync() {
   const [syncProgress, setSyncProgress] = useState(0);
   const [syncLogs, setSyncLogs] = useState<string[]>([]);
   const [googleSheetsUrl, setGoogleSheetsUrl] = useState<string>("");
-  const { toast } = useToast();
+  
 
   useEffect(() => {
     loadStats();

@@ -4,7 +4,7 @@ import { Sparkles, Loader2, Star } from 'lucide-react';
 import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
 import { useUserContext } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/lib/toast';
 
 interface StarsPaymentButtonProps {
   packageKey: string;

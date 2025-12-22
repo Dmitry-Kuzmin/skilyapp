@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { sounds } from "@/lib/sounds";
@@ -82,7 +82,7 @@ interface RaceSession {
 
 const RaceGame = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  
   const { profileId } = useUserContext();
   const [terms, setTerms] = useState<LanguageTerm[]>([]);
   const [session, setSession] = useState<RaceSession | null>(null);

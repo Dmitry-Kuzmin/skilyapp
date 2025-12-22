@@ -4,7 +4,7 @@ import { AlertTriangle, CheckCircle2, XCircle, Clock, Loader2, MessageSquare, Fi
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -90,7 +90,7 @@ const AdminQuestionReports = () => {
   const [filterStatus, setFilterStatus] = useState<ReportStatus | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedReports, setExpandedReports] = useState<Set<string>>(new Set());
-  const { toast } = useToast();
+  
 
   useEffect(() => {
     loadReports();

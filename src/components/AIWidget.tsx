@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { triggerHapticFeedback } from "@/lib/telegram";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 
@@ -59,7 +59,7 @@ export const AIWidget = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const widgetRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
-  const { toast } = useToast();
+  
   
   // 🚦 FEATURE FLAG: Если AI чат отключен, не показываем виджет
   if (!aiEnabled) {

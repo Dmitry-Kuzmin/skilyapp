@@ -6,7 +6,7 @@ import { RaceGame } from "@/components/road-race/RaceGame";
 import { Checkpoint } from "@/components/road-race/Checkpoint";
 import { Results } from "@/components/road-race/Results";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { Loader2 } from "lucide-react";
 
 type GameState = "menu" | "game" | "checkpoint" | "results";
@@ -54,7 +54,7 @@ export interface GameStats {
 
 const RoadRace = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  
   const [gameState, setGameState] = useState<GameState>("menu");
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
   const [routes, setRoutes] = useState<Route[]>([]);

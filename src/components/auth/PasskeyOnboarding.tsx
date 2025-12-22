@@ -9,7 +9,7 @@
 import { useState, useEffect } from 'react';
 import { Fingerprint, X, Sparkles, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/lib/toast';
 import {
   registerPasskey,
   isPasskeySupported,

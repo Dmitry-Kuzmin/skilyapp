@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useUserContext } from "@/contexts/UserContext";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { ThemeToggle } from "./ThemeToggle";
 import { PasskeyManager } from "@/components/auth/PasskeyManager";
 import { cn } from "@/lib/utils";
@@ -27,7 +27,7 @@ export function SettingsDrawer({ open, onOpenChange }: SettingsDrawerProps) {
   const { user, logout, platform, supabaseUser } = useUserContext();
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
-  const { toast } = useToast();
+
   const queryClient = useQueryClient();
   const [notifications, setNotifications] = useState(true);
   const [soundsEnabled, setSoundsEnabled] = useState(true);
@@ -174,8 +174,7 @@ export function SettingsDrawer({ open, onOpenChange }: SettingsDrawerProps) {
               value={language}
               onChange={(val) => {
                 setLanguage(val as Language);
-                toast({
-                  title: t('languageChanged'),
+                toast.success(t('languageChanged'), {
                   description: val === "ru" ? "Русский" : val === "es" ? "Español" : "English",
                 });
               }}

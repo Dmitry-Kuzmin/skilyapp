@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import {
   Calendar,
   Trophy,
@@ -122,7 +122,7 @@ interface CronLog {
 }
 
 export function AdminSeasonsManagement() {
-  const { toast } = useToast();
+  
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [loading, setLoading] = useState(true);
   const [rewards, setRewards] = useState<Record<number, LeaderboardReward[]>>({});

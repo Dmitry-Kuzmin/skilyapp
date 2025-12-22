@@ -3,7 +3,7 @@ import { useState, useEffect, lazy, Suspense, useCallback, useContext } from "re
 import { UserContext, useUserContext } from "@/contexts/UserContext";
 // ОПТИМИЗАЦИЯ: Index.tsx lazy loaded, но делаем динамический импорт для чистоты
 // Supabase будет загружаться только когда нужен (в handleClaimBonus)
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import Landing from "./Landing";
 import { usePremium } from "@/hooks/usePremium";
 import { useCoins } from "@/hooks/useCoins";
@@ -30,30 +30,32 @@ const WelcomeOverlay = lazy(() => import("@/components/dashboard-new/WelcomeOver
 // Это позволяет вызывать все хуки в правильном порядке
 const DashboardContent = () => {
   console.log('[DashboardContent] 🚀 Component rendering started');
-  
+
   const { profileId } = useUserContext();
   console.log('[DashboardContent] ProfileId from context:', profileId);
-  
-  const { toast } = useToast();
+
+
   const { isPremium, isTrial, daysRemaining } = usePremium();
   const { balance } = useCoins();
   const navigate = useNavigate();
   const [claimingBonus, setClaimingBonus] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
-  
-  // Показываем прелоадер только при первом открытии приложения
+
+  // Показываем прелоадер при первом входе каждый день
   const [showWelcome, setShowWelcome] = useState(() => {
-    // Проверяем, был ли уже показан прелоадер
     if (typeof window !== 'undefined') {
-      const hasSeenWelcome = localStorage.getItem('has_seen_welcome');
-      return !hasSeenWelcome; // Показываем только если еще не видели
+      const lastWelcomeDate = localStorage.getItem('welcome_shown_date');
+      const today = new Date().toDateString(); // "Mon Dec 22 2024"
+
+      // Показываем если дата не сегодняшняя или отсутствует
+      return lastWelcomeDate !== today;
     }
     return true;
   });
 
   // Get dashboard data with caching
   const { data: dashboardData, loading, error, refresh: refreshDashboard, invalidateCache } = useDashboardData();
-  
+
   // ДИАГНОСТИКА: Логируем состояние загрузки
   useEffect(() => {
     console.log('[DashboardContent] State:', {
@@ -64,10 +66,10 @@ const DashboardContent = () => {
       errorMessage: error?.message,
     });
   }, [profileId, loading, dashboardData, error]);
-  
+
   // Fallback для weeklyRewards если их нет в dashboardData
   const { data: dailyBonusDefinitions = [] } = useDailyBonusDefinitions();
-  
+
   // Get exam readiness
   const { readiness, metrics, loading: readinessLoading } = useExamReadiness(profileId);
 
@@ -79,26 +81,26 @@ const DashboardContent = () => {
 
 
   const handleClaimBonus = async () => {
-    console.log('[handleClaimBonus] Called', { 
-      hasDailyBonus: !!dashboardData?.daily_bonus, 
+    console.log('[handleClaimBonus] Called', {
+      hasDailyBonus: !!dashboardData?.daily_bonus,
       profileId,
       canClaim: dashboardData?.daily_bonus?.can_claim,
       claimingBonus
     });
-    
+
     if (!dashboardData?.daily_bonus || !profileId) {
-      console.error('[handleClaimBonus] Missing data:', { 
-        hasDailyBonus: !!dashboardData?.daily_bonus, 
-        profileId 
+      console.error('[handleClaimBonus] Missing data:', {
+        hasDailyBonus: !!dashboardData?.daily_bonus,
+        profileId
       });
       return;
     }
 
     try {
       setClaimingBonus(true);
-      
+
       const supabase = await getSupabaseClient();
-      
+
       // КРИТИЧНО: Используем Edge Function для безопасной обработки на сервере
       // Все логика (UTC время, идемпотентность, начисление наград) теперь на сервере
       const { data, error } = await supabase.functions.invoke('claim-daily-bonus', {
@@ -114,7 +116,7 @@ const DashboardContent = () => {
           statusText: (error as any).statusText,
           profileId,
         });
-        
+
         // Более детальное сообщение об ошибке
         if ((error as any).status === 503) {
           throw new Error('Сервис временно недоступен. Пожалуйста, попробуйте позже.');
@@ -132,11 +134,7 @@ const DashboardContent = () => {
 
       // Проверяем, не был ли уже получен бонус сегодня
       if (data.already_claimed) {
-        toast({
-          title: "Уже получено",
-          description: "Сегодняшняя награда уже получена",
-          variant: "default",
-        });
+        toast.info('Уже получено', { description: 'Сегодняшняя награда уже получена' });
         // Обновляем данные для отображения актуального состояния
         invalidateCache();
         setClaimingBonus(false);
@@ -148,12 +146,12 @@ const DashboardContent = () => {
       }
 
       const { streak, reward, date } = data;
-      
+
       if (typeof streak !== 'number' || !reward || typeof reward !== 'object') {
         console.error('[handleClaimBonus] Invalid response:', data);
         throw new Error('Invalid response from server: missing or invalid streak/reward');
       }
-      
+
       const weekDay = (streak % 7) || 7;
       const weekNumber = Math.ceil(streak / 7);
 
@@ -171,18 +169,18 @@ const DashboardContent = () => {
         try {
           const lootType = reward.random_loot.type;
           const lootPool = reward.random_loot.pool || 'common';
-          
+
           if (lootType === 'sticker') {
             const { data: stickerId, error: stickerError } = await supabase.rpc('get_random_sticker_from_pool', {
               p_pool: lootPool
             });
-            
+
             if (!stickerError && stickerId) {
               const { data: lootResult } = await supabase.rpc('grant_random_loot', {
                 p_user_id: profileId,
                 p_loot_data: { type: 'sticker', id: stickerId, quantity: 1 }
               });
-              
+
               if (lootResult?.success) {
                 rewardText.push('🎁 Стикер получен!');
               }
@@ -216,14 +214,11 @@ const DashboardContent = () => {
         }
       }
 
-      toast({
-        title: "🎉 Награда получена!",
-        description: rewardText.join(', '),
-      });
+      toast.success('🎉 Награда получена!', { description: rewardText.join(', ') });
 
       // Инвалидируем кэш и обновляем данные
       invalidateCache();
-      
+
       // Обновляем данные в фоне
       refreshDashboard(true).catch(err => {
         console.error('[handleClaimBonus] Error refreshing dashboard:', err);
@@ -232,8 +227,7 @@ const DashboardContent = () => {
       // Специальное уведомление для дня 7 (завершение недели)
       if (weekDay === 7) {
         setTimeout(() => {
-          toast({
-            title: "🏆 Неделя завершена!",
+          toast.success('🏆 Неделя завершена!', {
             description: `Неделя ${weekNumber} завершена! Начинается новая! Общий streak: ${streak} дней`,
             duration: 5000,
           });
@@ -241,11 +235,7 @@ const DashboardContent = () => {
       }
     } catch (error: any) {
       console.error('[handleClaimBonus] Error:', error);
-      toast({
-        title: "Ошибка",
-        description: error?.message || "Не удалось получить награду",
-        variant: "destructive",
-      });
+      toast.error('Ошибка', { description: error?.message || 'Не удалось получить награду' });
     } finally {
       setClaimingBonus(false);
     }
@@ -254,9 +244,10 @@ const DashboardContent = () => {
   // ОПТИМИЗАЦИЯ: Мемоизируем обработчики событий для предотвращения лишних ре-рендеров
   const handleWelcomeComplete = useCallback(() => {
     setShowWelcome(false);
-    // Сохраняем флаг, что прелоадер уже был показан
+    // Сохраняем сегодняшнюю дату, чтобы не показывать прелоадер повторно сегодня
     if (typeof window !== 'undefined') {
-      localStorage.setItem('has_seen_welcome', 'true');
+      const today = new Date().toDateString();
+      localStorage.setItem('welcome_shown_date', today);
     }
   }, []);
 
@@ -266,115 +257,74 @@ const DashboardContent = () => {
 
   // Show Welcome Overlay
   const readinessPercent = readiness?.percent || 0;
-  const accuracy = metrics?.accuracy 
-    ? Math.round(metrics.accuracy * 100) 
+  const accuracy = metrics?.accuracy
+    ? Math.round(metrics.accuracy * 100)
     : (dashboardData?.stats.accuracy || 0);
   const averageScore = readinessPercent || accuracy;
-  
+
   // Правильная логика: hasClaimedToday = !can_claim (если can_claim false, значит уже получено)
   const hasClaimedToday = dashboardData?.daily_bonus ? !dashboardData.daily_bonus.can_claim : false;
-
-  let pageContent: React.ReactNode = null;
-
-  if (loading && !dashboardData) {
-    pageContent = <DashboardSkeleton />;
-  } else if (error) {
-    console.error('[Index] Dashboard error:', error);
-    pageContent = (
-      <div className="min-h-[60vh] bg-[#0f172a] p-6 md:p-10 font-sans text-white flex items-center justify-center rounded-3xl border border-slate-800">
-        <div className="text-center max-w-md space-y-4">
-          <div>
-            <h2 className="text-2xl font-bold mb-1">Ошибка загрузки</h2>
-            <p className="text-slate-400">{error.message}</p>
-          </div>
-          {error.message.includes('RLS') && (
-            <p className="text-xs text-yellow-400">
-              Возможна проблема с правами доступа. Проверьте RLS политики в Supabase.
-            </p>
-          )}
-          <div className="flex flex-wrap gap-2 justify-center">
-            <button
-              onClick={() => refreshDashboard(true)}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
-            >
-              Повторить
-            </button>
-            <button
-              onClick={() => {
-                console.log('[DashboardContent] Current state:', {
-                  profileId,
-                  error: error.message,
-                  dashboardData: !!dashboardData,
-                });
-              }}
-              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors text-sm"
-            >
-              Логи
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  } else if (!dashboardData && !loading) {
-    // Данные не загрузились, но ошибки нет - показываем скелетон и пытаемся загрузить
-    console.warn('[Index] Dashboard data is null, but no error. ProfileId:', profileId);
-    pageContent = (
-      <div className="min-h-[60vh] bg-[#0f172a] p-6 md:p-10 font-sans text-white flex items-center justify-center rounded-3xl border border-slate-800">
-        <div className="text-center max-w-md space-y-4">
-          <div>
-            <h2 className="text-2xl font-bold mb-1">Загрузка данных...</h2>
-            <p className="text-slate-400">Пожалуйста, подождите</p>
-          </div>
-          <button
-            onClick={() => refreshDashboard(true)}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
-          >
-            Обновить
-          </button>
-        </div>
-      </div>
-    );
-  } else if (dashboardData) {
-    pageContent = (
-    <>
-        <Dashboard
-          stats={{
-            averageScore: averageScore || dashboardData.stats.accuracy,
-            currentStreak: dashboardData.daily_bonus.current_streak || 0,
-            testsCompleted: dashboardData.stats.tests_completed || 0,
-            accuracy: accuracy,
-            coins: balance || dashboardData.profile.coins || 0,
-            xp: dashboardData.profile.xp || 0,
-            level: Math.floor((dashboardData.profile.xp || 0) / 5000) + 1 || 1,
-          }}
-          onStartQuiz={handleStartTest}
-          onClaimReward={handleClaimBonus}
-          hasClaimedToday={hasClaimedToday}
-          onGetPremium={() => setPaywallOpen(true)}
-          profileId={profileId}
-          readinessStatus={readiness ? {
-            status: readiness.status,
-            statusText: readiness.statusText,
-            shortText: readiness.shortText,
-            description: readiness.description,
-          } : undefined}
-        />
-        <Suspense fallback={null}>
-          <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
-        </Suspense>
-      </>
-    );
-  }
 
   return (
     <>
       {showWelcome && (
-        <WelcomeOverlay onComplete={handleWelcomeComplete} />
+        <WelcomeOverlay
+          onComplete={handleWelcomeComplete}
+          isLoading={loading || !dashboardData}
+          isPremium={isPremium}
+        />
       )}
       <Suspense fallback={<PageLoader />}>
         <Layout hideNavigation={showWelcome}>
-          <div className={`w-full pb-6 ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
-            {pageContent}
+          <div className={`w-full pb-6 ${(showWelcome || loading || !dashboardData) ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
+            {error ? (
+              <div className="min-h-[60vh] bg-[#0f172a] p-6 md:p-10 font-sans text-white flex items-center justify-center rounded-[2.5rem] border border-slate-800/50">
+                <div className="text-center max-w-md space-y-6">
+                  <div>
+                    <h2 className="text-2xl font-bold mb-2 text-indigo-400">Ошибка инициализации</h2>
+                    <p className="text-slate-400 text-sm">{error.message}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-3 justify-center">
+                    <button
+                      onClick={() => refreshDashboard(true)}
+                      className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all font-medium text-sm shadow-[0_0_20px_rgba(79,70,229,0.3)]"
+                    >
+                      Повторить запуск
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : dashboardData ? (
+              <>
+                <Dashboard
+                  stats={{
+                    averageScore: averageScore || dashboardData.stats.accuracy,
+                    currentStreak: dashboardData.daily_bonus.current_streak || 0,
+                    testsCompleted: dashboardData.stats.tests_completed || 0,
+                    accuracy: accuracy,
+                    coins: balance || dashboardData.profile.coins || 0,
+                    xp: dashboardData.profile.xp || 0,
+                    level: Math.floor((dashboardData.profile.xp || 0) / 5000) + 1 || 1,
+                  }}
+                  onStartQuiz={handleStartTest}
+                  onClaimReward={handleClaimBonus}
+                  hasClaimedToday={hasClaimedToday}
+                  onGetPremium={() => setPaywallOpen(true)}
+                  profileId={profileId}
+                  readinessStatus={readiness ? {
+                    status: readiness.status,
+                    statusText: readiness.statusText,
+                    shortText: readiness.shortText,
+                    description: readiness.description,
+                  } : undefined}
+                />
+                <Suspense fallback={null}>
+                  <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+                </Suspense>
+              </>
+            ) : (
+              <DashboardSkeleton />
+            )}
           </div>
         </Layout>
       </Suspense>
@@ -388,32 +338,32 @@ const Index = () => {
     timestamp: new Date().toISOString(),
     pathname: typeof window !== 'undefined' ? window.location.pathname : 'unknown',
   });
-  
+
   // КРИТИЧНО: Безопасное получение UserContext - не выбрасывает ошибку если провайдер отсутствует
   // Это позволяет Index работать даже если UserProvider еще не загрузился
   const userContext = useContext(UserContext);
   const isAuthenticated = userContext?.isAuthenticated ?? false;
   const isLoading = userContext?.isLoading ?? true;
   const navigate = useNavigate();
-  
+
   console.log('[Index] UserContext state:', {
     hasUserContext: !!userContext,
     isAuthenticated,
     isLoading,
     profileId: userContext?.profileId,
   });
-  
+
   // КРИТИЧНО: Если не авторизован, редиректим на главную (где Landing рендерится напрямую)
   // НО: НЕ редиректим если мы в Telegram Mini App - там авторизация может появиться позже
   // Это предотвращает бесконечный цикл редиректов между Landing и Index
   useEffect(() => {
     // Проверяем, что мы не в Telegram Mini App
-    const isInTelegram = typeof window !== 'undefined' && 
-                         window.Telegram?.WebApp && 
-                         window.Telegram.WebApp.initData && 
-                         window.Telegram.WebApp.initData !== '' &&
-                         !window.Telegram.WebApp.initData.startsWith('mock_');
-    
+    const isInTelegram = typeof window !== 'undefined' &&
+      window.Telegram?.WebApp &&
+      window.Telegram.WebApp.initData &&
+      window.Telegram.WebApp.initData !== '' &&
+      !window.Telegram.WebApp.initData.startsWith('mock_');
+
     // Редиректим только если НЕ в Telegram Mini App
     if (!isLoading && userContext && !isAuthenticated && !isInTelegram) {
       // КРИТИЧНО: Проверяем, что мы не на главной странице, чтобы избежать бесконечного цикла
@@ -422,7 +372,7 @@ const Index = () => {
       }
     }
   }, [isLoading, userContext, isAuthenticated, navigate]);
-  
+
   // КРИТИЧНО: Показываем loader пока идет загрузка авторизации или пока UserProvider не готов
   // Это предотвращает белый экран при перезагрузке страницы
   if (isLoading || !userContext) {
@@ -432,7 +382,7 @@ const Index = () => {
     });
     return <PageLoader />;
   }
-  
+
   // КРИТИЧНО: Проверяем авторизацию и рендерим нужный компонент
   // Все хуки вызываются внутри DashboardContent, что соблюдает правила хуков
   if (!isAuthenticated) {

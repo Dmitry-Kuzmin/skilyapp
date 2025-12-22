@@ -128,3 +128,47 @@ class HapticManager {
 }
 
 export const haptics = new HapticManager();
+
+// === SIMPLIFIED API ===
+type SimpleHapticType = 'light' | 'medium' | 'heavy' | 'selection' | 'success' | 'warning' | 'error';
+
+/**
+ * Простой триггер haptic feedback
+ */
+export function triggerHaptic(type: SimpleHapticType = 'light'): void {
+  switch (type) {
+    case 'light':
+      haptics.buttonClick();
+      break;
+    case 'medium':
+      haptics.boostActivated();
+      break;
+    case 'heavy':
+      haptics.screenShake();
+      break;
+    case 'selection':
+      haptics.selectionChanged();
+      break;
+    case 'success':
+      haptics.correctAnswer();
+      break;
+    case 'warning':
+      haptics.warning();
+      break;
+    case 'error':
+      haptics.wrongAnswer();
+      break;
+  }
+}
+
+/**
+ * Throttled selection haptic для слайдеров
+ */
+let lastSliderHaptic = 0;
+export function sliderHaptic(): void {
+  const now = Date.now();
+  if (now - lastSliderHaptic >= 80) {
+    haptics.selectionChanged();
+    lastSliderHaptic = now;
+  }
+}
