@@ -2563,7 +2563,30 @@ Deno.serve(async (req) => {
           }
 
           duel = newDuel;
-          console.log('[join_duel] ✅ Auto-created duel:', duel.id);
+
+          // КРИТИЧНО: Добавляем хоста в duel_players, иначе дуэль будет пустой
+          const { error: hostPlayerError } = await supabase
+            .from('duel_players')
+            .insert({
+              duel_id: duel.id,
+              user_id: profileId,
+              is_host: true
+            });
+
+          if (hostPlayerError) {
+            console.error('[join_duel] ❌ Error adding host player during auto-create:', hostPlayerError);
+          }
+
+          console.log('[join_duel] ✅ Auto-created duel and added host:', duel.id);
+
+          // Возвращаем успех сразу, так как мы уже добавили игрока
+          return new Response(JSON.stringify({
+            duel,
+            player: { user_id: profileId, is_host: true },
+            auto_started: false
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
         }
 
         // Check if duel is still waiting
@@ -2574,10 +2597,21 @@ Deno.serve(async (req) => {
           });
         }
 
-        // Check if user is trying to join their own duel
+        // 🛡️ FIX: If user is trying to join their own duel or is already in it
         if (duel.host_user === profileId) {
-          return new Response(JSON.stringify({ error: 'You cannot join your own duel. You are already the host.' }), {
-            status: 400,
+          console.log('[join_duel] 🔄 User is host, redirecting to lobby');
+          const { data: hostPlayer } = await supabase
+            .from('duel_players')
+            .select('*')
+            .eq('duel_id', duel.id)
+            .eq('user_id', profileId)
+            .maybeSingle();
+
+          return new Response(JSON.stringify({
+            duel,
+            player: hostPlayer || { user_id: profileId, is_host: true },
+            auto_started: false
+          }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
