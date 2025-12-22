@@ -223,7 +223,9 @@ async function handleInlineQuery(query: TelegramInlineQuery) {
 
     const lang = normalizeLanguage(query.from.language_code);
     const duelCode = Math.random().toString(36).substring(2, 6).toUpperCase();
-    const duelUrl = `${MINI_APP_URL}/games/duel?code=${duelCode}`;
+    // Используем формат startapp для открытия Mini App внутри Telegram
+    // Формат: https://t.me/BOT_USERNAME/APP_SHORT_NAME?startapp=PARAMETER
+    const duelUrl = `https://t.me/skilyapp_bot/app?startapp=${duelCode}`;
 
     const results = [
       {

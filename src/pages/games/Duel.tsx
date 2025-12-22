@@ -424,12 +424,19 @@ export default function Duel() {
         const urlParams = new URLSearchParams(window.location.search);
         const urlCode = urlParams.get('code') || searchParams.get('code');
 
-        // 2. Пытаемся достать из Telegram start_param
+        // 2. Пытаемся достать из Telegram start_param (startapp)
+        // Формат может быть: "CODE" (напрямую) или "duel_CODE" (старый формат)
         const tgStartParam = getTelegramWebApp()?.initDataUnsafe?.start_param;
 
         let code = urlCode;
-        if (!code && tgStartParam?.startsWith('duel_')) {
-            code = tgStartParam.replace('duel_', '');
+        if (!code && tgStartParam) {
+            // Если начинается с duel_ - старый формат
+            if (tgStartParam.startsWith('duel_')) {
+                code = tgStartParam.replace('duel_', '');
+            } else {
+                // Новый формат - код напрямую (4 символа)
+                code = tgStartParam;
+            }
         }
 
         console.log('[Duel] 🕵️ Checking for code. URL:', urlCode, 'TG:', tgStartParam, 'Final:', code);
