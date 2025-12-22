@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getTelegramWebApp, isTelegramMiniApp, isTelegramMobilePlatformName } from "@/lib/telegram";
+import { getTelegramWebApp, isTelegramMiniApp, isTelegramMobilePlatformName, syncTelegramColors } from "@/lib/telegram";
 import { useSettingsStore } from "@/store/settingsStore";
+import { useTheme } from "@/components/theme-provider";
 
 
 export const TelegramNavigation = () => {
@@ -9,6 +10,18 @@ export const TelegramNavigation = () => {
   const navigate = useNavigate();
   const [isTelegramReady, setTelegramReady] = useState(() => isTelegramMiniApp());
   const { isOpen: isSettingsOpen, closeSettings } = useSettingsStore();
+  const { theme, resolvedTheme } = useTheme();
+
+  // Синхронизируем цвета header и background Telegram с текущей темой
+  useEffect(() => {
+    if (!isTelegramReady) return;
+
+    // Определяем, тёмная ли тема сейчас активна
+    const isDarkMode = resolvedTheme === 'dark' ||
+      (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    syncTelegramColors(isDarkMode);
+  }, [isTelegramReady, theme, resolvedTheme, location.pathname]);
 
   // Пуллим доступность Telegram WebApp после монтирования,
   // чтобы не пропустить момент, когда initData появится чуть позже.
@@ -42,7 +55,8 @@ export const TelegramNavigation = () => {
     if (!webApp) return;
 
     // КРИТИЧНО: Проверяем, это дуэльная страница или дашборд
-    const isDuelPage = location.pathname.includes('/duel') || location.pathname.includes('/games/duel');
+    // ВАЖНО: /duel-leaderboard НЕ является дуэльной страницей, только /games/duel
+    const isDuelPage = location.pathname.includes('/games/duel');
     const isDashboard = location.pathname === '/dashboard' || location.pathname === '/';
 
     // Для дуэльных страниц НЕ регистрируем обработчик здесь, ЕСЛИ настройки закрыты
@@ -116,7 +130,8 @@ export const TelegramNavigation = () => {
     if (!webApp) return;
 
     const isDashboard = location.pathname === '/dashboard' || location.pathname === '/';
-    const isDuelPage = location.pathname.includes('/duel') || location.pathname.includes('/games/duel');
+    // ВАЖНО: /duel-leaderboard НЕ является дуэльной страницей
+    const isDuelPage = location.pathname.includes('/games/duel');
 
     const version = parseFloat(webApp.version || '0');
     const supportsBackButton = version >= 6.1;

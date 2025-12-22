@@ -6,6 +6,59 @@ export const getTelegramWebApp = () => {
 };
 
 /**
+ * Устанавливает цвет header (верхней панели) в Telegram Mini App
+ * @param color - hex-цвет или 'bg_color'/'secondary_bg_color' для использования темы Telegram
+ */
+export const setTelegramHeaderColor = (color: string) => {
+  const webApp = getTelegramWebApp();
+  if (!webApp) return;
+
+  try {
+    // setHeaderColor доступен с версии 6.1
+    if (typeof webApp.setHeaderColor === 'function') {
+      webApp.setHeaderColor(color as any);
+      console.log('[Telegram] ✅ Header color set to:', color);
+    }
+  } catch (error) {
+    console.warn('[Telegram] ⚠️ setHeaderColor error:', error);
+  }
+};
+
+/**
+ * Устанавливает цвет фона в Telegram Mini App
+ * @param color - hex-цвет или 'bg_color'/'secondary_bg_color' для использования темы Telegram
+ */
+export const setTelegramBackgroundColor = (color: string) => {
+  const webApp = getTelegramWebApp();
+  if (!webApp) return;
+
+  try {
+    // setBackgroundColor доступен с версии 6.1
+    if (typeof webApp.setBackgroundColor === 'function') {
+      webApp.setBackgroundColor(color as any);
+      console.log('[Telegram] ✅ Background color set to:', color);
+    }
+  } catch (error) {
+    console.warn('[Telegram] ⚠️ setBackgroundColor error:', error);
+  }
+};
+
+/**
+ * Устанавливает цвета header и background в соответствии с текущей темой
+ * @param isDarkMode - true если тёмная тема
+ */
+export const syncTelegramColors = (isDarkMode: boolean) => {
+  // Цвета для Telegram Mini App
+  // Используем 'secondary_bg_color' для более мягкого перехода с UI Telegram
+  // или указываем конкретные цвета для лучшего контроля
+  const headerColor = isDarkMode ? '#0a0a0f' : '#ffffff';
+  const backgroundColor = isDarkMode ? '#0a0a0f' : '#ffffff';
+
+  setTelegramHeaderColor(headerColor);
+  setTelegramBackgroundColor(backgroundColor);
+};
+
+/**
  * Принудительная перезагрузка страницы в Telegram Mini App
  * Используется для обновления кеша когда Service Worker недоступен
  */
