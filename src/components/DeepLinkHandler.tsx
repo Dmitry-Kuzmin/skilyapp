@@ -25,8 +25,15 @@ export function DeepLinkHandler() {
       switch (deepLink.action) {
         case 'duel':
           if (deepLink.id) {
-            console.log('[DeepLinkHandler] Navigating to duel with code:', deepLink.id);
-            navigate(`/games/duel?code=${deepLink.id}`, { replace: true });
+            if (deepLink.id === 'new') {
+              // Создание новой дуэли
+              console.log('[DeepLinkHandler] Navigating to create new duel');
+              navigate('/games/duel', { replace: true });
+            } else {
+              // Присоединение к существующей дуэли
+              console.log('[DeepLinkHandler] Navigating to duel with code:', deepLink.id);
+              navigate(`/games/duel?code=${deepLink.id}`, { replace: true });
+            }
           }
           break;
 

@@ -47,7 +47,7 @@ export async function setupMenuButton(): Promise<void> {
   }
 
   const MINI_APP_URL = Deno.env.get('MINI_APP_URL') || 'https://skilyapp.com';
-  
+
   try {
     const response = await fetch(`${TELEGRAM_API}/setChatMenuButton`, {
       method: 'POST',
@@ -64,7 +64,7 @@ export async function setupMenuButton(): Promise<void> {
     });
 
     const result = await response.json();
-    
+
     if (result.ok) {
       console.log('[setupMenuButton] ✅ Menu Button WebApp установлен глобально');
     } else {
@@ -85,10 +85,10 @@ export async function setupMenuButtonForUser(chatId: number): Promise<void> {
   }
 
   const MINI_APP_URL = Deno.env.get('MINI_APP_URL') || 'https://skilyapp.com';
-  
+
   console.log(`[setupMenuButtonForUser] 🚀 Начинаю установку Menu Button для чата ${chatId}`);
   console.log(`[setupMenuButtonForUser] 📋 URL: ${MINI_APP_URL}`);
-  
+
   try {
     const requestBody = {
       chat_id: chatId,
@@ -100,9 +100,9 @@ export async function setupMenuButtonForUser(chatId: number): Promise<void> {
         }
       }
     };
-    
+
     console.log(`[setupMenuButtonForUser] 📤 Отправляю запрос:`, JSON.stringify(requestBody, null, 2));
-    
+
     const response = await fetch(`${TELEGRAM_API}/setChatMenuButton`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -111,7 +111,7 @@ export async function setupMenuButtonForUser(chatId: number): Promise<void> {
 
     const responseText = await response.text();
     console.log(`[setupMenuButtonForUser] 📥 Ответ от Telegram API (status ${response.status}):`, responseText);
-    
+
     let result;
     try {
       result = JSON.parse(responseText);
@@ -120,7 +120,7 @@ export async function setupMenuButtonForUser(chatId: number): Promise<void> {
       console.error(`[setupMenuButtonForUser] ❌ Сырой ответ:`, responseText);
       return;
     }
-    
+
     if (result.ok) {
       console.log(`[setupMenuButtonForUser] ✅✅✅ Menu Button WebApp успешно установлен для чата ${chatId}`);
     } else {
@@ -138,38 +138,19 @@ export async function setupMenuButtonForUser(chatId: number): Promise<void> {
 
 export async function handleStart(message: TelegramMessage, supabase: any): Promise<void> {
   console.log('[handleStart] 🚀 ФУНКЦИЯ ВЫЗВАНА! message.chat.id:', message.chat?.id, 'message.from.id:', message.from?.id);
-  
+
   const user = message.from;
   if (!user) {
     console.error('[handleStart] ❌ message.from отсутствует!');
     return;
   }
-  
+
   if (!message.chat) {
     console.error('[handleStart] ❌ message.chat отсутствует!');
     return;
   }
 
-  // КРИТИЧНО: Menu Button устанавливается программно, но это может переопределять Main App настройки
-  // ВАЖНО: Если Main App настроен на Fullscreen, Menu Button может игнорировать это
-  // Попробуем установить Menu Button, но если это не работает, пользователь может использовать
-  // кнопку "Open App" в интерфейсе Telegram (которая использует Main App настройки)
   console.log(`[handleStart] 🚀 Обработка команды /start для пользователя ${user.id}, чат ${message.chat.id}`);
-  
-  // ВРЕМЕННО ОТКЛЮЧАЕМ: Menu Button может переопределять Main App Fullscreen настройки
-  // Вместо этого используем Main App с кнопкой "Open App" в интерфейсе Telegram
-  // Если нужно включить обратно - раскомментируйте код ниже
-  /*
-  try {
-    await setupMenuButtonForUser(message.chat.id);
-    console.log(`[handleStart] ✅ Menu Button WebApp установлен для пользователя ${user.id}`);
-  } catch (error) {
-    console.error(`[handleStart] ⚠️ Не удалось установить Menu Button для пользователя ${user.id}:`, error);
-    console.error(`[handleStart] Error stack:`, error.stack);
-  }
-  */
-  
-  console.log(`[handleStart] ℹ️ Menu Button НЕ устанавливается программно - используйте Main App "Open App" кнопку для Fullscreen`);
 
   // Получаем данные пользователя из БД
   const { data: profile } = await supabase
@@ -178,27 +159,81 @@ export async function handleStart(message: TelegramMessage, supabase: any): Prom
     .eq('telegram_id', user.id)
     .maybeSingle();
 
-  const userName = profile?.first_name || user.first_name || 'друг';
+  const { data: metrics } = await supabase
+    .from('user_metrics')
+    .select('streak_days, readiness_level')
+    .eq('user_id', profile?.id)
+    .maybeSingle();
 
-  const welcomeText = `
-👋 Привет, ${userName}!
+  const userName = profile?.first_name || user.first_name || 'Пилот';
+  const streakDays = metrics?.streak_days || 0;
+  const readiness = metrics?.readiness_level || 0;
 
-Я — Skilyapp, твой персональный тренер для экзамена DGT и Smart-марафонов на ${PUBLIC_SITE_URL}.
+  // Определяем статус пользователя
+  const isNewUser = !profile || readiness === 0;
 
-🎯 Что я делаю:
-• Напоминаю о тренировках и серии
-• Считаю прогресс и даю советы
-• Запускаю дуэли и челленджи
-• Помогаю открыть приложение в один тап
+  // URL баннера (можно заменить на свой)
+  const WELCOME_BANNER = 'https://skilyapp.com/images/telegram-welcome-banner.png';
 
-Выбирай действие ниже или заходи сразу на skilyapp.com 🚀
+  // Формируем приветственное сообщение
+  let welcomeText = '';
+
+  if (isNewUser) {
+    // Новый пользователь
+    welcomeText = `
+<b>Привет, ${userName}!</b> 👋
+
+Я — твой штурман в мире ПДД.
+
+🏎 <b>Skily</b> — это не скучные тесты, а гонки, дуэли и прокачка.
+
+<i>Тебя ждут 2000+ вопросов, AI-помощник и дуэли с друзьями.</i>
+
+Готов сдать на права играючи?
 `.trim();
+  } else {
+    // Возвращающийся пользователь
+    const streakEmoji = streakDays > 7 ? '🔥' : streakDays > 0 ? '✨' : '💤';
 
-  await sendMessage({
-    chat_id: message.chat.id,
-    text: welcomeText,
-    reply_markup: keyboards.getMainMenuKeyboard()
-  });
+    welcomeText = `
+<b>С возвращением, ${userName}!</b> 👋
+
+${streakEmoji} Серия: <b>${streakDays} дней</b>
+🎯 Готовность: <b>${readiness}%</b>
+
+${streakDays === 0 ? '<i>Не дай серии остыть — позанимайся сегодня!</i>' : '<i>Отличная работа! Продолжай в том же духе.</i>'}
+`.trim();
+  }
+
+  // Отправляем сообщение с баннером (если доступен) или без
+  try {
+    // Пробуем отправить с фото
+    const photoResponse = await fetch(`${TELEGRAM_API}/sendPhoto`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: message.chat.id,
+        photo: WELCOME_BANNER,
+        caption: welcomeText,
+        parse_mode: 'HTML',
+        reply_markup: keyboards.getMainMenuKeyboard()
+      })
+    });
+
+    if (!photoResponse.ok) {
+      // Если фото не отправилось, отправляем без фото
+      throw new Error('Photo not available');
+    }
+  } catch (error) {
+    // Fallback: отправляем без фото
+    console.log('[handleStart] Sending welcome without photo');
+    await sendMessage({
+      chat_id: message.chat.id,
+      text: welcomeText,
+      parse_mode: 'HTML',
+      reply_markup: keyboards.getMainMenuKeyboard()
+    });
+  }
 }
 
 // =====================================================
@@ -320,7 +355,7 @@ export async function handleStreak(message: TelegramMessage, supabase: any): Pro
   const isActive = metrics?.last_streak_date === today;
 
   let streakText = '';
-  
+
   if (streakDays === 0) {
     streakText = `
 🔥 <b>Серия дней</b>
@@ -335,13 +370,13 @@ export async function handleStreak(message: TelegramMessage, supabase: any): Pro
 Начни прямо сейчас! 💪
 `.trim();
   } else {
-    const motivation = streakDays >= 30 
-      ? 'Невероятно! 🏆' 
-      : streakDays >= 14 
-      ? 'Отличный результат! 🌟' 
-      : streakDays >= 7 
-      ? 'Так держать! 💪' 
-      : 'Хорошее начало! 👍';
+    const motivation = streakDays >= 30
+      ? 'Невероятно! 🏆'
+      : streakDays >= 14
+        ? 'Отличный результат! 🌟'
+        : streakDays >= 7
+          ? 'Так держать! 💪'
+          : 'Хорошее начало! 👍';
 
     streakText = `
 🔥 <b>Серия: ${streakDays} ${getDaysWord(streakDays)}</b>

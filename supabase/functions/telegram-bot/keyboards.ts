@@ -22,34 +22,36 @@ export type NotificationKeyboardState = {
 };
 
 // =====================================================
-// Главное меню
+// Главное меню (Modern 2025 - минимализм)
 // =====================================================
 export function getMainMenuKeyboard(): InlineKeyboardMarkup {
   return {
     inline_keyboard: [
       [
-        { 
-          text: '🚀 Открыть Skilyapp', 
-          web_app: { url: MINI_APP_URL } 
+        {
+          text: '🚀 Открыть Skily',
+          web_app: { url: MINI_APP_URL }
         }
       ],
       [
-        { text: '📊 Моя статистика', callback_data: 'stats' },
-        { text: '🔥 Серия дней', callback_data: 'streak' }
-      ],
+        { text: '👤 Профиль', callback_data: 'profile' },
+        { text: '⚔️ Вызвать друга', callback_data: 'duel_inline' }
+      ]
+    ]
+  };
+}
+
+// =====================================================
+// Компактное меню с помощью (для быстрых ответов)
+// =====================================================
+export function getQuickMenuKeyboard(): InlineKeyboardMarkup {
+  return {
+    inline_keyboard: [
       [
-        { text: '⚔️ Начать дуэль', callback_data: 'duel_create' },
-        { text: '📚 Прогресс', callback_data: 'progress' }
-      ],
-      [
-        { text: '🧠 Учебные советы', callback_data: 'tips_menu' },
-        { text: 'ℹ️ Как всё устроено', callback_data: 'guide_menu' }
-      ],
-      [
-        { text: '⚙️ Настройки', callback_data: 'settings' }
-      ],
-      [
-        { text: '❓ Помощь', callback_data: 'help' }
+        {
+          text: '🚀 Открыть Skily',
+          web_app: { url: MINI_APP_URL }
+        }
       ]
     ]
   };
@@ -82,9 +84,9 @@ export function getDuelDeepLinkKeyboard(duelId: string): InlineKeyboardMarkup {
   return {
     inline_keyboard: [
       [
-        { 
-          text: '⚔️ Открыть дуэль', 
-          web_app: { url: `${DUELS_URL}?code=${duelId}` } 
+        {
+          text: '⚔️ Открыть дуэль',
+          web_app: { url: `${DUELS_URL}?code=${duelId}` }
         }
       ],
       [
@@ -134,9 +136,9 @@ export function getNotificationSettingsKeyboard(state: NotificationKeyboardState
   return {
     inline_keyboard: [
       [
-        { 
-          text: state.enabled ? '🔔 Уведомления: ВКЛ' : '🔕 Уведомления: ВЫКЛ', 
-          callback_data: 'toggle_notifications' 
+        {
+          text: state.enabled ? '🔔 Уведомления: ВКЛ' : '🔕 Уведомления: ВЫКЛ',
+          callback_data: 'toggle_notifications'
         }
       ],
       [
@@ -210,13 +212,13 @@ export function getConfirmationKeyboard(actionData: string): InlineKeyboardMarku
 // =====================================================
 export function getOpenAppKeyboard(deeplink?: string): InlineKeyboardMarkup {
   const url = deeplink ? `${MINI_APP_URL}${deeplink.startsWith('/') ? '' : '/'}${deeplink}` : MINI_APP_URL;
-  
+
   return {
     inline_keyboard: [
       [
-        { 
-          text: '🚀 Открыть в приложении', 
-          web_app: { url } 
+        {
+          text: '🚀 Открыть в приложении',
+          web_app: { url }
         }
       ]
     ]
@@ -417,8 +419,8 @@ export function getTipActionsKeyboard(
 ): InlineKeyboardMarkup {
   const deeplink = tip.cta_deeplink
     ? (tip.cta_deeplink.startsWith('http')
-        ? tip.cta_deeplink
-        : `${MINI_APP_URL}${tip.cta_deeplink.startsWith('/') ? '' : '/'}${tip.cta_deeplink}`)
+      ? tip.cta_deeplink
+      : `${MINI_APP_URL}${tip.cta_deeplink.startsWith('/') ? '' : '/'}${tip.cta_deeplink}`)
     : LEARNING_URL;
 
   const keyboard: InlineKeyboardMarkup = {

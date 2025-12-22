@@ -260,6 +260,34 @@ async function handleCallbackQuery(query: TelegramCallbackQuery, supabase: any):
         reply_markup: keyboards.getMainMenuKeyboard()
       });
     }
+    // Новые современные кнопки
+    else if (data === 'profile') {
+      await showProfile(message.chat.id, user.id, supabase);
+    }
+    else if (data === 'duel_inline') {
+      // Показываем инструкцию для вызова друга через inline mode
+      await editMessage({
+        chat_id: message.chat.id,
+        message_id: message.message_id,
+        text: `⚔️ <b>Вызвать друга на дуэль</b>
+
+Чтобы бросить вызов, напиши в любом чате:
+
+<code>@sdadimtutbot дуэль</code>
+
+Я создам красивую карточку с приглашением! 🎴
+
+Или открой приложение и создай дуэль там:`,
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '🚀 Создать в приложении', web_app: { url: `${MINI_APP_URL}/games/duel` } }],
+            [{ text: '« Назад', callback_data: 'main_menu' }]
+          ]
+        }
+      });
+    }
+    // Старые обработчики (для совместимости)
     else if (data === 'stats') {
       await showStats(message.chat.id, user.id, supabase);
     }
@@ -443,8 +471,40 @@ async function handleInlineQuery(query: TelegramInlineQuery): Promise<void> {
     }
   }
 
-  // Если нет результатов, показываем все статьи
+  // Если нет результатов или пустой запрос, показываем дуэль + статьи
   if (results.length === 0) {
+    // Первый результат: Дуэль (самая важная опция)
+    results.push({
+      type: 'article',
+      id: 'duel_invite',
+      title: '⚔️ Вызвать на дуэль',
+      description: 'Брось вызов другу прямо в этом чате!',
+      input_message_content: {
+        message_text: `⚔️ <b>Вызов на дуэль!</b>
+
+<b>${query.from.first_name || 'Кто-то'}</b> бросает тебе перчатку! 🧤
+
+🎯 Тема: ПДД Испании
+⏱ 10 вопросов • 60 секунд на ответ
+🏆 На кону: честь и слава
+
+<i>Примешь вызов?</i>`,
+        parse_mode: 'HTML'
+      },
+      reply_markup: {
+        inline_keyboard: [[
+          {
+            text: '🎮 Принять вызов!',
+            url: `https://t.me/sdadimtutbot/app?startapp=duel_new`
+          }
+        ]]
+      },
+      thumb_url: 'https://skilyapp.com/images/duel-icon.png',
+      thumb_width: 512,
+      thumb_height: 512
+    });
+
+    // Добавляем статьи
     for (const [slug, article] of Object.entries(ARTICLES_DATA)) {
       results.push({
         type: 'article',
@@ -470,6 +530,40 @@ async function handleInlineQuery(query: TelegramInlineQuery): Promise<void> {
     }
   }
 
+  // Специальные запросы
+  if (queryText === 'дуэль' || queryText === 'duel' || queryText === 'вызов') {
+    // Только дуэль
+    results.unshift({
+      type: 'article',
+      id: 'duel_challenge',
+      title: '⚔️ Бросить вызов!',
+      description: 'Создать приглашение на дуэль',
+      input_message_content: {
+        message_text: `⚔️ <b>Дуэль на ПДД!</b>
+
+<b>${query.from.first_name || 'Претендент'}</b> вызывает тебя на дуэль! 🔥
+
+🎯 10 вопросов по ПДД Испании
+⏱ 60 секунд на каждый
+🏆 Победитель забирает славу!
+
+<i>Готов сразиться?</i>`,
+        parse_mode: 'HTML'
+      },
+      reply_markup: {
+        inline_keyboard: [[
+          {
+            text: '🎮 Принять вызов!',
+            url: `https://t.me/sdadimtutbot/app?startapp=duel_new`
+          }
+        ]]
+      },
+      thumb_url: 'https://skilyapp.com/images/duel-icon.png',
+      thumb_width: 512,
+      thumb_height: 512
+    });
+  }
+
   // Отправляем результаты
   try {
     const response = await fetch(`${TELEGRAM_API}/answerInlineQuery`, {
@@ -492,6 +586,76 @@ async function handleInlineQuery(query: TelegramInlineQuery): Promise<void> {
   } catch (error) {
     console.error('[Telegram Bot] Failed to answer inline query:', error);
   }
+}
+
+// =====================================================
+// Показать профиль (современная карточка)
+// =====================================================
+async function showProfile(chatId: number, telegramId: number, supabase: any): Promise<void> {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id, first_name, username')
+    .eq('telegram_id', telegramId)
+    .maybeSingle();
+
+  if (!profile) {
+    await commands.sendMessage({
+      chat_id: chatId,
+      text: '❌ Профиль не найден. Открой приложение, чтобы создать!',
+      reply_markup: keyboards.getMainMenuKeyboard()
+    });
+    return;
+  }
+
+  const { data: metrics } = await supabase
+    .from('user_metrics')
+    .select('*')
+    .eq('user_id', profile.id)
+    .maybeSingle();
+
+  const userName = profile.first_name || profile.username || 'Пилот';
+  const streak = metrics?.streak_days || 0;
+  const readiness = metrics?.readiness_level || 0;
+  const tests = metrics?.total_tests_completed || 0;
+  const duels = metrics?.total_duels_played || 0;
+  const correctAnswers = metrics?.correct_answers || 0;
+  const totalAnswers = metrics?.total_questions_answered || 0;
+  const accuracy = totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0;
+
+  // Определяем ранг
+  let rank = '🌱 Новичок';
+  if (readiness >= 80) rank = '🏆 Мастер';
+  else if (readiness >= 60) rank = '⭐ Эксперт';
+  else if (readiness >= 40) rank = '🚀 Продвинутый';
+  else if (readiness >= 20) rank = '📚 Ученик';
+
+  const profileText = `
+<b>👤 ${userName}</b>
+
+${rank}
+━━━━━━━━━━━━━━━
+
+🎯 Готовность: <b>${readiness}%</b>
+🔥 Серия: <b>${streak} дней</b>
+📝 Тестов: <b>${tests}</b>
+⚔️ Дуэлей: <b>${duels}</b>
+✅ Точность: <b>${accuracy}%</b>
+
+━━━━━━━━━━━━━━━
+<i>Открой приложение для детальной статистики</i>
+`.trim();
+
+  await commands.sendMessage({
+    chat_id: chatId,
+    text: profileText,
+    parse_mode: 'HTML',
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: '📊 Детальная статистика', web_app: { url: `${MINI_APP_URL}/dashboard` } }],
+        [{ text: '« Назад', callback_data: 'main_menu' }]
+      ]
+    }
+  });
 }
 
 // =====================================================
