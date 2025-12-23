@@ -449,28 +449,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
           >
             {results.isWinner && (
               <div className="relative">
-                {/* Radial Glow Effect - улучшено для светлой темы */}
-                <motion.div
-                  animate={{
-                    scale: [1, 1.3, 1],
-                    opacity: [0.5, 0.7, 0.5],
-                  }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 rounded-full blur-[40px] opacity-60"
-                  style={{ width: '140%', height: '140%', left: '-20%', top: '-20%' }}
-                />
-                {/* Secondary Glow - улучшено для светлой темы */}
-                <motion.div
-                  animate={{
-                    scale: [1, 1.5, 1],
-                    opacity: [0.3, 0.5, 0.3],
-                  }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                  className="absolute inset-0 bg-gradient-to-br from-yellow-300 to-orange-600 dark:from-yellow-300 dark:to-orange-600 rounded-full blur-2xl"
-                  style={{ width: '150%', height: '150%', left: '-25%', top: '-25%' }}
-                />
-                {/* Кубок с улучшенной видимостью в светлой теме */}
-                <Trophy className="relative h-24 w-24 mx-auto text-yellow-600 dark:text-yellow-400 drop-shadow-[0_0_30px_rgba(251,191,36,0.8)] dark:drop-shadow-[0_0_30px_rgba(251,191,36,0.8)]" />
+                {/* Упрощенное статичное свечение для кубка */}
+                <div className="absolute inset-0 bg-yellow-400/30 rounded-full blur-3xl" style={{ width: '120%', height: '120%', left: '-10%', top: '-10%' }} />
+                <Trophy className="relative h-24 w-24 mx-auto text-yellow-600 dark:text-yellow-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.6)]" />
               </div>
             )}
             {!results.isWinner && !results.isDraw && (
@@ -513,7 +494,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
               transition={{ delay: 0.3 }}
               className={cn(
                 "text-5xl md:text-6xl font-black tracking-tight",
-                results.isWinner && "bg-gradient-to-r from-yellow-300 via-orange-400 to-yellow-300 bg-clip-text text-transparent animate-shimmer",
+                results.isWinner && "bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 bg-clip-text text-transparent",
                 results.isDraw && "bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent",
                 !results.isWinner && !results.isDraw && "bg-gradient-to-r from-zinc-400 to-zinc-500 bg-clip-text text-transparent"
               )}

@@ -18,6 +18,7 @@ import { AuthModalNew as AuthModal } from '@/components/AuthModalNew';
 import { useUserContext } from '@/contexts/UserContext';
 import { Card } from '@/components/ui/card';
 import { isTelegramMiniApp, getTelegramWebApp } from '@/lib/telegram';
+import { cn } from "@/lib/utils";
 import { supabase } from '@/integrations/supabase/client';
 import { dispatchUserEvent } from '@/lib/notification-events';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -1306,7 +1307,10 @@ export default function Duel() {
                 <Layout>
                     {/* Старый виджет убран - используем ActiveDuelWidget из Layout */}
 
-                    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-[1370px]">
+                    <div className={cn(
+                        "container mx-auto px-3 sm:px-4 max-w-[1370px]",
+                        mode === 'result' ? "pt-0 pb-6" : "py-4 sm:py-6"
+                    )}>
                         {isLoadingProfile && (
                             <Card className="max-w-2xl mx-auto p-6 sm:p-8 md:p-12 text-center space-y-4 sm:space-y-6">
                                 <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center animate-pulse">
