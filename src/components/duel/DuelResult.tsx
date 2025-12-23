@@ -194,6 +194,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
     if (results && profileId && !rewardsAppliedRef.current) {
       rewardsAppliedRef.current = true;
 
+      // 🏁 Сразу очищаем активную дуэль из контекста, чтобы в меню вернулась кнопка "Игры"
+      clearActiveDuel();
+
       const spSource = results.isDraw ? 'duel_draw' : (results.isWinner ? 'duel_win' : 'duel_lose');
       const metadata = {
         duel_id: duelId,
