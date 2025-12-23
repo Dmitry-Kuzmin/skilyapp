@@ -437,11 +437,11 @@
   <!-- Убираем defer чтобы скрипт выполнился синхронно и expand() сработал до открытия шторки -->
   <script src="https://telegram.org/js/telegram-web-app.js" crossorigin="anonymous"></script>
 
-  <!-- Telegram Expansion Script - Silent version -->
+  <!-- Telegram Expansion Script - Mini Apps 8.0+ with requestFullscreen() -->
   <script>
     (function () {
       'use strict';
-      const SCRIPT_VERSION = 'v5.0-silent';
+      const SCRIPT_VERSION = 'v6.0-fullscreen';
 
       const log = function (msg, data) {
         if (typeof console !== 'undefined' && console.log) {
@@ -452,16 +452,51 @@
       function expandTelegramApp() {
         if (window.Telegram && window.Telegram.WebApp) {
           const tg = window.Telegram.WebApp;
+
+          // ============================================================================
+          // GOLDEN RULES v3.0 - RULE 3.5: requestFullscreen() (Mini Apps 8.0+)
+          // @see RULES_LAYOUT.md
+          // ============================================================================
+
+          // 1. Сначала вызываем старый expand() для совместимости
           if (typeof tg.expand === 'function') {
             tg.expand();
-            if (typeof tg.ready === 'function') tg.ready();
-            return true;
           }
+
+          // 2. МАГИЯ Mini Apps 8.0+ — иммерсивный режим на полный экран
+          // requestFullscreen() переводит в режим без шторки, как у BotFather
+          if (typeof tg.requestFullscreen === 'function') {
+            try {
+              tg.requestFullscreen();
+              log('✅ requestFullscreen() called - immersive mode enabled');
+            } catch (e) {
+              log('⚠️ requestFullscreen() failed, falling back to expand()', e);
+            }
+          } else {
+            log('ℹ️ requestFullscreen not available (Mini Apps < 8.0), using expand()');
+          }
+
+          // 3. Красим UI (Chameleon Protocol)
+          try {
+            if (typeof tg.setHeaderColor === 'function') {
+              tg.setHeaderColor('#09090b');
+            }
+            if (typeof tg.setBackgroundColor === 'function') {
+              tg.setBackgroundColor('#09090b');
+            }
+          } catch (e) {
+            log('⚠️ Error setting colors', e);
+          }
+
+          // 4. Ready
+          if (typeof tg.ready === 'function') tg.ready();
+
+          return true;
         }
         return false;
       }
 
-      // Try immediately
+      // Try immediately — как можно раньше!
       if (!expandTelegramApp()) {
         let attempts = 0;
         const maxAttempts = 50;

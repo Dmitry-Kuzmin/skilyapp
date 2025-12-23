@@ -97,6 +97,41 @@ useEffect(() => {
 
 ---
 
+## 🔴 RULE 3.5: Immersive Fullscreen (Mini Apps 8.0+)
+
+**NEW in 2024!** With Mini Apps 8.0, Telegram introduced `requestFullscreen()` method.
+This enables true immersive mode — the app takes the ENTIRE screen, just like BotFather.
+
+**Key Difference:**
+- `expand()` — stretches the "sheet" to full height, but it's still a sheet (can be swiped down)
+- `requestFullscreen()` — removes the sheet entirely, immersive mode, close button changes
+
+```tsx
+useEffect(() => {
+  if (window.Telegram?.WebApp) {
+    const tg = window.Telegram.WebApp;
+    
+    // 1. First, call expand() for backward compatibility
+    tg.expand();
+    
+    // 2. MAGIC: requestFullscreen() for immersive mode (Mini Apps 8.0+)
+    if (tg.requestFullscreen) {
+      tg.requestFullscreen();
+    }
+    
+    // 3. Paint the UI (Chameleon Protocol)
+    tg.setHeaderColor('#09090b');
+    tg.setBackgroundColor('#09090b');
+    
+    tg.ready();
+  }
+}, []);
+```
+
+**⚠️ Important:** The method should be called AS EARLY AS POSSIBLE (in `index.html` before React loads) to prevent the "sheet flash" effect.
+
+---
+
 ## 🔴 RULE 4: The Layout Architecture
 
 Do not mix scrolling and fixed elements randomly. Use this strict component structure.

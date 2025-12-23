@@ -338,24 +338,41 @@ const App = () => {
       console.warn('[App] Error setting Telegram colors:', error);
     }
 
-    // Вызываем expand() только один раз, если еще не развернуто
+    // ============================================================================
+    // GOLDEN RULES v3.0 - RULE 3.5: requestFullscreen() (Mini Apps 8.0+)
+    // Иммерсивный режим — приложение занимает весь экран, как у BotFather
+    // ============================================================================
+
+    // 1. Сначала вызываем старый expand() для совместимости
     const callExpand = () => {
       try {
         if (typeof tg.expand === 'function' && !tg.isExpanded) {
           tg.expand();
           console.debug('[App] ✅ expand() called');
-        } else if (tg.isExpanded) {
-          console.debug('[App] ℹ️ WebApp уже развернут');
         }
       } catch (error) {
         console.warn('[App] Error calling expand():', error);
       }
     };
 
-    // Вызываем один раз сразу
     callExpand();
 
-    // Вызываем на событиях viewport (только если еще не развернуто)
+    // 2. МАГИЯ Mini Apps 8.0+ — иммерсивный режим на полный экран
+    // requestFullscreen() переводит в режим без шторки
+    try {
+      // @ts-expect-error — requestFullscreen добавлен в Mini Apps 8.0, типы могут быть устаревшими
+      if (typeof tg.requestFullscreen === 'function') {
+        // @ts-expect-error
+        tg.requestFullscreen();
+        console.debug('[App] ✅ requestFullscreen() called - immersive mode enabled');
+      } else {
+        console.debug('[App] ℹ️ requestFullscreen not available (Mini Apps < 8.0)');
+      }
+    } catch (error) {
+      console.warn('[App] Error calling requestFullscreen():', error);
+    }
+
+    // Слушаем события viewport (fallback)
     if (typeof tg.onEvent === 'function') {
       tg.onEvent('viewport_changed', () => {
         if (!tg.isExpanded) {
