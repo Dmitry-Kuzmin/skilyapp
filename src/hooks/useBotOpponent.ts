@@ -116,6 +116,7 @@ export function useBotOpponent({
               action: 'bot_answer',
               duel_id: duelId,
               duel_question_id: questionToAnswer,
+              profile_id: profileId, // 🔥 CRITICAL: Needed for Telegram Mini App auth
             },
           });
 
@@ -290,6 +291,7 @@ export function useBotOpponent({
               action: 'bot_use_boost',
               duel_id: duelId,
               duel_question_id: currentQuestionId,
+              profile_id: profileId, // 🔥 CRITICAL: Needed for Telegram Mini App auth
             },
           });
 
