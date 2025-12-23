@@ -435,20 +435,19 @@ All colors MUST be HSL.
   /* ============================================================================
    * ГЛОБАЛЬНЫЙ ОТСТУП ДЛЯ TELEGRAM MOBILE
    * ============================================================================
-   * Применяется ко ВСЕМ страницам в Telegram на мобильных устройствах
-   * Использует нативные CSS-переменные Telegram с надёжным fallback
+   * КРИТИЧНО: Padding-top НЕ применяется через CSS!
+   * 
+   * Отступы управляются ПРОГРАММНО в Layout.tsx useEffect(), так как:
+   * 1. CSS padding конфликтовал с программным padding (двойной отступ)
+   * 2. Layout.tsx имеет доступ к актуальным значениям safeAreaInset
+   * 3. Позволяет исключить страницы (дуэль) которые сами управляют отступами
+   * 
+   * @see Layout.tsx useEffect около строки 160
+   * @see RULES_LAYOUT.md
    * ============================================================================ */
-  body.telegram-mobile-app {
-    /* Используем max() для выбора наибольшего значения между:
-     * 1. Нативной переменной Telegram (--tg-content-safe-area-inset-top)
-     * 2. Системной safe-area (env(safe-area-inset-top))
-     * 3. Минимальным fallback (64px для iPhone 16)
-     */
-    padding-top: max(var(--tg-content-safe-area-inset-top, 0px),
-        var(--tg-safe-area-inset-top, 0px),
-        env(safe-area-inset-top, 0px),
-        var(--tg-mobile-header-fallback)) !important;
-  }
+
+  /* ОТКЛЮЧЕНО: Был конфликт с Layout.tsx программным padding-top */
+  /* body.telegram-mobile-app { padding-top: ... } */
 
   /* Исключение для duel-страниц - они сами управляют отступами */
   body.telegram-mobile-app.duel-active {

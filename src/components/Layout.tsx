@@ -158,14 +158,13 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
   }, [isTelegramApp]);
 
   // КРИТИЧНО: Применяем отступы только для мобильных устройств в Telegram, не для десктопа
-  // 🆕 CRITICAL FIX: Отключаем padding-top для страницы дуэли, так как DuelBattleFullscreen сам управляет отступами
+  // Примечание: Страницы которые сами управляют отступами (DuelBattleFullscreen) не используют Layout вообще
   useEffect(() => {
     // Проверяем наличие Telegram WebApp дополнительно
     const hasTelegramWebApp = !!window.Telegram?.WebApp;
     const platformMobile = typeof isTelegramMobilePlatform === 'boolean' ? isTelegramMobilePlatform : isMobile;
-    const isDuelPage = location.pathname.includes('/games/duel');
     // В Telegram на мобилках ВСЕГДА нужен отступ сверху, чтобы UI кнопки не перекрывали контент
-    const shouldApplyPadding = isTelegramApp && platformMobile && !isDuelPage;
+    const shouldApplyPadding = isTelegramApp && platformMobile;
 
     if (mainContentRef.current && shouldApplyPadding) {
       const webApp = window.Telegram?.WebApp;
@@ -198,11 +197,9 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
   }, [isTelegramApp, isMobile, isTelegramMobilePlatform, location.pathname]); // Также при изменении маршрута или размера экрана
 
   // Также применяем при изменении CSS переменных (только для мобильных)
-  // 🆕 CRITICAL FIX: Отключаем для страницы дуэли
   useEffect(() => {
     const platformMobile = typeof isTelegramMobilePlatform === 'boolean' ? isTelegramMobilePlatform : isMobile;
-    const isDuelPage = location.pathname.includes('/games/duel');
-    if (!isTelegramApp || !platformMobile || !mainContentRef.current || isDuelPage) return;
+    if (!isTelegramApp || !platformMobile || !mainContentRef.current) return;
 
     const observer = new MutationObserver(() => {
       if (mainContentRef.current) {
