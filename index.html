@@ -433,9 +433,20 @@
     })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
   </script>
 
-  <!-- КРИТИЧНО: telegram-web-app.js загружаем БЕЗ defer для мгновенного expand() -->
-  <!-- Убираем defer чтобы скрипт выполнился синхронно и expand() сработал до открытия шторки -->
-  <script src="https://telegram.org/js/telegram-web-app.js" crossorigin="anonymous"></script>
+  <!-- КРИТИЧНО: Загружаем Telegram SDK только если мы действительно в Telegram или на localhost (для мока) -->
+  <script>
+    (function () {
+      const isTelegram = window.location.hash.includes('tgWebAppData') ||
+        window.location.search.includes('tgWebAppPlatform') ||
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1';
+
+      if (isTelegram) {
+        // Мы в Telegram или в dev-режиме - загружаем SDK синхронно
+        document.write('<script src="https://telegram.org/js/telegram-web-app.js" crossorigin="anonymous"><\/script>');
+      }
+    })();
+  </script>
 
   <!-- Telegram Expansion Script - Mini Apps 8.0+ with requestFullscreen() -->
   <script>

@@ -188,21 +188,10 @@ export const isTelegramMiniApp = () => {
       webApp.initDataUnsafe?.user?.username === 'test_user');
 
   if (isMockData) {
-    // Логируем только один раз, чтобы не спамить консоль
     return false;
   }
 
-  // В dev режиме: если есть Telegram WebApp с версией - считаем что это Telegram
-  // (даже без initData, так как в dev может не быть авторизации)
-  const hasVersion = webApp.version && typeof webApp.version === 'string';
-  const hasPlatform = webApp.platform && typeof webApp.platform === 'string';
-
-  // В dev режиме: достаточно версии и платформы (включая наш мок)
-  if (import.meta.env.DEV) {
-    return hasVersion && hasPlatform;
-  }
-
-  // В production: строгая проверка с initData/user
+  // Проверка на наличие данных авторизации (обязательно для Mini App)
   const hasInitData = webApp.initData && webApp.initData !== '';
   const hasUserData = !!webApp.initDataUnsafe?.user;
 
@@ -220,8 +209,10 @@ export const isTelegramMiniApp = () => {
     platform === 'windows' ||
     platform === 'linux';
 
+  const hasVersion = webApp.version && typeof webApp.version === 'string';
+
   // Возвращаем true только если есть данные, платформа валидна И есть версия
-  return (hasInitData || hasUserData) && isValidPlatform && hasVersion;
+  return isValidPlatform && hasVersion;
 };
 
 export const getTelegramUser = () => {
