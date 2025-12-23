@@ -2886,7 +2886,7 @@ const TestSession = () => {
           {/* Progress Bar - SegmentedExamProgress для exam-russia, QuestionProgressBar для остальных */}
           <div className={cn(
             "mb-3 sm:mb-4",
-            mode === 'exam-russia' ? "sticky top-0 z-50 -mx-4 px-4 py-4 bg-background/95 backdrop-blur-md border-b border-border/50" : "-mt-6 sm:-mt-3 md:mt-0"
+            mode === 'exam-russia' ? "sticky top-0 z-50 -mx-4 px-4 py-4 bg-background/95 backdrop-blur-md border-b border-border/50" : "mt-2 sm:mt-3 md:mt-4"
           )}>
             {mode === 'exam-russia' && russiaExam.state && russiaExam.progress ? (
               <ExamHeader
