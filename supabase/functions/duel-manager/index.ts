@@ -4742,9 +4742,43 @@ Deno.serve(async (req) => {
           .select('id, user_id, score, correct_count, is_bot, profiles(id, username, first_name, photo_url)')
           .eq('duel_id', duel_id);
 
+        // 🆕 ASYNC DUEL: Если только 1 игрок (хост) сыграл
         if (!allPlayers || allPlayers.length < 2) {
-          return new Response(JSON.stringify({ error: 'Not enough players' }), {
-            status: 400,
+          console.log('[finish_duel] 🎯 Async mode: Only host finished, waiting for opponent');
+
+          // Проверяем, что текущий игрок реально ответил на все вопросы
+          if ((answeredCount || 0) < duel.num_questions) {
+            console.log('[finish_duel] Player has not answered all questions yet:', {
+              answered: answeredCount,
+              required: duel.num_questions
+            });
+            return new Response(JSON.stringify({
+              success: true,
+              finished: false,
+              message: 'Not all questions answered yet'
+            }), {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+
+          // Переводим дуэль в статус "ожидает соперника"
+          await supabase
+            .from('duels')
+            .update({
+              status: 'waiting_for_opponent',
+              // Сохраняем время когда хост закончил
+            })
+            .eq('id', duel_id);
+
+          console.log('[finish_duel] ✅ Duel status updated to waiting_for_opponent');
+
+          return new Response(JSON.stringify({
+            success: true,
+            finished: false,
+            waiting_for_opponent: true,
+            message: 'Your score is saved! Waiting for opponent to play.',
+            your_score: currentPlayer?.score || allPlayers?.find((p: any) => p.user_id === profile_id)?.score || 0
+          }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
