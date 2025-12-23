@@ -2713,7 +2713,9 @@ Deno.serve(async (req) => {
           return new Response(JSON.stringify({ error: 'Failed to save questions' }), { status: 500, headers: corsHeaders });
         }
 
-        // 3. Update status
+        // 3. Update status & RESET SCORES (Critical for starting with 0)
+        console.log('[start_duel_now] Resetting player scores to 0...');
+        await supabase.from('duel_players').update({ score: 0, correct_count: 0, is_finished: false }).eq('duel_id', duel.id);
         await supabase.from('duels').update({ status: 'active', started_at: new Date().toISOString() }).eq('id', duel.id);
 
         console.log('[start_duel_now] ✅ Duel started manually!');
@@ -3197,7 +3199,10 @@ Deno.serve(async (req) => {
           });
         }
 
-        // Update duel status
+        // Update duel status & RESET SCORES
+        console.log('[start_duel] Resetting player scores matching duel_id:', duel.id);
+        await supabase.from('duel_players').update({ score: 0, correct_count: 0, is_finished: false }).eq('duel_id', duel.id);
+
         await supabase
           .from('duels')
           .update({ status: 'active', started_at: new Date().toISOString() })

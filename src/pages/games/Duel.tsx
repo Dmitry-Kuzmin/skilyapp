@@ -613,6 +613,9 @@ export default function Duel() {
         // Очищаем активную дуэль при выходе в меню
         clearActiveDuel();
 
+        // 🔥 КРИТИЧНО: Очищаем URL от параметров старой дуэли
+        setSearchParams(new URLSearchParams());
+
         setMode('menu');
         setDuelId(null);
         setDuelCode(null);
@@ -621,7 +624,7 @@ export default function Duel() {
         setCreatedCode(null);
         setCopied(false);
         hasAutoJoinedRef.current = false;
-    }, [clearActiveDuel]);
+    }, [clearActiveDuel, setSearchParams]);
 
     // Check if user needs to login
     const handleActionClick = (action: () => void) => {
