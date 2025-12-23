@@ -9,9 +9,14 @@
 html,
 body {
   /* CRITICAL: Must match tg.setHeaderColor() and tg.setBackgroundColor() in App.tsx */
-  /* zinc-950 = #09090b */
+  /* zinc-950 = #09090b — это для Telegram Mini App (всегда тёмная тема) */
+  /* В обычном браузере цвет перезаписывается ниже через prefers-color-scheme */
   background-color: #09090b;
-  color: white;
+
+  /* ВАЖНО: НЕ указываем color здесь! Цвет текста управляется через:
+   * - CSS переменные темы (--foreground)
+   * - Tailwind класс text-foreground
+   * Если указать color: white здесь, текст станет невидимым в светлой теме! */
 
   /* Размеры и отступы */
   width: 100%;

@@ -26,7 +26,11 @@ All standard browser behaviors that break the "native app feel" must be disabled
 html, body {
   /* CRITICAL: Must match tg.setBackgroundColor() */
   background-color: #09090b; 
-  color: white;
+  
+  /* ⚠️ DO NOT set color: white here!
+   * Text color is managed by CSS variables (--foreground) and Tailwind.
+   * Setting color: white makes text invisible in light theme! */
+  
   margin: 0;
   padding: 0;
   /* Disables pull-to-refresh on mobile */
