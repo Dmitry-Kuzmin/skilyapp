@@ -1,0 +1,38 @@
+name: Expire Duels Cron
+
+on:
+  schedule:
+    # Каждый час в :00 минут
+    - cron: '0 * * * *'
+  workflow_dispatch: # Позволяет запускать вручную
+
+jobs:
+  expire-duels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call expire-duels function
+        run: |
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/expire-duels" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{}')
+          
+          # Получаем HTTP код
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+          
+          echo "Response: $body"
+          echo "HTTP Code: $http_code"
+          
+          # Проверяем успешность
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "✅ expire-duels completed successfully"
+          else
+            echo "❌ expire-duels failed with code $http_code"
+            exit 1
+          fi
+
+      - name: Log result
+        run: |
+          echo "🕐 Cron job completed at $(date)"
