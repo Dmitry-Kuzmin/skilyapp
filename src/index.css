@@ -2,16 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-/* КРИТИЧНО: Предотвращаем pull-to-refresh на мобильных (причина спонтанных перезагрузок) */
+/* ============================================================================
+ * GOLDEN RULES v3.0 - RULE 1: The "No-Bounce" Foundation
+ * @see RULES_LAYOUT.md
+ * ============================================================================ */
 html,
 body {
-  overscroll-behavior-y: none;
+  /* CRITICAL: Must match tg.setHeaderColor() and tg.setBackgroundColor() in App.tsx */
+  /* zinc-950 = #09090b */
+  background-color: #09090b;
+  color: white;
+
+  /* Размеры и отступы */
   width: 100%;
   margin: 0;
   padding: 0;
-  /* Цвет фона для overscroll (когда пользователь скроллит за пределы контента) */
-  background-color: hsl(222 47% 11%);
-  /* Темная тема - slate-900 */
+
+  /* Disables pull-to-refresh on mobile (prevents spontaneous reloads) */
+  overscroll-behavior-y: none;
+
+  /* Ensures smooth scrolling inside containers */
+  -webkit-overflow-scrolling: touch;
+
   /* КРИТИЧНО: Убираем height: 100% и display: flex для обычного браузера - footer должен скроллиться */
   /* flex применяется только для Telegram WebApp */
 }
@@ -150,7 +162,9 @@ iframe[id^="telegram-login"] {
   --tg-content-safe-area-inset-left: 0px;
   --tg-content-safe-area-inset-right: 0px;
 
-  /* Viewport stable height - стабильная высота без клавиатуры */
+  /* Viewport heights - стабильная высота без клавиатуры */
+  /* GOLDEN RULES v3.0 - Default values for browser testing */
+  --tg-viewport-height: 100vh;
   --tg-viewport-stable-height: 100vh;
 
   /* Единая система отступов - комбинируем системные safe-area + Telegram content safe-area */
@@ -626,8 +640,13 @@ All colors MUST be HSL.
 
   /* Cyber animations */
   @keyframes slideDown {
-    from { transform: translateY(-50%); }
-    to { transform: translateY(0%); }
+    from {
+      transform: translateY(-50%);
+    }
+
+    to {
+      transform: translateY(0%);
+    }
   }
 
   .animate-slide-down {
@@ -635,12 +654,29 @@ All colors MUST be HSL.
   }
 
   @keyframes cyber-glitch {
-    0% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(-2px, -2px); }
-    60% { transform: translate(2px, 2px); }
-    80% { transform: translate(2px, -2px); }
-    100% { transform: translate(0); }
+    0% {
+      transform: translate(0);
+    }
+
+    20% {
+      transform: translate(-2px, 2px);
+    }
+
+    40% {
+      transform: translate(-2px, -2px);
+    }
+
+    60% {
+      transform: translate(2px, 2px);
+    }
+
+    80% {
+      transform: translate(2px, -2px);
+    }
+
+    100% {
+      transform: translate(0);
+    }
   }
 
   .animate-cyber-glitch {

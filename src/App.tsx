@@ -311,6 +311,33 @@ const App = () => {
       tg.ready();
     }
 
+    // ============================================================================
+    // GOLDEN RULES v3.0 - RULE 3: The "Chameleon" Protocol
+    // @see RULES_LAYOUT.md
+    // ============================================================================
+    // CRITICAL: Sync Telegram native UI colors with our app theme
+    // These MUST match the background-color in index.css (#09090b = zinc-950)
+    try {
+      // Paint the Status Bar (Top) - matches header/body bg
+      if (typeof tg.setHeaderColor === 'function') {
+        tg.setHeaderColor('#09090b');
+        console.debug('[App] ✅ setHeaderColor(#09090b) called');
+      }
+
+      // Paint the Bottom Area (Home Indicator) - matches page background
+      if (typeof tg.setBackgroundColor === 'function') {
+        tg.setBackgroundColor('#09090b');
+        console.debug('[App] ✅ setBackgroundColor(#09090b) called');
+      }
+
+      // Enable closing confirmation (recommended for better UX)
+      if (typeof tg.enableClosingConfirmation === 'function') {
+        tg.enableClosingConfirmation();
+      }
+    } catch (error) {
+      console.warn('[App] Error setting Telegram colors:', error);
+    }
+
     // Вызываем expand() только один раз, если еще не развернуто
     const callExpand = () => {
       try {

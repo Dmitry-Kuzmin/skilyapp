@@ -77,17 +77,25 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-      // Telegram Safe Area Utilities
+      // ============================================================================
+      // GOLDEN RULES v3.0 - RULE 2: The Tailwind Map
+      // @see RULES_LAYOUT.md
+      // ============================================================================
+      // Telegram Safe Area Utilities - NEVER use arbitrary values like h-[100vh]
       padding: {
+        // Dynamic Island / Notch area
         "safe-top": "var(--tg-content-safe-area-inset-top, 0px)",
+        // Home Indicator area
         "safe-bottom": "var(--tg-content-safe-area-inset-bottom, 0px)",
         "safe-left": "var(--tg-content-safe-area-inset-left, 0px)",
         "safe-right": "var(--tg-content-safe-area-inset-right, 0px)",
       },
       height: {
+        // Use h-tg-screen instead of h-screen for Telegram Mini Apps
         "tg-screen": "var(--tg-viewport-stable-height, 100vh)",
       },
       minHeight: {
+        // Use min-h-tg-screen instead of min-h-screen for Telegram Mini Apps
         "tg-screen": "var(--tg-viewport-stable-height, 100vh)",
       },
       keyframes: {
