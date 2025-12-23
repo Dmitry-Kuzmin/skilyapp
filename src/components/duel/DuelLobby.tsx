@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Copy, Share2, Users, Clock, X, Sparkles, Zap, Check } from 'lucide-react';
+import { Copy, Share2, Users, Clock, X, Sparkles, Zap, Check, Trophy, Swords, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
@@ -248,63 +248,138 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
           className="max-w-md mx-auto"
         >
           {finishedOpponent ? (
-            /* Challenge Screen - When opponent already finished */
-            <Card className="p-8 text-center space-y-8 bg-gradient-to-br from-indigo-600 via-purple-600 to-violet-600 border-none shadow-2xl relative overflow-hidden">
-              {/* Decorative background components */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16" />
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-indigo-400/20 rounded-full blur-xl -ml-12 -mb-12" />
+            /* 🆕 VERSUS SCREEN - Красивый экран вызова */
+            <Card className="p-6 text-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 border-none shadow-2xl relative overflow-hidden">
+              {/* Animated background effects */}
+              <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute top-0 left-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
+                <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+              </div>
 
               <div className="relative z-10 space-y-6">
-                {/* Opponent Avatar/Icon */}
-                <div className="relative inline-block">
-                  <div className="w-20 h-20 mx-auto bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30 shadow-xl">
-                    <Trophy className="h-10 w-10 text-yellow-300" />
-                  </div>
+                {/* VS Header */}
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center justify-center gap-1"
+                >
+                  <Swords className="h-5 w-5 text-purple-400" />
+                  <h2 className="text-sm font-bold text-purple-400 uppercase tracking-widest">Дуэль</h2>
+                </motion.div>
+
+                {/* VS Battle Layout */}
+                <div className="flex items-center justify-center gap-4">
+                  {/* Opponent (Left) - Already Played */}
                   <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute -bottom-2 -right-2 bg-green-500 rounded-full p-1.5 border-2 border-white shadow-lg"
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="flex flex-col items-center space-y-3"
                   >
-                    <Check className="h-3 w-3 text-white" />
+                    <div className="relative">
+                      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 border-2 border-emerald-400/50">
+                        <span className="text-3xl font-black text-white">
+                          {finishedOpponent.name?.charAt(0)?.toUpperCase() || '?'}
+                        </span>
+                      </div>
+                      {/* Finished badge */}
+                      <motion.div
+                        animate={{ scale: [1, 1.1, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="absolute -bottom-1 -right-1 bg-emerald-500 rounded-full p-1.5 border-2 border-slate-900 shadow-lg"
+                      >
+                        <Check className="h-3 w-3 text-white" />
+                      </motion.div>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-white font-bold text-sm truncate max-w-[80px]">{finishedOpponent.name}</p>
+                      <p className="text-emerald-400 text-xs font-medium">Финишировал</p>
+                    </div>
+                    {/* Score */}
+                    <div className="bg-emerald-500/20 backdrop-blur-sm px-4 py-2 rounded-xl border border-emerald-500/30">
+                      <p className="text-2xl font-black text-white">{finishedOpponent.score}</p>
+                      <p className="text-emerald-300 text-[10px] font-bold uppercase tracking-wider">ОЧКОВ</p>
+                    </div>
+                  </motion.div>
+
+                  {/* VS Badge */}
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.4, type: 'spring', stiffness: 200 }}
+                    className="relative"
+                  >
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 flex items-center justify-center shadow-lg shadow-orange-500/50 border-2 border-yellow-300/50">
+                      <span className="text-white font-black text-lg">VS</span>
+                    </div>
+                    {/* Glow effect */}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 blur-md opacity-50 animate-pulse" />
+                  </motion.div>
+
+                  {/* You (Right) - Ready to Play */}
+                  <motion.div
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="flex flex-col items-center space-y-3"
+                  >
+                    <div className="relative">
+                      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 border-2 border-indigo-400/50">
+                        <User className="h-10 w-10 text-white/80" />
+                      </div>
+                      {/* Ready badge */}
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                        className="absolute -bottom-1 -right-1 bg-yellow-500 rounded-full p-1.5 border-2 border-slate-900 shadow-lg"
+                      >
+                        <Zap className="h-3 w-3 text-white" />
+                      </motion.div>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-white font-bold text-sm">Ты</p>
+                      <p className="text-yellow-400 text-xs font-medium">Готов к бою</p>
+                    </div>
+                    {/* Target Score */}
+                    <div className="bg-indigo-500/20 backdrop-blur-sm px-4 py-2 rounded-xl border border-indigo-500/30">
+                      <p className="text-2xl font-black text-white">?</p>
+                      <p className="text-indigo-300 text-[10px] font-bold uppercase tracking-wider">ЦЕЛЬ: {finishedOpponent.score + 1}</p>
+                    </div>
                   </motion.div>
                 </div>
 
-                <div className="space-y-2">
-                  <h2 className="text-2xl font-black text-white">Вызов принят!</h2>
-                  <p className="text-indigo-100/90 font-medium">
-                    <span className="text-white font-bold">{finishedOpponent.name}</span> уже финишировал!
-                  </p>
-                </div>
-
-                {/* Results Banner */}
-                <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-inner">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <p className="text-indigo-100/70 text-xs font-bold uppercase tracking-wider">Результат</p>
-                      <p className="text-3xl font-black text-white">{finishedOpponent.score} <span className="text-indigo-200 text-sm">XP</span></p>
-                    </div>
-                    <div className="space-y-1 border-l border-white/10">
-                      <p className="text-indigo-100/70 text-xs font-bold uppercase tracking-wider">Верно</p>
-                      <p className="text-3xl font-black text-white">{finishedOpponent.correct_count} <span className="text-indigo-200 text-sm">/ 10</span></p>
-                    </div>
-                  </div>
-                  <div className="mt-4 pt-4 border-t border-white/10">
-                    <p className="text-white/80 text-sm font-medium italic">Сможешь обогнать? Тебе нужны те же вопросы!</p>
-                  </div>
-                </div>
-
-                <Button
-                  onClick={handleStartAlone}
-                  className="w-full h-14 text-lg font-black bg-white text-indigo-600 hover:bg-white/90 shadow-xl shadow-indigo-900/40 rounded-xl transition-all active:scale-95 group"
+                {/* Motivational Text */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                  className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4"
                 >
-                  <Zap className="mr-2 h-6 w-6 fill-indigo-600 group-hover:scale-110 transition-transform" />
-                  НАЧАТЬ БИТВУ
-                </Button>
+                  <p className="text-white/90 text-sm font-medium">
+                    <span className="text-yellow-400 font-bold">{finishedOpponent.correct_count}/10</span> правильных ответов.
+                    <br />Твоя цель — <span className="text-emerald-400 font-bold">{finishedOpponent.score + 1}</span> очков!
+                  </p>
+                </motion.div>
+
+                {/* CTA Button */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  <Button
+                    onClick={handleStartAlone}
+                    className="w-full h-14 text-lg font-black bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 hover:from-yellow-500 hover:via-orange-600 hover:to-red-600 text-white shadow-xl shadow-orange-500/30 rounded-xl transition-all active:scale-95 group"
+                  >
+                    <Swords className="mr-2 h-6 w-6 group-hover:rotate-12 transition-transform" />
+                    ПРИНЯТЬ ВЫЗОВ
+                  </Button>
+                </motion.div>
 
                 <Button
                   variant="ghost"
                   onClick={onCancel}
-                  className="text-white/60 hover:text-white hover:bg-white/10"
+                  className="text-white/40 hover:text-white/70 hover:bg-white/5 text-sm"
                 >
                   Отменить
                 </Button>

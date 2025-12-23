@@ -1807,6 +1807,9 @@ Deno.serve(async (req) => {
         // Generate more random seed using timestamp + random
         const questionSeed = Math.floor(Date.now() * 1000 + Math.random() * 1000000);
 
+        // 🆕 TTL для асинхронных дуэлей: 24 часа
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
         const { data: duel, error: duelError } = await supabase
           .from('duels')
           .insert({
@@ -1818,6 +1821,7 @@ Deno.serve(async (req) => {
             question_seed: questionSeed,
             bet_amount,
             bet_type,
+            expires_at: expiresAt, // 24 часа до истечения
           })
           .select()
           .single();
