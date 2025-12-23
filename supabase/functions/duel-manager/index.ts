@@ -5079,8 +5079,14 @@ Deno.serve(async (req) => {
 
           console.log('[finish_duel] ✅ Successfully updated duel status to finished (atomic)');
 
-          // Update stats for both players
+          // Update stats for both players (except bots)
           for (const player of playersWithScores) {
+            // 🔥 CRITICAL FIX: Skip bots - they don't have user_id and cause constraint violation
+            if (!player.user_id) {
+              console.log('[finish_duel] ⏭️ Skipping stats update for bot player:', player.id);
+              continue;
+            }
+
             const isWin = player.id === winnerId;
             await supabase.rpc('upsert_duel_stats', {
               p_user_id: player.user_id,
