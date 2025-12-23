@@ -2217,47 +2217,79 @@ export default function Duel() {
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.6, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
                                 >
-                                    <Card className="p-6 sm:p-8 md:p-10 bg-gradient-to-br from-card/95 via-card/90 to-primary/10 border border-primary/30 rounded-2xl sm:rounded-3xl shadow-2xl backdrop-blur-xl relative overflow-hidden group">
-                                        {/* Animated background glow */}
-                                        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-primary/10 via-blue-500/10 to-cyan-500/10 rounded-full blur-3xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 -z-10" />
+                                    <Card className="p-8 sm:p-10 md:p-12 bg-white/50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 rounded-[32px] shadow-[0_24px_50px_-12px_rgba(0,0,0,0.1)] dark:shadow-[0_24px_50px_-12px_rgba(0,0,0,0.5)] backdrop-blur-2xl relative overflow-hidden group">
+                                        {/* Premium background effects */}
+                                        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-primary/20 via-blue-500/10 to-transparent rounded-full blur-[100px] opacity-40 group-hover:opacity-60 transition-opacity duration-1000 -z-10" />
+                                        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-gradient-to-tr from-indigo-500/10 to-transparent rounded-full blur-[80px] opacity-30 group-hover:opacity-50 transition-opacity duration-1000 -z-10" />
 
-                                        <h3 className="text-2xl sm:text-3xl font-black mb-6 sm:mb-8 flex items-center gap-3 sm:gap-4">
-                                            <div className="relative w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-primary via-blue-600 to-cyan-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-xl shadow-primary/40 ring-4 ring-primary/20">
-                                                <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-white/30 via-transparent to-transparent" />
-                                                <Sparkles className="h-6 w-6 sm:h-7 sm:w-7 text-white relative z-10" />
+                                        {/* Noise texture for depth */}
+                                        <div className="absolute inset-0 opacity-[0.015] pointer-events-none -z-10" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10 sm:mb-12">
+                                            <div className="space-y-2">
+                                                <h3 className="text-3xl sm:text-4xl font-black flex items-center gap-4">
+                                                    <div className="relative">
+                                                        <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
+                                                        <Sparkles className="h-8 w-8 text-primary relative animate-pulse" />
+                                                    </div>
+                                                    <span className="bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-300 dark:to-white bg-clip-text text-transparent">
+                                                        Как играть
+                                                    </span>
+                                                </h3>
+                                                <p className="text-muted-foreground text-sm sm:text-base font-medium max-w-md">
+                                                    Узнайте основные механики дуэлей и начните побеждать прямо сейчас
+                                                </p>
                                             </div>
-                                            <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-                                                Как играть
-                                            </span>
-                                        </h3>
 
-                                        <div className="grid sm:grid-cols-2 gap-4 sm:gap-5">
+                                            <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-full border border-primary/10">
+                                                <div className="w-2 h-2 bg-primary rounded-full animate-ping" />
+                                                <span className="text-xs font-bold uppercase tracking-wider text-primary">Live Multiplayer</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid sm:grid-cols-2 gap-6 md:gap-8">
                                             {[
-                                                { icon: Swords, title: 'Создайте или присоединитесь', desc: 'Пригласите друга или введите код дуэли', gradient: 'from-emerald-500 to-teal-600', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
-                                                { icon: Zap, title: 'Отвечайте быстрее', desc: 'Бонус за скорость до +40%', gradient: 'from-blue-500 to-cyan-600', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
-                                                { icon: Target, title: 'Собирайте комбо', desc: 'До +20% за серию правильных ответов', gradient: 'from-amber-500 to-orange-600', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
-                                                { icon: Trophy, title: 'Побеждайте!', desc: 'Получайте награды и поднимайтесь в рейтинге', gradient: 'from-yellow-500 to-orange-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
+                                                { icon: Swords, title: 'Создайте или присоединитесь', desc: 'Пригласите друга или введите секретный код дуэли для начала битвы', color: 'blue' },
+                                                { icon: Zap, title: 'Отвечайте быстрее', desc: 'Чем быстрее ваш ответ, тем больше очков вы получаете. Бонус до +40%!', color: 'indigo' },
+                                                { icon: Target, title: 'Собирайте комбо', desc: 'Серия правильных ответов активирует множитель очков до x3', color: 'orange' },
+                                                { icon: Trophy, title: 'Побеждайте!', desc: 'Получайте монеты, Season Points и поднимайтесь в глобальном рейтинге', color: 'yellow' },
                                             ].map((item, index) => {
                                                 const Icon = item.icon;
+                                                const colorClasses: Record<string, string> = {
+                                                    blue: 'from-blue-500 to-indigo-600 shadow-blue-500/20 ring-blue-500/10',
+                                                    indigo: 'from-indigo-500 to-violet-600 shadow-indigo-500/20 ring-indigo-500/10',
+                                                    orange: 'from-orange-400 to-red-500 shadow-orange-500/20 ring-orange-500/10',
+                                                    yellow: 'from-amber-400 to-orange-500 shadow-amber-500/20 ring-amber-500/10'
+                                                };
+
                                                 return (
                                                     <motion.div
                                                         key={index}
-                                                        initial={{ opacity: 0, y: 20 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        transition={{ delay: 0.7 + index * 0.1 }}
-                                                        whileHover={{ scale: 1.02, y: -2 }}
-                                                        className={`flex items-start gap-4 sm:gap-5 p-5 sm:p-6 rounded-2xl ${item.bg} border-2 ${item.border} hover:border-opacity-40 transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-xl group/item relative overflow-hidden`}
+                                                        initial={{ opacity: 0, scale: 0.95 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        transition={{ delay: 0.8 + index * 0.1, duration: 0.5 }}
+                                                        whileHover={{ y: -8, scale: 1.02 }}
+                                                        className="group/item flex items-start gap-6 p-6 sm:p-8 rounded-[28px] bg-white dark:bg-slate-800/20 border border-slate-100 dark:border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.02)] dark:shadow-none hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] dark:hover:bg-slate-800/40 transition-all duration-500 relative overflow-hidden"
                                                     >
-                                                        {/* Hover glow effect */}
-                                                        <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover/item:opacity-10 transition-opacity duration-300 -z-10`} />
+                                                        {/* Subtle inner hover glow */}
+                                                        <div className={`absolute inset-0 bg-gradient-to-br transition-opacity duration-500 opacity-0 group-hover/item:opacity-[0.03] ${colorClasses[item.color]}`} />
 
-                                                        <div className={`relative w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br ${item.gradient} rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xl ring-4 ring-opacity-20 group-hover/item:scale-110 transition-transform duration-300`}>
-                                                            <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-white/30 via-transparent to-transparent" />
-                                                            <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-white relative z-10" />
+                                                        <div className={`relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br ${colorClasses[item.color]} flex items-center justify-center shadow-2xl ring-8 group-hover/item:scale-110 group-hover/item:rotate-3 transition-all duration-500`}>
+                                                            <div className="absolute inset-0 rounded-2xl bg-white/20 backdrop-blur-sm opacity-0 group-hover/item:opacity-100 transition-opacity" />
+                                                            <Icon className="h-7 w-7 sm:h-8 sm:w-8 text-white relative z-10 drop-shadow-md" />
                                                         </div>
-                                                        <div className="min-w-0 flex-1 pt-1">
-                                                            <div className="font-black text-base sm:text-lg mb-1.5 text-foreground">{item.title}</div>
-                                                            <div className="text-xs sm:text-sm text-muted-foreground/80 leading-relaxed">{item.desc}</div>
+
+                                                        <div className="space-y-2 pt-1 relative z-10">
+                                                            <h4 className="font-bold text-lg sm:text-xl text-slate-900 dark:text-white group-hover/item:text-primary transition-colors">
+                                                                {item.title}
+                                                            </h4>
+                                                            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed group-hover/item:text-slate-600 dark:group-hover/item:text-slate-300 transition-colors">
+                                                                {item.desc}
+                                                            </p>
+                                                        </div>
+
+                                                        <div className="absolute top-4 right-4 opacity-0 group-hover/item:opacity-20 transition-opacity">
+                                                            <Icon className="w-12 h-12 text-slate-400" />
                                                         </div>
                                                     </motion.div>
                                                 );
