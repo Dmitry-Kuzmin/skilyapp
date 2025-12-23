@@ -1267,6 +1267,7 @@ export default function Duel() {
     if (mode === 'battle' && duelId && !isBattleHidden) {
         return (
             <DuelBattleFullscreen
+                key={duelId} // 🔥 CRITICAL: Force remount on duelId change to reset all state
                 duelId={duelId}
                 onExit={handleBackToMenu}
                 onDuelFinished={handleDuelFinished}
