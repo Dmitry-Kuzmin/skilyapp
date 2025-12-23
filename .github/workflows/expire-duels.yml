@@ -2,8 +2,8 @@ name: Expire Duels Cron
 
 on:
   schedule:
-    # Каждый час в :00 минут
-    - cron: '0 * * * *'
+    # Каждые 4 часа (экономит лимиты GitHub Actions)
+    - cron: '0 */4 * * *'
   workflow_dispatch: # Позволяет запускать вручную
 
 jobs:
