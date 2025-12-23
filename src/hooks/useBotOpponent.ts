@@ -198,13 +198,31 @@ export function useBotOpponent({
     };
   }, [duelId, botPlayerRef.current?.id, profileId, totalQuestions]);
 
-  // Сброс обработанных вопросов и очистка таймеров при смене дуэли
+  // 🔥 CRITICAL FIX: Сброс ВСЕГО состояния при СМЕНЕ дуэли
+  // Ранее состояние сбрасывалось только при !duelId, но если duelId менялся с одного на другой,
+  // старые данные (processedQuestions, activeTimers) сохранялись → бот "помнил" предыдущую игру
+  const previousDuelIdRef = useRef<string | null>(null);
+
   useEffect(() => {
-    if (!duelId) {
-      // Очищаем все таймеры при смене дуэли
+    // Если duelId изменился (не только стал null) — сбрасываем ВСЕ состояние
+    if (previousDuelIdRef.current !== duelId) {
+      console.log('[useBotOpponent] 🔄 DuelId changed, resetting ALL state', {
+        from: previousDuelIdRef.current,
+        to: duelId
+      });
+
+      // Очищаем все таймеры
       activeTimers.current.forEach((timer) => clearTimeout(timer));
       activeTimers.current.clear();
+
+      // Очищаем обработанные вопросы
       processedQuestions.current.clear();
+
+      // Сбрасываем время последней проверки бустов
+      lastBoostCheckRef.current = 0;
+
+      // Сохраняем новый duelId для следующего сравнения
+      previousDuelIdRef.current = duelId;
     }
 
     // Cleanup при размонтировании компонента
@@ -227,13 +245,13 @@ export function useBotOpponent({
 
     // Определяем вероятность использования буста в зависимости от сложности
     // Easy: 0% (не используют бусты)
-    // Medium: 20% каждые 12 секунд
-    // Hard/Insane: 40% каждые 12 секунд
+    // Medium: 15% каждые 25 секунд (реже чем раньше)
+    // Hard/Insane: 25% каждые 25 секунд
     let attackChance = 0;
     if (botDifficulty === 'medium') {
-      attackChance = 0.20; // 20%
+      attackChance = 0.15; // 15% (было 20%)
     } else if (botDifficulty === 'hard' || botDifficulty === 'insane') {
-      attackChance = 0.40; // 40%
+      attackChance = 0.25; // 25% (было 40%)
     }
 
     // Easy боты не используют бусты
@@ -241,11 +259,19 @@ export function useBotOpponent({
       return;
     }
 
+    // 🔥 CRITICAL FIX: Лимит 1 атака за вопрос
+    let attackUsedForQuestion = false;
+
     // Таймер проверки "Бот хочет использовать буст?"
     const checkBoost = async () => {
-      // Проверяем не слишком ли часто (минимум 8 секунд между проверками)
+      // 🔥 CRITICAL FIX: Если уже использовал атаку на этом вопросе — не атакуем
+      if (attackUsedForQuestion) {
+        return;
+      }
+
+      // Проверяем не слишком ли часто (минимум 20 секунд между проверками — было 8)
       const now = Date.now();
-      if (now - lastBoostCheckRef.current < 8000) {
+      if (now - lastBoostCheckRef.current < 20000) {
         return;
       }
       lastBoostCheckRef.current = now;
@@ -254,6 +280,9 @@ export function useBotOpponent({
       if (Math.random() < attackChance) {
         try {
           console.log(`[useBotOpponent] 🤖 Bot is using a boost! (difficulty: ${botDifficulty})`);
+
+          // 🔥 Помечаем что атака использована на этом вопросе
+          attackUsedForQuestion = true;
 
           // Вызываем Edge Function для использования буста ботом
           const { data, error } = await supabase.functions.invoke('duel-manager', {
@@ -266,6 +295,8 @@ export function useBotOpponent({
 
           if (error) {
             console.error('[useBotOpponent] ❌ Error bot using boost:', error);
+            // При ошибке разрешаем повторную попытку
+            attackUsedForQuestion = false;
             return;
           }
 
@@ -275,15 +306,16 @@ export function useBotOpponent({
           });
         } catch (error) {
           console.error('[useBotOpponent] ❌ Exception bot using boost:', error);
+          attackUsedForQuestion = false;
         }
       }
     };
 
-    // Проверяем каждые 12 секунд
-    boostCheckIntervalRef.current = setInterval(checkBoost, 12000);
+    // 🔥 CRITICAL FIX: Проверяем каждые 25 секунд (было 12)
+    boostCheckIntervalRef.current = setInterval(checkBoost, 25000);
 
-    // Первая проверка через 5 секунд после загрузки вопроса
-    const initialTimer = setTimeout(checkBoost, 5000);
+    // 🔥 CRITICAL FIX: Первая проверка через 15 секунд после загрузки вопроса (было 5)
+    const initialTimer = setTimeout(checkBoost, 15000);
 
     return () => {
       if (boostCheckIntervalRef.current) {
