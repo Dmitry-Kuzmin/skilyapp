@@ -50,14 +50,21 @@ export function initRollbar(): Rollbar | null {
           id: undefined, // Будет установлено позже через setPerson
         },
       },
-      // Игнорируем некоторые ошибки, которые не критичны
+      // Игнорируем некоторые ошибки, которые не критичны или вызваны блокировщиками рекламы
       ignoredMessages: [
         // Игнорируем ошибки из расширений браузера
         /Script error/i,
         /ResizeObserver loop/i,
-        // Игнорируем ошибки CORS (они нормальны для development)
+        // Игнорируем ошибки CORS и сетевые блокировки (AdBlock часто блокирует Rollbar)
         /Access to fetch/i,
+        /XMLHttpRequest cannot load/i,
+        /Failed to fetch/i,
+        /NetworkError/i,
+        /Aborted/i,
+        /access control checks/i,
       ],
+      // ВАЖНО: Не выводим логи в консоль если инициализация не удалась (тихий режим)
+      verbose: false,
     });
 
     console.log('[Rollbar] Initialized successfully');
