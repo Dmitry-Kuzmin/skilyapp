@@ -476,12 +476,18 @@
           }
 
           // 3. Красим UI (Chameleon Protocol)
+          // setHeaderColor и setBackgroundColor требуют v6.1+
           try {
-            if (typeof tg.setHeaderColor === 'function') {
-              tg.setHeaderColor('#09090b');
-            }
-            if (typeof tg.setBackgroundColor === 'function') {
-              tg.setBackgroundColor('#09090b');
+            const version = parseFloat(tg.version || '0');
+            if (version >= 6.1) {
+              if (typeof tg.setHeaderColor === 'function') {
+                tg.setHeaderColor('#09090b');
+              }
+              if (typeof tg.setBackgroundColor === 'function') {
+                tg.setBackgroundColor('#09090b');
+              }
+            } else {
+              if (window.location.hostname === 'localhost') console.debug('[TG] Colors skipped for v' + version);
             }
           } catch (e) {
             log('⚠️ Error setting colors', e);
@@ -587,8 +593,25 @@
 
       // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
       // Версия приложения - меняйте при каждом деплое
-      const APP_VERSION = '2025-12-19-v5';
+      const APP_VERSION = '2025-12-23-v1';
       const CACHE_KEY = 'skilyapp_version';
+
+      // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК: Перезагрузка при "Failed to fetch dynamically imported module"
+      window.addEventListener('error', function (e) {
+        if (e.message && (
+          e.message.indexOf('Importing a module script failed') !== -1 ||
+          e.message.indexOf('Failed to fetch dynamically imported module') !== -1
+        )) {
+          console.error('[CRITICAL] Module loading failed. Reloading page...', e);
+          // Делаем задержку перед перезагрузкой, чтобы не войти в бесконечный цикл
+          const lastReload = localStorage.getItem('last_module_reload');
+          const now = Date.now();
+          if (!lastReload || now - parseInt(lastReload) > 30000) {
+            localStorage.setItem('last_module_reload', now.toString());
+            window.location.reload();
+          }
+        }
+      }, true);
 
       // Проверяем версию в localStorage
       const storedVersion = localStorage.getItem(CACHE_KEY);

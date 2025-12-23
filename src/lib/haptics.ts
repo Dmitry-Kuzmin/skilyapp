@@ -8,9 +8,14 @@ class HapticManager {
   private enabled: boolean = true;
 
   constructor() {
-    // Enable haptics if in Telegram
+    // Enable haptics if in Telegram and version >= 6.1
     const tg = getTelegramWebApp();
-    this.enabled = !!tg;
+    const version = parseFloat(tg?.version || '0');
+    this.enabled = !!tg && version >= 6.1;
+
+    if (tg && version < 6.1) {
+      console.log(`[HapticManager] Haptic feedback disabled for version ${version} (requires 6.1+)`);
+    }
   }
 
   private trigger(type: HapticType) {
