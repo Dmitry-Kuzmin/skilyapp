@@ -52,7 +52,7 @@ const debugFetch = (data: any) => {
 };
 
 export default function Duel() {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     // 🔍 Debug logs for initialization
     useEffect(() => {
