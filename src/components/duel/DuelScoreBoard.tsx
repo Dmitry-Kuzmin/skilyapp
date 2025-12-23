@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Swords, Shield, Zap, Coins, Sparkles } from 'lucide-react';
+import { Trophy, Swords, Shield, Zap, Coins, Sparkles, Flame } from 'lucide-react';
 import { OpponentActivityIndicator } from './OpponentActivityIndicator';
 import { CompactConnectionStatusIndicator } from './CompactConnectionStatusIndicator';
 import { memo } from 'react';
@@ -8,14 +8,14 @@ import { cn } from '@/lib/utils';
 // Функция для генерации инициалов из имени
 const getInitials = (name: string): string => {
   if (!name || name.trim().length === 0) return '?';
-  
+
   // Очищаем имя от лишних символов и разбиваем на части
   // Обрабатываем пробелы, подчеркивания, дефисы как разделители
   const cleaned = name.trim().replace(/[_\-\s]+/g, ' ');
   const words = cleaned.split(/\s+/).filter(w => w.length > 0);
-  
+
   if (words.length === 0) return '?';
-  
+
   // Если одно слово - берем первые 2 символа (буквы приоритетнее)
   if (words.length === 1) {
     const word = words[0];
@@ -31,7 +31,7 @@ const getInitials = (name: string): string => {
     // Если букв нет - берем первые 2 символа
     return word.substring(0, 2).toUpperCase();
   }
-  
+
   // Если несколько слов - берем первые буквы каждого слова (максимум 2)
   const initials = words
     .slice(0, 2)
@@ -41,7 +41,7 @@ const getInitials = (name: string): string => {
       return firstLetter ? firstLetter[0].toUpperCase() : w[0].toUpperCase();
     })
     .join('');
-  
+
   return initials || '?';
 };
 
@@ -67,6 +67,7 @@ interface DuelScoreBoardProps {
   // 🆕 Пропсы для компактного индикатора статуса подключения
   opponentIsConnected?: boolean;
   opponentLastSeen?: Date | null;
+  combo?: number;
 }
 
 export const DuelScoreBoard = memo(({
@@ -87,6 +88,7 @@ export const DuelScoreBoard = memo(({
   isTelegramMobile,
   opponentIsConnected = true,
   opponentLastSeen = null,
+  combo = 0,
 }: DuelScoreBoardProps) => {
   return (
     <div className={cn(
@@ -123,6 +125,20 @@ export const DuelScoreBoard = memo(({
               <Shield className="w-3 h-3 text-green-600 dark:text-green-400" />
             </div>
           )}
+          {/* Иконка КОМБО поверх аватара */}
+          <AnimatePresence>
+            {combo > 1 && (
+              <motion.div
+                initial={{ scale: 0, rotate: -45 }}
+                animate={{ scale: 1, rotate: 0 }}
+                exit={{ scale: 0 }}
+                className="absolute -top-1 -right-1 z-20 flex items-center justify-center bg-gradient-to-br from-orange-500 to-red-600 rounded-full px-1.5 py-0.5 border border-white dark:border-slate-900 shadow-lg"
+              >
+                <Flame className="w-2.5 h-2.5 text-white animate-pulse" />
+                <span className="text-[10px] font-black text-white ml-0.5">x{combo}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 mb-0.5">

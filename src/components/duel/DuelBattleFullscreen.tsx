@@ -2656,41 +2656,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               isTelegramMobile={isTelegramMobile}
               opponentIsConnected={opponentIsConnected}
               opponentLastSeen={opponentLastSeen}
+              combo={combo}
             />
           </div>
 
           {/* Right Side - Boosts & Combo */}
           <div className={`flex items-center gap-1.5 flex-wrap ${isTelegramMobile ? 'w-full justify-center mt-1' : ''}`}>
-            {/* Combo */}
-            <AnimatePresence>
-              {combo > 1 && (
-                <motion.div
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  exit={{ scale: 0, rotate: 180 }}
-                  className="relative"
-                >
-                  <Badge className="gradient-fire border-none text-white px-2 py-1 text-sm font-bold shadow-lg shadow-orange-500/50">
-                    <Flame className="w-3 h-3 mr-1 animate-pulse" />
-                    x{combo}
-                  </Badge>
-                  {/* Fire particles effect */}
-                  <motion.div
-                    className="absolute -top-1 -right-1 w-2 h-2 bg-orange-400 rounded-full"
-                    animate={{
-                      scale: [1, 1.5, 0],
-                      opacity: [1, 0.5, 0],
-                    }}
-                    transition={{
-                      duration: 1,
-                      repeat: Infinity,
-                      repeatDelay: 0.5,
-                    }}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             {/* Boosts - Premium Compact Design - Всегда видимы */}
             {(() => {
               const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
