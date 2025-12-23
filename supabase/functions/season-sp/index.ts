@@ -18,12 +18,12 @@ const SP_RULES: Record<string, number> = {
   challenge_reward: 0, // Награда будет передана в metadata
 };
 
-// Без ставки - 0 SP (или минимум 10 SP для мотивации)
-const BASE_WIN_NO_BET_SP = 0; // Изменено: без ставки нет SP бонуса
-const BASE_LOSE_SP = 0; // Изменено: проигравший не получает SP (или только при ставке >= 100)
-const DRAW_SP = 0; // Изменено: ничья без ставки - 0 SP
+// Без ставки - минимальные SP для мотивации
+const BASE_WIN_NO_BET_SP = 15; // Раньше было 0
+const BASE_LOSE_SP = 5; // Раньше было 0
+const DRAW_SP = 7; // Раньше было 0
 const MIN_BET_FOR_LOSE_SP = 100; // Минимальная ставка для утешительных SP
-const LOSE_SP_WITH_BET = 5; // Утешительные SP только при ставке >= 100
+const LOSE_SP_WITH_BET = 10; // Утешительные SP при ставке >= 100
 
 const riskMultiplierForBet = (betAmount: number) => {
   if (!betAmount || betAmount <= 0) return 1;
@@ -62,13 +62,13 @@ serve(async (req) => {
     const isDuelWin = source_type === 'duel_win';
     const isDuelLose = source_type === 'duel_lose';
     const isDuelDraw = source_type === 'duel_draw';
-    
+
     if (isDuelWin || isDuelLose || isDuelDraw) {
       const duelId = metadata?.duel_id;
       if (!duelId) {
         console.warn("[season-sp] duel_id missing in metadata, falling back to base rewards");
       }
-      
+
       let betAmount = 0;
       if (duelId) {
         const { data: duelData, error: duelError } = await supabase
@@ -76,13 +76,13 @@ serve(async (req) => {
           .select("id, bet_amount")
           .eq("id", duelId)
           .maybeSingle();
-        
+
         if (duelData && !duelError) {
           betAmount = duelData.bet_amount || 0;
         }
       }
       const hasBet = betAmount > 0;
-      
+
       if (isDuelDraw) {
         // Ничья: SP только при ставке
         spGain = hasBet ? 15 : DRAW_SP;
@@ -94,12 +94,12 @@ serve(async (req) => {
         spGain = (hasBet && betAmount >= MIN_BET_FOR_LOSE_SP) ? LOSE_SP_WITH_BET : BASE_LOSE_SP;
       }
     }
-    
+
     // Для challenge_reward берем SP из metadata
     if (source_type === 'challenge_reward' && metadata?.sp_earned) {
       spGain = metadata.sp_earned;
     }
-    
+
     // Проверка: 0 SP это валидное значение (без ставки)
     if (spGain === undefined || spGain < 0) {
       return new Response(
@@ -107,29 +107,29 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-    
+
     // Soft-cap SP в сутки для дуэлей (3500 SP max)
     const DUEL_SP_DAILY_CAP = 3500;
     if (isDuelWin || isDuelLose || isDuelDraw) {
       const now = new Date();
       const todayStart = new Date(now);
       todayStart.setHours(0, 0, 0, 0);
-      
+
       // Подсчитываем SP полученные сегодня из дуэлей через duel_bet_history
       const { data: todayBets } = await supabase
         .from('duel_bet_history')
         .select('season_sp_host, season_sp_opponent, host_user, opponent_user')
         .or(`host_user.eq.${user_id},opponent_user.eq.${user_id}`)
         .gte('created_at', todayStart.toISOString());
-      
+
       let todaySPFromDuels = 0;
       if (todayBets) {
         todaySPFromDuels = todayBets.reduce((sum, bet) => {
           return sum + (bet.host_user === user_id ? (bet.season_sp_host || 0) : 0) +
-                       (bet.opponent_user === user_id ? (bet.season_sp_opponent || 0) : 0);
+            (bet.opponent_user === user_id ? (bet.season_sp_opponent || 0) : 0);
         }, 0);
       }
-      
+
       // Если достигнут лимит, не начисляем SP
       if (todaySPFromDuels >= DUEL_SP_DAILY_CAP) {
         console.log(`[season-sp] Daily SP cap reached (${todaySPFromDuels}/${DUEL_SP_DAILY_CAP}), skipping SP gain`);
@@ -195,7 +195,7 @@ serve(async (req) => {
 
     const hasPremiumPass = seasonProgress?.premium_pass_purchased || false;
     let spMultiplier = (isPremium || hasPremiumPass) ? 1.2 : 1.0; // +20% для Premium
-    
+
     // Проверяем активный Double SP boost
     const { data: activeBoost } = await supabase
       .from("active_boosts")
@@ -206,13 +206,13 @@ serve(async (req) => {
       .order("expires_at", { ascending: false })
       .limit(1)
       .maybeSingle();
-    
+
     if (activeBoost && activeBoost.effect_multiplier) {
       // Применяем множитель Double SP (например, x2)
       spMultiplier *= parseFloat(activeBoost.effect_multiplier.toString());
       console.log(`[season-sp] Double SP boost active: ${activeBoost.effect_multiplier}x multiplier`);
     }
-    
+
     const finalSPGain = Math.round(spGain * spMultiplier);
 
     const newSP = currentSP + finalSPGain;
