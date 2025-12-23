@@ -1071,6 +1071,20 @@ async function createNotification(body: any, profileId: string, supabase: any): 
 
     console.log('[create_notification] Final notification:', { title: finalTitle, message: finalMessage, icon: finalIcon });
 
+    // 🔥 CRITICAL FIX: Если opponentId null (бот) — пропускаем создание уведомления
+    // Боты не читают уведомления, а вставка с null user_id вызывает constraint violation
+    if (!opponentId) {
+      console.log('[create_notification] ⏭️ Skipping notification insert - opponent is a bot (no user_id)');
+      return new Response(JSON.stringify({
+        success: true,
+        skipped: true,
+        reason: 'Bot opponent - no notification needed'
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // Create notification
     console.log('[create_notification] Inserting notification:', {
       user_id: opponentId,
