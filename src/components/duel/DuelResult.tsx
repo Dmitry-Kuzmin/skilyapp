@@ -400,94 +400,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
   }
 
   return (
-    <div className="fixed inset-0 bg-background overflow-y-auto overflow-x-hidden pt-safe z-40 relative">
-      {/* Ambient Background Orbs - Premium Depth Effect */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        {results.isWinner && (
-          <>
-            <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.4, 0.5, 0.4],
-                x: [0, 50, 0],
-                y: [0, -30, 0],
-              }}
-              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/40 rounded-full blur-[120px]"
-            />
-            <motion.div
-              animate={{
-                scale: [1, 1.3, 1],
-                opacity: [0.3, 0.45, 0.3],
-                x: [0, -40, 0],
-                y: [0, 40, 0],
-              }}
-              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-500/40 rounded-full blur-[120px]"
-            />
-            <motion.div
-              animate={{
-                scale: [1, 1.15, 1],
-                opacity: [0.25, 0.35, 0.25],
-                x: [0, 30, 0],
-                y: [0, -50, 0],
-              }}
-              transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-              className="absolute top-1/2 right-1/3 w-80 h-80 bg-violet-500/30 rounded-full blur-[120px]"
-            />
-          </>
-        )}
-        {!results.isWinner && !results.isDraw && (
-          <>
-            <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0.4, 0.3],
-                x: [0, 50, 0],
-                y: [0, -30, 0],
-              }}
-              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-1/4 left-1/4 w-96 h-96 bg-red-500/30 rounded-full blur-[120px]"
-            />
-            <motion.div
-              animate={{
-                scale: [1, 1.3, 1],
-                opacity: [0.2, 0.35, 0.2],
-                x: [0, -40, 0],
-                y: [0, 40, 0],
-              }}
-              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-orange-500/25 rounded-full blur-[120px]"
-            />
-          </>
-        )}
-        {results.isDraw && (
-          <>
-            <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0.4, 0.3],
-                x: [0, 50, 0],
-                y: [0, -30, 0],
-              }}
-              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/30 rounded-full blur-[120px]"
-            />
-            <motion.div
-              animate={{
-                scale: [1, 1.3, 1],
-                opacity: [0.25, 0.35, 0.25],
-                x: [0, -40, 0],
-                y: [0, 40, 0],
-              }}
-              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-500/25 rounded-full blur-[120px]"
-            />
-          </>
-        )}
-      </div>
+    <div className="relative w-full z-10 bg-background overflow-x-hidden pt-0 pb-24">
 
-      <div className="min-h-screen w-full max-w-2xl mx-auto px-4 py-8 pb-24 space-y-6 relative z-10">
+      <div className="w-full max-w-2xl mx-auto px-4 py-4 space-y-6 relative z-10">
         <AnimatePresence>
           {results.isWinner && (
             <Confetti
@@ -507,7 +422,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
           initial={{ scale: 0.5, opacity: 0, y: -50 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           transition={{ type: "spring", duration: 0.7, bounce: 0.4 }}
-          className="text-center space-y-6 relative pt-8 md:pt-12"
+          className="text-center space-y-4 relative pt-0"
         >
           {/* Animated Trophy/Icon - Classic Bounce Animation Only */}
           <motion.div
@@ -538,8 +453,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                     opacity: [0.5, 0.7, 0.5],
                   }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 dark:from-yellow-400 dark:via-orange-500 dark:to-yellow-400 rounded-full blur-[120px]"
-                  style={{ width: '200%', height: '200%', left: '-50%', top: '-50%' }}
+                  className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 rounded-full blur-[40px] opacity-60"
+                  style={{ width: '140%', height: '140%', left: '-20%', top: '-20%' }}
                 />
                 {/* Secondary Glow - улучшено для светлой темы */}
                 <motion.div
