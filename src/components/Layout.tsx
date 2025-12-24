@@ -489,8 +489,8 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
         {children}
       </main>
 
-      {/* Footer */}
-      <Footer />
+      {/* Footer - Скрываем в полноэкранных режимах (тесты, игры) */}
+      {!hideNavigation && !isFullscreenMode && <Footer />}
 
       {/* Bottom Navigation for Mobile and Telegram - Скрыт в fullscreen режимах (тесты, игры) или при hideNavigation */}
       {

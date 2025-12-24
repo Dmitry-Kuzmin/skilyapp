@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  ArrowLeft, 
-  Check, 
-  X, 
-  Trophy, 
-  CreditCard, 
-  Settings, 
-  Play, 
+import {
+  ArrowLeft,
+  Check,
+  X,
+  Trophy,
+  CreditCard,
+  Settings,
+  Play,
   RotateCcw,
   Volume2,
   Image as ImageIcon,
@@ -79,9 +79,9 @@ interface GameStats {
 
 const FlashCardsGame = () => {
   const navigate = useNavigate();
-  
+
   const { profileId } = useUserContext();
-  
+
   // Состояния
   const [terms, setTerms] = useState<LanguageTerm[]>([]);
   const [userProgress, setUserProgress] = useState<Map<string, { mastery_level: number; times_practiced: number }>>(new Map());
@@ -92,7 +92,7 @@ const FlashCardsGame = () => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [showSettings, setShowSettings] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
-  
+
   // Настройки игры
   const [settings, setSettings] = useState<GameSettings>({
     cardCount: 20,
@@ -105,7 +105,7 @@ const FlashCardsGame = () => {
     autoFlip: false,
     autoFlipDelay: 3,
   });
-  
+
   // Статистика
   const [stats, setStats] = useState<GameStats>({
     currentCard: 0,
@@ -116,11 +116,11 @@ const FlashCardsGame = () => {
     startTime: 0,
     totalTime: 0,
   });
-  
+
   // Ответы пользователя
   const [userAnswers, setUserAnswers] = useState<Map<number, 'correct' | 'incorrect'>>(new Map());
   const [isAnswering, setIsAnswering] = useState(false);
-  
+
   // Refs
   const autoFlipTimerRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -137,7 +137,7 @@ const FlashCardsGame = () => {
       autoFlipTimerRef.current = setTimeout(() => {
         handleNextCard();
       }, settings.autoFlipDelay * 1000);
-      
+
       return () => {
         if (autoFlipTimerRef.current) {
           clearTimeout(autoFlipTimerRef.current);
@@ -167,20 +167,12 @@ const FlashCardsGame = () => {
         .select("id, term_es, term_ru, description_es, description_ru, difficulty, image_url, audio_url");
 
       if (termsError) {
-        toast({
-          title: "Ошибка",
-          description: `Не удалось загрузить термины: ${termsError.message}`,
-          variant: "destructive",
-        });
+        toast.error(`Не удалось загрузить термины: ${termsError.message}`);
         return;
       }
 
       if (!termsData || termsData.length === 0) {
-        toast({
-          title: "Нет данных",
-          description: "Не найдено терминов по выбранным фильтрам",
-          variant: "destructive",
-        });
+        toast.error("Не найдено терминов по выбранным фильтрам");
         return;
       }
 
@@ -202,11 +194,7 @@ const FlashCardsGame = () => {
       }
     } catch (err: any) {
       console.error("Error loading terms:", err);
-      toast({
-        title: "Ошибка",
-        description: `Произошла ошибка: ${err?.message || "Неизвестная ошибка"}`,
-        variant: "destructive",
-      });
+      toast.error(`Произошла ошибка: ${err?.message || "Неизвестная ошибка"}`);
     }
   };
 
@@ -234,19 +222,19 @@ const FlashCardsGame = () => {
 
     // Выбираем карточки с приоритетом
     const selected: LanguageTerm[] = [];
-    
+
     // 50% приоритетных терминов
     const priorityCount = Math.min(Math.floor(count * 0.5), priorityTerms.length);
     selected.push(...shuffleArray(priorityTerms).slice(0, priorityCount));
-    
+
     // 30% средних терминов
     const mediumCount = Math.min(Math.floor(count * 0.3), mediumTerms.length);
     selected.push(...shuffleArray(mediumTerms).slice(0, mediumCount));
-    
+
     // 20% хорошо изученных (для повторения)
     const lowCount = Math.min(count - selected.length, lowTerms.length);
     selected.push(...shuffleArray(lowTerms).slice(0, lowCount));
-    
+
     // Если не хватило, добавляем случайные
     if (selected.length < count) {
       const remaining = shuffleArray(terms.filter(t => !selected.includes(t))).slice(0, count - selected.length);
@@ -267,11 +255,7 @@ const FlashCardsGame = () => {
 
   const startGame = () => {
     if (terms.length === 0) {
-      toast({
-        title: "Ошибка",
-        description: "Загрузите термины перед началом игры",
-        variant: "destructive",
-      });
+      toast.error("Загрузите термины перед началом игры");
       return;
     }
 
@@ -316,7 +300,7 @@ const FlashCardsGame = () => {
     // Создаем карточки
     const newCards: FlashCard[] = selectedTerms.map(term => {
       const progress = userProgress.get(term.id);
-      const direction = settings.direction === 'mixed' 
+      const direction = settings.direction === 'mixed'
         ? (Math.random() > 0.5 ? 'es-ru' : 'ru-es')
         : settings.direction;
 
@@ -331,13 +315,9 @@ const FlashCardsGame = () => {
 
     // Перемешиваем карточки
     const shuffled = shuffleArray(newCards);
-    
+
     if (shuffled.length === 0) {
-      toast({
-        title: "Ошибка",
-        description: "Не удалось подготовить карточки. Попробуйте изменить фильтры.",
-        variant: "destructive",
-      });
+      toast.error("Не удалось подготовить карточки. Попробуйте изменить фильтры.");
       return;
     }
 
@@ -369,13 +349,13 @@ const FlashCardsGame = () => {
 
   const handleAnswer = async (isCorrect: boolean) => {
     if (isAnswering || currentCardIndex >= cards.length) return;
-    
+
     setIsAnswering(true);
     const currentCard = cards[currentCardIndex];
-    
+
     // Сохраняем ответ
     setUserAnswers(prev => new Map(prev).set(currentCardIndex, isCorrect ? 'correct' : 'incorrect'));
-    
+
     // Обновляем статистику
     setStats(prev => {
       const newStreak = isCorrect ? prev.streak + 1 : 0;
@@ -426,7 +406,7 @@ const FlashCardsGame = () => {
   const endGame = async () => {
     setIsGameActive(false);
     setIsGameOver(true);
-    
+
     // Используем функциональное обновление для получения актуальных значений
     setStats(prev => {
       const totalTime = Math.floor((Date.now() - prev.startTime) / 1000);
@@ -451,7 +431,7 @@ const FlashCardsGame = () => {
           total_questions: cards.length,
           duration_seconds: totalTime,
         };
-        
+
         supabase.from("game_sessions").insert(sessionData).then(({ error }) => {
           if (error) {
             console.error("Failed to save game session:", error);
@@ -482,15 +462,15 @@ const FlashCardsGame = () => {
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (!swipeStartRef.current) return;
-    
+
     const swipeEnd = {
       x: e.changedTouches[0].clientX,
       y: e.changedTouches[0].clientY,
     };
-    
+
     const deltaX = swipeEnd.x - swipeStartRef.current.x;
     const deltaY = swipeEnd.y - swipeStartRef.current.y;
-    
+
     // Горизонтальный свайп для переворота
     if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
       if (deltaX > 0) {
@@ -498,7 +478,7 @@ const FlashCardsGame = () => {
         flipCard();
       }
     }
-    
+
     swipeStartRef.current = null;
   };
 
@@ -630,7 +610,7 @@ const FlashCardsGame = () => {
                   <Label>Направление перевода</Label>
                   <Select
                     value={settings.direction}
-                    onValueChange={(value: 'es-ru' | 'ru-es' | 'mixed') => 
+                    onValueChange={(value: 'es-ru' | 'ru-es' | 'mixed') =>
                       setSettings(prev => ({ ...prev, direction: value }))
                     }
                   >
@@ -650,7 +630,7 @@ const FlashCardsGame = () => {
                   <Label>Сложность</Label>
                   <Select
                     value={settings.difficulty}
-                    onValueChange={(value: 'all' | 'Лёгкая' | 'Средняя' | 'Сложная') => 
+                    onValueChange={(value: 'all' | 'Лёгкая' | 'Средняя' | 'Сложная') =>
                       setSettings(prev => ({ ...prev, difficulty: value }))
                     }
                   >
@@ -672,7 +652,7 @@ const FlashCardsGame = () => {
                     <Label>Фильтр по прогрессу</Label>
                     <Select
                       value={settings.progressFilter}
-                      onValueChange={(value: 'all' | 'new' | 'in-progress' | 'studied') => 
+                      onValueChange={(value: 'all' | 'new' | 'in-progress' | 'studied') =>
                         setSettings(prev => ({ ...prev, progressFilter: value }))
                       }
                     >
@@ -757,9 +737,9 @@ const FlashCardsGame = () => {
                 </div>
               </div>
 
-              <Button 
-                onClick={startGame} 
-                className="w-full" 
+              <Button
+                onClick={startGame}
+                className="w-full"
                 size="lg"
                 disabled={terms.length === 0}
               >
@@ -841,14 +821,14 @@ const FlashCardsGame = () => {
                         />
                       </div>
                     )}
-                    
+
                     <div className="space-y-4">
                       <Badge variant="outline" className="text-xs">
                         {currentCard.direction === 'es-ru' ? 'Испанский' : 'Русский'}
                       </Badge>
                       <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold break-words">
-                        {currentCard.direction === 'es-ru' 
-                          ? currentCard.term.term_es 
+                        {currentCard.direction === 'es-ru'
+                          ? currentCard.term.term_es
                           : currentCard.term.term_ru}
                       </h2>
                     </div>
@@ -875,7 +855,7 @@ const FlashCardsGame = () => {
                   {/* Обратная сторона */}
                   <div
                     className="absolute inset-0 w-full h-full backface-hidden p-8 flex flex-col items-center justify-center text-center space-y-6"
-                    style={{ 
+                    style={{
                       backfaceVisibility: "hidden",
                       transform: "rotateY(180deg)"
                     }}
@@ -885,8 +865,8 @@ const FlashCardsGame = () => {
                         {currentCard.direction === 'es-ru' ? 'Русский' : 'Испанский'}
                       </Badge>
                       <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold break-words">
-                        {currentCard.direction === 'es-ru' 
-                          ? currentCard.term.term_ru 
+                        {currentCard.direction === 'es-ru'
+                          ? currentCard.term.term_ru
                           : currentCard.term.term_es}
                       </h2>
 

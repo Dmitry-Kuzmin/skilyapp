@@ -16,9 +16,9 @@ interface QuestionTextProps {
 }
 
 const fontSizeClasses = {
-  0: 'text-base sm:text-lg',
-  1: 'text-lg sm:text-xl md:text-2xl',
-  2: 'text-xl sm:text-2xl md:text-3xl',
+  0: 'text-lg sm:text-xl',
+  1: 'text-xl sm:text-2xl md:text-3xl',
+  2: 'text-2xl sm:text-3xl md:text-4xl',
 };
 
 export function QuestionText({
@@ -33,7 +33,7 @@ export function QuestionText({
   return (
     <div className={cn("relative", className)}>
       <div className="relative p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
-        <h2 
+        <h2
           className={cn(
             fontSizeClasses[fontSize as keyof typeof fontSizeClasses] || fontSizeClasses[1],
             "font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300",
@@ -43,7 +43,7 @@ export function QuestionText({
         >
           {text}
         </h2>
-        
+
         {/* Кнопка перевода (если нужна) */}
         {onToggleTranslation && (
           <button

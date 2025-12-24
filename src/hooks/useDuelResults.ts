@@ -165,8 +165,10 @@ export function useDuelResults(duelId: string, profileId: string | null, initial
                 opponentScore: opponentPlayer.score || 0,
                 myCorrect: myPlayer.correct_count || 0,
                 opponentCorrect: opponentPlayer.correct_count || 0,
-                opponentName: opponentProfile?.username || opponentProfile?.first_name || opponentPlayer?.name || "Соперник",
-                opponentAvatar: opponentProfile?.photo_url || null,
+                opponentName: opponentPlayer?.is_bot
+                  ? (opponentPlayer?.bot_name || opponentPlayer?.name || "Соперник")
+                  : (opponentProfile?.username || opponentProfile?.first_name || opponentPlayer?.name || "Соперник"),
+                opponentAvatar: opponentPlayer?.is_bot ? null : (opponentProfile?.photo_url || null),
                 betAmount: duelData.bet_amount || 0,
                 winnings,
                 insuranceRefund,
@@ -221,8 +223,10 @@ export function useDuelResults(duelId: string, profileId: string | null, initial
           opponentScore: opponentPlayer.score || 0,
           myCorrect: myPlayer.correct_count || 0,
           opponentCorrect: opponentPlayer.correct_count || 0,
-          opponentName: opponentPlayer.profiles?.username || opponentPlayer.profiles?.first_name || opponentPlayer?.name || "Соперник",
-          opponentAvatar: opponentPlayer.profiles?.photo_url || null,
+          opponentName: opponentPlayer?.is_bot
+            ? (opponentPlayer?.bot_name || opponentPlayer?.name || "Соперник")
+            : (opponentPlayer.profiles?.username || opponentPlayer.profiles?.first_name || opponentPlayer?.name || "Соперник"),
+          opponentAvatar: opponentPlayer?.is_bot ? null : (opponentPlayer.profiles?.photo_url || null),
           betAmount: duelData.bet_amount || 0,
           winnings: isWinner ? (duelData.bet_amount * 2) : (isDraw ? duelData.bet_amount : 0),
           insuranceRefund: (!isWinner && !isDraw && duelData.insurance_used) ? Math.floor(duelData.bet_amount * 0.5) : 0,

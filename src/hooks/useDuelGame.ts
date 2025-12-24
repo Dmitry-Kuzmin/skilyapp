@@ -495,11 +495,11 @@ export function useDuelGame({
         finishDuel(true);
       } else {
         // Normal transition to next question
-        log('[useDuelGame] Transitioning to next question in 1500ms');
+        log('[useDuelGame] Transitioning to next question in 1000ms');
         setTimeout(() => {
           log('[useDuelGame] Executing transition to next question');
           moveToNextQuestion();
-        }, 1500);
+        }, 1000);
       }
     } catch (error) {
       logError('[useDuelGame] Error submitting answer:', error);
@@ -510,7 +510,7 @@ export function useDuelGame({
         } else {
           finishDuel(true);
         }
-      }, 1500);
+      }, 1000);
     }
   }, [
     isAnswered,

@@ -23,21 +23,26 @@ const Toaster = ({ ...props }: ToasterProps) => {
       className="toaster group"
       position={isTelegram ? "top-center" : "top-right"}
       richColors
+      expand={true}
       // Важно: z-index должен быть МАКСИМАЛЬНЫМ (таким же как у модалок проекта)
       containerAriaLabel="Уведомления"
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-zinc-900 group-[.toaster]:text-zinc-200 group-[.toaster]:border-zinc-800 group-[.toaster]:border-white/10 group-[.toaster]:shadow-lg font-medium rounded-xl group-[.toaster]:z-[2147483647]",
-          description: "group-[.toast]:text-zinc-400",
-          actionButton: "group-[.toast]:bg-white group-[.toast]:text-black group-[.toast]:hover:shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]",
-          cancelButton: "group-[.toast]:bg-zinc-800 group-[.toast]:text-zinc-300",
+            "group toast group-[.toaster]:bg-zinc-950/80 group-[.toaster]:backdrop-blur-xl group-[.toaster]:text-zinc-200 group-[.toaster]:border-white/10 group-[.toaster]:shadow-2xl font-medium rounded-2xl group-[.toaster]:z-[2147483647] group-[.toaster]:ring-1 group-[.toaster]:ring-white/5",
+          description: "group-[.toast]:text-zinc-400 group-[.toast]:text-xs",
+          actionButton: "group-[.toast]:bg-white group-[.toast]:text-black group-[.toast]:rounded-lg group-[.toast]:hover:bg-zinc-200 transition-colors",
+          cancelButton: "group-[.toast]:bg-zinc-800 group-[.toast]:text-zinc-300 group-[.toast]:rounded-lg",
         },
       }}
       style={{
         top: `${topOffset}px`,
+        // Если в Telegram, центрируем через transform, иначе отступ справа
+        left: isTelegram ? '50%' : 'auto',
         right: isTelegram ? 'auto' : `${safeArea.right + 16}px`,
-        zIndex: 2147483647, // Поверх модалок
+        transform: isTelegram ? 'translateX(-50%)' : 'none',
+        zIndex: 2147483647,
+        position: 'fixed',
       }}
       {...props}
     />

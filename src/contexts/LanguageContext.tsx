@@ -361,6 +361,17 @@ const translations: Record<Language, Record<string, any>> = {
       copyright: "© 2025 Sdadim. Todos los derechos reservados.",
       rightsReserved: "Todos los derechos reservados",
     },
+    // Legal Hub
+    legal: {
+      title: "Información legal",
+      subtitle: "Documentos y políticas",
+      tabs: {
+        terms: "Términos",
+        privacy: "Privacidad",
+        subscription: "Suscripción",
+        refund: "Reembolsos",
+      },
+    },
     boostShop: {
       title: "Tienda",
       subtitle: "Impulsos, monedas y Premium",
@@ -1300,6 +1311,17 @@ const translations: Record<Language, Record<string, any>> = {
       copyright: "© 2025 Sdadim. All rights reserved.",
       rightsReserved: "All rights reserved",
     },
+    // Legal Hub
+    legal: {
+      title: "Legal Information",
+      subtitle: "Documents and policies",
+      tabs: {
+        terms: "Terms",
+        privacy: "Privacy",
+        subscription: "Subscription",
+        refund: "Refunds",
+      },
+    },
     boostShop: {
       title: "Shop",
       subtitle: "Boosts, coins & Premium",
@@ -2086,9 +2108,10 @@ const translations: Record<Language, Record<string, any>> = {
     // Skily AI Assistant
     lumiGreeting: "Привет! Я Skily 💡",
     lumiWelcome: "Нужна подсказка или быстрое объяснение? Просто нажми кнопку или задай свой вопрос, и я помогу на месте. Готов, когда ты готов!",
-    lumiHintButton: "Дай мне подсказку",
-    lumiHelpButton: "Помоги понять это",
+    lumiHintButton: "Дай подсказку",
+    lumiHelpButton: "Объясни правило",
     lumiPlaceholder: "Задай свой вопрос здесь...",
+    streakCounter: "Серия побед",
     skilyChat: {
       title: "AI Помощник",
       subtitle: "Интеллектуальный ассистент",
@@ -2220,6 +2243,17 @@ const translations: Record<Language, Record<string, any>> = {
       supportEmail: "support@skilyapp.com",
       copyright: "© 2025 Sdadim. Все права защищены.",
       rightsReserved: "Все права защищены",
+    },
+    // Legal Hub
+    legal: {
+      title: "Правовая информация",
+      subtitle: "Документы и политики",
+      tabs: {
+        terms: "Оферта",
+        privacy: "Приватность",
+        subscription: "Подписка",
+        refund: "Возврат",
+      },
     },
     boostShop: {
       title: "Магазин",

@@ -3,9 +3,11 @@
  */
 
 import React from 'react';
-import { ExternalLink, MessageSquare, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ExternalLink, MessageSquare, ChevronRight, BookOpen, Users, Building, Coins, FileText } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { triggerHaptic } from '@/lib/haptics';
+import { useSettingsStore } from '@/store/settingsStore';
 
 const SectionTitle: React.FC<{ title: string }> = ({ title }) => (
     <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
@@ -47,19 +49,68 @@ const SettingRow: React.FC<{
 );
 
 export const AboutTab: React.FC = () => {
+    const navigate = useNavigate();
+    const { closeSettings } = useSettingsStore();
+
+    const handleNavigate = (path: string) => {
+        closeSettings();
+        navigate(path);
+    };
+
     return (
         <div className="space-y-6">
-            {/* Версия */}
+            {/* Ресурсы (бывшее меню футера) */}
             <div>
-                <SectionTitle title="Приложение" />
+                <SectionTitle title="Меню" />
                 <div className="space-y-1">
-                    <SettingRow label="Версия" description="1.0.0-beta">
-                        <span className="text-xs text-slate-400">22.12.2025</span>
+                    <SettingRow
+                        icon={<BookOpen className="w-4 h-4 text-purple-500" />}
+                        label="Блог"
+                        description="Новости и статьи"
+                        onClick={() => handleNavigate('/blog')}
+                    >
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
                     </SettingRow>
-                    <SettingRow label="Окружение">
-                        <span className="text-xs px-2 py-1 rounded bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
-                            Production
-                        </span>
+                    <SettingRow
+                        icon={<Users className="w-4 h-4 text-blue-500" />}
+                        label="Партнеры"
+                        description="Стать партнером"
+                        onClick={() => handleNavigate('/partners')}
+                    >
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                    </SettingRow>
+                    <SettingRow
+                        icon={<Building className="w-4 h-4 text-emerald-500" />}
+                        label="О нас"
+                        description="Наша миссия"
+                        onClick={() => handleNavigate('/about')}
+                    >
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                    </SettingRow>
+                    <SettingRow
+                        icon={<Coins className="w-4 h-4 text-amber-500" />}
+                        label="Цены"
+                        description="Тарифы и планы"
+                        onClick={() => handleNavigate('/pricing')}
+                    >
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                    </SettingRow>
+                </div>
+            </div>
+
+            <Separator className="bg-slate-200 dark:bg-slate-700" />
+
+            {/* Юридическая информация */}
+            <div>
+                <SectionTitle title="Правовая информация" />
+                <div className="space-y-1">
+                    <SettingRow
+                        icon={<FileText className="w-4 h-4 text-slate-400" />}
+                        label="Документы"
+                        description="Оферта, Приватность, Возврат"
+                        onClick={() => handleNavigate('/legal')}
+                    >
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
                     </SettingRow>
                 </div>
             </div>
@@ -73,7 +124,7 @@ export const AboutTab: React.FC = () => {
                     <SettingRow
                         icon={<ExternalLink className="w-4 h-4 text-slate-400" />}
                         label="Центр помощи"
-                        onClick={() => window.open('/help', '_blank')}
+                        onClick={() => handleNavigate('/help')}
                     >
                         <ChevronRight className="w-4 h-4 text-slate-400" />
                     </SettingRow>
@@ -83,6 +134,18 @@ export const AboutTab: React.FC = () => {
                         onClick={() => window.open('https://t.me/skilyapp_bot', '_blank')}
                     >
                         <ChevronRight className="w-4 h-4 text-slate-400" />
+                    </SettingRow>
+                </div>
+            </div>
+
+            <Separator className="bg-slate-200 dark:bg-slate-700" />
+
+            {/* Версия */}
+            <div>
+                <SectionTitle title="Приложение" />
+                <div className="space-y-1">
+                    <SettingRow label="Версия" description="1.0.0-beta">
+                        <span className="text-xs text-slate-400">22.12.2025</span>
                     </SettingRow>
                 </div>
             </div>

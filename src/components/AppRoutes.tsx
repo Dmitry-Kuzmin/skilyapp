@@ -4,7 +4,7 @@
  */
 
 import { lazy, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { PageLoader } from "@/components/PageLoader";
 import { PageSkeleton } from "@/components/PageSkeleton";
 
@@ -86,17 +86,13 @@ const Dictionary = lazy(() => import("../pages/Dictionary"));
 const DataImport = lazy(() => import("../pages/DataImport"));
 const DailyBonus = lazy(() => import("../pages/DailyBonus"));
 const DGTTestsSimple = lazy(() => import("../pages/DGTTestsSimple"));
-const Terms = lazy(() => import("../pages/Terms"));
-const Privacy = lazy(() => import("../pages/Privacy"));
-const SubscriptionTerms = lazy(() => import("../pages/SubscriptionTerms"));
+// Terms, Privacy, SubscriptionTerms, RefundPolicy moved to Legal.tsx or redirects
 const About = lazy(() => import("../pages/About"));
 const Pricing = lazy(() => import("../pages/Pricing"));
-const RefundPolicy = lazy(() =>
-  import("../pages/RefundPolicy").catch((error) => {
-    console.error("[AppRoutes] Failed to load RefundPolicy module:", error);
-    return { default: () => <PageLoader /> };
-  })
-);
+// RefundPolicy logic deprecated in favor of Legal Hub redirects
+// const RefundPolicy = ... (removed)
+const Legal = lazy(() => import("../pages/Legal"));
+const LegalRedirect = lazy(() => import("../pages/Legal").then(m => ({ default: m.LegalRedirect })));
 const HelpCenter = lazy(() => import("../pages/HelpCenter"));
 const HandbookRussia = lazy(() => import("../pages/RussiaHandbook"));
 const HandbookRussiaArticle = lazy(() => import("../pages/RussiaHandbookArticle"));
@@ -370,21 +366,22 @@ export function AppRoutes() {
           <TestSession />
         </Suspense>
       } />
-      <Route path="/terms" element={
+      {/* Legal Hub с вложенными роутами */}
+      <Route path="/legal" element={
         <Suspense fallback={<PageSkeleton />}>
-          <Terms />
+          <LegalRedirect />
         </Suspense>
       } />
-      <Route path="/privacy" element={
+      <Route path="/legal/:tab" element={
         <Suspense fallback={<PageSkeleton />}>
-          <Privacy />
+          <Legal />
         </Suspense>
       } />
-      <Route path="/subscription-terms" element={
-        <Suspense fallback={<PageSkeleton />}>
-          <SubscriptionTerms />
-        </Suspense>
-      } />
+      {/* Redirects for legacy legal routes */}
+      <Route path="/terms" element={<Navigate to="/legal/terms" replace />} />
+      <Route path="/privacy" element={<Navigate to="/legal/privacy" replace />} />
+      <Route path="/subscription-terms" element={<Navigate to="/legal/subscription" replace />} />
+      <Route path="/refund-policy" element={<Navigate to="/legal/refund" replace />} />
       <Route path="/about" element={
         <Suspense fallback={<PageSkeleton />}>
           <About />
@@ -393,11 +390,6 @@ export function AppRoutes() {
       <Route path="/pricing" element={
         <Suspense fallback={<PageSkeleton />}>
           <Pricing />
-        </Suspense>
-      } />
-      <Route path="/refund-policy" element={
-        <Suspense fallback={<PageSkeleton />}>
-          <RefundPolicy />
         </Suspense>
       } />
       <Route path="/help" element={

@@ -1,7 +1,11 @@
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export default function SubscriptionTerms() {
+interface SubscriptionTermsProps {
+  embedded?: boolean;
+}
+
+export default function SubscriptionTerms({ embedded = false }: SubscriptionTermsProps) {
   const { language } = useLanguage();
 
   const content = {
@@ -127,37 +131,47 @@ Refunds will be processed using the same payment method used for the original pu
 
   const currentContent = content[language] || content.en;
 
-  return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+  const contentJsx = (
+    <div className={embedded ? "p-6" : "container mx-auto px-4 py-8 max-w-4xl"}>
+      {!embedded && (
         <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           {currentContent.title}
         </h1>
-        
-        <div className="prose prose-slate dark:prose-invert max-w-none space-y-8">
-          <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-            {currentContent.intro}
-          </p>
-          
-          {currentContent.sections.map((section, index) => (
-            <div key={index} className="space-y-4">
-              <h2 className="text-2xl font-semibold">{section.title}</h2>
-              <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                {section.content}
-              </p>
-            </div>
-          ))}
-        </div>
+      )}
 
-        <div className="mt-12 p-6 bg-muted/50 rounded-lg">
-          <p className="text-sm text-muted-foreground">
-            <strong>{language === 'ru' ? 'Контакты:' : language === 'es' ? 'Contacto:' : 'Contact:'}</strong> support@skilyapp.com
-          </p>
-          <p className="text-sm text-muted-foreground mt-2">
-            <strong>{language === 'ru' ? 'Адрес:' : language === 'es' ? 'Dirección:' : 'Address:'}</strong> {language === 'ru' ? 'Испания, Таррагона' : language === 'es' ? 'España, Tarragona' : 'Spain, Tarragona'}
-          </p>
-        </div>
+      <div className="prose prose-slate dark:prose-invert max-w-none space-y-8">
+        <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+          {currentContent.intro}
+        </p>
+
+        {currentContent.sections.map((section, index) => (
+          <div key={index} className="space-y-4">
+            <h2 className={embedded ? "text-xl font-semibold" : "text-2xl font-semibold"}>{section.title}</h2>
+            <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+              {section.content}
+            </p>
+          </div>
+        ))}
       </div>
+
+      <div className="mt-12 p-6 bg-muted/50 rounded-lg">
+        <p className="text-sm text-muted-foreground">
+          <strong>{language === 'ru' ? 'Контакты:' : language === 'es' ? 'Contacto:' : 'Contact:'}</strong> support@skilyapp.com
+        </p>
+        <p className="text-sm text-muted-foreground mt-2">
+          <strong>{language === 'ru' ? 'Адрес:' : language === 'es' ? 'Dirección:' : 'Address:'}</strong> {language === 'ru' ? 'Испания, Таррагона' : language === 'es' ? 'España, Tarragona' : 'Spain, Tarragona'}
+        </p>
+      </div>
+    </div>
+  );
+
+  if (embedded) {
+    return contentJsx;
+  }
+
+  return (
+    <Layout>
+      {contentJsx}
     </Layout>
   );
 }

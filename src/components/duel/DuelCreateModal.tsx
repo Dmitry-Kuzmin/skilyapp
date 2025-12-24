@@ -31,7 +31,7 @@ export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCr
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [numQuestions, setNumQuestions] = useState(10);
-  const [betAmount, setBetAmount] = useState(10);
+  const [betAmount, setBetAmount] = useState(20);
   const [userCoins, setUserCoins] = useState(0);
   const [joinCode, setJoinCode] = useState('');
   const [isJoining, setIsJoining] = useState(false);
@@ -46,7 +46,7 @@ export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCr
       setActiveTab(initialTab);
       setStep('config');
       setJoinCode('');
-      setBetAmount(10);
+      setBetAmount(20);
 
       const loadCoins = async () => {
         if (!profileId) return;
@@ -196,36 +196,132 @@ export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCr
 
                 {activeTab === 'random' && (
                   <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest pl-1">Ставка</Label>
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-black border border-amber-500/20">
-                          <Coins className="w-3.5 h-3.5" />
+                    {/* UI Corrected Betting Block (Reactive Card) */}
+                    <div
+                      className={cn(
+                        "relative rounded-[2rem] p-5 border-2 transition-all duration-300",
+                        betAmount > 0
+                          ? "bg-orange-500/10 border-orange-500 shadow-[0_0_30px_-10px_rgba(249,115,22,0.3)]" // Active State: Aggressive Orange Glow
+                          : "bg-secondary/30 border-transparent" // Training Mode: Passive Neutral
+                      )}
+                    >
+                      {/* Header */}
+                      <div className="flex items-center justify-between mb-5">
+                        <div className={cn(
+                          "flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] transition-colors",
+                          betAmount > 0 ? "text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]" : "text-muted-foreground/60"
+                        )}>
+                          {betAmount > 0 ? <Zap size={14} className="fill-current" /> : <Shield size={14} />}
+                          {betAmount > 0 ? 'СТАВКА СДЕЛАНА' : 'РЕЖИМ ТРЕНИРОВКИ'}
+                        </div>
+
+                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/40 text-[10px] font-black text-muted-foreground whitespace-nowrap">
+                          <Coins className="w-3 h-3" />
                           {userCoins.toLocaleString()}
                         </div>
                       </div>
-                      <div className="grid grid-cols-4 gap-3">
-                        {[0, 10, 50, 100].map((amount) => (
+
+                      {/* Main Controller */}
+                      <div className="flex items-center justify-between gap-4 mb-6">
+                        {/* MINUS Button */}
+                        <button
+                          onClick={() => setBetAmount(Math.max(0, betAmount - 10))}
+                          className="w-14 h-14 rounded-2xl bg-background shadow-sm border border-secondary flex items-center justify-center active:scale-95 transition-all hover:bg-secondary/40 disabled:opacity-30"
+                          disabled={betAmount === 0}
+                        >
+                          <Minus size={24} className="text-muted-foreground" />
+                        </button>
+
+                        {/* CENTER DISPLAY */}
+                        <div className="flex-1 flex flex-col items-center justify-center h-14">
+                          <AnimatePresence mode="wait">
+                            {betAmount === 0 ? (
+                              <motion.span
+                                key="free"
+                                initial={{ opacity: 0, scale: 0.9, y: 5 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 1.1, y: -5 }}
+                                className="text-lg font-black text-muted-foreground tracking-widest uppercase"
+                              >
+                                БЕСПЛАТНО
+                              </motion.span>
+                            ) : (
+                              <motion.div
+                                key="amount"
+                                initial={{ opacity: 0, scale: 0.9, y: 5 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 1.1, y: -5 }}
+                                className="flex items-center gap-2"
+                              >
+                                <span className="text-5xl font-black text-orange-500 tabular-nums tracking-tighter drop-shadow-[0_2px_15px_rgba(249,115,22,0.4)]">
+                                  {betAmount}
+                                </span>
+                                <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center border border-orange-500/20 animate-pulse">
+                                  <Coins className="w-5 h-5 text-orange-500" />
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                          <div className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest mt-1 h-3">
+                            {betAmount === 0 ? 'Без риска' : 'Победа удвоит сумму'}
+                          </div>
+                        </div>
+
+                        {/* PLUS Button - High Call to Action */}
+                        <button
+                          onClick={() => setBetAmount(prev => Math.min(Math.floor(userCoins / 10) * 10, prev + 10))}
+                          className={cn(
+                            "w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all",
+                            betAmount > 0
+                              ? "bg-orange-500 text-white shadow-orange-500/30 hover:bg-orange-600 hover:shadow-orange-500/50 hover:scale-105" // Aggressive State
+                              : "bg-white text-black hover:bg-gray-100" // Neutral State
+                          )}
+                        >
+                          <Plus size={24} />
+                        </button>
+                      </div>
+
+                      {/* Quick Presets */}
+                      <div className="grid grid-cols-4 gap-2">
+                        <button
+                          onClick={() => setBetAmount(0)}
+                          className={cn(
+                            "py-2.5 rounded-xl text-[11px] font-black transition-all border",
+                            betAmount === 0
+                              ? "bg-secondary border-secondary-foreground/10 text-foreground"
+                              : "bg-secondary/30 border-transparent text-muted-foreground/60 hover:text-foreground"
+                          )}
+                        >
+                          0
+                        </button>
+
+                        {[20, 50].map((val) => (
                           <button
-                            key={amount}
-                            onClick={() => setBetAmount(amount)}
-                            disabled={amount > userCoins}
+                            key={val}
+                            onClick={() => setBetAmount(val)}
+                            disabled={val > userCoins}
                             className={cn(
-                              "relative h-14 rounded-2xl border-2 transition-all flex flex-col items-center justify-center overflow-hidden",
-                              betAmount === amount
-                                ? "border-primary bg-primary/5 shadow-inner scale-105"
-                                : "border-secondary bg-secondary/20 hover:border-primary/30",
-                              amount > userCoins && "opacity-30 cursor-not-allowed grayscale"
+                              "py-2.5 rounded-xl text-[11px] font-black transition-all border disabled:opacity-20 disabled:grayscale",
+                              betAmount === val
+                                ? "bg-orange-500 border-orange-600 text-white shadow-lg shadow-orange-500/20"
+                                : "bg-secondary/30 border-transparent text-muted-foreground/60 hover:bg-orange-500/10 hover:text-orange-600 hover:border-orange-500/20"
                             )}
                           >
-                            <span className={cn("text-base font-black leading-none", betAmount === amount ? "text-primary" : "text-muted-foreground")}>
-                              {amount === 0 ? 'FREE' : amount}
-                            </span>
-                            {betAmount === amount && (
-                              <motion.div layoutId="bet-glow" className="absolute inset-0 bg-primary/5 blur-xl" />
-                            )}
+                            {val}
                           </button>
                         ))}
+
+                        <button
+                          onClick={() => setBetAmount(Math.floor(userCoins / 10) * 10)}
+                          className={cn(
+                            "py-2.5 rounded-xl text-[11px] font-black transition-all border",
+                            betAmount === Math.floor(userCoins / 10) * 10 && userCoins >= 10
+                              ? "bg-orange-500 border-orange-600 text-white"
+                              : "bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-400 hover:bg-orange-500/20"
+                          )}
+                        >
+                          MAX
+                        </button>
                       </div>
                     </div>
 

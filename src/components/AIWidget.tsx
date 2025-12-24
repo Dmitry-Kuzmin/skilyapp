@@ -31,7 +31,7 @@ interface AIWidgetProps {
   imageUrl?: string | null;
   showTranslation?: boolean;
   onToggleTranslation?: () => void;
-  testLanguage?: 'es' | 'en'; // Язык теста для локализации интерфейса
+  testLanguage?: 'es' | 'en' | 'ru'; // Язык теста для локализации интерфейса
 }
 
 export const AIWidget = ({
@@ -59,23 +59,23 @@ export const AIWidget = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const widgetRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
-  
-  
+
+
   // 🚦 FEATURE FLAG: Если AI чат отключен, не показываем виджет
   if (!aiEnabled) {
     return null;
   }
-  
+
   // Определяем язык интерфейса на основе языка теста
-  // Используем язык теста для интерфейса, но если showTranslation активен, используем русский
-  const interfaceLanguage = showTranslation ? 'ru' : testLanguage;
+  // Используем язык теста для интерфейса, но если showTranslation активен или testLanguage явный 'ru', используем русский
+  const interfaceLanguage = testLanguage === 'ru' || showTranslation ? 'ru' : testLanguage;
 
   // Показываем explanation из БД при загрузке
   // Используем правильный язык: приоритет showTranslation, затем explanation (уже зависит от testLanguage)
   useEffect(() => {
     if (messages.length === 0) {
       let explanationToShow = null;
-      
+
       // Приоритет: showTranslation > explanation (который уже зависит от testLanguage)
       if (showTranslation && explanationRu && explanationRu.trim()) {
         explanationToShow = explanationRu;
@@ -83,15 +83,15 @@ export const AIWidget = ({
         // explanation уже содержит правильный язык в зависимости от testLanguage
         explanationToShow = explanation;
       }
-      
+
       if (explanationToShow && explanationToShow.trim()) {
-      setMessages([
-        {
-          role: "assistant",
+        setMessages([
+          {
+            role: "assistant",
             content: explanationToShow
-        }
-      ]);
-    }
+          }
+        ]);
+      }
     }
   }, [explanation, explanationRu, explanationEs, explanationEn, showTranslation]);
 
@@ -102,13 +102,13 @@ export const AIWidget = ({
       const isDbExplanation = explanationRu || explanationEs || explanationEn || explanation;
       if (isDbExplanation) {
         let explanationToShow = null;
-        
+
         if (showTranslation && explanationRu) {
           explanationToShow = explanationRu;
         } else if (explanation) {
           explanationToShow = explanation;
         }
-        
+
         if (explanationToShow && messages[0].content !== explanationToShow) {
           setMessages(prev => {
             const updated = [...prev];
@@ -133,7 +133,7 @@ export const AIWidget = ({
 
     // Находим весь блок тестов по data-testid (включает Question Card + кнопки навигации + кнопку Reportar problema)
     const testBlock = document.querySelector('[data-testid="test-content-block"]') as HTMLElement;
-    
+
     if (!testBlock) {
       // Fallback: ищем родительский grid-контейнер и первую колонку
       const gridContainer = widgetRef.current.closest('[class*="grid"]');
@@ -150,12 +150,12 @@ export const AIWidget = ({
               }
             });
           };
-          
+
           updateMaxHeight();
           const resizeObserver = new ResizeObserver(updateMaxHeight);
           resizeObserver.observe(firstChild);
           resizeObserver.observe(gridContainer as HTMLElement);
-          
+
           return () => resizeObserver.disconnect();
         }
       }
@@ -176,14 +176,14 @@ export const AIWidget = ({
 
     // Обновляем высоту при загрузке и изменении размера
     updateMaxHeight();
-    
+
     const resizeObserver = new ResizeObserver(() => {
       // ResizeObserver уже вызывается в правильное время, но всё равно батчим
       updateMaxHeight();
     });
 
     resizeObserver.observe(testBlock);
-    
+
     // Также наблюдаем за Question Card для надежности
     const questionCard = document.querySelector('[data-testid="question-card"]');
     if (questionCard) {
@@ -290,7 +290,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
-    
+
     const userMessage = input.trim();
     setInput("");
     askAI(userMessage);
@@ -298,10 +298,10 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
 
   const submitFeedback = async (messageIndex: number, rating: 1 | -1) => {
     if (messageRatings[messageIndex]) return; // Уже оценено
-    
+
     try {
       triggerHapticFeedback(rating === 1 ? 'success' : 'error');
-      
+
       // Здесь можно отправить feedback на сервер
       // const { data: { session } } = await supabase.auth.getSession();
       // await supabase.from('ai_feedback').insert({
@@ -310,9 +310,9 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
       //   question_id: questionId,
       //   ...
       // });
-      
+
       setMessageRatings(prev => ({ ...prev, [messageIndex]: rating }));
-      
+
       toast({
         title: rating === 1 ? "Спасибо за отзыв!" : "Спасибо за обратную связь!",
         description: rating === 1 ? "Ваш лайк помогает улучшить ответы" : "Мы учтем ваше мнение",
@@ -324,14 +324,14 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
   };
 
   return (
-    <Card 
+    <Card
       ref={widgetRef}
       className={cn(
-      "flex flex-col overflow-hidden border border-border/50 shadow-lg bg-background transition-all duration-300 rounded-2xl",
+        "flex flex-col overflow-hidden border border-border/50 shadow-lg bg-background transition-all duration-300 rounded-2xl",
         isExpanded ? "" : "h-auto"
       )}
       style={{
-        ...(isExpanded && maxHeight ? { 
+        ...(isExpanded && maxHeight ? {
           height: `${maxHeight}px`,
           maxHeight: `${maxHeight}px`,
           overflow: 'hidden'
@@ -341,29 +341,29 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
         } : {})
       }}
     >
-      {/* Header - чистый стиль как у Officer Frank */}
-      <div className="flex items-center justify-between px-4 xl:px-5 py-3 xl:py-4 border-b border-border/50 shrink-0 bg-background">
-        <div className="flex items-center gap-2 xl:gap-3 min-w-0 flex-1">
-          <div className="w-12 h-12 xl:w-14 xl:h-14 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center shadow-md relative overflow-hidden shrink-0">
-            <LumiCharacter size="md" mood="happy" animate className="scale-75" />
-          </div>
-          <div className="min-w-0">
-            <h3 className="font-bold text-sm xl:text-base text-foreground truncate">
-              {interfaceLanguage === 'ru' ? t('lumiGreeting') : 
-               interfaceLanguage === 'en' ? "Hello! I'm Skily 💡" : 
-               "¡Hola! Soy Skily 💡"}
-            </h3>
-          </div>
-        </div>
+      {/* Header */}
+      <div className="p-3 xl:p-4 border-b flex items-center bg-muted/30 shrink-0 gap-3">
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 xl:h-8 xl:w-8 shrink-0 text-muted-foreground hover:text-foreground"
+          className="h-7 w-7 xl:h-8 xl:w-8 shrink-0 text-muted-foreground hover:text-foreground order-first"
           onClick={() => setIsExpanded(!isExpanded)}
           title={isExpanded ? (interfaceLanguage === 'ru' ? t('lumiCollapse') : interfaceLanguage === 'en' ? 'Collapse' : 'Contraer') : (interfaceLanguage === 'ru' ? t('lumiExpand') : interfaceLanguage === 'en' ? 'Expand' : 'Expandir')}
         >
           {isExpanded ? <Minimize2 className="h-3.5 w-3.5 xl:h-4 xl:w-4" /> : <Maximize2 className="h-3.5 w-3.5 xl:h-4 xl:w-4" />}
         </Button>
+        <div className="flex items-center gap-2 xl:gap-3 min-w-0 flex-1">
+          <div className="w-8 h-8 xl:w-10 xl:h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center shrink-0 shadow-sm transition-transform duration-500 group-hover:scale-105">
+            <LumiCharacter size="sm" mood="happy" className="scale-75" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="font-bold text-sm xl:text-base text-foreground truncate">
+              {interfaceLanguage === 'ru' ? t('lumiGreeting') :
+                interfaceLanguage === 'en' ? "Hello! I'm Skily 💡" :
+                  "¡Hola! Soy Skily 💡"}
+            </h3>
+          </div>
+        </div>
       </div>
 
       {/* Messages Area - фиксированная высота с скроллом */}
@@ -373,9 +373,9 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
             {/* Welcome Message */}
             <div className="text-foreground text-xs xl:text-sm leading-relaxed">
               <p>
-                {interfaceLanguage === 'ru' ? t('lumiWelcome') : 
-                 interfaceLanguage === 'en' ? 'Need a hint or a quick explanation? Just press the button or ask your question, and I\'ll help on the spot. Ready when you are!' : 
-                 '¿Necesitas una pista o una explicación rápida? Simplemente presiona el botón o haz tu pregunta, y te ayudaré en el acto. ¡Listo cuando tú lo estés!'}
+                {interfaceLanguage === 'ru' ? t('lumiWelcome') :
+                  interfaceLanguage === 'en' ? 'Need a hint or a quick explanation? Just press the button or ask your question, and I\'ll help on the spot. Ready when you are!' :
+                    '¿Necesitas una pista o una explicación rápida? Simplemente presiona el botón o haz tu pregunta, y te ayudaré en el acto. ¡Listo cuando tú lo estés!'}
               </p>
             </div>
 
@@ -386,18 +386,18 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
                 className="h-auto py-2 xl:py-2.5 px-2.5 xl:px-3 text-[10px] xl:text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 hover:border-blue-300 dark:text-blue-400 dark:hover:bg-blue-950/20 dark:border-blue-800 dark:hover:border-blue-700 rounded-lg whitespace-normal break-words"
                 onClick={() => {
                   // "Дай мне подсказку" - запрашиваем подсказку у AI (не правильный ответ)
-                  const hintPrompt = interfaceLanguage === 'ru' 
+                  const hintPrompt = interfaceLanguage === 'ru'
                     ? "Дай мне подсказку к этому вопросу, но не говори правильный ответ напрямую. Помоги мне подумать самостоятельно."
                     : interfaceLanguage === 'en'
-                    ? "Give me a hint for this question, but don't tell me the correct answer directly. Help me think independently."
-                    : "Dame una pista para esta pregunta, pero no me digas la respuesta correcta directamente. Ayúdame a pensar por mí mismo.";
+                      ? "Give me a hint for this question, but don't tell me the correct answer directly. Help me think independently."
+                      : "Dame una pista para esta pregunta, pero no me digas la respuesta correcta directamente. Ayúdame a pensar por mí mismo.";
                   askAI(hintPrompt);
                 }}
                 disabled={isLoading}
               >
-                {interfaceLanguage === 'ru' ? t('lumiHintButton') : 
-                 interfaceLanguage === 'en' ? 'Give me a hint' : 
-                 'Dame una pista'}
+                {interfaceLanguage === 'ru' ? t('lumiHintButton') :
+                  interfaceLanguage === 'en' ? 'Give me a hint' :
+                    'Dame una pista'}
               </Button>
               <Button
                 variant="outline"
@@ -416,9 +416,9 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
                 }}
                 disabled={isLoading}
               >
-                {interfaceLanguage === 'ru' ? t('lumiHelpButton') : 
-                 interfaceLanguage === 'en' ? 'Help me understand this' : 
-                 'Ayúdame a entender esto'}
+                {interfaceLanguage === 'ru' ? t('lumiHelpButton') :
+                  interfaceLanguage === 'en' ? 'Help me understand this' :
+                    'Ayúdame a entender esto'}
               </Button>
             </div>
           </div>
@@ -453,7 +453,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
                         <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse delay-150" />
                       </div>
                     )}
-                    
+
                     {/* Feedback buttons и кнопка перевода под каждым сообщением от AI */}
                     {message.content && (
                       <div className="flex items-center gap-1 mt-2">
@@ -465,10 +465,10 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
                                 // Определяем новый контент ПЕРЕД переключением showTranslation
                                 // Если сейчас показываем русский (showTranslation === true), переключаем на оригинал
                                 // Если сейчас показываем оригинал (showTranslation === false), переключаем на русский
-                                const newContent = showTranslation 
+                                const newContent = showTranslation
                                   ? (explanationEs || explanationEn || explanation || '')
                                   : (explanationRu || '');
-                                
+
                                 // Обновляем сообщение синхронно перед переключением
                                 setMessages(prev => {
                                   const updated = [...prev];
@@ -477,7 +477,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
                                   }
                                   return updated;
                                 });
-                                
+
                                 // Переключаем состояние
                                 onToggleTranslation();
                               }
@@ -489,7 +489,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
                             <span>{showTranslation ? (testLanguage === 'en' ? "EN" : "ES") : "RU"}</span>
                           </button>
                         )}
-                        
+
                         {/* Кнопки лайков для всех сообщений от AI */}
                         <Button
                           variant="ghost"

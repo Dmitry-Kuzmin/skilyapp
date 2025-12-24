@@ -49,7 +49,10 @@ import {
   Shield,
   Globe,
   Smartphone,
-  Palette
+  Palette,
+  Info,
+  Moon,
+  Sun
 } from "lucide-react";
 import { toast } from "sonner";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -216,37 +219,25 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
       },
     },
     {
+      key: 'about',
+      icon: Info,
+      label: 'О приложении',
+      action: () => {
+        // Открываем Unified Settings на вкладке About
+        useSettingsStore.getState().openSettings('about');
+      },
+    },
+    {
       key: 'invite',
       icon: Gift,
       label: t('profileMenu.invite'),
       action: () => setReferralModalOpen(true),
-      trailing: (
-        <div className="flex items-center gap-1.5">
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black animate-pulse">
-            +100
-            <Coins className="w-3 h-3 text-yellow-500" />
-          </div>
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+      badge: (
+        <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black animate-pulse ml-0.5">
+          +100
+          <Coins className="w-3 h-3 text-yellow-500" />
         </div>
       )
-    },
-  ];
-
-  const supportLinks = [
-    {
-      key: 'help',
-      label: t('profileMenu.helpCenter'),
-      action: () => navigate('/help'),
-    },
-    {
-      key: 'blog',
-      label: t('profileMenu.blog'),
-      action: () => navigate('/blog'),
-    },
-    {
-      key: 'legal',
-      label: t('profileMenu.legal'),
-      action: () => navigate('/terms'),
     },
   ];
 
@@ -287,7 +278,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
           className="w-80 p-0"
           align="end"
           sideOffset={8}
-          overlayClassName="bg-black/60 backdrop-blur-[3px]"
+          overlayClassName="bg-black/90 backdrop-blur-md"
         >
           <div className="p-4 space-y-4">
             {/* Header - кликабельный для редактирования */}
@@ -408,7 +399,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                 </div>
               </button>
 
-              {quickActions.map(({ key, icon: Icon, label, action, trailing }) => (
+              {quickActions.map(({ key, icon: Icon, label, action, badge }: any) => (
                 <button
                   key={key}
                   type="button"
@@ -421,30 +412,65 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                   <div className="flex items-center gap-2">
                     <Icon className="h-4 w-4 text-muted-foreground" />
                     <span>{label}</span>
+                    {badge}
                   </div>
-                  {trailing ?? <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </button>
               ))}
-
-
             </div>
-            <div className="flex flex-nowrap items-center justify-center gap-x-1 px-1 pb-1 overflow-x-auto scrollbar-none">
-              {supportLinks.map(({ key, label, action }, index) => (
-                <div key={key} className="flex items-center shrink-0">
+
+            {/* Unified Control Bar (Language & Theme) */}
+            <div className="bg-secondary/30 p-1.5 rounded-[20px] flex items-center justify-between mt-2">
+              {/* Language Switcher */}
+              <div className="flex items-center">
+                {[
+                  { code: 'ru', label: 'RU' },
+                  { code: 'en', label: 'EN' },
+                  { code: 'es', label: 'ES' }
+                ].map((lang) => (
                   <button
-                    onClick={() => {
-                      setOpen(false);
-                      action();
-                    }}
-                    className="text-[11px] font-medium text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
+                    key={lang.code}
+                    onClick={() => handleLanguageChange(lang.code as any)}
+                    className={cn(
+                      "h-9 px-3.5 rounded-2xl text-[11px] font-bold transition-all duration-200",
+                      language === lang.code
+                        ? "bg-background shadow-sm text-primary" // Активный язык синим
+                        : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                    )}
                   >
-                    {label}
+                    {lang.label}
                   </button>
-                  {index < supportLinks.length - 1 && (
-                    <span className="mx-2 w-[1px] h-2 bg-muted-foreground/20 shrink-0" />
+                ))}
+              </div>
+
+              {/* Divider */}
+              <div className="w-px h-5 bg-border/40 mx-2" />
+
+              {/* Theme Switcher */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setTheme('light')}
+                  className={cn(
+                    "w-9 h-9 rounded-2xl flex items-center justify-center transition-all duration-200",
+                    theme === 'light'
+                      ? "text-amber-500 bg-background shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
                   )}
-                </div>
-              ))}
+                >
+                  <Sun className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setTheme('dark')}
+                  className={cn(
+                    "w-9 h-9 rounded-2xl flex items-center justify-center transition-all duration-200",
+                    theme === 'dark'
+                      ? "text-blue-400 bg-background shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Moon className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
         </PopoverContent>

@@ -330,26 +330,27 @@ const BOT_AVATARS = [
   'default', 'cyberpunk', 'hacker', 'ninja', 'warrior', 'ghost', 'neon'
 ];
 
+// Helper to get deterministic bot name based on ID
+function getDeterministicBotName(id: string): string {
+  if (!id) return BOT_NAMES[0];
+  const botNameIndex = parseInt(id.replace(/-/g, '').slice(0, 8), 16) % BOT_NAMES.length;
+  return BOT_NAMES[botNameIndex];
+}
+
 // Generate bot profile based on player level and win streak (anti-farming protection)
-function generateBotProfile(playerLevel: number, winStreak: number = 0): {
+function generateBotProfile(playerLevel: number, winStreak: number = 0, botId?: string): {
   name: string;
   avatar: string;
   difficulty: 'easy' | 'medium' | 'hard' | 'insane';
 } {
   // 🛡️ АДАПТИВНАЯ СЛОЖНОСТЬ (Anti-Farming Protection)
-  // Чем больше побед подряд - тем сильнее бот
-  // 0-2 победы: Easy/Medium (даем кайфануть)
-  // 3-5 побед: Hard (начинаем давить)
-  // 5+ побед: Insane (бот-убийца, почти непобедим)
-
   let difficulty: 'easy' | 'medium' | 'hard' | 'insane' = 'medium';
 
   if (winStreak >= 5) {
-    difficulty = 'insane'; // Бот-убийца для фармеров
+    difficulty = 'insane';
   } else if (winStreak >= 3) {
-    difficulty = 'hard'; // Начинаем давить
+    difficulty = 'hard';
   } else if (winStreak <= 2) {
-    // Базовая сложность на основе уровня игрока
     if (playerLevel >= 8) {
       difficulty = 'hard';
     } else if (playerLevel >= 4) {
@@ -359,11 +360,11 @@ function generateBotProfile(playerLevel: number, winStreak: number = 0): {
     }
   }
 
-  // Случайное имя и аватар
-  const name = BOT_NAMES[Math.floor(Math.random() * BOT_NAMES.length)];
+  // Детерминированное имя на основе ID (если есть) или случайное
+  const name = botId ? getDeterministicBotName(botId) : BOT_NAMES[Math.floor(Math.random() * BOT_NAMES.length)];
   const avatar = BOT_AVATARS[Math.floor(Math.random() * BOT_AVATARS.length)];
 
-  console.log(`[generateBotProfile] 🛡️ Win streak: ${winStreak}, Bot difficulty: ${difficulty}, Player level: ${playerLevel}`);
+  console.log(`[generateBotProfile] 🛡️ Win streak: ${winStreak}, Bot difficulty: ${difficulty}, Player level: ${playerLevel}, Name: ${name}`);
 
   return { name, avatar, difficulty };
 }
@@ -956,95 +957,68 @@ async function createNotification(body: any, profileId: string, supabase: any): 
 
     console.log('[create_notification] Opponent found:', opponentId || 'BOT', 'All players:', JSON.stringify(players.map((p: any) => ({ user_id: p.user_id, is_bot: p.is_bot, bot_name: p.bot_name }))));
 
-    // Get opponent name if not provided in metadata
-    // ВАЖНО: Всегда получаем имя соперника перед использованием шаблона
-    // Если оппонент - бот и имя уже в metadata, используем его
+    // Get opponent (sender) name if not provided in metadata
+    // ВАЖНО: СЕНДЕР - это profileId (человек, совершивший действие)
+    // РЕСИПИЕНТ - это opponentId (человек, получающий уведомление)
+    // Мы хотим, чтобы ресипиент увидел имя сендера
     if (!metadata.opponent_name) {
-      // Если оппонент - бот, пытаемся получить имя из player данных
-      if (opponentPlayer?.is_bot) {
-        // ВАЖНО: Используем bot_name из БД, если он есть, иначе name, для консистентности с get_players
-        const botName = opponentPlayer?.bot_name || opponentPlayer?.name;
-        if (botName) {
-          metadata.opponent_name = botName;
-          console.log('[create_notification] ✅ Using bot name from player data:', metadata.opponent_name, '(bot_name:', opponentPlayer?.bot_name, ', name:', opponentPlayer?.name, ')');
-        } else {
-          console.warn('[create_notification] ⚠️ Bot name not found in player data, using fallback');
-          metadata.opponent_name = 'Игрок';
-        }
-      } else if (opponentId) {
-        // Для реального игрока получаем имя из профиля
+      if (profileId) {
         try {
-          console.log('[create_notification] 🔍 Fetching opponent name for opponentId:', opponentId);
-          metadata.opponent_name = await getOpponentName(opponentId, supabase);
-          console.log('[create_notification] ✅ Opponent name retrieved:', metadata.opponent_name);
+          console.log('[create_notification] 🔍 Fetching SENDER name for profileId:', profileId);
+          metadata.opponent_name = await getOpponentName(profileId, supabase);
+          console.log('[create_notification] ✅ Sender name retrieved:', metadata.opponent_name);
         } catch (nameError: any) {
-          console.error('[create_notification] ❌ Error getting opponent name:', nameError);
-          console.error('[create_notification] Error details:', JSON.stringify(nameError, null, 2));
-          // Используем "Игрок" как fallback вместо ID
+          console.error('[create_notification] ❌ Error getting sender name:', nameError);
           metadata.opponent_name = 'Игрок';
         }
       } else {
-        // Fallback если ничего не найдено
         metadata.opponent_name = 'Игрок';
-        console.warn('[create_notification] ⚠️ No opponent name found, using fallback');
       }
     }
 
     // Убеждаемся, что opponent_name всегда установлен и валиден
     if (!metadata.opponent_name || metadata.opponent_name.trim() === '') {
-      console.warn('[create_notification] ⚠️ Opponent name is empty, using fallback "Игрок"');
       metadata.opponent_name = 'Игрок';
     }
 
-    // Убеждаемся, что имя не является ID (проверяем длину и формат)
+    // Убеждаемся, что имя не является ID
     if (metadata.opponent_name.length <= 8 && /^[a-f0-9]{8}$/i.test(metadata.opponent_name)) {
-      console.warn('[create_notification] ⚠️ Opponent name looks like an ID:', metadata.opponent_name, '- using fallback "Игрок"');
       metadata.opponent_name = 'Игрок';
     }
 
-    console.log('[create_notification] 📝 Final opponent_name for notification:', metadata.opponent_name);
+    // Проверяем, закончил ли получатель уведомления (opponentId) игру
+    // ОПТИМИЗАЦИЯ: Если передано в metadata, используем готовое значение
+    let recipientFinished = metadata.opponent_finished !== undefined ? metadata.opponent_finished : false;
 
-    // Проверяем, закончил ли получатель уведомления (profileId) игру (для персонализации текстов)
-    // ВАЖНО: проверяем получателя уведомления, а не оппонента!
-    let recipientFinished = false;
-    if (type === 'progress') {
+    if (type === 'progress' && metadata.opponent_finished === undefined) {
       try {
-        const { data: duel } = await supabase
-          .from('duels')
-          .select('num_questions')
-          .eq('id', duel_id)
-          .single();
+        // ОПТИМИЗАЦИЯ: Используем num_questions из metadata если есть
+        const numQuestions = metadata.num_questions;
+        let totalQuestions = numQuestions;
 
-        if (duel) {
-          // Получатель уведомления - это profileId (не opponentId!)
-          const { data: recipientPlayer } = await supabase
-            .from('duel_players')
-            .select('id')
-            .eq('duel_id', duel_id)
-            .eq('user_id', profileId)
+        if (!totalQuestions) {
+          const { data: duel } = await supabase
+            .from('duels')
+            .select('num_questions')
+            .eq('id', duel_id)
             .single();
+          totalQuestions = duel?.num_questions;
+        }
 
-          if (recipientPlayer) {
-            const { count: recipientAnswersCount } = await supabase
-              .from('duel_answers')
-              .select('*', { count: 'exact', head: true })
-              .eq('player_id', recipientPlayer.id)
-              .eq('duel_id', duel_id);
+        if (totalQuestions && opponentId) {
+          const { count: recipientAnswersCount } = await supabase
+            .from('duel_answers')
+            .select('*', { count: 'exact', head: true })
+            .eq('player_id', opponentPlayer.id) // opponentPlayer.id - это ID игрока-получателя в дуэли
+            .eq('duel_id', duel_id);
 
-            recipientFinished = (recipientAnswersCount || 0) >= duel.num_questions;
-            console.log('[create_notification] Recipient finished check:', {
-              recipientAnswersCount,
-              required: duel.num_questions,
-              recipientFinished,
-              profileId,
-              opponentId
-            });
-          }
+          recipientFinished = (recipientAnswersCount || 0) >= totalQuestions;
         }
       } catch (error) {
         console.warn('[create_notification] Error checking recipient finished status:', error);
       }
     }
+
 
     // Добавляем флаг в metadata для использования в шаблонах
     metadata.opponent_finished = recipientFinished; // Переименовано для ясности, но оставляем старое имя для совместимости
@@ -1508,9 +1482,8 @@ Deno.serve(async (req) => {
             let botName = p.bot_name || p.name;
 
             if (!botName) {
-              // Fallback: генерируем детерминированное имя на основе ID бота для консистентности
-              const botNameIndex = parseInt(p.id.replace(/-/g, '').slice(0, 8), 16) % BOT_NAMES.length;
-              botName = BOT_NAMES[botNameIndex];
+              // Fallback: детерминированное имя на основе ID бота
+              botName = getDeterministicBotName(p.id);
               console.log('[get_players] ⚠️ Bot name not found in DB, generating from ID:', botName);
             } else {
               console.log('[get_players] ✅ Using bot name from DB:', botName);
@@ -2312,8 +2285,11 @@ Deno.serve(async (req) => {
         const winStreak = playerProfileForBot?.win_streak || 0;
         console.log(`[find_match] 🛡️ Player win streak: ${winStreak} (anti-farming protection)`);
 
-        // Генерируем профиль бота на основе уровня игрока и win_streak
-        const botProfile = generateBotProfile(playerLevel, winStreak);
+        // СНАЧАЛА генерируем ID для бота, чтобы имя было детерминированным
+        const botPlayerId = crypto.randomUUID();
+
+        // Генерируем профиль бота
+        const botProfile = generateBotProfile(playerLevel, winStreak, botPlayerId);
         console.log('[find_match] Generated bot profile:', botProfile);
 
         // Создаем дуэль с ботом
@@ -2392,10 +2368,10 @@ Deno.serve(async (req) => {
             is_host: true,
           });
 
-        // Добавляем БОТА (is_bot = true, user_id = null)
         const { data: botPlayer, error: botError } = await supabase
           .from('duel_players')
           .insert({
+            id: botPlayerId, // Используем заранее сгенерированный ID
             duel_id: duel.id,
             user_id: null, // Бот не имеет user_id
             is_host: false,
@@ -3237,36 +3213,61 @@ Deno.serve(async (req) => {
         const validated = submitAnswerSchema.parse(params);
         const { duel_id, duel_question_id, selected_option_id, time_taken_ms, latency_ms, boost_used, is_timeout } = validated;
 
-        // Get player
-        const { data: player } = await supabase
-          .from('duel_players')
-          .select('*')
-          .eq('duel_id', duel_id)
-          .eq('user_id', profileId)
-          .single();
+        // ОПТИМИЗАЦИЯ: Загружаем игрока и вопрос параллельно
+        const [playerRes, questionRes] = await Promise.all([
+          supabase
+            .from('duel_players')
+            .select('*')
+            .eq('duel_id', duel_id)
+            .eq('user_id', profileId)
+            .single(),
+          supabase
+            .from('duel_questions')
+            .select('*')
+            .eq('id', duel_question_id)
+            .single()
+        ]);
+
+        const player = playerRes.data;
+        const question = questionRes.data;
 
         if (!player) throw new Error('Player not found');
-
-        // Get question
-        const { data: question } = await supabase
-          .from('duel_questions')
-          .select('*')
-          .eq('id', duel_question_id)
-          .single();
-
         if (!question) throw new Error('Question not found');
 
-        // Check if already answered
-        const { data: existingAnswer } = await supabase
+        // ОПТИМИЗАЦИЯ: Проверяем существующий ответ и получаем историю ДЛЯ ОБОИХ (combo и streak) ОДНИМ ЗАПРОСОМ
+        // fetch answers for combo AND check idempotency
+        const { data: allAnswers, error: answersError } = await supabase
           .from('duel_answers')
-          .select('id')
+          .select('id, is_correct, is_skipped, duel_question_id, points_awarded')
           .eq('player_id', player.id)
-          .eq('duel_question_id', duel_question_id)
-          .single();
+          .eq('duel_id', duel_id)
+          .order('created_at', { ascending: false });
+
+        if (answersError) throw answersError;
+
+        // Проверка на идемпотентность (уже отвечено)
+        const existingAnswer = allAnswers?.find(a => a.duel_question_id === duel_question_id);
 
         if (existingAnswer) {
-          return new Response(JSON.stringify({ error: 'Already answered' }), {
-            status: 400,
+          console.log('[submit_answer] 🔄 Question already answered, returning current state (idempotency)');
+
+          // Рассчитываем комбо на момент ТОГО ответа (или текущее)
+          let currentCombo = 0;
+          for (const ans of allAnswers) {
+            if (ans.is_correct && !ans.is_skipped) {
+              currentCombo++;
+            } else {
+              break;
+            }
+          }
+
+          return new Response(JSON.stringify({
+            success: true,
+            new_score: player.score,
+            combo: currentCombo,
+            points_awarded: existingAnswer.points_awarded,
+            is_already_answered: true
+          }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
@@ -3275,213 +3276,126 @@ Deno.serve(async (req) => {
         const isSkipped = !selected_option_id || is_timeout;
         const isCorrect = !isSkipped && selected_option_id ? correctIds.includes(selected_option_id) : false;
 
-        // Calculate combo - count consecutive correct answers (NOT skipped, NOT incorrect)
-        // Get all answers for this player in this duel, ordered by creation time DESC (newest first)
-        const { data: allAnswers } = await supabase
-          .from('duel_answers')
-          .select('is_correct, is_skipped, created_at')
-          .eq('player_id', player.id)
-          .eq('duel_id', duel_id)
-          .order('created_at', { ascending: false });
-
+        // Calculate combo BEFORE this answer (consecutive correct answers from history)
         let combo = 0;
         if (allAnswers && allAnswers.length > 0) {
-          // Count consecutive correct answers from the most recent backwards
-          // Stop counting when we hit an incorrect answer OR a skipped answer
           for (const answer of allAnswers) {
-            // Only count if answer is correct AND not skipped
             if (answer.is_correct === true && answer.is_skipped === false) {
               combo++;
             } else {
-              // Stop counting when we hit an incorrect or skipped answer
-              // This breaks the combo chain
               break;
             }
           }
         }
 
-        console.log('[submit_answer] Combo calculation:', {
-          totalAnswers: allAnswers?.length || 0,
-          comboBeforeCurrent: combo,
-          isCorrect,
-          isSkipped,
-          selected_option_id
-        });
-
-        // Combo is now the number of consecutive correct answers BEFORE this one
-        // We'll use this combo for calculating points for the current answer
-        // After inserting, if current answer is correct, return combo + 1, else return 0
-
-        // Adjust time for latency
-        const adjustedTime = Math.max(0, time_taken_ms - (latency_ms || 0));
-        const timeLimit = 60000; // 60 seconds
-        const timeRemain = Math.max(0, timeLimit - adjustedTime);
-
-        const difficulty = (question.question_snapshot as any).difficulty || 'medium';
-        // Use combo BEFORE current answer for scoring
-        // If current answer is correct, combo will be used, if incorrect/skipped, points = 0
-        const points = isCorrect ? calculateScore(difficulty, timeRemain, timeLimit, combo) : 0;
-
-        // ВАЖНО: Получаем данные для уведомлений ДО записи ответа
-        // Получаем все предыдущие ответы (до текущего) для расчета streak
-        const { data: previousAnswers } = await supabase
-          .from('duel_answers')
-          .select('id, is_correct')
-          .eq('player_id', player.id)
-          .eq('duel_id', duel_id)
-          .order('created_at', { ascending: false });
-
-        // Количество ответов до текущего
-        const previousAnswersCount = previousAnswers?.length || 0;
-
-        // Calculate error streak from PREVIOUS answers only (not including current)
-        let errorStreak = 0;
-        if (!isCorrect) {
-          errorStreak = 1; // Current answer is error
-
-          // Count consecutive errors from previous answers
-          if (previousAnswers && previousAnswers.length > 0) {
-            for (const answer of previousAnswers) {
-              if (answer.is_correct === false) {
-                errorStreak++;
-              } else {
-                break; // Stop at first correct answer
-              }
+        // Calculate error streak BEFORE this answer
+        let previousErrorStreak = 0;
+        if (allAnswers && allAnswers.length > 0) {
+          for (const answer of allAnswers) {
+            if (answer.is_correct === false) {
+              previousErrorStreak++;
+            } else {
+              break;
             }
           }
         }
 
-        console.log('[submit_answer] Pre-insert notification data:', {
-          previousAnswersCount,
-          errorStreak,
-          isCorrect,
-          questionPosition: question.position
-        });
-
-        // Insert answer
-        await supabase.from('duel_answers').insert({
-          duel_id,
-          player_id: player.id,
-          duel_question_id,
-          selected_option_id: selected_option_id || null,
-          is_correct: isCorrect,
-          is_skipped: isSkipped,
-          time_taken_ms: adjustedTime,
-          points_awarded: points,
-          combo_at_time: combo,
-          boost_used: boost_used || null,
-        });
-
-        // Update player score
-        const newScore = player.score + points;
-        await supabase
-          .from('duel_players')
-          .update({
-            score: newScore,
-            correct_count: player.correct_count + (isCorrect ? 1 : 0),
-          })
-          .eq('id', player.id);
-
-        // ============================================================================
-        // CRITICAL: SERVER IS SOURCE OF TRUTH FOR SCORES
-        // ============================================================================
-        // Always return new_score from server - client MUST use this value
-        // Never let client calculate scores locally
-        // ============================================================================
-
-        // Return combo AFTER processing this answer
-        // CRITICAL: Combo MUST reset to 0 if current answer is incorrect or skipped
-        // If current answer is correct and not skipped, combo increases by 1
-        // If current answer is incorrect or skipped, combo resets to 0 (not continue from previous)
-        let finalCombo = 0;
-        if (isCorrect === true && isSkipped === false) {
-          // Current answer is correct and not skipped - increment combo
-          finalCombo = combo + 1;
-        } else {
-          // Current answer is incorrect OR skipped - combo resets to 0
-          finalCombo = 0;
-        }
-
-        console.log('[submit_answer] Final combo:', {
+        console.log('[submit_answer] Stats:', {
           comboBefore: combo,
+          previousErrorStreak,
           isCorrect,
-          isSkipped,
-          finalCombo
+          isSkipped
         });
 
-        // Create progress notification for opponent
-        // Always notify about opponent's answer (not just at milestones)
-        if (!isSkipped) {
-          console.log('[submit_answer] Creating progress notification for opponent');
+        const adjustedTime = Math.max(0, time_taken_ms - (latency_ms || 0));
+        const timeLimit = 60000;
+        const timeRemain = Math.max(0, timeLimit - adjustedTime);
 
+        const difficulty = (question.question_snapshot as any).difficulty || 'medium';
+        const points = isCorrect ? calculateScore(difficulty, timeRemain, timeLimit, combo) : 0;
+
+        // ОПТИМИЗАЦИЯ: Выполняем запись ответа и обновление игрока параллельно
+        const newScore = player.score + points;
+        const newCorrectCount = player.correct_count + (isCorrect ? 1 : 0);
+
+        const [insertRes, updateRes] = await Promise.all([
+          supabase.from('duel_answers').insert({
+            duel_id,
+            player_id: player.id,
+            duel_question_id,
+            selected_option_id: selected_option_id || null,
+            is_correct: isCorrect,
+            is_skipped: isSkipped,
+            time_taken_ms: adjustedTime,
+            points_awarded: points,
+            combo_at_time: combo,
+            boost_used: boost_used || null,
+          }),
+          supabase
+            .from('duel_players')
+            .update({
+              score: newScore,
+              correct_count: newCorrectCount,
+            })
+            .eq('id', player.id)
+        ]);
+
+        if (insertRes.error) throw insertRes.error;
+        if (updateRes.error) throw updateRes.error;
+
+        const finalCombo = isCorrect && !isSkipped ? combo + 1 : 0;
+        const currentErrorStreak = isCorrect ? 0 : previousErrorStreak + 1;
+
+        // Create notification without blocking result if possible, but for stability we await
+        // However, we can optimize createNotification internal logic later
+        if (!isSkipped) {
+          // Fetch num_questions only if needed for notification
           const { data: duel } = await supabase
             .from('duels')
             .select('num_questions')
             .eq('id', duel_id)
             .single();
 
-          // Total answers including current one
-          const totalAnswers = previousAnswersCount + 1;
-          const progress = duel ? Math.round((totalAnswers / duel.num_questions) * 100) : 0;
+          const totalAnswers = (allAnswers?.length || 0) + 1;
+          const numQuestions = duel?.num_questions || 10;
+          const progress = duel ? Math.round((totalAnswers / numQuestions) * 100) : 0;
 
-          // Get question number from position (this is the actual question number)
-          const questionNumber = question.position;
+          // ОПТИМИЗАЦИЯ: Сразу считаем, закончил ли оппонент
+          // ВНИМАНИЕ: Оппонент - это НЕ тот, кто сейчас отвечает.
+          // Но в createNotification мы передадим данные СЕНДЕРА (нас).
 
-          console.log('[submit_answer] Notification metadata:', {
-            is_correct: isCorrect,
-            question_number: questionNumber,
-            combo: finalCombo,
-            error_streak: errorStreak,
-            progress,
-            totalAnswers,
-            previousAnswersCount
-          });
-
-          // Always notify about progress, but include progress percentage only at milestones
-          // КРИТИЧНО: Используем тип 'answer' для правильных ответов, чтобы уведомления показывались
-          // Тип 'progress' фильтруется в клиенте и не показывается
-          const notifResult = await createNotification({
+          await createNotification({
             duel_id,
-            type: isCorrect ? 'answer' : 'progress', // Правильные ответы - тип 'answer', неправильные - 'progress'
+            type: isCorrect ? 'answer' : 'progress',
             metadata: {
               is_correct: isCorrect,
-              question_number: questionNumber,
-              combo: finalCombo >= 3 ? finalCombo : undefined, // Notify about combo only if >= 3
-              error_streak: errorStreak >= 2 ? errorStreak : undefined, // Notify about error streak only if >= 2
-              progress: progress >= 25 && progress % 25 === 0 ? progress : undefined, // Notify at 25%, 50%, 75%
+              question_number: question.position,
+              combo: finalCombo >= 3 ? finalCombo : undefined,
+              error_streak: currentErrorStreak >= 2 ? currentErrorStreak : undefined,
+              progress: progress >= 25 && progress % 25 === 0 ? progress : undefined,
+              opponent_name: player.name || undefined, // Передаем наше имя (сендера)
+              num_questions: numQuestions
             }
           }, profileId, supabase).catch(err => {
-            console.error('[submit_answer] Error creating progress notification:', err);
-            return false;
+            console.error('[submit_answer] Notification failed:', err);
           });
-
-          if (!notifResult) {
-            console.warn('[submit_answer] Failed to create progress notification - opponent might not be found yet');
-          } else {
-            console.log('[submit_answer] ✅ Progress notification created successfully');
-          }
         }
 
-        // Проверяем, есть ли бот в дуэли, и если да - планируем его ответ
+
+        // Bot check
         const { data: botPlayer } = await supabase
           .from('duel_players')
-          .select('id, is_bot, bot_difficulty')
+          .select('id, is_bot')
           .eq('duel_id', duel_id)
           .eq('is_bot', true)
           .maybeSingle();
 
-        if (botPlayer && !isSkipped) {
-          // Бот будет отвечать через некоторое время
-          // Клиент должен вызвать bot_answer после задержки
-          console.log('[submit_answer] Bot detected, will answer after delay');
-        }
-
         return new Response(JSON.stringify({
-          is_correct: isCorrect,
-          points_awarded: points,
+          success: true,
           new_score: newScore,
           combo: finalCombo,
-          has_bot: !!botPlayer,
+          points_awarded: points,
+          has_bot: !!botPlayer
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });

@@ -11,6 +11,7 @@ import { isTelegramMiniApp } from "@/lib/telegram";
 // Они тянут Radix UI (@radix-ui/react-toast, @radix-ui/react-tooltip), поэтому не должны грузиться на лендинге
 import { PageLoader } from "@/components/PageLoader";
 import { LightFallback } from "@/components/LightFallback";
+import { ScrollToTop } from "@/components/ScrollToTop";
 // ОПТИМИЗАЦИЯ: ReferralRedirect и PartnerRedirect используют UserContext - делаем lazy
 // Они используются только в AppRoutes, который уже lazy, но для чистоты делаем их lazy здесь тоже
 const ReferralRedirect = lazy(() => import("@/components/ReferralRedirect").then(m => ({ default: m.ReferralRedirect })));
@@ -244,24 +245,7 @@ const Inventory = lazy(() => import("./pages/Inventory"));
 const Blog = lazy(() => import("./pages/Blog"));
 const Article = lazy(() => import("./pages/Article"));
 
-// Глобальный компонент для прокрутки наверх при смене роута
-// Работает для всех страниц, включая те, которые не используют Layout
-const ScrollToTop = () => {
-  const { pathname } = useLocation();
 
-  useEffect(() => {
-    // Прокручиваем наверх при каждой смене роута
-    // ОПТИМИЗАЦИЯ SSG: Проверка window для безопасности
-    if (typeof window === 'undefined') return;
-
-    // Используем requestAnimationFrame для плавности и избежания конфликтов с рендерингом
-    requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    });
-  }, [pathname]);
-
-  return null;
-};
 
 // Лёгкий редирект: если есть supabase-сессия в localStorage — сразу в дашборд
 const LandingRedirect = () => {

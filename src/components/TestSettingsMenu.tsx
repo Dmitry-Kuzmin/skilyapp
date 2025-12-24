@@ -65,7 +65,7 @@ export const TestSettingsMenu = ({
         window.scrollTo(0, parseInt(scrollY, 10));
       }
     }
-    
+
     return () => {
       // Очистка при размонтировании
       const scrollY = document.body.getAttribute('data-scroll-y');
@@ -88,11 +88,11 @@ export const TestSettingsMenu = ({
           title="Настройки теста"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-vertical">
-            <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
+            <circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" />
           </svg>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent 
+      <DropdownMenuContent
         className="w-[280px] p-3 bg-white dark:bg-gray-900 backdrop-blur-xl shadow-lg border border-border/20 rounded-xl"
         align="end"
         side="bottom"
@@ -107,8 +107,8 @@ export const TestSettingsMenu = ({
               </div>
               <span className="font-medium text-sm">Озвучка</span>
             </div>
-            <Switch 
-              checked={voiceOver} 
+            <Switch
+              checked={voiceOver}
               onCheckedChange={onVoiceOverChange}
               className="data-[state=checked]:bg-green-500 scale-90"
             />
@@ -122,8 +122,8 @@ export const TestSettingsMenu = ({
               </div>
               <span className="font-medium text-sm">Статистика</span>
             </div>
-            <Switch 
-              checked={answerPopularity} 
+            <Switch
+              checked={answerPopularity}
               onCheckedChange={onAnswerPopularityChange}
               className="data-[state=checked]:bg-green-500 scale-90"
             />
@@ -137,8 +137,8 @@ export const TestSettingsMenu = ({
               </div>
               <span className="font-medium text-sm">Музыка</span>
             </div>
-            <Switch 
-              checked={ambientMusic} 
+            <Switch
+              checked={ambientMusic}
               onCheckedChange={onAmbientMusicChange}
               className="data-[state=checked]:bg-green-500 scale-90"
             />
@@ -199,8 +199,8 @@ export const TestSettingsMenu = ({
                     onClick={() => onLanguageChange('es')}
                     className={cn(
                       "px-2 py-1.5 rounded-md text-xs font-semibold transition-all",
-                      language === 'es' 
-                        ? "bg-red-600 text-white shadow-sm" 
+                      language === 'es'
+                        ? "bg-red-600 text-white shadow-sm"
                         : "bg-muted/50 hover:bg-muted text-foreground"
                     )}
                   >
@@ -210,8 +210,8 @@ export const TestSettingsMenu = ({
                     onClick={() => onLanguageChange('en')}
                     className={cn(
                       "px-2 py-1.5 rounded-md text-xs font-semibold transition-all",
-                      language === 'en' 
-                        ? "bg-blue-600 text-white shadow-sm" 
+                      language === 'en'
+                        ? "bg-blue-600 text-white shadow-sm"
                         : "bg-muted/50 hover:bg-muted text-foreground"
                     )}
                   >

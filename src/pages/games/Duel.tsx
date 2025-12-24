@@ -5,7 +5,7 @@ import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Swords, Trophy, LogIn, Sparkles, Zap, Target, TrendingUp, Loader2, Copy, Check, Hash, Minus, Plus, ArrowLeft, X, Coins, DollarSign, Gift } from 'lucide-react';
+import { Swords, Trophy, LogIn, Sparkles, Zap, Target, TrendingUp, Loader2, Copy, Check, Hash, Minus, Plus, ArrowLeft, X, Coins, DollarSign, Gift, Users, Clock, Share2, Search, Shield } from 'lucide-react';
 import { extractErrorFromResponse } from '@/utils/errorMessages';
 import { DuelLobby } from '@/components/duel/DuelLobby';
 import { DuelCreateModal } from '@/components/duel/DuelCreateModal';
@@ -23,7 +23,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { dispatchUserEvent } from '@/lib/notification-events';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
-import { Users, Clock, Share2, Search } from 'lucide-react';
+
 import { useModal } from '@/hooks/useModal';
 import { Switch } from '@/components/ui/switch';
 import { useLumiToast } from '@/hooks/useLumiToast';
@@ -1483,179 +1483,184 @@ export default function Duel() {
 
                                                             <div className="space-y-4">
                                                                 {/* Number of questions */}
-                                                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
-                                                                    <motion.div
-                                                                        initial={{ opacity: 0, x: -20 }}
-                                                                        animate={{ opacity: 1, x: 0 }}
-                                                                        transition={{ delay: 0.5 }}
-                                                                        className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-white/80 dark:bg-emerald-950/40 backdrop-blur-sm border-2 border-emerald-200/50 dark:border-emerald-800/50 shadow-lg shadow-emerald-500/10 shrink-0 ring-1 ring-emerald-500/20 w-full sm:w-auto"
-                                                                    >
-                                                                        <motion.button
-                                                                            whileHover={{ scale: 1.1 }}
-                                                                            whileTap={{ scale: 0.9 }}
+                                                                {/* Smart Settings Strip (Questions) */}
+                                                                <div className="flex items-center justify-between px-2 mb-1 pl-4">
+                                                                    <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest">
+                                                                        <Target size={12} />
+                                                                        <span>Настройки матча</span>
+                                                                    </div>
+                                                                    
+                                                                    <div className="flex items-center gap-1 bg-secondary/30 rounded-lg p-1 border border-white/5">
+                                                                         <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mr-2 pl-2">Вопросы:</span>
+                                                                         <button
                                                                             onClick={() => setNumQuestions(Math.max(5, numQuestions - 5))}
                                                                             disabled={isCreating || numQuestions <= 5}
-                                                                            className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 hover:bg-emerald-200 dark:hover:bg-emerald-800 transition-all disabled:opacity-30 disabled:cursor-not-allowed touch-manipulation disabled:hover:scale-100"
-                                                                        >
-                                                                            <Minus className="h-4 w-4 text-emerald-700 dark:text-emerald-300" />
-                                                                        </motion.button>
-                                                                        <span className="text-lg sm:text-xl font-black text-emerald-700 dark:text-emerald-300 min-w-[3rem] text-center px-2">
+                                                                            className="w-7 h-7 flex items-center justify-center rounded-md bg-background/80 shadow-sm hover:bg-background disabled:opacity-30 transition-all active:scale-95 border border-black/5 dark:border-white/5"
+                                                                         >
+                                                                            <Minus size={12} />
+                                                                         </button>
+                                                                         <div className="w-8 text-center font-black text-sm tabular-nums text-foreground">
                                                                             {numQuestions}
-                                                                        </span>
-                                                                        <motion.button
-                                                                            whileHover={{ scale: 1.1 }}
-                                                                            whileTap={{ scale: 0.9 }}
+                                                                         </div>
+                                                                         <button
                                                                             onClick={() => setNumQuestions(Math.min(30, numQuestions + 5))}
                                                                             disabled={isCreating || numQuestions >= 30}
-                                                                            className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 hover:bg-emerald-200 dark:hover:bg-emerald-800 transition-all disabled:opacity-30 disabled:cursor-not-allowed touch-manipulation disabled:hover:scale-100"
-                                                                        >
-                                                                            <Plus className="h-4 w-4 text-emerald-700 dark:text-emerald-300" />
-                                                                        </motion.button>
-                                                                    </motion.div>
+                                                                            className="w-7 h-7 flex items-center justify-center rounded-md bg-background/80 shadow-sm hover:bg-background disabled:opacity-30 transition-all active:scale-95 border border-black/5 dark:border-white/5"
+                                                                         >
+                                                                            <Plus size={12} />
+                                                                         </button>
+                                                                    </div>
                                                                 </div>
 
-                                                                {/* Betting options */}
+                                                                {/* 💎 ADVANCED BETTING CARD (Reactive & Haptic) */}
                                                                 <motion.div
-                                                                    initial={{ opacity: 0, y: 10 }}
-                                                                    animate={{ opacity: 1, y: 0 }}
-                                                                    transition={{ delay: 0.6 }}
-                                                                    className="space-y-3"
+                                                                    initial={{ opacity: 0, scale: 0.95 }}
+                                                                    animate={betAmount > 0 && betAmount >= Math.floor(userCoins / 10) * 10 && userCoins > 0 ? { boxShadow: "0 0 40px rgba(249, 115, 22, 0.4)", opacity: 1, scale: 1 } : { boxShadow: "0 0 0px rgba(0,0,0,0)", opacity: 1, scale: 1 }}
+                                                                    transition={{ duration: 1.5 }} // Smooth breathing effect handled by a separate variant if needed, or simple CSS transition class
+                                                                    className={cn(
+                                                                        "relative overflow-hidden rounded-[2.5rem] p-6 border transition-all duration-300",
+                                                                        betAmount > 0
+                                                                            ? "bg-gradient-to-br from-orange-50 to-white dark:from-orange-950/30 dark:to-black border-orange-200 dark:border-orange-800"
+                                                                            : "bg-secondary/30 border-transparent dark:bg-white/5"
+                                                                    )}
                                                                 >
-                                                                    <div className="flex items-center gap-2">
-                                                                        <Coins className="h-4 w-4 text-amber-500" />
-                                                                        <span className="text-sm font-bold text-muted-foreground">Ставка (опционально)</span>
+                                                                    {/* Background Noise & Haptics Trigger Helper */}
+                                                                    <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] pointer-events-none" />
+
+                                                                    {/* HEADER */}
+                                                                    <div className="flex justify-between items-center mb-8 relative z-10">
+                                                                        <div className={cn(
+                                                                            "flex items-center gap-2 font-black text-[10px] tracking-[0.2em] uppercase transition-colors",
+                                                                            betAmount > 0 ? "text-orange-600 dark:text-orange-500" : "text-muted-foreground/60"
+                                                                        )}>
+                                                                            <Zap size={14} className={betAmount > 0 && betAmount >= Math.floor(userCoins / 10) * 10 ? "animate-pulse" : ""} />
+                                                                            {betAmount > 0 ? 'Азартный режим' : 'Тренировка'}
+                                                                        </div>
+                                                                        <motion.div
+                                                                            layout
+                                                                            className="bg-white/80 dark:bg-black/40 backdrop-blur px-3 py-1.5 rounded-xl text-[10px] font-mono font-bold text-muted-foreground border border-black/5 dark:border-white/10 flex items-center gap-1.5"
+                                                                        >
+                                                                            <span>БАЛАНС:</span>
+                                                                            <span className="text-foreground text-xs">{userCoins.toLocaleString()}</span>
+                                                                        </motion.div>
                                                                     </div>
 
-                                                                    {/* Bet type selector */}
-                                                                    <div className="flex gap-2">
-                                                                        <Button
-                                                                            type="button"
-                                                                            variant={betType === 'none' ? 'default' : 'outline'}
-                                                                            size="sm"
+                                                                    {/* MAIN CONTROLLER */}
+                                                                    <div className="flex items-center justify-between gap-4 relative z-10 mb-8">
+                                                                        {/* MINUS */}
+                                                                        <motion.button
+                                                                            whileTap={{ scale: 0.9 }}
                                                                             onClick={() => {
-                                                                                setBetType('none');
-                                                                                setBetAmount(0);
+                                                                                const newValue = Math.max(0, betAmount - 20);
+                                                                                setBetAmount(newValue);
+                                                                                setBetType(newValue === 0 ? 'none' : 'custom');
+                                                                                getTelegramWebApp()?.HapticFeedback?.impactOccurred('light');
                                                                             }}
-                                                                            className="flex-1 text-xs sm:text-sm"
+                                                                            disabled={betAmount === 0 || isCreating}
+                                                                            className="w-14 h-14 rounded-full bg-white dark:bg-white/10 shadow-sm border border-black/5 dark:border-white/10 flex items-center justify-center text-muted-foreground hover:text-orange-500 transition-colors disabled:opacity-30"
                                                                         >
-                                                                            Без ставки
-                                                                        </Button>
-                                                                        <Button
-                                                                            type="button"
-                                                                            variant={betType === 'fixed' ? 'default' : 'outline'}
-                                                                            size="sm"
-                                                                            onClick={() => setBetType('fixed')}
-                                                                            className="flex-1 text-xs sm:text-sm"
+                                                                            <Minus size={24} />
+                                                                        </motion.button>
+
+                                                                        {/* SLOT MACHINE DISPLAY */}
+                                                                        <div className="flex flex-col items-center justify-center h-20 w-full">
+                                                                            <AnimatePresence mode='wait'>
+                                                                                {betAmount === 0 ? (
+                                                                                    <motion.span
+                                                                                        key="free"
+                                                                                        initial={{ opacity: 0, y: 10 }}
+                                                                                        animate={{ opacity: 1, y: 0 }}
+                                                                                        exit={{ opacity: 0, y: -10 }}
+                                                                                        className="text-2xl font-black text-muted-foreground tracking-widest uppercase"
+                                                                                    >
+                                                                                        БЕСПЛАТНО
+                                                                                    </motion.span>
+                                                                                ) : (
+                                                                                    <div className="flex flex-col items-center">
+                                                                                        <div className="flex items-baseline gap-1 relative">
+                                                                                            <AnimatePresence mode='popLayout'>
+                                                                                                <motion.span
+                                                                                                    key={betAmount}
+                                                                                                    initial={{ y: 20, opacity: 0, filter: 'blur(4px)' }}
+                                                                                                    animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
+                                                                                                    exit={{ y: -20, opacity: 0, filter: 'blur(4px)' }}
+                                                                                                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                                                                                    className="text-6xl font-black text-foreground tracking-tighter tabular-nums leading-none"
+                                                                                                >
+                                                                                                    {betAmount}
+                                                                                                </motion.span>
+                                                                                            </AnimatePresence>
+                                                                                            <span className="absolute -right-8 top-0 text-3xl text-orange-500 font-bold animate-pulse">💰</span>
+                                                                                        </div>
+                                                                                        {/* PROFIT BADGE */}
+                                                                                        <motion.div
+                                                                                            initial={{ opacity: 0, scale: 0.8 }}
+                                                                                            animate={{ opacity: 1, scale: 1 }}
+                                                                                            className="mt-2 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wide flex items-center gap-1.5"
+                                                                                        >
+                                                                                            <Trophy size={12} className="fill-current" />
+                                                                                            ПРИЗ: {betAmount * 2}
+                                                                                        </motion.div>
+                                                                                    </div>
+                                                                                )}
+                                                                            </AnimatePresence>
+                                                                        </div>
+
+                                                                        {/* PLUS */}
+                                                                        <motion.button
+                                                                            whileTap={{ scale: 0.9 }}
+                                                                            onClick={() => {
+                                                                                const newValue = Math.min(Math.floor(userCoins / 10) * 10, betAmount + 20);
+                                                                                setBetAmount(newValue);
+                                                                                setBetType('custom');
+                                                                                getTelegramWebApp()?.HapticFeedback?.impactOccurred('medium');
+                                                                            }}
+                                                                            disabled={isCreating} // Allow going up to max coins logic handled in onClick
+                                                                            className={cn(
+                                                                                "w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white transition-all shrink-0",
+                                                                                betAmount > 0
+                                                                                    ? "bg-orange-500 shadow-orange-500/40 hover:bg-orange-600 hover:scale-105"
+                                                                                    : "bg-zinc-800 dark:bg-white dark:text-black hover:bg-zinc-700"
+                                                                            )}
                                                                         >
-                                                                            Фикс.
-                                                                        </Button>
-                                                                        <Button
-                                                                            type="button"
-                                                                            variant={betType === 'custom' ? 'default' : 'outline'}
-                                                                            size="sm"
-                                                                            onClick={() => setBetType('custom')}
-                                                                            className="flex-1 text-xs sm:text-sm"
-                                                                        >
-                                                                            Своя
-                                                                        </Button>
+                                                                            <Plus size={28} strokeWidth={3} />
+                                                                        </motion.button>
                                                                     </div>
 
-                                                                    {/* Fixed bet amounts */}
-                                                                    {betType === 'fixed' && (
-                                                                        <motion.div
-                                                                            initial={{ opacity: 0, height: 0 }}
-                                                                            animate={{ opacity: 1, height: 'auto' }}
-                                                                            exit={{ opacity: 0, height: 0 }}
-                                                                            className="grid grid-cols-4 gap-2"
-                                                                        >
-                                                                            {[10, 50, 100, 500].map((amount) => (
-                                                                                <Button
-                                                                                    key={amount}
-                                                                                    type="button"
-                                                                                    variant={betAmount === amount ? 'default' : 'outline'}
-                                                                                    size="sm"
-                                                                                    onClick={() => setBetAmount(amount)}
-                                                                                    disabled={userCoins < amount}
-                                                                                    className="text-xs sm:text-sm font-bold"
+                                                                    {/* PRESETS */}
+                                                                    <div className="grid grid-cols-4 gap-2 relative z-10">
+                                                                        {[0, 20, 50, "MAX"].map((val, i) => {
+                                                                            const isSelected = val === 'MAX'
+                                                                                ? (betAmount === Math.floor(userCoins / 10) * 10 && userCoins > 0 && betAmount > 0)
+                                                                                : betAmount === val;
+
+                                                                            return (
+                                                                                <motion.button
+                                                                                    key={i}
+                                                                                    whileTap={{ scale: 0.95 }}
+                                                                                    onClick={() => {
+                                                                                        const valNum = val === 'MAX' ? Math.floor(userCoins / 10) * 10 : Number(val);
+                                                                                        if (valNum <= userCoins) {
+                                                                                            setBetAmount(valNum);
+                                                                                            setBetType(valNum === 0 ? 'none' : 'fixed');
+                                                                                            getTelegramWebApp()?.HapticFeedback?.impactOccurred(val === 'MAX' ? 'heavy' : 'light');
+                                                                                        }
+                                                                                    }}
+                                                                                    disabled={val !== 'MAX' && typeof val === 'number' && val > userCoins}
+                                                                                    className={cn(
+                                                                                        "h-12 rounded-xl text-[11px] font-black transition-all border",
+                                                                                        isSelected
+                                                                                            ? "bg-orange-500 border-orange-600 text-white shadow-lg shadow-orange-500/20"
+                                                                                            : val === 'MAX'
+                                                                                                ? "bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-400 hover:bg-orange-500/20"
+                                                                                                : "bg-white dark:bg-white/5 border-transparent text-muted-foreground hover:bg-black/5 hover:text-foreground disabled:opacity-30"
+                                                                                    )}
                                                                                 >
-                                                                                    {amount}
-                                                                                </Button>
-                                                                            ))}
-                                                                        </motion.div>
-                                                                    )}
-
-                                                                    {/* Custom bet input */}
-                                                                    {betType === 'custom' && (
-                                                                        <motion.div
-                                                                            initial={{ opacity: 0, height: 0 }}
-                                                                            animate={{ opacity: 1, height: 'auto' }}
-                                                                            exit={{ opacity: 0, height: 0 }}
-                                                                            className="space-y-2"
-                                                                        >
-                                                                            <Input
-                                                                                type="number"
-                                                                                min="1"
-                                                                                max={Math.min(userCoins, 10000)}
-                                                                                value={betAmount || ''}
-                                                                                onChange={(e) => setBetAmount(parseInt(e.target.value) || 0)}
-                                                                                placeholder="Введите сумму"
-                                                                                className="text-center font-bold"
-                                                                            />
-                                                                            <p className="text-xs text-muted-foreground text-center">
-                                                                                Макс: {Math.min(userCoins, 10000)} монет
-                                                                            </p>
-                                                                        </motion.div>
-                                                                    )}
-
-                                                                    {/* Bet info */}
-                                                                    {betAmount > 0 && (
-                                                                        <motion.div
-                                                                            initial={{ opacity: 0 }}
-                                                                            animate={{ opacity: 1 }}
-                                                                            className="p-3 rounded-xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-800/50"
-                                                                        >
-                                                                            <div className="flex items-start gap-2 text-xs">
-                                                                                <DollarSign className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
-                                                                                <div className="space-y-1">
-                                                                                    <p className="font-semibold text-foreground">
-                                                                                        Банк: <span className="text-amber-600 dark:text-amber-400">{betAmount * 2}</span> монет
-                                                                                    </p>
-                                                                                    <p className="text-muted-foreground">
-                                                                                        Победитель: <span className="text-green-600 dark:text-green-400 font-bold">{betAmount * 2}</span> монет (банк полностью)
-                                                                                    </p>
-                                                                                    <p className="text-muted-foreground">
-                                                                                        При ничьей: ставки и страховка возвращаются
-                                                                                    </p>
-                                                                                    <p className="text-muted-foreground">
-                                                                                        Season Points: <span className="font-semibold text-primary">{getSeasonBonusPreview(betAmount)} SP</span>
-                                                                                    </p>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div className="mt-3 p-3 rounded-lg bg-white/70 dark:bg-amber-950/40 border border-amber-200/50 dark:border-amber-800/40 flex flex-col gap-2">
-                                                                                <div className="flex items-center justify-between gap-4">
-                                                                                    <div>
-                                                                                        <p className="text-sm font-semibold text-foreground">Страховка дуэли</p>
-                                                                                        <p className="text-xs text-muted-foreground">
-                                                                                            +{hostInsurancePremium} монет • возврат {Math.round(COVERAGE_RATE * 100)}% ставки при поражении
-                                                                                        </p>
-                                                                                        <p className="text-xs text-muted-foreground">
-                                                                                            Всего нужно: <span className="font-bold text-foreground">{hostTotalStake}</span> монет
-                                                                                        </p>
-                                                                                    </div>
-                                                                                    <Switch
-                                                                                        checked={hostInsuranceEnabled}
-                                                                                        onCheckedChange={(checked) => setHostInsuranceEnabled(checked)}
-                                                                                        disabled={betAmount <= 0 || hostTotalStake > userCoins}
-                                                                                    />
-                                                                                </div>
-                                                                                {hostTotalStake > userCoins && (
-                                                                                    <p className="text-xs font-semibold text-red-600 dark:text-red-400">
-                                                                                        Нужно ещё {hostTotalStake - userCoins} монет для страховки
-                                                                                    </p>
-                                                                                )}
-                                                                            </div>
-                                                                        </motion.div>
-                                                                    )}
+                                                                                    {val}
+                                                                                </motion.button>
+                                                                            );
+                                                                        })}
+                                                                    </div>
                                                                 </motion.div>
 
                                                                 {/* Loadout Selector */}

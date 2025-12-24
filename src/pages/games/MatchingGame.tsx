@@ -22,7 +22,7 @@ interface MatchPair {
 
 const MatchingGame = () => {
   const navigate = useNavigate();
-  
+
   const { profileId } = useUserContext();
   const [pairs, setPairs] = useState<MatchPair[]>([]);
   const [shuffledSpanish, setShuffledSpanish] = useState<MatchPair[]>([]);
@@ -77,23 +77,15 @@ const MatchingGame = () => {
         .from("language_terms")
         .select("id, term_es, term_ru");
 
-      if (allTermsError) {
-      toast({
-        title: "Ошибка",
-          description: "Не удалось загрузить термины",
-          variant: "destructive",
-        });
+      if (allTermsError || !allTerms) {
+        toast.error("Не удалось загрузить термины");
         return;
       }
 
-      if (!allTerms || allTerms.length < 4) {
-        toast({
-          title: "Нет данных",
-          description: "Недостаточно терминов для игры (минимум 4)",
-        variant: "destructive",
-      });
-      return;
-    }
+      if (allTerms.length < 4) {
+        toast.error("Недостаточно терминов для игры (минимум 4)");
+        return;
+      }
 
       let selectedTerms: typeof allTerms = [];
 
@@ -106,7 +98,7 @@ const MatchingGame = () => {
           .gte("times_practiced", 3);
 
         const studiedTermIds = new Set(studiedProgress?.map(p => p.term_id) || []);
-        
+
         // Разделяем термины на изученные и новые
         const studiedTerms = allTerms.filter(t => studiedTermIds.has(t.id));
         const newTerms = allTerms.filter(t => !studiedTermIds.has(t.id));
@@ -151,31 +143,27 @@ const MatchingGame = () => {
       setShuffledRussian(gamePairs);
     } catch (error) {
       console.error("Error loading terms:", error);
-      toast({
-        title: "Ошибка",
-        description: "Не удалось загрузить термины",
-        variant: "destructive",
-      });
+      toast.error("Не удалось загрузить термины");
     }
   };
 
   const startGame = async () => {
     // Загружаем новые термины при каждом запуске игры
     await loadTerms();
-    
+
     // Небольшая задержка для загрузки данных
     setTimeout(() => {
-    setIsGameActive(true);
-    setScore(0);
-    setAttempts(0);
-    setIsGameOver(false);
-    setStartTime(Date.now());
-    setSelectedSpanish(null);
-    setSelectedRussian(null);
+      setIsGameActive(true);
+      setScore(0);
+      setAttempts(0);
+      setIsGameOver(false);
+      setStartTime(Date.now());
+      setSelectedSpanish(null);
+      setSelectedRussian(null);
       setWrongSpanishIds(new Set());
       setWrongRussianIds(new Set());
       setCorrectAnswerIds(new Set());
-      
+
       // Используем текущие pairs (уже загруженные в loadTerms)
       setPairs(prevPairs => {
         const resetPairs = prevPairs.map(p => ({ ...p, matched: false }));
@@ -200,84 +188,79 @@ const MatchingGame = () => {
     if (spanishPair.id === russianPair.id) {
       // Correct match - обновляем pairs и синхронизируем shuffled массивы
       setPairs(prevPairs => {
-        const updatedPairs = prevPairs.map(p => 
-        p.id === selectedSpanish ? { ...p, matched: true } : p
+        const updatedPairs = prevPairs.map(p =>
+          p.id === selectedSpanish ? { ...p, matched: true } : p
         );
-        
+
         // Синхронизируем shuffled массивы с обновленным состоянием
-        setShuffledSpanish(prevShuffled => 
+        setShuffledSpanish(prevShuffled =>
           prevShuffled.map(p => p.id === selectedSpanish ? { ...p, matched: true } : p)
         );
-        setShuffledRussian(prevShuffled => 
+        setShuffledRussian(prevShuffled =>
           prevShuffled.map(p => p.id === selectedSpanish ? { ...p, matched: true } : p)
         );
-        
+
         return updatedPairs;
       });
-      
+
       setScore(prev => prev + 1);
-      
+
       // Звук и вибрация для правильного ответа
       sounds.correctAnswer();
       haptics.correctAnswer();
-      
+
       // Визуальный эффект для правильного ответа
       setCorrectAnswerIds(new Set([selectedSpanish, selectedRussian]));
       setTimeout(() => setCorrectAnswerIds(new Set()), 800);
-      
-      toast({
-        title: "Правильно! ✓",
+
+      toast.success("Правильно! ✓", {
         description: `${spanishPair.spanish} = ${spanishPair.russian}`,
-        duration: 2000,
       });
     } else {
       // Звук и вибрация для неправильного ответа
       sounds.wrongAnswer();
       haptics.wrongAnswer();
-      
+
       // Визуальный эффект для неправильного ответа
       // КРИТИЧЕСКИ ВАЖНО: подсвечиваем ТОЛЬКО выбранные неправильные карточки
       // НЕ подсвечиваем карточки с правильным ответом (которые уже matched)
       // Подсвечиваем именно те карточки, которые пользователь выбрал неправильно
       // Используем отдельные множества для испанских и русских карточек
-      
+
       // Очищаем предыдущие неправильные подсветки
       setWrongSpanishIds(new Set());
       setWrongRussianIds(new Set());
-      
+
       // Очищаем предыдущие правильные подсветки, чтобы избежать конфликтов
       setCorrectAnswerIds(new Set());
-      
+
       // Подсвечиваем ТОЛЬКО выбранную испанскую карточку (только если она не matched)
       if (selectedSpanish && spanishPair && !spanishPair.matched) {
         setWrongSpanishIds(new Set([selectedSpanish]));
         setTimeout(() => setWrongSpanishIds(new Set()), 1000);
       }
-      
+
       // Подсвечиваем ТОЛЬКО выбранную русскую карточку (только если она не matched)
       if (selectedRussian && russianPair && !russianPair.matched) {
         setWrongRussianIds(new Set([selectedRussian]));
         setTimeout(() => setWrongRussianIds(new Set()), 1000);
       }
-      
-      toast({
-        title: "Неправильно ✗",
+
+      toast.error("Неправильно ✗", {
         description: "Попробуйте другую пару",
-        variant: "destructive",
-        duration: 2000,
       });
     }
 
     // Сбрасываем выбор после небольшой задержки для визуального эффекта
     setTimeout(() => {
-    setSelectedSpanish(null);
-    setSelectedRussian(null);
+      setSelectedSpanish(null);
+      setSelectedRussian(null);
     }, 1000);
   };
 
   const endGame = async (finalScore?: number) => {
     const duration = Math.floor((Date.now() - startTime) / 1000);
-    
+
     // Используем переданное значение или текущее из state
     const gameScore = finalScore !== undefined ? finalScore : score;
 
@@ -339,11 +322,11 @@ const MatchingGame = () => {
               </div>
               <h2 className="text-xl md:text-2xl font-bold mb-2">Готовы начать?</h2>
               <p className="text-sm md:text-base text-muted-foreground mb-6">
-              Выберите испанское слово, затем его русский перевод
-            </p>
+                Выберите испанское слово, затем его русский перевод
+              </p>
               <Button size="lg" onClick={startGame} disabled={pairs.length < 4} className="shadow-lg">
-              Начать игру
-            </Button>
+                Начать игру
+              </Button>
             </div>
           </Card>
         )}
@@ -381,7 +364,7 @@ const MatchingGame = () => {
                     // 1. Карточка в correctAnswerIds (только что правильно сопоставлена)
                     // 2. Карточка НЕ уже правильно сопоставлена (matched) - это для анимации
                     const isCorrect = !pair.matched && correctAnswerIds.has(pair.id);
-                    
+
                     return (
                       <motion.div
                         key={`spanish-${pair.id}`}
@@ -395,26 +378,26 @@ const MatchingGame = () => {
                           ease: "easeInOut"
                         }}
                       >
-                  <Button
-                    onClick={() => !pair.matched && setSelectedSpanish(pair.id)}
-                    disabled={pair.matched}
+                        <Button
+                          onClick={() => !pair.matched && setSelectedSpanish(pair.id)}
+                          disabled={pair.matched}
                           variant="outline"
-                    className={cn(
+                          className={cn(
                             "w-full text-sm md:text-base lg:text-lg h-auto min-h-[60px] md:min-h-[70px] py-3 md:py-4 pl-5 md:pl-6 pr-4 md:pr-5",
                             "break-words whitespace-normal text-left justify-start",
                             "transition-all duration-300 border-2 rounded-xl",
                             "relative overflow-hidden",
-                            pair.matched 
-                              ? "opacity-60 cursor-not-allowed bg-success/10 border-2 border-success/50 shadow-sm text-foreground/60" 
+                            pair.matched
+                              ? "opacity-60 cursor-not-allowed bg-success/10 border-2 border-success/50 shadow-sm text-foreground/60"
                               : isWrong
-                              ? "bg-destructive/10 border-2 border-destructive/70 shadow-md text-foreground"
-                              : isCorrect
-                              ? "bg-success/20 border-2 border-success/70 shadow-lg text-foreground"
-                              : selectedSpanish === pair.id
-                              ? "bg-primary/10 border-2 border-primary shadow-md text-foreground"
-                              : "bg-card border-2 border-border hover:bg-primary/5 hover:border-primary/50 hover:shadow-sm text-foreground"
-                    )}
-                  >
+                                ? "bg-destructive/10 border-2 border-destructive/70 shadow-md text-foreground"
+                                : isCorrect
+                                  ? "bg-success/20 border-2 border-success/70 shadow-lg text-foreground"
+                                  : selectedSpanish === pair.id
+                                    ? "bg-primary/10 border-2 border-primary shadow-md text-foreground"
+                                    : "bg-card border-2 border-border hover:bg-primary/5 hover:border-primary/50 hover:shadow-sm text-foreground"
+                          )}
+                        >
                           {isWrong && (
                             <motion.div
                               initial={{ opacity: 0 }}
@@ -447,7 +430,7 @@ const MatchingGame = () => {
                               {pair.spanish}
                             </span>
                           </span>
-                  </Button>
+                        </Button>
                       </motion.div>
                     );
                   })}
@@ -468,7 +451,7 @@ const MatchingGame = () => {
                     // 1. Карточка в correctAnswerIds (только что правильно сопоставлена)
                     // 2. Карточка НЕ уже правильно сопоставлена (matched) - это для анимации
                     const isCorrect = !pair.matched && correctAnswerIds.has(pair.id);
-                    
+
                     return (
                       <motion.div
                         key={`russian-${pair.id}`}
@@ -482,26 +465,26 @@ const MatchingGame = () => {
                           ease: "easeInOut"
                         }}
                       >
-                  <Button
-                    onClick={() => !pair.matched && setSelectedRussian(pair.id)}
-                    disabled={pair.matched}
+                        <Button
+                          onClick={() => !pair.matched && setSelectedRussian(pair.id)}
+                          disabled={pair.matched}
                           variant="outline"
-                    className={cn(
+                          className={cn(
                             "w-full text-sm md:text-base lg:text-lg h-auto min-h-[60px] md:min-h-[70px] py-3 md:py-4 pl-5 md:pl-6 pr-4 md:pr-5",
                             "break-words whitespace-normal text-left justify-start",
                             "transition-all duration-300 border-2 rounded-xl",
                             "relative overflow-hidden",
-                            pair.matched 
-                              ? "opacity-60 cursor-not-allowed bg-success/10 border-2 border-success/50 shadow-sm text-foreground/60" 
+                            pair.matched
+                              ? "opacity-60 cursor-not-allowed bg-success/10 border-2 border-success/50 shadow-sm text-foreground/60"
                               : isWrong
-                              ? "bg-destructive/10 border-2 border-destructive/70 shadow-md text-foreground"
-                              : isCorrect
-                              ? "bg-success/20 border-2 border-success/70 shadow-lg text-foreground"
-                              : selectedRussian === pair.id
-                              ? "bg-secondary/10 border-2 border-secondary shadow-md text-foreground"
-                              : "bg-card border-2 border-border hover:bg-secondary/5 hover:border-secondary/50 hover:shadow-sm text-foreground"
-                    )}
-                  >
+                                ? "bg-destructive/10 border-2 border-destructive/70 shadow-md text-foreground"
+                                : isCorrect
+                                  ? "bg-success/20 border-2 border-success/70 shadow-lg text-foreground"
+                                  : selectedRussian === pair.id
+                                    ? "bg-secondary/10 border-2 border-secondary shadow-md text-foreground"
+                                    : "bg-card border-2 border-border hover:bg-secondary/5 hover:border-secondary/50 hover:shadow-sm text-foreground"
+                          )}
+                        >
                           {isWrong && (
                             <motion.div
                               initial={{ opacity: 0 }}
@@ -534,7 +517,7 @@ const MatchingGame = () => {
                               {pair.russian}
                             </span>
                           </span>
-                  </Button>
+                        </Button>
                       </motion.div>
                     );
                   })}
@@ -557,22 +540,22 @@ const MatchingGame = () => {
               <div className="space-y-3 mb-6">
                 <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
                   <p className="text-lg md:text-xl">
-                Все пары найдены за <span className="font-bold text-primary">{attempts}</span> попыток
-              </p>
+                    Все пары найдены за <span className="font-bold text-primary">{attempts}</span> попыток
+                  </p>
                 </div>
                 <div className="p-4 rounded-xl bg-secondary/5 border border-secondary/20">
                   <p className="text-base md:text-lg text-muted-foreground">
                     Точность: <span className="font-bold text-secondary">{((pairs.length / attempts) * 100).toFixed(0)}%</span>
-              </p>
-            </div>
+                  </p>
+                </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
                 <Button onClick={startGame} size="lg" className="w-full sm:w-auto shadow-lg">
-                Играть снова
-              </Button>
+                  Играть снова
+                </Button>
                 <Button variant="outline" onClick={() => navigate("/games")} size="lg" className="w-full sm:w-auto border-2">
-                К играм
-              </Button>
+                  К играм
+                </Button>
               </div>
             </div>
           </Card>

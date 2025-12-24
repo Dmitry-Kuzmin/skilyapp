@@ -23,9 +23,9 @@ interface AnswerButtonProps {
 }
 
 const fontSizeClasses = {
-  0: 'text-sm sm:text-base',
-  1: 'text-base sm:text-lg',
-  2: 'text-lg sm:text-xl',
+  0: 'text-base sm:text-lg',
+  1: 'text-lg sm:text-xl',
+  2: 'text-xl sm:text-2xl',
 };
 
 export const AnswerButton = memo(function AnswerButton({
@@ -62,7 +62,7 @@ export const AnswerButton = memo(function AnswerButton({
               : "border-border/20 opacity-40"
           : isSelected
             ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
-            : "border-slate-200 dark:border-slate-800 hover:border-blue-500/50 dark:hover:border-blue-400/50 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 hover:scale-[1.01] hover:shadow-md",
+            : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 hover:border-blue-500/50 dark:hover:border-blue-400/50 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 hover:scale-[1.01] hover:shadow-md",
         !disabled && !showResult && "cursor-pointer active:scale-[0.98] active:shadow-inner",
         className
       )}

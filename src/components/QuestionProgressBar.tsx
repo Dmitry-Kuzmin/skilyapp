@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button';
-import { X, Grid3x3, Bookmark, BookmarkCheck, MoreVertical, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { X, Grid3x3, Bookmark, BookmarkCheck, MoreVertical, CheckCircle2, XCircle, Clock, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { usePDDContext } from '@/contexts/PDDContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface QuestionProgressBarProps {
   currentIndex: number;
@@ -33,6 +34,8 @@ interface QuestionProgressBarProps {
   hideScoreIndicators?: boolean;
 
   className?: string;
+  layout?: 'standard' | 'focus';
+  streak?: number;
 }
 
 export function QuestionProgressBar({
@@ -50,8 +53,11 @@ export function QuestionProgressBar({
   customLeftContent,
   answers = [],
   hideScoreIndicators = false,
+  streak = 0,
   className,
+  layout = 'standard',
 }: QuestionProgressBarProps) {
+  const { t } = useLanguage();
   const { selectedCountry } = usePDDContext();
   const isRussia = selectedCountry === 'russia';
 
@@ -60,16 +66,26 @@ export function QuestionProgressBar({
   const incorrectCount = answers.filter(a => !a.isCorrect).length;
 
   return (
-    <div className={cn("flex items-center gap-2 sm:gap-3", className)}>
-      {/* Close button слева */}
+    <div className={cn(
+      "flex items-center gap-2 sm:gap-4 transition-all duration-500",
+      layout === 'focus' ? "py-4 sm:py-6" : "py-2",
+      className
+    )}>
+      {/* Close button (Always on left) */}
       {showClose && onClose && (
         <Button
           variant="ghost"
           size="icon"
           onClick={onClose}
-          className="shrink-0 h-10 w-10 sm:h-11 sm:w-11 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors shadow-sm border border-border/30"
+          className={cn(
+            "shrink-0 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors shadow-sm border border-border/30",
+            layout === 'focus' ? "h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-border/30 group" : "h-10 w-10 sm:h-11 sm:w-11"
+          )}
         >
-          <X className="h-4 w-4 sm:h-5 sm:h-5" />
+          <X className={cn(
+            "transition-transform duration-300",
+            layout === 'focus' ? "h-5 w-5 sm:h-6 sm:h-6 group-hover:rotate-90" : "h-4 w-4 sm:h-5 sm:h-5"
+          )} />
         </Button>
       )}
 
@@ -78,37 +94,87 @@ export function QuestionProgressBar({
 
       {/* Progress Bar - растягивается по центру */}
       <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-        {/* Question Counter */}
-        {showQuestionMap && onShowQuestionMap ? (
-          <button
-            onClick={onShowQuestionMap}
-            className={cn(
-              "flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl backdrop-blur-md shadow-sm hover:shadow-md transition-all cursor-pointer active:scale-95 border group shrink-0",
-              isRussia
-                ? "bg-white/90 dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 hover:border-blue-500/50"
-                : "bg-background/80 border-border/50 hover:border-accent/50"
-            )}
-          >
-            <Grid3x3 className={cn(
-              "w-4 h-4 sm:w-4.5 sm:h-4.5 group-hover:scale-110 transition-transform",
-              isRussia ? "text-blue-600 dark:text-blue-400" : "text-accent"
-            )} />
-            <span className="font-bold text-foreground text-sm sm:text-base">
-              {currentIndex + 1}<span className="text-muted-foreground text-xs sm:text-sm font-medium">/{totalQuestions}</span>
-            </span>
-          </button>
-        ) : (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-background/80 backdrop-blur-md shadow-sm border border-border/30 shrink-0">
-            <span className="font-bold text-foreground text-sm">
-              {currentIndex + 1}<span className="text-muted-foreground text-xs">/{totalQuestions}</span>
-            </span>
-          </div>
-        )}
+        {/* Question Counter / Streak Counter */}
+        <div className="flex items-center gap-2">
+          {showQuestionMap && onShowQuestionMap ? (
+            <button
+              onClick={onShowQuestionMap}
+              className={cn(
+                "flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl backdrop-blur-md shadow-sm hover:shadow-md transition-all cursor-pointer active:scale-95 border group shrink-0",
+                isRussia
+                  ? "bg-white/90 dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 hover:border-blue-500/50"
+                  : "bg-background/80 border-border/50 hover:border-accent/50"
+              )}
+            >
+              <Grid3x3 className={cn(
+                "w-4 h-4 sm:w-4.5 sm:h-4.5 group-hover:scale-110 transition-transform",
+                isRussia ? "text-blue-600 dark:text-blue-400" : "text-accent"
+              )} />
+              <span className="font-bold text-foreground text-sm sm:text-base">
+                {currentIndex + 1}<span className="text-muted-foreground text-xs sm:text-sm font-medium">/{totalQuestions}</span>
+              </span>
+            </button>
+          ) : (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-background/80 backdrop-blur-md shadow-sm border border-border/30 shrink-0">
+              <span className="font-bold text-foreground text-sm">
+                {currentIndex + 1}<span className="text-muted-foreground text-xs">/{totalQuestions}</span>
+              </span>
+            </div>
+          )}
+
+          {/* 🔥 Streak Counter (Only in Practice/PDD modes for RF) */}
+          {isRussia && streak >= 3 && (
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0, x: -10 }}
+              animate={{ scale: 1, opacity: 1, x: 0 }}
+              key={`streak-${streak}`}
+              className={cn(
+                "flex items-center gap-2 px-3 py-2 rounded-xl border-2 shadow-lg relative overflow-hidden",
+                streak >= 5
+                  ? "bg-orange-500 border-orange-400 text-white shadow-orange-500/40"
+                  : "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400"
+              )}
+            >
+              <div className="flex items-center gap-1.5 relative z-10">
+                <motion.span
+                  animate={streak >= 5 ? {
+                    y: [0, -2, 0],
+                    scale: [1, 1.1, 1]
+                  } : {}}
+                  transition={{ duration: 0.5, repeat: Infinity }}
+                >
+                  🔥
+                </motion.span>
+                <div className="flex flex-col leading-none">
+                  <span className="text-[10px] uppercase font-bold opacity-80">{t('streakCounter')}</span>
+                  <span className="font-black text-sm">{streak}</span>
+                </div>
+              </div>
+
+              {streak >= 5 && (
+                <motion.div
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    opacity: [0.3, 0.6, 0.3]
+                  }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  className="absolute inset-0 bg-white"
+                />
+              )}
+
+              {streak >= 10 && (
+                <div className="absolute top-0 right-0 p-0.5">
+                  <Sparkles className="w-3 h-3 text-yellow-200 animate-pulse" />
+                </div>
+              )}
+            </motion.div>
+          )}
+        </div>
 
         {/* Horizontal Progress Bar with visual indicators */}
         <div className={cn(
-          "flex-1 h-3 sm:h-3.5 rounded-full shadow-inner border min-w-[60px] relative overflow-hidden",
-          isRussia ? "bg-slate-200/50 dark:bg-slate-800/50 border-slate-300/50 dark:border-slate-700/50" : "bg-muted/50 border-border/30"
+          "flex-1 rounded-full shadow-inner border min-w-[60px] relative overflow-hidden transition-all duration-300",
+          layout === 'focus' ? "h-4 sm:h-5 border-border/50 bg-muted/30" : (isRussia ? "h-3 sm:h-3.5 bg-slate-200/50 dark:bg-slate-800/50 border-slate-300/50 dark:border-slate-700/50" : "h-3 sm:h-3.5 bg-muted/50 border-border/30")
         )}>
           {/* Progress fill */}
           <motion.div
@@ -146,7 +212,7 @@ export function QuestionProgressBar({
         )}
       </div>
 
-      {/* Right Side Controls - Bookmark + Settings */}
+      {/* Right Side Controls - Bookmark + Settings + Close (in focus mode) */}
       <div className="flex items-center gap-2 shrink-0">
         {/* Bookmark Button */}
         {onToggleBookmark && (
@@ -172,6 +238,8 @@ export function QuestionProgressBar({
 
         {/* Settings Menu */}
         {SettingsMenuComponent}
+
+
       </div>
     </div>
   );
