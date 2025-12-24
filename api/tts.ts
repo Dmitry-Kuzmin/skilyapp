@@ -1,6 +1,11 @@
 import { MsEdgeTTS, OUTPUT_FORMAT } from 'msedge-tts';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+// Форсируем Node.js runtime для совместимости с WebSocket в msedge-tts
+export const config = {
+    runtime: 'nodejs',
+};
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     const text = req.query.text as string;
     const voice = req.query.voice as string;
@@ -59,11 +64,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
 
     } catch (error: any) {
-        console.error('[TTS API] General Error:', error);
+        console.error('[TTS API] CRITICAL ERROR:', error);
         if (!res.writableEnded) {
             res.status(500).json({
-                error: 'Failed to generate neural speech',
-                details: error?.message || 'Unknown error'
+                error: 'Internal Server Error',
+                details: error?.message || 'Unknown error',
+                stack: error?.stack,
+                env: process.env.NODE_ENV
             });
         }
     }
