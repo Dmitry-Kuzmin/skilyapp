@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    },
+    {
       "source": "/assets/:path*",
       "destination": "/assets/:path*"
     },
@@ -21,7 +25,7 @@
       "destination": "/index.html"
     },
     {
-      "source": "/((?!assets|favicon|manifest|sw\\.js|workbox-.*\\.js).*)",
+      "source": "/((?!api|assets|favicon|manifest|sw\\.js|workbox-.*\\.js).*)",
       "destination": "/index.html"
     }
   ],
@@ -91,5 +95,10 @@
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/tts.ts": {
+      "maxDuration": 20
+    }
+  }
 }
