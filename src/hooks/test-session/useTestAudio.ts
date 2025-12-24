@@ -1,5 +1,8 @@
 import { useEffect, useRef } from 'react';
 
+// Кэш в памяти: текст -> blob url
+const audioCache = new Map<string, string>();
+
 /**
  * Хук для озвучки вопросов в тестах.
  * Приоритет: Neural TTS (Microsoft Edge API) -> Система (SpeechSynthesis)
@@ -12,6 +15,7 @@ export const useTestAudio = (
     const hasSpokenRef = useRef<string>('');
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const fallbackTimeoutRef = useRef<any>(null);
+    const abortControllerRef = useRef<AbortController | null>(null);
 
     // Вспомогательная функция для выбора системного голоса (fallback)
     const getSystemVoice = () => {
@@ -25,9 +29,9 @@ export const useTestAudio = (
         };
 
         const targets = langMap[language] || [];
-        for (const target of targets) {
-            const voice = voices.find(v => v.lang.includes(target) || v.name.includes(target));
-            if (voice) return voice;
+        for (const target of voices) {
+            const isTarget = targets.some(t => target.lang.includes(t) || target.name.includes(t));
+            if (isTarget) return target;
         }
 
         return voices.find(v => v.lang.startsWith(language));
@@ -53,6 +57,11 @@ export const useTestAudio = (
     };
 
     const stopAll = () => {
+        // Отмена активного запроса
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+            abortControllerRef.current = null;
+        }
         // Остановка HTML5 Audio
         if (audioRef.current) {
             audioRef.current.pause();
@@ -102,20 +111,37 @@ export const useTestAudio = (
         stopAll();
 
         const playNeuralTTS = async () => {
+            const cacheKey = `${language}:${currentQuestionText} `;
+
             try {
-                const url = `/api/tts?text=${encodeURIComponent(currentQuestionText)}&lang=${language}`;
-                const audio = new Audio(url);
+                let audioUrl = audioCache.get(cacheKey);
+
+                if (!audioUrl) {
+                    abortControllerRef.current = new AbortController();
+                    const response = await fetch(
+                        `/ api / tts ? text = ${encodeURIComponent(currentQuestionText)}& lang=${language} `,
+                        { signal: abortControllerRef.current.signal }
+                    );
+
+                    if (!response.ok) throw new Error(`TTS API error: ${response.status} `);
+
+                    const blob = await response.blob();
+                    audioUrl = URL.createObjectURL(blob);
+                    audioCache.set(cacheKey, audioUrl);
+                }
+
+                const audio = new Audio(audioUrl);
                 audioRef.current = audio;
 
                 // Предохранитель (Fallback Timeout):
-                // Если через 2.5 сек аудио не начало играть, включаем робота
+                // Увеличиваем до 8 секунд, чтобы дождаться качественного голоса
                 fallbackTimeoutRef.current = setTimeout(() => {
                     if (audio.paused || audio.readyState < 3) {
-                        console.warn('[TTS] Neural timeout, falling back...');
+                        console.warn('[TTS] Neural timeout (8s), falling back to system voice');
                         stopAll();
                         playFallback(currentQuestionText);
                     }
-                }, 2500);
+                }, 8000);
 
                 audio.onplay = () => {
                     if (fallbackTimeoutRef.current) {
@@ -125,18 +151,22 @@ export const useTestAudio = (
                 };
 
                 audio.onerror = () => {
-                    console.error('[TTS] Neural error, falling back...');
+                    console.error('[TTS] Audio element error, falling back...');
                     stopAll();
                     playFallback(currentQuestionText);
                 };
 
                 await audio.play();
                 hasSpokenRef.current = currentQuestionText;
-            } catch (err) {
+            } catch (err: any) {
+                if (err.name === 'AbortError') return;
+
                 console.warn('[TTS] Neural failed to play:', err);
                 stopAll();
                 playFallback(currentQuestionText);
                 hasSpokenRef.current = currentQuestionText;
+            } finally {
+                abortControllerRef.current = null;
             }
         };
 
