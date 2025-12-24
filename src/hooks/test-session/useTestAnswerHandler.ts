@@ -64,6 +64,7 @@ interface UseTestAnswerHandlerOptions {
 
     // Practice mode detection
     isPracticeLikeMode: boolean;
+    isRussia?: boolean;
 }
 
 interface UseTestAnswerHandlerResult {
@@ -104,6 +105,7 @@ export function useTestAnswerHandler(options: UseTestAnswerHandlerOptions): UseT
         addPenalty,
         nextQuestion,
         isPracticeLikeMode,
+        isRussia = false,
     } = options;
 
     const isProcessingRef = useRef(false);
@@ -233,21 +235,24 @@ export function useTestAnswerHandler(options: UseTestAnswerHandlerOptions): UseT
                 }
             }
 
-            // Add to Challenge Bank on first error (not in mastery mode)
-            if (!isCorrect && profileId && mode !== "mastery") {
-                await handleChallengeBankUpdate(
-                    currentQuestion.id,
-                    profileId,
-                    answers,
-                    isFirstWrongAnswer,
-                    setIsFirstWrongAnswer,
-                    setIsQuestionBookmarked,
-                    setShowChallengeBankNotification
-                );
-            }
+            // Save user progress to server (Skip for Russia due to FK constraints)
+            if (!isRussia) {
+                // Add to Challenge Bank on first error (not in mastery mode)
+                if (!isCorrect && profileId && mode !== "mastery") {
+                    await handleChallengeBankUpdate(
+                        currentQuestion.id,
+                        profileId,
+                        answers,
+                        isFirstWrongAnswer,
+                        setIsFirstWrongAnswer,
+                        setIsQuestionBookmarked,
+                        setShowChallengeBankNotification
+                    ).catch(err => console.error('[Challenge Bank] Silent error:', err));
+                }
 
-            // Save user progress to server
-            await saveUserProgress(currentQuestion.id, isCorrect);
+                // Save user progress to server
+                await saveUserProgress(currentQuestion.id, isCorrect).catch(err => console.error('[Progress] Silent error:', err));
+            }
 
             // Mode-specific behavior
             if (isPracticeLikeMode) {

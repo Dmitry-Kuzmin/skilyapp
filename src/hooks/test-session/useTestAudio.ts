@@ -1,5 +1,9 @@
 import { useEffect, useRef } from 'react';
 
+/**
+ * Хук для озвучки вопросов в тестах.
+ * Приоритет: Neural TTS (Microsoft Edge API) -> Система (SpeechSynthesis)
+ */
 export const useTestAudio = (
     voiceOver: boolean,
     currentQuestionText: string | undefined,
@@ -9,17 +13,24 @@ export const useTestAudio = (
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const fallbackTimeoutRef = useRef<any>(null);
 
-    const getRussianVoice = () => {
+    // Вспомогательная функция для выбора системного голоса (fallback)
+    const getSystemVoice = () => {
         if (typeof window === 'undefined' || !window.speechSynthesis) return null;
         const voices = window.speechSynthesis.getVoices();
 
-        const googleVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('ru'));
-        if (googleVoice) return googleVoice;
+        const langMap: Record<string, string[]> = {
+            'ru': ['ru-RU', 'ru_RU', 'Google русский'],
+            'es': ['es-ES', 'es-SP', 'Google español'],
+            'en': ['en-US', 'en-GB', 'Google US English']
+        };
 
-        const exactRu = voices.find(v => v.lang === 'ru-RU' || v.lang === 'ru_RU');
-        if (exactRu) return exactRu;
+        const targets = langMap[language] || [];
+        for (const target of targets) {
+            const voice = voices.find(v => v.lang.includes(target) || v.name.includes(target));
+            if (voice) return voice;
+        }
 
-        return voices.find(v => v.lang.includes('ru'));
+        return voices.find(v => v.lang.startsWith(language));
     };
 
     const playFallback = (text: string) => {
@@ -27,43 +38,39 @@ export const useTestAudio = (
 
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
+        const voice = getSystemVoice();
 
-        if (language === 'ru') {
-            const ruVoice = getRussianVoice();
-            if (ruVoice) {
-                utterance.voice = ruVoice;
-                utterance.lang = ruVoice.lang;
-            } else {
-                utterance.lang = 'ru-RU';
-            }
-            utterance.rate = 0.95;
-        } else if (language === 'en') {
-            utterance.lang = 'en-US';
-            utterance.rate = 1.0;
+        if (voice) {
+            utterance.voice = voice;
+            utterance.lang = voice.lang;
         } else {
-            utterance.lang = 'es-ES';
-            utterance.rate = 1.0;
+            utterance.lang = language === 'ru' ? 'ru-RU' : (language === 'en' ? 'en-US' : 'es-ES');
         }
 
-        utterance.pitch = 1;
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
         window.speechSynthesis.speak(utterance);
     };
 
     const stopAll = () => {
+        // Остановка HTML5 Audio
         if (audioRef.current) {
             audioRef.current.pause();
             audioRef.current.src = '';
             audioRef.current = null;
         }
+        // Очистка таймаута
         if (fallbackTimeoutRef.current) {
             clearTimeout(fallbackTimeoutRef.current);
             fallbackTimeoutRef.current = null;
         }
+        // Остановка SpeechSynthesis
         if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
             window.speechSynthesis.cancel();
         }
     };
 
+    // Предзагрузка голосов
     useEffect(() => {
         const loadVoices = () => {
             if (typeof window !== 'undefined' && window.speechSynthesis) {
@@ -71,11 +78,9 @@ export const useTestAudio = (
             }
         };
         loadVoices();
-
         if (typeof window !== 'undefined' && window.speechSynthesis) {
             window.speechSynthesis.onvoiceschanged = loadVoices;
         }
-
         return () => {
             if (typeof window !== 'undefined' && window.speechSynthesis) {
                 window.speechSynthesis.onvoiceschanged = null;
@@ -91,21 +96,22 @@ export const useTestAudio = (
             return;
         }
 
+        // Не озвучиваем тот же текст повторно
         if (hasSpokenRef.current === currentQuestionText) return;
 
         stopAll();
 
-        // Neural TTS Logic
-        const playNeural = async () => {
+        const playNeuralTTS = async () => {
             try {
                 const url = `/api/tts?text=${encodeURIComponent(currentQuestionText)}&lang=${language}`;
                 const audio = new Audio(url);
                 audioRef.current = audio;
 
-                // Устанавливаем предохранитель: если через 2.5 сек звук не начал играть, включаем робота
+                // Предохранитель (Fallback Timeout):
+                // Если через 2.5 сек аудио не начало играть, включаем робота
                 fallbackTimeoutRef.current = setTimeout(() => {
                     if (audio.paused || audio.readyState < 3) {
-                        console.warn('Neural TTS timeout, switching to fallback');
+                        console.warn('[TTS] Neural timeout, falling back...');
                         stopAll();
                         playFallback(currentQuestionText);
                     }
@@ -119,7 +125,7 @@ export const useTestAudio = (
                 };
 
                 audio.onerror = () => {
-                    console.warn('Neural TTS error, switching to fallback');
+                    console.error('[TTS] Neural error, falling back...');
                     stopAll();
                     playFallback(currentQuestionText);
                 };
@@ -127,18 +133,19 @@ export const useTestAudio = (
                 await audio.play();
                 hasSpokenRef.current = currentQuestionText;
             } catch (err) {
-                console.warn('Neural TTS play failed:', err);
+                console.warn('[TTS] Neural failed to play:', err);
                 stopAll();
                 playFallback(currentQuestionText);
                 hasSpokenRef.current = currentQuestionText;
             }
         };
 
-        playNeural();
+        playNeuralTTS();
 
         return () => stopAll();
     }, [voiceOver, currentQuestionText, language]);
 
+    // Чистим при размонтировании
     useEffect(() => {
         return () => stopAll();
     }, []);

@@ -428,6 +428,8 @@ const TestSession = () => {
   // Сохраняем настройки в localStorage
 
 
+  const isRussia = (countryParam || selectedCountry) === 'russia';
+
   useEffect(() => {
     localStorage.setItem('test-language', testLanguage);
   }, [testLanguage]);
@@ -438,12 +440,23 @@ const TestSession = () => {
   useTestAmbientMusic(ambientMusic);
 
   // Voice Over Hook
+  const voiceOverText = useMemo(() => {
+    if (!questionsState[currentIndex]) return undefined;
+    const q = questionsState[currentIndex];
+    // Если регион Россия или включен перевод - читаем на русском
+    if (isRussia || showTranslation) return q.question_ru;
+    return testLanguage === 'en' ? q.question_en : q.question_es;
+  }, [questionsState, currentIndex, isRussia, showTranslation, testLanguage]);
+
+  const voiceOverLang = useMemo(() => {
+    if (isRussia || showTranslation) return 'ru';
+    return testLanguage;
+  }, [isRussia, showTranslation, testLanguage]);
+
   useTestAudio(
     voiceOver,
-    questionsState[currentIndex]
-      ? (testLanguage === 'en' ? questionsState[currentIndex].question_en : questionsState[currentIndex].question_es)
-      : undefined,
-    testLanguage
+    voiceOverText,
+    voiceOverLang
   );
 
 
@@ -548,8 +561,19 @@ const TestSession = () => {
   // These aliases allow the existing useEffect to work unchanged
   // ============================================
 
-  // Определяем shouldUsePDD для совместимости
-  const shouldUsePDD = selectedCountry === 'russia' && (mode === 'practice' || mode === 'blitz' || mode === 'exam' || mode === 'mastery' || mode === 'hardest' || mode === 'by-topic' || mode === 'nonstop');
+  // ПДД РФ активно для России во всех тренировочных режимах и экзамене
+  const shouldUsePDD = isRussia && (
+    mode === 'practice' ||
+    mode === 'blitz' ||
+    mode === 'exam' ||
+    mode === 'mastery' ||
+    mode === 'hardest' ||
+    mode === 'by-topic' ||
+    mode === 'nonstop' ||
+    mode === 'pdd-ticket' ||
+    mode === 'exam-russia' ||
+    mode === 'sequential'
+  );
 
   // Алиасы для отдельных хуков — создаём объекты с тем же интерфейсом
   const challengeBankQuestions = useMemo(() => ({
@@ -966,6 +990,13 @@ const TestSession = () => {
 
     try {
       setBookmarkLoading(true);
+
+      // ВРЕМЕННЫЙ ФИКС: Российские вопросы пока не поддерживают закладки из-за FK в БД
+      if (isRussia) {
+        toast.info("Закладки для ПДД РФ будут доступны в следующем обновлении");
+        setIsQuestionBookmarked(!isQuestionBookmarked);
+        return;
+      }
 
       if (isQuestionBookmarked) {
         // Удаляем из закладок
@@ -1653,123 +1684,89 @@ const TestSession = () => {
       }
     }
 
-    // НЕ показываем Lumi автоматически - только по клику на floating button
-    // Это экономит токены AI
+    // ВРЕМЕННЫЙ ФИКС: Сохраняем прогресс и ошибки в БД только для испанских вопросов (DGT)
+    // Российские вопросы пока отсутствуют в таблице questions_new, что вызывает 409 Conflict
+    if (!isRussia) {
+      // Добавляем вопрос в Challenge Bank при первой ошибке (не в mastery mode)
+      if (!isCorrect && profileId && mode !== "mastery") {
+        try {
+          const wrongAnswersInThisTest = answers.filter(a => !a.isCorrect).length;
+          const showNotification = wrongAnswersInThisTest === 0 && isFirstWrongAnswer;
 
-    // Добавляем вопрос в Challenge Bank при первой ошибке (не в mastery mode)
-    if (!isCorrect && profileId && mode !== "mastery") {
-      try {
-        console.log('[Challenge Bank] Условия: isCorrect=', isCorrect, 'profileId=', profileId, 'mode=', mode);
+          setIsQuestionBookmarked(true);
 
-        // Проверяем, первая ли это ошибка в тесте
-        const wrongAnswersInThisTest = answers.filter(a => !a.isCorrect).length;
-        const showNotification = wrongAnswersInThisTest === 0 && isFirstWrongAnswer;
-
-        console.log('[Challenge Bank] wrongAnswersInThisTest=', wrongAnswersInThisTest, 'isFirstWrongAnswer=', isFirstWrongAnswer, 'showNotification=', showNotification);
-
-        // Закрашиваем иконку синим при ЛЮБОЙ ошибке
-        setIsQuestionBookmarked(true);
-
-        // Уведомление показываем только при ПЕРВОЙ ошибке и если пользователь не скрыл его
-        const isNotificationHidden = localStorage.getItem('challenge-bank-notification-hidden') === 'true';
-        if (showNotification && !isNotificationHidden) {
-          console.log('[Challenge Bank] Показываем уведомление!');
-          setIsFirstWrongAnswer(false);
-          setShowChallengeBankNotification(true);
-        }
-
-        // Добавляем или обновляем вопрос в Challenge Bank
-        // @ts-ignore - таблица user_challenge_questions существует в БД, но типы не обновлены
-        const { data: existing, error: selectError } = await (supabase as any)
-          .from('user_challenge_questions')
-          .select('id, times_wrong')
-          .eq('user_id', profileId)
-          .eq('question_id', currentQuestion.id)
-          .maybeSingle();
-
-        if (selectError) {
-          console.error('[Challenge Bank] Ошибка при проверке существующего вопроса:', selectError);
-        }
-
-        if (existing) {
-          // Обновляем существующую запись
-          // @ts-ignore - таблица user_challenge_questions существует в БД, но типы не обновлены
-          const { error: updateError } = await (supabase as any)
-            .from('user_challenge_questions')
-            .update({
-              times_wrong: existing.times_wrong + 1,
-              last_wrong_at: new Date().toISOString(),
-              mastered: false, // Сбрасываем статус "освоено"
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', existing.id);
-
-          if (updateError) {
-            console.error('[Challenge Bank] Ошибка при обновлении:', updateError);
-          } else {
-            console.log('[Challenge Bank] Вопрос обновлен в БД');
+          const isNotificationHidden = localStorage.getItem('challenge-bank-notification-hidden') === 'true';
+          if (showNotification && !isNotificationHidden) {
+            setIsFirstWrongAnswer(false);
+            setShowChallengeBankNotification(true);
           }
-        } else {
-          // Создаем новую запись
-          // @ts-ignore - таблица user_challenge_questions существует в БД, но типы не обновлены
-          const { error: insertError } = await (supabase as any)
-            .from('user_challenge_questions')
-            .insert({
-              user_id: profileId,
-              question_id: currentQuestion.id,
-              times_wrong: 1,
-              last_wrong_at: new Date().toISOString(),
-            });
 
-          if (insertError) {
-            console.error('[Challenge Bank] Ошибка при вставке:', insertError);
+          const { data: existing, error: selectError } = await (supabase as any)
+            .from('user_challenge_questions')
+            .select('id, times_wrong')
+            .eq('user_id', profileId)
+            .eq('question_id', currentQuestion.id)
+            .maybeSingle();
+
+          if (existing) {
+            await (supabase as any)
+              .from('user_challenge_questions')
+              .update({
+                times_wrong: existing.times_wrong + 1,
+                last_wrong_at: new Date().toISOString(),
+                mastered: false,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', existing.id);
           } else {
-            console.log('[Challenge Bank] Новый вопрос добавлен в БД');
+            await (supabase as any)
+              .from('user_challenge_questions')
+              .insert({
+                user_id: profileId,
+                question_id: currentQuestion.id,
+                times_wrong: 1,
+                last_wrong_at: new Date().toISOString(),
+              });
           }
+        } catch (error) {
+          console.error('[Challenge Bank] Общая ошибка:', error);
         }
-      } catch (error) {
-        console.error('[Challenge Bank] Общая ошибка:', error);
       }
-    } else {
-      console.log('[Challenge Bank] Условия не выполнены: isCorrect=', isCorrect, 'profileId=', !!profileId, 'mode=', mode);
-    }
 
-    // Save user progress
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("id")
-          .eq("user_id", user.id)
-          .single();
+      // Save user progress
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("user_id", user.id)
+            .single();
 
-        if (profile) {
-          const progressData = {
-            user_id: profile.id,
-            question_id: currentQuestion.id,
-            is_answered: true,
-            is_correct: isCorrect,
-            attempts: Math.min(Math.max(1, 1), 10), // Ensure 1-10 range
-            last_attempt_at: new Date().toISOString(),
-          };
+          if (profile) {
+            const progressData = {
+              user_id: profile.id,
+              question_id: currentQuestion.id,
+              is_answered: true,
+              is_correct: isCorrect,
+              attempts: 1,
+              last_attempt_at: new Date().toISOString(),
+            };
 
-          const { error } = await (supabase as any)
-            .from("user_progress")
-            .upsert(progressData, {
-              onConflict: 'user_id,question_id',
-            });
+            const { error } = await (supabase as any)
+              .from("user_progress")
+              .upsert(progressData, {
+                onConflict: 'user_id,question_id',
+              });
 
-          if (error) {
-            // Игнорируем ошибки 409 (Conflict) - это нормально при параллельных запросах
-            if (error.code !== '23505' && !error.message?.includes('409')) {
+            if (error && error.code !== '23505' && !error.message?.includes('409')) {
               console.error('[TestSession] Error upserting user_progress:', error);
             }
           }
         }
+      } catch (error) {
+        console.error("Error saving progress:", error);
       }
-    } catch (error) {
-      console.error("Error saving progress:", error);
     }
 
     if (isPracticeLikeMode) {
@@ -2082,7 +2079,7 @@ const TestSession = () => {
     if (typeof seconds !== 'number' || isNaN(seconds) || !isFinite(seconds)) return "20:00";
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")} `;
   };
 
   if (loading) {
@@ -2283,8 +2280,8 @@ const TestSession = () => {
                   {/* Timer для экзамена и блица */}
                   {(mode === "exam" || mode === "blitz") && (
                     <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background/80 backdrop-blur-md border border-border/50 shadow-sm shrink-0">
-                      <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${timeLeft < 300 ? "text-destructive" : "text-foreground/70"}`} />
-                      <span className={`font-mono font-semibold text-xs sm:text-sm ${timeLeft < 300 ? "text-destructive" : "text-foreground"}`}>
+                      <Clock className={`w - 4 h - 4 sm: w - 5 sm: h - 5 ${timeLeft < 300 ? "text-destructive" : "text-foreground/70"} `} />
+                      <span className={`font - mono font - semibold text - xs sm: text - sm ${timeLeft < 300 ? "text-destructive" : "text-foreground"} `}>
                         {formatTime(timeLeft)}
                       </span>
                     </div>
@@ -2400,175 +2397,108 @@ const TestSession = () => {
             data-testid="question-card"
             className={cn(
               "p-3 sm:p-4 md:p-6 bg-background border-border/50 shadow-xl backdrop-blur-sm transition-all duration-300 relative overflow-hidden",
-              feedbackStatus === 'correct' && "ring-4 ring-emerald-500/50 border-emerald-500 shadow-emerald-500/20",
-              feedbackStatus === 'incorrect' && "ring-4 ring-red-500/50 border-red-500 shadow-red-500/20"
+              feedbackStatus === 'correct' && "border-emerald-500/50 shadow-emerald-500/10",
+              feedbackStatus === 'incorrect' && "border-red-500/50 shadow-red-500/10"
             )}
           >
-            {/* Светофорная вспышка внутри карточки */}
-            <AnimatePresence>
-              {feedbackStatus && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.15 }}
-                  exit={{ opacity: 0 }}
-                  className={cn(
-                    "absolute inset-0 z-0 pointer-events-none",
-                    feedbackStatus === 'correct' ? "bg-emerald-500" : "bg-red-500"
-                  )}
-                />
-              )}
-            </AnimatePresence>
-            {/* Layout: для России - вертикальный (изображение сверху), для других стран - двухколоночный */}
+            {/* Layout System */}
             {currentQuestion.image_url ? (
-              selectedCountry === 'russia' ? (
-                // Вертикальный layout для России (изображение сверху)
-                <div className="space-y-4 md:space-y-6">
-                  {/* Image on top */}
+              isRussia ? (
+                // Russia Vertical Layout (Image on top)
+                <div className="space-y-6">
                   <div className="w-full">
                     <QuestionImageComponent imageUrl={currentQuestion.image_url} compact />
                   </div>
-                  {/* Question text and answers below */}
                   <div className="flex flex-col">
-                    {/* Question Text */}
-                    <div className="mb-4 sm:mb-6">
-                      <div className="relative p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
-                        <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'} pr-12`}>
+                    {/* Question Card */}
+                    <div className="mb-6">
+                      <div className="relative p-5 sm:p-7 rounded-2xl bg-muted/30 border border-border/50">
+                        <h2 className={cn(
+                          fontSizeClasses[fontSize],
+                          "font-semibold leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300",
+                          isTransitioning ? 'opacity-0' : 'opacity-100'
+                        )}>
                           {displayQuestion}
                         </h2>
-                        {/* Translation Button (Practice Only) - в правом нижнем углу */}
-                        {/* Скрываем для русских тестов ПДД - вопросы уже на русском */}
-                        {isPracticeLikeMode && mode !== 'pdd-ticket' && mode !== 'exam-russia' && (
-                          <button
-                            onClick={toggleTranslation}
-                            className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
-                            title={showTranslation ? "Показать оригинал" : "Показать перевод на русский"}
-                          >
-                            <Languages className="w-3 h-3" />
-                            <span>{showTranslation ? "ES" : "RU"}</span>
-                          </button>
-                        )}
                       </div>
                     </div>
 
                     {/* Answer Options */}
-                    <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
-                      {sortedOptions.map((option, optionIndex) => {
+                    <div className="space-y-3 mb-6">
+                      {sortedOptions.map((option) => {
                         const isSelected = selectedOption === option.id;
                         const isCorrect = option.is_correct;
                         const showResult = selectedOption !== null && isPracticeLikeMode;
-                        // Ответы тоже учитывают showTranslation (кнопка перевода)
-                        const displayText = showTranslation
-                          ? option.text_ru
-                          : (testLanguage === 'en' ? option.text_en : option.text_es);
-
-                        // Mock popularity data (в реальной версии загружать из БД)
+                        const displayText = showTranslation ? option.text_ru : (testLanguage === 'en' ? option.text_en : option.text_es);
                         const mockPopularity = isCorrect ? Math.floor(75 + Math.random() * 20) : Math.floor(5 + Math.random() * 20);
 
                         return (
                           <button
                             key={option.id}
-                            onClick={() => {
-                              if (mode === "exam") {
-                                setSelectedOption(option.id);
-                              } else if (!selectedOption) {
-                                setSelectedOption(option.id);
-                                handleAnswer(option.id);
-                              }
-                            }}
-                            disabled={isPracticeLikeMode && selectedOption !== null}
-                            className={`
-                          w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 font-medium
-                          ${showResult
+                            onClick={() => !selectedOption && (setSelectedOption(option.id), handleAnswer(option.id))}
+                            disabled={showResult}
+                            className={cn(
+                              "w-full text-left p-4 sm:p-5 rounded-2xl border-2 transition-all duration-300 font-medium relative overflow-hidden",
+                              showResult
                                 ? isCorrect
-                                  ? "border-emerald-500 bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 shadow-xl shadow-emerald-500/25 animate-fade-in"
+                                  ? "border-emerald-500/50 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300 shadow-sm"
                                   : isSelected
-                                    ? "border-red-500 bg-gradient-to-r from-red-500/15 to-red-500/5 shadow-xl shadow-red-500/25 animate-fade-in"
-                                    : "border-border/20 opacity-40"
+                                    ? "border-red-500/50 bg-red-500/5 text-red-700 dark:text-red-300 shadow-sm"
+                                    : "border-border/10 opacity-40 scale-[0.98]"
                                 : isSelected
-                                  ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
-                                  : "border-border/40 hover:border-accent/60 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
-                              }
-                          ${selectedOption === null && "cursor-pointer active:scale-[0.99]"}
-                        `}
+                                  ? "border-slate-900 dark:border-white bg-slate-900/5 dark:bg-white/5 shadow-md scale-[1.01]"
+                                  : "border-border/40 hover:border-border/80 hover:bg-muted/30"
+                            )}
                           >
-                            <div className="flex items-center justify-between gap-2 sm:gap-3">
-                              <span className={`flex-1 ${fontSizeClasses[fontSize]} transition-opacity duration-300 leading-relaxed ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                            <div className="flex items-center justify-between gap-3 relative z-10">
+                              <span className={cn(
+                                "flex-1 leading-relaxed",
+                                fontSizeClasses[fontSize],
+                                isTransitioning ? 'opacity-0' : 'opacity-100'
+                              )}>
                                 {displayText}
                               </span>
-
-                              {/* Answer Popularity - как на driving-tests.org */}
                               {answerPopularity && showResult && (
-                                <span className={cn(
-                                  "text-xs sm:text-sm font-bold px-2 py-1 rounded-md shrink-0",
-                                  isCorrect ? "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30" : "text-muted-foreground"
-                                )}>
+                                <span className="text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded-md bg-muted/50 text-muted-foreground whitespace-nowrap">
                                   {mockPopularity}%
                                 </span>
                               )}
-
-                              {showResult && isCorrect && (
-                                <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500/20 animate-scale-in shrink-0">
-                                  <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400" />
-                                </div>
-                              )}
-                              {showResult && isSelected && !isCorrect && (
-                                <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-red-500/20 animate-scale-in shrink-0">
-                                  <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
+                              {showResult && (isCorrect || isSelected) && (
+                                <div className={cn(
+                                  "shrink-0 w-6 h-6 rounded-full flex items-center justify-center",
+                                  isCorrect ? "bg-emerald-500 text-white" : "bg-red-500 text-white"
+                                )}>
+                                  {isCorrect ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
                                 </div>
                               )}
                             </div>
+                            {showResult && isCorrect && (
+                              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent pointer-events-none" />
+                            )}
                           </button>
                         );
                       })}
                     </div>
 
-                    {/* Explanation убрано - теперь показывается через Lumi */}
-
-                    {/* Navigation Buttons - с аватаром Lumi на мобильном */}
-                    <div className="flex gap-2 items-center">
-                      {/* Lumi Avatar - на маленьких экранах в браузере и в Telegram (всегда видна в practice режиме) */}
+                    {/* Navigation */}
+                    <div className="flex gap-3 items-center">
                       {isPracticeLikeMode && (
                         <button
                           onClick={() => setShowAIExplanation(true)}
-                          className="group w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-400 hover:via-orange-400 hover:to-orange-500 shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 shrink-0 relative overflow-hidden lg:hidden ring-2 ring-orange-400/50 hover:ring-orange-300/80"
-                          aria-label="Спросить Skily"
+                          className="group w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 shadow-lg flex items-center justify-center transition-all active:scale-95 shrink-0"
                         >
-                          {/* Пульсирующий эффект */}
-                          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-60 animate-pulse" />
-                          {/* Светящийся эффект при hover */}
-                          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-300 to-orange-300 opacity-0 group-hover:opacity-40 transition-opacity duration-300 blur-sm" />
-                          {/* Lumi аватар */}
-                          <LumiCharacter size="sm" mood="happy" animate={true} className="relative z-10 transform group-hover:scale-110 transition-transform duration-300" />
-                          {/* Внешнее свечение */}
-                          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-20 blur-xl group-hover:opacity-30 transition-opacity duration-300" />
+                          <LumiCharacter size="sm" mood="happy" animate={true} />
                         </button>
                       )}
-
                       {isPracticeLikeMode && selectedOption ? (
-                        <Button
-                          onClick={nextQuestion}
-                          className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 h-10 sm:h-11 md:h-12"
-                        >
-                          {currentIndex < questions.length - 1 ? (
-                            <>
-                              <span>{selectedCountry === 'russia' ? 'Следующий' : 'Siguiente'}</span>
-                              <ChevronRight className="w-4 h-4 ml-1" />
-                            </>
-                          ) : (
-                            <>
-                              <span>{selectedCountry === 'russia' ? 'Завершить ✓' : 'Finalizar ✓'}</span>
-                            </>
-                          )}
+                        <Button onClick={nextQuestion} className="flex-1 font-bold h-12 sm:h-14 rounded-2xl bg-gradient-to-r from-secondary to-secondary/80 text-lg shadow-xl">
+                          <span>{isRussia ? 'Следующий' : 'Siguiente'}</span>
+                          <ChevronRight className="w-5 h-5 ml-2" />
                         </Button>
                       ) : (
-                        (!(selectedCountry === "russia" && isPracticeLikeMode && mode !== "exam-russia")) && (
-                          <Button
-                            onClick={() => handleAnswer()}
-                            disabled={!selectedOption}
-                            variant={undefined}
-                            className="!flex-1 !font-medium text-sm sm:text-base md:text-lg !bg-slate-900 hover:!bg-slate-800 dark:!bg-slate-50 dark:hover:!bg-slate-100 !text-white dark:!text-slate-900 disabled:!bg-zinc-100 disabled:hover:!bg-zinc-100 dark:disabled:!bg-zinc-900 dark:disabled:hover:!bg-zinc-900 disabled:!text-zinc-600 dark:disabled:!text-zinc-400 disabled:!cursor-not-allowed disabled:!shadow-none disabled:!opacity-100 h-10 sm:h-11 md:h-12 !rounded-lg transition-all duration-200 !shadow-sm hover:!shadow-md active:scale-[0.98] !border !border-zinc-300 dark:!border-zinc-700 disabled:!border-zinc-300 dark:disabled:!border-zinc-700"
-                          >
-                            {selectedCountry === "russia" ? "Ответить" : "Responder"}
+                        !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && (
+                          <Button onClick={() => handleAnswer()} disabled={!selectedOption} className="!flex-1 !font-semibold h-12 sm:h-14 !rounded-2xl !bg-slate-900 dark:!bg-slate-50 !text-white dark:!text-slate-900 !text-lg !shadow-lg">
+                            {isRussia ? "Ответить" : "Responder"}
                           </Button>
                         )
                       )}
@@ -2576,100 +2506,71 @@ const TestSession = () => {
                   </div>
                 </div>
               ) : (
-                // Двухколоночный layout для других стран
-                <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[350px_1fr] gap-4 md:gap-6">
-                  {/* Left Column: Image */}
+                // DGT Split Layout (Image on left)
+                <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[400px_1fr] gap-6 md:gap-8">
                   <div className="w-full md:sticky md:top-4 md:self-start">
                     <QuestionImageComponent imageUrl={currentQuestion.image_url} compact />
                   </div>
-
-                  {/* Right Column: Question Text & Answers */}
                   <div className="flex flex-col">
-                    {/* Question Text */}
-                    <div className="mb-4 sm:mb-6">
-                      <div className="relative p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
-                        <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'} pr-12`}>
+                    <div className="mb-6">
+                      <div className="relative p-5 sm:p-7 rounded-2xl bg-muted/30 border border-border/50">
+                        <h2 className={cn(
+                          fontSizeClasses[fontSize],
+                          "font-semibold leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300",
+                          isTransitioning ? 'opacity-0' : 'opacity-100'
+                        )}>
                           {displayQuestion}
                         </h2>
-                        {/* Translation Button (Practice Only) - в правом нижнем углу */}
-                        {/* Скрываем для русских тестов ПДД - вопросы уже на русском */}
-                        {isPracticeLikeMode && mode !== 'pdd-ticket' && mode !== 'exam-russia' && (
-                          <button
-                            onClick={toggleTranslation}
-                            className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
-                            title={showTranslation ? "Показать оригинал" : "Показать перевод на русский"}
-                          >
-                            <Languages className="w-3 h-3" />
+                        {isPracticeLikeMode && mode !== 'pdd-ticket' && (
+                          <button onClick={toggleTranslation} className="mt-4 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-background border border-border/50 text-xs font-medium text-muted-foreground transition-all">
+                            <Languages className="w-3.5 h-3.5" />
                             <span>{showTranslation ? "ES" : "RU"}</span>
                           </button>
                         )}
                       </div>
                     </div>
 
-                    {/* Answer Options */}
-                    <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
-                      {sortedOptions.map((option, optionIndex) => {
+                    <div className="space-y-3 mb-6">
+                      {sortedOptions.map((option) => {
                         const isSelected = selectedOption === option.id;
                         const isCorrect = option.is_correct;
                         const showResult = selectedOption !== null && isPracticeLikeMode;
-                        // Ответы тоже учитывают showTranslation (кнопка перевода)
-                        const displayText = showTranslation
-                          ? option.text_ru
-                          : (testLanguage === 'en' ? option.text_en : option.text_es);
-
-                        // Mock popularity data
+                        const displayText = showTranslation ? option.text_ru : (testLanguage === 'en' ? option.text_en : option.text_es);
                         const mockPopularity = isCorrect ? Math.floor(75 + Math.random() * 20) : Math.floor(5 + Math.random() * 20);
 
                         return (
                           <button
                             key={option.id}
-                            onClick={() => {
-                              if (mode === "exam") {
-                                setSelectedOption(option.id);
-                              } else if (!selectedOption) {
-                                setSelectedOption(option.id);
-                                handleAnswer(option.id);
-                              }
-                            }}
-                            disabled={isPracticeLikeMode && selectedOption !== null}
-                            className={`
-                            w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 font-medium
-                            ${showResult
+                            onClick={() => !selectedOption && (setSelectedOption(option.id), handleAnswer(option.id))}
+                            disabled={showResult}
+                            className={cn(
+                              "w-full text-left p-4 rounded-2xl border-2 transition-all duration-300 font-medium relative overflow-hidden",
+                              showResult
                                 ? isCorrect
-                                  ? "border-emerald-500 bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 shadow-xl shadow-emerald-500/25 animate-fade-in"
+                                  ? "border-emerald-500/50 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300"
                                   : isSelected
-                                    ? "border-red-500 bg-gradient-to-r from-red-500/15 to-red-500/5 shadow-xl shadow-red-500/25 animate-fade-in"
-                                    : "border-border/20 opacity-40"
+                                    ? "border-red-500/50 bg-red-500/5 text-red-700 dark:text-red-300"
+                                    : "border-border/10 opacity-40"
                                 : isSelected
-                                  ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
-                                  : "border-border/40 hover:border-accent/60 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
-                              }
-                            ${selectedOption === null && "cursor-pointer active:scale-[0.99]"}
-                          `}
+                                  ? "border-slate-900 dark:border-white bg-slate-900/5 dark:bg-white/5"
+                                  : "border-border/40 hover:border-border/80 hover:bg-muted/30"
+                            )}
                           >
-                            <div className="flex items-center justify-between gap-2 sm:gap-3">
-                              <span className={`flex-1 ${fontSizeClasses[fontSize]} transition-opacity duration-300 leading-relaxed ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                            <div className="flex items-center justify-between gap-3 relative z-10">
+                              <span className={cn("flex-1 leading-relaxed", fontSizeClasses[fontSize], isTransitioning ? 'opacity-0' : 'opacity-100')}>
                                 {displayText}
                               </span>
-
-                              {/* Answer Popularity - как на driving-tests.org */}
                               {answerPopularity && showResult && (
-                                <span className={cn(
-                                  "text-xs sm:text-sm font-bold px-2 py-1 rounded-md shrink-0",
-                                  isCorrect ? "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30" : "text-muted-foreground"
-                                )}>
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-muted/50 text-muted-foreground">
                                   {mockPopularity}%
                                 </span>
                               )}
-
-                              {showResult && isCorrect && (
-                                <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500/20 animate-scale-in shrink-0">
-                                  <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400" />
-                                </div>
-                              )}
-                              {showResult && isSelected && !isCorrect && (
-                                <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-red-500/20 animate-scale-in shrink-0">
-                                  <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
+                              {showResult && (isCorrect || isSelected) && (
+                                <div className={cn(
+                                  "shrink-0 w-6 h-6 rounded-full flex items-center justify-center",
+                                  isCorrect ? "bg-emerald-500 text-white" : "bg-red-500 text-white"
+                                )}>
+                                  {isCorrect ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
                                 </div>
                               )}
                             </div>
@@ -2678,146 +2579,90 @@ const TestSession = () => {
                       })}
                     </div>
 
-                    {/* Explanation убрано - теперь показывается через Lumi */}
-
-                    {/* Navigation Buttons - с аватаром Lumi на мобильном */}
-                    <div className="flex gap-2 items-center">
-                      {/* Lumi Avatar - на маленьких экранах в браузере и в Telegram (всегда видна в practice режиме) */}
+                    <div className="flex gap-3 items-center">
                       {isPracticeLikeMode && (
-                        <button
-                          onClick={() => setShowAIExplanation(true)}
-                          className="group w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-400 hover:via-orange-400 hover:to-orange-500 shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 shrink-0 relative overflow-hidden lg:hidden ring-2 ring-orange-400/50 hover:ring-orange-300/80"
-                          aria-label="Спросить Skily"
-                        >
-                          {/* Пульсирующий эффект */}
-                          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-60 animate-pulse" />
-                          {/* Светящийся эффект при hover */}
-                          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-300 to-orange-300 opacity-0 group-hover:opacity-40 transition-opacity duration-300 blur-sm" />
-                          {/* Lumi аватар */}
-                          <LumiCharacter size="sm" mood="happy" animate={true} className="relative z-10 transform group-hover:scale-110 transition-transform duration-300" />
-                          {/* Внешнее свечение */}
-                          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-20 blur-xl group-hover:opacity-30 transition-opacity duration-300" />
+                        <button onClick={() => setShowAIExplanation(true)} className="group w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg flex items-center justify-center active:scale-95 lg:hidden">
+                          <LumiCharacter size="sm" mood="happy" />
                         </button>
                       )}
-
                       {isPracticeLikeMode && selectedOption ? (
-                        <Button
-                          onClick={nextQuestion}
-                          className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 h-10 sm:h-11 md:h-12"
-                        >
-                          {currentIndex < questions.length - 1 ? (
-                            <>
-                              <span>{selectedCountry === 'russia' ? 'Следующий' : 'Siguiente'}</span>
-                              <ChevronRight className="w-4 h-4 ml-1" />
-                            </>
-                          ) : (
-                            <>
-                              <span>{selectedCountry === 'russia' ? 'Завершить ✓' : 'Finalizar ✓'}</span>
-                            </>
-                          )}
+                        <Button onClick={nextQuestion} className="flex-1 font-bold h-12 rounded-xl bg-gradient-to-r from-secondary to-secondary/80 text-lg">
+                          <span>{isRussia ? 'Следующий' : 'Siguiente'}</span>
+                          <ChevronRight className="w-5 h-5 ml-2" />
                         </Button>
                       ) : (
-                        <Button
-                          onClick={() => handleAnswer()}
-                          disabled={!selectedOption}
-                          variant={undefined}
-                          className="!flex-1 !font-medium text-sm sm:text-base md:text-lg !bg-slate-900 hover:!bg-slate-800 dark:!bg-slate-50 dark:hover:!bg-slate-100 !text-white dark:!text-slate-900 disabled:!bg-zinc-100 disabled:hover:!bg-zinc-100 dark:disabled:!bg-zinc-900 dark:disabled:hover:!bg-zinc-900 disabled:!text-zinc-600 dark:disabled:!text-zinc-400 disabled:!cursor-not-allowed disabled:!shadow-none disabled:!opacity-100 h-10 sm:h-11 md:h-12 !rounded-lg transition-all duration-200 !shadow-sm hover:!shadow-md active:scale-[0.98] !border !border-zinc-300 dark:!border-zinc-700 disabled:!border-zinc-300 dark:disabled:!border-zinc-700"
-                        >
-                          {selectedCountry === 'russia' ? 'Ответить' : 'Responder'}
-                        </Button>
+                        !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && (
+                          <Button onClick={() => handleAnswer()} disabled={!selectedOption} className="!flex-1 !font-semibold h-12 !rounded-xl !bg-slate-900 dark:!bg-slate-50 !text-white dark:!text-slate-900 !shadow-md">
+                            {isRussia ? "Ответить" : "Responder"}
+                          </Button>
+                        )
                       )}
                     </div>
                   </div>
                 </div>
               )
             ) : (
-              // Layout без изображения (вертикальный)
-              <>
-                {/* Question Text */}
-                <div className="mb-4 sm:mb-6">
-                  <div className="relative p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
-                    <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'} pr-12`}>
-                      {displayQuestion}
-                    </h2>
-                    {/* Translation Button (Practice Only) - в правом нижнем углу */}
-                    {/* Скрываем для русских тестов ПДД - вопросы уже на русском */}
-                    {isPracticeLikeMode && mode !== 'pdd-ticket' && mode !== 'exam-russia' && (
-                      <button
-                        onClick={toggleTranslation}
-                        className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
-                        title={showTranslation ? "Показать оригинал" : "Показать перевод на русский"}
-                      >
-                        <Languages className="w-3 h-3" />
-                        <span>{showTranslation ? "ES" : "RU"}</span>
+              // No image layout
+              <div className="max-w-4xl mx-auto w-full space-y-6">
+                <div className="relative p-6 sm:p-8 rounded-3xl bg-muted/20 border-2 border-border/30 shadow-inner">
+                  <h2 className={cn(
+                    fontSizeClasses[fontSize],
+                    "font-semibold leading-relaxed text-foreground whitespace-pre-line text-center transition-opacity duration-300",
+                    isTransitioning ? 'opacity-0' : 'opacity-100'
+                  )}>
+                    {displayQuestion}
+                  </h2>
+                  {isPracticeLikeMode && mode !== 'pdd-ticket' && (
+                    <div className="flex justify-center mt-6">
+                      <button onClick={toggleTranslation} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-background border border-border/50 text-sm font-medium text-muted-foreground hover:text-foreground hover:shadow-md transition-all">
+                        <Languages className="w-4 h-4" />
+                        <span>{showTranslation ? "Original ES" : "Перевод RU"}</span>
                       </button>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Answer Options */}
-                <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
-                  {sortedOptions.map((option, optionIndex) => {
+                <div className="space-y-3">
+                  {sortedOptions.map((option) => {
                     const isSelected = selectedOption === option.id;
                     const isCorrect = option.is_correct;
                     const showResult = selectedOption !== null && isPracticeLikeMode;
-                    // Ответы тоже учитывают showTranslation (кнопка перевода)
-                    const displayText = showTranslation
-                      ? option.text_ru
-                      : (testLanguage === 'en' ? option.text_en : option.text_es);
-
-                    // Mock popularity data
+                    const displayText = showTranslation ? option.text_ru : (testLanguage === 'en' ? option.text_en : option.text_es);
                     const mockPopularity = isCorrect ? Math.floor(75 + Math.random() * 20) : Math.floor(5 + Math.random() * 20);
 
                     return (
                       <button
                         key={option.id}
-                        onClick={() => {
-                          if (mode === "exam") {
-                            setSelectedOption(option.id);
-                          } else if (!selectedOption) {
-                            setSelectedOption(option.id);
-                            handleAnswer(option.id);
-                          }
-                        }}
-                        disabled={isPracticeLikeMode && selectedOption !== null}
-                        className={`
-                    w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 font-medium
-                    ${showResult
+                        onClick={() => !selectedOption && (setSelectedOption(option.id), handleAnswer(option.id))}
+                        disabled={showResult}
+                        className={cn(
+                          "w-full text-left p-5 sm:p-6 rounded-2xl border-2 transition-all duration-300 font-medium relative overflow-hidden",
+                          showResult
                             ? isCorrect
-                              ? "border-emerald-500 bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 shadow-xl shadow-emerald-500/25 animate-fade-in"
+                              ? "border-emerald-500/50 bg-emerald-500/5 text-emerald-800 dark:text-emerald-200"
                               : isSelected
-                                ? "border-red-500 bg-gradient-to-r from-red-500/15 to-red-500/5 shadow-xl shadow-red-500/25 animate-fade-in"
-                                : "border-border/20 opacity-40"
+                                ? "border-red-500/50 bg-red-500/5 text-red-800 dark:text-red-200"
+                                : "opacity-40 scale-[0.98]"
                             : isSelected
-                              ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
-                              : "border-border/40 hover:border-accent/60 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
-                          }
-                    ${selectedOption === null && "cursor-pointer active:scale-[0.99]"}
-                  `}
+                              ? "border-slate-900 dark:border-white bg-slate-100 dark:bg-slate-800/50 shadow-lg scale-[1.01]"
+                              : "border-border/40 hover:border-border/80 hover:bg-muted/10 hover:shadow-md"
+                        )}
                       >
-                        <div className="flex items-center justify-between gap-2 sm:gap-3">
-                          <span className={`flex-1 ${fontSizeClasses[fontSize].replace('md:', 'sm:')} transition-opacity duration-300 leading-relaxed ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                        <div className="flex items-center justify-between gap-4 relative z-10">
+                          <span className={cn("flex-1 leading-relaxed", fontSizeClasses[fontSize], isTransitioning ? 'opacity-0' : 'opacity-100')}>
                             {displayText}
                           </span>
-
-                          {/* Answer Popularity - как на driving-tests.org */}
                           {answerPopularity && showResult && (
-                            <span className={cn(
-                              "text-xs sm:text-sm font-bold px-2 py-1 rounded-md shrink-0",
-                              isCorrect ? "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30" : "text-muted-foreground"
-                            )}>
+                            <span className="text-xs font-bold px-2 py-1 rounded-lg bg-background/50 border border-border/30">
                               {mockPopularity}%
                             </span>
                           )}
-
-                          {showResult && isCorrect && (
-                            <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500/20 animate-scale-in shrink-0">
-                              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400" />
-                            </div>
-                          )}
-                          {showResult && isSelected && !isCorrect && (
-                            <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-red-500/20 animate-scale-in shrink-0">
-                              <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
+                          {showResult && (isCorrect || isSelected) && (
+                            <div className={cn(
+                              "w-8 h-8 rounded-full flex items-center justify-center shadow-lg",
+                              isCorrect ? "bg-emerald-500 text-white" : "bg-red-500 text-white"
+                            )}>
+                              {isCorrect ? <CheckCircle2 className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
                             </div>
                           )}
                         </div>
@@ -2826,76 +2671,31 @@ const TestSession = () => {
                   })}
                 </div>
 
-                {/* Explanation убрано - теперь показывается через Lumi */}
-
-                {/* Navigation Buttons - с аватаром Lumi на мобильном */}
-                <div className="flex gap-2 items-center">
-                  {/* Lumi Avatar - на маленьких экранах в браузере и в Telegram (всегда видна в practice режиме) */}
+                <div className="flex gap-4 items-center pt-4">
                   {isPracticeLikeMode && (
-                    <button
-                      onClick={() => setShowAIExplanation(true)}
-                      className="group w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-400 hover:via-orange-400 hover:to-orange-500 shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 shrink-0 relative overflow-hidden lg:hidden ring-2 ring-orange-400/50 hover:ring-orange-300/80"
-                      aria-label="Спросить Skily"
-                    >
-                      {/* Пульсирующий эффект */}
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-60 animate-pulse" />
-                      {/* Светящийся эффект при hover */}
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-300 to-orange-300 opacity-0 group-hover:opacity-40 transition-opacity duration-300 blur-sm" />
-                      {/* Lumi аватар */}
-                      <LumiCharacter size="sm" mood="happy" animate={true} className="relative z-10 transform group-hover:scale-110 transition-transform duration-300" />
-                      {/* Внешнее свечение */}
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-20 blur-xl group-hover:opacity-30 transition-opacity duration-300" />
+                    <button onClick={() => setShowAIExplanation(true)} className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-xl flex items-center justify-center active:scale-95 lg:hidden">
+                      <LumiCharacter size="sm" mood="happy" />
                     </button>
                   )}
                   {isPracticeLikeMode && selectedOption ? (
-                    <Button
-                      onClick={nextQuestion}
-                      className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 h-10 sm:h-11 md:h-12"
-                    >
-                      {currentIndex < questions.length - 1 ? (
-                        <>
-                          <span className="hidden sm:inline">Siguiente</span>
-                          <span className="sm:hidden">Siguiente</span>
-                          <ChevronRight className="w-4 h-4 ml-1" />
-                        </>
-                      ) : (
-                        <>
-                          <span className="hidden sm:inline">Finalizar ✓</span>
-                          <span className="sm:hidden">Finalizar</span>
-                        </>
-                      )}
+                    <Button onClick={nextQuestion} className="flex-1 font-bold h-16 rounded-2xl bg-gradient-to-r from-secondary to-secondary/80 text-xl shadow-2xl">
+                      <span>{isRussia ? 'Следующий вопрос' : 'Siguiente pregunta'}</span>
+                      <ChevronRight className="w-6 h-6 ml-3" />
                     </Button>
                   ) : (
-                    <Button
-                      onClick={() => handleAnswer()}
-                      disabled={!selectedOption}
-                      variant={undefined}
-                      className="!flex-1 !font-medium text-sm sm:text-base md:text-lg !bg-slate-900 hover:!bg-slate-800 dark:!bg-slate-50 dark:hover:!bg-slate-100 !text-white dark:!text-slate-900 disabled:!bg-zinc-100 disabled:hover:!bg-zinc-100 dark:disabled:!bg-zinc-900 dark:disabled:hover:!bg-zinc-900 disabled:!text-zinc-600 dark:disabled:!text-zinc-400 disabled:!cursor-not-allowed disabled:!shadow-none disabled:!opacity-100 h-10 sm:h-11 md:h-12 !rounded-lg transition-all duration-200 !shadow-sm hover:!shadow-md active:scale-[0.98] !border !border-zinc-300 dark:!border-zinc-700 disabled:!border-zinc-300 dark:disabled:!border-zinc-700"
-                    >
-                      {selectedCountry === 'russia' ? 'Ответить' : 'Responder'}
-                    </Button>
+                    !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && (
+                      <Button onClick={() => handleAnswer()} disabled={!selectedOption} className="!flex-1 !font-bold h-16 !rounded-2xl !bg-slate-900 dark:!bg-slate-50 !text-white dark:!text-slate-900 !text-xl !shadow-xl">
+                        {isRussia ? "Ответить" : "Responder"}
+                      </Button>
+                    )
                   )}
                 </div>
-              </>
+              </div>
             )}
           </Card>
         )}
 
-        {/* Report Problem Button - под блоком с тестом */}
-        <div className="mt-4 sm:mt-5 flex justify-center">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowReportModal(true)}
-            className="text-xs sm:text-sm h-9 sm:h-10 px-4 sm:px-5 bg-muted/50 hover:bg-muted border-border/60 hover:border-border text-foreground/80 hover:text-foreground font-medium shadow-sm hover:shadow-md transition-all duration-200 rounded-lg"
-          >
-            <AlertTriangle className="w-4 h-4 sm:w-4.5 sm:h-4.5 mr-2 text-muted-foreground" />
-            <span>{userLanguage === "es" ? "Reportar problema" : "Сообщить о проблеме"}</span>
-          </Button>
-        </div>
 
-
-        {/* Question Map Bottom Sheet */}
         {/* Question Map Bottom Sheet */}
         <TestQuestionMap
           open={showQuestionMap}
@@ -2917,52 +2717,54 @@ const TestSession = () => {
 
 
         {/* AI Explanation Dialog - работает в practice режиме и exam-russia */}
-        {(isPracticeLikeMode || mode === 'exam-russia') && (
-          <AIExplanationDialog
-            open={showAIExplanation}
-            onClose={() => setShowAIExplanation(false)}
-            question={mode === 'exam-russia' && russiaExam.currentQuestion
-              ? russiaExam.currentQuestion.text
-              : (showTranslation ? currentQuestion.question_ru : (testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es))}
-            correctAnswer={mode === 'exam-russia' && russiaExam.currentQuestion
-              ? russiaExam.currentQuestion.answers.find(a => a.isCorrect)?.text || ''
-              : (sortedOptions.find((opt) => opt.is_correct)?.[showTranslation ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] || '')}
-            userAnswer={mode === 'exam-russia' && russiaExam.currentQuestion && selectedOption
-              ? russiaExam.currentQuestion.answers.find(a => a.id === selectedOption)?.text
-              : (selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[showTranslation ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] : undefined)}
-            isCorrect={mode === 'exam-russia' && russiaExam.currentQuestion && selectedOption
-              ? (russiaExam.currentQuestion.answers.find(a => a.id === selectedOption)?.isCorrect || false)
-              : (selectedOption ? (sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false) : false)}
-            explanation={mode === 'exam-russia' && russiaExam.currentQuestion
-              ? (selectedOption ? russiaExam.currentQuestion.explanation : null)
-              : (selectedOption ? (showTranslation ? currentQuestion.explanation_ru : (testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es)) : null)}
-            explanationRu={mode === 'exam-russia' && russiaExam.currentQuestion
-              ? (selectedOption ? russiaExam.currentQuestion.explanation : null)
-              : (selectedOption ? currentQuestion.explanation_ru : null)}
-            explanationEs={mode === 'exam-russia' && russiaExam.currentQuestion
-              ? (selectedOption ? russiaExam.currentQuestion.explanation : null)
-              : (selectedOption ? currentQuestion.explanation_es : null)}
-            explanationEn={mode === 'exam-russia' && russiaExam.currentQuestion
-              ? (selectedOption ? russiaExam.currentQuestion.explanation : null)
-              : (selectedOption ? currentQuestion.explanation_en : null)}
-            topic={mode === 'exam-russia' && russiaExam.currentQuestion
-              ? (russiaExam.currentQuestion.topics && russiaExam.currentQuestion.topics.length > 0 ? russiaExam.currentQuestion.topics[0] : undefined)
-              : currentQuestion.topics?.title_es}
-            imageUrl={mode === 'exam-russia' && russiaExam.currentQuestion
-              ? russiaExam.currentQuestion.image
-              : currentQuestion.image_url}
-            showTranslation={showTranslation}
-            onToggleTranslation={toggleTranslation}
-            testLanguage={testLanguage}
-          />
-        )}
+        {
+          (isPracticeLikeMode || mode === 'exam-russia') && (
+            <AIExplanationDialog
+              open={showAIExplanation}
+              onClose={() => setShowAIExplanation(false)}
+              question={mode === 'exam-russia' && russiaExam.currentQuestion
+                ? russiaExam.currentQuestion.text
+                : (showTranslation ? currentQuestion.question_ru : (testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es))}
+              correctAnswer={mode === 'exam-russia' && russiaExam.currentQuestion
+                ? russiaExam.currentQuestion.answers.find(a => a.isCorrect)?.text || ''
+                : (sortedOptions.find((opt) => opt.is_correct)?.[showTranslation ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] || '')}
+              userAnswer={mode === 'exam-russia' && russiaExam.currentQuestion && selectedOption
+                ? russiaExam.currentQuestion.answers.find(a => a.id === selectedOption)?.text
+                : (selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[showTranslation ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] : undefined)}
+              isCorrect={mode === 'exam-russia' && russiaExam.currentQuestion && selectedOption
+                ? (russiaExam.currentQuestion.answers.find(a => a.id === selectedOption)?.isCorrect || false)
+                : (selectedOption ? (sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false) : false)}
+              explanation={mode === 'exam-russia' && russiaExam.currentQuestion
+                ? (selectedOption ? russiaExam.currentQuestion.explanation : null)
+                : (selectedOption ? (showTranslation ? currentQuestion.explanation_ru : (testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es)) : null)}
+              explanationRu={mode === 'exam-russia' && russiaExam.currentQuestion
+                ? (selectedOption ? russiaExam.currentQuestion.explanation : null)
+                : (selectedOption ? currentQuestion.explanation_ru : null)}
+              explanationEs={mode === 'exam-russia' && russiaExam.currentQuestion
+                ? (selectedOption ? russiaExam.currentQuestion.explanation : null)
+                : (selectedOption ? currentQuestion.explanation_es : null)}
+              explanationEn={mode === 'exam-russia' && russiaExam.currentQuestion
+                ? (selectedOption ? russiaExam.currentQuestion.explanation : null)
+                : (selectedOption ? currentQuestion.explanation_en : null)}
+              topic={mode === 'exam-russia' && russiaExam.currentQuestion
+                ? (russiaExam.currentQuestion.topics && russiaExam.currentQuestion.topics.length > 0 ? russiaExam.currentQuestion.topics[0] : undefined)
+                : currentQuestion.topics?.title_es}
+              imageUrl={mode === 'exam-russia' && russiaExam.currentQuestion
+                ? russiaExam.currentQuestion.image
+                : currentQuestion.image_url}
+              showTranslation={showTranslation}
+              onToggleTranslation={toggleTranslation}
+              testLanguage={testLanguage}
+            />
+          )
+        }
 
         {/* AI Widget Lumi - только в режиме практики в браузере (не в Telegram), НЕ в экзамене */}
         {/* Только на больших экранах (lg+) - справа, на маленьких используется кнопка в навигации */}
-      </TestContentLayout>
+      </TestContentLayout >
 
       {/* Challenge Bank Notification - fixed позиционирование относительно viewport */}
-      <ChallengeBankNotification
+      < ChallengeBankNotification
         isVisible={showChallengeBankNotification}
         onClose={() => setShowChallengeBankNotification(false)}
       />
