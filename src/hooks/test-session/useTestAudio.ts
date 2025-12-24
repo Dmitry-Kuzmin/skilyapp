@@ -1,7 +1,21 @@
 import { useEffect, useRef } from 'react';
 
-// Кэш в памяти: текст -> blob url
+// Кэш в памяти: текст -> data uri (Base64)
 const audioCache = new Map<string, string>();
+
+/**
+ * Вспомогательная функция для конвертации ArrayBuffer в Base64.
+ * Необходима для работы аудио в Telegram iOS (WKWebView).
+ */
+function arrayBufferToBase64(buffer: ArrayBuffer) {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+}
 
 /**
  * Хук для озвучки вопросов в тестах.
@@ -30,7 +44,7 @@ export const useTestAudio = (
 
         const targets = langMap[language] || [];
         for (const target of voices) {
-            const isTarget = targets.some(t => target.lang.includes(t) || target.name.includes(t));
+            const isTarget = targets.some(t => target.lang.includes(t) || target.name.includes(target));
             if (isTarget) return target;
         }
 
@@ -111,26 +125,27 @@ export const useTestAudio = (
         stopAll();
 
         const playNeuralTTS = async () => {
-            const cacheKey = `${language}:${currentQuestionText} `;
+            const cacheKey = `${language}:${currentQuestionText}`;
 
             try {
-                let audioUrl = audioCache.get(cacheKey);
+                let audioDataUri = audioCache.get(cacheKey);
 
-                if (!audioUrl) {
+                if (!audioDataUri) {
                     abortControllerRef.current = new AbortController();
                     const response = await fetch(
-                        `/ api / tts ? text = ${encodeURIComponent(currentQuestionText)}& lang=${language} `,
+                        `/api/tts?text=${encodeURIComponent(currentQuestionText)}&lang=${language}`,
                         { signal: abortControllerRef.current.signal }
                     );
 
-                    if (!response.ok) throw new Error(`TTS API error: ${response.status} `);
+                    if (!response.ok) throw new Error(`TTS API error: ${response.status}`);
 
-                    const blob = await response.blob();
-                    audioUrl = URL.createObjectURL(blob);
-                    audioCache.set(cacheKey, audioUrl);
+                    const arrayBuffer = await response.arrayBuffer();
+                    const base64 = arrayBufferToBase64(arrayBuffer);
+                    audioDataUri = `data:audio/mpeg;base64,${base64}`;
+                    audioCache.set(cacheKey, audioDataUri);
                 }
 
-                const audio = new Audio(audioUrl);
+                const audio = new Audio(audioDataUri);
                 audioRef.current = audio;
 
                 // Предохранитель (Fallback Timeout):
