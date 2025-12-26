@@ -1634,7 +1634,7 @@ const TestSession = () => {
     }
 
     // 1. Analytics & Persistence
-    if (testInfo?.id) {
+    if (profileId) {
       saveAnswerToDB(currentQuestion.id, isCorrect);
     }
 
@@ -1646,19 +1646,6 @@ const TestSession = () => {
     // Mastery Mode Logic
     if (mode === "mastery" && !isCorrect) {
       setMasteryWrongQuestions(prev => prev.includes(currentQuestion.id) ? prev : [...prev, currentQuestion.id]);
-    }
-
-    // Add to Challenge Bank
-    if (!isCorrect && profileId && mode !== "mastery") {
-      await handleChallengeBankUpdate(
-        currentQuestion.id,
-        profileId,
-        answers, // Still using adapter for UI compatibility
-        isFirstWrongAnswer,
-        setIsFirstWrongAnswer,
-        setIsQuestionBookmarked,
-        setShowChallengeBankNotification
-      ).catch(err => console.error('[Challenge Bank] Silent error:', err));
     }
 
     // Blitz Mode Logic
