@@ -2,6 +2,7 @@
  * Универсальный компонент текста вопроса
  */
 
+import React from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { PDD_DICTIONARY_ES, PDD_KEYWORDS, PDD_KEYWORDS_RU } from "@/utils/pddDictionary";
 import { cn } from '@/lib/utils';
@@ -68,14 +69,17 @@ export function QuestionText({
           <TooltipProvider key={i}>
             <Tooltip delayDuration={300}>
               <TooltipTrigger asChild>
-                <span className="cursor-help border-b-2 border-dashed border-blue-400/50 hover:border-blue-400 text-blue-200 transition-colors">
+                <span className="cursor-help border-b-2 border-dashed border-blue-400/50 hover:border-blue-400 text-blue-300 dark:text-blue-200 transition-colors">
                   {part}
                 </span>
               </TooltipTrigger>
-              <TooltipContent side="top" className="bg-slate-900 border-slate-800 p-3 max-w-[250px] shadow-2xl">
-                <div className="space-y-1">
-                  <div className="text-sm font-bold text-blue-400 uppercase tracking-tighter">🇷🇺 {dictEntry.ru}</div>
-                  <div className="text-[11px] leading-relaxed text-slate-400 italic font-medium">{dictEntry.explanation}</div>
+              <TooltipContent
+                side="top"
+                className="bg-white dark:bg-slate-900 border-2 border-blue-500/30 dark:border-blue-400/30 p-4 max-w-[280px] shadow-2xl rounded-xl backdrop-blur-xl"
+              >
+                <div className="space-y-2">
+                  <div className="text-base font-black text-blue-600 dark:text-blue-400 uppercase tracking-wide">🇷🇺 {dictEntry.ru}</div>
+                  <div className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 font-medium">{dictEntry.explanation}</div>
                 </div>
               </TooltipContent>
             </Tooltip>
@@ -83,23 +87,23 @@ export function QuestionText({
         );
       }
 
-      return part;
+      return <React.Fragment key={i}>{part}{' '}</React.Fragment>;
     });
   };
 
   return (
     <div className={cn("relative", className)}>
-      {/* Свитч языков над вопросом (если доступен перевод) */}
+      {/* Переключатель языков - кнопки ES/RU */}
       {onToggleTranslation && (
         <div className="flex justify-start mb-4">
-          <div className="flex p-1 bg-slate-900/50 border border-white/5 rounded-xl backdrop-blur-sm self-start">
+          <div className="flex gap-2 p-1.5 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 rounded-xl backdrop-blur-sm">
             <button
               onClick={() => showTranslation && onToggleTranslation()}
               className={cn(
-                "px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all duration-300",
+                "px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all duration-300",
                 !showTranslation
                   ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg"
-                  : "text-slate-500 hover:text-slate-300"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
               )}
             >
               🇪🇸 ES
@@ -107,10 +111,10 @@ export function QuestionText({
             <button
               onClick={() => !showTranslation && onToggleTranslation()}
               className={cn(
-                "px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all duration-300",
+                "px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all duration-300",
                 showTranslation
                   ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
-                  : "text-slate-500 hover:text-slate-300"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
               )}
             >
               🇷🇺 RU

@@ -2529,7 +2529,7 @@ const TestSession = () => {
                         </button>
                       )}
                       {isPracticeLikeMode && selectedOption ? (
-                        <Button onClick={nextQuestion} className="flex-1 font-bold h-12 sm:h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-lg shadow-xl">
+                        <Button onClick={nextQuestion} className="flex-1 font-bold h-12 sm:h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-lg shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all">
                           <span>{isRussia ? 'Следующий' : 'Siguiente'}</span>
                           <ChevronRight className="w-5 h-5 ml-2" />
                         </Button>
@@ -2583,7 +2583,7 @@ const TestSession = () => {
                           </button>
                         )}
                         {isPracticeLikeMode && selectedOption ? (
-                          <Button onClick={nextQuestion} className="flex-1 font-bold h-12 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-lg">
+                          <Button onClick={nextQuestion} className="flex-1 font-bold h-12 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-lg shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all">
                             <span>{isRussia ? 'Следующий' : 'Siguiente'}</span>
                             <ChevronRight className="w-5 h-5 ml-2" />
                           </Button>
@@ -2640,7 +2640,7 @@ const TestSession = () => {
                     </button>
                   )}
                   {isPracticeLikeMode && selectedOption ? (
-                    <Button onClick={nextQuestion} className="flex-1 font-bold h-16 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-xl shadow-2xl">
+                    <Button onClick={nextQuestion} className="flex-1 font-bold h-16 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-xl shadow-lg shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/30 transition-all">
                       <span>{isRussia ? 'Следующий вопрос' : 'Siguiente pregunta'}</span>
                       <ChevronRight className="w-6 h-6 ml-3" />
                     </Button>

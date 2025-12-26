@@ -73,12 +73,12 @@ export const TestExitDialog = ({ open, onOpenChange, language }: TestExitDialogP
                                 <DoorOpen className="w-8 h-8 text-white" />
                             </div>
 
-                            <AlertDialogTitle className="text-xl font-bold text-white">
+                            <AlertDialogTitle className="text-xl font-bold text-slate-900 dark:text-white">
                                 {t.title}
                             </AlertDialogTitle>
                         </div>
 
-                        <p className="text-slate-400 font-medium leading-relaxed">
+                        <p className="text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
                             {t.description}
                         </p>
                     </AlertDialogHeader>
