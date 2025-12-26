@@ -45,7 +45,7 @@ export function QuestionText({
 
     // Комбинируем все интересные нам слова
     const allPatterns = [...dictionaryTerms, ...keywords];
-    const regex = new RegExp(`\\b(${allPatterns.join('|')}) \\b`, 'gi');
+    const regex = new RegExp(`\\b(${allPatterns.join('|')})\\b`, 'gi');
 
     const parts = rawText.split(regex);
 
@@ -56,9 +56,11 @@ export function QuestionText({
       const isKeyword = keywords.some(k => k.toLowerCase() === lowerPart);
       if (isKeyword) {
         return (
-          <span key={i} className="text-orange-400 font-black underline decoration-orange-400/30 underline-offset-4">
-            {part}
-          </span>
+          <React.Fragment key={i}>
+            <span className="text-orange-400 font-black underline decoration-orange-400/30 underline-offset-4">
+              {part}
+            </span>
+          </React.Fragment>
         );
       }
 
@@ -66,28 +68,30 @@ export function QuestionText({
       const dictEntry = PDD_DICTIONARY_ES[lowerPart];
       if (dictEntry && !showTranslation) {
         return (
-          <TooltipProvider key={i}>
-            <Tooltip delayDuration={300}>
-              <TooltipTrigger asChild>
-                <span className="cursor-help border-b-2 border-dashed border-blue-400/50 hover:border-blue-400 text-blue-300 dark:text-blue-200 transition-colors">
-                  {part}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent
-                side="top"
-                className="bg-white dark:bg-slate-900 border-2 border-blue-500/30 dark:border-blue-400/30 p-4 max-w-[280px] shadow-2xl rounded-xl backdrop-blur-xl"
-              >
-                <div className="space-y-2">
-                  <div className="text-base font-black text-blue-600 dark:text-blue-400 uppercase tracking-wide">🇷🇺 {dictEntry.ru}</div>
-                  <div className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 font-medium">{dictEntry.explanation}</div>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <React.Fragment key={i}>
+            <TooltipProvider>
+              <Tooltip delayDuration={300}>
+                <TooltipTrigger asChild>
+                  <span className="cursor-help border-b-2 border-dashed border-blue-500 hover:border-blue-400 text-blue-600 dark:text-blue-300 transition-colors">
+                    {part}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="top"
+                  className="bg-white dark:bg-slate-900 border-2 border-blue-500/30 dark:border-blue-400/30 p-4 max-w-[280px] shadow-2xl rounded-xl backdrop-blur-xl z-[9999]"
+                >
+                  <div className="space-y-2">
+                    <div className="text-base font-black text-blue-600 dark:text-blue-400 uppercase tracking-wide">🇷🇺 {dictEntry.ru}</div>
+                    <div className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 font-medium">{dictEntry.explanation}</div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </React.Fragment>
         );
       }
 
-      return <React.Fragment key={i}>{part}{' '}</React.Fragment>;
+      return <React.Fragment key={i}>{part}</React.Fragment>;
     });
   };
 

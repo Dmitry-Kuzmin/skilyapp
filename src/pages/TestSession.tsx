@@ -2535,7 +2535,12 @@ const TestSession = () => {
                         </Button>
                       ) : (
                         !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && (
-                          <Button onClick={() => handleAnswer()} disabled={!selectedOption} className="!flex-1 !font-semibold h-12 sm:h-14 !rounded-2xl !bg-blue-600 hover:!bg-blue-500 disabled:!bg-slate-300 dark:disabled:!bg-slate-700 !text-white disabled:!text-slate-500 !text-lg shadow-md shadow-blue-500/20">
+                          <Button
+                            variant="brand"
+                            onClick={() => handleAnswer()}
+                            disabled={!selectedOption}
+                            className="flex-1 font-semibold h-12 sm:h-14 rounded-2xl disabled:opacity-50"
+                          >
                             {isRussia ? "Ответить" : "Responder"}
                           </Button>
                         )
@@ -2589,7 +2594,12 @@ const TestSession = () => {
                           </Button>
                         ) : (
                           !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && (
-                            <Button onClick={() => handleAnswer()} disabled={!selectedOption} className="!flex-1 !font-semibold h-12 !rounded-xl !bg-blue-600 hover:!bg-blue-500 disabled:!bg-slate-300 dark:disabled:!bg-slate-700 !text-white disabled:!text-slate-500 shadow-md shadow-blue-500/20">
+                            <Button
+                              variant="brand"
+                              onClick={() => handleAnswer()}
+                              disabled={!selectedOption}
+                              className="flex-1 font-semibold h-12 rounded-xl disabled:opacity-50"
+                            >
                               {isRussia ? "Ответить" : "Responder"}
                             </Button>
                           )
@@ -2646,7 +2656,12 @@ const TestSession = () => {
                     </Button>
                   ) : (
                     !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && (
-                      <Button onClick={() => handleAnswer()} disabled={!selectedOption} className="!flex-1 !font-bold h-16 !rounded-2xl !bg-blue-600 hover:!bg-blue-500 disabled:!bg-slate-300 dark:disabled:!bg-slate-700 !text-white disabled:!text-slate-500 !text-xl shadow-md shadow-blue-500/20">
+                      <Button
+                        variant="brand"
+                        onClick={() => handleAnswer()}
+                        disabled={!selectedOption}
+                        className="flex-1 font-bold h-16 rounded-2xl text-xl disabled:opacity-50"
+                      >
                         {isRussia ? "Ответить" : "Responder"}
                       </Button>
                     )
