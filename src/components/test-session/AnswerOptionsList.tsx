@@ -120,18 +120,18 @@ export const AnswerButton = memo(function AnswerButton({
             <div className="flex items-center gap-4 relative z-10">
                 {/* Keycap Badge (1, 2, 3...) */}
                 <div className={cn(
-                    "shrink-0 w-7 h-7 rounded-lg flex items-center justify-center",
-                    "text-xs font-bold",
+                    "shrink-0 w-8 h-8 rounded-xl flex items-center justify-center",
+                    "text-sm font-black",
                     "transition-all duration-200",
                     showResult
                         ? isCorrect
-                            ? "bg-emerald-500 text-white"
+                            ? "bg-emerald-500 text-white shadow-md"
                             : isSelected
-                                ? "bg-red-500 text-white"
-                                : "bg-white/5 text-slate-500"
+                                ? "bg-red-500 text-white shadow-md"
+                                : "bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-slate-500"
                         : isSelected
-                            ? "bg-blue-500 text-white"
-                            : "bg-white/10 text-slate-400 group-hover:bg-white/15"
+                            ? "bg-blue-500 text-white shadow-md"
+                            : "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400 group-hover:bg-slate-200 dark:group-hover:bg-white/15"
                 )}>
                     {showResult && (isCorrect || isSelected) ? (
                         isCorrect

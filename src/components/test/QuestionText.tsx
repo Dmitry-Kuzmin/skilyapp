@@ -96,14 +96,14 @@ export function QuestionText({
       {/* Переключатель языков - кнопки ES/RU */}
       {onToggleTranslation && (
         <div className="flex justify-start mb-4">
-          <div className="flex gap-2 p-1.5 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 rounded-xl backdrop-blur-sm">
+          <div className="flex gap-2 p-1.5 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 rounded-2xl backdrop-blur-sm">
             <button
               onClick={() => showTranslation && onToggleTranslation()}
               className={cn(
-                "px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all duration-300",
+                "px-5 py-2.5 text-sm font-black uppercase tracking-widest rounded-xl transition-all duration-300",
                 !showTranslation
-                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg scale-105"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5"
               )}
             >
               🇪🇸 ES
@@ -111,10 +111,10 @@ export function QuestionText({
             <button
               onClick={() => !showTranslation && onToggleTranslation()}
               className={cn(
-                "px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all duration-300",
+                "px-5 py-2.5 text-sm font-black uppercase tracking-widest rounded-xl transition-all duration-300",
                 showTranslation
-                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-105"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5"
               )}
             >
               🇷🇺 RU
