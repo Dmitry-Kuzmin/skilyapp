@@ -433,24 +433,66 @@ All colors MUST be HSL.
   }
 
   /* ============================================================================
-   * ГЛОБАЛЬНЫЙ ОТСТУП ДЛЯ TELEGRAM MOBILE
+   * ГЛОБАЛЬНЫЙ ОТСТУП ДЛЯ TELEGRAM MOBILE (v4.0 - CSS-first)
    * ============================================================================
-   * КРИТИЧНО: Padding-top НЕ применяется через CSS!
+   * КРИТИЧНО: Отступы теперь управляются через CSS!
    * 
-   * Отступы управляются ПРОГРАММНО в Layout.tsx useEffect(), так как:
-   * 1. CSS padding конфликтовал с программным padding (двойной отступ)
-   * 2. Layout.tsx имеет доступ к актуальным значениям safeAreaInset
-   * 3. Позволяет исключить страницы (дуэль) которые сами управляют отступами
+   * Предыдущая версия с JS-манипуляциями в Layout.tsx имела проблемы:
+   * 1. Рассинхронизация при навигации между страницами
+   * 2. Асинхронные обновления contentSafeAreaInset от Telegram
+   * 3. Гонки между useEffect и событиями Telegram
    * 
-   * @see Layout.tsx useEffect около строки 160
-   * @see RULES_LAYOUT.md
+   * Новый подход — CSS calc() автоматически пересчитывается когда
+   * CSS-переменные обновляются из TelegramNavigation.tsx
+   * 
+   * @see TelegramNavigation.tsx — устанавливает CSS-переменные
+   * @see Layout.tsx — теперь НЕ управляет padding (удалён useEffect)
    * ============================================================================ */
 
-  /* ОТКЛЮЧЕНО: Был конфликт с Layout.tsx программным padding-top */
-  /* body.telegram-mobile-app { padding-top: ... } */
+  /* Глобальный padding для Telegram Mobile через CSS */
+  /* Используем .telegram-main-content для main элемента в Layout.tsx */
+  html.telegram-mobile-app .telegram-main-content,
+  body.telegram-mobile-app .telegram-main-content {
+    /* 
+     * Вычисляем padding как максимум из:
+     * 1. --tg-content-safe-area-inset-top (высота UI Telegram: кнопка назад)
+     * 2. --tg-safe-area-inset-top (системный отступ: notch/Dynamic Island)
+     * 3. 56px - минимальный fallback для мобильных
+     * 
+     * ВАЖНО: Используем max() для выбора максимального значения
+     */
+    padding-top: max(var(--tg-content-safe-area-inset-top, 0px),
+        var(--tg-safe-area-inset-top, 0px),
+        56px) !important;
+
+    /* Анимируем изменения padding для плавного UX */
+    transition: padding-top 0.15s ease-out;
+  }
+
+  /* На Dashboard (главная) — кнопка назад скрыта, меньше отступ */
+  html.telegram-mobile-app.dashboard-active .telegram-main-content,
+  body.telegram-mobile-app.dashboard-active .telegram-main-content {
+    /* На dashboard BackButton скрыт, нужен только системный отступ (notch) */
+    padding-top: max(var(--tg-safe-area-inset-top, 0px),
+        env(safe-area-inset-top, 0px),
+        20px) !important;
+  }
 
   /* Исключение для duel-страниц - они сами управляют отступами */
+  html.telegram-mobile-app.duel-active .telegram-main-content,
+  body.telegram-mobile-app.duel-active .telegram-main-content {
+    padding-top: 0 !important;
+  }
+
+  /* Также обнуляем padding на body для duel страниц */
   body.telegram-mobile-app.duel-active {
+    padding-top: 0 !important;
+  }
+
+  /* Исключение для fullscreen режимов (тесты, игры) */
+  html.telegram-mobile-app.fullscreen-mode .telegram-main-content,
+  body.telegram-mobile-app.fullscreen-mode .telegram-main-content {
+    /* В fullscreen режиме сами компоненты управляют отступами */
     padding-top: 0 !important;
   }
 
@@ -644,7 +686,7 @@ All colors MUST be HSL.
 
   .premium-mesh-orange {
     background-color: #f97316;
-    background-image: 
+    background-image:
       radial-gradient(at 0% 0%, #fb923c 0px, transparent 50%),
       radial-gradient(at 100% 0%, #ea580c 0px, transparent 50%),
       radial-gradient(at 100% 100%, #f97316 0px, transparent 50%),
@@ -653,7 +695,7 @@ All colors MUST be HSL.
 
   .premium-mesh-info {
     background-color: #0891b2;
-    background-image: 
+    background-image:
       radial-gradient(at 0% 0%, #06b6d4 0px, transparent 50%),
       radial-gradient(at 100% 0%, #0e7490 0px, transparent 50%),
       radial-gradient(at 100% 100%, #0891b2 0px, transparent 50%),
@@ -662,7 +704,7 @@ All colors MUST be HSL.
 
   .premium-mesh-primary {
     background-color: #4f46e5;
-    background-image: 
+    background-image:
       radial-gradient(at 0% 0%, #7c3aed 0px, transparent 50%),
       radial-gradient(at 100% 0%, #2563eb 0px, transparent 50%),
       radial-gradient(at 100% 100%, #4f46e5 0px, transparent 50%),
@@ -671,7 +713,7 @@ All colors MUST be HSL.
 
   .premium-mesh-purple {
     background-color: #8b5cf6;
-    background-image: 
+    background-image:
       radial-gradient(at 0% 0%, #a855f7 0px, transparent 50%),
       radial-gradient(at 100% 0%, #7c3aed 0px, transparent 50%),
       radial-gradient(at 100% 100%, #8b5cf6 0px, transparent 50%),

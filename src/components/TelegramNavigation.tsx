@@ -122,7 +122,7 @@ export const TelegramNavigation = () => {
     };
   }, [isTelegramReady, navigate, location.pathname, isSettingsOpen, closeSettings]);
 
-  // Управляем отображением BackButton в зависимости от текущего маршрута
+  // Управляем отображением BackButton и CSS-классами для padding в зависимости от текущего маршрута
   useEffect(() => {
     if (!isTelegramReady) return;
 
@@ -132,6 +132,15 @@ export const TelegramNavigation = () => {
     const isDashboard = location.pathname === '/dashboard' || location.pathname === '/';
     // ВАЖНО: /duel-leaderboard НЕ является дуэльной страницей
     const isDuelPage = location.pathname.includes('/games/duel');
+
+    // Определяем fullscreen режимы (тесты, игры)
+    const isFullscreenMode =
+      location.pathname.startsWith('/test/') ||
+      location.pathname.includes('/race-game') ||
+      location.pathname.includes('/guess-the-sign') ||
+      location.pathname.includes('/matching') ||
+      location.pathname.includes('/four-variants') ||
+      location.pathname.includes('/road-race');
 
     const version = parseFloat(webApp.version || '0');
     const supportsBackButton = version >= 6.1;
@@ -148,8 +157,24 @@ export const TelegramNavigation = () => {
       if (supportsBackButton && webApp.BackButton) webApp.BackButton.show();
     }
 
-    // КРИТИЧНО: Управляем классом duel-active для отключения глобального padding
+    // КРИТИЧНО: Управляем CSS-классами для системы отступов в index.css
+    // Эти классы определяют какой padding применяется к .telegram-main-content
     document.body.classList.toggle('duel-active', isDuelPage);
+    document.documentElement.classList.toggle('duel-active', isDuelPage);
+
+    document.body.classList.toggle('dashboard-active', isDashboard);
+    document.documentElement.classList.toggle('dashboard-active', isDashboard);
+
+    document.body.classList.toggle('fullscreen-mode', isFullscreenMode);
+    document.documentElement.classList.toggle('fullscreen-mode', isFullscreenMode);
+
+    console.log('[TelegramNavigation] 🎯 CSS classes updated:', {
+      isDashboard,
+      isDuelPage,
+      isFullscreenMode,
+      pathname: location.pathname,
+    });
+
     // Для duel-страниц ничего не делаем - компоненты сами управляют BackButton
   }, [isTelegramReady, location.pathname, isSettingsOpen]);
 

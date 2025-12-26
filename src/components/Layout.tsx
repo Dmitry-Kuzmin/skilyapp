@@ -157,66 +157,23 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
     detectPlatform();
   }, [isTelegramApp]);
 
-  // КРИТИЧНО: Применяем отступы только для мобильных устройств в Telegram, не для десктопа
-  // Примечание: Страницы которые сами управляют отступами (DuelBattleFullscreen) не используют Layout вообще
-  useEffect(() => {
-    // Проверяем наличие Telegram WebApp дополнительно
-    const hasTelegramWebApp = !!window.Telegram?.WebApp;
-    const platformMobile = typeof isTelegramMobilePlatform === 'boolean' ? isTelegramMobilePlatform : isMobile;
-    // В Telegram на мобилках ВСЕГДА нужен отступ сверху, чтобы UI кнопки не перекрывали контент
-    const shouldApplyPadding = isTelegramApp && platformMobile;
+  // ============================================================================
+  // УДАЛЕНО: Устаревший JS-код управления padding
+  // ============================================================================
+  // Теперь padding для Telegram Mobile управляется через CSS в index.css:
+  // - .telegram-mobile-app .telegram-main-content { padding-top: max(...) }
+  // - .dashboard-active — меньший отступ (без BackButton)
+  // - .duel-active — без отступа (компонент сам управляет)
+  // - .fullscreen-mode — без отступа (игры/тесты сами управляют)
+  //
+  // CSS-классы устанавливает TelegramNavigation.tsx при смене маршрута.
+  // CSS-переменные (--tg-content-safe-area-inset-top) обновляет TelegramNavigation.tsx
+  // при событиях от Telegram WebApp.
+  //
+  // @see index.css — секция "ГЛОБАЛЬНЫЙ ОТСТУП ДЛЯ TELEGRAM MOBILE (v4.0)"
+  // @see TelegramNavigation.tsx — управление классами и CSS-переменными
+  // ============================================================================
 
-    if (mainContentRef.current && shouldApplyPadding) {
-      const webApp = window.Telegram?.WebApp;
-
-      // 1. Пытаемся получить программный safe area от Telegram (>= 7.10)
-      const tgInsetTop = webApp?.contentSafeAreaInset?.top || webApp?.safeAreaInset?.top || 0;
-
-      // 2. Получаем из CSS данных (бывает надежнее)
-      const cssInsetTopStr = getComputedStyle(document.documentElement)
-        .getPropertyValue('--tg-content-safe-area-inset-top').trim();
-      const cssInsetTop = parseInt(cssInsetTopStr, 10) || 0;
-
-      // 3. Выбираем максимальное из доступных или дефолтное значение
-      // 48px - стандартная высота хедера Telegram с кнопками
-      const finalInsetTop = Math.max(tgInsetTop, cssInsetTop, 48);
-
-      const systemSafeArea = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sat') || '0', 10) || 0;
-      const fixedPadding = `${finalInsetTop + systemSafeArea}px`;
-      const computedPadding = `calc(env(safe-area-inset-top, 0px) + ${finalInsetTop}px)`;
-
-      // Применяем через style и custom property для использования в детских компонентах
-      mainContentRef.current.style.paddingTop = computedPadding;
-      mainContentRef.current.style.setProperty('padding-top', fixedPadding, 'important');
-      document.documentElement.style.setProperty('--app-top-offset', fixedPadding);
-
-    } else if (mainContentRef.current) {
-      mainContentRef.current.style.paddingTop = '0px';
-      document.documentElement.style.setProperty('--app-top-offset', '0px');
-    }
-  }, [isTelegramApp, isMobile, isTelegramMobilePlatform, location.pathname]); // Также при изменении маршрута или размера экрана
-
-  // Также применяем при изменении CSS переменных (только для мобильных)
-  useEffect(() => {
-    const platformMobile = typeof isTelegramMobilePlatform === 'boolean' ? isTelegramMobilePlatform : isMobile;
-    if (!isTelegramApp || !platformMobile || !mainContentRef.current) return;
-
-    const observer = new MutationObserver(() => {
-      if (mainContentRef.current) {
-        const topInset = getComputedStyle(document.documentElement)
-          .getPropertyValue('--tg-content-safe-area-inset-top').trim() || '40px';
-        const computedPadding = `calc(env(safe-area-inset-top, 0px) + ${topInset})`;
-        mainContentRef.current.style.paddingTop = computedPadding;
-      }
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['style']
-    });
-
-    return () => observer.disconnect();
-  }, [isTelegramApp, isMobile, isTelegramMobilePlatform]);
 
   // Заменяем раздел "Игры" на "Дуэль" если есть активная дуэль
   // 🆕 CRITICAL FIX: Проверяем статус дуэли перед показом кнопки "Дуэль"
@@ -475,16 +432,14 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
       )}
 
       {/* Main Content with Safe Area Top Padding for Telegram Fullscreen */}
-      {/* КРИТИЧНО: Для десктопа явно убираем padding-top */}
-      {/* Footer появляется только в конце контента - нужно доскроллить до него */}
+      {/* Padding управляется через CSS в index.css на основе классов .telegram-mobile-app и .dashboard-active */}
       <main
         ref={mainContentRef}
         className={cn(
           "telegram-main-content bg-background",
-          // Для обычного браузера: footer в конце контента, нужно доскроллить
-          // Для Telegram WebApp: flex-1 применяется через CSS для sticky footer
+          // CSS в index.css применяет padding-top через:
+          // .telegram-mobile-app .telegram-main-content { padding-top: max(...) }
         )}
-        style={isTelegramApp && isTelegramMobilePlatform === false ? { paddingTop: '0px' } : {}}
       >
         {children}
       </main>
