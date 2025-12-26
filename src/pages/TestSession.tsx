@@ -1913,8 +1913,65 @@ const TestSession = () => {
     let rewardResult: TestRewardResult | null = null;
 
     try {
-      // Если это sequential тест или билет ПДД, обновляем прогресс через функцию
-      if (effectiveTestId && profileId) {
+      // Для билетов ПДД: сохраняем в ИЗОЛИРОВАННУЮ таблицу
+      if (mode === 'pdd-ticket' && effectiveTestId && profileId) {
+        const ticketScore = Math.round((correctCount / Math.max(1, questions.length)) * 100);
+        const ticketStatus = ticketScore >= 90 ? 'passed' : (ticketScore > 0 ? 'failed' : 'in_progress');
+
+        // Определяем код страны для БД
+        const dbCountry = pddCountry === 'russia' ? 'ru' : pddCountry === 'spain' ? 'es' : (pddCountry || 'ru');
+
+        const { error: upsertError } = await supabase
+          .from('user_pdd_ticket_progress')
+          .upsert({
+            user_id: profileId,
+            ticket_id: effectiveTestId,
+            country: dbCountry,
+            status: ticketStatus,
+            score: ticketScore,
+            correct_answers: correctCount,
+            total_questions: questions.length,
+            time_spent_seconds: timeSpent,
+            completed_at: new Date().toISOString(),
+            best_score: ticketScore, // Will be handled by DB trigger/logic for max
+          }, {
+            onConflict: 'user_id,ticket_id,country'
+          });
+
+        if (upsertError) {
+          console.error("[TestSession] Error saving ticket progress to DB:", upsertError);
+          // Fallback: сохраняем в localStorage
+          const localKey = `pdd-ticket-progress-${profileId}-${dbCountry}`;
+          const existingData = localStorage.getItem(localKey);
+          const tickets = existingData ? JSON.parse(existingData) : [];
+
+          // Найти или добавить запись для этого билета
+          const existingIndex = tickets.findIndex((t: any) => t.ticket_id === effectiveTestId);
+          const ticketData = {
+            ticket_id: effectiveTestId,
+            score: ticketScore,
+            status: ticketStatus,
+            correct_answers: correctCount,
+            total_questions: questions.length,
+            best_score: Math.max(ticketScore, existingIndex >= 0 ? tickets[existingIndex].best_score || 0 : 0)
+          };
+
+          if (existingIndex >= 0) {
+            tickets[existingIndex] = ticketData;
+          } else {
+            tickets.push(ticketData);
+          }
+
+          localStorage.setItem(localKey, JSON.stringify(tickets));
+          console.log("[TestSession] ✅ Ticket progress saved to localStorage:", ticketData);
+        } else {
+          console.log("[TestSession] ✅ Ticket progress saved to DB:", { effectiveTestId, ticketScore, ticketStatus, dbCountry });
+        }
+        // Invalidate cache so useTicketsStatus refetches
+        queryClient.invalidateQueries({ queryKey: ['user-pdd-ticket-progress'] });
+      }
+      // Для sequential тестов с UUID: используем RPC функцию
+      else if (effectiveTestId && profileId && testId) {
         const { error: progressError } = await (supabase as any).rpc('update_test_progress', {
           p_user_id: profileId,
           p_test_id: effectiveTestId,
@@ -2825,7 +2882,7 @@ const TestSession = () => {
                   )}>
                     {displayQuestion}
                   </h2>
-                  {isPracticeLikeMode && mode !== 'pdd-ticket' && (
+                  {isPracticeLikeMode && mode !== 'pdd-ticket' && !isRussia && (
                     <div className="flex justify-center mt-6">
                       <button onClick={toggleTranslation} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-background border border-border/50 text-sm font-medium text-muted-foreground hover:text-foreground hover:shadow-md transition-all">
                         <Languages className="w-4 h-4" />

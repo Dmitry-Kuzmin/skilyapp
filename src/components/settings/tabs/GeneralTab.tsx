@@ -56,8 +56,22 @@ export const GeneralTab: React.FC = () => {
         togglePerformanceMode,
     } = useSettingsStore();
 
-    const { setTheme: setNextTheme } = useTheme();
-    const { setLanguage: setContextLanguage } = useLanguage();
+    const { setTheme: setNextTheme, resolvedTheme, theme: nextTheme } = useTheme();
+    const { setLanguage: setContextLanguage, language: contextLanguage } = useLanguage();
+
+    // Синхронизация при монтировании (если настройки изменились в другом месте)
+    React.useEffect(() => {
+        // Синхронизация темы
+        const currentTheme = (nextTheme as ThemeMode) || 'system';
+        if (currentTheme !== theme) {
+            setTheme(currentTheme);
+        }
+
+        // Синхронизация языка
+        if (contextLanguage !== language) {
+            setLanguage(contextLanguage as LanguageCode);
+        }
+    }, [nextTheme, contextLanguage, setTheme, setLanguage, theme, language]);
 
     const handleThemeChange = (newTheme: ThemeMode) => {
         triggerHaptic('medium');

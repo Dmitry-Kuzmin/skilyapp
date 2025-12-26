@@ -134,6 +134,8 @@ export const useTestAudio = (
         };
     }, []);
 
+    const apiFailedRef = useRef(false);
+
     // Main effect for playing audio
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -149,6 +151,15 @@ export const useTestAudio = (
         stopAll();
 
         const playWithWebAudio = async () => {
+            // Circuit breaker: if API failed previously, use fallback immediately
+            // This avoids async delays which cause browsers to block speechSynthesis
+            if (apiFailedRef.current) {
+                console.log('[TTS] Circuit breaker active: using fallback immediately');
+                playFallback(currentQuestionText);
+                hasSpokenRef.current = currentQuestionText;
+                return;
+            }
+
             const cacheKey = `${language}:${currentQuestionText}`;
             isPlayingRef.current = true;
 
@@ -164,20 +175,28 @@ export const useTestAudio = (
                 if (!audioBuffer) {
                     abortControllerRef.current = new AbortController();
 
-                    const response = await fetch(
-                        `/api/tts?text=${encodeURIComponent(currentQuestionText)}&lang=${language}`,
-                        { signal: abortControllerRef.current.signal }
-                    );
+                    // Timeout for fetch to fallback quicker
+                    const timeoutId = setTimeout(() => abortControllerRef.current?.abort(), 5000);
 
-                    if (!response.ok) {
-                        throw new Error(`TTS API error: ${response.status}`);
+                    try {
+                        const response = await fetch(
+                            `/api/tts?text=${encodeURIComponent(currentQuestionText)}&lang=${language}`,
+                            { signal: abortControllerRef.current.signal }
+                        );
+
+                        clearTimeout(timeoutId);
+
+                        if (!response.ok) {
+                            throw new Error(`TTS API error: ${response.status}`);
+                        }
+
+                        const arrayBuffer = await response.arrayBuffer();
+                        audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+                        audioBufferCache.set(cacheKey, audioBuffer);
+                    } catch (fetchError) {
+                        clearTimeout(timeoutId);
+                        throw fetchError;
                     }
-
-                    const arrayBuffer = await response.arrayBuffer();
-
-                    // 3. Decode audio data
-                    audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-                    audioBufferCache.set(cacheKey, audioBuffer);
                 }
 
                 // 4. Create and play source node
@@ -202,6 +221,10 @@ export const useTestAudio = (
                 }
 
                 console.warn('[TTS] Web Audio failed, falling back to SpeechSynthesis:', err.message);
+
+                // Mark API as failed so subsequent requests use fallback immediately
+                apiFailedRef.current = true;
+
                 stopAll();
                 playFallback(currentQuestionText);
                 hasSpokenRef.current = currentQuestionText;

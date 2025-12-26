@@ -56,11 +56,23 @@ export const DuelQuestionCard = memo(({
     return null;
   }
 
-  const questionText = translationLanguage === 'ru' && question.question_snapshot.question_ru
-    ? question.question_snapshot.question_ru
-    : translationLanguage === 'en' && question.question_snapshot.question_en
-      ? question.question_snapshot.question_en
-      : question.question_snapshot.question_es;
+  // Улучшенная логика выбора текста с fallback для РФ вопросов
+  const getQuestionText = () => {
+    // 1. Если явный перевод запрошен
+    if (translationLanguage === 'ru' && question.question_snapshot.question_ru) {
+      return question.question_snapshot.question_ru;
+    }
+    if (translationLanguage === 'en' && question.question_snapshot.question_en) {
+      return question.question_snapshot.question_en;
+    }
+    // 2. Испанский (основной для DGT)
+    if (question.question_snapshot.question_es) {
+      return question.question_snapshot.question_es;
+    }
+    // 3. Fallback: РФ или EN если испанского нет
+    return question.question_snapshot.question_ru || question.question_snapshot.question_en || 'Текст вопроса отсутствует';
+  };
+  const questionText = getQuestionText();
 
   const answerOptions = (question.question_snapshot.answer_options || [])
     .sort((a, b) => a.position - b.position);
@@ -108,11 +120,15 @@ export const DuelQuestionCard = memo(({
             );
           }
 
-          const optionText = translationLanguage === 'ru' && option.text_ru
-            ? option.text_ru
-            : translationLanguage === 'en' && option.text_en
-              ? option.text_en
-              : option.text_es;
+          // Улучшенная логика выбора текста ответа с fallback
+          const getOptionText = () => {
+            if (translationLanguage === 'ru' && option.text_ru) return option.text_ru;
+            if (translationLanguage === 'en' && option.text_en) return option.text_en;
+            if (option.text_es) return option.text_es;
+            // Fallback для РФ вопросов
+            return option.text_ru || option.text_en || 'Вариант';
+          };
+          const optionText = getOptionText();
 
           const buttonElement = (
             <motion.button
@@ -130,14 +146,14 @@ export const DuelQuestionCard = memo(({
               whileHover={!isAnswered && !isEliminated ? { scale: 1.02 } : {}}
               whileTap={!isAnswered && !isEliminated ? { scale: 0.98 } : {}}
               className={`p-3 md:p-4 rounded-2xl border-2 text-left transition-all font-semibold text-sm md:text-base leading-snug relative overflow-hidden min-h-[48px] md:min-h-[60px] break-words hyphens-auto w-full select-none ${showResult
-                  ? isCorrect
-                    ? 'bg-green-500/20 border-green-500 text-foreground shadow-lg'
-                    : isSelected
-                      ? 'bg-red-500/20 border-red-500 text-foreground shadow-lg'
-                      : 'bg-muted/30 border-border/30 opacity-50'
+                ? isCorrect
+                  ? 'bg-green-500/20 border-green-500 text-foreground shadow-lg'
                   : isSelected
-                    ? 'bg-primary/20 border-primary shadow-lg'
-                    : 'bg-card border-border hover:border-primary/50 hover:bg-primary/10 hover:shadow-md'
+                    ? 'bg-red-500/20 border-red-500 text-foreground shadow-lg'
+                    : 'bg-muted/30 border-border/30 opacity-50'
+                : isSelected
+                  ? 'bg-primary/20 border-primary shadow-lg'
+                  : 'bg-card border-border hover:border-primary/50 hover:bg-primary/10 hover:shadow-md'
                 }`}
             >
               {showResult && (isCorrect || isSelected) && (

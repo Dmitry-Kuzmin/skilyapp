@@ -159,7 +159,7 @@ const TicketCore = ({
             </div>
           )}
 
-          {hasErrors && (
+          {hasErrors && status !== 'charged' && (
             <div className={cn(
               "px-2 py-0.5 rounded-full border flex items-center gap-1",
               status === 'damaged' ? "bg-red-500/20 border-red-500/30" :
@@ -461,7 +461,7 @@ const Tests = () => {
                 <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 backdrop-blur-sm shadow-lg shadow-amber-500/10 flex-shrink-0 whitespace-nowrap">
                   <AlertTriangle className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                   <span className="text-xs xs:text-sm font-bold text-amber-700 dark:text-amber-100">
-                    {safeStats.errors} <span className="text-amber-600/70 dark:text-amber-300/70 font-normal">ошиб.</span>
+                    {challengeBankCount} <span className="text-amber-600/70 dark:text-amber-300/70 font-normal">ошиб.</span>
                   </span>
                 </div>
               </div>

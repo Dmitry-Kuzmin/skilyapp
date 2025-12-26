@@ -11,6 +11,7 @@ import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
 import { isTelegramMiniApp, triggerHapticFeedback } from "@/lib/telegram";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { AILimitReachedModal } from "@/components/ai/AILimitReachedModal";
 
 type Message = {
   role: "user" | "assistant";
@@ -60,9 +61,13 @@ export function AIExplanationDialog({
   const [messageRatings, setMessageRatings] = useState<Record<number, 1 | -1>>({});
   const hasAskedRef = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+
+  // AI Limit Modal State
+  const [limitModalOpen, setLimitModalOpen] = useState(false);
+  const [limitData, setLimitData] = useState({ currentCount: 0, limit: 10, message: '' });
+
   const { t } = useLanguage();
-  
+
   // Определяем язык интерфейса на основе языка теста
   // Используем язык теста для интерфейса, но если showTranslation активен, используем русский
   const interfaceLanguage = showTranslation ? 'ru' : testLanguage;
@@ -72,7 +77,7 @@ export function AIExplanationDialog({
   useEffect(() => {
     if (open && messages.length === 0) {
       let explanationToShow = null;
-      
+
       // Приоритет: showTranslation > explanation (который уже зависит от testLanguage)
       if (showTranslation && explanationRu && explanationRu.trim()) {
         explanationToShow = explanationRu;
@@ -80,16 +85,16 @@ export function AIExplanationDialog({
         // explanation уже содержит правильный язык в зависимости от testLanguage
         explanationToShow = explanation;
       }
-      
+
       if (explanationToShow && explanationToShow.trim()) {
-      // Добавляем explanation как первое сообщение (без вызова AI - экономим токены!)
-      setMessages([
-        {
-          role: "assistant",
+        // Добавляем explanation как первое сообщение (без вызова AI - экономим токены!)
+        setMessages([
+          {
+            role: "assistant",
             content: explanationToShow
-        }
-      ]);
-        console.log('[AI Chat] 📝 Показано explanation из БД (без AI вызова)', { 
+          }
+        ]);
+        console.log('[AI Chat] 📝 Показано explanation из БД (без AI вызова)', {
           language: showTranslation ? 'ru' : (explanation === explanationEs ? 'es' : explanation === explanationEn ? 'en' : 'unknown'),
           hasRu: !!explanationRu,
           hasEs: !!explanationEs,
@@ -106,13 +111,13 @@ export function AIExplanationDialog({
       const isDbExplanation = explanationRu || explanationEs || explanationEn || explanation;
       if (isDbExplanation) {
         let explanationToShow = null;
-        
+
         if (showTranslation && explanationRu) {
           explanationToShow = explanationRu;
         } else if (explanation) {
           explanationToShow = explanation;
         }
-        
+
         if (explanationToShow && messages[0].content !== explanationToShow) {
           setMessages(prev => {
             const updated = [...prev];
@@ -129,7 +134,7 @@ export function AIExplanationDialog({
     if (open) {
       // Сохраняем текущую позицию скролла перед блокировкой
       const scrollY = window.scrollY;
-      
+
       // Блокируем скролл фона при открытом модальном окне
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
@@ -137,14 +142,14 @@ export function AIExplanationDialog({
       document.body.style.width = '100%';
       document.body.style.left = '0';
       document.body.style.right = '0';
-      
+
       // Сохраняем позицию скролла в data-атрибут для восстановления
       document.body.setAttribute('data-scroll-y', scrollY.toString());
     } else {
       // Восстанавливаем позицию скролла
       const scrollY = document.body.getAttribute('data-scroll-y');
       document.body.removeAttribute('data-scroll-y');
-      
+
       // Разблокируем скролл при закрытии
       document.body.style.overflow = '';
       document.body.style.position = '';
@@ -152,17 +157,17 @@ export function AIExplanationDialog({
       document.body.style.width = '';
       document.body.style.left = '';
       document.body.style.right = '';
-      
+
       // Восстанавливаем позицию скролла
       if (scrollY) {
         window.scrollTo(0, parseInt(scrollY, 10));
       }
-      
+
       setMessages([]);
       setSmartSuggestions([]);
       hasAskedRef.current = false;
     }
-    
+
     return () => {
       // Очистка при размонтировании
       if (!open) {
@@ -198,13 +203,13 @@ export function AIExplanationDialog({
 
     // Находим предыдущий user message для контекста
     const userMessage = messages[messageIndex - 1]?.content || question;
-    
+
     // Извлекаем номер темы из картинки
     const topicNumber = extractTopicFromImage(imageUrl);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       await supabase.from('ai_feedback').insert({
         user_id: session?.user?.id || null,
         session_id: session?.user?.id || `anon_${Date.now()}`,
@@ -218,7 +223,7 @@ export function AIExplanationDialog({
 
       // Обновляем локальное состояние
       setMessageRatings(prev => ({ ...prev, [messageIndex]: rating }));
-      
+
       toast({
         description: rating === 1 ? "✓ Спасибо за оценку!" : "✓ Учтём для улучшения",
         duration: 2000,
@@ -235,10 +240,10 @@ export function AIExplanationDialog({
     // Проверяем испанские специфичные слова и символы
     const hasSpanishChars = /[áéíóúñÁÉÍÓÚÑ¿¡]/.test(text);
     const hasSpanishWords = /(autopista|autovía|carretera|rotonda|señal|carril)/i.test(text);
-    
+
     if (hasCyrillic) return 'ru';
     if (hasSpanishChars || hasSpanishWords) return 'es';
-    
+
     // По умолчанию русский (т.к. вопросы обычно на русском)
     return 'ru';
   };
@@ -246,19 +251,19 @@ export function AIExplanationDialog({
   // Генерация умных подсказок на основе контекста
   const generateSmartSuggestions = async () => {
     if (smartSuggestions.length > 0 || isGeneratingSuggestions) return;
-    
+
     setIsGeneratingSuggestions(true);
-    
+
     // Определяем язык последнего ответа AI (берём последний assistant message)
     const assistantMessages = messages.filter(m => m.role === 'assistant');
     const lastAssistantMessage = assistantMessages[assistantMessages.length - 1]?.content || '';
     const language = detectLanguage(lastAssistantMessage);
-    
+
     console.log('[AI Suggestions] Detected language:', language, 'from text:', lastAssistantMessage.substring(0, 100));
-    
+
     // Извлекаем номер темы из картинки
     const topicNumber = extractTopicFromImage(imageUrl);
-    
+
     const context = `
 Вопрос: ${question}
 Правильный ответ: ${correctAnswer}
@@ -335,8 +340,9 @@ Responde SOLO con lista de 3 preguntas concretas. Solo español.`;
             role: "user",
             content: language === 'ru' ? promptRu : promptEs
           }],
-          topicNumber: topicNumber, // Передаём номер темы для поиска в учебниках
-          imageUrl: imageUrl || '', // Передаём URL изображения
+          topicNumber: topicNumber,
+          imageUrl: imageUrl || '',
+          country: language === 'ru' ? 'russia' : 'spain',
         }),
       });
 
@@ -390,19 +396,19 @@ Responde SOLO con lista de 3 preguntas concretas. Solo español.`;
       // Fallback подсказки в зависимости от языка
       const lastAssistantMessage = messages.find(m => m.role === 'assistant')?.content || '';
       const language = detectLanguage(lastAssistantMessage);
-      
+
       const fallbackRu = [
         "Объясни проще",
         "Приведи пример",
         "Какой штраф?"
       ];
-      
+
       const fallbackEs = [
         "Explícalo más simple",
         "Dame un ejemplo",
         "¿Cuál es la multa?"
       ];
-      
+
       setSmartSuggestions(language === 'ru' ? fallbackRu : fallbackEs);
     } finally {
       setIsGeneratingSuggestions(false);
@@ -437,19 +443,19 @@ Responde SOLO con lista de 3 preguntas concretas. Solo español.`;
   // Извлечение номера темы из названия картинки
   const extractTopicFromImage = (imageUrl: string | null | undefined): number | null => {
     if (!imageUrl) return null;
-    
+
     // Извлекаем имя файла из URL
     const filename = imageUrl.split('/').pop() || '';
-    
+
     // Извлекаем первую цифру из названия файла
     const match = filename.match(/^(\d)/);
-    
+
     if (match) {
       const topicNum = parseInt(match[1], 10);
       console.log(`[AI Dialog] Extracted topic ${topicNum} from image: ${filename}`);
       return topicNum;
     }
-    
+
     return null;
   };
 
@@ -483,7 +489,7 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
       },
     ];
     setMessages(newMessages);
-    
+
     // Сохраняем user message в историю
     if (!customPrompt || messages.length > 0) { // Не сохраняем первое автоматическое сообщение
       saveToHistory('user', userMessage, newMessages.length - 1);
@@ -502,10 +508,26 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
         },
         body: JSON.stringify({
           messages: newMessages,
-          topicNumber: topicNumber, // Передаём номер темы для точного поиска
-          imageUrl: imageUrl || '', // Передаём URL изображения для анализа
+          topicNumber: topicNumber,
+          imageUrl: imageUrl || '',
+          country: interfaceLanguage === 'ru' ? 'russia' : 'spain',
         }),
       });
+
+      // 🔒 Handle AI Limit Reached (429)
+      if (response.status === 429) {
+        const errorData = await response.json();
+        if (errorData.error === 'daily_limit_reached') {
+          setLimitData({
+            currentCount: errorData.current_count || 10,
+            limit: errorData.limit || 10,
+            message: errorData.message || ''
+          });
+          setLimitModalOpen(true);
+          setIsLoading(false);
+          return;
+        }
+      }
 
       if (!response.ok || !response.body) {
         throw new Error("Failed to get response");
@@ -566,13 +588,13 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
       ]);
     } finally {
       setIsLoading(false);
-      
+
       // Сохраняем assistant message в историю (после полной генерации)
       if (assistantMessage) {
         const assistantIndex = newMessages.length; // index of assistant message
         saveToHistory('assistant', assistantMessage, assistantIndex);
       }
-      
+
       // Генерируем умные подсказки после первого ответа AI
       // Проверяем, что это первое объяснение (есть только 1 сообщение пользователя + 1 AI)
       if (!customPrompt && messages.length <= 1) {
@@ -591,7 +613,7 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
-    
+
     const userMessage = input.trim();
     setInput("");
     askAI(userMessage);
@@ -613,7 +635,7 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent hideCloseButton className="w-screen h-screen max-w-none max-h-none m-0 p-0 flex flex-col rounded-none">
-        <DialogHeader 
+        <DialogHeader
           className="px-4 border-b shrink-0"
           style={{
             // Добавляем 48px для встроенной навигации Telegram (кнопки Назад, три точки, стрелка)
@@ -623,13 +645,13 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
         >
           <DialogTitle className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-muted-foreground" />
-            <span className="text-base font-medium text-foreground">
-              AI Помощник DGT
-            </span>
+              <Sparkles className="w-4 h-4 text-muted-foreground" />
+              <span className="text-base font-medium text-foreground">
+                AI Помощник DGT
+              </span>
             </div>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               onClick={handleClose}
               size="icon"
               className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0"
@@ -652,9 +674,9 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
                 <div className="flex-1 min-w-0">
                   <div className="text-sm leading-relaxed text-foreground">
                     <p>
-                      {interfaceLanguage === 'ru' ? t('lumiWelcome') : 
-                       interfaceLanguage === 'en' ? 'Need a hint or a quick explanation? Just press the button or ask your question, and I\'ll help on the spot. Ready when you are ready!' : 
-                       '¿Necesitas una pista o una explicación rápida? Simplemente presiona el botón o haz tu pregunta, y te ayudaré en el acto. ¡Listo cuando tú lo estés!'}
+                      {interfaceLanguage === 'ru' ? t('lumiWelcome') :
+                        interfaceLanguage === 'en' ? 'Need a hint or a quick explanation? Just press the button or ask your question, and I\'ll help on the spot. Ready when you are ready!' :
+                          '¿Necesitas una pista o una explicación rápida? Simplemente presiona el botón o haz tu pregunta, y te ayudaré en el acto. ¡Listo cuando tú lo estés!'}
                     </p>
                   </div>
                 </div>
@@ -667,18 +689,18 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
                   className="h-auto py-2.5 px-3 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 hover:border-blue-300 dark:text-blue-400 dark:hover:bg-blue-950/20 dark:border-blue-800 dark:hover:border-blue-700 rounded-lg"
                   onClick={() => {
                     // "Дай мне подсказку" - запрашиваем подсказку у AI (не правильный ответ)
-                    const hintPrompt = interfaceLanguage === 'ru' 
+                    const hintPrompt = interfaceLanguage === 'ru'
                       ? "Дай мне подсказку к этому вопросу, но не говори правильный ответ напрямую. Помоги мне подумать самостоятельно."
                       : interfaceLanguage === 'en'
-                      ? "Give me a hint for this question, but don't tell me the correct answer directly. Help me think independently."
-                      : "Dame una pista para esta pregunta, pero no me digas la respuesta correcta directamente. Ayúdame a pensar por mí mismo.";
+                        ? "Give me a hint for this question, but don't tell me the correct answer directly. Help me think independently."
+                        : "Dame una pista para esta pregunta, pero no me digas la respuesta correcta directamente. Ayúdame a pensar por mí mismo.";
                     askAI(hintPrompt);
                   }}
                   disabled={isLoading}
                 >
-                  {interfaceLanguage === 'ru' ? t('lumiHintButton') : 
-                   interfaceLanguage === 'en' ? 'Give me a hint' : 
-                   'Dame una pista'}
+                  {interfaceLanguage === 'ru' ? t('lumiHintButton') :
+                    interfaceLanguage === 'en' ? 'Give me a hint' :
+                      'Dame una pista'}
                 </Button>
                 <Button
                   variant="outline"
@@ -697,121 +719,121 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
                   }}
                   disabled={isLoading}
                 >
-                  {interfaceLanguage === 'ru' ? t('lumiHelpButton') : 
-                   interfaceLanguage === 'en' ? 'Help me understand this' : 
-                   'Ayúdame a entender esto'}
+                  {interfaceLanguage === 'ru' ? t('lumiHelpButton') :
+                    interfaceLanguage === 'en' ? 'Help me understand this' :
+                      'Ayúdame a entender esto'}
                 </Button>
               </div>
             </div>
           ) : (
             messages.map((message, index) => (
-            <div key={index}>
-              {message.role === "user" && index > 0 && (
-                <div className="flex justify-end">
-                  <div className="max-w-[85%] bg-muted/80 rounded-2xl px-4 py-2.5">
-                    <div className="text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {message.content}
-                      </ReactMarkdown>
+              <div key={index}>
+                {message.role === "user" && index > 0 && (
+                  <div className="flex justify-end">
+                    <div className="max-w-[85%] bg-muted/80 rounded-2xl px-4 py-2.5">
+                      <div className="text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {message.content}
+                        </ReactMarkdown>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-              {message.role === "assistant" && (
-                <div className="space-y-2">
-                  <div className="flex gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex-shrink-0 mt-0.5 shadow-md">
-                      <LumiCharacter size="sm" mood={index === 0 ? "happy" : "encouraging"} className="scale-50" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      {message.content ? (
-                        <div className="text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert prose-headings:text-foreground prose-strong:font-semibold prose-strong:text-foreground prose-p:text-foreground prose-p:my-2 prose-li:text-foreground">
-                          <ReactMarkdown 
-                            remarkPlugins={[remarkGfm]}
-                            components={{
-                              h1: ({node, ...props}) => <h1 className="text-base font-semibold mt-3 mb-2" {...props} />,
-                              h2: ({node, ...props}) => <h2 className="text-sm font-semibold mt-2 mb-1" {...props} />,
-                              h3: ({node, ...props}) => <h3 className="text-sm font-medium mt-2 mb-1" {...props} />,
-                              strong: ({node, ...props}) => <strong className="font-semibold" {...props} />,
-                              ul: ({node, ...props}) => <ul className="list-disc list-outside ml-4 space-y-1 my-2" {...props} />,
-                              ol: ({node, ...props}) => <ol className="list-decimal list-outside ml-4 space-y-1 my-2" {...props} />,
-                              p: ({node, ...props}) => <p className="my-2 first:mt-0" {...props} />,
-                            }}
-                          >
-                            {message.content}
-                          </ReactMarkdown>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2 text-muted-foreground text-sm py-2">
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Думаю...</span>
-                        </div>
-                      )}
-                      
-                      {/* Feedback buttons и кнопка перевода */}
-                      {message.content && (
-                        <div className="flex items-center gap-1 mt-2">
-                          {/* Кнопка перевода для первого сообщения из БД */}
-                          {index === 0 && onToggleTranslation && explanationRu && (explanationEs || explanationEn || explanation) && (
-                            <button
-                              onClick={() => {
-                                if (onToggleTranslation) {
-                                  // Определяем новый контент ПЕРЕД переключением showTranslation
-                                  // Если сейчас показываем русский (showTranslation === true), переключаем на оригинал
-                                  // Если сейчас показываем оригинал (showTranslation === false), переключаем на русский
-                                  const newContent = showTranslation 
-                                    ? (explanationEs || explanationEn || explanation || '')
-                                    : (explanationRu || '');
-                                  
-                                  // Обновляем сообщение синхронно перед переключением
-                                  setMessages(prev => {
-                                    const updated = [...prev];
-                                    if (updated[0] && updated[0].role === 'assistant') {
-                                      updated[0] = { ...updated[0], content: newContent };
-                                    }
-                                    return updated;
-                                  });
-                                  
-                                  // Переключаем состояние
-                                  onToggleTranslation();
-                                }
+                )}
+                {message.role === "assistant" && (
+                  <div className="space-y-2">
+                    <div className="flex gap-3">
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex-shrink-0 mt-0.5 shadow-md">
+                        <LumiCharacter size="sm" mood={index === 0 ? "happy" : "encouraging"} className="scale-50" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        {message.content ? (
+                          <div className="text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert prose-headings:text-foreground prose-strong:font-semibold prose-strong:text-foreground prose-p:text-foreground prose-p:my-2 prose-li:text-foreground">
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              components={{
+                                h1: ({ node, ...props }) => <h1 className="text-base font-semibold mt-3 mb-2" {...props} />,
+                                h2: ({ node, ...props }) => <h2 className="text-sm font-semibold mt-2 mb-1" {...props} />,
+                                h3: ({ node, ...props }) => <h3 className="text-sm font-medium mt-2 mb-1" {...props} />,
+                                strong: ({ node, ...props }) => <strong className="font-semibold" {...props} />,
+                                ul: ({ node, ...props }) => <ul className="list-disc list-outside ml-4 space-y-1 my-2" {...props} />,
+                                ol: ({ node, ...props }) => <ol className="list-decimal list-outside ml-4 space-y-1 my-2" {...props} />,
+                                p: ({ node, ...props }) => <p className="my-2 first:mt-0" {...props} />,
                               }}
-                              className="flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors h-7"
-                              title={showTranslation ? (interfaceLanguage === 'ru' ? t('lumiShowOriginal') : interfaceLanguage === 'en' ? 'Show original' : 'Mostrar original') : (interfaceLanguage === 'ru' ? t('lumiShowTranslation') : interfaceLanguage === 'en' ? 'Show Russian translation' : 'Mostrar traducción al ruso')}
                             >
-                              <Languages className="w-3 h-3" />
-                              <span>{showTranslation ? (testLanguage === 'en' ? "EN" : "ES") : "RU"}</span>
-                            </button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => submitFeedback(index, 1)}
-                            disabled={!!messageRatings[index]}
-                            className={`h-7 px-2 hover:bg-muted ${messageRatings[index] === 1 ? 'bg-muted' : ''}`}
-                          >
-                            <ThumbsUp className={`w-3.5 h-3.5 ${messageRatings[index] === 1 ? 'fill-current' : ''}`} />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => submitFeedback(index, -1)}
-                            disabled={!!messageRatings[index]}
-                            className={`h-7 px-2 hover:bg-muted ${messageRatings[index] === -1 ? 'bg-muted' : ''}`}
-                          >
-                            <ThumbsDown className={`w-3.5 h-3.5 ${messageRatings[index] === -1 ? 'fill-current' : ''}`} />
-                          </Button>
-                        </div>
-                      )}
+                              {message.content}
+                            </ReactMarkdown>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 text-muted-foreground text-sm py-2">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Думаю...</span>
+                          </div>
+                        )}
+
+                        {/* Feedback buttons и кнопка перевода */}
+                        {message.content && (
+                          <div className="flex items-center gap-1 mt-2">
+                            {/* Кнопка перевода для первого сообщения из БД */}
+                            {index === 0 && onToggleTranslation && explanationRu && (explanationEs || explanationEn || explanation) && (
+                              <button
+                                onClick={() => {
+                                  if (onToggleTranslation) {
+                                    // Определяем новый контент ПЕРЕД переключением showTranslation
+                                    // Если сейчас показываем русский (showTranslation === true), переключаем на оригинал
+                                    // Если сейчас показываем оригинал (showTranslation === false), переключаем на русский
+                                    const newContent = showTranslation
+                                      ? (explanationEs || explanationEn || explanation || '')
+                                      : (explanationRu || '');
+
+                                    // Обновляем сообщение синхронно перед переключением
+                                    setMessages(prev => {
+                                      const updated = [...prev];
+                                      if (updated[0] && updated[0].role === 'assistant') {
+                                        updated[0] = { ...updated[0], content: newContent };
+                                      }
+                                      return updated;
+                                    });
+
+                                    // Переключаем состояние
+                                    onToggleTranslation();
+                                  }
+                                }}
+                                className="flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors h-7"
+                                title={showTranslation ? (interfaceLanguage === 'ru' ? t('lumiShowOriginal') : interfaceLanguage === 'en' ? 'Show original' : 'Mostrar original') : (interfaceLanguage === 'ru' ? t('lumiShowTranslation') : interfaceLanguage === 'en' ? 'Show Russian translation' : 'Mostrar traducción al ruso')}
+                              >
+                                <Languages className="w-3 h-3" />
+                                <span>{showTranslation ? (testLanguage === 'en' ? "EN" : "ES") : "RU"}</span>
+                              </button>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => submitFeedback(index, 1)}
+                              disabled={!!messageRatings[index]}
+                              className={`h-7 px-2 hover:bg-muted ${messageRatings[index] === 1 ? 'bg-muted' : ''}`}
+                            >
+                              <ThumbsUp className={`w-3.5 h-3.5 ${messageRatings[index] === 1 ? 'fill-current' : ''}`} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => submitFeedback(index, -1)}
+                              disabled={!!messageRatings[index]}
+                              className={`h-7 px-2 hover:bg-muted ${messageRatings[index] === -1 ? 'bg-muted' : ''}`}
+                            >
+                              <ThumbsDown className={`w-3.5 h-3.5 ${messageRatings[index] === -1 ? 'fill-current' : ''}`} />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ))
+                )}
+              </div>
+            ))
           )}
 
-          
+
           <div ref={messagesEndRef} />
         </div>
 
@@ -844,7 +866,7 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
         )}
 
         {/* Chat Input */}
-        <div 
+        <div
           className="px-4 border-t shrink-0"
           style={{
             paddingTop: '12px',
@@ -870,6 +892,15 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
           </form>
         </div>
       </DialogContent>
+
+      {/* AI Limit Modal */}
+      <AILimitReachedModal
+        isOpen={limitModalOpen}
+        onClose={() => setLimitModalOpen(false)}
+        currentCount={limitData.currentCount}
+        limit={limitData.limit}
+        message={limitData.message}
+      />
     </Dialog>
   );
 }

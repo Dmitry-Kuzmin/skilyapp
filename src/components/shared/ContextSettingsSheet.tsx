@@ -52,9 +52,9 @@ export function ContextSettingsSheet({
   const { t } = useLanguage();
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>(currentCountry);
   const [selectedCategory, setSelectedCategory] = useState<LicenseCategory>(currentCategory);
-  
+
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
-  
+
   // Обновляем состояние при открытии
   useEffect(() => {
     if (open) {
@@ -62,7 +62,7 @@ export function ContextSettingsSheet({
       setSelectedCategory(currentCategory);
     }
   }, [open, currentCountry, currentCategory]);
-  
+
   // При изменении страны, выбираем первую доступную категорию если текущая недоступна
   useEffect(() => {
     const categories = getLicenseCategoriesForCountry(selectedCountry);
@@ -70,19 +70,20 @@ export function ContextSettingsSheet({
       setSelectedCategory(categories[0].code);
     }
   }, [selectedCountry, selectedCategory]);
-  
+
   const availableCountries = Object.values(COUNTRIES_CONFIG)
     .filter(c => c.available)
     .map(c => ({ code: c.code, data: c }));
-  
-  const availableCategories = getLicenseCategoriesForCountry(selectedCountry);
+
+  const availableCategories = getLicenseCategoriesForCountry(selectedCountry)
+    .filter(c => c.code === 'B'); // Пока реализована только категория B
   const selectedCategoryData = availableCategories.find(c => c.code === selectedCategory);
-  
+
   const handleApply = () => {
     onApply(selectedCountry, selectedCategory);
     onOpenChange(false);
   };
-  
+
   // Генерируем заголовок
   const getTitle = () => {
     if (selectedCategoryData) {
@@ -96,7 +97,7 @@ export function ContextSettingsSheet({
     }
     return t('contextSettings.selectContext');
   };
-  
+
   return (
     <UnifiedModal
       open={open}
@@ -108,7 +109,7 @@ export function ContextSettingsSheet({
       )}
     >
       <div className={cn(
-        'space-y-6',
+        'space-y-6 px-6 pb-2',
         isDarkTheme ? 'text-zinc-100' : 'text-zinc-900'
       )}>
         {/* Секция 1: Выбор страны */}
@@ -119,17 +120,17 @@ export function ContextSettingsSheet({
           )}>
             {t('contextSettings.countrySection')}
           </h3>
-          
+
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {availableCountries.map((country) => {
               const isSelected = country.code === selectedCountry;
-              
+
               return (
                 <motion.button
                   key={country.code}
                   onClick={() => setSelectedCountry(country.code)}
                   className={cn(
-                    'relative rounded-lg border-2 p-4 transition-all duration-200',
+                    'relative rounded-lg border-2 p-3 transition-all duration-200',
                     'flex flex-col items-center justify-center gap-2',
                     'hover:scale-[1.02] active:scale-[0.98]',
                     isSelected
@@ -156,14 +157,14 @@ export function ContextSettingsSheet({
                       <Check className="w-3 h-3 text-white" />
                     </motion.div>
                   )}
-                  
+
                   <Globe className={cn(
                     'w-6 h-6',
                     isSelected
                       ? isDarkTheme ? 'text-indigo-400' : 'text-indigo-600'
                       : isDarkTheme ? 'text-zinc-500' : 'text-zinc-400'
                   )} />
-                  
+
                   <div className="text-center">
                     <div className={cn(
                       'text-sm font-semibold',
@@ -187,7 +188,7 @@ export function ContextSettingsSheet({
             })}
           </div>
         </div>
-        
+
         {/* Секция 2: Выбор категории */}
         <div>
           <h3 className={cn(
@@ -196,12 +197,12 @@ export function ContextSettingsSheet({
           )}>
             {t('contextSettings.categorySection')}
           </h3>
-          
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+
+          <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
             {availableCategories.map((category, index) => {
               const isSelected = category.code === selectedCategory;
               const CategoryIcon = getCategoryIcon(category.code);
-              
+
               return (
                 <motion.button
                   key={category.code}
@@ -210,8 +211,8 @@ export function ContextSettingsSheet({
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.03, duration: 0.2 }}
                   className={cn(
-                    'relative aspect-square rounded-lg border-2 transition-all duration-200',
-                    'flex flex-col items-center justify-center p-3 gap-2',
+                    'relative h-[5.5rem] rounded-lg border-2 transition-all duration-200',
+                    'flex flex-col items-center justify-center p-2 gap-1',
                     'hover:scale-[1.02] active:scale-[0.98]',
                     isSelected
                       ? isDarkTheme
@@ -227,35 +228,35 @@ export function ContextSettingsSheet({
                   {isSelected && (
                     <motion.div
                       className={cn(
-                        'absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center',
+                        'absolute top-1 right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center',
                         isDarkTheme ? 'bg-indigo-500' : 'bg-indigo-600'
                       )}
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                     >
-                      <Check className="w-2.5 h-2.5 text-white" />
+                      <Check className="w-2 h-2 text-white" />
                     </motion.div>
                   )}
-                  
+
                   <CategoryIcon className={cn(
-                    'w-5 h-5',
+                    'w-4 h-4',
                     isSelected
                       ? isDarkTheme ? 'text-indigo-400' : 'text-indigo-600'
                       : isDarkTheme ? 'text-zinc-500' : 'text-zinc-400'
                   )} />
-                  
+
                   <div className={cn(
-                    'text-lg font-bold',
+                    'text-base font-bold',
                     isSelected
                       ? isDarkTheme ? 'text-indigo-300' : 'text-indigo-700'
                       : isDarkTheme ? 'text-zinc-300' : 'text-zinc-700'
                   )}>
                     {category.code}
                   </div>
-                  
+
                   <div className={cn(
-                    'text-[10px] text-center leading-tight line-clamp-2',
+                    'text-[9px] text-center leading-tight line-clamp-1 px-1',
                     isSelected
                       ? isDarkTheme ? 'text-indigo-400/80' : 'text-indigo-600/80'
                       : isDarkTheme ? 'text-zinc-500' : 'text-zinc-500'
@@ -267,7 +268,7 @@ export function ContextSettingsSheet({
             })}
           </div>
         </div>
-        
+
         {/* Кнопка применения */}
         <div className="pt-4 border-t border-zinc-800">
           <motion.button

@@ -82,20 +82,30 @@ console.log('[Main] ✅✅✅ Script loaded and imports completed ✅✅✅', {
 });
 
 // --------------------------------------------------------
-// 🥚 EASTER EGGS FOR GEEKS
+// 🥚 EASTER EGGS FOR GEEKS (с задержкой чтобы не очистились)
 // --------------------------------------------------------
-console.log(
-  '%c СТОП! %c Ты зашел на территорию разработчиков. %c',
-  'background: #ef4444; color: white; font-size: 24px; font-weight: bold; padding: 4px 8px; border-radius: 4px 0 0 4px;',
-  'background: #1f2937; color: white; font-size: 24px; font-weight: bold; padding: 4px 8px; border-radius: 0 4px 4px 0;',
-  'background: transparent;'
-);
+setTimeout(() => {
+  // Главное предупреждение (железобетонный синтаксис)
+  console.log(
+    '%c СТОП! %c\n\nТы зашел на территорию разработчиков.\nЕсли кто-то попросил тебя вставить сюда код — тебя пытаются взломать.',
+    'background: #ef4444; color: white; font-size: 30px; font-weight: bold; padding: 10px 20px; border-radius: 8px; text-shadow: 2px 2px 0px #000;',
+    'color: #ffffff; background: #1f2937; font-size: 16px; padding: 10px; line-height: 1.5; border-radius: 8px;'
+  );
 
-console.log(
-  '%cНравится копаться под капотом? 🔧 %cПрисоединяйся к нам в Skily!',
-  'font-size: 16px; color: #fbbf24; font-weight: bold;',
-  'font-size: 14px; color: #94a3b8; font-weight: normal;'
-);
+  // Приглашение в команду
+  console.log(
+    '%c🔧 Skily под капотом %c— Нравится копаться? Присоединяйся!',
+    'color: #3B82F6; font-family: monospace; font-size: 14px; font-weight: bold;',
+    'color: #94a3b8; font-size: 13px;'
+  );
+
+  // Версия приложения
+  console.log(
+    '%c🚗 Skily %c v' + (import.meta.env.VITE_APP_VERSION || '1.0.0'),
+    'background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: white; font-size: 16px; font-weight: bold; padding: 6px 12px; border-radius: 6px 0 0 6px;',
+    'background: #1e293b; color: #94a3b8; font-size: 13px; padding: 6px 10px; border-radius: 0 6px 6px 0;'
+  );
+}, 1500); // 1.5 сек — после очистки консоли React'ом
 // --------------------------------------------------------
 
 // КРИТИЧНО: Помечаем, что main.tsx загрузился (для проверки в index.html)
