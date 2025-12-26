@@ -123,7 +123,7 @@ export function QuestionText({
         <h2
           className={cn(
             fontSizeClasses[fontSize as keyof typeof fontSizeClasses] || fontSizeClasses[1],
-            "font-semibold leading-snug text-white/95 whitespace-pre-line transition-all duration-300",
+            "font-semibold leading-snug text-slate-900 dark:text-white/95 whitespace-pre-line transition-all duration-300",
             isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0',
           )}
         >

@@ -1749,6 +1749,9 @@ const TestSession = () => {
   };
 
   const nextQuestion = () => {
+    // КРИТИЧНО: Сбрасываем выбранный ответ при переходе на следующий вопрос
+    setSelectedOption(null);
+
     if (currentIndex < questions.length - 1) {
       engineNextQuestion();
       setShowTranslation(false);
@@ -2526,13 +2529,13 @@ const TestSession = () => {
                         </button>
                       )}
                       {isPracticeLikeMode && selectedOption ? (
-                        <Button onClick={nextQuestion} className="flex-1 font-bold h-12 sm:h-14 rounded-2xl bg-gradient-to-r from-secondary to-secondary/80 text-lg shadow-xl">
+                        <Button onClick={nextQuestion} className="flex-1 font-bold h-12 sm:h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-lg shadow-xl">
                           <span>{isRussia ? 'Следующий' : 'Siguiente'}</span>
                           <ChevronRight className="w-5 h-5 ml-2" />
                         </Button>
                       ) : (
                         !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && (
-                          <Button onClick={() => handleAnswer()} disabled={!selectedOption} className="!flex-1 !font-semibold h-12 sm:h-14 !rounded-2xl !bg-slate-900 dark:!bg-slate-50 !text-white dark:!text-slate-900 !text-lg !shadow-lg">
+                          <Button onClick={() => handleAnswer()} disabled={!selectedOption} className="!flex-1 !font-semibold h-12 sm:h-14 !rounded-2xl !bg-blue-600 hover:!bg-blue-500 disabled:!bg-slate-300 dark:disabled:!bg-slate-700 !text-white disabled:!text-slate-500 !text-lg !shadow-lg">
                             {isRussia ? "Ответить" : "Responder"}
                           </Button>
                         )
@@ -2580,7 +2583,7 @@ const TestSession = () => {
                           </button>
                         )}
                         {isPracticeLikeMode && selectedOption ? (
-                          <Button onClick={nextQuestion} className="flex-1 font-bold h-12 rounded-xl bg-gradient-to-r from-secondary to-secondary/80 text-lg">
+                          <Button onClick={nextQuestion} className="flex-1 font-bold h-12 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-lg">
                             <span>{isRussia ? 'Следующий' : 'Siguiente'}</span>
                             <ChevronRight className="w-5 h-5 ml-2" />
                           </Button>
@@ -2637,13 +2640,13 @@ const TestSession = () => {
                     </button>
                   )}
                   {isPracticeLikeMode && selectedOption ? (
-                    <Button onClick={nextQuestion} className="flex-1 font-bold h-16 rounded-2xl bg-gradient-to-r from-secondary to-secondary/80 text-xl shadow-2xl">
+                    <Button onClick={nextQuestion} className="flex-1 font-bold h-16 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-xl shadow-2xl">
                       <span>{isRussia ? 'Следующий вопрос' : 'Siguiente pregunta'}</span>
                       <ChevronRight className="w-6 h-6 ml-3" />
                     </Button>
                   ) : (
                     !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && (
-                      <Button onClick={() => handleAnswer()} disabled={!selectedOption} className="!flex-1 !font-bold h-16 !rounded-2xl !bg-slate-900 dark:!bg-slate-50 !text-white dark:!text-slate-900 !text-xl !shadow-xl">
+                      <Button onClick={() => handleAnswer()} disabled={!selectedOption} className="!flex-1 !font-bold h-16 !rounded-2xl !bg-blue-600 hover:!bg-blue-500 disabled:!bg-slate-300 dark:disabled:!bg-slate-700 !text-white disabled:!text-slate-500 !text-xl !shadow-xl">
                         {isRussia ? "Ответить" : "Responder"}
                       </Button>
                     )

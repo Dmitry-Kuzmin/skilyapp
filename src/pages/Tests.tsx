@@ -780,9 +780,9 @@ const Tests = () => {
                       className={cn(
                         isFeatured ? 'md:col-span-2' : 'col-span-1',
                         "relative overflow-hidden rounded-[2.5rem] p-6 md:p-8 cursor-pointer group",
-                        "bg-slate-800/40 backdrop-blur-md border border-white/5",
-                        "transition-all duration-300 shadow-xl",
-                        "hover:bg-slate-800/60 hover:-translate-y-1 hover:shadow-2xl",
+                        "bg-white dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-white/5",
+                        "transition-all duration-300 shadow-lg dark:shadow-xl",
+                        "hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-2xl",
                         theme.border,
                         theme.shadow
                       )}
@@ -850,10 +850,10 @@ const Tests = () => {
                         </div>
 
                         <div className="space-y-2">
-                          <h3 className={cn("text-xl font-black text-white tracking-tight transition-colors", theme.titleHover)}>
+                          <h3 className={cn("text-xl font-black text-slate-900 dark:text-white tracking-tight transition-colors", theme.titleHover)}>
                             {mode.title}
                           </h3>
-                          <p className="text-slate-400 font-medium text-sm leading-relaxed line-clamp-2">
+                          <p className="text-slate-600 dark:text-slate-400 font-medium text-sm leading-relaxed line-clamp-2">
                             {mode.description}
                           </p>
                         </div>

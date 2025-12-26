@@ -54,16 +54,15 @@ export const AnswerButton = memo(function AnswerButton({
           ? "p-2.5 sm:p-3 rounded-lg"
           : "p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl",
         // Состояния результата
-        // Состояния результата
         showResult
           ? isCorrect
             ? "border-emerald-500 bg-gradient-to-br from-emerald-500/25 to-emerald-500/5 shadow-xl shadow-emerald-500/20 ring-2 ring-emerald-500/20"
             : isSelected
               ? "border-red-500 bg-gradient-to-br from-red-500/25 to-red-500/5 shadow-xl shadow-red-500/20 ring-2 ring-red-500/20"
-              : "border-white/5 opacity-40 grayscale"
+              : "border-slate-200 dark:border-white/5 opacity-40 grayscale"
           : isSelected
             ? "border-blue-500 bg-gradient-to-br from-blue-600/20 to-blue-600/5 shadow-xl shadow-blue-500/20 scale-[1.01] ring-2 ring-blue-500/30"
-            : "border-white/10 bg-slate-800/40 hover:border-white/30 hover:bg-slate-800/60 hover:scale-[1.005] active:scale-[0.99]",
+            : "border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800/40 hover:border-blue-400 dark:hover:border-white/30 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:scale-[1.005] active:scale-[0.99] shadow-sm",
         !disabled && !showResult && "cursor-pointer transition-all duration-200",
         className
       )}
@@ -72,7 +71,7 @@ export const AnswerButton = memo(function AnswerButton({
         <span className={cn(
           "flex-1",
           fontSizeClasses[fontSize as keyof typeof fontSizeClasses] || fontSizeClasses[1],
-          "leading-snug text-white/90 group-hover:text-white transition-colors"
+          "leading-snug text-slate-800 dark:text-white/90 group-hover:text-slate-900 dark:group-hover:text-white transition-colors"
         )}>
           {text}
         </span>
