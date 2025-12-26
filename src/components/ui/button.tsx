@@ -18,7 +18,7 @@ const buttonVariants = cva(
         gold: "gradient-gold text-gold-foreground hover:opacity-90",
         success: "bg-success text-success-foreground hover:bg-success/90",
         primary: "bg-white text-black hover:bg-zinc-200 border border-transparent shadow-[0_0_15px_rgba(255,255,255,0.1)] rounded-xl",
-        brand: "bg-blue-600 hover:bg-blue-500 text-white shadow-[0px_0px_15px_rgba(37,99,235,0.3)] border-t border-white/10 rounded-xl",
+        brand: "bg-blue-600 hover:bg-blue-500 text-white rounded-xl",
         gradient: "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:opacity-90 border border-transparent shadow-[0_0_20px_-5px_rgba(79,70,229,0.3)] rounded-xl",
       },
       size: {
