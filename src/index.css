@@ -157,7 +157,7 @@ iframe[id^="telegram-login"] {
    * ============================================================================ */
 
   /* Fallback значения для случаев когда Telegram ещё не установил переменные */
-  /* 64px - высота для iPhone 16 Pro с кнопкой назад Telegram */
+  /* КРИТИЧНО: Устанавливаем разумные начальные значения чтобы избежать "прыжка" при загрузке */
   --tg-safe-area-inset-top: 0px;
   --tg-safe-area-inset-bottom: 0px;
   --tg-safe-area-inset-left: 0px;
@@ -181,6 +181,18 @@ iframe[id^="telegram-login"] {
 
   /* КРИТИЧНО: Минимальный fallback для Telegram Mobile (64px для iPhone 16) */
   --tg-mobile-header-fallback: 64px;
+}
+
+/* ============================================================================
+ * TELEGRAM MOBILE - Начальные значения для предотвращения "прыжка"
+ * ============================================================================
+ * Устанавливаем начальное значение 88px для content-safe-area-inset-top
+ * ТОЛЬКО для Telegram Mobile. Это предотвращает сброс padding при перезагрузке.
+ * TelegramNavigation.tsx обновит это значение на актуальное от API.
+ * ============================================================================ */
+html.telegram-mobile-app,
+body.telegram-mobile-app {
+  --tg-content-safe-area-inset-top: 88px;
 }
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
@@ -457,13 +469,13 @@ All colors MUST be HSL.
      * Вычисляем padding как максимум из:
      * 1. --tg-content-safe-area-inset-top (высота UI Telegram: кнопка назад)
      * 2. --tg-safe-area-inset-top (системный отступ: notch/Dynamic Island)
-     * 3. 72px - минимальный fallback для мобильных (увеличен для комфорта)
+     * 3. 88px - минимальный fallback для мобильных (увеличен для комфорта)
      * 
      * ВАЖНО: Используем max() для выбора максимального значения
      */
     padding-top: max(var(--tg-content-safe-area-inset-top, 0px),
         var(--tg-safe-area-inset-top, 0px),
-        72px) !important;
+        88px) !important;
 
     /* Анимируем изменения padding для плавного UX */
     transition: padding-top 0.15s ease-out;
