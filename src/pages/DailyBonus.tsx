@@ -472,311 +472,312 @@ const DailyBonus = () => {
       </div>
 
       <div className="container mx-auto px-4 py-6 space-y-6">
-        {/* Streak Counter */}
-        <CompactStreakJewel
-          streak={currentStreak}
-          label="СЕРИЯ ДНЕЙ"
-          size="lg"
-          className="shadow-orange-500/10 mb-6"
-          hasClaimedToday={!canClaimBonus}
-          onClaim={handleClaimBonus}
-          isClaiming={claimingBonus}
-        />
+        <Card className="p-6">
+          {/* Streak Counter */}
+          <CompactStreakJewel
+            streak={currentStreak}
+            label="СЕРИЯ ДНЕЙ"
+            size="lg"
+            className="shadow-orange-500/10 mb-6"
+            hasClaimedToday={!canClaimBonus}
+            onClaim={handleClaimBonus}
+            isClaiming={claimingBonus}
+          />
 
-        {/* Progress to next milestone */}
-        <div className="mt-4 space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">
-              До следующей вехи:
-              {currentStreak < 7 ? ' 7 дней' :
-                currentStreak < 14 ? ' 14 дней' :
-                  currentStreak < 21 ? ' 21 день' :
-                    currentStreak < 30 ? ' 30 дней' :
-                      currentStreak < 60 ? ' 60 дней' :
-                        currentStreak < 90 ? ' 90 дней' :
-                          ' Максимум достигнут!'}
-            </span>
-            <span className="font-bold text-primary">
-              {currentStreak < 7 ? `${7 - currentStreak} дней` :
-                currentStreak < 14 ? `${14 - currentStreak} дней` :
-                  currentStreak < 21 ? `${21 - currentStreak} день` :
-                    currentStreak < 30 ? `${30 - currentStreak} дней` :
-                      currentStreak < 60 ? `${60 - currentStreak} дней` :
-                        currentStreak < 90 ? `${90 - currentStreak} дней` :
-                          '🎉'}
-            </span>
-          </div>
-          <div className="h-3 bg-muted/50 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-primary via-secondary to-primary transition-all duration-500"
-              style={{
-                width: `${currentStreak < 7 ? (currentStreak / 7) * 100 :
-                  currentStreak < 14 ? ((currentStreak - 7) / 7) * 100 :
-                    currentStreak < 21 ? ((currentStreak - 14) / 7) * 100 :
-                      currentStreak < 30 ? ((currentStreak - 21) / 9) * 100 :
-                        currentStreak < 60 ? ((currentStreak - 30) / 30) * 100 :
-                          currentStreak < 90 ? ((currentStreak - 60) / 30) * 100 :
-                            100
-                  }%`
-              }}
-            />
-          </div>
-        </div>
-      </Card>
-
-      {/* Today's Reward */}
-      {nextReward && canClaimBonus && (
-        <Card className="p-6 gradient-card border-2 border-primary/30 relative overflow-hidden animate-fade-in">
-          <div className="absolute inset-0 bg-gradient-to-br from-gold/10 via-transparent to-primary/10 pointer-events-none" />
-
-          <div className="relative space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold to-yellow-600 flex items-center justify-center shadow-lg animate-bounce-slow">
-                <Gift className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h3 className="font-bold text-lg">Награда дня {currentStreak + 1}</h3>
-                <p className="text-sm text-muted-foreground">{nextReward.description}</p>
-              </div>
+          {/* Progress to next milestone */}
+          <div className="mt-4 space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">
+                До следующей вехи:
+                {currentStreak < 7 ? ' 7 дней' :
+                  currentStreak < 14 ? ' 14 дней' :
+                    currentStreak < 21 ? ' 21 день' :
+                      currentStreak < 30 ? ' 30 дней' :
+                        currentStreak < 60 ? ' 60 дней' :
+                          currentStreak < 90 ? ' 90 дней' :
+                            ' Максимум достигнут!'}
+              </span>
+              <span className="font-bold text-primary">
+                {currentStreak < 7 ? `${7 - currentStreak} дней` :
+                  currentStreak < 14 ? `${14 - currentStreak} дней` :
+                    currentStreak < 21 ? `${21 - currentStreak} день` :
+                      currentStreak < 30 ? `${30 - currentStreak} дней` :
+                        currentStreak < 60 ? `${60 - currentStreak} дней` :
+                          currentStreak < 90 ? `${90 - currentStreak} дней` :
+                            '🎉'}
+              </span>
             </div>
-
-            <div className="flex flex-wrap gap-2">
-              {nextReward.reward.xp > 0 && (
-                <div className="flex items-center gap-2 px-4 py-2 bg-primary/20 rounded-xl border border-primary/30">
-                  <Sparkles className="w-5 h-5 text-primary" />
-                  <span className="font-bold">+{nextReward.reward.xp} XP</span>
-                </div>
-              )}
-              {nextReward.reward.coins > 0 && (
-                <div className="flex items-center gap-2 px-4 py-2 bg-gold/20 rounded-xl border border-gold/30">
-                  <span className="text-xl">🪙</span>
-                  <span className="font-bold">+{nextReward.reward.coins}</span>
-                </div>
-              )}
-              {nextReward.reward.boost && (
-                <div className="flex items-center gap-2 px-4 py-2 bg-secondary/20 rounded-xl border border-secondary/30">
-                  <Zap className="w-5 h-5 text-secondary" />
-                  <span className="font-bold">Boost x2</span>
-                </div>
-              )}
-              {nextReward.reward.badge && (
-                <div className="flex items-center gap-2 px-4 py-2 bg-gold/20 rounded-xl border border-gold/30">
-                  <Trophy className="w-5 h-5 text-gold" />
-                  <span className="font-bold">Бейдж</span>
-                </div>
-              )}
+            <div className="h-3 bg-muted/50 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-primary via-secondary to-primary transition-all duration-500"
+                style={{
+                  width: `${currentStreak < 7 ? (currentStreak / 7) * 100 :
+                    currentStreak < 14 ? ((currentStreak - 7) / 7) * 100 :
+                      currentStreak < 21 ? ((currentStreak - 14) / 7) * 100 :
+                        currentStreak < 30 ? ((currentStreak - 21) / 9) * 100 :
+                          currentStreak < 60 ? ((currentStreak - 30) / 30) * 100 :
+                            currentStreak < 90 ? ((currentStreak - 60) / 30) * 100 :
+                              100
+                    }%`
+                }}
+              />
             </div>
-
-            <Button
-              onClick={handleClaimBonus}
-              disabled={claimingBonus}
-              className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/30 hover:shadow-primary/50"
-              size="lg"
-            >
-              {claimingBonus ? (
-                <>
-                  <Sparkles className="w-5 h-5 mr-2 animate-spin" />
-                  Получение награды...
-                </>
-              ) : (
-                <>
-                  <Gift className="w-5 h-5 mr-2" />
-                  Забрать награду
-                </>
-              )}
-            </Button>
           </div>
         </Card>
-      )}
 
-      {!canClaimBonus && !streakBroken && (
-        <Card className="p-6 text-center border-2 border-border/50">
-          <Clock className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-          <h3 className="font-bold mb-1">Награда уже получена</h3>
-          <p className="text-sm text-muted-foreground">
-            Возвращайся завтра за новой наградой!
-          </p>
-        </Card>
-      )}
+        {/* Today's Reward */}
+        {nextReward && canClaimBonus && (
+          <Card className="p-6 gradient-card border-2 border-primary/30 relative overflow-hidden animate-fade-in">
+            <div className="absolute inset-0 bg-gradient-to-br from-gold/10 via-transparent to-primary/10 pointer-events-none" />
 
-      {/* Road Progress */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold">Путь к финалу (90 дней)</h2>
+            <div className="relative space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold to-yellow-600 flex items-center justify-center shadow-lg animate-bounce-slow">
+                  <Gift className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">Награда дня {currentStreak + 1}</h3>
+                  <p className="text-sm text-muted-foreground">{nextReward.description}</p>
+                </div>
+              </div>
 
-        <div className="overflow-x-auto pb-4">
-          <div className="flex gap-3 min-w-max">
-            {weeklyRewards.map((reward, idx) => {
-              const dayNum = reward.day_number;
-              const isCompleted = currentStreak >= dayNum;
-              const isCurrent = currentStreak + 1 === dayNum;
-              const isSpecial = [7, 14, 21, 30, 60, 90].includes(dayNum);
-              const hasBoost = reward.reward.boost;
-              const hasBadge = reward.reward.badge;
+              <div className="flex flex-wrap gap-2">
+                {nextReward.reward.xp > 0 && (
+                  <div className="flex items-center gap-2 px-4 py-2 bg-primary/20 rounded-xl border border-primary/30">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    <span className="font-bold">+{nextReward.reward.xp} XP</span>
+                  </div>
+                )}
+                {nextReward.reward.coins > 0 && (
+                  <div className="flex items-center gap-2 px-4 py-2 bg-gold/20 rounded-xl border border-gold/30">
+                    <span className="text-xl">🪙</span>
+                    <span className="font-bold">+{nextReward.reward.coins}</span>
+                  </div>
+                )}
+                {nextReward.reward.boost && (
+                  <div className="flex items-center gap-2 px-4 py-2 bg-secondary/20 rounded-xl border border-secondary/30">
+                    <Zap className="w-5 h-5 text-secondary" />
+                    <span className="font-bold">Boost x2</span>
+                  </div>
+                )}
+                {nextReward.reward.badge && (
+                  <div className="flex items-center gap-2 px-4 py-2 bg-gold/20 rounded-xl border border-gold/30">
+                    <Trophy className="w-5 h-5 text-gold" />
+                    <span className="font-bold">Бейдж</span>
+                  </div>
+                )}
+              </div>
 
-              return (
-                <div
-                  key={dayNum}
-                  className={`flex flex-col items-center gap-2 ${isSpecial ? 'w-24' : 'w-20'}`}
-                >
-                  <div className={`
-                      ${isSpecial ? 'w-20 h-20' : 'w-16 h-16'}
-                      rounded-2xl border-2 flex flex-col items-center justify-center relative transition-all duration-300
-                      ${isCompleted ?
-                      'bg-gradient-to-br from-primary to-secondary border-primary shadow-lg shadow-primary/30' :
-                      isCurrent && canClaimBonus ?
-                        'bg-gradient-to-br from-gold/30 to-primary/30 border-gold animate-pulse shadow-md' :
-                        'bg-muted/30 border-border/50'
-                    }
-                    `}>
-                    {isCompleted ? (
-                      <Check className={`${isSpecial ? 'w-10 h-10' : 'w-8 h-8'} text-primary-foreground`} strokeWidth={3} />
-                    ) : isCurrent && canClaimBonus ? (
-                      <>
-                        {hasBadge ? (
-                          <Trophy className={`${isSpecial ? 'w-10 h-10' : 'w-8 h-8'} text-gold animate-bounce`} />
-                        ) : hasBoost ? (
-                          <Zap className={`${isSpecial ? 'w-10 h-10' : 'w-8 h-8'} text-primary animate-pulse`} />
-                        ) : (
-                          <Gift className={`${isSpecial ? 'w-10 h-10' : 'w-8 h-8'} text-primary animate-bounce`} />
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="w-4 h-4 text-muted-foreground mb-1" />
-                        <div className="text-[10px] text-center leading-tight">
-                          {reward.reward.xp > 0 && <div className="font-bold text-primary">+{reward.reward.xp}</div>}
+              <Button
+                onClick={handleClaimBonus}
+                disabled={claimingBonus}
+                className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/30 hover:shadow-primary/50"
+                size="lg"
+              >
+                {claimingBonus ? (
+                  <>
+                    <Sparkles className="w-5 h-5 mr-2 animate-spin" />
+                    Получение награды...
+                  </>
+                ) : (
+                  <>
+                    <Gift className="w-5 h-5 mr-2" />
+                    Забрать награду
+                  </>
+                )}
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {!canClaimBonus && !streakBroken && (
+          <Card className="p-6 text-center border-2 border-border/50">
+            <Clock className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+            <h3 className="font-bold mb-1">Награда уже получена</h3>
+            <p className="text-sm text-muted-foreground">
+              Возвращайся завтра за новой наградой!
+            </p>
+          </Card>
+        )}
+
+        {/* Road Progress */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold">Путь к финалу (90 дней)</h2>
+
+          <div className="overflow-x-auto pb-4">
+            <div className="flex gap-3 min-w-max">
+              {weeklyRewards.map((reward, idx) => {
+                const dayNum = reward.day_number;
+                const isCompleted = currentStreak >= dayNum;
+                const isCurrent = currentStreak + 1 === dayNum;
+                const isSpecial = [7, 14, 21, 30, 60, 90].includes(dayNum);
+                const hasBoost = reward.reward.boost;
+                const hasBadge = reward.reward.badge;
+
+                return (
+                  <div
+                    key={dayNum}
+                    className={`flex flex-col items-center gap-2 ${isSpecial ? 'w-24' : 'w-20'}`}
+                  >
+                    <div className={`
+                        ${isSpecial ? 'w-20 h-20' : 'w-16 h-16'}
+                        rounded-2xl border-2 flex flex-col items-center justify-center relative transition-all duration-300
+                        ${isCompleted ?
+                        'bg-gradient-to-br from-primary to-secondary border-primary shadow-lg shadow-primary/30' :
+                        isCurrent && canClaimBonus ?
+                          'bg-gradient-to-br from-gold/30 to-primary/30 border-gold animate-pulse shadow-md' :
+                          'bg-muted/30 border-border/50'
+                      }
+                      `}>
+                      {isCompleted ? (
+                        <Check className={`${isSpecial ? 'w-10 h-10' : 'w-8 h-8'} text-primary-foreground`} strokeWidth={3} />
+                      ) : isCurrent && canClaimBonus ? (
+                        <>
+                          {hasBadge ? (
+                            <Trophy className={`${isSpecial ? 'w-10 h-10' : 'w-8 h-8'} text-gold animate-bounce`} />
+                          ) : hasBoost ? (
+                            <Zap className={`${isSpecial ? 'w-10 h-10' : 'w-8 h-8'} text-primary animate-pulse`} />
+                          ) : (
+                            <Gift className={`${isSpecial ? 'w-10 h-10' : 'w-8 h-8'} text-primary animate-bounce`} />
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="w-4 h-4 text-muted-foreground mb-1" />
+                          <div className="text-[10px] text-center leading-tight">
+                            {reward.reward.xp > 0 && <div className="font-bold text-primary">+{reward.reward.xp}</div>}
+                          </div>
+                        </>
+                      )}
+
+                      {isSpecial && (
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-gold rounded-full flex items-center justify-center shadow-lg">
+                          <Trophy className="w-4 h-4 text-white" />
                         </div>
-                      </>
-                    )}
+                      )}
+                    </div>
+
+                    <div className={`text-xs font-bold text-center ${isCompleted || (isCurrent && canClaimBonus) ? 'text-primary' : 'text-muted-foreground'
+                      }`}>
+                      День {dayNum}
+                    </div>
 
                     {isSpecial && (
-                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-gold rounded-full flex items-center justify-center shadow-lg">
-                        <Trophy className="w-4 h-4 text-white" />
+                      <div className="text-[10px] text-gold font-bold text-center">
+                        🏆 Веха
                       </div>
                     )}
                   </div>
-
-                  <div className={`text-xs font-bold text-center ${isCompleted || (isCurrent && canClaimBonus) ? 'text-primary' : 'text-muted-foreground'
-                    }`}>
-                    День {dayNum}
-                  </div>
-
-                  {isSpecial && (
-                    <div className="text-[10px] text-gold font-bold text-center">
-                      🏆 Веха
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Achievements */}
-      <Card className="p-6 gradient-card">
-        <h3 className="font-bold mb-4">Достижения серий</h3>
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { days: 7, title: '7 дней', icon: '🔥', unlocked: currentStreak >= 7 },
-            { days: 14, title: '14 дней', icon: '⚡', unlocked: currentStreak >= 14 },
-            { days: 30, title: '30 дней', icon: '🌟', unlocked: currentStreak >= 30 },
-            { days: 60, title: '60 дней', icon: '💎', unlocked: currentStreak >= 60 },
-            { days: 90, title: '90 дней', icon: '👑', unlocked: currentStreak >= 90 },
-          ].map((achievement) => (
-            <div
-              key={achievement.days}
-              className={`p-4 rounded-xl border-2 transition-all ${achievement.unlocked
-                ? 'bg-gradient-to-br from-primary/20 to-secondary/20 border-primary shadow-md'
-                : 'bg-muted/30 border-border/50 opacity-50'
-                }`}
-            >
-              <div className="text-3xl mb-2">{achievement.icon}</div>
-              <div className="font-bold">{achievement.title}</div>
-              <div className="text-xs text-muted-foreground">
-                {achievement.unlocked ? 'Разблокировано' : 'Заблокировано'}
+        {/* Achievements */}
+        <Card className="p-6 gradient-card">
+          <h3 className="font-bold mb-4">Достижения серий</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { days: 7, title: '7 дней', icon: '🔥', unlocked: currentStreak >= 7 },
+              { days: 14, title: '14 дней', icon: '⚡', unlocked: currentStreak >= 14 },
+              { days: 30, title: '30 дней', icon: '🌟', unlocked: currentStreak >= 30 },
+              { days: 60, title: '60 дней', icon: '💎', unlocked: currentStreak >= 60 },
+              { days: 90, title: '90 дней', icon: '👑', unlocked: currentStreak >= 90 },
+            ].map((achievement) => (
+              <div
+                key={achievement.days}
+                className={`p-4 rounded-xl border-2 transition-all ${achievement.unlocked
+                  ? 'bg-gradient-to-br from-primary/20 to-secondary/20 border-primary shadow-md'
+                  : 'bg-muted/30 border-border/50 opacity-50'
+                  }`}
+              >
+                <div className="text-3xl mb-2">{achievement.icon}</div>
+                <div className="font-bold">{achievement.title}</div>
+                <div className="text-xs text-muted-foreground">
+                  {achievement.unlocked ? 'Разблокировано' : 'Заблокировано'}
+                </div>
               </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* Restore Streak Dialog */}
+        <AlertDialog open={showRestoreDialog} onOpenChange={setShowRestoreDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Восстановить серию?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Твоя серия прервана. Выбери способ восстановления:
+                <br /><br />
+                У тебя: {userCoins} 🪙
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="space-y-2">
+              {/* Опция с монетами */}
+              <Button
+                onClick={handleRestoreStreak}
+                disabled={restoringStreak || userCoins < 10}
+                className="w-full justify-start"
+                variant={userCoins >= 10 ? "default" : "outline"}
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                За 10 монет {userCoins < 10 && '(недостаточно)'}
+              </Button>
+
+              {/* Опция с рекламой (только для non-Premium) */}
+              {!isPremium && (
+                <Button
+                  onClick={handleRestoreStreakWithAd}
+                  className="w-full justify-start bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600"
+                  variant="default"
+                >
+                  <Video className="w-4 h-4 mr-2" />
+                  Бесплатно — посмотреть рекламу
+                </Button>
+              )}
             </div>
-          ))}
-        </div>
-      </Card>
-    </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Отмена</AlertDialogCancel>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
-      {/* Restore Streak Dialog */ }
-  <AlertDialog open={showRestoreDialog} onOpenChange={setShowRestoreDialog}>
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Восстановить серию?</AlertDialogTitle>
-        <AlertDialogDescription>
-          Твоя серия прервана. Выбери способ восстановления:
-          <br /><br />
-          У тебя: {userCoins} 🪙
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <div className="space-y-2">
-        {/* Опция с монетами */}
-        <Button
-          onClick={handleRestoreStreak}
-          disabled={restoringStreak || userCoins < 10}
-          className="w-full justify-start"
-          variant={userCoins >= 10 ? "default" : "outline"}
-        >
-          <Sparkles className="w-4 h-4 mr-2" />
-          За 10 монет {userCoins < 10 && '(недостаточно)'}
-        </Button>
+        {/* Rewarded Ad Modal */}
+        <RewardedAdModal
+          open={showRewardedAdModal}
+          onOpenChange={setShowRewardedAdModal}
+          rewardType="restore_streak"
+          onRewardClaimed={handleAdRewardClaimed}
+        />
 
-        {/* Опция с рекламой (только для non-Premium) */}
-        {!isPremium && (
-          <Button
-            onClick={handleRestoreStreakWithAd}
-            className="w-full justify-start bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600"
-            variant="default"
-          >
-            <Video className="w-4 h-4 mr-2" />
-            Бесплатно — посмотреть рекламу
-          </Button>
-        )}
+        {/* Streak Info Dialog */}
+        <AlertDialog open={showStreakInfo} onOpenChange={setShowStreakInfo}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Как работает серия?</AlertDialogTitle>
+              <AlertDialogDescription className="space-y-3">
+                <p>
+                  🔥 Заходи каждый день и получай награды. Твоя серия растёт с каждым днём!
+                </p>
+                <p>
+                  ⚠️ Если пропустишь день — серия сбрасывается. Но ты можешь восстановить её за 10 монет.
+                </p>
+                <p>
+                  🏆 На 7, 14, 21, 30, 60 и 90 день тебя ждут особые награды и достижения!
+                </p>
+                <p>
+                  🎯 Цель — дойти до 90 дней и получить титул "Железная воля"!
+                </p>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction>Понятно</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
-      <AlertDialogFooter>
-        <AlertDialogCancel>Отмена</AlertDialogCancel>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
-
-  {/* Rewarded Ad Modal */ }
-  <RewardedAdModal
-    open={showRewardedAdModal}
-    onOpenChange={setShowRewardedAdModal}
-    rewardType="restore_streak"
-    onRewardClaimed={handleAdRewardClaimed}
-  />
-
-  {/* Streak Info Dialog */ }
-  <AlertDialog open={showStreakInfo} onOpenChange={setShowStreakInfo}>
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Как работает серия?</AlertDialogTitle>
-        <AlertDialogDescription className="space-y-3">
-          <p>
-            🔥 Заходи каждый день и получай награды. Твоя серия растёт с каждым днём!
-          </p>
-          <p>
-            ⚠️ Если пропустишь день — серия сбрасывается. Но ты можешь восстановить её за 10 монет.
-          </p>
-          <p>
-            🏆 На 7, 14, 21, 30, 60 и 90 день тебя ждут особые награды и достижения!
-          </p>
-          <p>
-            🎯 Цель — дойти до 90 дней и получить титул "Железная воля"!
-          </p>
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogAction>Понятно</AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
-    </div >
+    </div>
   );
 };
 
