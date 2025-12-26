@@ -88,11 +88,11 @@ export const AnswerButton = memo(function AnswerButton({
 
         // Default state - clean surface buttons
         return cn(
-            'border-white/5 bg-slate-800/80',
+            'border-slate-200 dark:border-white/5 bg-white dark:bg-slate-800/80',
             // Hover
-            'hover:border-white/10 hover:bg-slate-700',
+            'hover:border-slate-300 dark:hover:border-white/10 hover:bg-slate-50 dark:hover:bg-slate-700',
             // Active press - tactile feel
-            'active:scale-[0.98] active:bg-slate-600'
+            'active:scale-[0.98] active:bg-slate-100 dark:active:bg-slate-600'
         );
     };
 
@@ -145,11 +145,11 @@ export const AnswerButton = memo(function AnswerButton({
                 {/* Answer Text - Swiss Design */}
                 <span className={cn(
                     "flex-1",
-                    "text-slate-200 font-normal",
+                    "text-slate-800 dark:text-slate-200 font-normal",
                     "transition-opacity duration-200",
                     fontSizeConfig[fontSize],
                     isTransitioning && 'opacity-0',
-                    showResult && !isCorrect && !isSelected && 'text-slate-500'
+                    showResult && !isCorrect && !isSelected && 'text-slate-500 dark:text-slate-500'
                 )}>
                     {displayText}
                 </span>

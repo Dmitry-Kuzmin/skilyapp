@@ -2519,7 +2519,7 @@ const TestSession = () => {
                     />
 
                     {/* Navigation */}
-                    <div className="flex gap-3 items-center">
+                    <div className="flex gap-3 items-center mt-6">
                       {isPracticeLikeMode && (
                         <button
                           onClick={() => setShowAIExplanation(true)}
@@ -2575,7 +2575,7 @@ const TestSession = () => {
                     />
 
                     {/* Sticky Mobile Navigation */}
-                    <div className="sticky bottom-0 left-0 right-0 z-50 pt-4 pb-2 bg-gradient-to-t from-slate-900 via-slate-900 to-transparent sm:relative sm:bg-transparent sm:pt-0 sm:z-10 mt-auto">
+                    <div className="sticky bottom-0 left-0 right-0 z-50 pt-4 pb-2 bg-gradient-to-t from-slate-900 via-slate-900 to-transparent sm:relative sm:bg-transparent sm:pt-0 sm:z-10 mt-6">
                       <div className="flex gap-3 items-center">
                         {isPracticeLikeMode && (
                           <button onClick={() => setShowAIExplanation(true)} className="group w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg flex items-center justify-center active:scale-95 lg:hidden">
@@ -2633,7 +2633,7 @@ const TestSession = () => {
                   onAnswer={handleAnswer}
                 />
 
-                <div className="flex gap-4 items-center pt-4">
+                <div className="flex gap-4 items-center pt-6">
                   {isPracticeLikeMode && (
                     <button onClick={() => setShowAIExplanation(true)} className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-xl flex items-center justify-center active:scale-95 lg:hidden">
                       <LumiCharacter size="sm" mood="happy" />

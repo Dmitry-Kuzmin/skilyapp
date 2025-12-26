@@ -60,9 +60,9 @@ export const TestExitDialog = ({ open, onOpenChange, language }: TestExitDialogP
             <AlertDialogContent
                 className={cn(
                     "max-w-[380px] p-0 border-0",
-                    "bg-slate-900/70 backdrop-blur-xl",
-                    "border border-white/10",
-                    "shadow-[0_0_40px_-10px_rgba(255,255,255,0.1)]",
+                    "bg-white dark:bg-slate-900 backdrop-blur-xl",
+                    "border border-slate-200 dark:border-white/10",
+                    "shadow-2xl dark:shadow-[0_0_40px_-10px_rgba(255,255,255,0.1)]",
                     "rounded-3xl"
                 )}
             >

@@ -41,7 +41,7 @@ export const TestContentLayout = ({
                     // Telegram Layout adjustments
                     isTelegramApp
                         ? "px-2 sm:px-4 pt-0"
-                        : "pt-4 sm:pt-1 md:pt-3 pb-2 md:pb-3",
+                        : "pt-1 pb-2 md:pb-3",
                     // Blitz/Exam mode: minimal padding
                     (isBlitzMode || isExamMode) && "pt-2 pb-0"
                 )}
@@ -52,7 +52,7 @@ export const TestContentLayout = ({
             {/* Sidebar Column (Desktop Practice Only) - NOT for Blitz/Exam */}
             {sidebar && !isTelegramApp && isPracticeLikeMode && !isBlitzMode && !isExamMode && (
                 <div className={cn(
-                    "hidden lg:flex lg:flex-col pt-0 md:pt-3",
+                    "hidden lg:flex lg:flex-col pt-1",
                     "pb-2 md:pb-3"
                 )}>
                     <div className="sticky top-4 w-full flex flex-col">
