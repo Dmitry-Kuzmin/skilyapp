@@ -6,7 +6,9 @@ import { Card } from "@/components/ui/card";
 import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
+import { usePDDContext } from "@/contexts/PDDContext";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 type ChallengeQuestion = {
   id: string;
@@ -32,6 +34,7 @@ type Stats = {
 const ChallengeBank = () => {
   const navigate = useNavigate();
   const { profileId, isAuthenticated } = useUserContext();
+  const { selectedCountry, selectedCategory } = usePDDContext();
   const [questions, setQuestions] = useState<ChallengeQuestion[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -41,7 +44,10 @@ const ChallengeBank = () => {
     if (isAuthenticated && profileId) {
       loadChallengeBank();
     }
-  }, [isAuthenticated, profileId, filter]);
+  }, [isAuthenticated, profileId, filter, selectedCountry, selectedCategory]);
+
+  // Нормализация страны для БД
+  const dbCountry = selectedCountry === 'russia' ? 'ru' : selectedCountry === 'spain' ? 'es' : selectedCountry;
 
   const loadChallengeBank = async () => {
     if (!profileId) return;
@@ -49,25 +55,80 @@ const ChallengeBank = () => {
     try {
       setLoading(true);
 
-      // Загружаем статистику
-      const { data: statsData, error: statsError } = await supabase
-        .rpc('get_challenge_bank_stats', { p_user_id: profileId });
+      // 1. Загружаем ВСЕ вопросы для этого пользователя и страны, чтобы рассчитать статистику
+      let query = supabase
+        .from('user_challenge_questions')
+        .select(`
+          mastered,
+          times_wrong,
+          times_reviewed,
+          last_wrong_at,
+          question_id,
+          questions_new!inner(
+            id, 
+            question_ru, 
+            question_es, 
+            question_en, 
+            image_url, 
+            metadata,
+            topics(title_ru, title_es)
+          )
+        `)
+        .eq('user_id', profileId)
+        .eq('questions_new.country', dbCountry);
 
-      if (statsError) throw statsError;
-      if (statsData && statsData.length > 0) {
-        setStats(statsData[0]);
+      // Фильтр по категории
+      if (selectedCategory) {
+        query = query.filter('questions_new.metadata->>ticket_category', 'ilike', `%${selectedCategory}%`);
       }
 
-      // Загружаем вопросы
-      const { data: questionsData, error: questionsError } = await supabase
-        .rpc('get_challenge_bank_questions', {
-          p_user_id: profileId,
-          p_limit: 100,
-          p_only_not_mastered: filter === 'needs_practice'
-        });
+      const { data: rawData, error: loadError } = await query;
 
-      if (questionsError) throw questionsError;
-      setQuestions(questionsData || []);
+      if (loadError) throw loadError;
+
+      const allData = rawData || [];
+
+      // 2. Рассчитываем статистику на клиенте
+      const total_questions = allData.length;
+      const mastered_questions = allData.filter(q => q.mastered).length;
+      const needs_practice = total_questions - mastered_questions;
+      const avg_wrong_count = total_questions > 0
+        ? Number((allData.reduce((acc, q) => acc + (q.times_wrong || 0), 0) / total_questions).toFixed(2))
+        : 0;
+
+      setStats({
+        total_questions,
+        mastered_questions,
+        needs_practice,
+        avg_wrong_count
+      });
+
+      // 3. Мапим и фильтруем вопросы для отображения
+      let filteredData = allData;
+      if (filter === 'needs_practice') {
+        filteredData = allData.filter(q => !q.mastered);
+      } else if (filter === 'mastered') {
+        filteredData = allData.filter(q => q.mastered);
+      }
+
+      const mappedQuestions: ChallengeQuestion[] = filteredData.map(q => ({
+        id: q.questions_new.id,
+        question_ru: q.questions_new.question_ru,
+        question_es: q.questions_new.question_es,
+        question_en: q.questions_new.question_en,
+        image_url: q.questions_new.image_url,
+        times_wrong: q.times_wrong,
+        times_reviewed: q.times_reviewed,
+        last_wrong_at: q.last_wrong_at,
+        mastered: q.mastered,
+        topic_title_ru: q.questions_new.topics?.title_ru || null,
+        topic_title_es: q.questions_new.topics?.title_es || null,
+      }));
+
+      // Сортировка по свежести
+      setQuestions(mappedQuestions.sort((a, b) =>
+        new Date(b.last_wrong_at).getTime() - new Date(a.last_wrong_at).getTime()
+      ).slice(0, 100));
     } catch (error) {
       console.error('Error loading Challenge Bank:', error);
       toast.error("Не удалось загрузить вопросы");
@@ -263,9 +324,8 @@ const ChallengeBank = () => {
             {questions.map((question) => (
               <Card
                 key={question.id}
-                className={`p-4 hover:shadow-lg transition-all cursor-pointer ${
-                  question.mastered ? 'border-green-500/30 bg-green-500/5' : 'border-orange-500/30 bg-orange-500/5'
-                }`}
+                className={`p-4 hover:shadow-lg transition-all cursor-pointer ${question.mastered ? 'border-green-500/30 bg-green-500/5' : 'border-orange-500/30 bg-orange-500/5'
+                  }`}
               >
                 <div className="flex items-start gap-4">
                   <div className="flex-1">
@@ -289,7 +349,9 @@ const ChallengeBank = () => {
                         </span>
                       )}
                     </div>
-                    <p className="font-medium mb-1">{question.question_es}</p>
+                    <p className="font-medium mb-1">
+                      {selectedCountry === 'russia' ? question.question_ru : question.question_es}
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       {new Date(question.last_wrong_at).toLocaleDateString('ru-RU', {
                         day: 'numeric',

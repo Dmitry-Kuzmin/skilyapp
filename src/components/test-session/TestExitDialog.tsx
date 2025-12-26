@@ -1,14 +1,16 @@
-import { useNavigate } from "react-router-dom";
+/**
+ * TestExitDialog — Nuclear Option
+ * Uses window.location.href to guarantee navigation
+ */
+
+import { DoorOpen, ArrowLeft } from "lucide-react";
 import {
     AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
     AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
 interface TestExitDialogProps {
     open: boolean;
@@ -17,32 +19,106 @@ interface TestExitDialogProps {
 }
 
 export const TestExitDialog = ({ open, onOpenChange, language }: TestExitDialogProps) => {
-    const navigate = useNavigate();
+
+    const handleExit = (e: React.MouseEvent) => {
+        e.preventDefault();
+
+        console.log('TestExitDialog: NUCLEAR EXIT INITIATED');
+
+        // 1. Force close logic
+        onOpenChange(false);
+
+        // 2. Direct Browser Navigation (Bypasses React Router blocks)
+        window.location.href = '/tests';
+    };
+
+    const texts = {
+        ru: {
+            title: "Выйти из теста?",
+            description: "Прогресс не будет сохранён, тест будет прерван.",
+            stay: "Остаться",
+            exit: "Выйти"
+        },
+        es: {
+            title: "¿Abandonar el test?",
+            description: "Tu progreso se perderá y el examen se cancelará.",
+            stay: "Continuar",
+            exit: "Salir"
+        },
+        en: {
+            title: "Leave the test?",
+            description: "Your progress won't be saved, the test will be cancelled.",
+            stay: "Stay",
+            exit: "Leave"
+        }
+    };
+
+    const t = texts[language] || texts.ru;
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent className="rounded-3xl border-2 border-border/50 bg-background/95 backdrop-blur-xl shadow-2xl max-w-[400px]">
-                <AlertDialogHeader>
-                    <AlertDialogTitle className="text-xl font-black text-foreground">
-                        {language === "es" ? "¿Abandonar el test?" : "Выйти из теста?"}
-                    </AlertDialogTitle>
-                    <AlertDialogDescription className="text-muted-foreground font-medium pt-2">
-                        {language === "es"
-                            ? "Tu progreso se perderá y el examen se cancelará definitivamente."
-                            : "Прогресс не будет сохранен, а тест будет прерван. Вы уверены?"}
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter className="flex-col sm:flex-row gap-3 pt-4">
-                    <AlertDialogCancel className="h-12 rounded-2xl border-2 border-border font-bold hover:bg-muted transition-all sm:mt-0">
-                        {language === "es" ? "Continuar test" : "Остаться"}
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                        onClick={() => navigate("/tests")}
-                        className="h-12 rounded-2xl bg-destructive hover:bg-destructive/90 text-white font-bold shadow-lg shadow-destructive/20 transition-all font-inter"
-                    >
-                        {language === "es" ? "Salir del test" : "Выйти"}
-                    </AlertDialogAction>
-                </AlertDialogFooter>
+            <AlertDialogContent
+                className={cn(
+                    "max-w-[380px] p-0 border-0",
+                    "bg-slate-900/70 backdrop-blur-xl",
+                    "border border-white/10",
+                    "shadow-[0_0_40px_-10px_rgba(255,255,255,0.1)]",
+                    "rounded-3xl"
+                )}
+            >
+                <div className="p-6 text-center">
+                    <AlertDialogHeader className="space-y-4">
+                        <div className="flex flex-col items-center space-y-4">
+                            <div className="p-4 rounded-full bg-gradient-to-b from-slate-600 to-slate-700 shadow-[0_0_25px_rgba(100,116,139,0.3)]">
+                                <DoorOpen className="w-8 h-8 text-white" />
+                            </div>
+
+                            <AlertDialogTitle className="text-xl font-bold text-white">
+                                {t.title}
+                            </AlertDialogTitle>
+                        </div>
+
+                        <p className="text-slate-400 font-medium leading-relaxed">
+                            {t.description}
+                        </p>
+                    </AlertDialogHeader>
+
+                    <div className="mt-6 space-y-3">
+                        <button
+                            type="button"
+                            onClick={() => onOpenChange(false)}
+                            className={cn(
+                                "w-full h-12 rounded-2xl font-bold",
+                                "bg-gradient-to-b from-blue-500 to-blue-600",
+                                "text-white",
+                                "shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_10px_25px_-5px_rgba(59,130,246,0.25)]",
+                                "hover:brightness-110",
+                                "active:scale-[0.98]",
+                                "transition-all duration-200",
+                                "flex items-center justify-center gap-2",
+                                "cursor-pointer"
+                            )}
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                            {t.stay}
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={handleExit}
+                            className={cn(
+                                "w-full h-12 rounded-2xl font-semibold",
+                                "bg-white/5 hover:bg-white/10",
+                                "text-red-400 hover:text-red-300",
+                                "active:scale-[0.98]",
+                                "transition-all duration-200",
+                                "cursor-pointer"
+                            )}
+                        >
+                            {t.exit}
+                        </button>
+                    </div>
+                </div>
             </AlertDialogContent>
         </AlertDialog>
     );

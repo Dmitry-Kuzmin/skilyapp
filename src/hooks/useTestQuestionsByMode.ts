@@ -28,53 +28,55 @@ interface QuestionWithOptions {
 /**
  * ОПТИМИЗИРОВАННЫЙ хук для загрузки вопросов Challenge Bank
  */
-export function useChallengeBankQuestions(profileId: string | null, limit: number = 30) {
+export function useChallengeBankQuestions(
+  profileId: string | null,
+  limit: number = 20, // Ограничиваем сессию 20 вопросами для Inbox Zero эффекта
+  country?: string
+) {
   return useQuery<QuestionWithOptions[]>({
-    queryKey: ["challenge-bank-questions", profileId, limit],
+    queryKey: ["challenge-bank-questions", profileId, limit, country],
     queryFn: async () => {
       if (!profileId) return [];
 
-      const { data: challengeQuestions, error: challengeError } = await supabase.rpc(
-        "get_challenge_bank_questions",
-        {
-          p_user_id: profileId,
-          p_limit: limit,
-          p_only_not_mastered: true,
-        }
-      );
+      const dbCountry = country === 'russia' ? 'ru' : country === 'spain' ? 'es' : country;
 
-      if (challengeError) throw challengeError;
-      if (!challengeQuestions || challengeQuestions.length === 0) return [];
+      // 1. Сначала получаем ID вопросов из challenge bank
+      const { data: challengeRelations, error: relError } = await supabase
+        .from("user_challenge_questions")
+        .select("question_id")
+        .eq("user_id", profileId)
+        .eq("mastered", false)
+        .order("last_wrong_at", { ascending: false })
+        .limit(limit);
 
-      // Загружаем answer_options batch запросом
-      const questionIds = challengeQuestions.map((q: any) => q.id);
-      const { data: optionsData, error: optionsError } = await supabase
-        .from("answer_options")
-        .select("*")
-        .in("question_id", questionIds);
+      if (relError) throw relError;
+      if (!challengeRelations || challengeRelations.length === 0) return [];
 
-      if (optionsError) throw optionsError;
+      const questionIds = challengeRelations.map(r => r.question_id);
 
-      return challengeQuestions.map((q: any) => {
-        const options = (optionsData || []).filter((opt: any) => opt.question_id === q.id);
-        return {
-          ...q,
-          answer_options: options,
-          topics: q.topic_title_ru
-            ? {
-                title_ru: q.topic_title_ru,
-                title_es: q.topic_title_es || q.topic_title_ru,
-              }
-            : null,
-        };
-      });
+      // 2. Загружаем данные вопросов и их ответы из унифицированных таблиц с жестким фильтром по стране
+      const { data: questionsData, error: qError } = await supabase
+        .from("questions_new")
+        .select(`
+          *,
+          topics (title_ru, title_es),
+          answer_options (*)
+        `)
+        .in("id", questionIds)
+        .eq("country", dbCountry); // КРИТИЧНО: Фильтруем по текущей стране!
+
+      if (qError) throw qError;
+      if (!questionsData || questionsData.length === 0) return [];
+
+      // Мапим к универсальному формату
+      return questionsData.map((q: any) => ({
+        ...q,
+        topics: q.topics ? { title_ru: q.topics.title_ru, title_es: q.topics.title_es } : null,
+        answer_options: q.answer_options || []
+      }));
     },
     enabled: !!profileId,
-    staleTime: 2 * 60 * 1000, // 2 минуты
-    gcTime: 5 * 60 * 1000, // 5 минут
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    retry: 1,
+    staleTime: 1 * 60 * 1000,
   });
 }
 
@@ -187,9 +189,9 @@ export function useQuestionsByTopic(
             ...q,
             topics: q.topics
               ? {
-                  title_ru: q.topics.title_ru,
-                  title_es: q.topics.title_es,
-                }
+                title_ru: q.topics.title_ru,
+                title_es: q.topics.title_es,
+              }
               : null,
             answer_options: q.answer_options || [],
           });
@@ -243,16 +245,16 @@ export function useTestInfo(testId: string | null) {
 
       return data
         ? {
-            id: data.id,
-            title_ru: data.title_ru,
-            topic_id: data.topic_id,
-            topics: data.topics
-              ? {
-                  title_ru: data.topics.title_ru,
-                  title_es: data.topics.title_es,
-                }
-              : null,
-          }
+          id: data.id,
+          title_ru: data.title_ru,
+          topic_id: data.topic_id,
+          topics: data.topics
+            ? {
+              title_ru: data.topics.title_ru,
+              title_es: data.topics.title_es,
+            }
+            : null,
+        }
         : null;
     },
     enabled: !!testId,

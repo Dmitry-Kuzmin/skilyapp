@@ -8,7 +8,7 @@ import {
     useTestInfo,
 } from "@/hooks/useTestQuestionsByMode";
 import { usePDDExamQuestions } from "@/hooks/usePDDExamQuestions";
-import { usePDDTicketQuestions, usePDDRandomQuestions } from "@/hooks/usePDDQuestions";
+import { usePDDTicketQuestions, usePDDRandomQuestions, usePDDSequentialQuestions } from "@/hooks/usePDDQuestions";
 import { usePDDTopicQuestions } from "@/hooks/usePDDTopics";
 import { CountryCode } from "@/types/pdd";
 
@@ -25,6 +25,8 @@ export type TestMode =
     | 'nonstop'
     | 'pdd-ticket'
     | 'pdd-topic'
+    | 'marathon'
+    | 'traps'
     | 'mastery';
 
 interface UseTestDataLoaderProps {
@@ -65,6 +67,7 @@ export const useTestDataLoader = ({
     const practiceQuestions = useTestQuestions({
         topicId: shouldLoadPractice ? topic : null,
         questionCount,
+        country: pddCountry || undefined, // Передаем страну для фильтрации
         enabled: shouldLoadPractice,
     });
 
@@ -80,7 +83,9 @@ export const useTestDataLoader = ({
 
     // Challenge bank questions  
     const challengeBankQuestions = useChallengeBankQuestions(
-        mode === 'challenge-bank' ? profileId : null
+        mode === 'challenge-bank' ? profileId : null,
+        questionCount,
+        pddCountry || undefined
     );
 
     // DGT questions
@@ -110,10 +115,17 @@ export const useTestDataLoader = ({
         questionCount
     );
 
-    // Nonstop/Random questions - positional args: (country, count)
+    // Nonstop/Marathon/Sequential questions
+    const isSequentialRequired = (mode === 'nonstop' || mode === 'marathon' || mode === 'traps') && pddCountry === 'russia';
+    const pddSequentialQuestions = usePDDSequentialQuestions(
+        pddCountry || 'russia',
+        isSequentialRequired
+    );
+
+    // Random questions - positional args: (country, count)
     const pddRandomQuestions = usePDDRandomQuestions(
         pddCountry || 'russia',
-        (mode === 'nonstop' || mode === 'practice' || mode === 'blitz' || mode === 'exam' || mode === 'mastery' || mode === 'hardest') && pddCountry === 'russia' ? questionCount : 0
+        (!isSequentialRequired && (mode === 'practice' || mode === 'blitz' || mode === 'exam' || mode === 'mastery' || mode === 'hardest')) && pddCountry === 'russia' ? questionCount : 0
     );
 
     // Aggregate results based on mode
@@ -123,6 +135,15 @@ export const useTestDataLoader = ({
             case 'exam':
             case 'blitz':
             case 'mastery':
+            case 'hardest':
+                if (pddCountry === 'russia') {
+                    return {
+                        questions: pddRandomQuestions.data || [],
+                        isLoading: pddRandomQuestions.isLoading,
+                        error: pddRandomQuestions.error as Error | null,
+                        testInfo: { id: 'pdd-practice', title: 'ПДД РФ' },
+                    };
+                }
                 return {
                     questions: practiceQuestions.data || [],
                     isLoading: practiceQuestions.isLoading,
@@ -158,12 +179,17 @@ export const useTestDataLoader = ({
                 };
 
             case 'by-topic':
-                return {
-                    questions: topicQuestions.data || [],
-                    isLoading: topicQuestions.isLoading,
-                    error: topicQuestions.error as Error | null,
-                    testInfo: { id: `topic-${topic}`, title: `📚 Тема: ${topic}` },
-                };
+            case 'pdd-topic':
+                {
+                    const isRussia = pddCountry === 'russia';
+                    const data = isRussia ? pddTopicQuestions : topicQuestions;
+                    return {
+                        questions: data.data || [],
+                        isLoading: data.isLoading,
+                        error: data.error as Error | null,
+                        testInfo: { id: `topic-${topic}`, title: `📚 Тема: ${topic}` },
+                    };
+                }
 
             case 'exam-russia':
                 return {
@@ -185,20 +211,27 @@ export const useTestDataLoader = ({
                     testInfo: { id: `pdd-ticket-${ticketNumber}`, title: `Билет ${ticketNumber}` },
                 };
 
-            case 'pdd-topic':
+            case 'nonstop':
+            case 'marathon':
                 return {
-                    questions: pddTopicQuestions.data || [],
-                    isLoading: pddTopicQuestions.isLoading,
-                    error: pddTopicQuestions.error as Error | null,
-                    testInfo: { id: `pdd-topic-${topic}`, title: `Тема ПДД` },
+                    questions: pddSequentialQuestions.data || [],
+                    isLoading: pddSequentialQuestions.isLoading,
+                    error: pddSequentialQuestions.error as Error | null,
+                    testInfo: {
+                        id: mode,
+                        title: mode === 'marathon' ? '🔥 Марафон' : '♾️ Нон-стоп'
+                    },
                 };
 
-            case 'nonstop':
+            case 'traps':
                 return {
-                    questions: pddRandomQuestions.data || [],
-                    isLoading: pddRandomQuestions.isLoading,
-                    error: pddRandomQuestions.error as Error | null,
-                    testInfo: { id: 'nonstop', title: '♾️ Нон-стоп' },
+                    questions: (pddSequentialQuestions.data || []).filter((q: any) => {
+                        const diff = parseFloat(q.difficulty || '0');
+                        return diff > 0.8;
+                    }).slice(0, 50),
+                    isLoading: pddSequentialQuestions.isLoading,
+                    error: pddSequentialQuestions.error as Error | null,
+                    testInfo: { id: 'traps', title: '🪤 Топ-50 ловушек' },
                 };
 
             default:

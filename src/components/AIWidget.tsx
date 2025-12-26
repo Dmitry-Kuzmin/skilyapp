@@ -145,7 +145,6 @@ export const AIWidget = ({
             requestAnimationFrame(() => {
               const blockHeight = firstChild.offsetHeight;
               if (blockHeight > 0) {
-                console.log('[AIWidget] 📏 Test block height (fallback):', blockHeight);
                 setMaxHeight(blockHeight);
               }
             });
@@ -168,7 +167,6 @@ export const AIWidget = ({
       requestAnimationFrame(() => {
         const blockHeight = testBlock.offsetHeight;
         if (blockHeight > 0) {
-          console.log('[AIWidget] 📏 Test block height:', blockHeight);
           setMaxHeight(blockHeight);
         }
       });
@@ -327,7 +325,9 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
     <Card
       ref={widgetRef}
       className={cn(
-        "flex flex-col overflow-hidden border border-border/50 shadow-lg bg-background transition-all duration-300 rounded-2xl",
+        "flex flex-col overflow-hidden border shadow-lg transition-all duration-300 rounded-2xl",
+        "bg-card border-border/50",
+        "dark:bg-slate-800/95 dark:border-white/10 dark:shadow-xl",
         isExpanded ? "" : "h-auto"
       )}
       style={{
@@ -342,7 +342,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
       }}
     >
       {/* Header */}
-      <div className="p-3 xl:p-4 border-b flex items-center bg-muted/30 shrink-0 gap-3">
+      <div className="p-3 xl:p-4 border-b flex items-center shrink-0 gap-3 bg-muted/30 dark:bg-slate-900/50 dark:border-white/5">
         <Button
           variant="ghost"
           size="icon"
@@ -357,7 +357,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
             <LumiCharacter size="sm" mood="happy" className="scale-75" />
           </div>
           <div className="min-w-0">
-            <h3 className="font-bold text-sm xl:text-base text-foreground truncate">
+            <h3 className="font-bold text-sm xl:text-base text-foreground dark:text-slate-100 truncate">
               {interfaceLanguage === 'ru' ? t('lumiGreeting') :
                 interfaceLanguage === 'en' ? "Hello! I'm Skily 💡" :
                   "¡Hola! Soy Skily 💡"}
@@ -367,11 +367,11 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
       </div>
 
       {/* Messages Area - фиксированная высота с скроллом */}
-      <div className="flex-1 overflow-y-auto p-4 xl:p-5 space-y-3 xl:space-y-4 scroll-smooth min-h-0">
+      <div className="flex-1 overflow-y-auto p-4 xl:p-5 space-y-3 xl:space-y-4 scroll-smooth min-h-0 dark:bg-slate-800/50">
         {messages.length === 0 ? (
           <div className="space-y-4 xl:space-y-5">
             {/* Welcome Message */}
-            <div className="text-foreground text-xs xl:text-sm leading-relaxed">
+            <div className="text-foreground dark:text-slate-200 text-xs xl:text-sm leading-relaxed">
               <p>
                 {interfaceLanguage === 'ru' ? t('lumiWelcome') :
                   interfaceLanguage === 'en' ? 'Need a hint or a quick explanation? Just press the button or ask your question, and I\'ll help on the spot. Ready when you are!' :
@@ -427,7 +427,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
             <div key={index}>
               {message.role === "user" && (
                 <div className="flex justify-end">
-                  <div className="max-w-[85%] xl:max-w-[80%] bg-blue-600 text-white rounded-xl xl:rounded-2xl px-3 xl:px-4 py-2 xl:py-2.5 shadow-sm">
+                  <div className="max-w-[85%] xl:max-w-[80%] bg-blue-600 dark:bg-blue-500 text-white rounded-xl xl:rounded-2xl px-3 xl:px-4 py-2 xl:py-2.5 shadow-sm">
                     <div className="text-xs xl:text-sm leading-relaxed break-words">
                       {message.content}
                     </div>
@@ -441,7 +441,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
                   </div>
                   <div className="flex-1 min-w-0 mt-0.5 xl:mt-1">
                     {message.content ? (
-                      <div className="text-xs xl:text-sm leading-relaxed text-foreground prose prose-sm max-w-none dark:prose-invert prose-p:my-1.5 xl:prose-p:my-2">
+                      <div className="text-xs xl:text-sm leading-relaxed text-foreground dark:text-slate-200 prose prose-sm max-w-none dark:prose-invert prose-p:my-1.5 xl:prose-p:my-2">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                           {message.content}
                         </ReactMarkdown>
@@ -521,13 +521,13 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
       </div>
 
       {/* Input Area - стиль Officer Frank */}
-      <div className="p-3 xl:p-4 border-t border-border/50 shrink-0 bg-background">
+      <div className="p-3 xl:p-4 border-t shrink-0 bg-background dark:bg-slate-900/60 dark:border-white/5">
         <form onSubmit={handleSubmit} className="relative">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={interfaceLanguage === 'ru' ? t('lumiPlaceholder') : interfaceLanguage === 'en' ? 'Ask your question here...' : 'Haz tu pregunta aquí...'}
-            className="w-full h-10 xl:h-12 pr-16 xl:pr-20 pl-3 xl:pl-4 text-xs xl:text-sm rounded-full border-border/50 focus:border-blue-300 focus:ring-blue-200 bg-background"
+            className="w-full h-10 xl:h-12 pr-16 xl:pr-20 pl-3 xl:pl-4 text-xs xl:text-sm rounded-full border-border/50 focus:border-blue-300 focus:ring-blue-200 bg-background dark:bg-slate-950 dark:border-white/10 dark:text-slate-100 dark:placeholder:text-slate-500"
             disabled={isLoading}
           />
           <div className="absolute right-1.5 xl:right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 xl:gap-2">

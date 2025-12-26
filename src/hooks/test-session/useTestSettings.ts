@@ -1,5 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useCallback } from 'react';
+import { useSettingsStore, type FontSize } from '@/stores/useSettingsStore';
 
+/**
+ * Backward-compatible interface for TestSession
+ */
 export interface TestSettings {
     voiceOver: boolean;
     setVoiceOver: (value: boolean) => void;
@@ -7,55 +11,71 @@ export interface TestSettings {
     setAnswerPopularity: (value: boolean) => void;
     ambientMusic: boolean;
     setAmbientMusic: (value: boolean) => void;
-    fontSize: number;
+    fontSize: number; // 0=small, 1=medium, 2=large (legacy interface)
     setFontSize: (value: number) => void;
 }
 
+/**
+ * Maps numeric fontSize (0/1/2) to FontSize type ('small'/'normal'/'large')
+ */
+const numericToFontSize = (num: number): FontSize => {
+    switch (num) {
+        case 0: return 'small';
+        case 2: return 'large';
+        default: return 'normal';
+    }
+};
+
+/**
+ * Maps FontSize type to numeric (for backward compatibility)
+ */
+const fontSizeToNumeric = (size: FontSize): number => {
+    switch (size) {
+        case 'small': return 0;
+        case 'large': return 2;
+        default: return 1;
+    }
+};
+
+/**
+ * Test Settings Hook - Bridge to Zustand Store
+ * 
+ * Provides backward-compatible interface for TestSession
+ * while using global Zustand store for state management.
+ * 
+ * Benefits:
+ * - Settings persist across app (not just per-component)
+ * - Single source of truth
+ * - No duplicate localStorage logic
+ */
 export const useTestSettings = (): TestSettings => {
-    const [voiceOver, setVoiceOver] = useState(() => {
-        if (typeof window === 'undefined') return false;
-        const saved = localStorage.getItem('test-voice-over');
-        return saved ? saved === 'true' : false; // По умолчанию ВЫКЛЮЧЕНА
-    });
+    const {
+        isVoiceOverEnabled,
+        setVoiceOver,
+        isAnswerPopularityEnabled,
+        setAnswerPopularity,
+        isMusicEnabled,
+        setMusic,
+        fontSize: fontSizeStr,
+        setFontSize: setFontSizeStr,
+    } = useSettingsStore();
 
-    const [answerPopularity, setAnswerPopularity] = useState(() => {
-        if (typeof window === 'undefined') return true;
-        const saved = localStorage.getItem('test-answer-popularity');
-        return saved ? saved === 'true' : true;
-    });
+    // Convert FontSize string to numeric for backward compatibility
+    const fontSize = fontSizeToNumeric(fontSizeStr);
 
-    const [ambientMusic, setAmbientMusic] = useState(() => {
-        if (typeof window === 'undefined') return false;
-        const saved = localStorage.getItem('test-ambient-music');
-        return saved ? saved === 'true' : false; // По умолчанию выключено
-    });
-
-    const [fontSize, setFontSize] = useState(() => {
-        if (typeof window === 'undefined') return 1;
-        const saved = localStorage.getItem('test-font-size');
-        return saved ? parseInt(saved) : 1; // 0=small, 1=medium, 2=large
-    });
-
-    useEffect(() => {
-        localStorage.setItem('test-voice-over', String(voiceOver));
-    }, [voiceOver]);
-
-    useEffect(() => {
-        localStorage.setItem('test-answer-popularity', String(answerPopularity));
-    }, [answerPopularity]);
-
-    useEffect(() => {
-        localStorage.setItem('test-ambient-music', String(ambientMusic));
-    }, [ambientMusic]);
-
-    useEffect(() => {
-        localStorage.setItem('test-font-size', String(fontSize));
-    }, [fontSize]);
+    // Wrapper to convert numeric input to FontSize string
+    const setFontSize = useCallback((value: number) => {
+        setFontSizeStr(numericToFontSize(value));
+    }, [setFontSizeStr]);
 
     return {
-        voiceOver, setVoiceOver,
-        answerPopularity, setAnswerPopularity,
-        ambientMusic, setAmbientMusic,
-        fontSize, setFontSize,
+        voiceOver: isVoiceOverEnabled,
+        setVoiceOver,
+        answerPopularity: isAnswerPopularityEnabled,
+        setAnswerPopularity,
+        ambientMusic: isMusicEnabled,
+        setAmbientMusic: setMusic,
+        fontSize,
+        setFontSize,
     };
 };

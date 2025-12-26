@@ -13,3 +13,6 @@ export { useTestAmbientMusic } from './useTestAmbientMusic';
 
 // Answer Logic
 export { useTestAnswerHandler } from './useTestAnswerHandler';
+
+// Test Completion
+export { useTestFinisher } from './useTestFinisher';

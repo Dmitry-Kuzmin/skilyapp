@@ -4,7 +4,7 @@ import {
   Shuffle, Clock, Zap, Flame, History, AlertTriangle,
   Target, TrendingUp, Crown, BookOpen, Gamepad2, Play, ArrowRight, Sparkles, CheckCircle,
   Star, AlertTriangle as AlertIcon, RotateCcw,
-  CarFront, MapPin, Gauge, Check
+  CarFront, MapPin, Gauge, Check, Trophy
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
@@ -17,6 +17,8 @@ import { useChallengeBankCount } from "@/hooks/useChallengeBankCount";
 import { usePDDContext } from "@/contexts/PDDContext";
 import { usePDDTickets } from "@/hooks/usePDDTickets";
 import { usePDDTopics } from "@/hooks/usePDDTopics";
+import { useTicketsStatus } from "@/hooks/useTicketsStatus";
+import { useSmartRecommendation } from "@/hooks/useSmartRecommendation";
 import { COUNTRIES_CONFIG } from "@/types/pdd";
 import { motion } from "framer-motion";
 import { getImageUrl } from "@/utils/imageUtils";
@@ -41,11 +43,13 @@ const TicketCore = ({
   number,
   progress = 0,
   status = 'idle', // 'idle' | 'charging' | 'charged' | 'damaged'
+  isRussia = false,
   onClick
 }: {
   number: number;
   progress?: number;
   status?: 'idle' | 'charging' | 'charged' | 'damaged';
+  isRussia?: boolean;
   onClick: () => void;
 }) => {
   const radius = 38;
@@ -55,140 +59,142 @@ const TicketCore = ({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, scale: 0.5, filter: 'brightness(3)' }}
-      animate={{ opacity: 1, scale: 1, filter: 'brightness(1)' }}
-      whileHover={{ y: -8, scale: 1.02 }}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileHover={{ y: -5, scale: 1.02 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
       className={cn(
-        "relative aspect-square rounded-[2rem] overflow-hidden cursor-pointer group transition-all duration-500",
+        "relative aspect-square rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden cursor-pointer group transition-all duration-500",
         "border-[1.5px] shadow-2xl backdrop-blur-md",
         // Idle
         status === 'idle' && [
-          "bg-slate-50/50 dark:bg-slate-950/40 border-slate-200/50 dark:border-white/5",
-          "shadow-none hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/40"
+          "bg-slate-50/50 dark:bg-white/[0.03] border-slate-200/50 dark:border-white/5",
+          "shadow-none hover:shadow-xl hover:shadow-slate-500/10"
         ],
         // Charging
         status === 'charging' && [
-          "bg-orange-50/30 dark:bg-orange-950/20 border-orange-200 dark:border-orange-500/30",
-          "shadow-[0_0_30px_rgba(245,158,11,0.1)] dark:shadow-[0_0_40px_rgba(245,158,11,0.15)]"
+          "bg-orange-500/[0.08] dark:bg-orange-500/[0.1] border-orange-500/30",
+          "shadow-[0_0_30px_rgba(245,158,11,0.2)]"
         ],
         // Charged
         status === 'charged' && [
-          "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-400/50 dark:border-emerald-500/40",
-          "shadow-[0_10px_30px_rgba(16,185,129,0.15)] dark:shadow-[0_0_40px_rgba(16,185,129,0.2)]"
+          "bg-emerald-500/[0.08] dark:bg-emerald-500/[0.1] border-emerald-500/30",
+          "shadow-[0_0_40px_rgba(16,185,129,0.25)]"
         ],
         // Damaged
         status === 'damaged' && [
-          "bg-red-50/30 dark:bg-red-950/20 border-red-300 dark:border-red-500/40",
-          "shadow-[0_10px_30px_rgba(239,68,68,0.1)] dark:shadow-[0_0_30px_rgba(239,68,68,0.2)]"
+          "bg-red-500/[0.08] dark:bg-red-500/[0.1] border-red-500/30",
+          "shadow-[0_0_30px_rgba(239,68,68,0.2)]"
         ]
       )}
     >
       {/* Glare effect on hover */}
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
-        <div className="absolute top-[-100%] left-[-100%] w-[300%] h-[300%] bg-gradient-to-br from-white/20 via-transparent to-transparent rotate-[45deg] group-hover:animate-shimmer" />
+        <div className="absolute top-[-100%] left-[-100%] w-[300%] h-[300%] bg-gradient-to-br from-white/10 via-transparent to-transparent rotate-[45deg] group-hover:animate-shimmer" />
       </div>
 
       {/* Cyber Background pattern */}
-      <div className="absolute inset-0 opacity-[0.05] dark:opacity-10 pointer-events-none"
+      <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
         style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }} />
 
-      {/* Internal Glows */}
+      {/* Internal Glows - More vibrant as per "Jewel" concept */}
       <div className={cn(
-        "absolute inset-0 opacity-10 dark:opacity-20 transition-all duration-500",
-        status === 'charging' && "bg-orange-500/20 blur-3xl",
-        status === 'charged' && "bg-emerald-500/30 blur-3xl",
-        status === 'damaged' && "bg-red-500/20 blur-3xl"
+        "absolute inset-0 opacity-20 dark:opacity-40 transition-all duration-500 blur-2xl",
+        status === 'charging' && "bg-orange-500",
+        status === 'charged' && "bg-emerald-500",
+        status === 'damaged' && "bg-red-500"
       )} />
 
-      <div className="relative h-full flex flex-col items-center justify-center gap-1 z-10">
+      <div className="relative h-full flex flex-col items-center justify-center p-4 z-10">
         <span className={cn(
-          "text-[10px] font-black tracking-[0.2em] uppercase transition-colors duration-500",
-          status === 'idle' ? "text-slate-400/40 dark:text-white/20" : "text-slate-500 dark:text-white/40"
+          "text-[10px] font-black tracking-[0.2em] uppercase transition-colors duration-500 mb-1",
+          status === 'idle' ? "text-slate-400/40 dark:text-white/20" : "text-slate-500/60 dark:text-white/40"
         )}>
           Билет
         </span>
 
         <div className="relative flex items-center justify-center">
-          {/* Radial Progress for Charging / Damaged */}
-          {(status === 'charging' || status === 'damaged') && (
-            <svg className="absolute w-24 h-24 -rotate-90 pointer-events-none">
+          {/* Progress Ring for Charging */}
+          {status === 'charging' && (
+            <svg className="absolute w-20 h-20 sm:w-24 sm:h-24 -rotate-90 pointer-events-none">
               <circle
-                cx="48"
-                cy="48"
+                cx="50%"
+                cy="50%"
+                r={radius}
+                fill="transparent"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="text-slate-200/20 dark:text-white/5"
+              />
+              <motion.circle
+                cx="50%"
+                cy="50%"
                 r={radius}
                 fill="transparent"
                 stroke="currentColor"
                 strokeWidth="4"
-                className="text-slate-200 dark:text-white/5"
-              />
-              <motion.circle
-                cx="48"
-                cy="48"
-                r={radius}
-                fill="transparent"
-                stroke="currentColor"
-                strokeWidth="5"
                 strokeDasharray={circumference}
                 initial={{ strokeDashoffset: circumference }}
                 animate={{ strokeDashoffset: offset }}
                 transition={{ duration: 1.5, ease: "easeOut" }}
                 strokeLinecap="round"
-                className={cn(
-                  status === 'charging' ? "text-orange-500 dark:text-orange-400" : "text-red-500",
-                  "drop-shadow-[0_0_8px_currentColor]"
-                )}
+                className="text-orange-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]"
               />
             </svg>
           )}
 
           <span className={cn(
-            "text-4xl sm:text-5xl font-black transition-all duration-500 font-display",
+            "text-3xl sm:text-5xl font-black transition-all duration-500 font-display",
             status === 'idle'
-              ? "text-slate-300 dark:text-white/20 group-hover:text-slate-900 dark:group-hover:text-white/60"
-              : "text-slate-900 dark:text-white drop-shadow-md",
-            status === 'charged' && "text-emerald-600 dark:text-emerald-50"
+              ? "text-slate-300 dark:text-white/10 group-hover:text-slate-900 dark:group-hover:text-white/60"
+              : "text-slate-900 dark:text-white drop-shadow-sm",
+            status === 'charged' && "text-emerald-500 dark:text-emerald-400 drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]",
+            status === 'damaged' && "text-red-500 dark:text-red-400 drop-shadow-[0_0_15px_rgba(239,68,68,0.4)]"
           )}>
             {number}
           </span>
         </div>
 
-        {/* Status Indicators */}
-        <div className="mt-2 h-4 flex items-center justify-center gap-1">
+        {/* Status Indicators at Bottom */}
+        <div className="mt-3 flex items-center justify-center">
           {status === 'charged' && (
-            <div className="flex gap-0.5">
-              {[1, 2, 3].map(i => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.5 + i * 0.1 }}
-                >
-                  <Star className="w-3 h-3 text-amber-500 dark:text-amber-300 fill-amber-500 dark:fill-amber-300 drop-shadow-[0_0_5px_rgba(245,158,11,0.3)]" />
-                </motion.div>
-              ))}
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center gap-1"
+            >
+              <Star className="w-3 h-3 text-emerald-400 fill-emerald-400" />
+              <span className="text-[10px] font-black text-emerald-400 uppercase tracking-tighter">
+                {isRussia ? 'Сдано' : 'Charged'}
+              </span>
+            </motion.div>
+          )}
+
+          {status === 'charging' && (
+            <div className="px-2 py-0.5 rounded-full bg-orange-500/20 border border-orange-500/30">
+              <span className="text-[10px] font-black text-orange-400 tabular-nums">{progress}%</span>
             </div>
           )}
+
           {status === 'damaged' && (
             <motion.div
               animate={{ opacity: [0.6, 1, 0.6] }}
               transition={{ duration: 2, repeat: Infinity }}
-              className="flex items-center gap-1 text-red-500 dark:text-red-400 text-[10px] font-black uppercase tracking-widest"
+              className="px-2 py-0.5 rounded-full bg-red-500/20 border border-red-500/30 flex items-center gap-1"
             >
-              <AlertIcon className="w-3 h-3" />
-              <span>Повреждён</span>
+              <AlertTriangle className="w-3 h-3 text-red-500" />
+              <span className="text-[10px] font-black text-red-500 uppercase tracking-tighter">
+                {isRussia ? 'Ошибка' : 'Damaged'}
+              </span>
             </motion.div>
-          )}
-          {status === 'charging' && (
-            <div className="text-[10px] font-black text-slate-500 dark:text-white/40">{progress}%</div>
           )}
         </div>
       </div>
 
-      {/* Decorative corners */}
-      <div className="absolute top-4 left-4 w-2 h-2 border-t-2 border-l-2 border-slate-200 dark:border-white/20 rounded-tl-sm group-hover:border-slate-400 dark:group-hover:border-white/40 transition-colors" />
-      <div className="absolute bottom-4 right-4 w-2 h-2 border-b-2 border-r-2 border-slate-200 dark:border-white/20 rounded-br-sm group-hover:border-slate-400 dark:group-hover:border-white/40 transition-colors" />
+      {/* Decorative corners - Subtle */}
+      <div className="absolute top-3 left-3 w-1.5 h-1.5 border-t-2 border-l-2 border-slate-200 dark:border-white/10 rounded-tl-sm group-hover:border-slate-400 dark:group-hover:border-white/30 transition-colors" />
+      <div className="absolute bottom-3 right-3 w-1.5 h-1.5 border-b-2 border-r-2 border-slate-200 dark:border-white/10 rounded-br-sm group-hover:border-slate-400 dark:group-hover:border-white/30 transition-colors" />
     </motion.div>
   );
 };
@@ -198,29 +204,39 @@ const Tests = () => {
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
   const { language, t } = useLanguage();
+  const { selectedCountry, selectedCategory } = usePDDContext();
 
-  // Получаем выбранную страну из контекста
-  const { selectedCountry } = usePDDContext();
-  const countryData = COUNTRIES_CONFIG[selectedCountry];
-
-  // Логирование для отладки
-  if (import.meta.env.DEV) {
-    console.log('[Tests] Страница загружена:', {
-      selectedCountry,
-      profileId,
-    });
-  }
-
-  // ОПТИМИЗАЦИЯ: Используем React Query хуки вместо прямых запросов
+  // 1. Сначала все хуки данных (React Query)
   const { data: dbTopics = [], isLoading: topicsLoading } = useTopics();
   const { data: tickets = [], isLoading: ticketsLoading } = usePDDTickets(selectedCountry);
-  const { data: userProgress = [] } = useUserProgress(profileId);
-  const { data: challengeBankCount = 0 } = useChallengeBankCount(profileId);
+  const { data: userProgress = [] } = useUserProgress(profileId, selectedCountry, selectedCategory);
+  const ticketsStatus = useTicketsStatus(profileId, selectedCountry, selectedCategory);
+  const { data: challengeBankCount = 0 } = useChallengeBankCount(profileId, selectedCountry, selectedCategory);
   const { data: pddTopics = [] } = usePDDTopics(selectedCountry);
 
+  // 2. Умные рекомендации
+  const recommendation = useSmartRecommendation(profileId);
+
+  // 3. Состояние UI
   const [randomQuestionCount, setRandomQuestionCount] = useState(20);
   const [hasSelectedCount, setHasSelectedCount] = useState(false);
   const [nonstopProgress, setNonstopProgress] = useState<{ answered: number; total: number } | null>(null);
+
+  const countryData = COUNTRIES_CONFIG[selectedCountry];
+
+  // 4. Эффекты логирования и загрузки (после всех определений)
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      console.log('[Tests] Данные прогресса:', {
+        selectedCountry,
+        profileId,
+        ticketsCount: tickets.length,
+        statusCount: Object.keys(ticketsStatus).length,
+        statusSample: Object.keys(ticketsStatus).slice(0, 5),
+        ticket1Status: ticketsStatus["1"]
+      });
+    }
+  }, [selectedCountry, profileId, tickets, ticketsStatus]);
 
   // Загружаем прогресс для нон-стоп
   useEffect(() => {
@@ -299,35 +315,12 @@ const Tests = () => {
     handleStartTest(`/test/practice?count=${randomQuestionCount}${selectedCountry === 'russia' ? '&country=russia' : ''}`);
   };
 
-  // --- Умный трекер для России ---
-  const recommendedTicket = useMemo(() => {
-    if (selectedCountry !== 'russia' || tickets.length === 0) return null;
-
-    // 1. Ищем билет в процессе (не завершен, прогресс > 0)
-    // Сортируем так, чтобы взять тот, где прогресс больше (последний активный)
-    const inProgress = [...tickets].filter(t => !t.completed && t.progress > 0)
-      .sort((a, b) => b.progress - a.progress)[0];
-
-    if (inProgress) return { ...inProgress, type: 'continue' as const };
-
-    // 2. Если нет в процессе, ищем первый не начатый
-    const nextNew = tickets.find(t => !t.completed && t.progress === 0);
-    if (nextNew) return { ...nextNew, type: 'next' as const };
-
-    // 3. Если все билеты решены
-    return { type: 'exam' as const, number: 0 };
-  }, [tickets, selectedCountry]);
-
   const handleBannerClick = () => {
-    if (selectedCountry !== 'russia') return;
-    if (!recommendedTicket) return;
-
-    if (recommendedTicket.type === 'exam') {
-      navigate('/test/exam-russia');
-    } else {
-      const ticketId = (recommendedTicket as any).id || (recommendedTicket as any).number;
-      navigate(`/learn/russia/ticket/${ticketId}`);
+    if (selectedCountry !== 'russia') {
+      handleRandomTestStart();
+      return;
     }
+    navigate(recommendation.route);
   };
 
   // Адаптируем тесты под выбранную страну
@@ -379,19 +372,23 @@ const Tests = () => {
         color: "destructive",
         premium: false,
         difficulty: "Сложная",
-        route: `/test/mastery${selectedCountry === 'russia' ? '?country=russia' : ''}`,
+        route: selectedCountry === 'russia' ? '/test/marathon?country=russia' : '/test/mastery',
         gradient: "from-pink-600 to-rose-600",
       },
       {
         id: 5,
-        title: t('testsPage.challengeBank'),
-        description: t('testsPage.challengeBankDesc', { count: challengeBankCount }),
-        icon: History,
-        color: "primary",
+        title: challengeBankCount === 0 ? 'Ошибок нет!' : t('testsPage.challengeBank'),
+        description: challengeBankCount === 0
+          ? 'Идеальный результат! Все ошибки разобраны. Так держать!'
+          : t('testsPage.challengeBankDesc', { count: challengeBankCount }),
+        icon: challengeBankCount === 0 ? Trophy : History,
+        color: challengeBankCount === 0 ? "success" : "orange",
         premium: false,
-        difficulty: "Средняя",
-        route: `/test/challenge-bank${selectedCountry === 'russia' ? '?country=russia' : ''}`,
-        gradient: "from-purple-600 to-violet-600",
+        difficulty: challengeBankCount === 0 ? "Мастер" : "Средняя",
+        route: challengeBankCount === 0 ? "#" : `/test/challenge-bank${selectedCountry === 'russia' ? '?country=russia' : ''}`,
+        gradient: challengeBankCount === 0
+          ? "from-emerald-500 to-teal-600 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+          : "from-purple-600 to-violet-600",
       },
       {
         id: 6,
@@ -403,7 +400,7 @@ const Tests = () => {
         color: "destructive",
         premium: false,
         difficulty: "Сложная",
-        route: `/test/hardest${selectedCountry === 'russia' ? '?country=russia' : ''}`,
+        route: selectedCountry === 'russia' ? '/test/traps?country=russia' : `/test/hardest`,
         gradient: selectedCountry === 'russia' ? "from-purple-600 to-pink-600" : "from-slate-600 to-gray-600",
         featured: selectedCountry === 'russia',
       },
@@ -424,7 +421,7 @@ const Tests = () => {
           title: 'Нон-стоп',
           description: 'Прорешайте все 800 вопросов базы. Прогресс сохраняется между сессиями',
           icon: Target,
-          color: "warning",
+          color: "primary",
           premium: false,
           difficulty: "Сложная",
           route: "/test/nonstop",
@@ -434,7 +431,7 @@ const Tests = () => {
     ];
 
     return baseModes;
-  }, [selectedCountry, randomQuestionCount, challengeBankCount, t]);
+  }, [selectedCountry, randomQuestionCount, challengeBankCount, t, nonstopProgress]);
 
   const difficultyColors = {
     "Лёгкая": "success",
@@ -487,20 +484,22 @@ const Tests = () => {
               </div>
             </div>
 
-            {/* КОМАНДНЫЙ ЦЕНТР (Россия) или СЛУЧАЙНЫЙ ТЕСТ (Другие) */}
+            {/* КОМАНДНЫЙ ЦЕНТР (Умный Инструктор или Конфигуратор теста) */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="relative w-full overflow-hidden rounded-[2.5rem] shadow-2xl group cursor-pointer border border-white/10"
-              style={{
-                background: selectedCountry === 'russia'
-                  ? 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #2563eb 100%)'
-                  : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)',
-                pointerEvents: 'auto',
-                touchAction: 'manipulation'
-              }}
-              onClick={selectedCountry === 'russia' ? handleBannerClick : undefined}
+              className={cn(
+                "relative w-full overflow-hidden rounded-[2.5rem] shadow-2xl group cursor-pointer border border-white/10",
+                selectedCountry === 'russia'
+                  ? (recommendation.theme === 'warning'
+                    ? 'premium-mesh-orange'
+                    : recommendation.theme === 'info'
+                      ? 'premium-mesh-info'
+                      : 'premium-mesh-primary')
+                  : 'premium-mesh-primary'
+              )}
+              onClick={handleBannerClick}
             >
               {/* Noise texture */}
               <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
@@ -508,113 +507,116 @@ const Tests = () => {
               <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 p-8 md:p-12 items-center">
                 {/* Left Content */}
                 <div className="space-y-8">
-                  {selectedCountry === 'russia' && recommendedTicket ? (
+                  {selectedCountry === 'russia' ? (
+                    /* Smart Mentor Mode (Russia) */
                     <div className="space-y-6">
                       <div className="space-y-4">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
-                          <Sparkles className="w-4 h-4 text-amber-300 fill-amber-300" />
+                        <div className={cn(
+                          "inline-flex items-center gap-2 px-4 py-2 rounded-2xl backdrop-blur-md border shadow-lg",
+                          recommendation.theme === 'warning' ? "bg-white/20 border-white/30" : "bg-white/10 border-white/20"
+                        )}>
+                          <recommendation.icon className={cn(
+                            "w-4 h-4",
+                            recommendation.theme === 'warning' ? "text-white" : "text-amber-300 fill-amber-300"
+                          )} />
                           <span className="text-sm font-bold text-white uppercase tracking-wider">
-                            {recommendedTicket.type === 'continue' ? 'Рекомендуем продолжить' :
-                              recommendedTicket.type === 'next' ? 'Твой следующий шаг' : 'Время экзамена'}
+                            {recommendation.type === 'correction' ? 'Требуется внимание' :
+                              recommendation.type === 'resume' ? 'Рекомендуем продолжить' :
+                                recommendation.type === 'progress' ? 'Твой следующий шаг' : 'Твой первый шаг'}
                           </span>
                         </div>
 
-                        <h2 className="text-5xl md:text-7xl font-black text-white tracking-tight leading-[0.9] drop-shadow-lg">
-                          {recommendedTicket.type === 'continue' ? `БИЛЕТ №${recommendedTicket.number}` :
-                            recommendedTicket.type === 'next' ? `БИЛЕТ №${recommendedTicket.number}` :
-                              'ЭКЗАМЕН ГИБДД'}
+                        <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-[0.9] drop-shadow-2xl">
+                          {recommendation.title.toUpperCase()}
                         </h2>
 
-                        <p className="text-lg md:text-xl text-white/90 font-medium max-w-md leading-relaxed">
-                          {recommendedTicket.type === 'continue' ?
-                            `Вы остановились на середине пути. Пора дожать оставшиеся вопросы и закрыть этот билет!` :
-                            recommendedTicket.type === 'next' ?
-                              `Новый рубеж! Начните изучение следующего билета, чтобы стать еще на шаг ближе к правам.` :
-                              `Вы изучили все билеты! Самое время проверить себя в условиях реального экзамена.`}
+                        <p className="text-lg md:text-xl text-white/90 font-medium max-w-md leading-relaxed drop-shadow-md">
+                          {recommendation.subtitle}
                         </p>
                       </div>
 
                       <button
-                        onClick={handleBannerClick}
-                        className="group relative h-16 px-10 rounded-full bg-white text-indigo-600 font-black text-lg shadow-[0_10px_30px_rgba(255,255,255,0.3)] hover:shadow-[0_20px_40px_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 overflow-hidden w-fit"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBannerClick();
+                        }}
+                        className={cn(
+                          "group relative h-16 px-10 rounded-full font-black text-lg transition-all duration-300 flex items-center gap-3 overflow-hidden w-fit shadow-xl hover:scale-105 active:scale-95",
+                          recommendation.theme === 'warning'
+                            ? "bg-white text-orange-600 shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)]"
+                            : recommendation.theme === 'info'
+                              ? "bg-white text-cyan-700 shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)]"
+                              : "bg-white text-indigo-600 shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)]"
+                        )}
                       >
-                        <Play className="w-6 h-6 fill-indigo-600" />
-                        <span>
-                          {recommendedTicket.type === 'continue' ? 'Продолжить' :
-                            recommendedTicket.type === 'next' ? 'Начать билет' : 'Начать экзамен'}
-                        </span>
+                        {recommendation.theme === 'warning' ? <RotateCcw className="w-6 h-6" /> : <Play className="w-6 h-6 fill-current" />}
+                        <span>{recommendation.buttonText}</span>
                         <ArrowRight className="w-6 h-6" />
-                        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-indigo-100/50 to-transparent" />
+                        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
                       </button>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
-                        <Crown className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-                        <span className="text-sm font-bold text-white">Рекомендуется</span>
-                      </div>
-                      <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tight leading-[0.9] drop-shadow-lg">
-                        {t('testsPage.randomTest').toUpperCase()}
-                      </h2>
-                      <p className="text-lg md:text-xl text-white/90 font-medium max-w-md leading-relaxed">
-                        {t('testsPage.randomTestDesc')}
-                      </p>
-
+                    /* Random Test Configurator (Default for Other Countries) */
+                    <div className="space-y-6">
                       <div className="space-y-4">
-                        <div>
-                          <p className="text-sm text-white/80 font-semibold mb-3">
-                            {t('testsPage.questionCount')}
-                          </p>
-                          <div className="flex gap-3">
-                            {[10, 20, 30].map((count) => (
-                              <motion.button
-                                key={count}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleCountSelect(count);
-                                }}
-                                className={`
-                                  flex-1 px-6 py-3 rounded-xl font-bold text-base transition-all
-                                  ${randomQuestionCount === count
-                                    ? "bg-white text-indigo-600 shadow-lg shadow-white/30"
-                                    : "bg-white/10 text-white hover:bg-white/20 border border-white/20"
-                                  }
-                                `}
-                              >
-                                {count}
-                              </motion.button>
-                            ))}
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
+                          <Crown className="w-4 h-4 text-yellow-300 fill-yellow-300" />
+                          <span className="text-sm font-bold text-white">Рекомендуется</span>
+                        </div>
+                        <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter leading-[0.9] drop-shadow-2xl">
+                          {t('testsPage.randomTest').toUpperCase()}
+                        </h2>
+                        <p className="text-lg md:text-xl text-white/90 font-medium max-w-md leading-relaxed drop-shadow-md">
+                          {t('testsPage.randomTestDesc')}
+                        </p>
+
+                        <div className="space-y-4">
+                          <div>
+                            <p className="text-sm text-white/80 font-semibold mb-3">
+                              {t('testsPage.questionCount')}
+                            </p>
+                            <div className="flex gap-3">
+                              {[10, 20, 30].map((count) => (
+                                <motion.button
+                                  key={count}
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCountSelect(count);
+                                  }}
+                                  className={cn(
+                                    "flex-1 px-6 py-3 rounded-xl font-bold text-base transition-all",
+                                    randomQuestionCount === count
+                                      ? "bg-white text-indigo-600 shadow-lg shadow-white/30"
+                                      : "bg-white/10 text-white hover:bg-white/20 border border-white/20"
+                                  )}
+                                >
+                                  {count}
+                                </motion.button>
+                              ))}
+                            </div>
                           </div>
                         </div>
 
-                        {hasSelectedCount && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3 }}
-                          >
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRandomTestStart();
-                              }}
-                              className="group relative h-16 px-10 rounded-full bg-white text-indigo-600 font-black text-lg shadow-[0_10px_30px_rgba(255,255,255,0.3)] hover:shadow-[0_20px_40px_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 overflow-hidden w-full"
-                            >
-                              <Play className="w-6 h-6 fill-indigo-600" />
-                              <span>{t('testsPage.startButton')}</span>
-                              <ArrowRight className="w-6 h-6" />
-                              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-indigo-100/50 to-transparent" />
-                            </button>
-                          </motion.div>
-                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleBannerClick();
+                          }}
+                          className="group relative h-16 px-10 rounded-full bg-white text-indigo-600 font-black text-lg shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 overflow-hidden w-fit"
+                        >
+                          <Play className="w-6 h-6 fill-indigo-600 font-black" />
+                          <span>{t('testsPage.startButton')}</span>
+                          <ArrowRight className="w-6 h-6" />
+                          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-indigo-100/50 to-transparent" />
+                        </button>
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* Right Visual */}
+                {/* Right Illustration - Abstract Cyber-Core Shape */}
                 <div className="hidden lg:flex justify-center items-center relative">
                   <motion.div
                     animate={{
@@ -626,34 +628,49 @@ const Tests = () => {
                       repeat: Infinity,
                       ease: "easeInOut"
                     }}
-                    className="relative z-10"
+                    className="relative w-80 h-80"
                   >
-                    <div className="w-80 h-80 rounded-[3rem] bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-2xl border border-white/30 flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.2)] transform rotate-6 group-hover:rotate-12 transition-transform duration-700">
+                    {/* Glowing Orbs based on theme */}
+                    <div className={cn(
+                      "absolute inset-0 blur-3xl opacity-60",
+                      selectedCountry === 'russia'
+                        ? (recommendation.theme === 'warning' ? "bg-orange-400" :
+                          recommendation.theme === 'info' ? "bg-cyan-400" : "bg-purple-400")
+                        : "bg-pink-400"
+                    )} />
+
+                    {/* Glass Shape */}
+                    <div className="absolute inset-0 bg-white/10 backdrop-blur-2xl rounded-[4rem] border border-white/20 shadow-[inset_0_0_30px_rgba(255,255,255,0.2),0_20px_40px_rgba(0,0,0,0.2)] flex items-center justify-center overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent pointer-events-none" />
+
+                      {/* Icon based on state */}
                       {selectedCountry === 'russia' ? (
-                        <CarFront className="w-40 h-40 text-white drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)]" />
+                        recommendation.type === 'correction' ? (
+                          <AlertTriangle className="w-40 h-40 text-white opacity-90 drop-shadow-2xl" />
+                        ) : recommendation.type === 'resume' ? (
+                          <Clock className="w-40 h-40 text-white opacity-90 drop-shadow-2xl" />
+                        ) : (
+                          <CarFront className="w-40 h-40 text-white opacity-90 drop-shadow-2xl" />
+                        )
                       ) : (
-                        <Shuffle className="w-40 h-40 text-white drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)]" />
+                        <Shuffle className="w-40 h-40 text-white opacity-90 drop-shadow-2xl" />
                       )}
                     </div>
 
-                    {/* Floating elements */}
-                    <div className="absolute -top-10 -right-10 p-5 rounded-3xl bg-gradient-to-br from-yellow-400/30 to-orange-500/30 backdrop-blur-xl border border-yellow-400/40 shadow-xl animate-bounce delay-700">
-                      {selectedCountry === 'russia' ? (
-                        <Gauge className="w-10 h-10 text-yellow-200" />
-                      ) : (
-                        <Target className="w-10 h-10 text-yellow-200" />
-                      )}
+                    {/* Smaller Floating Elements */}
+                    <div className="absolute -top-10 -right-10 w-24 h-24 bg-white/20 backdrop-blur-lg rounded-3xl border border-white/30 flex items-center justify-center shadow-xl">
+                      <Target className="w-12 h-12 text-white" />
                     </div>
-                    <div className="absolute -bottom-5 -left-10 p-5 rounded-3xl bg-gradient-to-br from-cyan-400/30 to-blue-500/30 backdrop-blur-xl border border-cyan-400/40 shadow-xl animate-bounce delay-1000">
-                      {selectedCountry === 'russia' ? (
-                        <MapPin className="w-10 h-10 text-cyan-200" />
-                      ) : (
-                        <Zap className="w-10 h-10 text-cyan-200" />
-                      )}
+                    <div className="absolute -bottom-10 -left-10 w-20 h-20 bg-white/10 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center shadow-xl">
+                      <MapPin className="w-10 h-10 text-white/80" />
                     </div>
                   </motion.div>
                 </div>
               </div>
+
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
+              <div className="absolute bottom-0 left-0 w-96 h-96 bg-black/10 blur-3xl rounded-full -translate-x-1/2 translate-y-1/2" />
             </motion.div>
 
             {/* Other Test Modes Grid - Dashboard Style */}
@@ -688,51 +705,67 @@ const Tests = () => {
                     icon: string;
                     titleHover: string;
                     gradient: string;
+                    badge: string;
                   }> = {
                     primary: {
-                      base: 'violet',
-                      border: 'hover:border-violet-500/50',
-                      shadow: 'hover:shadow-violet-500/10',
-                      iconBg: 'bg-gradient-to-br from-violet-500/20 to-violet-600/10 border-violet-500/30 shadow-violet-500/10',
-                      icon: 'text-violet-400',
-                      titleHover: 'group-hover:text-violet-300',
-                      gradient: 'from-violet-500/5'
+                      base: 'indigo',
+                      border: 'group-hover:border-indigo-500/20',
+                      shadow: 'group-hover:shadow-indigo-500/10',
+                      iconBg: 'bg-indigo-500/20 border-indigo-500/30',
+                      icon: 'text-indigo-400',
+                      titleHover: 'group-hover:text-indigo-400',
+                      gradient: 'from-indigo-500/10',
+                      badge: 'text-indigo-400 border-indigo-500/30'
                     },
                     secondary: {
                       base: 'blue',
-                      border: 'hover:border-blue-500/50',
-                      shadow: 'hover:shadow-blue-500/10',
-                      iconBg: 'bg-gradient-to-br from-blue-500/20 to-blue-600/10 border-blue-500/30 shadow-blue-500/10',
+                      border: 'group-hover:border-blue-500/20',
+                      shadow: 'group-hover:shadow-blue-500/10',
+                      iconBg: 'bg-blue-500/20 border-blue-500/30',
                       icon: 'text-blue-400',
-                      titleHover: 'group-hover:text-blue-300',
-                      gradient: 'from-blue-500/5'
+                      titleHover: 'group-hover:text-blue-400',
+                      gradient: 'from-blue-500/10',
+                      badge: 'text-blue-400 border-blue-500/30'
                     },
                     success: {
                       base: 'emerald',
-                      border: 'hover:border-emerald-500/50',
-                      shadow: 'hover:shadow-emerald-500/10',
-                      iconBg: 'bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 border-emerald-500/30 shadow-emerald-500/10',
+                      border: 'group-hover:border-emerald-500/20',
+                      shadow: 'group-hover:shadow-emerald-500/10',
+                      iconBg: 'bg-emerald-500/20 border-emerald-500/30',
                       icon: 'text-emerald-400',
-                      titleHover: 'group-hover:text-emerald-300',
-                      gradient: 'from-emerald-500/5'
+                      titleHover: 'group-hover:text-emerald-400',
+                      gradient: 'from-emerald-500/10',
+                      badge: 'text-emerald-400 border-emerald-500/30'
                     },
                     warning: {
                       base: 'amber',
-                      border: 'hover:border-amber-500/50',
-                      shadow: 'hover:shadow-amber-500/10',
-                      iconBg: 'bg-gradient-to-br from-amber-500/20 to-amber-600/10 border-amber-500/30 shadow-amber-500/10',
+                      border: 'group-hover:border-amber-500/20',
+                      shadow: 'group-hover:shadow-amber-500/10',
+                      iconBg: 'bg-amber-500/20 border-amber-500/30',
                       icon: 'text-amber-400',
-                      titleHover: 'group-hover:text-amber-300',
-                      gradient: 'from-amber-500/5'
+                      titleHover: 'group-hover:text-amber-400',
+                      gradient: 'from-amber-500/10',
+                      badge: 'text-amber-400 border-amber-500/30'
                     },
                     destructive: {
-                      base: 'red',
-                      border: 'hover:border-red-500/50',
-                      shadow: 'hover:shadow-red-500/10',
-                      iconBg: 'bg-gradient-to-br from-red-500/20 to-red-600/10 border-red-500/30 shadow-red-500/10',
-                      icon: 'text-red-400',
-                      titleHover: 'group-hover:text-red-300',
-                      gradient: 'from-red-500/5'
+                      base: 'rose',
+                      border: 'group-hover:border-rose-500/20',
+                      shadow: 'group-hover:shadow-rose-500/10',
+                      iconBg: 'bg-rose-500/20 border-rose-500/30',
+                      icon: 'text-rose-400',
+                      titleHover: 'group-hover:text-rose-400',
+                      gradient: 'from-rose-500/10',
+                      badge: 'text-rose-400 border-rose-500/30'
+                    },
+                    orange: {
+                      base: 'orange',
+                      border: 'group-hover:border-orange-500/20',
+                      shadow: 'group-hover:shadow-orange-500/10',
+                      iconBg: 'bg-orange-500/20 border-orange-500/30',
+                      icon: 'text-orange-400',
+                      titleHover: 'group-hover:text-orange-400',
+                      gradient: 'from-orange-500/10',
+                      badge: 'text-orange-400 border-orange-500/30'
                     },
                   };
 
@@ -744,15 +777,15 @@ const Tests = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 + 0.2, duration: 0.4 }}
-                      className={`
-                        ${isFeatured ? 'md:col-span-2' : 'col-span-1'}
-                        relative overflow-hidden rounded-[2rem] p-6 md:p-8 cursor-pointer group
-                        bg-card/60 dark:bg-card/40 backdrop-blur-sm border border-border
-                        ${theme.border} hover:bg-card/80 dark:hover:bg-card/60
-                        shadow-lg hover:shadow-xl ${theme.shadow}
-                        transition-colors duration-150
-                        hover:-translate-y-1
-                      `}
+                      className={cn(
+                        isFeatured ? 'md:col-span-2' : 'col-span-1',
+                        "relative overflow-hidden rounded-[2.5rem] p-6 md:p-8 cursor-pointer group",
+                        "bg-slate-800/40 backdrop-blur-md border border-white/5",
+                        "transition-all duration-300 shadow-xl",
+                        "hover:bg-slate-800/60 hover:-translate-y-1 hover:shadow-2xl",
+                        theme.border,
+                        theme.shadow
+                      )}
                       style={{
                         pointerEvents: 'auto',
                         touchAction: 'manipulation',
@@ -783,38 +816,44 @@ const Tests = () => {
                         e.stopPropagation();
                       }}
                     >
-                      {/* Subtle Gradient Background on Hover */}
-                      <div className={`absolute inset-0 bg-gradient-to-br ${theme.gradient} via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                      {/* Ambient Glow on Hover */}
+                      <div className={cn(
+                        "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500",
+                        theme.gradient,
+                        "via-transparent to-transparent"
+                      )} />
+
+                      {/* Large Watermark Icon */}
+                      <Icon className="absolute w-32 h-32 text-white/[0.03] group-hover:text-white/[0.05] -bottom-6 -right-6 rotate-12 transition-all duration-500" />
 
                       <div className="relative z-10 flex flex-col h-full justify-between gap-6">
                         <div className="flex justify-between items-start">
                           {/* Icon Container - Dashboard Style */}
-                          <div className={`
-                              w-14 h-14 rounded-2xl 
-                              ${theme.iconBg}
-                              flex items-center justify-center
-                              group-hover:scale-110 transition-transform duration-300
-                           `}>
-                            <Icon className={`w-7 h-7 ${theme.icon}`} />
+                          <div className={cn(
+                            "w-14 h-14 rounded-2xl flex items-center justify-center border transition-all duration-500 mb-4",
+                            "group-hover:scale-110 group-hover:rotate-3",
+                            theme.iconBg
+                          )}>
+                            <Icon className={cn("w-7 h-7", theme.icon)} />
                           </div>
 
                           <div className="flex flex-col items-end gap-2">
-                            <Badge variant="outline" className="border-border text-muted-foreground bg-card/50">
+                            <Badge variant="outline" className={cn("bg-transparent border-current uppercase text-[10px] font-black tracking-widest px-2.5 py-0.5 rounded-full", theme.badge)}>
                               {mode.difficulty}
                             </Badge>
                             {mode.badge && (
-                              <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 font-semibold">
+                              <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full">
                                 {mode.badge}
                               </Badge>
                             )}
                           </div>
                         </div>
 
-                        <div>
-                          <h3 className={`text-2xl font-bold text-foreground mb-2 tracking-tight ${theme.titleHover} transition-colors`}>
+                        <div className="space-y-2">
+                          <h3 className={cn("text-xl font-black text-white tracking-tight transition-colors", theme.titleHover)}>
                             {mode.title}
                           </h3>
-                          <p className="text-muted-foreground font-medium text-sm leading-relaxed">
+                          <p className="text-slate-400 font-medium text-sm leading-relaxed line-clamp-2">
                             {mode.description}
                           </p>
                         </div>
@@ -844,10 +883,10 @@ const Tests = () => {
                   );
                 })}
               </div>
-            </div>
+            </div >
 
             {/* Topics Section (для Испании) или Билеты (для России) */}
-            <motion.div
+            < motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -866,150 +905,163 @@ const Tests = () => {
               </div>
 
               {/* Для России: показываем билеты в Cyber-Core Grid */}
-              {selectedCountry === 'russia' ? (
-                <div className="space-y-8 p-0 sm:p-2">
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 sm:gap-6">
-                    {tickets.map((ticket, i) => {
-                      const ticketId = typeof ticket.id === 'number' ? ticket.id : ticket.number;
-                      const ticketNumber = ticket.metadata?.ticket_number || ticket.number;
+              {
+                selectedCountry === 'russia' ? (
+                  <div className="space-y-8 p-0 sm:p-2">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 sm:gap-6">
+                      {tickets.map((ticket, i) => {
+                        const ticketId = typeof ticket.id === 'number' ? ticket.id : ticket.number;
+                        const ticketNumber = ticket.metadata?.ticket_number || ticket.number;
 
-                      // Расширенная логика статусов для Cyber-Core
-                      let status: 'idle' | 'charging' | 'charged' | 'damaged' = 'idle';
-                      const progress = ticket.progress || 0;
+                        // Расширенная логика статусов для Cyber-Core
+                        let status: 'idle' | 'charging' | 'charged' | 'damaged' = 'idle';
 
-                      if (ticket.completed) {
-                        // Если сдан идеально (без ошибок) - Charged
-                        // Если сдан с ошибками - Damaged (требует пересдачи для идеала)
-                        status = (ticket.score && ticket.score >= 100) ? 'charged' : 'damaged';
-                      } else if (progress > 0) {
-                        status = 'charging';
-                      }
+                        const tStatus = ticketsStatus[ticketNumber.toString()];
+                        const progress = tStatus ? Math.round((tStatus.answered / tStatus.total) * 100) : 0;
+                        const completed = tStatus?.completed || false;
+                        const score = tStatus?.score || 0;
+
+                        if (completed) {
+                          // Если сдан идеально (без ошибок) - Charged
+                          // Если сдан с ошибками - Damaged (требует пересдачи для идеала)
+                          status = score >= 100 ? 'charged' : 'damaged';
+                        } else if (progress > 0) {
+                          status = 'charging';
+                        }
+
+                        return (
+                          <TicketCore
+                            key={ticket.id}
+                            number={ticketNumber}
+                            progress={progress}
+                            status={status}
+                            isRussia={selectedCountry === 'russia'}
+                            onClick={() => navigate(`/learn/${selectedCountry}/ticket/${ticketId}`)}
+                          />
+                        );
+                      })}
+                    </div>
+
+                    {/* Legend */}
+                    <div className="flex flex-wrap items-center gap-6 p-6 rounded-[2rem] bg-slate-950/20 border border-white/5 backdrop-blur-md">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center justify-center">
+                          <Star className="w-5 h-5 text-emerald-400 fill-emerald-400" />
+                        </div>
+                        <span className="text-xs font-black text-emerald-100/70 uppercase tracking-widest">
+                          {selectedCountry === 'russia' ? 'Сдано' : 'Charged'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-orange-500/20 border border-orange-500/50 shadow-[0_0_15px_rgba(245,158,11,0.3)] flex items-center justify-center">
+                          <div className="w-5 h-5 rounded-full border-2 border-orange-400 border-t-transparent animate-spin" />
+                        </div>
+                        <span className="text-xs font-black text-orange-100/70 uppercase tracking-widest">
+                          {selectedCountry === 'russia' ? 'Прохожу' : 'Charging'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.3)] flex items-center justify-center">
+                          <AlertIcon className="w-5 h-5 text-red-400" />
+                        </div>
+                        <span className="text-xs font-black text-red-100/70 uppercase tracking-widest">
+                          {selectedCountry === 'russia' ? 'Ошибка' : 'Damaged'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {topics.map((topic, i) => {
+                      const coverImageUrl = topic.cover_image ? getImageUrl(topic.cover_image, 'test-covers') || topic.cover_image : null;
+                      const hasCoverImage = !!coverImageUrl;
 
                       return (
-                        <TicketCore
-                          key={ticket.id}
-                          number={ticketNumber}
-                          progress={progress}
-                          status={status}
-                          onClick={() => navigate(`/learn/${selectedCountry}/ticket/${ticketId}`)}
-                        />
-                      );
-                    })}
-                  </div>
-
-                  {/* Legend */}
-                  <div className="flex flex-wrap items-center gap-6 p-6 rounded-[2rem] bg-slate-950/20 border border-white/5 backdrop-blur-md">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center justify-center">
-                        <Star className="w-5 h-5 text-emerald-400 fill-emerald-400" />
-                      </div>
-                      <span className="text-xs font-black text-emerald-100/70 uppercase tracking-widest">Charged</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-orange-500/20 border border-orange-500/50 shadow-[0_0_15px_rgba(245,158,11,0.3)] flex items-center justify-center">
-                        <div className="w-5 h-5 rounded-full border-2 border-orange-400 border-t-transparent animate-spin" />
-                      </div>
-                      <span className="text-xs font-black text-orange-100/70 uppercase tracking-widest">Charging</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.3)] flex items-center justify-center">
-                        <AlertIcon className="w-5 h-5 text-red-400" />
-                      </div>
-                      <span className="text-xs font-black text-red-100/70 uppercase tracking-widest">Damaged</span>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {topics.map((topic, i) => {
-                    const coverImageUrl = topic.cover_image ? getImageUrl(topic.cover_image, 'test-covers') || topic.cover_image : null;
-                    const hasCoverImage = !!coverImageUrl;
-
-                    return (
-                      <motion.div
-                        key={topic.id}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.03 }}
-                        whileHover={{ scale: 1.02, y: -4 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => handleTopicClick(topic.id)}
-                        className="group relative overflow-hidden rounded-[2rem] p-6 cursor-pointer border border-border bg-card/60 dark:bg-card/40 backdrop-blur-sm hover:bg-card/80 dark:hover:bg-card/60 shadow-lg hover:shadow-xl transition-all duration-150 h-[180px]"
-                        style={{
-                          backgroundImage: hasCoverImage ? `url(${coverImageUrl})` : undefined,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                          backgroundRepeat: 'no-repeat',
-                        }}
-                      >
-                        {/* Background gradient overlay for readability */}
-                        <div className={`
+                        <motion.div
+                          key={topic.id}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: i * 0.03 }}
+                          whileHover={{ scale: 1.02, y: -4 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => handleTopicClick(topic.id)}
+                          className="group relative overflow-hidden rounded-[2rem] p-6 cursor-pointer border border-border bg-card/60 dark:bg-card/40 backdrop-blur-sm hover:bg-card/80 dark:hover:bg-card/60 shadow-lg hover:shadow-xl transition-all duration-150 h-[180px]"
+                          style={{
+                            backgroundImage: hasCoverImage ? `url(${coverImageUrl})` : undefined,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                          }}
+                        >
+                          {/* Background gradient overlay for readability */}
+                          <div className={`
                         absolute inset-0 transition-all duration-500
                         ${hasCoverImage
-                            ? "bg-gradient-to-br from-black/70 via-black/60 to-black/70 group-hover:from-black/60 group-hover:via-black/50 group-hover:to-black/60"
-                            : "bg-card/60 dark:bg-card/40 group-hover:bg-card/80 dark:group-hover:bg-card/60"
-                          }
+                              ? "bg-gradient-to-br from-black/70 via-black/60 to-black/70 group-hover:from-black/60 group-hover:via-black/50 group-hover:to-black/60"
+                              : "bg-card/60 dark:bg-card/40 group-hover:bg-card/80 dark:group-hover:bg-card/60"
+                            }
                       `} />
 
-                        {/* Accent gradient on hover */}
-                        {!hasCoverImage && (
-                          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/0 to-purple-500/0 group-hover:from-violet-500/20 group-hover:to-purple-500/20 transition-all duration-500" />
-                        )}
+                          {/* Accent gradient on hover */}
+                          {!hasCoverImage && (
+                            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/0 to-purple-500/0 group-hover:from-violet-500/20 group-hover:to-purple-500/20 transition-all duration-500" />
+                          )}
 
-                        <div className="relative z-10 h-full flex flex-col justify-between">
-                          <div className="flex items-start justify-between">
-                            <motion.div
-                              whileHover={{ rotate: 12, scale: 1.1 }}
-                              className={`
+                          <div className="relative z-10 h-full flex flex-col justify-between">
+                            <div className="flex items-start justify-between">
+                              <motion.div
+                                whileHover={{ rotate: 12, scale: 1.1 }}
+                                className={`
                               w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl transition-all shadow-xl
                               ${hasCoverImage
-                                  ? "bg-white/25 backdrop-blur-lg text-white border-2 border-white/40"
-                                  : "bg-gradient-to-br from-violet-500/20 to-purple-500/20 text-foreground border border-border"
-                                }
+                                    ? "bg-white/25 backdrop-blur-lg text-white border-2 border-white/40"
+                                    : "bg-gradient-to-br from-violet-500/20 to-purple-500/20 text-foreground border border-border"
+                                  }
                             `}
-                            >
-                              {topic.number}
-                            </motion.div>
-                            {topic.is_premium && !isPremium && (
-                              <motion.div
-                                animate={{ rotate: [0, 10, -10, 0] }}
-                                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                                className="relative"
                               >
-                                <Sparkles className="w-5 h-5 text-amber-400 drop-shadow-lg" />
-                                <div className="absolute inset-0 bg-amber-400/30 blur-md rounded-full" />
+                                {topic.number}
                               </motion.div>
-                            )}
-                          </div>
+                              {topic.is_premium && !isPremium && (
+                                <motion.div
+                                  animate={{ rotate: [0, 10, -10, 0] }}
+                                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                                  className="relative"
+                                >
+                                  <Sparkles className="w-5 h-5 text-amber-400 drop-shadow-lg" />
+                                  <div className="absolute inset-0 bg-amber-400/30 blur-md rounded-full" />
+                                </motion.div>
+                              )}
+                            </div>
 
-                          <div className="space-y-1">
-                            <div className={`
+                            <div className="space-y-1">
+                              <div className={`
                             font-black text-lg line-clamp-2 leading-tight
                             ${hasCoverImage ? "text-white drop-shadow-lg" : "text-foreground"}
                           `}>
-                              {topic.name}
-                            </div>
-                            {topic.questions > 0 && (
-                              <div className={`
+                                {topic.name}
+                              </div>
+                              {topic.questions > 0 && (
+                                <div className={`
                               text-sm font-bold flex items-center gap-1.5
                               ${hasCoverImage ? "text-white/90" : "text-muted-foreground"}
                             `}>
-                                <BookOpen className="w-3 h-3" />
-                                <span>{topic.questions} {t('testsPage.questions')}</span>
-                              </div>
-                            )}
+                                  <BookOpen className="w-3 h-3" />
+                                  <span>{topic.questions} {t('testsPage.questions')}</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              )}
-            </motion.div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                )
+              }
+            </motion.div >
 
-          </div>
-        </div>
-      </Layout>
+          </div >
+        </div >
+      </Layout >
     </>
   );
 };

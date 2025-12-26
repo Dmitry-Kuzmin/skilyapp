@@ -1,8 +1,6 @@
-
 import { cn } from '@/lib/utils';
-import { Timer, AlertTriangle } from 'lucide-react';
-import { SegmentedExamProgress } from './SegmentedExamProgress';
-import { useEffect, useState } from 'react';
+import { AlertTriangle, X } from 'lucide-react';
+import { useEffect, useState, memo } from 'react';
 
 interface ExamHeaderProps {
     timeLeft: number; // in seconds
@@ -17,9 +15,15 @@ interface ExamHeaderProps {
     errorsCount: number;
     maxErrors: number;
     mode: 'exam' | 'practice' | 'test' | 'exam-russia';
+    onClose?: () => void;
+    onOpenSettings?: () => void;
 }
 
-export function ExamHeader({
+/**
+ * Compact "Apple-Style" ExamHeader
+ * Timer as pure text, block-grouped progress bar
+ */
+export const ExamHeader = memo(function ExamHeader({
     timeLeft,
     totalQuestions,
     currentQuestionIndex,
@@ -28,77 +32,124 @@ export function ExamHeader({
     answers,
     errorsCount,
     maxErrors,
-    mode
+    mode,
+    onClose,
+    onOpenSettings
 }: ExamHeaderProps) {
     const [isTimeAdded, setIsTimeAdded] = useState(false);
     const [prevTimeLeft, setPrevTimeLeft] = useState(timeLeft);
 
     // Detect sudden time jump (penalty added) to trigger animation
     useEffect(() => {
-        if (timeLeft > prevTimeLeft + 2) { // Allow slight jitter, logic > 1s interval
+        if (timeLeft > prevTimeLeft + 2) {
             setIsTimeAdded(true);
             setTimeout(() => setIsTimeAdded(false), 2000);
         }
         setPrevTimeLeft(timeLeft);
-    }, [timeLeft]);
+    }, [timeLeft, prevTimeLeft]);
 
     const formatTime = (seconds: number) => {
-        const m = Math.floor(seconds / 60);
-        const s = seconds % 60;
+        const m = Math.floor(Math.max(0, seconds) / 60);
+        const s = Math.max(0, seconds) % 60;
         return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
 
-    const getPenaltyQuestionsCount = () => {
-        return extraQuestionsCount;
-    };
-
+    const isCriticalTime = timeLeft <= 300 && timeLeft > 0; // 5 min warning
     const isCriticalError = errorsCount >= maxErrors;
     const isWarningError = errorsCount > 0 && !isCriticalError;
+    const isNearLimit = errorsCount >= maxErrors - 1;
+
+    const totalSlots = totalQuestions + extraQuestionsCount;
 
     return (
-        <div className="flex items-center justify-between w-full mb-6 px-1 select-none">
-            {/* 1. Timer (Left) */}
-            <div className={cn(
-                "flex items-center gap-2 font-mono text-xl font-medium tabular-nums transition-colors duration-300",
-                isTimeAdded ? "text-emerald-500 scale-110" : "text-slate-700 dark:text-slate-200"
-            )}>
-                <Timer className={cn(
-                    "w-5 h-5 opacity-50",
-                    timeLeft < 60 && "text-red-500 opacity-100 animate-pulse"
-                )} />
-                <span className={cn(timeLeft < 60 && "text-red-500")}>
+        <div className="w-full space-y-2 mb-3">
+            {/* Row 1: Close | Timer (pure text) | Errors */}
+            <div className="flex items-center justify-between">
+                {/* Left: Close Button - Glass Bubble */}
+                {onClose ? (
+                    <button
+                        onClick={onClose}
+                        className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 active:bg-white/15 flex items-center justify-center text-white/60 hover:text-white transition-colors active:scale-95"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                ) : (
+                    <div className="w-10" />
+                )}
+
+                {/* Center: Timer - Pure Text, no container */}
+                <span className={cn(
+                    "font-mono text-base tabular-nums transition-colors",
+                    isTimeAdded && "text-emerald-400 font-bold",
+                    isCriticalTime && !isTimeAdded && "text-red-400 animate-pulse",
+                    !isCriticalTime && !isTimeAdded && "text-slate-300"
+                )}>
                     {formatTime(timeLeft)}
                 </span>
+
+                {/* Right: Errors Counter - Minimal Pill */}
+                <div
+                    className={cn(
+                        "flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold tabular-nums transition-colors",
+                        isCriticalError
+                            ? "bg-red-500/20 text-red-400"
+                            : isNearLimit
+                                ? "bg-red-500/10 text-red-400"
+                                : isWarningError
+                                    ? "bg-orange-500/10 text-orange-400"
+                                    : "bg-white/5 text-slate-400"
+                    )}
+                >
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    <span>{errorsCount}/{maxErrors}</span>
+                </div>
             </div>
 
-            {/* 2. Progress Bar (Center) - Only for Exam mode or similar */}
-            <div className="flex-1 mx-4 sm:mx-8 md:mx-12 max-w-2xl">
-                <SegmentedExamProgress
-                    currentQuestion={currentQuestionIndex + 1}
-                    totalMainQuestions={totalQuestions}
-                    questionsPerBlock={questionsPerBlock}
-                    penaltyQuestions={extraQuestionsCount}
-                    answers={answers}
-                    className="py-0" // Override padding
-                    miniMode={true} // New prop we'll add to SegmentedExamProgress for cleaner look
-                />
-            </div>
+            {/* Row 2: Block-Grouped Progress Bar */}
+            <div className="flex items-center">
+                {Array.from({ length: totalSlots }, (_, i) => {
+                    const answer = answers[i];
+                    const isCurrent = i === currentQuestionIndex;
+                    const isPassed = i < currentQuestionIndex;
+                    const isError = answer && !answer.isCorrect;
+                    const isCorrect = answer && answer.isCorrect;
+                    const isExtraQuestion = i >= totalQuestions;
 
-            {/* 3. Error Indicator (Right) */}
-            <div className={cn(
-                "flex items-center gap-2 font-bold text-lg transition-all duration-300",
-                isCriticalError ? "text-red-600 animate-pulse" :
-                    isWarningError ? "text-orange-500" : "text-slate-300 dark:text-slate-600"
-            )}>
-                <AlertTriangle className={cn(
-                    "w-5 h-5",
-                    isCriticalError ? "fill-red-600/20" :
-                        isWarningError ? "fill-orange-500/20" : "opacity-50"
-                )} />
-                <span>
-                    {errorsCount}/{maxErrors}
-                </span>
+                    // Block grouping: add visible gap after every 5th question
+                    const isBlockEnd = (i + 1) % questionsPerBlock === 0 && i < totalQuestions - 1;
+
+                    return (
+                        <div
+                            key={i}
+                            className={cn(
+                                "h-1 flex-1 rounded-full transition-all duration-300",
+                                // Visible gap between blocks (increased for visibility)
+                                isBlockEnd && "mr-4",
+                                // Visible gap before extra questions
+                                i === totalQuestions - 1 && extraQuestionsCount > 0 && "mr-4",
+                                // Current question: white glow
+                                isCurrent && "bg-white shadow-[0_0_6px_rgba(255,255,255,0.5)]",
+                                // Error: red
+                                !isCurrent && isError && "bg-red-500",
+                                // Correct: green
+                                !isCurrent && isCorrect && "bg-emerald-500",
+                                // Passed but no answer yet
+                                !isCurrent && isPassed && !answer && "bg-slate-500",
+                                // Future questions: dim
+                                !isCurrent && !isPassed && !isExtraQuestion && "bg-slate-700/50",
+                                // Extra penalty questions
+                                isExtraQuestion && !isCurrent && !answer && "bg-orange-500/30"
+                            )}
+                            style={{
+                                // Small gap between segments (except block gaps)
+                                marginRight: isBlockEnd ? undefined : (i < totalSlots - 1 ? '2px' : '0')
+                            }}
+                        />
+                    );
+                })}
             </div>
         </div>
     );
-}
+});
+
+export default ExamHeader;

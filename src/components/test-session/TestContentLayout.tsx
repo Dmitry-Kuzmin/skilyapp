@@ -16,17 +16,23 @@ export const TestContentLayout = ({
     isTelegramApp,
     isPracticeLikeMode
 }: TestContentLayoutProps) => {
+    const isBlitzMode = mode === 'blitz';
+    const isExamMode = mode === 'exam' || mode === 'exam-russia';
+
     return (
         <div className={cn(
             "mx-auto transition-all duration-300",
-            // Grid Layout for Practice Mode on Desktop (with Sidebar)
-            !isTelegramApp && isPracticeLikeMode
-                ? "flex flex-col lg:grid lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px] lg:items-start lg:gap-3 xl:gap-4 max-w-full lg:max-w-[1370px] px-2 sm:px-4"
-                // Centered Layout for Exam Mode on Desktop
-                : mode === "exam" && !isTelegramApp
-                    ? "lg:max-w-[1100px] lg:px-4"
-                    // Default Container
-                    : "container px-2 sm:px-4"
+            // BLITZ MODE: Centered cockpit layout, no sidebar space
+            isBlitzMode
+                ? "max-w-3xl px-4"
+                // EXAM MODE: Unified container strategy - everything centered
+                : isExamMode
+                    ? "max-w-3xl px-4"
+                    // Grid Layout for Practice Mode on Desktop (with Sidebar)
+                    : !isTelegramApp && isPracticeLikeMode
+                        ? "flex flex-col lg:grid lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px] lg:items-start lg:gap-3 xl:gap-4 max-w-full lg:max-w-[1370px] px-2 sm:px-4"
+                        // Default Container
+                        : "container px-2 sm:px-4"
         )}>
             {/* Main Content Column */}
             <div
@@ -35,14 +41,16 @@ export const TestContentLayout = ({
                     // Telegram Layout adjustments
                     isTelegramApp
                         ? "px-2 sm:px-4 pt-0"
-                        : "pt-4 sm:pt-1 md:pt-3 pb-2 md:pb-3"
+                        : "pt-4 sm:pt-1 md:pt-3 pb-2 md:pb-3",
+                    // Blitz/Exam mode: minimal padding
+                    (isBlitzMode || isExamMode) && "pt-2 pb-0"
                 )}
             >
                 {children}
             </div>
 
-            {/* Sidebar Column (Desktop Practice Only) */}
-            {sidebar && !isTelegramApp && isPracticeLikeMode && (
+            {/* Sidebar Column (Desktop Practice Only) - NOT for Blitz/Exam */}
+            {sidebar && !isTelegramApp && isPracticeLikeMode && !isBlitzMode && !isExamMode && (
                 <div className={cn(
                     "hidden lg:flex lg:flex-col pt-0 md:pt-3",
                     "pb-2 md:pb-3"

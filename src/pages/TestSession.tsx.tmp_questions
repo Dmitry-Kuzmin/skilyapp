@@ -1,0 +1,43 @@
+  // Derived questions - converts various formats (DGT, Universal, PDD) to QuestionData
+  const questions = useMemo((): QuestionData[] => {
+    // Determine the source of raw questions
+    let raw: any[] = [];
+    if (mode === 'exam-russia' || mode === 'pdd-ticket') {
+      raw = universalPDDQuestions || [];
+    } else {
+      raw = dataLoader.questions || [];
+    }
+
+    if (!raw || raw.length === 0) return [];
+
+    return raw.map((q: any) => ({
+      id: q.id,
+      // Priority: 1. text (Universal), 2. text_ru (PDD Legacy), 3. question_text (PDD Legacy table), 4. question_es (DGT)
+      question_ru: q.text || q.question_ru || q.question_text || q.question_es || '',
+      question_es: q.question_es || q.text || q.question_ru || q.question_text || '',
+      question_en: q.question_en || q.text || q.question_ru || q.question_text || '',
+      
+      // Images
+      image_url: q.image || q.image_url || q.image_filename || null,
+      
+      // Explanations
+      explanation_ru: q.explanation || q.explanation_ru || q.explanation_es || null,
+      explanation_es: q.explanation_es || q.explanation || q.explanation_ru || null,
+      explanation_en: q.explanation_en || q.explanation || q.explanation_ru || null,
+      
+      // Topics mapping
+      topics: q.topics && q.topics.length > 0 
+        ? (typeof q.topics[0] === 'string' ? { title_ru: q.topics[0], title_es: q.topics[0] } : q.topics[0])
+        : (q.topic_title_ru ? { title_ru: q.topic_title_ru, title_es: q.topic_title_es } : null),
+      
+      // Universal Answer Mapping
+      answer_options: (q.answers || q.answer_options || []).map((a: any) => ({
+        id: a.id,
+        text_ru: a.text || a.text_ru || a.answer_text || '',
+        text_es: a.text_es || a.text || a.text_ru || a.answer_text || '',
+        text_en: a.text_en || a.text || a.text_ru || a.answer_text || '',
+        is_correct: a.is_correct !== undefined ? a.is_correct : (a.isCorrect !== undefined ? a.isCorrect : false),
+        position: a.position || 0,
+      })),
+    }));
+  }, [mode, universalPDDQuestions, dataLoader.questions]);

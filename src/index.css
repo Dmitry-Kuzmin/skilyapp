@@ -642,6 +642,42 @@ All colors MUST be HSL.
     animation: gradient 3s ease infinite;
   }
 
+  .premium-mesh-orange {
+    background-color: #f97316;
+    background-image: 
+      radial-gradient(at 0% 0%, #fb923c 0px, transparent 50%),
+      radial-gradient(at 100% 0%, #ea580c 0px, transparent 50%),
+      radial-gradient(at 100% 100%, #f97316 0px, transparent 50%),
+      radial-gradient(at 0% 100%, #fdba74 0px, transparent 50%);
+  }
+
+  .premium-mesh-info {
+    background-color: #0891b2;
+    background-image: 
+      radial-gradient(at 0% 0%, #06b6d4 0px, transparent 50%),
+      radial-gradient(at 100% 0%, #0e7490 0px, transparent 50%),
+      radial-gradient(at 100% 100%, #0891b2 0px, transparent 50%),
+      radial-gradient(at 0% 100%, #22d3ee 0px, transparent 50%);
+  }
+
+  .premium-mesh-primary {
+    background-color: #4f46e5;
+    background-image: 
+      radial-gradient(at 0% 0%, #7c3aed 0px, transparent 50%),
+      radial-gradient(at 100% 0%, #2563eb 0px, transparent 50%),
+      radial-gradient(at 100% 100%, #4f46e5 0px, transparent 50%),
+      radial-gradient(at 0% 100%, #818cf8 0px, transparent 50%);
+  }
+
+  .premium-mesh-purple {
+    background-color: #8b5cf6;
+    background-image: 
+      radial-gradient(at 0% 0%, #a855f7 0px, transparent 50%),
+      radial-gradient(at 100% 0%, #7c3aed 0px, transparent 50%),
+      radial-gradient(at 100% 100%, #8b5cf6 0px, transparent 50%),
+      radial-gradient(at 0% 100%, #c084fc 0px, transparent 50%);
+  }
+
   /* Cyber animations */
   @keyframes slideDown {
     from {

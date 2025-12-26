@@ -2,7 +2,8 @@
  * Универсальный компонент текста вопроса
  */
 
-import { Languages } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { PDD_DICTIONARY_ES, PDD_KEYWORDS, PDD_KEYWORDS_RU } from "@/utils/pddDictionary";
 import { cn } from '@/lib/utils';
 
 interface QuestionTextProps {
@@ -15,10 +16,11 @@ interface QuestionTextProps {
   isTransitioning?: boolean;
 }
 
+// Typography Hierarchy: Question should be "Boss" - larger & bolder than answers
 const fontSizeClasses = {
-  0: 'text-lg sm:text-xl',
-  1: 'text-xl sm:text-2xl md:text-3xl',
-  2: 'text-2xl sm:text-3xl md:text-4xl',
+  0: 'text-base sm:text-lg',
+  1: 'text-lg sm:text-xl',
+  2: 'text-xl sm:text-2xl',
 };
 
 export function QuestionText({
@@ -30,34 +32,104 @@ export function QuestionText({
   className,
   isTransitioning = false,
 }: QuestionTextProps) {
+
+  // Функция для обработки текста: подсветка ключевых слов и добавление тултипов
+  const renderSmartText = (rawText: string) => {
+    if (!rawText) return null;
+
+    // Регулярное выражение для поиска ключевых слов и терминов словаря
+    // Ищем слова целиком (границы слов \b)
+    const dictionaryTerms = Object.keys(PDD_DICTIONARY_ES);
+    const keywords = showTranslation ? PDD_KEYWORDS_RU : PDD_KEYWORDS;
+
+    // Комбинируем все интересные нам слова
+    const allPatterns = [...dictionaryTerms, ...keywords];
+    const regex = new RegExp(`\\b(${allPatterns.join('|')}) \\b`, 'gi');
+
+    const parts = rawText.split(regex);
+
+    return parts.map((part, i) => {
+      const lowerPart = part.toLowerCase();
+
+      // 1. Проверяем, является ли часть ключевым словом-ловушкой (Solo, Siempre...)
+      const isKeyword = keywords.some(k => k.toLowerCase() === lowerPart);
+      if (isKeyword) {
+        return (
+          <span key={i} className="text-orange-400 font-black underline decoration-orange-400/30 underline-offset-4">
+            {part}
+          </span>
+        );
+      }
+
+      // 2. Проверяем, есть ли слово в словаре
+      const dictEntry = PDD_DICTIONARY_ES[lowerPart];
+      if (dictEntry && !showTranslation) {
+        return (
+          <TooltipProvider key={i}>
+            <Tooltip delayDuration={300}>
+              <TooltipTrigger asChild>
+                <span className="cursor-help border-b-2 border-dashed border-blue-400/50 hover:border-blue-400 text-blue-200 transition-colors">
+                  {part}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="bg-slate-900 border-slate-800 p-3 max-w-[250px] shadow-2xl">
+                <div className="space-y-1">
+                  <div className="text-sm font-bold text-blue-400 uppercase tracking-tighter">🇷🇺 {dictEntry.ru}</div>
+                  <div className="text-[11px] leading-relaxed text-slate-400 italic font-medium">{dictEntry.explanation}</div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      }
+
+      return part;
+    });
+  };
+
   return (
     <div className={cn("relative", className)}>
-      <div className="relative p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
+      {/* Свитч языков над вопросом (если доступен перевод) */}
+      {onToggleTranslation && (
+        <div className="flex justify-start mb-4">
+          <div className="flex p-1 bg-slate-900/50 border border-white/5 rounded-xl backdrop-blur-sm self-start">
+            <button
+              onClick={() => showTranslation && onToggleTranslation()}
+              className={cn(
+                "px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all duration-300",
+                !showTranslation
+                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg"
+                  : "text-slate-500 hover:text-slate-300"
+              )}
+            >
+              🇪🇸 ES
+            </button>
+            <button
+              onClick={() => !showTranslation && onToggleTranslation()}
+              className={cn(
+                "px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all duration-300",
+                showTranslation
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
+                  : "text-slate-500 hover:text-slate-300"
+              )}
+            >
+              🇷🇺 RU
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="relative group">
         <h2
           className={cn(
             fontSizeClasses[fontSize as keyof typeof fontSizeClasses] || fontSizeClasses[1],
-            "font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300",
-            isTransitioning ? 'opacity-0' : 'opacity-100',
-            onToggleTranslation && "pr-12"
+            "font-semibold leading-snug text-white/95 whitespace-pre-line transition-all duration-300",
+            isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0',
           )}
         >
-          {text}
+          {renderSmartText(text)}
         </h2>
-
-        {/* Кнопка перевода (если нужна) */}
-        {onToggleTranslation && (
-          <button
-            onClick={onToggleTranslation}
-            className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
-            title={translationLabel || (showTranslation ? "Показать оригинал" : "Показать перевод")}
-          >
-            <Languages className="w-3 h-3" />
-            <span>{showTranslation ? "ES" : "RU"}</span>
-          </button>
-        )}
       </div>
     </div>
   );
 }
-
-

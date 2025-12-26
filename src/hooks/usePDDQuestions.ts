@@ -36,4 +36,20 @@ export function usePDDRandomQuestions(country: CountryCode, count: number = 20) 
   });
 }
 
+export function usePDDSequentialQuestions(country: CountryCode, enabled: boolean = true) {
+  return useQuery({
+    queryKey: ['pdd-sequential-questions', country],
+    queryFn: async (): Promise<UniversalQuestion[]> => {
+      const strategy = getPDDStrategy(country);
+      if (strategy.getSequentialQuestions) {
+        return strategy.getSequentialQuestions(country);
+      }
+      // Fallback to random if not implemented
+      return strategy.getRandomQuestions(country, 800);
+    },
+    enabled: !!country && enabled,
+    staleTime: 30 * 60 * 1000, // Long stale time for full database
+  });
+}
+
 

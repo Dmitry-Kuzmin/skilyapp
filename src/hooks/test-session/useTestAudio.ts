@@ -1,25 +1,44 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
-// Кэш в памяти: текст -> data uri (Base64)
-const audioCache = new Map<string, string>();
+// Global AudioContext to persist across re-renders and avoid multiple instances
+let globalAudioCtx: AudioContext | null = null;
+
+// Cache for decoded audio buffers (more efficient than base64 strings)
+const audioBufferCache = new Map<string, AudioBuffer>();
 
 /**
- * Вспомогательная функция для конвертации ArrayBuffer в Base64.
- * Необходима для работы аудио в Telegram iOS (WKWebView).
+ * Helper to get or create the global AudioContext.
+ * Uses webkit prefix for Safari compatibility.
  */
-function arrayBufferToBase64(buffer: ArrayBuffer) {
-    let binary = '';
-    const bytes = new Uint8Array(buffer);
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
+const getAudioContext = (): AudioContext => {
+    if (!globalAudioCtx) {
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        globalAudioCtx = new AudioContextClass();
     }
-    return window.btoa(binary);
-}
+    return globalAudioCtx;
+};
 
 /**
- * Хук для озвучки вопросов в тестах.
- * Приоритет: Neural TTS (Microsoft Edge API) -> Система (SpeechSynthesis)
+ * CRITICAL: Unlock/Resume AudioContext on user interaction.
+ * Safari and Chrome suspend AudioContext until user interaction.
+ * Must be called BEFORE any async operations (fetch, etc.)
+ */
+const unlockAudioContext = async (): Promise<void> => {
+    const ctx = getAudioContext();
+    if (ctx.state === 'suspended') {
+        try {
+            await ctx.resume();
+            console.log('[TTS] AudioContext resumed successfully');
+        } catch (e) {
+            console.warn('[TTS] Failed to resume AudioContext:', e);
+        }
+    }
+};
+
+/**
+ * Hook for voice-over in tests.
+ * Uses Web Audio API to solve Safari/Chrome autoplay policy issues.
+ * Priority: Neural TTS (Edge API) -> System (SpeechSynthesis fallback)
  */
 export const useTestAudio = (
     voiceOver: boolean,
@@ -27,12 +46,12 @@ export const useTestAudio = (
     language: 'ru' | 'es' | 'en' = 'es'
 ) => {
     const hasSpokenRef = useRef<string>('');
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-    const fallbackTimeoutRef = useRef<any>(null);
+    const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
+    const isPlayingRef = useRef(false);
 
-    // Вспомогательная функция для выбора системного голоса (fallback)
-    const getSystemVoice = () => {
+    // Get system voice for fallback
+    const getSystemVoice = useCallback(() => {
         if (typeof window === 'undefined' || !window.speechSynthesis) return null;
         const voices = window.speechSynthesis.getVoices();
 
@@ -43,15 +62,16 @@ export const useTestAudio = (
         };
 
         const targets = langMap[language] || [];
-        for (const target of voices) {
-            const isTarget = targets.some(t => target.lang.includes(t) || target.name.includes(target));
-            if (isTarget) return target;
+        for (const target of targets) {
+            const found = voices.find(v => v.lang.includes(target) || v.name.includes(target));
+            if (found) return found;
         }
 
         return voices.find(v => v.lang.startsWith(language));
-    };
+    }, [language]);
 
-    const playFallback = (text: string) => {
+    // Fallback to SpeechSynthesis (robot voice)
+    const playFallback = useCallback((text: string) => {
         if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
 
         window.speechSynthesis.cancel();
@@ -68,32 +88,35 @@ export const useTestAudio = (
         utterance.rate = 1.0;
         utterance.pitch = 1.0;
         window.speechSynthesis.speak(utterance);
-    };
+    }, [getSystemVoice, language]);
 
-    const stopAll = () => {
-        // Отмена активного запроса
+    // Stop all audio playback
+    const stopAll = useCallback(() => {
+        // Abort pending fetch
         if (abortControllerRef.current) {
             abortControllerRef.current.abort();
             abortControllerRef.current = null;
         }
-        // Остановка HTML5 Audio
-        if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current.src = '';
-            audioRef.current = null;
+
+        // Stop Web Audio source
+        if (sourceNodeRef.current) {
+            try {
+                sourceNodeRef.current.stop();
+            } catch {
+                // Ignore - might already be stopped
+            }
+            sourceNodeRef.current = null;
         }
-        // Очистка таймаута
-        if (fallbackTimeoutRef.current) {
-            clearTimeout(fallbackTimeoutRef.current);
-            fallbackTimeoutRef.current = null;
-        }
-        // Остановка SpeechSynthesis
+
+        // Stop SpeechSynthesis
         if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
             window.speechSynthesis.cancel();
         }
-    };
 
-    // Предзагрузка голосов
+        isPlayingRef.current = false;
+    }, []);
+
+    // Preload system voices
     useEffect(() => {
         const loadVoices = () => {
             if (typeof window !== 'undefined' && window.speechSynthesis) {
@@ -111,6 +134,7 @@ export const useTestAudio = (
         };
     }, []);
 
+    // Main effect for playing audio
     useEffect(() => {
         if (typeof window === 'undefined') return;
 
@@ -119,64 +143,65 @@ export const useTestAudio = (
             return;
         }
 
-        // Не озвучиваем тот же текст повторно
+        // Don't repeat the same text
         if (hasSpokenRef.current === currentQuestionText) return;
 
         stopAll();
 
-        const playNeuralTTS = async () => {
+        const playWithWebAudio = async () => {
             const cacheKey = `${language}:${currentQuestionText}`;
+            isPlayingRef.current = true;
 
             try {
-                let audioDataUri = audioCache.get(cacheKey);
+                // 1. CRITICAL: Resume AudioContext IMMEDIATELY (sync with user interaction)
+                // This preserves the "user gesture token" before any async operations
+                await unlockAudioContext();
 
-                if (!audioDataUri) {
+                const ctx = getAudioContext();
+                let audioBuffer = audioBufferCache.get(cacheKey);
+
+                // 2. Fetch audio if not cached
+                if (!audioBuffer) {
                     abortControllerRef.current = new AbortController();
+
                     const response = await fetch(
                         `/api/tts?text=${encodeURIComponent(currentQuestionText)}&lang=${language}`,
                         { signal: abortControllerRef.current.signal }
                     );
 
-                    if (!response.ok) throw new Error(`TTS API error: ${response.status}`);
+                    if (!response.ok) {
+                        throw new Error(`TTS API error: ${response.status}`);
+                    }
 
                     const arrayBuffer = await response.arrayBuffer();
-                    const base64 = arrayBufferToBase64(arrayBuffer);
-                    audioDataUri = `data:audio/mpeg;base64,${base64}`;
-                    audioCache.set(cacheKey, audioDataUri);
+
+                    // 3. Decode audio data
+                    audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+                    audioBufferCache.set(cacheKey, audioBuffer);
                 }
 
-                const audio = new Audio(audioDataUri);
-                audioRef.current = audio;
+                // 4. Create and play source node
+                const source = ctx.createBufferSource();
+                source.buffer = audioBuffer;
+                source.connect(ctx.destination);
 
-                // Предохранитель (Fallback Timeout):
-                // Увеличиваем до 8 секунд, чтобы дождаться качественного голоса
-                fallbackTimeoutRef.current = setTimeout(() => {
-                    if (audio.paused || audio.readyState < 3) {
-                        console.warn('[TTS] Neural timeout (8s), falling back to system voice');
-                        stopAll();
-                        playFallback(currentQuestionText);
-                    }
-                }, 8000);
+                sourceNodeRef.current = source;
+                source.start(0);
 
-                audio.onplay = () => {
-                    if (fallbackTimeoutRef.current) {
-                        clearTimeout(fallbackTimeoutRef.current);
-                        fallbackTimeoutRef.current = null;
-                    }
-                };
-
-                audio.onerror = () => {
-                    console.error('[TTS] Audio element error, falling back...');
-                    stopAll();
-                    playFallback(currentQuestionText);
-                };
-
-                await audio.play();
                 hasSpokenRef.current = currentQuestionText;
-            } catch (err: any) {
-                if (err.name === 'AbortError') return;
 
-                console.warn('[TTS] Neural failed to play:', err);
+                source.onended = () => {
+                    isPlayingRef.current = false;
+                    sourceNodeRef.current = null;
+                };
+
+            } catch (err: any) {
+                if (err.name === 'AbortError') {
+                    isPlayingRef.current = false;
+                    return;
+                }
+
+                console.warn('[TTS] Web Audio failed, falling back to SpeechSynthesis:', err.message);
                 stopAll();
                 playFallback(currentQuestionText);
                 hasSpokenRef.current = currentQuestionText;
@@ -185,13 +210,16 @@ export const useTestAudio = (
             }
         };
 
-        playNeuralTTS();
+        playWithWebAudio();
 
         return () => stopAll();
-    }, [voiceOver, currentQuestionText, language]);
+    }, [voiceOver, currentQuestionText, language, stopAll, playFallback]);
 
-    // Чистим при размонтировании
+    // Cleanup on unmount
     useEffect(() => {
         return () => stopAll();
-    }, []);
+    }, [stopAll]);
+
+    // Expose unlock function for manual triggering on user interaction
+    return { unlockAudio: unlockAudioContext };
 };

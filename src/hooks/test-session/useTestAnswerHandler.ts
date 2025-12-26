@@ -1,9 +1,8 @@
 import { useCallback, useRef } from 'react';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabase/client';
-import { saveTestProgress } from '@/lib/localTestProgress';
-import { triggerHapticFeedback } from '@/lib/telegram';
-import { isTelegramMiniApp } from '@/lib/telegram';
+import { supabase } from '@/integrations/supabase/client';
+import { saveTestProgress, clearTestProgress } from "@/utils/testStorage";
+import { triggerHapticFeedback, isTelegramMiniApp } from '@/lib/telegram';
 import type { QuestionData, Answer } from '@/types/question';
 
 // Types for Russia Exam
@@ -57,7 +56,9 @@ interface UseTestAnswerHandlerOptions {
     setShowChallengeBankNotification: (show: boolean) => void;
 
     // Timer
+    // Timer
     addPenalty: (minutes: number) => void;
+    addTime?: (seconds: number) => void;
 
     // Navigation
     nextQuestion: () => void;
@@ -103,6 +104,7 @@ export function useTestAnswerHandler(options: UseTestAnswerHandlerOptions): UseT
         setIsQuestionBookmarked,
         setShowChallengeBankNotification,
         addPenalty,
+        addTime,
         nextQuestion,
         isPracticeLikeMode,
         isRussia = false,
@@ -150,7 +152,7 @@ export function useTestAnswerHandler(options: UseTestAnswerHandlerOptions): UseT
                     // Add penalty time
                     if (result.extraTime) {
                         addPenalty(result.extraTime / 60); // Hook expects minutes
-                        toast.info(`+${Math.floor(result.extraTime / 60)} минут добавлено за ошибку`, {
+                        toast.info(`+ ${Math.floor(result.extraTime / 60)} минут добавлено за ошибку`, {
                             icon: "⏱️",
                             className: "bg-orange-500 text-white border-none",
                         });
@@ -221,7 +223,7 @@ export function useTestAnswerHandler(options: UseTestAnswerHandlerOptions): UseT
                         isCorrect: a.isCorrect,
                         timestamp: Date.now(),
                     })),
-                    currentIndex,
+                    currentIndex + 1,
                     startTime
                 ).catch((error) => {
                     console.error('[TestSession] Error saving progress locally:', error);
@@ -255,6 +257,34 @@ export function useTestAnswerHandler(options: UseTestAnswerHandlerOptions): UseT
             }
 
             // Mode-specific behavior
+            if (mode === "marathon" && !isCorrect) {
+                if (testInfo?.id) {
+                    clearTestProgress(testInfo.id).catch(console.error);
+                }
+                setFailureReason("Марафон окончен: ошибка недопустима. Попробуйте еще раз!");
+                setShowFailureModal(true);
+                return;
+            }
+
+            if (mode === "blitz") {
+                if (isCorrect) {
+                    // Bonus logic
+                    if (addTime) addTime(10);
+                    toast.success("+10 сек", { duration: 1000, icon: "⚡️" });
+                } else {
+                    // Penalty logic
+                    if (addTime) addTime(-10);
+                    toast.error("-10 сек", { duration: 1000, icon: "📉" });
+                }
+
+                // Save progress
+                // The saveTestProgress call for blitz mode is already handled above for all modes.
+                // await saveTestProgress(testInfo.id, updatedAnswers, currentIndex + 1, startTime);
+
+                // Check finish condition (all answered)
+                // Logic handled by useEffect in TestSession usually, or explicit finishTest
+            }
+
             if (isPracticeLikeMode) {
                 // Practice mode - stay on question to show feedback
             } else {

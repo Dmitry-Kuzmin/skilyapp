@@ -270,6 +270,7 @@ const DashboardContent = memo(function DashboardContent() {
                   onStartQuiz={handleStartTest}
                   onClaimReward={handleClaimBonus}
                   hasClaimedToday={hasClaimedToday}
+                  isClaiming={claimingBonus}
                   onGetPremium={() => setPaywallOpen(true)}
                   profileId={profileId}
                   readinessStatus={readiness ? {

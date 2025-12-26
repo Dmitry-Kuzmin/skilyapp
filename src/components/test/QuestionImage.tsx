@@ -98,8 +98,8 @@ export const QuestionImage = memo(function QuestionImage({
     <>
       <Dialog open={isZoomed} onOpenChange={setIsZoomed}>
         <div className={cn(
-          "relative rounded-2xl shadow-md overflow-hidden group/img",
-          compact ? 'w-full' : 'mb-4 sm:mb-6',
+          "relative rounded-xl overflow-hidden group/img ring-1 ring-white/5",
+          compact ? 'w-full' : 'mb-6',
           className
         )}>
           <DialogTrigger asChild>
@@ -127,6 +127,9 @@ export const QuestionImage = memo(function QuestionImage({
                 }}
               />
 
+              {/* Dark Gradient Overlay at bottom to blend with text */}
+              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
+
               {/* Overlay with Zoom Icon */}
               <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/5 transition-colors flex items-center justify-center pointer-events-none">
                 <div className="bg-white/90 dark:bg-black/80 p-2 rounded-full opacity-0 group-hover/img:opacity-100 transform translate-y-4 group-hover/img:translate-y-0 transition-all duration-300">
@@ -137,23 +140,27 @@ export const QuestionImage = memo(function QuestionImage({
           </DialogTrigger>
         </div>
 
-        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 overflow-hidden bg-black/95 border-none dark:bg-black/95">
-          <div className="relative w-full h-full flex items-center justify-center p-4">
-            <img
-              src={imageSrc}
-              alt={alt}
-              className="max-w-full max-h-[85vh] object-contain animate-in zoom-in-95 duration-300"
-            />
-            <button
-              onClick={() => setIsZoomed(false)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
-            <div className="absolute bottom-4 left-0 right-0 text-center">
-              <p className="text-white/60 text-xs sm:text-sm">Нажмите в любое место, чтобы закрыть</p>
-            </div>
-          </div>
+        {/* Fullscreen Adaptive Lightbox */}
+        <DialogContent
+          hideCloseButton
+          className="max-w-none w-screen h-screen p-0 bg-black/95 border-none flex items-center justify-center overflow-hidden"
+          onClick={() => setIsZoomed(false)}
+        >
+          <img
+            src={imageSrc}
+            alt={alt}
+            onClick={(e) => e.stopPropagation()}
+            className="max-w-[90vw] max-h-[90vh] w-auto h-auto object-contain animate-in zoom-in-95 duration-300 cursor-default"
+          />
+          <button
+            onClick={() => setIsZoomed(false)}
+            className="absolute top-4 right-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <p className="absolute bottom-6 left-0 right-0 text-center text-white/40 text-sm">
+            Нажмите в любое место, чтобы закрыть
+          </p>
         </DialogContent>
       </Dialog>
     </>

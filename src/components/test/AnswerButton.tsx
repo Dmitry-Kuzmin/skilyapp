@@ -54,24 +54,25 @@ export const AnswerButton = memo(function AnswerButton({
           ? "p-2.5 sm:p-3 rounded-lg"
           : "p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl",
         // Состояния результата
+        // Состояния результата
         showResult
           ? isCorrect
-            ? "border-emerald-500 bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 shadow-xl shadow-emerald-500/25 animate-fade-in"
+            ? "border-emerald-500 bg-gradient-to-br from-emerald-500/25 to-emerald-500/5 shadow-xl shadow-emerald-500/20 ring-2 ring-emerald-500/20"
             : isSelected
-              ? "border-red-500 bg-gradient-to-r from-red-500/15 to-red-500/5 shadow-xl shadow-red-500/25 animate-fade-in"
-              : "border-border/20 opacity-40"
+              ? "border-red-500 bg-gradient-to-br from-red-500/25 to-red-500/5 shadow-xl shadow-red-500/20 ring-2 ring-red-500/20"
+              : "border-white/5 opacity-40 grayscale"
           : isSelected
-            ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
-            : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 hover:border-blue-500/50 dark:hover:border-blue-400/50 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 hover:scale-[1.01] hover:shadow-md",
-        !disabled && !showResult && "cursor-pointer active:scale-[0.98] active:shadow-inner",
+            ? "border-blue-500 bg-gradient-to-br from-blue-600/20 to-blue-600/5 shadow-xl shadow-blue-500/20 scale-[1.01] ring-2 ring-blue-500/30"
+            : "border-white/10 bg-slate-800/40 hover:border-white/30 hover:bg-slate-800/60 hover:scale-[1.005] active:scale-[0.99]",
+        !disabled && !showResult && "cursor-pointer transition-all duration-200",
         className
       )}
     >
-      <div className="flex items-center justify-between gap-2 sm:gap-3">
+      <div className="flex items-center justify-between gap-3 px-1">
         <span className={cn(
           "flex-1",
           fontSizeClasses[fontSize as keyof typeof fontSizeClasses] || fontSizeClasses[1],
-          "leading-relaxed transition-opacity duration-300"
+          "leading-snug text-white/90 group-hover:text-white transition-colors"
         )}>
           {text}
         </span>

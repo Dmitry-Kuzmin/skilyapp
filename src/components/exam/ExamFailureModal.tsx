@@ -1,14 +1,14 @@
+/**
+ * ExamFailureModal — Robust Layout with AlertDialog
+ */
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { XCircle, ArrowRight, Ban } from 'lucide-react';
+import { ArrowRight, XOctagon } from 'lucide-react';
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+    AlertDialog,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
 
 interface ExamFailureModalProps {
@@ -23,69 +23,64 @@ export function ExamFailureModal({
     onViewResults,
 }: ExamFailureModalProps) {
     return (
-        <AnimatePresence>
-            {open && (
-                <Dialog open={open} onOpenChange={() => { }}>
-                    <DialogContent
-                        className="sm:max-w-md border-none bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl rounded-t-[2rem] sm:rounded-[2rem] p-0"
-                        onInteractOutside={(e) => e.preventDefault()}
-                        onEscapeKeyDown={(e) => e.preventDefault()}
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 via-transparent to-red-500/10 pointer-events-none" />
+        <AlertDialog open={open} onOpenChange={() => { }}>
+            <AlertDialogContent
+                className={cn(
+                    "max-w-[360px] p-5",
+                    "bg-slate-900/95 backdrop-blur-xl",
+                    "border border-white/10",
+                    "rounded-3xl",
+                    "overflow-visible"
+                )}
+            >
+                <AlertDialogHeader className="space-y-4 text-center">
+                    {/* Icon */}
+                    <div className="flex justify-center">
+                        <div className="p-4 rounded-full bg-gradient-to-b from-red-500 to-red-600 shadow-lg shadow-red-500/30">
+                            <XOctagon className="w-8 h-8 text-white" />
+                        </div>
+                    </div>
 
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                            className="relative z-10 p-2"
-                        >
-                            <DialogHeader className="space-y-4">
-                                <div className="flex flex-col items-center text-center space-y-4">
-                                    <motion.div
-                                        animate={{
-                                            scale: [1, 1.1, 1],
-                                            rotate: [0, 10, -10, 0]
-                                        }}
-                                        transition={{ duration: 0.5, delay: 0.2 }}
-                                        className="p-4 rounded-3xl bg-red-500 shadow-lg shadow-red-500/30"
-                                    >
-                                        <Ban className="w-10 h-10 text-white" />
-                                    </motion.div>
+                    {/* Title */}
+                    <AlertDialogTitle className="text-xl font-bold text-white">
+                        Экзамен завершён
+                    </AlertDialogTitle>
 
-                                    <div className="space-y-1">
-                                        <DialogTitle className="text-2xl font-black tracking-tight text-slate-900 dark:text-white uppercase">
-                                            Экзамен не сдан
-                                        </DialogTitle>
-                                        <DialogDescription className="text-slate-500 dark:text-slate-400 font-medium text-base">
-                                            {reason}
-                                        </DialogDescription>
-                                    </div>
-                                </div>
+                    {/* Reason */}
+                    <div className="space-y-2">
+                        <p className="text-red-300 font-medium text-sm leading-relaxed">
+                            {reason}
+                        </p>
 
-                                <div className="bg-red-500/10 rounded-2xl p-4 border border-red-500/20 text-center">
-                                    <p className="text-sm text-red-600 dark:text-red-400 font-medium">
-                                        К сожалению, вы допустили критическое количество ошибок. Попробуйте еще раз!
-                                    </p>
-                                </div>
-                            </DialogHeader>
+                        <p className="text-slate-400 text-xs leading-relaxed">
+                            К сожалению, вы допустили критическое количество ошибок.
+                            Попробуйте ещё раз!
+                        </p>
+                    </div>
+                </AlertDialogHeader>
 
-                            <div className="mt-8 pb-6 px-4 sm:px-0 sm:pb-0">
-                                <Button
-                                    onClick={onViewResults}
-                                    className="w-full h-14 rounded-2xl text-lg font-black transition-all duration-300 shadow-xl bg-red-600 hover:bg-red-700 text-white shadow-red-600/20 active:scale-95"
-                                >
-                                    <motion.div
-                                        className="flex items-center gap-2"
-                                        whileHover={{ x: 5 }}
-                                    >
-                                        К РЕЗУЛЬТАТАМ <ArrowRight className="w-5 h-5" />
-                                    </motion.div>
-                                </Button>
-                            </div>
-                        </motion.div>
-                    </DialogContent>
-                </Dialog>
-            )}
-        </AnimatePresence>
+                {/* Action Button */}
+                <button
+                    type="button"
+                    onClick={() => {
+                        console.log('ExamFailureModal: onViewResults clicked');
+                        onViewResults();
+                    }}
+                    className={cn(
+                        "w-full h-12 mt-4 rounded-xl",
+                        "bg-gradient-to-b from-blue-500 to-blue-600",
+                        "text-white font-semibold text-base",
+                        "shadow-lg shadow-blue-500/25",
+                        "hover:brightness-110",
+                        "active:scale-[0.98]",
+                        "transition-all duration-200",
+                        "flex items-center justify-center gap-2",
+                        "cursor-pointer"
+                    )}
+                >
+                    К результатам <ArrowRight className="w-4 h-4" />
+                </button>
+            </AlertDialogContent>
+        </AlertDialog>
     );
 }

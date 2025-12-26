@@ -98,7 +98,7 @@ export function UniversalQuestionCard({
       )}
 
       {/* Вертикальный layout: Изображение -> Текст -> Ответы */}
-      <div className="space-y-4 md:space-y-6">
+      <div className="space-y-3 md:space-y-4">
         {/* Изображение сверху (если есть) */}
         {image && (
           <div className="w-full">
@@ -114,19 +114,16 @@ export function UniversalQuestionCard({
             showTranslation={showTranslation}
             onToggleTranslation={onToggleTranslation}
             translationLabel={translationLabel}
-            className="mb-4 sm:mb-6"
+            className="mb-6 sm:mb-8"
           />
 
-          {/* Ответы */}
+          {/* Ответы - компактные отступы */}
           <div className={cn(
-            "space-y-2 sm:space-y-3 mb-4 sm:mb-6",
-            isCompact && "space-y-2"
+            "space-y-3 mb-6",
+            isCompact && "space-y-2 mb-4"
           )}>
             {answers.map((answer, index) => (
-              <div key={answer.id} className="relative group">
-                <div className="absolute left-[-2rem] top-1/2 -translate-y-1/2 hidden lg:flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">
-                  {index + 1}
-                </div>
+              <div key={answer.id} className="relative">
                 <AnswerButton
                   id={answer.id}
                   text={answer.text}
@@ -142,11 +139,21 @@ export function UniversalQuestionCard({
             ))}
           </div>
 
-          {/* Объяснение или кнопка Lumi - показываем после ответа */}
-          {selectedAnswerId && (
+          {/* Sticky Footer для кнопки Responder на мобильных */}
+          {footer && (
+            <div className={cn(
+              "sticky bottom-0 left-0 right-0 z-50 pt-4 pb-2 bg-gradient-to-t from-slate-900 via-slate-900 to-transparent sm:relative sm:bg-transparent sm:pt-0 sm:z-10",
+              isExam && "mt-auto"
+            )}>
+              {footer}
+            </div>
+          )}
+
+          {/* Объяснение - НЕ показываем Skily в exam режиме */}
+          {selectedAnswerId && !isExam && (
             <div className="mt-2 flex justify-end">
               {explanation && !onShowExplanation ? (
-                // Простое объяснение, если нет кнопки Lumi
+                // Простое объяснение
                 <div className="w-full p-4 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
                   <p className="text-xs sm:text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
                     💡 Объяснение:
@@ -156,7 +163,7 @@ export function UniversalQuestionCard({
                   </p>
                 </div>
               ) : onShowExplanation ? (
-                // Компактная кнопка Lumi для открытия объяснения
+                // Кнопка Skily
                 <button
                   onClick={onShowExplanation}
                   className="group flex items-center gap-2 px-4 py-2 rounded-full bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/30 hover:bg-orange-100 dark:hover:bg-orange-500/20 transition-all duration-300"
@@ -175,7 +182,7 @@ export function UniversalQuestionCard({
         </div>
       </div>
 
-      {/* Footer (для кнопок навигации, подсказок и т.д.) */}
+      {/* Footer для кнопок */}
       {footer && (
         <div className="mt-4">
           {footer}

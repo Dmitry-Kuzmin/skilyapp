@@ -32,12 +32,13 @@ interface QuestionWithOptions {
 export function useTestQuestions(options: {
   topicId?: string | null;
   questionCount?: number;
+  country?: string | null; // Добавляем параметр страны
   enabled?: boolean;
 }) {
-  const { topicId, questionCount = 30, enabled = true } = options;
+  const { topicId, questionCount = 30, country, enabled = true } = options;
 
   return useQuery<QuestionWithOptions[]>({
-    queryKey: ["test-questions", topicId, questionCount],
+    queryKey: ["test-questions", topicId, questionCount, country], // Добавляем страну в ключ кэша
     queryFn: async () => {
       // ОПТИМИЗАЦИЯ: Используем join для загрузки вопросов с topics и answer_options одним запросом
       let query = supabase
@@ -47,6 +48,12 @@ export function useTestQuestions(options: {
           topics (title_ru, title_es),
           answer_options (*)
         `);
+
+      // Фильтр по стране (ВАЖНО!)
+      if (country) {
+        const dbCountry = country === 'russia' ? 'ru' : country === 'spain' ? 'es' : country;
+        query = query.eq("country", dbCountry);
+      }
 
       // Фильтр по теме, если указана
       if (topicId) {
@@ -158,9 +165,9 @@ export function useSequentialTestQuestions(testId: string | null) {
           answer_options: options,
           topics: testData.topics
             ? {
-                title_ru: testData.topics.title_ru,
-                title_es: testData.topics.title_es,
-              }
+              title_ru: testData.topics.title_ru,
+              title_es: testData.topics.title_es,
+            }
             : null,
         };
       });

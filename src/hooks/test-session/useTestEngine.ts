@@ -34,6 +34,7 @@ interface UseTestEngineResult {
     recordAnswer: (answer: Answer) => void;
     jumpToQuestion: (index: number, resetState?: boolean) => void;
     nextQuestion: () => boolean; // returns false if at end
+    navigateNext: (options?: { onFinish?: () => void | Promise<void>; resetUI?: () => void }) => void;
     prevQuestion: () => boolean; // returns false if at start
     resetEngine: () => void;
 
@@ -175,6 +176,7 @@ export const useTestEngine = ({
         recordAnswer,
         jumpToQuestion,
         nextQuestion,
+        navigateNext,
         prevQuestion,
         resetEngine,
 

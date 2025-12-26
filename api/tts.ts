@@ -113,12 +113,31 @@ function generateAudio(text: string, voice: string, lang: string): Promise<Buffe
         ws.on('message', (data, isBinary) => {
             if (isBinary) {
                 const buffer = data as Buffer;
+
+                // CRITICAL FIX: Find the start of audio data
+                // The header always ends with "Path:audio\r\n" followed by binary data
                 const separator = "Path:audio\r\n";
-                const index = buffer.indexOf(separator);
-                if (index >= 0) {
-                    const audioPart = buffer.subarray(index + separator.length);
-                    chunks.push(audioPart);
+                const headerIndex = buffer.indexOf(separator);
+
+                if (headerIndex >= 0) {
+                    let audioStart = headerIndex + separator.length;
+
+                    // Additional safety: Find MP3 frame sync (0xFF followed by 0xFx)
+                    // This ensures we skip any remaining metadata bytes
+                    for (let i = audioStart; i < buffer.length - 1; i++) {
+                        if (buffer[i] === 0xFF && (buffer[i + 1] & 0xE0) === 0xE0) {
+                            // Found MPEG frame sync bytes (0xFF 0xE0-0xFF range)
+                            audioStart = i;
+                            break;
+                        }
+                    }
+
+                    const audioPart = buffer.subarray(audioStart);
+                    if (audioPart.length > 0) {
+                        chunks.push(audioPart);
+                    }
                 }
+                // NOTE: Chunks without "Path:audio" header are metadata frames - ignore them
             } else {
                 const message = data.toString();
                 if (message.includes('Path:turn.end')) {

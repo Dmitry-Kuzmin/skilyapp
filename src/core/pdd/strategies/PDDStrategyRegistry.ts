@@ -5,7 +5,9 @@
 
 import { CountryCode } from '@/types/pdd';
 import { PDDDataStrategy } from '../PDDDataStrategy';
-import { RussiaLegacyStrategy } from './RussiaLegacyStrategy';
+import { RussiaUnifiedStrategy } from './RussiaUnifiedStrategy';
+// Legacy import kept for fallback if needed:
+// import { RussiaLegacyStrategy } from './RussiaLegacyStrategy';
 import { DefaultCountryStrategy } from './DefaultCountryStrategy';
 
 /**
@@ -13,16 +15,16 @@ import { DefaultCountryStrategy } from './DefaultCountryStrategy';
  * Каждая страна имеет свою стратегию получения данных
  * 
  * Стратегии регистрируются автоматически:
- * - Россия: RussiaLegacyStrategy (работает с legacy таблицами)
+ * - Россия: RussiaUnifiedStrategy (использует unified таблицу questions_new)
  * - Остальные страны: DefaultCountryStrategy (работает с единой таблицей pdd_questions)
  */
 class PDDStrategyRegistry {
   private strategies: Map<CountryCode, PDDDataStrategy> = new Map();
 
   constructor() {
-    // РФ - уникальная стратегия со старой БД
-    this.register('russia', new RussiaLegacyStrategy());
-    
+    // РФ - unified стратегия (использует questions_new, country='ru')
+    this.register('russia', new RussiaUnifiedStrategy());
+
     // Остальные страны - стандартные, используют единую таблицу
     // Регистрируются автоматически при первом обращении через getStrategy()
     // Или можно зарегистрировать заранее:
@@ -43,7 +45,7 @@ class PDDStrategyRegistry {
    */
   getStrategy(country: CountryCode): PDDDataStrategy {
     let strategy = this.strategies.get(country);
-    
+
     if (!strategy) {
       // Автоматически создаем DefaultCountryStrategy для новых стран
       // Это позволяет добавлять страны без изменения кода
@@ -51,7 +53,7 @@ class PDDStrategyRegistry {
       strategy = new DefaultCountryStrategy(country);
       this.register(country, strategy);
     }
-    
+
     return strategy;
   }
 
