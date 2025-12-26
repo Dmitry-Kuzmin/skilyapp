@@ -457,13 +457,13 @@ All colors MUST be HSL.
      * Вычисляем padding как максимум из:
      * 1. --tg-content-safe-area-inset-top (высота UI Telegram: кнопка назад)
      * 2. --tg-safe-area-inset-top (системный отступ: notch/Dynamic Island)
-     * 3. 56px - минимальный fallback для мобильных
+     * 3. 72px - минимальный fallback для мобильных (увеличен для комфорта)
      * 
      * ВАЖНО: Используем max() для выбора максимального значения
      */
     padding-top: max(var(--tg-content-safe-area-inset-top, 0px),
         var(--tg-safe-area-inset-top, 0px),
-        56px) !important;
+        72px) !important;
 
     /* Анимируем изменения padding для плавного UX */
     transition: padding-top 0.15s ease-out;

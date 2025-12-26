@@ -208,6 +208,7 @@ export const UnifiedSettingsDrawer: React.FC = () => {
                 onOpenChange={(open) => !open && closeSettings()}
                 shouldScaleBackground={false}
                 dismissible={true}
+                dismissibleThreshold={0.2} // Легкое закрытие - 20% свайпа достаточно
             >
                 <DrawerContent className="h-[92dvh] max-h-[92dvh]">
                     <MobileContent />

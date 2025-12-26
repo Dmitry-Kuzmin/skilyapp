@@ -6,10 +6,25 @@ import { cn } from "@/lib/utils";
 interface DrawerProps extends React.ComponentProps<typeof DrawerPrimitive.Root> {
   /** Включить scale эффект фона при открытии (default: false из-за проблем с layout в Telegram) */
   shouldScaleBackground?: boolean;
+  /** 
+   * Порог (0-1) как далеко нужно свайпнуть для закрытия
+   * Default: 0.5 (50%)
+   * Для Telegram лучше 0.25 (25%) для более чувствительного закрытия
+   */
+  dismissibleThreshold?: number;
 }
 
-const Drawer = ({ shouldScaleBackground = false, ...props }: DrawerProps) => (
-  <DrawerPrimitive.Root shouldScaleBackground={shouldScaleBackground} {...props} />
+const Drawer = ({
+  shouldScaleBackground = false,
+  dismissibleThreshold = 0.25, // Уменьшенный порог для легкого закрытия
+  ...props
+}: DrawerProps) => (
+  <DrawerPrimitive.Root
+    shouldScaleBackground={shouldScaleBackground}
+    dismissible={true} // Явно включаем возможность закрытия
+    closeThreshold={dismissibleThreshold} // Используем dismissibleThreshold для closeThreshold
+    {...props}
+  />
 );
 Drawer.displayName = "Drawer";
 

@@ -66,6 +66,7 @@ export function ResponsiveModal({
         open={open}
         onOpenChange={onOpenChange}
         dismissible={!preventClose}
+        dismissibleThreshold={0.25} // Легкое закрытие - 25% свайпа достаточно
         snapPoints={snapPoints}
         activeSnapPoint={activeSnapPoint}
         setActiveSnapPoint={onSnapPointChange}
