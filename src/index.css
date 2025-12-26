@@ -475,7 +475,7 @@ All colors MUST be HSL.
     /* На dashboard BackButton скрыт, но нужен отступ от UI Telegram (кнопка Закрыть) */
     padding-top: max(var(--tg-safe-area-inset-top, 0px),
         env(safe-area-inset-top, 0px),
-        48px) !important;
+        72px) !important;
   }
 
   /* Исключение для duel-страниц - они сами управляют отступами */
