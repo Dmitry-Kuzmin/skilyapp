@@ -469,14 +469,15 @@ All colors MUST be HSL.
     transition: padding-top 0.15s ease-out;
   }
 
-  /* На Dashboard (главная) — кнопка назад скрыта, меньше отступ */
-  html.telegram-mobile-app.dashboard-active .telegram-main-content,
-  body.telegram-mobile-app.dashboard-active .telegram-main-content {
-    /* На dashboard BackButton скрыт, но нужен отступ от UI Telegram (кнопка Закрыть) */
-    padding-top: max(var(--tg-safe-area-inset-top, 0px),
-        env(safe-area-inset-top, 0px),
-        72px) !important;
-  }
+  /* УДАЛЕНО: Специальное правило для Dashboard
+   * Теперь Dashboard использует глобальное правило выше, которое корректно
+   * учитывает ОБА значения:
+   * - --tg-content-safe-area-inset-top (UI Telegram: кнопка Закрыть)
+   * - --tg-safe-area-inset-top (системный отступ: челка/Dynamic Island)
+   * 
+   * Это обеспечивает автоматический расчёт для разных устройств!
+   */
+
 
   /* Исключение для duel-страниц - они сами управляют отступами */
   html.telegram-mobile-app.duel-active .telegram-main-content,

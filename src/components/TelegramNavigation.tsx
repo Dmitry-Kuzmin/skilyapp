@@ -162,14 +162,10 @@ export const TelegramNavigation = () => {
     document.body.classList.toggle('duel-active', isDuelPage);
     document.documentElement.classList.toggle('duel-active', isDuelPage);
 
-    document.body.classList.toggle('dashboard-active', isDashboard);
-    document.documentElement.classList.toggle('dashboard-active', isDashboard);
-
     document.body.classList.toggle('fullscreen-mode', isFullscreenMode);
     document.documentElement.classList.toggle('fullscreen-mode', isFullscreenMode);
 
     console.log('[TelegramNavigation] 🎯 CSS classes updated:', {
-      isDashboard,
       isDuelPage,
       isFullscreenMode,
       pathname: location.pathname,
