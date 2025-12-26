@@ -599,18 +599,20 @@ const Tests = () => {
                           </div>
                         </div>
 
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleBannerClick();
-                          }}
-                          className="group relative h-16 px-10 rounded-full bg-white text-indigo-600 font-black text-lg shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 overflow-hidden w-fit"
-                        >
-                          <Play className="w-6 h-6 fill-indigo-600 font-black" />
-                          <span>{t('testsPage.startButton')}</span>
-                          <ArrowRight className="w-6 h-6" />
-                          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-indigo-100/50 to-transparent" />
-                        </button>
+                        {hasSelectedCount && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleBannerClick();
+                            }}
+                            className="group relative h-16 px-10 rounded-full bg-white text-indigo-600 font-black text-lg shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 overflow-hidden w-fit"
+                          >
+                            <Play className="w-6 h-6 fill-indigo-600 font-black" />
+                            <span>{t('testsPage.startButton')}</span>
+                            <ArrowRight className="w-6 h-6" />
+                            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-indigo-100/50 to-transparent" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   )}
@@ -675,7 +677,7 @@ const Tests = () => {
 
             {/* Other Test Modes Grid - Dashboard Style */}
             <div className="space-y-6">
-              <h3 className="text-2xl font-bold text-foreground flex items-center gap-3">
+              <h3 className="text-xl font-bold text-foreground flex items-center gap-3">
                 <div className="p-2 rounded-xl bg-card border border-border">
                   <Gamepad2 className="w-6 h-6 text-indigo-400" />
                 </div>
@@ -824,7 +826,7 @@ const Tests = () => {
                       )} />
 
                       {/* Large Watermark Icon */}
-                      <Icon className="absolute w-32 h-32 text-white/[0.03] group-hover:text-white/[0.05] -bottom-6 -right-6 rotate-12 transition-all duration-500" />
+                      <Icon className="absolute w-32 h-32 text-slate-200/10 dark:text-white/[0.03] group-hover:text-slate-300/20 dark:group-hover:text-white/[0.05] -bottom-6 -right-6 rotate-12 transition-all duration-500" />
 
                       <div className="relative z-10 flex flex-col h-full justify-between gap-6">
                         <div className="flex justify-between items-start">
