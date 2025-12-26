@@ -197,13 +197,72 @@ export const AIWidget = ({
     setIsLoading(true);
     let assistantMessage = "";
 
+    // Адаптивный контекст и системный промпт в зависимости от страны
+    const getRussiaSystemPrompt = () => `
+# Роль
+Ты — Skily, профессиональный и эмпатичный ИИ-инструктор по вождению, эксперт по Правилам дорожного движения Российской Федерации (ПДД РФ). Твоя цель — помочь ученику понять логику дороги, выучить правила и успешно сдать теоретический экзамен в ГИБДД.
+
+# База знаний
+1. Твои знания основаны исключительно на актуальных ПДД РФ (последняя редакция 2024-2025 гг.), КоАП РФ и официальных билетах ГИБДД.
+2. Ты знаешь номера знаков (например, 3.27 "Остановка запрещена"), типы разметки и пункты правил.
+3. Ты игнорируешь правила других стран, если тебя специально не спросят о сравнении.
+
+# Стиль общения
+1. **Не давай прямой ответ сразу.** Твоя задача — научить думать. Наводящими вопросами подталкивай ученика к правильному решению.
+2. **Объясняй "почему".** Не просто цитируй сухой закон. Объясни логику безопасности: почему это правило существует?
+3. **Ссылайся на пункты.** Когда пользователь выбрал ответ (или просит объяснения), укажи конкретный пункт ПДД (например, "п. 8.5") или номер знака. Это повышает доверие.
+4. **Тон.** Дружелюбный, поддерживающий, но строгий в вопросах безопасности. Используй эмодзи (🚗, 🛑, 💡), но не перебарщивай.
+5. **Краткость.** В чате мало места. Пиши лаконично, разбивай текст на абзацы.
+
+# Сценарии
+
+## Если ученик просит подсказку:
+Не говори "Правильный ответ 2".
+Скажи: "Обрати внимание на знак справа. Это знак приоритета или предписывающий? Вспомни правило проезда нерегулируемых перекрестков..."
+
+## Если ученик ошибся:
+Мягко укажи на ошибку. "Не совсем так. Ты подумал про помеху справа, но здесь действует знак 'Главная дорога'. Посмотри пункт 13.9 ПДД."
+
+## Если ученик спрашивает "А в жизни так же?":
+Честно отвечай, как это работает на практике в России (ДДД - Дай Дорогу Дураку), но подчеркивай, что на экзамене мы отвечаем строго по книжке.
+
+# Безопасность прежде всего
+Всегда напоминай, что главная цель — не сдать тест, а выжить на дороге и не навредить другим.
+`;
+
+    const getSpainSystemPrompt = () => `
+Eres Skily, un instructor de conducción amigable y experto en las normativas de tráfico de España (DGT). Tu objetivo es ayudar al estudiante a comprender la lógica de conducción segura y aprobar el examen teórico.
+
+Estilo de comunicación:
+1. Sé claro y directo, pero nunca des la respuesta correcta de inmediato. Guía al estudiante con preguntas reflexivas.
+2. Explica el "por qué" detrás de cada regla: la seguridad es lo primero.
+3. Referencias específicas: Menciona señales por número (ej. R-101), artículos de la Ley de Tráfico, o normas DGT cuando sea relevante.
+4. Tono cercano y motivador. Usa emojis (🚗, 🛑, 💡) con moderación.
+5. Respuestas breves: el espacio en el chat es limitado.
+
+Escenarios:
+- Si el estudiante pide ayuda: Haz preguntas que lo lleven a reflexionar.
+- Si el estudiante se equivoca: Señala el error con tacto y explica la lógica.
+- Si pregunta sobre la práctica real: Sé honesto sobre cómo es en la carretera, pero recuerda que en el examen debes responder según el reglamento.
+
+Siempre recuerda: la meta no es solo aprobar, sino conducir con seguridad.
+`;
+
+    // Выбираем промпт в зависимости от языка теста
+    const systemPrompt = testLanguage === 'ru' || showTranslation
+      ? getRussiaSystemPrompt()
+      : getSpainSystemPrompt();
+
     const context = `
+${systemPrompt}
+
+# Информация о текущем вопросе:
 Вопрос: ${question}
 Правильный ответ: ${correctAnswer}
 ${userAnswer ? `Ответ пользователя: ${userAnswer}` : ''}
-Результат: ${isCorrect ? 'ПРАВИЛЬНО' : 'НЕПРАВИЛЬНО'}
+Результат: ${isCorrect ? 'ПРАВИЛЬНО ✅' : 'НЕПРАВИЛЬНО ❌'}
 ${topic ? `Тема: ${topic}` : ''}
-${explanation ? `\nОфициальное объяснение: ${explanation}` : ''}
+${explanation ? `\nОфициальное объяснение из базы: ${explanation}` : ''}
 `;
 
     const newMessages: Message[] = [
@@ -224,8 +283,8 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
         },
         body: JSON.stringify({
           messages: [
-            ...newMessages,
-            { role: "system", content: context }
+            { role: "system", content: context },
+            ...newMessages
           ],
         }),
       });
@@ -311,11 +370,18 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
 
       setMessageRatings(prev => ({ ...prev, [messageIndex]: rating }));
 
-      toast({
-        title: rating === 1 ? "Спасибо за отзыв!" : "Спасибо за обратную связь!",
-        description: rating === 1 ? "Ваш лайк помогает улучшить ответы" : "Мы учтем ваше мнение",
-        duration: 2000,
-      });
+      // Используем правильный API для sonner
+      if (rating === 1) {
+        toast.success("Спасибо за отзыв!", {
+          description: "Ваш лайк помогает улучшить ответы",
+          duration: 2000,
+        });
+      } else {
+        toast.info("Спасибо за обратную связь!", {
+          description: "Мы учтем ваше мнение",
+          duration: 2000,
+        });
+      }
     } catch (error) {
       console.error("Error submitting feedback:", error);
     }
@@ -358,7 +424,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
           </div>
           <div className="min-w-0">
             <h3 className="font-bold text-sm xl:text-base text-foreground dark:text-slate-100 truncate">
-              {interfaceLanguage === 'ru' ? t('lumiGreeting') :
+              {interfaceLanguage === 'ru' ? 'Привет! Я Скили 🚗💡' :
                 interfaceLanguage === 'en' ? "Hello! I'm Skily 💡" :
                   "¡Hola! Soy Skily 💡"}
             </h3>
@@ -371,11 +437,13 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
         {messages.length === 0 ? (
           <div className="space-y-4 xl:space-y-5">
             {/* Welcome Message */}
-            <div className="text-foreground dark:text-slate-200 text-xs xl:text-sm leading-relaxed">
+            <div className="text-foreground dark:text-slate-200 text-xs xl:text-sm leading-relaxed whitespace-pre-line">
               <p>
-                {interfaceLanguage === 'ru' ? t('lumiWelcome') :
-                  interfaceLanguage === 'en' ? 'Need a hint or a quick explanation? Just press the button or ask your question, and I\'ll help on the spot. Ready when you are!' :
-                    '¿Necesitas una pista o una explicación rápida? Simplemente presiona el botón o haz tu pregunta, y te ayudaré en el acto. ¡Listo cuando tú lo estés!'}
+                {interfaceLanguage === 'ru'
+                  ? 'Привет! Я Скили — твой эксперт по ПДД РФ 🚗\n\nМоя задача не просто дать ответ, а научить тебя думать как водитель. Задавай вопросы, и я помогу разобраться в логике правил!'
+                  : interfaceLanguage === 'en'
+                    ? 'Need a hint or a quick explanation? Just press the button or ask your question, and I\'ll help on the spot. Ready when you are!'
+                    : '¿Necesitas una pista o una explicación rápida? Simplemente presiona el botón o haz tu pregunta, y te ayudaré en el acto. ¡Listo cuando tú lo estés!'}
               </p>
             </div>
 

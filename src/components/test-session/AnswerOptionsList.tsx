@@ -104,7 +104,7 @@ export const AnswerButton = memo(function AnswerButton({
                 // Swiss Design - refined padding
                 "group w-full text-left py-3.5 px-4 sm:py-4 sm:px-5",
                 // Shape
-                "rounded-xl border",
+                "rounded-2xl border",
                 // Transitions
                 "transition-all duration-200 ease-out",
                 // Overflow
@@ -120,7 +120,7 @@ export const AnswerButton = memo(function AnswerButton({
             <div className="flex items-center gap-4 relative z-10">
                 {/* Keycap Badge (1, 2, 3...) */}
                 <div className={cn(
-                    "shrink-0 w-8 h-8 rounded-xl flex items-center justify-center",
+                    "shrink-0 w-8 h-8 rounded-2xl flex items-center justify-center",
                     "text-sm font-black",
                     "transition-all duration-200",
                     showResult

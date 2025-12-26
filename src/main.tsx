@@ -18,7 +18,7 @@ import { performanceMonitor } from "./utils/performance";
 // ОПТИМИЗАЦИЯ: Инициализируем Rollbar ПОСЛЕ первого рендера (не блокируем FCP)
 // ВАЖНО: Ранние ошибки (до загрузки Rollbar) логируются в консоль
 // но могут не попасть в Rollbar - это осознанный trade-off для скорости FCP
-const earlyErrors: Array<{error: any, context: any}> = [];
+const earlyErrors: Array<{ error: any, context: any }> = [];
 
 // Временный хук для ранних ошибок (до загрузки Rollbar)
 const captureEarlyError = (error: any, context: any) => {
@@ -30,7 +30,7 @@ setTimeout(() => {
   import('./lib/rollbar').then(({ initRollbar, reportError }) => {
     initRollbar();
     console.log('[Main] Rollbar initialized (deferred)');
-    
+
     // Отправляем накопленные ранние ошибки
     if (earlyErrors.length > 0) {
       console.log(`[Main] Reporting ${earlyErrors.length} early errors to Rollbar`);
@@ -51,9 +51,9 @@ setTimeout(() => {
 // ОПТИМИЗАЦИЯ: Инициализация Server Time ПОСЛЕ первого рендера (не блокируем FCP)
 setTimeout(() => {
   import('./utils/serverTime').then(({ initServerTime }) => {
-initServerTime().catch((error) => {
-  console.error('[Main] Failed to init server time:', error);
-});
+    initServerTime().catch((error) => {
+      console.error('[Main] Failed to init server time:', error);
+    });
   });
 }, 100); // Небольшая задержка чтобы React успел отрендерить skeleton
 
@@ -81,6 +81,23 @@ console.log('[Main] ✅✅✅ Script loaded and imports completed ✅✅✅', {
   hasCreateRoot: typeof createRoot !== 'undefined',
 });
 
+// --------------------------------------------------------
+// 🥚 EASTER EGGS FOR GEEKS
+// --------------------------------------------------------
+console.log(
+  '%c СТОП! %c Ты зашел на территорию разработчиков. %c',
+  'background: #ef4444; color: white; font-size: 24px; font-weight: bold; padding: 4px 8px; border-radius: 4px 0 0 4px;',
+  'background: #1f2937; color: white; font-size: 24px; font-weight: bold; padding: 4px 8px; border-radius: 0 4px 4px 0;',
+  'background: transparent;'
+);
+
+console.log(
+  '%cНравится копаться под капотом? 🔧 %cПрисоединяйся к нам в Skily!',
+  'font-size: 16px; color: #fbbf24; font-weight: bold;',
+  'font-size: 14px; color: #94a3b8; font-weight: normal;'
+);
+// --------------------------------------------------------
+
 // КРИТИЧНО: Помечаем, что main.tsx загрузился (для проверки в index.html)
 if (typeof window !== 'undefined') {
   window._mainLoaded = true;
@@ -103,7 +120,7 @@ reportWebVitals((metric) => {
       rating: metric.rating,
     });
   }
-  
+
   // Записываем метрики в performance monitor
   if (performanceMonitor) {
     performanceMonitor.recordMetric(`web-vital-${metric.name}`, metric.value);
@@ -118,19 +135,19 @@ if (performanceMonitor && typeof window !== 'undefined') {
     if (nav) {
       const loadTime = nav.loadEventEnd - nav.fetchStart;
       performanceMonitor.recordMetric('page-load', loadTime);
-      
+
       if (loadTime > 3000) {
         console.warn(`[Performance] Slow page load: ${loadTime.toFixed(2)}ms`);
       }
     }
   });
-  
+
   // Отслеживаем время перехода между страницами
   let navigationStart = performance.now();
   window.addEventListener('beforeunload', () => {
     navigationStart = performance.now();
   });
-  
+
   window.addEventListener('load', () => {
     const navigationTime = performance.now() - navigationStart;
     if (navigationTime > 0 && navigationTime < 10000) { // Игнорируем первичную загрузку
@@ -150,16 +167,16 @@ window.addEventListener('error', (event) => {
     stack: event.error?.stack,
     url: window.location.href,
   };
-  
+
   console.error('[Global Error]', errorData);
-  
+
   const errorContext = {
-      type: 'uncaught_error',
-      filename: event.filename,
-      lineno: event.lineno,
-      colno: event.colno,
+    type: 'uncaught_error',
+    filename: event.filename,
+    lineno: event.lineno,
+    colno: event.colno,
   };
-  
+
   // Пытаемся отправить в Rollbar асинхронно
   import('./lib/rollbar').then(({ reportError }) => {
     const errorToReport = event.error || event.message;
@@ -173,32 +190,32 @@ window.addEventListener('error', (event) => {
 window.addEventListener('unhandledrejection', (event) => {
   const reason = event.reason;
   const reasonStr = reason instanceof Error ? reason.message : String(reason);
-  
+
   // КРИТИЧНО: Игнорируем ошибки Monetag "Failed to verify" - это нормально для Interstitial
   if (reasonStr?.includes('Failed to verify') || reasonStr?.includes('verify')) {
     console.warn('[Unhandled Rejection] Monetag verification error (ignored):', reasonStr);
     event.preventDefault(); // Предотвращаем вывод в консоль как ошибку
     return;
   }
-  
+
   const errorData = {
     reason: event.reason,
     promise: event.promise,
     stack: event.reason?.stack,
     url: window.location.href,
   };
-  
+
   console.error('[Unhandled Promise Rejection]', errorData);
-  
-  const error = event.reason instanceof Error 
-    ? event.reason 
+
+  const error = event.reason instanceof Error
+    ? event.reason
     : new Error(String(event.reason));
-    
+
   const errorContext = {
     type: 'unhandled_promise_rejection',
     reason: String(event.reason),
   };
-  
+
   // Пытаемся отправить в Rollbar асинхронно
   import('./lib/rollbar').then(({ reportError }) => {
     reportError(error, errorContext);
@@ -237,7 +254,7 @@ if ('serviceWorker' in navigator) {
       });
     }
   });
-  
+
   // Очистка кэша хранилища
   if ('caches' in window) {
     caches.keys().then((names) => {
@@ -261,7 +278,7 @@ try {
     root: !!root,
     timestamp: new Date().toISOString(),
   });
-  
+
   root.render(
     <StrictMode>
       <ErrorBoundary>
@@ -273,12 +290,12 @@ try {
       </ErrorBoundary>
     </StrictMode>
   );
-  
+
   console.log('[Main] ✅✅✅ React app rendered successfully ✅✅✅', {
     timestamp: new Date().toISOString(),
     readyState: document.readyState,
   });
-  
+
   // КРИТИЧНО: Удаляем skeleton из DOM после монтирования React
   // Это гарантирует что он не мешает взаимодействию и не перекрывает контент
   setTimeout(() => {
@@ -287,7 +304,7 @@ try {
       skeleton.remove();
       console.log('[Main] Skeleton removed from DOM');
     }
-    
+
     // SSG: Отправляем событие для prerender плагина
     // Это сигнализирует, что React приложение полностью отрендерилось
     if (typeof window !== 'undefined') {

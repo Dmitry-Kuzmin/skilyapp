@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical, Trophy, ArrowRight } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical, Trophy, ArrowRight, CornerDownLeft, Keyboard } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { QuestionProgressBar } from "@/components/QuestionProgressBar";
 import { ExamHeader } from "@/components/exam/ExamHeader";
 import { PenaltyAlert } from "@/components/exam/PenaltyAlert";
@@ -155,7 +156,11 @@ const TestSession = () => {
 
   // Получаем количество вопросов из URL
   const countParam = searchParams.get('count');
-  const questionCount = countParam ? parseInt(countParam) : (mode === 'nonstop' && selectedCountry === 'russia' ? 800 : 30);
+  const questionCount = countParam ? parseInt(countParam) : (
+    mode === 'nonstop' && selectedCountry === 'russia' ? 800 :
+      mode === 'challenge-bank' ? 20 :
+        30
+  );
   const blitzDuration = parseInt(searchParams.get('timer') || (mode === 'blitz' ? '60' : '300')) || (mode === 'blitz' ? 60 : 300);
   const initialTimeBudget = mode === "exam" ? 30 * 60 : mode === "blitz" ? blitzDuration : 0;
   const [showTranslation, setShowTranslation] = useState(false);
@@ -181,6 +186,7 @@ const TestSession = () => {
   // Local UI State
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isEnterPressed, setIsEnterPressed] = useState(false);
 
   // === ADAPTERS ===
   // 1. Current Index
@@ -223,6 +229,7 @@ const TestSession = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [showTestSettings, setShowTestSettings] = useState(false);
   const hasLoadedProgressRef = useRef<string | null>(null);
+  const previousTestIdRef = useRef<string | null>(null); // Для отслеживания изменения testId
   const [startTime, setStartTime] = useState<number>(0);
   const [showAIExplanation, setShowAIExplanation] = useState(false);
   const [showChallengeBankNotification, setShowChallengeBankNotification] = useState(false);
@@ -258,6 +265,22 @@ const TestSession = () => {
     return dataLoader.testInfo || null;
   }, [dataLoader.testInfo, dataLoader.isLoading]);
 
+  // Сброс состояния при смене теста (чтобы не начинать с 10-го вопроса старого теста)
+  useEffect(() => {
+    if (testInfo?.id) {
+      // Проверяем, действительно ли изменился ID теста
+      const hasTestIdChanged = previousTestIdRef.current !== testInfo.id;
+
+      if (hasTestIdChanged) {
+        console.log(`[TestSession] ✅ Initializing NEW test session for ${testInfo.id} (previous: ${previousTestIdRef.current})`);
+        resetExam();
+        hasLoadedProgressRef.current = null;
+        previousTestIdRef.current = testInfo.id;
+      } else {
+        console.log(`[TestSession] ⏭️ Skipping reset - same test ID: ${testInfo.id}`);
+      }
+    }
+  }, [testInfo?.id, resetExam]);
   // Load progress effect
   useEffect(() => {
     if (testInfo?.id && questionsState.length > 0 && hasLoadedProgressRef.current !== testInfo.id) {
@@ -337,6 +360,11 @@ const TestSession = () => {
 
       const sessionId = getOrCreateSessionId();
 
+      // Инициализируем время старта, если оно еще не задано
+      if (startTime === 0) {
+        setStartTime(Date.now());
+      }
+
       try {
         // Проверяем онлайн статус
         const realOnline = await checkOnlineStatus();
@@ -390,6 +418,7 @@ const TestSession = () => {
   useEffect(() => {
     localStorage.setItem('test-language', testLanguage);
   }, [testLanguage]);
+
 
 
 
@@ -833,43 +862,7 @@ const TestSession = () => {
     }
   }, [mode, russiaExam.status, russiaExam.stats, questions, answers, testInfo, navigate]);
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if typing in input
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
-      const currentQ = mode === 'exam-russia' ? russiaExam.currentQuestion : questions[currentIndex];
-      if (!currentQ) return;
-
-      const currentAnswers = mode === 'exam-russia'
-        ? russiaExam.currentQuestion?.answers
-        : currentQ.answer_options;
-
-      if (!currentAnswers) return;
-
-      // Select option 1-9
-      if (/^[1-9]$/.test(e.key)) {
-        const index = parseInt(e.key) - 1;
-        if (index < currentAnswers.length) {
-          const answerId = currentAnswers[index].id;
-          if (!isAnswerLocked) {
-            setSelectedOption(answerId);
-          }
-        }
-      }
-
-      // Confirm with Enter
-      if (e.key === 'Enter') {
-        if (selectedOption && !isAnswerLocked) {
-          handleAnswer();
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mode, russiaExam.currentQuestion, questions, currentIndex, selectedOption, isAnswerLocked]);
 
 
   // ============================================
@@ -1375,6 +1368,7 @@ const TestSession = () => {
         });
 
         setQuestions(questionsWithOptions);
+        if (startTime === 0) setStartTime(Date.now());
 
         // Предзагружаем первые несколько изображений для sequential тестов
         const firstImagesToPreload = questionsWithOptions
@@ -1435,6 +1429,7 @@ const TestSession = () => {
         const limited = shuffled.slice(0, questionCount);
 
         setQuestions(limited);
+        if (startTime === 0) setStartTime(Date.now());
 
         // Предзагружаем первые несколько изображений для быстрого старта
         const firstImagesToPreload = limited
@@ -1530,6 +1525,11 @@ const TestSession = () => {
       if (error && error.code !== '23505' && !error.message?.includes('409')) {
         console.error('[TestSession] Error upserting user_progress:', error);
       } else {
+        // 3. Синхронизация Inbox Zero: если ответил правильно, убираем из Банка Ошибок
+        if (isCorrect) {
+          markQuestionAsMastered(questionId);
+        }
+
         // Инвалидируем кеш для мгновенного обновления визуального прогресса на других страницах
         queryClient.invalidateQueries({ queryKey: ["tickets-status"] });
         queryClient.invalidateQueries({ queryKey: ["user-progress"] });
@@ -1576,6 +1576,9 @@ const TestSession = () => {
 
       // Фоновое сохранение в БД
       saveAnswerToDB(russiaExam.currentQuestion.id, isCorrect);
+
+      // СИНХРОНИЗАЦИЯ СО СТОРОМ (КРИТИЧНО для finishTest)
+      answerQuestionZ(answerId, isCorrect);
 
       if (!result.shouldContinue) {
         setFailureReason(result.failureReason || "Экзамен не сдан");
@@ -1637,6 +1640,9 @@ const TestSession = () => {
     if (profileId) {
       saveAnswerToDB(currentQuestion.id, isCorrect);
     }
+
+    // 2. Zustand Store (КРИТИЧНО для finishTest)
+    answerQuestionZ(answerId, isCorrect);
 
     // Inbox Zero: Remove from challenge bank if answered correctly
     if (mode === 'challenge-bank' && isCorrect) {
@@ -1767,7 +1773,82 @@ const TestSession = () => {
     setShowAIExplanation(false);
   };
 
+
+
+  // Consolidated Keyboard support: Enter/Space/Numbers
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Игнорируем, если фокус в инпуте
+      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') return;
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      // Игнорируем, если открыты модалки
+      if (showQuestionMap || showExitConfirm || showReportModal || showTestSettings) return;
+
+      const currentQ = mode === 'exam-russia' ? russiaExam.currentQuestion : (questionsState[currentIndex] || questions[currentIndex]);
+
+      // Выбор опций 1-9
+      if (/^[1-9]$/.test(e.key) && currentQ) {
+        const currentAnswers = mode === 'exam-russia'
+          ? russiaExam.currentQuestion?.answers
+          : currentQ.answer_options;
+
+        if (currentAnswers) {
+          const index = parseInt(e.key) - 1;
+          if (index < currentAnswers.length) {
+            const answerId = currentAnswers[index].id;
+            if (!isAnswerLocked && (!selectedOption || isPracticeLikeMode)) {
+              setSelectedOption(answerId);
+            }
+          }
+        }
+      }
+
+      // Подтверждение/Переход с Enter или Space
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+
+        // Визуальная анимация нажатия
+        if (e.key === 'Enter') {
+          setIsEnterPressed(true);
+          setTimeout(() => setIsEnterPressed(false), 200);
+        }
+
+        // Если уже ответили (в режиме практики) — переходим к следующему
+        if (selectedOption && isPracticeLikeMode) {
+          nextQuestion();
+        }
+        // Если выбрали вариант, но еще не нажали "Ответить"
+        else if (selectedOption && !isAnswerLocked) {
+          handleAnswer();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedOption, isPracticeLikeMode, showQuestionMap, showExitConfirm, showReportModal, showTestSettings, nextQuestion, handleAnswer, mode, russiaExam.currentQuestion, questionsState, currentIndex, questions, isAnswerLocked]);
+
   const finishTest = async () => {
+    // Получаем самое свежее состояние из стора
+    const latestState = useExamStore.getState().activeState;
+
+    // Безопасно извлекаем ответы
+    const currentAnswers = latestState
+      ? (latestState.kind === 'russia'
+        ? [...Object.values(latestState.data.mainAnswers), ...Object.values(latestState.data.extraAnswers)]
+        : Object.entries(latestState.data.answers).map(([qid, ans]) => ({
+          ...ans,
+          questionId: qid
+        })))
+      : [];
+
+    const currentQuestions = latestState
+      ? (latestState.kind === 'russia'
+        ? russiaExam.questions
+        : questions)
+      : [];
+
     // КРИТИЧНО: Очищаем локальное сохранение после завершения теста
     if (testInfo?.id) {
       clearTestProgress(testInfo.id).catch((error) => {
@@ -1777,7 +1858,7 @@ const TestSession = () => {
 
     // MASTERY MODE: Если есть неправильные вопросы - повторяем!
     if (mode === "mastery" && masteryWrongQuestions.length > 0) {
-      const wrongQuestionsData = questions.filter(q => masteryWrongQuestions.includes(q.id));
+      const wrongQuestionsData = currentQuestions.filter(q => masteryWrongQuestions.includes(q.id));
 
       if (wrongQuestionsData.length > 0) {
         toast.info(
@@ -1790,7 +1871,7 @@ const TestSession = () => {
         setMasteryWrongQuestions([]); // Очищаем для следующего раунда
         setMasteryRound(masteryRound + 1);
         setCurrentIndex(0);
-        setAnswers([]);
+        setAnswers([]); // Здесь можно оставить локальный стейт, стор сбросится через resetExam если надо
         setSelectedOption(null);
         setShowTranslation(false);
         setShowAIExplanation(false);
@@ -1803,22 +1884,40 @@ const TestSession = () => {
       toast.success(`🎉 ИДЕАЛЬНО! Все вопросы правильно за ${masteryRound} раундов!`, { duration: 5000 });
     }
 
-    const correctCount = answers.filter((a) => a.isCorrect).length;
-    const score = Math.round((correctCount / Math.max(1, questions.length)) * 100);
+    const correctCount = currentAnswers.filter((a) => a.isCorrect).length;
+    const score = Math.round((correctCount / Math.max(1, currentQuestions.length)) * 100);
+
+    // ДИАГНОСТИКА: Подробное логирование
+    console.log('[TestSession] finishTest final report:', {
+      questionsTotal: currentQuestions.length,
+      answersTotal: currentAnswers.length,
+      correctCount,
+      score,
+      allAnswers: currentAnswers.map(a => ({ id: a.questionId, ok: a.isCorrect }))
+    });
+
+    // Валидация
+    if (currentQuestions.length > 0 && currentAnswers.length === 0) {
+      console.error('[TestSession] ❌ CRITICAL: No answers recorded but questions exist!');
+    }
+
     const timeSpent = startTime > 0
       ? Math.floor((Date.now() - startTime) / 1000)
       : initialTimeBudget > 0
         ? initialTimeBudget - timeLeft
         : 0;
 
+    // Определяем эффективный ID теста для сохранения прогресса
+    const effectiveTestId = testId ? testId : (mode === 'pdd-ticket' && ticketIdParam ? `pdd-ticket-${ticketIdParam}` : null);
+
     let rewardResult: TestRewardResult | null = null;
 
     try {
-      // Если это sequential тест, обновляем прогресс через функцию
-      if (testId && profileId) {
+      // Если это sequential тест или билет ПДД, обновляем прогресс через функцию
+      if (effectiveTestId && profileId) {
         const { error: progressError } = await (supabase as any).rpc('update_test_progress', {
           p_user_id: profileId,
-          p_test_id: testId,
+          p_test_id: effectiveTestId,
           p_correct_answers: correctCount,
           p_total_questions: questions.length,
           p_time_spent_seconds: timeSpent,
@@ -1897,7 +1996,7 @@ const TestSession = () => {
             session_id: sessionId,
             test_id: testId || null,
             score,
-            questions_count: questions.length,
+            questions_count: currentQuestions.length,
             correct_count: correctCount,
             test_duration_seconds: Math.max(timeSpent, 0),
             premium_flag: Boolean(isPremium),
@@ -1925,9 +2024,9 @@ const TestSession = () => {
             body: {
               user_id: profileId,
               session_id: sessionId,
-              test_id: testId || null,
+              test_id: effectiveTestId,
               score,
-              questions_count: questions.length,
+              questions_count: currentQuestions.length,
               correct_count: correctCount,
               test_duration_seconds: Math.max(timeSpent, 0),
               premium_flag: Boolean(isPremium),
@@ -1964,10 +2063,19 @@ const TestSession = () => {
       }
     }
 
+    // Логируем данные, которые передаем на страницу результатов
+    console.log('[TestSession] Navigating to results with accurate data:', {
+      questionsCount: currentQuestions.length,
+      answersCount: currentAnswers.length,
+      mode: testId ? "sequential" : mode,
+      timeSpent,
+      rewardResult
+    });
+
     navigate("/test/results", {
       state: {
-        questions,
-        answers,
+        questions: currentQuestions,
+        answers: currentAnswers,
         mode: testId ? "sequential" : mode,
         timeSpent,
         testId,
@@ -2083,11 +2191,11 @@ const TestSession = () => {
     : getQuestionText(effectiveLanguage);
   const displayTopic = currentQuestion.topics?.title_es || 'Sin tema';
 
-  // Swiss Design - refined typography, not gigantic
+  // Typography Hierarchy: Question should be "Boss" - larger & bolder than answers
   const fontSizeClasses = [
-    'text-sm leading-relaxed', // small
-    'text-[15px] leading-relaxed', // default
-    'text-base leading-relaxed sm:text-lg',  // large
+    'text-lg sm:text-xl font-bold tracking-tight leading-tight', // small
+    'text-xl sm:text-2xl font-bold tracking-tight leading-tight', // default
+    'text-2xl sm:text-3xl font-bold tracking-tight leading-tight',  // large
   ];
 
   const toggleTranslation = async () => {
@@ -2114,7 +2222,7 @@ const TestSession = () => {
         isPracticeLikeMode={isPracticeLikeMode}
         sidebar={
           !isTelegramApp && isPracticeLikeMode && mode !== 'blitz' && mode !== 'exam' && mode !== 'exam-russia' && (
-            <div className="lg:mt-[72px]"> {/* Компенсация высоты прогресс-бара */}
+            <div className="lg:mt-[116px]"> {/* Компенсация высоты прогресс-бара для выравнивания с карточкой */}
               <AIWidget
                 explanation={selectedOption ? (showTranslation ? currentQuestion.explanation_ru :
                   (effectiveLanguage === 'ru' ? currentQuestion.explanation_ru :
@@ -2186,6 +2294,9 @@ const TestSession = () => {
               onToggleBookmark={profileId ? toggleBookmark : undefined}
               isBookmarked={isQuestionBookmarked}
               bookmarkLoading={bookmarkLoading}
+              onOpenSettings={() => setShowTestSettings(true)}
+              onToggleTranslation={toggleTranslation}
+              showTranslation={showTranslation}
               customLeftContent={
                 <>
                   {/* Timer */}
@@ -2471,7 +2582,7 @@ const TestSession = () => {
           <Card
             data-testid="question-card"
             className={cn(
-              "p-3 sm:p-4 md:p-6 bg-background border-border/50 shadow-xl backdrop-blur-sm transition-all duration-300 relative overflow-hidden",
+              "p-3 sm:p-4 md:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 shadow-sm backdrop-blur-sm transition-all duration-300 relative overflow-hidden rounded-3xl",
               feedbackStatus === 'correct' && "border-emerald-500/50 shadow-emerald-500/10",
               feedbackStatus === 'incorrect' && "border-red-500/50 shadow-red-500/10"
             )}
@@ -2482,15 +2593,15 @@ const TestSession = () => {
                 // Russia Vertical Layout (Image on top)
                 <div className="space-y-6">
                   <div className="w-full">
-                    <QuestionImage imageUrl={currentQuestion.image_url} className="w-full h-48 object-contain bg-black/20 rounded-xl mb-4" />
+                    <QuestionImage imageUrl={currentQuestion.image_url} className="w-full h-64 md:h-80 object-contain bg-muted/30 rounded-[2.5rem] border border-border/50 mb-4 shadow-sm" />
                   </div>
                   <div className="flex flex-col mt-6">
                     {/* Question Card - Swiss Design */}
-                    <div className="mb-6">
+                    <div className="mb-8">
                       <div className="relative">
                         <h2 className={cn(
                           fontSizeClasses[fontSize],
-                          "font-medium text-white whitespace-pre-line transition-opacity duration-300",
+                          "font-bold text-foreground dark:text-white whitespace-pre-line transition-opacity duration-300 tracking-tight leading-tight",
                           isTransitioning ? 'opacity-0' : 'opacity-100'
                         )}>
                           {displayQuestion}
@@ -2520,7 +2631,7 @@ const TestSession = () => {
 
                     {/* Navigation */}
                     <div className="flex gap-3 items-center mt-6">
-                      {isPracticeLikeMode && (
+                      {isPracticeLikeMode && !isRussia && (
                         <button
                           onClick={() => setShowAIExplanation(true)}
                           className="group w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 shadow-lg flex items-center justify-center transition-all active:scale-95 shrink-0"
@@ -2529,20 +2640,67 @@ const TestSession = () => {
                         </button>
                       )}
                       {isPracticeLikeMode && selectedOption ? (
-                        <Button onClick={nextQuestion} className="flex-1 font-bold h-12 sm:h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-lg shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all">
-                          <span>{isRussia ? 'Следующий' : 'Siguiente'}</span>
-                          <ChevronRight className="w-5 h-5 ml-2" />
-                        </Button>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                onClick={nextQuestion}
+                                className={cn(
+                                  "flex-1 font-semibold h-12 sm:h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg transition-all relative",
+                                  isEnterPressed && "scale-[0.98] brightness-110 shadow-blue-400/50"
+                                )}
+                              >
+                                <span className="text-lg sm:text-xl">{isRussia ? 'Следующий' : 'Siguiente'}</span>
+                                <ChevronRight className="w-6 h-6 ml-2" />
+                                <span className={cn(
+                                  "hidden sm:inline-flex absolute right-4 text-[10px] items-center gap-1 opacity-50 font-mono transition-all duration-200",
+                                  isEnterPressed && "scale-110 opacity-100 text-yellow-400"
+                                )}>
+                                  <Keyboard className="w-4 h-4" />
+                                  <span className="border border-white/30 px-1 rounded flex items-center gap-0.5">
+                                    Enter <CornerDownLeft className="w-3 h-3" />
+                                  </span>
+                                </span>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="bg-slate-900 border-white/10 text-white">
+                              <p>Нажмите Enter, чтобы продолжить</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       ) : (
                         !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && (
-                          <Button
-                            variant="brand"
-                            onClick={() => handleAnswer()}
-                            disabled={!selectedOption}
-                            className="flex-1 font-semibold h-12 sm:h-14 rounded-2xl disabled:opacity-50"
-                          >
-                            {isRussia ? "Ответить" : "Responder"}
-                          </Button>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="brand"
+                                  onClick={() => handleAnswer()}
+                                  disabled={!selectedOption}
+                                  className={cn(
+                                    "flex-1 font-semibold h-12 sm:h-14 rounded-2xl disabled:opacity-50 relative transition-all",
+                                    isEnterPressed && selectedOption && "scale-[0.98] brightness-110 shadow-blue-400/50"
+                                  )}
+                                >
+                                  <span className="text-lg sm:text-xl">{isRussia ? "Ответить" : "Responder"}</span>
+                                  {selectedOption && (
+                                    <span className={cn(
+                                      "hidden sm:inline-flex absolute right-4 text-[10px] items-center gap-1 opacity-50 font-mono transition-all duration-200",
+                                      isEnterPressed && "scale-110 opacity-100 text-yellow-400"
+                                    )}>
+                                      <Keyboard className="w-4 h-4" />
+                                      <span className="border border-white/30 px-1 rounded flex items-center gap-0.5">
+                                        Enter <CornerDownLeft className="w-3 h-3" />
+                                      </span>
+                                    </span>
+                                  )}
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="bg-slate-900 border-white/10 text-white">
+                                <p>Нажмите Enter, чтобы ответить</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         )
                       )}
                     </div>
@@ -2552,7 +2710,7 @@ const TestSession = () => {
                 // DGT Split Layout (Image on left)
                 <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[400px_1fr] gap-6 md:gap-8">
                   <div className="w-full md:sticky md:top-4 md:self-start">
-                    <QuestionImage imageUrl={currentQuestion.image_url} className="w-full h-48 object-contain bg-black/20 rounded-xl mb-4" />
+                    <QuestionImage imageUrl={currentQuestion.image_url} className="w-full h-64 md:h-80 lg:h-96 object-contain bg-muted/30 rounded-[2.5rem] border border-border/50 mb-4 shadow-sm" />
                   </div>
                   <div className="flex flex-col">
                     {/* Question Text with Smart Features */}
@@ -2580,28 +2738,75 @@ const TestSession = () => {
                     />
 
                     {/* Sticky Mobile Navigation */}
-                    <div className="sticky bottom-0 left-0 right-0 z-50 pt-4 pb-2 bg-gradient-to-t from-slate-900 via-slate-900 to-transparent sm:relative sm:bg-transparent sm:pt-0 sm:z-10 mt-6">
+                    <div className="sticky bottom-0 left-0 right-0 z-50 pt-6 pb-4 bg-gradient-to-t from-white via-white/80 dark:from-slate-900/60 dark:via-slate-900/20 to-transparent sm:relative sm:bg-none sm:bg-transparent sm:from-transparent sm:via-transparent sm:to-transparent sm:dark:from-transparent sm:pt-0 sm:mt-8 sm:z-10 sm:backdrop-blur-0">
                       <div className="flex gap-3 items-center">
-                        {isPracticeLikeMode && (
+                        {isPracticeLikeMode && !isRussia && (
                           <button onClick={() => setShowAIExplanation(true)} className="group w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg flex items-center justify-center active:scale-95 lg:hidden">
                             <LumiCharacter size="sm" mood="happy" />
                           </button>
                         )}
                         {isPracticeLikeMode && selectedOption ? (
-                          <Button onClick={nextQuestion} className="flex-1 font-bold h-12 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-lg shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all">
-                            <span>{isRussia ? 'Следующий' : 'Siguiente'}</span>
-                            <ChevronRight className="w-5 h-5 ml-2" />
-                          </Button>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  onClick={nextQuestion}
+                                  className={cn(
+                                    "flex-1 font-semibold h-12 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all relative",
+                                    isEnterPressed && "scale-[0.98] brightness-110"
+                                  )}
+                                >
+                                  <span className="text-lg">{isRussia ? 'Следующий' : 'Siguiente'}</span>
+                                  <ChevronRight className="w-5 h-5 ml-2" />
+                                  <span className={cn(
+                                    "hidden sm:inline-flex absolute right-4 text-[10px] items-center gap-1 opacity-50 font-mono transition-all duration-200",
+                                    isEnterPressed && "scale-110 opacity-100 text-yellow-400"
+                                  )}>
+                                    <Keyboard className="w-3.5 h-3.5" />
+                                    <span className="border border-white/30 px-1 rounded flex items-center gap-0.5">
+                                      Enter <CornerDownLeft className="w-2.5 h-2.5" />
+                                    </span>
+                                  </span>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="bg-slate-900 border-white/10 text-white">
+                                <p>Нажмите Enter, чтобы продолжить</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         ) : (
                           !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && (
-                            <Button
-                              variant="brand"
-                              onClick={() => handleAnswer()}
-                              disabled={!selectedOption}
-                              className="flex-1 font-semibold h-12 rounded-xl disabled:opacity-50"
-                            >
-                              {isRussia ? "Ответить" : "Responder"}
-                            </Button>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="brand"
+                                    onClick={() => handleAnswer()}
+                                    disabled={!selectedOption}
+                                    className={cn(
+                                      "flex-1 font-semibold h-12 rounded-xl disabled:opacity-50 relative transition-all",
+                                      isEnterPressed && selectedOption && "scale-[0.98] brightness-110"
+                                    )}
+                                  >
+                                    <span className="text-lg">{isRussia ? "Ответить" : "Responder"}</span>
+                                    {selectedOption && (
+                                      <span className={cn(
+                                        "hidden sm:inline-flex absolute right-4 text-[10px] items-center gap-1 opacity-50 font-mono transition-all duration-200",
+                                        isEnterPressed && "scale-110 opacity-100 text-yellow-400"
+                                      )}>
+                                        <Keyboard className="w-3.5 h-3.5" />
+                                        <span className="border border-white/30 px-1 rounded flex items-center gap-0.5">
+                                          Enter <CornerDownLeft className="w-2.5 h-2.5" />
+                                        </span>
+                                      </span>
+                                    )}
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="bg-slate-900 border-white/10 text-white">
+                                  <p>Нажмите Enter, чтобы ответить</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           )
                         )}
                       </div>
@@ -2615,7 +2820,7 @@ const TestSession = () => {
                 <div className="relative p-6 sm:p-8 rounded-3xl bg-muted/20 border-2 border-border/30 shadow-inner">
                   <h2 className={cn(
                     fontSizeClasses[fontSize],
-                    "font-semibold leading-relaxed text-foreground whitespace-pre-line text-center transition-opacity duration-300",
+                    "font-bold leading-tight text-foreground whitespace-pre-line text-center transition-opacity duration-300 tracking-tight",
                     isTransitioning ? 'opacity-0' : 'opacity-100'
                   )}>
                     {displayQuestion}
@@ -2644,26 +2849,73 @@ const TestSession = () => {
                 />
 
                 <div className="flex gap-4 items-center pt-6">
-                  {isPracticeLikeMode && (
+                  {isPracticeLikeMode && !isRussia && (
                     <button onClick={() => setShowAIExplanation(true)} className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-xl flex items-center justify-center active:scale-95 lg:hidden">
                       <LumiCharacter size="sm" mood="happy" />
                     </button>
                   )}
                   {isPracticeLikeMode && selectedOption ? (
-                    <Button onClick={nextQuestion} className="flex-1 font-bold h-16 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-xl shadow-lg shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/30 transition-all">
-                      <span>{isRussia ? 'Следующий вопрос' : 'Siguiente pregunta'}</span>
-                      <ChevronRight className="w-6 h-6 ml-3" />
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            onClick={nextQuestion}
+                            className={cn(
+                              "flex-1 font-semibold h-16 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-lg shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/30 transition-all relative",
+                              isEnterPressed && "scale-[0.98] brightness-110"
+                            )}
+                          >
+                            <span className="text-xl">{isRussia ? 'Следующий вопрос' : 'Siguiente pregunta'}</span>
+                            <ChevronRight className="w-6 h-6 ml-3" />
+                            <span className={cn(
+                              "hidden sm:inline-flex absolute right-6 text-[11px] items-center gap-1 opacity-50 font-mono transition-all duration-200",
+                              isEnterPressed && "scale-110 opacity-100 text-yellow-400"
+                            )}>
+                              <Keyboard className="w-5 h-5" />
+                              <span className="border border-white/30 px-1.5 rounded flex items-center gap-0.5">
+                                Enter <CornerDownLeft className="w-4 h-4" />
+                              </span>
+                            </span>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="bg-slate-900 border-white/10 text-white">
+                          <p>Нажмите Enter, чтобы продолжить</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   ) : (
                     !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && (
-                      <Button
-                        variant="brand"
-                        onClick={() => handleAnswer()}
-                        disabled={!selectedOption}
-                        className="flex-1 font-bold h-16 rounded-2xl text-xl disabled:opacity-50"
-                      >
-                        {isRussia ? "Ответить" : "Responder"}
-                      </Button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="brand"
+                              onClick={() => handleAnswer()}
+                              disabled={!selectedOption}
+                              className={cn(
+                                "flex-1 font-semibold h-16 rounded-2xl disabled:opacity-50 relative transition-all",
+                                isEnterPressed && selectedOption && "scale-[0.98] brightness-110"
+                              )}
+                            >
+                              <span className="text-xl">{isRussia ? "Ответить" : "Responder"}</span>
+                              {selectedOption && (
+                                <span className={cn(
+                                  "hidden sm:inline-flex absolute right-6 text-[11px] items-center gap-1 opacity-50 font-mono transition-all duration-200",
+                                  isEnterPressed && "scale-110 opacity-100 text-yellow-400"
+                                )}>
+                                  <Keyboard className="w-5 h-5" />
+                                  <span className="border border-white/30 px-1.5 rounded flex items-center gap-0.5">
+                                    Enter <CornerDownLeft className="w-4 h-4" />
+                                  </span>
+                                </span>
+                              )}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="bg-slate-900 border-white/10 text-white">
+                            <p>Нажмите Enter, чтобы ответить</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     )
                   )}
                 </div>

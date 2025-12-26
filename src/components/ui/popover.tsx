@@ -16,7 +16,11 @@ const PopoverContent = React.forwardRef<
       <PopoverPrimitive.Close asChild>
         <div
           aria-hidden="true"
-          className={cn("fixed inset-0 z-40 bg-background/45 backdrop-blur-[2px]", overlayClassName)}
+          className={cn(
+            "fixed inset-0 z-40 bg-slate-950/10 backdrop-blur-xl transition-all duration-300",
+            overlayClassName
+          )}
+          style={{ WebkitBackdropFilter: 'blur(20px)' }}
         />
       </PopoverPrimitive.Close>
       <PopoverPrimitive.Content

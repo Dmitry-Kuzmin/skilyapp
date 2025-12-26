@@ -31,30 +31,32 @@ export const CompactStreakJewel: React.FC<CompactStreakJewelProps> = ({
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.9, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
             key={`streak-${streak}-${hasClaimedToday}`}
             className={cn(
-                "relative flex items-center overflow-hidden transition-all duration-500",
-                "bg-slate-950/40 backdrop-blur-2xl border border-orange-500/20 shadow-2xl",
+                "relative flex items-center overflow-hidden transition-all duration-700",
+                "bg-white/80 dark:bg-slate-900/40 backdrop-blur-xl border border-orange-500/20 dark:border-orange-500/30",
+                "shadow-[0_8px_32px_rgba(249,115,22,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]",
                 size === 'lg' ? "h-20 w-full px-4 sm:px-8 rounded-[2rem]" : "h-14 px-4 rounded-2xl",
                 className
             )}
         >
-            {/* Dynamic Background Glows */}
-            <div className="absolute -left-10 top-1/2 -translate-y-1/2 w-40 h-40 bg-orange-500/10 rounded-full blur-[80px] pointer-events-none" />
-            <div className="absolute -right-10 top-1/2 -translate-y-1/2 w-40 h-40 bg-orange-600/5 rounded-full blur-[80px] pointer-events-none" />
+            {/* Dynamic Premium Glows */}
+            <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-32 h-32 bg-orange-500/20 rounded-full blur-[40px] pointer-events-none" />
+            <div className="absolute -right-4 top-1/2 -translate-y-1/2 w-32 h-32 bg-orange-600/10 rounded-full blur-[40px] pointer-events-none" />
 
-            {/* Moving Shimmer */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full animate-shimmer pointer-events-none" />
+            {/* Premium Animated Mesh */}
+            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f97316' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E")` }} />
 
             <div className="flex items-center justify-between w-full relative z-10 gap-2 sm:gap-4">
                 <div className="flex items-center gap-3 sm:gap-6 min-w-0">
                     {/* Premium Icon Container */}
                     <div className="relative shrink-0">
-                        <div className="absolute inset-0 bg-orange-500/30 blur-xl rounded-full animate-pulse" />
+                        <div className="absolute inset-0 bg-orange-500/40 blur-xl rounded-full animate-pulse" />
                         <div className={cn(
-                            "relative flex items-center justify-center rounded-2xl bg-gradient-to-br from-slate-800 to-slate-950 border border-white/10 shadow-inner",
+                            "relative flex items-center justify-center rounded-2xl bg-gradient-to-br from-white to-orange-50/50 dark:from-slate-800 dark:to-slate-950 border border-orange-200 dark:border-white/10 shadow-lg",
                             size === 'lg' ? "w-12 h-12" : "w-10 h-10"
                         )}>
                             <Flame className={cn("text-orange-500 fill-orange-500/10", size === 'lg' ? "w-7 h-7" : "w-6 h-6")} />
@@ -78,23 +80,23 @@ export const CompactStreakJewel: React.FC<CompactStreakJewelProps> = ({
                     </div>
 
                     {/* Streak Number & Label Group */}
-                    <div className="flex items-center gap-4 min-w-0">
+                    <div className="flex items-center gap-2 sm:gap-4 min-w-0">
                         <div className="flex flex-col leading-none">
                             <span className={cn(
-                                "font-black tracking-tighter bg-gradient-to-br from-orange-200 via-orange-500 to-orange-700 bg-clip-text text-transparent drop-shadow-xl",
-                                size === 'lg' ? "text-4xl" : "text-3xl"
+                                "font-black tracking-tighter bg-gradient-to-br from-orange-600 via-orange-500 to-orange-400 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(249,115,22,0.3)]",
+                                size === 'lg' ? "text-5xl" : "text-3xl"
                             )}>
                                 {streak}
                             </span>
                         </div>
 
-                        <div className="h-8 w-px bg-slate-700/50 block" />
+                        <div className="h-6 w-px bg-orange-200 dark:bg-slate-700 block" />
 
                         <div className="flex flex-col leading-tight min-w-0 uppercase">
-                            <span className="text-[10px] sm:text-[11px] font-black text-slate-300 tracking-[0.2em] whitespace-nowrap truncate">
+                            <span className="text-[9px] sm:text-[10px] font-black text-slate-900 dark:text-slate-100 tracking-[0.25em] whitespace-nowrap truncate">
                                 {label}
                             </span>
-                            <span className="text-[8px] sm:text-[9px] font-bold text-orange-500/70 tracking-widest mt-1">
+                            <span className="text-[7px] sm:text-[8px] font-bold text-orange-600 dark:text-orange-500 tracking-widest mt-0.5 opacity-80">
                                 Active Legend
                             </span>
                         </div>
@@ -115,8 +117,8 @@ export const CompactStreakJewel: React.FC<CompactStreakJewelProps> = ({
                                     disabled={isClaiming}
                                     className={cn(
                                         "relative overflow-hidden group font-black uppercase tracking-widest text-[10px] sm:text-xs",
-                                        "bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500",
-                                        "text-white shadow-[0_4px_20px_rgba(249,115,22,0.4)] border-t border-white/20",
+                                        "bg-gradient-to-r from-orange-600 to-orange-400 hover:from-orange-500 hover:to-orange-300",
+                                        "text-white shadow-[0_8px_20px_rgba(249,115,22,0.4)] border-none",
                                         size === 'lg' ? "h-12 px-6 rounded-xl" : "h-10 px-4 rounded-lg"
                                     )}
                                 >
@@ -124,17 +126,17 @@ export const CompactStreakJewel: React.FC<CompactStreakJewelProps> = ({
                                         {isClaiming ? <Sparkles className="animate-spin w-4 h-4" /> : <Gift className="w-4 h-4" />}
                                         {isClaiming ? 'Claiming...' : 'Get Bonus'}
                                     </span>
-                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                                 </Button>
                             </motion.div>
                         ) : (
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-slate-900/50 border border-white/5"
+                                className="flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-orange-500/[0.05] dark:bg-slate-900/50 border border-orange-500/10 dark:border-white/5"
                             >
-                                <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.8)]" />
-                                <span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse" />
+                                <span className="text-[8px] sm:text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest whitespace-nowrap">
                                     Safely Synced
                                 </span>
                             </motion.div>

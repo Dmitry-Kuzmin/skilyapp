@@ -40,12 +40,18 @@ export function useChallengeBankQuestions(
 
       const dbCountry = country === 'russia' ? 'ru' : country === 'spain' ? 'es' : country;
 
-      // 1. Сначала получаем ID вопросов из challenge bank
-      const { data: challengeRelations, error: relError } = await supabase
+      // 1. Получаем ID вопросов из challenge bank с фильтром по стране
+      let query = supabase
         .from("user_challenge_questions")
-        .select("question_id")
+        .select("question_id, questions_new!inner(country)")
         .eq("user_id", profileId)
-        .eq("mastered", false)
+        .eq("mastered", false);
+
+      if (dbCountry) {
+        query = query.eq("questions_new.country", dbCountry);
+      }
+
+      const { data: challengeRelations, error: relError } = await query
         .order("last_wrong_at", { ascending: false })
         .limit(limit);
 
@@ -54,7 +60,7 @@ export function useChallengeBankQuestions(
 
       const questionIds = challengeRelations.map(r => r.question_id);
 
-      // 2. Загружаем данные вопросов и их ответы из унифицированных таблиц с жестким фильтром по стране
+      // 2. Загружаем полные данные вопросов
       const { data: questionsData, error: qError } = await supabase
         .from("questions_new")
         .select(`
@@ -62,8 +68,7 @@ export function useChallengeBankQuestions(
           topics (title_ru, title_es),
           answer_options (*)
         `)
-        .in("id", questionIds)
-        .eq("country", dbCountry); // КРИТИЧНО: Фильтруем по текущей стране!
+        .in("id", questionIds);
 
       if (qError) throw qError;
       if (!questionsData || questionsData.length === 0) return [];

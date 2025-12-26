@@ -37,6 +37,8 @@ interface QuestionProgressBarProps {
   className?: string;
   layout?: 'standard' | 'focus';
   streak?: number;
+  onToggleTranslation?: () => void;
+  showTranslation?: boolean;
 }
 
 export function QuestionProgressBar({
@@ -57,6 +59,8 @@ export function QuestionProgressBar({
   streak = 0,
   className,
   layout = 'standard',
+  onToggleTranslation,
+  showTranslation = false,
 }: QuestionProgressBarProps) {
   const { t } = useLanguage();
   const { selectedCountry } = usePDDContext();
@@ -129,7 +133,7 @@ export function QuestionProgressBar({
               streak={streak}
               label={t('streakCounter').toUpperCase()}
               size="sm"
-              className="hidden xs:flex h-10 border-none bg-slate-900/40 backdrop-blur-md"
+              className="hidden xs:flex h-10 border-none bg-orange-500/5 dark:bg-slate-900/40 backdrop-blur-md shadow-none"
             />
           )}
 
@@ -178,6 +182,8 @@ export function QuestionProgressBar({
 
       {/* Right Side Controls - Bookmark + Settings + Close (in focus mode) */}
       <div className="flex items-center gap-2 shrink-0">
+
+
         {/* Bookmark Button */}
         {onToggleBookmark && (
           <button
@@ -185,10 +191,10 @@ export function QuestionProgressBar({
             onClick={onToggleBookmark}
             disabled={bookmarkLoading}
             className={cn(
-              "flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl shadow-sm hover:shadow-md transition-all active:scale-95 backdrop-blur-sm border",
+              "flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl transition-all active:scale-95 backdrop-blur-sm border-2",
               isBookmarked
-                ? "bg-blue-500 border-blue-500 text-white hover:bg-blue-600"
-                : "bg-background border-border/50 hover:bg-muted/50"
+                ? "bg-blue-500 border-blue-400 text-white shadow-lg shadow-blue-500/30 ring-2 ring-blue-500/10"
+                : "bg-background border-border/50 hover:bg-muted/50 shadow-sm dark:shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
             )}
             title={isBookmarked ? "Удалить из закладок" : "Добавить в закладки"}
           >
@@ -202,6 +208,26 @@ export function QuestionProgressBar({
 
         {/* Settings Menu */}
         {SettingsMenuComponent}
+
+        {/* Language Switcher - Minimalist Circular Style */}
+        {onToggleTranslation && !isRussia && (
+          <button
+            onClick={onToggleTranslation}
+            className={cn(
+              "flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full transition-all duration-300 active:scale-90 border font-semibold text-[10px] sm:text-xs",
+              showTranslation
+                ? "bg-blue-600 border-blue-400 text-white shadow-lg shadow-blue-500/40 ring-4 ring-blue-500/10"
+                : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm dark:shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+            )}
+            title={showTranslation ? "Показать оригинал (ES)" : "Перевести на русский (RU)"}
+          >
+            <div className="flex flex-col items-center justify-center leading-none tracking-tighter">
+              <span className={cn("transition-colors", showTranslation ? "text-white" : "text-slate-900 dark:text-white")}>
+                {showTranslation ? 'RU' : 'ES'}
+              </span>
+            </div>
+          </button>
+        )}
 
 
       </div>

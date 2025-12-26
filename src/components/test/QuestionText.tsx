@@ -19,9 +19,9 @@ interface QuestionTextProps {
 
 // Typography Hierarchy: Question should be "Boss" - larger & bolder than answers
 const fontSizeClasses = {
-  0: 'text-base sm:text-lg',
-  1: 'text-lg sm:text-xl',
-  2: 'text-xl sm:text-2xl',
+  0: 'text-lg sm:text-xl',
+  1: 'text-xl sm:text-2xl',
+  2: 'text-2xl sm:text-3xl',
 };
 
 export function QuestionText({
@@ -65,8 +65,8 @@ export function QuestionText({
       }
 
       // 2. Проверяем, есть ли слово в словаре
-      const dictEntry = PDD_DICTIONARY_ES[lowerPart];
-      if (dictEntry && !showTranslation) {
+      const dictEntry = PDD_DICTIONARY_ES[lowerPart as keyof typeof PDD_DICTIONARY_ES];
+      if (dictEntry) {
         return (
           <React.Fragment key={i}>
             <TooltipProvider>
@@ -97,41 +97,13 @@ export function QuestionText({
 
   return (
     <div className={cn("relative", className)}>
-      {/* Переключатель языков - кнопки ES/RU */}
-      {onToggleTranslation && (
-        <div className="flex justify-start mb-4">
-          <div className="flex gap-2 p-1.5 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 rounded-2xl backdrop-blur-sm">
-            <button
-              onClick={() => showTranslation && onToggleTranslation()}
-              className={cn(
-                "px-5 py-2.5 text-sm font-black uppercase tracking-widest rounded-xl transition-all duration-300",
-                !showTranslation
-                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg scale-105"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5"
-              )}
-            >
-              🇪🇸 ES
-            </button>
-            <button
-              onClick={() => !showTranslation && onToggleTranslation()}
-              className={cn(
-                "px-5 py-2.5 text-sm font-black uppercase tracking-widest rounded-xl transition-all duration-300",
-                showTranslation
-                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-105"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5"
-              )}
-            >
-              🇷🇺 RU
-            </button>
-          </div>
-        </div>
-      )}
+
 
       <div className="relative group">
         <h2
           className={cn(
             fontSizeClasses[fontSize as keyof typeof fontSizeClasses] || fontSizeClasses[1],
-            "font-semibold leading-snug text-slate-900 dark:text-white/95 whitespace-pre-line transition-all duration-300",
+            "font-bold leading-tight tracking-tight text-slate-900 dark:text-white/95 whitespace-pre-line transition-all duration-300",
             isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0',
           )}
         >

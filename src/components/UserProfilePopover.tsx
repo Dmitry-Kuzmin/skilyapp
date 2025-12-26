@@ -247,7 +247,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
         <PopoverTrigger asChild>
           <button
             type="button"
-            className="relative group z-10"
+            className="relative group z-[51]"
             style={{ pointerEvents: 'auto' }}
             onClick={() => setOpen(true)}
           >
@@ -275,10 +275,10 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
           </button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-80 p-0"
+          className="w-80 p-0 z-[52]"
           align="end"
           sideOffset={8}
-          overlayClassName="bg-black/90 backdrop-blur-md"
+          overlayClassName="bg-black/10 backdrop-blur-3xl"
         >
           <div className="p-4 space-y-4">
             {/* Header - кликабельный для редактирования */}

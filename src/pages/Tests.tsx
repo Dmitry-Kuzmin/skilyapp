@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Shuffle, Clock, Zap, Flame, History, AlertTriangle,
+  Shuffle, Clock, Zap, Flame, History, AlertTriangle, AlertCircle,
   Target, TrendingUp, Crown, BookOpen, Gamepad2, Play, ArrowRight, Sparkles, CheckCircle,
   Star, AlertTriangle as AlertIcon, RotateCcw,
   CarFront, MapPin, Gauge, Check, Trophy
@@ -38,17 +38,20 @@ type Topic = {
 };
 
 // --- Cyber-Core Grid Components ---
-
 const TicketCore = ({
   number,
   progress = 0,
   status = 'idle', // 'idle' | 'charging' | 'charged' | 'damaged'
+  hasErrors = false,
+  errorCount = 0,
   isRussia = false,
   onClick
 }: {
   number: number;
   progress?: number;
   status?: 'idle' | 'charging' | 'charged' | 'damaged';
+  hasErrors?: boolean;
+  errorCount?: number;
   isRussia?: boolean;
   onClick: () => void;
 }) => {
@@ -59,64 +62,38 @@ const TicketCore = ({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
       whileHover={{ y: -5, scale: 1.02 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
       className={cn(
         "relative aspect-square rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden cursor-pointer group transition-all duration-500",
-        "border-[1.5px] shadow-2xl backdrop-blur-md",
+        "border-[1.5px] shadow-sm",
         // Idle
-        status === 'idle' && [
-          "bg-slate-50/50 dark:bg-white/[0.03] border-slate-200/50 dark:border-white/5",
-          "shadow-none hover:shadow-xl hover:shadow-slate-500/10"
-        ],
+        status === 'idle' && "bg-slate-50/50 dark:bg-white/[0.03] border-slate-200/50 dark:border-white/5",
         // Charging
-        status === 'charging' && [
-          "bg-orange-500/[0.08] dark:bg-orange-500/[0.1] border-orange-500/30",
-          "shadow-[0_0_30px_rgba(245,158,11,0.2)]"
-        ],
+        status === 'charging' && "bg-orange-500/[0.08] dark:bg-orange-500/[0.1] border-orange-500/30 shadow-orange-500/5",
         // Charged
-        status === 'charged' && [
-          "bg-emerald-500/[0.08] dark:bg-emerald-500/[0.1] border-emerald-500/30",
-          "shadow-[0_0_40px_rgba(16,185,129,0.25)]"
-        ],
+        status === 'charged' && "bg-emerald-500/[0.08] dark:bg-emerald-500/[0.1] border-emerald-500/30 shadow-emerald-500/5",
         // Damaged
-        status === 'damaged' && [
-          "bg-red-500/[0.08] dark:bg-red-500/[0.1] border-red-500/30",
-          "shadow-[0_0_30px_rgba(239,68,68,0.2)]"
-        ]
+        status === 'damaged' && "bg-red-500/[0.08] dark:bg-red-500/[0.1] border-red-500/30 shadow-red-500/5"
       )}
     >
-      {/* Glare effect on hover */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
-        <div className="absolute top-[-100%] left-[-100%] w-[300%] h-[300%] bg-gradient-to-br from-white/10 via-transparent to-transparent rotate-[45deg] group-hover:animate-shimmer" />
-      </div>
+      {/* Cyber Background pattern (Dots) */}
+      <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.08] pointer-events-none"
+        style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)', backgroundSize: '16px 16px' }} />
 
-      {/* Cyber Background pattern */}
-      <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
-        style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }} />
-
-      {/* Internal Glows - More vibrant as per "Jewel" concept */}
-      <div className={cn(
-        "absolute inset-0 opacity-20 dark:opacity-40 transition-all duration-500 blur-2xl",
-        status === 'charging' && "bg-orange-500",
-        status === 'charged' && "bg-emerald-500",
-        status === 'damaged' && "bg-red-500"
-      )} />
-
-      <div className="relative h-full flex flex-col items-center justify-center p-4 z-10">
+      <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+        {/* Top Label */}
         <span className={cn(
-          "text-[10px] font-black tracking-[0.2em] uppercase transition-colors duration-500 mb-1",
-          status === 'idle' ? "text-slate-400/40 dark:text-white/20" : "text-slate-500/60 dark:text-white/40"
+          "text-[10px] sm:text-[11px] font-black tracking-[0.2em] uppercase transition-colors duration-500 mb-2",
+          status === 'idle' ? "text-slate-400 dark:text-white/20" : "text-slate-500/60 dark:text-white/40"
         )}>
           Билет
         </span>
 
         <div className="relative flex items-center justify-center">
-          {/* Progress Ring for Charging */}
-          {status === 'charging' && (
+          {/* Progress Ring */}
+          {status !== 'idle' && progress > 0 && (
             <svg className="absolute w-20 h-20 sm:w-24 sm:h-24 -rotate-90 pointer-events-none">
               <circle
                 cx="50%"
@@ -139,7 +116,12 @@ const TicketCore = ({
                 animate={{ strokeDashoffset: offset }}
                 transition={{ duration: 1.5, ease: "easeOut" }}
                 strokeLinecap="round"
-                className="text-orange-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]"
+                className={cn(
+                  status === 'charged' ? "text-emerald-500" :
+                    status === 'damaged' ? "text-red-500" :
+                      "text-orange-500",
+                  "drop-shadow-[0_0_8px_currentColor]"
+                )}
               />
             </svg>
           )}
@@ -149,52 +131,53 @@ const TicketCore = ({
             status === 'idle'
               ? "text-slate-300 dark:text-white/10 group-hover:text-slate-900 dark:group-hover:text-white/60"
               : "text-slate-900 dark:text-white drop-shadow-sm",
-            status === 'charged' && "text-emerald-500 dark:text-emerald-400 drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]",
-            status === 'damaged' && "text-red-500 dark:text-red-400 drop-shadow-[0_0_15px_rgba(239,68,68,0.4)]"
+            status === 'charged' && "text-emerald-500 dark:text-emerald-400",
+            status === 'damaged' && "text-red-500 dark:text-red-400"
           )}>
             {number}
           </span>
         </div>
 
         {/* Status Indicators at Bottom */}
-        <div className="mt-3 flex items-center justify-center">
+        <div className="mt-4 sm:mt-6 flex flex-col items-center justify-center gap-1">
           {status === 'charged' && (
             <motion.div
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center gap-1"
             >
-              <Star className="w-3 h-3 text-emerald-400 fill-emerald-400" />
-              <span className="text-[10px] font-black text-emerald-400 uppercase tracking-tighter">
-                {isRussia ? 'Сдано' : 'Charged'}
+              <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-500 fill-emerald-500" />
+              <span className="text-[9px] sm:text-[10px] font-black text-emerald-500 uppercase tracking-tighter">
+                Сдано
               </span>
             </motion.div>
           )}
 
-          {status === 'charging' && (
-            <div className="px-2 py-0.5 rounded-full bg-orange-500/20 border border-orange-500/30">
-              <span className="text-[10px] font-black text-orange-400 tabular-nums">{progress}%</span>
+          {status === 'charging' && progress > 0 && (
+            <div className="px-2 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/20">
+              <span className="text-[10px] font-black text-orange-500 tabular-nums">{progress}%</span>
             </div>
           )}
 
-          {status === 'damaged' && (
-            <motion.div
-              animate={{ opacity: [0.6, 1, 0.6] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="px-2 py-0.5 rounded-full bg-red-500/20 border border-red-500/30 flex items-center gap-1"
-            >
-              <AlertTriangle className="w-3 h-3 text-red-500" />
-              <span className="text-[10px] font-black text-red-500 uppercase tracking-tighter">
-                {isRussia ? 'Ошибка' : 'Damaged'}
+          {hasErrors && (
+            <div className={cn(
+              "px-2 py-0.5 rounded-full border flex items-center gap-1",
+              status === 'damaged' ? "bg-red-500/20 border-red-500/30" :
+                status === 'charged' ? "bg-orange-500/10 border-orange-500/20 opacity-80" :
+                  "bg-red-500/10 border-red-200 dark:border-red-500/20 opacity-60"
+            )}>
+              <AlertCircle className={cn("w-2.5 h-2.5 sm:w-3 sm:h-3 text-red-500", status === 'idle' && "text-red-400")} />
+              <span className={cn("text-[8px] sm:text-[10px] font-black uppercase tracking-tighter", status === 'damaged' ? "text-red-500" : "text-red-400")}>
+                {errorCount > 0 ? `${errorCount} ${isRussia ? 'ошибок' : 'errors'}` : (isRussia ? 'Ошибка' : 'Error')}
               </span>
-            </motion.div>
+            </div>
           )}
         </div>
       </div>
 
-      {/* Decorative corners - Subtle */}
-      <div className="absolute top-3 left-3 w-1.5 h-1.5 border-t-2 border-l-2 border-slate-200 dark:border-white/10 rounded-tl-sm group-hover:border-slate-400 dark:group-hover:border-white/30 transition-colors" />
-      <div className="absolute bottom-3 right-3 w-1.5 h-1.5 border-b-2 border-r-2 border-slate-200 dark:border-white/10 rounded-br-sm group-hover:border-slate-400 dark:group-hover:border-white/30 transition-colors" />
+      {/* Decorative corners */}
+      <div className="absolute top-4 left-4 w-1.5 h-1.5 border-t border-l border-slate-300 dark:border-white/10 opacity-30 group-hover:opacity-100 transition-opacity" />
+      <div className="absolute bottom-4 right-4 w-1.5 h-1.5 border-b border-r border-slate-300 dark:border-white/10 opacity-30 group-hover:opacity-100 transition-opacity" />
     </motion.div>
   );
 };
@@ -888,23 +871,36 @@ const Tests = () => {
             </div >
 
             {/* Topics Section (для Испании) или Билеты (для России) */}
-            < motion.div
+            <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
               className="space-y-6"
             >
-              <div className="flex items-center justify-between">
-                <h3 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-card border border-border">
-                    <BookOpen className="w-6 h-6 text-indigo-400" />
+              {selectedCountry === 'russia' ? (
+                <div className="relative py-4">
+                  <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div className="w-full border-t border-slate-200 dark:border-white/10"></div>
                   </div>
-                  {selectedCountry === 'russia' ? 'Билеты ПДД' : t('testsPage.topicsTitle')}
-                </h3>
-                <Badge className="text-sm md:text-base px-3 md:px-4 py-1 md:py-2 font-bold bg-card border border-border">
-                  {selectedCountry === 'russia' ? tickets.length : topics.length}
-                </Badge>
-              </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-background px-4 text-xs font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
+                      Выбор билета
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <h3 className="text-2xl font-bold text-foreground flex items-center gap-3">
+                    <div className="p-2 rounded-xl bg-card border border-border">
+                      <BookOpen className="w-6 h-6 text-indigo-400" />
+                    </div>
+                    {t('testsPage.topicsTitle')}
+                  </h3>
+                  <Badge className="text-sm md:text-base px-3 md:px-4 py-1 md:py-2 font-bold bg-card border border-border">
+                    {topics.length}
+                  </Badge>
+                </div>
+              )}
 
               {/* Для России: показываем билеты в Cyber-Core Grid */}
               {
@@ -915,19 +911,18 @@ const Tests = () => {
                         const ticketId = typeof ticket.id === 'number' ? ticket.id : ticket.number;
                         const ticketNumber = ticket.metadata?.ticket_number || ticket.number;
 
-                        // Расширенная логика статусов для Cyber-Core
-                        let status: 'idle' | 'charging' | 'charged' | 'damaged' = 'idle';
-
                         const tStatus = ticketsStatus[ticketNumber.toString()];
-                        const progress = tStatus ? Math.round((tStatus.answered / tStatus.total) * 100) : 0;
+                        let status: 'idle' | 'charging' | 'charged' | 'damaged' = 'idle';
+                        const progress = tStatus?.score || 0;
                         const completed = tStatus?.completed || false;
-                        const score = tStatus?.score || 0;
+                        const hasErrors = tStatus?.hasErrors || false;
+                        const isStarted = tStatus?.isStarted || false;
 
-                        if (completed) {
-                          // Если сдан идеально (без ошибок) - Charged
-                          // Если сдан с ошибками - Damaged (требует пересдачи для идеала)
-                          status = score >= 100 ? 'charged' : 'damaged';
-                        } else if (progress > 0) {
+                        if (completed || progress >= 100) {
+                          status = 'charged';
+                        } else if (hasErrors && isStarted) {
+                          status = 'damaged';
+                        } else if (isStarted || progress > 0) {
                           status = 'charging';
                         }
 
@@ -937,6 +932,8 @@ const Tests = () => {
                             number={ticketNumber}
                             progress={progress}
                             status={status}
+                            hasErrors={hasErrors}
+                            errorCount={tStatus?.errorCount}
                             isRussia={selectedCountry === 'russia'}
                             onClick={() => navigate(`/learn/${selectedCountry}/ticket/${ticketId}`)}
                           />
