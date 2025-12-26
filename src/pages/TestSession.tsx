@@ -284,25 +284,27 @@ const TestSession = () => {
   // Load progress effect
   useEffect(() => {
     if (testInfo?.id && questionsState.length > 0 && hasLoadedProgressRef.current !== testInfo.id) {
+      // Mark as loading immediately to prevent duplicate calls
+      hasLoadedProgressRef.current = testInfo.id;
+
       const restoreProgress = async () => {
         try {
           const savedProgress = await loadTestProgress(testInfo.id);
           if (savedProgress && savedProgress.answers.length > 0) {
             console.log(`[TestSession] Restoring progress for ${testInfo.id} at index ${savedProgress.currentIndex}`);
             savedProgress.answers.forEach(ans => {
-              // Восстанавливаем ответы в стор
               answerQuestionZ(ans.selectedAnswerId || '', ans.isCorrect);
             });
             jumpToQuestionZ(savedProgress.currentIndex);
             if (savedProgress.startTime) {
               setStartTime(savedProgress.startTime);
             }
-            toast.info("Прогресс восстановлен", { icon: "↩️" });
+            // Dismiss any existing toasts before showing new one
+            toast.dismiss();
+            toast.info("Прогресс восстановлен", { icon: "↩️", id: `restore-${testInfo.id}` });
           }
-          hasLoadedProgressRef.current = testInfo.id;
         } catch (error) {
           console.error('[TestSession] Error restoring progress:', error);
-          hasLoadedProgressRef.current = testInfo.id; // Mark as "tried" even on error
         }
       };
 
@@ -325,6 +327,7 @@ const TestSession = () => {
     voiceOver, setVoiceOver,
     answerPopularity, setAnswerPopularity,
     ambientMusic, setAmbientMusic,
+    selectedMusicTrack, setSelectedMusicTrack,
     fontSize, setFontSize
   } = useTestSettings();
   const [testLanguage, setTestLanguage] = useState<'es' | 'en'>(() => {
@@ -2398,6 +2401,8 @@ const TestSession = () => {
                   onAnswerPopularityChange={setAnswerPopularity}
                   ambientMusic={ambientMusic}
                   onAmbientMusicChange={setAmbientMusic}
+                  selectedMusicTrack={selectedMusicTrack}
+                  onMusicTrackChange={setSelectedMusicTrack}
                   fontSize={fontSize}
                   onFontSizeChange={setFontSize}
                   language={testLanguage}
@@ -2650,7 +2655,7 @@ const TestSession = () => {
                 // Russia Vertical Layout (Image on top)
                 <div className="space-y-6">
                   <div className="w-full">
-                    <QuestionImage imageUrl={currentQuestion.image_url} className="w-full h-64 md:h-80 object-contain bg-muted/30 rounded-[2.5rem] border border-border/50 mb-4 shadow-sm" />
+                    <QuestionImage imageUrl={currentQuestion.image_url} className="w-full h-auto max-h-[350px] md:max-h-[450px] object-contain bg-muted/30 rounded-[2.5rem] border border-border/50 mb-4 shadow-sm" />
                   </div>
                   <div className="flex flex-col mt-6">
                     {/* Question Card - Swiss Design */}
@@ -2765,9 +2770,9 @@ const TestSession = () => {
                 </div>
               ) : (
                 // DGT Split Layout (Image on left)
-                <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[400px_1fr] gap-6 md:gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[400px_1fr] gap-6 md:gap-8 md:items-start">
                   <div className="w-full md:sticky md:top-4 md:self-start">
-                    <QuestionImage imageUrl={currentQuestion.image_url} className="w-full h-64 md:h-80 lg:h-96 object-contain bg-muted/30 rounded-[2.5rem] border border-border/50 mb-4 shadow-sm" />
+                    <QuestionImage imageUrl={currentQuestion.image_url} className="w-full h-auto max-h-[400px] md:max-h-[500px] lg:max-h-[600px] object-contain bg-muted/30 rounded-[2.5rem] border border-border/50 mb-4 shadow-sm" />
                   </div>
                   <div className="flex flex-col">
                     {/* Question Text with Smart Features */}

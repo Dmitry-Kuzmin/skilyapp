@@ -16,6 +16,7 @@ interface SettingsState {
     isMusicEnabled: boolean;
     isVoiceOverEnabled: boolean;
     isAnswerPopularityEnabled: boolean;
+    selectedMusicTrack: string | null;
 
     // Actions
     setFontSize: (size: FontSize) => void;
@@ -27,6 +28,7 @@ interface SettingsState {
     setMusic: (enabled: boolean) => void;
     setVoiceOver: (enabled: boolean) => void;
     setAnswerPopularity: (enabled: boolean) => void;
+    setSelectedMusicTrack: (trackName: string | null) => void;
 
     // Reset
     resetToDefaults: () => void;
@@ -41,6 +43,7 @@ const DEFAULT_SETTINGS = {
     isMusicEnabled: false,
     isVoiceOverEnabled: false,
     isAnswerPopularityEnabled: false,
+    selectedMusicTrack: null,
 };
 
 /**
@@ -82,6 +85,9 @@ export const useSettingsStore = create<SettingsState>()(
             })),
             setAnswerPopularity: (enabled) => set({ isAnswerPopularityEnabled: enabled }),
 
+            // Music Track
+            setSelectedMusicTrack: (trackName) => set({ selectedMusicTrack: trackName }),
+
             // Reset to defaults
             resetToDefaults: () => set(DEFAULT_SETTINGS),
         }),
@@ -95,6 +101,7 @@ export const useSettingsStore = create<SettingsState>()(
                 isMusicEnabled: state.isMusicEnabled,
                 isVoiceOverEnabled: state.isVoiceOverEnabled,
                 isAnswerPopularityEnabled: state.isAnswerPopularityEnabled,
+                selectedMusicTrack: state.selectedMusicTrack,
             }),
         }
     )

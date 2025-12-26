@@ -1480,3 +1480,53 @@ All colors MUST be HSL.
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
 }
+
+/* ============================================================================
+ * TIPPY.JS CUSTOM STYLES - Skily Translation Tooltips
+ * ============================================================================ */
+.tippy-box {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  max-width: 320px !important;
+}
+
+.tippy-content {
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+/* Custom arrow styling for dark theme */
+.tippy-arrow {
+  color: rgba(2, 6, 23, 0.95) !important;
+}
+
+.tippy-box[data-placement^='top']>.tippy-arrow::before {
+  border-top-color: rgba(2, 6, 23, 0.95) !important;
+}
+
+.tippy-box[data-placement^='bottom']>.tippy-arrow::before {
+  border-bottom-color: rgba(2, 6, 23, 0.95) !important;
+}
+
+.tippy-box[data-placement^='left']>.tippy-arrow::before {
+  border-left-color: rgba(2, 6, 23, 0.95) !important;
+}
+
+.tippy-box[data-placement^='right']>.tippy-arrow::before {
+  border-right-color: rgba(2, 6, 23, 0.95) !important;
+}
+
+/* Animation enhancement */
+.tippy-box[data-animation='shift-away'][data-state='hidden'] {
+  opacity: 0;
+}
+
+.tippy-box[data-animation='shift-away'][data-state='hidden'][data-placement^='top'] {
+  transform: translateY(10px);
+}
+
+.tippy-box[data-animation='shift-away'][data-state='hidden'][data-placement^='bottom'] {
+  transform: translateY(-10px);
+}

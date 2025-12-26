@@ -11,6 +11,8 @@ export interface TestSettings {
     setAnswerPopularity: (value: boolean) => void;
     ambientMusic: boolean;
     setAmbientMusic: (value: boolean) => void;
+    selectedMusicTrack: string | null;
+    setSelectedMusicTrack: (value: string | null) => void;
     fontSize: number; // 0=small, 1=medium, 2=large (legacy interface)
     setFontSize: (value: number) => void;
 }
@@ -47,6 +49,7 @@ const fontSizeToNumeric = (size: FontSize): number => {
  * - Settings persist across app (not just per-component)
  * - Single source of truth
  * - No duplicate localStorage logic
+ * - Synchronized across duel and regular modes
  */
 export const useTestSettings = (): TestSettings => {
     const {
@@ -56,6 +59,8 @@ export const useTestSettings = (): TestSettings => {
         setAnswerPopularity,
         isMusicEnabled,
         setMusic,
+        selectedMusicTrack,
+        setSelectedMusicTrack,
         fontSize: fontSizeStr,
         setFontSize: setFontSizeStr,
     } = useSettingsStore();
@@ -75,6 +80,8 @@ export const useTestSettings = (): TestSettings => {
         setAnswerPopularity,
         ambientMusic: isMusicEnabled,
         setAmbientMusic: setMusic,
+        selectedMusicTrack,
+        setSelectedMusicTrack,
         fontSize,
         setFontSize,
     };

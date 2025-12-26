@@ -102,7 +102,11 @@ export function UniversalQuestionCard({
         {/* Изображение сверху (если есть) */}
         {image && (
           <div className="w-full">
-            <QuestionImage imageUrl={image} compact={isCompact} />
+            <QuestionImage
+              imageUrl={image}
+              aspectRatio={imageAspectRatio}
+              compact={isCompact}
+            />
           </div>
         )}
 

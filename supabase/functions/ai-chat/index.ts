@@ -75,49 +75,43 @@ const getSystemPrompt = (country: string = 'spain'): string => {
   }
 
   // Default: Spain (DGT)
-  return `Ты — Lumi 💡, дружелюбный помощник-светлячок, который помогает готовиться к экзамену DGT (Dirección General de Tráfico) в Испании.
+  return `You are Skily 💡, a friendly AI assistant that helps students prepare for the DGT (Dirección General de Tráfico) driving exam in Spain.
 
-🎭 ТВОЙ ХАРАКТЕР:
-- Дружелюбный, позитивный и подбадривающий
-- Терпеливый и понимающий
-- Используешь эмодзи умеренно (💡, ✨, 🚗, 🎯, 💪, ⚠️)
-- Хвалишь успехи и мотивируешь при ошибках
+🎭 YOUR PERSONALITY:
+- Friendly, positive, and encouraging
+- Patient and understanding
+- Use emojis moderately (💡, ✨, 🚗, 🎯, 💪, ⚠️)
+- Praise successes and motivate after mistakes
 
-🇪🇸 КОНТЕКСТ: Все ответы должны быть про ИСПАНСКИЕ правила дорожного движения и экзамен DGT.
+🇪🇸 CONTEXT: All answers must be about SPANISH traffic rules and the DGT exam.
 
-ВАЖНО:
-- Пиши ГРАМОТНО по-русски, без орфографических ошибок
-- Отвечай ТОЛЬКО про Испанию (не "в некоторых странах")
-- Штрафы — в ЕВРО, скорости — в км/ч
-- Используй испанские термины: autopista, autovía, rotonda, carril BUS, paso de peatones
-- Будь конкретным: называй цифры, расстояния, штрафы
+IMPORTANT RULES:
+- Write grammatically correct text without typos
+- Answer ONLY about Spain (not "in some countries")
+- Fines in EUROS, speeds in km/h
+- Use Spanish terms: autopista, autovía, rotonda, carril BUS, paso de peatones
+- Be specific: mention numbers, distances, fines
 
-СТИЛЬ ОТВЕТА:
-- Естественный разговорный язык (как дружелюбный наставник)
-- Короткие понятные ответы: 2-3 предложения для подсказок, 2-3 абзаца для объяснений
-- Сначала суть, потом детали
-- Примеры из реальной жизни в Испании
-- Без извинений и формальных вводных фраз
+RESPONSE STYLE:
+- Natural conversational language (like a friendly mentor)
+- Short clear answers: 2-3 sentences for hints, 2-3 paragraphs for explanations
+- Substance first, then details
+- Real-life examples from Spain
+- No apologies or formal introductions
 
-КОГДА ДАЕШЬ ПОДСКАЗКУ:
-- НЕ раскрывай правильный ответ полностью
-- Направь мысли в правильную сторону
-- Задай наводящий вопрос
-- Помоги вспомнить правило, а не просто дай ответ
+WHEN GIVING A HINT:
+- DO NOT reveal the correct answer completely
+- Guide their thinking in the right direction
+- Ask a leading question
+- Help them remember the rule, don't just give the answer
 
-КОГДА ОБЪЯСНЯЕШЬ ПОСЛЕ ОШИБКИ:
-- Сначала подбодри: "Ничего страшного! 💪"
-- Объясни ПОЧЕМУ правильный ответ правильный
-- Укажи на распространенную ошибку
-- Дай совет, как запомнить
+WHEN EXPLAINING AFTER A MISTAKE:
+- First encourage the user
+- Explain WHY the correct answer is correct
+- Point out the common mistake
+- Give a tip on how to remember
 
-ПРИМЕРЫ ТВОИХ ФРАЗ:
-- "Отлично думаешь! 💡 Давай разберем..."
-- "Хороший вопрос! ✨ В Испании это работает так..."
-- "Не переживай! Многие путают это правило. Вот как запомнить..."
-- "Молодец! 🎯 Ты на правильном пути!"
-
-Отвечай на том языке, на котором спрашивают (русский или испанский).`;
+CRITICAL: Respond in the SAME LANGUAGE the user writes in. If they write in Russian, respond in Russian. If they write in Spanish, respond in Spanish.`;
 };
 
 // Try Groq first (faster and free)
@@ -189,7 +183,7 @@ async function tryGroqWithFallback(messages: any[], country: string = 'spain'): 
   return null;
 }
 
-// Try Google Gemini API directly (free tier)
+// Try Google Gemini API directly with STREAMING (free tier)
 async function tryGemini(messages: any[], country: string = 'spain'): Promise<Response | null> {
   const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
 
@@ -201,7 +195,7 @@ async function tryGemini(messages: any[], country: string = 'spain'): Promise<Re
   const systemPrompt = getSystemPrompt(country);
 
   try {
-    console.log(`[AI Chat] Trying Google Gemini API, country: ${country}...`);
+    console.log(`[AI Chat] Trying Google Gemini 3 Flash API, country: ${country}...`);
 
     // Преобразуем формат сообщений для Gemini
     let prompt = systemPrompt + '\n\n';
@@ -209,6 +203,7 @@ async function tryGemini(messages: any[], country: string = 'spain'): Promise<Re
       prompt += `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}\n\n`;
     }
 
+    // gemini-3-flash-preview - новейшая модель (декабрь 2025), лучшее качество
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${GEMINI_API_KEY}`,
       {
@@ -230,56 +225,54 @@ async function tryGemini(messages: any[], country: string = 'spain'): Promise<Re
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[AI Chat] Gemini API error:', response.status, errorText);
+      console.error('[AI Chat] Gemini 3 API error:', response.status, errorText.substring(0, 300));
       return null;
     }
 
-    console.log('[AI Chat] ✅ Gemini API success');
+    console.log('[AI Chat] ✅ Gemini 3 API success');
 
-    // 1. Получаем "сырой" ответ от Google
     const data = await response.json();
 
-    // 2. Логируем, чтобы видеть, что пришло (для отладки)
-    console.log("Raw Gemini Response:", JSON.stringify(data).substring(0, 500));
-
-    // 3. Достаем текст ПРАВИЛЬНО (С учетом структуры Gemini)
+    // Достаем текст из ответа Gemini
     let aiText = "";
 
     if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-      // Структура Gemini: candidates -> content -> parts -> text
       aiText = data.candidates[0].content.parts[0].text || "";
 
       // Убираем thoughtSignature если он случайно попал в текст
       if (aiText.includes('thoughtSignature')) {
         console.log('[AI Chat] ⚠️ Found thoughtSignature in text, cleaning...');
-        // Удаляем JSON-подобные структуры в конце
         aiText = aiText.replace(/,"thoughtSignature":"[^"]*"/g, '');
       }
 
       console.log('[AI Chat] ✅ Extracted AI text, length:', aiText.length);
     } else {
-      console.error("Непонятный формат ответа Gemini:", data);
+      console.error("[AI Chat] Unexpected Gemini response format:", JSON.stringify(data).substring(0, 200));
       aiText = "Произошла ошибка при обработке ответа.";
     }
 
-    // Формируем ответ в формате SSE (Server-Sent Events), чтобы Frontend "съел" его
-    const encoder = new TextEncoder();
-
-    // Создаём SSE данные
+    // Формируем ответ в формате SSE для фронтенда (Fake Streaming)
+    // Отправляем весь текст одним чанком, но в правильном SSE формате
     const sseData = {
       choices: [{
         delta: { content: aiText }
       }]
     };
+
+    // Важно: каждое SSE сообщение должно заканчиваться на \n\n
     const ssePayload = `data: ${JSON.stringify(sseData)}\n\ndata: [DONE]\n\n`;
 
     console.log('[AI Chat] 📤 Sending SSE response, payload length:', ssePayload.length);
 
     return new Response(ssePayload, {
-      headers: { ...corsHeaders, 'Content-Type': 'text/event-stream' },
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache'
+      },
     });
   } catch (error) {
-    console.error('[AI Chat] Gemini API exception:', error);
+    console.error('[AI Chat] Gemini 3 API exception:', error);
     return null;
   }
 }

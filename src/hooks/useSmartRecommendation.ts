@@ -72,14 +72,22 @@ export function useSmartRecommendation(profileId: string | null) {
 
         if (latestActiveSession && latestActiveSession.currentIndex > 0) {
             const isTicket = latestActiveSession.testId.includes('ticket-');
-            const ticketNum = isTicket ? latestActiveSession.testId.split('-')[1] : null;
+            const ticketNum = isTicket ? latestActiveSession.testId.replace('ticket-', '') : null;
+
+            // Determine subtitle based on whether we have a valid ticket number
+            let subtitle: string;
+            if (ticketNum && !isNaN(Number(ticketNum))) {
+                subtitle = t('smartMentor.resumeTicketSubtitle', { num: ticketNum, question: latestActiveSession.currentIndex + 1 })
+                    || `Ты остановился на вопросе ${latestActiveSession.currentIndex + 1} в Билете ${ticketNum}.`;
+            } else {
+                subtitle = t('smartMentor.resumeGenericSubtitle', { question: latestActiveSession.currentIndex + 1 })
+                    || `Ты на вопросе ${latestActiveSession.currentIndex + 1}. Продолжим?`;
+            }
 
             return {
                 type: 'resume',
                 title: t('smartMentor.resumeTitle') || 'Продолжить обучение',
-                subtitle: ticketNum
-                    ? t('smartMentor.resumeTicketSubtitle', { num: ticketNum, question: latestActiveSession.currentIndex + 1 }) || `Ты остановился на вопросе ${latestActiveSession.currentIndex + 1} в Билете ${ticketNum}.`
-                    : t('smartMentor.resumeGenericSubtitle') || `У тебя есть незавершенный тест. Продолжим?`,
+                subtitle,
                 buttonText: t('smartMentor.resumeButton') || 'Продолжить',
                 route: `/test/practice?id=${latestActiveSession.testId}&mode=${latestActiveSession.mode}`,
                 theme: 'info',

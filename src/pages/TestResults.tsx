@@ -78,8 +78,8 @@ const QuestionImageComponent = ({ imageUrl }: { imageUrl: string }) => {
 
   if (isLoading) {
     return (
-      <div className="mb-4 rounded-lg overflow-hidden border border-border/50 bg-muted/20 animate-pulse h-48 flex items-center justify-center">
-        <span className="text-muted-foreground text-sm">Загрузка...</span>
+      <div className="mb-4 rounded-lg overflow-hidden border border-border/50 bg-muted/20 animate-pulse aspect-video max-h-[250px] flex items-center justify-center">
+        <span className="text-muted-foreground text-xs opacity-50 uppercase tracking-widest">Cargando...</span>
       </div>
     );
   }

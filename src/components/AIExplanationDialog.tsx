@@ -224,10 +224,7 @@ export function AIExplanationDialog({
       // Обновляем локальное состояние
       setMessageRatings(prev => ({ ...prev, [messageIndex]: rating }));
 
-      toast({
-        description: rating === 1 ? "✓ Спасибо за оценку!" : "✓ Учтём для улучшения",
-        duration: 2000,
-      });
+      toast.success(rating === 1 ? "✓ Спасибо за оценку!" : "✓ Учтём для улучшения");
     } catch (error) {
       console.error('Error submitting feedback:', error);
     }

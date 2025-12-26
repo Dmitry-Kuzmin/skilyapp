@@ -11,6 +11,7 @@ import { ZoomIn, X } from 'lucide-react';
 
 interface QuestionImageProps {
   imageUrl: string | null;
+  aspectRatio?: number | null;
   compact?: boolean;
   className?: string;
   alt?: string;
@@ -18,6 +19,7 @@ interface QuestionImageProps {
 
 export const QuestionImage = memo(function QuestionImage({
   imageUrl,
+  aspectRatio: initialAspectRatio = null,
   compact = false,
   className,
   alt = "Вопрос",
@@ -25,7 +27,7 @@ export const QuestionImage = memo(function QuestionImage({
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null);
+  const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(initialAspectRatio);
   const [isZoomed, setIsZoomed] = useState(false);
 
   useEffect(() => {
@@ -77,14 +79,16 @@ export const QuestionImage = memo(function QuestionImage({
     return (
       <div className={cn(
         "rounded-xl sm:rounded-2xl overflow-hidden border-2 border-border/30 shadow-lg bg-gradient-to-br from-muted/30 to-muted/10 animate-pulse",
-        compact ? 'w-full' : 'mb-4 sm:mb-6',
         className
       )}>
-        <div className={cn(
-          "w-full flex items-center justify-center",
-          compact ? 'h-full min-h-[300px] md:min-h-[400px]' : 'h-48 sm:h-64 md:h-72'
-        )}>
-          <div className="text-muted-foreground text-sm">Загрузка изображения...</div>
+        <div
+          className="w-full flex items-center justify-center transition-all duration-300"
+          style={{
+            aspectRatio: imageAspectRatio ? `${imageAspectRatio}` : 'auto',
+            minHeight: imageAspectRatio ? 'auto' : (compact ? '240px' : '200px')
+          }}
+        >
+          <div className="text-muted-foreground text-xs font-medium uppercase tracking-wider opacity-50">Cargando...</div>
         </div>
       </div>
     );
@@ -99,31 +103,20 @@ export const QuestionImage = memo(function QuestionImage({
       <Dialog open={isZoomed} onOpenChange={setIsZoomed}>
         <div className={cn(
           "relative rounded-xl overflow-hidden group/img ring-1 ring-white/5",
-          compact ? 'w-full' : 'mb-6',
           className
         )}>
           <DialogTrigger asChild>
-            <div
-              className="relative w-full cursor-zoom-in overflow-hidden"
-              style={{
-                minHeight: compact ? '200px' : 'auto',
-                maxHeight: compact ? '500px' : 'none',
-              }}
-            >
+            <div className="relative w-full cursor-zoom-in overflow-hidden">
               <img
                 src={imageSrc}
                 alt={alt}
                 className="w-full h-auto object-contain block transition-transform duration-500 group-hover/img:scale-[1.02]"
                 loading="lazy"
                 decoding="async"
-                width={imageAspectRatio ? Math.round((compact ? 500 : 800) * imageAspectRatio) : (compact ? 500 : 800)}
-                height={imageAspectRatio ? (compact ? 500 : 800) : Math.round((compact ? 500 : 800) / (imageAspectRatio || 1.5))}
+                width={imageAspectRatio ? Math.round(800 * imageAspectRatio) : 800}
+                height={imageAspectRatio ? 800 : Math.round(800 / (imageAspectRatio || 1.5))}
                 style={{
                   aspectRatio: imageAspectRatio ? `${imageAspectRatio}` : 'auto',
-                  minHeight: compact ? '200px' : '180px',
-                  maxHeight: imageAspectRatio && imageAspectRatio > 1.2
-                    ? (compact ? '600px' : '500px')
-                    : (compact ? '500px' : '400px'),
                 }}
               />
 

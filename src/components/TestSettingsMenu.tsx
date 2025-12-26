@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { X, Volume2, TrendingUp, Music, Type, Keyboard } from "lucide-react";
+import { X, Volume2, TrendingUp, Music, Type, Keyboard, Pause, Sparkles } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { useTheme } from "next-themes";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,12 +21,16 @@ interface TestSettingsMenuProps {
   onAnswerPopularityChange: (value: boolean) => void;
   ambientMusic: boolean;
   onAmbientMusicChange: (value: boolean) => void;
+  selectedMusicTrack: string | null;
+  onMusicTrackChange: (value: string | null) => void;
   fontSize: number; // 0 = small, 1 = default, 2 = large
   onFontSizeChange: (value: number) => void;
   language: 'es' | 'en';
   onLanguageChange: (value: 'es' | 'en') => void;
   hideLanguageSelector?: boolean; // Скрыть выбор языка (для русских тестов ПДД)
 }
+
+import { supabase } from "@/integrations/supabase/client";
 
 export const TestSettingsMenu = ({
   open,
@@ -35,13 +41,44 @@ export const TestSettingsMenu = ({
   onAnswerPopularityChange,
   ambientMusic,
   onAmbientMusicChange,
+  selectedMusicTrack,
+  onMusicTrackChange,
   fontSize,
   onFontSizeChange,
   language,
   onLanguageChange,
   hideLanguageSelector = false,
 }: TestSettingsMenuProps) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const fontSizeLabels = ['Pequeño', 'Default', 'Grande'];
+  const [tracks, setTracks] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchTracks = async () => {
+      const { data } = await supabase.storage.from('ambient-music').list();
+      if (data) {
+        setTracks(data.map(f => f.name).filter(n => n.endsWith('.mp3')));
+      }
+    };
+    if (open) fetchTracks();
+  }, [open]);
+
+  // Маппинг имен файлов на красивые названия
+  const getTrackDisplayName = (fileName: string) => {
+    if (fileName.includes('christmas')) return '🎄 Christmas Synthwave';
+    if (fileName.includes('dark-synthwave')) return '🌃 Dark Synthwave';
+    if (fileName.includes('inspiring')) return '✨ Inspiring Synth';
+    if (fileName.includes('midnight')) return '🌙 Midnight Synth';
+    if (fileName.includes('80s-retro-back')) return '🎸 80s Retro';
+    if (fileName.includes('80s-3211')) return '🏎️ Fast Synth';
+    if (fileName.includes('80s-4428')) return '🏙️ City Lights';
+    if (fileName.includes('synthwave-retr')) return '📼 VHS Wave';
+    if (fileName.includes('ambient-01')) return '☁️ Chill Air';
+    if (fileName.includes('ambient-02')) return '🌊 Deep Blue';
+    if (fileName.includes('ambient-03')) return '🧘 Zen Moment';
+    return fileName.replace('.mp3', '');
+  };
 
   // Предотвращаем скролл страницы при открытии меню
   useEffect(() => {
@@ -93,7 +130,7 @@ export const TestSettingsMenu = ({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-[280px] p-3 bg-white dark:bg-gray-900 backdrop-blur-xl shadow-lg border border-border/20 rounded-xl"
+        className="w-[280px] p-3 bg-white dark:bg-gray-900 backdrop-blur-xl shadow-lg border border-border/20 rounded-xl max-h-[85vh] overflow-y-auto"
         align="end"
         side="bottom"
         sideOffset={8}
@@ -129,19 +166,104 @@ export const TestSettingsMenu = ({
             />
           </div>
 
-          {/* Ambient music */}
-          <div className="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-muted/30 transition-colors">
+          {/* Ultra Compact Music Player */}
+          <div className="px-2 py-2 space-y-2">
+            {/* Main Row: Icon + Label + Mini Visualizer + Toggle */}
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-md bg-blue-500/10 flex items-center justify-center">
-                <Music className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              {/* Icon with conditional glow */}
+              <div className={cn(
+                "w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300",
+                ambientMusic
+                  ? "bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30"
+                  : "bg-muted"
+              )}>
+                {ambientMusic ? (
+                  <div className="flex items-end gap-[2px] h-3.5">
+                    <motion.div animate={{ height: ['3px', '10px', '5px', '12px', '3px'] }} transition={{ duration: 0.8, repeat: Infinity }} className="w-0.5 bg-white rounded-full" />
+                    <motion.div animate={{ height: ['7px', '3px', '11px', '5px', '8px'] }} transition={{ duration: 0.6, repeat: Infinity }} className="w-0.5 bg-white rounded-full" />
+                    <motion.div animate={{ height: ['10px', '5px', '7px', '3px', '10px'] }} transition={{ duration: 1, repeat: Infinity }} className="w-0.5 bg-white rounded-full" />
+                    <motion.div animate={{ height: ['5px', '12px', '3px', '9px', '6px'] }} transition={{ duration: 0.7, repeat: Infinity }} className="w-0.5 bg-white rounded-full" />
+                  </div>
+                ) : (
+                  <Music className="w-4 h-4 text-muted-foreground" />
+                )}
               </div>
-              <span className="font-medium text-sm">Музыка</span>
+
+              {/* Track Info */}
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-bold text-foreground truncate">
+                  {ambientMusic
+                    ? (selectedMusicTrack ? getTrackDisplayName(selectedMusicTrack) : '🔀 Shuffle Mix')
+                    : 'Музыка выкл.'
+                  }
+                </div>
+                <div className="text-[10px] text-muted-foreground font-medium">Ambient Player</div>
+              </div>
+
+              {/* Toggle */}
+              <Switch
+                checked={ambientMusic}
+                onCheckedChange={onAmbientMusicChange}
+                className="data-[state=checked]:bg-blue-600 scale-90"
+              />
             </div>
-            <Switch
-              checked={ambientMusic}
-              onCheckedChange={onAmbientMusicChange}
-              className="data-[state=checked]:bg-green-500 scale-90"
-            />
+
+            {/* Compact Track Selector (horizontal pills) */}
+            {ambientMusic && tracks.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {/* Shuffle pill */}
+                  <button
+                    onClick={() => onMusicTrackChange(null)}
+                    className={cn(
+                      "px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-150 flex items-center gap-1.5",
+                      selectedMusicTrack === null
+                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"
+                        : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                  >
+                    <TrendingUp className="w-3 h-3" />
+                    Shuffle
+                  </button>
+
+                  {/* Track pills with emojis */}
+                  {tracks.slice(0, 6).map(track => {
+                    const isActive = selectedMusicTrack === track;
+                    const displayName = getTrackDisplayName(track);
+                    const emoji = displayName.split(' ')[0]; // Get emoji
+                    const shortName = displayName.split(' ').slice(1).join(' ').substring(0, 12);
+
+                    return (
+                      <button
+                        key={track}
+                        onClick={() => onMusicTrackChange(track)}
+                        className={cn(
+                          "px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-150 flex items-center gap-1",
+                          isActive
+                            ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md"
+                            : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        )}
+                      >
+                        <span>{emoji}</span>
+                        <span className="truncate max-w-[60px]">{shortName}</span>
+                      </button>
+                    );
+                  })}
+
+                  {/* More indicator if > 6 tracks */}
+                  {tracks.length > 6 && (
+                    <span className="px-2 py-1.5 text-[10px] text-muted-foreground font-medium">
+                      +{tracks.length - 6}
+                    </span>
+                  )}
+                </div>
+              </motion.div>
+            )}
           </div>
 
           {/* Divider */}
