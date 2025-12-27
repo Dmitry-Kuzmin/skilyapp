@@ -485,7 +485,7 @@ const Tests = () => {
               onClick={handleBannerClick}
             >
               {/* Noise texture */}
-              <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
+              <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("/noise.svg")' }}></div>
 
               <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 p-8 md:p-12 items-center">
                 {/* Left Content */}

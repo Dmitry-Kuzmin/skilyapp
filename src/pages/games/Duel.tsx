@@ -1354,7 +1354,7 @@ export default function Duel() {
                                     className="relative overflow-hidden rounded-3xl border px-4 py-6 md:px-10 md:py-12 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600 border-violet-500/30 shadow-[0_0_60px_rgba(139,92,246,0.5)]"
                                 >
                                     {/* Noise texture */}
-                                    <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+                                    <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("/noise.svg")' }} />
 
                                     {/* Glow effect */}
                                     <div className="absolute top-0 right-0 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl -z-10" />
@@ -1436,7 +1436,7 @@ export default function Duel() {
                                             {/* Create Duel Section - Premium */}
                                             <div className="relative p-4 sm:p-6 md:p-8 lg:p-10 bg-gradient-to-br from-violet-50/80 via-purple-50/60 to-indigo-50/80 dark:from-violet-950/20 dark:via-purple-950/15 dark:to-indigo-950/20 overflow-hidden">
                                                 {/* Noise texture */}
-                                                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+                                                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("/noise.svg")' }} />
 
                                                 {/* Animated background pattern */}
                                                 <div className="absolute inset-0 opacity-5 dark:opacity-10">
@@ -1525,7 +1525,7 @@ export default function Duel() {
                                                                     )}
                                                                 >
                                                                     {/* Background Noise & Haptics Trigger Helper */}
-                                                                    <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] pointer-events-none" />
+                                                                    <div className="absolute inset-0 opacity-[0.03] bg-[url('/noise.svg')] pointer-events-none" />
 
                                                                     {/* HEADER */}
                                                                     <div className="flex justify-between items-center mb-8 relative z-10">
@@ -2232,7 +2232,7 @@ export default function Duel() {
                                         <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-gradient-to-tr from-indigo-500/10 to-transparent rounded-full blur-[80px] opacity-30 group-hover:opacity-50 transition-opacity duration-1000 -z-10" />
 
                                         {/* Noise texture for depth */}
-                                        <div className="absolute inset-0 opacity-[0.015] pointer-events-none -z-10" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+                                        <div className="absolute inset-0 opacity-[0.015] pointer-events-none -z-10" style={{ backgroundImage: 'url("/noise.svg")' }} />
 
                                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10 sm:mb-12">
                                             <div className="space-y-2">

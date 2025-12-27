@@ -243,7 +243,7 @@ const Games = () => {
               >
                 {/* Noise texture - только для активной карточки */}
                 {duelsEnabled && (
-                  <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
+                  <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("/noise.svg")' }}></div>
                 )}
 
                 {/* Animated Background Gradients - только для активной карточки */}

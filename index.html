@@ -13,12 +13,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="msapplication-TileColor" content="#09090b" />
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts - ОПТИМИЗАЦИЯ: неблокирующая загрузка -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap">
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap"
-    rel="stylesheet">
+    rel="stylesheet" media="print" onload="this.media='all'">
 
   <!-- Favicons -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -185,9 +186,7 @@
   <link rel="dns-prefetch" href="https://telegram.org" />
   <link rel="preconnect" href="https://yffjnqegeiorunyvcxkn.supabase.co" crossorigin />
   <link rel="dns-prefetch" href="https://yffjnqegeiorunyvcxkn.supabase.co" />
-  <!-- КРИТИЧНО: Preconnect для grainy-gradients (экономия 300 мс LCP на мобильных) -->
-  <link rel="preconnect" href="https://grainy-gradients.vercel.app" crossorigin />
-  <link rel="dns-prefetch" href="https://grainy-gradients.vercel.app" />
+  <!-- ОПТИМИЗАЦИЯ: noise.svg теперь локальный, preconnect к grainy-gradients удалён -->
 
   <!-- Критический CSS inline для ускорения FCP -->
   <style>
@@ -421,16 +420,20 @@
   <!-- КРИТИЧНО: telegram-web-app.js нужен для инициализации, загружаем с defer -->
   <!-- crossorigin="anonymous" для лучшей совместимости с Safari Privacy -->
   <!-- AdsGram SDK (для Telegram Mini App) -->
-  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+  <!-- ОПТИМИЗАЦИЯ: defer для рекламных SDK -->
+  <script src="https://sad.adsgram.ai/js/sad.min.js" defer></script>
 
   <!-- Monetag Native Banner (Interstitial) SDK (для веб-версии - Rewarded Video) -->
   <!-- Zone ID: 10323437 (Skillful tag) - используется как Rewarded Video -->
   <script>
-    (function (s) {
-      s.dataset.zone = '10323437';
-      s.src = 'https://groleegni.net/vignette.min.js';
-      s.dataset.sdk = 'show_10323437';
-    })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+    // ОПТИМИЗАЦИЯ: Monetag загружается с задержкой после LCP
+    setTimeout(function() {
+      (function (s) {
+        s.dataset.zone = '10323437';
+        s.src = 'https://groleegni.net/vignette.min.js';
+        s.dataset.sdk = 'show_10323437';
+      })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+    }, 2000);
   </script>
 
   <!-- КРИТИЧНО: Загружаем Telegram SDK только если мы действительно в Telegram или на localhost (для мока) -->

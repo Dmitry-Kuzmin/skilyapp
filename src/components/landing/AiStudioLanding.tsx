@@ -122,7 +122,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
     <div className="relative min-h-screen bg-[#0f172a] text-white font-sans overflow-x-hidden selection:bg-indigo-500/30">
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.03] z-0"
-        style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}
+        style={{ backgroundImage: 'url("/noise.svg")' }}
       ></div>
       <div className="fixed inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
 
@@ -539,7 +539,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
       <section className="relative z-10 px-6 py-16 max-w-[1400px] mx-auto">
         <div className="relative rounded-[2rem] overflow-hidden border border-slate-800 shadow-2xl mb-10 group">
           <div className="h-24 bg-gradient-to-r from-orange-500 to-red-600 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+            <div className="absolute inset-0 opacity-20 bg-[url('/noise.svg')]"></div>
           </div>
 
           <div className="bg-[#0f172a] p-8 flex flex-col md:flex-row items-center justify-between gap-6">

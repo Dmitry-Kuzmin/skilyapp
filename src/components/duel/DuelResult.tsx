@@ -540,7 +540,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
 
               {/* Noise texture overlay */}
-              <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+              <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: 'url("/noise.svg")' }} />
 
               <div className="text-center space-y-3 relative z-10">
                 <AnimatedCounter
@@ -572,7 +572,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
 
               {/* Noise texture overlay */}
-              <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+              <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: 'url("/noise.svg")' }} />
 
               {/* Subtle animated background */}
               <motion.div
@@ -625,7 +625,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
             </div>
 
             {/* Noise texture overlay */}
-            <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+            <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: 'url("/noise.svg")' }} />
 
             <div className="relative z-10 space-y-5">
               <div className="flex items-center justify-center gap-2">
@@ -899,7 +899,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
               className="relative w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 hover:from-blue-400 hover:via-indigo-400 hover:to-violet-400 text-white font-bold h-14 rounded-2xl shadow-[0_0_20px_-5px_rgba(99,102,241,0.4)] border-0 overflow-hidden"
             >
               {/* Noise texture overlay */}
-              <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+              <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("/noise.svg")' }} />
               <div className="relative z-10 flex items-center justify-center">
                 <RotateCcw className="w-5 h-5 mr-2" />
                 Реванш

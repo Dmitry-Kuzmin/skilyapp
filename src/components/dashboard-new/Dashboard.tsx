@@ -184,7 +184,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
 
             {/* 2. Holographic Noise */}
-            <div className="absolute inset-0 opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat mix-blend-overlay pointer-events-none"></div>
+            <div className="absolute inset-0 opacity-[0.05] bg-[url('/noise.svg')] bg-repeat mix-blend-overlay pointer-events-none"></div>
 
             {/* 3. Glow Effects */}
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none translate-x-1/3 -translate-y-1/3"></div>
