@@ -273,6 +273,7 @@ const DashboardContent = memo(function DashboardContent() {
                   isClaiming={claimingBonus}
                   onGetPremium={() => setPaywallOpen(true)}
                   profileId={profileId}
+                  userProfile={dashboardData.profile}
                   readinessStatus={readiness ? {
                     status: readiness.status,
                     statusText: readiness.statusText,

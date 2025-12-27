@@ -328,11 +328,10 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                       key={item.name}
                       to={item.href}
                       className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-150 whitespace-nowrap flex-shrink-0",
-                        // ОПТИМИЗАЦИЯ: Убрано transition-all, оставлен только transition-colors
+                        "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 whitespace-nowrap flex-shrink-0",
                         desktopActive
-                          ? "bg-primary text-primary-foreground shadow-primary"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                          ? "bg-primary/10 text-primary font-semibold shadow-sm"
+                          : "text-muted-foreground opacity-70 hover:opacity-100 hover:bg-muted/30",
                         item.isActiveDuel && "bg-gradient-to-r from-primary/10 to-blue-500/10 border border-primary/20"
                       )}
                       style={{

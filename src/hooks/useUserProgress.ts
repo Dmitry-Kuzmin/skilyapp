@@ -26,10 +26,8 @@ export function useUserProgress(profileId: string | null, country?: string, cate
         query = query.eq("questions_new.country", dbCountry);
       }
 
-      // Добавляем фильтр по категории если она указана
-      if (category) {
-        // Мы используем .or() потому что в разных странах могут быть разные ключи в метаданных
-        // Для России это ticket_category
+      // Добавляем фильтр по категории ТОЛЬКО для России (у Испании нет ticket_category)
+      if (category && country === 'russia') {
         query = query.filter("questions_new.metadata->>ticket_category", "ilike", `%${category}%`);
       }
 
@@ -42,8 +40,8 @@ export function useUserProgress(profileId: string | null, country?: string, cate
     enabled: !!profileId,
     staleTime: 2 * 60 * 1000, // 2 минуты
     gcTime: 5 * 60 * 1000, // 5 минут
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
     retry: 1,
   });
 }

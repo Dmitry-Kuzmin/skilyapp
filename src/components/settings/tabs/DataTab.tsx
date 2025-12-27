@@ -25,11 +25,35 @@ export const DataTab: React.FC = () => {
         }
     }, []);
 
-    const handleClearCache = () => {
+    const handleClearCache = async () => {
         triggerHaptic('medium');
+
+        // 1. Очищаем localStorage и sessionStorage
         localStorage.clear();
         sessionStorage.clear();
-        toast.success('Кэш очищен', { duration: 1500 });
+
+        // 2. Очищаем IndexedDB (React Query кэш)
+        try {
+            const databases = await indexedDB.databases();
+            for (const db of databases) {
+                if (db.name) {
+                    indexedDB.deleteDatabase(db.name);
+                }
+            }
+            console.log('[DataTab] IndexedDB cleared:', databases.map(d => d.name));
+        } catch (error) {
+            console.error('[DataTab] Error clearing IndexedDB:', error);
+        }
+
+        toast.success('Весь кэш очищен!', {
+            description: 'Страница перезагрузится',
+            duration: 1500
+        });
+
+        // Перезагружаем страницу для применения изменений
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
     };
 
     const handleClearSW = async () => {

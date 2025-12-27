@@ -29,8 +29,9 @@ export const TestContentLayout = ({
                 : isExamMode
                     ? "max-w-3xl px-4"
                     // Grid Layout for Practice Mode on Desktop (with Sidebar)
+                    // We only move sidebar to the side on XL (1280px+) to ensure enough room for question content
                     : !isTelegramApp && isPracticeLikeMode
-                        ? "flex flex-col lg:grid lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px] lg:items-start lg:gap-3 xl:gap-4 max-w-full lg:max-w-[1370px] px-2 sm:px-4"
+                        ? "flex flex-col xl:grid xl:grid-cols-[1fr_400px] 2xl:grid-cols-[1fr_440px] xl:items-start xl:gap-6 2xl:gap-8 max-w-full xl:max-w-[1440px] 2xl:max-w-[1600px] px-2 sm:px-4 lg:px-8"
                         // Default Container
                         : "container px-2 sm:px-4"
         )}>
@@ -38,6 +39,7 @@ export const TestContentLayout = ({
             <div
                 data-testid="test-content-block"
                 className={cn(
+                    "w-full min-w-0 transition-all duration-500", // min-w-0 for flex/grid items to allow shrinking
                     // Telegram Layout adjustments
                     isTelegramApp
                         ? "px-2 sm:px-4 pt-4"
@@ -52,10 +54,11 @@ export const TestContentLayout = ({
             {/* Sidebar Column (Desktop Practice Only) - NOT for Blitz/Exam */}
             {sidebar && !isTelegramApp && isPracticeLikeMode && !isBlitzMode && !isExamMode && (
                 <div className={cn(
-                    "hidden lg:flex lg:flex-col pt-4",
-                    "pb-2 md:pb-3"
+                    "hidden xl:flex xl:flex-col pt-4",
+                    "pb-2 md:pb-3",
+                    "xl:min-w-[380px] 2xl:min-w-[420px]"
                 )}>
-                    <div className="sticky top-4 w-full flex flex-col">
+                    <div className="sticky top-6 w-full flex flex-col">
                         {sidebar}
                     </div>
                 </div>

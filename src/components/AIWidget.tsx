@@ -443,7 +443,7 @@ ${explanation ? `\nОфициальное объяснение из базы: ${
             {isExpanded ? <Minimize2 className="h-3.5 w-3.5 xl:h-4 xl:w-4" /> : <Maximize2 className="h-3.5 w-3.5 xl:h-4 xl:w-4" />}
           </Button>
           <div className="flex items-center gap-2 xl:gap-3 min-w-0 flex-1">
-            <div className="w-8 h-8 xl:w-10 xl:h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center shrink-0 shadow-sm transition-transform duration-500 group-hover:scale-105">
+            <div className="w-8 h-8 xl:w-10 xl:h-10 flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-105">
               <LumiCharacter size="sm" mood="happy" className="scale-75" />
             </div>
             <div className="min-w-0">
@@ -528,7 +528,7 @@ ${explanation ? `\nОфициальное объяснение из базы: ${
                 )}
                 {message.role === "assistant" && (
                   <div className="flex gap-2 xl:gap-3 items-start">
-                    <div className="flex items-center justify-center w-8 h-8 xl:w-10 xl:h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex-shrink-0 shadow-sm">
+                    <div className="flex items-center justify-center w-8 h-8 xl:w-10 xl:h-10 flex-shrink-0">
                       <LumiCharacter size="sm" mood="happy" className="scale-75" />
                     </div>
                     <div className="flex-1 min-w-0 mt-0.5 xl:mt-1">

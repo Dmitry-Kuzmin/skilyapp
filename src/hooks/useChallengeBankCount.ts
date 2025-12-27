@@ -2,10 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * ОПТИМИЗИРОВАННЫЙ хук для загрузки количества вопросов в Challenge Bank
- * Кэширует данные на 5 минут
- */
-/**
  * ОПТИМИЗИРОВАННЫЙ хук для загрузки количества вопросов в Challenge Bank с фильтром по стране и категории
  */
 export function useChallengeBankCount(profileId: string | null, country?: string, category?: string) {
@@ -27,14 +23,9 @@ export function useChallengeBankCount(profileId: string | null, country?: string
         query = query.eq("questions_new.country", dbCountry);
       }
 
-      // Добавляем фильтр по категории если она указана
-      if (category) {
-        // Для России это ticket_category внутри metadata
-        if (country === 'russia') {
-          query = query.filter("questions_new.metadata->>ticket_category", "ilike", `%${category}%`);
-        } else {
-          query = query.filter("questions_new.metadata->>ticket_category", "ilike", `%${category}%`);
-        }
+      // Добавляем фильтр по категории ТОЛЬКО для России (у Испании нет ticket_category)
+      if (category && country === 'russia') {
+        query = query.filter("questions_new.metadata->>ticket_category", "ilike", `%${category}%`);
       }
 
       const { count, error } = await query;
@@ -44,11 +35,10 @@ export function useChallengeBankCount(profileId: string | null, country?: string
       return count || 0;
     },
     enabled: !!profileId,
-    staleTime: 5 * 60 * 1000, // 5 минут
-    gcTime: 10 * 60 * 1000, // 10 минут
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    staleTime: 2 * 60 * 1000, // 2 минуты (уменьшено для лучшего UX)
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true, // Обновлять при возврате на страницу
+    refetchOnMount: true, // Обновлять при монтировании
     retry: 1,
   });
 }
-

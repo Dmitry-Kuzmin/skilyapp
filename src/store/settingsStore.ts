@@ -26,6 +26,7 @@ export interface SettingsState {
     soundVolume: number; // 0-100
     hapticEnabled: boolean;
     adasHints: boolean; // Авто-подсказки AI
+    smartVocabularyEnabled: boolean; // Умные словарные подсказки в тестах
     duelNotifications: boolean;
 
     // === User Info (cached) ===
@@ -49,6 +50,7 @@ export interface SettingsActions {
     setSoundVolume: (volume: number) => void;
     toggleHaptic: () => void;
     toggleAdasHints: () => void;
+    toggleSmartVocabulary: () => void;
     toggleDuelNotifications: () => void;
 
     // User info
@@ -75,6 +77,7 @@ const initialState: SettingsState = {
     soundVolume: 80,
     hapticEnabled: true,
     adasHints: true,
+    smartVocabularyEnabled: true,
     duelNotifications: true,
 
     // User
@@ -102,6 +105,7 @@ export const useSettingsStore = create<SettingsStore>()(
             setSoundVolume: (soundVolume) => set({ soundVolume }),
             toggleHaptic: () => set((state) => ({ hapticEnabled: !state.hapticEnabled })),
             toggleAdasHints: () => set((state) => ({ adasHints: !state.adasHints })),
+            toggleSmartVocabulary: () => set((state) => ({ smartVocabularyEnabled: !state.smartVocabularyEnabled })),
             toggleDuelNotifications: () => set((state) => ({ duelNotifications: !state.duelNotifications })),
 
             // === User info ===
@@ -121,6 +125,7 @@ export const useSettingsStore = create<SettingsStore>()(
                 soundVolume: state.soundVolume,
                 hapticEnabled: state.hapticEnabled,
                 adasHints: state.adasHints,
+                smartVocabularyEnabled: state.smartVocabularyEnabled,
                 duelNotifications: state.duelNotifications,
             }),
         }

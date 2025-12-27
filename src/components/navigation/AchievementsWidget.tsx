@@ -25,7 +25,7 @@ export const AchievementsWidget = memo(function AchievementsWidget({ className, 
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const isMobileViewport = useIsMobile();
-  
+
   // ОПТИМИЗАЦИЯ: Используем общий кэш профиля вместо собственного запроса
   const { xp, streakDays, loading } = useProfileData();
 
@@ -73,7 +73,7 @@ export const AchievementsWidget = memo(function AchievementsWidget({ className, 
       >
         {trigger}
       </button>
-      
+
       <AchievementsModalVaul
         open={open}
         onClose={handleClose}

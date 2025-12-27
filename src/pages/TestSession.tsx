@@ -38,8 +38,8 @@ import { saveTestProgress, loadTestProgress, clearTestProgress } from "@/utils/t
 import { useExamStore, selectActiveState, selectCurrentQuestion, selectTimerValue } from "@/store/examStore";
 import { getExamStats, handleMainQuestionAnswer, handleExtraQuestionAnswer } from "@/utils/russiaExamLogic";
 import { ReportProblemModal } from "@/components/ReportProblemModal";
-import { AIExplanationDialog } from "@/components/AIExplanationDialog";
 import { AIWidget } from "@/components/AIWidget";
+import { useAIChat } from "@/hooks/useAIChat";
 import { TestExitDialog } from "@/components/test-session/TestExitDialog";
 import { TestQuestionMap } from "@/components/test-session/TestQuestionMap";
 import { TestContentLayout } from "@/components/test-session/TestContentLayout";
@@ -60,6 +60,7 @@ import { useTestAudio } from "@/hooks/test-session/useTestAudio";
 import { useTestAmbientMusic } from "@/hooks/test-session/useTestAmbientMusic";
 import { useTestDataLoader, type TestMode } from "@/hooks/test-session/useTestDataLoader";
 import { BlitzHeader, BlitzGameCard } from "@/components/blitz";
+import { useSettingsStore } from "@/store/settingsStore";
 
 type QuestionData = {
   id: string;
@@ -231,7 +232,8 @@ const TestSession = () => {
   const hasLoadedProgressRef = useRef<string | null>(null);
   const previousTestIdRef = useRef<string | null>(null); // Для отслеживания изменения testId
   const [startTime, setStartTime] = useState<number>(0);
-  const [showAIExplanation, setShowAIExplanation] = useState(false);
+  // AI Chat через Zustand store (глобальный виджет)
+  const { openWithQuestion: openAIChat, close: closeAIChat, isOpen: showAIExplanation } = useAIChat();
   const [showChallengeBankNotification, setShowChallengeBankNotification] = useState(false);
   const [isFirstWrongAnswer, setIsFirstWrongAnswer] = useState(true);
   const [isQuestionBookmarked, setIsQuestionBookmarked] = useState(false);
@@ -1465,20 +1467,31 @@ const TestSession = () => {
 
   // Функция для сохранения ответа в прогресс и Банк Ошибок
   const saveAnswerToDB = async (questionId: string, isCorrect: boolean) => {
-    if (!profileId) return;
+    if (!profileId) {
+      console.log('[Challenge Bank] No profileId, skipping');
+      return;
+    }
 
     try {
       // 1. Challenge Bank (только при ошибке и не в режиме mastery)
       if (!isCorrect && mode !== "mastery") {
-        const { data: existing } = await (supabase as any)
+        console.log('[Challenge Bank] Adding question to bank:', { questionId, profileId, mode });
+
+        const { data: existing, error: selectError } = await (supabase as any)
           .from('user_challenge_questions')
           .select('id, times_wrong')
           .eq('user_id', profileId)
           .eq('question_id', questionId)
           .maybeSingle();
 
+        if (selectError) {
+          console.error('[Challenge Bank] Select error:', selectError);
+          return;
+        }
+
         if (existing) {
-          await (supabase as any)
+          console.log('[Challenge Bank] Updating existing record:', existing.id);
+          const { error: updateError } = await (supabase as any)
             .from('user_challenge_questions')
             .update({
               times_wrong: existing.times_wrong + 1,
@@ -1487,8 +1500,13 @@ const TestSession = () => {
               updated_at: new Date().toISOString(),
             })
             .eq('id', existing.id);
+
+          if (updateError) {
+            console.error('[Challenge Bank] Update error:', updateError);
+          }
         } else {
-          await (supabase as any)
+          console.log('[Challenge Bank] Inserting new record');
+          const { error: insertError } = await (supabase as any)
             .from('user_challenge_questions')
             .insert({
               user_id: profileId,
@@ -1496,6 +1514,16 @@ const TestSession = () => {
               times_wrong: 1,
               last_wrong_at: new Date().toISOString(),
             });
+
+          if (insertError) {
+            console.error('[Challenge Bank] Insert error:', insertError);
+            return;
+          }
+
+          console.log('[Challenge Bank] Successfully added question');
+
+          // Инвалидируем кэш счётчика Challenge Bank для мгновенного обновления UI
+          queryClient.invalidateQueries({ queryKey: ["challenge-bank-count"] });
 
           // Показываем уведомление о первом добавлении в банк ошибок (НЕ в Blitz режиме)
           if (isFirstWrongAnswer && mode !== 'blitz' && mode !== 'exam-russia') {
@@ -1506,6 +1534,9 @@ const TestSession = () => {
             }
           }
         }
+
+        // Инвалидируем кэш и при обновлении существующей записи
+        queryClient.invalidateQueries({ queryKey: ["challenge-bank-count"] });
         setIsQuestionBookmarked(true);
       }
 
@@ -1751,10 +1782,12 @@ const TestSession = () => {
   }, [currentIndex, questions.length]);
 
   // Navigation wrappers - add UI logic on top of engine
+  // NOTE: handleOpenAIChat определён ниже, после sortedOptions
+
   const jumpToQuestion = (index: number) => {
     engineJumpToQuestion(index);
     setShowTranslation(false);
-    setShowAIExplanation(false);
+    closeAIChat();
   };
 
   const nextQuestion = () => {
@@ -1764,7 +1797,7 @@ const TestSession = () => {
     if (currentIndex < questions.length - 1) {
       engineNextQuestion();
       setShowTranslation(false);
-      setShowAIExplanation(false);
+      closeAIChat();
     } else {
       finishTest();
     }
@@ -1773,7 +1806,7 @@ const TestSession = () => {
   const prevQuestion = () => {
     enginePrevQuestion();
     setShowTranslation(false);
-    setShowAIExplanation(false);
+    closeAIChat();
   };
 
 
@@ -1877,7 +1910,7 @@ const TestSession = () => {
         setAnswers([]); // Здесь можно оставить локальный стейт, стор сбросится через resetExam если надо
         setSelectedOption(null);
         setShowTranslation(false);
-        setShowAIExplanation(false);
+        closeAIChat();
         return; // НЕ завершаем тест!
       }
     }
@@ -2265,10 +2298,71 @@ const TestSession = () => {
     setTimeout(() => setIsTransitioning(false), 150);
   };
 
+  const smartVocabularyEnabled = useSettingsStore(state => state.smartVocabularyEnabled);
+  const toggleSmartVocabulary = useSettingsStore(state => state.toggleSmartVocabulary);
+  const appLanguage = useSettingsStore(state => state.language);
+  const setSettings = useSettingsStore(state => state.updateSettings);
+
+  // Strategy #1: Smart Default - if app language is different from test language
+  const smartDefaultAppliedRef = useRef(false);
+  useEffect(() => {
+    // Only auto-initialize if we are in ES/EN test and it's not a Russia region
+    if (!isRussia && (testLanguage === 'es' || testLanguage === 'en') && !smartDefaultAppliedRef.current) {
+      const shouldBeEnabled = appLanguage !== testLanguage;
+      setSettings({ smartVocabularyEnabled: shouldBeEnabled });
+      smartDefaultAppliedRef.current = true;
+    }
+  }, [testLanguage, appLanguage, isRussia]);
+
   // Sort answer options by position - защита от null/undefined
   const sortedOptions = (currentQuestion.answer_options && Array.isArray(currentQuestion.answer_options))
     ? [...currentQuestion.answer_options].sort((a, b) => (a?.position || 0) - (b?.position || 0))
     : [];
+
+  // Helper: открыть AI чат с контекстом текущего вопроса
+  // NOTE: Обычная функция вместо useCallback, т.к. определяется после early returns
+  const handleOpenAIChat = () => {
+    const question = mode === 'exam-russia' && russiaExam.currentQuestion
+      ? russiaExam.currentQuestion.text
+      : (showTranslation ? currentQuestion.question_ru : (testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es));
+
+    const correctAnswer = mode === 'exam-russia' && russiaExam.currentQuestion
+      ? (russiaExam.currentQuestion.answers || []).find(a => a.isCorrect)?.text || ''
+      : (sortedOptions.find((opt) => opt.is_correct)?.[showTranslation ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] || '');
+
+    const userAnswer = mode === 'exam-russia' && russiaExam.currentQuestion && selectedOption
+      ? (russiaExam.currentQuestion.answers || []).find(a => a.id === selectedOption)?.text
+      : (selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[showTranslation ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] : undefined);
+
+    const isCorrectAnswer = mode === 'exam-russia' && russiaExam.currentQuestion && selectedOption
+      ? ((russiaExam.currentQuestion.answers || []).find(a => a.id === selectedOption)?.isCorrect || false)
+      : (selectedOption ? (sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false) : false);
+
+    // ВАЖНО: Explanation передаём ВСЕГДА (не зависит от selectedOption)
+    const explanation = mode === 'exam-russia' && russiaExam.currentQuestion
+      ? russiaExam.currentQuestion.explanation
+      : (showTranslation ? currentQuestion.explanation_ru : (testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es));
+
+    openAIChat({
+      question,
+      correctAnswer,
+      userAnswer,
+      isCorrect: isCorrectAnswer,
+      explanation,
+      explanationRu: mode === 'exam-russia' && russiaExam.currentQuestion
+        ? russiaExam.currentQuestion.explanation
+        : currentQuestion.explanation_ru,
+      explanationEs: currentQuestion.explanation_es,
+      explanationEn: currentQuestion.explanation_en,
+      topic: mode === 'exam-russia' && russiaExam.currentQuestion
+        ? (russiaExam.currentQuestion.topics && russiaExam.currentQuestion.topics.length > 0 ? russiaExam.currentQuestion.topics[0] : undefined)
+        : currentQuestion.topics?.title_es,
+      imageUrl: mode === 'exam-russia' && russiaExam.currentQuestion
+        ? russiaExam.currentQuestion.image
+        : currentQuestion.image_url,
+      testLanguage,
+    });
+  };
 
   const handleClose = () => {
     setShowExitConfirm(true);
@@ -2357,6 +2451,8 @@ const TestSession = () => {
               onOpenSettings={() => setShowTestSettings(true)}
               onToggleTranslation={toggleTranslation}
               showTranslation={showTranslation}
+              onToggleSmartVocabulary={toggleSmartVocabulary}
+              smartVocabularyEnabled={smartVocabularyEnabled}
               customLeftContent={
                 <>
                   {/* Timer */}
@@ -2408,6 +2504,8 @@ const TestSession = () => {
                   language={testLanguage}
                   onLanguageChange={setTestLanguage}
                   hideLanguageSelector={mode === 'pdd-ticket' || mode === 'exam-russia'}
+                  smartVocabulary={smartVocabularyEnabled}
+                  onSmartVocabularyChange={(val) => setSettings({ smartVocabularyEnabled: val })}
                 />
               }
             />
@@ -2446,7 +2544,7 @@ const TestSession = () => {
                   setSelectedOption(answerId);
                 }
               }}
-              onShowExplanation={selectedOption ? () => setShowAIExplanation(true) : undefined}
+              onShowExplanation={selectedOption ? handleOpenAIChat : undefined}
               fontSize={fontSize}
               header={
                 russiaExam.isExtraMode && (
@@ -2695,7 +2793,7 @@ const TestSession = () => {
                     <div className="flex gap-3 items-center mt-6">
                       {isPracticeLikeMode && !isRussia && (
                         <button
-                          onClick={() => setShowAIExplanation(true)}
+                          onClick={handleOpenAIChat}
                           className="group w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 shadow-lg flex items-center justify-center transition-all active:scale-95 shrink-0"
                         >
                           <LumiCharacter size="sm" mood="happy" animate={true} />
@@ -2770,7 +2868,7 @@ const TestSession = () => {
                 </div>
               ) : (
                 // DGT Split Layout (Image on left)
-                <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[400px_1fr] gap-6 md:gap-8 md:items-start">
+                <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[380px_1fr] 2xl:grid-cols-[440px_1fr] gap-6 md:gap-8 lg:gap-12 md:items-start">
                   <div className="w-full md:sticky md:top-4 md:self-start">
                     <QuestionImage imageUrl={currentQuestion.image_url} className="w-full h-auto max-h-[400px] md:max-h-[500px] lg:max-h-[600px] object-contain bg-muted/30 rounded-[2.5rem] border border-border/50 mb-4 shadow-sm" />
                   </div>
@@ -2803,7 +2901,7 @@ const TestSession = () => {
                     <div className="sticky bottom-0 left-0 right-0 z-50 pt-6 pb-4 bg-gradient-to-t from-white via-white/80 dark:from-slate-900/60 dark:via-slate-900/20 to-transparent sm:relative sm:bg-none sm:bg-transparent sm:from-transparent sm:via-transparent sm:to-transparent sm:dark:from-transparent sm:pt-0 sm:mt-8 sm:z-10 sm:backdrop-blur-0">
                       <div className="flex gap-3 items-center">
                         {isPracticeLikeMode && !isRussia && (
-                          <button onClick={() => setShowAIExplanation(true)} className="group w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg flex items-center justify-center active:scale-95 lg:hidden">
+                          <button onClick={handleOpenAIChat} className="group w-12 h-12 rounded-xl flex items-center justify-center active:scale-95 xl:hidden">
                             <LumiCharacter size="sm" mood="happy" />
                           </button>
                         )}
@@ -2912,7 +3010,7 @@ const TestSession = () => {
 
                 <div className="flex gap-4 items-center pt-6">
                   {isPracticeLikeMode && !isRussia && (
-                    <button onClick={() => setShowAIExplanation(true)} className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-xl flex items-center justify-center active:scale-95 lg:hidden">
+                    <button onClick={handleOpenAIChat} className="w-16 h-16 rounded-2xl flex items-center justify-center active:scale-95 xl:hidden">
                       <LumiCharacter size="sm" mood="happy" />
                     </button>
                   )}
@@ -3007,51 +3105,8 @@ const TestSession = () => {
         />
 
 
-        {/* AI Explanation Dialog - работает в practice режиме и exam-russia */}
-        {
-          (isPracticeLikeMode || mode === 'exam-russia') && (
-            <AIExplanationDialog
-              open={showAIExplanation}
-              onClose={() => setShowAIExplanation(false)}
-              question={mode === 'exam-russia' && russiaExam.currentQuestion
-                ? russiaExam.currentQuestion.text
-                : (showTranslation ? currentQuestion.question_ru : (testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es))}
-              correctAnswer={mode === 'exam-russia' && russiaExam.currentQuestion
-                ? (russiaExam.currentQuestion.answers || []).find(a => a.isCorrect)?.text || ''
-                : (sortedOptions.find((opt) => opt.is_correct)?.[showTranslation ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] || '')}
-              userAnswer={mode === 'exam-russia' && russiaExam.currentQuestion && selectedOption
-                ? (russiaExam.currentQuestion.answers || []).find(a => a.id === selectedOption)?.text
-                : (selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[showTranslation ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] : undefined)}
-              isCorrect={mode === 'exam-russia' && russiaExam.currentQuestion && selectedOption
-                ? ((russiaExam.currentQuestion.answers || []).find(a => a.id === selectedOption)?.isCorrect || false)
-                : (selectedOption ? (sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false) : false)}
-              explanation={mode === 'exam-russia' && russiaExam.currentQuestion
-                ? (selectedOption ? russiaExam.currentQuestion.explanation : null)
-                : (selectedOption ? (showTranslation ? currentQuestion.explanation_ru : (testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es)) : null)}
-              explanationRu={mode === 'exam-russia' && russiaExam.currentQuestion
-                ? (selectedOption ? russiaExam.currentQuestion.explanation : null)
-                : (selectedOption ? currentQuestion.explanation_ru : null)}
-              explanationEs={mode === 'exam-russia' && russiaExam.currentQuestion
-                ? (selectedOption ? russiaExam.currentQuestion.explanation : null)
-                : (selectedOption ? currentQuestion.explanation_es : null)}
-              explanationEn={mode === 'exam-russia' && russiaExam.currentQuestion
-                ? (selectedOption ? russiaExam.currentQuestion.explanation : null)
-                : (selectedOption ? currentQuestion.explanation_en : null)}
-              topic={mode === 'exam-russia' && russiaExam.currentQuestion
-                ? (russiaExam.currentQuestion.topics && russiaExam.currentQuestion.topics.length > 0 ? russiaExam.currentQuestion.topics[0] : undefined)
-                : currentQuestion.topics?.title_es}
-              imageUrl={mode === 'exam-russia' && russiaExam.currentQuestion
-                ? russiaExam.currentQuestion.image
-                : currentQuestion.image_url}
-              showTranslation={showTranslation}
-              onToggleTranslation={toggleTranslation}
-              testLanguage={testLanguage}
-            />
-          )
-        }
-
-        {/* AI Widget Lumi - только в режиме практики в браузере (не в Telegram), НЕ в экзамене */}
-        {/* Только на больших экранах (lg+) - справа, на маленьких используется кнопка в навигации */}
+        {/* AI Chat теперь через глобальный AIChatWidget в App.tsx */}
+        {/* Управляется через Zustand store: useAIChat() */}
       </TestContentLayout >
 
       {/* Challenge Bank Notification - fixed позиционирование относительно viewport */}

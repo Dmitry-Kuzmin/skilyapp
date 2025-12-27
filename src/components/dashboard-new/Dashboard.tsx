@@ -21,6 +21,7 @@ const ExamReadiness = lazy(() => import('./ExamReadiness').then(m => ({ default:
 const PremiumCard = lazy(() => import('./PremiumCard').then(m => ({ default: m.PremiumCard })));
 const DuelPassInfo = lazy(() => import('./DuelPassInfo').then(m => ({ default: m.DuelPassInfo })));
 const DuelPassSeasonModal = lazy(() => import('../monetization/DuelPassSeasonModal').then(m => ({ default: m.DuelPassSeasonModal })));
+import { StartEngineButton } from '@/components/landing/StartEngineButton';
 
 // Fallback component for lazy loading
 const ComponentSkeleton = () => (
@@ -55,120 +56,72 @@ interface DashboardProps {
     shortText?: string;
     description?: string;
   };
+  userProfile?: {
+    first_name?: string | null;
+    last_name?: string | null;
+    username?: string | null;
+    photo_url?: string | null;
+    rank?: string | null;
+    id?: string;
+  };
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
-  stats,
+  stats: initialStats,
   onStartQuiz,
   onClaimReward,
   hasClaimedToday,
   onGetPremium,
   profileId,
   isClaiming = false,
-  readinessStatus
+  readinessStatus,
+  userProfile
 }) => {
+  const stats = { ...initialStats, userProfile }; // Merge for convenience
+  const { language, t } = useLanguage();
   const [examReadinessExpanded, setExamReadinessExpanded] = React.useState(false);
   const [statsModalOpen, setStatsModalOpen] = useState(false);
   const [selectedStatType, setSelectedStatType] = useState<'xp' | 'tests' | 'coins'>('xp');
-  const { openSettings } = useSettingsStore();
-  const { t } = useLanguage();
-  const { resolvedTheme } = useTheme();
+
+  const { selectedCountry } = usePDDContext();
   const navigate = useNavigate();
+  const { openSettings } = useSettingsStore();
+  const { theme, systemTheme } = useTheme();
 
-  // Получаем выбранную страну и категорию из контекста
-  const { selectedCountry, selectedCategory } = usePDDContext();
-  const countryData = COUNTRIES_CONFIG[selectedCountry];
+  // Helper to check if dark mode is active
+  const isDarkTheme = useMemo(() => {
+    return theme === 'dark' || (theme === 'system' && systemTheme === 'dark');
+  }, [theme, systemTheme]);
 
-  // Загружаем билеты для России или темы для Испании
-  const { data: tickets, isLoading: ticketsLoading } = usePDDTickets(selectedCountry);
-  const { data: topics = [], isLoading: topicsLoading } = useTopics();
+  // Format user data for License Card
+  const userData = useMemo(() => {
+    const fullName = [userProfile?.first_name, userProfile?.last_name].filter(Boolean).join(' ') ||
+      userProfile?.username ||
+      (language === 'ru' ? 'КУРСАНТ' : 'PILOT');
 
-  // ОПТИМИЗАЦИЯ: Мемоизируем вычисление isDarkTheme для избежания лишних пересчетов
-  const isDarkTheme = useMemo(() => (resolvedTheme ?? 'dark') !== 'light', [resolvedTheme]);
+    // Generate a cool License ID if none exists
+    const licenseId = userProfile?.id?.substring(0, 8).toUpperCase() || '560C5DF8';
 
-  // ОПТИМИЗАЦИЯ: Мемоизируем все вычисления классов для избежания пересчетов при каждом рендере
-  const themeClasses = useMemo(() => {
-    // УБРАНО: pageBgClass - используем фон из Layout (bg-background) для единообразия
-    const heroBackground = isDarkTheme
-      ? 'linear-gradient(135deg, #1e1b2e 0%, #2d1b4e 25%, #4c2d7a 50%, #6d4c9e 75%, #8b6fb8 100%)'
-      : 'linear-gradient(135deg, #e0ebff 0%, #f0e5ff 30%, #ffe5f0 60%, #ffeef5 100%)';
-    const heroShadowClass = isDarkTheme
-      ? 'shadow-2xl shadow-purple-900/30'
-      : 'shadow-[0_32px_80px_rgba(139,92,246,0.25)]';
-    const onlineBadgeClass = isDarkTheme
-      ? 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full whitespace-nowrap bg-gradient-to-r from-emerald-500/25 to-emerald-600/25 border border-emerald-400/40 backdrop-blur-sm shadow-lg shadow-emerald-500/20'
-      : 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full whitespace-nowrap bg-white/95 border border-emerald-200/80 shadow-[0_12px_34px_rgba(16,185,129,0.25)] backdrop-blur-sm';
-    const statValueClass = isDarkTheme ? 'text-sm sm:text-base md:text-lg font-black text-white' : 'text-sm sm:text-base md:text-lg font-black text-slate-900';
-    const statLabelBase = 'text-[9px] xs:text-[10px] sm:text-xs font-semibold';
-    const statStartButtonText = isDarkTheme ? 'text-indigo-300' : 'text-purple-600';
-    const onlineTextClass = isDarkTheme ? 'text-emerald-200' : 'text-emerald-700';
-    const heroNoiseOpacity = isDarkTheme ? 'opacity-[0.15]' : 'opacity-[0.12]';
-    const heroHeadingClass = isDarkTheme ? 'text-white drop-shadow-lg' : 'text-slate-900';
-    const heroBodyTextClass = isDarkTheme ? 'text-white/90' : 'text-slate-600';
-    const xpCardClass = isDarkTheme
-      ? 'group relative flex-1 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 rounded-lg xs:rounded-xl sm:rounded-2xl bg-gradient-to-br from-yellow-500/15 via-orange-500/10 to-yellow-600/15 backdrop-blur-sm border border-yellow-400/40 px-2 xs:px-2.5 sm:px-3 py-1.5 xs:py-2 sm:py-2.5 hover:border-yellow-300/60 hover:shadow-xl hover:shadow-yellow-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer overflow-hidden'
-      : 'group relative flex-1 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 rounded-lg xs:rounded-xl sm:rounded-2xl bg-white/95 border border-amber-100/90 px-2 xs:px-2.5 sm:px-3 py-1.5 xs:py-2 sm:py-2.5 shadow-[0_20px_45px_rgba(251,191,36,0.3)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden backdrop-blur-sm';
-    const xpOverlayClass = isDarkTheme
-      ? 'absolute inset-0 bg-gradient-to-br from-yellow-500/20 via-orange-500/15 to-yellow-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300'
-      : 'absolute inset-0 bg-gradient-to-br from-amber-50 via-white to-amber-100 opacity-70 group-hover:opacity-100 transition-opacity duration-300';
-    const testsCardClass = isDarkTheme
-      ? 'group relative flex-1 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 rounded-lg xs:rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500/15 via-indigo-500/10 to-blue-600/15 backdrop-blur-sm border border-blue-400/40 px-2 xs:px-2.5 sm:px-3 py-1.5 xs:py-2 sm:py-2.5 hover:border-blue-300/60 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer overflow-hidden'
-      : 'group relative flex-1 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 rounded-lg xs:rounded-xl sm:rounded-2xl bg-white/95 border border-blue-100/90 px-2 xs:px-2.5 sm:px-3 py-1.5 xs:py-2 sm:py-2.5 shadow-[0_20px_45px_rgba(59,130,246,0.3)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden backdrop-blur-sm';
-    const testsOverlayClass = isDarkTheme
-      ? 'absolute inset-0 bg-gradient-to-br from-blue-500/20 via-indigo-500/15 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300'
-      : 'absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-100 opacity-70 group-hover:opacity-100 transition-opacity duration-300';
-    const coinsCardClass = isDarkTheme
-      ? 'group relative flex-1 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 rounded-lg xs:rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-500/15 via-yellow-500/10 to-amber-600/15 backdrop-blur-sm border border-amber-400/40 px-2 xs:px-2.5 sm:px-3 py-1.5 xs:py-2 sm:py-2.5 hover:border-amber-300/60 hover:shadow-xl hover:shadow-amber-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer overflow-hidden'
-      : 'group relative flex-1 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 rounded-lg xs:rounded-xl sm:rounded-2xl bg-white/95 border border-amber-100/90 px-2 xs:px-2.5 sm:px-3 py-1.5 xs:py-2 sm:py-2.5 shadow-[0_20px_45px_rgba(245,158,11,0.3)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden backdrop-blur-sm';
-    const coinsOverlayClass = isDarkTheme
-      ? 'absolute inset-0 bg-gradient-to-br from-amber-500/20 via-yellow-500/15 to-amber-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300'
-      : 'absolute inset-0 bg-gradient-to-br from-amber-50 via-white to-amber-100 opacity-70 group-hover:opacity-100 transition-opacity duration-300';
-    const xpIconColor = isDarkTheme ? 'text-yellow-100' : 'text-amber-600';
-    const testsIconColor = isDarkTheme ? 'text-blue-100' : 'text-indigo-600';
-    const coinsIconColor = isDarkTheme ? 'text-amber-100' : 'text-amber-600';
+    const rank = userProfile?.rank || (language === 'ru' ? 'УЧЕНИК' : 'CADET');
 
     return {
-      heroBackground,
-      heroShadowClass,
-      onlineBadgeClass,
-      statValueClass,
-      statLabelBase,
-      statStartButtonText,
-      onlineTextClass,
-      heroNoiseOpacity,
-      heroHeadingClass,
-      heroBodyTextClass,
-      xpCardClass,
-      xpOverlayClass,
-      testsCardClass,
-      testsOverlayClass,
-      coinsCardClass,
-      coinsOverlayClass,
-      xpIconColor,
-      testsIconColor,
-      coinsIconColor,
+      fullName,
+      lastName: userProfile?.last_name?.toUpperCase() || '',
+      firstName: userProfile?.first_name?.toUpperCase() || '',
+      licenseId,
+      rank: rank.toUpperCase(),
+      photoUrl: userProfile?.photo_url
     };
-  }, [isDarkTheme]);
-
-  // ОПТИМИЗАЦИЯ: Мемоизируем вычисление heroStatusKey
-  const heroStatusKey = useMemo(() =>
-    stats.averageScore >= 75
-      ? 'dashboard.heroStatus.ready'
-      : stats.averageScore >= 50
-        ? 'dashboard.heroStatus.progress'
-        : 'dashboard.heroStatus.start',
-    [stats.averageScore]
-  );
-
-  // ОПТИМИЗАЦИЯ: Мемоизируем обработчики событий
-  const handleStartQuiz = useCallback(() => {
-    playClickSound();
-    onStartQuiz();
-  }, [onStartQuiz]);
+  }, [userProfile, language]);
 
   const handleExamReadinessExpanded = useCallback((expanded: boolean) => {
     setExamReadinessExpanded(expanded);
   }, []);
+
+  const handleStartQuiz = useCallback(() => {
+    playSuccessSound(); // Start engine sound effect ideally
+    onStartQuiz();
+  }, [onStartQuiz]);
 
   const handleStatClick = useCallback((statType: 'xp' | 'tests' | 'coins') => {
     playClickSound();
@@ -183,153 +136,246 @@ export const Dashboard: React.FC<DashboardProps> = ({
         {/* Header */}
         <div className="mb-6 animate-fade-in">
           <div className="flex items-center justify-between gap-1.5 sm:gap-3 flex-nowrap min-w-0 max-w-full">
-            {/* Умный переключатель контекста (Страна | Категория) */}
+            {/* Context Switcher (Country | Category) */}
             <ContextSwitcher className="shrink-0" />
 
-            {/* Кнопка статистики - Ghost стиль */}
+            {/* Settings Button - Icon Only */}
             <button
               onClick={() => {
                 playClickSound();
                 openSettings();
               }}
               className={cn(
-                'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full',
-                'border transition-all text-[11px] sm:text-xs font-semibold whitespace-nowrap',
-                'backdrop-blur-sm hover:scale-[1.02] active:scale-[0.98]',
+                'w-9 h-9 flex items-center justify-center rounded-xl transition-all',
+                'backdrop-blur-sm hover:scale-105 active:scale-95',
                 isDarkTheme
-                  ? 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10 text-zinc-200'
-                  : 'border-zinc-300/60 bg-white/50 hover:border-zinc-400/80 hover:bg-white/80 text-zinc-700'
+                  ? 'bg-transparent hover:bg-white/10 text-zinc-400 hover:text-white'
+                  : 'bg-transparent hover:bg-black/5 text-zinc-400 hover:text-black'
               )}
-              aria-label="Настройки"
+              aria-label="Settings"
             >
-              <Settings className="w-3.5 h-3.5" />
-              <span>Настройки</span>
+              <Settings className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* 1. PREMIUM STREAK BANNER (Full Width) */}
-        <div className="animate-slide-up mb-2">
-          <CompactStreakJewel
-            streak={stats.currentStreak}
-            label={t('dashboard.streak').toUpperCase()}
-            hasClaimedToday={hasClaimedToday}
-            onClaim={() => {
-              onClaimReward();
-            }}
-            isClaiming={isClaiming}
-            size="lg"
-            className="shadow-orange-500/5"
-          />
-        </div>
 
         {/* BENTO GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up">
 
-          {/* 1. HERO CARD (Col: 2, Row: 2) */}
+          {/* 1. HERO CARD (LICENSE STYLE - PREMIUM) */}
           <div
-            onMouseEnter={playHoverSound}
-            className="md:col-span-2 lg:col-span-2 lg:row-span-2 relative overflow-hidden rounded-[2.5rem] text-white p-8 md:p-10 flex flex-col justify-between shadow-2xl group"
+            className={cn(
+              "md:col-span-2 lg:col-span-2 lg:row-span-2 relative h-full min-h-[340px] rounded-[2rem] overflow-hidden transition-all hover:scale-[1.005] group select-none shadow-xl",
+              isDarkTheme ? "shadow-black/40" : "shadow-slate-200/60"
+            )}
             style={{
-              background: themeClasses.heroBackground,
+              background: isDarkTheme
+                ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
+                : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
             }}
           >
-            {/* ... hero content ... */}
-            <img
-              src="https://grainy-gradients.vercel.app/noise.svg"
-              alt=""
-              className={`absolute inset-0 w-full h-full object-cover ${themeClasses.heroNoiseOpacity} mix-blend-overlay pointer-events-none`}
-              fetchpriority="high"
-              loading="eager"
-              decoding="async"
-              aria-hidden="true"
-            />
+            {/* 1. Security Pattern Layer (Guilloche-like) */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+              style={{
+                backgroundImage: `repeating-linear-gradient(45deg, ${isDarkTheme ? '#fff' : '#000'} 0, ${isDarkTheme ? '#fff' : '#000'} 1px, transparent 0, transparent 50%)`,
+                backgroundSize: '10px 10px'
+              }}>
+            </div>
 
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-indigo-900/20 pointer-events-none"></div>
+            {/* 2. Holographic Noise */}
+            <div className="absolute inset-0 opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat mix-blend-overlay pointer-events-none"></div>
 
-            <div className="relative z-10 flex flex-col h-full justify-between">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/15 backdrop-blur-md border border-white/30 shadow-lg shadow-white/10">
-                  <Star size={14} className="text-yellow-300 fill-yellow-300 drop-shadow-sm" />
-                  <span className="text-xs sm:text-sm font-bold text-white drop-shadow-sm">{t('dashboard.level')} {stats.level || 1}</span>
-                </div>
-              </div>
+            {/* 3. Glow Effects */}
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none translate-x-1/3 -translate-y-1/3"></div>
+            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/10 blur-[80px] rounded-full pointer-events-none -translate-x-1/3 translate-y-1/3"></div>
 
-              <div className="flex-1 flex flex-col md:flex-row justify-between items-center gap-6 mb-4">
-                <div className="flex-1 min-w-0 text-center md:text-left">
-                  <h2 className={`text-3xl sm:text-4xl md:text-5xl font-bold leading-tight tracking-tight mb-3 ${themeClasses.heroHeadingClass}`}>
-                    {t('dashboard.heroGreeting')}
-                  </h2>
-                  <p className={`${themeClasses.heroBodyTextClass} font-medium text-sm sm:text-base md:text-lg leading-relaxed`}>
-                    {t('dashboard.heroEfficiencyPrefix')} <strong className="text-white">{stats.averageScore}%</strong>.{' '}
-                    {t(heroStatusKey)}
-                  </p>
-                </div>
+            {/* CONTENT LAYER */}
+            <div className="relative z-10 w-full h-full p-6 sm:p-8 flex flex-col">
 
-                <button
-                  onClick={handleStartQuiz}
-                  className="group relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 flex-shrink-0 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 transform-gpu"
-                >
-                  <div className="absolute inset-[-15%] rounded-full opacity-60 group-hover:opacity-100 transition-all duration-500 pointer-events-none bg-gradient-to-br from-white/40 via-purple-200/30 to-indigo-200/40 blur-xl"></div>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white via-purple-50/90 to-indigo-50/90 shadow-[0_20px_50px_rgba(255,255,255,0.4)]"></div>
-                  <div className="relative z-10 flex flex-col items-center justify-center">
-                    <Power size={24} className={`sm:w-7 sm:h-7 md:w-8 md:h-8 ${isDarkTheme ? 'text-indigo-600' : 'text-indigo-600'} mb-1 sm:mb-2 drop-shadow-lg`} />
-                    <span className={`${themeClasses.statStartButtonText} font-bold text-[10px] sm:text-xs md:text-sm tracking-wider uppercase`}>
-                      {t('dashboard.startButton')}
+              {/* HEADER: Flag & Title */}
+              <div className="flex items-start justify-between mb-8">
+                <div className="flex items-center gap-4">
+                  {/* Country Flag Badge */}
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-700 to-blue-900 shadow-lg shadow-blue-900/20 border border-blue-400/20 flex flex-col items-center justify-center text-white ring-2 ring-blue-900/10">
+                    <span className="text-[10px] opacity-70 mb-[-2px]">★</span>
+                    <span className="text-sm font-black tracking-widest">{selectedCountry === 'es' ? 'E' : selectedCountry === 'ru' ? 'RUS' : 'SK'}</span>
+                  </div>
+
+                  {/* License Titles */}
+                  <div className="flex flex-col">
+                    <h2 className={cn("text-xs sm:text-sm font-black tracking-[0.25em] uppercase mb-0.5", isDarkTheme ? "text-indigo-300" : "text-indigo-900")}>
+                      {t('dashboard.licenseType') || (language === 'ru' ? 'ВОДИТЕЛЬСКОЕ УДОСТОВЕРЕНИЕ' : 'PERMISO DE CONDUCCIÓN')}
+                    </h2>
+                    <span className={cn("text-[9px] sm:text-[10px] font-bold tracking-[0.15em] uppercase opacity-60", isDarkTheme ? "text-slate-400" : "text-slate-500")}>
+                      {selectedCountry === 'es' ? 'REINO DE ESPAÑA' : 'SKILY ACADEMY • OFFICIAL DOCUMENT'}
                     </span>
                   </div>
-                </button>
+                </div>
+
+                {/* EMV Chip (Realistic) */}
+                <div className="w-14 h-11 rounded-lg bg-gradient-to-br from-yellow-100 via-yellow-300 to-yellow-500 shadow-md relative overflow-hidden ring-1 ring-yellow-600/20 opacity-90">
+                  <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,transparent,transparent_24%,rgba(161,98,7,0.3)_25%,rgba(161,98,7,0.3)_26%)]"></div>
+                  <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_49%,rgba(161,98,7,0.3)_50%,rgba(161,98,7,0.3)_51%)]"></div>
+                  <div className="absolute center w-4 h-3 border border-yellow-700/40 rounded-sm top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                </div>
               </div>
 
-              <div className="flex items-stretch gap-1.5 xs:gap-2 sm:gap-2.5">
-                <button onClick={() => handleStatClick('xp')} className={themeClasses.xpCardClass}>
-                  <div className={themeClasses.xpOverlayClass} />
-                  <div className="relative z-10 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 w-full min-w-0">
-                    <div className="relative w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-lg xs:rounded-xl bg-gradient-to-br from-yellow-400/30 via-orange-500/25 to-yellow-500/30 border border-yellow-400/50 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-md shadow-yellow-500/25">
-                      <Zap className={`w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 ${themeClasses.xpIconColor} relative z-10`} />
+              {/* BODY: Photo & Data */}
+              <div className="flex flex-col sm:flex-row gap-6 sm:gap-10 h-full">
+
+                {/* PHOTO SECTION */}
+                <div className="flex-shrink-0 relative group/photo self-start sm:self-auto">
+                  <div className={cn(
+                    "w-28 h-36 sm:w-32 sm:h-40 rounded-xl overflow-hidden shadow-lg border-[3px] relative z-10 transition-transform group-hover/photo:scale-[1.02]",
+                    isDarkTheme ? "bg-slate-800 border-slate-600" : "bg-slate-200 border-white"
+                  )}>
+                    {userData.photoUrl ? (
+                      <img src={userData.photoUrl} alt="Pilot" className="w-full h-full object-cover grayscale-[0.2] group-hover/photo:grayscale-0 transition-all duration-500" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-slate-800">
+                        <span className="text-4xl filter grayscale">🙂</span>
+                      </div>
+                    )}
+
+                    {/* Holographic Overlay on Photo */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 via-transparent to-blue-500/20 opacity-40 mix-blend-overlay"></div>
+                    <div className="absolute -inset-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover/photo:animate-shimmer rotate-45 transform pointer-events-none"></div>
+
+                    {/* Official Stamps */}
+                    {hasClaimedToday && (
+                      <div className="absolute bottom-2 right-2 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white shadow-sm flex items-center justify-center">
+                        <CheckCircle className="w-3 h-3 text-white" strokeWidth={3} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Under Photo Label */}
+                  <div className="mt-2 flex justify-center">
+                    <span className={cn(
+                      "text-[9px] font-mono uppercase tracking-widest px-2 py-0.5 rounded border",
+                      hasClaimedToday
+                        ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600"
+                        : "bg-slate-500/10 border-slate-500/30 text-slate-500"
+                    )}>
+                      {hasClaimedToday ? 'VERIFIED' : 'UNVERIFIED'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* DATA FIELDS & CONSOLE */}
+                <div className="flex-1 min-w-0 flex flex-col justify-between">
+
+                  {/* User Data Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mb-4">
+
+                    {/* 1. Name */}
+                    <div className="col-span-full">
+                      <div className={cn("text-[9px] font-bold uppercase tracking-widest mb-1 opacity-50", isDarkTheme ? "text-slate-400" : "text-slate-500")}>1. SURNAME / FIRST NAME</div>
+                      <div className={cn("text-xl sm:text-2xl font-black uppercase tracking-tight truncate font-sans", isDarkTheme ? "text-white" : "text-slate-900")}>
+                        {userData.fullName}
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0 overflow-hidden">
-                      <div className={`${themeClasses.statLabelBase} ${isDarkTheme ? 'text-yellow-100/90' : 'text-yellow-700/90'} truncate`}>{t('dashboard.stats.xp')}</div>
-                      <div className={`${themeClasses.statValueClass} leading-tight ${isDarkTheme ? 'group-hover:text-yellow-50' : 'group-hover:text-yellow-700'} transition-colors duration-200 truncate`}>
-                        <span className="truncate block">{(stats.xp || 0).toLocaleString()}</span>
-                        <span className={`text-[9px] xs:text-[10px] sm:text-xs font-bold ${isDarkTheme ? 'text-yellow-200/80' : 'text-yellow-600/80'}`}>XP</span>
+
+                    {/* 2. Rank */}
+                    <div>
+                      <div className={cn("text-[9px] font-bold uppercase tracking-widest mb-1 opacity-50", isDarkTheme ? "text-slate-400" : "text-slate-500")}>2. RANGO</div>
+                      <div className={cn("text-sm font-bold uppercase tracking-wider", isDarkTheme ? "text-indigo-400" : "text-indigo-700")}>
+                        {userData.rank}
+                      </div>
+                    </div>
+
+                    {/* 3. License No */}
+                    <div>
+                      <div className={cn("text-[9px] font-bold uppercase tracking-widest mb-1 opacity-50", isDarkTheme ? "text-slate-400" : "text-slate-500")}>3. LICENSE NO.</div>
+                      <div className={cn("text-sm font-mono font-bold tracking-wider", isDarkTheme ? "text-slate-300" : "text-slate-700")}>
+                        {userData.licenseId}
                       </div>
                     </div>
                   </div>
-                </button>
-                <button onClick={() => handleStatClick('tests')} className={themeClasses.testsCardClass}>
-                  <div className={themeClasses.testsOverlayClass} />
-                  <div className="relative z-10 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 w-full min-w-0">
-                    <div className="relative w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-lg xs:rounded-xl bg-gradient-to-br from-blue-400/30 via-indigo-500/25 to-blue-500/30 border border-blue-400/50 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-md shadow-blue-500/25">
-                      <FileText className={`w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 ${themeClasses.testsIconColor} relative z-10`} />
+
+                  {/* Stats "Stamps" */}
+                  <div className="flex flex-wrap items-end gap-3 pb-2 mt-auto">
+                    {/* XP Stamp */}
+                    <div className={cn(
+                      "px-3 py-1.5 rounded-lg border flex flex-col items-start min-w-[70px]",
+                      isDarkTheme ? "bg-slate-800/60 border-slate-700" : "bg-white/60 border-slate-300"
+                    )}>
+                      <span className="text-[8px] font-bold uppercase opacity-50 tracking-wider">XP</span>
+                      <span className={cn("text-xs font-mono font-bold", isDarkTheme ? "text-yellow-400" : "text-yellow-600")}>{(stats.xp || 0).toLocaleString()}</span>
                     </div>
-                    <div className="flex-1 min-w-0 overflow-hidden">
-                      <div className={`${themeClasses.statLabelBase} ${isDarkTheme ? 'text-blue-100/90' : 'text-blue-700/90'} truncate`}>{t('dashboard.stats.tests')}</div>
-                      <div className={`${themeClasses.statValueClass} leading-tight ${isDarkTheme ? 'group-hover:text-blue-50' : 'group-hover:text-blue-700'} transition-colors duration-200 truncate`}>{stats.testsCompleted.toLocaleString()}</div>
+
+                    {/* Level Stamp */}
+                    <div className={cn(
+                      "px-3 py-1.5 rounded-lg border flex flex-col items-start min-w-[70px]",
+                      isDarkTheme ? "bg-slate-800/60 border-slate-700" : "bg-white/60 border-slate-300"
+                    )}>
+                      <span className="text-[8px] font-bold uppercase opacity-50 tracking-wider">LEVEL</span>
+                      <span className={cn("text-xs font-mono font-bold", isDarkTheme ? "text-indigo-400" : "text-indigo-600")}>{stats.level || 1}</span>
+                    </div>
+
+                    {/* Streak Stamp (Interactive) */}
+                    <button
+                      onClick={() => !hasClaimedToday && onClaimReward()}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg border flex flex-col items-start min-w-[90px] transition-all active:scale-95",
+                        hasClaimedToday
+                          ? (isDarkTheme ? "bg-emerald-950/30 border-emerald-800/50" : "bg-emerald-50 border-emerald-200")
+                          : (isDarkTheme ? "bg-orange-950/30 border-orange-800/50 animate-pulse hover:bg-orange-900/40" : "bg-orange-50 border-orange-200 animate-pulse hover:bg-orange-100")
+                      )}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[8px] font-bold uppercase opacity-70 tracking-wider text-inherit">STREAK</span>
+                        {!hasClaimedToday && <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-ping" />}
+                      </div>
+                      <span className={cn(
+                        "text-xs font-mono font-bold flex items-center gap-1",
+                        hasClaimedToday ? "text-emerald-500" : "text-orange-500"
+                      )}>
+                        {stats.currentStreak} DAYS
+                        {hasClaimedToday && <CheckCircle size={10} />}
+                      </span>
+                    </button>
+                  </div>
+
+                </div>
+
+                {/* Console Start Button (Integrated) */}
+                <div className="absolute bottom-6 right-6 sm:static sm:flex sm:flex-col sm:justify-end sm:ml-4 pl-0 sm:pl-6 sm:border-l sm:border-slate-500/10">
+                  <div className="relative group/start">
+                    {/* Bezel */}
+                    <div className={cn(
+                      "absolute inset-[-4px] rounded-full border opacity-30",
+                      isDarkTheme ? "border-white/20" : "border-black/10"
+                    )}></div>
+
+                    <div className="scale-[0.7] sm:scale-[0.8]">
+                      <StartEngineButton
+                        onClick={handleStartQuiz}
+                        isIgniting={false}
+                      />
+                    </div>
+
+                    <div className={cn(
+                      "absolute -bottom-5 w-full text-center text-[8px] font-black tracking-[0.2em] uppercase opacity-40 transition-opacity group-hover/start:opacity-80",
+                      isDarkTheme ? "text-white" : "text-slate-900"
+                    )}>
+                      IGNITION
                     </div>
                   </div>
-                </button>
-                <button onClick={() => handleStatClick('coins')} className={themeClasses.coinsCardClass}>
-                  <div className={themeClasses.coinsOverlayClass} />
-                  <div className="relative z-10 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 w-full min-w-0">
-                    <div className="relative w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-lg xs:rounded-xl bg-gradient-to-br from-amber-400/30 via-yellow-500/25 to-amber-500/30 border border-amber-400/50 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-md shadow-amber-500/25">
-                      <Coins className={`w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 ${themeClasses.coinsIconColor} relative z-10`} />
-                    </div>
-                    <div className="flex-1 min-w-0 overflow-hidden">
-                      <div className={`${themeClasses.statLabelBase} ${isDarkTheme ? 'text-amber-100/90' : 'text-amber-700/90'} truncate`}>{t('dashboard.stats.coins')}</div>
-                      <div className={`${themeClasses.statValueClass} leading-tight ${isDarkTheme ? 'group-hover:text-amber-50' : 'group-hover:text-amber-700'} transition-colors duration-200 truncate`}>{(stats.coins || 0).toLocaleString()}</div>
-                    </div>
-                  </div>
-                </button>
+                </div>
+
               </div>
             </div>
           </div>
 
-          {/* 2. EXAM READINESS (Col: 1, Row: 1) - теперь в новом месте */}
-          <div className={`transition-all duration-500 ease-in-out ${examReadinessExpanded
-            ? 'md:col-span-2 lg:col-span-2 lg:row-span-2'
-            : 'md:col-span-1 lg:col-span-1 lg:row-span-2'
-            }`}>
+          {/* 2. EXAM READINESS (Col: 1, Row: 1) - placement adjusted */}
+          <div className={cn(
+            "transition-all duration-500 ease-in-out",
+            examReadinessExpanded
+              ? 'md:col-span-2 lg:col-span-2 lg:row-span-2'
+              : 'md:col-span-1 lg:col-span-1 lg:row-span-2'
+          )}>
             <Suspense fallback={<ComponentSkeleton />}>
               <ExamReadiness
                 averageScore={stats.averageScore}
@@ -345,7 +391,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </Suspense>
           </div>
 
-          {/* 3. SKILY CHAT (Col: 1, Row: 2) - видим на всех разрешениях */}
+          {/* 3. SKILY CHAT (Col: 1, Row: 2) */}
           <div className="col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-2">
             <Suspense fallback={<ComponentSkeleton />}>
               <SkilyChat />
@@ -366,12 +412,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </Suspense>
           </div>
 
-
         </div>
       </div>
-
-
-
 
       {/* Duel Pass Season Modal */}
       <Suspense fallback={null}>
@@ -381,7 +423,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   );
 };
 
-// Wrapper component для DuelPassSeasonModal с useModalRoute
+// Wrapper component for DuelPassSeasonModal with useModalRoute
 const DuelPassSeasonModalWrapper = () => {
   const { isOpen, closeModal } = useModalRoute('duel-pass-season');
 
@@ -396,4 +438,3 @@ const DuelPassSeasonModalWrapper = () => {
     />
   );
 };
-

@@ -170,7 +170,7 @@ export function UniversalQuestionCard({
                 // Кнопка Skily
                 <button
                   onClick={onShowExplanation}
-                  className="group flex items-center gap-2 px-4 py-2 rounded-full bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/30 hover:bg-orange-100 dark:hover:bg-orange-500/20 transition-all duration-300"
+                  className="group flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-300"
                 >
                   <div className="relative w-6 h-6 shrink-0">
                     <LumiCharacter size="sm" mood="happy" animate={false} className="relative z-10" />

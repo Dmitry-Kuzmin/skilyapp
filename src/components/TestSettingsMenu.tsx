@@ -28,6 +28,8 @@ interface TestSettingsMenuProps {
   language: 'es' | 'en';
   onLanguageChange: (value: 'es' | 'en') => void;
   hideLanguageSelector?: boolean; // Скрыть выбор языка (для русских тестов ПДД)
+  smartVocabulary: boolean;
+  onSmartVocabularyChange: (value: boolean) => void;
 }
 
 import { supabase } from "@/integrations/supabase/client";
@@ -48,6 +50,8 @@ export const TestSettingsMenu = ({
   language,
   onLanguageChange,
   hideLanguageSelector = false,
+  smartVocabulary,
+  onSmartVocabularyChange,
 }: TestSettingsMenuProps) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -165,6 +169,26 @@ export const TestSettingsMenu = ({
               className="data-[state=checked]:bg-green-500 scale-90"
             />
           </div>
+
+          {/* Smart Vocabulary Hints */}
+          {!hideLanguageSelector && (
+            <div className="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-muted/30 transition-colors">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-md bg-amber-500/10 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-medium text-sm">Подсказки слов</span>
+                  <span className="text-[9px] text-muted-foreground leading-none">Smart Vocabulary</span>
+                </div>
+              </div>
+              <Switch
+                checked={smartVocabulary}
+                onCheckedChange={onSmartVocabularyChange}
+                className="data-[state=checked]:bg-amber-500 scale-90"
+              />
+            </div>
+          )}
 
           {/* Ultra Compact Music Player */}
           <div className="px-2 py-2 space-y-2">

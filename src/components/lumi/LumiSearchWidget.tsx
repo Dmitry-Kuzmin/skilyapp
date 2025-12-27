@@ -73,10 +73,9 @@ export const LumiSearchWidget = () => {
   };
 
   return (
-    <Card className="gradient-card border-2 border-yellow-200/50 dark:border-yellow-800/50 overflow-hidden relative">
+    <Card className="border-2 border-border overflow-hidden relative">
       {/* Decorative background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-yellow-50/50 via-transparent to-orange-50/50 dark:from-yellow-950/20 dark:to-orange-950/20 pointer-events-none" />
-      <div className="absolute -top-20 -right-20 w-60 h-60 bg-yellow-400/10 rounded-full blur-3xl" />
+      <div className="absolute inset-0 bg-muted/20 pointer-events-none" />
 
       <div className="relative p-4 md:p-6">
         {/* Header with Skily */}
@@ -88,7 +87,7 @@ export const LumiSearchWidget = () => {
           <div className="flex-1 space-y-2">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+                <h3 className="text-xl font-bold text-foreground">
                   Спроси Skily! 💡
                 </h3>
                 <p className="text-sm text-muted-foreground mt-1">
@@ -178,7 +177,7 @@ export const LumiSearchWidget = () => {
             onClick={handleSendMessage}
             disabled={!input.trim() || isLoading}
             size="icon"
-            className="bg-gradient-to-br from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-md"
+            className="bg-primary hover:bg-primary/90 shadow-md"
           >
             {isLoading ? (
               <Sparkles className="h-4 w-4 animate-spin" />

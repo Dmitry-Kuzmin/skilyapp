@@ -39,6 +39,8 @@ interface QuestionProgressBarProps {
   streak?: number;
   onToggleTranslation?: () => void;
   showTranslation?: boolean;
+  onToggleSmartVocabulary?: () => void;
+  smartVocabularyEnabled?: boolean;
 }
 
 export function QuestionProgressBar({
@@ -61,6 +63,8 @@ export function QuestionProgressBar({
   layout = 'standard',
   onToggleTranslation,
   showTranslation = false,
+  onToggleSmartVocabulary,
+  smartVocabularyEnabled = false,
 }: QuestionProgressBarProps) {
   const { t } = useLanguage();
   const { selectedCountry } = usePDDContext();
@@ -226,6 +230,25 @@ export function QuestionProgressBar({
                 {showTranslation ? 'RU' : 'ES'}
               </span>
             </div>
+          </button>
+        )}
+
+        {/* Smart Vocabulary Toggle - Sparkles Icon */}
+        {onToggleSmartVocabulary && (
+          <button
+            onClick={onToggleSmartVocabulary}
+            className={cn(
+              "flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full transition-all duration-500 active:scale-90 border",
+              smartVocabularyEnabled
+                ? "bg-amber-100 dark:bg-amber-500/10 border-amber-300 dark:border-amber-500/30 text-amber-600 dark:text-amber-400 shadow-lg shadow-amber-500/10 ring-4 ring-amber-500/5 animate-pulse"
+                : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm"
+            )}
+            title={smartVocabularyEnabled ? "Скрыть подсказки слов" : "Показать подсказки слов"}
+          >
+            <Sparkles className={cn(
+              "w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-500",
+              smartVocabularyEnabled ? "scale-110 rotate-12" : "scale-100 rotate-0"
+            )} />
           </button>
         )}
 

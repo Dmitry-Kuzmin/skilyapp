@@ -1,0 +1,461 @@
+/**
+ * AIChatWidget — Глобальный AI чат виджет с Zustand + Vaul
+ * 
+ * Использует:
+ * - Zustand store для глобального состояния
+ * - Vaul Drawer для мобильных (нативная физика свайпа)
+ * - Dialog для десктопа
+ */
+
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, ChevronDown } from 'lucide-react';
+import { LumiCharacter } from '@/components/lumi/LumiCharacter';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { toast } from 'sonner';
+import { isTelegramMiniApp, triggerHapticFeedback } from '@/lib/telegram';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { AILimitReachedModal } from '@/components/ai/AILimitReachedModal';
+import { useAIChatStore, selectIsOpen, selectMessages, selectIsLoading, selectSmartSuggestions, selectQuestionContext } from '@/stores/useAIChatStore';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Drawer, DrawerContent } from '@/components/ui/drawer';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+
+// Типизация для markdown рендеринга
+type MarkdownProps = {
+    children: string;
+    className?: string;
+};
+
+// ВАЖНО: react-markdown v9+ не поддерживает className prop — оборачиваем в div
+const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => (
+    <div className={cn("prose prose-sm dark:prose-invert max-w-none", className)}>
+        <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+                p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                ul: ({ children }) => <ul className="list-disc pl-4 mb-2">{children}</ul>,
+                ol: ({ children }) => <ol className="list-decimal pl-4 mb-2">{children}</ol>,
+                li: ({ children }) => <li className="mb-1">{children}</li>,
+                strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                code: ({ children }) => <code className="bg-muted px-1 rounded text-xs">{children}</code>,
+            }}
+        >
+            {children}
+        </ReactMarkdown>
+    </div>
+);
+
+export function AIChatWidget() {
+    const isMobile = useIsMobile();
+    const isTelegram = isTelegramMiniApp();
+    const { t } = useLanguage();
+
+    // Zustand Store
+    const isOpen = useAIChatStore(selectIsOpen);
+    const messages = useAIChatStore(selectMessages);
+    const isLoading = useAIChatStore(selectIsLoading);
+    const smartSuggestions = useAIChatStore(selectSmartSuggestions);
+    const questionContext = useAIChatStore(selectQuestionContext);
+    const showTranslation = useAIChatStore((s) => s.showTranslation);
+    const limitModalOpen = useAIChatStore((s) => s.limitModalOpen);
+    const limitData = useAIChatStore((s) => s.limitData);
+
+    const {
+        closeChat,
+        toggleTranslation,
+        addMessage,
+        updateLastMessage,
+        setMessageRating,
+        setLoading,
+        setSmartSuggestions,
+        setGeneratingSuggestions,
+        setLimitModal,
+        conversationId,
+    } = useAIChatStore();
+
+    const [input, setInput] = useState('');
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    // Фокус на input при открытии
+    useEffect(() => {
+        if (isOpen && inputRef.current) {
+            setTimeout(() => inputRef.current?.focus(), 100);
+        }
+    }, [isOpen]);
+
+    // Определяем язык интерфейса
+    const interfaceLanguage = showTranslation ? 'ru' : (questionContext?.testLanguage || 'es');
+
+    // Отправка сообщения в AI
+    const askAI = useCallback(async (userMessage: string) => {
+        if (!userMessage.trim() || isLoading) return;
+
+        setLoading(true);
+
+        // Добавляем user message
+        addMessage({ role: 'user', content: userMessage });
+
+        const context = questionContext;
+        const fullContext = context ? `
+Вопрос: ${context.question}
+Правильный ответ: ${context.correctAnswer}
+${context.userAnswer ? `Ответ пользователя: ${context.userAnswer}` : ''}
+${context.isCorrect ? 'Пользователь ответил правильно.' : 'Пользователь ответил неправильно.'}
+${context.topic ? `Тема: ${context.topic}` : ''}
+` : '';
+
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+            const allMessages = messages.map(m => ({ role: m.role, content: m.content }));
+            allMessages.push({ role: 'user' as const, content: messages.length === 0 ? fullContext + '\n\n' + userMessage : userMessage });
+
+            const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${authToken}`,
+                },
+                body: JSON.stringify({
+                    messages: allMessages,
+                    imageUrl: context?.imageUrl || '',
+                    country: interfaceLanguage === 'ru' ? 'russia' : 'spain',
+                }),
+            });
+
+            // Handle AI Limit
+            if (response.status === 429) {
+                const errorData = await response.json();
+                if (errorData.error === 'daily_limit_reached') {
+                    setLimitModal(true, {
+                        currentCount: errorData.current_count || 10,
+                        limit: errorData.limit || 10,
+                        message: errorData.message || '',
+                    });
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            if (!response.ok || !response.body) {
+                throw new Error('Failed to get response');
+            }
+
+            // Streaming response
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+
+            addMessage({ role: 'assistant', content: '' });
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n');
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const data = line.slice(6);
+                        if (data === '[DONE]') continue;
+
+                        try {
+                            const parsed = JSON.parse(data);
+                            const content = parsed.choices?.[0]?.delta?.content;
+                            if (content) {
+                                updateLastMessage(content);
+                            }
+                        } catch (e) {
+                            // Skip invalid JSON
+                        }
+                    }
+                }
+            }
+
+            // Хаптик при успешном ответе
+            if (isTelegram) {
+                triggerHapticFeedback('success');
+            }
+
+        } catch (error) {
+            console.error('AI Chat error:', error);
+            toast.error('Ошибка при получении ответа');
+        } finally {
+            setLoading(false);
+        }
+    }, [messages, questionContext, interfaceLanguage, isLoading, isTelegram]);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!input.trim() || isLoading) return;
+        const userMessage = input.trim();
+        setInput('');
+        askAI(userMessage);
+    };
+
+    // Общий контент чата
+    const chatContent = (
+        <div className="flex flex-col h-full">
+            {/* Header */}
+            <div
+                className="flex items-center justify-between px-4 py-3 border-b shrink-0"
+                style={{
+                    paddingTop: isTelegram && isMobile ? 'calc(var(--tg-content-safe-area-inset-top, 0px) + 48px)' : undefined,
+                }}
+            >
+                <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    <span className="font-medium">AI Помощник</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    {questionContext?.explanationRu && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={toggleTranslation}
+                            className="h-8 px-2"
+                        >
+                            <Languages className="w-4 h-4" />
+                        </Button>
+                    )}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={closeChat}
+                        className="h-8 w-8"
+                    >
+                        <X className="w-4 h-4" />
+                    </Button>
+                </div>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+                {/* Welcome Screen - если нет сообщений и есть контекст вопроса */}
+                {messages.length === 0 && questionContext && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex flex-col items-center text-center py-8 px-4"
+                    >
+                        {/* Lumi Character */}
+                        <LumiCharacter size="lg" />
+
+                        {/* Greeting */}
+                        <h3 className="text-xl font-bold mt-4 mb-2">
+                            {interfaceLanguage === 'ru' ? '¡Привет! Я Skily 💡' : '¡Hola! Soy Skily 💡'}
+                        </h3>
+
+                        <p className="text-muted-foreground text-sm max-w-xs mb-6">
+                            {interfaceLanguage === 'ru'
+                                ? 'Нужна подсказка или объяснение? Просто нажми кнопку или задай свой вопрос!'
+                                : '¿Necesitas una pista o una explicación rápida? Simplemente presiona el botón o haz tu pregunta, y te ayudaré en el acto. ¡Listo cuando tú lo estés!'}
+                        </p>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-3 w-full max-w-sm">
+                            <Button
+                                variant="outline"
+                                className="flex-1 h-12 text-primary border-primary/30 hover:bg-primary/5"
+                                onClick={() => askAI(interfaceLanguage === 'ru' ? 'Дай подсказку' : 'Dame una pista')}
+                            >
+                                {interfaceLanguage === 'ru' ? 'Дай подсказку' : 'Dame una pista'}
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className="flex-1 h-12 text-primary border-primary/30 hover:bg-primary/5"
+                                onClick={() => askAI(interfaceLanguage === 'ru' ? 'Объясни это' : 'Ayúdame a entender esto')}
+                            >
+                                {interfaceLanguage === 'ru' ? 'Объясни это' : 'Ayúdame a entender esto'}
+                            </Button>
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* Empty state - если нет контекста вопроса */}
+                {messages.length === 0 && !questionContext && (
+                    <div className="flex flex-col items-center justify-center h-full text-center">
+                        <LumiCharacter size="lg" />
+                        <p className="text-muted-foreground mt-4">
+                            {interfaceLanguage === 'ru' ? 'Задай мне вопрос!' : '¡Pregúntame algo!'}
+                        </p>
+                    </div>
+                )}
+
+                <AnimatePresence mode="popLayout">
+                    {messages.map((message, index) => (
+                        <motion.div
+                            key={message.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className={cn(
+                                "flex",
+                                message.role === 'user' ? 'justify-end' : 'justify-start'
+                            )}
+                        >
+                            <Card className={cn(
+                                "max-w-[85%] p-3",
+                                message.role === 'user'
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'bg-muted'
+                            )}>
+                                {message.role === 'assistant' ? (
+                                    <MarkdownContent>{message.content}</MarkdownContent>
+                                ) : (
+                                    <p className="text-sm">{message.content}</p>
+                                )}
+
+                                {/* Feedback buttons for assistant */}
+                                {message.role === 'assistant' && message.content && (
+                                    <div className="flex items-center gap-1 mt-2 pt-2 border-t border-border/50">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className={cn("h-6 w-6", message.rating === 1 && "text-green-500")}
+                                            onClick={() => setMessageRating(message.id, 1)}
+                                        >
+                                            <ThumbsUp className="w-3 h-3" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className={cn("h-6 w-6", message.rating === -1 && "text-red-500")}
+                                            onClick={() => setMessageRating(message.id, -1)}
+                                        >
+                                            <ThumbsDown className="w-3 h-3" />
+                                        </Button>
+                                    </div>
+                                )}
+                            </Card>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+
+                {isLoading && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex justify-start"
+                    >
+                        <Card className="p-3 bg-muted">
+                            <div className="flex items-center gap-2">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span className="text-sm text-muted-foreground">
+                                    {interfaceLanguage === 'ru' ? 'Думаю...' : 'Pensando...'}
+                                </span>
+                            </div>
+                        </Card>
+                    </motion.div>
+                )}
+
+                <div ref={messagesEndRef} />
+            </div>
+
+            {/* Smart Suggestions */}
+            {smartSuggestions.length > 0 && !isLoading && (
+                <div className="px-4 pb-2">
+                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                        {smartSuggestions.map((suggestion, index) => (
+                            <Button
+                                key={index}
+                                variant="outline"
+                                size="sm"
+                                onClick={() => askAI(suggestion)}
+                                className="text-xs whitespace-nowrap shrink-0"
+                            >
+                                {suggestion}
+                            </Button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Input */}
+            <div
+                className="px-4 py-3 border-t shrink-0"
+                style={{
+                    paddingBottom: isTelegram ? 'calc(var(--tg-content-safe-area-inset-bottom, 0px) + 12px)' : undefined,
+                }}
+            >
+                <form onSubmit={handleSubmit} className="flex gap-2">
+                    <Input
+                        ref={inputRef}
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder={interfaceLanguage === 'ru' ? 'Задай вопрос...' : 'Haz tu pregunta...'}
+                        disabled={isLoading}
+                        className="flex-1 h-10"
+                    />
+                    <Button
+                        type="submit"
+                        disabled={!input.trim() || isLoading}
+                        size="icon"
+                        className="h-10 w-10 shrink-0"
+                    >
+                        {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    </Button>
+                </form>
+            </div>
+        </div>
+    );
+
+    // Mobile: Vaul Drawer
+    if (isMobile) {
+        return (
+            <>
+                <Drawer
+                    open={isOpen}
+                    onOpenChange={(open) => !open && closeChat()}
+                    shouldScaleBackground={false}
+                >
+                    <DrawerContent className="h-[95vh] max-h-[95vh]">
+                        {chatContent}
+                    </DrawerContent>
+                </Drawer>
+
+                <AILimitReachedModal
+                    isOpen={limitModalOpen}
+                    onClose={() => setLimitModal(false)}
+                    currentCount={limitData.currentCount}
+                    limit={limitData.limit}
+                    message={limitData.message}
+                />
+            </>
+        );
+    }
+
+    // Desktop: Dialog
+    return (
+        <>
+            <Dialog open={isOpen} onOpenChange={(open) => !open && closeChat()}>
+                <DialogContent
+                    hideCloseButton
+                    className="w-screen h-screen max-w-none max-h-none m-0 p-0 flex flex-col rounded-none"
+                >
+                    {chatContent}
+                </DialogContent>
+            </Dialog>
+
+            <AILimitReachedModal
+                isOpen={limitModalOpen}
+                onClose={() => setLimitModal(false)}
+                currentCount={limitData.currentCount}
+                limit={limitData.limit}
+                message={limitData.message}
+            />
+        </>
+    );
+}
+
+export default AIChatWidget;

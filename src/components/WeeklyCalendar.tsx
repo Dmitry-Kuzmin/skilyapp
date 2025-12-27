@@ -112,8 +112,8 @@ const WeeklyCalendar = ({ currentStreak, weeklyRewards }: WeeklyCalendarProps) =
             {currentStreak === 7
               ? "🎉 Недельная серия завершена!"
               : currentStreak === 0
-              ? "Начни свою серию сегодня!"
-              : `Осталось ${7 - currentStreak} ${7 - currentStreak === 1 ? "день" : "дней"} до особой награды`}
+                ? "Начни свою серию сегодня!"
+                : `Осталось ${7 - currentStreak} ${7 - currentStreak === 1 ? "день" : "дней"} до особой награды`}
           </p>
         </div>
       </div>

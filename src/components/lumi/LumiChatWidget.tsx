@@ -67,7 +67,7 @@ export const LumiChatWidget = ({
 
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
-    
+
     const message = input.trim();
     setInput("");
     await sendMessage(message, context);
@@ -94,9 +94,9 @@ export const LumiChatWidget = ({
       )}
     >
       {/* Header со Skily - как Officer Frank */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/30 dark:to-orange-950/30 border-b border-yellow-200/50 dark:border-yellow-800/50">
+      <div className="flex items-center justify-between px-4 py-3 bg-card border-b border-border/50">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center shadow-md">
+          <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-105">
             <LumiCharacter size="sm" mood="happy" animate className="scale-50" />
           </div>
           <div>
@@ -129,7 +129,7 @@ export const LumiChatWidget = ({
                   mood="idle"
                   showAvatar={true}
                 />
-                
+
                 {/* Motivational message */}
                 {lastAnswerCorrect === false && (
                   <div className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/30 rounded-xl p-3 border border-pink-200/50 dark:border-pink-800/50">
@@ -144,7 +144,7 @@ export const LumiChatWidget = ({
             {showWelcome && (
               <div className="space-y-4 py-4">
                 {/* Welcome Card - как у Officer Frank */}
-                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/30 dark:to-orange-950/30 rounded-2xl p-5 border border-yellow-200/50 dark:border-yellow-800/50 shadow-sm">
+                <div className="bg-muted/30 dark:bg-slate-800/30 rounded-2xl p-5 border border-border shadow-sm">
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0">
                       <LumiCharacter size="lg" mood="happy" />
@@ -159,7 +159,7 @@ export const LumiChatWidget = ({
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Motivational message */}
                 {lastAnswerCorrect === false && (
                   <div className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/30 rounded-xl p-4 border border-pink-200/50 dark:border-pink-800/50">

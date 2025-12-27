@@ -77,8 +77,8 @@ const ChallengeBank = () => {
         .eq('user_id', profileId)
         .eq('questions_new.country', dbCountry);
 
-      // Фильтр по категории
-      if (selectedCategory) {
+      // Фильтр по категории ТОЛЬКО для России (у Испании нет ticket_category)
+      if (selectedCategory && selectedCountry === 'russia') {
         query = query.filter('questions_new.metadata->>ticket_category', 'ilike', `%${selectedCategory}%`);
       }
 

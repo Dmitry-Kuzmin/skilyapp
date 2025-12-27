@@ -9,7 +9,8 @@ import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/shift-away.css';
 import { PDD_DICTIONARY_ES, PDD_KEYWORDS, PDD_KEYWORDS_RU } from "@/utils/pddDictionary";
 import { cn } from '@/lib/utils';
-import { Languages, Sparkles } from 'lucide-react';
+import { Languages, Sparkles, Bot } from 'lucide-react';
+import { useSettingsStore } from '@/store/settingsStore';
 
 interface QuestionTextProps {
   text: string;
@@ -19,6 +20,7 @@ interface QuestionTextProps {
   translationLabel?: string;
   className?: string;
   isTransitioning?: boolean;
+  hintsEnabled?: boolean; // Ручное перекрытие настроек
 }
 
 // Typography Hierarchy: Question should be "Boss" - larger & bolder than answers
@@ -35,37 +37,66 @@ interface TooltipContentProps {
   explanation: string;
 }
 
+// Premium Tooltip Content Component - Absolute Perfection (Obsidian Monolith)
 const TooltipContent: React.FC<TooltipContentProps> = ({ word, translation, explanation }) => (
-  <div className="w-72 overflow-hidden rounded-2xl bg-slate-950 border border-white/10 shadow-2xl">
-    {/* Header Glow */}
-    <div className="h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500" />
+  <div className="relative flex flex-col items-center">
+    {/* Main Container: Obsidian Monolith */}
+    <div className="relative w-64 overflow-hidden rounded-xl bg-[#09090b] shadow-2xl ring-1 ring-white/10 transition-all">
 
-    <div className="p-4 space-y-2.5">
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/30 to-indigo-500/20 flex items-center justify-center border border-blue-500/20">
-          <Languages className="w-4 h-4 text-blue-400" />
+      {/* Subtle Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
+
+      {/* Content */}
+      <div className="relative p-3.5">
+
+        {/* HEADER: Title + Badge */}
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-[15px] font-bold text-white tracking-wide antialiased">
+            {translation}
+          </h3>
+
+          {/* BADGE: Code Style (Electric Indigo) */}
+          <div className="flex items-center rounded-[6px] bg-indigo-500/10 px-2 py-0.5 ring-1 ring-inset ring-indigo-500/20">
+            <span className="font-mono text-[10px] font-medium text-indigo-300 tracking-tight">
+              {word}
+            </span>
+          </div>
         </div>
-        <div className="flex flex-col">
-          <span className="text-[10px] uppercase tracking-widest text-blue-400/60 font-bold">Перевод</span>
-          <span className="text-lg font-black text-white tracking-tight">{translation}</span>
+
+        {/* BODY: Icon + Text */}
+        <div className="flex gap-3 items-start">
+          {/* Icon: Electric Blue Glow */}
+          <div className="mt-0.5 shrink-0 relative">
+            <div className="absolute inset-0 bg-blue-500 blur-[6px] opacity-20 rounded-full" />
+            <Sparkles className="relative w-3.5 h-3.5 text-blue-400" />
+          </div>
+
+          <p className="text-[11px] leading-[1.6] text-zinc-300 font-medium tracking-wide select-none">
+            {explanation}
+          </p>
         </div>
       </div>
 
-      <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
-      <p className="text-sm leading-relaxed text-slate-300 font-medium">
-        💡 {explanation}
-      </p>
-
-      {/* Premium Badge */}
-      <div className="pt-0.5 flex justify-between items-center">
-        <span className="text-[9px] text-slate-500 font-medium italic">«{word}»</span>
-        <div className="px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center gap-1">
-          <Sparkles className="w-2.5 h-2.5 text-blue-400" />
-          <span className="text-[9px] font-bold text-blue-400 uppercase tracking-tighter">Skily</span>
-        </div>
+      {/* FOOTER: Integrated Status Bar */}
+      <div className="relative px-3.5 py-2 bg-white/[0.02] border-t border-white/5 flex justify-between items-center">
+        <span className="text-[9px] font-bold text-zinc-600 tracking-[0.2em] uppercase">
+          AI Explanation
+        </span>
+        <Bot className="w-3 h-3 text-zinc-700 group-hover:text-blue-500 transition-colors duration-300" />
       </div>
     </div>
+
+    {/* PERFECT ARROW: Custom SVG for total fusion */}
+    <svg
+      width="16"
+      height="8"
+      viewBox="0 0 16 8"
+      className="relative -mt-[1px] drop-shadow-md"
+      style={{ fill: '#09090b' }}
+    >
+      <path d="M8 8L0 0H16L8 8Z" />
+      <path d="M0 0L8 8L16 0" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+    </svg>
   </div>
 );
 
@@ -77,7 +108,10 @@ export function QuestionText({
   translationLabel,
   className,
   isTransitioning = false,
+  hintsEnabled,
 }: QuestionTextProps) {
+  const settingsSmartVocabulary = useSettingsStore((state) => state.smartVocabularyEnabled);
+  const isHintsActive = hintsEnabled !== undefined ? hintsEnabled : settingsSmartVocabulary;
 
   // Функция для обработки текста: подсветка ключевых слов и добавление тултипов
   const renderSmartText = (rawText: string) => {
@@ -97,15 +131,15 @@ export function QuestionText({
       const isKeyword = keywords.some(k => k.toLowerCase() === lowerPart);
       if (isKeyword) {
         return (
-          <span key={i} className="text-orange-400 font-black underline decoration-orange-400/30 underline-offset-4">
+          <span key={i} className="text-amber-500 dark:text-amber-400 font-black underline decoration-amber-500/30 underline-offset-4">
             {part}
           </span>
         );
       }
 
-      // 2. Слова из словаря - используем Tippy
+      // 2. Слова из словаря - используем Tippy (только если подсказки включены)
       const dictEntry = PDD_DICTIONARY_ES[lowerPart as keyof typeof PDD_DICTIONARY_ES];
-      if (dictEntry) {
+      if (dictEntry && isHintsActive) {
         return (
           <Tippy
             key={i}
@@ -118,10 +152,10 @@ export function QuestionText({
             }
             interactive={true}
             animation="shift-away"
-            placement="auto"
-            arrow={true}
-            delay={[100, 0]}
-            duration={[200, 150]}
+            placement="top"
+            arrow={false}
+            delay={[0, 0]}
+            duration={[150, 100]}
             maxWidth={320}
             zIndex={2147483647}
             appendTo={() => document.body}
@@ -131,19 +165,19 @@ export function QuestionText({
                   name: 'preventOverflow',
                   options: {
                     boundary: 'viewport',
-                    padding: 8,
+                    padding: 12,
                   },
                 },
                 {
                   name: 'flip',
                   options: {
-                    fallbackPlacements: ['top', 'bottom', 'left', 'right'],
+                    fallbackPlacements: ['bottom', 'left', 'right'],
                   },
                 },
               ],
             }}
           >
-            <span className="cursor-help border-b-2 border-dashed border-blue-500/40 hover:border-blue-500 text-blue-500 dark:text-blue-400 hover:text-blue-600 transition-all duration-150">
+            <span className="cursor-help border-b-2 border-dashed border-blue-500/30 hover:border-blue-500 text-blue-600 dark:text-blue-400 hover:text-blue-700 transition-all duration-150">
               {part}
             </span>
           </Tippy>
