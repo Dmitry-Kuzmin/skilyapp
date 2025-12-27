@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Trophy, XCircle, Clock, CheckCircle2, Languages, ChevronDown, ChevronUp, Target, TrendingUp, BookOpen, ArrowRight, Play, Crown, Sparkles, Star, Zap, Coins, Bot, AlertTriangle } from "lucide-react";
+import { XCircle, Clock, CheckCircle2, ChevronDown, Target, BookOpen, Sparkles, Zap, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import Layout from "@/components/Layout";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +13,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
 import { useVignetteBanner } from "@/hooks/useVignetteBanner";
 import { useInterstitialBanner } from "@/hooks/useInterstitialBanner";
+import SmartDebriefCard, { FailedQuestion } from "@/components/test-results/SmartDebriefCard";
 
 type TestRewardPayload = {
   coins_awarded?: number;
@@ -144,44 +144,7 @@ const ResultDonut = ({ score, total, passed }: { score: number, total: number, p
   );
 };
 
-// Компонент AI-тренера (Premium Banner)
-const AICoachBanner = ({ failedTopic, onAnalyze }: { failedTopic?: string, onAnalyze: () => void }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.6 }}
-    className="relative overflow-hidden rounded-2xl border border-purple-500/30 bg-gradient-to-br from-purple-900/20 to-indigo-900/20 p-1 mb-8 shadow-xl shadow-purple-900/10"
-  >
-    <div className="absolute inset-0 bg-purple-500/5 blur-3xl pointer-events-none" />
-    <div className="relative z-10 bg-card/40 backdrop-blur-sm rounded-xl p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
-      <div className="shrink-0 p-4 rounded-2xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 text-purple-400 border border-purple-500/30 shadow-inner">
-        <Bot className="w-8 h-8 sm:w-10 sm:h-10" />
-      </div>
-
-      <div className="flex-1 space-y-1">
-        <h3 className="text-lg sm:text-xl font-bold text-foreground flex items-center justify-center sm:justify-start gap-2">
-          Работа над ошибками
-          <Sparkles className="w-4 h-4 text-amber-400" />
-        </h3>
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          {failedTopic
-            ? <>Вы ошиблись в теме <span className="font-medium text-purple-400">"{failedTopic}"</span>. ИИ-инструктор готов разобрать эту ситуацию.</>
-            : "ИИ-инструктор готов разобрать ваши ошибки и объяснить правильное решение персонально."
-          }
-        </p>
-      </div>
-
-      <Button
-        className="w-full sm:w-auto shrink-0 h-12 px-6 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/25 border-none transition-all hover:scale-105 active:scale-95"
-        onClick={onAnalyze}
-      >
-        <span className="flex items-center gap-2">
-          Разобрать с AI <Sparkles className="w-4 h-4" />
-        </span>
-      </Button>
-    </div>
-  </motion.div>
-);
+// Удалён AICoachBanner — заменён на SmartDebriefCard
 
 // Main Component
 const TestResults = () => {
@@ -395,19 +358,30 @@ const TestResults = () => {
           </div>
         </motion.div>
 
-        {/* Premium / AI Coach Banner */}
-        <AICoachBanner
-          failedTopic={weakTopic}
-          onAnalyze={() => {
-            if (isPremium) {
-              toast.success("AI анализ запускается...");
-              // Logic to open AI chat
-            } else {
-              toast.info("Эта функция доступна в Premium");
-              // Trigger paywall logic if needed, but for now purely visual per request
+        {/* Smart Debrief — AI анализ ошибок */}
+        {incorrectCount > 0 && (
+          <SmartDebriefCard
+            failedQuestions={answers
+              .filter(a => !a.isCorrect)
+              .map(ans => {
+                const q = questions.find(q => q.id === ans.questionId);
+                const selectedOption = q?.answer_options.find(opt => opt.id === ans.selectedAnswerId);
+                const correctOption = q?.answer_options.find(opt => opt.is_correct);
+
+                return {
+                  questionId: ans.questionId,
+                  questionText: q?.question_ru || '',
+                  userAnswer: selectedOption?.text_ru || 'Не выбран',
+                  correctAnswer: correctOption?.text_ru || '',
+                  topic: q?.topics?.title_ru,
+                  explanation: q?.explanation_ru,
+                };
+              })
             }
-          }}
-        />
+            weakTopic={weakTopic}
+            onUpgradeClick={() => navigate('/premium')}
+          />
+        )}
 
         {/* Errors List */}
         <motion.div
