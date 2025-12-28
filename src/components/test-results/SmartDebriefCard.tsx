@@ -641,8 +641,11 @@ const SmartDebriefCard = memo(({
         throw new Error('Требуется авторизация');
       }
 
-      // Проверка лимитов (только если есть userId)
-      if (userId) {
+      // Проверка лимитов (только если есть userId И НЕ премиум)
+      // Премиум пользователи получают безлимит!
+      const isPremiumUser = isPremium; // из usePremium hook (проп компонента)
+
+      if (userId && !isPremiumUser) {
         const { data: limitCheck, error: limitError } = await supabase.rpc(
           'check_and_increment_ai_debrief_limit',
           { p_user_id: userId }
@@ -668,6 +671,14 @@ const SmartDebriefCard = memo(({
             is_premium: limitCheck.is_premium
           });
         }
+      } else if (isPremiumUser) {
+        console.log('[SmartDebrief] 👑 Premium user: skipping limit check');
+        setLimitStatus({
+          remaining: 999,
+          limit: 999,
+          can_use: true,
+          is_premium: true
+        });
       } else if (isTelegram) {
         console.log('[SmartDebrief] 📱 Telegram mode: skipping limit check (no userId)');
         // Telegram-пользователи без сессии используют серверный rate limiting
