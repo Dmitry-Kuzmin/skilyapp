@@ -150,29 +150,48 @@ export function useDashboardData() {
   } = useSafeQuery<DashboardData | null>({
     queryKey: [DASHBOARD_QUERY_KEY, profileId],
     queryFn: async () => {
-      if (!profileId) return null;
+      console.log('[useDashboardData] 🏃 queryFn started for:', profileId);
+      if (!profileId) {
+        console.warn('[useDashboardData] ⚠️ No profileId, returning null');
+        return null;
+      }
 
       // SUPER ОПТИМИЗАЦИЯ: Пробуем новый Super RPC
+      console.log('[useDashboardData] 🔗 Calling get_dashboard_super...');
       try {
-        const response = await (supabase as any).rpc('get_dashboard_super', { p_user_id: profileId });
+        const promise = (supabase as any).rpc('get_dashboard_super', { p_user_id: profileId });
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 5000));
+
+        const response: any = await Promise.race([promise, timeoutPromise]);
+
         if (!response.error && response.data && !response.data.error) {
+          console.log('[useDashboardData] ✅ get_dashboard_super success');
           return response.data as DashboardData;
         }
-      } catch (e) {
-        console.warn('[useDashboardData] get_dashboard_super failed, trying regular RPC');
+        console.warn('[useDashboardData] ⚠️ get_dashboard_super error or empty:', response.error || response.data?.error);
+      } catch (e: any) {
+        console.warn('[useDashboardData] ❌ get_dashboard_super failed:', e.message);
       }
 
       // Fallback на обычный RPC
+      console.log('[useDashboardData] 🔗 Calling get_dashboard_complete...');
       try {
-        const response = await (supabase as any).rpc('get_dashboard_complete', { p_user_id: profileId });
+        const promise = (supabase as any).rpc('get_dashboard_complete', { p_user_id: profileId });
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 5000));
+
+        const response: any = await Promise.race([promise, timeoutPromise]);
+
         if (!response.error && response.data && !response.data.error) {
+          console.log('[useDashboardData] ✅ get_dashboard_complete success');
           return response.data as DashboardData;
         }
-      } catch (e) {
-        console.warn('[useDashboardData] get_dashboard_complete failed, trying fallback');
+        console.warn('[useDashboardData] ⚠️ get_dashboard_complete error:', response.error);
+      } catch (e: any) {
+        console.warn('[useDashboardData] ❌ get_dashboard_complete failed:', e.message);
       }
 
       // Окончательный fallback
+      console.log('[useDashboardData] 🔄 Falling back to manual fetch...');
       return await fetchDashboardFallback(profileId);
     },
     enabled: !!profileId,
