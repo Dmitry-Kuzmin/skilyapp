@@ -271,7 +271,7 @@ Deno.serve(async (req) => {
         if (data.user) {
             console.log('[telegram-auth-v2] 📊 Syncing profile to database...');
 
-            // Собираем все данные для профиля (без 'name' - такой колонки нет!)
+            // Собираем данные для профиля (только существующие колонки!)
             const profileData = {
                 user_id: data.user.id,
                 telegram_id: telegramUser.id,
@@ -280,11 +280,7 @@ Deno.serve(async (req) => {
                 username: telegramUser.username || null,
                 photo_url: photoUrl,
                 language_code: telegramUser.language_code || 'ru',
-                // 🆕 Дополнительные данные для персонализации
-                is_telegram_premium: telegramUser.is_premium || false,
-                allows_write_to_pm: telegramUser.allows_write_to_pm || false,
                 updated_at: new Date().toISOString(),
-                last_login_at: new Date().toISOString(),
             };
 
             // Пробуем update по telegram_id (это UNIQUE constraint!)
@@ -295,7 +291,7 @@ Deno.serve(async (req) => {
                 .maybeSingle();
 
             if (existingProfile) {
-                // Профиль существует — обновляем
+                // Профиль существует — обновляем (только существующие колонки!)
                 console.log('[telegram-auth-v2] 📝 Updating existing profile by telegram_id...');
                 const { error: updateError } = await supabaseAdmin
                     .from('profiles')
@@ -306,10 +302,7 @@ Deno.serve(async (req) => {
                         username: telegramUser.username || null,
                         photo_url: photoUrl,
                         language_code: telegramUser.language_code || 'ru',
-                        is_telegram_premium: telegramUser.is_premium || false,
-                        allows_write_to_pm: telegramUser.allows_write_to_pm || false,
                         updated_at: new Date().toISOString(),
-                        last_login_at: new Date().toISOString(),
                     })
                     .eq('telegram_id', telegramUser.id);
 
