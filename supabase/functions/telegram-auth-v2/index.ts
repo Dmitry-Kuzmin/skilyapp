@@ -288,26 +288,49 @@ Deno.serve(async (req) => {
                 last_login_at: new Date().toISOString(),
             };
 
-            // Пробуем update сначала (для существующих записей)
-            const { error: updateError } = await supabaseAdmin
+            // Пробуем update по telegram_id (это UNIQUE constraint!)
+            const { data: existingProfile, error: selectError } = await supabaseAdmin
                 .from('profiles')
-                .update(profileData)
-                .eq('user_id', data.user.id);
+                .select('id')
+                .eq('telegram_id', telegramUser.id)
+                .maybeSingle();
 
-            if (updateError) {
-                // Если update не сработал, пробуем insert
-                console.log('[telegram-auth-v2] 📝 Update failed, trying insert...');
+            if (existingProfile) {
+                // Профиль существует — обновляем
+                console.log('[telegram-auth-v2] 📝 Updating existing profile by telegram_id...');
+                const { error: updateError } = await supabaseAdmin
+                    .from('profiles')
+                    .update({
+                        user_id: data.user.id,
+                        first_name: telegramUser.first_name,
+                        last_name: telegramUser.last_name || null,
+                        username: telegramUser.username || null,
+                        photo_url: photoUrl,
+                        language_code: telegramUser.language_code || 'ru',
+                        is_telegram_premium: telegramUser.is_premium || false,
+                        allows_write_to_pm: telegramUser.allows_write_to_pm || false,
+                        updated_at: new Date().toISOString(),
+                        last_login_at: new Date().toISOString(),
+                    })
+                    .eq('telegram_id', telegramUser.id);
+
+                if (updateError) {
+                    console.warn('[telegram-auth-v2] ⚠️ Profile update error:', updateError);
+                } else {
+                    console.log('[telegram-auth-v2] ✅ Profile updated successfully');
+                }
+            } else {
+                // Профиль не существует — создаём
+                console.log('[telegram-auth-v2] 📝 Creating new profile...');
                 const { error: insertError } = await supabaseAdmin
                     .from('profiles')
                     .insert(profileData);
 
                 if (insertError) {
-                    console.warn('[telegram-auth-v2] ⚠️ Profile sync warning:', insertError);
+                    console.warn('[telegram-auth-v2] ⚠️ Profile insert error:', insertError);
                 } else {
-                    console.log('[telegram-auth-v2] ✅ Profile created');
+                    console.log('[telegram-auth-v2] ✅ Profile created successfully');
                 }
-            } else {
-                console.log('[telegram-auth-v2] ✅ Profile updated');
             }
         }
 

@@ -221,7 +221,7 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
     const [profileResult, sessionsResult, bonusResult, tasksResult, achievementsResult, rewardsResult] = await Promise.all([
       supabase
         .from('profiles')
-        .select('id, rank, xp, coins, boosts, streak_days, settings')
+        .select('id, rank, xp, coins, boosts, streak_days, settings, first_name, last_name, username, photo_url')
         .eq('id', profileId)
         .maybeSingle(),
 
@@ -280,6 +280,10 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
         boosts: profile.boosts || 0,
         streak_days: profile.streak_days || 0,
         settings: profile.settings || {},
+        first_name: profile.first_name || null,
+        last_name: profile.last_name || null,
+        username: profile.username || null,
+        photo_url: profile.photo_url || null,
       },
       stats: {
         tests_completed: testsCompleted,
