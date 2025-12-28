@@ -40,14 +40,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
           cancelButton: "group-[.toast]:bg-zinc-800 group-[.toast]:text-zinc-300 group-[.toast]:rounded-lg",
         },
       }}
+      // Используем CSS переменную для отступа сверху, которая учитывает safe area
       style={{
-        top: `${topOffset}px`,
-        // Если в Telegram или на мобильном, центрируем через transform, иначе отступ справа
-        left: shouldCenter ? '50%' : 'auto',
-        right: shouldCenter ? 'auto' : `${safeArea.right + 16}px`,
-        transform: shouldCenter ? 'translateX(-50%)' : 'none',
+        marginTop: isTelegram ? 'var(--tg-content-safe-area-inset-top, 20px)' : undefined,
         zIndex: 2147483647,
-        position: 'fixed',
       }}
       {...props}
     />

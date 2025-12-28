@@ -588,11 +588,25 @@ const SmartDebriefCard = memo(({
 
   const performAnalysis = async (attempt: number = 1): Promise<void> => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) throw new Error('Требуется авторизация');
+      let { data: { session } } = await supabase.auth.getSession();
+
+      // Если сессии нет, пробуем обновить (частая проблема в Telegram WebView)
+      if (!session?.access_token) {
+        console.log('[SmartDebrief] Session missing, attempting refresh...');
+        const { data: refreshData } = await supabase.auth.refreshSession();
+        if (refreshData.session) {
+          session = refreshData.session;
+        } else {
+          // Если мы в Telegram и не смогли восстановить сессию — это проблема синхронизации
+          if (isTelegramMiniApp()) {
+            throw new Error('Сбой синхронизации профиля. Перезапустите мини-приложение.');
+          }
+          throw new Error('Требуется авторизация');
+        }
+      }
 
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Требуется авторизация');
+      if (!user) throw new Error('Пользователь не найден');
 
       // Проверка лимитов
       const { data: limitCheck, error: limitError } = await supabase.rpc(
@@ -745,28 +759,39 @@ const SmartDebriefCard = memo(({
     } catch (err) {
       console.error(`[SmartDebrief] Attempt ${attempt} failed:`, err);
 
-      // Retry логика - пробуем еще раз только при первой попытке
-      if (attempt === 1) {
+      const errorMessage = err instanceof Error
+        ? err.message
+        : 'Неизвестная ошибка';
+
+      // Не делаем Retry для ошибок авторизации (это бессмысленно)
+      const isFatal = errorMessage.includes('авторизация') ||
+        errorMessage.includes('синхронизаци') ||
+        errorMessage.includes('не найден');
+
+      // Retry логика - пробуем еще раз только при первой попытке и если ошибка не фатальная
+      if (attempt === 1 && !isFatal) {
         console.log('[SmartDebrief] Retrying in 1 second...');
         await new Promise(resolve => setTimeout(resolve, 1000));
         return performAnalysis(2);
       }
 
-      // Второй провал - показываем ошибку
-      const errorMessage = err instanceof Error
-        ? err.message
-        : 'Неизвестная ошибка';
-
       console.error('[SmartDebrief] Final error after retry:', errorMessage);
       setError(`Анализ не удался: ${errorMessage}`);
       triggerHapticFeedback('error');
-      toast.error(`ИИ не смог разобрать ошибки: ${errorMessage}`, {
-        duration: 5000,
+
+      // Для Telegram показываем более компактное сообщение
+      const displayError = isTelegramMiniApp() && isFatal
+        ? errorMessage
+        : `ИИ не смог разобрать ошибки: ${errorMessage}`;
+
+      toast.error(displayError, {
+        duration: 4000,
       });
     }
   };
 
   const handleAnalyze = useCallback(async () => {
+    if (isLoading) return; // Защита от спам-кликов
     setIsLoading(true);
     setError(null);
     await performAnalysis(1);
