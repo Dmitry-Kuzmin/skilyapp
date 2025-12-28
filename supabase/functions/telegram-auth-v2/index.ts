@@ -139,51 +139,45 @@ Deno.serve(async (req) => {
             password,
         });
 
-        // Если юзера нет — создаем его
+        // Если юзера нет — создаем его через Admin API (обходит валидацию email)
         if (error) {
-            console.log('[telegram-auth-v2] 📝 User not found, creating new account...');
+            console.log('[telegram-auth-v2] 📝 User not found, creating via Admin API...');
 
-            const { data: signUpData, error: signUpError } = await supabaseAdmin.auth.signUp({
+            // Используем admin.createUser вместо signUp — не проверяет email на валидность
+            const { data: createData, error: createError } = await supabaseAdmin.auth.admin.createUser({
                 email,
                 password,
-                options: {
-                    data: {
-                        full_name: `${telegramUser.first_name} ${telegramUser.last_name || ''}`.trim(),
-                        avatar_url: telegramUser.photo_url || null,
-                        telegram_id: telegramUser.id,
-                        telegram_username: telegramUser.username || null,
-                        is_telegram_user: true,
-                        language_code: telegramUser.language_code || 'ru',
-                        is_premium: telegramUser.is_premium || false
-                    }
+                email_confirm: true, // Сразу подтверждаем email
+                user_metadata: {
+                    full_name: `${telegramUser.first_name} ${telegramUser.last_name || ''}`.trim(),
+                    avatar_url: telegramUser.photo_url || null,
+                    telegram_id: telegramUser.id,
+                    telegram_username: telegramUser.username || null,
+                    is_telegram_user: true,
+                    language_code: telegramUser.language_code || 'ru',
+                    is_premium: telegramUser.is_premium || false
                 }
             });
 
-            if (signUpError) {
-                console.error('[telegram-auth-v2] ❌ SignUp error:', signUpError);
-                throw signUpError;
+            if (createError) {
+                console.error('[telegram-auth-v2] ❌ Admin createUser error:', createError);
+                throw createError;
             }
 
-            data = signUpData;
+            console.log('[telegram-auth-v2] ✅ User created via Admin API:', createData.user?.id);
 
-            // Если signUp не вернул сессию (например, требуется подтверждение email),
-            // сразу делаем signIn
-            if (!data?.session) {
-                console.log('[telegram-auth-v2] 🔄 SignUp completed, attempting immediate signIn...');
-                const { data: signInData, error: signInError } = await supabaseAdmin.auth.signInWithPassword({
-                    email,
-                    password,
-                });
+            // Теперь логинимся под созданным пользователем
+            const { data: signInData, error: signInError } = await supabaseAdmin.auth.signInWithPassword({
+                email,
+                password,
+            });
 
-                if (signInError) {
-                    console.error('[telegram-auth-v2] ❌ SignIn after SignUp error:', signInError);
-                    throw signInError;
-                }
-
-                data = signInData;
+            if (signInError) {
+                console.error('[telegram-auth-v2] ❌ SignIn after create error:', signInError);
+                throw signInError;
             }
 
-            console.log('[telegram-auth-v2] ✅ New user created:', data?.user?.id);
+            data = signInData;
         } else {
             console.log('[telegram-auth-v2] ✅ Existing user logged in:', data?.user?.id);
         }
