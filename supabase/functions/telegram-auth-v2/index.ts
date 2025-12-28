@@ -195,7 +195,10 @@ Deno.serve(async (req) => {
                     user_id: data.user.id,
                     telegram_id: telegramUser.id,
                     name: `${telegramUser.first_name} ${telegramUser.last_name || ''}`.trim(),
-                    avatar_url: telegramUser.photo_url || null,
+                    first_name: telegramUser.first_name,
+                    last_name: telegramUser.last_name || null,
+                    username: telegramUser.username || null,
+                    photo_url: telegramUser.photo_url || null,
                     language_code: telegramUser.language_code || 'ru',
                     updated_at: new Date().toISOString()
                 }, {

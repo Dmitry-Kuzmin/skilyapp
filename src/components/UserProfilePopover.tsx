@@ -314,13 +314,21 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                     )}
                     <Pencil className="h-3 w-3 text-muted-foreground shrink-0" />
                   </div>
-                  {supabaseUser?.email && (
+                  {/* Скрываем технический email для Telegram-пользователей */}
+                  {supabaseUser?.email && !supabaseUser.email.includes('@telegram.skily.app') ? (
                     <p
                       className="text-xs text-muted-foreground truncate"
                       title={supabaseUser.email}
                     >
                       {supabaseUser.email}
                     </p>
+                  ) : (
+                    // Для Telegram показываем @username или ничего
+                    (profile?.username || user?.username) && (
+                      <p className="text-xs text-muted-foreground truncate">
+                        @{profile?.username || user?.username}
+                      </p>
+                    )
                   )}
                 </div>
               </button>
