@@ -223,6 +223,15 @@ const DashboardContent = memo(function DashboardContent() {
     : (dashboardData?.stats.accuracy || 0);
   const averageScore = readinessPercent || accuracy;
 
+  console.log('[Index] 🔍 Render state:', {
+    loading,
+    hasDashboardData: !!dashboardData,
+    showWelcome,
+    profileId,
+    accuracy,
+    averageScore
+  });
+
   // Правильная логика: hasClaimedToday = !can_claim (если can_claim false, значит уже получено)
   const hasClaimedToday = dashboardData?.daily_bonus ? !dashboardData.daily_bonus.can_claim : false;
 
@@ -237,7 +246,7 @@ const DashboardContent = memo(function DashboardContent() {
       )}
       <Suspense fallback={<PageLoader />}>
         <Layout hideNavigation={showWelcome}>
-          <div className={`w-full pb-6 ${(showWelcome || loading || !dashboardData) ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
+          <div className={`w-full pb-6 ${(showWelcome && !dashboardData) || (loading && !dashboardData) ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
             {error ? (
               <div className="min-h-[60vh] bg-[#0f172a] p-6 md:p-10 font-sans text-white flex items-center justify-center rounded-[2.5rem] border border-slate-800/50">
                 <div className="text-center max-w-md space-y-6">
