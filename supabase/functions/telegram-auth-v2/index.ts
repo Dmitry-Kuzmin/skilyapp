@@ -1,0 +1,245 @@
+// telegram-auth-v2: Обмен Telegram initData на полноценную Supabase сессию
+// Это фундаментальное решение для интеграции Telegram Mini App с Supabase Auth
+
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+// Вспомогательная функция: hex -> Uint8Array
+function hexToBuf(hex: string): Uint8Array {
+    return new Uint8Array(hex.match(/[\da-f]{2}/gi)!.map((h) => parseInt(h, 16)));
+}
+
+// Вспомогательная функция: Uint8Array -> hex
+function bufToHex(buf: ArrayBuffer): string {
+    return Array.from(new Uint8Array(buf))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+}
+
+// 1. Валидация данных от Telegram (Криптография)
+async function validateTelegramData(initData: string): Promise<any> {
+    const urlParams = new URLSearchParams(initData);
+    const hash = urlParams.get("hash");
+
+    if (!hash) {
+        throw new Error("Missing hash in initData");
+    }
+
+    urlParams.delete("hash");
+
+    // Сортируем ключи (требование Telegram)
+    const dataCheckString = Array.from(urlParams.entries())
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([key, val]) => `${key}=${val}`)
+        .join("\n");
+
+    // Создаем секретный ключ из "WebAppData" + BOT_TOKEN
+    const encoder = new TextEncoder();
+
+    // Шаг 1: HMAC-SHA256("WebAppData", BOT_TOKEN)
+    const secretKey = await crypto.subtle.importKey(
+        "raw",
+        encoder.encode("WebAppData"),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"]
+    );
+
+    const secret = await crypto.subtle.sign(
+        "HMAC",
+        secretKey,
+        encoder.encode(BOT_TOKEN)
+    );
+
+    // Шаг 2: HMAC-SHA256(secret, dataCheckString)
+    const signingKey = await crypto.subtle.importKey(
+        "raw",
+        secret,
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"]
+    );
+
+    const calculatedHash = await crypto.subtle.sign(
+        "HMAC",
+        signingKey,
+        encoder.encode(dataCheckString)
+    );
+
+    const calculatedHashHex = bufToHex(calculatedHash);
+
+    // Сравниваем хэши
+    if (calculatedHashHex !== hash) {
+        console.error('[telegram-auth-v2] Hash mismatch:', {
+            calculated: calculatedHashHex,
+            received: hash,
+            dataCheckString: dataCheckString.substring(0, 100) + '...'
+        });
+        throw new Error("Invalid Telegram Data: hash mismatch");
+    }
+
+    // Парсим данные пользователя
+    const userStr = urlParams.get("user");
+    if (!userStr) {
+        throw new Error("Missing user in initData");
+    }
+
+    const user = JSON.parse(userStr);
+    console.log('[telegram-auth-v2] ✅ Validated Telegram user:', {
+        id: user.id,
+        first_name: user.first_name,
+        username: user.username
+    });
+
+    return user;
+}
+
+Deno.serve(async (req) => {
+    // CORS preflight
+    if (req.method === "OPTIONS") {
+        return new Response("ok", { headers: corsHeaders });
+    }
+
+    try {
+        const { initData } = await req.json();
+
+        if (!initData) {
+            throw new Error("Missing initData in request body");
+        }
+
+        console.log('[telegram-auth-v2] 🔐 Validating initData...');
+        const telegramUser = await validateTelegramData(initData);
+
+        // 2. Инициализируем Admin-клиент (Service Role)
+        const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+            auth: {
+                autoRefreshToken: false,
+                persistSession: false
+            }
+        });
+
+        // 3. Формируем email и пароль для Supabase Auth
+        // Используем telegram_id как уникальный идентификатор
+        const email = `tg_${telegramUser.id}@telegram.skily.app`;
+        const password = `tg_secure_${telegramUser.id}_${BOT_TOKEN.substring(0, 10)}`;
+
+        console.log('[telegram-auth-v2] 🔑 Attempting sign in for:', email);
+
+        // Пытаемся залогинить (если юзер уже есть)
+        let { data, error } = await supabaseAdmin.auth.signInWithPassword({
+            email,
+            password,
+        });
+
+        // Если юзера нет — создаем его
+        if (error) {
+            console.log('[telegram-auth-v2] 📝 User not found, creating new account...');
+
+            const { data: signUpData, error: signUpError } = await supabaseAdmin.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        full_name: `${telegramUser.first_name} ${telegramUser.last_name || ''}`.trim(),
+                        avatar_url: telegramUser.photo_url || null,
+                        telegram_id: telegramUser.id,
+                        telegram_username: telegramUser.username || null,
+                        is_telegram_user: true,
+                        language_code: telegramUser.language_code || 'ru',
+                        is_premium: telegramUser.is_premium || false
+                    }
+                }
+            });
+
+            if (signUpError) {
+                console.error('[telegram-auth-v2] ❌ SignUp error:', signUpError);
+                throw signUpError;
+            }
+
+            data = signUpData;
+
+            // Если signUp не вернул сессию (например, требуется подтверждение email),
+            // сразу делаем signIn
+            if (!data?.session) {
+                console.log('[telegram-auth-v2] 🔄 SignUp completed, attempting immediate signIn...');
+                const { data: signInData, error: signInError } = await supabaseAdmin.auth.signInWithPassword({
+                    email,
+                    password,
+                });
+
+                if (signInError) {
+                    console.error('[telegram-auth-v2] ❌ SignIn after SignUp error:', signInError);
+                    throw signInError;
+                }
+
+                data = signInData;
+            }
+
+            console.log('[telegram-auth-v2] ✅ New user created:', data?.user?.id);
+        } else {
+            console.log('[telegram-auth-v2] ✅ Existing user logged in:', data?.user?.id);
+        }
+
+        // 4. Проверяем, что у нас есть сессия
+        if (!data?.session) {
+            throw new Error("Failed to create session");
+        }
+
+        // 5. Обновляем/синхронизируем профиль в таблице profiles
+        if (data.user) {
+            const { error: profileError } = await supabaseAdmin
+                .from('profiles')
+                .upsert({
+                    user_id: data.user.id,
+                    telegram_id: telegramUser.id,
+                    name: `${telegramUser.first_name} ${telegramUser.last_name || ''}`.trim(),
+                    avatar_url: telegramUser.photo_url || null,
+                    language_code: telegramUser.language_code || 'ru',
+                    updated_at: new Date().toISOString()
+                }, {
+                    onConflict: 'user_id'
+                });
+
+            if (profileError) {
+                console.warn('[telegram-auth-v2] ⚠️ Profile upsert warning:', profileError);
+                // Не прерываем - профиль может уже существовать с другим constraint
+            }
+        }
+
+        console.log('[telegram-auth-v2] 🎉 Session created successfully!');
+
+        // 6. Возвращаем сессию клиенту
+        return new Response(
+            JSON.stringify({
+                session: data.session,
+                user: data.user,
+                telegram_user: telegramUser
+            }),
+            {
+                status: 200,
+                headers: { ...corsHeaders, "Content-Type": "application/json" }
+            }
+        );
+
+    } catch (err) {
+        console.error('[telegram-auth-v2] ❌ Error:', err);
+        return new Response(
+            JSON.stringify({
+                error: err instanceof Error ? err.message : 'Unknown error',
+                details: err instanceof Error ? err.stack : undefined
+            }),
+            {
+                status: 401,
+                headers: { ...corsHeaders, "Content-Type": "application/json" }
+            }
+        );
+    }
+});

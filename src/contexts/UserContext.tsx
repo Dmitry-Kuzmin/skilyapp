@@ -313,10 +313,68 @@ export function UserProvider({ children }: { children: ReactNode }) {
         // Persist to localStorage
         localStorage.setItem('puzzle_user', JSON.stringify(telegramUser));
 
-        // Save to backend asynchronously (don't block UI)
-        login(telegramUser).catch(err => {
-          console.error('[UserContext] Auto-login failed:', err);
-        });
+        // 🚀 NEW: Обмениваем Telegram initData на Supabase сессию
+        // Это фундаментальное решение для интеграции Telegram с Supabase Auth
+        const initData = webApp?.initData || window.Telegram?.WebApp?.initData;
+        if (initData && initData !== '' && !initData.startsWith('mock_')) {
+          try {
+            logUserContext("[UserContext] 🔐 Exchanging Telegram initData for Supabase session...");
+
+            const { data: authData, error: authError } = await supabase.functions.invoke('telegram-auth-v2', {
+              body: { initData }
+            });
+
+            if (authError) {
+              console.error('[UserContext] telegram-auth-v2 error:', authError);
+              // Fallback to old login method
+              login(telegramUser).catch(err => {
+                console.error('[UserContext] Fallback login failed:', err);
+              });
+            } else if (authData?.session) {
+              logUserContext("[UserContext] ✅ Got Supabase session from Telegram auth!");
+
+              // ФУНДАМЕНТАЛЬНЫЙ МОМЕНТ: Устанавливаем сессию в Supabase клиент
+              const { error: sessionError } = await supabase.auth.setSession({
+                access_token: authData.session.access_token,
+                refresh_token: authData.session.refresh_token,
+              });
+
+              if (sessionError) {
+                console.error('[UserContext] setSession error:', sessionError);
+              } else {
+                logUserContext("[UserContext] 🎉 Supabase session set successfully!");
+                setSession(authData.session);
+                setSupabaseUser(authData.user);
+
+                // Обновляем profileId если есть
+                if (authData.user?.id) {
+                  const cachedProfileId = localStorage.getItem(`profile_${telegramUser.id}`);
+                  if (cachedProfileId) {
+                    setProfileId(cachedProfileId);
+                    setGlobalProfileId(cachedProfileId);
+                  }
+                }
+              }
+            } else {
+              console.warn('[UserContext] telegram-auth-v2 returned no session');
+              // Fallback to old login method
+              login(telegramUser).catch(err => {
+                console.error('[UserContext] Fallback login failed:', err);
+              });
+            }
+          } catch (err) {
+            console.error('[UserContext] telegram-auth-v2 exception:', err);
+            // Fallback to old login method
+            login(telegramUser).catch(err => {
+              console.error('[UserContext] Fallback login failed:', err);
+            });
+          }
+        } else {
+          // No valid initData, use old method
+          login(telegramUser).catch(err => {
+            console.error('[UserContext] Auto-login failed:', err);
+          });
+        }
       } else {
         // Check for stored token
         const token = localStorage.getItem('telegram_token');
