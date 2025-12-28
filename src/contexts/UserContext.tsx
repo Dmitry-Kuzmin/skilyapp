@@ -19,13 +19,7 @@ interface UserContextType {
   logout: () => void;
 }
 
-const isUserContextDebug =
-  import.meta.env.DEV && import.meta.env.VITE_DEBUG_USER_CONTEXT === "true";
-const console.log = (...args: any[]) => {
-  if (isUserContextDebug) {
-    console.debug(...args);
-  }
-};
+
 
 // КРИТИЧНО: Экспортируем UserContext для безопасного использования в LanguageProvider
 // Это позволяет LanguageProvider работать на лендинге (где UserProvider отсутствует)
