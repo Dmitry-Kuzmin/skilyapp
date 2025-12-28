@@ -74,6 +74,31 @@ export function UserProvider({ children }: { children: ReactNode }) {
           setGlobalProfileId(actualProfileId);
           localStorage.setItem(`profile_${supabaseUser.id}`, actualProfileId);
           console.log("[UserContext] ✅ Profile ID synced from DB:", actualProfileId);
+        } else if (isMounted && !data) {
+          // КРИТИЧНО: Если профиля нет, создаем его автоматически для веб-пользователя
+          console.log("[UserContext] 🐣 Profile not found, creating new one...");
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert([
+              {
+                user_id: supabaseUser.id,
+                first_name: supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0] || 'User',
+                platform: 'web',
+                coins: 500,
+                xp: 0
+              }
+            ])
+            .select('id')
+            .single();
+
+          if (!createError && newProfile) {
+            console.log("[UserContext] ✨ New profile created:", newProfile.id);
+            setProfileId(newProfile.id);
+            setGlobalProfileId(newProfile.id);
+            localStorage.setItem(`profile_${supabaseUser.id}`, newProfile.id);
+          } else {
+            console.error("[UserContext] ❌ Failed to create profile:", createError);
+          }
         }
       } else if (user) {
         // For Telegram users - get profile by telegram_id with retry
