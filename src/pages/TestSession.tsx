@@ -1409,7 +1409,19 @@ const TestSession = () => {
     }
 
     // 2. Zustand Store (КРИТИЧНО для finishTest)
+    console.log('[TestSession] ⚠️ ANSWER DEBUG:', {
+      questionId: currentQuestion.id,
+      answerId,
+      isCorrect,
+      currentIndex,
+      hasActiveState: !!activeState,
+      activeStateKind: activeState?.kind,
+      answersCount: activeState?.kind === 'standard' ? Object.keys(activeState.data.answers).length : 'N/A'
+    });
     answerQuestionZ(answerId, isCorrect);
+    console.log('[TestSession] ✅ After answerQuestionZ, answers count:',
+      activeState?.kind === 'standard' ? Object.keys(activeState.data.answers).length : 'N/A'
+    );
 
     // Inbox Zero: Remove from challenge bank if answered correctly
     if (mode === 'challenge-bank' && isCorrect) {
