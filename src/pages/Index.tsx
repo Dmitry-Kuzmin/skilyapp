@@ -260,7 +260,7 @@ const DashboardContent = memo(function DashboardContent() {
                 <Dashboard
                   stats={{
                     averageScore: averageScore || dashboardData.stats.accuracy,
-                    currentStreak: dashboardData.daily_bonus.current_streak || 0,
+                    currentStreak: dashboardData.daily_bonus?.current_streak || 0,
                     testsCompleted: dashboardData.stats.tests_completed || 0,
                     accuracy: accuracy,
                     coins: balance || dashboardData.profile.coins || 0,
