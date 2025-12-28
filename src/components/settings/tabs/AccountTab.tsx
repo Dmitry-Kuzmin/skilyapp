@@ -424,9 +424,15 @@ export const AccountTab: React.FC = () => {
                     <SettingRow
                         icon={<Mail className="w-4 h-4 text-blue-500" />}
                         label="Email"
-                        description={supabaseUser?.email || "Не подключено"}
+                        description={
+                            supabaseUser?.email && !supabaseUser.email.includes('@telegram.skily.app')
+                                ? supabaseUser.email
+                                : supabaseUser?.app_metadata?.provider === 'google'
+                                    ? supabaseUser.email
+                                    : "Не подключено"
+                        }
                     >
-                        {supabaseUser?.email ? (
+                        {supabaseUser?.email && !supabaseUser.email.includes('@telegram.skily.app') ? (
                             <div className="flex flex-col items-end gap-1">
                                 <span className="flex items-center gap-1.5 text-emerald-500 text-xs font-semibold bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-full">
                                     <Check className="w-3.5 h-3.5" />
@@ -434,7 +440,12 @@ export const AccountTab: React.FC = () => {
                                 </span>
                             </div>
                         ) : (
-                            <Button variant="outline" size="sm" className="text-xs h-8">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-xs h-8"
+                                onClick={handleConnectGoogle}
+                            >
                                 Подключить
                             </Button>
                         )}
