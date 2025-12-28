@@ -142,7 +142,7 @@ async function tryGroq(messages: any[], modelName: string = 'llama-3.3-70b-versa
         stream: true,
         temperature: 0.3, // Снижено для стабильного русского языка
         top_p: 1, // КРИТИЧНО: 1 для предотвращения обрезания слов
-        max_tokens: 2000,
+        max_tokens: 4000,
         frequency_penalty: 0, // КРИТИЧНО: 0 для русского, иначе искажаются окончания
         presence_penalty: 0,  // КРИТИЧНО: 0 для избежания галлюцинаций
       }),
@@ -184,7 +184,7 @@ async function tryGroqWithFallback(messages: any[], country: string = 'spain'): 
 }
 
 // Try Google Gemini API directly with STREAMING (free tier)
-async function tryGemini(messages: any[], country: string = 'spain'): Promise<Response | null> {
+async function tryGemini(messages: any[], country: string = 'spain', mode: string = 'chat'): Promise<Response | null> {
   const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
 
   if (!GEMINI_API_KEY) {
@@ -192,13 +192,18 @@ async function tryGemini(messages: any[], country: string = 'spain'): Promise<Re
     return null;
   }
 
-  const systemPrompt = getSystemPrompt(country);
-
   try {
-    console.log(`[AI Chat] Trying Google Gemini 3 Flash API, country: ${country}...`);
+    console.log(`[AI Chat] Trying Google Gemini 3 Flash API, country: ${country}, mode: ${mode}...`);
 
     // Преобразуем формат сообщений для Gemini
-    let prompt = systemPrompt + '\n\n';
+    let prompt = '';
+
+    // Для режима 'debrief' НЕ добавляем system prompt (он уже внутри messages)
+    if (mode !== 'debrief') {
+      const systemPrompt = getSystemPrompt(country);
+      prompt = systemPrompt + '\n\n';
+    }
+
     for (const msg of messages) {
       prompt += `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}\n\n`;
     }
@@ -217,7 +222,7 @@ async function tryGemini(messages: any[], country: string = 'spain'): Promise<Re
           }],
           generationConfig: {
             temperature: 0.3,
-            maxOutputTokens: 2000,
+            maxOutputTokens: 4000,
           }
         }),
       }
@@ -325,10 +330,12 @@ Deno.serve(async (req) => {
     // Parse request body
     let messages: any[] = [];
     let country: string = 'spain'; // Default to Spain
+    let mode: string = 'chat'; // Default mode: 'chat' or 'debrief'
     try {
       const body = await req.json();
       messages = body.messages || [];
       country = body.country || 'spain'; // Получаем страну из запроса
+      mode = body.mode || 'chat'; // Получаем режим (debrief имеет свой лимит)
     } catch (parseError) {
       console.error('[AI Chat] Failed to parse request body:', parseError);
       return new Response(
@@ -364,34 +371,39 @@ Deno.serve(async (req) => {
           console.log('[AI Chat] Authenticated user:', user.id);
 
           // 🔒 DAILY LIMIT CHECK (10 requests/day for Free, unlimited for Premium)
-          try {
-            const { data: usageData, error: usageError } = await supabase
-              .rpc('increment_ai_usage', { p_user_id: user.id });
+          // ⚠️ SKIP for mode='debrief' — у debrief свой лимит через check_and_increment_ai_debrief_limit
+          if (mode === 'debrief') {
+            console.log('[AI Chat] Skipping increment_ai_usage for debrief mode (has own limit)');
+          } else {
+            try {
+              const { data: usageData, error: usageError } = await supabase
+                .rpc('increment_ai_usage', { p_user_id: user.id });
 
-            if (usageError) {
-              console.error('[AI Chat] Usage check error:', usageError);
-              // Продолжаем без проверки лимита если функция не существует
-            } else if (usageData && usageData.length > 0 && usageData[0].limit_reached) {
-              console.log('[AI Chat] ⛔ Daily limit reached for user:', user.id, 'count:', usageData[0].current_count);
-              return new Response(
-                JSON.stringify({
-                  error: 'daily_limit_reached',
-                  message: 'Ого, ты сегодня в ударе! 🚗 Skily нужно перезарядить батарейки. Он вернется завтра, или разблокируй безлимит с Premium!',
-                  current_count: usageData[0].current_count,
-                  limit: 10
-                }),
-                {
-                  status: 429,
-                  headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-                }
-              );
-            } else {
-              console.log('[AI Chat] ✅ Usage check passed, count:', usageData?.[0]?.current_count || 1);
+              if (usageError) {
+                console.error('[AI Chat] Usage check error:', usageError);
+                // Продолжаем без проверки лимита если функция не существует
+              } else if (usageData && usageData.length > 0 && usageData[0].limit_reached) {
+                console.log('[AI Chat] ⛔ Daily limit reached for user:', user.id, 'count:', usageData[0].current_count);
+                return new Response(
+                  JSON.stringify({
+                    error: 'daily_limit_reached',
+                    message: 'Ого, ты сегодня в ударе! 🚗 Skily нужно перезарядить батарейки. Он вернется завтра, или разблокируй безлимит с Premium!',
+                    current_count: usageData[0].current_count,
+                    limit: 10
+                  }),
+                  {
+                    status: 429,
+                    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+                  }
+                );
+              } else {
+                console.log('[AI Chat] ✅ Usage check passed, count:', usageData?.[0]?.current_count || 1);
+              }
+            } catch (limitError) {
+              console.error('[AI Chat] Limit check exception:', limitError);
+              // Продолжаем без проверки лимита
             }
-          } catch (limitError) {
-            console.error('[AI Chat] Limit check exception:', limitError);
-            // Продолжаем без проверки лимита
-          }
+          } // End of mode !== 'debrief' block
         } else {
           console.log('[AI Chat] No authenticated user, continuing without auth');
         }
@@ -405,7 +417,7 @@ Deno.serve(async (req) => {
     console.log('[AI Chat] Processing request with', messages.length, 'messages, country:', country);
 
     // Try Gemini FIRST - лучше для русского языка (без frequency_penalty)
-    const geminiResponse = await tryGemini(messages, country);
+    const geminiResponse = await tryGemini(messages, country, mode);
     if (geminiResponse) {
       return geminiResponse;
     }

@@ -7,6 +7,7 @@ interface TestContentLayoutProps {
     mode: string;
     isTelegramApp: boolean;
     isPracticeLikeMode: boolean;
+    isRedemptionMode?: boolean;
 }
 
 export const TestContentLayout = ({
@@ -14,7 +15,8 @@ export const TestContentLayout = ({
     sidebar,
     mode,
     isTelegramApp,
-    isPracticeLikeMode
+    isPracticeLikeMode,
+    isRedemptionMode
 }: TestContentLayoutProps) => {
     const isBlitzMode = mode === 'blitz';
     const isExamMode = mode === 'exam' || mode === 'exam-russia';
@@ -45,7 +47,9 @@ export const TestContentLayout = ({
                         ? "px-2 sm:px-4 pt-4"
                         : "pt-4 pb-2 md:pb-3",
                     // Blitz/Exam mode: minimal padding
-                    (isBlitzMode || isExamMode) && "pt-4 pb-0"
+                    (isBlitzMode || isExamMode) && "pt-4 pb-0",
+                    // Tactical Mode for Redemption - Simplified
+                    isRedemptionMode && "pt-4"
                 )}
             >
                 {children}

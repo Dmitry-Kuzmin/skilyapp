@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { XCircle, Clock, CheckCircle2, ChevronDown, Target, BookOpen, Sparkles, Zap, AlertTriangle } from "lucide-react";
@@ -14,6 +14,8 @@ import Confetti from "react-confetti";
 import { useVignetteBanner } from "@/hooks/useVignetteBanner";
 import { useInterstitialBanner } from "@/hooks/useInterstitialBanner";
 import SmartDebriefCard, { FailedQuestion } from "@/components/test-results/SmartDebriefCard";
+import { sounds } from "@/lib/sounds";
+import { haptics } from "@/lib/haptics";
 
 type TestRewardPayload = {
   coins_awarded?: number;
@@ -173,6 +175,8 @@ const TestResults = () => {
     testId?: string;
     rewardResult?: TestRewardPayload | null;
     russiaExamStats?: { totalQuestions: number; totalErrors: number; status?: string; timeSpent?: number; }; // Add stats support
+    country?: string;
+    isRedemptionSuccess?: boolean;
   } | null;
 
   // Early return if no state
@@ -187,8 +191,18 @@ const TestResults = () => {
     );
   }
 
-  const { questions, answers, mode, timeSpent, testId, rewardResult, russiaExamStats } = state;
+  const { questions, answers, mode, timeSpent, testId, rewardResult, russiaExamStats, country } = state;
   const profileId = (supabase.auth.getUser() as any)?.data?.user?.id; // Safe access
+
+  // 🔍 DEBUG: Что приходит из TestSession
+  console.log('🔍 [TestResults] answers from state:', {
+    answersLength: answers?.length,
+    answersData: answers?.slice(0, 3), // Первые 3 для примера
+    correctCount: answers?.filter(a => a.isCorrect).length,
+    questionsLength: questions?.length
+  });
+
+  console.log('[TestResults] Country from state:', country);
 
   // Banner hooks
   const [shouldShowInterstitial, setShouldShowInterstitial] = useState(false);
@@ -228,9 +242,21 @@ const TestResults = () => {
     queryClient.invalidateQueries({ queryKey: ['dashboard-data'] });
   }, [queryClient]);
 
+  // 🧠 AI Memory: Загружаем контекст студента для персонализации
+  const [studentStats, setStudentStats] = useState<{
+    name: string;
+    xp: number;
+    streak: number;
+    prevWeakness?: string | null;
+    trend?: 'rising' | 'stable' | 'falling';
+  } | undefined>(undefined);
+
   // Calculate statistics
   const correctCount = answers.filter(a => a.isCorrect).length;
-  const incorrectCount = answers.filter(a => !a.isCorrect).length;
+  // FALLBACK: Если answers пустой, но questions есть — считаем все вопросы ошибками
+  const incorrectCount = answers.length > 0
+    ? answers.filter(a => !a.isCorrect).length
+    : questions.length;
   const totalQuestions = questions.length;
 
   // Passed logic
@@ -249,13 +275,19 @@ const TestResults = () => {
     passed = (correctCount / totalQuestions) >= 0.8;
   }
 
-  // Trigger confetti
+  // Trigger confetti and sounds
   useEffect(() => {
     if (passed) {
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 5000);
+
+      // Play victory sound and haptic if it was a redemption success
+      if (state.isRedemptionSuccess) {
+        sounds.victory();
+        haptics.victory();
+      }
     }
-  }, [passed]);
+  }, [passed, state.isRedemptionSuccess]);
 
   // Format Helpers
   const formatTime = (seconds: number) => {
@@ -269,31 +301,67 @@ const TestResults = () => {
   };
 
   // Identify weak topic (most incorrects)
-  const getWeakTopic = () => {
-    const wrongAnswers = answers.filter(a => !a.isCorrect);
-    if (wrongAnswers.length === 0) return undefined;
+  const weakTopic = useMemo(() => {
+    if (incorrectCount === 0) return undefined;
+    const topicsCount: Record<string, number> = {};
+    const isSpain = country === 'spain';
 
-    // Simple frequency map
-    const topicCounts: Record<string, number> = {};
-    let maxCount = 0;
-    let weakTopic = "";
-
-    wrongAnswers.forEach(ans => {
+    answers.filter(a => !a.isCorrect).forEach(ans => {
       const q = questions.find(q => q.id === ans.questionId);
-      if (q?.topics?.title_ru) {
-        const topic = q.topics.title_ru;
-        topicCounts[topic] = (topicCounts[topic] || 0) + 1;
-        if (topicCounts[topic] > maxCount) {
-          maxCount = topicCounts[topic];
-          weakTopic = topic;
-        }
+      const topicTitle = isSpain ? q?.topics?.title_es : q?.topics?.title_ru;
+      if (topicTitle) {
+        topicsCount[topicTitle] = (topicsCount[topicTitle] || 0) + 1;
       }
     });
 
-    return weakTopic || undefined;
-  };
+    const sorted = Object.entries(topicsCount).sort((a, b) => b[1] - a[1]);
+    return sorted[0]?.[0];
+  }, [incorrectCount, answers, questions, country]);
 
-  const weakTopic = getWeakTopic();
+  // 🧠 AI Memory: Загружаем контекст студента ПОСЛЕ объявления weakTopic
+  useEffect(() => {
+    const loadStudentContext = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user?.id) return;
+
+        // Получаем профиль пользователя
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('name, xp, streak')
+          .eq('id', user.id)
+          .single();
+
+        if (profile) {
+          setStudentStats({
+            name: profile.name || user.user_metadata?.first_name || 'Driver',
+            xp: (profile as any).xp || 0,
+            streak: (profile as any).streak || 1,
+            prevWeakness: weakTopic || null,
+            trend: 'stable'
+          });
+        } else {
+          setStudentStats({
+            name: user.user_metadata?.first_name || user.email?.split('@')[0] || 'Driver',
+            xp: 0,
+            streak: 1,
+            prevWeakness: null,
+            trend: 'stable'
+          });
+        }
+      } catch (e) {
+        console.error('[TestResults] Failed to load student context:', e);
+        setStudentStats({
+          name: 'Driver',
+          xp: 0,
+          streak: 1,
+          prevWeakness: null,
+          trend: 'stable'
+        });
+      }
+    };
+    loadStudentContext();
+  }, [weakTopic]);
 
   // Handlers
   const toggleTranslation = (id: string) => setShowTranslation(prev => ({ ...prev, [id]: !prev[id] }));
@@ -304,6 +372,19 @@ const TestResults = () => {
       {showConfetti && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={200} gravity={0.3} />}
 
       <div className="container mx-auto px-4 py-6 max-w-3xl pb-24 sm:pb-8">
+        {state.isRedemptionSuccess && (
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            className="mb-8 p-8 rounded-[2rem] bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-2xl shadow-amber-500/30 border border-white/20 text-center relative overflow-hidden"
+          >
+            <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[radial-gradient(circle_at_center,_white_1px,_transparent_1px)] bg-[size:20px_20px]" />
+            <Sparkles className="mx-auto w-16 h-16 mb-4 text-amber-200" />
+            <h1 className="text-3xl font-black tracking-tight mb-2 uppercase">Навык Восстановлен!</h1>
+            <p className="text-amber-50 font-medium">Безупречное закрепление. Потерянный рейтинг возвращен на 50%.</p>
+          </motion.div>
+        )}
+
         {/* Header Section */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
 
@@ -361,25 +442,60 @@ const TestResults = () => {
         {/* Smart Debrief — AI анализ ошибок */}
         {incorrectCount > 0 && (
           <SmartDebriefCard
-            failedQuestions={answers
-              .filter(a => !a.isCorrect)
-              .map(ans => {
-                const q = questions.find(q => q.id === ans.questionId);
-                const selectedOption = q?.answer_options.find(opt => opt.id === ans.selectedAnswerId);
-                const correctOption = q?.answer_options.find(opt => opt.is_correct);
+            country={country}
+            failedQuestions={
+              // FALLBACK: Если answers пустой — используем все questions как ошибки
+              answers.length > 0
+                ? answers
+                  .filter(a => !a.isCorrect)
+                  .map(ans => {
+                    const q = questions.find(q => q.id === ans.questionId);
+                    const isSpain = country === 'spain';
+                    const selectedOption = q?.answer_options.find(opt => opt.id === ans.selectedAnswerId);
+                    const correctOption = q?.answer_options.find(opt => opt.is_correct);
 
-                return {
-                  questionId: ans.questionId,
-                  questionText: q?.question_ru || '',
-                  userAnswer: selectedOption?.text_ru || 'Не выбран',
-                  correctAnswer: correctOption?.text_ru || '',
-                  topic: q?.topics?.title_ru,
-                  explanation: q?.explanation_ru,
-                };
-              })
+                    // 🔍 DEBUG: Почему selectedOption не находится?
+                    console.log('🔍 DEBUG selectedOption:', {
+                      questionId: ans.questionId,
+                      selectedAnswerId: ans.selectedAnswerId,
+                      selectedAnswerIdType: typeof ans.selectedAnswerId,
+                      optionIds: q?.answer_options.map(o => ({ id: o.id, type: typeof o.id })),
+                      foundOption: selectedOption ? 'FOUND' : 'NOT_FOUND',
+                      foundOptionText: selectedOption?.text_es || selectedOption?.text_ru
+                    });
+
+                    // Определяем текст ответа пользователя
+                    const userAnswerText = selectedOption
+                      ? (isSpain ? selectedOption.text_es : selectedOption.text_ru) || selectedOption.text_ru
+                      : null;
+
+                    return {
+                      questionId: ans.questionId,
+                      questionText: (isSpain ? q?.question_es : q?.question_ru) || q?.question_ru || '',
+                      userAnswer: userAnswerText || 'NO_ANSWER_GIVEN', // Явный маркер пропуска
+                      correctAnswer: (isSpain ? correctOption?.text_es : correctOption?.text_ru) || correctOption?.text_ru || '',
+                      topic: isSpain ? q?.topics?.title_es : q?.topics?.title_ru,
+                      explanation: (isSpain ? q?.explanation_es : q?.explanation_ru) || q?.explanation_ru || '',
+                      imageUrl: q?.image_url || null, // Добавляем картинку вопроса
+                    };
+                  })
+                : questions.map(q => {
+                  const isSpain = country === 'spain';
+                  const correctOption = q.answer_options.find(opt => opt.is_correct);
+
+                  return {
+                    questionId: q.id,
+                    questionText: (isSpain ? q.question_es : q.question_ru) || q.question_ru || '',
+                    userAnswer: 'NO_ANSWER_GIVEN', // Явный маркер пропуска
+                    correctAnswer: (isSpain ? correctOption?.text_es : correctOption?.text_ru) || correctOption?.text_ru || '',
+                    topic: isSpain ? q.topics?.title_es : q.topics?.title_ru,
+                    explanation: (isSpain ? q.explanation_es : q.explanation_ru) || q.explanation_ru || '',
+                    imageUrl: q.image_url || null, // Добавляем картинку вопроса
+                  };
+                })
             }
             weakTopic={weakTopic}
-            onUpgradeClick={() => navigate('/premium')}
+            studentStats={studentStats}
           />
         )}
 

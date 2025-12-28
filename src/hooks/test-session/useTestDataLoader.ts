@@ -1,4 +1,6 @@
 import { useMemo } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 import { useTestQuestions } from "@/hooks/useTestQuestions";
 import { useSequentialTestQuestions } from "@/hooks/useTestQuestions";
 import {
@@ -27,6 +29,7 @@ export type TestMode =
     | 'pdd-topic'
     | 'marathon'
     | 'traps'
+    | 'redemption'
     | 'mastery';
 
 interface UseTestDataLoaderProps {
@@ -37,6 +40,9 @@ interface UseTestDataLoaderProps {
     pddCountry?: CountryCode | null;
     ticketNumber?: number | null;
     questionCount?: number;
+    redemptionData?: {
+        failedIds: string[];
+    };
 }
 
 interface UseTestDataLoaderResult {
@@ -60,6 +66,7 @@ export const useTestDataLoader = ({
     pddCountry,
     ticketNumber,
     questionCount = 30,
+    redemptionData,
 }: UseTestDataLoaderProps): UseTestDataLoaderResult => {
 
     // Practice/Exam mode questions
@@ -127,6 +134,47 @@ export const useTestDataLoader = ({
         pddCountry || 'russia',
         (!isSequentialRequired && (mode === 'practice' || mode === 'blitz' || mode === 'exam' || mode === 'mastery' || mode === 'hardest')) && pddCountry === 'russia' ? questionCount : 0
     );
+
+    // Redemption questions
+    const redemptionQuestions = useQuery({
+        queryKey: ["redemption-questions", redemptionData?.failedIds, pddCountry],
+        queryFn: async () => {
+            console.log("[useTestDataLoader] Fetching redemption questions for IDs:", redemptionData?.failedIds);
+            if (!redemptionData?.failedIds?.length) return [];
+
+            // 1. Load original failed questions
+            const { data: original, error: origError } = await supabase
+                .from("questions_new")
+                .select("*, topics (title_ru, title_es), answer_options (*)")
+                .in("id", redemptionData.failedIds);
+
+            if (origError) throw origError;
+
+            // 2. Load drill questions (similar topics)
+            const topicIds = [...new Set(original?.map(q => q.topic_id).filter(Boolean))];
+
+            let drill: any[] = [];
+            if (topicIds.length > 0) {
+                const { data: drilled, error: drillError } = await supabase
+                    .from("questions_new")
+                    .select("*, topics (title_ru, title_es), answer_options (*)")
+                    .in("topic_id", topicIds)
+                    .not("id", "in", `(${redemptionData.failedIds.join(',')})`)
+                    .limit(redemptionData.failedIds.length * 2);
+
+                if (drillError) throw drillError;
+                drill = drilled || [];
+            }
+
+            // Mix: Original first (Reflection stage), then Drill (Mastery stage)
+            // But we rely on TestSession to know which is which. 
+            // We just return them in order: original then drill.
+            const result = [...(original || []), ...(drill.sort(() => Math.random() - 0.5))];
+            console.log(`[useTestDataLoader] Loaded ${result.length} redemption questions (${original?.length || 0} original, ${drill.length} drill)`);
+            return result;
+        },
+        enabled: mode === 'redemption' && !!redemptionData?.failedIds?.length,
+    });
 
     // Aggregate results based on mode
     const result = useMemo((): UseTestDataLoaderResult => {
@@ -234,6 +282,14 @@ export const useTestDataLoader = ({
                     testInfo: { id: 'traps', title: '🪤 Топ-50 ловушек' },
                 };
 
+            case 'redemption':
+                return {
+                    questions: redemptionQuestions.data || [],
+                    isLoading: redemptionQuestions.isLoading,
+                    error: redemptionQuestions.error as Error | null,
+                    testInfo: { id: 'redemption', title: '🛡️ Протокол Восстановления' },
+                };
+
             default:
                 return {
                     questions: [],
@@ -256,6 +312,7 @@ export const useTestDataLoader = ({
         pddRandomQuestions,
         topic,
         ticketNumber,
+        redemptionQuestions,
     ]);
 
     return result;

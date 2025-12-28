@@ -47,6 +47,7 @@ import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { TestSettingsMenu } from "@/components/TestSettingsMenu";
 import { ChallengeBankNotification } from "@/components/ChallengeBankNotification";
 import { OfflineStatusIndicator, AnswerOptionsList } from "@/components/test-session";
+import { ReflectionOverlay, Flashcard } from "@/components/test-session/redemption/ReflectionOverlay";
 import { AccountWatermark } from "@/components/anti-abuse/AccountWatermark";
 import { usePremium } from "@/hooks/usePremium";
 import { mapRussiaQuestionToUniversal } from "@/utils/pddAdapters";
@@ -139,12 +140,18 @@ const TestSession = () => {
 
   // Определяем страну для ПДД билета
   const pddCountry = useMemo(() => {
-    // Если мы в режиме РФ (явно или через настройки)
-    if (isRussia || mode === 'pdd-ticket' || mode === 'exam-russia' || mode === 'challenge-bank') {
-      return countryParam || selectedCountry || 'russia';
-    }
-    return null;
-  }, [mode, countryParam, selectedCountry, isRussia]);
+    // Если в URL есть страна, используем её
+    if (countryParam) return countryParam;
+
+    // Если режим явно испанский (DGT)
+    if (mode === 'dgt') return 'spain';
+
+    // Если режим явно российский
+    if (mode === 'exam-russia' || mode === 'pdd-ticket') return 'russia';
+
+    // В остальных случаях берем из контекста или дефолтимся
+    return selectedCountry || 'russia';
+  }, [mode, countryParam, selectedCountry]);
 
   // Определяем номер билета
   const ticketNumber = useMemo(() => {
@@ -166,6 +173,7 @@ const TestSession = () => {
   const initialTimeBudget = mode === "exam" ? 30 * 60 : mode === "blitz" ? blitzDuration : 0;
   const [showTranslation, setShowTranslation] = useState(false);
   const [questionsState, setQuestionsState] = useState<QuestionData[]>([]);
+  const setQuestions = setQuestionsState;
 
   // Game Engine - manages navigation and answers
   // === ZUSTAND CORE (Replacing useTestEngine) ===
@@ -212,10 +220,10 @@ const TestSession = () => {
       }));
     }
     // Standard
-    return Object.values(activeState.data.answers).map((a: any) => ({
-      questionId: questionsState.find(q => q.id === Object.keys(activeState.data.answers).find(k => activeState.data.answers[k] === a))?.id || '',
-      selectedAnswerId: a.selectedOptionId,
-      isCorrect: a.isCorrect
+    return Object.entries(activeState.data.answers).map(([questionId, a]) => ({
+      questionId: questionId,
+      selectedAnswerId: (a as any).selectedOptionId,
+      isCorrect: (a as any).isCorrect
     }));
   }, [activeState, questionsState]);
 
@@ -239,10 +247,33 @@ const TestSession = () => {
   const [isQuestionBookmarked, setIsQuestionBookmarked] = useState(false);
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
   const [blitzShaking, setBlitzShaking] = useState(false); // Screen shake for Blitz wrong answers
+
+  // ============================================
+  // REDEMPTION SESSION CONFIG & STATE
+  // ============================================
+  const isRedemptionMode = (location.state as any)?.mode === 'redemption';
+  const redemptionFailedQuestions = (location.state as any)?.failedQuestions || [];
+  const redemptionAnalysisData = (location.state as any)?.analysisData;
+  // Log only once on mount via useEffect below
+  const [redemptionStep, setRedemptionStep] = useState<'reflection' | 'drill' | 'completed'>(
+    isRedemptionMode ? 'reflection' : 'completed'
+  );
+  const [showReflectionOverlay, setShowReflectionOverlay] = useState(false);
+  const [redemptionOriginalCount, setRedemptionOriginalCount] = useState(redemptionFailedQuestions.length);
+  const [lastRedemptionAnswerTimestamp, setLastRedemptionAnswerTimestamp] = useState(0);
+
+  // Flashcards для индивидуальных подсказок в режиме Redemption
+  const [redemptionFlashcards, setRedemptionFlashcards] = useState<Flashcard[]>([]);
+  const [flashcardsLoading, setFlashcardsLoading] = useState(false);
+
   // ============================================
   // DATA LAYER: Single source of truth for questions
   // ============================================
   const topicName = searchParams.get('topic');
+
+  const redemptionData = useMemo(() => isRedemptionMode ? {
+    failedIds: redemptionFailedQuestions.map((q: any) => q.questionId)
+  } : undefined, [isRedemptionMode, redemptionFailedQuestions]);
 
   const dataLoader = useTestDataLoader({
     mode: mode as TestMode,
@@ -252,6 +283,7 @@ const TestSession = () => {
     pddCountry: pddCountry || selectedCountry || undefined,
     ticketNumber: ticketNumber || undefined,
     questionCount,
+    redemptionData
   });
 
   // Derived loading state
@@ -414,6 +446,13 @@ const TestSession = () => {
   const isOnline = useOnlineStatus();
   const [pendingSync, setPendingSync] = useState(false);
 
+  // Smart Vocabulary settings (must be at top-level, before any early returns)
+  const smartVocabularyEnabled = useSettingsStore(state => state.smartVocabularyEnabled);
+  const toggleSmartVocabulary = useSettingsStore(state => state.toggleSmartVocabulary);
+  const appLanguage = useSettingsStore(state => state.language);
+  const setSettings = useSettingsStore(state => state.updateSettings);
+  const smartDefaultAppliedRef = useRef(false);
+
 
 
   const isTelegramApp = isTelegramMiniApp();
@@ -423,6 +462,16 @@ const TestSession = () => {
   useEffect(() => {
     localStorage.setItem('test-language', testLanguage);
   }, [testLanguage]);
+
+  // Smart Default - if app language is different from test language (автоинициализация)
+  useEffect(() => {
+    // Only auto-initialize if we are in ES/EN test and it's not a Russia region
+    if (!isRussia && (testLanguage === 'es' || testLanguage === 'en') && !smartDefaultAppliedRef.current) {
+      const shouldBeEnabled = appLanguage !== testLanguage;
+      setSettings({ smartVocabularyEnabled: shouldBeEnabled });
+      smartDefaultAppliedRef.current = true;
+    }
+  }, [testLanguage, appLanguage, isRussia, setSettings]);
 
 
 
@@ -559,6 +608,12 @@ const TestSession = () => {
     isLoading: mode === 'challenge-bank' && dataLoader.isLoading,
     error: mode === 'challenge-bank' ? dataLoader.error : null,
   }), [mode, dataLoader.questions, dataLoader.isLoading, dataLoader.error]);
+
+  const redemptionQuestions = useMemo(() => ({
+    data: isRedemptionMode ? dataLoader.questions : null,
+    isLoading: isRedemptionMode && dataLoader.isLoading,
+    error: isRedemptionMode ? dataLoader.error : null,
+  }), [isRedemptionMode, dataLoader.questions, dataLoader.isLoading, dataLoader.error]);
 
   const dgtQuestions = useMemo(() => ({
     data: mode === 'dgt' ? dataLoader.questions : null,
@@ -832,6 +887,13 @@ const TestSession = () => {
       // For now, assume Completion handled by UI actions (Last question -> Results).
       // But store sets 'completed' on last nextQuestion.
       if (activeState.kind === 'standard') {
+        // 🔍 DEBUG: Что передаём в результаты
+        console.log('🔍 [TestSession] Navigating to results with:', {
+          answersCount: answers.length,
+          answersData: answers.slice(0, 3),
+          correctCount: answers.filter(a => a.isCorrect).length
+        });
+
         navigate('/test/results', {
           state: {
             questions: questions,
@@ -1064,405 +1126,76 @@ const TestSession = () => {
     return () => clearTimeout(timeoutId);
   }, [currentIndex, questions, loading]);
 
+  // REDEMPTION: Generate flashcards on session start (run only once)
+  const flashcardsRequestedRef = useRef(false);
+  useEffect(() => {
+    // Skip if not redemption mode, already requested, or no failed questions
+    if (!isRedemptionMode) return;
+    if (flashcardsRequestedRef.current) return;
+    if (!redemptionFailedQuestions || redemptionFailedQuestions.length === 0) return;
 
+    // Mark as requested immediately to prevent duplicate calls
+    flashcardsRequestedRef.current = true;
 
-  const loadQuestions = async () => {
-    try {
-      setLoading(true);
-
-      // Если это режим Challenge Bank, загружаем вопросы с ошибками
-      if (mode === 'challenge-bank' && profileId) {
-        const { data: challengeQuestions, error: challengeError } = await (supabase as any)
-          .rpc('get_challenge_bank_questions', {
-            p_user_id: profileId,
-            p_limit: 30,
-            p_only_not_mastered: true
-          });
-
-        if (challengeError) throw challengeError;
-        if (!challengeQuestions || challengeQuestions.length === 0) {
-          toast.error("Нет вопросов в Банке Сложных Вопросов");
-          navigate("/tests/challenge-bank");
-          return;
-        }
-
-        // Преобразуем Challenge Bank вопросы в формат TestSession
-        // Загружаем answer_options для каждого вопроса
-        const questionIds = challengeQuestions.map((q: any) => q.id);
-        const { data: optionsData, error: optionsError } = await supabase
-          .from("answer_options")
-          .select("*")
-          .in("question_id", questionIds);
-
-        if (optionsError) throw optionsError;
-
-        const formattedQuestions = challengeQuestions.map((q: any) => {
-          const options = (optionsData || []).filter((opt: any) => opt.question_id === q.id);
-          return {
-            ...q,
-            answer_options: options,
-            topics: q.topic_title_ru ? {
-              title_ru: q.topic_title_ru,
-              title_es: q.topic_title_es || q.topic_title_ru,
-            } : null,
-          };
+    const generateFlashcards = async () => {
+      setFlashcardsLoading(true);
+      try {
+        console.log('[TestSession] Generating flashcards for redemption...');
+        const { data, error } = await supabase.functions.invoke('generate-flashcards', {
+          body: {
+            failedQuestions: redemptionFailedQuestions,
+            country: pddCountry || 'russia'
+          }
         });
-
-        setQuestions(formattedQuestions);
-        setTestInfo({
-          id: 'challenge_bank',
-          title: '💡 Банк Сложных Вопросов™',
-        });
-      }
-      // Режим Mastery - случайные вопросы для прохождения "до победного"
-      else if (mode === 'mastery') {
-        let query = (supabase as any)
-          .from("questions_new")
-          .select(`
-            *,
-            topics (title_ru, title_es),
-            answer_options (*)
-          `);
-
-        // Если указана тема
-        if (topic) {
-          query = query.eq("topic_id", topic);
-        }
-
-        const { data, error } = await query;
-        if (error) throw error;
-
-        // Перемешиваем и берём заданное количество вопросов
-        const shuffled = (data || []).sort(() => Math.random() - 0.5);
-        const limited = shuffled.slice(0, questionCount);
-
-        setQuestions(limited);
-        setTestInfo({
-          id: 'mastery_mode',
-          title: '🏆 Режим Мастерства',
-        });
-      }
-      // Режим Hardest - самые сложные вопросы
-      else if (mode === 'hardest') {
-        // TODO: Загружать из статистики самые сложные вопросы
-        // Пока загружаем случайные вопросы
-        const { data, error } = await (supabase as any)
-          .from("questions_new")
-          .select(`
-            *,
-            topics (title_ru, title_es),
-            answer_options (*)
-          `);
 
         if (error) throw error;
 
-        // Перемешиваем и берём заданное количество
-        const shuffled = (data || []).sort(() => Math.random() - 0.5);
-        const limited = shuffled.slice(0, questionCount);
-
-        setQuestions(limited);
-        setTestInfo({
-          id: 'hardest_questions',
-          title: '⚠️ Сложные Вопросы',
+        if (data?.flashcards && Array.isArray(data.flashcards)) {
+          console.log(`[TestSession] Loaded ${data.flashcards.length} flashcards`);
+          setRedemptionFlashcards(data.flashcards);
+        }
+      } catch (err) {
+        console.error('[TestSession] Failed to generate flashcards:', err);
+        // Show error only once with unique id
+        toast.error('Не удалось загрузить подсказки. Режим работает с базовыми данными.', {
+          id: 'flashcards-error',
+          duration: 3000,
         });
+      } finally {
+        setFlashcardsLoading(false);
       }
-      // Если это DGT тест, загружаем из dgt_questions
-      else if (mode === 'dgt' && topic) {
-        const category = topic.toUpperCase();
+    };
 
-        // Загружаем случайные 30 вопросов из DGT базы
-        const { data: dgtQuestions, error: dgtError } = await (supabase as any)
-          .rpc('get_random_dgt_questions', {
-            p_category: category,
-            p_limit: 30
-          });
+    generateFlashcards();
+  }, [isRedemptionMode, redemptionFailedQuestions, pddCountry]);
 
-        if (dgtError) throw dgtError;
-        if (!dgtQuestions || dgtQuestions.length === 0) {
-          toast.error("Вопросы для этой категории не найдены");
-          navigate("/dgt-tests");
-          return;
-        }
+  // REDEMPTION: Track which questions have already shown the reflection overlay
+  const shownReflectionForQuestionsRef = useRef<Set<string>>(new Set());
 
-        // Преобразуем DGT вопросы в формат TestSession
-        const formattedQuestions = dgtQuestions.map((q: any) => ({
-          id: q.id,
-          question_ru: q.question_es,
-          question_es: q.question_es,
-          question_en: q.question_es,
-          image_url: q.image_filename || null, // Используем filename, если есть
-          explanation_ru: q.explanation_es || 'Нет объяснения',
-          explanation_es: q.explanation_es || 'Sin explicación',
-          explanation_en: q.explanation_es || 'No explanation',
-          topics: {
-            title_ru: `DGT Экзамен ${category}`,
-            title_es: `Examen DGT ${category}`,
-          },
-          answer_options: [
-            {
-              id: `${q.id}_a`,
-              question_id: q.id,
-              text_ru: q.option_a_es,
-              text_es: q.option_a_es,
-              text_en: q.option_a_es,
-              is_correct: q.correct_answer === 'a',
-              position: 1,
-            },
-            {
-              id: `${q.id}_b`,
-              question_id: q.id,
-              text_ru: q.option_b_es,
-              text_es: q.option_b_es,
-              text_en: q.option_b_es,
-              is_correct: q.correct_answer === 'b',
-              position: 2,
-            },
-            {
-              id: `${q.id}_c`,
-              question_id: q.id,
-              text_ru: q.option_c_es,
-              text_es: q.option_c_es,
-              text_en: q.option_c_es,
-              is_correct: q.correct_answer === 'c',
-              position: 3,
-            },
-          ],
-        }));
+  // REDEMPTION: Reflection Auto-Show (Theory overlay) - show only once per question
+  useEffect(() => {
+    if (!isRedemptionMode || redemptionStep !== 'reflection' || questionsState.length === 0) return;
 
-        setQuestions(formattedQuestions);
-        setTestInfo({
-          id: `dgt_${category}`,
-          title: `DGT Экзамен ${category}`,
-        });
-      }
-      // Итоговый тест по модулю: короткий экзамен по одной теме
-      else if (mode === "module" && topic) {
-        const { data, error } = await (supabase as any)
-          .from("questions_new")
-          .select(
-            `
-            *,
-            topics (title_ru, title_es),
-            answer_options (*)
-          `
-          )
-          .eq("topic_id", topic);
+    const currentQuestionId = questionsState[currentIndex]?.id;
+    if (!currentQuestionId) return;
 
-        if (error) throw error;
+    // Skip if already shown for this question
+    if (shownReflectionForQuestionsRef.current.has(currentQuestionId)) return;
 
-        const uniqueQuestionsMap = new Map<string, (typeof data)[0]>();
-        (data || []).forEach((q) => {
-          if (!uniqueQuestionsMap.has(q.id)) {
-            uniqueQuestionsMap.set(q.id, q);
-          }
-        });
-        const uniqueQuestions = Array.from(uniqueQuestionsMap.values());
+    // Skip if already answered
+    const isAnswered = answers.some(a => a.questionId === currentQuestionId);
+    if (isAnswered) return;
 
-        const shuffled = uniqueQuestions.sort(() => Math.random() - 0.5);
-        const limited = shuffled.slice(0, 20); // короче, чем обычный экзамен
+    // Mark as shown and display overlay
+    shownReflectionForQuestionsRef.current.add(currentQuestionId);
+    setShowReflectionOverlay(true);
+  }, [currentIndex, isRedemptionMode, redemptionStep, questionsState, answers]);
 
-        setQuestions(limited);
-        setTestInfo({
-          id: `module_${topic}`,
-          title: "Итоговый тест по модулю",
-        });
-      }
-      // Если это sequential тест, загружаем вопросы через функцию
-      else if (testId) {
-        // Получаем информацию о тесте
-        const { data: testData, error: testError } = await (supabase as any)
-          .from("tests")
-          .select(`
-            *,
-            topics (title_ru, title_es)
-          `)
-          .eq("id", testId)
-          .single();
 
-        if (testError) throw testError;
-        if (!testData) throw new Error("Test not found");
 
-        setTestInfo({
-          id: testData.id,
-          title: testData.title_ru,
-        });
 
-        // Проверяем доступность теста
-        if (profileId) {
-          const { data: progressData } = await (supabase as any)
-            .from("user_test_progress")
-            .select("*")
-            .eq("user_id", profileId)
-            .eq("test_id", testId)
-            .single();
 
-          if (progressData && progressData.status === 'locked') {
-            toast.error("Этот тест заблокирован. Пройдите предыдущие тесты.");
-            navigate("/tests/sequential");
-            return;
-          }
-
-          // Устанавливаем статус "in_progress" и время начала
-          setStartTime(Date.now());
-          (supabase as any)
-            .from("user_test_progress")
-            .upsert({
-              user_id: profileId,
-              test_id: testId,
-              status: 'in_progress',
-              started_at: new Date().toISOString(),
-            }, {
-              onConflict: 'user_id,test_id'
-            });
-        }
-
-        // Загружаем вопросы через функцию
-        const { data: questionsData, error: questionsError } = await (supabase as any).rpc(
-          'get_test_questions',
-          { p_test_id: testId }
-        );
-
-        if (questionsError) {
-          console.error("Error loading test questions:", questionsError);
-          throw questionsError;
-        }
-
-        if (!questionsData || questionsData.length === 0) {
-          toast.error("Вопросы для этого теста не найдены");
-          navigate("/tests/sequential");
-          return;
-        }
-
-        // Преобразуем question_id в id для совместимости
-        const questionsWithId = questionsData.map((q: any) => ({
-          ...q,
-          id: q.question_id || q.id
-        }));
-
-        // Загружаем answer_options для каждого вопроса
-        const questionIds = questionsWithId.map((q: any) => q.id);
-        const { data: optionsData, error: optionsError } = await supabase
-          .from("answer_options")
-          .select("*")
-          .in("question_id", questionIds);
-
-        if (optionsError) throw optionsError;
-
-        // Получаем информацию о теме (уже загружена через join или загружаем отдельно)
-        let topicData = testData.topics;
-        if (!topicData && testData.topic_id) {
-          const { data: loadedTopicData } = await (supabase as any)
-            .from("topics")
-            .select("title_ru, title_es")
-            .eq("id", testData.topic_id)
-            .single();
-
-          if (loadedTopicData) {
-            topicData = loadedTopicData;
-          }
-        }
-
-        // Объединяем вопросы с опциями и темой
-        const questionsWithOptions = questionsWithId.map((q: any) => {
-          const options = (optionsData || []).filter((opt: any) => opt.question_id === q.id);
-          return {
-            ...q,
-            answer_options: options,
-            topics: topicData ? { title_ru: topicData.title_ru, title_es: topicData.title_es } : null,
-          };
-        });
-
-        setQuestions(questionsWithOptions);
-        if (startTime === 0) setStartTime(Date.now());
-
-        // Предзагружаем первые несколько изображений для sequential тестов
-        const firstImagesToPreload = questionsWithOptions
-          .slice(0, 3)
-          .map(q => q.image_url)
-          .filter(Boolean) as string[];
-
-        if (firstImagesToPreload.length > 0) {
-          preloadImage(firstImagesToPreload[0]).catch(() => { });
-          firstImagesToPreload.slice(1).forEach((url, index) => {
-            setTimeout(() => {
-              preloadImage(url).catch(() => { });
-            }, (index + 1) * 300);
-          });
-        }
-      } else {
-        // Старый способ загрузки вопросов (для обычных тестов)
-        // Get current user profile
-        const { data: { user } } = await supabase.auth.getUser();
-        let profileId = null;
-
-        if (user) {
-          const { data: profile } = await (supabase as any)
-            .from("profiles")
-            .select("id")
-            .eq("user_id", user.id)
-            .single();
-          profileId = profile?.id;
-        }
-
-        let query = (supabase as any)
-          .from("questions_new")
-          .select(`
-          *,
-          topics (title_ru, title_es),
-          answer_options (*)
-        `);
-
-        // Filter by topic if specified
-        if (topic) {
-          query = query.eq("topic_id", topic);
-        }
-
-        const { data, error } = await query;
-        if (error) throw error;
-
-        // Убираем дубликаты вопросов по id (на случай если в базе есть дубликаты)
-        const uniqueQuestionsMap = new Map<string, typeof data[0]>();
-        (data || []).forEach(q => {
-          if (!uniqueQuestionsMap.has(q.id)) {
-            uniqueQuestionsMap.set(q.id, q);
-          }
-        });
-        const uniqueQuestions = Array.from(uniqueQuestionsMap.values());
-
-        // Shuffle and limit questions (не исключаем уже отвеченные)
-        const shuffled = uniqueQuestions.sort(() => Math.random() - 0.5);
-        const limited = shuffled.slice(0, questionCount);
-
-        setQuestions(limited);
-        if (startTime === 0) setStartTime(Date.now());
-
-        // Предзагружаем первые несколько изображений для быстрого старта
-        const firstImagesToPreload = limited
-          .slice(0, 3)
-          .map(q => q.image_url)
-          .filter(Boolean) as string[];
-
-        if (firstImagesToPreload.length > 0) {
-          // Предзагружаем первое изображение сразу
-          preloadImage(firstImagesToPreload[0]).catch(() => { });
-
-          // Остальные предзагружаем с задержкой
-          firstImagesToPreload.slice(1).forEach((url, index) => {
-            setTimeout(() => {
-              preloadImage(url).catch(() => { });
-            }, (index + 1) * 300);
-          });
-        }
-      }
-    } catch (error) {
-      console.error("Error loading questions:", error);
-      toast.error("Ошибка загрузки вопросов");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const practiceLikeModes = ["practice", "blitz", "mastery", "sequential", "module", "challenge-bank", "dgt", "pdd-ticket"];
+  const practiceLikeModes = ["practice", "blitz", "mastery", "sequential", "module", "challenge-bank", "dgt", "pdd-ticket", "redemption"];
   const isPracticeLikeMode = practiceLikeModes.includes(mode);
 
   // Функция для сохранения ответа в прогресс и Банк Ошибок
@@ -1711,6 +1444,99 @@ const TestSession = () => {
     }
     setTimeout(() => setFeedbackStatus(null), 800);
 
+    // ============================================
+    // REDEMPTION MODE SPECIFIC LOGIC
+    // ============================================
+    if (isRedemptionMode) {
+      // Stage 1: Reflection
+      if (redemptionStep === 'reflection') {
+        if (!isCorrect) {
+          // Deep Dive Loop: show theory again
+          setTimeout(() => {
+            setShowReflectionOverlay(true);
+            setSelectedOption(null);
+          }, 800);
+          return;
+        } else {
+          // Correct! Proceed to next
+          const isLastOriginal = (currentIndex + 1) === redemptionOriginalCount;
+          if (isLastOriginal) {
+            // Transition to DRILL
+            toast.success("Отлично! Ты понял принцип. А теперь — контрольные вопросы!", {
+              icon: "🛡️",
+              duration: 4000
+            });
+            setTimeout(() => {
+              setRedemptionStep('drill');
+              nextQuestion();
+            }, 1000);
+          } else {
+            setTimeout(nextQuestion, 1000);
+          }
+          return;
+        }
+      }
+      // Stage 2: Drill (Mastery Blitz)
+      else if (redemptionStep === 'drill') {
+        if (!isCorrect) {
+          // Failed redemption
+          toast.error("Ошибка на контрольном вопросе. Навык не восстановлен.", {
+            icon: "❌",
+            duration: 5000
+          });
+          setFailureReason("Ошибка на контрольном вопросе");
+          setShowFailureModal(true);
+          return;
+        } else {
+          // Correct! Check if it was the last one
+          const isLastDrill = (currentIndex + 1) === questions.length;
+          if (isLastDrill) {
+            // SUCCESS! REDEMPTION ACCOMPLISHED
+            toast.success("Навык восстановлен! Рекорд обновлен.", {
+              icon: "💎",
+              duration: 5000
+            });
+
+            // Return 50% rating logic (Backend call)
+            if (profileId) {
+              supabase.functions.invoke('complete-redemption', {
+                body: {
+                  user_id: profileId,
+                  failed_questions: redemptionFailedQuestions,
+                  pdd_country: pddCountry
+                }
+              }).then(({ data, error }) => {
+                if (error) throw error;
+                if (data?.sp_awarded) {
+                  toast.success(`Награда получена: +${data.sp_awarded} SP!`, {
+                    icon: "✨"
+                  });
+                }
+              }).catch(err => {
+                console.error("Redemption award failed:", err);
+                toast.error("Не удалось начислить награду. Мы сохранили ваш результат локально.");
+              });
+            }
+
+            setTimeout(() => {
+              navigate("/test/results", {
+                state: {
+                  isRedemptionSuccess: true,
+                  questions: questions,
+                  answers: [...answers, { questionId: currentQuestion.id, selectedAnswerId: answerId, isCorrect: true }],
+                  mode: 'redemption'
+                }
+              });
+            }, 1000);
+            return;
+          } else {
+            setTimeout(nextQuestion, 1000);
+          }
+          return;
+        }
+      }
+    }
+
     // Navigation & Finalization Logic
     const isPracticeLikeMode = ['practice', 'pdd-topic', 'pdd-ticket', 'by-topic', 'traps', 'mastery', 'hardest', 'sequential', 'challenge-bank'].includes(mode);
 
@@ -1873,9 +1699,10 @@ const TestSession = () => {
     const currentAnswers = latestState
       ? (latestState.kind === 'russia'
         ? [...Object.values(latestState.data.mainAnswers), ...Object.values(latestState.data.extraAnswers)]
-        : Object.entries(latestState.data.answers).map(([qid, ans]) => ({
-          ...ans,
-          questionId: qid
+        : Object.entries(latestState.data.answers).map(([qid, ans]: [string, any]) => ({
+          questionId: qid,
+          selectedAnswerId: ans.selectedOptionId, // ВАЖНО: маппим selectedOptionId -> selectedAnswerId
+          isCorrect: ans.isCorrect
         })))
       : [];
 
@@ -2175,6 +2002,7 @@ const TestSession = () => {
         testInfo,
         rewardResult,
         sessionId: testSessionIdRef.current,
+        country: pddCountry,
       },
     });
   };
@@ -2298,21 +2126,7 @@ const TestSession = () => {
     setTimeout(() => setIsTransitioning(false), 150);
   };
 
-  const smartVocabularyEnabled = useSettingsStore(state => state.smartVocabularyEnabled);
-  const toggleSmartVocabulary = useSettingsStore(state => state.toggleSmartVocabulary);
-  const appLanguage = useSettingsStore(state => state.language);
-  const setSettings = useSettingsStore(state => state.updateSettings);
-
-  // Strategy #1: Smart Default - if app language is different from test language
-  const smartDefaultAppliedRef = useRef(false);
-  useEffect(() => {
-    // Only auto-initialize if we are in ES/EN test and it's not a Russia region
-    if (!isRussia && (testLanguage === 'es' || testLanguage === 'en') && !smartDefaultAppliedRef.current) {
-      const shouldBeEnabled = appLanguage !== testLanguage;
-      setSettings({ smartVocabularyEnabled: shouldBeEnabled });
-      smartDefaultAppliedRef.current = true;
-    }
-  }, [testLanguage, appLanguage, isRussia]);
+  // NOTE: Smart Default useEffect moved to top-level to fix "Rendered more hooks" error
 
   // Sort answer options by position - защита от null/undefined
   const sortedOptions = (currentQuestion.answer_options && Array.isArray(currentQuestion.answer_options))
@@ -2374,6 +2188,7 @@ const TestSession = () => {
         mode={mode}
         isTelegramApp={isTelegramApp}
         isPracticeLikeMode={isPracticeLikeMode}
+        isRedemptionMode={isRedemptionMode}
         sidebar={
           !isTelegramApp && isPracticeLikeMode && mode !== 'blitz' && mode !== 'exam' && mode !== 'exam-russia' && (
             <div className="lg:mt-[116px]"> {/* Компенсация высоты прогресс-бара для выравнивания с карточкой */}
@@ -3117,6 +2932,19 @@ const TestSession = () => {
 
       {/* Account Watermark - защита от передачи аккаунтов */}
       <AccountWatermark variant="default" />
+
+      {/* REDEMPTION: Reflection Stage Overlay */}
+      <AnimatePresence>
+        {isRedemptionMode && showReflectionOverlay && redemptionStep === 'reflection' && (
+          <ReflectionOverlay
+            currentQuestionId={questionsState[currentIndex]?.id || ''}
+            flashcards={redemptionFlashcards}
+            fallbackSummary={redemptionAnalysisData?.summary || "Разбор ошибки"}
+            onClose={() => setShowReflectionOverlay(false)}
+            isFirstTime={true}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Penalty Alert Modal для exam-russia */}
       {

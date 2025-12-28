@@ -1,4 +1,5 @@
 import { memo, useCallback, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { Check, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -135,7 +136,27 @@ export const AnswerButton = memo(function AnswerButton({
                 )}>
                     {showResult && (isCorrect || isSelected) ? (
                         isCorrect
-                            ? <Check className="w-4 h-4" strokeWidth={2.5} />
+                            ? (
+                                <>
+                                    <Check className="w-4 h-4 relative z-10" strokeWidth={2.5} />
+                                    {/* Correct Answer Particles */}
+                                    <div className="absolute inset-0 pointer-events-none">
+                                        {[...Array(6)].map((_, i) => (
+                                            <motion.div
+                                                key={i}
+                                                initial={{ scale: 0, x: 0, y: 0 }}
+                                                animate={{
+                                                    scale: [0, 1, 0],
+                                                    x: (Math.random() - 0.5) * 50,
+                                                    y: (Math.random() - 0.5) * 50
+                                                }}
+                                                transition={{ duration: 0.8, ease: "easeOut" }}
+                                                className="absolute top-1/2 left-1/2 w-1.5 h-1.5 rounded-full bg-emerald-300"
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            )
                             : <X className="w-4 h-4" strokeWidth={2.5} />
                     ) : (
                         label
