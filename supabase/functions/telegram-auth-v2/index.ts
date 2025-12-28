@@ -141,6 +141,19 @@ async function validateTelegramData(initData: string): Promise<any> {
 
     const user = JSON.parse(userStr);
 
+    // Проверяем время auth_date (Telegram рекомендует отклонять данные старше 86400 секунд)
+    const authDate = parseInt(urlParams.get("auth_date") || "0");
+    const currentTime = Math.floor(Date.now() / 1000);
+    const timeDiff = currentTime - authDate;
+
+    if (timeDiff > 86400) {
+        console.warn('[telegram-auth-v2] ⚠️ initData too old:', {
+            authDate: new Date(authDate * 1000).toISOString(),
+            timeDiff: `${timeDiff} seconds`,
+        });
+        throw new Error("initData expired (older than 24 hours)");
+    }
+
     // Логируем ВСЕ данные пользователя
     console.log('[telegram-auth-v2] ✅ Validated Telegram user (full data):', {
         id: user.id,
