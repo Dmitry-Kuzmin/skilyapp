@@ -21,7 +21,7 @@ interface UserContextType {
 
 const isUserContextDebug =
   import.meta.env.DEV && import.meta.env.VITE_DEBUG_USER_CONTEXT === "true";
-const logUserContext = (...args: any[]) => {
+const console.log = (...args: any[]) => {
   if (isUserContextDebug) {
     console.debug(...args);
   }
