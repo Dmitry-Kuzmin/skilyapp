@@ -217,11 +217,13 @@ export function useDashboardData() {
 }
 
 async function fetchDashboardFallback(profileId: string): Promise<DashboardData | null> {
+  console.log('[useDashboardData] 🏃 Starting fallback fetch for:', profileId);
+
   try {
-    const [profileResult, sessionsResult, bonusResult, tasksResult, achievementsResult, rewardsResult] = await Promise.all([
+    const results = await Promise.allSettled([
       supabase
         .from('profiles')
-        .select('id, rank, xp, coins, boosts, streak_days, settings, first_name, last_name, username, photo_url')
+        .select('id, rank, xp, coins, boosts, streak_days, settings') // Убрали новые поля на время отладки
         .eq('id', profileId)
         .maybeSingle(),
 
@@ -257,19 +259,38 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
         .limit(7),
     ]);
 
-    if (profileResult.error) throw profileResult.error;
+    const [profileRes, sessionsRes, bonusRes, tasksRes, achievementsRes, definitionsRes] = results;
 
-    const profile = profileResult.data;
-    if (!profile) return null;
+    console.log('[useDashboardData] 📊 Fallback results:', {
+      profile: profileRes.status,
+      sessions: sessionsRes.status,
+      bonus: bonusRes.status,
+      tasks: tasksRes.status,
+      achievements: achievementsRes.status,
+      definitions: definitionsRes.status
+    });
 
-    const sessions = sessionsResult.data || [];
+    if (profileRes.status === 'rejected' || (profileRes.value as any).error) {
+      console.error('[useDashboardData] ❌ Profile fetch failed:', (profileRes as any).reason || (profileRes as any).value?.error);
+      throw new Error('Failed to fetch profile');
+    }
+
+    const profile = (profileRes.value as any).data;
+    if (!profile) {
+      console.warn('[useDashboardData] ⚠️ Profile not found in fallback');
+      return null;
+    }
+
+    const sessions = sessionsRes.status === 'fulfilled' ? (sessionsRes.value as any).data || [] : [];
     const testsCompleted = sessions.length;
     const totalQuestions = sessions.reduce((acc, s) => acc + (s.total_questions || 0), 0);
     const correctAnswers = sessions.reduce((acc, s) => acc + (s.score || 0), 0);
     const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
 
-    const bonus = bonusResult.data;
+    const bonus = bonusRes.status === 'fulfilled' ? (bonusRes.value as any).data : null;
     const today = new Date().toISOString().split('T')[0];
+
+    console.log('[useDashboardData] ✅ Mapping finished successfully');
 
     return {
       profile: {
@@ -280,10 +301,10 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
         boosts: profile.boosts || 0,
         streak_days: profile.streak_days || 0,
         settings: profile.settings || {},
-        first_name: profile.first_name || null,
-        last_name: profile.last_name || null,
-        username: profile.username || null,
-        photo_url: profile.photo_url || null,
+        first_name: (profile as any).first_name || null,
+        last_name: (profile as any).last_name || null,
+        username: (profile as any).username || null,
+        photo_url: (profile as any).photo_url || null,
       },
       stats: {
         tests_completed: testsCompleted,
