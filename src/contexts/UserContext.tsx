@@ -49,7 +49,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const loadProfileId = async () => {
       if (supabaseUser) {
         // For web users - get profile by user_id
-        logUserContext("[UserContext] Loading profile for Supabase user:", supabaseUser.id);
+        console.log("[UserContext] 🔍 Loading profile for Supabase user:", supabaseUser.id);
 
         // КРИТИЧНО: Всегда запрашиваем актуальный ID из базы при входе, чтобы избежать stale cache
         const { data, error } = await supabase
@@ -57,6 +57,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
           .select('id')
           .eq('user_id', supabaseUser.id)
           .maybeSingle();
+
+        console.log("[UserContext] 📊 Profile query result:", { data, error });
 
         if (error) {
           console.error("[UserContext] Error fetching profile:", error);
@@ -196,14 +198,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // Initialize Telegram user with enhanced fallbacks
   useEffect(() => {
     const initializeAuth = async () => {
+      console.log("[UserContext] 🚀 initializeAuth started");
       // АРХИТЕКТУРА: Зависим от TelegramProvider (webApp)
       // Если WebApp еще не инициализирован, ждем
       // НО: Только если мы действительно в Telegram Mini App
       if (!webApp && window.Telegram?.WebApp && isTelegramMiniApp()) {
-        logUserContext("[UserContext] Waiting for TelegramProvider initialization...");
+        console.log("[UserContext] ⏳ Waiting for TelegramProvider...");
         return;
       }
-      logUserContext("[UserContext] Initializing...");
+      console.log("[UserContext] 🔐 Initializing...");
 
       // КРИТИЧНО: Если уже есть реальный пользователь из Supabase, не используем Telegram mock
       // Проверяем сессию Supabase перед инициализацией Telegram
