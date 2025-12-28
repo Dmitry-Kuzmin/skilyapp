@@ -11,6 +11,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Globe, Car, Truck, Bus, Bike, Check, type LucideIcon } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useProfileData } from '@/hooks/useProfileData';
 
 interface ContextSettingsSheetProps {
   open: boolean;
@@ -50,6 +52,7 @@ export function ContextSettingsSheet({
 }: ContextSettingsSheetProps) {
   const { resolvedTheme } = useTheme();
   const { t } = useLanguage();
+  const { profileData } = useProfileData();
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>(currentCountry);
   const [selectedCategory, setSelectedCategory] = useState<LicenseCategory>(currentCategory);
 
@@ -79,7 +82,29 @@ export function ContextSettingsSheet({
     .filter(c => c.code === 'B'); // Пока реализована только категория B
   const selectedCategoryData = availableCategories.find(c => c.code === selectedCategory);
 
-  const handleApply = () => {
+  const handleApply = async () => {
+    // Сохраняем выбор в базу данных
+    if (profileData?.id) {
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            preferred_country: selectedCountry,
+            preferred_license_category: selectedCategory,
+          })
+          .eq('id', profileData.id);
+
+        if (error) {
+          console.error('[ContextSettings] Failed to save preferences:', error);
+        } else {
+          console.log('[ContextSettings] Preferences saved:', { country: selectedCountry, category: selectedCategory });
+        }
+      } catch (err) {
+        console.error('[ContextSettings] Error saving preferences:', err);
+      }
+    }
+
+    // Применяем выбор локально
     onApply(selectedCountry, selectedCategory);
     onOpenChange(false);
   };
