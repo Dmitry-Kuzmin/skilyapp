@@ -5,6 +5,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { CountryCode, LicenseCategory } from '@/types/pdd';
+import { useProfileData } from '@/hooks/useProfileData';
 
 interface PDDContextType {
   selectedCountry: CountryCode;
@@ -16,6 +17,8 @@ interface PDDContextType {
 const PDDContext = createContext<PDDContextType | undefined>(undefined);
 
 export function PDDProvider({ children }: { children: ReactNode }) {
+  const { profileData } = useProfileData();
+
   // Загружаем из localStorage при инициализации
   const [selectedCountry, setSelectedCountryState] = useState<CountryCode>(() => {
     if (typeof window !== 'undefined') {
@@ -32,6 +35,21 @@ export function PDDProvider({ children }: { children: ReactNode }) {
     }
     return 'B';
   });
+
+  // Загружаем сохранённые предпочтения из profileData при появлении
+  useEffect(() => {
+    if (profileData?.preferred_country && profileData?.preferred_license_category) {
+      console.log('[PDDContext] Loading preferences from profile:', {
+        country: profileData.preferred_country,
+        category: profileData.preferred_license_category
+      });
+      setSelectedCountryState(profileData.preferred_country as CountryCode);
+      setSelectedCategoryState(profileData.preferred_license_category as LicenseCategory);
+      // Обновляем localStorage чтобы синхронизировать
+      localStorage.setItem('pdd_selected_country', profileData.preferred_country);
+      localStorage.setItem('pdd_selected_category', profileData.preferred_license_category);
+    }
+  }, [profileData?.preferred_country, profileData?.preferred_license_category]);
 
   // Синхронизируем с localStorage
   useEffect(() => {
