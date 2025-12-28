@@ -382,25 +382,42 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
               const source = typeof item === 'object' ? item.source : null;
               const questionId = typeof item === 'object' ? item.questionId : null;
 
-              // Ищем оригинальный вопрос для контекста
-              const originalQuestion = allFailedQuestions.find(q => q.questionId === questionId);
+              // Ищем оригинальный вопрос для контекста (с fallback по индексу)
+              let originalQuestion = allFailedQuestions.find(q => q.questionId === questionId);
+
+              // Fallback: если не нашли по ID, берём по индексу (если idx < количества вопросов)
+              if (!originalQuestion && idx < allFailedQuestions.length) {
+                originalQuestion = allFailedQuestions[idx];
+              }
 
               return (
                 <div key={idx} className="flex flex-col sm:flex-row gap-4 p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5 transition-all hover:bg-white dark:hover:bg-white/10 hover:shadow-md">
 
-                  {/* КАРТИНКА (Якорь памяти) */}
-                  {originalQuestion?.imageUrl && (
-                    <div className="shrink-0 group relative w-full sm:w-24 h-32 sm:h-24 rounded-xl overflow-hidden bg-gray-200 border border-gray-200 dark:border-white/10">
+                  {/* КАРТИНКА (Якорь памяти) — Всегда показываем контейнер */}
+                  <div className="shrink-0 group relative w-full sm:w-24 h-32 sm:h-24 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 border border-gray-200 dark:border-white/10">
+                    {originalQuestion?.imageUrl ? (
                       <img
                         src={originalQuestion.imageUrl}
                         alt="Context"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        onError={(e) => {
+                          // Если картинка не загрузилась, скрываем img
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
                       />
-                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Image className="text-white w-6 h-6 drop-shadow-md" />
+                    ) : (
+                      // Плейсхолдер когда нет картинки
+                      <div className="flex items-center justify-center h-full">
+                        <div className="text-gray-400 dark:text-gray-500 text-center p-2">
+                          <Image className="w-6 h-6 mx-auto mb-1 opacity-50" />
+                          <span className="text-[10px] opacity-60">Нет изображения</span>
+                        </div>
                       </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Image className="text-white w-6 h-6 drop-shadow-md" />
                     </div>
-                  )}
+                  </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start gap-4 mb-2">
@@ -470,24 +487,28 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
 
       </div>
 
-      {/* 6. ФУТЕР (Call to Action) */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gray-50 dark:bg-black/20 flex flex-col sm:flex-row justify-end gap-3 border-t border-gray-100 dark:border-white/5">
-        <Button
-          variant="ghost"
-          onClick={onClose}
-          className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white"
-        >
-          Позже
-        </Button>
-        <Button
-          onClick={onPractice}
-          className="group flex items-center gap-2 px-6 py-2 rounded-xl font-bold shadow-lg shadow-indigo-500/20 transition-all active:scale-95
-            bg-gray-900 text-white hover:bg-black
-            dark:bg-indigo-600 dark:hover:bg-indigo-500"
-        >
-          <span>Отработать ошибку</span>
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-        </Button>
+      {/* 6. ФУТЕР (Call to Action) — Улучшенный UI */}
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-white/95 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900/95 border-t border-gray-100 dark:border-white/5">
+        <div className="flex items-center gap-3">
+          {/* Кнопка "Позже" — компактная */}
+          <button
+            onClick={onClose}
+            className="text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors shrink-0"
+          >
+            Позже
+          </button>
+
+          {/* Основная кнопка — растянута */}
+          <Button
+            onClick={onPractice}
+            className="flex-1 group flex items-center justify-center gap-2 h-12 rounded-2xl font-bold shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98]
+              bg-gray-900 text-white hover:bg-black
+              dark:bg-indigo-600 dark:hover:bg-indigo-500"
+          >
+            <span>Отработать ошибку</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Button>
+        </div>
       </div>
 
     </div>
