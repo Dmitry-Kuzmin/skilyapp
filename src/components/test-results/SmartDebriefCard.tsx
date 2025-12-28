@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { usePremium } from '@/hooks/usePremium';
+import { useProfileData } from '@/hooks/useProfileData';
 import { cn } from '@/lib/utils';
 import { AILimitReachedModal } from '@/components/ai/AILimitReachedModal';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -534,11 +535,16 @@ const SmartDebriefCard = memo(({
   const { isPremium } = usePremium();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { profileData } = useProfileData();
 
   // Загружаем статус лимитов и проверяем авторизацию
   useEffect(() => {
     const fetchLimitStatus = async () => {
       try {
+        // DESKTOP FIX: Проверяем платформу для диагностики
+        const platform = (window as any).Telegram?.WebApp?.platform;
+        console.log('[SmartDebrief] Platform:', platform);
+
         const { data: { user } } = await supabase.auth.getUser();
 
         // Проверка авторизации
@@ -555,8 +561,16 @@ const SmartDebriefCard = memo(({
         }
         setIsAuthenticated(true);
 
+        // КРИТИЧНО: Ждем получения profileData перед проверкой лимитов
+        if (!profileData?.id) {
+          console.log('[SmartDebrief] Waiting for profileData...', { platform });
+          return;
+        }
+
+        console.log('[SmartDebrief] Using profileId:', profileData.id);
+
         const { data, error } = await supabase.rpc('get_ai_debrief_limit_status', {
-          p_user_id: user.id
+          p_user_id: profileData.id  // ИСПРАВЛЕНО: profile ID вместо user.id
         });
 
         if (!error && data) {
@@ -569,7 +583,7 @@ const SmartDebriefCard = memo(({
     };
 
     fetchLimitStatus();
-  }, []);
+  }, [profileData?.id]);  // ИСПРАВЛЕНО: перезагружаем при изменении profileData
 
   const remaining = limitStatus?.remaining ?? FREE_DAILY_LIMIT;
   const canUseFree = limitStatus?.can_use ?? true;
