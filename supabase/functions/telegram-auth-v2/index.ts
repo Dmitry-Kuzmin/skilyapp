@@ -271,11 +271,10 @@ Deno.serve(async (req) => {
         if (data.user) {
             console.log('[telegram-auth-v2] 📊 Syncing profile to database...');
 
-            // Собираем все данные для профиля
+            // Собираем все данные для профиля (без 'name' - такой колонки нет!)
             const profileData = {
                 user_id: data.user.id,
                 telegram_id: telegramUser.id,
-                name: `${telegramUser.first_name} ${telegramUser.last_name || ''}`.trim(),
                 first_name: telegramUser.first_name,
                 last_name: telegramUser.last_name || null,
                 username: telegramUser.username || null,
