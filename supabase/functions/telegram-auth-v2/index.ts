@@ -12,16 +12,63 @@ const corsHeaders = {
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Вспомогательная функция: hex -> Uint8Array
-function hexToBuf(hex: string): Uint8Array {
-    return new Uint8Array(hex.match(/[\da-f]{2}/gi)!.map((h) => parseInt(h, 16)));
-}
-
 // Вспомогательная функция: Uint8Array -> hex
 function bufToHex(buf: ArrayBuffer): string {
     return Array.from(new Uint8Array(buf))
         .map(b => b.toString(16).padStart(2, '0'))
         .join('');
+}
+
+// Получаем фото пользователя через Telegram Bot API
+async function getTelegramProfilePhoto(telegramId: number): Promise<string | null> {
+    try {
+        // Используем метод getUserProfilePhotos для получения фото
+        const response = await fetch(
+            `https://api.telegram.org/bot${BOT_TOKEN}/getUserProfilePhotos?user_id=${telegramId}&limit=1`
+        );
+
+        if (!response.ok) {
+            console.log('[telegram-auth-v2] ⚠️ Failed to get profile photos:', response.status);
+            return null;
+        }
+
+        const data = await response.json();
+
+        if (!data.ok || !data.result?.photos?.[0]?.[0]) {
+            console.log('[telegram-auth-v2] ⚠️ No profile photos found');
+            return null;
+        }
+
+        // Берём самую большую версию фото (последний элемент массива)
+        const photos = data.result.photos[0];
+        const largestPhoto = photos[photos.length - 1];
+        const fileId = largestPhoto.file_id;
+
+        // Получаем direct URL файла
+        const fileResponse = await fetch(
+            `https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${fileId}`
+        );
+
+        if (!fileResponse.ok) {
+            console.log('[telegram-auth-v2] ⚠️ Failed to get file path');
+            return null;
+        }
+
+        const fileData = await fileResponse.json();
+
+        if (!fileData.ok || !fileData.result?.file_path) {
+            console.log('[telegram-auth-v2] ⚠️ No file path in response');
+            return null;
+        }
+
+        const photoUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${fileData.result.file_path}`;
+        console.log('[telegram-auth-v2] ✅ Got profile photo URL');
+        return photoUrl;
+
+    } catch (error) {
+        console.error('[telegram-auth-v2] ⚠️ Error fetching profile photo:', error);
+        return null;
+    }
 }
 
 // 1. Валидация данных от Telegram (Криптография)
@@ -93,10 +140,17 @@ async function validateTelegramData(initData: string): Promise<any> {
     }
 
     const user = JSON.parse(userStr);
-    console.log('[telegram-auth-v2] ✅ Validated Telegram user:', {
+
+    // Логируем ВСЕ данные пользователя
+    console.log('[telegram-auth-v2] ✅ Validated Telegram user (full data):', {
         id: user.id,
         first_name: user.first_name,
-        username: user.username
+        last_name: user.last_name,
+        username: user.username,
+        language_code: user.language_code,
+        is_premium: user.is_premium,
+        allows_write_to_pm: user.allows_write_to_pm,
+        photo_url: user.photo_url, // Обычно undefined в initData
     });
 
     return user;
@@ -118,6 +172,13 @@ Deno.serve(async (req) => {
         console.log('[telegram-auth-v2] 🔐 Validating initData...');
         const telegramUser = await validateTelegramData(initData);
 
+        // 🆕 Получаем фото профиля через Bot API (initData его не содержит)
+        let photoUrl = telegramUser.photo_url;
+        if (!photoUrl) {
+            console.log('[telegram-auth-v2] 📷 Fetching profile photo via Bot API...');
+            photoUrl = await getTelegramProfilePhoto(telegramUser.id);
+        }
+
         // 2. Инициализируем Admin-клиент (Service Role)
         const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
             auth: {
@@ -127,7 +188,6 @@ Deno.serve(async (req) => {
         });
 
         // 3. Формируем email и пароль для Supabase Auth
-        // Используем telegram_id как уникальный идентификатор
         const email = `tg_${telegramUser.id}@telegram.skily.app`;
         const password = `tg_secure_${telegramUser.id}_${BOT_TOKEN.substring(0, 10)}`;
 
@@ -139,23 +199,26 @@ Deno.serve(async (req) => {
             password,
         });
 
-        // Если юзера нет — создаем его через Admin API (обходит валидацию email)
+        let isNewUser = false;
+
+        // Если юзера нет — создаем его через Admin API
         if (error) {
             console.log('[telegram-auth-v2] 📝 User not found, creating via Admin API...');
+            isNewUser = true;
 
-            // Используем admin.createUser вместо signUp — не проверяет email на валидность
             const { data: createData, error: createError } = await supabaseAdmin.auth.admin.createUser({
                 email,
                 password,
-                email_confirm: true, // Сразу подтверждаем email
+                email_confirm: true,
                 user_metadata: {
                     full_name: `${telegramUser.first_name} ${telegramUser.last_name || ''}`.trim(),
-                    avatar_url: telegramUser.photo_url || null,
+                    avatar_url: photoUrl,
                     telegram_id: telegramUser.id,
                     telegram_username: telegramUser.username || null,
                     is_telegram_user: true,
                     language_code: telegramUser.language_code || 'ru',
-                    is_premium: telegramUser.is_premium || false
+                    is_premium: telegramUser.is_premium || false,
+                    allows_write_to_pm: telegramUser.allows_write_to_pm || false,
                 }
             });
 
@@ -166,7 +229,7 @@ Deno.serve(async (req) => {
 
             console.log('[telegram-auth-v2] ✅ User created via Admin API:', createData.user?.id);
 
-            // Теперь логинимся под созданным пользователем
+            // Логинимся под созданным пользователем
             const { data: signInData, error: signInError } = await supabaseAdmin.auth.signInWithPassword({
                 email,
                 password,
@@ -180,6 +243,23 @@ Deno.serve(async (req) => {
             data = signInData;
         } else {
             console.log('[telegram-auth-v2] ✅ Existing user logged in:', data?.user?.id);
+
+            // 🆕 Обновляем user_metadata для существующих пользователей
+            if (data?.user?.id) {
+                console.log('[telegram-auth-v2] 🔄 Updating user metadata...');
+                await supabaseAdmin.auth.admin.updateUserById(data.user.id, {
+                    user_metadata: {
+                        full_name: `${telegramUser.first_name} ${telegramUser.last_name || ''}`.trim(),
+                        avatar_url: photoUrl,
+                        telegram_id: telegramUser.id,
+                        telegram_username: telegramUser.username || null,
+                        is_telegram_user: true,
+                        language_code: telegramUser.language_code || 'ru',
+                        is_premium: telegramUser.is_premium || false,
+                        allows_write_to_pm: telegramUser.allows_write_to_pm || false,
+                    }
+                });
+            }
         }
 
         // 4. Проверяем, что у нас есть сессия
@@ -187,27 +267,47 @@ Deno.serve(async (req) => {
             throw new Error("Failed to create session");
         }
 
-        // 5. Обновляем/синхронизируем профиль в таблице profiles
+        // 5. 🆕 ВСЕГДА обновляем профиль в таблице profiles (при каждом входе!)
         if (data.user) {
-            const { error: profileError } = await supabaseAdmin
-                .from('profiles')
-                .upsert({
-                    user_id: data.user.id,
-                    telegram_id: telegramUser.id,
-                    name: `${telegramUser.first_name} ${telegramUser.last_name || ''}`.trim(),
-                    first_name: telegramUser.first_name,
-                    last_name: telegramUser.last_name || null,
-                    username: telegramUser.username || null,
-                    photo_url: telegramUser.photo_url || null,
-                    language_code: telegramUser.language_code || 'ru',
-                    updated_at: new Date().toISOString()
-                }, {
-                    onConflict: 'user_id'
-                });
+            console.log('[telegram-auth-v2] 📊 Syncing profile to database...');
 
-            if (profileError) {
-                console.warn('[telegram-auth-v2] ⚠️ Profile upsert warning:', profileError);
-                // Не прерываем - профиль может уже существовать с другим constraint
+            // Собираем все данные для профиля
+            const profileData = {
+                user_id: data.user.id,
+                telegram_id: telegramUser.id,
+                name: `${telegramUser.first_name} ${telegramUser.last_name || ''}`.trim(),
+                first_name: telegramUser.first_name,
+                last_name: telegramUser.last_name || null,
+                username: telegramUser.username || null,
+                photo_url: photoUrl,
+                language_code: telegramUser.language_code || 'ru',
+                // 🆕 Дополнительные данные для персонализации
+                is_telegram_premium: telegramUser.is_premium || false,
+                allows_write_to_pm: telegramUser.allows_write_to_pm || false,
+                updated_at: new Date().toISOString(),
+                last_login_at: new Date().toISOString(),
+            };
+
+            // Пробуем update сначала (для существующих записей)
+            const { error: updateError } = await supabaseAdmin
+                .from('profiles')
+                .update(profileData)
+                .eq('user_id', data.user.id);
+
+            if (updateError) {
+                // Если update не сработал, пробуем insert
+                console.log('[telegram-auth-v2] 📝 Update failed, trying insert...');
+                const { error: insertError } = await supabaseAdmin
+                    .from('profiles')
+                    .insert(profileData);
+
+                if (insertError) {
+                    console.warn('[telegram-auth-v2] ⚠️ Profile sync warning:', insertError);
+                } else {
+                    console.log('[telegram-auth-v2] ✅ Profile created');
+                }
+            } else {
+                console.log('[telegram-auth-v2] ✅ Profile updated');
             }
         }
 
@@ -218,7 +318,11 @@ Deno.serve(async (req) => {
             JSON.stringify({
                 session: data.session,
                 user: data.user,
-                telegram_user: telegramUser
+                telegram_user: {
+                    ...telegramUser,
+                    photo_url: photoUrl, // Возвращаем полученное фото
+                },
+                is_new_user: isNewUser
             }),
             {
                 status: 200,
