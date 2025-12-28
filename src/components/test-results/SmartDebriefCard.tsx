@@ -586,68 +586,91 @@ const SmartDebriefCard = memo(({
     }
   };
 
+
   const performAnalysis = async (attempt: number = 1): Promise<void> => {
     try {
+      let accessToken: string | null = null;
+      let userId: string | null = null;
+      const isTelegram = isTelegramMiniApp();
+
+      // Пытаемся получить Supabase сессию
       let { data: { session } } = await supabase.auth.getSession();
 
-      // Если сессии нет, пробуем обновить (частая проблема в Telegram WebView)
+      // Если сессии нет, пробуем обновить
       if (!session?.access_token) {
         console.log('[SmartDebrief] Session missing, attempting refresh...');
         const { data: refreshData } = await supabase.auth.refreshSession();
         if (refreshData.session) {
           session = refreshData.session;
-        } else {
-          // Если мы в Telegram и не смогли восстановить сессию — это проблема синхронизации
-          if (isTelegramMiniApp()) {
-            throw new Error('Сбой синхронизации профиля. Перезапустите мини-приложение.');
-          }
-          throw new Error('Требуется авторизация');
         }
       }
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Пользователь не найден');
-
-      // Проверка лимитов
-      const { data: limitCheck, error: limitError } = await supabase.rpc(
-        'check_and_increment_ai_debrief_limit',
-        { p_user_id: user.id }
-      );
-
-      if (limitCheck && !limitCheck.allowed) {
-        setLimitStatus({
-          remaining: 0,
-          limit: limitCheck.limit,
-          can_use: false,
-          is_premium: false
-        });
-        setLimitModalOpen(true);
-        return;
+      // Проверяем, удалось ли получить сессию
+      if (session?.access_token) {
+        accessToken = session.access_token;
+        const { data: { user } } = await supabase.auth.getUser();
+        userId = user?.id ?? null;
       }
 
-      // Обновляем UI статус лимита
-      if (limitCheck) {
-        setLimitStatus({
-          remaining: limitCheck.remaining,
-          limit: limitCheck.limit,
-          can_use: limitCheck.remaining > 0 || limitCheck.is_premium,
-          is_premium: limitCheck.is_premium
-        });
+      // TELEGRAM BYPASS: Если мы в Telegram и нет сессии — работаем без неё
+      // Edge Function ai-chat поддерживает анонимные запросы с rate limiting
+      if (!accessToken && isTelegram) {
+        console.log('[SmartDebrief] 📱 Telegram mode: proceeding without Supabase session');
+      } else if (!accessToken) {
+        throw new Error('Требуется авторизация');
+      }
+
+      // Проверка лимитов (только если есть userId)
+      if (userId) {
+        const { data: limitCheck, error: limitError } = await supabase.rpc(
+          'check_and_increment_ai_debrief_limit',
+          { p_user_id: userId }
+        );
+
+        if (limitCheck && !limitCheck.allowed) {
+          setLimitStatus({
+            remaining: 0,
+            limit: limitCheck.limit,
+            can_use: false,
+            is_premium: false
+          });
+          setLimitModalOpen(true);
+          return;
+        }
+
+        // Обновляем UI статус лимита
+        if (limitCheck) {
+          setLimitStatus({
+            remaining: limitCheck.remaining,
+            limit: limitCheck.limit,
+            can_use: limitCheck.remaining > 0 || limitCheck.is_premium,
+            is_premium: limitCheck.is_premium
+          });
+        }
+      } else if (isTelegram) {
+        console.log('[SmartDebrief] 📱 Telegram mode: skipping limit check (no userId)');
+        // Telegram-пользователи без сессии используют серверный rate limiting
       }
 
       const prompt = generateDebriefPrompt(failedQuestions, country, studentStats);
 
       console.log(`[SmartDebrief] Attempt ${attempt}/2: Sending request...`);
       console.log(`[SmartDebrief] Country for AI:`, country);
+      console.log(`[SmartDebrief] Has access token:`, !!accessToken);
+
+      // Формируем заголовки: с токеном если есть, иначе без
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
 
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-          },
+          headers,
           body: JSON.stringify({
             messages: [{ role: 'user', content: prompt }],
             stream: true,
