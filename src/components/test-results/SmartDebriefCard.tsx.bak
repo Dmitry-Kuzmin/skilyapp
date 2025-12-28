@@ -659,7 +659,7 @@ const SmartDebriefCard = memo(({
       // Премиум пользователи получают безлимит!
       const isPremiumUser = isPremium; // из usePremium hook (проп компонента)
 
-      if (userId && !isServerPremium) {
+      if (userId && !isPremiumUser) {
         const { data: limitCheck, error: limitError } = await supabase.rpc(
           'check_and_increment_ai_debrief_limit',
           { p_user_id: userId }
