@@ -105,6 +105,7 @@ BEGIN
   WHERE id = p_user_id;
 
   -- 10. Записываем результат теста
+  -- Приводим test_id к UUID (если невозможно -> NULL для practice)
   INSERT INTO test_results (
     user_id,
     test_id,
@@ -125,7 +126,11 @@ BEGIN
   )
   VALUES (
     p_user_id,
-    p_test_id,
+    CASE 
+      WHEN p_test_id ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' 
+      THEN p_test_id::UUID 
+      ELSE NULL 
+    END,
     p_session_id,
     p_score,
     p_questions_count,
