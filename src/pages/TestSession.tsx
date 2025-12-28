@@ -2222,10 +2222,18 @@ const TestSession = () => {
         <OfflineStatusIndicator isOnline={isOnline} pendingSync={pendingSync} />
 
         {/* Progress Bar - SegmentedExamProgress для exam-russia, QuestionProgressBar для остальных */}
-        <div className={cn(
-          "sticky top-0 z-40 bg-background/95 backdrop-blur-xl transition-all duration-300",
-          mode === 'exam-russia' ? "-mx-4 px-4 py-4 border-b border-border/50" : "py-1 sm:py-2"
-        )}>
+        <div
+          className={cn(
+            "sticky z-40 bg-background/95 backdrop-blur-xl transition-all duration-300",
+            !isTelegramApp && "top-0",
+            mode === 'exam-russia' ? "-mx-4 px-4 py-4 border-b border-border/50" : "py-1 sm:py-2"
+          )}
+          style={{
+            top: isTelegramApp
+              ? 'max(var(--tg-content-safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), 88px)'
+              : undefined
+          }}
+        >
           {mode === 'exam-russia' && russiaExam.state && russiaExam.progress ? (
             <ExamHeader
               timeLeft={mode === 'exam-russia' ? russiaExam.timeRemaining : timeLeft}

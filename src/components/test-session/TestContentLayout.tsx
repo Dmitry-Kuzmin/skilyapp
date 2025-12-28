@@ -44,13 +44,18 @@ export const TestContentLayout = ({
                     "w-full min-w-0 transition-all duration-500", // min-w-0 for flex/grid items to allow shrinking
                     // Telegram Layout adjustments
                     isTelegramApp
-                        ? "px-2 sm:px-4 pt-4"
+                        ? "px-2 sm:px-4"
                         : "pt-4 pb-2 md:pb-3",
                     // Blitz/Exam mode: minimal padding
-                    (isBlitzMode || isExamMode) && "pt-4 pb-0",
+                    (isBlitzMode || isExamMode) && !isTelegramApp && "pt-4 pb-0",
                     // Tactical Mode for Redemption - Simplified
-                    isRedemptionMode && "pt-4"
+                    isRedemptionMode && !isTelegramApp && "pt-4"
                 )}
+                style={{
+                    paddingTop: isTelegramApp
+                        ? 'max(var(--tg-content-safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), 88px)'
+                        : undefined
+                }}
             >
                 {children}
             </div>

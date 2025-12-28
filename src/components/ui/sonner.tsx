@@ -2,6 +2,7 @@ import { useTheme } from "next-themes";
 import { Toaster as Sonner, toast } from "sonner";
 import { useSafeArea } from "@/hooks/useSafeArea";
 import { isTelegramMiniApp } from "@/lib/telegram";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
@@ -9,6 +10,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme();
   const safeArea = useSafeArea();
   const isTelegram = isTelegramMiniApp();
+  const isMobile = useIsMobile();
+
+  // Центрируем уведомления если это Telegram или мобильное устройство
+  const shouldCenter = isTelegram || isMobile;
 
   // Вычисляем отступ сверху с учетом safe area для Telegram
   // Учитываем высоту нативной навигации Telegram (кнопка Назад и т.д.)
@@ -21,7 +26,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
-      position={isTelegram ? "top-center" : "top-right"}
+      position={shouldCenter ? "top-center" : "top-right"}
       richColors
       expand={true}
       // Важно: z-index должен быть МАКСИМАЛЬНЫМ (таким же как у модалок проекта)
@@ -37,10 +42,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={{
         top: `${topOffset}px`,
-        // Если в Telegram, центрируем через transform, иначе отступ справа
-        left: isTelegram ? '50%' : 'auto',
-        right: isTelegram ? 'auto' : `${safeArea.right + 16}px`,
-        transform: isTelegram ? 'translateX(-50%)' : 'none',
+        // Если в Telegram или на мобильном, центрируем через transform, иначе отступ справа
+        left: shouldCenter ? '50%' : 'auto',
+        right: shouldCenter ? 'auto' : `${safeArea.right + 16}px`,
+        transform: shouldCenter ? 'translateX(-50%)' : 'none',
         zIndex: 2147483647,
         position: 'fixed',
       }}
