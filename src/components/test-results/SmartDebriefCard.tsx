@@ -27,7 +27,7 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from '@/components/ui/drawer';
-import { triggerHapticFeedback } from '@/lib/telegram';
+import { triggerHapticFeedback, isTelegramMiniApp } from '@/lib/telegram';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { getAIInstructionLanguage, getLanguageInstruction, AILanguage } from '@/utils/aiLanguage';
@@ -522,7 +522,14 @@ const SmartDebriefCard = memo(({
 
         // Проверка авторизации
         if (!user) {
-          setIsAuthenticated(false);
+          // TELEGRAM FIX: В телеграм-мини-приложении мы никогда не показываем баннер "Войти".
+          // Считаем пользователя условно авторизованным для UI.
+          if (isTelegramMiniApp()) {
+            console.log('[SmartDebrief] Telegram environment detected, skipping auth block');
+            setIsAuthenticated(true);
+          } else {
+            setIsAuthenticated(false);
+          }
           return;
         }
         setIsAuthenticated(true);
