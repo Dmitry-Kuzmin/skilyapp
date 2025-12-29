@@ -791,6 +791,105 @@ const SmartDebriefCard = memo(({
     }
   };
 
+  // 🚀 NEW: Perform Analysis V2 - uses hook + Zustand
+  const performAnalysisV2 = async (attempt: number = 1): Promise<void> => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // 1. Auth check
+      let userId: string | null = null;
+      const isTelegram = isTelegramMiniApp();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (user) {
+        userId = user.id;
+      } else if (!isTelegram) {
+        throw new Error('Требуется авторизация');
+      }
+
+      // 2. Limit check (only for non-premium users)
+      console.log('[SmartDebrief] 🔍 Premium check:', {
+        isPremium,
+        isServerPremium,
+        limitStatus,
+        userId
+      });
+
+      if (userId && !isServerPremium) {
+        const { data: limitCheck } = await supabase.rpc(
+          'check_and_increment_ai_debrief_limit',
+          { p_user_id: userId }
+        );
+
+        if (limitCheck && !limitCheck.allowed) {
+          setLimitStatus({
+            remaining: 0,
+            limit: limitCheck.limit,
+            can_use: false,
+            is_premium: false
+          });
+          setLimitModalOpen(true);
+          setIsLoading(false);
+          return;
+        }
+
+        if (limitCheck) {
+          setLimitStatus({
+            remaining: limitCheck.remaining,
+            limit: limitCheck.limit,
+            can_use: limitCheck.remaining > 0 || limitCheck.is_premium,
+            is_premium: limitCheck.is_premium
+          });
+        }
+      } else if (isPremium) {
+        console.log('[SmartDebrief] 👑 Premium user: skipping limit check');
+        setLimitStatus({
+          remaining: 999,
+          limit: 999,
+          can_use: true,
+          is_premium: true
+        });
+      }
+
+      // 3. Call AI Analysis Hook
+      const result = await performAIAnalysis(
+        failedQuestions,
+        country,
+        studentStats,
+        generateDebriefPrompt
+      );
+
+      if (!result) {
+        throw new Error('AI вернул пустой результат');
+      }
+
+      // 4. Set result and open modal
+      setAnalysisData(result);
+      setResultModalOpen(true);
+      triggerHapticFeedback('success');
+      setIsLoading(false);
+
+    } catch (err) {
+      console.error(`[SmartDebrief] Attempt ${attempt} failed:`, err);
+
+      const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка';
+      const isFatal = errorMessage.includes('авторизация');
+
+      if (attempt === 1 && !isFatal) {
+        console.log('[SmartDebrief] Retrying in 1 second...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return performAnalysisV2(2);
+      }
+
+      setError(`Анализ не удался: ${errorMessage}`);
+      setIsLoading(false);
+      triggerHapticFeedback('error');
+
+      toast.error(`ИИ не смог разобрать ошибки: ${errorMessage}`, { duration: 4000 });
+    }
+  };
+
 
   const performAnalysis = async (attempt: number = 1): Promise<void> => {
     try {
