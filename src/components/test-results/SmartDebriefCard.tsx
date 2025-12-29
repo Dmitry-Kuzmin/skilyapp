@@ -29,11 +29,12 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from '@/components/ui/drawer';
-import { triggerHapticFeedback, isTelegramMiniApp } from '@/lib/telegram';
+import { triggerHapticFeedback, isTelegramMiniApp, TelegramContext } from '@/lib/telegram';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { getAIInstructionLanguage, getLanguageInstruction, AILanguage } from '@/utils/aiLanguage';
 import ReactMarkdown from 'react-markdown';
+import { generateConflictTable } from './aiConstants';
 
 // Константы для лимитов
 const FREE_DAILY_LIMIT = 1;
@@ -115,15 +116,19 @@ const generateDebriefPrompt = (
     isSkipped_check: !q.userAnswer || q.userAnswer === 'NO_ANSWER_GIVEN',
   })));
 
-  // Структурированные данные с явным флагом пропуска
+  // ✂️ TRUNCATE: Функция обрезки для экономии токенов
+  const truncate = (str: string, limit: number) =>
+    str && str.length > limit ? str.substring(0, limit) + '...' : str;
+
+  // Структурированные данные с обрезкой длинных строк
   const structuredErrors = failedQuestions.map(q => {
     const isSkipped = !q.userAnswer || q.userAnswer === 'NO_ANSWER_GIVEN';
 
     return {
       id: q.questionId,
-      question: q.questionText,
-      user_choice: q.userAnswer || 'NO_ANSWER',
-      correct_answer: q.correctAnswer,
+      question: truncate(q.questionText, 200), // Хватит для понимания
+      user_choice: truncate(q.userAnswer || 'NO_ANSWER', 100),
+      correct_answer: truncate(q.correctAnswer, 100),
       topic: q.topic || 'General',
       is_skipped: isSkipped
     };
@@ -180,38 +185,33 @@ ${studentStats.streak > 3 ? `🔥 ОБЯЗАТЕЛЬНО похвали за ${s
 ${prevWeaknessFixed ? `🎉 ОБЯЗАТЕЛЬНО отметь прогресс: "${studentStats.name} справился с проблемой [${studentStats.prevWeakness}]!"` : ''}
 ` : '';
 
-  // Блок сравнения с Россией (только для русскоговорящих на испанском тесте)
+  // Блок сравнения с Россией (V7 - из константы)
   const russiaComparisonBlock = isRussianUserInSpain ? `
-# �🇺 VS 🇪🇸 CONTRASTIVE LEARNING (для русскоязычных):
+# ��🇺 VS 🇪🇸 CONTRASTIVE LEARNING (для русскоязычных):
 
 ## ПРАВИЛО СРАВНЕНИЯ:
 - Пиши блок "💡 Отличие от РФ:" ТОЛЬКО если есть РЕАЛЬНАЯ разница или опасный нюанс
-- Если правило ОДИНАКОВОЕ с РФ — НЕ ПИШИ НИЧЕГО про РФ (экономь место на экране)
+- Если правило ОДИНАКОВОЕ с РФ — НЕ ПИШИ это ничего про РФ (экономь место на экране)
 - Формат: "💡 Отличие от РФ: В России [привычка], но в Испании [правило]. [Опасность]."
+- Начинай СТРОГО с "💡 Отличие от РФ:" (два символа: эмодзи + пробел)
 
 ## ⚠️ CONFLICT POINTS (Опасные привычки из РФ):
 Эти темы ТРЕБУЮТ сравнения, потому что российская интуиция УБИВАЕТ на экзамене:
 
-| Тема | 🇷🇺 Привычка из РФ | 🇪🇸 Правило Испании | Ловушка |
-|------|-------------------|---------------------|---------|
-| Алкоголь | "Пить нельзя" (0.0) | 0.5 г/л разрешено (0.0 для L) | На вопрос "Можно ли после бокала?" ответ ДА! |
-| Круговое движение | Съезд с любой полосы | Съезд ТОЛЬКО с внешней полосы | За съезд с внутренней — мгновенный провал |
-| Обгон справа | Опережение иногда ок | Категорически запрещен | Даже в пробке — нельзя (кроме carriles VAO) |
-| Жёлтый свет | "Проскочить можно" | Остановка обязательна если безопасно | На экзамене проезд на жёлтый = фол |
-| Обочина (Arcén) | Только для остановки | Можно ехать для облегчения обгона | "Запрещено" — неверный ответ! |
+${generateConflictTable()}
 
 ## ФОРМАТ СРАВНЕНИЯ:
-"В отличие от привычки в РФ [старая привычка], в Испании [новое правило]. На экзамене: [что делать]."
+"💡 Отличие от РФ: В отличие от привычки в РФ [старая привычка], в Испании [новое правило]. На экзамене: [что делать]."
 ` : '';
 
-
-  return `# 🚗 SKILY — ПЕРСОНАЛЬНЫЙ AI-ИНСТРУКТОР
+  return `# 🚗 SKILY V7 — ПЕРСОНАЛЬНЫЙ AI-ИНСТРУКТОР
 
 Ты не просто анализатор ошибок. Ты — наставник ${studentStats?.name || 'студента'}, который:
 - Видит ПАТТЕРНЫ мышления (не отдельные ошибки)
 - Использует РАЗНООБРАЗНЫЙ стиль объяснений
 - Даёт УНИКАЛЬНУЮ ценность (сравнения, аналогии, мнемоники)
 - Помнит историю ученика (AI Memory)
+- Использует ЭМОДЗИ для визуальных якорей 👁️
 
 ${languageInstruction}
 
@@ -226,17 +226,18 @@ ${JSON.stringify(structuredErrors, null, 2)}
 
 НИКОГДА не начинай каждый step одинаково! Используй РАЗНЫЕ подходы:
 
-| # | Стиль | Пример начала |
-|---|-------|---------------|
-| 1 | Прямой анализ | "Здесь ключевой момент в том, что..." |
-| 2 | Через ловушку | "Это классическая ловушка DGT — многие думают..." |
-| 3 | Через логику | "Представь ситуацию: ты на автомагистрали и..." |
-| 4 | Через последствия | "Если бы ты так сделал на реальной дороге..." |
-| 5 | Через аналогию | "Это как в шахматах — нужно думать на ход вперёд..." |
-| 6 | Через сравнение | "Разница между A и B в том, что..." |
-| 7 | Через вопрос | "Почему правильно именно так? Потому что..." |
+| # | Стиль | Пример начала с эмодзи |
+|---|-------|------------------------|
+| 1 | Прямой анализ | "💡 Здесь ключевой момент в том, что..." |
+| 2 | Через ловушку | "🪤 Это классическая ловушка DGT — многие думают..." |
+| 3 | Через логику | "🤔 Представь ситуацию: ты на автомагистрали и..." |
+| 4 | Через последствия | "⚠️ Если бы ты так сделал на реальной дороге..." |
+| 5 | Через аналогию | "🎯 Это как в шахматах — нужно думать на ход вперёд..." |
+| 6 | Через сравнение | "⚖️ Разница между A и B в том, что..." |
+| 7 | Через вопрос | "❓ Почему правильно именно так? Потому что..." |
 
-⚠️ ЗАПРЕЩЕНО: начинать 3+ объяснения подряд с "Ты выбрал..." или "Ты посчитал..."!
+⚠️ ЗАПРЕЩЕНО: начинать 3+ объяснения подряд с "Ты выбрал..." или "Ты посчитал...  "!
+✅ ОБЯЗАТЕЛЬНО: Начинай каждый step с релевантного эмодзи для визуального якоря!
 
 # 🔍 ГЛУБИНА АНАЛИЗА:
 
@@ -249,19 +250,24 @@ ${JSON.stringify(structuredErrors, null, 2)}
 
 {
   "summary": "Персональное приветствие + главный инсайт + поддержка. БЕЗ звёздочек!",
-  "diagnosisTitle": "Фокус на: Тема1 и Тема2",
+  "diagnosisTitle": "🎯 Фокус на: Тема1 и Тема2",
   "diagnosisBody": "Краткий паттерн ошибок. БЕЗ markdown, только текст!",
   "severity": "low | medium | high | critical",
-  "tags": ["Тема1", "Тема2", "Тема3"],
+  "tags": ["🛑 Тема1", "👀 Тема2", "🇪🇸 Тема3"],
   "logicSteps": [
     {
       "questionId": "UUID из INPUT DATA",
-      "step": "РАЗНООБРАЗНОЕ объяснение. Термины выделяй так: **Arcén** (обочина). ${isRussianUserInSpain ? 'Если тема из CONFLICT POINTS — добавь сравнение с РФ!' : ''}",
+      "step": "🎯 РАЗНООБРАЗНОЕ объяснение с эмодзи в начале. Термины выделяй так: **Arcén** (обочина). ${isRussianUserInSpain ? 'Если тема из CONFLICT POINTS — добавь сравнение с РФ строго в формате: 💡 Отличие от РФ: ...' : ''}",
       "source": "Название закона (RGC / ПДД РФ)"
     }
   ],
   "mnemonic": "Рифма, акроним или яркая ассоциация для главной ошибки."
 }
+
+# 🎯 ЭМОДЗИ (V7 - КРИТИЧЕСКИ ВАЖНО!):
+- **diagnosisTitle**: Добавь 1 эмодзи, отражающий суть проблемы (🎯, ⚠️, 🔍, etc.)
+- **tags**: Подбирай к каждому тегу подходящий эмодзи (напр. "🛑 Приоритет", "🌧️ Погода", "🇪🇸 DGT")
+- **logicSteps**: Начинай каждый step с релевантного эмодзи для визуального якоря
 
 # 🎯 МНЕМОНИКА (ВАЖНО!):
 - НЕ пиши абстрактное типа "Будь внимателен" или "Соблюдай правила"
@@ -284,13 +290,14 @@ ${JSON.stringify(structuredErrors, null, 2)}
 5. НЕ используй markdown в summary и diagnosisBody — только чистый текст!
 6. НЕ делай сухие цитаты — объясняй понятно
 7. НЕ выдумывай номера статей — лучше без номера, чем неверный
+8. НЕ забывай эмодзи в тегах и начале каждого step!
 
 # ✨ ТВОЯ ЦЕЛЬ:
 
 Дать такой анализ, чтобы студент сказал: "Вау, это было полезнее любого бесплатного ChatGPT!"
 - Персональный подход (имя, история)
 - Уникальные сравнения (Испания vs Россия) — только где РЕАЛЬНАЯ разница!
-- Разнообразный стиль
+- Разнообразный стиль с эмодзи-якорями
 - Глубинное понимание правил
 - Запоминающаяся мнемоника`;
 };
@@ -510,93 +517,113 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
                         {idx + 1}
                       </div>
 
-                      <div className="flex-1">
-                        {/* Текст вопроса для контекста */}
-                        {originalQuestion && (
-                          <p className="text-[10px] text-gray-400 dark:text-gray-500 line-clamp-1 mb-1.5 font-medium uppercase tracking-wider">
-                            Вопрос: {originalQuestion.questionText}
-                          </p>
-                        )}
+                      \u003cdiv className="flex-1">
+                      {/* Текст вопроса для контекста */}
+                      {originalQuestion && (
+                        <p className="text-[10px] text-gray-400 dark:text-gray-500 line-clamp-1 mb-1.5 font-medium uppercase tracking-wider">
+                          Вопрос: {originalQuestion.questionText}
+                        </p>
+                      )}
 
-                        <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                          <ReactMarkdown
-                            components={{
-                              strong: ({ children }) => (
-                                <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-1 rounded">{children}</span>
-                              ),
-                              em: ({ children }) => (
-                                <span className="font-semibold text-gray-900 dark:text-white not-italic">{children}</span>
-                              )
-                            }}
-                          >
-                            {step}
-                          </ReactMarkdown>
+                      {/* Парсинг и визуальное выделение сравнения с РФ (V7) */}
+                      {(() => {
+                        const isRussiaComparison = step.includes('💡 Отличие от РФ:');
+                        const cleanStep = step.replace(/💡 Отличие от РФ:\s*/g, '');
+
+                        return (
+                          <>
+                            {isRussiaComparison && (
+                              <div className="mb-2 inline-flex items-center gap-1.5 px-2 py-1 bg-amber-100 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-500/30 rounded-md">
+                                <span className="text-xs font-bold text-amber-700 dark:text-amber-400">
+                                  🇷🇺 vs 🇪🇸 ОТЛИЧИЕ ОТ РОССИИ
+                                </span>
+                              </div>
+                            )}
+                            <div className={cn(
+                              "text-sm text-gray-600 dark:text-gray-300 leading-relaxed",
+                              isRussiaComparison && "pl-3 border-l-4 border-amber-500 bg-amber-50/50 dark:bg-amber-500/5 py-2 rounded-r"
+                            )}>
+                              <ReactMarkdown
+                                components={{
+                                  strong: ({ children }) => (
+                                    <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-1 rounded">{children}</span>
+                                  ),
+                                  em: ({ children }) => (
+                                    <span className="font-semibold text-gray-900 dark:text-white not-italic">{children}</span>
+                                  )
+                                }}
+                              >
+                                {cleanStep}
+                              </ReactMarkdown>
+                            </div>
+                          </>
+                        );
+                      })()}
+
+                      {source && (
+                        <div className="mt-2.5 inline-block px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 text-gray-500 dark:text-gray-400">
+                          {source}
                         </div>
-
-                        {source && (
-                          <div className="mt-2.5 inline-block px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 text-gray-500 dark:text-gray-400">
-                            {source}
-                          </div>
-                        )}
-                      </div>
+                      )}
                     </div>
                   </div>
                 </div>
-              );
+                </div>
+          );
             })}
-          </div>
         </div>
-
-        {/* 5. ЛАЙФХАК */}
-        <div className="space-y-4">
-          <div className="rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 p-4 flex items-start gap-4">
-            <div className="mt-1 p-1.5 bg-amber-100 dark:bg-amber-500/20 rounded-lg text-amber-600 dark:text-amber-400 shrink-0">
-              <Lightbulb className="w-5 h-5" />
-            </div>
-            <div>
-              <h5 className="font-bold text-gray-900 dark:text-white text-sm mb-1">Лайфхак запоминания</h5>
-              <div className="text-sm text-gray-600 dark:text-gray-300 italic">
-                <ReactMarkdown
-                  components={{
-                    strong: ({ children }) => (
-                      <span className="font-bold text-amber-700 dark:text-amber-300 not-italic">{children}</span>
-                    )
-                  }}
-                >
-                  {"\"" + data.mnemonic + "\""}
-                </ReactMarkdown>
-              </div>
-            </div>
-          </div>
-        </div>
-
       </div>
 
-      {/* 6. ФУТЕР (Call to Action) — Улучшенный UI */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-white/95 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900/95 border-t border-gray-100 dark:border-white/5">
-        <div className="flex items-center gap-3">
-          {/* Кнопка "Позже" — компактная */}
-          <button
-            onClick={onClose}
-            className="text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors shrink-0"
-          >
-            Позже
-          </button>
-
-          {/* Основная кнопка — растянута */}
-          <Button
-            onClick={onPractice}
-            className="flex-1 group flex items-center justify-center gap-2 h-12 rounded-2xl font-bold shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98]
-              bg-gray-900 text-white hover:bg-black
-              dark:bg-indigo-600 dark:hover:bg-indigo-500"
-          >
-            <span>Отработать ошибку</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </Button>
+      {/* 5. ЛАЙФХАК */}
+      <div className="space-y-4">
+        <div className="rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 p-4 flex items-start gap-4">
+          <div className="mt-1 p-1.5 bg-amber-100 dark:bg-amber-500/20 rounded-lg text-amber-600 dark:text-amber-400 shrink-0">
+            <Lightbulb className="w-5 h-5" />
+          </div>
+          <div>
+            <h5 className="font-bold text-gray-900 dark:text-white text-sm mb-1">Лайфхак запоминания</h5>
+            <div className="text-sm text-gray-600 dark:text-gray-300 italic">
+              <ReactMarkdown
+                components={{
+                  strong: ({ children }) => (
+                    <span className="font-bold text-amber-700 dark:text-amber-300 not-italic">{children}</span>
+                  )
+                }}
+              >
+                {"\"" + data.mnemonic + "\""}
+              </ReactMarkdown>
+            </div>
+          </div>
         </div>
       </div>
 
     </div>
+
+      {/* 6. ФУТЕР (Call to Action) — Улучшенный UI */ }
+  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-white/95 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900/95 border-t border-gray-100 dark:border-white/5">
+    <div className="flex items-center gap-3">
+      {/* Кнопка "Позже" — компактная */}
+      <button
+        onClick={onClose}
+        className="text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors shrink-0"
+      >
+        Позже
+      </button>
+
+      {/* Основная кнопка — растянута */}
+      <Button
+        onClick={onPractice}
+        className="flex-1 group flex items-center justify-center gap-2 h-12 rounded-2xl font-bold shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98]
+              bg-gray-900 text-white hover:bg-black
+              dark:bg-indigo-600 dark:hover:bg-indigo-500"
+      >
+        <span>Отработать ошибку</span>
+        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+      </Button>
+    </div>
+  </div>
+
+    </div >
   );
 };
 
@@ -742,6 +769,14 @@ const SmartDebriefCard = memo(({
       // Проверка лимитов (только если есть userId И НЕ премиум)
       // Премиум пользователи получают безлимит!
       const isPremiumUser = isPremium; // из usePremium hook (проп компонента)
+
+      console.log('[SmartDebrief] 🔍 Premium check:', {
+        isPremium,
+        isPremiumUser,
+        isServerPremium,
+        limitStatus,
+        userId
+      });
 
       if (userId && !isServerPremium) {
         const { data: limitCheck, error: limitError } = await supabase.rpc(
