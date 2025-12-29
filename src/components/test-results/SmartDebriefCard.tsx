@@ -35,6 +35,8 @@ import { toast } from 'sonner';
 import { getAIInstructionLanguage, getLanguageInstruction, AILanguage } from '@/utils/aiLanguage';
 import ReactMarkdown from 'react-markdown';
 import { generateConflictTable } from './aiConstants';
+import { useAnalysisHistoryStore } from '@/stores/useAnalysisHistoryStore';
+import { useAIDebriefAnalysis } from '@/hooks/useAIDebriefAnalysis';
 
 // Константы для лимитов
 const FREE_DAILY_LIMIT = 1;
@@ -51,7 +53,7 @@ export interface FailedQuestion {
 }
 
 // 🧠 AI Memory: Контекст студента для персонализации
-interface StudentStats {
+export interface StudentStats {
   name: string;           // Имя для персонального обращения
   xp: number;             // Общий XP для уровня
   streak: number;         // Дней подряд занятий
@@ -648,6 +650,9 @@ const SmartDebriefCard = memo(({
   const navigate = useNavigate();
   const { profileData } = useProfileData();
 
+  // 🎣 NEW: AI Debrief Hook with Zustand
+  const { performAnalysis: performAIAnalysis, getCachedAnalysis } = useAIDebriefAnalysis();
+
   // Загружаем статус лимитов и проверяем авторизацию
   useEffect(() => {
     const fetchLimitStatus = async () => {
@@ -696,27 +701,16 @@ const SmartDebriefCard = memo(({
     fetchLimitStatus();
   }, [profileData?.id]);  // ИСПРАВЛЕНО: перезагружаем при изменении profileData
 
-  // 🔄 CACHE RESTORATION: Загружаем кэш при монтировании
+  // 🔄 ZUSTAND CACHE: Загружаем кэш при монтировании
   useEffect(() => {
-    const loadCachedAnalysis = () => {
-      try {
-        // Создаём уникальный ключ кэша на основе ID вопросов
-        const questionIds = failedQuestions.map(q => q.questionId).sort().join('-');
-        const cacheKey = `skily_ai_debrief_${questionIds}`;
+    const questionIds = failedQuestions.map(q => q.questionId);
+    const cached = getCachedAnalysis(questionIds);
 
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-          const parsedCache = JSON.parse(cached);
-          console.log('[SmartDebrief] ✅ Loaded cached analysis from localStorage:', cacheKey);
-          setAnalysisData(parsedCache);
-        }
-      } catch (e) {
-        console.error('[SmartDebrief] Error loading cache:', e);
-      }
-    };
-
-    loadCachedAnalysis();
-  }, [failedQuestions]); // Загружаем при изменении вопросов
+    if (cached) {
+      console.log('[SmartDebrief] ✅ Loaded cached analysis from Zustand');
+      setAnalysisData(cached.diagnosis);
+    }
+  }, [failedQuestions, getCachedAnalysis]);
 
   const remaining = limitStatus?.remaining ?? FREE_DAILY_LIMIT;
   const canUseFree = limitStatus?.can_use ?? true;

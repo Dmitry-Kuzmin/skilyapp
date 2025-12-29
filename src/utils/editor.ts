@@ -1,19 +1,21 @@
-import { generateHTML } from "@tiptap/html";
-import StarterKit from "@tiptap/starter-kit";
-import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
+import { loadTiptap } from "./lazyTiptap";
 
 /**
  * Генерирует HTML preview из JSON TipTap контента
  */
-export function generateHTMLPreview(content: any): string {
+export async function generateHTMLPreview(content: any): Promise<string> {
   if (!content) return "";
 
   try {
-    return generateHTML(content, [
-      StarterKit,
-      Image,
-      Link.configure({
+    const tiptap = await loadTiptap();
+    if (!tiptap.html || !tiptap.starterKit || !tiptap.extensions?.image || !tiptap.extensions?.link) {
+      throw new Error("Tiptap modules not loaded");
+    }
+
+    return tiptap.html.generateHTML(content, [
+      tiptap.starterKit.default,
+      tiptap.extensions.image.default,
+      tiptap.extensions.link.default.configure({
         openOnClick: false,
       }),
     ]);
