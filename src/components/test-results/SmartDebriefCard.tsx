@@ -517,111 +517,111 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
                         {idx + 1}
                       </div>
 
-                      \u003cdiv className="flex-1">
-                      {/* Текст вопроса для контекста */}
-                      {originalQuestion && (
-                        <p className="text-[10px] text-gray-400 dark:text-gray-500 line-clamp-1 mb-1.5 font-medium uppercase tracking-wider">
-                          Вопрос: {originalQuestion.questionText}
-                        </p>
-                      )}
+                      <div className="flex-1">
+                        {/* Текст вопроса для контекста */}
+                        {originalQuestion && (
+                          <p className="text-[10px] text-gray-400 dark:text-gray-500 line-clamp-1 mb-1.5 font-medium uppercase tracking-wider">
+                            Вопрос: {originalQuestion.questionText}
+                          </p>
+                        )}
 
-                      {/* Парсинг и визуальное выделение сравнения с РФ (V7) */}
-                      {(() => {
-                        const isRussiaComparison = step.includes('💡 Отличие от РФ:');
-                        const cleanStep = step.replace(/💡 Отличие от РФ:\s*/g, '');
+                        {/* Парсинг и визуальное выделение сравнения с РФ (V7) */}
+                        {(() => {
+                          const isRussiaComparison = step.includes('💡 Отличие от РФ:');
+                          const cleanStep = step.replace(/💡 Отличие от РФ:\s*/g, '');
 
-                        return (
-                          <>
-                            {isRussiaComparison && (
-                              <div className="mb-2 inline-flex items-center gap-1.5 px-2 py-1 bg-amber-100 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-500/30 rounded-md">
-                                <span className="text-xs font-bold text-amber-700 dark:text-amber-400">
-                                  🇷🇺 vs 🇪🇸 ОТЛИЧИЕ ОТ РОССИИ
-                                </span>
+                          return (
+                            <>
+                              {isRussiaComparison && (
+                                <div className="mb-2 inline-flex items-center gap-1.5 px-2 py-1 bg-amber-100 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-500/30 rounded-md">
+                                  <span className="text-xs font-bold text-amber-700 dark:text-amber-400">
+                                    🇷🇺 vs 🇪🇸 ОТЛИЧИЕ ОТ РОССИИ
+                                  </span>
+                                </div>
+                              )}
+                              <div className={cn(
+                                "text-sm text-gray-600 dark:text-gray-300 leading-relaxed",
+                                isRussiaComparison && "pl-3 border-l-4 border-amber-500 bg-amber-50/50 dark:bg-amber-500/5 py-2 rounded-r"
+                              )}>
+                                <ReactMarkdown
+                                  components={{
+                                    strong: ({ children }) => (
+                                      <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-1 rounded">{children}</span>
+                                    ),
+                                    em: ({ children }) => (
+                                      <span className="font-semibold text-gray-900 dark:text-white not-italic">{children}</span>
+                                    )
+                                  }}
+                                >
+                                  {cleanStep}
+                                </ReactMarkdown>
                               </div>
-                            )}
-                            <div className={cn(
-                              "text-sm text-gray-600 dark:text-gray-300 leading-relaxed",
-                              isRussiaComparison && "pl-3 border-l-4 border-amber-500 bg-amber-50/50 dark:bg-amber-500/5 py-2 rounded-r"
-                            )}>
-                              <ReactMarkdown
-                                components={{
-                                  strong: ({ children }) => (
-                                    <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-1 rounded">{children}</span>
-                                  ),
-                                  em: ({ children }) => (
-                                    <span className="font-semibold text-gray-900 dark:text-white not-italic">{children}</span>
-                                  )
-                                }}
-                              >
-                                {cleanStep}
-                              </ReactMarkdown>
-                            </div>
-                          </>
-                        );
-                      })()}
+                            </>
+                          );
+                        })()}
 
-                      {source && (
-                        <div className="mt-2.5 inline-block px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 text-gray-500 dark:text-gray-400">
-                          {source}
-                        </div>
-                      )}
+                        {source && (
+                          <div className="mt-2.5 inline-block px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 text-gray-500 dark:text-gray-400">
+                            {source}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-                </div>
-          );
+              );
             })}
-        </div>
-      </div>
-
-      {/* 5. ЛАЙФХАК */}
-      <div className="space-y-4">
-        <div className="rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 p-4 flex items-start gap-4">
-          <div className="mt-1 p-1.5 bg-amber-100 dark:bg-amber-500/20 rounded-lg text-amber-600 dark:text-amber-400 shrink-0">
-            <Lightbulb className="w-5 h-5" />
           </div>
-          <div>
-            <h5 className="font-bold text-gray-900 dark:text-white text-sm mb-1">Лайфхак запоминания</h5>
-            <div className="text-sm text-gray-600 dark:text-gray-300 italic">
-              <ReactMarkdown
-                components={{
-                  strong: ({ children }) => (
-                    <span className="font-bold text-amber-700 dark:text-amber-300 not-italic">{children}</span>
-                  )
-                }}
-              >
-                {"\"" + data.mnemonic + "\""}
-              </ReactMarkdown>
+        </div>
+
+        {/* 5. ЛАЙФХАК */}
+        <div className="space-y-4">
+          <div className="rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 p-4 flex items-start gap-4">
+            <div className="mt-1 p-1.5 bg-amber-100 dark:bg-amber-500/20 rounded-lg text-amber-600 dark:text-amber-400 shrink-0">
+              <Lightbulb className="w-5 h-5" />
+            </div>
+            <div>
+              <h5 className="font-bold text-gray-900 dark:text-white text-sm mb-1">Лайфхак запоминания</h5>
+              <div className="text-sm text-gray-600 dark:text-gray-300 italic">
+                <ReactMarkdown
+                  components={{
+                    strong: ({ children }) => (
+                      <span className="font-bold text-amber-700 dark:text-amber-300 not-italic">{children}</span>
+                    )
+                  }}
+                >
+                  {"\"" + data.mnemonic + "\""}
+                </ReactMarkdown>
+              </div>
             </div>
           </div>
         </div>
+
       </div>
 
-    </div>
+      {/* 6. ФУТЕР (Call to Action) — Улучшенный UI */}
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-white/95 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900/95 border-t border-gray-100 dark:border-white/5">
+        <div className="flex items-center gap-3">
+          {/* Кнопка "Позже" — компактная */}
+          <button
+            onClick={onClose}
+            className="text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors shrink-0"
+          >
+            Позже
+          </button>
 
-      {/* 6. ФУТЕР (Call to Action) — Улучшенный UI */ }
-  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-white/95 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900/95 border-t border-gray-100 dark:border-white/5">
-    <div className="flex items-center gap-3">
-      {/* Кнопка "Позже" — компактная */}
-      <button
-        onClick={onClose}
-        className="text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors shrink-0"
-      >
-        Позже
-      </button>
-
-      {/* Основная кнопка — растянута */}
-      <Button
-        onClick={onPractice}
-        className="flex-1 group flex items-center justify-center gap-2 h-12 rounded-2xl font-bold shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98]
+          {/* Основная кнопка — растянута */}
+          <Button
+            onClick={onPractice}
+            className="flex-1 group flex items-center justify-center gap-2 h-12 rounded-2xl font-bold shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98]
               bg-gray-900 text-white hover:bg-black
               dark:bg-indigo-600 dark:hover:bg-indigo-500"
-      >
-        <span>Отработать ошибку</span>
-        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-      </Button>
-    </div>
-  </div>
+          >
+            <span>Отработать ошибку</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Button>
+        </div>
+      </div>
 
     </div >
   );
@@ -696,13 +696,35 @@ const SmartDebriefCard = memo(({
     fetchLimitStatus();
   }, [profileData?.id]);  // ИСПРАВЛЕНО: перезагружаем при изменении profileData
 
+  // 🔄 CACHE RESTORATION: Загружаем кэш при монтировании
+  useEffect(() => {
+    const loadCachedAnalysis = () => {
+      try {
+        // Создаём уникальный ключ кэша на основе ID вопросов
+        const questionIds = failedQuestions.map(q => q.questionId).sort().join('-');
+        const cacheKey = `skily_ai_debrief_${questionIds}`;
+
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          const parsedCache = JSON.parse(cached);
+          console.log('[SmartDebrief] ✅ Loaded cached analysis from localStorage:', cacheKey);
+          setAnalysisData(parsedCache);
+        }
+      } catch (e) {
+        console.error('[SmartDebrief] Error loading cache:', e);
+      }
+    };
+
+    loadCachedAnalysis();
+  }, [failedQuestions]); // Загружаем при изменении вопросов
+
   const remaining = limitStatus?.remaining ?? FREE_DAILY_LIMIT;
   const canUseFree = limitStatus?.can_use ?? true;
   const isServerPremium = limitStatus?.is_premium ?? isPremium;
 
   const parseAIResponse = (text: string): AIDiagnosis => {
     try {
-      console.log('[SmartDebrief] Raw AI response:', text);
+      console.log('[SmartDebrief] Raw AI response:', text.slice(0, 500));
 
       // 1. Очистка от Markdown блоков кода
       let cleanText = text
@@ -718,9 +740,52 @@ const SmartDebriefCard = memo(({
         cleanText = cleanText.slice(firstBrace, lastBrace + 1);
       }
 
-      return JSON.parse(cleanText);
+      // 3. AGGRESSIVE REPAIR: Попытка парсинга
+      try {
+        return JSON.parse(cleanText);
+      } catch (parseError) {
+        console.warn('[SmartDebrief] JSON parse failed, attempting repair...', parseError);
+
+        // 4. SMART REPAIR: Закрываем незакрытые структуры
+        let repairedText = cleanText;
+
+        // Подсчитываем открытые скобки
+        const openBraces = (repairedText.match(/\{/g) || []).length;
+        const closeBraces = (repairedText.match(/\}/g) || []).length;
+        const openBrackets = (repairedText.match(/\[/g) || []).length;
+        const closeBrackets = (repairedText.match(/\]/g) || []).length;
+
+        // Если незаконченный массив logicSteps
+        if (repairedText.includes('"logicSteps":') && openBrackets > closeBrackets) {
+          // Ищем последний полный элемент в logicSteps
+          const logicStepsMatch = repairedText.match(/"logicSteps":\s*\[(.*)/s);
+          if (logicStepsMatch) {
+            const stepsContent = logicStepsMatch[1];
+            // Находим последнюю закрывающую фигурную скобку элемента
+            const lastCompleteItemIndex = stepsContent.lastIndexOf('}');
+            if (lastCompleteItemIndex !== -1) {
+              // Обрезаем до последнего полного элемента
+              const beforeSteps = repairedText.substring(0, repairedText.indexOf('"logicSteps":'));
+              const completeSteps = stepsContent.substring(0, lastCompleteItemIndex + 1);
+              repairedText = beforeSteps + '"logicSteps": [' + completeSteps + ']';
+            }
+          }
+        }
+
+        // Закрываем оставшиеся структуры
+        const stillOpenBraces = (repairedText.match(/\{/g) || []).length;
+        const stillCloseBraces = (repairedText.match(/\}/g) || []).length;
+
+        // Добавляем недостающие закрывающие скобки
+        repairedText += '}'.repeat(Math.max(0, stillOpenBraces - stillCloseBraces));
+
+        console.log('[SmartDebrief] Repaired JSON, length:', repairedText.length);
+
+        // Пробуем ещё раз
+        return JSON.parse(repairedText);
+      }
     } catch (e) {
-      console.error("Failed to parse AI JSON:", e);
+      console.error("Failed to parse AI JSON even after repair:", e);
       return {
         greeting: "Привет! Возникли сложности с обработкой ответа, но я проанализировал твои ошибки.",
         diagnosis: "ИИ вернул ответ в нестандартном формате. Попробуй сгенерировать заново.",
@@ -821,6 +886,7 @@ const SmartDebriefCard = memo(({
 
       console.log(`[SmartDebrief] Attempt ${attempt}/2: Sending request...`);
       console.log(`[SmartDebrief] Country for AI:`, country);
+      console.log(`[SmartDebrief] StudentStats for AI:`, studentStats);
       console.log(`[SmartDebrief] Has access token:`, !!accessToken);
 
       // Формируем заголовки: с токеном если есть, иначе без
@@ -869,6 +935,7 @@ const SmartDebriefCard = memo(({
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         let lineBuffer = '';
+        let isDone = false; // Флаг окончания стрима
 
         console.log('[SmartDebrief] Reading SSE stream with buffer...');
 
@@ -876,7 +943,7 @@ const SmartDebriefCard = memo(({
           try {
             while (true) {
               const { done, value } = await reader.read();
-              if (done) break;
+              if (done || isDone) break; // ИСПРАВЛЕНО: проверяем оба условия
 
               const chunk = decoder.decode(value, { stream: true });
               lineBuffer += chunk;
@@ -891,7 +958,8 @@ const SmartDebriefCard = memo(({
                 const data = trimmedLine.slice(6);
                 if (data === '[DONE]') {
                   console.log('[SmartDebrief] SSE stream finished ([DONE])');
-                  break;
+                  isDone = true; // ИСПРАВЛЕНО: устанавливаем флаг вместо break
+                  break; // Выходим из for, затем while проверит isDone
                 }
 
                 try {
@@ -941,6 +1009,17 @@ const SmartDebriefCard = memo(({
       }
 
       setAnalysisData(parsedData);
+
+      // 💾 SAVE TO CACHE: Сохраняем результат для следующих загрузок
+      try {
+        const questionIds = failedQuestions.map(q => q.questionId).sort().join('-');
+        const cacheKey = `skily_ai_debrief_${questionIds}`;
+        localStorage.setItem(cacheKey, JSON.stringify(parsedData));
+        console.log('[SmartDebrief] ✅ Saved analysis to localStorage:', cacheKey);
+      } catch (e) {
+        console.error('[SmartDebrief] Error saving cache:', e);
+      }
+
       setResultModalOpen(true);
       triggerHapticFeedback('success');
 

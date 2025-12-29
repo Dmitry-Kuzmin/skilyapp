@@ -1960,9 +1960,7 @@ const TestSession = () => {
 
           trackOfflineAction('test-submit', true);
 
-          toast.info("Результат сохранён. Награды будут начислены при восстановлении соединения.", {
-            duration: 4000,
-          });
+          // Toast показывается в useTestFinisher, не дублируем
         } else {
           // ONLINE: Обычная отправка
           const { data: rewardData, error: rewardError } = await supabase.functions.invoke("complete-test-and-award", {
@@ -2001,10 +1999,7 @@ const TestSession = () => {
           message: "Награды будут начислены позже",
         } as TestRewardResult;
 
-        // Показываем предупреждение (не ошибку), чтобы не пугать пользователя
-        toast.warning("Результаты сохранены. Награды будут начислены при восстановлении соединения.", {
-          duration: 5000,
-        });
+        // Toast показывается в useTestFinisher, не дублируем
       }
     }
 

@@ -328,13 +328,19 @@ const TestResults = () => {
         // Получаем профиль пользователя
         const { data: profile } = await supabase
           .from('profiles')
-          .select('first_name, xp, streak_days')
+          .select('first_name, username, xp, streak_days')
           .eq('id', user.id)
           .single();
 
         if (profile) {
+          console.log('[TestResults] 🔍 Profile data from DB:', {
+            first_name: profile.first_name,
+            username: profile.username,
+            user_metadata_first_name: user.user_metadata?.first_name
+          });
+
           setStudentStats({
-            name: profile.first_name || user.user_metadata?.first_name || 'Driver',
+            name: profile.first_name || profile.username || user.user_metadata?.first_name || 'Студент',
             xp: (profile as any).xp || 0,
             streak: profile.streak_days || 1,
             prevWeakness: weakTopic || null,
@@ -410,7 +416,7 @@ const TestResults = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="grid grid-cols-3 gap-3 sm:gap-4 mb-8"
+          className="grid grid-cols-2 gap-3 sm:gap-4 mb-8"
         >
           {/* Time Card */}
           <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center justify-center gap-1">
@@ -428,7 +434,17 @@ const TestResults = () => {
             <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium">Точность</span>
           </div>
 
-          {/* XP/Streak Card */}
+          {/* Coins Card */}
+          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center justify-center gap-1 relative overflow-hidden">
+            <div className="absolute inset-0 bg-amber-500/10 blur-xl" />
+            <Sparkles className="w-5 h-5 text-amber-400 mb-1 relative z-10" />
+            <span className="text-xl sm:text-2xl font-bold text-amber-400 relative z-10">
+              +{rewardResult?.coins_awarded || (passed ? 10 : 2)}
+            </span>
+            <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium relative z-10">Монеты</span>
+          </div>
+
+          {/* XP Card */}
           <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center justify-center gap-1 relative overflow-hidden">
             <div className="absolute inset-0 bg-yellow-500/10 blur-xl" />
             <Zap className="w-5 h-5 text-yellow-400 mb-1 relative z-10" />
