@@ -1328,10 +1328,20 @@ const TestSession = () => {
   };
 
   const handleAnswer = async (optionId?: string) => {
-    const answerId = optionId || selectedOption;
-    if (!answerId) return;
+    console.log('🎯 [handleAnswer] CALLED with optionId:', optionId, 'selectedOption:', selectedOption);
 
-    if (isTransitioning) return;
+    const answerId = optionId || selectedOption;
+    if (!answerId) {
+      console.warn('🎯 [handleAnswer] ❌ No answerId, returning early');
+      return;
+    }
+
+    if (isTransitioning) {
+      console.warn('🎯 [handleAnswer] ❌ isTransitioning=true, returning early');
+      return;
+    }
+
+    console.log('🎯 [handleAnswer] ✅ Processing answer:', answerId);
 
     // Специальная обработка для экзамена ПДД РФ
     if (mode === 'exam-russia' && russiaExam.currentQuestion) {
@@ -1671,8 +1681,11 @@ const TestSession = () => {
           const index = parseInt(e.key) - 1;
           if (index < currentAnswers.length) {
             const answerId = currentAnswers[index].id;
-            if (!isAnswerLocked && (!selectedOption || isPracticeLikeMode)) {
+            if (!isAnswerLocked && !selectedOption) {
+              // КРИТИЧНО: Сначала устанавливаем выбор, потом сразу вызываем handleAnswer
+              // (как при клике мышью)
               setSelectedOption(answerId);
+              handleAnswer(answerId);
             }
           }
         }

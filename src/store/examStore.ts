@@ -117,8 +117,15 @@ export const useExamStore = create<ExamStore>((set, get) => ({
     resetExam: () => set({ activeState: null }),
 
     answerQuestion: (answerId, isCorrect) => {
+        console.log('📝 [ExamStore] answerQuestion called:', { answerId, isCorrect });
+
         const { activeState } = get();
-        if (!activeState) return;
+        if (!activeState) {
+            console.error('📝 [ExamStore] ❌ No activeState!');
+            return;
+        }
+
+        console.log('📝 [ExamStore] activeState.kind:', activeState.kind);
 
         if (activeState.kind === 'russia') {
             // --- RUSSIA LOGIC ---
@@ -142,6 +149,8 @@ export const useExamStore = create<ExamStore>((set, get) => ({
             const { data } = activeState;
             const currentQ = data.questions[data.currentIndex];
 
+            console.log('📝 [ExamStore] Recording answer for question:', currentQ.id);
+
             // Record answer
             const newAnswers = { ...data.answers };
             newAnswers[currentQ.id] = {
@@ -149,6 +158,8 @@ export const useExamStore = create<ExamStore>((set, get) => ({
                 selectedOptionId: answerId,
                 answeredAt: Date.now()
             };
+
+            console.log('📝 [ExamStore] ✅ Answer recorded. Total answers now:', Object.keys(newAnswers).length);
 
             // Streak logic
             let newStreak = data.streak;

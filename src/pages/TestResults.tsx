@@ -328,15 +328,15 @@ const TestResults = () => {
         // Получаем профиль пользователя
         const { data: profile } = await supabase
           .from('profiles')
-          .select('name, xp, streak')
+          .select('first_name, xp, streak_days')
           .eq('id', user.id)
           .single();
 
         if (profile) {
           setStudentStats({
-            name: profile.name || user.user_metadata?.first_name || 'Driver',
+            name: profile.first_name || user.user_metadata?.first_name || 'Driver',
             xp: (profile as any).xp || 0,
-            streak: (profile as any).streak || 1,
+            streak: profile.streak_days || 1,
             prevWeakness: weakTopic || null,
             trend: 'stable'
           });
@@ -440,7 +440,7 @@ const TestResults = () => {
         </motion.div>
 
         {/* Smart Debrief — AI анализ ошибок */}
-        {incorrectCount > 0 && (
+        {incorrectCount > 0 && answers.length > 0 && (
           <SmartDebriefCard
             country={country}
             failedQuestions={

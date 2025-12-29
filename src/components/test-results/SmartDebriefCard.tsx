@@ -20,6 +20,7 @@ import { usePremium } from '@/hooks/usePremium';
 import { useProfileData } from '@/hooks/useProfileData';
 import { cn } from '@/lib/utils';
 import { AILimitReachedModal } from '@/components/ai/AILimitReachedModal';
+import { getImageUrl } from '@/utils/imageUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Drawer,
@@ -101,9 +102,11 @@ const generateDebriefPrompt = (
 
   // Контекст страны (для правовой базы)
   const isSpain = country === 'spain';
+  const isRussianUserInSpain = isSpain && targetLang === 'Russian';
+
   const legalContext = isSpain
-    ? 'Юридическая база: Reglamento General de Circulación (RGC), статьи DGT, коды знаков (R-301, P-5, S-13).'
-    : 'Юридическая база: ПДД РФ, разделы, пункты, номера знаков (1.1, 2.1, 3.4).';
+    ? 'Юридическая база: Reglamento General de Circulación (RGC), статьи DGT.'
+    : 'Юридическая база: ПДД РФ, разделы и пункты.';
 
   // 🔍 DEBUG: Проверяем что приходит в failedQuestions
   console.log('🔍 DEBUG PAYLOAD:', failedQuestions.map(q => ({
@@ -114,13 +117,11 @@ const generateDebriefPrompt = (
 
   // Структурированные данные с явным флагом пропуска
   const structuredErrors = failedQuestions.map(q => {
-    // Строгая проверка на пропуск
     const isSkipped = !q.userAnswer || q.userAnswer === 'NO_ANSWER_GIVEN';
 
     return {
       id: q.questionId,
       question: q.questionText,
-      // ВСЕГДА передаем ответ, даже если он кажется странным. ИИ лучше разберется.
       user_choice: q.userAnswer || 'NO_ANSWER',
       correct_answer: q.correctAnswer,
       topic: q.topic || 'General',
@@ -128,7 +129,6 @@ const generateDebriefPrompt = (
     };
   });
 
-  // 🔍 DEBUG: Что уходит в ИИ
   console.log('🔍 STRUCTURED ERRORS FOR AI:', structuredErrors.map(e => ({
     id: e.id,
     user_choice: e.user_choice,
@@ -142,85 +142,160 @@ const generateDebriefPrompt = (
   const prevWeaknessFixed = studentStats?.prevWeakness &&
     !currentTopics.some(t => t?.toLowerCase().includes(studentStats.prevWeakness?.toLowerCase() || ''));
 
-  // Контекст студента (на английском для универсальности, ИИ переведёт)
-  const studentContext = studentStats ? `
-# STUDENT CONTEXT (AI Memory):
-- Name: ${studentStats.name}
-- XP: ${studentStats.xp} (Level: ${studentStats.xp > 2000 ? 'Pro' : studentStats.xp > 500 ? 'Experienced' : 'Rookie'})
-- Current streak: ${studentStats.streak} days
-- Previous weak topic: ${studentStats.prevWeakness || 'None'}
-- Fixed previous issue: ${prevWeaknessFixed ? 'YES! 🎉' : 'Still working on it'}
+  // Определяем уровень опыта для персонализации стиля
+  const experienceLevel = studentStats
+    ? (studentStats.xp > 5000 ? 'veteran' : studentStats.xp > 1500 ? 'intermediate' : 'beginner')
+    : 'unknown';
 
-# PERSONALIZATION RULES:
-1. GREETING: Start with the student's name "${studentStats.name}".
-2. STREAK: ${studentStats.streak > 3 ? `Praise consistency ("${studentStats.name}, ${studentStats.streak} days in a row!")` : 'No streak mention.'}
-3. PROGRESS: ${prevWeaknessFixed ? `MUST praise: "${studentStats.name}, you fixed the issue with ${studentStats.prevWeakness}! Great progress."` : 'Don\'t mention previous topic.'}
-4. SUPPORT: If many errors — encourage ("Don't worry, we found new growth points").
+  // Контекст студента
+  const studentContext = studentStats ? `
+# 🧠 AI MEMORY — STUDENT PROFILE:
+| Параметр | Значение |
+|----------|----------|
+| Имя | ${studentStats.name} |
+| XP | ${studentStats.xp} |
+| Уровень | ${experienceLevel === 'veteran' ? 'Опытный (5000+ XP)' : experienceLevel === 'intermediate' ? 'Продвинутый (1500+ XP)' : 'Новичок'} |
+| Streak | ${studentStats.streak} дней |
+| Прошлая слабость | ${studentStats.prevWeakness || 'Нет данных'} |
+| Прогресс | ${prevWeaknessFixed ? '✅ Исправил прошлую проблему!' : 'Работает над ней'} |
+
+# 🎭 ПЕРСОНАЛИЗАЦИЯ ПО УРОВНЮ:
+${experienceLevel === 'beginner' ? `
+- Стиль: ПОДДЕРЖИВАЮЩИЙ и ОБОДРЯЮЩИЙ
+- Приветствие: "${studentStats.name}, добро пожаловать на борт!" или "Отличное начало, ${studentStats.name}!"
+- Не пугай сложными терминами сразу
+- Объясняй ПОЧЕМУ правило такое (логику)
+` : experienceLevel === 'intermediate' ? `
+- Стиль: КОУЧИНГОВЫЙ и ДЕЛОВОЙ
+- Приветствие: "${studentStats.name}, давай разберём детали" или "Хорошая практика!"
+- Можешь использовать термины с пояснениями
+- Указывай на паттерны ошибок
+` : `
+- Стиль: ЭКСПЕРТНЫЙ и АНАЛИТИЧЕСКИЙ
+- Приветствие: "${studentStats.name}, интересный кейс!" или "Давай покопаемся глубже"
+- Используй профессиональные термины
+- Анализируй глубинные причины
+`}
+${studentStats.streak > 3 ? `🔥 ОБЯЗАТЕЛЬНО похвали за ${studentStats.streak} дней подряд!` : ''}
+${prevWeaknessFixed ? `🎉 ОБЯЗАТЕЛЬНО отметь прогресс: "${studentStats.name} справился с проблемой [${studentStats.prevWeakness}]!"` : ''}
 ` : '';
 
-  return `# ROLE
-You are Skily, a global AI driving instructor.${studentStats ? ` You are teaching ${studentStats.name}.` : ''}
-Your goal is to find the ROOT CAUSE of errors and connect them to student progress.
+  // Блок сравнения с Россией (только для русскоговорящих на испанском тесте)
+  const russiaComparisonBlock = isRussianUserInSpain ? `
+# �🇺 VS 🇪🇸 CONTRASTIVE LEARNING (для русскоязычных):
+
+## ПРАВИЛО СРАВНЕНИЯ:
+- Пиши блок "💡 Отличие от РФ:" ТОЛЬКО если есть РЕАЛЬНАЯ разница или опасный нюанс
+- Если правило ОДИНАКОВОЕ с РФ — НЕ ПИШИ НИЧЕГО про РФ (экономь место на экране)
+- Формат: "💡 Отличие от РФ: В России [привычка], но в Испании [правило]. [Опасность]."
+
+## ⚠️ CONFLICT POINTS (Опасные привычки из РФ):
+Эти темы ТРЕБУЮТ сравнения, потому что российская интуиция УБИВАЕТ на экзамене:
+
+| Тема | 🇷🇺 Привычка из РФ | 🇪🇸 Правило Испании | Ловушка |
+|------|-------------------|---------------------|---------|
+| Алкоголь | "Пить нельзя" (0.0) | 0.5 г/л разрешено (0.0 для L) | На вопрос "Можно ли после бокала?" ответ ДА! |
+| Круговое движение | Съезд с любой полосы | Съезд ТОЛЬКО с внешней полосы | За съезд с внутренней — мгновенный провал |
+| Обгон справа | Опережение иногда ок | Категорически запрещен | Даже в пробке — нельзя (кроме carriles VAO) |
+| Жёлтый свет | "Проскочить можно" | Остановка обязательна если безопасно | На экзамене проезд на жёлтый = фол |
+| Обочина (Arcén) | Только для остановки | Можно ехать для облегчения обгона | "Запрещено" — неверный ответ! |
+
+## ФОРМАТ СРАВНЕНИЯ:
+"В отличие от привычки в РФ [старая привычка], в Испании [новое правило]. На экзамене: [что делать]."
+` : '';
+
+
+  return `# 🚗 SKILY — ПЕРСОНАЛЬНЫЙ AI-ИНСТРУКТОР
+
+Ты не просто анализатор ошибок. Ты — наставник ${studentStats?.name || 'студента'}, который:
+- Видит ПАТТЕРНЫ мышления (не отдельные ошибки)
+- Использует РАЗНООБРАЗНЫЙ стиль объяснений
+- Даёт УНИКАЛЬНУЮ ценность (сравнения, аналогии, мнемоники)
+- Помнит историю ученика (AI Memory)
 
 ${languageInstruction}
 
 ${legalContext}
 ${studentContext}
+${russiaComparisonBlock}
 
-# INPUT DATA (ERRORS):
+# 📋 ОШИБКИ СТУДЕНТА:
 ${JSON.stringify(structuredErrors, null, 2)}
 
-# LOGIC INSTRUCTIONS:
+# 🎨 ВАРИАТИВНОСТЬ ОБЪЯСНЕНИЙ (КРИТИЧЕСКИ ВАЖНО!):
 
-## 🕵️‍♂️ ERROR ANALYSIS:
-- **STRICT RULE**: ONLY write "Time ran out" IF AND ONLY IF 'is_skipped' is true.
-- If 'user_choice' has ANY value (even "Не отвечено" string) BUT 'is_skipped' is false -> YOU MUST TREAT IT AS A WRONG CHOICE.
-- Say: "You made this mistake..." (NEVER say "Time ran out").
-- **CRITICAL**: If you see "Time ran out" in your output but 'is_skipped' is false -> IT IS A FATAL SYSTEM ERROR. FIX IT.
-- **CRITICAL BAN**: NEVER use words like "пропустил", "пропуски", "skipped", "missed" if user_choice exists or is not explicitly marked as skipped.
+НИКОГДА не начинай каждый step одинаково! Используй РАЗНЫЕ подходы:
 
-## 🧠 CONTRASTIVE ANALYSIS:
-- Template: "You chose **[X]**, but correct answer is **[Y]**, because..."
-- Explain the TRAP in the question if there is one.
+| # | Стиль | Пример начала |
+|---|-------|---------------|
+| 1 | Прямой анализ | "Здесь ключевой момент в том, что..." |
+| 2 | Через ловушку | "Это классическая ловушка DGT — многие думают..." |
+| 3 | Через логику | "Представь ситуацию: ты на автомагистрали и..." |
+| 4 | Через последствия | "Если бы ты так сделал на реальной дороге..." |
+| 5 | Через аналогию | "Это как в шахматах — нужно думать на ход вперёд..." |
+| 6 | Через сравнение | "Разница между A и B в том, что..." |
+| 7 | Через вопрос | "Почему правильно именно так? Потому что..." |
 
-## ✍️ FORMATTING (CRITICAL FOR READABILITY):
-- Highlight ALL Spanish/Russian traffic terms with **double asterisks**: **Término**.
-- Example: "The sign **Ceda el paso** means..." (NOT *Ceda el paso*).
-- Use **bold** for: road types, signs, maneuvers, legal terms.
+⚠️ ЗАПРЕЩЕНО: начинать 3+ объяснения подряд с "Ты выбрал..." или "Ты посчитал..."!
 
-## 🎯 MNEMONIC:
-- Pick ONE most important error.
-- Give a short, memorable phrase for it.
+# 🔍 ГЛУБИНА АНАЛИЗА:
 
-## 📊 QUANTITY:
-- If there are 5+ errors, provide MINIMUM 5 logicSteps (picking the most critical ones).
-- If there are 3-4 errors, provide 3-4 logicSteps.
+Не просто "ты ошибся", а:
+1. **Почему** этот вариант казался логичным (понимание студента)
+2. **В чём** реальная суть правила (глубинное понимание)
+3. **Как** запомнить на будущее (мнемоника или ассоциация)
 
-# RESPONSE FORMAT (STRICT JSON, no markdown):
+# 📊 ФОРМАТ ОТВЕТА (СТРОГИЙ JSON):
+
 {
-  "summary": "${studentStats ? `Personalized greeting for ${studentStats.name} + praise for progress/streak + main insight.` : 'One sentence — problem summary with support.'}",
-  "diagnosisTitle": "Focus points: [Topic 1] and [Topic 2]",
-  "diagnosisBody": "Short pattern explanation.",
+  "summary": "Персональное приветствие + главный инсайт + поддержка. БЕЗ звёздочек!",
+  "diagnosisTitle": "Фокус на: Тема1 и Тема2",
+  "diagnosisBody": "Краткий паттерн ошибок. БЕЗ markdown, только текст!",
   "severity": "low | medium | high | critical",
-  "tags": ["Topic", "tags", "for", "training"],
+  "tags": ["Тема1", "Тема2", "Тема3"],
   "logicSteps": [
     {
-      "questionId": "The exact 'id' from INPUT DATA that this step refers to",
-      "step": "CONTRASTIVE explanation with **user_choice** vs **correct_answer**. Use **bold** for terms.",
-      "source": "Art. XX RGC / ПДД п. X.X"
+      "questionId": "UUID из INPUT DATA",
+      "step": "РАЗНООБРАЗНОЕ объяснение. Термины выделяй так: **Arcén** (обочина). ${isRussianUserInSpain ? 'Если тема из CONFLICT POINTS — добавь сравнение с РФ!' : ''}",
+      "source": "Название закона (RGC / ПДД РФ)"
     }
   ],
-  "mnemonic": "ONE short memorable phrase for the main error."
+  "mnemonic": "Рифма, акроним или яркая ассоциация для главной ошибки."
 }
 
-# PROHIBITIONS:
-1. 🚫 NEVER write "пропустил/пропуски/skipped/missed" unless is_skipped === true
-2. 🚫 NEVER use single asterisks *like this* — use **double** for bold
-3. 🚫 DON'T blame the student
-4. 🚫 DON'T write dry citations — explain simply
-5. 🚫 DON'T pack multiple facts into one mnemonic
-`;
+# 🎯 МНЕМОНИКА (ВАЖНО!):
+- НЕ пиши абстрактное типа "Будь внимателен" или "Соблюдай правила"
+- Мнемоника должна быть КОНКРЕТНОЙ и ЗАПОМИНАЮЩЕЙСЯ
+- Форматы: рифма | правило большого пальца | визуальная ассоциация | акроним
+- Пример хороший: "Сломался? На Arcén съезжай — другим не мешай!"
+- Пример плохой: "Соблюдай правила дорожного движения"
+
+# ⚖️ ИСТОЧНИКИ (ЗАЩИТА ОТ ГАЛЛЮЦИНАЦИЙ):
+- Если НЕ уверен на 100% в номере статьи — пиши только название закона: "RGC" или "ПДД РФ"
+- ЛУЧШЕ написать "RGC" без номера, чем выдумать "Art. 45.3" который не существует
+- Номер статьи пиши ТОЛЬКО если точно знаешь его
+
+# 🚫 ЗАПРЕТЫ:
+
+1. НЕ начинай каждый step одинаково ("Ты выбрал...", "Ты посчитал...")
+2. НЕ используй * для выделения — только ** (двойные звёздочки)
+3. НЕ пиши "пропустил" если is_skipped !== true
+4. НЕ обвиняй студента — объясняй ПОЧЕМУ правило такое
+5. НЕ используй markdown в summary и diagnosisBody — только чистый текст!
+6. НЕ делай сухие цитаты — объясняй понятно
+7. НЕ выдумывай номера статей — лучше без номера, чем неверный
+
+# ✨ ТВОЯ ЦЕЛЬ:
+
+Дать такой анализ, чтобы студент сказал: "Вау, это было полезнее любого бесплатного ChatGPT!"
+- Персональный подход (имя, история)
+- Уникальные сравнения (Испания vs Россия) — только где РЕАЛЬНАЯ разница!
+- Разнообразный стиль
+- Глубинное понимание правил
+- Запоминающаяся мнемоника`;
 };
+
+
 
 
 // ============================================================================
@@ -333,7 +408,16 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
 
           <div>
             <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-              {data.diagnosisTitle || data.diagnosis || 'Анализ ошибок'}
+              <ReactMarkdown
+                components={{
+                  strong: ({ children }) => (
+                    <span className="text-indigo-600 dark:text-indigo-400">{children}</span>
+                  ),
+                  p: ({ children }) => <>{children}</>
+                }}
+              >
+                {data.diagnosisTitle || data.diagnosis || 'Анализ ошибок'}
+              </ReactMarkdown>
             </h4>
             <div className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
               <ReactMarkdown
@@ -396,9 +480,9 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
 
                   {/* КАРТИНКА (Якорь памяти) — Всегда показываем контейнер */}
                   <div className="shrink-0 group relative w-full sm:w-24 h-32 sm:h-24 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 border border-gray-200 dark:border-white/10">
-                    {originalQuestion?.imageUrl ? (
+                    {originalQuestion?.imageUrl && getImageUrl(originalQuestion.imageUrl) ? (
                       <img
-                        src={originalQuestion.imageUrl}
+                        src={getImageUrl(originalQuestion.imageUrl) || ''}
                         alt="Context"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         onError={(e) => {

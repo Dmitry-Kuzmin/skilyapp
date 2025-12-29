@@ -17,7 +17,7 @@ DECLARE
   v_coins_reward INTEGER;
   v_sp_reward INTEGER;
   v_is_premium BOOLEAN;
-  v_test_result_id BIGINT;
+  v_test_result_id UUID;
   v_subscription_status TEXT;
   v_subscription_expires_at TIMESTAMPTZ;
   v_premium_forever_purchased_at TIMESTAMPTZ;
@@ -28,6 +28,8 @@ DECLARE
   v_base_coins INTEGER;
   v_base_sp INTEGER;
 BEGIN
+  -- Set search path to public to be safe
+  SET LOCAL search_path = public;
   -- 1. Проверка Premium статуса
   SELECT subscription_status, subscription_expires_at, premium_forever_purchased_at
   INTO v_subscription_status, v_subscription_expires_at, v_premium_forever_purchased_at
