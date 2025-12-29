@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { supabase } from '@/lib/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 import { isTelegramMiniApp } from '@/lib/telegram/utils';
 import { useAnalysisHistoryStore, type AIDiagnosis } from '@/stores/useAnalysisHistoryStore';
 import type { FailedQuestion, StudentStats } from '@/components/test-results/SmartDebriefCard';

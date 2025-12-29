@@ -15,14 +15,21 @@ export const Motion = ({ children }: { children: React.ReactNode }) => (
   </LazyMotion>
 );
 
-// Re-export оптимизированных компонентов
-export const MotionDiv = m.div;
-export const MotionSpan = m.span;
-export const MotionButton = m.button;
-export const MotionSection = m.section;
-export const MotionArticle = m.article;
+// Создаем объект motion с ленивой загрузкой базовых анимаций
+export const motion = {
+  div: m.div,
+  span: m.span,
+  button: m.button,
+  section: m.section,
+  article: m.article,
+  h1: m.h1,
+  h2: m.h2,
+  h3: m.h3,
+  p: m.p,
+  // Добавьте другие элементы по необходимости
+};
 
-export { AnimatePresence, m };
+export { AnimatePresence };
 
 // Динамическая загрузка полного Framer Motion для сложных анимаций
 let fullMotion: typeof import('framer-motion') | null = null;

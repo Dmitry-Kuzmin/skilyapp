@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { usePremium } from "@/hooks/usePremium";
 import { getImageUrl } from "@/utils/imageUtils";
-import { motion, AnimatePresence } from "framer-motion";
+import { MotionDiv as motion, AnimatePresence } from "@/components/optimized/Motion";
 import Confetti from "react-confetti";
 import { useVignetteBanner } from "@/hooks/useVignetteBanner";
 import { useInterstitialBanner } from "@/hooks/useInterstitialBanner";

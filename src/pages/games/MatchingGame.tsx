@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
 import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";
-import { motion, AnimatePresence } from "framer-motion";
+import { MotionDiv as motion, AnimatePresence } from "@/components/optimized/Motion";
 
 interface MatchPair {
   id: string;

@@ -31,8 +31,8 @@ const filesToUpdate = [
 
 const replacementMap = {
   // Заменяем импорт на оптимизированную версию
-  'import { motion, AnimatePresence } from "framer-motion"': 'import { MotionDiv as motion, AnimatePresence } from "@/components/optimized/Motion"',
-  'import { motion } from "framer-motion"': 'import { MotionDiv as motion } from "@/components/optimized/Motion"',
+  'import { motion, AnimatePresence } from "framer-motion"': 'import { motion, AnimatePresence } from "@/components/optimized/Motion"',
+  'import { motion } from "framer-motion"': 'import { motion } from "@/components/optimized/Motion"',
   'import { AnimatePresence } from "framer-motion"': 'import { AnimatePresence } from "@/components/optimized/Motion"',
 };
 

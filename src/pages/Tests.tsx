@@ -20,7 +20,7 @@ import { usePDDTopics } from "@/hooks/usePDDTopics";
 import { useTicketsStatus } from "@/hooks/useTicketsStatus";
 import { useSmartRecommendation } from "@/hooks/useSmartRecommendation";
 import { COUNTRIES_CONFIG } from "@/types/pdd";
-import { motion } from "framer-motion";
+import { MotionDiv as motion } from "@/components/optimized/Motion";
 import { getImageUrl } from "@/utils/imageUtils";
 import { loadTestProgress } from "@/utils/testStorage";
 import { cn } from "@/lib/utils";

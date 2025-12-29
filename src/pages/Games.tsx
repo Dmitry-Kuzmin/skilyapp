@@ -14,7 +14,7 @@ import { DuelCreateModal } from "@/components/duel/DuelCreateModal";
 import { AuthModalNew as AuthModal } from "@/components/AuthModalNew";
 import { useModal } from "@/hooks/useModal";
 import { isTelegramMiniApp } from "@/lib/telegram";
-import { motion } from "framer-motion";
+import { MotionDiv as motion } from "@/components/optimized/Motion";
 import { useGamesStats, useOnlinePlayers } from "@/hooks/useGamesData";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 import { cn } from "@/lib/utils";

@@ -21,7 +21,7 @@ import { isTelegramMiniApp, getTelegramWebApp } from '@/lib/telegram';
 import { cn } from "@/lib/utils";
 import { supabase } from '@/integrations/supabase/client';
 import { dispatchUserEvent } from '@/lib/notification-events';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from '@/components/optimized/Motion';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 
 import { useModal } from '@/hooks/useModal';

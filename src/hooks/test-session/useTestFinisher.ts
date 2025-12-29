@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 import { clearTestProgress } from '@/lib/localTestProgress';
 import { checkOnlineStatus } from '@/hooks/useOnlineStatus';
 import { enqueueOfflineAction, trackOfflineAction } from '@/utils/offlineAnalytics';

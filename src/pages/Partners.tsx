@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { MotionDiv as motion } from "@/components/optimized/Motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUserContext } from "@/contexts/UserContext";
 import { LandingLogo } from "@/components/landing/LandingLogo";

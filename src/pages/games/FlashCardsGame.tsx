@@ -28,7 +28,7 @@ import { Label } from "@/components/ui/label";
 import Layout from "@/components/Layout";
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
-import { motion, AnimatePresence } from "framer-motion";
+import { MotionDiv as motion, AnimatePresence } from "@/components/optimized/Motion";
 import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";
 import Confetti from "react-confetti";

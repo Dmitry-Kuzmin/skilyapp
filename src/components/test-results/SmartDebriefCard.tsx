@@ -1154,7 +1154,7 @@ const SmartDebriefCard = memo(({
     if (isLoading) return; // Защита от спам-кликов
     setIsLoading(true);
     setError(null);
-    await performAnalysis(1);
+    await performAnalysisV2(1); // ✅ NEW: Using hook + Zustand
     setIsLoading(false);
   }, [failedQuestions, country]);
 

@@ -21,7 +21,7 @@ import {
   Target,
   Sparkles
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/optimized/Motion';
 import { cn } from '@/lib/utils';
 import { useUserContext } from '@/contexts/UserContext';
 
