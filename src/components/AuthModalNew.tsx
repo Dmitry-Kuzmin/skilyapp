@@ -29,7 +29,7 @@ interface AuthModalProps {
 }
 
 // Fallback avatar если у пользователя нет аватара
-const DEFAULT_AVATAR = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=faces";
+// Убран DEFAULT_AVATAR — если нет фото, показываем красивые инициалы
 
 export function AuthModalNew({ open, onClose }: AuthModalProps) {
   // --- State ---
@@ -833,9 +833,9 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                     src={userAvatar}
                     alt={userName || "User"}
                     className="w-20 h-20 rounded-full border-2 border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.1)] object-cover"
-                    onError={(e) => {
-                      console.log('[AuthModalNew] Avatar failed to load, using fallback');
-                      (e.target as HTMLImageElement).src = DEFAULT_AVATAR;
+                    onError={() => {
+                      console.log('[AuthModalNew] Avatar failed to load, showing initials');
+                      setUserAvatar(null); // Сбрасываем, чтобы показались инициалы
                     }}
                   />
                 ) : (
