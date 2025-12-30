@@ -1145,7 +1145,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   loading={isSubmitting}
                   className="h-12 text-[15px] font-semibold"
                 >
-                  Отправить ссылку на {email.split('@')[0]}@...
+                  ✨ Отправить ссылку для входа
                 </Button>
 
                 {/* Back Button */}
