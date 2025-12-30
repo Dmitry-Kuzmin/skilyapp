@@ -5,9 +5,12 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="light dark">
-    <meta name="supported-color-schemes" content="light dark">
+    <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
     <title>Acceso a Skily</title>
+    <!--[if !mso]><!-->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!--<![endif]-->
     <style type="text/css">
         /* RESET */
         body,
@@ -33,132 +36,105 @@
             text-decoration: none;
         }
 
-        /* THEME COLORS (Hardcoded for stability) */
-        .bg-body {
-            background-color: #0f172a !important;
-        }
-
-        .bg-card {
-            background-color: #1e293b !important;
-        }
-
-        .text-white {
-            color: #ffffff !important;
-        }
-
-        .text-gray {
-            color: #cbd5e1 !important;
-        }
-
-        .text-muted {
-            color: #64748b !important;
-        }
-
-        .accent-blue {
-            color: #3b82f6 !important;
-        }
-
-        /* CLIENT SPECIFIC FIXES */
         body {
             margin: 0 !important;
             padding: 0 !important;
             width: 100% !important;
-            height: 100% !important;
         }
 
-        /* Button Hover */
+        /* FONTS */
+        .font-inter {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* HOVER (for clients that support it) */
         .btn-primary:hover {
-            opacity: 0.9 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.5) !important;
         }
     </style>
-    <!--[if gte mso 9]>
-    <xml>
-        <o:OfficeDocumentSettings>
-        <o:AllowPNG/>
-        <o:PixelsPerInch>96</o:PixelsPerInch>
-        </o:OfficeDocumentSettings>
-    </xml>
-    <![endif]-->
 </head>
 
-<body class="bg-body" style="margin: 0; padding: 0; background-color: #0f172a; width: 100%;">
+<body style="margin: 0; padding: 0; background-color: #0f172a; width: 100%;">
 
-    <!-- MAIN WRAPPER TABLE (100% Width) -->
-    <table border="0" cellpadding="0" cellspacing="0" width="100%" class="bg-body" style="background-color: #0f172a;">
+    <!-- WRAPPER -->
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0f172a;">
         <tr>
-            <td align="center" style="padding: 40px 10px;">
+            <td align="center" style="padding: 48px 16px;">
 
-                <!-- CONTAINER (Max 500px) -->
-                <!--[if (gte mso 9)|(IE)]>
-                <table align="center" border="0" cellspacing="0" cellpadding="0" width="500">
-                <tr>
-                <td align="center" valign="top">
-                <![endif]-->
-                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 500px;">
+                <!-- CONTAINER -->
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 440px;">
 
                     <!-- LOGO -->
                     <tr>
-                        <td align="center" style="padding-bottom: 30px;">
-                            <img src="./email-assets/skily-logo-final.png" width="80" height="80"
-                                alt="Skily"
-                                style="display: block; border: 0; width: 80px; max-width: 80px; height: 80px; border-radius: 20px;" />
+                        <td align="center" style="padding-bottom: 32px;">
+                            <img src="./email-assets/skily-logo-final.png" width="64" height="64"
+                                alt="Skily" style="display: block; width: 64px; height: 64px; border-radius: 16px;" />
                         </td>
                     </tr>
 
                     <!-- CARD -->
                     <tr>
-                        <td align="center">
-                            <!-- CARD TABLE -->
-                            <table border="0" cellpadding="0" cellspacing="0" width="100%" class="bg-card"
-                                style="background-color: #1e293b; border-radius: 16px; border: 1px solid #334155; overflow: hidden;">
+                        <td>
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                                style="background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%); background-color: #ffffff; border-radius: 24px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1); overflow: hidden;">
 
-                                <!-- BLUE STRIPE TOP -->
+                                <!-- GRADIENT TOP -->
                                 <tr>
-                                    <td height="4" style="background-color: #3b82f6; line-height: 4px; font-size: 4px;">
+                                    <td height="4"
+                                        style="background: linear-gradient(90deg, #3b82f6, #6366f1, #8b5cf6); line-height: 4px;">
                                         &nbsp;</td>
                                 </tr>
 
-                                <!-- CARD CONTENT -->
+                                <!-- CONTENT -->
                                 <tr>
-                                    <td align="center" style="padding: 40px 30px;">
+                                    <td align="center" style="padding: 48px 32px;">
 
-                                        <!-- HEADLINE -->
-                                        <h1 class="text-white"
-                                            style="margin: 0 0 16px 0; font-family: Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 700; line-height: 32px; color: #ffffff;">
+                                        <!-- TITLE -->
+                                        <h1 class="font-inter"
+                                            style="margin: 0 0 8px 0; font-family: 'Inter', -apple-system, sans-serif; font-size: 24px; font-weight: 700; line-height: 32px; color: #0f172a;">
                                             Acceso a Skily
                                         </h1>
 
                                         <!-- EMOJI -->
-                                        <div style="font-size: 36px; line-height: 40px; margin-bottom: 24px;">🚀</div>
+                                        <div style="font-size: 40px; line-height: 48px; margin-bottom: 24px;">🚀</div>
 
-                                        <!-- DESCRIPTION (ES) -->
-                                        <p class="text-gray"
-                                            style="margin: 0 0 24px 0; font-family: Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; color: #cbd5e1;">
-                                            Pulsa el botón de abajo para acceder a tu cuenta.
+                                        <!-- DESCRIPTION ES -->
+                                        <p class="font-inter"
+                                            style="margin: 0 0 32px 0; font-family: 'Inter', -apple-system, sans-serif; font-size: 16px; line-height: 26px; color: #475569;">
+                                            Pulsa el botón de abajo para acceder a tu cuenta y continuar tu preparación.
                                         </p>
 
                                         <!-- BUTTON -->
-                                        <table border="0" cellspacing="0" cellpadding="0">
+                                        <table border="0" cellspacing="0" cellpadding="0" width="100%">
                                             <tr>
-                                                <td align="center" bgcolor="#3b82f6" style="border-radius: 10px;">
-                                                    <a href="https://skily.app/auth/confirm?token=example..." target="_blank" class="text-white"
-                                                        style="display: inline-block; padding: 14px 32px; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 10px; background-color: #3b82f6; border: 1px solid #3b82f6;">
+                                                <td align="center">
+                                                    <a href="https://skily.app/auth/confirm?token=example..." target="_blank" class="btn-primary"
+                                                        style="display: inline-block; padding: 16px 48px; font-family: 'Inter', -apple-system, sans-serif; font-size: 16px; font-weight: 600; color: #ffffff; text-decoration: none; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); background-color: #3b82f6; border-radius: 12px; box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4); transition: all 0.2s ease;">
                                                         Entrar / Sign in
                                                     </a>
                                                 </td>
                                             </tr>
                                         </table>
 
-                                        <!-- DESCRIPTION (EN) -->
-                                        <p class="text-muted"
-                                            style="margin: 24px 0 0 0; font-family: Helvetica, Arial, sans-serif; font-size: 13px; line-height: 20px; color: #64748b;">
-                                            Click the button above to sign in instantly
-                                        </p>
+                                        <!-- DIVIDER -->
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                                            style="margin-top: 32px;">
+                                            <tr>
+                                                <td style="border-top: 1px solid #e2e8f0; padding-top: 24px;">
+                                                    <!-- DESCRIPTION EN -->
+                                                    <p class="font-inter"
+                                                        style="margin: 0; font-family: 'Inter', -apple-system, sans-serif; font-size: 14px; line-height: 22px; color: #94a3b8; text-align: center;">
+                                                        Click the button above to sign in instantly
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
 
                                         <!-- TIMER -->
-                                        <p class="text-muted"
-                                            style="margin: 8px 0 0 0; font-family: Helvetica, Arial, sans-serif; font-size: 12px; line-height: 18px; color: #64748b;">
-                                            ⏱ Expira en 24h &bull; Expires in 24h
+                                        <p class="font-inter"
+                                            style="margin: 16px 0 0 0; font-family: 'Inter', -apple-system, sans-serif; font-size: 13px; line-height: 20px; color: #94a3b8;">
+                                            ⏱️ Expira en 24h · Expires in 24h
                                         </p>
 
                                     </td>
@@ -167,20 +143,19 @@
                         </td>
                     </tr>
 
-                    <!-- COPY LINK SECTION -->
+                    <!-- COPY LINK -->
                     <tr>
-                        <td align="center" style="padding: 24px 20px;">
-                            <p class="text-muted"
-                                style="margin: 0 0 10px 0; font-family: Helvetica, Arial, sans-serif; font-size: 12px; line-height: 18px; color: #64748b;">
+                        <td align="center" style="padding: 32px 0;">
+                            <p class="font-inter"
+                                style="margin: 0 0 12px 0; font-family: 'Inter', -apple-system, sans-serif; font-size: 13px; line-height: 20px; color: #64748b;">
                                 ¿Botón no funciona? / Link not working?
                             </p>
-                            <!-- LINK CONTAINER -->
                             <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                 <tr>
-                                    <td align="center" bgcolor="#1A2234"
-                                        style="background-color: rgba(59, 130, 246, 0.1); border-radius: 8px; padding: 12px;">
-                                        <a href="https://skily.app/auth/confirm?token=example..." class="accent-blue"
-                                            style="font-family: Consolas, monospace; font-size: 11px; line-height: 16px; color: #3b82f6; text-decoration: none; color: #3b82f6 !important; word-break: break-all; display: block;">
+                                    <td align="center"
+                                        style="background-color: rgba(30, 41, 59, 0.8); border-radius: 12px; padding: 16px;">
+                                        <a href="https://skily.app/auth/confirm?token=example..."
+                                            style="font-family: 'SF Mono', Consolas, monospace; font-size: 11px; line-height: 18px; color: #60a5fa; text-decoration: none; word-break: break-all; display: block;">
                                             https://skily.app/auth/confirm?token=example...
                                         </a>
                                     </td>
@@ -191,20 +166,15 @@
 
                     <!-- FOOTER -->
                     <tr>
-                        <td align="center" style="padding-top: 10px;">
-                            <p class="text-muted"
-                                style="margin: 0; font-family: Helvetica, Arial, sans-serif; font-size: 12px; line-height: 18px; color: #64748b;">
-                                &copy; 2024 Skily App
+                        <td align="center">
+                            <p class="font-inter"
+                                style="margin: 0; font-family: 'Inter', -apple-system, sans-serif; font-size: 12px; line-height: 18px; color: #475569;">
+                                © 2024 Skily App
                             </p>
                         </td>
                     </tr>
 
                 </table>
-                <!--[if (gte mso 9)|(IE)]>
-                </td>
-                </tr>
-                </table>
-                <![endif]-->
 
             </td>
         </tr>
