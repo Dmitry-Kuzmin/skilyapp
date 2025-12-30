@@ -1059,41 +1059,26 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                     </form>
 
                     {/* Magic Link как альтернатива — серая кнопка внизу */}
-                    <div className="space-y-2 text-center">
-                      <Button
-                        variant="ghost"
-                        fullWidth
-                        onClick={() => setStep('magic-link-existing')}
-                        className="text-sm font-medium h-11 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50"
-                      >
-                        ✨ {t('auth.magicLinkAlt') || 'Войти через почту (без пароля)'}
-                      </Button>
-                      <p className="text-[11px] text-zinc-500">
-                        {t('auth.alternativeLogin')}
-                      </p>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      fullWidth
+                      onClick={() => setStep('magic-link-existing')}
+                      className="text-sm font-medium h-11 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50"
+                    >
+                      ✨ {t('auth.magicLinkAlt') || 'Войти через почту (без пароля)'}
+                    </Button>
                   </>
                 ) : (
-                  /* --- НЕТ ПАРОЛЯ: Показываем ТОЛЬКО большую кнопку Magic Link --- */
-                  <div className="space-y-4">
-                    <p className="text-center text-zinc-400 text-sm">
-                      Мы отправим безопасную ссылку для входа на вашу почту
-                    </p>
-
-                    <Button
-                      variant="primary"
-                      fullWidth
-                      loading={isSubmitting}
-                      onClick={() => handleSendMagicLink(false)}
-                      className="h-14 text-[16px] font-semibold bg-white text-black hover:bg-zinc-100"
-                    >
-                      ✨ Отправить ссылку для входа
-                    </Button>
-
-                    <p className="text-center text-[11px] text-zinc-500">
-                      {t('auth.alternativeLogin')}
-                    </p>
-                  </div>
+                  /* --- НЕТ ПАРОЛЯ: ТОЛЬКО кнопка Magic Link (минимализм) --- */
+                  <Button
+                    variant="primary"
+                    fullWidth
+                    loading={isSubmitting}
+                    onClick={() => handleSendMagicLink(false)}
+                    className="h-14 text-[16px] font-semibold bg-white text-black hover:bg-zinc-100"
+                  >
+                    ✨ Отправить ссылку для входа
+                  </Button>
                 )}
               </motion.div>
 
@@ -1218,20 +1203,20 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         </div>
 
         {/* Legal Footer */}
-        <div className="mt-8 text-center text-xs text-zinc-600">
+        <div className="mt-6 text-center text-[10px] text-zinc-500 leading-relaxed">
           {t('auth.legalFooter')}{' '}
           <Link
             to="/terms"
-            className="underline underline-offset-4 hover:text-blue-400 transition-colors"
+            className="underline underline-offset-2 hover:text-blue-400 transition-colors"
           >
             {t('auth.terms')}
           </Link>
           {' '}и{' '}
           <Link
             to="/privacy"
-            className="underline underline-offset-4 hover:text-blue-400 transition-colors"
+            className="underline underline-offset-2 hover:text-blue-400 transition-colors"
           >
-            {t('auth.privacy')}
+            Политику
           </Link>
           .
         </div>
