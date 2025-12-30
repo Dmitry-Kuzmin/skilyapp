@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 import { GoogleIcon, TelegramIcon } from '@/components/icons/SocialIcons';
 import { PasskeyLoginButton } from '@/components/auth/PasskeyLoginButton';
 import { LandingLogo } from '@/components/landing/LandingLogo';
-import { checkEmailExists, getClientIP } from '@/lib/auth-utils';
+import { checkUserAuthMethod, getClientIP } from '@/lib/auth-utils';
 import { isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/passkey';
 
 // Schema будет использовать переводы через context
@@ -391,43 +391,29 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     setEmailError(null);
 
     try {
-      // Проверяем существование пользователя в Supabase
-      const exists = await checkEmailExists(email);
+      // УМНЫЙ ВХОД: Проверяем существование пользователя И наличие пароля
+      const authCheck = await checkUserAuthMethod(email);
+      console.log('[AuthModalNew] Auth check result:', authCheck);
 
-      if (exists) {
-        // Пытаемся получить данные профиля пользователя через RPC
+      if (authCheck.exists) {
+        // Пользователь существует — получаем профиль для отображения
         try {
           console.log('[AuthModalNew] Fetching profile for email:', email);
           const { data: profileData, error } = await supabase
             .rpc('get_user_profile_by_email', { p_email: email });
-
-          console.log('[AuthModalNew] RPC Response:', {
-            data: profileData,
-            error: error,
-            errorMessage: error?.message,
-            errorDetails: error?.details,
-            errorHint: error?.hint
-          });
 
           if (!error && profileData && profileData.length > 0) {
             const profile = profileData[0];
             console.log('[AuthModalNew] Profile data:', profile);
             setUserAvatar(profile.avatar_url || null);
 
-            // Формируем имя из доступных полей
             const displayName = [profile.first_name, profile.last_name]
               .filter(Boolean)
               .join(' ') || profile.username || email.split('@')[0];
 
             setUserName(displayName);
           } else {
-            console.warn('[AuthModalNew] No profile data found. Error details:', {
-              message: error?.message,
-              details: error?.details,
-              hint: error?.hint,
-              code: error?.code
-            });
-            // Устанавливаем имя хотя бы из email
+            console.warn('[AuthModalNew] No profile data found');
             setUserName(email.split('@')[0]);
           }
         } catch (profileError) {
@@ -436,7 +422,17 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         }
 
         setCheckingEmail(false);
-        setStep('password-existing');
+
+        // КЛЮЧЕВАЯ ЛОГИКА: Проверяем есть ли пароль
+        if (authCheck.hasPassword) {
+          // У пользователя ЕСТЬ пароль → показываем форму с паролем
+          console.log('[AuthModalNew] User has password, showing password form');
+          setStep('password-existing');
+        } else {
+          // У пользователя НЕТ пароля (Magic Link user) → сразу Magic Link
+          console.log('[AuthModalNew] User has NO password, going to magic-link');
+          setStep('magic-link-existing');
+        }
       } else {
         // Новый пользователь → переходим на Magic Link регистрацию
         setCheckingEmail(false);
