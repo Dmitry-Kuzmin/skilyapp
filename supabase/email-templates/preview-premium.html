@@ -89,8 +89,20 @@
             <table border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tr>
                     <td align="center">
-                        <img src="./email-assets/skily-logo.png" alt="Skily" width="80" height="80"
+                        <!-- SVG for modern clients (Apple Mail, iOS, etc) -->
+                        <!--[if !mso]><!-->
+                        <img src="./email-assets/skily-logo.svg" alt="Skily" width="80" height="80"
                             style="display: block; width: 80px; height: 80px; border-radius: 20px;" />
+                        <!--<![endif]-->
+
+                        <!-- PNG for Outlook/Windows (Fallback) -->
+                        <!--[if mso]>
+                        <img src="./email-assets/skily-logo.png" 
+                             alt="Skily" 
+                             width="80" 
+                             height="80" 
+                             style="display: block;" />
+                        <![endif]-->
                     </td>
                 </tr>
                 <tr>
