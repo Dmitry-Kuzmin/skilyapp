@@ -5,7 +5,15 @@
 // отправляет релевантные уведомления через notification-sender.
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createPooledSupabaseClient } from '../_shared/supabase-client.ts';
+import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import {
+  UserMetrics,
+  UserNotificationSettings,
+  NotificationRule,
+  NotificationTemplate,
+  RuleFilter
+} from '../_shared/types.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,10 +25,10 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const NOTIFICATION_SENDER_URL = `${SUPABASE_URL}/functions/v1/notification-sender`;
 const IMPORTANT_CATEGORIES = new Set(['duel', 'progress', 'system', 'monetization', 'premium']);
 
-type EventPayload = Record<string, any>;
+type EventPayload = Record<string, string | number | boolean | null | undefined>;
 
 interface EventRequest {
-  event_id?: string; // КРИТИЧНО: Уникальный ID для дедупликации
+  event_id?: string;
   user_id: string;
   event_type: string;
   payload?: EventPayload;
@@ -50,9 +58,9 @@ serve(async (req) => {
       });
     }
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const supabase = createPooledSupabaseClient(SUPABASE_SERVICE_ROLE_KEY);
 
-    // КРИТИЧНО: Дедупликация по event_id (если передан)
+    // КРИТИЧНО: Дедупликация по event_id
     if (event_id) {
       const { data: existingEvent } = await supabase
         .from('analytics_events_log')
@@ -61,24 +69,16 @@ serve(async (req) => {
         .maybeSingle();
 
       if (existingEvent) {
-        if (existingEvent.processed) {
-          // Событие уже обработано - возвращаем успех (идемпотентность)
-          console.log(`[EventDispatcher] Event ${event_id} already processed, skipping`);
-          return new Response(
-            JSON.stringify({ success: true, skipped: true, reason: 'already_processed' }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        } else {
-          // Событие в процессе обработки - возвращаем успех (защита от дубликатов)
-          console.log(`[EventDispatcher] Event ${event_id} already in queue, skipping`);
-          return new Response(
-            JSON.stringify({ success: true, skipped: true, reason: 'duplicate' }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
+        return new Response(
+          JSON.stringify({
+            success: true,
+            skipped: true,
+            reason: existingEvent.processed ? 'already_processed' : 'duplicate'
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
-      // Записываем событие в лог для дедупликации (еще не обработано)
       await supabase
         .from('analytics_events_log')
         .insert({
@@ -90,7 +90,6 @@ serve(async (req) => {
           processed: false,
         })
         .catch((error) => {
-          // Игнорируем ошибки уникальности (если событие уже есть)
           if (error.code !== '23505') {
             console.error('[EventDispatcher] Error logging event:', error);
           }
@@ -101,7 +100,7 @@ serve(async (req) => {
       .from('user_notification_settings')
       .select('*')
       .eq('user_id', user_id)
-      .maybeSingle();
+      .maybeSingle() as { data: UserNotificationSettings | null };
 
     const now = new Date();
 
@@ -126,13 +125,12 @@ serve(async (req) => {
       .from('user_metrics')
       .select('last_login_at, streak_days, total_tests_completed, total_duels_played, readiness_level')
       .eq('user_id', user_id)
-      .maybeSingle();
+      .maybeSingle() as { data: UserMetrics | null };
 
     const userState = determineUserState(metrics);
+    const templateCache = new Map<string, NotificationTemplate>();
 
-    const templateCache = new Map<string, any>();
-
-    // Manual override path (используется для ручных отправок)
+    // Manual override path
     if (override_template_type) {
       const template = await loadTemplate(supabase, override_template_type, templateCache);
       if (!template) {
@@ -161,7 +159,7 @@ serve(async (req) => {
       .eq('enabled', true)
       .order('priority', { ascending: false });
 
-    if (rulesError) {
+    if (rulesError || !rules) {
       console.error('[EventDispatcher] Rules query error:', rulesError);
       return new Response(JSON.stringify({ error: 'Failed to load rules' }), {
         status: 500,
@@ -169,7 +167,7 @@ serve(async (req) => {
       });
     }
 
-    const filteredRules = (rules || []).filter((rule) =>
+    const filteredRules = rules.filter((rule) =>
       matchesFilters(rule.user_state_filter, userState, settings, payload, metrics)
     );
 
@@ -183,7 +181,7 @@ serve(async (req) => {
       const canSend = await checkCooldown(
         supabase,
         user_id,
-        override_template_type || rule.template_type,
+        rule.template_type,
         rule.cooldown_hours,
         rule.max_per_day
       );
@@ -212,7 +210,6 @@ serve(async (req) => {
       sentCount += 1;
     }
 
-    // КРИТИЧНО: Помечаем событие как обработанное (если был event_id)
     if (event_id) {
       await supabase
         .from('analytics_events_log')
@@ -227,19 +224,16 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
     console.error('[EventDispatcher] Unexpected error:', error);
-    return new Response(JSON.stringify({ error: 'Internal error' }), {
+    return new Response(JSON.stringify({ error: 'Internal error', details: message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
 
-// =====================================================
-// Helpers
-// =====================================================
-
-function determineUserState(metrics: any): 'new' | 'active' | 'passive' | 'at_risk' {
+function determineUserState(metrics: UserMetrics | null): 'new' | 'active' | 'passive' | 'at_risk' {
   if (!metrics) return 'new';
 
   const now = Date.now();
@@ -255,11 +249,11 @@ function determineUserState(metrics: any): 'new' | 'active' | 'passive' | 'at_ri
 }
 
 function matchesFilters(
-  filter: any,
+  filter: RuleFilter | null,
   userState: string,
-  settings: any,
+  settings: UserNotificationSettings | null,
   payload: EventPayload,
-  metrics: any
+  metrics: UserMetrics | null
 ): boolean {
   if (!filter || Object.keys(filter).length === 0) return true;
 
@@ -270,19 +264,19 @@ function matchesFilters(
   }
 
   if (typeof filter.coins_lt === 'number') {
-    if (!payload || typeof payload.coins_left !== 'number') return false;
-    if (payload.coins_left >= filter.coins_lt) return false;
+    const coinsLeft = payload.coins_left;
+    if (typeof coinsLeft !== 'number' || coinsLeft >= filter.coins_lt) return false;
   }
 
   if (typeof filter.season_progress_gt === 'number') {
-    if (typeof payload.season_progress !== 'number') return false;
-    if (payload.season_progress <= filter.season_progress_gt) return false;
+    const progress = payload.season_progress;
+    if (typeof progress !== 'number' || progress <= filter.season_progress_gt) return false;
   }
 
   return true;
 }
 
-function categoryAllowed(settings: any, category: string): boolean {
+function categoryAllowed(settings: UserNotificationSettings | null, category: string): boolean {
   if (!settings || settings.enabled === null) return true;
   if (settings.enabled === false) return false;
 
@@ -299,14 +293,14 @@ function categoryAllowed(settings: any, category: string): boolean {
     }
   }
 
-  if (!categories || categories.length === 0) return true;
+  if (!categories || (Array.isArray(categories) && categories.length === 0)) return true;
   if (Array.isArray(categories) && categories.includes(category)) return true;
 
   return false;
 }
 
 async function checkCooldown(
-  supabase: any,
+  supabase: SupabaseClient,
   userId: string,
   templateType: string,
   cooldownHours: number,
@@ -353,7 +347,7 @@ async function checkCooldown(
 
   if (maxPerDay) {
     const countPerDay = data.filter(
-      (item: any) => new Date(item.sent_at) >= dayAgo
+      (item: { sent_at: string }) => new Date(item.sent_at) >= dayAgo
     ).length;
     if (countPerDay >= maxPerDay) {
       return false;
@@ -363,9 +357,9 @@ async function checkCooldown(
   return true;
 }
 
-async function loadTemplate(supabase: any, templateType: string, cache: Map<string, any>) {
+async function loadTemplate(supabase: SupabaseClient, templateType: string, cache: Map<string, NotificationTemplate>): Promise<NotificationTemplate | null> {
   if (cache.has(templateType)) {
-    return cache.get(templateType);
+    return cache.get(templateType)!;
   }
 
   const { data, error } = await supabase
@@ -375,8 +369,8 @@ async function loadTemplate(supabase: any, templateType: string, cache: Map<stri
     .eq('is_active', true)
     .maybeSingle();
 
-  if (error) {
-    console.error('[EventDispatcher] Template query error:', error);
+  if (error || !data) {
+    if (error) console.error('[EventDispatcher] Template query error:', error);
     return null;
   }
 
@@ -387,10 +381,10 @@ async function loadTemplate(supabase: any, templateType: string, cache: Map<stri
 function buildVariables(
   eventType: string,
   payload: EventPayload,
-  metrics: any,
-  template: any
-): Record<string, any> {
-  const base: Record<string, any> = { ...payload };
+  metrics: UserMetrics | null,
+  template: NotificationTemplate
+): Record<string, unknown> {
+  const base: Record<string, unknown> = { ...payload };
 
   switch (eventType) {
     case 'duel_invite_created':
@@ -414,15 +408,6 @@ function buildVariables(
       base.reward_name = payload.reward_name || 'награда';
       base.season_progress = payload.season_progress;
       break;
-    case 'user_passive_7d':
-      base.challenge_name = payload.challenge_name || '3×1 тест';
-      break;
-    case 'ai_usage_high':
-      base.questions_used = payload.questions_used || 0;
-      break;
-    case 'challenge_bank_pending':
-      base.pending_questions = payload.pending_questions ?? 0;
-      break;
     case 'inactive_3d':
     case 'inactive_7d':
       base.progress_percent = payload.progress_percent ?? metrics?.readiness_level ?? null;
@@ -432,30 +417,17 @@ function buildVariables(
     case 'streak_reminder':
       base.streak_days = payload.streak_days ?? metrics?.streak_days ?? null;
       break;
-    // Auth security events
-    case 'password_changed':
-      // Нет дополнительных переменных, базовый шаблон
-      break;
     case 'email_changed':
-      base.new_email = payload.new_email || payload.new_value || '';
-      base.old_email = payload.old_email || payload.old_value || '';
-      break;
     case 'phone_changed':
-      base.new_phone = payload.new_phone || payload.new_value || '';
-      base.old_phone = payload.old_phone || payload.old_value || '';
+      base.new_value = payload.new_value || '';
+      base.old_value = payload.old_value || '';
       break;
     case 'identity_linked':
     case 'identity_unlinked':
       base.provider_name = payload.provider_name || 'Unknown';
-      base.provider_email = payload.provider_email || '';
-      break;
-    case 'mfa_enrolled':
-    case 'mfa_unenrolled':
-      // Нет дополнительных переменных
       break;
     case 'suspicious_login':
       base.location = payload.location || 'Unknown location';
-      base.device_info = payload.device_info || 'Unknown device';
       base.ip_address = payload.ip_address || '';
       break;
     case 'almost_ready':
@@ -463,23 +435,17 @@ function buildVariables(
       break;
     case 'purchase_completed':
       base.product_name = payload.product_name || 'Покупка';
-      base.product_value = payload.product_value ?? null;
-      base.new_balance = payload.new_balance ?? null;
-      base.coins_added = payload.coins_added ?? null;
-      base.catalog_key = payload.catalog_key ?? null;
       break;
     case 'boost_purchase':
       base.boost_name = payload.boost_name || 'Boost';
-      base.boost_type = payload.boost_type || null;
-      base.cost_coins = payload.cost_coins ?? null;
       break;
     default:
       break;
   }
 
   if (metrics) {
-    base.streak_days = metrics.streak_days ?? null;
-    base.readiness_level = metrics.readiness_level ?? null;
+    base.streak_days = metrics.streak_days ?? base.streak_days ?? null;
+    base.readiness_level = metrics.readiness_level ?? base.readiness_level ?? null;
   }
 
   return base;
@@ -488,7 +454,7 @@ function buildVariables(
 async function sendViaNotificationSender(params: {
   userId: string;
   templateType: string;
-  variables: Record<string, any>;
+  variables: Record<string, unknown>;
 }): Promise<boolean> {
   const response = await fetch(NOTIFICATION_SENDER_URL, {
     method: 'POST',
@@ -511,5 +477,3 @@ async function sendViaNotificationSender(params: {
 
   return true;
 }
-
-

@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from "@/components/optimized/Motion";
 import { memo, lazy, Suspense } from 'react';
 import { getImageUrl } from '@/utils/imageUtils';
 import { Scrambler } from '@/utils/scramble';

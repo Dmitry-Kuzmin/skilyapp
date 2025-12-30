@@ -5,7 +5,7 @@
 // Запускается каждые 6 часов по расписанию
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -20,7 +20,7 @@ console.log('[Notification CRON] Service started');
 serve(async (req) => {
   try {
     console.log('[Notification CRON] Running scheduled task...');
-    
+
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
     // Результаты отправки
@@ -70,10 +70,10 @@ serve(async (req) => {
 // =====================================================
 
 async function sendInactivityReminders(
-  supabase: any,
+  supabase: SupabaseClient,
   daysInactive: number,
   eventType: 'inactive_3d' | 'inactive_7d',
-  results: any
+  results: Record<string, unknown> & { total_checked: number; sent: number; skipped: number; errors: number; breakdown: Record<string, number> }
 ): Promise<void> {
   try {
     const inactiveDate = new Date();
@@ -113,7 +113,7 @@ async function sendInactivityReminders(
     for (const user of inactiveUsers) {
       try {
         const progressPercent = Math.round(user.readiness_level || 0);
-        
+
         const sendResult = await dispatchEvent({
           userId: user.user_id,
           eventType,
@@ -147,7 +147,7 @@ async function sendInactivityReminders(
 // Напоминания о поддержании streak
 // =====================================================
 
-async function sendStreakReminders(supabase: any, results: any): Promise<void> {
+async function sendStreakReminders(supabase: SupabaseClient, results: Record<string, unknown> & { total_checked: number; sent: number; skipped: number; errors: number; breakdown: Record<string, number> }): Promise<void> {
   try {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
@@ -214,7 +214,7 @@ async function sendStreakReminders(supabase: any, results: any): Promise<void> {
 // Мотивация для почти готовых к экзамену
 // =====================================================
 
-async function sendAlmostReadyReminders(supabase: any, results: any): Promise<void> {
+async function sendAlmostReadyReminders(supabase: SupabaseClient, results: Record<string, unknown> & { total_checked: number; sent: number; skipped: number; errors: number; breakdown: Record<string, number> }): Promise<void> {
   try {
     console.log('[Notification CRON] Checking users almost ready for exam...');
 
@@ -284,7 +284,7 @@ async function sendAlmostReadyReminders(supabase: any, results: any): Promise<vo
 async function dispatchEvent(params: {
   userId: string;
   eventType: string;
-  payload: Record<string, any>;
+  payload: Record<string, unknown>;
 }): Promise<{ sent: number; skipped?: boolean; error?: string }> {
   try {
     const response = await fetch(USER_EVENT_DISPATCHER_URL, {

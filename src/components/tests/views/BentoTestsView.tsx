@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo } from "react";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 import {
     BookOpen, Shuffle, Zap, Flame,
     History, AlertTriangle, Clock,

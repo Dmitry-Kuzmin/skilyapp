@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import {
   Settings, X, Volume2, Music, Bell, Sun, Moon,
   Languages, Type, Globe, Palette

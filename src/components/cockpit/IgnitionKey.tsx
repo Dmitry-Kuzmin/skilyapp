@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 import { Play, Power } from "lucide-react";
 import { sounds } from "@/lib/sounds";
 import { useState } from "react";

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Zap, Crown, Clock } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 

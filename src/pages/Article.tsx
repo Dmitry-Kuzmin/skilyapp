@@ -2748,7 +2748,7 @@ const Article = () => {
           .split("|")
           .slice(1, -1)
           .map((cell) => cell.trim());
-      let header = splitRow(tableLines[0]);
+      const header = splitRow(tableLines[0]);
       let bodyLines = tableLines.slice(1);
       const isSeparator = (line: string) => /^\|\s*-[-\s|]*\|$/.test(line);
       if (bodyLines.length && isSeparator(bodyLines[0])) {

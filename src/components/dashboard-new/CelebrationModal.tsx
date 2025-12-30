@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { Trophy, Sparkles, X } from 'lucide-react';
 
 interface CelebrationModalProps {

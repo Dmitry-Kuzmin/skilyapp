@@ -30,14 +30,13 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('[ErrorBoundary] Caught error:', error);
-    console.error('[ErrorBoundary] Error info:', errorInfo);
-    console.error('[ErrorBoundary] Component stack:', errorInfo.componentStack);
-    
+    console.error('Uncaught error:', error, errorInfo);
+
     // Отправляем ошибку в Rollbar
     import('@/lib/rollbar')
       .then(({ reportError }) => {
         reportError(error, {
+          type: 'react_boundary',
           componentStack: errorInfo.componentStack,
           errorBoundary: true,
           url: window.location.href,
@@ -48,7 +47,14 @@ export class ErrorBoundary extends Component<Props, State> {
         // fallback: тихо логируем в консоль, чтобы не ломать рендер
         console.warn('[ErrorBoundary] Rollbar not available, skipped reporting');
       });
-    
+
+    // Отправляем в Sentry
+    import('@/utils/sentry').then(({ default: Sentry }) => {
+      Sentry.captureException(error, { contexts: { react: { componentStack: errorInfo.componentStack } } });
+    }).catch(() => {
+      // Sentry not available
+    });
+
     this.setState({
       error,
       errorInfo,

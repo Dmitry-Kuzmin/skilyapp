@@ -156,7 +156,7 @@ export function AdminSync() {
       let skipped = 0;
       let created = 0;
       let updated = 0;
-      let deleted = 0;
+      const deleted = 0;
       let allWarnings: string[] = [];
 
       if (type === 'all') {

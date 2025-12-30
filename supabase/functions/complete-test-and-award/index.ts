@@ -18,6 +18,15 @@ interface TestRewardRequest {
   double_sp_active?: boolean;
 }
 
+interface TestRewardResponse {
+  coins_awarded: number;
+  sp_awarded: number;
+  xp_awarded?: number;
+  new_balance?: number;
+  new_sp?: number;
+  bonus_applied?: boolean;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -28,6 +37,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    const body: TestRewardRequest = await req.json();
     const {
       user_id,
       test_id,
@@ -38,7 +48,7 @@ serve(async (req) => {
       test_duration_seconds,
       premium_flag = false,
       double_sp_active = false,
-    }: TestRewardRequest = await req.json();
+    } = body;
 
     console.log('[complete-test-and-award] 🚀 START:', { user_id, session_id, score });
 
@@ -53,11 +63,16 @@ serve(async (req) => {
     }
 
     // Проверка idempotency
-    const { data: existingResult } = await supabase
+    const { data: existingResult, error: checkError } = await supabase
       .from('test_results')
       .select('coins_awarded, sp_awarded')
       .eq('session_id', session_id)
-      .single();
+      .maybeSingle();
+
+    if (checkError) {
+      console.error('[complete-test-and-award] ❌ Idempotency check error:', checkError);
+      // Мы продолжаем, так как это не критично, RPC упадет если запись уже есть (по уникальному session_id)
+    }
 
     if (existingResult) {
       console.log('[complete-test-and-award] ⚠️ Already processed');
@@ -85,7 +100,7 @@ serve(async (req) => {
       p_test_duration_seconds: test_duration_seconds,
       p_premium_flag: premium_flag,
       p_double_sp_active: double_sp_active
-    });
+    }) as { data: TestRewardResponse | null, error: unknown };
 
     if (rpcError) {
       console.error('[complete-test-and-award] ❌ RPC Error:', rpcError);
@@ -93,7 +108,7 @@ serve(async (req) => {
         JSON.stringify({
           success: false,
           error: "Failed to process test completion",
-          details: rpcError.message
+          details: rpcError instanceof Error ? rpcError.message : String(rpcError)
         }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -109,13 +124,14 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
-  } catch (error: any) {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
     console.error("[complete-test-and-award] ❌ FATAL:", error);
     return new Response(
       JSON.stringify({
         success: false,
         error: "Internal server error",
-        details: error?.message || "Unknown error"
+        details: message
       }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

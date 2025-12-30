@@ -10,7 +10,7 @@ import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, isThisMo
 // ОПТИМИЗАЦИЯ: Импортируем только русскую локаль (tree-shaking работает)
 import { ru } from 'date-fns/locale/ru';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { motion } from 'framer-motion';
+import { motion } from "@/components/optimized/Motion";
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';

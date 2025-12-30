@@ -1,12 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createPooledSupabaseClient } from '../_shared/supabase-client.ts';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+import { checkRateLimit, getClientIP } from '../_shared/rate-limit.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-type CatalogEntry = {
+interface CatalogEntry {
   name: string;
   amountCents: number;
   currency: string;
@@ -14,374 +16,134 @@ type CatalogEntry = {
   dbItemId: string;
   description: string;
   metadata?: Record<string, unknown>;
-};
+}
 
-// Маппинг catalog_key -> Paddle Price ID (Live)
+// Zod schema для валидации входных данных
+const PaymentRequestSchema = z.object({
+  user_id: z.string().uuid("user_id must be a valid UUID"),
+  catalog_key: z.enum([
+    'premium_monthly', 'premium_yearly', 'duel_pass_season',
+    'coins_pack_100', 'coins_pack_500', 'coins_pack_1200', 'coins_pack_3000'
+  ], { errorMap: () => ({ message: "Invalid catalog_key" }) }),
+});
+
+interface PaddleTransactionData {
+  id: string;
+  subscription_id?: string;
+  checkout?: {
+    url: string;
+  };
+}
+
 const PADDLE_PRICE_IDS: Record<string, string> = {
-  premium_monthly: 'pri_01kbbcfnxmtpn1yttmafj86vbc', // Premium Monthly (€9.99/месяц)
-  premium_yearly: 'pri_01kc92macq42tk8e8pbp46qp2y', // Premium Yearly (€59.99/год)
-  duel_pass_season: 'pri_01kc92sf64bd1dps62zhaeb1r5', // Duel Pass (€4.99)
-  coins_pack_100: 'pri_01kc92twnhc57syz7j0rs9z7vx', // 100 Coins (€2.99)
-  coins_pack_500: 'pri_01kc92q7jccd8f7m05c81cgce4', // 500 Coins (€9.99)
-  coins_pack_1200: 'pri_01kc92wq23nez03n9n5da92khz', // 1200 Coins (€19.99)
-  coins_pack_3000: 'pri_01kc92ygzjxz2bmztasvj37ygt', // 3000 Coins (€39.99)
+  premium_monthly: 'pri_01kbbcfnxmtpn1yttmafj86vbc',
+  premium_yearly: 'pri_01kc92macq42tk8e8pbp46qp2y',
+  duel_pass_season: 'pri_01kc92sf64bd1dps62zhaeb1r5',
+  coins_pack_100: 'pri_01kc92twnhc57syz7j0rs9z7vx',
+  coins_pack_500: 'pri_01kc92q7jccd8f7m05c81cgce4',
+  coins_pack_1200: 'pri_01kc92wq23nez03n9n5da92khz',
+  coins_pack_3000: 'pri_01kc92ygzjxz2bmztasvj37ygt',
 };
 
 const CATALOG: Record<string, CatalogEntry> = {
-  premium_monthly: {
-    name: "Premium Subscription (Monthly)",
-    amountCents: 999,
-    currency: "eur",
-    dbType: "premium",
-    dbItemId: "premium_monthly",
-    description: "Monthly Premium access",
-  },
-  premium_yearly: {
-    name: "Premium Subscription (Yearly)",
-    amountCents: 5999,
-    currency: "eur",
-    dbType: "premium",
-    dbItemId: "premium_yearly",
-    description: "Yearly Premium access",
-  },
-  duel_pass_season: {
-    name: "Duel Pass (Season)",
-    amountCents: 499,
-    currency: "eur",
-    dbType: "duel_pass",
-    dbItemId: "duel_pass_season",
-    description: "Unlock premium Duel Pass rewards",
-  },
-  coins_pack_100: {
-    name: "100 монет",
-    amountCents: 299,
-    currency: "eur",
-    dbType: "coins_pack",
-    dbItemId: "pack_100",
-    description: "100 монет",
-    metadata: { coins: 100 },
-  },
-  coins_pack_500: {
-    name: "500 монет + 50 бонус",
-    amountCents: 999,
-    currency: "eur",
-    dbType: "coins_pack",
-    dbItemId: "pack_500",
-    description: "550 монет (500 + 50 бонус)",
-    metadata: { coins: 550 },
-  },
-  coins_pack_1200: {
-    name: "1200 монет + 200 бонус",
-    amountCents: 1999,
-    currency: "eur",
-    dbType: "coins_pack",
-    dbItemId: "pack_1200",
-    description: "1400 монет (1200 + 200 бонус)",
-    metadata: { coins: 1400 },
-  },
-  coins_pack_3000: {
-    name: "3000 монет + 500 бонус",
-    amountCents: 3999,
-    currency: "eur",
-    dbType: "coins_pack",
-    dbItemId: "pack_3000",
-    description: "3500 монет (3000 + 500 бонус)",
-    metadata: { coins: 3500 },
-  },
+  premium_monthly: { name: "Premium Monthly", amountCents: 999, currency: "eur", dbType: "premium", dbItemId: "premium_monthly", description: "Monthly Premium access" },
+  premium_yearly: { name: "Premium Yearly", amountCents: 5999, currency: "eur", dbType: "premium", dbItemId: "premium_yearly", description: "Yearly Premium access" },
+  duel_pass_season: { name: "Duel Pass", amountCents: 499, currency: "eur", dbType: "duel_pass", dbItemId: "duel_pass_season", description: "Premium Duel Pass" },
+  coins_pack_100: { name: "100 монет", amountCents: 299, currency: "eur", dbType: "coins_pack", dbItemId: "pack_100", description: "100 монет", metadata: { coins: 100 } },
+  coins_pack_500: { name: "500 монет", amountCents: 999, currency: "eur", dbType: "coins_pack", dbItemId: "pack_500", description: "550 монет", metadata: { coins: 550 } },
+  coins_pack_1200: { name: "1200 монет", amountCents: 1999, currency: "eur", dbType: "coins_pack", dbItemId: "pack_1200", description: "1400 монет", metadata: { coins: 1400 } },
+  coins_pack_3000: { name: "3000 монет", amountCents: 3999, currency: "eur", dbType: "coins_pack", dbItemId: "pack_3000", description: "3500 монет", metadata: { coins: 3500 } },
 };
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const paddleApiKey = Deno.env.get("PADDLE_API_KEY");
-    const paddleVendorId = Deno.env.get("PADDLE_VENDOR_ID");
-    // Paddle редиректит на return_url после оплаты
-    // Используем реальный домен skilyapp.com (одобрен в Paddle)
     const successUrl = Deno.env.get("PADDLE_SUCCESS_URL") || "https://skilyapp.com/purchase/success";
-    const cancelUrl = Deno.env.get("PADDLE_CANCEL_URL") || "https://skilyapp.com/purchase/cancel";
 
-    if (!paddleApiKey || !paddleVendorId) {
-      console.error("[paddle-payment] Missing Paddle configuration");
+    if (!paddleApiKey) {
+      return new Response(JSON.stringify({ error: "Paddle not configured" }), { status: 500, headers: corsHeaders });
+    }
+
+    const supabase = createPooledSupabaseClient();
+    const rawBody = await req.json();
+
+    // 🛡️ SECURITY: Zod валидация
+    const validation = PaymentRequestSchema.safeParse(rawBody);
+    if (!validation.success) {
+      console.error('[paddle-payment] Validation error:', validation.error);
       return new Response(
-        JSON.stringify({ 
-          error: "Paddle not configured. Please add PADDLE_API_KEY and PADDLE_VENDOR_ID in Supabase Dashboard → Edge Functions → Settings → Secrets" 
-        }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Invalid request", details: validation.error.issues }),
+        { status: 400, headers: corsHeaders }
       );
     }
 
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { user_id, catalog_key } = validation.data;
 
-    // Парсим тело запроса
-    let requestBody;
-    try {
-      const bodyText = await req.text();
-      if (!bodyText || bodyText.trim() === '') {
-        return new Response(
-          JSON.stringify({ error: "Request body is empty" }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      requestBody = JSON.parse(bodyText);
-    } catch (parseError) {
-      console.error("[paddle-payment] JSON parse error:", parseError);
-      return new Response(
-        JSON.stringify({ 
-          error: "Invalid JSON in request body", 
-          details: parseError instanceof Error ? parseError.message : String(parseError) 
-        }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const { user_id, catalog_key } = requestBody;
-
-    if (!user_id || !catalog_key) {
-      return new Response(
-        JSON.stringify({ error: "user_id and catalog_key are required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    console.log("[paddle-payment] Processing purchase:", { 
-      user_id, 
-      catalog_key,
-      paddleApiKey: paddleApiKey ? `${paddleApiKey.substring(0, 10)}...` : 'MISSING',
-      paddleVendorId: paddleVendorId || 'MISSING',
-      priceId: PADDLE_PRICE_IDS[catalog_key] || 'NOT_FOUND',
-      successUrl,
-      cancelUrl
+    // 🛡️ SECURITY: Rate Limiting (5 пороговой платежей в минуту)
+    const rateLimitCheck = await checkRateLimit({
+      identifier: user_id,
+      limit: 5,
+      windowMs: 60000, // 1 минута
     });
+
+    if (!rateLimitCheck.allowed) {
+      console.warn(`[paddle-payment] Rate limit exceeded for user: ${user_id}`);
+      return new Response(
+        JSON.stringify({
+          error: "Too many requests",
+          message: "Слишком много попыток оплаты. Пожалуйста, подождите.",
+          resetAt: new Date(rateLimitCheck.resetAt).toISOString(),
+        }),
+        { status: 429, headers: { ...corsHeaders, 'Retry-After': '60' } }
+      );
+    }
 
     const entry = CATALOG[catalog_key];
     if (!entry) {
-      return new Response(
-        JSON.stringify({ error: `Invalid catalog key: ${catalog_key}`, available_keys: Object.keys(CATALOG) }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Invalid catalog_key" }), { status: 400, headers: corsHeaders });
     }
 
-    // Paddle использует цены в минимальных единицах валюты (центы для EUR)
-    const amount = entry.amountCents;
-    const currency = entry.currency.toUpperCase();
+    const customData = { user_id, catalog_key, db_type: entry.dbType, db_item_id: entry.dbItemId, ...entry.metadata };
 
-    // Создаем уникальный custom_data для отслеживания
-    const customData = {
-      user_id,
-      catalog_key,
-      db_type: entry.dbType,
-      db_item_id: entry.dbItemId,
-      ...(entry.metadata || {}),
-    };
-
-    // Для подписок используем Paddle Subscriptions API
-    // Для разовых платежей используем Transactions API
-    if (entry.dbType === "premium") {
-      // Подписка через Paddle Subscriptions
-      // Нужно создать product и price в Paddle заранее
-      // Здесь используем Transactions API для упрощения
-      // В продакшене лучше использовать Subscriptions API
-      
-      const transactionPayload = {
-        items: [
-          {
-            price_id: `price_${catalog_key}`, // Нужно создать в Paddle заранее
-            quantity: 1,
-          }
-        ],
-        customer_id: user_id.toString(),
+    const transactionResponse = await fetch("https://api.paddle.com/transactions", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${paddleApiKey}`, "Content-Type": "application/json", "Paddle-Version": "1" },
+      body: JSON.stringify({
+        items: [{ price_id: PADDLE_PRICE_IDS[catalog_key], quantity: 1 }],
         custom_data: customData,
         return_url: `${successUrl}?transaction_id={transaction_id}`,
-      };
-
-      // Используем Transactions API для создания транзакции
-      // ⚠️ ВАЖНО: Используется api.paddle.com (live), не sandbox-api.paddle.com
-      const transactionResponse = await fetch("https://api.paddle.com/transactions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${paddleApiKey}`,
-          "Content-Type": "application/json",
-          "Paddle-Version": "1",
-        },
-        body: JSON.stringify({
-          items: [
-            {
-              price_id: PADDLE_PRICE_IDS[catalog_key] || `price_${catalog_key}`,
-              quantity: 1,
-            }
-          ],
-          // КРИТИЧНО: Не передаем customer_id - Paddle создаст customer автоматически
-          // customer_id должен быть в формате Paddle (ctm_...) или null
-          // Мы используем custom_data для связи транзакции с нашим пользователем
-          custom_data: customData,
-          return_url: `${successUrl}?transaction_id={transaction_id}`,
-        }),
-      });
-
-      if (!transactionResponse.ok) {
-        const errorText = await transactionResponse.text();
-        console.error("[paddle-payment] Paddle API error:", errorText);
-        return new Response(
-          JSON.stringify({ 
-            error: "Failed to create Paddle transaction",
-            details: errorText 
-          }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      const transactionData = await transactionResponse.json();
-      
-      console.log("[paddle-payment] Paddle API response (subscription):", {
-        hasData: !!transactionData.data,
-        transactionId: transactionData.data?.id,
-        checkoutUrl: transactionData.data?.checkout?.url,
-        fullCheckout: transactionData.data?.checkout,
-        fullResponse: JSON.stringify(transactionData).substring(0, 500)
-      });
-
-      // Проверяем, что checkout URL есть
-      const checkoutUrl = transactionData.data?.checkout?.url;
-      if (!checkoutUrl) {
-        console.error("[paddle-payment] No checkout URL in response (subscription):", transactionData);
-        return new Response(
-          JSON.stringify({ 
-            error: "Paddle did not return checkout URL",
-            details: "Transaction created but checkout URL is missing",
-            transaction_id: transactionData.data?.id
-          }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      // Сохраняем покупку в БД
-      await supabase.from("purchases").insert({
-        user_id,
-        item_type: entry.dbType,
-        item_id: entry.dbItemId,
-        price: entry.amountCents / 100,
-        currency: currency,
-        paddle_transaction_id: transactionData.data?.id || null,
-        paddle_subscription_id: transactionData.data?.subscription_id || null,
-        status: "pending",
-        metadata: {
-          ...entry.metadata,
-          paddle_data: transactionData.data,
-        },
-      });
-
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          transaction_id: transactionData.data?.id,
-          // checkout_url не возвращаем - фронтенд использует Paddle SDK или формирует URL сам
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    } else {
-      // Разовый платеж через Transactions API
-      // ⚠️ ВАЖНО: Используется api.paddle.com (live), не sandbox-api.paddle.com
-      const transactionResponse = await fetch("https://api.paddle.com/transactions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${paddleApiKey}`,
-          "Content-Type": "application/json",
-          "Paddle-Version": "1",
-        },
-        body: JSON.stringify({
-          items: [
-            {
-              price_id: PADDLE_PRICE_IDS[catalog_key] || `price_${catalog_key}`,
-              quantity: 1,
-            }
-          ],
-          // КРИТИЧНО: Не передаем customer_id - Paddle создаст customer автоматически
-          // customer_id должен быть в формате Paddle (ctm_...) или null
-          // Мы используем custom_data для связи транзакции с нашим пользователем
-          custom_data: customData,
-          return_url: `${successUrl}?transaction_id={transaction_id}`,
-        }),
-      });
-
-      if (!transactionResponse.ok) {
-        const errorText = await transactionResponse.text();
-        console.error("[paddle-payment] Paddle API error:", errorText);
-        return new Response(
-          JSON.stringify({ 
-            error: "Failed to create Paddle transaction",
-            details: errorText 
-          }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      const transactionData = await transactionResponse.json();
-      
-      console.log("[paddle-payment] Paddle API response:", {
-        hasData: !!transactionData.data,
-        transactionId: transactionData.data?.id,
-        checkoutUrl: transactionData.data?.checkout?.url,
-        fullCheckout: transactionData.data?.checkout,
-        fullResponse: JSON.stringify(transactionData).substring(0, 500)
-      });
-
-      // Проверяем, что transaction ID есть
-      // КРИТИЧНО: Не возвращаем checkout_url - фронтенд будет использовать Paddle SDK
-      // или формировать URL самостоятельно на основе transaction_id
-      if (!transactionData.data?.id) {
-        console.error("[paddle-payment] No transaction ID in response:", transactionData);
-        return new Response(
-          JSON.stringify({ 
-            error: "Paddle did not return transaction ID",
-            details: "Transaction may not have been created",
-            fullResponse: JSON.stringify(transactionData).substring(0, 500)
-          }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      // Сохраняем покупку в БД
-      await supabase.from("purchases").insert({
-        user_id,
-        item_type: entry.dbType,
-        item_id: entry.dbItemId,
-        price: entry.amountCents / 100,
-        currency: currency,
-        paddle_transaction_id: transactionData.data?.id || null,
-        status: "pending",
-        metadata: {
-          ...entry.metadata,
-          paddle_data: transactionData.data,
-        },
-      });
-
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          transaction_id: transactionData.data?.id,
-          // checkout_url не возвращаем - фронтенд использует Paddle SDK или формирует URL сам
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-  } catch (error) {
-    console.error("[paddle-payment] error", error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    const errorStack = error instanceof Error ? error.stack : undefined;
-    
-    return new Response(
-      JSON.stringify({ 
-        error: "Internal server error",
-        message: errorMessage,
-        stack: errorStack,
       }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    });
+
+    if (!transactionResponse.ok) {
+      const errorText = await transactionResponse.text();
+      console.error("[paddle-payment] API error:", errorText);
+      return new Response(JSON.stringify({ error: "Paddle API failed", details: errorText }), { status: 500, headers: corsHeaders });
+    }
+
+    const { data: transactionData } = await transactionResponse.json() as { data: PaddleTransactionData };
+
+    if (!transactionData?.id) {
+      return new Response(JSON.stringify({ error: "No transaction ID" }), { status: 500, headers: corsHeaders });
+    }
+
+    await supabase.from("purchases").insert({
+      user_id,
+      item_type: entry.dbType,
+      item_id: entry.dbItemId,
+      price: entry.amountCents / 100,
+      currency: entry.currency.toUpperCase(),
+      paddle_transaction_id: transactionData.id,
+      paddle_subscription_id: transactionData.subscription_id || null,
+      status: "pending",
+      metadata: { ...entry.metadata, paddle_data: transactionData },
+    });
+
+    return new Response(JSON.stringify({ success: true, transaction_id: transactionData.id }), { headers: corsHeaders });
+  } catch (error: any) {
+    console.error("[paddle-payment] Error:", error);
+    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
   }
 });
-

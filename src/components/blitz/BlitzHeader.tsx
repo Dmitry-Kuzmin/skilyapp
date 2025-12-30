@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
 import { triggerHapticFeedback } from '@/lib/telegram';

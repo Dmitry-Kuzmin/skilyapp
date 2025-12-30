@@ -28,14 +28,14 @@ const sendToAnalytics = (metric: WebVitalsMetric) => {
     //   user_id: profileId,
     //   url: window.location.href,
     // });
-    
+
     // Логируем в консоль для отладки
     console.log('[Web Vitals]', metric.name, {
       value: metric.value,
       rating: metric.rating,
       url: window.location.href,
     });
-    
+
     // Отправляем плохие метрики в Rollbar как предупреждение
     if (metric.rating === 'poor') {
       import('@/lib/rollbar')
@@ -81,7 +81,7 @@ const getRating = (name: string, value: number): 'good' | 'needs-improvement' | 
   };
 
   const [good, poor] = thresholds[name] || [0, Infinity];
-  
+
   if (value <= good) return 'good';
   if (value <= poor) return 'needs-improvement';
   return 'poor';
@@ -97,7 +97,7 @@ export const reportWebVitals = (onPerfEntry?: ReportHandler) => {
         renderTime?: number;
         loadTime?: number;
       };
-      
+
       const value = lastEntry.renderTime || lastEntry.loadTime || 0;
       const metric: WebVitalsMetric = {
         name: 'LCP',
@@ -107,27 +107,40 @@ export const reportWebVitals = (onPerfEntry?: ReportHandler) => {
         id: `lcp-${Date.now()}`,
         navigationType: 'navigate',
       };
-      
+
       onPerfEntry(metric);
       sendToAnalytics(metric);
     }).observe({ entryTypes: ['largest-contentful-paint'] });
 
+    interface PerformanceEvent extends PerformanceEntry {
+      processingStart?: number;
+      startTime: number;
+      hadRecentInput?: boolean;
+      value?: number;
+      responseStart?: number;
+      requestStart?: number;
+      type?: string;
+    }
+
     // FID - First Input Delay
     new PerformanceObserver((list) => {
       const entries = list.getEntries();
-      entries.forEach((entry: any) => {
-        const value = entry.processingStart - entry.startTime;
-        const metric: WebVitalsMetric = {
-          name: 'FID',
-          value,
-          rating: getRating('FID', value),
-          delta: value,
-          id: `fid-${Date.now()}`,
-          navigationType: 'navigate',
-        };
-        
-        onPerfEntry(metric);
-        sendToAnalytics(metric);
+      entries.forEach((entry) => {
+        const perfEntry = entry as PerformanceEvent;
+        if (perfEntry.processingStart) {
+          const value = perfEntry.processingStart - perfEntry.startTime;
+          const metric: WebVitalsMetric = {
+            name: 'FID',
+            value,
+            rating: getRating('FID', value),
+            delta: value,
+            id: `fid-${Date.now()}`,
+            navigationType: 'navigate',
+          };
+
+          onPerfEntry(metric);
+          sendToAnalytics(metric);
+        }
       });
     }).observe({ entryTypes: ['first-input'] });
 
@@ -135,12 +148,13 @@ export const reportWebVitals = (onPerfEntry?: ReportHandler) => {
     let clsValue = 0;
     new PerformanceObserver((list) => {
       const entries = list.getEntries();
-      entries.forEach((entry: any) => {
-        if (!entry.hadRecentInput) {
-          clsValue += entry.value;
+      entries.forEach((entry) => {
+        const perfEntry = entry as PerformanceEvent;
+        if (!perfEntry.hadRecentInput && perfEntry.value) {
+          clsValue += perfEntry.value;
         }
       });
-      
+
       const metric: WebVitalsMetric = {
         name: 'CLS',
         value: clsValue,
@@ -149,7 +163,7 @@ export const reportWebVitals = (onPerfEntry?: ReportHandler) => {
         id: `cls-${Date.now()}`,
         navigationType: 'navigate',
       };
-      
+
       onPerfEntry(metric);
       sendToAnalytics(metric);
     }).observe({ entryTypes: ['layout-shift'] });
@@ -168,7 +182,7 @@ export const reportWebVitals = (onPerfEntry?: ReportHandler) => {
             id: `fcp-${Date.now()}`,
             navigationType: 'navigate',
           };
-          
+
           onPerfEntry(metric);
           sendToAnalytics(metric);
         }
@@ -178,9 +192,10 @@ export const reportWebVitals = (onPerfEntry?: ReportHandler) => {
     // TTFB - Time to First Byte
     new PerformanceObserver((list) => {
       const entries = list.getEntries();
-      entries.forEach((entry: any) => {
-        if (entry.responseStart > 0) {
-          const value = entry.responseStart - entry.requestStart;
+      entries.forEach((entry) => {
+        const perfEntry = entry as PerformanceEvent;
+        if (perfEntry.responseStart && perfEntry.requestStart) {
+          const value = perfEntry.responseStart - perfEntry.requestStart;
           const metric: WebVitalsMetric = {
             name: 'TTFB',
             value,
@@ -189,7 +204,7 @@ export const reportWebVitals = (onPerfEntry?: ReportHandler) => {
             id: `ttfb-${Date.now()}`,
             navigationType: 'navigate',
           };
-          
+
           onPerfEntry(metric);
           sendToAnalytics(metric);
         }

@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Trophy, Star, Crown, Award, Sparkles, Gem } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 
 export type RankType = "rookie" | "bronze" | "silver" | "gold" | "platinum" | "diamond" | "master";
 

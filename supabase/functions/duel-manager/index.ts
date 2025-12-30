@@ -1,4 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 import { checkRateLimit, getClientIP } from '../_shared/rate-limit.ts';
 import { createPooledSupabaseClient } from '../_shared/supabase-client.ts';
@@ -420,10 +420,36 @@ function simulateBotAnswer(botDifficulty: 'easy' | 'medium' | 'hard' | 'insane',
 }
 
 // Notification templates with emotional, engaging texts
-const notificationTemplates: Record<string, (metadata: any) => { title: string; message: string; icon: string }> = {
+interface NotificationMetadata {
+  opponent_name: string;
+  opponent_finished?: boolean;
+  question_number?: number;
+  combo?: number;
+  is_correct?: boolean;
+  progress?: number;
+  error_streak?: number;
+  time_diff?: number;
+  is_tied?: boolean;
+  total_questions?: number;
+  is_winner?: boolean;
+  is_last_question?: boolean;
+  is_waiting?: boolean;
+  is_timeout_warning?: boolean;
+  boost_type?: string;
+  correct_answers?: number;
+  num_questions?: number;
+}
+
+interface NotificationResult {
+  title: string;
+  message: string;
+  icon: string;
+}
+
+const notificationTemplates: Record<string, (metadata: NotificationMetadata) => NotificationResult> = {
   // Start notifications
-  'start': (metadata: any) => {
-    const opponentName = metadata.opponent_name; // Всегда должно быть установлено
+  'start': (metadata: NotificationMetadata) => {
+    const opponentName = metadata.opponent_name;
     const templates = [
       { title: `${opponentName} принял твой вызов!`, message: 'Дуэль начинается прямо сейчас.', icon: 'flame' },
       { title: 'Матч стартовал', message: 'Кто победит, решат секунды.', icon: 'sword' },
@@ -432,14 +458,12 @@ const notificationTemplates: Record<string, (metadata: any) => { title: string; 
   },
 
   // Progress notifications
-  'progress': (metadata: any) => {
-    const opponentName = metadata.opponent_name; // Всегда должно быть установлено
-    const opponentFinished = metadata.opponent_finished || false; // Игрок уже закончил игру
+  'progress': (metadata: NotificationMetadata) => {
+    const opponentName = metadata.opponent_name;
+    const opponentFinished = metadata.opponent_finished || false;
     const questionNumber = metadata.question_number;
-    const questionText = questionNumber ? `на ${questionNumber} вопрос` : '';
     const questionTextWithNumber = questionNumber ? ` на ${questionNumber} вопрос` : '';
 
-    // Если игрок уже закончил - показываем только информативные уведомления без мотивации
     if (opponentFinished) {
       if (metadata.combo && metadata.combo >= 3) {
         const templates = [
@@ -468,7 +492,6 @@ const notificationTemplates: Record<string, (metadata: any) => { title: string; 
       }
     }
 
-    // Если игрок еще играет - показываем мотивирующие уведомления
     if (metadata.combo && metadata.combo >= 3) {
       const templates = [
         {
@@ -481,171 +504,60 @@ const notificationTemplates: Record<string, (metadata: any) => { title: string; 
           message: `Уже ${metadata.combo} правильных ответа подряд. Не отставай!`,
           icon: 'zap'
         },
-        {
-          title: `Серия из ${metadata.combo} правильных ответов от ${opponentName}!`,
-          message: 'Время ответить сильнее!',
-          icon: 'flame'
-        },
       ];
       return templates[Math.floor(Math.random() * templates.length)];
     } else if (metadata.error_streak && metadata.error_streak >= 2) {
-      // Последовательные ошибки
-      const errorMessages: Record<number, Array<{ title: string; message: string; icon: string }>> = {
+      const streak = metadata.error_streak >= 4 ? 4 : (metadata.error_streak >= 3 ? 3 : 2);
+      const errorMessages: Record<number, NotificationResult[]> = {
         2: [
           { title: `${opponentName} ошибся 2 раза подряд`, message: 'Твой шанс вырваться вперёд!', icon: 'target' },
-          { title: `${opponentName} снова ошибается`, message: 'Не упусти момент!', icon: 'zap' },
-          { title: `Вторая ошибка ${opponentName}`, message: 'Удача на твоей стороне!', icon: 'x-circle' },
         ],
         3: [
           { title: `${opponentName} ошибся 3 раза подряд`, message: 'Это твой шанс!', icon: 'trophy' },
-          { title: `${opponentName} теряет очки`, message: 'Продолжай в том же духе!', icon: 'target' },
-          { title: `Третья ошибка ${opponentName}`, message: 'Время показать класс!', icon: 'zap' },
         ],
         4: [
           { title: `${opponentName} ошибся ${metadata.error_streak} раза подряд!`, message: 'Твой момент!', icon: 'trophy' },
-          { title: `Серия ошибок ${opponentName}`, message: 'Не упусти возможность!', icon: 'target' },
-          { title: `${opponentName} в сложной ситуации`, message: 'Твой шанс победить!', icon: 'zap' },
         ],
       };
-      const streak = metadata.error_streak >= 4 ? 4 : (metadata.error_streak >= 3 ? 3 : 2);
       const templates = errorMessages[streak] || errorMessages[2];
       return templates[Math.floor(Math.random() * templates.length)];
     } else if (metadata.is_correct === false) {
-      // Одна ошибка
-      const templates = [
-        {
-          title: `${opponentName} ошибся`,
-          message: 'Твой шанс догнать!',
-          icon: 'x-circle'
-        },
-        {
-          title: `Ошибка ${opponentName}`,
-          message: 'Используй этот момент!',
-          icon: 'target'
-        },
-        {
-          title: `${opponentName} дал неверный ответ`,
-          message: 'Не упусти возможность!',
-          icon: 'zap'
-        },
-      ];
-      return templates[Math.floor(Math.random() * templates.length)];
-    } else if (metadata.progress) {
-      // Прогресс по процентам
-      const progressMessages: Record<number, Array<{ title: string; message: string; icon: string }>> = {
-        25: [
-          { title: `${opponentName} прошёл четверть теста!`, message: 'Игра набирает обороты!', icon: 'rocket' },
-          { title: `${opponentName} на 25% пути`, message: 'Не отставай!', icon: 'target' },
-        ],
-        50: [
-          { title: `${opponentName} на середине пути!`, message: 'Половина позади, но всё ещё всё возможно!', icon: 'rocket' },
-          { title: `${opponentName} прошёл половину теста`, message: 'Середина игры - время действовать!', icon: 'flame' },
-        ],
-        75: [
-          { title: `${opponentName} прошёл три четверти!`, message: 'Финишная прямая началась!', icon: 'rocket' },
-          { title: `${opponentName} почти у цели`, message: 'Осталось совсем немного!', icon: 'target' },
-        ],
+      return {
+        title: `${opponentName} ошибся`,
+        message: 'Твой шанс догнать!',
+        icon: 'x-circle'
       };
-      const templates = progressMessages[metadata.progress] || [
-        { title: `${opponentName} прошёл ${metadata.progress}% теста!`, message: 'Игра набирает обороты!', icon: 'rocket' }
-      ];
-      return templates[Math.floor(Math.random() * templates.length)];
-    } else if (metadata.time_diff && metadata.time_diff > 0) {
-      const templates = [
-        { title: `Ты опережаешь ${opponentName} на ${metadata.time_diff} секунд!`, message: 'Продолжай в том же духе!', icon: 'turtle' },
-        { title: `Ты быстрее ${opponentName} на ${metadata.time_diff} секунд`, message: 'Не сбавляй темп!', icon: 'zap' },
-      ];
-      return templates[Math.floor(Math.random() * templates.length)];
-    } else if (metadata.is_tied) {
-      const templates = [
-        { title: 'Игра идёт вровень', message: 'Кто ответит первым, тот победит!', icon: 'flame' },
-        { title: 'Равный счёт!', message: 'Каждый ответ имеет значение!', icon: 'target' },
-      ];
-      return templates[Math.floor(Math.random() * templates.length)];
+    } else if (metadata.progress) {
+      return { title: `${opponentName} прошёл ${metadata.progress}% теста!`, message: 'Игра набирает обороты!', icon: 'rocket' };
     } else {
-      // Правильный ответ (обычный)
       const questionNumberText = questionNumber ? ` на ${questionNumber} вопрос` : '';
-      const templates = [
-        {
-          title: `${opponentName} ответил правильно${questionNumberText}`,
-          message: questionNumber === 1 ? 'Игра набирает обороты!' : 'Продолжайте бороться!',
-          icon: 'check-circle'
-        },
-        {
-          title: `${opponentName} дал правильный ответ${questionNumberText}`,
-          message: questionNumber === 1 ? 'Начало положено!' : 'Не сдавайся!',
-          icon: 'target'
-        },
-        {
-          title: `${opponentName} правильно ответил${questionNumberText}`,
-          message: questionNumber === 1 ? 'Игра только начинается!' : 'Всё ещё впереди!',
-          icon: 'zap'
-        },
-      ];
-      return templates[Math.floor(Math.random() * templates.length)];
+      return {
+        title: `${opponentName} ответил правильно${questionNumberText}`,
+        message: questionNumber === 1 ? 'Игра набирает обороты!' : 'Продолжайте бороться!',
+        icon: 'check-circle'
+      };
     }
   },
 
-  // Answer notifications (correct answers from opponent)
-  'answer': (metadata: any) => {
+  'answer': (metadata: NotificationMetadata) => {
     const opponentName = metadata.opponent_name || 'Соперник';
-    const opponentFinished = metadata.opponent_finished || false;
-    const questionNumber = metadata.question_number;
-    const questionText = questionNumber ? ` на ${questionNumber} вопрос` : '';
     const combo = metadata.combo || 0;
-
-    // Если игрок уже закончил - показываем только информативные уведомления
-    if (opponentFinished) {
-      if (combo >= 3) {
-        const templates = [
-          { title: `${opponentName} ответил правильно ${combo} раза подряд`, message: '', icon: 'lightbulb' },
-          { title: `${opponentName} набрал серию из ${combo} правильных ответов`, message: '', icon: 'lightbulb' },
-        ];
-        return templates[Math.floor(Math.random() * templates.length)];
-      } else {
-        const templates = [
-          { title: `${opponentName} ответил правильно${questionText}`, message: '', icon: 'check-circle' },
-          { title: `${opponentName} дал правильный ответ${questionText}`, message: '', icon: 'check-circle' },
-        ];
-        return templates[Math.floor(Math.random() * templates.length)];
-      }
-    }
-
-    // Если игрок еще играет - показываем мотивирующие уведомления
     if (combo >= 3) {
-      const templates = [
-        {
-          title: `${opponentName} ответил правильно ${combo} раза подряд!`,
-          message: 'Отличная серия! Продолжайте бороться!',
-          icon: 'lightbulb'
-        },
-        {
-          title: `${opponentName} набирает обороты!`,
-          message: `Уже ${combo} правильных ответа подряд. Не отставай!`,
-          icon: 'zap'
-        },
-      ];
-      return templates[Math.floor(Math.random() * templates.length)];
-    } else {
-      const templates = [
-        {
-          title: `${opponentName} ответил правильно${questionText}`,
-          message: questionNumber === 1 ? 'Игра набирает обороты!' : 'Продолжайте бороться!',
-          icon: 'check-circle'
-        },
-        {
-          title: `${opponentName} дал правильный ответ${questionText}`,
-          message: questionNumber === 1 ? 'Начало положено!' : 'Не сдавайся!',
-          icon: 'target'
-        },
-      ];
-      return templates[Math.floor(Math.random() * templates.length)];
+      return {
+        title: `${opponentName} ответил правильно ${combo} раза подряд!`,
+        message: 'Отличная серия!',
+        icon: 'lightbulb'
+      };
     }
+    return {
+      title: `${opponentName} ответил правильно`,
+      message: 'Продолжайте бороться!',
+      icon: 'check-circle'
+    };
   },
 
-  // Boost notifications
-  'boost': (metadata: any) => {
-    const opponentName = metadata.opponent_name; // Всегда должно быть установлено
+  'boost': (metadata: NotificationMetadata) => {
+    const opponentName = metadata.opponent_name;
     const boostNames: Record<string, string> = {
       'fifty_fifty': '50/50',
       'time_extend': 'Дополнительное время',
@@ -653,377 +565,141 @@ const notificationTemplates: Record<string, (metadata: any) => { title: string; 
       'skip': 'Пропуск',
       'translate': 'Перевод'
     };
-    const boostIcons: Record<string, string> = {
-      'fifty_fifty': 'zap',
-      'time_extend': 'timer',
-      'hint': 'lightbulb',
-      'skip': 'skip-forward',
-      'translate': 'globe'
-    };
     const boostType = metadata.boost_type || 'unknown';
     const boostName = boostNames[boostType] || boostType;
-    const icon = boostIcons[boostType] || 'zap';
-
-    const boostMessages: Record<string, Array<{ title: string; message: string }>> = {
-      'fifty_fifty': [
-        { title: `${opponentName} использовал 50/50!`, message: 'Осторожно! Он убрал половину вариантов.' },
-        { title: `${opponentName} активировал 50/50`, message: 'Будь внимательнее - вариантов стало меньше!' },
-      ],
-      'time_extend': [
-        { title: `${opponentName} использовал дополнительное время`, message: 'У него есть больше времени на размышление!' },
-        { title: `${opponentName} взял тайм-аут`, message: 'Используй свои бустеры, чтобы не отстать!' },
-      ],
-      'hint': [
-        { title: `${opponentName} взял подсказку!`, message: 'У него есть помощь. Не отставай!' },
-        { title: `${opponentName} использовал подсказку`, message: 'Используй свои бустеры тоже!' },
-      ],
-      'skip': [
-        { title: `${opponentName} пропустил вопрос`, message: 'Не сдаётся! Продолжай бороться!' },
-        { title: `${opponentName} использовал пропуск`, message: 'Он не остановился. Ты тоже не останавливайся!' },
-      ],
-      'translate': [
-        { title: `${opponentName} перевёл вопрос`, message: 'У него есть перевод. Время действовать!' },
-        { title: `${opponentName} использовал перевод`, message: 'Используй все свои возможности!' },
-      ],
-    };
-
-    const templates = boostMessages[boostType] || [
-      { title: `${opponentName} использовал бустер '${boostName}'!`, message: 'Используй свои бустеры!' }
-    ];
-
-    const selected = templates[Math.floor(Math.random() * templates.length)];
     return {
-      ...selected,
-      icon
+      title: `${opponentName} использовал бустер '${boostName}'!`,
+      message: 'Используй свои бустеры!',
+      icon: 'zap'
     };
   },
 
-  // Finish notifications
-  'finish': (metadata: any) => {
-    const opponentName = metadata.opponent_name; // Всегда должно быть установлено
+  'finish': (metadata: NotificationMetadata) => {
+    const opponentName = metadata.opponent_name;
     const correctAnswers = metadata.correct_answers || 0;
-
     if (metadata.is_winner === false) {
-      const templates = [
-        {
-          title: `${opponentName} закончил игру`,
-          message: `С ${correctAnswers} правильными ответами! Результаты готовы.`,
-          icon: 'flag'
-        },
-        {
-          title: `${opponentName} завершил дуэль`,
-          message: `Правильных ответов: ${correctAnswers}. Смотри результаты!`,
-          icon: 'trophy'
-        },
-        {
-          title: `${opponentName} финишировал!`,
-          message: `${correctAnswers} из ${metadata.total_questions || 'всех'} вопросов правильных.`,
-          icon: 'check-circle'
-        },
-      ];
-      return templates[Math.floor(Math.random() * templates.length)];
-    } else if (metadata.is_last_question) {
-      const templates = [
-        { title: 'Победа близка', message: 'Остался один вопрос!', icon: 'target' },
-        { title: 'Финишная прямая', message: 'Последний вопрос решает всё!', icon: 'flag' },
-        { title: 'Осталось совсем немного', message: 'Один вопрос до победы!', icon: 'trophy' },
-      ];
-      return templates[Math.floor(Math.random() * templates.length)];
+      return {
+        title: `${opponentName} закончил игру`,
+        message: `С ${correctAnswers} правильными ответами! Результаты готовы.`,
+        icon: 'flag'
+      };
     } else {
-      const templates = [
-        { title: 'Результаты готовы!', message: 'Проверь, кто выиграл дуэль.', icon: 'trophy' },
-        { title: 'Дуэль завершена!', message: 'Узнай, кто стал победителем!', icon: 'flag' },
-        { title: 'Игра окончена', message: 'Время посмотреть результаты!', icon: 'check-circle' },
-      ];
-      return templates[Math.floor(Math.random() * templates.length)];
+      return {
+        title: 'Результаты готовы!',
+        message: 'Проверь, кто выиграл дуэль.',
+        icon: 'trophy'
+      };
     }
   },
 
-  // Reminder notifications
-  'reminder': (metadata: any) => {
-    const opponentName = metadata.opponent_name; // Всегда должно быть установлено
-
+  'reminder': (metadata: NotificationMetadata) => {
+    const opponentName = metadata.opponent_name;
     if (metadata.is_waiting) {
       return {
         title: `Дуэль с ${opponentName} ждёт твоего ответа`,
         message: 'Не забудь завершить игру!',
         icon: 'clock'
       };
-    } else if (metadata.is_timeout_warning) {
-      return {
-        title: 'Время почти вышло',
-        message: 'Завершай дуэль!',
-        icon: 'bell'
-      };
-    } else {
-      return {
-        title: `${opponentName} ещё не закончил игру`,
-        message: 'Напомни ему!',
-        icon: 'moon'
-      };
     }
-  },
-
-  // Timeout notifications
-  'timeout': (metadata: any) => {
     return {
-      title: 'Время истекло',
-      message: 'Дуэль завершена по таймауту.',
-      icon: 'clock'
+      title: `${opponentName} ещё не закончил игру`,
+      message: 'Напомни ему!',
+      icon: 'moon'
     };
   },
 
-  // Opponent ahead/behind (legacy support)
-  'opponent_ahead': (metadata: any) => {
-    const opponentName = metadata.opponent_name; // Всегда должно быть установлено
-    return {
-      title: `${opponentName} опережает тебя`,
-      message: 'Ускорься, чтобы догнать!',
-      icon: 'zap'
-    };
-  },
+  'timeout': () => ({
+    title: 'Время истекло',
+    message: 'Дуэль завершена по таймауту.',
+    icon: 'clock'
+  }),
 
-  'opponent_behind': (metadata: any) => {
-    const opponentName = metadata.opponent_name; // Всегда должно быть установлено
-    return {
-      title: `Ты опережаешь ${opponentName}`,
-      message: 'Продолжай в том же духе!',
-      icon: 'turtle'
-    };
-  },
+  'opponent_ahead': (metadata: NotificationMetadata) => ({
+    title: `${metadata.opponent_name} опережает тебя`,
+    message: 'Ускорься, чтобы догнать!',
+    icon: 'zap'
+  }),
+
+  'opponent_behind': (metadata: NotificationMetadata) => ({
+    title: `Ты опережаешь ${metadata.opponent_name}`,
+    message: 'Продолжай в том же духе!',
+    icon: 'turtle'
+  }),
 };
 
 // Helper function to get opponent name from profile
-async function getOpponentName(opponentId: string, supabase: any): Promise<string> {
-  console.log('[getOpponentName] 🔍 Fetching opponent name for ID:', opponentId);
-
-  if (!opponentId) {
-    console.warn('[getOpponentName] ⚠️ No opponentId provided');
-    return 'Игрок';
-  }
+async function getOpponentName(opponentId: string, supabase: SupabaseClient): Promise<string> {
+  if (!opponentId) return 'Игрок';
 
   try {
-    // Попробуем получить профиль по ID
-    const { data: profile, error } = await supabase
+    const { data: profile } = await supabase
       .from('profiles')
-      .select('id, first_name, username, telegram_id, user_id')
+      .select('first_name, username')
       .eq('id', opponentId)
-      .single();
-
-    console.log('[getOpponentName] Profile query result:', {
-      opponentId,
-      hasData: !!profile,
-      error: error?.message,
-      errorCode: error?.code,
-      profile: profile ? {
-        id: profile.id,
-        user_id: profile.user_id,
-        first_name: profile.first_name,
-        username: profile.username,
-        has_telegram_id: !!profile.telegram_id
-      } : null
-    });
+      .maybeSingle();
 
     if (profile) {
-      // Приоритет: first_name > username > "Игрок"
       let name = profile.first_name || profile.username;
-
       if (name && name.trim()) {
         name = name.trim();
-
-        // Проверяем, что имя не является ID (8 символов hex или UUID)
-        if (name.length <= 8 && /^[a-f0-9]{8}$/i.test(name)) {
-          console.warn('[getOpponentName] ⚠️ Name looks like an ID:', name, '- using fallback "Игрок"');
-          return 'Игрок';
-        }
-
-        // Проверяем, что имя не является UUID
-        if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(name)) {
-          console.warn('[getOpponentName] ⚠️ Name looks like a UUID:', name, '- using fallback "Игрок"');
-          return 'Игрок';
-        }
-
-        console.log('[getOpponentName] ✅ Found valid name:', name);
-        return name;
-      }
-
-      // Если ничего нет, используем "Игрок" вместо ID
-      console.warn('[getOpponentName] ⚠️ No name found in profile, using fallback "Игрок"');
-      console.log('[getOpponentName] Profile data:', JSON.stringify(profile, null, 2));
-      return 'Игрок';
-    }
-
-    if (error) {
-      console.error('[getOpponentName] ❌ Error fetching profile:', error);
-      console.error('[getOpponentName] Error details:', JSON.stringify(error, null, 2));
-
-      // Если ошибка "not found", попробуем получить через user_id
-      if (error.code === 'PGRST116' || error.message?.includes('No rows')) {
-        console.log('[getOpponentName] 🔄 Profile not found by id, trying to find by user_id...');
-
-        // Попробуем найти профиль через auth.users
-        try {
-          // Это может не сработать, но попробуем
-          const { data: authUser } = await supabase.auth.admin.getUserById(opponentId);
-          if (authUser?.user) {
-            console.log('[getOpponentName] Found auth user:', authUser.user.id);
-            // Попробуем получить имя из метаданных Telegram
-            const telegramData = authUser.user.user_metadata?.telegram;
-            if (telegramData?.first_name) {
-              console.log('[getOpponentName] ✅ Found name from Telegram metadata:', telegramData.first_name);
-              return telegramData.first_name;
-            }
-          }
-        } catch (authError) {
-          console.error('[getOpponentName] Error getting auth user:', authError);
+        // Check if name is not a hex ID or UUID
+        if (!(/^[a-f0-9]{8}$/i.test(name) || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(name))) {
+          return name;
         }
       }
     }
   } catch (error) {
-    console.error('[getOpponentName] ❌ Exception:', error);
-    console.error('[getOpponentName] Exception details:', JSON.stringify(error, null, 2));
+    console.error('[getOpponentName] Error:', error);
   }
-
-  // Последний fallback - "Игрок" вместо ID
-  console.warn('[getOpponentName] ⚠️ Using final fallback "Игрок" for ID:', opponentId);
   return 'Игрок';
 }
 
-// Helper function to create notifications with templates
-// Always returns Response
-async function createNotification(body: any, profileId: string, supabase: any): Promise<Response> {
-  const { duel_id, type, title, message, icon, metadata = {} } = body;
+interface NotificationParams {
+  duel_id: string;
+  type: string;
+  title?: string;
+  message?: string;
+  icon?: string;
+  metadata?: NotificationMetadata;
+  recipient_profile_id?: string;
+}
 
-  console.log('[create_notification] Creating notification for duel:', duel_id, 'type:', type, 'profileId:', profileId);
+// Helper function to create notifications with templates
+async function createNotification(body: NotificationParams, profileId: string, supabase: SupabaseClient): Promise<Response> {
+  const { duel_id, type, title, message, icon, metadata = {} as NotificationMetadata } = body;
 
   try {
-    // Get opponent's profile_id
     const { data: players, error: playersError } = await supabase
       .from('duel_players')
-      .select('user_id, is_bot, bot_name, name')
+      .select('id, user_id, is_bot, bot_name, name')
       .eq('duel_id', duel_id);
 
-    if (playersError) {
-      console.error('[create_notification] Error getting players:', playersError);
-      return new Response(JSON.stringify({ error: playersError.message }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    if (!players || players.length < 2) {
-      console.warn('[create_notification] Not enough players:', players?.length || 0);
-      return new Response(JSON.stringify({ error: 'Not enough players' }), {
+    if (playersError || !players || players.length < 2) {
+      return new Response(JSON.stringify({ error: playersError?.message || 'Players not found' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Находим оппонента: если есть recipient_profile_id в body, используем его напрямую
-    // Иначе ищем оппонента: если есть имя бота в metadata, используем его; иначе ищем по user_id
-    let opponentId: string | null = body.recipient_profile_id || null;
-    let opponentPlayer = null;
+    let opponentPlayer = players.find(p => p.user_id === body.recipient_profile_id);
+    if (!opponentPlayer) {
+      opponentPlayer = players.find(p => p.user_id && p.user_id !== profileId);
+    }
 
-    if (opponentId) {
-      console.log('[create_notification] Recipient provided explicitly:', opponentId);
-      opponentPlayer = players.find(p => p.user_id === opponentId);
-    } else {
-      opponentPlayer = players.find((p: any) => {
-        // Если это бот и имя бота уже в metadata - используем его
-        if (p.is_bot && metadata.opponent_name) {
-          return true;
-        }
-        // Иначе ищем по user_id
-        return p.user_id && p.user_id !== profileId;
-      });
-
-      // Если оппонент - бот и имя уже передано в metadata, пропускаем поиск по user_id
-      if (opponentPlayer?.is_bot && metadata.opponent_name) {
-        opponentId = null; // Для бота user_id не нужен, имя уже в metadata
-        console.log('[create_notification] Bot opponent detected, using name from metadata:', metadata.opponent_name);
-      } else {
-        opponentId = opponentPlayer?.user_id || null;
+    if (!opponentPlayer || (opponentPlayer.is_bot && !metadata.opponent_name)) {
+      if (!opponentPlayer) {
+        return new Response(JSON.stringify({ error: 'Opponent not found' }), { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
     }
 
-    // Если оппонент не найден и это не бот с именем в metadata - ошибка
-    if (!opponentId && !(opponentPlayer?.is_bot && metadata.opponent_name)) {
-      console.warn('[create_notification] Opponent not found. Players:', players, 'profileId:', profileId, 'recipientId:', body.recipient_profile_id);
-      return new Response(JSON.stringify({ error: 'Opponent not found' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    const opponentId = opponentPlayer!.user_id;
+
+    if (!metadata.opponent_name && profileId) {
+      metadata.opponent_name = await getOpponentName(profileId, supabase);
     }
 
-    console.log('[create_notification] Opponent found:', opponentId || 'BOT', 'All players:', JSON.stringify(players.map((p: any) => ({ user_id: p.user_id, is_bot: p.is_bot, bot_name: p.bot_name }))));
+    if (!metadata.opponent_name) metadata.opponent_name = 'Игрок';
 
-    // Get opponent (sender) name if not provided in metadata
-    // ВАЖНО: СЕНДЕР - это profileId (человек, совершивший действие)
-    // РЕСИПИЕНТ - это opponentId (человек, получающий уведомление)
-    // Мы хотим, чтобы ресипиент увидел имя сендера
-    if (!metadata.opponent_name) {
-      if (profileId) {
-        try {
-          console.log('[create_notification] 🔍 Fetching SENDER name for profileId:', profileId);
-          metadata.opponent_name = await getOpponentName(profileId, supabase);
-          console.log('[create_notification] ✅ Sender name retrieved:', metadata.opponent_name);
-        } catch (nameError: any) {
-          console.error('[create_notification] ❌ Error getting sender name:', nameError);
-          metadata.opponent_name = 'Игрок';
-        }
-      } else {
-        metadata.opponent_name = 'Игрок';
-      }
-    }
-
-    // Убеждаемся, что opponent_name всегда установлен и валиден
-    if (!metadata.opponent_name || metadata.opponent_name.trim() === '') {
-      metadata.opponent_name = 'Игрок';
-    }
-
-    // Убеждаемся, что имя не является ID
-    if (metadata.opponent_name.length <= 8 && /^[a-f0-9]{8}$/i.test(metadata.opponent_name)) {
-      metadata.opponent_name = 'Игрок';
-    }
-
-    // Проверяем, закончил ли получатель уведомления (opponentId) игру
-    // ОПТИМИЗАЦИЯ: Если передано в metadata, используем готовое значение
-    let recipientFinished = metadata.opponent_finished !== undefined ? metadata.opponent_finished : false;
-
-    if (type === 'progress' && metadata.opponent_finished === undefined) {
-      try {
-        // ОПТИМИЗАЦИЯ: Используем num_questions из metadata если есть
-        const numQuestions = metadata.num_questions;
-        let totalQuestions = numQuestions;
-
-        if (!totalQuestions) {
-          const { data: duel } = await supabase
-            .from('duels')
-            .select('num_questions')
-            .eq('id', duel_id)
-            .single();
-          totalQuestions = duel?.num_questions;
-        }
-
-        if (totalQuestions && opponentId) {
-          const { count: recipientAnswersCount } = await supabase
-            .from('duel_answers')
-            .select('*', { count: 'exact', head: true })
-            .eq('player_id', opponentPlayer.id) // opponentPlayer.id - это ID игрока-получателя в дуэли
-            .eq('duel_id', duel_id);
-
-          recipientFinished = (recipientAnswersCount || 0) >= totalQuestions;
-        }
-      } catch (error) {
-        console.warn('[create_notification] Error checking recipient finished status:', error);
-      }
-    }
-
-
-    // Добавляем флаг в metadata для использования в шаблонах
-    metadata.opponent_finished = recipientFinished; // Переименовано для ясности, но оставляем старое имя для совместимости
-
-    // Use template if title/message/icon are not provided
     let finalTitle = title;
     let finalMessage = message;
     let finalIcon = icon;
@@ -1031,167 +707,55 @@ async function createNotification(body: any, profileId: string, supabase: any): 
     if (!title || !message || !icon) {
       const template = notificationTemplates[type];
       if (template) {
-        const templateResult = template(metadata);
-        finalTitle = finalTitle || templateResult.title;
-        finalMessage = finalMessage || templateResult.message;
-        finalIcon = finalIcon || templateResult.icon;
-      } else {
-        // Fallback if template not found
-        finalTitle = finalTitle || `Уведомление ${type}`;
-        finalMessage = finalMessage || 'Новое уведомление';
-        finalIcon = finalIcon || 'bell';
+        const res = template(metadata);
+        finalTitle = finalTitle || res.title;
+        finalMessage = finalMessage || res.message;
+        finalIcon = finalIcon || res.icon;
       }
     }
 
-    console.log('[create_notification] Final notification:', { title: finalTitle, message: finalMessage, icon: finalIcon });
-
-    // 🔥 CRITICAL FIX: Если opponentId null (бот) — пропускаем создание уведомления
-    // Боты не читают уведомления, а вставка с null user_id вызывает constraint violation
     if (!opponentId) {
-      console.log('[create_notification] ⏭️ Skipping notification insert - opponent is a bot (no user_id)');
-      return new Response(JSON.stringify({
-        success: true,
-        skipped: true,
-        reason: 'Bot opponent - no notification needed'
-      }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return new Response(JSON.stringify({ success: true, skipped: true, reason: 'Recipient is bot' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // Create notification
-    console.log('[create_notification] Inserting notification:', {
-      user_id: opponentId,
-      duel_id,
-      type,
-      title: finalTitle,
-      message: finalMessage,
-      icon: finalIcon
-    });
-
-    const { data: insertedNotification, error: notifError } = await supabase
+    const { error: notifError } = await supabase
       .from('duel_notifications')
       .insert({
         user_id: opponentId,
         duel_id,
         type,
-        title: finalTitle,
-        message: finalMessage,
-        icon: finalIcon,
+        title: finalTitle || `Уведомление ${type}`,
+        message: finalMessage || 'Новое уведомление',
+        icon: finalIcon || 'bell',
         metadata,
         is_read: false
-      })
-      .select()
-      .single();
-
-    if (notifError) {
-      console.error('[create_notification] Error inserting notification:', notifError);
-      console.error('[create_notification] Error details:', JSON.stringify(notifError));
-      return new Response(JSON.stringify({ error: notifError.message }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+
+    if (notifError) throw notifError;
+
+    // Telegram delivery for finish/timeout
+    if (['finish', 'timeout'].includes(type) && opponentId) {
+      const templateType = type === 'finish' ? (metadata.is_winner ? 'duel_win' : 'duel_lose') : type;
+      await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/notification-sender`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+        },
+        body: JSON.stringify({
+          user_id: opponentId,
+          template_type: templateType,
+          variables: { ...metadata, duel_id, opponent_name: metadata.opponent_name },
+          cta_text: 'Посмотреть результаты',
+          cta_deeplink: `duel_${duel_id}`
+        })
+      }).catch(err => console.error('[DuelManager] Telegram notification error:', err));
     }
 
-    console.log('[create_notification] ✅ Notification created successfully:', {
-      id: insertedNotification?.id,
-      type,
-      title: finalTitle,
-      message: finalMessage,
-      icon: finalIcon,
-      opponentId,
-      user_id: insertedNotification?.user_id,
-      duel_id: insertedNotification?.duel_id,
-      created_at: insertedNotification?.created_at
-    });
-
-    // Verify notification was actually inserted
-    if (!insertedNotification) {
-      console.error('[create_notification] ❌ Notification insert returned null!');
-      throw new Error('Notification insert failed - no data returned');
-    }
-
-    // Log notification details for debugging
-    console.log('[create_notification] 📤 Notification ready for Realtime delivery:', {
-      notification_id: insertedNotification.id,
-      user_id: insertedNotification.user_id,
-      type: insertedNotification.type,
-      title: insertedNotification.title
-    });
-
-    // ========================================
-    // Отправка в Telegram через notification-sender
-    // ВАЖНО: отправляем только важные уведомления (результаты),
-    // чтобы не создавать спам. Старт, прогресс и т.д. — только в приложении.
-    // ========================================
-
-    // Типы уведомлений для Telegram (только важные)
-    const TELEGRAM_NOTIFICATION_TYPES = ['finish', 'timeout'];
-
-    if (TELEGRAM_NOTIFICATION_TYPES.includes(type)) {
-      try {
-        console.log('[create_notification] 📱 Sending important notification to Telegram:', type);
-
-        // Подготавливаем переменные для шаблона
-        const notificationVariables: Record<string, any> = {
-          ...metadata,
-          duel_id,
-          opponent_name: metadata.opponent_name || 'Игрок'
-        };
-
-        // Определяем тип шаблона для notification-sender
-        let templateType = type;
-        if (type === 'finish') {
-          // Определяем победителя/проигравшего для правильного шаблона
-          const isWinner = metadata.is_winner || false;
-          templateType = isWinner ? 'duel_win' : 'duel_lose';
-        }
-
-        const notificationSenderResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/notification-sender`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
-          },
-          body: JSON.stringify({
-            user_id: opponentId,
-            template_type: templateType,
-            variables: notificationVariables,
-            title: finalTitle,
-            message: finalMessage,
-            icon: finalIcon,
-            cta_text: 'Посмотреть результаты',
-            cta_deeplink: `duel_${duel_id}`,
-            force: false // Учитываем настройки пользователя
-          })
-        });
-
-        if (notificationSenderResponse.ok) {
-          const senderResult = await notificationSenderResponse.json();
-          console.log('[create_notification] ✅ Telegram notification sent:', senderResult);
-        } else {
-          const senderError = await notificationSenderResponse.json();
-          console.warn('[create_notification] ⚠️ Telegram notification failed:', senderError);
-          // Не бросаем ошибку - уведомление в приложении уже создано
-        }
-      } catch (telegramError: any) {
-        console.error('[create_notification] ❌ Telegram notification error:', telegramError);
-        // Не бросаем ошибку - продолжаем работу
-      }
-    } else {
-      console.log('[create_notification] ⏭️ Skipping Telegram notification for type:', type, '(only in-app)');
-    }
-
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  } catch (error: any) {
-    console.error('[create_notification] Exception:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(JSON.stringify({ success: true }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  } catch (error: unknown) {
+    console.error('[create_notification] Error:', error);
+    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
 }
 
@@ -1308,7 +872,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Детальное логирование перед switch
     console.log('[Duel Manager] 🔍 Before switch:', {
       action,
       actionType: typeof action,
@@ -1317,6 +880,44 @@ Deno.serve(async (req) => {
       hasSurrender: action === 'surrender',
       switchCases: ['create_notification', 'check_status', 'find_match', 'submit_answer', 'use_boost', 'bot_use_boost', 'finish_duel', 'cancel_duel', 'bot_answer', 'surrender', 'handle_disconnect', 'auto_finish']
     });
+
+    // 🛡️ SECURITY: Селективный Rate Limiting для тяжелых операций
+    // create_duel, join_duel - строгие лимиты (10 req/min)
+    // submit_answer, use_boost - мягкие (не блокируем активную игру)
+    const heavyActions = ['create_duel', 'join_duel', 'find_match'];
+    if (heavyActions.includes(action) && profileId) {
+      const actionRateLimit = await checkRateLimit({
+        identifier: `${profileId}:${action}`,
+        limit: 10, // 10 попыток создания/присоединения в минуту
+        windowMs: 60000,
+      });
+
+      if (!actionRateLimit.allowed) {
+        console.warn(`[duel-manager] Action rate limit exceeded:`, {
+          action,
+          profileId,
+          remaining: actionRateLimit.remaining,
+          resetAt: new Date(actionRateLimit.resetAt).toISOString(),
+        });
+
+        return new Response(
+          JSON.stringify({
+            error: 'Too many requests',
+            message: 'Слишком много попыток. Пожалуйста, подождите немного.',
+            action,
+            resetAt: new Date(actionRateLimit.resetAt).toISOString(),
+          }),
+          {
+            status: 429,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+              'Retry-After': String(Math.ceil((actionRateLimit.resetAt - Date.now()) / 1000)),
+            },
+          }
+        );
+      }
+    }
 
     switch (action) {
       case 'create_notification':
@@ -1392,7 +993,7 @@ Deno.serve(async (req) => {
 
         const answersCountMap = new Map();
         if (!answersError && answersData) {
-          answersData.forEach((ans: any) => {
+          answersData.forEach((ans: { player_id: string }) => {
             const count = answersCountMap.get(ans.player_id) || 0;
             answersCountMap.set(ans.player_id, count + 1);
           });
@@ -1408,7 +1009,7 @@ Deno.serve(async (req) => {
         const totalQuestions = duelInfo?.num_questions || 10;
 
         // ОПТИМИЗАЦИЯ: Загружаем профили одним batch запросом вместо множества отдельных
-        const userIds = players.map((p: any) => p.user_id).filter(Boolean);
+        const userIds = players.map((p: { user_id: string }) => p.user_id).filter(Boolean);
         const profilesMap = new Map();
 
         if (userIds.length > 0) {
@@ -1452,7 +1053,7 @@ Deno.serve(async (req) => {
               });
             } else {
               // Batch запрос успешен - создаем Map
-              (profiles || []).forEach((profile: any) => {
+              (profiles || []).forEach((profile: { id: string; first_name?: string | null; username?: string | null; telegram_id?: number | null }) => {
                 profilesMap.set(profile.id, profile);
               });
             }
@@ -1473,7 +1074,7 @@ Deno.serve(async (req) => {
         }
 
         // Format players with names
-        const formattedPlayers = players.map((p: any) => {
+        const formattedPlayers = players.map((p: { id: string; user_id: string; is_bot: boolean; bot_name?: string | null; score: number; is_active: boolean }) => {
           // Если это бот - используем имя из БД или генерируем
           if (p.is_bot) {
             // ВАЖНО: Используем bot_name из БД, если он есть (это имя, которое было сохранено при создании бота)
@@ -1584,7 +1185,7 @@ Deno.serve(async (req) => {
         });
 
         console.log('[Duel Manager] ✅ Found players:', formattedPlayers.length);
-        console.log('[Duel Manager] Players with names:', formattedPlayers.map((p: any) => ({
+        console.log('[Duel Manager] Players with names:', formattedPlayers.map((p: { user_id: string; name: string }) => ({
           id: p.id,
           user_id: p.user_id,
           name: p.name,
@@ -1592,9 +1193,9 @@ Deno.serve(async (req) => {
         })));
 
         // КРИТИЧНО: Проверяем что все игроки имеют имена
-        const playersWithoutNames = formattedPlayers.filter((p: any) => !p.name || p.name === 'Игрок');
+        const playersWithoutNames = formattedPlayers.filter((p: { name: string }) => !p.name || p.name === 'Игрок');
         if (playersWithoutNames.length > 0) {
-          console.warn('[Duel Manager] ⚠️ Some players have no valid name:', playersWithoutNames.map((p: any) => ({
+          console.warn('[Duel Manager] ⚠️ Some players have no valid name:', playersWithoutNames.map((p: { user_id: string; name: string }) => ({
             id: p.id,
             user_id: p.user_id
           })));
@@ -1671,8 +1272,8 @@ Deno.serve(async (req) => {
           });
         }
 
-        const myPlayer = players.find((p: any) => p.user_id === profile_id);
-        const opponentPlayer = players.find((p: any) => p.user_id !== profile_id);
+        const myPlayer = players.find((p: { user_id: string }) => p.user_id === profile_id);
+        const opponentPlayer = players.find((p: { user_id: string }) => p.user_id !== profile_id);
 
         if (!myPlayer || !opponentPlayer) {
           console.error('[get_results] Player not found in duel participants');
@@ -1682,14 +1283,14 @@ Deno.serve(async (req) => {
           });
         }
 
-        const myAnswers = allAnswers.filter((a: any) => a.player_id === myPlayer.id);
-        const opponentAnswers = allAnswers.filter((a: any) => a.player_id === opponentPlayer.id);
+        const myAnswers = allAnswers.filter((a: { player_id: string }) => a.player_id === myPlayer.id);
+        const opponentAnswers = allAnswers.filter((a: { player_id: string }) => a.player_id === opponentPlayer.id);
 
         // Ensure both players have finished (if status is not finished yet)
         if (duel.status !== 'finished' && duel.status !== 'technical_draw' && duel.status !== 'cancelled') {
           // КРИТИЧНО: Используем Set для подсчета уникальных ответов, чтобы избежать ложных срабатываний при дубликатах
-          const myUniqueAnswers = new Set(myAnswers.map((a: any) => a.duel_question_id));
-          const opponentUniqueAnswers = new Set(opponentAnswers.map((a: any) => a.duel_question_id));
+          const myUniqueAnswers = new Set(myAnswers.map((a: { duel_question_id: string }) => a.duel_question_id));
+          const opponentUniqueAnswers = new Set(opponentAnswers.map((a: { duel_question_id: string }) => a.duel_question_id));
 
           const myFinished = myUniqueAnswers.size >= duel.num_questions;
           const opponentFinished = opponentUniqueAnswers.size >= duel.num_questions || opponentPlayer.is_bot;
@@ -1902,7 +1503,7 @@ Deno.serve(async (req) => {
             difficulty: validated.difficulty,
             bet_type: validated.bet_type,
           });
-        } catch (validationError: any) {
+        } catch (validationError: unknown) {
           console.error('[find_match] ❌ Validation error:', {
             error: validationError.message,
             issues: validationError.issues,
@@ -1975,7 +1576,7 @@ Deno.serve(async (req) => {
 
         // Шаг 1: Добавляем игрока в очередь поиска
         // Подготавливаем данные для вставки (categories может быть null)
-        const queueData: any = {
+        const queueData: Record<string, any> = {
           profile_id: profileId,
           num_questions,
           difficulty: difficulty || 'mix',
@@ -2214,7 +1815,7 @@ Deno.serve(async (req) => {
             console.log(`[find_match] ✅ Selected ${selectedQuestions.length} questions using seed ${questionSeed}`);
 
             // Insert duel questions
-            const duelQuestions = selectedQuestions.map((q: any, idx: number) => ({
+            const duelQuestions = selectedQuestions.map((q: { id: string; question_ru: string; question_es: string; question_en: string; image_url: string | null; difficulty?: string; answer_options: Array<{ id: string; text_ru: string; text_es: string; text_en: string; is_correct: boolean; position: number }> }, idx: number) => ({
               duel_id: duel.id,
               question_id: q.id,
               position: idx + 1,
@@ -2224,7 +1825,7 @@ Deno.serve(async (req) => {
                 question_en: q.question_en,
                 image_url: q.image_url,
                 difficulty: q.difficulty,
-                answer_options: q.answer_options.map((opt: any) => ({
+                answer_options: q.answer_options.map((opt: { id: string; text_ru: string; text_es: string; text_en: string; is_correct: boolean; position: number }) => ({
                   id: opt.id,
                   text_ru: opt.text_ru,
                   text_es: opt.text_es,
@@ -2234,8 +1835,8 @@ Deno.serve(async (req) => {
                 })),
               },
               correct_option_ids: q.answer_options
-                .filter((opt: any) => opt.is_correct)
-                .map((opt: any) => opt.id),
+                .filter((opt: { is_correct: boolean }) => opt.is_correct)
+                .map((opt: { id: string }) => opt.id),
             }));
 
             const { error: insertError } = await supabase
@@ -2420,7 +2021,7 @@ Deno.serve(async (req) => {
           console.log(`[find_match] ✅ Bot duel: Selected ${selectedQuestions.length} random questions using seed ${questionSeed}`);
 
           // Insert duel questions
-          const duelQuestions = selectedQuestions.map((q: any, idx: number) => ({
+          const duelQuestions = selectedQuestions.map((q: { id: string; question_ru: string; question_es: string; question_en: string; image_url: string | null; difficulty?: string; answer_options: Array<{ id: string; text_ru: string; text_es: string; text_en: string; is_correct: boolean; position: number }> }, idx: number) => ({
             duel_id: duel.id,
             question_id: q.id,
             position: idx + 1,
@@ -2430,7 +2031,7 @@ Deno.serve(async (req) => {
               question_en: q.question_en,
               image_url: q.image_url,
               difficulty: q.difficulty,
-              answer_options: q.answer_options.map((opt: any) => ({
+              answer_options: q.answer_options.map((opt: { id: string; text_ru: string; text_es: string; text_en: string; is_correct: boolean; position: number }) => ({
                 id: opt.id,
                 text_ru: opt.text_ru,
                 text_es: opt.text_es,
@@ -2440,8 +2041,8 @@ Deno.serve(async (req) => {
               })),
             },
             correct_option_ids: q.answer_options
-              .filter((opt: any) => opt.is_correct)
-              .map((opt: any) => opt.id),
+              .filter((opt: { is_correct: boolean }) => opt.is_correct)
+              .map((opt: { id: string }) => opt.id),
           }));
 
           const { error: insertError } = await supabase
@@ -2679,8 +2280,8 @@ Deno.serve(async (req) => {
             difficulty: q.difficulty,
           },
           correct_option_ids: (q.answer_options || [])
-            .filter((opt: any) => opt.is_correct)
-            .map((opt: any) => opt.id),
+            .filter((opt: { is_correct: boolean }) => opt.is_correct)
+            .map((opt: { id: string }) => opt.id),
         }));
 
         const { error: insertError } = await supabase.from('duel_questions').insert(duelQuestions);
@@ -3012,8 +2613,8 @@ Deno.serve(async (req) => {
                 position: idx + 1,
                 question_snapshot: snapshot,
                 correct_option_ids: (q.answer_options || [])
-                  .filter((opt: any) => opt.is_correct)
-                  .map((opt: any) => opt.id),
+                  .filter((opt: { is_correct: boolean }) => opt.is_correct)
+                  .map((opt: { id: string }) => opt.id),
               };
             });
 
@@ -3066,7 +2667,7 @@ Deno.serve(async (req) => {
               }, profileId, supabase);
 
               console.log('[join_duel] ✅ Start notification created successfully');
-            } catch (notifErr: any) {
+            } catch (notifErr: unknown) {
               console.error('[join_duel] Error creating start notification:', notifErr);
             }
 
@@ -3075,7 +2676,7 @@ Deno.serve(async (req) => {
               JSON.stringify({ duel: { ...duel, status: 'active' }, player, auto_started: true }),
               { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             );
-          } catch (autoStartError: any) {
+          } catch (autoStartError: unknown) {
             console.error('[join_duel] ❌❌❌ CRITICAL ERROR in auto-start:', autoStartError);
             console.error('[join_duel] Error message:', autoStartError?.message);
             console.error('[join_duel] Error stack:', autoStartError?.stack);
@@ -3198,7 +2799,7 @@ Deno.serve(async (req) => {
           } else {
             console.log('[start_duel] ✅ Start notification created successfully');
           }
-        } catch (notifErr: any) {
+        } catch (notifErr: unknown) {
           console.error('[start_duel] Error creating start notification:', notifErr);
           console.error('[start_duel] Notification error details:', JSON.stringify(notifErr, null, 2));
           // Continue anyway - notification failure shouldn't block duel start
@@ -3457,7 +3058,7 @@ Deno.serve(async (req) => {
           .eq('duel_id', duel_id)
           .eq('player_id', botPlayer.id);
 
-        const answeredQuestionIds = new Set((botAnswers || []).map((a: any) => a.duel_question_id));
+        const answeredQuestionIds = new Set((botAnswers || []).map((a: { duel_question_id: string }) => a.duel_question_id));
 
         // Получаем все вопросы дуэли, отсортированные по position
         const { data: allQuestions } = await supabase
@@ -3512,7 +3113,7 @@ Deno.serve(async (req) => {
           selectedOptionId = correctIds[Math.floor(Math.random() * correctIds.length)];
         } else {
           // Выбираем случайный неправильный ответ
-          const wrongOptions = allOptions.filter((opt: any) => !correctIds.includes(opt.id));
+          const wrongOptions = allOptions.filter((opt: { id: string; is_correct: boolean }) => !correctIds.includes(opt.id));
           if (wrongOptions.length > 0) {
             selectedOptionId = wrongOptions[Math.floor(Math.random() * wrongOptions.length)].id;
           } else {
@@ -3726,8 +3327,8 @@ Deno.serve(async (req) => {
 
               // Вызываем settleBetPayout если есть ставки
               if (duelData && allPlayers && allPlayers.length >= 2) {
-                const botPlayerData = allPlayers.find((p: any) => p.id === botPlayer.id);
-                const humanPlayerData = allPlayers.find((p: any) => p.user_id === savedHumanPlayer.user_id);
+                const botPlayerData = allPlayers.find((p: { id: string }) => p.id === botPlayer.id);
+                const humanPlayerData = allPlayers.find((p: { user_id: string }) => p.user_id === savedHumanPlayer.user_id);
 
                 if (botPlayerData && humanPlayerData) {
                   const botScore = botPlayerData.score || 0;
@@ -3749,7 +3350,7 @@ Deno.serve(async (req) => {
                         duelId: duel_id,
                         betAmount: duelWithBet.bet_amount,
                         hostUserId: duelWithBet.host_user,
-                        players: allPlayers.map((p: any) => ({
+                        players: allPlayers.map((p: { id: string; user_id: string; is_bot: boolean; name: string; score: number; is_active: boolean }) => ({
                           id: p.id,
                           user_id: p.user_id,
                           score: p.score || 0,
@@ -3832,7 +3433,7 @@ Deno.serve(async (req) => {
         // Client only displays the effects, never calculates them locally
         // ============================================================================
 
-        let boostEffect: any = { success: true };
+        let boostEffect: { success: boolean; eliminated_options?: string[]; time_added_ms?: number; message?: string } = { success: true };
 
         if (boost_type === 'fifty_fifty' && duel_question_id) {
           // Get question to find incorrect options
@@ -3849,8 +3450,8 @@ Deno.serve(async (req) => {
 
             // Find incorrect options
             const incorrectOptions = allOptions
-              .filter((opt: any) => !correctIds.includes(opt.id))
-              .map((opt: any) => opt.id);
+              .filter((opt: { id: string; is_correct: boolean }) => !correctIds.includes(opt.id))
+              .map((opt: { id: string }) => opt.id);
 
             // Hide exactly 2 incorrect options (or all if less than 2)
             const toHide = incorrectOptions.slice(0, Math.min(2, incorrectOptions.length));
@@ -4464,7 +4065,7 @@ Deno.serve(async (req) => {
         const boostType = selectedBoost.type;
 
         // Обработка эффектов бустов
-        let boostEffect: any = { success: true, boost_type: boostType };
+        let boostEffect: { success: boolean; boost_type: string; eliminated_options?: string[]; time_added_ms?: number; message?: string } = { success: true, boost_type: boostType };
 
         if (boostType === 'fifty_fifty' && duel_question_id) {
           const { data: question } = await supabase
@@ -4478,8 +4079,8 @@ Deno.serve(async (req) => {
             const allOptions = snapshot.answer_options || [];
             const correctIds = question.correct_option_ids as string[];
             const incorrectOptions = allOptions
-              .filter((opt: any) => !correctIds.includes(opt.id))
-              .map((opt: any) => opt.id);
+              .filter((opt: { id: string; is_correct: boolean }) => !correctIds.includes(opt.id))
+              .map((opt: { id: string }) => opt.id);
             const toHide = incorrectOptions.slice(0, Math.min(2, incorrectOptions.length));
             boostEffect.hidden_options = toHide;
           }
@@ -4710,7 +4311,7 @@ Deno.serve(async (req) => {
             finished: false,
             waiting_for_opponent: true,
             message: 'Your score is saved! Waiting for opponent to play.',
-            your_score: currentPlayer?.score || allPlayers?.find((p: any) => p.user_id === profile_id)?.score || 0
+            your_score: currentPlayer?.score || allPlayers?.find((p: { user_id: string }) => p.user_id === profile_id)?.score || 0
           }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
@@ -4719,7 +4320,7 @@ Deno.serve(async (req) => {
         // 🆕 РЕАЛИСТИЧНАЯ ЛОГИКА ДЛЯ ИГР С БОТОМ
         // Бот отвечает параллельно с игроком через useBotOpponent на клиенте
         // Если бот ещё не закончил - показываем экран ожидания
-        const opponentPlayer = allPlayers.find((p: any) => p.id !== currentPlayer.id);
+        const opponentPlayer = allPlayers.find((p: { id: string }) => p.id !== currentPlayer.id);
         const isOpponentBot = opponentPlayer?.is_bot === true;
 
         if (isOpponentBot) {
@@ -4774,8 +4375,8 @@ Deno.serve(async (req) => {
               .select('*, duel_questions(*)')
               .eq('duel_id', duel_id);
 
-            const myAnswers = allAnswers?.filter((a: any) => a.player_id === currentPlayer.id) || [];
-            const opponentAnswers = allAnswers?.filter((a: any) => a.player_id === opponentPlayer.id) || [];
+            const myAnswers = allAnswers?.filter((a: { player_id: string }) => a.player_id === currentPlayer.id) || [];
+            const opponentAnswers = allAnswers?.filter((a: { player_id: string }) => a.player_id === opponentPlayer.id) || [];
 
             // Получаем обновлённые данные игроков
             const { data: updatedPlayers } = await supabase
@@ -4937,8 +4538,8 @@ Deno.serve(async (req) => {
             .eq('duel_id', duel_id)
             .not('boost_used', 'is', null);
 
-          const usedBoosts1 = player1Boosts?.map((b: any) => b.boost_used).filter(Boolean) || [];
-          const usedBoosts2 = player2Boosts?.map((b: any) => b.boost_used).filter(Boolean) || [];
+          const usedBoosts1 = player1Boosts?.map((b: { boost_used: string }) => b.boost_used).filter(Boolean) || [];
+          const usedBoosts2 = player2Boosts?.map((b: { boost_used: string }) => b.boost_used).filter(Boolean) || [];
 
           const matchSummary = {
             player_1_id: player1.user_id,
@@ -5097,7 +4698,7 @@ Deno.serve(async (req) => {
             }
 
             // Находим оппонента
-            const opponent = playersWithScores.find((p: any) => p.user_id !== player.user_id);
+            const opponent = playersWithScores.find((p: { user_id: string }) => p.user_id !== player.user_id);
             const opponentName = opponent?.is_bot ? 'Бот' : (opponent?.profiles?.first_name || 'Соперник');
 
             // Определяем результат для этого игрока
@@ -5120,7 +4721,7 @@ Deno.serve(async (req) => {
           }
 
           // Create finish notification for opponent
-          const opponentPlayer = playersWithScores.find((p: any) => p.user_id !== profile_id);
+          const opponentPlayer = playersWithScores.find((p: { user_id: string }) => p.user_id !== profile_id);
           if (opponentPlayer) {
             // Get current player name (who finished) for personalized notification to opponent
             const currentPlayerName = await getOpponentName(profile_id, supabase).catch(() => 'Игрок');
@@ -5150,8 +4751,8 @@ Deno.serve(async (req) => {
             .select('*, duel_questions(*)')
             .eq('duel_id', duel_id);
 
-          const myAnswers = allAnswers?.filter((a: any) => a.player_id === currentPlayer.id) || [];
-          const opponentAnswers = allAnswers?.filter((a: any) => a.player_id === opponentPlayer?.id) || [];
+          const myAnswers = allAnswers?.filter((a: { player_id: string }) => a.player_id === currentPlayer.id) || [];
+          const opponentAnswers = allAnswers?.filter((a: { player_id: string }) => a.player_id === opponentPlayer?.id) || [];
 
           return new Response(JSON.stringify({
             success: true,
@@ -5169,8 +4770,8 @@ Deno.serve(async (req) => {
           console.log('[finish_duel] Player finished, waiting for opponent');
 
           // Create finish notification for opponent (first player finished)
-          const opponentPlayer = allPlayers.find((p: any) => p.user_id !== profile_id);
-          const currentPlayerData = allPlayers.find((p: any) => p.user_id === profile_id);
+          const opponentPlayer = allPlayers.find((p: { user_id: string }) => p.user_id !== profile_id);
+          const currentPlayerData = allPlayers.find((p: { user_id: string }) => p.user_id === profile_id);
           if (opponentPlayer && currentPlayerData) {
             // Get current player name (who finished) for personalized notification to opponent
             const currentPlayerName = await getOpponentName(profile_id, supabase).catch(() => 'Игрок');
@@ -5453,8 +5054,8 @@ Deno.serve(async (req) => {
           });
         }
 
-        const myPlayer = players.find((p: any) => p.user_id === userProfileId);
-        const opponent = players.find((p: any) => p.user_id !== userProfileId);
+        const myPlayer = players.find((p: { user_id: string }) => p.user_id === userProfileId);
+        const opponent = players.find((p: { user_id: string }) => p.user_id !== userProfileId);
 
         if (!myPlayer || !opponent) {
           return new Response(JSON.stringify({ error: 'Player not found' }), {
@@ -5524,8 +5125,8 @@ Deno.serve(async (req) => {
                 .eq('duel_id', duel_id);
 
               if (finalPlayers && finalPlayers.length >= 2) {
-                const myFinalPlayer = finalPlayers.find((p: any) => p.user_id === userProfileId);
-                const opponentFinalPlayer = finalPlayers.find((p: any) => p.user_id !== userProfileId);
+                const myFinalPlayer = finalPlayers.find((p: { user_id: string }) => p.user_id === userProfileId);
+                const opponentFinalPlayer = finalPlayers.find((p: { user_id: string }) => p.user_id !== userProfileId);
 
                 if (myFinalPlayer && opponentFinalPlayer) {
                   const myFinalScore = myFinalPlayer.score || 0;
@@ -5541,7 +5142,7 @@ Deno.serve(async (req) => {
                     duelId: duel_id,
                     betAmount: duel.bet_amount,
                     hostUserId: duel.host_user,
-                    players: finalPlayers.map((p: any) => ({
+                    players: finalPlayers.map((p: { id: string; user_id: string; score: number; is_bot: boolean }) => ({
                       id: p.id,
                       user_id: p.user_id,
                       score: p.score || 0,
@@ -5567,8 +5168,8 @@ Deno.serve(async (req) => {
               .eq('duel_id', duel_id);
 
             if (finalPlayers && finalPlayers.length >= 2) {
-              const myFinalPlayer = finalPlayers.find((p: any) => p.user_id === userProfileId);
-              const opponentFinalPlayer = finalPlayers.find((p: any) => p.user_id !== userProfileId);
+              const myFinalPlayer = finalPlayers.find((p: { user_id: string }) => p.user_id === userProfileId);
+              const opponentFinalPlayer = finalPlayers.find((p: { user_id: string }) => p.user_id !== userProfileId);
 
               if (myFinalPlayer && opponentFinalPlayer) {
                 const myFinalScore = myFinalPlayer.score || 0;
@@ -5778,7 +5379,7 @@ Deno.serve(async (req) => {
           console.error('[surrender] Not enough players:', {
             duel_id,
             playersCount: players?.length || 0,
-            players: players?.map((p: any) => ({ id: p.id, user_id: p.user_id }))
+            players: players?.map((p: { id: string; user_id: string }) => ({ id: p.id, user_id: p.user_id }))
           });
           return new Response(JSON.stringify({
             error: 'Not enough players',
@@ -5791,18 +5392,18 @@ Deno.serve(async (req) => {
 
         console.log('[surrender] Players found:', {
           playersCount: players.length,
-          playerUserIds: players.map((p: any) => p.user_id),
+          playerUserIds: players.map((p: { user_id: string }) => p.user_id),
           surrenderingUserId: userProfileId
         });
 
-        const surrenderingPlayer = players.find((p: any) => p.user_id === userProfileId);
-        const opponentPlayer = players.find((p: any) => p.user_id !== userProfileId);
+        const surrenderingPlayer = players.find((p: { user_id: string }) => p.user_id === userProfileId);
+        const opponentPlayer = players.find((p: { user_id: string }) => p.user_id !== userProfileId);
 
         if (!surrenderingPlayer) {
           console.error('[surrender] Surrendering player not found:', {
             duel_id,
             userProfileId,
-            availableUserIds: players.map((p: any) => p.user_id)
+            availableUserIds: players.map((p: { user_id: string }) => p.user_id)
           });
           return new Response(JSON.stringify({
             error: 'Player not found',
@@ -5817,7 +5418,7 @@ Deno.serve(async (req) => {
           console.error('[surrender] Opponent player not found:', {
             duel_id,
             surrenderingPlayerId: surrenderingPlayer.id,
-            availableUserIds: players.map((p: any) => p.user_id)
+            availableUserIds: players.map((p: { user_id: string }) => p.user_id)
           });
           return new Response(JSON.stringify({
             error: 'Opponent not found',
@@ -5948,7 +5549,7 @@ Deno.serve(async (req) => {
             duelId: duel_id,
             betAmount: duel.bet_amount,
             hostUserId: duel.host_user,
-            players: players.map((p: any) => ({
+            players: players.map((p: { id: string; user_id: string; score: number; is_bot: boolean }) => ({
               id: p.id,
               user_id: p.user_id,
               score: p.score || 0,
@@ -6132,7 +5733,7 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[Duel Manager] Error:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,

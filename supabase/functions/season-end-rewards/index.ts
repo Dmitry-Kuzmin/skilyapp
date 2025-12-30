@@ -28,7 +28,7 @@ serve(async (req) => {
     // Если season_id не указан, ищем все завершившиеся сезоны
     if (!season_id) {
       console.log("[season-end-rewards] No season_id provided, searching for ended seasons");
-      
+
       const { data: endedSeasons, error: seasonsError } = await supabase
         .from("duel_pass_seasons")
         .select("id, season_number, name_ru, end_date")
@@ -46,17 +46,17 @@ serve(async (req) => {
 
       if (!endedSeasons || endedSeasons.length === 0) {
         return new Response(
-          JSON.stringify({ 
-            success: true, 
+          JSON.stringify({
+            success: true,
             message: "No ended seasons found",
-            processed: 0 
+            processed: 0
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
       // Обрабатываем все завершившиеся сезоны
-      const allResults: any[] = [];
+      const allResults: Record<string, unknown>[] = [];
       for (const season of endedSeasons) {
         // Проверяем, не обработан ли уже сезон
         const { data: existingRewards } = await supabase
@@ -106,7 +106,7 @@ serve(async (req) => {
 });
 
 // Вынесенная функция для обработки одного сезона
-async function processSeason(season_id: number, supabase: any) {
+async function processSeason(season_id: number, supabase: SupabaseClient) {
   console.log(`[season-end-rewards] Processing rewards for season ${season_id}`);
 
   try {
@@ -314,7 +314,7 @@ async function processSeason(season_id: number, supabase: any) {
           await supabase.from("notifications").insert({
             user_id: player.id,
             type: "leaderboard_reward",
-            title: position <= 3 
+            title: position <= 3
               ? `🏆 Поздравляем! Вы заняли ${position} место!`
               : `⭐ Поздравляем! Вы вошли в топ-10!`,
             message: position <= 3

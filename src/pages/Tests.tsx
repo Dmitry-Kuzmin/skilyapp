@@ -20,10 +20,11 @@ import { usePDDTopics } from "@/hooks/usePDDTopics";
 import { useTicketsStatus } from "@/hooks/useTicketsStatus";
 import { useSmartRecommendation } from "@/hooks/useSmartRecommendation";
 import { COUNTRIES_CONFIG } from "@/types/pdd";
-import { MotionDiv as motion } from "@/components/optimized/Motion";
+import { motion } from "@/components/optimized/Motion";
 import { getImageUrl } from "@/utils/imageUtils";
 import { loadTestProgress } from "@/utils/testStorage";
 import { cn } from "@/lib/utils";
+import { AIInsightsLibrary } from "@/components/test-results/AIInsightsLibrary";
 
 // --- Types ---
 type Topic = {
@@ -660,12 +661,17 @@ const Tests = () => {
 
             {/* Other Test Modes Grid - Dashboard Style */}
             <div className="space-y-6">
-              <h3 className="text-xl font-bold text-foreground flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-card border border-border">
-                  <Gamepad2 className="w-6 h-6 text-indigo-400" />
-                </div>
-                Другие режимы
-              </h3>
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <h3 className="text-xl font-bold text-foreground flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-card border border-border">
+                    <Gamepad2 className="w-6 h-6 text-indigo-400" />
+                  </div>
+                  Другие режимы
+                </h3>
+
+                {/* AI Insights Library (Always visible shortcut) */}
+                <AIInsightsLibrary isPremium={isPremium} />
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {testModes.filter(m => m.id !== 1).map((mode, index) => {

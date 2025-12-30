@@ -86,15 +86,17 @@ Deno.serve(async (req) => {
         })
 
         console.log(`[fraud-check-worker] ✅ Job ${job.id} completed`)
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error(`[fraud-check-worker] ❌ Error processing job ${job.id}:`, err)
+
+        const errorMessage = err instanceof Error ? err.message : String(err);
 
         // Г. Если ошибка - помечаем failed и пишем ошибку
         await supabase
           .from('fraud_check_queue')
           .update({
             status: 'failed',
-            error_message: err?.message || String(err),
+            error_message: errorMessage,
             processed_at: new Date().toISOString(),
           })
           .eq('id', job.id)
@@ -103,7 +105,7 @@ Deno.serve(async (req) => {
           id: job.id,
           conversion_id: job.conversion_id,
           success: false,
-          error: err?.message || String(err),
+          error: errorMessage,
         })
       }
     }
@@ -116,10 +118,11 @@ Deno.serve(async (req) => {
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[fraud-check-worker] Fatal error:', error)
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(
-      JSON.stringify({ error: error?.message || String(error) }),
+      JSON.stringify({ error: errorMessage }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

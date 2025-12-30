@@ -3,6 +3,7 @@
 // =====================================================
 
 import { TelegramMessage, SendMessageOptions } from './types.ts';
+import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import * as keyboards from './keyboards.ts';
 import { t, getUserLanguage, getDaysWord, SupportedLanguage } from './translations.ts';
 
@@ -11,7 +12,7 @@ const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 const MINI_APP_URL = 'https://skilyapp.com';
 const SUPPORT_CONTACT = Deno.env.get('SUPPORT_CONTACT') || '@SkilySupport';
 
-export async function sendMessage(options: SendMessageOptions): Promise<any> {
+export async function sendMessage(options: SendMessageOptions): Promise<unknown> {
   try {
     const response = await fetch(`${TELEGRAM_API}/sendMessage`, {
       method: 'POST',
@@ -44,7 +45,7 @@ export async function setupMenuButton(): Promise<void> {
   }
 }
 
-export async function handleStart(message: TelegramMessage, supabase: any): Promise<void> {
+export async function handleStart(message: TelegramMessage, supabase: SupabaseClient): Promise<void> {
   const user = message.from;
   if (!user || !message.chat) return;
 
@@ -75,7 +76,7 @@ export async function handleStart(message: TelegramMessage, supabase: any): Prom
   });
 }
 
-export async function handleStats(message: TelegramMessage, supabase: any): Promise<void> {
+export async function handleStats(message: TelegramMessage, supabase: SupabaseClient): Promise<void> {
   const user = message.from;
   if (!user) return;
 
@@ -99,7 +100,7 @@ export async function handleStats(message: TelegramMessage, supabase: any): Prom
   await sendMessage({ chat_id: message.chat.id, text: statsText, parse_mode: 'HTML', reply_markup: keyboards.getBackToMenuKeyboard(lang) });
 }
 
-export async function handleDuel(message: TelegramMessage, supabase: any): Promise<void> {
+export async function handleDuel(message: TelegramMessage, supabase: SupabaseClient): Promise<void> {
   const user = message.from;
   const lang = user ? await getUserLanguage(user.id, user.language_code, supabase) : 'ru';
   const duelText = `${t('duel.title', lang)}\n\n${t('duel.description', lang, { url: MINI_APP_URL })}`;
@@ -112,7 +113,7 @@ export async function handleDuel(message: TelegramMessage, supabase: any): Promi
   });
 }
 
-export async function handleStreak(message: TelegramMessage, supabase: any): Promise<void> {
+export async function handleStreak(message: TelegramMessage, supabase: SupabaseClient): Promise<void> {
   const user = message.from;
   if (!user) return;
 
@@ -129,12 +130,12 @@ export async function handleStreak(message: TelegramMessage, supabase: any): Pro
   const lastActivity = metrics?.last_activity_at ? new Date(metrics.last_activity_at) : null;
   const isToday = lastActivity ? new Date().toDateString() === lastActivity.toDateString() : false;
 
-  let streakText = streakDays === 0 ? t('streak.noStreak', lang) : `${t('streak.current', lang, { days: streakDays, daysWord: getDaysWord(streakDays, lang) })}\n\n${isToday ? t('streak.todayActive', lang) : t('streak.todayInactive', lang)}`;
+  const streakText = streakDays === 0 ? t('streak.noStreak', lang) : `${t('streak.current', lang, { days: streakDays, daysWord: getDaysWord(streakDays, lang) })}\n\n${isToday ? t('streak.todayActive', lang) : t('streak.todayInactive', lang)}`;
 
   await sendMessage({ chat_id: message.chat.id, text: streakText, parse_mode: 'HTML', reply_markup: keyboards.getQuickMenuKeyboard(lang) });
 }
 
-export async function handleHelp(message: TelegramMessage, supabase: any): Promise<void> {
+export async function handleHelp(message: TelegramMessage, supabase: SupabaseClient): Promise<void> {
   const user = message.from;
   const lang = user ? await getUserLanguage(user.id, user.language_code, supabase) : 'ru';
   const helpText = `${t('help.title', lang)}\n\n${t('help.commands', lang)}\n\n${t('help.about', lang)}\n\n${t('help.support', lang, { contact: SUPPORT_CONTACT })}`;
@@ -142,7 +143,7 @@ export async function handleHelp(message: TelegramMessage, supabase: any): Promi
   await sendMessage({ chat_id: message.chat.id, text: helpText, parse_mode: 'HTML', reply_markup: keyboards.getQuickMenuKeyboard(lang) });
 }
 
-export async function handleSettings(message: TelegramMessage, supabase: any): Promise<void> {
+export async function handleSettings(message: TelegramMessage, supabase: SupabaseClient): Promise<void> {
   const user = message.from;
   if (!user) return;
   const lang = await getUserLanguage(user.id, user.language_code, supabase);
@@ -155,7 +156,7 @@ export async function handleSettings(message: TelegramMessage, supabase: any): P
   });
 }
 
-export async function handleTips(message: TelegramMessage, supabase: any): Promise<void> {
+export async function handleTips(message: TelegramMessage, supabase: SupabaseClient): Promise<void> {
   const user = message.from;
   if (!user) return;
   const lang = await getUserLanguage(user.id, user.language_code, supabase);

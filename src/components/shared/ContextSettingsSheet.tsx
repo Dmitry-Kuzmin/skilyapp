@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { CountryCode, COUNTRIES_CONFIG, getLicenseCategoriesForCountry, LicenseCategoryConfig, LicenseCategory } from '@/types/pdd';
 import { UnifiedModal } from '@/components/ui/unified-modal';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { cn } from '@/lib/utils';
 import { Globe, Car, Truck, Bus, Bike, Check, type LucideIcon } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';

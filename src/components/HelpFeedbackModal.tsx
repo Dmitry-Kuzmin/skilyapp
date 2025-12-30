@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { useUserContext } from "@/contexts/UserContext";
 import { Loader2, MessageSquare } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 
 interface HelpFeedbackModalProps {
   open: boolean;

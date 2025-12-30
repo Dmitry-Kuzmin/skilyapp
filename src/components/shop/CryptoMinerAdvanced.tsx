@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { useAdRewardStatus } from '@/hooks/useAdRewardStatus';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 
 interface CryptoMinerAdvancedProps {
     className?: string;

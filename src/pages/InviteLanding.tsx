@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion } from "@/components/optimized/Motion";
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Trophy, Target, Zap, Swords, CheckCircle, ArrowRight, Sparkles, Gift, TrendingUp } from 'lucide-react';

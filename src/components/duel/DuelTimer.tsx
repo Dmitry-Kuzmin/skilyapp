@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from "@/components/optimized/Motion";
 import { Clock } from 'lucide-react';
 import { memo } from 'react';
 

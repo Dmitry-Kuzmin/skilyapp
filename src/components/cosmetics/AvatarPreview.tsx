@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 import { Sparkles, Trophy, Flame, Crown, Calendar, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 

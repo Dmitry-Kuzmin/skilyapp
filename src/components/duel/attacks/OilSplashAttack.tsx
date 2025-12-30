@@ -338,7 +338,7 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     animationStartedRef.current = true;
     const warningDuration = isDesktop ? 1200 : 2200; // Ускорено для desktop
     
-    let shakeInterval = setInterval(() => {
+    const shakeInterval = setInterval(() => {
         setShake(Math.random() * 8);
     }, 50);
 
@@ -469,7 +469,7 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
                 const noise = Math.sin(i * 0.8 + timeRef.current); 
                 // КРИТИЧНО: Сильно увеличено ускорение со временем для desktop (с 0.8 до 1.5)
                 const accelerationMultiplier = isDesktop ? 1.5 : 0.5;
-                let acc = GRAVITY + (timeRef.current * accelerationMultiplier) + (noise > 0 ? 0.3 : 0);
+                const acc = GRAVITY + (timeRef.current * accelerationMultiplier) + (noise > 0 ? 0.3 : 0);
                 
                 velocitiesRef.current[i] += acc;
                 velocitiesRef.current[i] = Math.min(velocitiesRef.current[i], TERMINAL_VELOCITY);

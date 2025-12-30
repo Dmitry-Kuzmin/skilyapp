@@ -5,7 +5,7 @@
 // через Supabase Metrics API для мониторинга
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -36,7 +36,7 @@ serve(async (req) => {
       function_name,
     } = body;
 
-    const metrics: Record<string, any> = {};
+    const metrics: Record<string, unknown> = {};
 
     // 1. Метрики БД (через прямые запросы к pg_stat)
     if (metric_type === 'database' || metric_type === 'all') {
@@ -72,17 +72,18 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[MetricsExporter] Error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(
-      JSON.stringify({ error: error.message || 'Internal server error' }),
+      JSON.stringify({ error: errorMessage || 'Internal server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
 
 // Получение метрик БД (упрощённая версия через стандартные запросы)
-async function getDatabaseMetrics(supabase: any) {
+async function getDatabaseMetrics(supabase: SupabaseClient) {
   try {
     // Подсчитываем количество записей в основных таблицах
     const [profiles, questions, topics, duels, transactions] = await Promise.all([
@@ -110,7 +111,7 @@ async function getDatabaseMetrics(supabase: any) {
 }
 
 // Получение метрик Edge Functions
-async function getFunctionsMetrics(supabase: any, functionName?: string) {
+async function getFunctionsMetrics(supabase: SupabaseClient, functionName?: string) {
   try {
     // Получаем список всех функций
     const functions = [
@@ -152,7 +153,7 @@ async function getFunctionsMetrics(supabase: any, functionName?: string) {
 }
 
 // Получение метрик Auth
-async function getAuthMetrics(supabase: any, timeRange: string) {
+async function getAuthMetrics(supabase: SupabaseClient, timeRange: string) {
   try {
     const timeAgo = getTimeAgo(timeRange);
 
@@ -186,7 +187,7 @@ async function getAuthMetrics(supabase: any, timeRange: string) {
 }
 
 // Получение метрик производительности
-async function getPerformanceMetrics(supabase: any) {
+async function getPerformanceMetrics(supabase: SupabaseClient) {
   try {
     // Получаем статистику по недавним транзакциям и активностям
     const { count: recentTransactions } = await supabase

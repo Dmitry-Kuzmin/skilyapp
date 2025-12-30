@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { useUserContext } from '@/contexts/UserContext';
 import { generateTelegramShareUrl } from '@/utils/duelShare';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 
 interface DuelLobbyProps {
   duelId: string | null;

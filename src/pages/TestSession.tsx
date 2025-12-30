@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo, memo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { MotionDiv as motion, AnimatePresence } from "@/components/optimized/Motion";
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { useParams, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -222,8 +222,8 @@ const TestSession = () => {
     // Standard
     return Object.entries(activeState.data.answers).map(([questionId, a]) => ({
       questionId: questionId,
-      selectedAnswerId: (a as any).selectedOptionId,
-      isCorrect: (a as any).isCorrect
+      selectedAnswerId: (a as { selectedOptionId: string }).selectedOptionId,
+      isCorrect: (a as { isCorrect: boolean }).isCorrect
     }));
   }, [activeState, questionsState]);
 
@@ -251,9 +251,36 @@ const TestSession = () => {
   // ============================================
   // REDEMPTION SESSION CONFIG & STATE
   // ============================================
-  const isRedemptionMode = (location.state as any)?.mode === 'redemption';
-  const redemptionFailedQuestions = (location.state as any)?.failedQuestions || [];
-  const redemptionAnalysisData = (location.state as any)?.analysisData;
+  interface AppError {
+    message?: string;
+    details?: string;
+    code?: string;
+    hint?: string;
+  }
+
+  interface ExtendedQuestion {
+    id: string;
+    text?: string;
+    question_ru?: string;
+    question_text?: string;
+    image?: string;
+    image_url?: string;
+    explanation?: string;
+    explanation_ru?: string;
+    answers?: Array<unknown>;
+    answer_options?: Array<unknown>;
+    topics?: string[];
+  }
+
+  interface LocationState {
+    mode?: string;
+    failedQuestions?: Array<{ questionId: string }>;
+    analysisData?: unknown;
+  }
+  const locState = location.state as LocationState | null;
+  const isRedemptionMode = locState?.mode === 'redemption';
+  const redemptionFailedQuestions = locState?.failedQuestions || [];
+  const redemptionAnalysisData = locState?.analysisData;
   // Log only once on mount via useEffect below
   const [redemptionStep, setRedemptionStep] = useState<'reflection' | 'drill' | 'completed'>(
     isRedemptionMode ? 'reflection' : 'completed'
@@ -272,7 +299,7 @@ const TestSession = () => {
   const topicName = searchParams.get('topic');
 
   const redemptionData = useMemo(() => isRedemptionMode ? {
-    failedIds: redemptionFailedQuestions.map((q: any) => q.questionId)
+    failedIds: redemptionFailedQuestions.map((q: { questionId: string }) => q.questionId)
   } : undefined, [isRedemptionMode, redemptionFailedQuestions]);
 
   const dataLoader = useTestDataLoader({
@@ -706,7 +733,48 @@ const TestSession = () => {
   // Derived questions - converts PDD format to QuestionData if needed
   const questions = useMemo((): QuestionData[] => {
     // Determine the source of raw questions
-    let raw: any[] = [];
+    interface RawQuestion {
+      id: string;
+      text?: string;
+      question_ru?: string;
+      question_es?: string;
+      question_en?: string;
+      question_text?: string;
+      image?: string;
+      image_url?: string;
+      image_filename?: string;
+      explanation?: string;
+      explanation_ru?: string;
+      explanation_es?: string;
+      explanation_en?: string;
+      topics?: Array<string | { title_ru: string; title_es: string }>;
+      topic_title_ru?: string;
+      topic_title_es?: string;
+      answers?: Array<{
+        id: string;
+        text?: string;
+        text_ru?: string;
+        text_es?: string;
+        text_en?: string;
+        answer_text?: string;
+        is_correct?: boolean;
+        isCorrect?: boolean;
+        position?: number;
+      }>;
+      answer_options?: Array<{
+        id: string;
+        text?: string;
+        text_ru?: string;
+        text_es?: string;
+        text_en?: string;
+        answer_text?: string;
+        is_correct?: boolean;
+        isCorrect?: boolean;
+        position?: number;
+      }>;
+    }
+
+    let raw: RawQuestion[] = [];
     if (mode === 'exam-russia' || mode === 'pdd-ticket') {
       raw = (universalPDDQuestions || []);
     } else {
@@ -715,7 +783,7 @@ const TestSession = () => {
 
     if (!raw || raw.length === 0) return [];
 
-    return raw.map((q: any) => ({
+    return raw.map((q) => ({
       id: q.id,
       question_ru: q.text || q.question_ru || q.question_text || q.question_es || '',
       question_es: q.question_es || q.text || q.question_ru || q.question_text || '',
@@ -727,7 +795,7 @@ const TestSession = () => {
       topics: q.topics && q.topics.length > 0
         ? (typeof q.topics[0] === 'string' ? { title_ru: q.topics[0], title_es: q.topics[0] } : q.topics[0])
         : (q.topic_title_ru ? { title_ru: q.topic_title_ru, title_es: q.topic_title_es } : null),
-      answer_options: (q.answers || q.answer_options || []).map((a: any) => ({
+      answer_options: (q.answers || q.answer_options || []).map((a) => ({
         id: a.id,
         text_ru: a.text || a.text_ru || a.answer_text || '',
         text_es: a.text_es || a.text || a.text_ru || a.answer_text || '',
@@ -760,7 +828,7 @@ const TestSession = () => {
   useEffect(() => {
     if (questionsState.length > 0) {
       // Инициализируем, если есть вопросы. Стор сам проверит дубликаты.
-      initializeExam(mode as any, questionsState, {
+      initializeExam(mode as TestMode, questionsState, {
         allQuestionsByBlock,
         timeLimit: initialTimeBudget
       });
@@ -867,7 +935,7 @@ const TestSession = () => {
     if (status === 'failed' || status === 'failed-extra') {
       if (!showFailureModal) {
         const reason = activeState.kind === 'russia'
-          ? (activeState.data as any).failureReason
+          ? (activeState.data as { failureReason?: string }).failureReason
           : "Время вышло";
         setFailureReason(reason || "Тест завершен");
         setShowFailureModal(true);
@@ -956,7 +1024,7 @@ const TestSession = () => {
     }
 
     try {
-      const { data, error } = await (supabase as any).from('user_challenge_questions')
+      const { data, error } = await supabase.from('user_challenge_questions')
         .select('id')
         .eq('user_id', profileId)
         .eq('question_id', questions[currentIndex].id)
@@ -998,7 +1066,7 @@ const TestSession = () => {
 
       if (isQuestionBookmarked) {
         // Удаляем из закладок
-        const { error, data } = await (supabase as any)
+        const { error, data } = await supabase
           .from('user_challenge_questions')
           .delete()
           .eq('user_id', profileId)
@@ -1016,7 +1084,7 @@ const TestSession = () => {
         // Добавляем в закладки
 
         // Сначала проверяем, есть ли уже запись
-        const { data: existing, error: checkError } = await (supabase as any)
+        const { data: existing, error: checkError } = await supabase
           .from('user_challenge_questions')
           .select('id, times_wrong')
           .eq('user_id', profileId)
@@ -1035,7 +1103,7 @@ const TestSession = () => {
           setIsQuestionBookmarked(true);
         } else {
           // Создаем новую запись с times_wrong = 0 (добавлено вручную)
-          const { data: insertData, error: insertError } = await (supabase as any)
+          const { data: insertData, error: insertError } = await supabase
             .from('user_challenge_questions')
             .insert({
               user_id: profileId,
@@ -1059,14 +1127,15 @@ const TestSession = () => {
           setIsQuestionBookmarked(true);
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('[Bookmark] Error toggling bookmark:', error);
-      const errorMessage = error?.message || error?.details || "Не удалось изменить закладку";
+      const appError = error as AppError;
+      const errorMessage = appError?.message || appError?.details || "Не удалось изменить закладку";
       console.error('[Bookmark] Full error object:', {
-        message: error?.message,
-        code: error?.code,
-        details: error?.details,
-        hint: error?.hint,
+        message: appError?.message,
+        code: appError?.code,
+        details: appError?.details,
+        hint: appError?.hint,
         error
       });
       toast.error(`Не удалось изменить закладку: ${errorMessage}`);
@@ -1210,7 +1279,7 @@ const TestSession = () => {
       if (!isCorrect && mode !== "mastery") {
         console.log('[Challenge Bank] Adding question to bank:', { questionId, profileId, mode });
 
-        const { data: existing, error: selectError } = await (supabase as any)
+        const { data: existing, error: selectError } = await supabase
           .from('user_challenge_questions')
           .select('id, times_wrong')
           .eq('user_id', profileId)
@@ -1224,7 +1293,7 @@ const TestSession = () => {
 
         if (existing) {
           console.log('[Challenge Bank] Updating existing record:', existing.id);
-          const { error: updateError } = await (supabase as any)
+          const { error: updateError } = await supabase
             .from('user_challenge_questions')
             .update({
               times_wrong: existing.times_wrong + 1,
@@ -1239,7 +1308,7 @@ const TestSession = () => {
           }
         } else {
           console.log('[Challenge Bank] Inserting new record');
-          const { error: insertError } = await (supabase as any)
+          const { error: insertError } = await supabase
             .from('user_challenge_questions')
             .insert({
               user_id: profileId,
@@ -1834,7 +1903,7 @@ const TestSession = () => {
           const tickets = existingData ? JSON.parse(existingData) : [];
 
           // Найти или добавить запись для этого билета
-          const existingIndex = tickets.findIndex((t: any) => t.ticket_id === effectiveTestId);
+          const existingIndex = tickets.findIndex((t: { ticket_id: string }) => t.ticket_id === effectiveTestId);
           const ticketData = {
             ticket_id: effectiveTestId,
             score: ticketScore,
@@ -1982,10 +2051,11 @@ const TestSession = () => {
 
           trackOfflineAction('test-submit', true);
         }
-      } catch (awardError: any) {
+      } catch (awardError: unknown) {
         console.error("[TestSession] Error awarding test:", awardError);
 
-        trackOfflineAction('test-submit', false, awardError.message);
+        const appError = awardError as AppError;
+        trackOfflineAction('test-submit', false, appError.message);
 
         // Fallback: показываем базовые награды локально (без начисления в БД)
         // Пользователь сможет повторить тест или награды начислятся при следующем запуске
@@ -2077,17 +2147,17 @@ const TestSession = () => {
   const currentQuestion = mode === 'exam-russia' && russiaExam.currentQuestion
     ? {
       id: russiaExam.currentQuestion.id,
-      question_ru: russiaExam.currentQuestion.text || (russiaExam.currentQuestion as any).question_ru || (russiaExam.currentQuestion as any).question_text || '',
-      question_es: russiaExam.currentQuestion.text || (russiaExam.currentQuestion as any).question_ru || '',
-      question_en: russiaExam.currentQuestion.text || (russiaExam.currentQuestion as any).question_ru || '',
-      image_url: russiaExam.currentQuestion.image || (russiaExam.currentQuestion as any).image_url,
-      explanation_ru: russiaExam.currentQuestion.explanation || (russiaExam.currentQuestion as any).explanation || null,
-      explanation_es: russiaExam.currentQuestion.explanation || (russiaExam.currentQuestion as any).explanation || null,
-      explanation_en: russiaExam.currentQuestion.explanation || (russiaExam.currentQuestion as any).explanation || null,
+      question_ru: russiaExam.currentQuestion.text || (russiaExam.currentQuestion as ExtendedQuestion).question_ru || (russiaExam.currentQuestion as ExtendedQuestion).question_text || '',
+      question_es: russiaExam.currentQuestion.text || (russiaExam.currentQuestion as ExtendedQuestion).question_ru || '',
+      question_en: russiaExam.currentQuestion.text || (russiaExam.currentQuestion as ExtendedQuestion).question_ru || '',
+      image_url: russiaExam.currentQuestion.image || (russiaExam.currentQuestion as ExtendedQuestion).image_url,
+      explanation_ru: russiaExam.currentQuestion.explanation || (russiaExam.currentQuestion as ExtendedQuestion).explanation || null,
+      explanation_es: russiaExam.currentQuestion.explanation || (russiaExam.currentQuestion as ExtendedQuestion).explanation || null,
+      explanation_en: russiaExam.currentQuestion.explanation || (russiaExam.currentQuestion as ExtendedQuestion).explanation || null,
       topics: russiaExam.currentQuestion.topics && russiaExam.currentQuestion.topics.length > 0
         ? { title_ru: russiaExam.currentQuestion.topics[0], title_es: russiaExam.currentQuestion.topics[0] }
         : null,
-      answer_options: (russiaExam.currentQuestion.answers || (russiaExam.currentQuestion as any).answer_options || []).map((a: any) => ({
+      answer_options: (russiaExam.currentQuestion.answers || (russiaExam.currentQuestion as { answer_options?: Array<unknown> }).answer_options || []).map((a: { id: string; text?: string; text_ru?: string; text_es?: string; text_en?: string; is_correct?: boolean; position?: number }) => ({
         id: a.id,
         text_ru: a.text || a.text_ru || '',
         text_es: a.text || a.text_es || '',
@@ -2370,11 +2440,11 @@ const TestSession = () => {
           >
             <UniversalQuestionCard
               mode="exam-russia"
-              question={russiaExam.currentQuestion.text || (russiaExam.currentQuestion as any).question_ru || (russiaExam.currentQuestion as any).question_text || ''}
-              image={russiaExam.currentQuestion.image || (russiaExam.currentQuestion as any).image_url}
+              question={russiaExam.currentQuestion.text || (russiaExam.currentQuestion as ExtendedQuestion).question_ru || (russiaExam.currentQuestion as ExtendedQuestion).question_text || ''}
+              image={russiaExam.currentQuestion.image || (russiaExam.currentQuestion as ExtendedQuestion).image_url}
               imageAspectRatio={russiaExam.currentQuestion.image ? getCachedImageAspectRatio(russiaExam.currentQuestion.image) : null}
               explanation={russiaExam.currentQuestion.explanation || null}
-              answers={(russiaExam.currentQuestion.answers || (russiaExam.currentQuestion as any).answer_options || []).map((a: any) => ({
+              answers={(russiaExam.currentQuestion.answers || (russiaExam.currentQuestion as { answer_options?: Array<unknown> }).answer_options || []).map((a: { id: string; text?: string; text_ru?: string; text_es?: string; text_en?: string; is_correct?: boolean; position?: number }) => ({
                 id: a.id,
                 text: a.text || a.text_ru || '',
                 isCorrect: a.isCorrect !== undefined ? a.isCorrect : (a.is_correct !== undefined ? a.is_correct : false),

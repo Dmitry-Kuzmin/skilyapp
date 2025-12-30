@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { TrendingUp } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 
 interface FunnelStats {
   clicks: number;

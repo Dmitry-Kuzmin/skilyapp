@@ -27,6 +27,7 @@ const captureEarlyError = (error: any, context: any) => {
 };
 
 setTimeout(() => {
+  // Инициализация Rollbar
   import('./lib/rollbar').then(({ initRollbar, reportError }) => {
     initRollbar();
     console.log('[Main] Rollbar initialized (deferred)');
@@ -41,6 +42,13 @@ setTimeout(() => {
     }
   }).catch(err => {
     console.warn('[Main] Failed to init Rollbar:', err);
+  });
+
+  // Инициализация Sentry
+  import('./utils/sentry').then(({ initSentry }) => {
+    initSentry();
+  }).catch(err => {
+    console.warn('[Main] Failed to init Sentry:', err);
   });
 }, 0);
 
@@ -250,8 +258,8 @@ if (!rootElement) {
 // --------------------------------------------------------
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then((registrations) => {
-    let unregisterPromises = [];
-    for (let registration of registrations) {
+    const unregisterPromises = [];
+    for (const registration of registrations) {
       console.log('💀 Killing Service Worker:', registration);
       unregisterPromises.push(registration.unregister());
     }
@@ -268,7 +276,7 @@ if ('serviceWorker' in navigator) {
   // Очистка кэша хранилища
   if ('caches' in window) {
     caches.keys().then((names) => {
-      for (let name of names) {
+      for (const name of names) {
         caches.delete(name);
       }
     });

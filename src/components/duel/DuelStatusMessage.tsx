@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from "@/components/optimized/Motion";
 import { UserX, LogOut, Trophy, AlertTriangle, Clock, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { DuelStatus } from '@/features/duel/shared';

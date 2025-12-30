@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,7 +23,7 @@ interface LeaderboardEntry {
     skin_definitions?: {
       name_ru: string;
       rarity: string;
-      metadata?: any;
+      metadata?: Record<string, unknown>;
     };
   } | null;
   displayed_badges?: Array<{
@@ -32,7 +32,7 @@ interface LeaderboardEntry {
     badge_definitions?: {
       name_ru: string;
       rarity: string;
-      metadata?: any;
+      metadata?: Record<string, unknown>;
     };
   }>;
   claimed_rewards_count?: number;
@@ -40,14 +40,14 @@ interface LeaderboardEntry {
 
 // Функция для обогащения пользователей косметикой
 async function enrichUsersWithCosmetics(
-  supabase: any,
+  supabase: SupabaseClient,
   userIds: string[],
   season: number
-): Promise<any[]> {
+): Promise<Record<string, unknown>[]> {
   if (userIds.length === 0) return [];
 
   // Загружаем ранги
-  let userRanksMap = new Map<string, string>();
+  const userRanksMap = new Map<string, string>();
   try {
     const { data: activeSeason } = await supabase
       .from("duel_pass_seasons")
@@ -65,7 +65,7 @@ async function enrichUsersWithCosmetics(
         .in("user_id", userIds);
 
       if (ranksData) {
-        ranksData.forEach((r: any) => {
+        ranksData.forEach((r: { user_id: string; rank: string }) => {
           userRanksMap.set(r.user_id, r.rank);
         });
       }
@@ -75,7 +75,7 @@ async function enrichUsersWithCosmetics(
   }
 
   // Загружаем скины
-  let activeSkins: any[] = [];
+  let activeSkins: Record<string, unknown>[] = [];
   try {
     const { data: skinsData } = await supabase
       .from("user_skins")
@@ -84,15 +84,15 @@ async function enrichUsersWithCosmetics(
       .in("user_id", userIds);
 
     if (skinsData && skinsData.length > 0) {
-      const skinIds = [...new Set(skinsData.map((s: any) => s.skin_id))];
+      const skinIds = [...new Set(skinsData.map((s: { skin_id: string }) => s.skin_id))];
       const { data: skinDefs } = await supabase
         .from("skin_definitions")
         .select("id, name_ru, rarity, metadata")
         .in("id", skinIds);
 
-      const defsMap = new Map(skinDefs?.map((d: any) => [d.id, d]) || []);
+      const defsMap = new Map(skinDefs?.map((d: { id: string }) => [d.id, d]) || []);
       activeSkins = skinsData
-        .map((skin: any) => ({
+        .map((skin: { user_id: string; skin_id: string }) => ({
           user_id: skin.user_id,
           skin_id: skin.skin_id,
           skin_definitions: defsMap.get(skin.skin_id) || null,
@@ -104,7 +104,7 @@ async function enrichUsersWithCosmetics(
   }
 
   // Загружаем бейджи
-  let displayedBadges: any[] = [];
+  let displayedBadges: Record<string, unknown>[] = [];
   try {
     const { data: badgesData } = await supabase
       .from("user_badges")
@@ -136,7 +136,7 @@ async function enrichUsersWithCosmetics(
   }
 
   // Загружаем награды
-  let claimedRewards: any[] = [];
+  let claimedRewards: Record<string, unknown>[] = [];
   try {
     const { data: rewardsData } = await supabase
       .from("user_claimed_rewards")
@@ -144,26 +144,27 @@ async function enrichUsersWithCosmetics(
       .eq("season", season)
       .in("user_id", userIds);
 
-    claimedRewards = rewardsData || [];
+    // Explicitly type the result array to avoid implicit any
+    claimedRewards = (rewardsData || []) as Record<string, unknown>[];
   } catch (e) {
     console.error("[enrichUsersWithCosmetics] Exception loading rewards:", e);
   }
 
   // Создаем мапы
-  const skinMap = new Map<string, any>();
+  const skinMap = new Map<string, unknown>();
   activeSkins.forEach((skin) => {
     if (skin.skin_definitions) {
       skinMap.set(skin.user_id, skin);
     }
   });
 
-  const badgesMap = new Map<string, any[]>();
+  const badgesMap = new Map<string, unknown[]>();
   displayedBadges.forEach((badge) => {
     if (badge.badge_definitions) {
-      if (!badgesMap.has(badge.user_id)) {
-        badgesMap.set(badge.user_id, []);
+      if (!badgesMap.has(badge.user_id as string)) {
+        badgesMap.set(badge.user_id as string, []);
       }
-      const userBadges = badgesMap.get(badge.user_id)!;
+      const userBadges = badgesMap.get(badge.user_id as string)!;
       if (userBadges.length < 3) {
         userBadges.push(badge);
       }
@@ -208,10 +209,10 @@ serve(async (req) => {
 
   try {
     console.log("[duel-pass-leaderboard] Request received:", req.method);
-    
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    
+
     if (!supabaseUrl || !supabaseKey) {
       console.error("[duel-pass-leaderboard] Missing environment variables");
       return new Response(
@@ -219,7 +220,7 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-    
+
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Параметры запроса
@@ -232,7 +233,7 @@ serve(async (req) => {
     let neighborsCount = 5;
     let page = 1;
     let pageSize = 10;
-    
+
     if (req.method === "POST") {
       try {
         const body = await req.json();
@@ -278,7 +279,7 @@ serve(async (req) => {
       }
 
       console.log("[duel-pass-leaderboard] Getting user position for:", userId);
-      
+
       const { data: positionData, error: positionError } = await supabase.rpc(
         "get_user_leaderboard_position",
         {
@@ -292,7 +293,7 @@ serve(async (req) => {
       if (positionError) {
         console.error("[duel-pass-leaderboard] Error getting user position:", positionError);
         return new Response(
-          JSON.stringify({ 
+          JSON.stringify({
             error: "Failed to get user position",
             details: positionError.message || String(positionError)
           }),
@@ -302,7 +303,7 @@ serve(async (req) => {
 
       // Загружаем косметику для соседей
       const neighbors = positionData?.neighbors || [];
-      const neighborUserIds = neighbors.map((n: any) => n.user_id);
+      const neighborUserIds = neighbors.map((n: { user_id: string }) => n.user_id);
 
       if (neighborUserIds.length > 0) {
         // Загружаем косметику для соседей (скины, бейджи)
@@ -313,8 +314,8 @@ serve(async (req) => {
         );
 
         // Объединяем данные
-        const enrichedMap = new Map(enrichedNeighbors.map((e: any) => [e.user_id, e]));
-        const finalNeighbors = neighbors.map((n: any) => ({
+        const enrichedMap = new Map(enrichedNeighbors.map((e: { user_id: unknown }) => [e.user_id, e]));
+        const finalNeighbors = neighbors.map((n: { user_id: unknown }) => ({
           ...n,
           ...enrichedMap.get(n.user_id),
         }));
@@ -362,7 +363,7 @@ serve(async (req) => {
         .or(`referrer_id.eq.${userId},referred_id.eq.${userId}`);
 
       if (referralsData && referralsData.length > 0) {
-        referralsData.forEach((f: any) => {
+        referralsData.forEach((f: { referrer_id: string; referred_id: string }) => {
           if (f.referrer_id === userId) friendIds.add(f.referred_id);
           if (f.referred_id === userId) friendIds.add(f.referrer_id);
         });
@@ -378,7 +379,7 @@ serve(async (req) => {
         .not("duel_id", "is", null);
 
       if (userDuelsData && userDuelsData.length > 0) {
-        const duelIds = userDuelsData.map((d: any) => d.duel_id);
+        const duelIds = userDuelsData.map((d: { duel_id: string }) => d.duel_id);
 
         // Проверяем, что дуэли завершены
         const { data: finishedDuels } = await supabase
@@ -432,7 +433,7 @@ serve(async (req) => {
       } else {
         // Нет друзей - возвращаем пустой результат
         return new Response(
-          JSON.stringify({ 
+          JSON.stringify({
             leaderboard: [],
             pagination: { page, page_size: pageSize, total: 0, total_pages: 0 }
           }),
@@ -451,7 +452,7 @@ serve(async (req) => {
         filteredUserIds = countryProfiles.map((p: any) => p.id);
       } else {
         return new Response(
-          JSON.stringify({ 
+          JSON.stringify({
             leaderboard: [],
             pagination: { page, page_size: pageSize, total: 0, total_pages: 0 }
           }),
@@ -498,7 +499,7 @@ serve(async (req) => {
     if (allProfilesError) {
       console.error("[duel-pass-leaderboard] Error loading all profiles:", allProfilesError);
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: "Failed to load leaderboard",
           details: allProfilesError.message || String(allProfilesError)
         }),
@@ -515,7 +516,7 @@ serve(async (req) => {
     }
 
     // Загружаем SP для всех пользователей
-    let seasonProgressMap = new Map<string, { season_points: number; level: number }>();
+    const seasonProgressMap = new Map<string, { season_points: number; level: number }>();
     if (seasonId) {
       const userIds = allProfiles.map((p) => p.id);
       const { data: seasonProgress, error: spError } = await supabase
@@ -538,14 +539,14 @@ serve(async (req) => {
     allProfiles.sort((a, b) => {
       const aSP = seasonProgressMap.get(a.id);
       const bSP = seasonProgressMap.get(b.id);
-      
+
       const aLevel = aSP?.level || a.duel_pass_level || 1;
       const bLevel = bSP?.level || b.duel_pass_level || 1;
-      
+
       if (bLevel !== aLevel) {
         return bLevel - aLevel;
       }
-      
+
       // Используем SP для сортировки, если доступно, иначе XP
       const aPoints = aSP?.season_points ?? a.duel_pass_xp ?? 0;
       const bPoints = bSP?.season_points ?? b.duel_pass_xp ?? 0;
@@ -560,7 +561,7 @@ serve(async (req) => {
 
     console.log("[duel-pass-leaderboard] Found", profiles.length, "profiles (page", page, "of", Math.ceil(count / pageSize), ")");
     const userIds = profiles.map((p) => p.id);
-    
+
     if (userIds.length === 0) {
       console.log("[duel-pass-leaderboard] No user IDs to process");
       return new Response(
@@ -570,7 +571,7 @@ serve(async (req) => {
     }
 
     // Загружаем ранги пользователей для текущего сезона
-    let userRanksMap = new Map<string, string>();
+    const userRanksMap = new Map<string, string>();
     try {
       const { data: activeSeason } = await supabase
         .from("duel_pass_seasons")
@@ -722,7 +723,7 @@ serve(async (req) => {
       const skin = skinMap.get(profile.id);
       const badges = badgesMap.get(profile.id) || [];
       const rewardsCount = rewardsCountMap.get(profile.id) || 0;
-      
+
       // Получаем ранг из таблицы или рассчитываем на основе уровня
       let userRank = userRanksMap.get(profile.id);
       if (!userRank) {
@@ -759,11 +760,11 @@ serve(async (req) => {
     });
 
     console.log("[duel-pass-leaderboard] Returning", leaderboard.length, "entries");
-    
+
     const totalPages = count ? Math.ceil(count / pageSize) : 0;
-    
+
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         leaderboard,
         pagination: {
           page,
@@ -779,7 +780,7 @@ serve(async (req) => {
     console.error("[duel-pass-leaderboard] unexpected error", error);
     console.error("[duel-pass-leaderboard] error details:", JSON.stringify(error, null, 2));
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: "Internal server error",
         details: error instanceof Error ? error.message : String(error)
       }),

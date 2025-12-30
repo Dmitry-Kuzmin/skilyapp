@@ -58,7 +58,7 @@ serve(async (req) => {
 
     if (action === 'verify') {
       console.log('[Passkey Login Simple] Verify started');
-      
+
       // ВРЕМЕННО: Просто возвращаем success для теста роутинга
       return new Response(
         JSON.stringify({
@@ -74,10 +74,11 @@ serve(async (req) => {
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[Passkey Login Simple] Error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

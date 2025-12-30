@@ -24,7 +24,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SystemStatus, SystemHealthStatus } from "@/components/admin/SystemStatus";
 import { StatsWidget } from "@/components/admin/StatsWidget";
 import { QuickActionCard } from "@/components/admin/QuickActionCard";
-import { MotionDiv as motion } from "@/components/optimized/Motion";
+import { motion } from "@/components/optimized/Motion";
 import { cn } from "@/lib/utils";
 
 export function AdminDashboard() {

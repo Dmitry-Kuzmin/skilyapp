@@ -128,7 +128,7 @@ serve(async (req) => {
         .eq("challenge_id", challenge.id)
         .maybeSingle();
 
-      let currentProgress = existingProgress?.progress || 0;
+      const currentProgress = existingProgress?.progress || 0;
       const isCompleted = existingProgress?.completed || false;
 
       // Если уже завершен, пропускаем

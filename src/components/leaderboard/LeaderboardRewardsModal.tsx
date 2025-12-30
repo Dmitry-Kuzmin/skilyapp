@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Trophy, Crown, Award, Star, Coins, Sparkles, Gem } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
 

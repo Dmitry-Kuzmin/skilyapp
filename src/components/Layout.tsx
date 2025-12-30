@@ -1,6 +1,6 @@
 import { ReactNode, useState, useEffect, useRef, useMemo, useCallback, memo, lazy, Suspense } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { Home, FileText, BookOpen, Gamepad2, User, Crown, LogIn, Swords } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";

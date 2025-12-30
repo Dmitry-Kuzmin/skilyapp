@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { LumiCharacter, LumiMood } from './LumiCharacter';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';

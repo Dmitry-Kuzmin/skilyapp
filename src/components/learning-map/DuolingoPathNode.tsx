@@ -1,7 +1,7 @@
 import { Lock, CheckCircle2, Star, BookOpen, Dumbbell, Shield, Zap, Trophy, Circle, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Topic, TopicProgress } from "./TopicCard";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
 

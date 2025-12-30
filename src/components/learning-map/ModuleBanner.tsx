@@ -1,7 +1,7 @@
 import { ArrowLeft, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Topic } from "./TopicCard";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 
 interface ModuleBannerProps {
   moduleNumber: number;

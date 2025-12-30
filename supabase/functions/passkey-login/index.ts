@@ -55,7 +55,7 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    
+
     // Service role client для admin операций
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
@@ -63,7 +63,7 @@ serve(async (req) => {
         persistSession: false,
       },
     });
-    
+
     // Anon client для verifyOtp (публичные операции)
     const supabaseAnon = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
@@ -171,7 +171,7 @@ serve(async (req) => {
 
       // Конвертируем public_key в Uint8Array для @simplewebauthn
       let credentialPublicKey: Uint8Array;
-      
+
       try {
         if (typeof passkeyData.public_key === 'string') {
           // Пытаемся распарсить как JSON (массив чисел)
@@ -187,9 +187,9 @@ serve(async (req) => {
           credentialPublicKey = new Uint8Array(passkeyData.public_key);
         } else {
           // Buffer объект или другой формат
-          credentialPublicKey = new Uint8Array(passkeyData.public_key as any);
+          credentialPublicKey = new Uint8Array(passkeyData.public_key as ArrayLike<number>);
         }
-        
+
         console.log('[Passkey Login] Public key converted, length:', credentialPublicKey.length);
       } catch (error) {
         console.error('[Passkey Login] Failed to parse public_key:', error);
@@ -286,7 +286,7 @@ serve(async (req) => {
         const { data: sessionData, error: verifyError } = await supabaseAnon.auth.verifyOtp({
           type: 'magiclink',
           token_hash: hashedToken, // ← ТОЛЬКО token_hash и type!
-        } as any); // as any для обхода TypeScript types
+        } as unknown as any); // Type assertion needed for strict checks, using unknown -> any to be explicit about bypass
 
         if (verifyError || !sessionData?.session) {
           console.error('[Passkey Login] Failed to verify OTP:', verifyError);
@@ -315,12 +315,12 @@ serve(async (req) => {
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
 
-      } catch (verificationError: any) {
+      } catch (verificationError: unknown) {
         console.error('[Passkey Login] Verification error:', verificationError);
         return new Response(
           JSON.stringify({
             error: 'Verification failed',
-            details: verificationError.message,
+            details: verificationError instanceof Error ? verificationError.message : String(verificationError),
           }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -333,10 +333,11 @@ serve(async (req) => {
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[Passkey Login] Error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(
-      JSON.stringify({ error: error.message || 'Internal server error' }),
+      JSON.stringify({ error: errorMessage || 'Internal server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

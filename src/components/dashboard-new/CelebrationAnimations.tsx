@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import Confetti from 'react-confetti';
 import { Trophy, Sparkles, Star, Award, Zap, Crown, Flame } from 'lucide-react';
 import { 

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 
 interface TestModeSelectorProps {
     options: number[];

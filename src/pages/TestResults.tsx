@@ -9,11 +9,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { usePremium } from "@/hooks/usePremium";
 import { getImageUrl } from "@/utils/imageUtils";
-import { MotionDiv as motion, AnimatePresence } from "@/components/optimized/Motion";
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import Confetti from "react-confetti";
 import { useVignetteBanner } from "@/hooks/useVignetteBanner";
 import { useInterstitialBanner } from "@/hooks/useInterstitialBanner";
-import SmartDebriefCard, { FailedQuestion } from "@/components/test-results/SmartDebriefCard";
+import SmartDebriefCard, { FailedQuestion } from "@/components/test-results/SmartDebriefCardV3";
+import { AIInsightsLibrary } from "@/components/test-results/AIInsightsLibrary";
 import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";
 
@@ -454,6 +455,13 @@ const TestResults = () => {
             <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium relative z-10">XP получен</span>
           </div>
         </motion.div>
+
+        {/* AI Insights Library (PRO only) */}
+        {isPremium && (
+          <div className="mb-8 flex justify-center w-full">
+            <AIInsightsLibrary isPremium={isPremium} />
+          </div>
+        )}
 
         {/* Smart Debrief — AI анализ ошибок */}
         {incorrectCount > 0 && answers.length > 0 && (

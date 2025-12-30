@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from "@/components/optimized/Motion";
 import { Check, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

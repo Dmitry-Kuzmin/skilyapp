@@ -3,7 +3,7 @@ import { loadTiptap } from "./lazyTiptap";
 /**
  * Генерирует HTML preview из JSON TipTap контента
  */
-export async function generateHTMLPreview(content: any): Promise<string> {
+export async function generateHTMLPreview(content: Record<string, unknown>): Promise<string> {
   if (!content) return "";
 
   try {
@@ -28,7 +28,7 @@ export async function generateHTMLPreview(content: any): Promise<string> {
 /**
  * Debounce функция для автосохранения
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => void>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {

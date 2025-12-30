@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo, useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from "@/components/optimized/Motion";
 import { Swords, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';

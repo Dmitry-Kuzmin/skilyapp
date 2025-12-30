@@ -24,7 +24,7 @@ import Layout from "@/components/Layout";
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 
 const adminNavItems = [
   {

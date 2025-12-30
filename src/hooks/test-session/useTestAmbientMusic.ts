@@ -28,7 +28,7 @@ export const useTestAmbientMusic = (enabled: boolean) => {
             return;
         }
 
-        let failedTracks = new Set<number>();
+        const failedTracks = new Set<number>();
         let trackTimeout: NodeJS.Timeout | null = null;
         let handleEndedRef: (() => void) | null = null;
         let handleErrorRef: (() => void) | null = null;

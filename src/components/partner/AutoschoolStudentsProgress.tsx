@@ -19,7 +19,7 @@ import {
   Calendar,
   UserPlus
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 import { AddStudentDialog } from "./AddStudentDialog";
 
 interface StudentProgress {

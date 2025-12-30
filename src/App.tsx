@@ -1,3 +1,4 @@
+// Force Reload Trigger: 2025-12-29 23:59:00
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { BrowserRouter, useLocation, Routes, Route, useNavigate } from "react-router-dom";
 import { TelegramProvider } from "@/contexts/TelegramContext";
@@ -280,6 +281,9 @@ const LandingRedirect = () => {
 };
 
 const App = () => {
+  // PARANOID CHECK: TypeScript strict mode test
+  const strictModeTest: number = "this should fail";
+
   console.log('[App] 🚀🚀🚀 App component rendering started 🚀🚀🚀', {
     timestamp: new Date().toISOString(),
     pathname: typeof window !== 'undefined' ? window.location.pathname : 'unknown',

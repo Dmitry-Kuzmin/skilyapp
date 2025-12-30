@@ -157,3 +157,26 @@ export function createRussiaExamState(
 }
 
 
+
+/**
+ * Статистика по группе вопросов
+ */
+export interface QuestionGroupStats {
+  correct: number;
+  total: number;
+  accuracy: number;
+}
+
+/**
+ * Итоговая статистика экзамена ПДД РФ
+ */
+export interface RussiaExamStats {
+  mainQuestions: QuestionGroupStats;
+  extraQuestions: QuestionGroupStats;
+  totalErrors: number;
+  errorsPerBlock: Record<number, number>;
+  timeSpent: number;
+  timeLimit: number;
+  status: 'in-progress' | 'passed' | 'failed' | 'failed-extra';
+  failureReason?: string;
+}

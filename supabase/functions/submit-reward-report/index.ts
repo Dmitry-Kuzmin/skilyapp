@@ -12,7 +12,7 @@ interface ReportRequest {
   report_type: "reward_penalty" | "reward_missing" | "reward_incorrect" | "other";
   session_id?: string;
   test_result_id?: string;
-  reward_calculation_data: any;
+  reward_calculation_data: Record<string, unknown>;
   user_message?: string;
 }
 
@@ -103,10 +103,10 @@ serve(async (req) => {
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[submit-reward-report] Exception:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : String(error) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

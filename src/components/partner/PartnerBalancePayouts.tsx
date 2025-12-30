@@ -18,7 +18,7 @@ import {
   DollarSign,
   AlertCircle,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 
 interface BalanceData {
   balance_available: number;

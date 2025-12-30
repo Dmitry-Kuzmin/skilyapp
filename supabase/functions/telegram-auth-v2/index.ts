@@ -72,7 +72,7 @@ async function getTelegramProfilePhoto(telegramId: number): Promise<string | nul
 }
 
 // 1. Валидация данных от Telegram (Криптография)
-async function validateTelegramData(initData: string): Promise<any> {
+async function validateTelegramData(initData: string): Promise<Record<string, unknown>> {
     const urlParams = new URLSearchParams(initData);
     const hash = urlParams.get("hash");
 
@@ -207,10 +207,12 @@ Deno.serve(async (req) => {
         console.log('[telegram-auth-v2] 🔑 Attempting sign in for:', email);
 
         // Пытаемся залогинить (если юзер уже есть)
-        let { data, error } = await supabaseAdmin.auth.signInWithPassword({
+        const signInResult = await supabaseAdmin.auth.signInWithPassword({
             email,
             password,
         });
+        let { data } = signInResult;
+        const { error } = signInResult;
 
         let isNewUser = false;
 

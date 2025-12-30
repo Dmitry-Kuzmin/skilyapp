@@ -7,6 +7,8 @@
  * Правило: Если тип/константа используется в 2+ файлах - она должна быть здесь.
  */
 
+import type { DuelData, DuelPlayer, DuelAnswer } from '@/types/duel';
+
 // ============================================================================
 // CONSTANTS
 // ============================================================================
@@ -56,7 +58,7 @@ export interface ActiveExploit {
     popup_count?: number;
     delay_ms?: number;
     shuffle_duration_ms?: number;
-    [key: string]: any;
+    [key: string]: unknown;
   };
   receivedAt: number;
   expiresAt: number;
@@ -69,7 +71,7 @@ export interface DuelRealtimeState {
   opponentJoined: boolean;
   opponentScore: number;
   opponentAnswered: boolean;
-  opponentAnswerData: any | null;
+  opponentAnswerData: DuelAnswer | null;
   duelStarted: boolean;
   duelFinished: boolean;
   currentQuestion: number;
@@ -111,12 +113,12 @@ export interface ClaimTechnicalWinResult {
  */
 export interface DuelResultSnapshot {
   duelId: string;
-  duel: any; // Данные дуэли из БД
-  players: any[]; // Массив игроков с профилями
-  myPlayer: any; // Данные моего игрока
-  opponentPlayer: any; // Данные оппонента
-  myAnswers: any[]; // Мои ответы
-  opponentAnswers: any[]; // Ответы оппонента
+  duel: DuelData;
+  players: DuelPlayer[];
+  myPlayer: DuelPlayer;
+  opponentPlayer: DuelPlayer;
+  myAnswers: DuelAnswer[];
+  opponentAnswers: DuelAnswer[];
   results: {
     isWinner: boolean;
     isDraw: boolean;

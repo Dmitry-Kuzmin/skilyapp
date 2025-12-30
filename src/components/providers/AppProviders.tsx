@@ -21,6 +21,7 @@ import { useAuthEventListener } from "@/hooks/useAuthEventListener.ts";
 import { preloadPaddle } from "@/lib/paddle";
 import { useIdleInitialization } from "@/hooks/useIdleInitialization";
 import { GlobalSettingsManager } from "@/components/settings";
+import { Motion } from "@/components/optimized/Motion";
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -144,22 +145,24 @@ export function AppProviders({ children }: AppProvidersProps) {
         },
       }}
     >
-      <TooltipProvider>
-        <Sonner />
-        <UserProvider>
-          <NotificationProvider>
-            <PDDProvider>
-              <ReconnectHandler />
-              {/* Global Settings Drawer (Zustand controlled) */}
-              <GlobalSettingsManager />
-              {(() => {
-                console.log('[AppProviders] Rendering children (AppRoutes)');
-                return children;
-              })()}
-            </PDDProvider>
-          </NotificationProvider>
-        </UserProvider>
-      </TooltipProvider>
+      <Motion>
+        <TooltipProvider>
+          <Sonner />
+          <UserProvider>
+            <NotificationProvider>
+              <PDDProvider>
+                <ReconnectHandler />
+                {/* Global Settings Drawer (Zustand controlled) */}
+                <GlobalSettingsManager />
+                {(() => {
+                  console.log('[AppProviders] Rendering children (AppRoutes)');
+                  return children;
+                })()}
+              </PDDProvider>
+            </NotificationProvider>
+          </UserProvider>
+        </TooltipProvider>
+      </Motion>
     </PersistQueryClientProvider>
   );
 }

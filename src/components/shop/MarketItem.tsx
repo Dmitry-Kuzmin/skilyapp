@@ -1,5 +1,5 @@
 import { memo, useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Coins, Download, Zap, Shield, Wand2, Lock, Check } from 'lucide-react';

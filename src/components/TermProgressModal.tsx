@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { CheckCircle2, Clock, BookOpen, TrendingUp, Sparkles, Trophy, Zap, Info, HelpCircle } from "lucide-react";
 import { getTermProgressStats, TermProgress } from "@/lib/termProgress";
 import { useUserContext } from "@/contexts/UserContext";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import {
   Collapsible,
   CollapsibleContent,

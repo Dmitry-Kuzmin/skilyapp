@@ -83,10 +83,10 @@ serve(async (req) => {
         } else {
           // Ошибка начисления
           const errors = rewardsResult?.errors || ['Unknown error'];
-          
+
           // Проверить, не превышен ли лимит попыток
           const newRetryCount = payment.retry_count + 1;
-          
+
           if (newRetryCount >= MAX_RETRY_ATTEMPTS) {
             // Превышен лимит - перевести в manual_review
             await supabase
@@ -109,9 +109,10 @@ serve(async (req) => {
 
         results.processed++;
 
-      } catch (error: any) {
+      } catch (error: unknown) {
         results.failed++;
-        results.errors.push(`Payment ${payment.id}: ${error.message}`);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        results.errors.push(`Payment ${payment.id}: ${errorMessage}`);
         console.error(`[Stars Payment Retry] Error processing payment ${payment.id}:`, error);
       }
     }
@@ -127,10 +128,11 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[Stars Payment Retry] Fatal error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(
-      JSON.stringify({ error: error.message || 'Internal server error' }),
+      JSON.stringify({ error: errorMessage || 'Internal server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

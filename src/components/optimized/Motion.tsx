@@ -26,6 +26,11 @@ export const motion = {
   h2: m.h2,
   h3: m.h3,
   p: m.p,
+  circle: m.circle,
+  svg: m.svg,
+  path: m.path,
+  g: m.g,
+  rect: m.rect,
   // Добавьте другие элементы по необходимости
 };
 

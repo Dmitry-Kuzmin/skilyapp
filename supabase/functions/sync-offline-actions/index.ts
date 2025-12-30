@@ -21,7 +21,7 @@ const corsHeaders = {
 
 interface OfflineAction {
   id: string;
-  payload: any;
+  payload: Record<string, unknown>;
   profileId: string;
   timestamp: number;
 }
@@ -54,7 +54,7 @@ serve(async (req) => {
       case 'test-result': {
         // ВАЖНО: Используем существующую Edge Function complete-test-and-award
         // Она уже имеет idempotency через session_id!
-        
+
         for (const action of actions) {
           try {
             const { data, error } = await supabase.functions.invoke('complete-test-and-award', {
@@ -74,7 +74,7 @@ serve(async (req) => {
             if (error) {
               console.error(`[sync-offline-actions] Failed to sync test ${action.id}:`, error);
               results.failed++;
-              results.errors.push(`${action.id}: ${error.message || String(error)}`);
+              results.errors.push(`${action.id}: ${error instanceof Error ? error.message : String(error)}`);
             } else {
               console.log(`[sync-offline-actions] ✅ Synced test ${action.id}`);
               results.success++;
@@ -93,7 +93,7 @@ serve(async (req) => {
         for (const action of actions) {
           try {
             const payload = action.payload;
-            
+
             // Проверяем не обработали ли уже это действие
             const { data: existing } = await supabase
               .from('transactions')
@@ -131,7 +131,7 @@ serve(async (req) => {
 
               if (boostError) {
                 console.error(`[sync-offline-actions] Failed to add boost for ${action.id}:`, boostError);
-                
+
                 // Откатываем монеты
                 await supabase.rpc('increment_profile_value', {
                   p_profile_id: action.profileId,

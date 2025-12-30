@@ -36,14 +36,24 @@ interface AnalyticsData {
 export function useAnalytics(
   profileId: string | null,
   currentScore: number,
-  targetScore: number = 85
+  targetScore: number = 85,
+  country: string = 'ru'
 ) {
   // Получаем список тем из кэша (статические данные)
   const { data: topicsList = [] } = useTopicsList();
 
+  // Фильтруем темы по стране
+  const countryTopics = useMemo(() => {
+    // Если topicsList имеет поле country или language, фильтруем. 
+    // Пока предполагаем, что topicsList возвращает все, и мы фильтруем по логике приложения или topicsList уже отфильтрован
+    // Но topicsList из useStaticData обычно общий.
+    // В данном случае просто возвращаем все, так как progress фильтрует по topic_id
+    return topicsList;
+  }, [topicsList]);
+
   // Загружаем аналитические данные одним запросом
   const { data: rawData, isLoading: loading, error } = useQuery({
-    queryKey: ['analytics-data', profileId],
+    queryKey: ['analytics-data', profileId, country],
     queryFn: async () => {
       if (!profileId) return null;
 
@@ -52,18 +62,19 @@ export function useAnalytics(
         // 1. Сессии тестов
         supabase
           .from('game_sessions')
-          .select('score, total_questions, created_at, game_type')
+          .select('score, total_questions, created_at, game_type, metadata') // Запрашиваем metadata для фильтрации
           .eq('user_id', profileId)
           .or('game_type.eq.test_exam,game_type.eq.test_practice')
           .order('created_at', { ascending: false })
           .limit(50),
-        
-        // 2. Прогресс пользователя
+
+        // 2. Прогресс пользователя (фильтруем по стране через JOIN)
         supabase
           .from('user_progress')
-          .select('is_correct, question_id, questions_new!inner(topic_id)')
+          .select('is_correct, question_id, questions_new!inner(topic_id, country)')
           .eq('user_id', profileId)
-          .eq('is_answered', true),
+          .eq('is_answered', true)
+          .eq('questions_new.country', country), // Фильтрация по стране
       ]);
 
       if (sessionsResult.error) throw sessionsResult.error;
@@ -77,7 +88,7 @@ export function useAnalytics(
       };
     },
     enabled: !!profileId,
-    staleTime: 60 * 1000, // 1 минута
+    staleTime: 60 * 1000,
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -88,12 +99,25 @@ export function useAnalytics(
   const analytics = useMemo(() => {
     if (!rawData) return null;
 
+    // Фильтруем сессии по стране (если есть metadata.country)
+    // ТАКЖЕ: Отсеиваем "мусорные" сессии (менее 5 вопросов)
+    const filteredSessions = rawData.sessions.filter((s: any) => {
+      // 1. Проверка на пустоту
+      if (!s.total_questions || s.total_questions < 5) return false;
+
+      // 2. Проверка страны
+      if (s.metadata && s.metadata.country) {
+        return s.metadata.country === country;
+      }
+      return true;
+    });
+
     // Преобразуем данные сессий в формат TestResult
-    const testResults: TestResult[] = rawData.sessions.map(session => {
+    const testResults: TestResult[] = filteredSessions.map((session: any) => {
       const accuracy = session.total_questions > 0
         ? ((session.score || 0) / session.total_questions) * 100
         : 0;
-      
+
       return {
         score: session.score || 0,
         accuracy: Math.round(accuracy),
@@ -104,12 +128,13 @@ export function useAnalytics(
 
     // Создаем карту тем из кэшированного списка
     const topicMap = new Map(
-      topicsList.map(t => [t.id, { id: t.id, title: t.title_ru || 'Неизвестная тема' }])
+      countryTopics.map(t => [t.id, { id: t.id, title: t.title_ru || 'Неизвестная тема' }])
     );
 
     // Подсчитываем ошибки по темам
     const topicErrors = new Map<string, { errors: number; attempts: number }>();
     rawData.progress.forEach((progress: any) => {
+      // progress уже отфильтрован по стране в запросе
       const topicId = progress.questions_new?.topic_id;
       if (topicId && topicMap.has(topicId)) {
         const stats = topicErrors.get(topicId) || { errors: 0, attempts: 0 };
@@ -124,7 +149,7 @@ export function useAnalytics(
     // Рассчитываем метрики
     const trend = calculateTrend(testResults, 10);
     const consistency = calculateConsistencyScore(testResults);
-    
+
     // Рассчитываем среднее количество тестов в день
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const recentTests = testResults.filter(t => new Date(t.date) >= sevenDaysAgo);
@@ -164,6 +189,11 @@ export function useAnalytics(
     const focusBattery = calculateFocusBattery(testResults);
     const activityHeatmap = generateActivityHeatmap(testResults, 30);
 
+    // Рассчитываем средний балл по отфильтрованным тестам
+    const filteredAverageScore = testResults.length > 0
+      ? Math.round(testResults.reduce((acc, t) => acc + t.accuracy, 0) / testResults.length)
+      : 0;
+
     return {
       trend,
       consistency,
@@ -171,13 +201,13 @@ export function useAnalytics(
       criticalPoint,
       focusBattery,
       activityHeatmap,
+      averageScore: filteredAverageScore, // Возвращаем отфильтрованный средний балл
     };
-  }, [rawData, topicsList, currentScore, targetScore]);
+  }, [rawData, countryTopics, currentScore, targetScore, country]);
 
-  return { 
-    analytics, 
-    loading, 
-    error: error as Error | null 
+  return {
+    analytics,
+    loading,
+    error: error as Error | null
   };
 }
-

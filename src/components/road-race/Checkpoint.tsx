@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trophy, Gauge, Fuel, Flame, ArrowRight, X, Star } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 import type { Route, GameStats } from "@/pages/games/RoadRace";
 
 interface CheckpointProps {

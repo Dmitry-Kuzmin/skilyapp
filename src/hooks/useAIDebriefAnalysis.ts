@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { isTelegramMiniApp } from '@/lib/telegram/utils';
+import { isTelegramMiniApp } from '@/lib/telegram';
 import { useAnalysisHistoryStore, type AIDiagnosis } from '@/stores/useAnalysisHistoryStore';
 import type { FailedQuestion, StudentStats } from '@/components/test-results/SmartDebriefCard';
 
@@ -133,9 +133,11 @@ export function useAIDebriefAnalysis() {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({
-                    message: prompt,
+                    messages: [{ role: 'user', content: prompt }],
                     stream: true,
                     temperature: 0.7,
+                    country: country,
+                    mode: 'debrief',
                 }),
             });
 

@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Clock, Zap, Star, ArrowLeft, RotateCcw, Target, Award, TrendingUp, Sparkles, Shield, Check, X, HelpCircle, SkipForward, Timer } from "lucide-react";
-import { MotionDiv as motion, AnimatePresence } from "@/components/optimized/Motion";
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { toast } from "sonner";
 import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";

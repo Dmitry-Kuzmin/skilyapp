@@ -10,7 +10,8 @@ import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MapPin, Globe, Sparkles, Loader2, CheckCircle2, ArrowRight, Zap, Shield, Clock, Target } from 'lucide-react';
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, AnimatePresence } from '@/components/optimized/Motion';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 

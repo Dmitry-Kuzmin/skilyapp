@@ -48,7 +48,7 @@ const getSeasonBonusPreview = (bet: number) => bet > 0 ? Math.round(20 * getRisk
 
 // 🆕 Helper для debug fetch (только в dev режиме)
 // УДАЛЕНО: debug fetch вызовы убраны для стабильности - они вызывали ERR_CONNECTION_REFUSED
-const debugFetch = (data: any) => {
+const debugFetch = (data: unknown) => {
     // Отключено для стабильности
 };
 
@@ -891,7 +891,7 @@ export default function Duel() {
             }
 
             // Подготовка данных для отправки
-            const requestBody: any = {
+            const requestBody: Record<string, unknown> = {
                 action: 'find_match',
                 profile_id: profileId,
                 num_questions: numQuestionsValue,
@@ -974,7 +974,7 @@ export default function Duel() {
 
             // Пытаемся извлечь детали ошибки из ответа Edge Function
             let errorMessage = 'Ошибка при поиске соперника';
-            let errorDetails: any = null;
+            let errorDetails: Record<string, unknown> | null = null;
 
             // Пробуем разные способы извлечения деталей ошибки
             // errorDetails уже должен быть установлен в блоке выше (если error.context был Response)
@@ -996,8 +996,8 @@ export default function Duel() {
 
             // Если есть детали валидации
             if (errorDetails?.details && Array.isArray(errorDetails.details)) {
-                const validationErrors = errorDetails.details
-                    .map((d: any) => {
+                const validationErrors = (errorDetails.details as Array<{ path?: string[]; message: string; received?: unknown }>)
+                    .map((d) => {
                         const field = d.path?.join('.') || 'unknown';
                         const value = d.received !== undefined ? ` (получено: ${JSON.stringify(d.received)})` : '';
                         return `${field}: ${d.message}${value}`;
@@ -1489,26 +1489,26 @@ export default function Duel() {
                                                                         <Target size={12} />
                                                                         <span>Настройки матча</span>
                                                                     </div>
-                                                                    
+
                                                                     <div className="flex items-center gap-1 bg-secondary/30 rounded-lg p-1 border border-white/5">
-                                                                         <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mr-2 pl-2">Вопросы:</span>
-                                                                         <button
+                                                                        <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mr-2 pl-2">Вопросы:</span>
+                                                                        <button
                                                                             onClick={() => setNumQuestions(Math.max(5, numQuestions - 5))}
                                                                             disabled={isCreating || numQuestions <= 5}
                                                                             className="w-7 h-7 flex items-center justify-center rounded-md bg-background/80 shadow-sm hover:bg-background disabled:opacity-30 transition-all active:scale-95 border border-black/5 dark:border-white/5"
-                                                                         >
+                                                                        >
                                                                             <Minus size={12} />
-                                                                         </button>
-                                                                         <div className="w-8 text-center font-black text-sm tabular-nums text-foreground">
+                                                                        </button>
+                                                                        <div className="w-8 text-center font-black text-sm tabular-nums text-foreground">
                                                                             {numQuestions}
-                                                                         </div>
-                                                                         <button
+                                                                        </div>
+                                                                        <button
                                                                             onClick={() => setNumQuestions(Math.min(30, numQuestions + 5))}
                                                                             disabled={isCreating || numQuestions >= 30}
                                                                             className="w-7 h-7 flex items-center justify-center rounded-md bg-background/80 shadow-sm hover:bg-background disabled:opacity-30 transition-all active:scale-95 border border-black/5 dark:border-white/5"
-                                                                         >
+                                                                        >
                                                                             <Plus size={12} />
-                                                                         </button>
+                                                                        </button>
                                                                     </div>
                                                                 </div>
 

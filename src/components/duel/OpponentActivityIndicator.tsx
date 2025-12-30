@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from "@/components/optimized/Motion";
 import { Wifi, WifiOff, Brain, Zap, RefreshCw, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

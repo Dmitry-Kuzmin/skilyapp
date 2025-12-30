@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { Check, Loader2, Scan } from "lucide-react";
 import { sounds } from "@/lib/sounds";
 

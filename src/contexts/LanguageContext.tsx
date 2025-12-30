@@ -191,6 +191,7 @@ const translations: Record<Language, Record<string, any>> = {
     dashboard: {
       onlineStatus: "Sistema en línea",
       licenseStatus: "Licencia B",
+      licenseType: "PERMISO DE CONDUCCIÓN",
       cockpitButton: "Cabina",
       heroGreeting: "¡Hola, piloto!",
       heroEfficiencyPrefix: "Tu eficiencia es",
@@ -2132,6 +2133,28 @@ const translations: Record<Language, Record<string, any>> = {
         campaign: "Кампания",
         close: "Закрыть",
       },
+    },
+
+    dashboard: {
+      onlineStatus: "Система онлайн",
+      licenseStatus: "Категория B",
+      licenseType: "ВОДИТЕЛЬСКОЕ УДОСТОВЕРЕНИЕ",
+      cockpitButton: "Кабина",
+      heroGreeting: "Привет, пилот!",
+      heroEfficiencyPrefix: "Твоя эффективность",
+      heroStatus: {
+        ready: "Датчики показывают полную готовность к сессии.",
+        progress: "Продолжай тренировки чтобы улучшить результат.",
+        start: "Пройди больше тестов для калибровки систем.",
+      },
+      stats: {
+        xp: "Опыт",
+        tests: "Тесты",
+        coins: "Монеты",
+      },
+      startButton: "Поехали",
+      level: "Уровень",
+      streak: "Серия дней",
     },
 
     // Other

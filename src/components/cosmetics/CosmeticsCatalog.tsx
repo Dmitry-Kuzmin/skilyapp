@@ -21,7 +21,7 @@ import {
   CheckCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 import { useNavigate } from "react-router-dom";
 import { usePremium } from "@/hooks/usePremium";
 import { useCosmeticsPreview, type PreviewSkin, type PreviewBadge, type PreviewSticker } from "@/contexts/CosmeticsPreviewContext";

@@ -2,7 +2,8 @@ import React, { useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playClickSound } from '@/services/audioService';
 import { Info, X, Rocket, TrendingUp, Target, Award, Sparkles, AlertCircle, Activity, Brain, Calendar, Zap } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { usePDDContext } from '@/contexts/PDDContext';
+import { motion } from "@/components/optimized/Motion";
 import { getReadinessStatus } from '@/utils/examReadiness';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { AnalyticsPanel } from './AnalyticsPanel';
@@ -95,18 +96,28 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
 
   const hasNoData = averageScore === 0 && testsCompleted === 0;
 
+  const { selectedCountry } = usePDDContext();
+  const TARGET_READINESS_SCORE = 85;
+
   // Загружаем аналитические данные
   const { analytics, loading: analyticsLoading } = useAnalytics(
     profileId || null,
     averageScore,
-    85 // Целевой уровень 85%
+    TARGET_READINESS_SCORE, // Целевой уровень 85%
+    selectedCountry
   );
 
   const { score, statusInfo, gaugeColor, textColor, bgColor, fullDescription, currentLevelIndex } = useMemo(() => {
-    const scoreValue = Math.round(averageScore);
+    // ВАЖНО: Используем averageScore из пропсов (это рассчитанная Readiness Percent по формуле),
+    // если она есть. analytics.averageScore - это просто средняя точность, она не учитывает объем тестов.
+    const effectiveScore = averageScore;
+    const scoreValue = Math.min(100, Math.max(0, Math.round(effectiveScore)));
 
     // Используем getReadinessStatus для определения статуса
-    const readinessStatus = status ? null : getReadinessStatus(scoreValue);
+    // ВАЖНО: Если у нас есть analytics (загрузился), мы игнорируем переданный глобальный status,
+    // чтобы использовать локально рассчитанный статус на основе filtered данных
+    const shouldUseLocalStatus = !!analytics;
+    const readinessStatus = (status && !shouldUseLocalStatus) ? null : getReadinessStatus(scoreValue);
 
     // Определяем индекс текущего уровня
     let currentIndex = 0;

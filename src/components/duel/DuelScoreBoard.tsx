@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { Trophy, Swords, Shield, Zap, Coins, Sparkles, Flame } from 'lucide-react';
 import { OpponentActivityIndicator } from './OpponentActivityIndicator';
 import { CompactConnectionStatusIndicator } from './CompactConnectionStatusIndicator';

@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";
 import type { Route, Question, GameStats } from "@/pages/games/RoadRace";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { getImageUrl } from "@/utils/imageUtils";
 
 interface RaceGameProps {

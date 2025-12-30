@@ -29,7 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale/ru';
 import { triggerHaptic } from '@/lib/haptics';

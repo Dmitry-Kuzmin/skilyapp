@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from "@/components/optimized/Motion";
 import { AlertCircle, TrendingUp, Activity, Brain, Calendar, Target, Zap, Clock } from 'lucide-react';
 import type { TrendData, CriticalPoint } from '@/utils/analytics';
 

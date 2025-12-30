@@ -181,7 +181,7 @@ const DailyBonus = () => {
       setCanClaimBonus(false);
 
       // Показываем награду
-      let rewardText = [];
+      const rewardText = [];
       if (reward?.xp > 0) rewardText.push(`+${reward.xp} XP`);
       if (reward?.coins > 0) rewardText.push(`+${reward.coins} монет`);
       if (reward?.boost) rewardText.push('⚡ Boost получен!');

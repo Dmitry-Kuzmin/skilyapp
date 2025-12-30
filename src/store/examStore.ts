@@ -4,7 +4,8 @@ import {
     RussiaExamState,
     AnswerResult,
     createRussiaExamState,
-    ExtraQuestion
+    ExtraQuestion,
+    RussiaExamStats
 } from '@/types/pddExam';
 import { handleMainQuestionAnswer, handleExtraQuestionAnswer, applyAnswerToState, getExamStats } from '@/utils/russiaExamLogic';
 
@@ -46,9 +47,21 @@ type UnifiedState = {
     data: StandardTestState;
 };
 
+export interface StandardExamStats {
+    correct: number;
+    total: number;
+    streak: number;
+    timeSpent: number;
+}
+
+export interface ExamOptions {
+    allQuestionsByBlock?: Record<number, UniversalQuestion[]>;
+    timeLimit?: number;
+}
+
 interface ExamActions {
     // Initialization
-    initializeExam: (mode: TestMode, questions: UniversalQuestion[], options?: any) => void;
+    initializeExam: (mode: TestMode, questions: UniversalQuestion[], options?: ExamOptions) => void;
     resetExam: () => void;
 
     // Interaction
@@ -64,7 +77,7 @@ interface ExamActions {
     // Selectors/Helpers attached to store for convenience
     getCurrentQuestion: () => UniversalQuestion | null;
     getComputedProgress: () => { current: number; total: number; percent: number; label: string };
-    getComputedStats: () => any;
+    getComputedStats: () => RussiaExamStats | StandardExamStats | null;
 }
 
 type ExamStore = {
@@ -172,7 +185,7 @@ export const useExamStore = create<ExamStore>((set, get) => ({
             }
 
             // Check completion / failure
-            let newStatus = data.status;
+            const newStatus = data.status;
 
             // Blitz Failure Condition (1 error = fail or time out)
             // BUT usually blitz allows errors but streak resets? Let's assume standard behavior:

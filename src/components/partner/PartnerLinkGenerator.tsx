@@ -33,7 +33,7 @@ import {
   TrendingUp,
   Users
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import QRCode from "react-qr-code";
 
 interface Props {

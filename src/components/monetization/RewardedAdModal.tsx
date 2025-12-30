@@ -4,7 +4,7 @@ import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { Loader2, Video, Coins, Calendar, Sparkles, CheckCircle2, Zap, Gift, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 
 interface RewardedAdModalProps {
   open: boolean;

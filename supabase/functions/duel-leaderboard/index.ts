@@ -1,12 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createPooledSupabaseClient } from '../_shared/supabase-client.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-type LeaderboardEntry = {
+interface LeaderboardEntry {
   userId: string;
   total_profit: number;
   total_sp: number;
@@ -19,8 +19,23 @@ type LeaderboardEntry = {
     first_name?: string | null;
     username?: string | null;
     avatar_url?: string | null;
+  } | null;
+}
+
+interface DuelHistoryRow {
+  bet_id: string;
+  result: string;
+  payout_host: number;
+  payout_opponent: number;
+  season_sp_host: number;
+  season_sp_opponent: number;
+  insurance_refund_host: number;
+  insurance_refund_opponent: number;
+  duel_bets: {
+    host_user: string;
+    opponent_user: string;
   };
-};
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -28,16 +43,16 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createPooledSupabaseClient();
 
     let limit = 20;
     if (req.method === "POST") {
-      const body = await req.json().catch(() => ({}));
-      if (body?.limit) {
-        limit = Math.min(Math.max(parseInt(body.limit, 10) || 20, 5), 50);
-      }
+      try {
+        const body = await req.json();
+        if (body?.limit) {
+          limit = Math.min(Math.max(parseInt(body.limit, 10) || 20, 5), 50);
+        }
+      } catch { /* empty */ }
     }
 
     const { data: history, error: historyError } = await supabase
@@ -54,37 +69,27 @@ serve(async (req) => {
         duel_bets!inner(host_user, opponent_user)
       `)
       .order("processed_at", { ascending: false })
-      .limit(1000);
+      .limit(1000) as { data: DuelHistoryRow[] | null, error: unknown };
 
     if (historyError) {
       console.error("[duel-leaderboard] Error loading history:", historyError);
-      return new Response(
-        JSON.stringify({ error: "Failed to load leaderboard" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Failed to load leaderboard" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const statsMap = new Map<string, LeaderboardEntry>();
 
-    const ensureEntry = (userId: string) => {
-      if (!statsMap.has(userId)) {
-        statsMap.set(userId, {
-          userId,
-          total_profit: 0,
-          total_sp: 0,
-          insurance_refunds: 0,
-          wins: 0,
-          losses: 0,
-          draws: 0,
-          duels: 0,
-        });
+    const ensureEntry = (userId: string): LeaderboardEntry => {
+      let entry = statsMap.get(userId);
+      if (!entry) {
+        entry = { userId, total_profit: 0, total_sp: 0, insurance_refunds: 0, wins: 0, losses: 0, draws: 0, duels: 0 };
+        statsMap.set(userId, entry);
       }
-      return statsMap.get(userId)!;
+      return entry;
     };
 
-    history?.forEach((row: any) => {
-      const hostId = row?.duel_bets?.host_user;
-      const opponentId = row?.duel_bets?.opponent_user;
+    history?.forEach((row) => {
+      const hostId = row.duel_bets?.host_user;
+      const opponentId = row.duel_bets?.opponent_user;
       if (!hostId || !opponentId) return;
 
       const hostEntry = ensureEntry(hostId);
@@ -100,7 +105,7 @@ serve(async (req) => {
       opponentEntry.insurance_refunds += row.insurance_refund_opponent || 0;
       opponentEntry.duels += 1;
 
-      const result = row.result as string;
+      const result = row.result;
       if (result === "host_win") {
         hostEntry.wins += 1;
         opponentEntry.losses += 1;
@@ -115,42 +120,27 @@ serve(async (req) => {
 
     const userIds = Array.from(statsMap.keys());
     if (userIds.length === 0) {
-      return new Response(JSON.stringify({ leaderboard: [] }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(JSON.stringify({ leaderboard: [] }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const { data: profiles } = await supabase
-      .from("profiles")
-      .select("id, first_name, username, avatar_url")
-      .in("id", userIds);
+    const { data: profiles } = await supabase.from("profiles").select("id, first_name, username, avatar_url").in("id", userIds);
 
-    const profileMap = new Map<string, any>();
-    profiles?.forEach((profile) => profileMap.set(profile.id, profile));
+    // Using a more specific type instead of any
+    type ProfileData = NonNullable<LeaderboardEntry['profile']> & { id: string };
+    const profileMap = new Map<string, ProfileData>();
+    profiles?.forEach((p) => profileMap.set(p.id, p));
 
     const leaderboard = Array.from(statsMap.values())
       .map((entry) => ({
         ...entry,
         profile: profileMap.get(entry.userId) || null,
       }))
-      .sort((a, b) => {
-        if (b.total_profit === a.total_profit) {
-          return b.total_sp - a.total_sp;
-        }
-        return b.total_profit - a.total_profit;
-      })
+      .sort((a, b) => b.total_profit - a.total_profit || b.total_sp - a.total_sp)
       .slice(0, limit);
 
-    return new Response(
-      JSON.stringify({ leaderboard }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  } catch (error) {
-    console.error("[duel-leaderboard] Unexpected error:", error);
-    return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ leaderboard }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  } catch (error: unknown) {
+    console.error("[duel-leaderboard] Error:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });
-

@@ -2,7 +2,7 @@ import { Play, BookOpen, Sparkles } from "lucide-react";
 import { Topic, TopicProgress } from "./TopicCard";
 import { DuolingoPathNode } from "./DuolingoPathNode";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 
 interface DuolingoLearningPathProps {
   topics: Topic[];

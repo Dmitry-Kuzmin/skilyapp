@@ -27,19 +27,19 @@ serve(async (req) => {
     if (error) {
       console.error('[duel-data-cleanup] Error calling delete_old_duel_data:', error);
       return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: error.message 
+        JSON.stringify({
+          success: false,
+          error: error.message
         }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
 
     const result = Array.isArray(data) && data.length > 0 ? data[0] : data;
-    
+
     console.log('[duel-data-cleanup] Cleanup completed:', result);
 
     return new Response(
@@ -57,12 +57,13 @@ serve(async (req) => {
       }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[duel-data-cleanup] Unexpected error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error.message 
+      JSON.stringify({
+        success: false,
+        error: errorMessage
       }),
       {
         status: 500,

@@ -11,7 +11,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { cn } from "@/lib/utils";
 import { UserContext } from "@/contexts/UserContext";
 import { RankBadge, RankIcon, RankFrame, getRankFromLevel, type RankType } from "@/components/ranking/RankBadge";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 import { LeaderboardRewardsModal } from "@/components/leaderboard/LeaderboardRewardsModal";
 import { useModalRoute } from "@/hooks/useModalRoute";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";

@@ -20,7 +20,7 @@ export const topicApi = {
     is_premium?: boolean;
   }) {
     // Build insert data, only include description fields if they exist and are not empty
-    const insertData: any = {
+    const insertData: Record<string, unknown> = {
       number: data.number,
       title_ru: data.title_ru,
       title_es: data.title_es,
@@ -60,7 +60,7 @@ export const topicApi = {
     return result;
   },
 
-  async update(id: string, data: Partial<typeof topicApi.create extends (...args: any[]) => Promise<infer T> ? T : never>) {
+  async update(id: string, data: Partial<Parameters<typeof topicApi.create>[0]>) {
     const { data: result, error } = await supabase
       .from("topics")
       .update(data)
@@ -167,7 +167,7 @@ export const materialApi = {
     title_ru: string;
     title_es: string;
     title_en: string;
-    content?: any;
+    content?: Record<string, unknown> | null;
     type?: "theory" | "test" | "terms";
     is_published?: boolean;
     updated_by?: string | null;
@@ -263,7 +263,7 @@ export const materialApi = {
 
     // Обновляем материал
     // content может быть строкой (HTML) или объектом (JSON для обратной совместимости)
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       ...data,
       html_preview: htmlPreview,
       version: newVersion,
@@ -349,7 +349,7 @@ export const materialApi = {
 /**
  * Поиск терминов для автодополнения
  */
-export async function searchTerms(query: string): Promise<any[]> {
+export async function searchTerms(query: string): Promise<Array<Record<string, unknown>>> {
   try {
     const { data, error } = await supabase
       .from("language_terms")
@@ -396,9 +396,10 @@ export async function uploadImage(
     } = supabase.storage.from("materials").getPublicUrl(filePath);
 
     return publicUrl;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error uploading image:", error);
-    throw new Error(`Ошибка загрузки изображения: ${error.message}`);
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Ошибка загрузки изображения: ${msg}`);
   }
 }
 
@@ -420,9 +421,10 @@ export async function deleteImage(imageUrl: string): Promise<void> {
       .remove([filePath]);
 
     if (error) throw error;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error deleting image:", error);
-    throw new Error(`Ошибка удаления изображения: ${error.message}`);
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Ошибка удаления изображения: ${msg}`);
   }
 }
 

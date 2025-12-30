@@ -12,15 +12,15 @@ export const importRoadSigns = async (file: File) => {
   if (file.type === 'text/csv') {
     const csvText = await file.text();
     const lines = csvText.split('\n');
-    
+
     for (let i = 1; i < lines.length; i++) {
       if (!lines[i].trim()) continue;
-      
+
       const values: string[] = [];
       let current = '';
       let inQuotes = false;
-      
-      for (let char of lines[i]) {
+
+      for (const char of lines[i]) {
         if (char === '"') {
           inQuotes = !inQuotes;
         } else if (char === ',' && !inQuotes) {
@@ -31,9 +31,9 @@ export const importRoadSigns = async (file: File) => {
         }
       }
       values.push(current);
-      
+
       if (values.length < 8) continue;
-      
+
       signs.push({
         name_es: cleanText(values[1] || ''),
         description_es: cleanText(values[2] || ''),
@@ -52,7 +52,22 @@ export const importRoadSigns = async (file: File) => {
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-    signs = jsonData.map((row: any) => ({
+    interface SignRow {
+      [key: string]: string | undefined;
+      name?: string;
+      name_es?: string;
+      description?: string;
+      description_es?: string;
+      sign_type?: string;
+      image_url?: string;
+      name_translation?: string;
+      name_ru?: string;
+      description_translation?: string;
+      description_ru?: string;
+      sign_number?: string;
+    }
+
+    signs = jsonData.map((row: SignRow) => ({
       name_es: cleanText(row.name || row.name_es || row['Название (ES)'] || ''),
       description_es: cleanText(row.description || row.description_es || row['Описание (ES)'] || ''),
       sign_type: cleanText(row.sign_type || row['Тип знака'] || ''),
@@ -62,18 +77,18 @@ export const importRoadSigns = async (file: File) => {
       sign_number: cleanText(row.sign_number || row['Номер знака'] || '')
     }));
   }
-  
+
   console.log(`Importing ${signs.length} road signs...`);
-  
+
   const { data, error } = await supabase
     .from('road_signs')
     .insert(signs);
-  
+
   if (error) {
     console.error('Error importing road signs:', error);
     throw error;
   }
-  
+
   console.log('Road signs imported successfully!');
   return data;
 };
@@ -84,15 +99,15 @@ export const importLanguageTerms = async (file: File) => {
   if (file.type === 'text/csv') {
     const csvText = await file.text();
     const lines = csvText.split('\n');
-    
+
     for (let i = 1; i < lines.length; i++) {
       if (!lines[i].trim()) continue;
-      
+
       const values: string[] = [];
       let current = '';
       let inQuotes = false;
-      
-      for (let char of lines[i]) {
+
+      for (const char of lines[i]) {
         if (char === '"') {
           inQuotes = !inQuotes;
         } else if (char === ',' && !inQuotes) {
@@ -103,9 +118,9 @@ export const importLanguageTerms = async (file: File) => {
         }
       }
       values.push(current);
-      
+
       if (values.length < 5) continue;
-      
+
       terms.push({
         term_es: cleanText(values[1] || ''),
         term_ru: cleanText(values[2] || ''),
@@ -125,7 +140,23 @@ export const importLanguageTerms = async (file: File) => {
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-    terms = jsonData.map((row: any) => ({
+    interface TermRow {
+      [key: string]: string | undefined;
+      term?: string;
+      term_es?: string;
+      translation?: string;
+      term_ru?: string;
+      description?: string;
+      description_es?: string;
+      description_translation?: string;
+      description_ru?: string;
+      difficulty?: string;
+      category?: string;
+      image_url?: string;
+      audio_url?: string;
+    }
+
+    terms = jsonData.map((row: TermRow) => ({
       term_es: cleanText(row.term || row.term_es || row['Термин (ES)'] || ''),
       term_ru: cleanText(row.translation || row.term_ru || row['Термин (RU)'] || ''),
       description_es: cleanText(row.description || row.description_es || row['Описание (ES)'] || ''),
@@ -136,18 +167,18 @@ export const importLanguageTerms = async (file: File) => {
       audio_url: cleanText(row.audio_url || row['URL аудио'] || '') || null
     }));
   }
-  
+
   console.log(`Importing ${terms.length} language terms...`);
-  
+
   const { data, error } = await supabase
     .from('language_terms')
     .insert(terms);
-  
+
   if (error) {
     console.error('Error importing language terms:', error);
     throw error;
   }
-  
+
   console.log('Language terms imported successfully!');
   return data;
 };

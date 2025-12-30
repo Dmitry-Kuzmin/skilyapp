@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion, useSpring, useTransform } from 'framer-motion';
+import { useSpring, useTransform } from 'framer-motion';
+import { motion } from '@/components/optimized/Motion';
 import { cn } from '@/lib/utils';
 
 interface NumberTickerProps {

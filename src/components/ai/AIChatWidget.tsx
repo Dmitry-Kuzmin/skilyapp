@@ -24,7 +24,7 @@ import { useAIChatStore, selectIsOpen, selectMessages, selectIsLoading, selectSm
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { cn } from '@/lib/utils';
 
 // Типизация для markdown рендеринга

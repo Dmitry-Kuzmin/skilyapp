@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useMemo, useState, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

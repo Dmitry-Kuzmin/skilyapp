@@ -50,7 +50,7 @@ import {
   Sparkles,
   Crown,
 } from "lucide-react";
-import { MotionDiv as motion } from "@/components/optimized/Motion";
+import { motion } from "@/components/optimized/Motion";
 import { cn } from "@/lib/utils";
 import {
   Table,

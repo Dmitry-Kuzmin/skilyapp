@@ -173,6 +173,14 @@ export function useDashboardData() {
         console.warn('[useDashboardData] ❌ get_dashboard_super failed:', e.message);
       }
 
+      // Check if data is complete (has profile name). If not, it's legacy RPC -> Force fallback
+      if (data && !(data.profile as any).first_name && !(data.profile as any).username) {
+        console.warn('[useDashboardData] ⚠️ RPC returned incomplete profile (no name). Forcing fallback.');
+        return await fetchDashboardFallback(profileId);
+      } else if (data) {
+        return data;
+      }
+
       // Fallback на обычный RPC
       console.log('[useDashboardData] 🔗 Calling get_dashboard_complete...');
       try {
@@ -242,7 +250,7 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
     const results = await Promise.allSettled([
       supabase
         .from('profiles')
-        .select('id, rank, xp, coins, boosts, streak_days, settings') // Убрали новые поля на время отладки
+        .select('id, rank, xp, coins, boosts, streak_days, settings, first_name, last_name, username, photo_url')
         .eq('id', profileId)
         .maybeSingle(),
 
@@ -301,13 +309,22 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
     }
 
     const sessions = sessionsRes.status === 'fulfilled' ? (sessionsRes.value as any).data || [] : [];
-    const testsCompleted = sessions.length;
-    const totalQuestions = sessions.reduce((acc, s) => acc + (s.total_questions || 0), 0);
-    const correctAnswers = sessions.reduce((acc, s) => acc + (s.score || 0), 0);
+    // FIX: Filter out empty sessions (0 questions) to avoid inflating "tests completed" count
+    const validSessions = sessions.filter((s: any) => s.total_questions > 0);
+    const testsCompleted = validSessions.length;
+    const totalQuestions = validSessions.reduce((acc: number, s: any) => acc + (s.total_questions || 0), 0);
+    const correctAnswers = validSessions.reduce((acc: number, s: any) => acc + (s.score || 0), 0);
     const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
 
     const bonus = bonusRes.status === 'fulfilled' ? (bonusRes.value as any).data : null;
     const today = new Date().toISOString().split('T')[0];
+
+    const dailyTasks = tasksRes.status === 'fulfilled' ? (tasksRes.value as any).data || [] : [];
+    const recentAchievements = achievementsRes.status === 'fulfilled' ? (achievementsRes.value as any).data || [] : [];
+    const definitions = definitionsRes.status === 'fulfilled' ? (definitionsRes.value as any).data || [] : [];
+
+    // Формируем weeklyRewards из definitions
+    const weeklyRewards = definitions.filter((d: any) => d.day_number <= 7);
 
     console.log('[useDashboardData] ✅ Mapping finished successfully');
 
@@ -338,9 +355,10 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
         total_claims: bonus?.total_claims || 0,
         can_claim: !bonus?.last_claimed_date || bonus.last_claimed_date !== today,
       },
-      dailyTasks: tasksResult.data || [],
-      recentAchievements: achievementsResult.data || [],
-      weeklyRewards: rewardsResult.data || [],
+      dailyTasks,
+      recentAchievements,
+      weeklyRewards,
+      daily_bonus_definitions: definitions,
     };
   } catch (error) {
     console.error('[fetchDashboardFallback] ❌ Error in fallback:', error);

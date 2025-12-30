@@ -1,5 +1,5 @@
 import { useState, useLayoutEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { Button } from "@/components/ui/button";
 import { 
   Trophy, Coins, Crown, Sparkles, X, BookOpen, Calendar, Zap, 

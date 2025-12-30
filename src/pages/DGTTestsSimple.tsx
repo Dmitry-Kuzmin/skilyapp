@@ -8,7 +8,7 @@ import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Car, Bike, Bus } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion } from "@/components/optimized/Motion";
 
 const DGTTestsSimple = () => {
   const navigate = useNavigate();

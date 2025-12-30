@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 import { Send, Circle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";

@@ -5,7 +5,9 @@
 // проверкой тихих часов и cooldown
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createPooledSupabaseClient } from '../_shared/supabase-client.ts';
+import { UserNotificationSettings } from '../_shared/types.ts';
+import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 
 const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN');
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
@@ -29,7 +31,7 @@ interface SendNotificationRequest {
   telegram_id?: number;
   template_id?: string;
   template_type?: string;
-  variables?: Record<string, any>;
+  variables?: Record<string, string | number | boolean | null>;
   title?: string;
   message?: string;
   icon?: string;
@@ -52,6 +54,13 @@ interface NotificationTemplate {
   ai_enhance: boolean;
 }
 
+interface UserProfile {
+  id: string;
+  telegram_id: number;
+  first_name?: string;
+  username?: string;
+}
+
 // =====================================================
 // Главный обработчик
 // =====================================================
@@ -62,7 +71,7 @@ serve(async (req) => {
   }
 
   try {
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    const supabase = createPooledSupabaseClient();
     const body: SendNotificationRequest = await req.json();
 
     console.log('[Notification Sender] Request:', {
@@ -72,7 +81,6 @@ serve(async (req) => {
       template_type: body.template_type
     });
 
-    // Валидация
     if (!body.user_id && !body.telegram_id) {
       return new Response(
         JSON.stringify({ error: 'user_id or telegram_id required' }),
@@ -80,22 +88,21 @@ serve(async (req) => {
       );
     }
 
-    // Получаем профиль пользователя
-    let profile: any;
+    let profile: UserProfile | null = null;
     if (body.user_id) {
       const { data } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, telegram_id, first_name, username')
         .eq('id', body.user_id)
         .maybeSingle();
-      profile = data;
+      profile = data as UserProfile | null;
     } else if (body.telegram_id) {
       const { data } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, telegram_id, first_name, username')
         .eq('telegram_id', body.telegram_id)
         .maybeSingle();
-      profile = data;
+      profile = data as UserProfile | null;
     }
 
     if (!profile || !profile.telegram_id) {
@@ -105,17 +112,15 @@ serve(async (req) => {
       );
     }
 
-    // Получаем настройки уведомлений
     const { data: settings } = await supabase
       .from('user_notification_settings')
       .select('*')
       .eq('user_id', profile.id)
-      .maybeSingle();
+      .maybeSingle() as { data: UserNotificationSettings | null };
 
     const now = new Date();
 
-    // Проверяем, включены ли уведомления
-    if (!body.force && settings && !settings.enabled) {
+    if (!body.force && settings && settings.enabled === false) {
       console.log('[Notification Sender] Notifications disabled for user:', profile.id);
       return new Response(
         JSON.stringify({ skipped: true, reason: 'notifications_disabled' }),
@@ -123,7 +128,6 @@ serve(async (req) => {
       );
     }
 
-    // Проверяем тихий режим
     if (
       !body.force &&
       settings?.quiet_mode_until &&
@@ -136,7 +140,6 @@ serve(async (req) => {
       );
     }
 
-    // Получаем шаблон
     let template: NotificationTemplate | null = null;
     if (body.template_id) {
       const { data } = await supabase
@@ -145,7 +148,7 @@ serve(async (req) => {
         .eq('id', body.template_id)
         .eq('is_active', true)
         .maybeSingle();
-      template = data;
+      template = data as NotificationTemplate | null;
     } else if (body.template_type) {
       const { data } = await supabase
         .from('notification_templates')
@@ -155,17 +158,16 @@ serve(async (req) => {
         .order('priority', { ascending: false })
         .limit(1)
         .maybeSingle();
-      template = data;
+      template = data as NotificationTemplate | null;
     }
 
-    // Проверяем тихие часы
     if (!body.force && settings?.quiet_hours_start && settings?.quiet_hours_end) {
       const isQuietHours = checkQuietHours(
         settings.quiet_hours_start,
         settings.quiet_hours_end,
         settings.timezone || 'Europe/Madrid'
       );
-      
+
       if (isQuietHours) {
         console.log('[Notification Sender] Quiet hours active for user:', profile.id);
         return new Response(
@@ -175,7 +177,6 @@ serve(async (req) => {
       }
     }
 
-    // Проверяем режим "Только важное"
     if (
       !body.force &&
       settings?.only_important &&
@@ -189,7 +190,6 @@ serve(async (req) => {
       );
     }
 
-    // Проверяем cooldown
     if (!body.force && template && template.cooldown_hours > 0) {
       const cooldownExpired = await checkCooldown(
         profile.id,
@@ -197,24 +197,22 @@ serve(async (req) => {
         template.cooldown_hours,
         supabase
       );
-      
+
       if (!cooldownExpired) {
         console.log('[Notification Sender] Cooldown active for template:', template.type);
         return new Response(
           JSON.stringify({ skipped: true, reason: 'cooldown_active' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { headers: ...corsHeaders, 'Content-Type': 'application/json' }
         );
       }
     }
 
-    // Формируем текст уведомления
     let title = body.title || template?.title_template || 'Уведомление';
     let message = body.message || template?.message_template || '';
-    let icon = body.icon || template?.icon || '📢';
-    let ctaText = body.cta_text || template?.cta_text;
+    const icon = body.icon || template?.icon || '📢';
+    const ctaText = body.cta_text || template?.cta_text;
     let ctaDeeplink = body.cta_deeplink || template?.cta_deeplink;
 
-    // Подставляем переменные
     if (body.variables) {
       title = substituteVariables(title, body.variables);
       message = substituteVariables(message, body.variables);
@@ -223,7 +221,6 @@ serve(async (req) => {
       }
     }
 
-    // AI-персонализация
     let wasAiEnhanced = false;
     if (template?.ai_enhance && body.variables) {
       try {
@@ -235,11 +232,9 @@ serve(async (req) => {
         }
       } catch (error) {
         console.error('[Notification Sender] AI enhancement failed:', error);
-        // Продолжаем с обычным шаблоном
       }
     }
 
-    // Отправляем в Telegram
     const telegramResult = await sendTelegramNotification(
       profile.telegram_id,
       title,
@@ -256,7 +251,6 @@ serve(async (req) => {
       );
     }
 
-    // Логируем отправку
     await supabase.from('notification_logs').insert({
       user_id: profile.id,
       template_id: template?.id || null,
@@ -278,18 +272,19 @@ serve(async (req) => {
     console.log('[Notification Sender] Notification sent successfully');
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         message_id: telegramResult.message_id,
         ai_enhanced: wasAiEnhanced
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[Notification Sender] Error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
@@ -299,8 +294,7 @@ serve(async (req) => {
 // Вспомогательные функции
 // =====================================================
 
-// Проверка тихих часов
-function checkQuietHours(startTime: string, endTime: string, timezone: string): boolean {
+function checkQuietHours(startTime: string, endTime: string, _timezone: string): boolean {
   try {
     const now = new Date();
     const [startHour, startMin] = startTime.split(':').map(Number);
@@ -312,7 +306,6 @@ function checkQuietHours(startTime: string, endTime: string, timezone: string): 
     const startMinutes = startHour * 60 + startMin;
     const endMinutes = endHour * 60 + endMin;
 
-    // Если тихие часы переходят через полночь
     if (startMinutes > endMinutes) {
       return currentMinutes >= startMinutes || currentMinutes < endMinutes;
     } else {
@@ -324,12 +317,11 @@ function checkQuietHours(startTime: string, endTime: string, timezone: string): 
   }
 }
 
-// Проверка cooldown
 async function checkCooldown(
   userId: string,
   templateType: string,
   cooldownHours: number,
-  supabase: any
+  supabase: SupabaseClient
 ): Promise<boolean> {
   try {
     const cooldownDate = new Date();
@@ -345,16 +337,14 @@ async function checkCooldown(
       .limit(1)
       .maybeSingle();
 
-    // Если нет записей - cooldown истёк
     return !data;
   } catch (error) {
     console.error('[Notification Sender] Cooldown check error:', error);
-    return true; // В случае ошибки разрешаем отправку
+    return true;
   }
 }
 
-// Подстановка переменных в шаблон
-function substituteVariables(template: string, variables: Record<string, any>): string {
+function substituteVariables(template: string, variables: Record<string, unknown>): string {
   let result = template;
   for (const [key, value] of Object.entries(variables)) {
     const regex = new RegExp(`\\{${key}\\}`, 'g');
@@ -363,11 +353,10 @@ function substituteVariables(template: string, variables: Record<string, any>): 
   return result;
 }
 
-// AI-персонализация сообщения
 async function enhanceWithAI(
   message: string,
-  context: Record<string, any>,
-  profile: any
+  context: Record<string, unknown>,
+  profile: UserProfile
 ): Promise<string | null> {
   try {
     const prompt = `Ты — умный тренер по ПДД Испании. Персонализируй уведомление для пользователя.
@@ -377,7 +366,7 @@ async function enhanceWithAI(
 Контекст пользователя:
 ${JSON.stringify(context, null, 2)}
 
-Имя пользователя: ${profile.first_name}
+Имя пользователя: ${profile.first_name || profile.username || 'Друг'}
 
 Требования:
 - Лаконично (1-2 предложения)
@@ -404,7 +393,6 @@ ${JSON.stringify(context, null, 2)}
       return null;
     }
 
-    // Читаем stream от AI
     const reader = response.body?.getReader();
     if (!reader) return null;
 
@@ -443,7 +431,6 @@ ${JSON.stringify(context, null, 2)}
   }
 }
 
-// Отправка уведомления в Telegram
 async function sendTelegramNotification(
   chatId: number,
   title: string,
@@ -454,17 +441,16 @@ async function sendTelegramNotification(
 ): Promise<{ success: boolean; message_id?: number; error?: string }> {
   try {
     const text = `${icon} <b>${title}</b>\n\n${message}`;
-    
+
     const MINI_APP_URL = Deno.env.get('MINI_APP_URL') || 'https://sdadim-dgt-prep.vercel.app';
 
-    // Формируем inline keyboard если есть CTA
     const replyMarkup = ctaText && ctaDeeplink ? {
       inline_keyboard: [
         [{
           text: ctaText,
-          web_app: { 
-            url: ctaDeeplink.startsWith('http') 
-              ? ctaDeeplink 
+          web_app: {
+            url: ctaDeeplink.startsWith('http')
+              ? ctaDeeplink
               : `${MINI_APP_URL}?startapp=${ctaDeeplink.replace(/^\//, '')}`
           }
         }]
@@ -491,9 +477,9 @@ async function sendTelegramNotification(
     const result = await response.json();
     return { success: true, message_id: result.result.message_id };
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[Notification Sender] Send error:', error);
-    return { success: false, error: error.message };
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return { success: false, error: errorMessage };
   }
 }
-

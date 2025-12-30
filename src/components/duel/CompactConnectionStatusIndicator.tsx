@@ -10,7 +10,7 @@
  * - Offline (>15s): Красная точка + обратный отсчет
  */
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { Circle, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GRACE_PERIOD_MS, UNSTABLE_THRESHOLD_MS, AUTO_WIN_TIMEOUT_MS } from '@/features/duel/shared';

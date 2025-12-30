@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { useExamReadiness } from '@/hooks/useExamReadiness';
 import { useUserContext } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
+import { motion } from "@/components/optimized/Motion";
 
 /**
  * Компонент кругового прогресс-бара (мини-версия)

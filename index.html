@@ -16,7 +16,8 @@
   <!-- Google Fonts - ОПТИМИЗАЦИЯ: неблокирующая загрузка -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap">
+  <link rel="preload" as="style"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap">
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap"
     rel="stylesheet" media="print" onload="this.media='all'">
@@ -427,7 +428,7 @@
   <!-- Zone ID: 10323437 (Skillful tag) - используется как Rewarded Video -->
   <script>
     // ОПТИМИЗАЦИЯ: Monetag загружается с задержкой после LCP
-    setTimeout(function() {
+    setTimeout(function () {
       (function (s) {
         s.dataset.zone = '10323437';
         s.src = 'https://groleegni.net/vignette.min.js';
@@ -607,7 +608,7 @@
 
       // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
       // Версия приложения - автоматически обновляется при деплое
-      const APP_VERSION = '2025-12-28-14:30';
+      const APP_VERSION = '2025-12-30-01:30';
       const CACHE_KEY = 'skilyapp_version';
 
       // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК: Перезагрузка при "Failed to fetch dynamically imported module"
@@ -622,7 +623,8 @@
           const now = Date.now();
           if (!lastReload || now - parseInt(lastReload) > 30000) {
             localStorage.setItem('last_module_reload', now.toString());
-            window.location.reload();
+            // window.location.reload(); // Disabled to prevent infinite loop
+            console.warn('[HTML] Reload disabled for debugging.');
           }
         }
       }, true);

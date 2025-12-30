@@ -9,7 +9,9 @@ import {
   TelegramCallbackQuery,
   TelegramInlineQuery,
   AnswerCallbackQueryOptions,
-  EditMessageTextOptions
+  EditMessageTextOptions,
+  TelegramMessage,
+  TelegramUser
 } from "./types.ts";
 import * as commands from "./commands.ts";
 import * as keyboards from "./keyboards.ts";
@@ -44,13 +46,13 @@ serve(async (req) => {
     }
 
     return new Response("OK", { status: 200 });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Bot] Global Error:", error);
     return new Response("OK", { status: 200 });
   }
 });
 
-async function handleMessage(message: any) {
+async function handleMessage(message: TelegramMessage) {
   const text = message.text || "";
   const user = message.from;
   if (!user) {
@@ -65,7 +67,7 @@ async function handleMessage(message: any) {
     console.log("[Auth] Authenticating user...");
     await authenticateUser(user);
     console.log("[Auth] User authenticated successfully");
-  } catch (authError) {
+  } catch (authError: unknown) {
     console.error("[Auth] Error in authenticateUser:", authError);
     // Продолжаем, даже если аутентификация не удалась
   }
@@ -107,7 +109,7 @@ async function handleMessage(message: any) {
           });
       }
       console.log(`[Command] ${command} finished successfully`);
-    } catch (cmdError) {
+    } catch (cmdError: unknown) {
       console.error(`[Command] Fatal error in ${command}:`, cmdError);
       // Пытаемся отправить сообщение об ошибке пользователю
       try {
@@ -119,7 +121,7 @@ async function handleMessage(message: any) {
             text: "❌ Произошла ошибка при выполнении команды. Мы уже знаем об этом и чиним!"
           })
         });
-      } catch (e) {
+      } catch (e: unknown) {
         console.error("[Command] Failed to send error message:", e);
       }
     }
@@ -143,7 +145,7 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ callback_query_id: query.id })
     });
-  } catch (e) {
+  } catch (e: unknown) {
     console.error("[Callback] answerCallbackQuery failed:", e);
   }
 
@@ -212,7 +214,7 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
         reply_markup: keyboards.getTipsMenuKeyboard(lang)
       });
     }
-  } catch (e) {
+  } catch (e: unknown) {
     console.error("[Callback] Error handling callback:", e);
   }
 }
@@ -258,7 +260,7 @@ async function handleInlineQuery(query: TelegramInlineQuery) {
     } else {
       console.log("[Inline] Sent results successfully");
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Inline] Fatal error:", error);
   }
 }
@@ -289,12 +291,12 @@ async function showProfile(chatId: number, telegramId: number, lang: SupportedLa
         disable_web_page_preview: true
       })
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Profile] Error showing profile:", error);
   }
 }
 
-async function authenticateUser(user: any) {
+async function authenticateUser(user: TelegramUser) {
   const profileData = {
     telegram_id: user.id,
     first_name: user.first_name || "",
@@ -324,7 +326,7 @@ async function editMessage(options: EditMessageTextOptions) {
     if (!response.ok) {
       console.error("[EditMessage] Error:", await response.json());
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[EditMessage] Fetch fatal error:", error);
   }
 }

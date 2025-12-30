@@ -42,7 +42,7 @@ export function useSequentialTests(profileId: string | null) {
       if (testsError) throw testsError;
 
       // ОПТИМИЗАЦИЯ: Загружаем прогресс пользователя batch запросом
-      let progressMap = new Map<string, Test["progress"]>();
+      const progressMap = new Map<string, Test["progress"]>();
 
       if (profileId) {
         const { data: progressData, error: progressError } = await supabase

@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { Crown, Coins, Sparkles, Gift, Zap } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 import { supabase } from "@/integrations/supabase/client";
 
 interface PremiumRewardUpsellProps {

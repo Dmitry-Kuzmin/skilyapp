@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
         const parsed = JSON.parse(content);
         const flashcards = Array.isArray(parsed) ? parsed : (parsed.flashcards || []);
 
-        const finalFlashcards = flashcards.map((card: any, index: number) => ({
+        const finalFlashcards = flashcards.map((card: Record<string, unknown>, index: number) => ({
             ...card,
             question_id: card.question_id || failedQuestions[index]?.questionId
         }));
@@ -117,10 +117,11 @@ Deno.serve(async (req) => {
             { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
 
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('[generate-flashcards] Error:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
         return new Response(
-            JSON.stringify({ error: error.message }),
+            JSON.stringify({ error: errorMessage }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
     }

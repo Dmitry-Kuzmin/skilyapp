@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 import { Target, Flame, Trophy, Coins } from "lucide-react";
 import { TelemetryHUD } from "./TelemetryHUD";
 import { IgnitionKey } from "./IgnitionKey";

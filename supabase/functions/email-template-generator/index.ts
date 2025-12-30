@@ -12,9 +12,9 @@ const corsHeaders = {
 };
 
 interface EmailTemplateRequest {
-  template_type: 'password_changed' | 'email_changed' | 'phone_changed' | 
-                 'identity_linked' | 'identity_unlinked' | 
-                 'mfa_enrolled' | 'mfa_unenrolled' | 'suspicious_login';
+  template_type: 'password_changed' | 'email_changed' | 'phone_changed' |
+  'identity_linked' | 'identity_unlinked' |
+  'mfa_enrolled' | 'mfa_unenrolled' | 'suspicious_login';
   title: string;
   message: string;
   variables?: Record<string, string>;
@@ -50,10 +50,11 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[EmailTemplateGenerator] Error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(
-      JSON.stringify({ error: error.message || 'Internal server error' }),
+      JSON.stringify({ error: errorMessage || 'Internal server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
@@ -61,7 +62,7 @@ serve(async (req) => {
 
 function generateEmailTemplate(params: EmailTemplateRequest): string {
   const { title, message, variables, cta_text, cta_url } = params;
-  
+
   // Заменяем переменные в сообщении
   let processedMessage = message;
   Object.entries(variables || {}).forEach(([key, value]) => {

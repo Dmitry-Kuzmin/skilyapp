@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 import { useCosmeticsPreview, type PreviewSkin, type PreviewBadge, type PreviewSticker } from "@/contexts/CosmeticsPreviewContext";
 import { useCosmeticsDefinitions, useCosmeticsInventory, useActivateSkin, useToggleBadgeDisplay } from "@/hooks/useCosmetics";
 

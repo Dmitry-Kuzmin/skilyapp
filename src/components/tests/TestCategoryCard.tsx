@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 import { LucideIcon, Lock, ChevronRight, Star } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 

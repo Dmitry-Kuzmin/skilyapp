@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createPooledSupabaseClient } from '../_shared/supabase-client.ts';
 import { createHash } from "https://deno.land/std@0.168.0/node/crypto.ts";
 
 const corsHeaders = {
@@ -7,217 +7,141 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-/**
- * Создать подпись для проверки webhook
- * Формат: MD5(base64(payload) + secret)
- */
+interface CryptomusEvent {
+  type: string;
+  order_id: string;
+  payment_status: string;
+  payment_id?: string;
+  additional_data?: string;
+}
+
+interface AdditionalData {
+  user_id: string;
+  db_type: string;
+  db_item_id: string;
+  coins?: number;
+  catalog_key?: string;
+}
+
+interface Purchase {
+  id: string;
+  user_id: string;
+  item_type: string;
+  item_id: string;
+  status: string;
+  metadata?: Record<string, any>;
+}
+
 function createSignature(payload: string, secret: string): string {
-  // 1. Кодируем payload в base64
   const base64Payload = btoa(unescape(encodeURIComponent(payload)));
-  
-  // 2. Объединяем base64 payload с секретом
   const dataToHash = base64Payload + secret;
-  
-  // 3. Вычисляем MD5 хэш
   const hash = createHash("md5");
   hash.update(dataToHash);
   return hash.digest("hex");
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const cryptomusPaymentKey = Deno.env.get("CRYPTOMUS_PAYMENT_KEY");
-
     if (!cryptomusPaymentKey) {
-      console.error("[cryptomus-webhook] Missing CRYPTOMUS_PAYMENT_KEY");
       return new Response("Missing config", { status: 500 });
     }
 
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Логируем все заголовки для отладки
-    const allHeaders: Record<string, string> = {};
-    req.headers.forEach((value, key) => {
-      allHeaders[key] = value;
-    });
-    console.log("[cryptomus-webhook] All headers:", JSON.stringify(allHeaders, null, 2));
-
-    // Получаем подпись из заголовков (пробуем разные варианты)
-    const signature = req.headers.get("sign") || 
-                     req.headers.get("Sign") || 
-                     req.headers.get("SIGN") ||
-                     req.headers.get("x-signature") ||
-                     req.headers.get("X-Signature");
-    
+    const supabase = createPooledSupabaseClient();
+    const signature = req.headers.get("sign") || req.headers.get("Sign") || req.headers.get("x-signature");
     const payload = await req.text();
-    console.log("[cryptomus-webhook] Payload received:", payload.substring(0, 500));
-    console.log("[cryptomus-webhook] Signature from header:", signature);
 
-    if (!signature) {
-      console.error("[cryptomus-webhook] Missing signature. Available headers:", Object.keys(allHeaders));
-      // Временно разрешаем без подписи для тестирования (удалить в продакшене!)
-      console.warn("[cryptomus-webhook] ⚠️ WARNING: Processing without signature verification (for testing only!)");
-    }
-
-    // Проверяем подпись (если она есть)
     if (signature) {
       const expectedSignature = createSignature(payload, cryptomusPaymentKey);
-      console.log("[cryptomus-webhook] Expected signature:", expectedSignature);
-      console.log("[cryptomus-webhook] Received signature:", signature);
-      
       if (signature.toLowerCase() !== expectedSignature.toLowerCase()) {
         console.error("[cryptomus-webhook] Invalid signature");
         return new Response("Invalid signature", { status: 400 });
       }
-      console.log("[cryptomus-webhook] ✅ Signature verified");
-    } else {
-      console.warn("[cryptomus-webhook] ⚠️ Processing without signature (testing mode)");
     }
 
-    const event = JSON.parse(payload);
+    const event: CryptomusEvent = JSON.parse(payload);
 
-    console.log("[cryptomus-webhook] Received event:", event.type, event.order_id);
-
-    // Обрабатываем только успешные платежи
     if (event.type === "payment" && event.payment_status === "paid") {
       const orderId = event.order_id;
-      let additionalData = {};
-      
+      let additionalData: AdditionalData = { user_id: '', db_type: '', db_item_id: '' };
+
       try {
-        additionalData = event.additional_data ? JSON.parse(event.additional_data) : {};
-      } catch (e) {
-        console.error("[cryptomus-webhook] Error parsing additional_data:", e);
-      }
+        additionalData = event.additional_data ? JSON.parse(event.additional_data) : additionalData;
+      } catch { /* ignore */ }
 
       if (!orderId || !additionalData.user_id) {
-        console.error("[cryptomus-webhook] Missing order_id or user_id");
         return new Response("Missing required data", { status: 400 });
       }
+
+      const { data: purchase } = await supabase
+        .from("purchases")
+        .select("*")
+        .eq("cryptomus_order_id", orderId)
+        .maybeSingle() as { data: Purchase | null };
+
+      if (!purchase) {
+        return new Response("Purchase not found", { status: 404 });
+      }
+
+      if (purchase.status === "completed") {
+        return new Response(JSON.stringify({ received: true, already_processed: true }), { headers: corsHeaders });
+      }
+
+      await supabase.from("purchases").update({
+        status: "completed",
+        completed_at: new Date().toISOString(),
+        cryptomus_payment_id: event.payment_id || null,
+      }).eq("cryptomus_order_id", orderId);
 
       const userId = additionalData.user_id;
       const dbType = additionalData.db_type;
       const dbItemId = additionalData.db_item_id;
 
-      // Находим покупку по order_id
-      const { data: purchase, error: purchaseError } = await supabase
-        .from("purchases")
-        .select("*")
-        .eq("cryptomus_order_id", orderId)
-        .single();
-
-      if (purchaseError || !purchase) {
-        console.error("[cryptomus-webhook] Purchase not found:", orderId, purchaseError);
-        return new Response("Purchase not found", { status: 404 });
-      }
-
-      // Проверяем, не обработана ли уже покупка
-      if (purchase.status === "completed") {
-        console.log("[cryptomus-webhook] Purchase already processed:", orderId);
-        return new Response(JSON.stringify({ received: true, already_processed: true }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      // Обновляем статус покупки
-      await supabase
-        .from("purchases")
-        .update({
-          status: "completed",
-          completed_at: new Date().toISOString(),
-          cryptomus_payment_id: event.payment_id || null,
-        })
-        .eq("cryptomus_order_id", orderId);
-
-      // Обрабатываем в зависимости от типа покупки
       if (dbType === "premium") {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("id, premium_until")
-          .eq("id", userId)
-          .single();
-
+        const { data: profile } = await supabase.from("profiles").select("premium_until").eq("id", userId).maybeSingle();
         const current = profile?.premium_until ? new Date(profile.premium_until) : new Date();
         const startDate = current > new Date() ? current : new Date();
         const newDate = new Date(startDate);
-        
-        if (dbItemId.includes("monthly")) {
-          newDate.setMonth(newDate.getMonth() + 1);
-        } else {
-          newDate.setFullYear(newDate.getFullYear() + 1);
-        }
 
-        await supabase
-          .from("profiles")
-          .update({ premium_until: newDate.toISOString(), duel_pass_premium: true })
-          .eq("id", userId);
+        if (dbItemId.includes("monthly")) newDate.setMonth(newDate.getMonth() + 1);
+        else newDate.setFullYear(newDate.getFullYear() + 1);
 
+        await supabase.from("profiles").update({ premium_until: newDate.toISOString(), duel_pass_premium: true }).eq("id", userId);
         await supabase.from("transactions").insert({
           user_id: userId,
-          transaction_type: dbItemId.includes("monthly")
-            ? "premium_purchase_monthly"
-            : "premium_purchase_yearly",
+          transaction_type: dbItemId.includes("monthly") ? "premium_purchase_monthly" : "premium_purchase_yearly",
           amount: 0,
           metadata: { order_id: orderId, payment_id: event.payment_id },
         });
       } else if (dbType === "duel_pass") {
-        await supabase
-          .from("profiles")
-          .update({ duel_pass_premium: true })
-          .eq("id", userId);
-
+        await supabase.from("profiles").update({ duel_pass_premium: true }).eq("id", userId);
         await supabase.from("transactions").insert({
           user_id: userId,
           transaction_type: "duel_pass_purchase",
           amount: 0,
-          metadata: { order_id: orderId, payment_id: event.payment_id },
+          metadata: { order_id: orderId },
         });
       } else if (dbType === "coins_pack") {
         const coins = additionalData.coins || purchase.metadata?.coins || 0;
-        
         if (coins > 0) {
-          const { error: incrementError } = await supabase.rpc("increment_profile_value", {
-            p_profile_id: userId,
-            p_column: "coins",
-            p_amount: coins,
-          });
-
-          if (incrementError) {
-            console.error("[cryptomus-webhook] Error incrementing coins:", incrementError);
-            throw new Error(`Failed to add coins: ${incrementError.message}`);
-          }
-
+          await supabase.rpc("increment_profile_value", { p_profile_id: userId, p_column: "coins", p_amount: coins });
           await supabase.from("transactions").insert({
             user_id: userId,
             transaction_type: "coins_purchase_cryptomus",
             amount: coins,
-            metadata: { 
-              order_id: orderId, 
-              payment_id: event.payment_id,
-              coins,
-              catalog_key: additionalData.catalog_key || null
-            },
+            metadata: { order_id: orderId, coins, catalog_key: additionalData.catalog_key },
           });
         }
       }
 
-      console.log("[cryptomus-webhook] ✅ Successfully processed payment:", orderId);
+      console.log("[cryptomus-webhook] Processed:", orderId);
     }
 
-    return new Response(JSON.stringify({ received: true }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    console.error("[cryptomus-webhook] processing error", error);
-    return new Response("Webhook handler failed", { status: 500 });
+    return new Response(JSON.stringify({ received: true }), { headers: corsHeaders });
+  } catch (error: any) {
+    console.error("[cryptomus-webhook] Error:", error);
+    return new Response("Webhook failed", { status: 500 });
   }
 });
-
-
-
-

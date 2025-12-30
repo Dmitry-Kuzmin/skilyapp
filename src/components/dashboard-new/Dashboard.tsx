@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { COUNTRIES_CONFIG } from '@/types/pdd';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
+import { motion } from "@/components/optimized/Motion";
 import { cn } from '@/lib/utils';
 
 import { DashboardSkeleton } from "./DashboardSkeleton";

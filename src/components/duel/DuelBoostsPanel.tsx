@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from "@/components/optimized/Motion";
 import { Sparkles, Timer, HelpCircle, SkipForward, Globe, Zap, ChevronDown, X, Droplets, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { memo } from 'react';

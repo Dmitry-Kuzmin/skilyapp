@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
 import { usePDDContext } from "@/contexts/PDDContext";
 import { usePDDTopics } from "@/hooks/usePDDTopics";
-import { MotionDiv as motion } from "@/components/optimized/Motion";
+import { motion } from "@/components/optimized/Motion";
 import { cn } from "@/lib/utils";
 
 const PREMIUM_GRADIENTS = [

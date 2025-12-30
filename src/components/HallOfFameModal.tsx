@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Trophy, Crown, Award, Star, Calendar, TrendingUp } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "@/components/optimized/Motion";
 import { cn } from "@/lib/utils";
 import { UserContext } from "@/contexts/UserContext";
 import { RankBadge, RankFrame, type RankType } from "@/components/ranking/RankBadge";

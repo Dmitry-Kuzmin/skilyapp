@@ -3,7 +3,7 @@
  * Визуализирует 4 блока по 5 вопросов + штрафные блоки
  */
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { cn } from '@/lib/utils';
 import { AlertCircle } from 'lucide-react';
 

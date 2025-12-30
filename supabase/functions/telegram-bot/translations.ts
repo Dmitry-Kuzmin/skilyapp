@@ -2,6 +2,8 @@
 // Переводы Telegram-бота (ru, en, es)
 // =====================================================
 
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 export type SupportedLanguage = 'ru' | 'en' | 'es';
 
 // Определяем язык из Telegram language_code
@@ -21,7 +23,7 @@ export function normalizeLanguage(langCode?: string): SupportedLanguage {
 export async function getUserLanguage(
     telegramId: number,
     telegramLangCode: string | undefined,
-    supabase: any
+    supabase: SupabaseClient
 ): Promise<SupportedLanguage> {
     // Сначала проверяем профиль (явный выбор пользователя)
     try {
