@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
 <head>
     <meta charset="UTF-8">
@@ -9,18 +9,31 @@
     <meta name="supported-color-schemes" content="light">
     <title>Acceso a Skily</title>
     <style>
+        /* CSS Reset */
         body {
             margin: 0;
             padding: 0;
-            background-color: #0f172a !important;
-            color: #ffffff !important;
             width: 100% !important;
             -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            background-color: #0f172a !important;
         }
 
-        /* Универсальные классы для принудительных цветов */
-        .bg-dark {
+        img {
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+            -ms-interpolation-mode: bicubic;
+        }
+
+        /* Force Dark Background & Light Text */
+        .wrapper {
             background-color: #0f172a !important;
+            width: 100%;
+            table-layout: fixed;
+            -webkit-font-smoothing: antialiased;
         }
 
         .text-white {
@@ -28,9 +41,14 @@
             -webkit-text-fill-color: #ffffff !important;
         }
 
-        .text-slate {
-            color: #94a3b8 !important;
-            -webkit-text-fill-color: #94a3b8 !important;
+        .text-gray {
+            color: #cbd5e1 !important;
+            -webkit-text-fill-color: #cbd5e1 !important;
+        }
+
+        .text-sub {
+            color: #64748b !important;
+            -webkit-text-fill-color: #64748b !important;
         }
 
         .text-link {
@@ -39,115 +57,166 @@
             text-decoration: none;
         }
 
-        .text-dark-gray {
-            color: #64748b !important;
-            -webkit-text-fill-color: #64748b !important;
-        }
-
-        /* Цвет, который виден везде */
-
-        img {
-            border: 0;
-            outline: none;
-            text-decoration: none;
-            display: block;
-        }
-
+        /* Mobile spacing */
         @media only screen and (max-width: 480px) {
-            .container {
+            .mobile-pad {
                 padding-left: 12px !important;
                 padding-right: 12px !important;
             }
 
-            .card-padding {
+            .card-pad {
                 padding: 32px 20px !important;
             }
         }
     </style>
+    <!--[if gte mso 9]>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:AllowPNG/>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
 </head>
 
-<body class="bg-dark" style="background-color: #0f172a;">
+<body style="margin: 0; padding: 0; background-color: #0f172a !important;">
 
-    <!-- Wrapper -->
-    <center style="width: 100%; background-color: #0f172a; table-layout: fixed;">
-        <div style="max-width: 500px; margin: 0 auto; padding-top: 40px; padding-bottom: 40px;">
+    <center class="wrapper" style="width: 100%; background-color: #0f172a;">
+        <div style="max-width: 500px; margin: 0 auto;">
 
-            <!-- Logo (Full Version) -->
-            <div style="text-align: center; padding-bottom: 32px;">
-                <img src="./email-assets/skily-logo.png" alt="Skily" width="140" height="auto"
-                    style="margin: 0 auto; max-width: 140px; height: auto;" />
-            </div>
+            <!-- Spacer Top -->
+            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                    <td height="40" style="font-size: 40px; line-height: 40px;">&nbsp;</td>
+                </tr>
+            </table>
+
+            <!-- Logo -->
+            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                    <td align="center">
+                        <img src="./email-assets/skily-logo.png" alt="Skily" width="80" height="80"
+                            style="display: block; width: 80px; height: 80px; border-radius: 20px;" />
+                    </td>
+                </tr>
+                <tr>
+                    <td height="32" style="font-size: 32px; line-height: 32px;">&nbsp;</td>
+                </tr>
+            </table>
 
             <!-- Card -->
-            <div class="container" style="padding: 0 12px;">
-                <div
-                    style="background-color: #1e293b; border-radius: 20px; border: 1px solid rgba(59, 130, 246, 0.2); overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                    <td class="mobile-pad" align="center" style="padding: 0 12px;">
 
-                    <!-- Top Line -->
-                    <div style="height: 3px; background-color: #3b82f6; width: 100%;"></div>
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                            style="background-color: #1e293b; border-radius: 24px; border: 1px solid rgba(59, 130, 246, 0.2); overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                            <!-- Blue Top Line -->
+                            <tr>
+                                <td height="2"
+                                    style="background: linear-gradient(90deg, #1e293b, #3b82f6, #1e293b); font-size: 0; line-height: 0;">
+                                    &nbsp;</td>
+                            </tr>
 
-                    <!-- Card Content -->
-                    <div class="card-padding" style="padding: 40px 32px; text-align: center;">
+                            <tr>
+                                <td class="card-pad" align="center" style="padding: 40px 32px;">
 
-                        <!-- Title (ES) -->
-                        <h1 class="text-white"
-                            style="margin: 0 0 12px 0; font-family: sans-serif; font-size: 28px; font-weight: 800; line-height: 1.2;">
-                            Acceso a Skily
-                        </h1>
+                                    <!-- Title -->
+                                    <h1 class="text-white"
+                                        style="margin: 0 0 12px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 28px; font-weight: 800; color: #ffffff; line-height: 1.2;">
+                                        Acceso a Skily
+                                    </h1>
 
-                        <!-- Emoji -->
-                        <div style="font-size: 40px; line-height: 1; margin-bottom: 20px;">🚀</div>
+                                    <!-- Emoji -->
+                                    <div style="font-size: 36px; line-height: 1; margin-bottom: 20px;">🚀</div>
 
-                        <!-- Desc (ES) -->
-                        <p class="text-slate"
-                            style="margin: 0 0 24px 0; font-family: sans-serif; font-size: 15px; line-height: 1.5;">
-                            Pulsa el botón de abajo para acceder a tu cuenta.
+                                    <!-- Descr ES -->
+                                    <p class="text-gray"
+                                        style="margin: 0 0 20px 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 15px; line-height: 1.6; color: #cbd5e1;">
+                                        Pulsa el botón de abajo para acceder a tu cuenta.
+                                    </p>
+
+                                    <!-- Divider -->
+                                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                        <tr>
+                                            <td align="center" style="padding-bottom: 20px;">
+                                                <div
+                                                    style="width: 40px; height: 1px; background-color: rgba(148, 163, 184, 0.2);">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    <!-- Descr EN -->
+                                    <p class="text-sub"
+                                        style="margin: 0 0 32px 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 13px; line-height: 1.5; color: #64748b;">
+                                        Click the button below to sign in instantly
+                                    </p>
+
+                                    <!-- Button -->
+                                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                        <tr>
+                                            <td align="center">
+                                                <!--[if mso]>
+                                                <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://skily.app/auth/confirm?token=example..." style="height:54px;v-text-anchor:middle;width:240px;" arcsize="22%" stroke="f" fillcolor="#3b82f6">
+                                                <w:anchorlock/>
+                                                <center style="color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:700;">Entrar / Sign in</center>
+                                                </v:roundrect>
+                                                <![endif]-->
+                                                <!--[if !mso]><!-->
+                                                <a href="https://skily.app/auth/confirm?token=example..."
+                                                    style="display: inline-block; background-color: #3b82f6; background-image: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 12px; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 16px; font-weight: 700; line-height: 54px; text-decoration: none; width: 100%; max-width: 240px; text-align: center; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);">
+                                                    Entrar / Sign in
+                                                </a>
+                                                <!--<![endif]-->
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    <!-- Expiry -->
+                                    <p class="text-sub"
+                                        style="margin: 24px 0 0 0; font-family: sans-serif; font-size: 12px; color: #64748b;">
+                                        ⏱ Expira en 24h &bull; Expires in 24h
+                                    </p>
+
+                                </td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Copy Link -->
+            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                    <td align="center" style="padding: 24px 20px;">
+                        <p class="text-sub"
+                            style="margin: 0 0 8px 0; font-family: sans-serif; font-size: 11px; color: #64748b;">
+                            ¿Botón no funciona? / Link not working?
                         </p>
-
-                        <!-- Button -->
-                        <div style="margin-bottom: 24px;">
-                            <a href="https://skily.app/auth/confirm?token=example..."
-                                style="display: inline-block; background-color: #3b82f6; color: #ffffff; font-family: sans-serif; font-size: 16px; font-weight: 700; text-decoration: none; padding: 16px 32px; border-radius: 12px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);">
-                                Entrar / Sign in
+                        <div
+                            style="background-color: rgba(59, 130, 246, 0.1); border-radius: 8px; padding: 12px; display: inline-block; max-width: 100%;">
+                            <a href="https://skily.app/auth/confirm?token=example..." class="text-link"
+                                style="display: block; font-family: 'Courier New', monospace; font-size: 11px; color: #3b82f6; text-decoration: none; word-break: break-all;">
+                                https://skily.app/auth/confirm?token=example...
                             </a>
                         </div>
-
-                        <!-- Desc (EN) -->
-                        <p class="text-dark-gray"
-                            style="margin: 0; font-family: sans-serif; font-size: 13px; line-height: 1.4;">
-                            Click the button above to sign in instantly
-                        </p>
-
-                        <!-- Expiry -->
-                        <p class="text-dark-gray" style="margin: 16px 0 0 0; font-family: sans-serif; font-size: 11px;">
-                            ⏱ Expira en 24h &bull; Expires in 24h
-                        </p>
-
-                    </div>
-                </div>
-            </div>
-
-            <!-- Help & Link (Visible on any background) -->
-            <div style="text-align: center; padding: 32px 20px 0 20px;">
-                <p class="text-dark-gray"
-                    style="margin: 0 0 8px 0; font-family: sans-serif; font-size: 11px; color: #64748b;">
-                    ¿Botón no funciona? / Link not working?
-                </p>
-                <div
-                    style="background-color: rgba(59, 130, 246, 0.1); border-radius: 8px; padding: 8px 12px; display: inline-block; max-width: 100%;">
-                    <a href="https://skily.app/auth/confirm?token=example..." class="text-link"
-                        style="font-family: monospace; font-size: 11px; display: block; word-break: break-all; color: #3b82f6;">
-                        https://skily.app/auth/confirm?token=example...
-                    </a>
-                </div>
-            </div>
+                    </td>
+                </tr>
+            </table>
 
             <!-- Footer -->
-            <div style="text-align: center; padding-top: 24px;">
-                <p class="text-dark-gray" style="margin: 0; font-family: sans-serif; font-size: 12px; color: #64748b;">
-                    &copy; 2024 Skily App
-                </p>
-            </div>
+            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                    <td align="center" style="padding-bottom: 40px;">
+                        <p class="text-sub"
+                            style="margin: 0; font-family: sans-serif; font-size: 12px; color: #64748b;">
+                            &copy; 2024 Skily App
+                        </p>
+                    </td>
+                </tr>
+            </table>
 
         </div>
     </center>
