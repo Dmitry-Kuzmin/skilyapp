@@ -896,7 +896,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
                 <p className="text-sm text-zinc-500 mt-2 font-medium">
                   {step === 'email' && t('auth.emailPrompt')}
-                  {step === 'password-existing' && t('auth.accountVerified')}
+                  {step === 'password-existing' && t('auth.continueProgress')}
 
                   {step === 'magic-link-new' && 'Отправим ссылку для быстрой регистрации'}
                   {step === 'magic-link-existing' && 'Получите магическую ссылку для входа'}
@@ -1032,7 +1032,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                       "
                   >
                     <span className="text-zinc-300 text-sm font-medium">{email}</span>
-                    <span className="text-[11px] text-blue-400 font-medium group-hover:text-blue-300 transition-colors">
+                    <span className="text-[11px] text-sky-400 font-medium group-hover:text-sky-300 transition-colors">
                       {t('auth.changeEmail')}
                     </span>
                   </div>
@@ -1098,7 +1098,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   >
                     <Mail className="w-4 h-4 text-zinc-400" />
                     <span className="text-zinc-300 text-sm font-medium">{email}</span>
-                    <span className="text-[11px] text-blue-400 font-medium group-hover:text-blue-300">
+                    <span className="text-[11px] text-sky-400 font-medium group-hover:text-sky-300">
                       {t('auth.changeEmail')}
                     </span>
                   </div>
