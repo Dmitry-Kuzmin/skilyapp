@@ -39,6 +39,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
+  const [userHasPassword, setUserHasPassword] = useState(true); // по умолчанию true для безопасности
   const [resendCooldown, setResendCooldown] = useState(0);
 
   // --- Loading States ---
@@ -423,16 +424,12 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
         setCheckingEmail(false);
 
-        // КЛЮЧЕВАЯ ЛОГИКА: Проверяем есть ли пароль
-        if (authCheck.hasPassword) {
-          // У пользователя ЕСТЬ пароль → показываем форму с паролем
-          console.log('[AuthModalNew] User has password, showing password form');
-          setStep('password-existing');
-        } else {
-          // У пользователя НЕТ пароля (Magic Link user) → сразу Magic Link
-          console.log('[AuthModalNew] User has NO password, going to magic-link');
-          setStep('magic-link-existing');
-        }
+        // Устанавливаем флаг наличия пароля — UI сам решит что показывать
+        setUserHasPassword(authCheck.hasPassword);
+        console.log('[AuthModalNew] User has password:', authCheck.hasPassword);
+
+        // Всегда идём на password-existing, UI покажет нужную форму
+        setStep('password-existing');
       } else {
         // Новый пользователь → переходим на Magic Link регистрацию
         setCheckingEmail(false);
@@ -1034,47 +1031,70 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   </div>
                 </div>
 
-                <form onSubmit={handleFinalSubmit} className="space-y-4">
-                  <Input
-                    ref={passwordInputRef}
-                    type="password"
-                    label={t('auth.password')}
-                    placeholder={t('auth.passwordPlaceholder')}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="bg-zinc-900/50 border-zinc-800 h-12 text-lg shadow-inner"
-                    autoFocus
-                  />
+                {/* УМНЫЙ UI: зависит от наличия пароля */}
+                {userHasPassword ? (
+                  /* --- ЕСТЬ ПАРОЛЬ: Показываем форму с паролем --- */
+                  <>
+                    <form onSubmit={handleFinalSubmit} className="space-y-4">
+                      <Input
+                        ref={passwordInputRef}
+                        type="password"
+                        label={t('auth.password')}
+                        placeholder={t('auth.passwordPlaceholder')}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="bg-zinc-900/50 border-zinc-800 h-12 text-lg shadow-inner"
+                        autoFocus
+                      />
 
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    fullWidth
-                    loading={isSubmitting}
-                    className="h-12 text-[15px] font-semibold"
-                  >
-                    {t('auth.signIn')}
-                  </Button>
-                </form>
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        fullWidth
+                        loading={isSubmitting}
+                        className="h-12 text-[15px] font-semibold"
+                      >
+                        {t('auth.signIn')}
+                      </Button>
+                    </form>
 
-                {/* Alternatives */}
-                <div className="space-y-3 text-center">
-                  {step === 'password-existing' && (
-                    <>
+                    {/* Magic Link как альтернатива — серая кнопка внизу */}
+                    <div className="space-y-2 text-center">
                       <Button
                         variant="ghost"
                         fullWidth
                         onClick={() => setStep('magic-link-existing')}
-                        className="text-sm font-medium h-11"
+                        className="text-sm font-medium h-11 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50"
                       >
-                        ✨ Войти через почту (без пароля)
+                        ✨ {t('auth.magicLinkAlt') || 'Войти через почту (без пароля)'}
                       </Button>
-                      <p className="text-[11px] text-zinc-600">
+                      <p className="text-[11px] text-zinc-500">
                         {t('auth.alternativeLogin')}
                       </p>
-                    </>
-                  )}
-                </div>
+                    </div>
+                  </>
+                ) : (
+                  /* --- НЕТ ПАРОЛЯ: Показываем ТОЛЬКО большую кнопку Magic Link --- */
+                  <div className="space-y-4">
+                    <p className="text-center text-zinc-400 text-sm">
+                      Мы отправим безопасную ссылку для входа на вашу почту
+                    </p>
+
+                    <Button
+                      variant="primary"
+                      fullWidth
+                      loading={isSubmitting}
+                      onClick={() => handleSendMagicLink(false)}
+                      className="h-14 text-[16px] font-semibold bg-white text-black hover:bg-zinc-100"
+                    >
+                      ✨ Отправить ссылку для входа
+                    </Button>
+
+                    <p className="text-center text-[11px] text-zinc-500">
+                      {t('auth.alternativeLogin')}
+                    </p>
+                  </div>
+                )}
               </motion.div>
 
             ) : step === 'magic-link-new' || step === 'magic-link-existing' ? (
