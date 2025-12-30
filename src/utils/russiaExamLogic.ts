@@ -124,7 +124,7 @@ export function applyAnswerToState(
     } else {
       // Переходим к следующему доп. вопросу
       newState.currentExtraIndex += 1;
-      
+
       // Если все доп. вопросы пройдены
       if (newState.currentExtraIndex >= newState.extraQuestions.length) {
         newState.status = 'passed';
@@ -149,12 +149,54 @@ export function applyAnswerToState(
       if (!result.isCorrect && result.blockId) {
         const blockId = result.blockId;
         newState.errorsPerBlock[blockId] = (newState.errorsPerBlock[blockId] || 0) + 1;
-        
+
         // Обновляем блок
         const block = newState.blocks.find(b => b.id === blockId);
         if (block) {
           block.errors = newState.errorsPerBlock[blockId];
         }
+      }
+
+      // ⚠️ ВАЖНО: Сначала добавляем доп. вопросы (если ошибка), ПОТОМ переходим к следующему
+      // Добавляем доп. вопросы и время
+      if (result.shouldAddExtra && result.extraQuestionsCount && result.extraTime && result.blockId) {
+        // Получаем доп. вопросы из того же блока
+        const blockQuestions = newState.allQuestionsByBlock[result.blockId] || [];
+
+        if (blockQuestions.length === 0) {
+          console.warn(`[russiaExamLogic] Нет вопросов в блоке ${result.blockId} для доп. вопросов`);
+        } else {
+          // Исключаем уже использованные вопросы из основных
+          const usedQuestionIds = new Set(
+            newState.mainQuestions.map(q => q.id)
+          );
+
+          const availableQuestions = blockQuestions.filter(
+            q => !usedQuestionIds.has(q.id)
+          );
+
+          // Если доступных вопросов меньше, чем нужно - используем все доступные
+          const questionsToUse = availableQuestions.length >= result.extraQuestionsCount
+            ? availableQuestions
+            : blockQuestions; // fallback: используем все вопросы блока
+
+          // Перем ешиваем и берем нужное количество
+          const shuffled = [...questionsToUse].sort(() => Math.random() - 0.5);
+          const selected = shuffled.slice(0, result.extraQuestionsCount);
+
+          const extraQuestions: ExtraQuestion[] = selected.map((q) => ({
+            question: q,
+            blockId: result.blockId!,
+            originalQuestionIndex: state.currentMainIndex,
+          }));
+
+          newState.extraQuestions.push(...extraQuestions);
+          console.log(`[russiaExamLogic] ✅ Добавлено ${extraQuestions.length} доп. вопросов из блока ${result.blockId}`);
+        }
+
+        newState.timeRemaining += result.extraTime;
+        newState.extraTimeAdded += result.extraTime;
+        console.log(`[russiaExamLogic] ⏱️ Добавлено ${result.extraTime} сек. Всего: ${newState.timeRemaining} сек.`);
       }
 
       // Переходим к следующему основному вопросу
@@ -165,52 +207,15 @@ export function applyAnswerToState(
         // Проверяем, есть ли доп. вопросы
         if (newState.extraQuestions.length > 0) {
           // Переходим в режим доп. вопросов
+          console.log(`[russiaExamLogic] 📝 Переход в режим доп. вопросов (${newState.extraQuestions.length} шт.)`);
           newState.isExtraMode = true;
           newState.currentExtraIndex = 0;
         } else {
           // Нет доп. вопросов - экзамен сдан
+          console.log(`[russiaExamLogic] ✅ Экзамен сдан!`);
           newState.status = 'passed';
           newState.endTime = Date.now();
         }
-      }
-
-      // Добавляем доп. вопросы и время
-      if (result.shouldAddExtra && result.extraQuestionsCount && result.extraTime && result.blockId) {
-        // Получаем доп. вопросы из того же блока
-        const blockQuestions = newState.allQuestionsByBlock[result.blockId] || [];
-        
-        if (blockQuestions.length === 0) {
-          console.warn(`[russiaExamLogic] Нет вопросов в блоке ${result.blockId} для доп. вопросов`);
-        } else {
-          // Исключаем уже использованные вопросы из основных
-          const usedQuestionIds = new Set(
-            newState.mainQuestions.map(q => q.id)
-          );
-          
-          const availableQuestions = blockQuestions.filter(
-            q => !usedQuestionIds.has(q.id)
-          );
-          
-          // Если доступных вопросов меньше, чем нужно - используем все доступные
-          const questionsToUse = availableQuestions.length >= result.extraQuestionsCount
-            ? availableQuestions
-            : blockQuestions; // fallback: используем все вопросы блока
-          
-          // Перемешиваем и берем нужное количество
-          const shuffled = [...questionsToUse].sort(() => Math.random() - 0.5);
-          const selected = shuffled.slice(0, result.extraQuestionsCount);
-          
-          const extraQuestions: ExtraQuestion[] = selected.map((q) => ({
-            question: q,
-            blockId: result.blockId!,
-            originalQuestionIndex: state.currentMainIndex - 1,
-          }));
-          
-          newState.extraQuestions.push(...extraQuestions);
-        }
-        
-        newState.timeRemaining += result.extraTime;
-        newState.extraTimeAdded += result.extraTime;
       }
     }
   }
@@ -234,7 +239,7 @@ export function getExamStats(state: RussiaExamState) {
   const extraCorrect = Object.values(state.extraAnswers).filter(a => a.isCorrect).length;
   const extraTotal = Object.keys(state.extraAnswers).length;
 
-  const totalTime = state.endTime 
+  const totalTime = state.endTime
     ? Math.floor((state.endTime - state.startTime) / 1000)
     : Math.floor((Date.now() - state.startTime) / 1000);
 

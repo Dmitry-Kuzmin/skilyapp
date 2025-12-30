@@ -2106,6 +2106,9 @@ const translations: Record<Language, Record<string, any>> = {
         emailConfirmationRequired: "Проверьте вашу почту для подтверждения email",
         checkEmail: "Проверьте email",
         checkEmailDescription: "Мы отправили письмо с подтверждением на ваш email. Перейдите по ссылке в письме, чтобы завершить регистрацию.",
+        emailSent: "Письмо отправлено",
+        magicLinkSent: "Ссылка для входа отправлена на вашу почту",
+        checkYourEmail: "Проверьте свою почту",
       },
       passkey: {
         loginSuccess: "✅ Вход выполнен",

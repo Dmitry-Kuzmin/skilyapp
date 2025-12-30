@@ -34,6 +34,8 @@ import { getImageUrl, preloadImage, getCachedImageAspectRatio, preloadImages } f
 import { QuestionImage } from "@/components/test/QuestionImage";
 import { QuestionText } from '@/components/test/QuestionText';
 import { AnswerButton } from '@/components/test/AnswerButton';
+import { SubmitButton } from '@/components/test/SubmitButton';
+import { TestSkeleton } from '@/components/test/TestSkeleton';
 import { saveTestProgress, loadTestProgress, clearTestProgress } from "@/utils/testStorage";
 import { useExamStore, selectActiveState, selectCurrentQuestion, selectTimerValue } from "@/store/examStore";
 import { getExamStats, handleMainQuestionAnswer, handleExtraQuestionAnswer } from "@/utils/russiaExamLogic";
@@ -891,8 +893,8 @@ const TestSession = () => {
         } else {
           result = handleMainQuestionAnswer(examState, examState.currentMainIndex, isCorrect);
         }
-        // Отправка в стор
-        answerQuestionZ('', isCorrect);
+        // Отправка в стор - ЗАКОММЕНТИРОВАНО, т.к. это дублирует вызов из handleAnswer (строка 1427)
+        // answerQuestionZ('', isCorrect);
         return result;
       },
       timeRemaining: examState.timeRemaining,
@@ -1750,11 +1752,16 @@ const TestSession = () => {
           const index = parseInt(e.key) - 1;
           if (index < currentAnswers.length) {
             const answerId = currentAnswers[index].id;
-            if (!isAnswerLocked && !selectedOption) {
-              // КРИТИЧНО: Сначала устанавливаем выбор, потом сразу вызываем handleAnswer
-              // (как при клике мышью)
+            if (!isAnswerLocked) {
+              // Всегда позволяем менять выбор
               setSelectedOption(answerId);
-              handleAnswer(answerId);
+
+              // Автоматически отвечаем только в режимах, где нет кнопки "Подтвердить"
+              // (например, в обычной практике РФ)
+              const hasConfirmButton = mode === 'exam-russia' || !isRussia;
+              if (!hasConfirmButton && !selectedOption) {
+                handleAnswer(answerId);
+              }
             }
           }
         }
@@ -1770,13 +1777,13 @@ const TestSession = () => {
           setTimeout(() => setIsEnterPressed(false), 200);
         }
 
-        // Если уже ответили (в режиме практики) — переходим к следующему
-        if (selectedOption && isPracticeLikeMode) {
-          nextQuestion();
-        }
-        // Если выбрали вариант, но еще не нажали "Ответить"
-        else if (selectedOption && !isAnswerLocked) {
+        // ИСПРАВЛЕНО: Сначала отвечаем, если еще не ответили
+        if (selectedOption && !isAnswerLocked) {
           handleAnswer();
+        }
+        // Затем переходим дальше, если уже ответили (показывается результат)
+        else if (isAnswerLocked && isPracticeLikeMode) {
+          nextQuestion();
         }
       }
     };
@@ -2105,16 +2112,7 @@ const TestSession = () => {
   };
 
   if (loading) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8 text-center">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-muted rounded w-1/3 mx-auto" />
-            <div className="h-4 bg-muted rounded w-1/2 mx-auto" />
-          </div>
-        </div>
-      </Layout>
-    );
+    return <TestSkeleton mode={mode} />;
   }
 
   if (questions.length === 0) {
@@ -2364,8 +2362,6 @@ const TestSession = () => {
               onOpenSettings={() => setShowTestSettings(true)}
               onToggleTranslation={toggleTranslation}
               showTranslation={showTranslation}
-              onToggleSmartVocabulary={toggleSmartVocabulary}
-              smartVocabularyEnabled={smartVocabularyEnabled}
               customLeftContent={
                 <>
                   {/* Timer */}
@@ -2470,32 +2466,16 @@ const TestSession = () => {
                 )
               }
               footer={
-                <button
+                <SubmitButton
+                  label="ПОДТВЕРДИТЬ"
                   onClick={() => handleAnswer()}
                   disabled={!selectedOption || isAnswerLocked}
-                  className={cn(
-                    "w-full h-14 rounded-2xl font-semibold text-base tracking-wide transition-all duration-200",
-                    "flex items-center justify-center gap-2",
-                    selectedOption && !isAnswerLocked
-                      ? cn(
-                        // Modern Gradient + Glow
-                        "bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600",
-                        "text-white",
-                        "shadow-[0_4px_20px_rgba(59,130,246,0.4)]",
-                        "hover:shadow-[0_8px_25px_rgba(59,130,246,0.5)]",
-                        "hover:-translate-y-0.5",
-                        "active:scale-[0.98]"
-                      )
-                      : cn(
-                        // Disabled state
-                        "bg-slate-800/50 text-slate-500",
-                        "cursor-not-allowed"
-                      )
-                  )}
-                >
-                  ПОДТВЕРДИТЬ
-                  {selectedOption && <ArrowRight className="w-5 h-5" />}
-                </button>
+                  isEnterPressed={isEnterPressed}
+                  variant="exam"
+                  tooltipText="Нажмите Enter, чтобы подтвердить ответ"
+                  showArrow={!!selectedOption}
+                  showKeyboardHint={true}
+                />
               }
             />
           </motion.div>
@@ -2742,38 +2722,17 @@ const TestSession = () => {
                           </Tooltip>
                         </TooltipProvider>
                       ) : (
-                        !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="brand"
-                                  onClick={() => handleAnswer()}
-                                  disabled={!selectedOption}
-                                  className={cn(
-                                    "flex-1 font-semibold h-12 sm:h-14 rounded-2xl disabled:opacity-50 relative transition-all",
-                                    isEnterPressed && selectedOption && "scale-[0.98] brightness-110 shadow-blue-400/50"
-                                  )}
-                                >
-                                  <span className="text-lg sm:text-xl">{isRussia ? "Ответить" : "Responder"}</span>
-                                  {selectedOption && (
-                                    <span className={cn(
-                                      "hidden sm:inline-flex absolute right-4 text-[10px] items-center gap-1 opacity-50 font-mono transition-all duration-200",
-                                      isEnterPressed && "scale-110 opacity-100 text-yellow-400"
-                                    )}>
-                                      <Keyboard className="w-4 h-4" />
-                                      <span className="border border-white/30 px-1 rounded flex items-center gap-0.5">
-                                        Enter <CornerDownLeft className="w-3 h-3" />
-                                      </span>
-                                    </span>
-                                  )}
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="bg-slate-900 border-white/10 text-white">
-                                <p>Нажмите Enter, чтобы ответить</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
+                        !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && mode !== "exam-russia" && (
+                          <SubmitButton
+                            label={isRussia ? "Ответить" : "Responder"}
+                            onClick={() => handleAnswer()}
+                            disabled={!selectedOption}
+                            isEnterPressed={isEnterPressed}
+                            variant="practice"
+                            tooltipText={isRussia ? "Нажмите Enter, чтобы ответить" : "Presiona Enter para responder"}
+                            showArrow={!!selectedOption}
+                            showKeyboardHint={true}
+                          />
                         )
                       )}
                     </div>
@@ -2848,38 +2807,17 @@ const TestSession = () => {
                             </Tooltip>
                           </TooltipProvider>
                         ) : (
-                          !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="brand"
-                                    onClick={() => handleAnswer()}
-                                    disabled={!selectedOption}
-                                    className={cn(
-                                      "flex-1 font-semibold h-12 rounded-xl disabled:opacity-50 relative transition-all",
-                                      isEnterPressed && selectedOption && "scale-[0.98] brightness-110"
-                                    )}
-                                  >
-                                    <span className="text-lg">{isRussia ? "Ответить" : "Responder"}</span>
-                                    {selectedOption && (
-                                      <span className={cn(
-                                        "hidden sm:inline-flex absolute right-4 text-[10px] items-center gap-1 opacity-50 font-mono transition-all duration-200",
-                                        isEnterPressed && "scale-110 opacity-100 text-yellow-400"
-                                      )}>
-                                        <Keyboard className="w-3.5 h-3.5" />
-                                        <span className="border border-white/30 px-1 rounded flex items-center gap-0.5">
-                                          Enter <CornerDownLeft className="w-2.5 h-2.5" />
-                                        </span>
-                                      </span>
-                                    )}
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent side="top" className="bg-slate-900 border-white/10 text-white">
-                                  <p>Нажмите Enter, чтобы ответить</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                          !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && mode !== "exam-russia" && (
+                            <SubmitButton
+                              label={isRussia ? "Ответить" : "Responder"}
+                              onClick={() => handleAnswer()}
+                              disabled={!selectedOption}
+                              isEnterPressed={isEnterPressed}
+                              variant="practice"
+                              tooltipText={isRussia ? "Нажмите Enter, чтобы ответить" : "Presiona Enter para responder"}
+                              showArrow={!!selectedOption}
+                              showKeyboardHint={true}
+                            />
                           )
                         )}
                       </div>
@@ -2957,38 +2895,18 @@ const TestSession = () => {
                       </Tooltip>
                     </TooltipProvider>
                   ) : (
-                    !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="brand"
-                              onClick={() => handleAnswer()}
-                              disabled={!selectedOption}
-                              className={cn(
-                                "flex-1 font-semibold h-16 rounded-2xl disabled:opacity-50 relative transition-all",
-                                isEnterPressed && selectedOption && "scale-[0.98] brightness-110"
-                              )}
-                            >
-                              <span className="text-xl">{isRussia ? "Ответить" : "Responder"}</span>
-                              {selectedOption && (
-                                <span className={cn(
-                                  "hidden sm:inline-flex absolute right-6 text-[11px] items-center gap-1 opacity-50 font-mono transition-all duration-200",
-                                  isEnterPressed && "scale-110 opacity-100 text-yellow-400"
-                                )}>
-                                  <Keyboard className="w-5 h-5" />
-                                  <span className="border border-white/30 px-1.5 rounded flex items-center gap-0.5">
-                                    Enter <CornerDownLeft className="w-4 h-4" />
-                                  </span>
-                                </span>
-                              )}
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="bg-slate-900 border-white/10 text-white">
-                            <p>Нажмите Enter, чтобы ответить</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                    !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && mode !== "exam-russia" && (
+                      <SubmitButton
+                        label={isRussia ? "Ответить" : "Responder"}
+                        onClick={() => handleAnswer()}
+                        disabled={!selectedOption}
+                        isEnterPressed={isEnterPressed}
+                        variant="practice"
+                        tooltipText={isRussia ? "Нажмите Enter, чтобы ответить" : "Presiona Enter para responder"}
+                        showArrow={!!selectedOption}
+                        showKeyboardHint={true}
+                        className="h-16"
+                      />
                     )
                   )}
                 </div>

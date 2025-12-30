@@ -25,6 +25,8 @@ interface ResponsiveModalProps {
   hideHandle?: boolean;
   /** Fade из эффект при закрытии */
   fadeFromIndex?: number;
+  /** Fullscreen режим */
+  fullscreen?: boolean;
 }
 
 /**
@@ -93,7 +95,7 @@ export function ResponsiveModal({
               {headerContent}
             </div>
           ) : title ? (
-            <DrawerHeader className="text-left shrink-0 border-b border-border/30 pb-3 px-8">
+            <DrawerHeader className="text-left shrink-0 border-b border-white/10 pb-3 px-8">
               <DrawerTitle className="text-foreground">{title}</DrawerTitle>
               {description && (
                 <DrawerDescription className="text-muted-foreground">
@@ -133,7 +135,7 @@ export function ResponsiveModal({
         className={cn(
           defaultMaxWidth,
           fullscreen ? "h-screen rounded-none" : "max-h-[90vh]",
-          "bg-background/95 backdrop-blur-xl border-border/50",
+          "bg-background/95 backdrop-blur-xl border-white/10",
           "flex flex-col p-0",
           "shadow-[0_8px_40px_rgba(0,0,0,0.2)]",
           className
@@ -146,7 +148,7 @@ export function ResponsiveModal({
             {headerContent}
           </div>
         ) : title ? (
-          <DialogHeader className="shrink-0 px-8 pt-5 pb-4 border-b border-border/30">
+          <DialogHeader className="shrink-0 px-8 pt-5 pb-4 border-b border-white/10">
             <DialogTitle className="text-foreground">{title}</DialogTitle>
             {description && (
               <DialogDescription className="text-muted-foreground">

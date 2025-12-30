@@ -186,12 +186,6 @@ export function UniversalQuestionCard({
         </div>
       </div>
 
-      {/* Footer для кнопок */}
-      {footer && (
-        <div className="mt-4">
-          {footer}
-        </div>
-      )}
     </QuestionCard>
   );
 }

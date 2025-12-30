@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from "@/components/optimized/Motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ScanFace, ArrowRight, ShieldCheck, Loader2, Mail } from 'lucide-react';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
@@ -32,15 +32,14 @@ interface AuthModalProps {
 const DEFAULT_AVATAR = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=faces";
 
 export function AuthModalNew({ open, onClose }: AuthModalProps) {
-  // --- State Machine ---
-  const [step, setStep] = useState<'email' | 'password-existing' | 'password-new'>('email');
-
-  // --- Data & Validation ---
+  // --- State ---
+  const [step, setStep] = useState<'email' | 'password-existing' | 'magic-link-new' | 'magic-link-existing' | 'check-email'>('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState<string | null>(null);
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   // --- Loading States ---
   const [checkingEmail, setCheckingEmail] = useState(false);
@@ -155,7 +154,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
       if (step === 'email') {
         setTimeout(() => emailInputRef.current?.focus(), 400);
-      } else if (step === 'password-existing' || step === 'password-new') {
+      } else if (step === 'password-existing') {
         setTimeout(() => passwordInputRef.current?.focus(), 400);
       }
     }
@@ -439,8 +438,9 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         setCheckingEmail(false);
         setStep('password-existing');
       } else {
+        // Новый пользователь → переходим на Magic Link регистрацию
         setCheckingEmail(false);
-        setStep('password-new');
+        setStep('magic-link-new');
       }
     } catch (error) {
       console.error('[AuthModalNew] Email check error:', error);
@@ -459,244 +459,73 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
       const authSchema = createAuthSchema(t);
       const validated = authSchema.parse({ email, password });
 
-      if (step === 'password-new') {
-        // Регистрация
-        const { data: signUpData, error } = await supabase.auth.signUp({
-          email: validated.email,
-          password: validated.password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
-            data: {
-              first_name: validated.email.split('@')[0],
-            }
-          }
-        });
+      // Теперь только вход (регистрация только через Magic Link)
+      const { error } = await supabase.auth.signInWithPassword({
+        email: validated.email,
+        password: validated.password,
+      });
 
-        if (error) {
-          if (error.message.includes('already registered')) {
-            toast({
-              title: t('auth.errors.validationError'),
-              description: t('auth.errors.alreadyRegistered'),
-              variant: "destructive"
-            });
-          } else {
-            throw error;
-          }
-          setIsSubmitting(false);
-          return;
-        }
-
-        // КРИТИЧНО: После signUp проверяем, есть ли уже сессия
-        // Если email подтверждения не требуется, сессия создается сразу
-        // Если требуется подтверждение email, сессия будет null, но user будет создан
-        const hasSession = !!signUpData?.session;
-        const userCreated = !!signUpData?.user;
-
-        if (hasSession) {
-          // Сессия создана сразу - пользователь может войти без подтверждения email
-          console.log('[AuthModalNew] Session created immediately after signUp');
-
-          const newUser = signUpData.user;
-
-          // Ждем создания профиля (может быть задержка из-за триггеров в БД)
-          let profile = null;
-          let attempts = 0;
-          while (!profile && attempts < 10) {
-            const { data: profileData } = await supabase
-              .from('profiles')
-              .select('id')
-              .eq('user_id', newUser.id)
-              .maybeSingle();
-
-            if (profileData?.id) {
-              profile = profileData;
-              break;
-            }
-            attempts++;
-            if (attempts < 10) {
-              await new Promise(resolve => setTimeout(resolve, 500));
-            }
-          }
-
-          // Проверяем partner code (приоритет над referral)
-          const partnerDataStr = sessionStorage.getItem('partner_code');
-          if (partnerDataStr && profile) {
-            try {
-              const partnerData = JSON.parse(partnerDataStr);
-              const ipAddress = await getClientIP();
-              const userAgent = navigator.userAgent;
-
-              // Получаем session_id из localStorage (если был сохранен при клике)
-              const sessionId = localStorage.getItem('partner_session_id');
-
-              // Получаем fingerprint_hash (параллельно, не блокируем процесс)
-              const { getFingerprint } = await import('@/lib/fingerprint');
-              const fingerprintHash = await getFingerprint();
-
-              const { data: activationData, error: activationError } = await supabase.functions.invoke('activate-partner-premium', {
-                body: {
-                  partner_code: partnerData.code.toUpperCase(),
-                  user_id: profile.id,
-                  utm_source: partnerData.utm_source,
-                  utm_medium: partnerData.utm_medium,
-                  utm_campaign: partnerData.utm_campaign,
-                  ip_address: ipAddress,
-                  user_agent: userAgent,
-                  fingerprint_hash: fingerprintHash,
-                  session_id: sessionId,
-                },
-              });
-
-              if (!activationError && activationData?.success) {
-                toast({
-                  title: "🎉 Premium активирован!",
-                  description: `Premium на 30 дней активирован!`,
-                });
-                window.dispatchEvent(new CustomEvent('premium-status-updated'));
-              }
-              sessionStorage.removeItem('partner_code');
-            } catch (partnerError) {
-              console.error('[AuthModalNew] Partner activation error:', partnerError);
-              sessionStorage.removeItem('partner_code');
-            }
-          } else {
-            // Применяем referral code если есть
-            const referralCode = sessionStorage.getItem('referral_code');
-            if (referralCode && profile) {
-              console.log('[AuthModalNew] Applying referral code:', referralCode);
-              const { data: referralResult, error: referralError } = await supabase.rpc('create_referral', {
-                p_referrer_code: referralCode.toUpperCase(),
-                p_referred_id: profile.id
-              });
-
-              if (referralError) {
-                console.error('[AuthModalNew] Referral error:', referralError);
-              } else if (referralResult && referralResult.length > 0 && referralResult[0].success) {
-                toast({
-                  title: "🎉 Вы получили +50 монет!",
-                  description: `Бонус за регистрацию по приглашению`,
-                });
-                sessionStorage.removeItem('referral_code');
-              }
-            }
-          }
-
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
           toast({
-            title: t('auth.success.registered'),
-            description: t('auth.success.welcome'),
+            title: t('auth.errors.validationError'),
+            description: t('auth.errors.invalidCredentials'),
+            variant: "destructive"
           });
-
-          sessionStorage.removeItem('partner_code');
-          sessionStorage.removeItem('referral_code');
-
-          onClose();
-
-          // Редиректим на dashboard, так как сессия уже создана
-          if (window.location.pathname !== '/dashboard') {
-            navigate('/dashboard', { replace: true });
-          } else {
-            window.location.reload();
-          }
-        } else if (userCreated) {
-          // Пользователь создан, но требуется подтверждение email
-          console.log('[AuthModalNew] Email confirmation required');
-
-          toast({
-            title: t('auth.success.registered'),
-            description: t('auth.success.emailConfirmationRequired'),
-          });
-
-          sessionStorage.removeItem('partner_code');
-          sessionStorage.removeItem('referral_code');
-
-          // НЕ закрываем модалку и НЕ редиректим - пользователь должен подтвердить email
-          // Показываем сообщение и возвращаемся на шаг email
-          setIsSubmitting(false);
-          setStep('email');
-          setPassword('');
-          setEmail('');
-
-          // Показываем дополнительное сообщение через небольшую задержку
-          setTimeout(() => {
-            toast({
-              title: t('auth.success.checkEmail'),
-              description: t('auth.success.checkEmailDescription'),
-            });
-          }, 1000);
         } else {
-          // Ошибка регистрации - пользователь не создан
-          console.error('[AuthModalNew] User was not created during signUp');
-          throw new Error('Failed to create user account');
+          throw error;
         }
-      } else {
-        // Вход
-        const { error } = await supabase.auth.signInWithPassword({
-          email: validated.email,
-          password: validated.password,
-        });
-
-        if (error) {
-          if (error.message.includes('Invalid login credentials')) {
-            toast({
-              title: t('auth.errors.validationError'),
-              description: t('auth.errors.invalidCredentials'),
-              variant: "destructive"
-            });
-          } else {
-            throw error;
-          }
-          setIsSubmitting(false);
-          return;
-        }
-
-        toast({
-          title: t('auth.success.loggedIn'),
-          description: t('auth.success.welcome'),
-        });
-
-        onClose();
-
-        // КРИТИЧНО: Ждем обновления сессии перед редиректом
-        // Проверяем, что сессия обновилась, и только потом редиректим
-        // Используем window.location.href для полного перезапуска приложения
-        // Это гарантирует, что UserProvider загрузится и обработает новую сессию
-        (() => {
-          let signInAttempts = 0;
-          const signInMaxAttempts = 15; // Увеличиваем до 15 попыток (3 секунды)
-          const checkSignInSession = async () => {
-            const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
-
-            if (currentSession?.user) {
-              console.log('[AuthModalNew] Session confirmed after signIn, redirecting to dashboard');
-              if (window.location.pathname !== '/dashboard') {
-                navigate('/dashboard', { replace: true });
-              } else {
-                window.location.reload();
-              }
-              return;
-            }
-
-            if (signInAttempts >= signInMaxAttempts) {
-              console.warn('[AuthModalNew] Max attempts reached after signIn, redirecting anyway');
-              // Даже если сессия не подтверждена, редиректим
-              // UserProvider на dashboard проверит сессию при загрузке
-              if (window.location.pathname !== '/dashboard') {
-                navigate('/dashboard', { replace: true });
-              } else {
-                window.location.reload();
-              }
-              return;
-            }
-
-            signInAttempts++;
-            console.log(`[AuthModalNew] Waiting for session after signIn... (attempt ${signInAttempts}/${signInMaxAttempts})`);
-            setTimeout(checkSignInSession, 200);
-          };
-
-          // Начинаем проверку сразу после закрытия модалки
-          setTimeout(checkSignInSession, 100);
-        })();
+        setIsSubmitting(false);
+        return;
       }
+
+      toast({
+        title: t('auth.success.loggedIn'),
+        description: t('auth.success.welcome'),
+      });
+
+      onClose();
+
+      // КРИТИЧНО: Ждем обновления сессии перед редиреком
+      // Проверяем, что сессия обновилась, и только потом редиректим
+      // Используем window.location.href для полного перезапуска приложения
+      // Это гарантирует, что UserProvider загрузится и обработает новую сессию
+      (() => {
+        let signInAttempts = 0;
+        const signInMaxAttempts = 15; // Увеличиваем до 15 попыток (3 секунды)
+        const checkSignInSession = async () => {
+          const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+
+          if (currentSession?.user) {
+            console.log('[AuthModalNew] Session confirmed after signIn, redirecting to dashboard');
+            if (window.location.pathname !== '/dashboard') {
+              navigate('/dashboard', { replace: true });
+            } else {
+              window.location.reload();
+            }
+            return;
+          }
+
+          if (signInAttempts >= signInMaxAttempts) {
+            console.warn('[AuthModalNew] Max attempts reached after signIn, redirecting anyway');
+            // Даже если сессия не подтверждена, редиректим
+            // UserProvider на dashboard проверит сессию при загрузке
+            if (window.location.pathname !== '/dashboard') {
+              navigate('/dashboard', { replace: true });
+            } else {
+              window.location.reload();
+            }
+            return;
+          }
+
+          signInAttempts++;
+          console.log(`[AuthModalNew] Waiting for session after signIn... (attempt ${signInAttempts}/${signInMaxAttempts})`);
+          setTimeout(checkSignInSession, 200);
+        };
+
+        // Начинаем проверку сразу после закрытия модалки
+        setTimeout(checkSignInSession, 100);
+      })();
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
@@ -750,6 +579,72 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
       });
     }
   };
+
+  // --- Magic Link Handlers ---
+
+  const handleSendMagicLink = async (isNewUser: boolean) => {
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          shouldCreateUser: isNewUser, // Создаем нового юзера только для регистрации
+        }
+      });
+
+      if (error) {
+        console.error('[AuthModalNew] Magic Link error:', error);
+        toast({
+          title: t('auth.errors.validationError'),
+          description: error.message || t('auth.errors.genericError'),
+          variant: "destructive"
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Успех — переходим на экран "Проверьте почту"
+      setStep('check-email');
+      setIsSubmitting(false);
+
+      // Запускаем таймер для повторной отправки (60 секунд)
+      setResendCooldown(60);
+      const cooldownInterval = setInterval(() => {
+        setResendCooldown(prev => {
+          if (prev <= 1) {
+            clearInterval(cooldownInterval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (error: any) {
+      console.error('[AuthModalNew] Magic Link exception:', error);
+      toast({
+        title: t('auth.errors.validationError'),
+        description: error.message || t('auth.errors.genericError'),
+        variant: "destructive"
+      });
+      setIsSubmitting(false);
+    }
+  };
+
+
+  const handleResendMagicLink = async () => {
+    if (resendCooldown > 0) return;
+
+    // Определяем тип пользователя по текущему шагу
+    const isNewUser = step === 'check-email' && !userName; // Если нет userName, значит новый
+    await handleSendMagicLink(isNewUser);
+
+    toast({
+      title: t('auth.success.emailSent'),
+      description: t('auth.success.checkEmail'),
+    });
+  };
+
 
   // Определяем мобильное устройство в начале компонента (до использования в useEffect)
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -963,6 +858,9 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   <ShieldCheck className="w-4 h-4 text-green-500 fill-green-500/20" />
                 </div>
               </motion.div>
+            ) : step === 'check-email' ? (
+              /* Email Check State - No Logo, только иконка письма будет ниже */
+              null
             ) : (
               /* Logo State */
               <motion.div
@@ -990,13 +888,19 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                 <h2 className="text-2xl font-semibold text-white tracking-tight">
                   {step === 'email' && t('auth.identification')}
                   {step === 'password-existing' && (userName ? t('auth.welcomeBackWithName', { name: userName }) : t('auth.welcomeBack'))}
-                  {step === 'password-new' && t('auth.createAccount')}
+
+                  {step === 'magic-link-new' && 'Регистрация'}
+                  {step === 'magic-link-existing' && 'Вход без пароля'}
+                  {step === 'check-email' && 'Проверьте почту'}
                 </h2>
 
                 <p className="text-sm text-zinc-500 mt-2 font-medium">
                   {step === 'email' && t('auth.emailPrompt')}
                   {step === 'password-existing' && t('auth.accountVerified')}
-                  {step === 'password-new' && t('auth.newUser')}
+
+                  {step === 'magic-link-new' && 'Отправим ссылку для быстрой регистрации'}
+                  {step === 'magic-link-existing' && 'Получите магическую ссылку для входа'}
+                  {/* Убрали дубликат email - он уже показан крупно ниже */}
                 </p>
               </motion.div>
             </AnimatePresence>
@@ -1106,7 +1010,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   </div>
                 </motion.div>
               </motion.div>
-            ) : (
+
+            ) : step === 'password-existing' ? (
               /* --- STEP 2: PASSWORD (Existing or New) --- */
               <motion.div
                 key="step-password"
@@ -1152,7 +1057,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                     loading={isSubmitting}
                     className="h-12 text-[15px] font-semibold"
                   >
-                    {step === 'password-new' ? t('auth.createAccountButton') : t('auth.signIn')}
+                    {t('auth.signIn')}
                   </Button>
                 </form>
 
@@ -1160,9 +1065,14 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                 <div className="space-y-3 text-center">
                   {step === 'password-existing' && (
                     <>
-                      <button className="text-xs text-zinc-500 hover:text-zinc-400 transition-colors">
-                        {t('auth.forgotPassword')}
-                      </button>
+                      <Button
+                        variant="ghost"
+                        fullWidth
+                        onClick={() => setStep('magic-link-existing')}
+                        className="text-sm font-medium h-11"
+                      >
+                        ✨ Войти через почту (без пароля)
+                      </Button>
                       <p className="text-[11px] text-zinc-600">
                         {t('auth.alternativeLogin')}
                       </p>
@@ -1170,12 +1080,129 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   )}
                 </div>
               </motion.div>
-            )}
+
+            ) : step === 'magic-link-new' || step === 'magic-link-existing' ? (
+              /* --- Magic Link Screen --- */
+              <motion.div
+                key="magic-link"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="space-y-6"
+              >
+                {/* Email Display */}
+                <div className="flex justify-center">
+                  <div
+                    onClick={handleBackToEmail}
+                    className="group flex items-center gap-3 bg-zinc-900/50 border border-white/5 rounded-full py-1.5 px-4 cursor-pointer hover:bg-zinc-900 hover:border-white/10 transition-all"
+                  >
+                    <Mail className="w-4 h-4 text-zinc-400" />
+                    <span className="text-zinc-300 text-sm font-medium">{email}</span>
+                    <span className="text-[11px] text-blue-400 font-medium group-hover:text-blue-300">
+                      {t('auth.changeEmail')}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Info Card */}
+                <div className="bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20 rounded-2xl p-4 space-y-2">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-5 h-5 text-blue-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold text-white mb-1">
+                        {step === 'magic-link-new' ? 'Быстрая регистрация' : 'Вход без пароля'}
+                      </h3>
+                      <p className="text-xs text-zinc-400 leading-relaxed">
+                        Мы отправим вам безопасную ссылку для {step === 'magic-link-new' ? 'создания аккаунта' : 'входа'}. Просто нажмите на ссылку в письме — и всё готово!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Send Button */}
+                <Button
+                  variant="primary"
+                  fullWidth
+                  onClick={() => handleSendMagicLink(step === 'magic-link-new')}
+                  loading={isSubmitting}
+                  className="h-12 text-[15px] font-semibold"
+                >
+                  Отправить ссылку на {email.split('@')[0]}@...
+                </Button>
+
+                {/* Back Button */}
+                <Button
+                  variant="ghost"
+                  fullWidth
+                  onClick={handleBackToEmail}
+                  className="text-sm"
+                >
+                  ← Назад
+                </Button>
+              </motion.div>
+
+            ) : step === 'check-email' ? (
+              /* --- Check Email Screen --- */
+              <motion.div
+                key="check-email"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="space-y-6 text-center"
+              >
+                {/* Icon Animation */}
+                <motion.div
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.1, type: "spring" }}
+                  className="w-20 h-20 mx-auto bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(59,130,246,0.3)]"
+                >
+                  <Mail className="w-10 h-10 text-white" />
+                </motion.div>
+
+                {/* Success Message */}
+                <div className="space-y-3">
+                  <p className="text-zinc-300 leading-relaxed">
+                    Письмо отправлено на<br />
+                    <span className="text-white font-semibold">{email}</span>
+                  </p>
+                  <p className="text-sm text-zinc-500">
+                    Ссылка действительна 60 минут
+                  </p>
+                </div>
+
+                {/* Resend Button */}
+                <Button
+                  variant="secondary"
+                  fullWidth
+                  onClick={handleResendMagicLink}
+                  disabled={resendCooldown > 0}
+                  className="h-12"
+                >
+                  {resendCooldown > 0
+                    ? `Отправить снова (${resendCooldown}с)`
+                    : 'Отправить письмо снова'
+                  }
+                </Button>
+
+                {/* Back to email */}
+                <button
+                  onClick={() => setStep('email')}
+                  className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
+                >
+                  ← Изменить email
+                </button>
+              </motion.div>
+
+            ) : null}
+
           </AnimatePresence>
         </div>
 
         {/* Legal Footer */}
-        <div className="mt-6 text-center text-xs text-zinc-500">
+        <div className="mt-8 text-center text-xs text-zinc-600">
           {t('auth.legalFooter')}{' '}
           <Link
             to="/terms"

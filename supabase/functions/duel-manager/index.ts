@@ -141,6 +141,15 @@ const duelRiskMultiplier = (betAmount: number) => {
   return 1.1;
 };
 
+/**
+ * Mapping between frontend country names and database codes
+ */
+function mapCountry(country?: string): string {
+  if (country === 'russia') return 'ru';
+  if (country === 'spain') return 'es';
+  return country || 'es';
+}
+
 const calculateSeasonReward = (
   betAmount: number,
   outcome: 'win' | 'lose' | 'draw'
@@ -1346,20 +1355,20 @@ Deno.serve(async (req) => {
         }) : { enabled: false, rate: 0, coverageRate: 0, premium: 0 };
 
         // Check if host has enough coins for bet
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('coins, preferred_country')
+          .eq('id', profileId)
+          .single();
+
+        if (profileError || !profile) {
+          return new Response(JSON.stringify({ error: 'Profile not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
         if (bet_amount > 0) {
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('coins')
-            .eq('id', profileId)
-            .single();
-
-          if (profileError || !profile) {
-            return new Response(JSON.stringify({ error: 'Profile not found' }), {
-              status: 404,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            });
-          }
-
           const requiredCoins = bet_amount + (hostInsurance.premium || 0);
 
           if ((profile.coins || 0) < requiredCoins) {
@@ -1410,6 +1419,7 @@ Deno.serve(async (req) => {
             bet_amount,
             bet_type,
             expires_at: expiresAt, // 24 часа до истечения
+            country: profile.preferred_country || 'spain',
           })
           .select()
           .single();
@@ -1543,7 +1553,7 @@ Deno.serve(async (req) => {
         // Получаем уровень игрока для определения сложности бота
         const { data: playerProfile, error: profileError } = await supabase
           .from('profiles')
-          .select('duel_pass_level, coins')
+          .select('duel_pass_level, coins, preferred_country')
           .eq('id', profileId)
           .single();
 
@@ -1555,6 +1565,7 @@ Deno.serve(async (req) => {
         }
 
         const playerLevel = playerProfile.duel_pass_level || 1;
+        const playerCountry = playerProfile.preferred_country || 'spain';
 
         // Проверяем монеты для ставки
         if (bet_amount > 0) {
@@ -1562,7 +1573,7 @@ Deno.serve(async (req) => {
             enabled: insurance_enabled,
             rate: insurance_rate,
             coverageRate: insurance_coverage_rate
-          }) : { enabled: false, rate: 0, coverageRate: 0, premium: 0 };
+          }) : { enabled: false, rate: 0, coverage_rate: 0, premium: 0 };
 
           const requiredCoins = bet_amount + (hostInsurance.premium || 0);
 
@@ -1583,7 +1594,8 @@ Deno.serve(async (req) => {
           bet_amount: bet_amount || 0,
           bet_type: bet_type || 'none',
           expires_at: new Date(Date.now() + 30000).toISOString(), // 30 секунд
-          matched: false
+          matched: false,
+          preferred_country: playerCountry
         };
 
         // Добавляем categories только если они есть
@@ -1641,7 +1653,8 @@ Deno.serve(async (req) => {
           const { data: queueEntries, error: queueError } = await supabase.rpc('find_matchmaking_opponent', {
             p_profile_id: profileId,
             p_bet_amount: bet_amount,
-            p_difficulty: difficulty || 'mix'
+            p_difficulty: difficulty || 'mix',
+            p_country: playerCountry
           });
 
           if (!queueError && queueEntries && queueEntries.length > 0) {
@@ -1797,7 +1810,8 @@ Deno.serve(async (req) => {
             const { data: allQuestions, error: questionsError } = await supabase.rpc('get_random_duel_questions', {
               p_limit: num_questions + 10, // Fetch a few more for shuffling
               p_categories: (categories && categories.length > 0) ? categories : null,
-              p_difficulty: (difficulty && difficulty !== 'mix') ? difficulty : null
+              p_difficulty: (difficulty && difficulty !== 'mix') ? difficulty : null,
+              p_country: playerCountry
             });
 
             if (questionsError || !allQuestions || allQuestions.length === 0) {
@@ -2006,7 +2020,8 @@ Deno.serve(async (req) => {
           const { data: allQuestions, error: questionsError } = await supabase.rpc('get_random_duel_questions', {
             p_limit: num_questions + 10,
             p_categories: (categories && categories.length > 0) ? categories : null,
-            p_difficulty: (difficulty && difficulty !== 'mix') ? difficulty : null
+            p_difficulty: (difficulty && difficulty !== 'mix') ? difficulty : null,
+            p_country: playerCountry
           });
 
           if (questionsError || !allQuestions || allQuestions.length === 0) {
@@ -2567,14 +2582,14 @@ Deno.serve(async (req) => {
           });
 
           try {
-            // Auto-start: Load ALL questions, then randomly select
-            console.log('[join_duel] Loading questions...');
-            const { data: allQuestions, error: questionsError } = await supabase
-              .from('questions_new')
-              .select(`
-              id, question_ru, question_es, question_en, image_url, difficulty,
-              answer_options(id, text_ru, text_es, text_en, is_correct, position)
-            `);
+            // Auto-start: Load questions via RPC for better filtering and performance
+            console.log('[join_duel] Loading questions via RPC...');
+            const { data: allQuestions, error: questionsError } = await supabase.rpc('get_random_duel_questions', {
+              p_limit: duel.num_questions + 10,
+              p_categories: (duel.categories && Array.isArray(duel.categories) && duel.categories.length > 0) ? duel.categories : null,
+              p_difficulty: (duel.difficulty && duel.difficulty !== 'mix') ? duel.difficulty : null,
+              p_country: duel.country || 'spain'
+            });
 
             if (questionsError) {
               console.error('[join_duel] ❌ Error loading questions:', questionsError);

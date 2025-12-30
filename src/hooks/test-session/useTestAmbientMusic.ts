@@ -82,10 +82,15 @@ export const useTestAmbientMusic = (enabled: boolean) => {
                 const foundIndex = trackNamesRef.current.indexOf(selectedTrackName);
                 if (foundIndex !== -1) {
                     targetIndex = foundIndex;
+                } else {
+                    // Трек не найден, используем первый трек
+                    console.warn(`[Ambient Music] ⚠️ Selected track "${selectedTrackName}" not found, using first track`);
+                    targetIndex = 0;
                 }
             }
 
-            if (failedTracks.has(targetIndex) && failedTracks.size < playlistRef.current.length) {
+            // Проверка на неудачные треки только если НЕ выбран конкретный трек
+            if (!selectedTrackName && failedTracks.has(targetIndex) && failedTracks.size < playlistRef.current.length) {
                 nextTrack();
                 return;
             }

@@ -57,6 +57,7 @@ export const TestSettingsMenu = ({
   const isDark = theme === 'dark';
   const fontSizeLabels = ['Pequeño', 'Default', 'Grande'];
   const [tracks, setTracks] = useState<string[]>([]);
+  const [showAllTracks, setShowAllTracks] = useState(false);
 
   useEffect(() => {
     const fetchTracks = async () => {
@@ -105,6 +106,8 @@ export const TestSettingsMenu = ({
       if (scrollY) {
         window.scrollTo(0, parseInt(scrollY, 10));
       }
+      // Сбрасываем showAllTracks при закрытии меню
+      setShowAllTracks(false);
     }
 
     return () => {
@@ -256,7 +259,7 @@ export const TestSettingsMenu = ({
                   </button>
 
                   {/* Track pills with emojis */}
-                  {tracks.slice(0, 6).map(track => {
+                  {(showAllTracks ? tracks : tracks.slice(0, 6)).map(track => {
                     const isActive = selectedMusicTrack === track;
                     const displayName = getTrackDisplayName(track);
                     const emoji = displayName.split(' ')[0]; // Get emoji
@@ -279,11 +282,22 @@ export const TestSettingsMenu = ({
                     );
                   })}
 
-                  {/* More indicator if > 6 tracks */}
-                  {tracks.length > 6 && (
-                    <span className="px-2 py-1.5 text-[10px] text-muted-foreground font-medium">
+                  {/* More indicator if > 6 tracks - теперь кликабельная кнопка */}
+                  {tracks.length > 6 && !showAllTracks && (
+                    <button
+                      onClick={() => setShowAllTracks(true)}
+                      className="px-2.5 py-1.5 rounded-lg text-[10px] font-bold bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-150">
                       +{tracks.length - 6}
-                    </span>
+                    </button>
+                  )}
+
+                  {/* Кнопка "Свернуть" если показаны все треки */}
+                  {showAllTracks && tracks.length > 6 && (
+                    <button
+                      onClick={() => setShowAllTracks(false)}
+                      className="px-2.5 py-1.5 rounded-lg text-[10px] font-bold bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-150">
+                      Свернуть
+                    </button>
                   )}
                 </div>
               </motion.div>
@@ -318,11 +332,14 @@ export const TestSettingsMenu = ({
             </div>
           </div>
 
-          {/* Keyboard shortcuts */}
-          <div className="flex items-center justify-between px-2 py-1.5">
+          {/* Keyboard shortcuts - инфо */}
+          <div className="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-muted/20 transition-colors">
             <div className="flex items-center gap-2">
               <Keyboard className="w-4 h-4 text-muted-foreground" />
-              <span className="font-medium text-sm">Клавиши</span>
+              <div className="flex flex-col">
+                <span className="font-medium text-sm">Клавиши</span>
+                <span className="text-[9px] text-muted-foreground leading-none">1-6 = ответы, Enter = далее</span>
+              </div>
             </div>
             <div className="flex items-center gap-1 text-xs">
               <kbd className="px-1.5 py-0.5 bg-muted border border-border/30 rounded text-foreground font-mono text-[10px]">Shift</kbd>
