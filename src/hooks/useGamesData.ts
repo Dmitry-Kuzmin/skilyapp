@@ -29,6 +29,13 @@ export const useGamesStats = (profileId: string | null) => {
         return { gamesPlayed: 0, studiedTerms: 0, averageResult: 0 };
       }
 
+      // ФИКС 400: Проверяем что пользователь авторизован
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.warn('[useGamesStats] ⚠️ No active session, returning zeros');
+        return { gamesPlayed: 0, studiedTerms: 0, averageResult: 0 };
+      }
+
       // Параллельно загружаем все данные
       const [gamesResult, termsResult, avgResult] = await Promise.all([
         // Количество игр
@@ -36,14 +43,14 @@ export const useGamesStats = (profileId: string | null) => {
           .from('game_sessions')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', profileId),
-        
+
         // Изученные термины
         supabase
           .from('user_term_progress')
           .select('term_id', { count: 'exact', head: true })
           .eq('user_id', profileId)
           .gte('times_practiced', 3),
-        
+
         // Средний результат
         supabase
           .from('game_sessions')
@@ -82,7 +89,7 @@ export const useOnlinePlayers = () => {
       try {
         // Получаем текущее время минус 15 минут
         const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
-        
+
         // ОПТИМИЗАЦИЯ: Делаем только один запрос
         const { data, error } = await supabase
           .from('profiles')
@@ -94,7 +101,7 @@ export const useOnlinePlayers = () => {
         if (error) throw error;
 
         const actualCount = data?.length || 0;
-        
+
         // Форматируем первых 3 для отображения
         const formatted = (data || [])
           .slice(0, 3)

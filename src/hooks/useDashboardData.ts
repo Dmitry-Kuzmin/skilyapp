@@ -247,6 +247,13 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
   console.log('[useDashboardData] 🏃 Starting fallback fetch for:', profileId);
 
   try {
+    // ФИКС 400: Проверяем что пользователь авторизован перед запросами
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      console.warn('[fetchDashboardFallback] ⚠️ No active session, aborting fallback');
+      return null;
+    }
+
     const results = await Promise.allSettled([
       supabase
         .from('profiles')
