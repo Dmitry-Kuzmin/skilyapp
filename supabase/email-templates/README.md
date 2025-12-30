@@ -2,9 +2,15 @@
 
 ## 📧 Файлы
 
-- `auth-confirm-en.html` — английская версия
-- `auth-confirm-es.html` — испанская версия  
-- Логотип: `/public/email-assets/skily-logo.png`
+### ⭐ Рекомендуется для MVP (Двуязычный шаблон)
+- `auth-confirm-bilingual.html` — **EN + ES в одном письме** (стандарт для европейских стартапов)
+
+### Альтернативные (Single-language)
+- `auth-confirm-en.html` — только английский
+- `auth-confirm-es.html` — только испанский
+
+### Ассеты
+- Логотип: `/public/email-assets/skily-logo.png` (80×80px, PNG)
 
 ## 🚀 Установка в Supabase
 
