@@ -1153,7 +1153,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   variant="ghost"
                   fullWidth
                   onClick={handleBackToEmail}
-                  className="text-sm"
+                  className="text-sm text-zinc-400 hover:text-zinc-200"
                 >
                   ← Назад
                 </Button>
