@@ -461,12 +461,19 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
       <div className="fixed inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
 
       <nav className="relative z-50 px-4 md:px-10 py-4 md:py-6 flex items-center justify-between max-w-[1400px] mx-auto gap-2 md:gap-4" style={{ overflow: 'visible' }}>
-        <div style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
+        {/* Left Side: Brand + Location */}
+        <div className="flex items-center gap-3 md:gap-4" style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
           <LandingLogo theme="dark" variant="bold" className="scale-75 md:scale-90 origin-left" />
-        </div>
-        <div className="flex items-center gap-2 md:gap-3 ml-auto">
-          <CountrySelector onOpenPartnership={() => setIsPartnershipOpen(true)} />
 
+          {/* Divider */}
+          <div className="h-5 w-px bg-white/10" />
+
+          {/* Country Selector */}
+          <CountrySelector onOpenPartnership={() => setIsPartnershipOpen(true)} />
+        </div>
+
+        {/* Right Side: Actions */}
+        <div className="flex items-center gap-2 md:gap-3 ml-auto">
           {/* Language selector hidden for Russia (always Russian) */}
           {selectedCountry.code !== 'ru' && (
             <LanguageSelector

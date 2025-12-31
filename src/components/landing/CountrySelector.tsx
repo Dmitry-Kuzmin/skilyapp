@@ -53,15 +53,15 @@ export const CountrySelector: React.FC = () => {
             {/* Trigger Button */}
             <button
                 onClick={handleToggle}
-                className="flex items-center gap-1.5 md:gap-2 px-2.5 md:px-4 py-2 md:py-2.5 rounded-full bg-slate-800/50 border border-slate-700 text-sm font-bold text-white hover:bg-slate-700/70 transition-all duration-300 hover:scale-105 relative group"
+                className="flex items-center gap-1.5 px-0 py-1 text-sm font-medium text-slate-400 hover:text-white transition-colors group"
                 aria-label="Select Country"
             >
-                <span className="text-xl md:text-2xl leading-none">{selectedCountry.flag}</span>
-                <span className="hidden lg:inline text-xs md:text-sm">{selectedCountry.nameEn}</span>
+                <span className="text-lg leading-none">{selectedCountry.flag}</span>
+                <span className="hidden md:inline text-sm">{selectedCountry.nameEn}</span>
 
                 {/* Chevron */}
                 <svg
-                    className={`h-3.5 md:h-4 w-3.5 md:w-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                    className={`h-3 w-3 text-slate-500 group-hover:text-slate-300 transition-all duration-200 ${isOpen ? 'rotate-180' : ''}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
