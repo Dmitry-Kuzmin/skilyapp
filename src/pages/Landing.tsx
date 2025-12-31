@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 // ОПТИМИЗАЦИЯ: AuthModal lazy loaded - содержит UserContext и Supabase
 const AuthModalNew = lazy(() => import("@/components/AuthModalNew").then(m => ({ default: m.AuthModalNew })));
 import { AiStudioLanding } from "@/components/landing/AiStudioLanding";
+import { LandingRussia } from "@/components/landing/LandingRussia";
 // ОПТИМИЗАЦИЯ: PartnerInviteBanner lazy-loaded - использует Button, который тянет Radix UI
 // Это критично для уменьшения initial bundle - Radix UI не должен грузиться на лендинге
 const PartnerInviteBanner = lazy(() => import("@/components/landing/PartnerInviteBanner").then(m => ({ default: m.PartnerInviteBanner })));
@@ -13,11 +14,12 @@ import { loadReferralInfo, loadPartnerInfo, type ReferrerInfo, type PartnerInfo 
 import { isTelegramMiniApp, hasTelegramWebApp } from "@/lib/telegram";
 import { getTelegramUser } from "@/core/TelegramInit";
 import { useTelegram } from "@/contexts/TelegramContext";
+import { useCountry } from "@/contexts/CountryContext";
 
 const Landing = () => {
   // АРХИТЕКТУРА: Используем TelegramProvider вместо прямого вызова initTelegram()
   const webApp = useTelegram();
-  
+
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [referrerInfo, setReferrerInfo] = useState<ReferrerInfo | null>(null);
   const [partnerInfo, setPartnerInfo] = useState<PartnerInfo | null>(null);
@@ -66,7 +68,7 @@ const Landing = () => {
           telegramUser = userData;
         }
       }
-      
+
       // Fallback: проверяем другие источники
       if (!telegramUser) {
         telegramUser = getTelegramUser();
@@ -74,9 +76,9 @@ const Landing = () => {
           telegramUser = null;
         }
       }
-      
+
       const hasAuth = checkTelegramAuth();
-      
+
       // КРИТИЧНО: НЕ проверяем hasStoredAuth - это может создать бесконечный цикл
       // Index (dashboard) сам проверит реальную авторизацию из Supabase
       // Если есть реальный Telegram user или initData -> редирект
@@ -95,7 +97,7 @@ const Landing = () => {
       // Поэтому проверяем также наличие реального initData
       const isMiniApp = isTelegramMiniApp();
       const hasRealInitData = webApp?.initData && webApp.initData !== '' && !webApp.initData.startsWith('mock_');
-      
+
       if (isMiniApp && hasRealInitData && !hasRedirected) {
         console.log('[Landing] Telegram Mini App detected with initData, redirecting to dashboard');
         hasRedirected = true;
@@ -153,23 +155,23 @@ const Landing = () => {
 
     // ОПТИМИЗАЦИЯ: Проверяем коды, но НЕ блокируем рендер лендинга
     // Лендинг рендерится сразу, а данные загружаются асинхронно когда придут
-    
+
     // Проверяем партнерский код (приоритет над реферальным)
     const partnerDataStr = sessionStorage.getItem('partner_code');
     console.log('[Landing] Checking partner code from sessionStorage:', partnerDataStr);
-    
+
     if (partnerDataStr) {
       try {
         const partnerData = JSON.parse(partnerDataStr);
         console.log('[Landing] Parsed partner data:', partnerData);
-        
+
         // ОПТИМИЗАЦИЯ: Используем сервисную функцию - Supabase загружается динамически
         (async () => {
           setLoadingPartner(true);
           try {
             console.log('[Landing] Loading partner info for code:', partnerData.code);
             const partner = await loadPartnerInfo(partnerData.code);
-            
+
             if (partner) {
               console.log('[Landing] Setting partner info:', partner);
               setPartnerInfo(partner);
@@ -184,7 +186,7 @@ const Landing = () => {
             setLoadingPartner(false);
           }
         })();
-        
+
         return; // Не загружаем реферальную информацию, если есть партнерская
       } catch (error) {
         console.error('[Landing] Error parsing partner data:', error);
@@ -196,7 +198,7 @@ const Landing = () => {
 
     // Получаем код из sessionStorage (сохранен при редиректе с /join/:code)
     const referralCode = sessionStorage.getItem('referral_code');
-    
+
     if (!referralCode) {
       return;
     }
@@ -206,7 +208,7 @@ const Landing = () => {
       setLoadingReferrer(true);
       try {
         const referrer = await loadReferralInfo(referralCode);
-        
+
         if (referrer) {
           setReferrerInfo(referrer);
         } else {
@@ -237,6 +239,11 @@ const Landing = () => {
   }
 
   // Если проверка прошла и это обычный браузер -> Рендерим Лендинг
+  const { selectedCountry } = useCountry();
+
+  // Выбираем лендинг в зависимости от страны
+  const LandingComponent = selectedCountry.code === 'ru' ? LandingRussia : AiStudioLanding;
+
   return (
     <>
       {partnerInfo && (
@@ -244,7 +251,7 @@ const Landing = () => {
           <PartnerInviteBanner />
         </Suspense>
       )}
-      <AiStudioLanding 
+      <LandingComponent
         onRequestAccess={() => setAuthModalOpen(true)}
         referrerInfo={referrerInfo}
         loadingReferrer={loadingReferrer}
