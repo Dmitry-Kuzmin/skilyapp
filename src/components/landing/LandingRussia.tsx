@@ -394,6 +394,22 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
   }, [referrerInfo?.photo_url]);
   const navigate = useNavigate();
   const copy = landingTranslations[language];
+
+  // Override pricing for Russia market (₽ instead of €)
+  const russianPricing = {
+    ...russianPricing,
+    plans: {
+      ...russianPricing.plans,
+      monthly: {
+        ...russianPricing.plans.monthly,
+        price: "299₽"
+      },
+      yearly: {
+        ...russianPricing.plans.yearly,
+        price: "1799₽"
+      }
+    }
+  };
   const highlightWord = copy.stats[1].label;
   const totalQuestionsText = copy.ecosystem.cards.totalQuestions;
   const highlightIndex = totalQuestionsText
@@ -1052,16 +1068,16 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
 
       <section className="relative z-10 px-6 py-20 pb-32 max-w-[1400px] mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4">{copy.pricing.title}</h2>
-          <p className="text-slate-400">{copy.pricing.description}</p>
+          <h2 className="text-4xl font-bold mb-4">{russianPricing.title}</h2>
+          <p className="text-slate-400">{russianPricing.description}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-end">
           <div className="bg-slate-900 border border-slate-800 p-8 rounded-[2rem]">
-            <h3 className="font-bold text-xl text-slate-300 mb-2">{copy.pricing.plans.cadet.title}</h3>
-            <div className="text-3xl font-black text-white mb-6">{copy.pricing.plans.cadet.price}</div>
+            <h3 className="font-bold text-xl text-slate-300 mb-2">{russianPricing.plans.cadet.title}</h3>
+            <div className="text-3xl font-black text-white mb-6">{russianPricing.plans.cadet.price}</div>
             <ul className="space-y-3 mb-8 text-sm text-slate-400">
-              {copy.pricing.plans.cadet.features.map((feature) => (
+              {russianPricing.plans.cadet.features.map((feature) => (
                 <li key={feature} className="flex gap-2">
                   <CheckCircle2 size={16} /> {feature}
                 </li>
@@ -1071,7 +1087,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               onClick={handleEnter}
               className="w-full py-3 rounded-xl border border-slate-700 font-bold text-slate-300 hover:bg-slate-800 transition-colors relative"
             >
-              {copy.pricing.plans.cadet.cta}
+              {russianPricing.plans.cadet.cta}
               {referrerInfo && (
                 <span className="ml-2 text-amber-400 inline-flex items-center gap-1">
                   +50 <Coins className="h-4 w-4 inline" />
@@ -1082,15 +1098,15 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
 
           <div className="bg-indigo-900/20 border border-indigo-500/30 p-8 rounded-[2rem] relative">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-              {copy.pricing.plans.monthly.badge}
+              {russianPricing.plans.monthly.badge}
             </div>
-            <h3 className="font-bold text-xl text-indigo-300 mb-2">{copy.pricing.plans.monthly.title}</h3>
+            <h3 className="font-bold text-xl text-indigo-300 mb-2">{russianPricing.plans.monthly.title}</h3>
             <div className="flex items-baseline gap-1 mb-6">
-              <span className="text-3xl font-black text-white">{copy.pricing.plans.monthly.price}</span>
-              <span className="text-slate-400 text-sm">{copy.pricing.plans.monthly.note}</span>
+              <span className="text-3xl font-black text-white">{russianPricing.plans.monthly.price}</span>
+              <span className="text-slate-400 text-sm">{russianPricing.plans.monthly.note}</span>
             </div>
             <ul className="space-y-3 mb-8 text-sm text-indigo-100/80">
-              {copy.pricing.plans.monthly.features.map((feature) => (
+              {russianPricing.plans.monthly.features.map((feature) => (
                 <li key={feature} className="flex gap-2">
                   <CheckCircle2 size={16} /> {feature}
                 </li>
@@ -1100,7 +1116,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               onClick={handleEnter}
               className="w-full py-3 rounded-xl bg-indigo-600 font-bold text-white hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/20 relative"
             >
-              {copy.pricing.plans.monthly.cta}
+              {russianPricing.plans.monthly.cta}
               {referrerInfo && (
                 <span className="ml-2 text-amber-300 inline-flex items-center gap-1">
                   +50 <Coins className="h-4 w-4 inline" />
@@ -1111,15 +1127,15 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
 
           <div className="bg-purple-900/20 border border-purple-500/30 p-8 rounded-[2rem]">
             <div className="inline-block bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded mb-2">
-              {copy.pricing.plans.yearly.badge}
+              {russianPricing.plans.yearly.badge}
             </div>
-            <h3 className="font-bold text-xl text-purple-300 mb-2">{copy.pricing.plans.yearly.title}</h3>
+            <h3 className="font-bold text-xl text-purple-300 mb-2">{russianPricing.plans.yearly.title}</h3>
             <div className="flex items-baseline gap-1 mb-6">
-              <span className="text-3xl font-black text-white">{copy.pricing.plans.yearly.price}</span>
-              <span className="text-slate-400 text-sm">{copy.pricing.plans.yearly.note}</span>
+              <span className="text-3xl font-black text-white">{russianPricing.plans.yearly.price}</span>
+              <span className="text-slate-400 text-sm">{russianPricing.plans.yearly.note}</span>
             </div>
             <ul className="space-y-3 mb-8 text-sm text-purple-100/80">
-              {copy.pricing.plans.yearly.features.map((feature) => (
+              {russianPricing.plans.yearly.features.map((feature) => (
                 <li key={feature} className="flex gap-2">
                   <CheckCircle2 size={16} /> {feature}
                 </li>
@@ -1129,7 +1145,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               onClick={handleEnter}
               className="w-full py-3 rounded-xl bg-purple-600 font-bold text-white hover:bg-purple-500 transition-colors shadow-lg shadow-purple-500/20 relative"
             >
-              {copy.pricing.plans.yearly.cta}
+              {russianPricing.plans.yearly.cta}
               {referrerInfo && (
                 <span className="ml-2 text-amber-300 inline-flex items-center gap-1">
                   +50 <Coins className="h-4 w-4 inline" />
