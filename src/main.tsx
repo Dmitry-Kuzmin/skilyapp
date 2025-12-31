@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { CountryProvider } from "./contexts/CountryContext";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import App from "./App.tsx";
 import "./index.css";
@@ -302,7 +303,9 @@ try {
       <ErrorBoundary>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <LanguageProvider>
-            <App />
+            <CountryProvider>
+              <App />
+            </CountryProvider>
           </LanguageProvider>
         </ThemeProvider>
       </ErrorBoundary>

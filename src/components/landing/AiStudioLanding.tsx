@@ -1,3 +1,4 @@
+// Skily Landing Page - Optimized for High Conversions
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -7,6 +8,8 @@ import {
   Smartphone,
   Crown,
   Car,
+  Infinity,
+  Globe,
   Bike,
   Bus,
   Timer,
@@ -18,18 +21,96 @@ import {
   CheckCircle,
   Gift,
   ArrowRight,
+  Plus,
+  Minus,
+  Landmark,
+  School,
+  FileText,
+  Languages,
   Sparkles,
   Coins,
+  Users,
+  Headset,
+  Heart,
+  MapPin,
+
 } from "lucide-react";
 import { playClickSound, playEngineSound } from "@/services/audioService";
 import { LandingLogo } from "./LandingLogo";
 import { StartEngineButton } from "./StartEngineButton";
+import { cn } from "@/lib/utils";
 import { LanguageSelector } from "./LanguageSelector";
+import { CountrySelector } from "./CountrySelector";
+import { LandingQuizDemo } from "./LandingQuizDemo";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
+import { useCountry } from "@/contexts/CountryContext";
 import {
   landingTranslations,
   LANGUAGE_OPTIONS,
 } from "@/translations/landing";
+
+const DEMO_VARIANTS = {
+  ru: [
+    {
+      title: 'Мы научили AI думать как экзаменатор DGT',
+      text: 'Мы "скормили" нейросети 5000 страниц дорожных кодексов. Lumi AI знает каждый нюанс правил лучше любого профессора и объяснит его тебе за 2 секунды.'
+    },
+    {
+      title: 'Лучше, чем инструктор. И вот почему',
+      text: 'Живой учитель может устать. Lumi AI доступен 24/7, имеет бесконечное терпение и переводит сложные термины на твой язык мгновенно.'
+    },
+    {
+      title: 'Твой карманный эксперт по ПДД',
+      text: 'Забудь про сухие формулировки. Ошибайся сколько хочешь — Lumi AI не осудит, а покажет, как избежать ошибки в будущем. Простым языком.'
+    }
+  ],
+  es: [
+    {
+      title: 'Hemos enseñado a la IA a pensar como un examinador',
+      text: 'Hemos alimentado la red neuronal con 5000 páginas de códigos de tráfico. Lumi AI conoce cada matiz mejor que cualquier profesor y te lo explicará en 2 segundos.'
+    },
+    {
+      title: 'Mejor que un instructor. He aquí por qué',
+      text: 'Un profesor humano puede cansarse. Lumi AI está disponible 24/7, tiene paciencia infinita y traduce términos complejos a tu idioma al instante.'
+    },
+    {
+      title: 'Tu experto de bolsillo en normas de tráfico',
+      text: 'Olvida las formulaciones secas. Comete tantos errores como quieras: Lumi AI no te juzgará, sino que te mostrará cómo evitarlos en el futuro.'
+    }
+  ],
+  en: [
+    {
+      title: 'We taught AI to think like a DGT examiner',
+      text: 'We fed the neural network 5000 pages of traffic codes. Lumi AI knows every nuance better than any professor and will explain it to you in 2 seconds.'
+    },
+    {
+      title: 'Better than an instructor. Here is why',
+      text: 'A human teacher can get tired. Lumi AI is available 24/7, has infinite patience, and translates complex terms into your language instantly.'
+    },
+    {
+      title: 'Your pocket traffic rules expert',
+      text: 'Forget dry formulations. Make as many mistakes as you want — Lumi AI won\'t judge, but will show you how to avoid them in the future.'
+    }
+  ]
+};
+
+const FEATURE_PILLS = {
+  ru: [
+    { icon: Zap, text: 'Мгновенный ответ', color: 'text-yellow-400' },
+    { icon: Infinity, text: 'Бесконечное терпение', color: 'text-blue-400' },
+    { icon: Globe, text: 'Понятный язык', color: 'text-emerald-400' }
+  ],
+  es: [
+    { icon: Zap, text: 'Respuesta instantánea', color: 'text-yellow-400' },
+    { icon: Infinity, text: 'Paciencia infinita', color: 'text-blue-400' },
+    { icon: Globe, text: 'Traducción nativa', color: 'text-emerald-400' }
+  ],
+  en: [
+    { icon: Zap, text: 'Instant Answer', color: 'text-yellow-400' },
+    { icon: Infinity, text: 'Infinite Patience', color: 'text-blue-400' },
+    { icon: Globe, text: 'Native Translation', color: 'text-emerald-400' }
+  ]
+};
 
 interface ReferrerInfo {
   first_name: string;
@@ -65,8 +146,243 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
   loadingPartner = false,
 }) => {
   const [isStarting, setIsStarting] = useState(false);
+  const [demoVariantIndex, setDemoVariantIndex] = useState(0);
   const [avatarError, setAvatarError] = useState(false);
   const { language, setLanguage } = useLanguage();
+  const { selectedCountry } = useCountry();
+  // FAQ Types & Content
+  interface FAQCategory {
+    id: string;
+    title: string;
+    questions: {
+      q: string;
+      a: string;
+      icon: any;
+    }[];
+  }
+
+  const faqContent: Record<string, { sectionTitle: string; sectionSubtitle: string; categories: FAQCategory[] }> = {
+    ru: {
+      sectionTitle: 'Зачем платить автошколе, если есть Skily?',
+      sectionSubtitle: 'Развеиваем мифы о получении прав и экономим ваши деньги.',
+      categories: [
+        {
+          id: 'money',
+          title: 'Экономия и Законы',
+          questions: [
+            {
+              q: 'Обязательно ли ходить в автошколу для теории?',
+              a: 'Нет, это миф. Вы имеете законное право сдавать теорию экстерном ("Por Libre"). Автошколы берут деньги за лекции. Мы даем ту же подготовку, но в удобном формате и без переплат за "воздух".',
+              icon: School
+            },
+            {
+              q: 'Сколько я реально сэкономлю?',
+              a: 'Минимум 300€. Средний чек автошколы за теорию ("Matrícula") — 250€ + учебники. С подпиской Skily вы тратите эти деньги на 10 лишних уроков вождения с инструктором.',
+              icon: Coins
+            },
+            {
+              q: 'Мои права с родины действуют?',
+              a: 'Только первые 6 месяцев. Если обмен (Canje) невозможен для вашей страны, сдача экзамена с нуля — единственный способ ездить легально.',
+              icon: Landmark
+            }
+          ]
+        },
+        {
+          id: 'lang',
+          title: 'Язык и Сложность',
+          questions: [
+            {
+              q: 'Я плохо знаю язык. Как мне сдать?',
+              a: 'Lumi AI переводит сложные термины и объясняет логику ПДД на вашем родном языке. Вы учитесь понимать дорожные ситуации, а не просто зубрить непонятный текст.',
+              icon: Languages
+            },
+            {
+              q: 'Насколько актуальны вопросы?',
+              a: 'Мы обновляем базу еженедельно. Если вчера DGT изменила формулировку вопроса про электросамокаты — сегодня утром она уже обновлена в Skily.',
+              icon: Sparkles
+            }
+          ]
+        },
+        {
+          id: 'process',
+          title: 'Бюрократия',
+          questions: [
+            {
+              q: 'Как записаться на экзамен самому?',
+              a: 'Это просто. Нужно оплатить пошлину (Tasa) и заполнить форму в DGT. Внутри Skily Premium есть гайд со ссылками и примерами. Мы проведем вас.',
+              icon: FileText
+            }
+          ]
+        }
+      ]
+    },
+    es: {
+      sectionTitle: '¿Por qué pagar autoescuela si existe Skily?',
+      sectionSubtitle: 'Desmentimos mitos sobre el carnet y ahorramos tu dinero.',
+      categories: [
+        {
+          id: 'money',
+          title: 'Ahorro y Leyes',
+          questions: [
+            {
+              q: '¿Es obligatorio ir a la autoescuela para la teórica?',
+              a: 'No, es un mito. Tienes el derecho legal de presentarte por libre. Las autoescuelas cobran por clases. Nosotros damos la misma preparación sin sobrecostes.',
+              icon: School
+            },
+            {
+              q: '¿Cuánto ahorraré realmente?',
+              a: 'Mínimo 300€. La media de matrícula en autoescuela es 250€ + libros. Con Skily usas ese dinero para 10 clases prácticas extra.',
+              icon: Coins
+            },
+            {
+              q: '¿Vale mi carnet de origen?',
+              a: 'Solo los primeros 6 meses. Si el canje no es posible para tu país, examinarte es la única vía legal.',
+              icon: Landmark
+            }
+          ]
+        },
+        {
+          id: 'lang',
+          title: 'Idioma y Dificultad',
+          questions: [
+            {
+              q: 'Mi nivel de idioma es bajo. ¿Podré aprobar?',
+              a: 'Lumi AI traduce términos complejos y explica la lógica en tu idioma nativo. Aprendes a entender el tráfico, no a memorizar textos.',
+              icon: Languages
+            },
+            {
+              q: '¿Están actualizadas las preguntas?',
+              a: 'Actualizamos semanalmente. Si la DGT cambia una norma ayer, hoy ya está en Skily.',
+              icon: Sparkles
+            }
+          ]
+        },
+        {
+          id: 'process',
+          title: 'Burocracia',
+          questions: [
+            {
+              q: '¿Cómo me inscribo al examen por libre?',
+              a: 'Es fácil. Pagas la tasa y rellenas el impreso DGT. En Skily Premium tienes una guía paso a paso con enlaces.',
+              icon: FileText
+            }
+          ]
+        }
+      ]
+    },
+    en: {
+      sectionTitle: 'Why pay driving school if you have Skily?',
+      sectionSubtitle: 'Busting driving license myths and saving your money.',
+      categories: [
+        {
+          id: 'money',
+          title: 'Savings & Laws',
+          questions: [
+            {
+              q: 'Is driving school mandatory for theory?',
+              a: 'No, that\'s a myth. You have the legal right to take the theory test "Por Libre". Driving schools charge for lectures. We give you the same prep without the markup.',
+              icon: School
+            },
+            {
+              q: 'How much will I really save?',
+              a: 'At least 300€. Average school fee is 250€ + books. With Skily, you spend that money on 10 extra driving lessons with an instructor.',
+              icon: Coins
+            },
+            {
+              q: 'Is my home license valid?',
+              a: 'Only for the first 6 months. If exchange (Canje) isn\'t possible for your country, taking the test is the only legal way.',
+              icon: Landmark
+            }
+          ]
+        },
+        {
+          id: 'lang',
+          title: 'Language & Difficulty',
+          questions: [
+            {
+              q: 'My language skills are poor. Can I pass?',
+              a: 'Yes. Lumi AI translates complex terms and explains logic in your native language. You learn to understand traffic, not just memorize text.',
+              icon: Languages
+            },
+            {
+              q: 'Are questions up to date?',
+              a: 'We update weekly. If DGT changed a rule yesterday, it\'s in Skily this morning.',
+              icon: Sparkles
+            }
+          ]
+        },
+        {
+          id: 'process',
+          title: 'Bureaucracy',
+          questions: [
+            {
+              q: 'How do I register for the exam myself?',
+              a: 'It\'s simple. Pay the fee (Tasa) and fill the DGT form. Skily Premium includes a step-by-step guide with links.',
+              icon: FileText
+            }
+          ]
+        }
+      ]
+    }
+  };
+
+  const FAQItem = ({ question, answer, icon: Icon, category }: { question: string, answer: string, icon: any, category: string }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+      <div className="group border border-white/5 bg-slate-900/40 backdrop-blur-sm hover:border-blue-500/30 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 h-fit">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full flex items-start justify-between p-5 text-left gap-4"
+        >
+          <div className="flex gap-4">
+            <div className={cn(
+              "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 shrink-0",
+              isOpen ? "bg-indigo-500 text-white shadow-indigo-500/20" : "bg-slate-800/50 text-slate-400 group-hover:text-blue-400 group-hover:bg-slate-800"
+            )}>
+              <Icon size={20} />
+            </div>
+            <div>
+              <div className="text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-1 group-hover:text-blue-400/60 transition-colors">
+                {category}
+              </div>
+              <span className={cn(
+                "font-bold text-base transition-colors",
+                isOpen ? "text-white" : "text-slate-200 group-hover:text-white"
+              )}>
+                {question}
+              </span>
+            </div>
+          </div>
+          <div className={cn(
+            "w-6 h-6 rounded-full flex items-center justify-center border transition-all duration-300 shrink-0 mt-2",
+            isOpen ? "bg-white text-indigo-900 border-white rotate-180" : "border-slate-700/50 text-slate-500 group-hover:border-slate-600"
+          )}>
+            {isOpen ? <Minus size={12} /> : <Plus size={12} />}
+          </div>
+        </button>
+        <div
+          className={cn(
+            "grid transition-[grid-template-rows] duration-300 ease-out",
+            isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          )}
+        >
+          <div className="overflow-hidden">
+            <div className="p-5 pt-0 pl-[4.5rem] pr-6 pb-6">
+              <p className="text-slate-300 leading-relaxed text-sm">
+                {answer}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+
+  useEffect(() => {
+    setDemoVariantIndex(Math.floor(Math.random() * 3));
+  }, []);
 
   // Reset avatar error when referrerInfo changes
   useEffect(() => {
@@ -137,6 +453,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
               {copy.controls.telegramApp}
             </button>
           </div>
+          <CountrySelector />
           <LanguageSelector
             language={language}
             onSelect={handleLanguageChange}
@@ -280,32 +597,57 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         </div>
       )}
 
-      <section className="relative z-10 px-6 pt-12 pb-10 md:pt-20 md:pb-16 max-w-[1400px] mx-auto flex flex-col items-center text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[9px] sm:text-[10px] font-bold tracking-[0.25em] uppercase mb-6 sm:mb-8 animate-fade-in relative z-20">
-          <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
-          {copy.hero.badge}
+      {/* HERO SECTION */}
+      <section className="relative z-10 px-6 pt-12 pb-8 md:pt-20 md:pb-12 max-w-[1400px] mx-auto flex flex-col items-center text-center">
+        {/* Badge с электрическим синим */}
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[9px] sm:text-[10px] font-bold tracking-[0.25em] uppercase mb-5 sm:mb-6 animate-fade-in relative z-20">
+          <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse"></span>
+          <span className="text-base leading-none">{selectedCountry.flag}</span>
+          {selectedCountry.authority} — {copy.hero.badge}
         </div>
 
-        <h1
-          className="text-[clamp(2.25rem,8vw,5.5rem)] font-black tracking-tight md:tracking-tighter mb-5 md:mb-8 leading-[1.05] sm:leading-[0.95] animate-slide-up select-none drop-shadow-2xl text-balance max-w-3xl"
-        >
-          <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-400 block pb-1 sm:pb-2">
-            {copy.hero.titleTop}
-          </span>
-          <span className="bg-clip-text text-transparent bg-gradient-to-b from-indigo-400 via-violet-400 to-indigo-600 block">
-            {copy.hero.titleBottom}
-          </span>
-        </h1>
+        {/* H1 с электрическим градиентом и свечением */}
+        <div className="relative mb-4 md:mb-6">
+          {/* Синее свечение за текстом */}
+          <div className="absolute inset-0 blur-3xl opacity-30 bg-gradient-to-r from-blue-500 via-sky-400 to-cyan-300"></div>
 
+          <h1
+            className="relative text-[clamp(2.25rem,8vw,5.5rem)] font-black tracking-tighter leading-[1.05] sm:leading-[0.95] animate-slide-up select-none drop-shadow-2xl max-w-4xl"
+          >
+            {language === 'ru' ? (
+              <>
+                <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-300 inline">
+                  Твоя уверенность за рулем
+                </span>
+                <br className="hidden md:block" />
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-sky-400 to-cyan-300 inline">
+                  {' '}начинается здесь
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-300 block pb-1 sm:pb-2">
+                  {copy.hero.titleTop}
+                </span>
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-sky-400 to-cyan-300 block">
+                  {copy.hero.titleBottom}
+                </span>
+              </>
+            )}
+          </h1>
+        </div>
+
+        {/* H2 - увеличен отступ перед кнопкой для дыхания */}
         <p
-          className="max-w-2xl text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed md:leading-loose mb-10 md:mb-12 animate-slide-up font-medium text-balance px-1"
+          className="max-w-3xl text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed mb-10 md:mb-12 animate-slide-up font-medium px-1"
           style={{ animationDelay: "0.1s" }}
         >
           <span className="text-white font-bold">{copy.hero.descriptionHighlight}</span>. {copy.hero.descriptionRest}
         </p>
 
+        {/* CTA - уменьшили отступы для плотности */}
         <div
-          className="flex flex-col items-center gap-6 animate-slide-up"
+          className="flex flex-col items-center gap-5 animate-slide-up"
           style={{ animationDelay: "0.2s" }}
         >
           <div className="scale-75 md:scale-90">
@@ -325,23 +667,67 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         </div>
       </section>
 
-      <section className="relative z-10 px-6 pb-10 max-w-[1400px] mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {copy.stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 text-center"
-            >
-              <div className="font-black text-white mb-2 leading-tight text-balance text-[clamp(1.6rem,5vw,2.4rem)]">
-                {stat.value}
+      {/* TRUST STRIP (Перемещено под Hero) */}
+      <section className="relative z-20 border-y border-white/5 bg-slate-900/30 backdrop-blur-sm shadow-xl mt-8">
+        <div className="max-w-[1400px] mx-auto px-6 py-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0 divide-y md:divide-y-0 md:divide-x divide-white/10">
+            {copy.stats.map((stat, index) => (
+              <div key={stat.label} className="flex flex-col items-center justify-center text-center md:px-8 py-4 md:py-0">
+                <div className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-2">
+                  {stat.value}
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
+                    {stat.label}
+                  </span>
+                  <p className="text-[10px] md:text-xs text-slate-500 font-medium max-w-[200px] mx-auto leading-relaxed">
+                    {stat.description}
+                  </p>
+                </div>
               </div>
-              <p className="text-slate-400 text-sm mt-2">{stat.description}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="relative z-10 px-6 pt-12 pb-6 max-w-[1400px] mx-auto">
+
+      {/* INTERACTIVE DEMO (WITH CONTEXT) */}
+      <section className="relative z-10 px-6 py-20 md:py-32 max-w-[1400px] mx-auto overflow-hidden">
+        {/* Background Glow Spot */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none z-0 mix-blend-screen"></div>
+
+        <div className="relative z-10 text-center mb-16 max-w-4xl mx-auto">
+          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase tracking-widest">
+            <Sparkles className="w-3 h-3" />
+            {language === 'ru' ? 'Live Demo' : 'Live Demo'}
+          </div>
+          <h2 style={{ textWrap: 'balance' }} className="text-3xl md:text-5xl font-black text-white mb-6 leading-tight min-h-[1.2em] animate-fade-in">
+            {DEMO_VARIANTS[language][demoVariantIndex].title}
+          </h2>
+          <p style={{ textWrap: 'balance' }} className="text-lg md:text-xl text-slate-400 leading-relaxed max-w-2xl mx-auto mb-8 min-h-[3.5em] animate-fade-in">
+            {DEMO_VARIANTS[language][demoVariantIndex].text}
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-3 md:gap-6 animate-fade-in mb-8">
+            {FEATURE_PILLS[language].map((pill, i) => (
+              <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/50 border border-slate-700/50 text-slate-300 text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition-colors cursor-default">
+                <pill.icon className={cn("w-3.5 h-3.5", pill.color)} />
+                {pill.text}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative z-10">
+          <LandingQuizDemo
+            onRegisterClick={handleEnter}
+            language={language}
+          />
+        </div>
+      </section>
+
+      {/* ECOSYSTEM SECTION */}
+      <section className="relative z-10 px-6 pb-20 max-w-[1400px] mx-auto">
         <div className="mb-12">
           <h2 className="text-3xl md:text-5xl font-black mb-4">{copy.ecosystem.title}</h2>
           <p className="text-slate-400 max-w-xl">{copy.ecosystem.description}</p>
@@ -387,6 +773,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         </div>
       </section>
 
+      {/* AI & Features Section */}
       <section className="relative z-10 px-6 pt-6 pb-16 max-w-[1400px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 p-10 rounded-[2.5rem] relative overflow-hidden">
@@ -436,6 +823,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         </div>
       </section>
 
+      {/* COMPARISON TABLE */}
       <section className="relative z-10 px-6 py-16 max-w-[1400px] mx-auto border-t border-slate-800/50">
         <div className="text-center mb-16">
           <p className="text-indigo-400 font-bold uppercase tracking-[0.2em] text-xs mb-4">
@@ -536,40 +924,119 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         </div>
       </section>
 
-      <section className="relative z-10 px-6 py-16 max-w-[1400px] mx-auto">
-        <div className="relative rounded-[2rem] overflow-hidden border border-slate-800 shadow-2xl mb-10 group">
-          <div className="h-24 bg-gradient-to-r from-orange-500 to-red-600 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-20 bg-[url('/noise.svg')]"></div>
-          </div>
 
-          <div className="bg-[#0f172a] p-8 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
-              <div className="flex items-center gap-2 mb-1 text-orange-500 font-bold uppercase tracking-widest text-xs">
-                <Crown size={14} /> {copy.arena.bannerLabel}
+      {/* Games Demo - Show, Don't Tell */}
+      <section className="relative z-10 px-6 py-16 md:py-20 max-w-[1400px] mx-auto">
+        <div className="mb-12 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-300 text-xs font-bold uppercase tracking-wider mb-6">
+            <Trophy className="w-3 h-3" />
+            {copy.arena.bannerLabel}
+          </div>
+          <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
+            {copy.arena.bannerTitle}
+          </h2>
+          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+            {copy.arena.bannerDescription}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Duel PvP Card */}
+          <div className="relative rounded-[2rem] overflow-hidden border border-slate-800 bg-gradient-to-br from-slate-900/80 to-slate-950/80 backdrop-blur-xl group hover:border-orange-500/30 transition-all">
+            {/* Visual Preview Area */}
+            <div className="relative h-64 bg-gradient-to-br from-orange-900/20 to-red-900/20 flex items-center justify-center overflow-hidden">
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+
+              <div className="relative z-10 flex items-center gap-8">
+                <div className="text-center">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mb-2 shadow-lg shadow-orange-500/20">
+                    <Swords className="w-10 h-10 text-white" />
+                  </div>
+                  <div className="text-white font-bold tracking-wider">VS</div>
+                </div>
+                <Trophy className="w-16 h-16 text-orange-400 animate-pulse drop-shadow-[0_0_15px_rgba(251,146,60,0.5)]" />
+                <div className="text-center">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-2 shadow-lg shadow-blue-500/20">
+                    <Target className="w-10 h-10 text-white" />
+                  </div>
+                  <div className="text-white font-bold tracking-wider">YOU</div>
+                </div>
               </div>
-              <h3 className="text-3xl font-black text-white mb-2">{copy.arena.bannerTitle}</h3>
-              <p className="text-slate-400 text-sm">{copy.arena.bannerDescription}</p>
+
+              {/* Tag */}
+              <div className="absolute bottom-4 right-4 px-3 py-1 rounded-full bg-black/50 backdrop-blur-sm text-xs text-white/70 font-mono border border-white/10">
+                Live Multiplayer
+              </div>
             </div>
 
-            <div className="flex gap-8 md:gap-12">
-              <div className="text-center">
-                <div className="text-3xl font-black text-white">90</div>
-                <div className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">
-                  {copy.arena.levels}
+            {/* Content */}
+            <div className="p-8">
+              <h3 className="text-2xl font-black text-white mb-2 flex items-center gap-2">
+                <Swords className="w-6 h-6 text-orange-400" />
+                Duel PvP
+              </h3>
+              <p className="text-slate-400 mb-4 leading-relaxed">
+                {language === 'ru' ? 'Соревнуйся с реальными игроками на скорость. Ставь монеты, выигрывай трофеи.' :
+                  language === 'es' ? 'Compite con jugadores reales por velocidad. Apuesta monedas, gana trofeos.' :
+                    'Compete with real players for speed. Bet coins, win trophies.'}
+              </p>
+              <div className="flex items-center gap-4 text-sm mt-auto">
+                <div className="flex items-center gap-1.5 text-orange-400 bg-orange-400/10 px-2 py-1 rounded-lg">
+                  <Trophy className="w-4 h-4" />
+                  <span className="font-bold">Epic Rewards</span>
                 </div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-yellow-400">
-                  Epic
+            </div>
+          </div>
+
+          {/* Race Game Card */}
+          <div className="relative rounded-[2rem] overflow-hidden border border-slate-800 bg-gradient-to-br from-slate-900/80 to-slate-950/80 backdrop-blur-xl group hover:border-blue-500/30 transition-all">
+            {/* Visual Preview Area */}
+            <div className="relative h-64 bg-gradient-to-br from-blue-900/20 to-cyan-900/20 flex items-center justify-center overflow-hidden">
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+
+              <div className="relative z-10 flex flex-col items-center gap-4">
+                <Timer className="w-12 h-12 text-blue-400 animate-pulse" />
+                <div className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 drop-shadow-2xl font-mono tracking-tighter">
+                  00:15
                 </div>
-                <div className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">
-                  {copy.arena.rewards}
+                <div className="flex gap-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="w-10 h-2 rounded-full bg-blue-500/30 overflow-hidden">
+                      <div className="h-full w-full bg-blue-400 animate-[shimmer_2s_infinite]"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tag */}
+              <div className="absolute bottom-4 right-4 px-3 py-1 rounded-full bg-black/50 backdrop-blur-sm text-xs text-white/70 font-mono border border-white/10">
+                Speed Challenge
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-8">
+              <h3 className="text-2xl font-black text-white mb-2 flex items-center gap-2">
+                <Zap className="w-6 h-6 text-blue-400" />
+                Race Mode
+              </h3>
+              <p className="text-slate-400 mb-4 leading-relaxed">
+                {language === 'ru' ? 'Гонка на время: отвечай быстро и точно. Каждая секунда на счету!' :
+                  language === 'es' ? 'Carrera contrarreloj: responde rápido y preciso. ¡Cada segundo cuenta!' :
+                    'Race against time: answer fast and accurate. Every second counts!'}
+              </p>
+              <div className="flex items-center gap-4 text-sm mt-auto">
+                <div className="flex items-center gap-1.5 text-blue-400 bg-blue-400/10 px-2 py-1 rounded-lg">
+                  <Zap className="w-4 h-4" />
+                  <span className="font-bold">Blitz Mode</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
+        {/* Other games grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {copy.arena.games.map((game, index) => {
             const Icon = gameIcons[index % gameIcons.length];
@@ -681,6 +1148,80 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         </div>
       </section>
 
+      {/* FAQ SECTION */}
+      <section className="relative z-10 px-6 py-24 max-w-[1400px] mx-auto">
+        <div className="text-center mb-16 space-y-4">
+          <h2 className="text-3xl md:text-5xl font-black text-white leading-tight">
+            {faqContent[language].sectionTitle}
+          </h2>
+          <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto">
+            {faqContent[language].sectionSubtitle}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {faqContent[language].categories.flatMap(cat =>
+            cat.questions.map(q => ({ ...q, category: cat.title }))
+          ).map((item, idx) => (
+            <FAQItem
+              key={idx}
+              question={item.q}
+              answer={item.a}
+              icon={item.icon}
+              category={item.category}
+            />
+          ))}
+
+          {/* Electric Portal CTA */}
+          <div className="md:col-span-2 lg:col-span-3 group relative overflow-hidden rounded-2xl border border-blue-400/50 bg-gradient-to-r from-blue-600 to-indigo-600 p-1 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all cursor-pointer hover:scale-[1.01]"
+            onClick={() => window.open("https://t.me/skilyapp_bot", "_blank")}>
+
+            {/* Glow Overlay */}
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+            <div className="relative bg-slate-900/10 backdrop-blur-sm rounded-xl p-6 h-full flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-6 text-center sm:text-left">
+                <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center shrink-0 border border-white/30 relative">
+                  <div className="absolute inset-0 rounded-full bg-white/20 animate-ping opacity-50" />
+                  <Headset size={32} className="text-white relative z-10" />
+                </div>
+                <div>
+                  <h3 className="text-white font-black text-xl md:text-2xl mb-1 text-shadow-sm">
+                    {language === 'ru' ? 'Не нашли ответ? Свяжитесь с базой.' : 'Questions left? Contact Base.'}
+                  </h3>
+                  <p className="text-blue-100 font-medium text-sm md:text-base">
+                    {language === 'ru' ? 'Живая поддержка ответит за 2 минуты (24/7).' : 'Live support replies in 2 minutes (24/7).'}
+                  </p>
+                </div>
+              </div>
+
+              <button className="whitespace-nowrap px-8 py-4 rounded-xl bg-white text-blue-700 font-black text-sm uppercase tracking-wider hover:bg-blue-50 transition-colors shadow-lg flex items-center gap-2 group/btn">
+                {language === 'ru' ? 'Открыть чат Telegram' : 'Open Telegram Chat'}
+                <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* SEO Schema */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": faqContent[language].categories.flatMap(cat =>
+              cat.questions.map(q => ({
+                "@type": "Question",
+                "name": q.q,
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": q.a
+                }
+              }))
+            )
+          })}
+        </script>
+      </section>
+
       {/* Disclaimer Section */}
       <section className="px-6 py-12 border-y border-slate-800/50">
         <div className="max-w-4xl mx-auto text-center space-y-4">
@@ -706,31 +1247,106 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         </div>
       </section>
 
-      <footer className="px-6 py-12 text-center text-slate-600 text-xs font-mono uppercase tracking-widest">
-        <div className="flex flex-wrap justify-center gap-4 md:gap-6 mb-8">
-          {copy.footer.menu.map((item) => (
-            item.external ? (
-              <a
-                key={item.label}
-                href={item.href}
-                target="_blank"
-                rel="noreferrer"
-                className="hover:text-white cursor-pointer transition-colors"
-              >
-                {item.label}
-              </a>
-            ) : (
-              <button
-                key={item.label}
-                onClick={() => navigate(item.href)}
-                className="hover:text-white cursor-pointer transition-colors"
-              >
-                {item.label}
-              </button>
-            )
-          ))}
+      <footer className="relative z-10 border-t border-slate-800 bg-[#0f172a]">
+        <div className="px-6 py-16 max-w-[1400px] mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-16">
+
+            {/* Brand Column */}
+            <div className="lg:col-span-4 space-y-6">
+              <div className="scale-75 origin-top-left -ml-2">
+                <LandingLogo theme="dark" variant="bold" />
+              </div>
+              <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
+                {language === 'ru' ?
+                  'Первая в мире платформа подготовки водителей с искусственным интеллектом, геймификацией и PvP-дуэлями.' :
+                  language === 'es' ?
+                    'La primera plataforma de formación vial del mundo con inteligencia artificial, gamificación y duelos PvP.' :
+                    'The world\'s first driver training platform with artificial intelligence, gamification and PvP duels.'
+                }
+              </p>
+              <div className="flex items-center gap-4 text-slate-500">
+                {/* Social placeholders - can be real links later */}
+                {['Instagram', 'Twitter', 'LinkedIn'].map((social) => (
+                  <button key={social} className="hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">
+                    {social}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Links Columns */}
+            <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-8">
+
+              {/* Product / Company */}
+              <div>
+                <h4 className="text-white font-bold mb-6 flex items-center gap-2">
+                  <Globe size={16} className="text-blue-500" />
+                  Product
+                </h4>
+                <ul className="space-y-4">
+                  {copy.footer.menu.filter(i => !i.href.includes('terms') && !i.href.includes('privacy') && !i.href.includes('refund') && !i.href.includes('subscription')).map((item) => (
+                    <li key={item.label}>
+                      {item.external ? (
+                        <a href={item.href} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white text-sm transition-colors block">
+                          {item.label}
+                        </a>
+                      ) : (
+                        <button onClick={() => navigate(item.href)} className="text-slate-400 hover:text-white text-sm transition-colors text-left block">
+                          {item.label}
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Legal */}
+              <div>
+                <h4 className="text-white font-bold mb-6 flex items-center gap-2">
+                  <FileText size={16} className="text-slate-500" />
+                  Legal
+                </h4>
+                <ul className="space-y-4">
+                  {copy.footer.menu.filter(i => i.href.includes('terms') || i.href.includes('privacy') || i.href.includes('refund') || i.href.includes('subscription')).map((item) => (
+                    <li key={item.label}>
+                      <button onClick={() => navigate(item.href)} className="text-slate-400 hover:text-white text-sm transition-colors text-left block">
+                        {item.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Contact / Location */}
+              <div>
+                <h4 className="text-white font-bold mb-6 flex items-center gap-2">
+                  <MapPin size={16} className="text-amber-500" />
+                  Office
+                </h4>
+                <address className="not-italic text-slate-400 text-sm space-y-4">
+                  <p>Barcelona, Spain<br />Carrer de la Marina</p>
+                  <a href="mailto:hello@skily.ai" className="text-indigo-400 hover:text-white transition-colors block">hello@skily.ai</a>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    All Systems Operational
+                  </div>
+                </address>
+
+              </div>
+
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-500 uppercase tracking-widest">
+            <p>{copy.footer.note}</p>
+            <div className="flex items-center gap-2">
+              <span>Made with</span>
+              <Heart size={12} className="text-red-500 fill-red-500/20" />
+              <span>in Barcelona</span>
+            </div>
+          </div>
         </div>
-        <p>{copy.footer.note}</p>
       </footer>
     </div>
   );

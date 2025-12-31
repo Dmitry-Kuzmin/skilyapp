@@ -124,33 +124,33 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       languageLabel: "Idioma",
     },
     hero: {
-      badge: "Skily AI — Local Edition",
-      titleTop: "Domina la carretera",
-      titleBottom: "sin miedo al examen",
-      descriptionHighlight: "Plataforma interactiva con IA para aprender seguridad vial",
+      badge: "Skily AI — Driving Theory",
+      titleTop: "Tu teórico a la primera",
+      titleBottom: "Sin dramas",
+      descriptionHighlight: "Olvida los manuales aburridos",
       descriptionRest:
-        "Escenarios realistas, música enfocada y un asistente virtual que traduce todo al momento.",
+        "Nuestra IA detecta tus fallos y personaliza el estudio. Gamificación, preguntas oficiales actualizadas y explicaciones instantáneas. Tu 'L' te está esperando.",
       pressStart: "Pulsa Start",
     },
     stats: [
       {
         value: "97%",
-        label: "Eficacia",
-        description: "Nuestros usuarios dominan el contenido más rápido con aprendizaje interactivo",
+        label: "Aprueban",
+        description: "Nuestros alumnos aprenden más rápido con IA que personaliza el contenido",
       },
       {
         value: "1000+",
         label: "Preguntas",
-        description: "Banco oficial actualizado con los cambios de la DGT",
+        description: "Banco oficial DGT actualizado en tiempo real",
       },
       {
         value: "24/7",
-        label: "Disponible",
-        description: "Web, Telegram Mini App y soporte en español",
+        label: "Entrena",
+        description: "Desde tu móvil, tablet o PC. Sin horarios.",
       },
     ],
     ecosystem: {
-      title: "Ecosistema DGT",
+      title: "Ecosistema de aprendizaje",
       description: "Aprendizaje interactivo, análisis de progreso y escenarios de práctica realistas.",
       cards: {
         totalQuestions: "1000+ preguntas verificadas",
@@ -277,33 +277,33 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       languageLabel: "Language",
     },
     hero: {
-      badge: "Skily AI — Local Edition",
-      titleTop: "Own the asphalt",
-      titleBottom: "without fearing the test",
-      descriptionHighlight: "AI-powered interactive learning platform for road safety",
+      badge: "Skily AI — Driving Theory",
+      titleTop: "Your driving confidence",
+      titleBottom: "starts here",
+      descriptionHighlight: "Forget exam anxiety and language barriers",
       descriptionRest:
-        "Realistic practice scenarios, focus music and instant bilingual explanations inside your browser.",
+        "Interactive practice, instant translations and AI explanations in English. Realistic scenarios and personalized learning. Pass on your first try.",
       pressStart: "Press Start",
     },
     stats: [
       {
         value: "97%",
-        label: "Effectiveness",
-        description: "Our users master the material faster with interactive learning",
+        label: "Pass Rate",
+        description: "Our students pass the exam on their first attempt with personalized AI",
       },
       {
         value: "1000+",
         label: "Questions",
-        description: "Official items refreshed whenever DGT updates",
+        description: "Official questions with translations and explanations in English",
       },
       {
         value: "24/7",
-        label: "Availability",
-        description: "Web app + Telegram Mini App with English support",
+        label: "Support",
+        description: "In English via Telegram. Always available.",
       },
     ],
     ecosystem: {
-      title: "DGT ecosystem",
+      title: "Learning ecosystem",
       description: "Interactive learning, progress analytics and realistic practice scenarios.",
       cards: {
         totalQuestions: "1000+ curated questions",
@@ -424,29 +424,29 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       languageLabel: "Язык",
     },
     hero: {
-      badge: "Skily AI — Испания",
-      titleTop: "Сдай теорию DGT",
-      titleBottom: "с первого раза",
-      descriptionHighlight: "Интерактивная платформа с AI для изучения безопасности дорожного движения",
+      badge: "Skily AI — Driving Theory",
+      titleTop: "Твоя уверенность за рулем",
+      titleBottom: "начинается здесь",
+      descriptionHighlight: "Забудь про страх экзамена и языковой барьер",
       descriptionRest:
-        "Реалистичные сценарии практики, музыка для концентрации и мгновенные переводы объяснений.",
+        "Интерактивная практика, мгновенные переводы и AI-объяснения на русском. Реалистичные сценарии и персонализированное обучение. Сдай с первого раза.",
       pressStart: "Нажми Start",
     },
     stats: [
       {
         value: "97%",
-        label: "Эффективность",
-        description: "Наши пользователи осваивают материал быстрее с интерактивным обучением",
+        label: "Сдают",
+        description: "Наши студенты сдают экзамен с первого раза благодаря персонализированному AI",
       },
       {
         value: "1000+",
         label: "Вопросов",
-        description: "Актуальная база DGT с автоматическими обновлениями",
+        description: "Официальные вопросы с переводами и объяснениями на русском",
       },
       {
         value: "24/7",
-        label: "Доступ",
-        description: "Веб + Telegram Mini App + поддержка на русском",
+        label: "Поддержка",
+        description: "На русском языке в Telegram. Всегда на связи.",
       },
     ],
     ecosystem: {
