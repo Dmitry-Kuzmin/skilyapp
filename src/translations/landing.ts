@@ -124,7 +124,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       languageLabel: "Idioma",
     },
     hero: {
-      badge: "Skily AI — Driving Theory",
+      badge: "DGT Approved · 2025",
       titleTop: "Tu teórico a la primera",
       titleBottom: "Sin dramas",
       descriptionHighlight: "Olvida los manuales aburridos",
@@ -277,7 +277,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       languageLabel: "Language",
     },
     hero: {
-      badge: "Skily AI — Driving Theory",
+      badge: "DGT Approved · 2025",
       titleTop: "Your driving confidence",
       titleBottom: "starts here",
       descriptionHighlight: "Forget exam anxiety and language barriers",
@@ -424,7 +424,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       languageLabel: "Язык",
     },
     hero: {
-      badge: "Skily AI — Driving Theory",
+      badge: "ГИБДД 2025 · Официальные вопросы",
       titleTop: "Твой путь к правам",
       titleBottom: "начинается здесь",
       descriptionHighlight: "Забудь про страх экзамена и языковой барьер",

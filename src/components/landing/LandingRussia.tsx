@@ -625,9 +625,8 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
       <section className="relative z-10 px-6 pt-12 pb-8 md:pt-20 md:pb-12 max-w-[1400px] mx-auto flex flex-col items-center text-center">
         {/* Badge с электрическим синим */}
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[9px] sm:text-[10px] font-bold tracking-[0.25em] uppercase mb-5 sm:mb-6 animate-fade-in relative z-20">
-          <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse"></span>
           <span className="text-base leading-none">{selectedCountry.flag}</span>
-          {selectedCountry.authority} — {copy.hero.badge}
+          {copy.hero.badge}
         </div>
 
         {/* H1 с электрическим градиентом и свечением */}
