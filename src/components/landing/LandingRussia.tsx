@@ -730,7 +730,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
       </section>
 
       {/* ECOSYSTEM SECTION */}
-      <section className="relative z-10 px-6 py-24 pb-20 max-w-[1400px] mx-auto">
+      <section className="relative z-10 px-6 pt-24 pb-6 max-w-[1400px] mx-auto">
         <div className="mb-10">
           <h2 className="text-3xl md:text-5xl font-black mb-4">{copy.ecosystem.title}</h2>
           <p className="text-slate-400 max-w-xl">{copy.ecosystem.description}</p>
@@ -750,9 +750,9 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           </div>
           <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2rem] hover:border-indigo-500/30 transition-all">
             <div className="flex gap-4 mb-4">
-              <Car size={32} className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400" style={{ WebkitTextFillColor: 'transparent', WebkitBackgroundClip: 'text', backgroundClip: 'text' }} />
-              <Bike size={32} className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400" style={{ WebkitTextFillColor: 'transparent', WebkitBackgroundClip: 'text', backgroundClip: 'text' }} />
-              <Bus size={32} className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400" style={{ WebkitTextFillColor: 'transparent', WebkitBackgroundClip: 'text', backgroundClip: 'text' }} />
+              <Car size={32} className="text-blue-400" />
+              <Bike size={32} className="text-emerald-400" />
+              <Bus size={32} className="text-amber-400" />
             </div>
             <h3 className="font-bold text-lg mb-1">{copy.ecosystem.cards.categoriesTitle}</h3>
             <p className="text-slate-500 text-sm">
