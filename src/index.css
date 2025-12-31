@@ -1632,3 +1632,40 @@ input[type="range"].slider-thumb::-moz-range-thumb:hover {
   transform: scale(1.2);
   box-shadow: 0 6px 20px rgba(139, 92, 246, 0.7);
 }
+/* ============================================================================
+ * SCROLL PERFORMANCE OPTIMIZATION
+ * Prevents layout shifts and artifacts during fast scrolling
+ * ============================================================================ */
+
+/* GPU acceleration for sections with backdrop-blur */
+section {
+  will-change: transform;
+  contain: layout style paint;
+}
+
+/* Optimize backdrop-blur rendering */
+.backdrop-blur-xl,
+.backdrop-blur-sm,
+.backdrop-blur-md {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Prevent layout shift on large gradients */
+.bg-gradient-to-r,
+.bg-gradient-to-br,
+.bg-gradient-to-b {
+  will-change: auto;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Reduce paint on scroll */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
