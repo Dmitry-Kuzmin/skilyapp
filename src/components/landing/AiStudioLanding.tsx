@@ -469,12 +469,12 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
 
           <button
             onClick={handleEnter}
-            className="px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-slate-800/50 border border-slate-700 text-xs md:text-sm font-bold text-slate-300 hover:bg-white hover:text-slate-900 transition-all duration-300 hover:scale-105 relative whitespace-nowrap"
+            className="px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-white text-slate-900 text-xs md:text-sm font-bold hover:bg-white/90 transition-all duration-300 hover:scale-105 relative whitespace-nowrap shadow-lg shadow-white/20"
           >
             {referrerInfo ? (
               <>
                 {copy.controls.studentAccess}
-                <span className="ml-2 text-amber-400 inline-flex items-center gap-1">
+                <span className="ml-2 text-amber-500 inline-flex items-center gap-1">
                   +50 <Coins className="h-4 w-4 inline" />
                 </span>
               </>
@@ -610,7 +610,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         {/* Badge с электрическим синим */}
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[9px] sm:text-[10px] font-bold tracking-[0.25em] uppercase mb-5 sm:mb-6 animate-fade-in relative z-20">
           <span className="text-base leading-none">{selectedCountry.flag}</span>
-          {copy.hero.badge}
+          {selectedCountry.code === 'ru' ? 'ГИБДД 2025 · Официальные вопросы' : 'DGT Approved · 2025'}
         </div>
 
         {/* H1 с электрическим градиентом и свечением */}
