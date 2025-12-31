@@ -69,6 +69,12 @@ export interface LandingCopy {
       title: string;
       description: string;
     }>;
+    onlineText: string;
+    eventTimerLabel: string;
+    seasonRewards: Array<{
+      title: string;
+      description: string;
+    }>;
   };
   pricing: {
     title: string;
@@ -229,7 +235,14 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { title: "RaceGame", description: "Contrarreloj con señales reales" },
         { title: "Duel PvP", description: "Apuesta monedas contra otros pilotos" },
         { title: "GuessSign", description: "Reconoce señales en 3 segundos" },
-        { title: "Matching", description: "Memoria visual turbo" },
+        { title: "Matching", description: "Memoria visual mejorada" },
+      ],
+      onlineText: "🟢 1,204 En línea",
+      eventTimerLabel: "El evento termina en 2h",
+      seasonRewards: [
+        { title: "Skins Únicos", description: "Para tu coche" },
+        { title: "Boosts de XP", description: "Sube de nivel rápido" },
+        { title: "Copas de Torneo", description: "Conviértete en leyenda" },
       ],
     },
     pricing: {
@@ -388,7 +401,14 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { title: "RaceGame", description: "Beat the clock with real traffic signs" },
         { title: "Duel PvP", description: "Wager coins against other pilots" },
         { title: "GuessSign", description: "Recognize signs in 3 seconds" },
-        { title: "Matching", description: "Turbo visual memory" },
+        { title: "Matching", description: "Visual memory training" },
+      ],
+      onlineText: "🟢 1,204 Online",
+      eventTimerLabel: "Event ends in 2h",
+      seasonRewards: [
+        { title: "Unique Skins", description: "For your ride" },
+        { title: "XP Boosts", description: "Level up faster" },
+        { title: "Tournament Cups", description: "Become a legend" },
       ],
     },
     pricing: {
@@ -542,6 +562,13 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { title: "Duel PvP", description: "Ставки на монеты против других пилотов" },
         { title: "GuessSign", description: "Угадай знак за 3 секунды" },
         { title: "Matching", description: "Прокачка визуальной памяти" },
+      ],
+      onlineText: "🟢 1,204 Online",
+      eventTimerLabel: "Событие заканчивается через 2ч",
+      seasonRewards: [
+        { title: "Уникальные скины", description: "Для твоего авто" },
+        { title: "XP Бусты", description: "Качайся быстрее" },
+        { title: "Турнирные Кубки", description: "Стань легендой" },
       ],
     },
     pricing: {

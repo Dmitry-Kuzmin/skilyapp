@@ -161,6 +161,15 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
     setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   };
 
+  const [timeLeft, setTimeLeft] = useState(15);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 15));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   // FAQ Types & Content
   interface FAQCategory {
     id: string;
@@ -951,120 +960,133 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Game Hub Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Duel PvP Card */}
           <div className="relative rounded-[2rem] overflow-hidden border border-slate-800 bg-gradient-to-br from-slate-900/80 to-slate-950/80 backdrop-blur-xl group hover:border-orange-500/30 transition-all">
+            {/* Badge */}
+            <div className="absolute top-6 left-6 z-20 flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]"></div>
+              <span className="text-xs font-bold text-emerald-400 font-mono tracking-wider">{copy.arena.onlineText}</span>
+            </div>
+
             {/* Visual Preview Area */}
-            <div className="relative h-64 bg-gradient-to-br from-orange-900/20 to-red-900/20 flex items-center justify-center overflow-hidden">
+            <div className="relative h-72 bg-gradient-to-br from-orange-900/20 to-red-900/20 flex items-center justify-center overflow-hidden group">
               <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
-              <div className="relative z-10 flex items-center gap-8">
-                <div className="text-center">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mb-2 shadow-lg shadow-orange-500/20">
-                    <Swords className="w-10 h-10 text-white" />
+              <div className="relative z-10 flex items-center gap-6 lg:gap-10 transform group-hover:scale-105 transition-transform duration-500">
+                <div className="text-center transform group-hover:-translate-x-4 transition-transform duration-500">
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center mb-3 shadow-[0_10px_30px_-10px_rgba(239,68,68,0.5)] border-4 border-slate-900">
+                    <Swords className="w-10 h-10 text-white fill-white/20" />
                   </div>
-                  <div className="text-white font-bold tracking-wider">VS</div>
+                  <div className="text-xs font-black tracking-[0.2em] text-orange-200/60 uppercase">Challenger</div>
                 </div>
-                <Trophy className="w-16 h-16 text-orange-400 animate-pulse drop-shadow-[0_0_15px_rgba(251,146,60,0.5)]" />
-                <div className="text-center">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-2 shadow-lg shadow-blue-500/20">
-                    <Target className="w-10 h-10 text-white" />
-                  </div>
-                  <div className="text-white font-bold tracking-wider">YOU</div>
-                </div>
-              </div>
 
-              {/* Tag */}
-              <div className="absolute bottom-4 right-4 px-3 py-1 rounded-full bg-black/50 backdrop-blur-sm text-xs text-white/70 font-mono border border-white/10">
-                Live Multiplayer
+                <div className="relative">
+                  <Trophy className="w-20 h-20 text-yellow-400 drop-shadow-[0_0_25px_rgba(250,204,21,0.6)] animate-pulse" />
+                  <div className="absolute -inset-4 bg-yellow-500/20 blur-2xl rounded-full -z-10 animate-pulse"></div>
+                </div>
+
+                <div className="text-center transform group-hover:translate-x-4 transition-transform duration-500">
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center mb-3 shadow-[0_10px_30px_-10px_rgba(6,182,212,0.5)] border-4 border-slate-900">
+                    <Target className="w-10 h-10 text-white fill-white/20" />
+                  </div>
+                  <div className="text-xs font-black tracking-[0.2em] text-blue-200/60 uppercase">You</div>
+                </div>
               </div>
             </div>
 
             {/* Content */}
-            <div className="p-8">
-              <h3 className="text-2xl font-black text-white mb-2 flex items-center gap-2">
-                <Swords className="w-6 h-6 text-orange-400" />
+            <div className="p-8 relative">
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/20 to-transparent"></div>
+              <h3 className="text-3xl font-black text-white mb-2 flex items-center gap-3">
                 Duel PvP
               </h3>
-              <p className="text-slate-400 mb-4 leading-relaxed">
-                {language === 'ru' ? 'Соревнуйся с реальными игроками на скорость. Ставь монеты, выигрывай трофеи.' :
-                  language === 'es' ? 'Compite con jugadores reales por velocidad. Apuesta monedas, gana trofeos.' :
-                    'Compete with real players for speed. Bet coins, win trophies.'}
+              <p className="text-slate-400 mb-6 leading-relaxed max-w-md">
+                {language === 'ru' ? 'Вызови друга или случайного соперника. Ставки на монеты, реальный адреналин.' : 'Call a friend or random opponent. Coin bets, real adrenaline.'}
               </p>
-              <div className="flex items-center gap-4 text-sm mt-auto">
-                <div className="flex items-center gap-1.5 text-orange-400 bg-orange-400/10 px-2 py-1 rounded-lg">
-                  <Trophy className="w-4 h-4" />
-                  <span className="font-bold">Epic Rewards</span>
-                </div>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1 rounded-lg bg-white/5 border border-white/5 text-xs font-medium text-slate-300">1v1 Battles</span>
+                <span className="px-3 py-1 rounded-lg bg-orange-500/10 border border-orange-500/20 text-xs font-medium text-orange-300">Ranked System</span>
               </div>
             </div>
           </div>
 
-          {/* Race Game Card */}
+          {/* Race Game Card (Speed Run) */}
           <div className="relative rounded-[2rem] overflow-hidden border border-slate-800 bg-gradient-to-br from-slate-900/80 to-slate-950/80 backdrop-blur-xl group hover:border-blue-500/30 transition-all">
-            {/* Visual Preview Area */}
-            <div className="relative h-64 bg-gradient-to-br from-blue-900/20 to-cyan-900/20 flex items-center justify-center overflow-hidden">
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+            {/* Timer Badge */}
+            <div className="absolute top-6 right-6 z-20 flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-400">{copy.arena.eventTimerLabel}</span>
+              <div className="bg-blue-500/10 backdrop-blur-md px-3 py-1.5 rounded-lg border border-blue-500/20 text-xs font-mono font-bold text-blue-400">
+                23:59:00
+              </div>
+            </div>
 
-              <div className="relative z-10 flex flex-col items-center gap-4">
-                <Timer className="w-12 h-12 text-blue-400 animate-pulse" />
-                <div className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 drop-shadow-2xl font-mono tracking-tighter">
-                  00:15
+            {/* Visual Preview Area */}
+            <div className="relative h-72 bg-gradient-to-br from-blue-900/20 to-indigo-900/20 flex items-center justify-center overflow-hidden">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-500/10 via-slate-900/0 to-slate-900/0"></div>
+
+              <div className="relative z-10 flex flex-col items-center gap-6">
+                {/* Big Timer */}
+                <div className="relative">
+                  <div className="text-8xl font-black font-mono tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 drop-shadow-2xl tabular-nums">
+                    00:{timeLeft < 10 ? `0${timeLeft}` : timeLeft}
+                  </div>
+                  <div className="absolute -inset-4 bg-blue-500/20 blur-3xl -z-10 animate-pulse"></div>
                 </div>
-                <div className="flex gap-2">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="w-10 h-2 rounded-full bg-blue-500/30 overflow-hidden">
-                      <div className="h-full w-full bg-blue-400 animate-[shimmer_2s_infinite]"></div>
+
+                {/* Progress Bars */}
+                <div className="flex gap-2 opacity-50">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="w-12 h-1.5 rounded-full bg-slate-700/50 overflow-hidden">
+                      <div className="h-full w-full bg-blue-400 animate-[shimmer_1.5s_infinite]" style={{ animationDelay: `${i * 0.2}s` }}></div>
                     </div>
                   ))}
                 </div>
               </div>
-
-              {/* Tag */}
-              <div className="absolute bottom-4 right-4 px-3 py-1 rounded-full bg-black/50 backdrop-blur-sm text-xs text-white/70 font-mono border border-white/10">
-                Speed Challenge
-              </div>
             </div>
 
             {/* Content */}
-            <div className="p-8">
-              <h3 className="text-2xl font-black text-white mb-2 flex items-center gap-2">
-                <Zap className="w-6 h-6 text-blue-400" />
-                Race Mode
+            <div className="p-8 relative">
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent"></div>
+              <h3 className="text-3xl font-black text-white mb-2 flex items-center gap-3">
+                Blitz Mode
               </h3>
-              <p className="text-slate-400 mb-4 leading-relaxed">
-                {language === 'ru' ? 'Гонка на время: отвечай быстро и точно. Каждая секунда на счету!' :
-                  language === 'es' ? 'Carrera contrarreloj: responde rápido y preciso. ¡Cada segundo cuenta!' :
-                    'Race against time: answer fast and accurate. Every second counts!'}
+              <p className="text-slate-400 mb-6 leading-relaxed max-w-md">
+                {language === 'ru' ? 'Гонка со временем. У тебя 15 секунд на ответ. Ошибки недопустимы.' : 'Race against time. 15 seconds to answer. No mistakes allowed.'}
               </p>
-              <div className="flex items-center gap-4 text-sm mt-auto">
-                <div className="flex items-center gap-1.5 text-blue-400 bg-blue-400/10 px-2 py-1 rounded-lg">
-                  <Zap className="w-4 h-4" />
-                  <span className="font-bold">Blitz Mode</span>
-                </div>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1 rounded-lg bg-white/5 border border-white/5 text-xs font-medium text-slate-300">Time Attack</span>
+                <span className="px-3 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs font-medium text-blue-300">x2 Rewards</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Other games grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {copy.arena.games.map((game, index) => {
-            const Icon = gameIcons[index % gameIcons.length];
-            const color = gameColors[index % gameColors.length];
+        {/* Season Rewards Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          {copy.arena.seasonRewards.map((reward, i) => {
+            const icons = [Sparkles, Zap, Trophy];
+            const Icon = icons[i] || Sparkles;
+            const colors = [
+              "from-purple-500/20 to-pink-500/20 border-purple-500/20 text-purple-400",
+              "from-amber-500/20 to-orange-500/20 border-amber-500/20 text-amber-400",
+              "from-emerald-500/20 to-teal-500/20 border-emerald-500/20 text-emerald-400"
+            ];
+            const style = colors[i];
+
             return (
-              <div
-                key={game.title}
-                className="bg-[#0f172a] border border-slate-800 p-6 rounded-3xl hover:border-indigo-500/30 transition-all cursor-pointer group"
-              >
-                <Icon
-                  size={32}
-                  className={`${color} mb-4 group-hover:scale-110 transition-transform`}
-                />
-                <h3 className="font-bold text-white text-lg mb-1">{game.title}</h3>
-                <p className="text-xs text-slate-500">{game.description}</p>
+              <div key={i} className={`relative overflow-hidden rounded-2xl border bg-gradient-to-br p-6 backdrop-blur-sm transition-all hover:-translate-y-1 ${style.split(" ")[0]} ${style.split(" ")[2]}`}>
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`p-3 rounded-xl bg-white/5 border border-white/10 ${style.split(" ")[3]}`}>
+                    <Icon size={24} />
+                  </div>
+                  <div className="text-xs font-bold uppercase tracking-widest opacity-50">Locked</div>
+                </div>
+                <h4 className="text-lg font-bold text-white mb-1">{reward.title}</h4>
+                <p className="text-sm text-slate-400">{reward.description}</p>
               </div>
-            );
+            )
           })}
         </div>
       </section>
