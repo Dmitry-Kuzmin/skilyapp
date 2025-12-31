@@ -645,14 +645,27 @@ All colors MUST be HSL.
   }
 
   @keyframes scan {
-    0% { transform: translateY(-100%); }
-    50% { transform: translateY(100%); }
-    100% { transform: translateY(-100%); }
+    0% {
+      transform: translateY(-100%);
+    }
+
+    50% {
+      transform: translateY(100%);
+    }
+
+    100% {
+      transform: translateY(-100%);
+    }
   }
 
   @keyframes spin-radar {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   .animate-scan {
@@ -811,6 +824,38 @@ All colors MUST be HSL.
 
   .animate-float {
     animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes blob {
+
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+
+    25% {
+      transform: translate(20px, -20px) scale(1.1);
+    }
+
+    50% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    75% {
+      transform: translate(-10px, -10px) scale(1.05);
+    }
+  }
+
+  .animate-blob {
+    animation: blob 8s ease-in-out infinite;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
   }
 
   @keyframes shimmer {
@@ -1548,4 +1593,42 @@ All colors MUST be HSL.
 
 .tippy-box[data-animation='shift-away'][data-state='hidden'][data-placement^='bottom'] {
   transform: translateY(-10px);
+}
+
+/* ============================================================================
+ * PARTNERSHIP LAUNCHPAD - Custom Range Slider
+ * ============================================================================ */
+
+/* Custom range slider thumb (хватальная ручка) */
+input[type="range"].slider-thumb::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5);
+  transition: all 0.2s ease;
+}
+
+input[type="range"].slider-thumb::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.7);
+}
+
+input[type="range"].slider-thumb::-moz-range-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5);
+  transition: all 0.2s ease;
+}
+
+input[type="range"].slider-thumb::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.7);
 }

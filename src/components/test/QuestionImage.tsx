@@ -39,6 +39,7 @@ export const QuestionImage = memo(function QuestionImage({
     const loadImage = async () => {
       try {
         const url = getImageUrl(imageUrl);
+
         if (!url) {
           setHasError(true);
           setIsLoading(false);

@@ -425,7 +425,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
     },
     hero: {
       badge: "Skily AI — Driving Theory",
-      titleTop: "Твоя уверенность за рулем",
+      titleTop: "Твой путь к правам",
       titleBottom: "начинается здесь",
       descriptionHighlight: "Забудь про страх экзамена и языковой барьер",
       descriptionRest:

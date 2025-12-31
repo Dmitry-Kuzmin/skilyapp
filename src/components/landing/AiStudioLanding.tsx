@@ -33,7 +33,7 @@ import {
   Headset,
   Heart,
   MapPin,
-
+  Rocket
 } from "lucide-react";
 import { playClickSound, playEngineSound } from "@/services/audioService";
 import { LandingLogo } from "./LandingLogo";
@@ -44,6 +44,7 @@ import { CountrySelector } from "./CountrySelector";
 import { LandingQuizDemo } from "./LandingQuizDemo";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
+import { PartnershipExpansionPortal } from "./PartnershipExpansionPortal";
 import {
   landingTranslations,
   LANGUAGE_OPTIONS,
@@ -60,7 +61,7 @@ const DEMO_VARIANTS = {
       text: 'Живой учитель может устать. Lumi AI доступен 24/7, имеет бесконечное терпение и переводит сложные термины на твой язык мгновенно.'
     },
     {
-      title: 'Твой карманный эксперт по ПДД',
+      title: 'Твой эксперт по ПДД',
       text: 'Забудь про сухие формулировки. Ошибайся сколько хочешь — Lumi AI не осудит, а покажет, как избежать ошибки в будущем. Простым языком.'
     }
   ],
@@ -146,6 +147,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
   loadingPartner = false,
 }) => {
   const [isStarting, setIsStarting] = useState(false);
+  const [isPartnershipOpen, setIsPartnershipOpen] = useState(false);
   const [demoVariantIndex, setDemoVariantIndex] = useState(0);
   const [avatarError, setAvatarError] = useState(false);
   const { language, setLanguage } = useLanguage();
@@ -453,7 +455,8 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
               {copy.controls.telegramApp}
             </button>
           </div>
-          <CountrySelector />
+
+          <CountrySelector onOpenPartnership={() => setIsPartnershipOpen(true)} />
           <LanguageSelector
             language={language}
             onSelect={handleLanguageChange}
@@ -607,33 +610,22 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         </div>
 
         {/* H1 с электрическим градиентом и свечением */}
-        <div className="relative mb-4 md:mb-6">
-          {/* Синее свечение за текстом */}
-          <div className="absolute inset-0 blur-3xl opacity-30 bg-gradient-to-r from-blue-500 via-sky-400 to-cyan-300"></div>
+        <div className="relative mb-4 md:mb-6 w-full flex flex-col items-center">
+          {/* Улучшенное свечение: центрированное и органичное */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[140%] blur-[120px] opacity-25 bg-gradient-to-r from-blue-600 via-sky-400 to-cyan-300 pointer-events-none"></div>
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full blur-3xl opacity-10 bg-blue-500 pointer-events-none"></div>
 
           <h1
-            className="relative text-[clamp(2.25rem,8vw,5.5rem)] font-black tracking-tighter leading-[1.05] sm:leading-[0.95] animate-slide-up select-none drop-shadow-2xl max-w-4xl"
+            className="relative text-[clamp(2.25rem,8vw,5.5rem)] font-black tracking-tighter leading-[1.05] sm:leading-[0.95] animate-slide-up select-none max-w-4xl"
           >
-            {language === 'ru' ? (
-              <>
-                <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-300 inline">
-                  Твоя уверенность за рулем
-                </span>
-                <br className="hidden md:block" />
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-sky-400 to-cyan-300 inline">
-                  {' '}начинается здесь
-                </span>
-              </>
-            ) : (
-              <>
-                <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-300 block pb-1 sm:pb-2">
-                  {copy.hero.titleTop}
-                </span>
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-sky-400 to-cyan-300 block">
-                  {copy.hero.titleBottom}
-                </span>
-              </>
-            )}
+            <>
+              <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-300 block pb-1 sm:pb-2">
+                {copy.hero.titleTop}
+              </span>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-sky-400 to-cyan-300 block">
+                {copy.hero.titleBottom}
+              </span>
+            </>
           </h1>
         </div>
 
@@ -1348,6 +1340,10 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           </div>
         </div>
       </footer>
+      <PartnershipExpansionPortal
+        isOpen={isPartnershipOpen}
+        onClose={() => setIsPartnershipOpen(false)}
+      />
     </div>
   );
 };

@@ -48,6 +48,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'ru-q1',
             question: 'Какой максимальный скоростной режим установлен в населенных пунктах с одной полосой для движения в каждом направлении?',
+            imageUrl: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&q=80',
             illustrationType: 'speed',
             illustrationVariant: 'blue',
             aiAnalysis: {
@@ -64,6 +65,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'ru-q2',
             question: 'Кто имеет преимущество при въезде на перекресток с круговым движением?',
+            imageUrl: 'https://images.unsplash.com/photo-1533094602577-198d3beab8ea?w=800&q=80',
             illustrationType: 'roundabout',
             illustrationVariant: 'indigo',
             aiAnalysis: {
@@ -80,6 +82,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'ru-q3',
             question: 'Можно ли использовать звуковой сигнал в населенном пункте?',
+            imageUrl: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80',
             illustrationType: 'horn',
             illustrationVariant: 'orange',
             aiAnalysis: {
@@ -98,6 +101,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'es-q1',
             question: 'En vías urbanas con un solo carril por sentido, ¿cuál es la velocidad máxima?',
+            imageUrl: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&q=80',
             illustrationType: 'speed',
             illustrationVariant: 'blue',
             aiAnalysis: {
@@ -114,6 +118,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'es-q2',
             question: 'En una intersección de sentido giratorio, ¿quién tiene preferencia de paso?',
+            imageUrl: 'https://images.unsplash.com/photo-1533094602577-198d3beab8ea?w=800&q=80',
             illustrationType: 'roundabout',
             illustrationVariant: 'indigo',
             aiAnalysis: {
@@ -130,6 +135,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'es-q3',
             question: '¿Está permitido el uso de señales acústicas en poblado?',
+            imageUrl: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80',
             illustrationType: 'horn',
             illustrationVariant: 'orange',
             aiAnalysis: {
@@ -148,6 +154,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'en-q1',
             question: 'On urban roads with a single lane in each direction, what is the max speed?',
+            imageUrl: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&q=80',
             illustrationType: 'speed',
             illustrationVariant: 'blue',
             aiAnalysis: {
@@ -164,6 +171,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'en-q2',
             question: 'Who has priority at a roundabout?',
+            imageUrl: 'https://images.unsplash.com/photo-1533094602577-198d3beab8ea?w=800&q=80',
             illustrationType: 'roundabout',
             illustrationVariant: 'indigo',
             aiAnalysis: {
@@ -180,6 +188,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'en-q3',
             question: 'Is it allowed to use the horn in built-up areas?',
+            imageUrl: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80',
             illustrationType: 'horn',
             illustrationVariant: 'orange',
             aiAnalysis: {
@@ -266,7 +275,9 @@ const MockAIWidget = ({ language, message, isTyping, status }: { language: strin
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (message || isTyping) {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
     }, [message, isTyping]);
 
     const t = {
@@ -508,11 +519,19 @@ export const LandingQuizDemo: React.FC<LandingQuizDemoProps> = ({ onRegisterClic
                 <Card className="p-0 overflow-hidden border-slate-800 shadow-2xl shadow-black/20 rounded-3xl bg-slate-900/80 backdrop-blur-sm border border-white/5">
                     <div className="flex flex-col lg:flex-row h-full">
                         {/* Illustration Area */}
-                        <div className="lg:w-[45%] bg-slate-950 relative min-h-[240px] lg:min-h-[500px] border-r border-white/5">
-                            <QuestionIllustration
-                                type={currentQuestion.illustrationType}
-                                variant={currentQuestion.illustrationVariant as any}
-                            />
+                        <div className="lg:w-[45%] bg-slate-950 relative min-h-[240px] lg:min-h-[500px] border-r border-white/5 overflow-hidden">
+                            {currentQuestion.imageUrl ? (
+                                <img
+                                    src={currentQuestion.imageUrl}
+                                    alt={currentQuestion.question}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <QuestionIllustration
+                                    type={currentQuestion.illustrationType}
+                                    variant={currentQuestion.illustrationVariant as any}
+                                />
+                            )}
                         </div>
 
                         {/* Content Area */}

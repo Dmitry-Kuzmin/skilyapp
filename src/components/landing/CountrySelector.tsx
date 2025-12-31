@@ -6,14 +6,16 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Globe } from 'lucide-react';
+import { Globe, Rocket } from 'lucide-react';
 import { getActiveCountries, CountryConfig } from '@/config/countries';
 import { playClickSound } from '@/services/audioService';
 import { useCountry } from '@/contexts/CountryContext';
+import { PartnershipExpansionPortal } from './PartnershipExpansionPortal';
 
 export const CountrySelector: React.FC = () => {
     const { selectedCountry, setSelectedCountry } = useCountry();
     const [isOpen, setIsOpen] = useState(false);
+    const [isPartnershipOpen, setIsPartnershipOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     const activeCountries = getActiveCountries();
@@ -114,14 +116,44 @@ export const CountrySelector: React.FC = () => {
                         })}
                     </div>
 
-                    {/* Hint Text */}
-                    <div className="px-4 py-3 bg-slate-950/50 border-t border-slate-800">
-                        <p className="text-xs text-slate-500 text-center">
-                            More countries coming soon! 🚀
-                        </p>
-                    </div>
+                    {/* Partnership CTA */}
+                    <button
+                        onClick={() => {
+                            playClickSound();
+                            setIsPartnershipOpen(true);
+                            setIsOpen(false);
+                        }}
+                        className="relative mx-2 mb-2 mt-1 p-4 bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-transparent rounded-xl overflow-hidden transition-all duration-300 hover:scale-[1.02] group"
+                        style={{
+                            backgroundClip: 'padding-box',
+                        }}
+                    >
+                        {/* Animated gradient border */}
+                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500 -z-10 blur-sm group-hover:blur-md transition-all duration-300" />
+                        <div className="absolute inset-[2px] rounded-[10px] bg-slate-900 -z-10" />
+
+                        <div className="flex items-center gap-3">
+                            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <Rocket className="w-5 h-5 text-white" />
+                            </div>
+                            <div className="flex-1 text-left">
+                                <div className="text-sm font-black text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-indigo-400 group-hover:to-violet-400 group-hover:bg-clip-text transition-all duration-300">
+                                    Станьте владельцем Skily в своей стране
+                                </div>
+                                <div className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors duration-300">
+                                    Узнать условия партнёрства →
+                                </div>
+                            </div>
+                        </div>
+                    </button>
                 </div>
             )}
+
+            {/* Partnership Modal */}
+            <PartnershipExpansionPortal
+                isOpen={isPartnershipOpen}
+                onClose={() => setIsPartnershipOpen(false)}
+            />
         </div>
     );
 };
