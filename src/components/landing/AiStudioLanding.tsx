@@ -154,6 +154,13 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
   const [avatarError, setAvatarError] = useState(false);
   const { language, setLanguage } = useLanguage();
   const { selectedCountry } = useCountry();
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  const handleSpotlightMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
   // FAQ Types & Content
   interface FAQCategory {
     id: string;
@@ -854,7 +861,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
             {/* Other Rows */}
             <div className="space-y-8 px-2">
               {copy.comparison.rows.slice(1).map((row, i) => (
-                <div key={i} className="flex items-center justify-center text-slate-500 group h-12">
+                <div key={i} className="flex items-center justify-center text-slate-500 group min-h-[4rem]">
                   <span className="flex items-center gap-3 decoration-slate-600 group-hover:line-through transition-all text-lg font-medium">
                     {row.traditional} <XCircle size={20} className="text-red-900/60" />
                   </span>
@@ -864,9 +871,20 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           </div>
 
           {/* RIGHT: SKILY (NEXT GEN) */}
-          <div className="relative bg-slate-900/80 backdrop-blur-xl border border-indigo-500/30 rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_50px_-10px_rgba(99,102,241,0.25)] overflow-hidden transform md:-translate-y-4 hover:border-indigo-500/50 transition-all duration-300 ring-1 ring-white/5">
-            <div className="absolute inset-0 bg-indigo-500/5 pointer-events-none"></div>
-            <h3 className="text-2xl font-black text-white text-center uppercase tracking-widest mb-10 flex items-center justify-center gap-3">
+          <div
+            onMouseMove={handleSpotlightMove}
+            className="relative bg-slate-900/40 backdrop-blur-2xl border border-white/10 border-t-white/20 rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_60px_-10px_rgba(99,102,241,0.3),inset_0_0_30px_rgba(255,255,255,0.03)] overflow-hidden transform md:-translate-y-4 hover:border-indigo-500/50 transition-all duration-300 group ring-0"
+          >
+            {/* Spotlight Effect */}
+            <div
+              className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-[2.5rem] z-0"
+              style={{
+                background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(99, 102, 241, 0.15), transparent 40%)`
+              }}
+            />
+
+            <div className="absolute inset-0 bg-indigo-500/5 pointer-events-none z-0"></div>
+            <h3 className="relative z-10 text-2xl font-black text-white text-center uppercase tracking-widest mb-10 flex items-center justify-center gap-3">
               {copy.comparison.skily} <Crown size={24} className="text-amber-400 fill-amber-400/20" />
             </h3>
 
@@ -881,12 +899,17 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
             </div>
 
             {/* Other Rows */}
-            <div className="space-y-8 px-2">
+            <div className="space-y-8 px-2 relative z-10">
               {copy.comparison.rows.slice(1).map((row, i) => (
-                <div key={i} className="flex items-center justify-center h-12">
+                <div key={i} className="flex flex-col items-center justify-center min-h-[4rem] text-center">
                   <span className="flex items-center gap-3 text-white font-black text-xl tracking-tight drop-shadow-lg">
                     {row.skily} <CheckCircle size={24} className="text-indigo-400 fill-indigo-400/20" />
                   </span>
+                  {row.skilyDesc && (
+                    <span className="text-sm font-medium text-indigo-200/60 mt-1 block">
+                      {row.skilyDesc}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>

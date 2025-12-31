@@ -55,6 +55,7 @@ export interface LandingCopy {
       feature: string;
       traditional: string;
       skily: string;
+      skilyDesc?: string;
     }>;
   };
   arena: {
@@ -190,26 +191,30 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       traditional: "Métodos tradicionales",
       skily: "Skilyapp",
       rows: [
-        { feature: "Coste Total", traditional: "€400+", skily: "€19" },
+        { feature: "Coste Total", traditional: "€400+", skily: "€19", skilyDesc: "Pago único. Sin sorpresas." },
         {
           feature: "Método",
           traditional: "Libros estáticos",
           skily: "IA Gamificada",
+          skilyDesc: "Aprende jugando, sin estrés.",
         },
         {
           feature: "Actualizaciones",
           traditional: "Libros viejos",
           skily: "Live Updates",
+          skilyDesc: "Preguntas siempre al día.",
         },
         {
           feature: "Dudas",
           traditional: "Preguntar al profe",
           skily: "Tutor IA 24/7",
+          skilyDesc: "Explicaciones al instante.",
         },
         {
           feature: "Acceso",
           traditional: "Horario fijo",
           skily: "En tu bolsillo",
+          skilyDesc: "Estudia donde quieras.",
         },
       ],
     },
@@ -345,26 +350,30 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       traditional: "Paper-based methods",
       skily: "Skilyapp",
       rows: [
-        { feature: "Total Cost", traditional: "€400+", skily: "€19" },
+        { feature: "Total Cost", traditional: "€400+", skily: "€19", skilyDesc: "One-time payment." },
         {
           feature: "Method",
           traditional: "Boring Lectures",
           skily: "Gamified AI",
+          skilyDesc: "Learn by playing.",
         },
         {
           feature: "Updates",
           traditional: "Outdated Books",
           skily: "Live Updates",
+          skilyDesc: "Always fresh questions.",
         },
         {
           feature: "Support",
           traditional: "Wait for teacher",
           skily: "Instant AI",
+          skilyDesc: "Explanations in seconds.",
         },
         {
           feature: "Access",
           traditional: "Fixed Schedule",
           skily: "24/7 Pocket",
+          skilyDesc: "Study anywhere, anytime.",
         },
       ],
     },
@@ -494,26 +503,30 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       traditional: "Традиционные методы",
       skily: "Skilyapp",
       rows: [
-        { feature: "Бюджет", traditional: "€400+", skily: "€19" },
+        { feature: "Бюджет", traditional: "€400+", skily: "€19", skilyDesc: "Платишь один раз." },
         {
           feature: "Метод",
           traditional: "Скучные лекции",
           skily: "AI-Геймификация",
+          skilyDesc: "Учись играя, без зубрёжки.",
         },
         {
           feature: "Обновления",
           traditional: "Старые книги",
           skily: "Live Updates",
+          skilyDesc: "Всегда актуальные билеты.",
         },
         {
           feature: "Ошибки",
           traditional: "Ждать учителя",
           skily: "AI мгновенно",
+          skilyDesc: "Объяснит ошибку за секунду.",
         },
         {
           feature: "Доступ",
           traditional: "По расписанию",
           skily: "24/7 в кармане",
+          skilyDesc: "С любого устройства.",
         },
       ],
     },
