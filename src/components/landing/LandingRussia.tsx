@@ -465,19 +465,17 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           <LandingLogo theme="dark" variant="bold" className="scale-75 md:scale-90 origin-left" />
         </div>
         <div className="flex items-center gap-2 md:gap-3 ml-auto">
-          <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-white transition-colors">
-            <Smartphone size={16} />
-            <button onClick={() => window.open("https://t.me/skilyapp_bot", "_blank")}>
-              {copy.controls.telegramApp}
-            </button>
-          </div>
-
           <CountrySelector onOpenPartnership={() => setIsPartnershipOpen(true)} />
-          <LanguageSelector
-            language={language}
-            onSelect={handleLanguageChange}
-            label={copy.controls.languageLabel}
-          />
+
+          {/* Language selector hidden for Russia (always Russian) */}
+          {selectedCountry.code !== 'ru' && (
+            <LanguageSelector
+              language={language}
+              onSelect={handleLanguageChange}
+              label={copy.controls.languageLabel}
+            />
+          )}
+
           <button
             onClick={handleEnter}
             className="px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-slate-800/50 border border-slate-700 text-xs md:text-sm font-bold text-slate-300 hover:bg-white hover:text-slate-900 transition-all duration-300 hover:scale-105 relative whitespace-nowrap"
@@ -1180,9 +1178,9 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               </div>
             </div>
             <div className="flex gap-1 mb-3">
-              {[1,2,3,4,5].map(i => (
+              {[1, 2, 3, 4, 5].map(i => (
                 <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                 </svg>
               ))}
             </div>
@@ -1203,9 +1201,9 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               </div>
             </div>
             <div className="flex gap-1 mb-3">
-              {[1,2,3,4,5].map(i => (
+              {[1, 2, 3, 4, 5].map(i => (
                 <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                 </svg>
               ))}
             </div>
@@ -1226,9 +1224,9 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               </div>
             </div>
             <div className="flex gap-1 mb-3">
-              {[1,2,3,4,5].map(i => (
+              {[1, 2, 3, 4, 5].map(i => (
                 <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                 </svg>
               ))}
             </div>

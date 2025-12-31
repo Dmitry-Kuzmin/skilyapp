@@ -449,19 +449,17 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           <LandingLogo theme="dark" variant="bold" className="scale-75 md:scale-90 origin-left" />
         </div>
         <div className="flex items-center gap-2 md:gap-3 ml-auto">
-          <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-white transition-colors">
-            <Smartphone size={16} />
-            <button onClick={() => window.open("https://t.me/skilyapp_bot", "_blank")}>
-              {copy.controls.telegramApp}
-            </button>
-          </div>
-
           <CountrySelector onOpenPartnership={() => setIsPartnershipOpen(true)} />
-          <LanguageSelector
-            language={language}
-            onSelect={handleLanguageChange}
-            label={copy.controls.languageLabel}
-          />
+
+          {/* Language selector hidden for Russia (always Russian) */}
+          {selectedCountry.code !== 'ru' && (
+            <LanguageSelector
+              language={language}
+              onSelect={handleLanguageChange}
+              label={copy.controls.languageLabel}
+            />
+          )}
+
           <button
             onClick={handleEnter}
             className="px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-slate-800/50 border border-slate-700 text-xs md:text-sm font-bold text-slate-300 hover:bg-white hover:text-slate-900 transition-all duration-300 hover:scale-105 relative whitespace-nowrap"
