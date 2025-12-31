@@ -1,4 +1,4 @@
-// Skily Landing Page - Optimized for High Conversions
+// Skily Landing Page - Russia Market (ГИБДД)
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -53,16 +53,16 @@ import {
 const DEMO_VARIANTS = {
   ru: [
     {
-      title: 'Мы научили AI думать как экзаменатор DGT',
-      text: 'Мы "скормили" нейросети 5000 страниц дорожных кодексов. Lumi AI знает каждый нюанс правил лучше любого профессора и объяснит его тебе за 2 секунды.'
+      title: 'Мы научили AI думать как экзаменатор ГИБДД',
+      text: 'Lumi AI знает каждый подвох в билетах ГИБДД. Объясняет сложные юридические термины простым языком за 2 секунды.'
     },
     {
-      title: 'Лучше, чем инструктор. И вот почему',
-      text: 'Живой учитель может устать. Lumi AI доступен 24/7, имеет бесконечное терпение и переводит сложные термины на твой язык мгновенно.'
+      title: 'Персональный репетитор по ПДД',
+      text: 'Забудь про зубрежку 800 вопросов. AI подстраивается под твои ошибки и объясняет логику правил, а не сухие цитаты из закона.'
     },
     {
-      title: 'Твой эксперт по ПДД',
-      text: 'Забудь про сухие формулировки. Ошибайся сколько хочешь — Lumi AI не осудит, а покажет, как избежать ошибки в будущем. Простым языком.'
+      title: 'Разбор вопросов с подвохом',
+      text: 'В ГИБДД любят ловушки. Lumi AI научит тебя видеть их и не попадаться. Сдашь теорию с первого раза.'
     }
   ],
   es: [
@@ -97,9 +97,9 @@ const DEMO_VARIANTS = {
 
 const FEATURE_PILLS = {
   ru: [
-    { icon: Zap, text: 'Мгновенный ответ', color: 'text-yellow-400' },
-    { icon: Infinity, text: 'Бесконечное терпение', color: 'text-blue-400' },
-    { icon: Globe, text: 'Понятный язык', color: 'text-emerald-400' }
+    { icon: Zap, text: 'Без зубрежки', color: 'text-yellow-400' },
+    { icon: Infinity, text: 'Разбор ловушек', color: 'text-blue-400' },
+    { icon: Globe, text: 'Простым языком', color: 'text-emerald-400' }
   ],
   es: [
     { icon: Zap, text: 'Respuesta instantánea', color: 'text-yellow-400' },
@@ -139,7 +139,7 @@ interface AiStudioLandingProps {
   loadingPartner?: boolean;
 }
 
-export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
+export const LandingRussia: React.FC<AiStudioLandingProps> = ({
   onRequestAccess,
   referrerInfo,
   loadingReferrer = false,

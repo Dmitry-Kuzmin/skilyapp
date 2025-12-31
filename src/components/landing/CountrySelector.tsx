@@ -53,16 +53,16 @@ export const CountrySelector: React.FC = () => {
             {/* Trigger Button */}
             <button
                 onClick={handleToggle}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-800/50 border border-slate-700 text-sm font-bold text-white hover:bg-slate-700/70 transition-all duration-300 hover:scale-105 relative group"
+                className="flex items-center gap-1.5 md:gap-2 px-2.5 md:px-4 py-2 md:py-2.5 rounded-full bg-slate-800/50 border border-slate-700 text-sm font-bold text-white hover:bg-slate-700/70 transition-all duration-300 hover:scale-105 relative group"
                 aria-label="Select Country"
             >
-                <Globe className="h-4 w-4 text-slate-400 group-hover:text-white transition-colors" />
-                <span className="text-2xl leading-none">{selectedCountry.flag}</span>
-                <span className="hidden md:inline">{selectedCountry.nameEn}</span>
+                <Globe className="h-3.5 md:h-4 w-3.5 md:w-4 text-slate-400 group-hover:text-white transition-colors" />
+                <span className="text-xl md:text-2xl leading-none">{selectedCountry.flag}</span>
+                <span className="hidden lg:inline text-xs md:text-sm">{selectedCountry.nameEn}</span>
 
                 {/* Chevron */}
                 <svg
-                    className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                    className={`h-3.5 md:h-4 w-3.5 md:w-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -73,8 +73,8 @@ export const CountrySelector: React.FC = () => {
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="p-2 space-y-1">
+                <div className="absolute top-full right-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="p-2 space-y-1 max-h-[60vh] overflow-y-auto">
                         {activeCountries.map((country) => {
                             const isSelected = country.code === selectedCountry.code;
 
@@ -116,36 +116,31 @@ export const CountrySelector: React.FC = () => {
                         })}
                     </div>
 
-                    {/* Partnership CTA */}
-                    <button
-                        onClick={() => {
-                            playClickSound();
-                            setIsPartnershipOpen(true);
-                            setIsOpen(false);
-                        }}
-                        className="relative mx-2 mb-2 mt-1 p-4 bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-transparent rounded-xl overflow-hidden transition-all duration-300 hover:scale-[1.02] group"
-                        style={{
-                            backgroundClip: 'padding-box',
-                        }}
-                    >
-                        {/* Animated gradient border */}
-                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500 -z-10 blur-sm group-hover:blur-md transition-all duration-300" />
-                        <div className="absolute inset-[2px] rounded-[10px] bg-slate-900 -z-10" />
-
-                        <div className="flex items-center gap-3">
-                            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                <Rocket className="w-5 h-5 text-white" />
-                            </div>
-                            <div className="flex-1 text-left">
-                                <div className="text-sm font-black text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-indigo-400 group-hover:to-violet-400 group-hover:bg-clip-text transition-all duration-300">
-                                    Станьте владельцем Skily в своей стране
+                    {/* Partnership CTA - Enhanced */}
+                    <div className="px-2 pb-2 pt-1 border-t border-white/10">
+                        <button
+                            onClick={() => {
+                                playClickSound();
+                                setIsPartnershipOpen(true);
+                                setIsOpen(false);
+                            }}
+                            className="w-full px-3 py-2.5 rounded-lg bg-white/5 hover:bg-purple-500/20 border border-slate-700/50 hover:border-purple-500/40 transition-all duration-200 group"
+                        >
+                            <div className="flex items-center gap-2.5">
+                                <div className="flex-shrink-0 w-7 h-7 rounded-md bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <Rocket className="w-4 h-4 text-white" />
                                 </div>
-                                <div className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors duration-300">
-                                    Узнать условия партнёрства →
+                                <div className="flex-1 text-left">
+                                    <div className="text-xs font-bold text-slate-200 group-hover:text-purple-400 transition-colors leading-tight">
+                                        Запустить Skily в своей стране
+                                    </div>
+                                </div>
+                                <div className="text-xs text-slate-500 group-hover:text-purple-400 transition-colors">
+                                    →
                                 </div>
                             </div>
-                        </div>
-                    </button>
+                        </button>
+                    </div>
                 </div>
             )}
 
