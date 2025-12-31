@@ -72,8 +72,8 @@ export const CountrySelector: React.FC = () => {
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <div className="absolute top-full right-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="p-2 space-y-1 max-h-[60vh] overflow-y-auto">
+                <div className="absolute top-full left-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 rounded-xl shadow-2xl shadow-black/50 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="p-1.5 space-y-0.5 max-h-[60vh] overflow-y-auto">
                         {activeCountries.map((country) => {
                             const isSelected = country.code === selectedCountry.code;
 
@@ -82,19 +82,19 @@ export const CountrySelector: React.FC = () => {
                                     key={country.code}
                                     onClick={() => handleCountrySelect(country)}
                                     className={`
-                    w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                    w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-150
                     ${isSelected
-                                            ? 'bg-indigo-600 text-white'
-                                            : 'hover:bg-slate-800/80 text-slate-300 hover:text-white'
+                                            ? 'text-white'
+                                            : 'hover:bg-white/5 text-slate-300 hover:text-white'
                                         }
                   `}
                                 >
-                                    <span className="text-2xl leading-none">{country.flag}</span>
+                                    <span className="text-xl leading-none">{country.flag}</span>
                                     <div className="flex-1 text-left">
-                                        <div className={`font-bold text-sm ${isSelected ? 'text-white' : 'text-slate-200'}`}>
+                                        <div className="font-medium text-sm text-slate-200">
                                             {country.nameEn}
                                         </div>
-                                        <div className={`text-xs ${isSelected ? 'text-indigo-200' : 'text-slate-500'}`}>
+                                        <div className="text-xs text-slate-500">
                                             {country.authority}
                                         </div>
                                     </div>
@@ -102,12 +102,12 @@ export const CountrySelector: React.FC = () => {
                                     {/* Checkmark for selected */}
                                     {isSelected && (
                                         <svg
-                                            className="h-5 w-5 text-white"
+                                            className="h-4 w-4 text-indigo-400"
                                             fill="none"
                                             viewBox="0 0 24 24"
                                             stroke="currentColor"
                                         >
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                                         </svg>
                                     )}
                                 </button>
@@ -115,22 +115,22 @@ export const CountrySelector: React.FC = () => {
                         })}
                     </div>
 
-                    {/* Partnership CTA - Enhanced */}
-                    <div className="px-2 pb-2 pt-1 border-t border-white/10">
+                    {/* Partnership CTA - Minimal */}
+                    <div className="px-1.5 pb-1.5 pt-0.5 border-t border-white/10">
                         <button
                             onClick={() => {
                                 playClickSound();
                                 setIsPartnershipOpen(true);
                                 setIsOpen(false);
                             }}
-                            className="w-full px-3 py-2.5 rounded-lg bg-white/5 hover:bg-purple-500/20 border border-slate-700/50 hover:border-purple-500/40 transition-all duration-200 group"
+                            className="w-full px-3 py-2 rounded-lg hover:bg-white/5 transition-all duration-150 group"
                         >
                             <div className="flex items-center gap-2.5">
-                                <div className="flex-shrink-0 w-7 h-7 rounded-md bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <Rocket className="w-4 h-4 text-white" />
+                                <div className="flex-shrink-0 w-6 h-6 rounded-md bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <Rocket className="w-3.5 h-3.5 text-white" />
                                 </div>
                                 <div className="flex-1 text-left">
-                                    <div className="text-xs font-bold text-slate-200 group-hover:text-purple-400 transition-colors leading-tight">
+                                    <div className="text-xs font-medium text-slate-400 group-hover:text-purple-400 transition-colors leading-tight">
                                         Запустить Skily в своей стране
                                     </div>
                                 </div>
