@@ -115,7 +115,7 @@ export const CountrySelector: React.FC = () => {
                         })}
                     </div>
 
-                    {/* Partnership CTA - Minimal */}
+                    {/* Partnership CTA - Premium */}
                     <div className="px-1.5 pb-1.5 pt-0.5 border-t border-white/10">
                         <button
                             onClick={() => {
@@ -123,18 +123,20 @@ export const CountrySelector: React.FC = () => {
                                 setIsPartnershipOpen(true);
                                 setIsOpen(false);
                             }}
-                            className="w-full px-3 py-2 rounded-lg hover:bg-white/5 transition-all duration-150 group"
+                            className="w-full px-3 py-2 rounded-lg hover:bg-white/5 transition-all duration-200 group"
                         >
                             <div className="flex items-center gap-2.5">
-                                <div className="flex-shrink-0 w-6 h-6 rounded-md bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <Rocket className="w-3.5 h-3.5 text-white" />
-                                </div>
+                                {/* Clean icon - no background circle */}
+                                <Rocket className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 transition-colors flex-shrink-0" />
+
                                 <div className="flex-1 text-left">
-                                    <div className="text-xs font-medium text-slate-400 group-hover:text-purple-400 transition-colors leading-tight">
+                                    <div className="text-xs font-medium text-slate-400 group-hover:text-white transition-colors leading-tight">
                                         Запустить Skily в своей стране
                                     </div>
                                 </div>
-                                <div className="text-xs text-slate-500 group-hover:text-purple-400 transition-colors">
+
+                                {/* Animated arrow */}
+                                <div className="text-xs text-slate-500 group-hover:text-indigo-400 transition-all duration-300 group-hover:translate-x-1">
                                     →
                                 </div>
                             </div>
