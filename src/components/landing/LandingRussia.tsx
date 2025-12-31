@@ -971,141 +971,156 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
         </div>
 
         {/* Interactive Gameplay Showcase */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20 mb-24 relative mt-10">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-24 mb-24 relative mt-16 px-4">
 
           {/* LEFT CONTROLLER: PvP */}
           <div
-            className={`flex-1 text-center lg:text-right cursor-pointer group transition-all duration-500 ${activeGameMode === 'pvp' ? 'opacity-100 scale-105' : 'opacity-40 hover:opacity-70'}`}
+            className={`flex-1 text-center lg:text-right cursor-pointer group transition-all duration-500 ${activeGameMode === 'pvp' ? 'opacity-100 scale-105' : 'opacity-40 hover:opacity-100 blur-[2px] hover:blur-0'}`}
             onClick={() => setActiveGameMode('pvp')}
           >
-            <div className="inline-flex items-center gap-2 mb-4">
-              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors ${activeGameMode === 'pvp' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/40' : 'bg-slate-800 text-slate-500'}`}>
+            <div className="inline-flex items-center gap-2 mb-4 justify-center lg:justify-end">
+              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors border ${activeGameMode === 'pvp' ? 'bg-orange-500/20 text-orange-400 border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.3)]' : 'bg-slate-800 text-slate-500 border-slate-700'}`}>
                 Multiplayer
               </span>
             </div>
-            <h3 className="text-4xl font-black text-white mb-4 leading-tight">
+            <h3 className={`text-4xl lg:text-5xl font-black mb-6 leading-tight transition-colors duration-300 ${activeGameMode === 'pvp' ? 'text-white drop-shadow-[0_0_25px_rgba(255,255,255,0.4)]' : 'text-slate-700 group-hover:text-slate-500'}`}>
               PvP Arena
             </h3>
-            <p className="text-lg text-slate-400 mb-6 lg:ml-auto max-w-sm">
+            <p className={`text-lg mb-8 lg:ml-auto max-w-sm transition-colors duration-300 ${activeGameMode === 'pvp' ? 'text-indigo-200' : 'text-slate-600'}`}>
               {language === 'ru' ? 'Вызови соперника на дуэль. Кто быстрее и точнее — забирает банк.' : 'Challenge an opponent. Fastest and most accurate takes the pot.'}
             </p>
 
-            {/* Active Indicator */}
-            <div className={`h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent transition-all duration-500 ${activeGameMode === 'pvp' ? 'w-full opacity-100' : 'w-0 opacity-0'}`}></div>
+            {/* Active Indicator Line */}
+            <div className="flex justify-center lg:justify-end">
+              <div className={`h-1 rounded-full bg-gradient-to-r from-transparent via-orange-500 to-transparent transition-all duration-700 ${activeGameMode === 'pvp' ? 'w-full opacity-100 shadow-[0_0_10px_#f97316]' : 'w-0 opacity-0'}`}></div>
+            </div>
           </div>
 
-          {/* CENTER: PHONE MOCKUP */}
-          <div className="relative z-10 shrink-0">
+          {/* CENTER: PHONE MOCKUP (High-Fidelity) */}
+          <div className="relative z-10 shrink-0 transform transition-transform duration-700 hover:scale-[1.02]">
 
-            {/* Floating Rewards (Parallax) */}
-            <div className="absolute top-10 -left-12 lg:-left-20 animate-bounce duration-[3000ms] z-20">
-              <div className="bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-white/10 shadow-2xl flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                  <Coins className="text-yellow-400" size={20} />
+            {/* Floating Badge 1 (Win Pot) */}
+            <div className="absolute top-16 -left-6 lg:-28 animate-[float_6s_ease-in-out_infinite] z-30">
+              <div className="bg-slate-900/60 backdrop-blur-xl p-4 pr-6 rounded-2xl border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex items-center gap-4 hover:border-yellow-500/30 transition-colors">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400/20 to-orange-500/20 flex items-center justify-center border border-yellow-500/30 shadow-[inset_0_0_15px_rgba(234,179,8,0.2)]">
+                  <Coins className="text-yellow-400 drop-shadow-[0_0_5px_rgba(234,179,8,0.5)]" size={24} />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-slate-400 uppercase">Win Pot</div>
-                  <div className="text-lg font-black text-white px-0.5">+500</div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Win Pot</div>
+                  <div className="text-xl font-black text-white px-0.5 drop-shadow-lg">+500</div>
                 </div>
               </div>
             </div>
 
-            <div className="absolute bottom-20 -right-12 lg:-right-24 animate-bounce duration-[4000ms] delay-700 z-20">
-              <div className="bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-white/10 shadow-2xl flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <Trophy className="text-purple-400" size={20} />
+            {/* Floating Badge 2 (Rank) */}
+            <div className="absolute bottom-24 -right-6 lg:-28 animate-[float_5s_ease-in-out_infinite_1s] z-30">
+              <div className="bg-slate-900/60 backdrop-blur-xl p-4 pr-6 rounded-2xl border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex items-center gap-4 hover:border-purple-500/30 transition-colors">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400/20 to-indigo-500/20 flex items-center justify-center border border-purple-500/30 shadow-[inset_0_0_15px_rgba(168,85,247,0.2)]">
+                  <Trophy className="text-purple-400 drop-shadow-[0_0_5px_rgba(168,85,247,0.5)]" size={24} />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-slate-400 uppercase">Season Rank</div>
-                  <div className="text-lg font-black text-white px-0.5">#1 Champion</div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Season Rank</div>
+                  <div className="text-xl font-black text-white px-0.5 drop-shadow-lg">#1 Champion</div>
                 </div>
               </div>
             </div>
 
-            {/* The Phone */}
-            <div className="w-[300px] h-[600px] bg-slate-950 rounded-[3rem] border-[8px] border-slate-900 shadow-2xl relative overflow-hidden ring-1 ring-white/10">
-              {/* Notch */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-900 rounded-b-2xl z-30"></div>
+            {/* THE DEVICE */}
+            <div className="w-[340px] h-[700px] bg-slate-950 rounded-[3.5rem] border-[14px] border-slate-900 shadow-[0_0_0_2px_rgba(255,255,255,0.1),0_20px_50px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden ring-1 ring-white/20">
+              {/* Dynamic Notch */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-slate-900 rounded-b-3xl z-40 flex items-center justify-center">
+                <div className="w-12 h-1 rounded-full bg-slate-800/50"></div>
+              </div>
 
               {/* GAME SCREEN CONTAINER */}
-              <div className="absolute inset-0 bg-slate-900 flex flex-col">
+              <div className="absolute inset-0 bg-gradient-to-b from-indigo-950 via-slate-950 to-black flex flex-col">
 
                 {/* --- PVP MODE SCREEN --- */}
-                <div className={`absolute inset-0 transition-opacity duration-500 flex flex-col ${activeGameMode === 'pvp' ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
-                  {/* Top Bar */}
-                  <div className="h-20 bg-slate-900 flex items-end justify-between px-6 pb-4 border-b border-white/5">
-                    <div className="flex gap-1">
-                      {[1, 2, 3].map(i => <div key={i} className="w-6 h-1 bg-red-500 rounded-full"></div>)}
+                <div className={`absolute inset-0 transition-all duration-700 ease-in-out flex flex-col ${activeGameMode === 'pvp' ? 'opacity-100 translate-x-0 bg-slate-950' : 'opacity-0 -translate-x-full bg-slate-950'}`}>
+                  {/* Top Bar with Neon Glow */}
+                  <div className="h-24 bg-gradient-to-b from-slate-900 to-transparent flex items-end justify-between px-6 pb-6 border-b border-white/5 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-red-500 to-transparent opacity-50"></div>
+                    <div className="flex gap-1.5">
+                      {[1, 2, 3].map(i => <div key={i} className="w-8 h-1.5 bg-red-500 rounded-full shadow-[0_0_10px_#ef4444]"></div>)}
                     </div>
-                    <div className="text-white font-black font-mono">VS POPAL</div>
+                    <div className="text-white font-black font-mono tracking-widest drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">VS POPAL</div>
                   </div>
 
-                  {/* Arena */}
-                  <div className="flex-1 relative overflow-hidden bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950">
+                  {/* 3D Arena */}
+                  <div className="flex-1 relative overflow-hidden bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-slate-800/20 via-slate-950 to-slate-950 perspective-1000">
                     {/* Grid Floor */}
-                    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [transform:perspective(500px)_rotateX(60deg)] origin-bottom opacity-50"></div>
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(249,115,22,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(249,115,22,0.1)_1px,transparent_1px)] bg-[size:50px_50px] [transform:perspective(600px)_rotateX(70deg)_translateY(-100px)] origin-bottom opacity-40 animate-[gridMove_20s_linear_infinite]"></div>
 
                     {/* Avatars */}
-                    <div className="absolute top-1/4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-8">
-                      {/* Opponent */}
-                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-orange-600 border-4 border-slate-900 shadow-[0_0_30px_rgba(239,68,68,0.5)] flex items-center justify-center animate-bounce">
-                        <Swords className="text-white w-8 h-8" />
+                    <div className="absolute top-[20%] left-1/2 -translate-x-1/2 flex flex-col items-center gap-10 w-full">
+                      {/* Opponent (Floating) */}
+                      <div className="relative animate-[bounce_2s_infinite]">
+                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-red-500 to-orange-600 border-4 border-slate-900 shadow-[0_0_50px_rgba(239,68,68,0.6)] flex items-center justify-center z-10 relative">
+                          <Swords className="text-white w-10 h-10 drop-shadow-lg" />
+                        </div>
+                        <div className="absolute -inset-4 bg-red-500/30 blur-xl rounded-full -z-10 animate-pulse"></div>
                       </div>
 
                       {/* VS Lightning */}
-                      <div className="text-4xl font-black text-white italic animate-pulse">VS</div>
+                      <div className="relative">
+                        <div className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 italic skew-x-[-10deg] animate-pulse drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">VS</div>
+                      </div>
 
-                      {/* You */}
-                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 border-4 border-slate-900 shadow-[0_0_30px_rgba(59,130,246,0.5)] flex items-center justify-center relative">
-                        <Target className="text-white w-10 h-10" />
-                        <div className="absolute -bottom-2 px-2 py-0.5 bg-slate-900 rounded text-[10px] items-center text-white border border-white/10 font-bold">YOU</div>
+                      {/* You (Card) */}
+                      <div className="w-64 h-32 bg-slate-900/80 backdrop-blur-md rounded-2xl border border-blue-500/30 shadow-[0_0_30px_rgba(59,130,246,0.3)] flex items-center gap-4 p-4 transform perspective-1000 rotate-x-10 hover:rotate-x-0 transition-transform cursor-pointer group">
+                        <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          <Target className="text-white w-8 h-8" />
+                        </div>
+                        <div>
+                          <div className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Player</div>
+                          <div className="text-xl font-bold text-white">YOU</div>
+                          <div className="text-xs text-slate-400">Lvl 12</div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Bottom Controls */}
-                  <div className="h-32 bg-slate-900 border-t border-white/5 p-4 grid grid-cols-2 gap-3">
-                    <div className="bg-slate-800 rounded-xl animate-pulse"></div>
-                    <div className="bg-slate-800 rounded-xl"></div>
-                    <div className="bg-slate-800 rounded-xl"></div>
-                    <div className="bg-slate-800 rounded-xl"></div>
                   </div>
                 </div>
 
                 {/* --- RACE MODE SCREEN --- */}
-                <div className={`absolute inset-0 transition-opacity duration-500 flex flex-col ${activeGameMode === 'race' ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
-                  {/* Top Bar - Timer */}
-                  <div className="pt-12 pb-4 text-center bg-slate-950">
-                    <div className="text-4xl font-black font-mono text-blue-400 drop-shadow-[0_0_10px_rgba(96,165,250,0.5)] animate-pulse">
-                      00:{timeLeft < 10 ? `0${timeLeft}` : timeLeft}
+                <div className={`absolute inset-0 transition-all duration-700 ease-in-out flex flex-col ${activeGameMode === 'race' ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'}`}>
+                  {/* Top Bar - Neon Timer */}
+                  <div className="pt-14 pb-6 text-center bg-gradient-to-b from-slate-950 to-transparent">
+                    <div className="inline-block px-6 py-2 rounded-full border border-blue-500/20 bg-blue-500/5 backdrop-blur-md">
+                      <div className="text-5xl font-black font-mono text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.6)] animate-pulse tabular-nums">
+                        00:{timeLeft < 10 ? `0${timeLeft}` : timeLeft}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Track */}
-                  <div className="flex-1 relative bg-slate-900 overflow-hidden flex flex-col items-center justify-center">
-                    {/* Road Effect */}
-                    <div className="absolute inset-0 flex justify-center">
-                      <div className="w-32 h-full bg-slate-800/50 [transform:perspective(200px)_rotateX(40deg)] border-x border-white/10 scale-y-150 origin-bottom">
+                  {/* Track & Speedometer */}
+                  <div className="flex-1 relative overflow-hidden flex flex-col items-center justify-end pb-12">
+                    {/* Road Effect (Perspective) */}
+                    <div className="absolute inset-x-0 top-0 bottom-0 bg-gradient-to-b from-indigo-950/50 via-slate-950 to-slate-950 flex justify-center perspective-1000">
+                      <div className="w-[120%] h-full bg-slate-900/50 [transform:perspective(500px)_rotateX(60deg)_scaleY(2)] border-x-[40px] border-slate-950 origin-bottom flex justify-center">
                         {/* Lane Markers */}
-                        <div className="w-1 h-full mx-auto bg-dashed border-l border-dashed border-white/20"></div>
+                        <div className="w-2 h-full bg-dashed border-l-2 border-dashed border-white/20 animate-[roadMove_1s_linear_infinite]"></div>
                       </div>
                     </div>
 
-                    {/* Question Card */}
-                    <div className="relative z-10 bg-slate-800 p-4 rounded-xl border border-white/10 shadow-2xl max-w-[80%] text-center animate-[float_3s_ease-in-out_infinite]">
-                      <div className="w-16 h-16 mx-auto bg-white rounded-lg flex items-center justify-center mb-3">
-                        <div className="w-12 h-12 bg-red-500 rounded-full border-4 border-red-600"></div> {/* Stop Sign Mock */}
+                    {/* Speedometer Gauge (CSS Art) */}
+                    <div className="relative z-10 mb-8">
+                      <div className="w-40 h-40 rounded-full border-[6px] border-slate-800 border-t-cyan-500 border-r-cyan-500 rotate-[135deg] flex items-center justify-center shadow-[0_0_40px_rgba(6,182,212,0.2)] bg-slate-950/80 backdrop-blur-sm">
                       </div>
-                      <div className="h-2 w-20 bg-slate-600 rounded-full mx-auto mb-2"></div>
-                      <div className="h-2 w-12 bg-slate-600 rounded-full mx-auto"></div>
+                      <div className="absolute inset-0 flex items-center justify-center flex-col">
+                        <span className="text-4xl font-black text-white drop-shadow-md">124</span>
+                        <span className="text-xs font-bold text-cyan-400 uppercase tracking-widest">km/h</span>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Answer Buttons */}
-                  <div className="p-6 pb-12 bg-slate-950 space-y-3">
-                    <div className="w-full h-12 rounded-xl bg-blue-600/20 border border-blue-500/50 flex items-center justify-center text-blue-400 font-bold">STOP</div>
-                    <div className="w-full h-12 rounded-xl bg-slate-800 border border-white/5"></div>
-                    <div className="w-full h-12 rounded-xl bg-slate-800 border border-white/5"></div>
+                    {/* Answer Buttons (Glass) */}
+                    <div className="w-full px-6 space-y-3 z-10">
+                      <div className="w-full py-4 rounded-xl bg-cyan-500/20 border border-cyan-400/50 backdrop-blur-md flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)] cursor-pointer hover:bg-cyan-500/30 transition-colors">
+                        <span className="text-cyan-100 font-bold text-lg">STOP</span>
+                      </div>
+                      <div className="w-full py-4 rounded-xl bg-slate-800/40 border border-white/5 backdrop-blur-md flex items-center justify-center cursor-pointer hover:bg-white/5 transition-colors">
+                        <span className="text-slate-400 font-bold text-lg">YIELD</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -1115,23 +1130,25 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
 
           {/* RIGHT CONTROLLER: Race */}
           <div
-            className={`flex-1 text-center lg:text-left cursor-pointer group transition-all duration-500 ${activeGameMode === 'race' ? 'opacity-100 scale-105' : 'opacity-40 hover:opacity-70'}`}
+            className={`flex-1 text-center lg:text-left cursor-pointer group transition-all duration-500 ${activeGameMode === 'race' ? 'opacity-100 scale-105' : 'opacity-40 hover:opacity-100 blur-[2px] hover:blur-0'}`}
             onClick={() => setActiveGameMode('race')}
           >
             <div className="inline-flex items-center gap-2 mb-4 justify-center lg:justify-start">
-              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors ${activeGameMode === 'race' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40' : 'bg-slate-800 text-slate-500'}`}>
+              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors border ${activeGameMode === 'race' ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.3)]' : 'bg-slate-800 text-slate-500 border-slate-700'}`}>
                 Speed Run
               </span>
             </div>
-            <h3 className="text-4xl font-black text-white mb-4 leading-tight">
+            <h3 className={`text-4xl lg:text-5xl font-black mb-6 leading-tight transition-colors duration-300 ${activeGameMode === 'race' ? 'text-white drop-shadow-[0_0_25px_rgba(255,255,255,0.4)]' : 'text-slate-700 group-hover:text-slate-500'}`}>
               Blitz Mode
             </h3>
-            <p className="text-lg text-slate-400 mb-6 max-w-sm">
+            <p className={`text-lg mb-8 max-w-sm transition-colors duration-300 ${activeGameMode === 'race' ? 'text-cyan-200' : 'text-slate-600'}`}>
               {language === 'ru' ? '15 секунд на вопрос. Никаких прав на ошибку. Только хардкор.' : '15 seconds per question. No room for error. Pure hardcore.'}
             </p>
 
-            {/* Active Indicator */}
-            <div className={`h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent transition-all duration-500 ${activeGameMode === 'race' ? 'w-full opacity-100' : 'w-0 opacity-0'}`}></div>
+            {/* Active Indicator Line */}
+            <div className="flex justify-center lg:justify-start">
+              <div className={`h-1 rounded-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent transition-all duration-700 ${activeGameMode === 'race' ? 'w-full opacity-100 shadow-[0_0_10px_#06b6d4]' : 'w-0 opacity-0'}`}></div>
+            </div>
           </div>
         </div>
 
