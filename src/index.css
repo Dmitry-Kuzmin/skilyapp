@@ -1632,6 +1632,7 @@ input[type="range"].slider-thumb::-moz-range-thumb:hover {
   transform: scale(1.2);
   box-shadow: 0 6px 20px rgba(139, 92, 246, 0.7);
 }
+
 /* ============================================================================
  * SCROLL PERFORMANCE OPTIMIZATION
  * Prevents layout shifts and artifacts during fast scrolling
@@ -1640,7 +1641,7 @@ input[type="range"].slider-thumb::-moz-range-thumb:hover {
 /* GPU acceleration for sections with backdrop-blur */
 section {
   will-change: transform;
-  contain: layout style paint;
+  /* Removed contain: layout style paint; to allow glows/shadows to overflow */
 }
 
 /* Optimize backdrop-blur rendering */

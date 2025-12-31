@@ -25,6 +25,7 @@ export interface LandingCopy {
     description: string;
     cards: {
       totalQuestions: string;
+      totalQuestionsDescription: string;
       categoriesTitle: string;
       categoriesDescription: string;
       simulationTitle: string;
@@ -154,13 +155,14 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       title: "Ecosistema de aprendizaje",
       description: "Aprendizaje interactivo, análisis de progreso y escenarios de práctica realistas.",
       cards: {
-        totalQuestions: "1000+ preguntas verificadas",
+        totalQuestions: `Base Oficial ${examYear}`,
+        totalQuestionsDescription: "100% coincidencia con el examen real. Actualización automática.",
         categoriesTitle: "Todas las categorías",
-        categoriesDescription: "Permisos B, A y pruebas complementarias incluidas.",
-        simulationTitle: "Simulación oficial cronometrada",
-        simulationDescription: "30 preguntas, máximo 3 fallos. Idéntico al examen real.",
-        timer: "30 minutos",
-        passRate: "90%",
+        categoriesDescription: "Coches, motos y transporte profesional.",
+        simulationTitle: "Simulación Real",
+        simulationDescription: "Mismo interfaz, tiempos y estrés que en la DGT. Entrena en condiciones de combate.",
+        timer: "30 min",
+        passRate: "PRO",
       },
     },
     aiSection: {
@@ -307,13 +309,14 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       title: "Learning ecosystem",
       description: "Interactive learning, progress analytics and realistic practice scenarios.",
       cards: {
-        totalQuestions: "1000+ curated questions",
-        categoriesTitle: "Every category",
-        categoriesDescription: "Permit B, A and complementary modules included.",
-        simulationTitle: "Official timed simulation",
-        simulationDescription: "30 questions, max 3 mistakes. Same flow as the real test.",
-        timer: "30 minutes",
-        passRate: "90%",
+        totalQuestions: `Official ${examYear} Database`,
+        totalQuestionsDescription: "100% match with the real exam. Automatically updated.",
+        categoriesTitle: "All Vehicle Classes",
+        categoriesDescription: "Cars, motorcycles and professional transport.",
+        simulationTitle: "Real Exam Simulation",
+        simulationDescription: "Same interface, timers and stress as the real test. Train in combat conditions.",
+        timer: "30 min",
+        passRate: "PRO",
       },
     },
     aiSection: {
@@ -454,13 +457,14 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       title: "Экосистема подготовки",
       description: "Интерактивное обучение, аналитика прогресса и реалистичные сценарии практики.",
       cards: {
-        totalQuestions: "1000+ проверенных вопросов",
+        totalQuestions: `Официальная база ${examYear}`,
+        totalQuestionsDescription: "100% совпадение с реальным экзаменом. Обновляется автоматически.",
         categoriesTitle: "Все категории",
-        categoriesDescription: "B, A и дополнительные модули.",
-        simulationTitle: "Тайминг как на экзамене",
-        simulationDescription: "30 вопросов, максимум 3 ошибки. Полная имитация процесса.",
-        timer: "30 минут",
-        passRate: "90%",
+        categoriesDescription: "Легковые, мотоциклы и профессиональный транспорт.",
+        simulationTitle: "Симуляция экзамена",
+        simulationDescription: "Полная имитация условий сдачи. Таймеры, лимит ошибок и интерфейс как в ГИБДД.",
+        timer: "30 мин",
+        passRate: "PRO",
       },
     },
     aiSection: {
