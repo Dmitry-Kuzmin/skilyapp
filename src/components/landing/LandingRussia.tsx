@@ -859,22 +859,20 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-4xl mx-auto items-center">
           {/* LEFT: LEGACY (OLD SCHOOL) */}
-          <div className="relative py-8 px-6 space-y-8 opacity-60 hover:opacity-100 transition-opacity duration-300">
+          <div className="relative py-8 px-6 space-y-10">
             <h3 className="text-2xl font-bold text-slate-500 text-center uppercase tracking-widest mb-8">{copy.comparison.traditional}</h3>
 
             {/* First Row (Price) */}
-            <div className="text-center pb-6 border-b border-white/5">
-              <div className="text-sm text-slate-500 uppercase tracking-widest mb-2">{copy.comparison.rows[0].feature}</div>
+            <div className="text-center pb-8 border-b border-white/5 mx-8">
               <div className="text-3xl text-slate-500 font-mono line-through decoration-red-500/50 decoration-4">{copy.comparison.rows[0].traditional}</div>
             </div>
 
             {/* Other Rows */}
-            <div className="space-y-6">
+            <div className="space-y-8 px-2">
               {copy.comparison.rows.slice(1).map((row, i) => (
-                <div key={i} className="flex items-center justify-between text-slate-400 group">
-                  <span className="text-sm font-medium">{row.feature}</span>
-                  <span className="flex items-center gap-2 decoration-slate-600 group-hover:line-through transition-all text-sm text-right">
-                    {row.traditional} <XCircle size={16} className="text-red-900 flex-shrink-0" />
+                <div key={i} className="flex items-center justify-center text-slate-500 group h-12">
+                  <span className="flex items-center gap-3 decoration-slate-600 group-hover:line-through transition-all text-lg font-medium">
+                    {row.traditional} <XCircle size={20} className="text-red-900/60" />
                   </span>
                 </div>
               ))}
@@ -889,9 +887,8 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
             </h3>
 
             {/* Price */}
-            <div className="text-center pb-8 border-b border-indigo-500/20 mb-8 relative">
-              <div className="text-sm text-indigo-300 uppercase tracking-widest mb-2">{copy.comparison.rows[0].feature}</div>
-              <div className="text-6xl font-black text-white tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">
+            <div className="text-center pb-8 border-b border-indigo-500/20 mb-10 relative mx-4">
+              <div className="text-6xl font-black text-white tracking-tight drop-shadow-[0_0_25px_rgba(255,255,255,0.4)]">
                 {copy.comparison.rows[0].skily}
               </div>
               <div className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-full mt-4 border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
@@ -900,12 +897,11 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
             </div>
 
             {/* Other Rows */}
-            <div className="space-y-6">
+            <div className="space-y-8 px-2">
               {copy.comparison.rows.slice(1).map((row, i) => (
-                <div key={i} className="flex items-center justify-between gap-4">
-                  <span className="text-indigo-200/60 font-medium text-sm">{row.feature}</span>
-                  <span className="flex items-center gap-2 text-white font-bold text-lg text-right">
-                    {row.skily} <CheckCircle size={20} className="text-indigo-400 fill-indigo-400/20 flex-shrink-0" />
+                <div key={i} className="flex items-center justify-center h-12">
+                  <span className="flex items-center gap-3 text-white font-black text-xl tracking-tight drop-shadow-lg">
+                    {row.skily} <CheckCircle size={24} className="text-indigo-400 fill-indigo-400/20" />
                   </span>
                 </div>
               ))}
