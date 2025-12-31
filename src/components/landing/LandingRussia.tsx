@@ -170,6 +170,16 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
     return () => clearInterval(timer);
   }, []);
 
+  const [activeGameMode, setActiveGameMode] = useState<'pvp' | 'race'>('pvp');
+
+  // Auto-rotate game modes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveGameMode((prev) => (prev === 'pvp' ? 'race' : 'pvp'));
+    }, 4000); // Switch every 4 seconds
+    return () => clearInterval(interval);
+  }, []);
+
   // FAQ Types & Content
   interface FAQCategory {
     id: string;
@@ -960,128 +970,190 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           </p>
         </div>
 
-        {/* Game Hub Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Duel PvP Card */}
-          <div className="relative rounded-[2rem] overflow-hidden border border-slate-800 bg-gradient-to-br from-slate-900/80 to-slate-950/80 backdrop-blur-xl group hover:border-orange-500/30 transition-all">
-            {/* Badge */}
-            <div className="absolute top-6 left-6 z-20 flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]"></div>
-              <span className="text-xs font-bold text-emerald-400 font-mono tracking-wider">{copy.arena.onlineText}</span>
+        {/* Interactive Gameplay Showcase */}
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20 mb-24 relative mt-10">
+
+          {/* LEFT CONTROLLER: PvP */}
+          <div
+            className={`flex-1 text-center lg:text-right cursor-pointer group transition-all duration-500 ${activeGameMode === 'pvp' ? 'opacity-100 scale-105' : 'opacity-40 hover:opacity-70'}`}
+            onClick={() => setActiveGameMode('pvp')}
+          >
+            <div className="inline-flex items-center gap-2 mb-4">
+              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors ${activeGameMode === 'pvp' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/40' : 'bg-slate-800 text-slate-500'}`}>
+                Multiplayer
+              </span>
             </div>
+            <h3 className="text-4xl font-black text-white mb-4 leading-tight">
+              PvP Arena
+            </h3>
+            <p className="text-lg text-slate-400 mb-6 lg:ml-auto max-w-sm">
+              {language === 'ru' ? 'Вызови соперника на дуэль. Кто быстрее и точнее — забирает банк.' : 'Challenge an opponent. Fastest and most accurate takes the pot.'}
+            </p>
 
-            {/* Visual Preview Area */}
-            <div className="relative h-72 bg-gradient-to-br from-orange-900/20 to-red-900/20 flex items-center justify-center overflow-hidden group">
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+            {/* Active Indicator */}
+            <div className={`h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent transition-all duration-500 ${activeGameMode === 'pvp' ? 'w-full opacity-100' : 'w-0 opacity-0'}`}></div>
+          </div>
 
-              <div className="relative z-10 flex items-center gap-6 lg:gap-10 transform group-hover:scale-105 transition-transform duration-500">
-                <div className="text-center transform group-hover:-translate-x-4 transition-transform duration-500">
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center mb-3 shadow-[0_10px_30px_-10px_rgba(239,68,68,0.5)] border-4 border-slate-900">
-                    <Swords className="w-10 h-10 text-white fill-white/20" />
-                  </div>
-                  <div className="text-xs font-black tracking-[0.2em] text-orange-200/60 uppercase">Challenger</div>
+          {/* CENTER: PHONE MOCKUP */}
+          <div className="relative z-10 shrink-0">
+
+            {/* Floating Rewards (Parallax) */}
+            <div className="absolute top-10 -left-12 lg:-left-20 animate-bounce duration-[3000ms] z-20">
+              <div className="bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-white/10 shadow-2xl flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                  <Coins className="text-yellow-400" size={20} />
                 </div>
-
-                <div className="relative">
-                  <Trophy className="w-20 h-20 text-yellow-400 drop-shadow-[0_0_25px_rgba(250,204,21,0.6)] animate-pulse" />
-                  <div className="absolute -inset-4 bg-yellow-500/20 blur-2xl rounded-full -z-10 animate-pulse"></div>
-                </div>
-
-                <div className="text-center transform group-hover:translate-x-4 transition-transform duration-500">
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center mb-3 shadow-[0_10px_30px_-10px_rgba(6,182,212,0.5)] border-4 border-slate-900">
-                    <Target className="w-10 h-10 text-white fill-white/20" />
-                  </div>
-                  <div className="text-xs font-black tracking-[0.2em] text-blue-200/60 uppercase">You</div>
+                <div>
+                  <div className="text-xs font-bold text-slate-400 uppercase">Win Pot</div>
+                  <div className="text-lg font-black text-white px-0.5">+500</div>
                 </div>
               </div>
             </div>
 
-            {/* Content */}
-            <div className="p-8 relative">
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/20 to-transparent"></div>
-              <h3 className="text-3xl font-black text-white mb-2 flex items-center gap-3">
-                Duel PvP
-              </h3>
-              <p className="text-slate-400 mb-6 leading-relaxed max-w-md">
-                {language === 'ru' ? 'Вызови друга или случайного соперника. Ставки на монеты, реальный адреналин.' : 'Call a friend or random opponent. Coin bets, real adrenaline.'}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 rounded-lg bg-white/5 border border-white/5 text-xs font-medium text-slate-300">1v1 Battles</span>
-                <span className="px-3 py-1 rounded-lg bg-orange-500/10 border border-orange-500/20 text-xs font-medium text-orange-300">Ranked System</span>
+            <div className="absolute bottom-20 -right-12 lg:-right-24 animate-bounce duration-[4000ms] delay-700 z-20">
+              <div className="bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-white/10 shadow-2xl flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+                  <Trophy className="text-purple-400" size={20} />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-400 uppercase">Season Rank</div>
+                  <div className="text-lg font-black text-white px-0.5">#1 Champion</div>
+                </div>
+              </div>
+            </div>
+
+            {/* The Phone */}
+            <div className="w-[300px] h-[600px] bg-slate-950 rounded-[3rem] border-[8px] border-slate-900 shadow-2xl relative overflow-hidden ring-1 ring-white/10">
+              {/* Notch */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-900 rounded-b-2xl z-30"></div>
+
+              {/* GAME SCREEN CONTAINER */}
+              <div className="absolute inset-0 bg-slate-900 flex flex-col">
+
+                {/* --- PVP MODE SCREEN --- */}
+                <div className={`absolute inset-0 transition-opacity duration-500 flex flex-col ${activeGameMode === 'pvp' ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
+                  {/* Top Bar */}
+                  <div className="h-20 bg-slate-900 flex items-end justify-between px-6 pb-4 border-b border-white/5">
+                    <div className="flex gap-1">
+                      {[1, 2, 3].map(i => <div key={i} className="w-6 h-1 bg-red-500 rounded-full"></div>)}
+                    </div>
+                    <div className="text-white font-black font-mono">VS POPAL</div>
+                  </div>
+
+                  {/* Arena */}
+                  <div className="flex-1 relative overflow-hidden bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-slate-950">
+                    {/* Grid Floor */}
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [transform:perspective(500px)_rotateX(60deg)] origin-bottom opacity-50"></div>
+
+                    {/* Avatars */}
+                    <div className="absolute top-1/4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-8">
+                      {/* Opponent */}
+                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-orange-600 border-4 border-slate-900 shadow-[0_0_30px_rgba(239,68,68,0.5)] flex items-center justify-center animate-bounce">
+                        <Swords className="text-white w-8 h-8" />
+                      </div>
+
+                      {/* VS Lightning */}
+                      <div className="text-4xl font-black text-white italic animate-pulse">VS</div>
+
+                      {/* You */}
+                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 border-4 border-slate-900 shadow-[0_0_30px_rgba(59,130,246,0.5)] flex items-center justify-center relative">
+                        <Target className="text-white w-10 h-10" />
+                        <div className="absolute -bottom-2 px-2 py-0.5 bg-slate-900 rounded text-[10px] items-center text-white border border-white/10 font-bold">YOU</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom Controls */}
+                  <div className="h-32 bg-slate-900 border-t border-white/5 p-4 grid grid-cols-2 gap-3">
+                    <div className="bg-slate-800 rounded-xl animate-pulse"></div>
+                    <div className="bg-slate-800 rounded-xl"></div>
+                    <div className="bg-slate-800 rounded-xl"></div>
+                    <div className="bg-slate-800 rounded-xl"></div>
+                  </div>
+                </div>
+
+                {/* --- RACE MODE SCREEN --- */}
+                <div className={`absolute inset-0 transition-opacity duration-500 flex flex-col ${activeGameMode === 'race' ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
+                  {/* Top Bar - Timer */}
+                  <div className="pt-12 pb-4 text-center bg-slate-950">
+                    <div className="text-4xl font-black font-mono text-blue-400 drop-shadow-[0_0_10px_rgba(96,165,250,0.5)] animate-pulse">
+                      00:{timeLeft < 10 ? `0${timeLeft}` : timeLeft}
+                    </div>
+                  </div>
+
+                  {/* Track */}
+                  <div className="flex-1 relative bg-slate-900 overflow-hidden flex flex-col items-center justify-center">
+                    {/* Road Effect */}
+                    <div className="absolute inset-0 flex justify-center">
+                      <div className="w-32 h-full bg-slate-800/50 [transform:perspective(200px)_rotateX(40deg)] border-x border-white/10 scale-y-150 origin-bottom">
+                        {/* Lane Markers */}
+                        <div className="w-1 h-full mx-auto bg-dashed border-l border-dashed border-white/20"></div>
+                      </div>
+                    </div>
+
+                    {/* Question Card */}
+                    <div className="relative z-10 bg-slate-800 p-4 rounded-xl border border-white/10 shadow-2xl max-w-[80%] text-center animate-[float_3s_ease-in-out_infinite]">
+                      <div className="w-16 h-16 mx-auto bg-white rounded-lg flex items-center justify-center mb-3">
+                        <div className="w-12 h-12 bg-red-500 rounded-full border-4 border-red-600"></div> {/* Stop Sign Mock */}
+                      </div>
+                      <div className="h-2 w-20 bg-slate-600 rounded-full mx-auto mb-2"></div>
+                      <div className="h-2 w-12 bg-slate-600 rounded-full mx-auto"></div>
+                    </div>
+                  </div>
+
+                  {/* Answer Buttons */}
+                  <div className="p-6 pb-12 bg-slate-950 space-y-3">
+                    <div className="w-full h-12 rounded-xl bg-blue-600/20 border border-blue-500/50 flex items-center justify-center text-blue-400 font-bold">STOP</div>
+                    <div className="w-full h-12 rounded-xl bg-slate-800 border border-white/5"></div>
+                    <div className="w-full h-12 rounded-xl bg-slate-800 border border-white/5"></div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
 
-          {/* Race Game Card (Speed Run) */}
-          <div className="relative rounded-[2rem] overflow-hidden border border-slate-800 bg-gradient-to-br from-slate-900/80 to-slate-950/80 backdrop-blur-xl group hover:border-blue-500/30 transition-all">
-            {/* Timer Badge */}
-            <div className="absolute top-6 right-6 z-20 flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-400">{copy.arena.eventTimerLabel}</span>
-              <div className="bg-blue-500/10 backdrop-blur-md px-3 py-1.5 rounded-lg border border-blue-500/20 text-xs font-mono font-bold text-blue-400">
-                23:59:00
-              </div>
+          {/* RIGHT CONTROLLER: Race */}
+          <div
+            className={`flex-1 text-center lg:text-left cursor-pointer group transition-all duration-500 ${activeGameMode === 'race' ? 'opacity-100 scale-105' : 'opacity-40 hover:opacity-70'}`}
+            onClick={() => setActiveGameMode('race')}
+          >
+            <div className="inline-flex items-center gap-2 mb-4 justify-center lg:justify-start">
+              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors ${activeGameMode === 'race' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40' : 'bg-slate-800 text-slate-500'}`}>
+                Speed Run
+              </span>
             </div>
+            <h3 className="text-4xl font-black text-white mb-4 leading-tight">
+              Blitz Mode
+            </h3>
+            <p className="text-lg text-slate-400 mb-6 max-w-sm">
+              {language === 'ru' ? '15 секунд на вопрос. Никаких прав на ошибку. Только хардкор.' : '15 seconds per question. No room for error. Pure hardcore.'}
+            </p>
 
-            {/* Visual Preview Area */}
-            <div className="relative h-72 bg-gradient-to-br from-blue-900/20 to-indigo-900/20 flex items-center justify-center overflow-hidden">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-500/10 via-slate-900/0 to-slate-900/0"></div>
-
-              <div className="relative z-10 flex flex-col items-center gap-6">
-                {/* Big Timer */}
-                <div className="relative">
-                  <div className="text-8xl font-black font-mono tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 drop-shadow-2xl tabular-nums">
-                    00:{timeLeft < 10 ? `0${timeLeft}` : timeLeft}
-                  </div>
-                  <div className="absolute -inset-4 bg-blue-500/20 blur-3xl -z-10 animate-pulse"></div>
-                </div>
-
-                {/* Progress Bars */}
-                <div className="flex gap-2 opacity-50">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="w-12 h-1.5 rounded-full bg-slate-700/50 overflow-hidden">
-                      <div className="h-full w-full bg-blue-400 animate-[shimmer_1.5s_infinite]" style={{ animationDelay: `${i * 0.2}s` }}></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="p-8 relative">
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent"></div>
-              <h3 className="text-3xl font-black text-white mb-2 flex items-center gap-3">
-                Blitz Mode
-              </h3>
-              <p className="text-slate-400 mb-6 leading-relaxed max-w-md">
-                {language === 'ru' ? 'Гонка со временем. У тебя 15 секунд на ответ. Ошибки недопустимы.' : 'Race against time. 15 seconds to answer. No mistakes allowed.'}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 rounded-lg bg-white/5 border border-white/5 text-xs font-medium text-slate-300">Time Attack</span>
-                <span className="px-3 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs font-medium text-blue-300">x2 Rewards</span>
-              </div>
-            </div>
+            {/* Active Indicator */}
+            <div className={`h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent transition-all duration-500 ${activeGameMode === 'race' ? 'w-full opacity-100' : 'w-0 opacity-0'}`}></div>
           </div>
         </div>
 
-        {/* Season Rewards Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        {/* Season Rewards Row (Battle Pass Style) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-16">
           {copy.arena.seasonRewards.map((reward, i) => {
             const icons = [Sparkles, Zap, Trophy];
             const Icon = icons[i] || Sparkles;
             const colors = [
-              "from-purple-500/20 to-pink-500/20 border-purple-500/20 text-purple-400",
-              "from-amber-500/20 to-orange-500/20 border-amber-500/20 text-amber-400",
-              "from-emerald-500/20 to-teal-500/20 border-emerald-500/20 text-emerald-400"
+              "from-purple-500/10 to-pink-500/10 border-purple-500/20 text-purple-400 group-hover:border-purple-500/50",
+              "from-amber-500/10 to-orange-500/10 border-amber-500/20 text-amber-400 group-hover:border-amber-500/50",
+              "from-emerald-500/10 to-teal-500/10 border-emerald-500/20 text-emerald-400 group-hover:border-emerald-500/50"
             ];
             const style = colors[i];
 
             return (
-              <div key={i} className={`relative overflow-hidden rounded-2xl border bg-gradient-to-br p-6 backdrop-blur-sm transition-all hover:-translate-y-1 ${style.split(" ")[0]} ${style.split(" ")[2]}`}>
+              <div key={i} className={`group relative overflow-hidden rounded-2xl border bg-gradient-to-br p-6 backdrop-blur-sm transition-all hover:-translate-y-1 ${style}`}>
                 <div className="flex items-start justify-between mb-4">
-                  <div className={`p-3 rounded-xl bg-white/5 border border-white/10 ${style.split(" ")[3]}`}>
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 group-hover:bg-white/10 transition-colors">
                     <Icon size={24} />
                   </div>
-                  <div className="text-xs font-bold uppercase tracking-widest opacity-50">Locked</div>
+                  <div className="text-xs font-bold uppercase tracking-widest opacity-30 group-hover:opacity-100 transition-opacity">Season 1</div>
                 </div>
                 <h4 className="text-lg font-bold text-white mb-1">{reward.title}</h4>
                 <p className="text-sm text-slate-400">{reward.description}</p>
