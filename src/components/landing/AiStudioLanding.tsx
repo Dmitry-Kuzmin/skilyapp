@@ -724,8 +724,8 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
       </section>
 
       {/* ECOSYSTEM SECTION */}
-      <section className="relative z-10 px-6 pb-20 max-w-[1400px] mx-auto">
-        <div className="mb-12">
+      <section className="relative z-10 px-6 py-24 pb-20 max-w-[1400px] mx-auto">
+        <div className="mb-10">
           <h2 className="text-3xl md:text-5xl font-black mb-4">{copy.ecosystem.title}</h2>
           <p className="text-slate-400 max-w-xl">{copy.ecosystem.description}</p>
         </div>
@@ -742,9 +742,9 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           </div>
           <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2rem] hover:border-indigo-500/30 transition-all">
             <div className="flex gap-4 mb-4">
-              <Car size={32} className="text-indigo-400" />
-              <Bike size={32} className="text-emerald-400" />
-              <Bus size={32} className="text-orange-400" />
+              <Car size={32} className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400" style={{ WebkitTextFillColor: 'transparent', WebkitBackgroundClip: 'text', backgroundClip: 'text' }} />
+              <Bike size={32} className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400" style={{ WebkitTextFillColor: 'transparent', WebkitBackgroundClip: 'text', backgroundClip: 'text' }} />
+              <Bus size={32} className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400" style={{ WebkitTextFillColor: 'transparent', WebkitBackgroundClip: 'text', backgroundClip: 'text' }} />
             </div>
             <h3 className="font-bold text-lg mb-1">{copy.ecosystem.cards.categoriesTitle}</h3>
             <p className="text-slate-500 text-sm">
@@ -788,9 +788,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
               <ul className="space-y-4 text-slate-300">
                 {copy.aiSection.bullets.map((item) => (
                   <li key={item} className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400">
-                      <CheckCircle2 size={14} />
-                    </div>
+                    <CheckCircle2 size={18} className="text-emerald-400 flex-shrink-0" />
                     {item}
                   </li>
                 ))}
@@ -799,12 +797,18 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           </div>
 
           <div className="grid grid-rows-2 gap-6">
-            <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2.5rem] flex flex-col justify-center">
-              <div className="flex items-center gap-3 mb-4">
-                <Bookmark className="text-orange-400" size={24} />
-                <h3 className="font-bold text-xl">{copy.aiSection.challengeBank}</h3>
+            <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2.5rem] flex flex-col justify-center relative overflow-hidden">
+              {/* Background icon */}
+              <div className="absolute top-4 right-4 opacity-5">
+                <Bookmark size={120} />
               </div>
-              <p className="text-slate-400">{copy.aiSection.challengeBankDescription}</p>
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-4">
+                  <Bookmark className="text-amber-400" size={24} />
+                  <h3 className="font-bold text-xl">{copy.aiSection.challengeBank}</h3>
+                </div>
+                <p className="text-slate-400">{copy.aiSection.challengeBankDescription}</p>
+              </div>
             </div>
 
             <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2.5rem] flex items-center justify-between">
