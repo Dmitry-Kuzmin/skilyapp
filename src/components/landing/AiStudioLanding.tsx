@@ -834,103 +834,66 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         </div>
       </section>
 
-      {/* COMPARISON TABLE */}
-      <section className="relative z-10 px-6 py-16 max-w-[1400px] mx-auto border-t border-slate-800/50">
-        <div className="text-center mb-16">
-          <p className="text-indigo-400 font-bold uppercase tracking-[0.2em] text-xs mb-4">
-            {copy.comparison.label}
-          </p>
-          <h2 className="text-4xl md:text-6xl font-black text-white">{copy.comparison.title}</h2>
+      {/* COMPARISON - BATTLE OF TECH */}
+      <section className="relative z-10 px-6 py-24 max-w-[1400px] mx-auto">
+        <div className="mb-20 text-center">
+          <h2 className="text-4xl md:text-6xl font-black text-white mb-4">{copy.comparison.title}</h2>
+          <p className="text-slate-400 max-w-xl mx-auto">{copy.comparison.label}</p>
         </div>
 
-        <div className="relative rounded-[2.5rem] border border-slate-800 shadow-2xl overflow-hidden">
-          <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-md"></div>
-          <div className="relative hidden md:block">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-800/70">
-                  <th className="py-6 px-8 text-xs font-bold uppercase tracking-[0.3em] text-slate-500 w-1/3">
-                    {copy.comparison.featureLabel}
-                  </th>
-                  <th className="py-6 px-8 text-xs font-bold uppercase tracking-[0.3em] text-rose-400 w-1/3 text-center">
-                    {copy.comparison.traditional}
-                  </th>
-                  <th className="py-6 px-8 text-xs font-bold uppercase tracking-[0.3em] text-indigo-400 w-1/3 text-center bg-indigo-500/5">
-                    {copy.comparison.skily}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="text-sm font-medium">
-                {copy.comparison.rows.map((row, index) => (
-                  <tr
-                    key={row.feature}
-                    className="border-b border-slate-800/70 last:border-0 hover:bg-slate-800/40 transition-colors"
-                  >
-                    <td className="py-6 px-8 text-white font-bold">{row.feature}</td>
-                    <td className="py-6 px-8 text-slate-400 text-center">
-                      <div className="inline-flex items-center gap-2 justify-center">
-                        <XCircle size={16} className="text-rose-500" />
-                        {row.traditional}
-                      </div>
-                    </td>
-                    <td className="py-6 px-8 text-white text-center bg-indigo-500/5 relative">
-                      {index === 0 && (
-                        <div className="absolute inset-0 bg-indigo-500/10 animate-pulse pointer-events-none rounded-br-[2.5rem]"></div>
-                      )}
-                      <div className="inline-flex items-center gap-2 justify-center relative z-10">
-                        <CheckCircle size={16} className="text-indigo-400" />
-                        {row.skily}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-4xl mx-auto items-center">
+          {/* LEFT: LEGACY (OLD SCHOOL) */}
+          <div className="relative py-8 px-6 space-y-8 opacity-60 hover:opacity-100 transition-opacity duration-300">
+            <h3 className="text-2xl font-bold text-slate-500 text-center uppercase tracking-widest mb-8">{copy.comparison.traditional}</h3>
+
+            {/* First Row (Price) */}
+            <div className="text-center pb-6 border-b border-white/5">
+              <div className="text-sm text-slate-500 uppercase tracking-widest mb-2">{copy.comparison.rows[0].feature}</div>
+              <div className="text-3xl text-slate-500 font-mono line-through decoration-red-500/50 decoration-4">{copy.comparison.rows[0].traditional}</div>
+            </div>
+
+            {/* Other Rows */}
+            <div className="space-y-6">
+              {copy.comparison.rows.slice(1).map((row, i) => (
+                <div key={i} className="flex items-center justify-between text-slate-400 group">
+                  <span className="text-sm font-medium">{row.feature}</span>
+                  <span className="flex items-center gap-2 decoration-slate-600 group-hover:line-through transition-all text-sm text-right">
+                    {row.traditional} <XCircle size={16} className="text-red-900 flex-shrink-0" />
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="relative md:hidden p-4 space-y-5">
-            {copy.comparison.rows.map((row) => (
-              <div
-                key={row.feature}
-                className="relative rounded-3xl border border-white/5 bg-gradient-to-b from-slate-900/90 to-slate-950/90 p-5 shadow-[0_20px_50px_rgba(15,23,42,0.5)] overflow-hidden"
-              >
-                <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-indigo-500/15 to-transparent pointer-events-none"></div>
-                <div className="relative space-y-4">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.4em] text-slate-400">
-                      {row.feature}
-                    </p>
-                    <span className="rounded-full bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-white/70">
-                      сравнение
-                    </span>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3 rounded-2xl border border-rose-500/20 bg-rose-500/5 p-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-500/15 text-rose-400">
-                        <XCircle size={16} />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-rose-300">
-                          {copy.comparison.traditional}
-                        </p>
-                        <p className="text-slate-300/90 text-sm leading-snug">{row.traditional}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500/15 text-indigo-300">
-                        <CheckCircle size={16} />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-indigo-200">
-                          {copy.comparison.skily}
-                        </p>
-                        <p className="text-white text-sm leading-snug">{row.skily}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          {/* RIGHT: SKILY (NEXT GEN) */}
+          <div className="relative bg-slate-900/80 backdrop-blur-xl border border-indigo-500/30 rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_50px_-10px_rgba(99,102,241,0.25)] overflow-hidden transform md:-translate-y-4 hover:border-indigo-500/50 transition-all duration-300 ring-1 ring-white/5">
+            <div className="absolute inset-0 bg-indigo-500/5 pointer-events-none"></div>
+            <h3 className="text-2xl font-black text-white text-center uppercase tracking-widest mb-10 flex items-center justify-center gap-3">
+              {copy.comparison.skily} <Crown size={24} className="text-amber-400 fill-amber-400/20" />
+            </h3>
+
+            {/* Price */}
+            <div className="text-center pb-8 border-b border-indigo-500/20 mb-8 relative">
+              <div className="text-sm text-indigo-300 uppercase tracking-widest mb-2">{copy.comparison.rows[0].feature}</div>
+              <div className="text-6xl font-black text-white tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">
+                {copy.comparison.rows[0].skily}
               </div>
-            ))}
+              <div className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-full mt-4 border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                <Zap size={12} className="fill-current" /> SAVE 95%
+              </div>
+            </div>
+
+            {/* Other Rows */}
+            <div className="space-y-6">
+              {copy.comparison.rows.slice(1).map((row, i) => (
+                <div key={i} className="flex items-center justify-between gap-4">
+                  <span className="text-indigo-200/60 font-medium text-sm">{row.feature}</span>
+                  <span className="flex items-center gap-2 text-white font-bold text-lg text-right">
+                    {row.skily} <CheckCircle size={20} className="text-indigo-400 fill-indigo-400/20 flex-shrink-0" />
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
