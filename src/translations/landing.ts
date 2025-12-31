@@ -1,4 +1,5 @@
 import { Language } from "@/contexts/LanguageContext";
+import { currentYear, examYear } from "@/utils/dateUtils";
 
 export interface LandingCopy {
   controls: {
@@ -124,7 +125,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       languageLabel: "Idioma",
     },
     hero: {
-      badge: "DGT Approved · 2025",
+      badge: `DGT Approved · ${examYear}`,
       titleTop: "Tu teórico a la primera",
       titleBottom: "Sin dramas",
       descriptionHighlight: "Olvida los manuales aburridos",
@@ -261,7 +262,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { label: "Soporte", href: "https://t.me/skilyapp_bot", external: true },
         { label: "Afiliados", href: "/partners" },
       ],
-      note: "© 2025 Skilyapp. Plataforma de aprendizaje interactivo para la seguridad vial.",
+      note: `© ${currentYear} Skilyapp. Plataforma de aprendizaje interactivo para la seguridad vial.`,
     },
     referral: {
       badge: "Invitación",
@@ -277,7 +278,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       languageLabel: "Language",
     },
     hero: {
-      badge: "DGT Approved · 2025",
+      badge: `DGT Approved · ${examYear}`,
       titleTop: "Your driving confidence",
       titleBottom: "starts here",
       descriptionHighlight: "Forget exam anxiety and language barriers",
@@ -414,7 +415,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { label: "Support", href: "https://t.me/skilyapp_bot", external: true },
         { label: "Affiliates", href: "/partners" },
       ],
-      note: "© 2025 Skilyapp. Interactive learning platform for road safety education.",
+      note: `© ${currentYear} Skilyapp. Interactive learning platform for road safety education.`,
     },
   },
   ru: {
@@ -424,7 +425,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       languageLabel: "Язык",
     },
     hero: {
-      badge: "ГИБДД 2025 · Официальные вопросы",
+      badge: `ГИБДД ${examYear} · Официальные вопросы`,
       titleTop: "Твой путь к правам",
       titleBottom: "начинается здесь",
       descriptionHighlight: "Забудь про страх экзамена и языковой барьер",
@@ -561,7 +562,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { label: "Поддержка", href: "https://t.me/skilyapp_bot", external: true },
         { label: "Партнёрам", href: "/partners" },
       ],
-      note: "© 2025 Skilyapp. Интерактивная платформа для изучения безопасности дорожного движения.",
+      note: `© ${currentYear} Skilyapp. Интерактивная платформа для изучения безопасности дорожного движения.`,
     },
     referral: {
       badge: "Приглашение",

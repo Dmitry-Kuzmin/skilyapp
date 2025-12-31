@@ -45,6 +45,7 @@ import { LandingQuizDemo } from "./LandingQuizDemo";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { PartnershipExpansionPortal } from "./PartnershipExpansionPortal";
+import { examYear } from "@/utils/dateUtils";
 import {
   landingTranslations,
   LANGUAGE_OPTIONS,
@@ -610,7 +611,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         {/* Badge с электрическим синим */}
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[9px] sm:text-[10px] font-bold tracking-[0.25em] uppercase mb-5 sm:mb-6 animate-fade-in relative z-20">
           <span className="text-base leading-none">{selectedCountry.flag}</span>
-          {selectedCountry.code === 'ru' ? 'ГИБДД 2025 · Официальные вопросы' : 'DGT Approved · 2025'}
+          {selectedCountry.code === 'ru' ? `ГИБДД ${examYear} · Официальные вопросы` : `DGT Approved · ${examYear}`}
         </div>
 
         {/* H1 с электрическим градиентом и свечением */}
