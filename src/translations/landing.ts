@@ -43,6 +43,7 @@ export interface LandingCopy {
     challengeBankDescription: string;
     telegramTitle: string;
     telegramDescription: string;
+    telegramCTA: string;
   };
   comparison: {
     label: string;
@@ -153,7 +154,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
     ],
     ecosystem: {
       title: "Ecosistema de aprendizaje",
-      description: "Aprendizaje interactivo, análisis de progreso y escenarios de práctica realistas.",
+      description: "Plataforma unificada para teoría, práctica y análisis de progreso.",
       cards: {
         totalQuestions: `Base Oficial ${examYear}`,
         totalQuestionsDescription: "100% coincidencia con el examen real. Actualización automática.",
@@ -180,6 +181,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         "Guarda automáticamente las preguntas falladas y te avisa cuando toca repasarlas.",
       telegramTitle: "Telegram Mini App",
       telegramDescription: "Estudia desde cualquier chat con @skilyapp_bot.",
+      telegramCTA: "Abrir bot →",
     },
     comparison: {
       label: "Evolución vs tradición",
@@ -307,7 +309,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
     ],
     ecosystem: {
       title: "Learning ecosystem",
-      description: "Interactive learning, progress analytics and realistic practice scenarios.",
+      description: "Unified platform for theory, practice and progress analysis.",
       cards: {
         totalQuestions: `Official ${examYear} Database`,
         totalQuestionsDescription: "100% match with the real exam. Automatically updated.",
@@ -334,6 +336,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         "Automatically saves missed questions and notifies you when it is time to review.",
       telegramTitle: "Telegram Mini App",
       telegramDescription: "Study inside any chat with @skilyapp_bot.",
+      telegramCTA: "Open bot →",
     },
     comparison: {
       label: "Evolution vs tradition",
@@ -455,7 +458,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
     ],
     ecosystem: {
       title: "Экосистема подготовки",
-      description: "Интерактивное обучение, аналитика прогресса и реалистичные сценарии практики.",
+      description: "Единая платформа для теории, практики и анализа прогресса.",
       cards: {
         totalQuestions: `Официальная база ${examYear}`,
         totalQuestionsDescription: "100% совпадение с реальным экзаменом. Обновляется автоматически.",
@@ -482,6 +485,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         "Автоматически сохраняет ошибки и напоминает, когда их повторить.",
       telegramTitle: "Telegram Mini App",
       telegramDescription: "Учись прямо в чате с ботом @skilyapp_bot.",
+      telegramCTA: "Открыть бот →",
     },
     comparison: {
       label: "Эволюция против традиций",

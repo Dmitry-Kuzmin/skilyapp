@@ -19,6 +19,7 @@ import {
   Bookmark,
   XCircle,
   CheckCircle,
+  ChevronRight,
   Gift,
   ArrowRight,
   Plus,
@@ -737,16 +738,20 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2rem] hover:border-indigo-500/30 transition-all">
-            <div className="mb-4 w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400">
-              <CheckCircle size={24} />
+          <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2rem] hover:border-indigo-500/30 transition-all relative overflow-hidden group">
+            {/* Background Icon - Fixed Alignment */}
+            <div className="absolute top-4 right-4 opacity-10 text-indigo-400 rotate-12 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+              <CheckCircle size={120} />
             </div>
-            <div className="font-black text-white mb-2 leading-snug text-pretty text-[clamp(1.4rem,2vw,2rem)] max-w-[280px]">
-              {copy.ecosystem.cards.totalQuestions}
+
+            <div className="relative z-10 pt-2">
+              <div className="font-black text-white mb-2 leading-snug text-pretty text-[clamp(1.4rem,2vw,2rem)] max-w-[280px]">
+                {copy.ecosystem.cards.totalQuestions}
+              </div>
+              <p className="text-slate-500 text-sm max-w-[200px]">
+                {copy.ecosystem.cards.totalQuestionsDescription}
+              </p>
             </div>
-            <p className="text-slate-500 text-sm">
-              {copy.ecosystem.cards.totalQuestionsDescription}
-            </p>
           </div>
           <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2rem] hover:border-indigo-500/30 transition-all">
             <div className="flex gap-4 mb-4">
@@ -770,7 +775,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               </p>
             </div>
             <div className="hidden md:block">
-              <div className="w-20 h-20 rounded-full border-4 border-indigo-500 flex items-center justify-center text-xl font-bold bg-indigo-900/20">
+              <div className="w-20 h-20 rounded-full border-4 border-indigo-500 flex items-center justify-center text-xl font-black bg-indigo-900/20">
                 {copy.ecosystem.cards.passRate}
               </div>
             </div>
@@ -819,13 +824,26 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               </div>
             </div>
 
-            <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2.5rem] flex items-center justify-between">
-              <div>
+            <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2.5rem] flex items-center justify-between relative overflow-hidden group hover:border-indigo-500/30 transition-all cursor-pointer" onClick={() => window.open("https://t.me/skilyapp_bot", "_blank")}>
+              <div className="relative z-10 max-w-[65%]">
                 <h3 className="font-bold text-xl mb-1">{copy.aiSection.telegramTitle}</h3>
-                <p className="text-slate-400 text-sm">{copy.aiSection.telegramDescription}</p>
+                <p className="text-slate-400 text-sm mb-3">{copy.aiSection.telegramDescription}</p>
+                <div className="inline-flex items-center gap-1 text-sm font-bold text-indigo-400 group-hover:text-indigo-300 transition-colors">
+                  {copy.aiSection.telegramCTA} <ChevronRight size={14} />
+                </div>
               </div>
-              <div className="w-12 h-12 rounded-full bg-[#229ED9]/20 flex items-center justify-center text-[#229ED9]">
-                <Smartphone size={24} />
+
+              {/* Phone Mockup */}
+              <div className="absolute bottom-[-20%] right-4 w-24 h-40 bg-slate-800 rounded-t-[1.5rem] border-x-4 border-t-4 border-slate-700 shadow-2xl flex flex-col items-center pt-3 opacity-90 group-hover:translate-y-[-10px] transition-transform duration-500">
+                <div className="w-6 h-1 bg-slate-600 rounded-full mb-3"></div>
+                <div className="w-full flex-1 bg-slate-900/50 px-2 pt-2 space-y-2">
+                  <div className="flex gap-1.5 items-end">
+                    <div className="w-full h-8 bg-indigo-500/20 rounded-lg rounded-bl-sm"></div>
+                  </div>
+                  <div className="flex gap-1.5 justify-end">
+                    <div className="w-3/4 h-8 bg-slate-700/30 rounded-lg rounded-br-sm"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
