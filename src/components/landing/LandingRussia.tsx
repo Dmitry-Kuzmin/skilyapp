@@ -905,7 +905,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
             </h3>
 
             {/* Price */}
-            <div className="text-center pb-8 border-b border-indigo-500/20 mb-10 relative mx-4">
+            <div className="text-center relative mx-4">
               <div className="text-6xl font-black text-white tracking-tight drop-shadow-[0_0_25px_rgba(255,255,255,0.4)]">
                 {copy.comparison.rows[0].skily}
               </div>
@@ -913,6 +913,9 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
                 <Zap size={12} className="fill-current" /> SAVE 95%
               </div>
             </div>
+
+            {/* Divider */}
+            <div className="w-1/2 mx-auto border-t border-white/10 my-8"></div>
 
             {/* Other Rows */}
             <div className="space-y-8 px-2 relative z-10">
@@ -922,11 +925,10 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
                     {row.skily} <CheckCircle size={24} className="text-indigo-400 fill-indigo-400/20" />
                   </span>
                   {row.skilyDesc && (
-                    <span className="text-sm font-medium text-indigo-200/60 mt-1 block">
+                    <span className="text-sm font-medium text-indigo-100/80 mt-1.5 block">
                       {row.skilyDesc}
                     </span>
-                  )}
-                </div>
+                  )}             </div>
               ))}
             </div>
           </div>
