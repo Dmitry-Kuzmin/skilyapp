@@ -397,15 +397,15 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
 
   // Override pricing for Russia market (₽ instead of €)
   const russianPricing = {
-    ...russianPricing,
+    ...copy.pricing,
     plans: {
-      ...russianPricing.plans,
+      ...copy.pricing.plans,
       monthly: {
-        ...russianPricing.plans.monthly,
+        ...copy.pricing.plans.monthly,
         price: "299₽"
       },
       yearly: {
-        ...russianPricing.plans.yearly,
+        ...copy.pricing.plans.yearly,
         price: "1799₽"
       }
     }
