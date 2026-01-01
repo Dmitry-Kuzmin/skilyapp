@@ -15,7 +15,7 @@ import { isTelegramMiniApp, hasTelegramWebApp } from "@/lib/telegram";
 import { getTelegramUser } from "@/core/TelegramInit";
 import { useTelegram } from "@/contexts/TelegramContext";
 import { useCountry } from "@/contexts/CountryContext";
-import { TestAuraButton } from "@/components/TestAuraButton";
+
 
 const Landing = () => {
   // АРХИТЕКТУРА: Используем TelegramProvider вместо прямого вызова initTelegram()
@@ -260,9 +260,6 @@ const Landing = () => {
       <Suspense fallback={null}>
         <AuthModalNew open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
       </Suspense>
-
-      {/* Debug Test Button */}
-      {import.meta.env.DEV && <TestAuraButton />}
     </>
   );
 };

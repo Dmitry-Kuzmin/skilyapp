@@ -17,6 +17,7 @@ import { LandingLogo } from '@/components/landing/LandingLogo';
 import { checkUserAuthMethod, getClientIP } from '@/lib/auth-utils';
 import { isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/passkey';
 import { ParticleEmitter } from '@/components/ui/ParticleEmitter';
+import { useTelegram } from '@/contexts/TelegramContext';
 
 // Schema будет использовать переводы через context
 const createAuthSchema = (t: (key: string) => string) => z.object({
@@ -40,6 +41,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [isEmailShaking, setIsEmailShaking] = useState(false);
+  const [isPasswordShaking, setIsPasswordShaking] = useState(false);
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [userHasPassword, setUserHasPassword] = useState(true); // по умолчанию true для безопасности
@@ -48,6 +50,55 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   const [magicLinkState, setMagicLinkState] = useState<'idle' | 'sending' | 'sent'>('idle');
   const [isButtonHovered, setIsButtonHovered] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
+
+  // --- Password Reveal Effect State ---
+  const [displayedPassword, setDisplayedPassword] = useState('');
+  const [isScrambling, setIsScrambling] = useState(false);
+  const scrambleRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Sync displayedPassword with password when not scrambling
+  useEffect(() => {
+    if (!isScrambling) {
+      setDisplayedPassword(password);
+    }
+  }, [password, isScrambling]);
+
+  const scramblePassword = () => {
+    setIsScrambling(true);
+    let iteration = 0;
+
+    if (scrambleRef.current) clearInterval(scrambleRef.current);
+
+    scrambleRef.current = setInterval(() => {
+      setDisplayedPassword(password.split('').map((char, index) => {
+        if (index < iteration) {
+          return password[index];
+        }
+        // Используем более спокойные символы (буквы и цифры) вместо спецсимволов
+        const pool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        return pool.charAt(Math.floor(Math.random() * pool.length));
+      }).join(''));
+
+      if (iteration >= password.length) {
+        if (scrambleRef.current) clearInterval(scrambleRef.current);
+        setIsScrambling(false);
+        setDisplayedPassword(password);
+      }
+
+      iteration += 1 / 2; // Speed of decryption
+    }, 20); // Faster updates
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // If user types, stop scrambling immediately
+    if (isScrambling) {
+      setIsScrambling(false);
+      if (scrambleRef.current) clearInterval(scrambleRef.current);
+    }
+    setPassword(e.target.value);
+    if (passwordError) setPasswordError(null);
+  };
+
 
   // --- Loading States ---
   const [checkingEmail, setCheckingEmail] = useState(false);
@@ -61,6 +112,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   // --- Refs & Context ---
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
+  const webApp = useTelegram();
   // КРИТИЧНО: Безопасное получение UserContext - не выбрасывает ошибку если провайдер отсутствует
   // Это позволяет AuthModalNew работать на лендинге (где UserProvider отсутствует)
   const userContext = useContext(UserContext);
@@ -472,10 +524,26 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     if (!password || password.trim() === '') {
       setPasswordError(t('auth.errors.passwordRequired'));
 
-      // Telegram вибрация
       if (webApp?.HapticFeedback) {
         webApp.HapticFeedback.notificationOccurred('error');
       }
+
+      setIsPasswordShaking(true);
+      setTimeout(() => setIsPasswordShaking(false), 500);
+
+      return;
+    }
+
+    // Валидация минимальной длины
+    if (password.length < 6) {
+      setPasswordError(t('auth.errors.minPassword'));
+
+      if (webApp?.HapticFeedback) {
+        webApp.HapticFeedback.notificationOccurred('error');
+      }
+
+      setIsPasswordShaking(true);
+      setTimeout(() => setIsPasswordShaking(false), 500);
 
       return;
     }
@@ -495,6 +563,9 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
           setPasswordError(t('auth.errors.invalidCredentials'));
+
+          setIsPasswordShaking(true);
+          setTimeout(() => setIsPasswordShaking(false), 500);
 
           // Telegram вибрация при ошибке
           if (webApp?.HapticFeedback) {
@@ -566,6 +637,11 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
       })();
     } catch (error) {
       if (error instanceof z.ZodError) {
+        setIsPasswordShaking(true);
+        setTimeout(() => setIsPasswordShaking(false), 500);
+        if (webApp?.HapticFeedback) {
+          webApp.HapticFeedback.notificationOccurred('error');
+        }
         toast({
           title: t('auth.errors.validationError'),
           description: error.errors[0].message,
@@ -1013,25 +1089,27 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                     onFocus={handleInputFocus}
                     onBlur={handleInputBlur}
                     error={emailError ?? undefined}
-                    className={`bg-zinc-900/50 border-zinc-800 h-14 text-lg text-center placeholder:text-center ${isEmailShaking ? 'animate-shake' : ''}`}
+                    className={`bg-zinc-900/50 border-zinc-800 h-14 text-lg text-center placeholder:text-center ${isEmailShaking ? 'animate-shake' : ''} pr-16`}
                     rightElement={
-                      <motion.button
-                        type="submit"
-                        disabled={!isValidEmail || checkingEmail}
-                        initial={{ opacity: 0, scale: 0.5 }}
-                        animate={{
-                          opacity: isValidEmail ? 1 : 0,
-                          scale: isValidEmail ? 1 : 0.5,
-                          pointerEvents: isValidEmail ? 'auto' : 'none'
-                        }}
-                        className="bg-white text-black w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-200 transition-colors disabled:opacity-50"
-                      >
-                        {checkingEmail ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <ArrowRight className="w-4 h-4" />
-                        )}
-                      </motion.button>
+                      <div className="flex items-center pr-1">
+                        <motion.button
+                          type="submit"
+                          disabled={!isValidEmail || checkingEmail}
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{
+                            opacity: isValidEmail ? 1 : 0,
+                            scale: isValidEmail ? 1 : 0.5,
+                            pointerEvents: isValidEmail ? 'auto' : 'none'
+                          }}
+                          className="bg-white text-black w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-200 transition-colors disabled:opacity-50"
+                        >
+                          {checkingEmail ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <ArrowRight className="w-4 h-4" />
+                          )}
+                        </motion.button>
+                      </div>
                     }
                   />
 
@@ -1124,38 +1202,81 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   /* --- ЕСТЬ ПАРОЛЬ: Показываем форму с паролем --- */
                   <>
                     <form onSubmit={handleFinalSubmit} className="space-y-4">
+                      {/* Header for Password Input: Label + Forgot Link */}
+                      <div className="flex justify-between items-end mb-2 px-1">
+                        <label className="text-sm font-medium text-zinc-400">
+                          {t('auth.password')}
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setStep('password-recovery')}
+                          className="text-[11px] text-zinc-500 hover:text-blue-400 cursor-pointer transition-colors duration-200"
+                        >
+                          Забыли?
+                        </button>
+                      </div>
+
                       <Input
                         ref={passwordInputRef}
-                        type="password"
-                        label={t('auth.password')}
+                        type={showPassword ? "text" : "password"}
                         placeholder={t('auth.passwordPlaceholder')}
-                        value={password}
-                        onChange={(e) => {
-                          setPassword(e.target.value);
-                          if (passwordError) setPasswordError(null);
-                        }}
+                        // SHOW EFFECT: If scrambling or just showing text, use displayedPassword (which syncs with password)
+                        value={showPassword || isScrambling ? displayedPassword : password}
+                        onChange={handlePasswordChange}
                         onFocus={handleInputFocus}
                         onBlur={handleInputBlur}
                         error={passwordError ?? undefined}
-                        className="bg-zinc-900/50 border-zinc-800 h-12 text-lg shadow-inner pr-10"
+                        className={`bg-zinc-900/50 border-zinc-800 h-12 text-lg shadow-inner pr-10 ${isPasswordShaking ? 'animate-shake' : ''}`}
                         autoFocus
                         rightElement={
                           <button
                             type="button"
                             tabIndex={-1}
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors focus:outline-none"
+                            onClick={() => {
+                              const nextState = !showPassword;
+                              setShowPassword(nextState);
+
+                              if (nextState) {
+                                // Trigger Matrix Effect on Open
+                                scramblePassword();
+                                if (webApp?.HapticFeedback) {
+                                  webApp.HapticFeedback.impactOccurred('medium');
+                                }
+                              }
+                            }}
+                            className="text-zinc-500/40 hover:text-zinc-300 transition-all duration-300 focus:outline-none relative group"
                           >
-                            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                          </button>
-                        }
-                        additionalRightElement={
-                          <button
-                            type="button"
-                            onClick={() => setStep('password-recovery')}
-                            className="text-[11px] text-blue-400/60 hover:text-blue-400 cursor-pointer transition-colors duration-200 whitespace-nowrap font-medium"
-                          >
-                            {t('auth.forgotPassword')}
+                            <AnimatePresence mode="wait">
+                              <motion.div
+                                key={showPassword ? 'visible' : 'hidden'}
+                                initial={{ opacity: 0, scale: 0.5, rotate: -45 }}
+                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                exit={{ opacity: 0, scale: 0.5, rotate: 45 }}
+                                transition={{ duration: 0.2, ease: "backOut" }}
+                              >
+                                {showPassword ? (
+                                  <div className="relative">
+                                    <EyeOff className="w-5 h-5 text-blue-400" />
+                                    <motion.div
+                                      initial={{ opacity: 0, scale: 0 }}
+                                      animate={{ opacity: [0, 1, 0], scale: [0.5, 1.5, 2] }}
+                                      transition={{ duration: 0.6 }}
+                                      className="absolute -inset-1 bg-blue-500/20 rounded-full blur-sm -z-10"
+                                    />
+                                    <motion.div
+                                      initial={{ opacity: 0 }}
+                                      animate={{ opacity: [0, 1, 0] }}
+                                      transition={{ duration: 0.4 }}
+                                      className="absolute -top-3 -right-3 pointer-events-none"
+                                    >
+                                      <Wand2 className="w-4 h-4 text-blue-400/60" />
+                                    </motion.div>
+                                  </div>
+                                ) : (
+                                  <Eye className="w-5 h-5" />
+                                )}
+                              </motion.div>
+                            </AnimatePresence>
                           </button>
                         }
                       />
