@@ -31,12 +31,16 @@ body {
 
   /* КРИТИЧНО: Убираем height: 100% и display: flex для обычного браузера - footer должен скроллиться */
   /* flex применяется только для Telegram WebApp */
+  height: auto;
+  display: block;
 }
 
 #root {
   width: 100%;
   /* КРИТИЧНО: Убираем display: flex для обычного браузера - footer должен скроллиться */
   /* flex применяется только для Telegram WebApp */
+  height: auto;
+  display: block;
 }
 
 /* Flex и min-height только для Telegram WebApp */
@@ -1823,18 +1827,5 @@ html {
   100% {
     opacity: 1;
     transform: scale(1.25);
-  }
-}
-
-/* Engine Idle Text Breath (Visible Pulse) */
-@keyframes engine-idle {
-
-  0%,
-  100% {
-    opacity: 0.3;
-  }
-
-  50% {
-    opacity: 1;
   }
 }

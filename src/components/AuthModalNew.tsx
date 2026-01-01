@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { ScanFace, ArrowRight, ShieldCheck, Loader2, Mail } from 'lucide-react';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';

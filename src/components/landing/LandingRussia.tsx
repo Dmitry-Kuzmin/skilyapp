@@ -196,7 +196,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           }
         });
       },
-      { threshold: 0.1, rootMargin: '100px' } // Начинаем загрузку за 100px до появления
+      { threshold: 0, rootMargin: '600px' } // Начинаем загрузку за 600px (1.5 экрана) до появления
     );
 
     observer.observe(demoContainerRef.current);
@@ -739,11 +739,11 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-slate-500 animate-[engine-idle_3s_ease-in-out_infinite]" style={{ animationDelay: '0.3s' }}></div>
-            <span className="text-[10px] uppercase tracking-widest text-slate-500 animate-[engine-idle_3s_ease-in-out_infinite]">
+            <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-slate-500 animate-engine-idle" style={{ animationDelay: '0.3s' }}></div>
+            <span className="text-[10px] uppercase tracking-widest text-slate-500 animate-engine-idle">
               {copy.hero.pressStart}
             </span>
-            <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-slate-500 animate-[engine-idle_3s_ease-in-out_infinite]" style={{ animationDelay: '0.3s' }}></div>
+            <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-slate-500 animate-engine-idle" style={{ animationDelay: '0.3s' }}></div>
           </div>
         </div>
       </section>
@@ -1020,7 +1020,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               <LandingDuelPassSection language={language === 'ru' ? 'ru' : 'en'} copy={copy} />
             </React.Suspense>
           ) : (
-            <div className="text-slate-800 text-sm italic opacity-20">Прокрутите для активации демо</div>
+            <div className="text-slate-800 text-sm italic opacity-0 transition-opacity duration-700">Загрузка интерактивного блока...</div>
           )}
         </div>
       </section>

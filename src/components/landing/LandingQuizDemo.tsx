@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Trophy, CheckCircle2, XCircle, ArrowRight, CornerDownLeft, Sparkles, Zap, AlertTriangle, Car, Shield, Activity, Info, Headphones, BookOpen, Brain, Swords } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from '@/components/optimized/Motion';
 import { playClickSound, playSuccessSound, playErrorSound, playLevelUpSound } from '@/services/audioService';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

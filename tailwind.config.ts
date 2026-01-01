@@ -174,6 +174,10 @@ export default {
           "0%, 100%": { transform: "translateY(0) scale(1)" },
           "50%": { transform: "translateY(-2px) scale(1.05)" },
         },
+        "engine-idle": {
+          "0%, 100%": { opacity: "0.3" },
+          "50%": { opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -187,6 +191,7 @@ export default {
         "spin-slow": "spin-slow 12s linear infinite",
         shake: "shake 0.5s cubic-bezier(.36,.07,.19,.97) both infinite",
         "scan-vertical": "scan-vertical 3s linear infinite",
+        "engine-idle": "engine-idle 3s ease-in-out infinite",
       },
     },
   },

@@ -145,24 +145,22 @@ export function AppProviders({ children }: AppProvidersProps) {
         },
       }}
     >
-      <Motion>
-        <TooltipProvider>
-          <Sonner />
-          <UserProvider>
-            <NotificationProvider>
-              <PDDProvider>
-                <ReconnectHandler />
-                {/* Global Settings Drawer (Zustand controlled) */}
-                <GlobalSettingsManager />
-                {(() => {
-                  console.log('[AppProviders] Rendering children (AppRoutes)');
-                  return children;
-                })()}
-              </PDDProvider>
-            </NotificationProvider>
-          </UserProvider>
-        </TooltipProvider>
-      </Motion>
+      <TooltipProvider>
+        <Sonner />
+        <UserProvider>
+          <NotificationProvider>
+            <PDDProvider>
+              <ReconnectHandler />
+              {/* Global Settings Drawer (Zustand controlled) */}
+              <GlobalSettingsManager />
+              {(() => {
+                console.log('[AppProviders] Rendering children (AppRoutes)');
+                return children;
+              })()}
+            </PDDProvider>
+          </NotificationProvider>
+        </UserProvider>
+      </TooltipProvider>
     </PersistQueryClientProvider>
   );
 }

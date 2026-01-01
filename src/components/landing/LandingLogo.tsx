@@ -1,6 +1,7 @@
 import { CarFront, Car } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface LandingLogoProps {
   className?: string;
@@ -39,10 +40,17 @@ export const LandingLogo: React.FC<LandingLogoProps> = ({
     : (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches);
   const textColor = isDark ? "text-white" : "text-zinc-900";
 
+  // Определяем, является ли логотип интерактивным
+  const isInteractive = variant !== "footer" || !!onInteraction;
+  const cursorClass = isInteractive ? "cursor-pointer" : "cursor-default";
+
   // Вариант 1: Минималистичный (простая иконка без фона)
   if (variant === "minimal") {
     return (
-      <div className={`flex items-center gap-2.5 ${className}`}>
+      <div
+        className={cn("flex items-center gap-2.5", cursorClass, className)}
+        onClick={() => isInteractive && onInteraction?.()}
+      >
         <CarFront
           className={`w-6 h-6 ${isDark ? "text-indigo-400" : "text-indigo-600"}`}
           strokeWidth={2}
@@ -58,12 +66,11 @@ export const LandingLogo: React.FC<LandingLogoProps> = ({
 
   // Вариант 2, Header, Footer: Жирный премиум стиль (универсальный)
   if (variant === "bold" || variant === "header" || variant === "footer") {
-    const isInteractive = variant !== "footer"; // Header и Bold - интерактивные
-
     return (
       <div
-        className={`flex items-center gap-3 p-2 -m-2 cursor-default ${isInteractive ? "group" : ""} ${className}`}
+        className={cn("flex items-center gap-3 p-2 -m-2", cursorClass, isInteractive ? "group" : "", className)}
         style={{ overflow: 'visible', position: 'relative' }}
+        onClick={() => isInteractive && onInteraction?.()}
         onMouseEnter={() => isInteractive && onInteraction?.()}
       >
         <div className={`relative flex-shrink-0 transition-transform duration-500 ease-out transform-gpu will-change-transform ${isInteractive ? "group-hover:scale-105" : ""}`} style={{ overflow: 'visible' }}>
@@ -116,7 +123,10 @@ export const LandingLogo: React.FC<LandingLogoProps> = ({
   // Вариант 3: Элегантный (тонкая рамка, градиентный текст)
   if (variant === "elegant") {
     return (
-      <div className={`flex items-center gap-3 ${className}`}>
+      <div
+        className={cn("flex items-center gap-3", cursorClass, className)}
+        onClick={() => isInteractive && onInteraction?.()}
+      >
         <div className={`w-11 h-11 rounded-xl border-2 ${isDark ? "border-indigo-400/40 bg-indigo-500/10" : "border-indigo-500/50 bg-indigo-50"} flex items-center justify-center backdrop-blur-sm`}>
           <CarFront className={`w-5 h-5 ${isDark ? "text-indigo-400" : "text-indigo-600"}`} strokeWidth={2} />
         </div>
@@ -131,7 +141,10 @@ export const LandingLogo: React.FC<LandingLogoProps> = ({
 
   // Вариант по умолчанию: Современный (иконка в круге с градиентом)
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
+    <div
+      className={cn("flex items-center gap-3", cursorClass, className)}
+      onClick={() => isInteractive && onInteraction?.()}
+    >
       <div className="relative flex-shrink-0">
         <div className={`w-11 h-11 rounded-full ${isDark ? "bg-gradient-to-br from-indigo-500 via-violet-500 to-indigo-600" : "bg-gradient-to-br from-indigo-600 to-violet-700"} flex items-center justify-center shadow-lg ${isDark ? "shadow-indigo-500/25" : "shadow-indigo-600/30"}`}>
           <CarFront className="w-5 h-5 text-white" strokeWidth={2.5} />

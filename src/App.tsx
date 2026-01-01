@@ -11,6 +11,7 @@ import { isTelegramMiniApp } from "@/lib/telegram";
 // ОПТИМИЗАЦИЯ: Toaster, Sonner, TooltipProvider перемещены в AppProviders
 // Они тянут Radix UI (@radix-ui/react-toast, @radix-ui/react-tooltip), поэтому не должны грузиться на лендинге
 import { PageLoader } from "@/components/PageLoader";
+import { Motion } from "@/components/optimized/Motion";
 import { LightFallback } from "@/components/LightFallback";
 import { ScrollToTop } from "@/components/ScrollToTop";
 // ОПТИМИЗАЦИЯ: ReferralRedirect и PartnerRedirect используют UserContext - делаем lazy
@@ -517,62 +518,64 @@ const App = () => {
 
   return (
     <TelegramProvider>
-      <OfflineBanner />
-      <OfflineQueueIndicator />
-      {/* ⚠️ ОТКЛЮЧЕНО: Service Worker отключен */}
-      {/* КРИТИЧНО: Компонент для ручного обновления PWA при registerType: 'prompt' */}
-      {/* <ReloadPrompt /> */}
-      <Suspense fallback={null}>
-        <BrowserRouter basename={basename}>
-          <ScrollToTop />
-          {/* ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query) */}
-          <Routes>
-            <Route path="/" element={<LandingRedirect />} />
-            {/* OAuth callback - обрабатывает сессию сам, не требует AppProviders */}
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            {/* Paddle purchase - обрабатывает редирект от Paddle, не требует AppProviders */}
-            <Route path="/purchase" element={
-              <Suspense fallback={<LightFallback />}>
-                <Purchase />
-              </Suspense>
-            } />
-            {/* Все остальные роуты - внутри AppProviders (с Supabase/Query) */}
-            {/* ОПТИМИЗАЦИЯ: AppProviders lazy - НЕ попадает в initial bundle для лендинга */}
-            {/* Это критично для производительности - Supabase/Query грузятся только для /app/* */}
-            <Route path="/*" element={
-              <Suspense fallback={<LightFallback />}>
-                <AppProviders>
-                  <Suspense fallback={<LightFallback />}>
-                    <CosmeticsPreviewProvider>
-                      <Suspense fallback={null}>
-                        <DeepLinkHandler />
-                        {/* OAuthCallbackHandler отключен - используем /auth/callback маршрут для OAuth */}
-                        {/* Если нужно обрабатывать токены на других страницах - можно включить с проверкой pathname */}
-                        {/* <OAuthCallbackHandler /> */}
-                        <HallOfFameModal />
-                        <DuelPassLeaderboardModal />
-                      </Suspense>
-                      <AppRoutes />
-                      {/* Глобальный менеджер модалок должен быть внутри провайдеров,
+      <Motion>
+        <OfflineBanner />
+        <OfflineQueueIndicator />
+        {/* ⚠️ ОТКЛЮЧЕНО: Service Worker отключен */}
+        {/* КРИТИЧНО: Компонент для ручного обновления PWA при registerType: 'prompt' */}
+        {/* <ReloadPrompt /> */}
+        <Suspense fallback={null}>
+          <BrowserRouter basename={basename}>
+            <ScrollToTop />
+            {/* ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query) */}
+            <Routes>
+              <Route path="/" element={<LandingRedirect />} />
+              {/* OAuth callback - обрабатывает сессию сам, не требует AppProviders */}
+              <Route path="/auth/callback" element={<AuthCallback />} />
+              {/* Paddle purchase - обрабатывает редирект от Paddle, не требует AppProviders */}
+              <Route path="/purchase" element={
+                <Suspense fallback={<LightFallback />}>
+                  <Purchase />
+                </Suspense>
+              } />
+              {/* Все остальные роуты - внутри AppProviders (с Supabase/Query) */}
+              {/* ОПТИМИЗАЦИЯ: AppProviders lazy - НЕ попадает в initial bundle для лендинга */}
+              {/* Это критично для производительности - Supabase/Query грузятся только для /app/* */}
+              <Route path="/*" element={
+                <Suspense fallback={<LightFallback />}>
+                  <AppProviders>
+                    <Suspense fallback={<LightFallback />}>
+                      <CosmeticsPreviewProvider>
+                        <Suspense fallback={null}>
+                          <DeepLinkHandler />
+                          {/* OAuthCallbackHandler отключен - используем /auth/callback маршрут для OAuth */}
+                          {/* Если нужно обрабатывать токены на других страницах - можно включить с проверкой pathname */}
+                          {/* <OAuthCallbackHandler /> */}
+                          <HallOfFameModal />
+                          <DuelPassLeaderboardModal />
+                        </Suspense>
+                        <AppRoutes />
+                        {/* Глобальный менеджер модалок должен быть внутри провайдеров,
                           чтобы работали UserContext и QueryClient */}
-                      <Suspense fallback={null}>
-                        <GlobalModalManager />
-                        <PerformanceMonitor />
-                        <PasskeyOnboardingWrapper />
-                        <AIChatWidget />
-                        {/* UnifiedSettingsDrawer рендерится в AppProviders через GlobalSettingsManager */}
-                      </Suspense>
-                    </CosmeticsPreviewProvider>
-                  </Suspense>
-                </AppProviders>
-              </Suspense>
-            } />
-          </Routes>
-          {/* ⚠️ ОТКЛЮЧЕНО: Service Worker отключен */}
-          {/* Debug панель Service Worker (только в dev или с localStorage.debug_sw) */}
-          {/* <ServiceWorkerDebug /> */}
-        </BrowserRouter>
-      </Suspense>
+                        <Suspense fallback={null}>
+                          <GlobalModalManager />
+                          <PerformanceMonitor />
+                          <PasskeyOnboardingWrapper />
+                          <AIChatWidget />
+                          {/* UnifiedSettingsDrawer рендерится в AppProviders через GlobalSettingsManager */}
+                        </Suspense>
+                      </CosmeticsPreviewProvider>
+                    </Suspense>
+                  </AppProviders>
+                </Suspense>
+              } />
+            </Routes>
+            {/* ⚠️ ОТКЛЮЧЕНО: Service Worker отключен */}
+            {/* Debug панель Service Worker (только в dev или с localStorage.debug_sw) */}
+            {/* <ServiceWorkerDebug /> */}
+          </BrowserRouter>
+        </Suspense>
+      </Motion>
     </TelegramProvider>
   );
 };

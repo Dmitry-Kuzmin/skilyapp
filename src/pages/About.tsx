@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -10,7 +10,66 @@ import { cn } from "@/lib/utils";
 import { LandingLogo } from "@/components/landing/LandingLogo";
 import { landingTranslations } from "@/translations/landing";
 
-// --- Utility: Highlight Keywords ---
+// Lazy load AuthModal
+const AuthModalNew = lazy(() => import("@/components/AuthModalNew").then(m => ({ default: m.AuthModalNew })));
+
+// ... (previous code)
+
+const FinalCTA = React.memo(({ onRequestAccess }: { onRequestAccess: () => void }) => {
+  const { language } = useLanguage();
+
+  return (
+    <div className="mb-40 mx-4 relative z-20 max-w-4xl mx-auto">
+      <div className="relative rounded-3xl py-12 px-8 md:px-16 text-center shadow-2xl shadow-indigo-900/40 overflow-hidden group border-t border-white/20">
+
+        {/* Liquid Gradient Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-900 animate-gradient-x" />
+
+        {/* Animated Blur Blobs - Scaled Down */}
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-500/30 blur-[80px] rounded-full mix-blend-overlay animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-cyan-500/30 blur-[80px] rounded-full mix-blend-overlay animate-pulse" style={{ animationDuration: '6s' }} />
+
+        {/* Noise Texture */}
+        <div className="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none" style={{
+          backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")',
+        }} />
+
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-bold uppercase tracking-widest mb-6 backdrop-blur-md shadow-lg">
+            <Sparkles size={12} className="text-yellow-300" />
+            <span>{language === 'ru' ? 'Твой путь к правам' : 'Your Road to License'}</span>
+          </div>
+
+          <h2 className="text-3xl md:text-5xl font-black text-white mb-4 drop-shadow-2xl tracking-tighter leading-tight">
+            {language === 'ru' ? 'Готов сдать экзамен?' : 'Ready to pass the exam?'}
+          </h2>
+
+          <p className="text-white/80 text-lg font-light mb-8 max-w-xl mx-auto leading-relaxed">
+            {language === 'ru'
+              ? 'Присоединяйся к тысячам учеников, которые уже получили права с Skily.'
+              : 'Join thousands of students who got their license with Skily.'}
+          </p>
+
+          <button
+            onClick={onRequestAccess}
+            className="group/btn relative px-8 py-3.5 bg-white text-slate-900 rounded-xl font-black text-base hover:scale-105 transition-all duration-300 flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_rgba(255,255,255,0.5)]"
+          >
+            <span>{language === 'ru' ? 'Начать бесплатно' : 'Start for Free'}</span>
+            <div className="bg-slate-900 text-white rounded-full p-1 group-hover/btn:translate-x-1 transition-transform">
+              <ArrowRight size={14} />
+            </div>
+          </button>
+
+          <p className="mt-4 text-white/40 text-xs font-medium">
+            {language === 'ru' ? 'Карта не требуется' : 'No credit card required'}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+FinalCTA.displayName = 'FinalCTA';
 const highlightText = (text: string, keywords: string[], highlightClass: string = "text-blue-200") => {
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
@@ -33,8 +92,7 @@ const highlightText = (text: string, keywords: string[], highlightClass: string 
 
 // --- Components ---
 
-const Navbar = React.memo(() => {
-  const navigate = useNavigate();
+const Navbar = React.memo(({ onRequestAccess }: { onRequestAccess: () => void }) => {
   const { language } = useLanguage();
 
   return (
@@ -51,7 +109,7 @@ const Navbar = React.memo(() => {
         </div>
 
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={onRequestAccess}
           className="bg-white text-slate-900 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors shadow-lg shadow-white/10"
         >
           {language === 'ru' ? 'Войти' : 'Login'}
@@ -64,8 +122,7 @@ const Navbar = React.memo(() => {
 Navbar.displayName = 'Navbar';
 
 const AnimatedCounter = ({ value, suffix = '', decimals = 0, duration = 2000 }: { value: number, suffix?: string, decimals?: number, duration?: number }) => {
-  const [count, setCount] = useState(0);
-  const nodeRef = useRef(null);
+  const nodeRef = useRef<HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -73,9 +130,13 @@ const AnimatedCounter = ({ value, suffix = '', decimals = 0, duration = 2000 }: 
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
+          observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      {
+        threshold: 0.1,
+        rootMargin: "200px" // Start triggering earlier
+      }
     );
 
     if (nodeRef.current) {
@@ -86,7 +147,7 @@ const AnimatedCounter = ({ value, suffix = '', decimals = 0, duration = 2000 }: 
   }, []);
 
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible || !nodeRef.current) return;
 
     let startTime: number;
     let animationFrame: number;
@@ -99,21 +160,35 @@ const AnimatedCounter = ({ value, suffix = '', decimals = 0, duration = 2000 }: 
       // Easing function: easeOutExpo
       const easeOut = percentage === 1 ? 1 : 1 - Math.pow(2, -10 * percentage);
 
-      setCount(value * easeOut);
+      const currentVal = value * easeOut;
+
+      if (nodeRef.current) {
+        nodeRef.current.textContent = currentVal.toLocaleString('en-US', {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals
+        });
+      }
 
       if (progress < duration) {
         animationFrame = requestAnimationFrame(animate);
+      } else {
+        if (nodeRef.current) {
+          nodeRef.current.textContent = value.toLocaleString('en-US', {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals
+          });
+        }
       }
     };
 
     animationFrame = requestAnimationFrame(animate);
 
     return () => cancelAnimationFrame(animationFrame);
-  }, [value, duration, isVisible]);
+  }, [value, duration, isVisible, decimals]);
 
   return (
     <span ref={nodeRef} className="tabular-nums tracking-tighter">
-      {count.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}
+      0
     </span>
   );
 };
@@ -280,9 +355,13 @@ const MarqueeCard = React.memo(({
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
+          observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      {
+        threshold: 0.1,
+        rootMargin: "200px" // Load earlier
+      }
     );
 
     if (cardRef.current) {
@@ -297,16 +376,12 @@ const MarqueeCard = React.memo(({
       ref={cardRef}
       className={cn(
         widthClass,
-        "bg-slate-900/30 backdrop-blur-xl border border-white/10 hover:border-white/30 p-6 rounded-2xl flex-shrink-0 mx-3 transition-all duration-700 group relative overflow-hidden",
+        "bg-slate-900/40 backdrop-blur-md border border-white/10 hover:border-white/30 p-6 rounded-2xl flex-shrink-0 mx-3 transition-all duration-700 group relative overflow-hidden",
         hoverShadow,
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
       )}
     >
-      {/* Noise texture overlay */}
-      <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{
-        backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 400 400\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' /%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\' /%3E%3C/svg%3E")',
-        backgroundSize: '200px 200px'
-      }} />
+      {/* Removed per-card noise texture for seamless 60fps animation */}
 
       {/* Aurora Glow hover effect */}
       <div className={cn(
@@ -421,7 +496,7 @@ const InfiniteMarquee = React.memo(() => {
       country: "Argentina 🇦🇷 → Madrid",
       text: language === 'ru'
         ? "Думал, что учить ПДД — это скука смертная. Но когда в Дуэлях меня начал обходить чувак из Барселоны, я реально закусился. Выучил все знаки за три вечера, просто чтобы его обставить. Лучший EdTech опыт!"
-        : "Thought studying traffic rules would be deadly boring. But when some guy from Barcelona started beating me in Duels, I got seriously competitive. Learned all signs in three evenings just to beat him. Best EdTech experience ever!",
+        : "Thought studying traffic rules would be deadly boring. But when some guy from Barcelona startedN/A - Reading file firstn Duels, I got seriously competitive. Learned all signs in three evenings just to beat him. Best EdTech experience ever!",
       metric: language === 'ru' ? "🏆 Топ-3 в лиге · ⚔️ 142 победы" : "🏆 Top-3 in league · ⚔️ 142 wins",
       badge: language === 'ru' ? "Геймер одобряет" : "Gamer approved",
       date: language === 'ru' ? "2 недели назад" : "2 weeks ago",
@@ -566,62 +641,7 @@ const InfiniteMarquee = React.memo(() => {
 
 InfiniteMarquee.displayName = 'InfiniteMarquee';
 
-const FinalCTA = React.memo(() => {
-  const { language } = useLanguage();
-  const navigate = useNavigate();
 
-  return (
-    <div className="mb-40 mx-4 relative z-20 max-w-4xl mx-auto">
-      <div className="relative rounded-3xl py-12 px-8 md:px-16 text-center shadow-2xl shadow-indigo-900/40 overflow-hidden group border-t border-white/20">
-
-        {/* Liquid Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-900 animate-gradient-x" />
-
-        {/* Animated Blur Blobs - Scaled Down */}
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-500/30 blur-[80px] rounded-full mix-blend-overlay animate-pulse" style={{ animationDuration: '4s' }} />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-cyan-500/30 blur-[80px] rounded-full mix-blend-overlay animate-pulse" style={{ animationDuration: '6s' }} />
-
-        {/* Noise Texture */}
-        <div className="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none" style={{
-          backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")',
-        }} />
-
-        <div className="relative z-10 flex flex-col items-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-bold uppercase tracking-widest mb-6 backdrop-blur-md shadow-lg">
-            <Sparkles size={12} className="text-yellow-300" />
-            <span>{language === 'ru' ? 'Твой путь к правам' : 'Your Road to License'}</span>
-          </div>
-
-          <h2 className="text-3xl md:text-5xl font-black text-white mb-4 drop-shadow-2xl tracking-tighter leading-tight">
-            {language === 'ru' ? 'Готов сдать экзамен?' : 'Ready to pass the exam?'}
-          </h2>
-
-          <p className="text-white/80 text-lg font-light mb-8 max-w-xl mx-auto leading-relaxed">
-            {language === 'ru'
-              ? 'Присоединяйся к тысячам учеников, которые уже получили права с Skily.'
-              : 'Join thousands of students who got their license with Skily.'}
-          </p>
-
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="group/btn relative px-8 py-3.5 bg-white text-slate-900 rounded-xl font-black text-base hover:scale-105 transition-all duration-300 flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_rgba(255,255,255,0.5)]"
-          >
-            <span>{language === 'ru' ? 'Начать бесплатно' : 'Start for Free'}</span>
-            <div className="bg-slate-900 text-white rounded-full p-1 group-hover/btn:translate-x-1 transition-transform">
-              <ArrowRight size={14} />
-            </div>
-          </button>
-
-          <p className="mt-4 text-white/40 text-xs font-medium">
-            {language === 'ru' ? 'Карта не требуется' : 'No credit card required'}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-});
-
-FinalCTA.displayName = 'FinalCTA';
 
 const Footer = React.memo(({ copy }: { copy: any }) => {
   const navigate = useNavigate();
@@ -723,6 +743,7 @@ Footer.displayName = 'Footer';
 export default function About() {
   const { language } = useLanguage();
   const copy = landingTranslations[language];
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // Set dark background for body
   useEffect(() => {
@@ -907,9 +928,7 @@ export default function About() {
   const titleParts = pageContent.hero.title.split('. ');
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-white font-sans selection:bg-indigo-500/30 overflow-x-hidden">
-      <Navbar />
-
+    <div className="min-h-screen flex flex-col bg-[#0f172a] text-white font-sans selection:bg-indigo-500/30 overflow-x-hidden">
       {/* Enhanced Background with Noise + Grid */}
       <div className="fixed inset-0 pointer-events-none z-0">
         {/* Grid pattern */}
@@ -930,8 +949,9 @@ export default function About() {
         <div className="absolute right-6 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/5 to-transparent"></div>
         <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/5 to-transparent opacity-50"></div>
       </div>
+      <Navbar onRequestAccess={() => setAuthModalOpen(true)} />
 
-      <main className="relative z-10 pt-40 pb-20">
+      <main className="relative z-10 pt-40 pb-20 flex-1">
         {/* Hero Section */}
         <div className="text-center mb-24 space-y-8 max-w-4xl mx-auto px-6">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-widest animate-fade-in shadow-lg shadow-blue-500/10">
@@ -1072,7 +1092,7 @@ export default function About() {
         <div className="max-w-4xl mx-auto px-6 relative">
           {/* Animated blur blob */}
           <div className="absolute top-0 left-1/3 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-purple-400/20 blur-[120px] rounded-full animate-[float_8s_ease-in-out_infinite] pointer-events-none"></div>
-          <FinalCTA />
+          <FinalCTA onRequestAccess={() => setAuthModalOpen(true)} />
         </div>
 
         <style>{`
@@ -1085,6 +1105,10 @@ export default function About() {
       </main>
 
       <Footer copy={copy} />
+
+      <Suspense fallback={null}>
+        <AuthModalNew open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+      </Suspense>
     </div>
   );
 }

@@ -672,11 +672,11 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           </div>
 
           <div className="flex items-center gap-4 opacity-60">
-            <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-slate-500"></div>
-            <span className="text-[10px] uppercase tracking-widest text-slate-500">
+            <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-slate-500 animate-engine-idle" style={{ animationDelay: '0.3s' }}></div>
+            <span className="text-[10px] uppercase tracking-widest text-slate-500 animate-engine-idle">
               {copy.hero.pressStart}
             </span>
-            <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-slate-500"></div>
+            <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-slate-500 animate-engine-idle" style={{ animationDelay: '0.3s' }}></div>
           </div>
         </div>
       </section>

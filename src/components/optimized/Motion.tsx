@@ -10,7 +10,7 @@ import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 
 // Базовые анимации (только необходимые для 95% случаев)
 export const Motion = ({ children }: { children: React.ReactNode }) => (
-  <LazyMotion features={domAnimation} strict>
+  <LazyMotion features={domAnimation}>
     {children}
   </LazyMotion>
 );
@@ -41,7 +41,7 @@ let fullMotion: typeof import('framer-motion') | null = null;
 
 export const loadFullMotion = async (): Promise<typeof import('framer-motion')> => {
   if (fullMotion) return fullMotion;
-  
+
   try {
     fullMotion = await import('framer-motion');
     return fullMotion;
