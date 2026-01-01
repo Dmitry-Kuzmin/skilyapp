@@ -56,7 +56,7 @@ export const CountrySelector: React.FC = () => {
                 className="flex items-center gap-1.5 px-2 md:px-0 py-2 md:py-1 text-sm font-medium text-slate-400 hover:text-white transition-colors group"
                 aria-label="Select Country"
             >
-                <span className="text-lg leading-none">{selectedCountry.flag}</span>
+                <span className="text-base leading-none">{selectedCountry.flag}</span>
                 <span className="hidden md:inline text-sm">{selectedCountry.nameEn}</span>
 
                 {/* Chevron */}

@@ -6,7 +6,8 @@ interface LandingLogoProps {
   className?: string;
   showText?: boolean;
   theme?: "light" | "dark" | "auto";
-  variant?: "default" | "minimal" | "bold" | "elegant";
+  variant?: "default" | "minimal" | "bold" | "elegant" | "header" | "footer";
+  onInteraction?: () => void;
 }
 
 export const LandingLogo: React.FC<LandingLogoProps> = ({
@@ -14,6 +15,7 @@ export const LandingLogo: React.FC<LandingLogoProps> = ({
   showText = true,
   theme: themeProp = "auto",
   variant = "default",
+  onInteraction,
 }) => {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -54,27 +56,57 @@ export const LandingLogo: React.FC<LandingLogoProps> = ({
     );
   }
 
-  // Вариант 2: Жирный (крупная иконка с контрастным фоном) - улучшенный дизайн
-  if (variant === "bold") {
+  // Вариант 2, Header, Footer: Жирный премиум стиль (универсальный)
+  if (variant === "bold" || variant === "header" || variant === "footer") {
+    const isInteractive = variant !== "footer"; // Header и Bold - интерактивные
+
     return (
-      <div className={`flex items-center gap-2.5 p-2 -m-2 ${className}`} style={{ overflow: 'visible', position: 'relative' }}>
-        <div className="relative flex-shrink-0" style={{ overflow: 'visible' }}>
+      <div
+        className={`flex items-center gap-3 p-2 -m-2 cursor-default ${isInteractive ? "group" : ""} ${className}`}
+        style={{ overflow: 'visible', position: 'relative' }}
+        onMouseEnter={() => isInteractive && onInteraction?.()}
+      >
+        <div className={`relative flex-shrink-0 transition-transform duration-500 ease-out transform-gpu will-change-transform ${isInteractive ? "group-hover:scale-105" : ""}`} style={{ overflow: 'visible' }}>
           {/* Градиентный фон с анимацией - синий акцентный цвет */}
-          <div className={`w-10 h-10 rounded-2xl ${isDark ? "bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700" : "bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800"} flex items-center justify-center shadow-xl ${isDark ? "shadow-blue-500/40" : "shadow-blue-600/50"} relative overflow-hidden`}>
+          <div className={`w-10 h-10 rounded-2xl ${isDark ? "bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700" : "bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800"} flex items-center justify-center shadow-xl ${isDark ? "shadow-blue-500/40" : "shadow-blue-600/50"} relative overflow-hidden transform-gpu`}>
             {/* Дополнительное свечение внутри */}
             <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent"></div>
             {/* Иконка */}
             <CarFront className="w-5 h-5 text-white relative z-10" strokeWidth={2.5} />
+
+            {/* Headlight Flares (Beep-Beep Interaction - Only if Interactive) */}
+            {isInteractive && (
+              <>
+                <div className="absolute top-[48%] left-[26%] w-1.5 h-1.5 bg-[#bae6fd] rounded-full blur-[1px] opacity-0 group-hover:animate-[beep-beep_0.6s_ease-out_forwards] z-30"></div>
+                <div className="absolute top-[48%] right-[26%] w-1.5 h-1.5 bg-[#bae6fd] rounded-full blur-[1px] opacity-0 group-hover:animate-[beep-beep_0.6s_ease-out_forwards] z-30"></div>
+              </>
+            )}
           </div>
-          {/* Внешнее свечение - расширяем за пределы контейнера, чтобы тень не обрезалась и накладывалась на следующий блок */}
-          <div className={`absolute -inset-4 rounded-2xl ${isDark ? "bg-blue-400/30" : "bg-blue-500/30"} blur-xl -z-10 animate-pulse`} style={{ animationDuration: '3s', pointerEvents: 'none' }}></div>
+          {/* Внешнее свечение - Aurora Glow (Sync with Beep if Interactive, otherwise Steady) */}
+          <div className={`absolute -inset-8 -z-10 opacity-80 pointer-events-none scale-125 blur-3xl ${isInteractive ? "group-hover:animate-[glow-jump_0.6s_ease-out_forwards]" : ""} ${isDark ? "bg-[radial-gradient(closest-side,rgba(59,130,246,0.6)_0%,transparent_100%)]" : "bg-[radial-gradient(closest-side,rgba(37,99,235,0.5)_0%,transparent_100%)]"}`}></div>
         </div>
         {showText && (
-          <span className={`text-xl font-black tracking-tight ${isDark
-              ? "bg-gradient-to-r from-white via-blue-50 to-white bg-clip-text text-transparent"
+          <span className="relative inline-block" aria-label="Skily">
+            {/* Base Layer (Standard) */}
+            <span className={`text-xl font-black tracking-tight inline-block relative z-10 ${isDark
+              ? "bg-[linear-gradient(110deg,rgba(255,255,255,0.7)_45%,#ffffff_50%,rgba(255,255,255,0.7)_55%)] bg-clip-text text-transparent animate-text-shimmer bg-[length:250%_100%]"
               : "text-zinc-900"
-            }`}>
-            Skily
+              }`}>
+              Skily
+            </span>
+
+            {/* Hover Layer (Masked Wipe Effect - Only if Interactive) */}
+            {isInteractive && (
+              <span className="absolute inset-0 z-20 overflow-hidden w-0 group-hover:w-full transition-[width] duration-300 ease-out" aria-hidden="true">
+                {/* Inner Text (Maintains gradient stability) */}
+                <span className={`text-xl font-black tracking-tight inline-block whitespace-nowrap ${isDark
+                  ? "bg-[linear-gradient(110deg,#60a5fa_45%,#ffffff_50%,#60a5fa_55%)] bg-clip-text text-transparent group-hover:animate-[shimmer-once_1.2s_ease-out_forwards] bg-[length:250%_100%]"
+                  : "text-blue-600"
+                  }`}>
+                  Skily
+                </span>
+              </span>
+            )}
           </span>
         )}
       </div>

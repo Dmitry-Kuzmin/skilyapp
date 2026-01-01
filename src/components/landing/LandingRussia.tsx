@@ -34,7 +34,8 @@ import {
   Headset,
   Heart,
   MapPin,
-  Rocket
+  Rocket,
+  Star
 } from "lucide-react";
 import { playClickSound, playEngineSound } from "@/services/audioService";
 import { LandingLogo } from "./LandingLogo";
@@ -51,6 +52,12 @@ import {
   landingTranslations,
   LANGUAGE_OPTIONS,
 } from "@/translations/landing";
+
+// ВРЕМЕННО: прямой импорт вместо lazy для дебага
+import { LandingDuelDemo } from './LandingDuelDemo';
+import { LandingBlitzDemo } from './LandingBlitzDemo';
+const LandingDuelPassSection = React.lazy(() => import('./LandingDuelPassSection').then(module => ({ default: module.LandingDuelPassSection })));
+// const LandingDuelDemo = React.lazy(() => import('./LandingDuelDemo').then(module => ({ default: module.LandingDuelDemo })));
 
 const DEMO_VARIANTS = {
   ru: [
@@ -149,6 +156,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
   loadingPartner = false,
 }) => {
   const [isStarting, setIsStarting] = useState(false);
+  const [isEchoActive, setIsEchoActive] = useState(false);
   const [isPartnershipOpen, setIsPartnershipOpen] = useState(false);
   const [demoVariantIndex, setDemoVariantIndex] = useState(0);
   const [avatarError, setAvatarError] = useState(false);
@@ -161,24 +169,49 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
     setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   };
 
-  const [timeLeft, setTimeLeft] = useState(15);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 15));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   const [activeGameMode, setActiveGameMode] = useState<'pvp' | 'race'>('pvp');
+  const [shouldLoadDemo, setShouldLoadDemo] = useState(false);
+  const demoContainerRef = React.useRef<HTMLDivElement>(null);
 
-  // Auto-rotate game modes
+  // Intersection Observer для ленивой загрузки демо-дуэли
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveGameMode((prev) => (prev === 'pvp' ? 'race' : 'pvp'));
-    }, 4000); // Switch every 4 seconds
-    return () => clearInterval(interval);
-  }, []);
+    console.log('[Landing] Demo container ref:', demoContainerRef.current);
+    console.log('[Landing] shouldLoadDemo:', shouldLoadDemo);
+
+    if (!demoContainerRef.current) {
+      console.warn('[Landing] Demo container ref not found!');
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          console.log('[Landing] Intersection:', entry.isIntersecting);
+          if (entry.isIntersecting && !shouldLoadDemo) {
+            console.log('[Landing] Loading demo...');
+            setShouldLoadDemo(true);
+            observer.disconnect(); // Загрузили один раз - отключаем observer
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '100px' } // Начинаем загрузку за 100px до появления
+    );
+
+    observer.observe(demoContainerRef.current);
+
+    return () => observer.disconnect();
+  }, [shouldLoadDemo]);
+
+  // Duel Pass logic moved to LandingDuelPassSection
+  // Auto-rotate game modes (DISABLED - теперь используем интерактивное демо)
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setActiveGameMode((prev) => (prev === 'pvp' ? 'race' : 'pvp'));
+  //   }, 4000); // Switch every 4 seconds
+  //   return () => clearInterval(interval);
+  // }, []);
 
   // FAQ Types & Content
   interface FAQCategory {
@@ -477,14 +510,32 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
         style={{ backgroundImage: 'url("/noise.svg")' }}
       ></div>
       <div className="fixed inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
+      {/* Ambient Grid Echo Overlay (Masked Top-Left) */}
+      <div
+        className={`fixed inset-0 bg-[linear-gradient(to_right,#22d3ee30_1px,transparent_1px),linear-gradient(to_bottom,#22d3ee30_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0 opacity-0 ${isEchoActive ? 'animate-[grid-echo_0.6s_ease-out_forwards]' : ''}`}
+        style={{
+          WebkitMaskImage: 'radial-gradient(circle at 120px 40px, black 0%, transparent 70%)',
+          maskImage: 'radial-gradient(circle at 120px 40px, black 0%, transparent 70%)'
+        }}
+      ></div>
 
       <nav className="relative z-[100] px-4 md:px-10 py-4 md:py-6 flex items-center justify-between max-w-[1400px] mx-auto gap-2 md:gap-4" style={{ overflow: 'visible' }}>
         {/* Left Side: Brand + Location */}
-        <div className="flex items-center gap-2 md:gap-4" style={{ overflow: 'visible', position: 'relative' }}>
-          <LandingLogo theme="dark" variant="bold" className="scale-75 md:scale-90 origin-left" />
+        <div className="flex items-center" style={{ overflow: 'visible', position: 'relative' }}>
+          <LandingLogo
+            theme="dark"
+            variant="header"
+            className="scale-90 md:scale-105 origin-left"
+            onInteraction={() => {
+              if (!isEchoActive) {
+                setIsEchoActive(true);
+                setTimeout(() => setIsEchoActive(false), 600);
+              }
+            }}
+          />
 
           {/* Divider */}
-          <div className="h-4 w-px bg-white/10 self-center" />
+          <div className="h-6 w-[1px] bg-white/10 self-center hidden md:block mx-5" />
 
           {/* Country Selector */}
           <CountrySelector onOpenPartnership={() => setIsPartnershipOpen(true)} />
@@ -680,19 +731,19 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           className="flex flex-col items-center gap-5 animate-slide-up"
           style={{ animationDelay: "0.2s" }}
         >
-          <div className="scale-75 md:scale-90">
+          <div className={`scale-75 md:scale-90 transform-gpu will-change-transform ${isEchoActive ? "animate-[button-echo_0.8s_ease-in-out_forwards]" : ""}`}>
             <StartEngineButton
               onClick={handleStartEngine}
               isIgniting={isStarting}
             />
           </div>
 
-          <div className="flex items-center gap-4 opacity-60">
-            <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-slate-500"></div>
-            <span className="text-[10px] uppercase tracking-widest text-slate-500">
+          <div className="flex items-center gap-4">
+            <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-slate-500 animate-[engine-idle_3s_ease-in-out_infinite]" style={{ animationDelay: '0.3s' }}></div>
+            <span className="text-[10px] uppercase tracking-widest text-slate-500 animate-[engine-idle_3s_ease-in-out_infinite]">
               {copy.hero.pressStart}
             </span>
-            <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-slate-500"></div>
+            <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-slate-500 animate-[engine-idle_3s_ease-in-out_infinite]" style={{ animationDelay: '0.3s' }}></div>
           </div>
         </div>
       </section>
@@ -957,226 +1008,96 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
 
       {/* Games Demo - Show, Don't Tell */}
       <section className="relative z-10 px-6 py-16 md:py-20 max-w-[1400px] mx-auto">
-        <div className="mb-12 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-300 text-xs font-bold uppercase tracking-wider mb-6">
-            <Trophy className="w-3 h-3" />
-            {copy.arena.bannerLabel}
-          </div>
-          <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-            {copy.arena.bannerTitle}
-          </h2>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-            {copy.arena.bannerDescription}
-          </p>
+
+        <div ref={demoContainerRef} className="min-h-[600px] flex items-center justify-center relative">
+          {shouldLoadDemo ? (
+            <React.Suspense fallback={
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 rounded-full border-4 border-orange-500/20 border-t-orange-500 animate-spin"></div>
+                <div className="text-slate-500 text-sm font-bold animate-pulse">Загрузка арены...</div>
+              </div>
+            }>
+              <LandingDuelPassSection language={language === 'ru' ? 'ru' : 'en'} copy={copy} />
+            </React.Suspense>
+          ) : (
+            <div className="text-slate-800 text-sm italic opacity-20">Прокрутите для активации демо</div>
+          )}
         </div>
+      </section>
 
-        {/* Interactive Gameplay Showcase */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-24 mb-24 relative mt-16 px-4">
-
-          {/* LEFT CONTROLLER: PvP */}
-          <div
-            className={`flex-1 text-center lg:text-right cursor-pointer group transition-all duration-500 ${activeGameMode === 'pvp' ? 'opacity-100 scale-105' : 'opacity-40 hover:opacity-100 blur-[2px] hover:blur-0'}`}
-            onClick={() => setActiveGameMode('pvp')}
-          >
-            <div className="inline-flex items-center gap-2 mb-4 justify-center lg:justify-end">
-              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors border ${activeGameMode === 'pvp' ? 'bg-orange-500/20 text-orange-400 border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.3)]' : 'bg-slate-800 text-slate-500 border-slate-700'}`}>
-                Multiplayer
-              </span>
+      {/* --- DUEL PASS PROGRESS RAIL --- */}
+      <section className="relative z-10 py-16 max-w-[1400px] mx-auto">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="relative pt-8 pb-12 px-8 rounded-3xl bg-slate-900/40 border border-white/5 backdrop-blur-xl overflow-hidden shadow-2xl">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12 relative z-10">
+              <div>
+                <h4 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter italic">Duel Pass <span className="text-orange-500">Season 1</span></h4>
+                <p className="text-sm text-slate-400 max-w-sm">
+                  {language === 'ru'
+                    ? 'Играй в дуэли, копи опыт и забирай эксклюзивные награды каждый сезон.'
+                    : 'Play duels, gain XP, and claim exclusive rewards every season.'}
+                </p>
+              </div>
+              <div className="flex items-center gap-5 bg-white/5 p-3 rounded-2xl border border-white/10">
+                <div className="text-right">
+                  <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">Current Level</div>
+                  <div className="text-2xl font-black text-white leading-none">12</div>
+                </div>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                  <Star className="text-white w-6 h-6 fill-white/20" />
+                </div>
+              </div>
             </div>
-            <h3 className={`text-4xl lg:text-5xl font-black mb-6 leading-tight transition-colors duration-300 ${activeGameMode === 'pvp' ? 'text-white drop-shadow-[0_0_25px_rgba(255,255,255,0.4)]' : 'text-slate-700 group-hover:text-slate-500'}`}>
-              PvP Arena
-            </h3>
-            <p className={`text-lg mb-8 lg:ml-auto max-w-sm transition-colors duration-300 ${activeGameMode === 'pvp' ? 'text-indigo-200' : 'text-slate-600'}`}>
-              {language === 'ru' ? 'Вызови соперника на дуэль. Кто быстрее и точнее — забирает банк.' : 'Challenge an opponent. Fastest and most accurate takes the pot.'}
-            </p>
 
-            {/* Active Indicator Line */}
-            <div className="flex justify-center lg:justify-end">
-              <div className={`h-1 rounded-full bg-gradient-to-r from-transparent via-orange-500 to-transparent transition-all duration-700 ${activeGameMode === 'pvp' ? 'w-full opacity-100 shadow-[0_0_10px_#f97316]' : 'w-0 opacity-0'}`}></div>
+            {/* The Rail */}
+            <div className="relative h-4 bg-slate-800/80 rounded-full mb-10 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] border border-white/5">
+              <div className="absolute top-0 left-0 h-full w-[65%] bg-gradient-to-r from-orange-500 via-indigo-500 to-cyan-500 shadow-[0_0_20px_rgba(99,102,241,0.4)] rounded-full transition-all duration-1000 ease-out"></div>
+
+              {/* Level Markers */}
+              <div className="absolute inset-x-0 -top-1 bottom-0 flex justify-between items-center px-1">
+                {[1, 5, 10, 15, 20].map((level) => (
+                  <div key={level} className="relative flex flex-col items-center">
+                    <div className={`w-3 h-3 rounded-full border-2 border-slate-900 transition-colors duration-500 ${level <= 12 ? 'bg-white shadow-[0_0_15px_#fff]' : 'bg-slate-700'}`}></div>
+                    <div className={`absolute -bottom-8 text-[10px] font-black transition-colors ${level <= 12 ? 'text-white' : 'text-slate-500'}`}>LVL {level}</div>
+
+                    {/* Rewards */}
+                    {level === 5 && (
+                      <div className="absolute -top-12 w-10 h-10 rounded-xl bg-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.5)] flex items-center justify-center text-white rotate-6 hover:rotate-0 transition-transform cursor-help group">
+                        <Zap size={16} />
+                        <div className="absolute -top-10 scale-0 group-hover:scale-100 bg-white text-black text-[9px] font-black px-2 py-1 rounded shadow-xl transition-transform uppercase whitespace-nowrap">XP Boost x2</div>
+                      </div>
+                    )}
+                    {level === 15 && (
+                      <div className="absolute -top-12 w-10 h-10 rounded-xl bg-slate-800 border border-white/10 flex items-center justify-center text-slate-500 -rotate-6 grayscale group">
+                        <Gift size={16} />
+                        <div className="absolute -top-10 scale-0 group-hover:scale-100 bg-white text-black text-[9px] font-black px-2 py-1 rounded shadow-xl transition-transform uppercase whitespace-nowrap">Secret Reward</div>
+                      </div>
+                    )}
+                    {level === 20 && (
+                      <div className="absolute -top-14 w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-600 shadow-[0_0_25px_rgba(251,191,36,0.6)] flex items-center justify-center text-white scale-110 animate-bounce group">
+                        <Crown size={22} />
+                        <div className="absolute -top-10 scale-0 group-hover:scale-100 bg-white text-black text-[9px] font-black px-2 py-1 rounded shadow-xl transition-transform uppercase whitespace-nowrap">Elite Skin</div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
+
+            {/* Countdown / Hint */}
+            <div className="mt-4 text-center">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20">
+                <span className="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300">
+                  {language === 'ru' ? 'НОВЫЙ СЕЗОН СТАРТУЕТ ЧЕРЕЗ 5 ДНЕЙ' : 'NEW SEASON STARTS IN 5 DAYS'}
+                </span>
+              </div>
+            </div>
+
+            {/* Background Glows */}
+            <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-indigo-600/10 rounded-full blur-[80px]"></div>
+            <div className="absolute -top-24 -left-24 w-64 h-64 bg-orange-600/5 rounded-full blur-[80px]"></div>
           </div>
-
-          {/* CENTER: PHONE MOCKUP (High-Fidelity) */}
-          <div className="relative z-10 shrink-0 transform transition-transform duration-700 hover:scale-[1.02]">
-
-            {/* Floating Badge 1 (Win Pot) */}
-            <div className="absolute top-16 -left-6 lg:-28 animate-[float_6s_ease-in-out_infinite] z-30">
-              <div className="bg-slate-900/60 backdrop-blur-xl p-4 pr-6 rounded-2xl border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex items-center gap-4 hover:border-yellow-500/30 transition-colors">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400/20 to-orange-500/20 flex items-center justify-center border border-yellow-500/30 shadow-[inset_0_0_15px_rgba(234,179,8,0.2)]">
-                  <Coins className="text-yellow-400 drop-shadow-[0_0_5px_rgba(234,179,8,0.5)]" size={24} />
-                </div>
-                <div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Win Pot</div>
-                  <div className="text-xl font-black text-white px-0.5 drop-shadow-lg">+500</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Floating Badge 2 (Rank) */}
-            <div className="absolute bottom-24 -right-6 lg:-28 animate-[float_5s_ease-in-out_infinite_1s] z-30">
-              <div className="bg-slate-900/60 backdrop-blur-xl p-4 pr-6 rounded-2xl border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex items-center gap-4 hover:border-purple-500/30 transition-colors">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400/20 to-indigo-500/20 flex items-center justify-center border border-purple-500/30 shadow-[inset_0_0_15px_rgba(168,85,247,0.2)]">
-                  <Trophy className="text-purple-400 drop-shadow-[0_0_5px_rgba(168,85,247,0.5)]" size={24} />
-                </div>
-                <div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Season Rank</div>
-                  <div className="text-xl font-black text-white px-0.5 drop-shadow-lg">#1 Champion</div>
-                </div>
-              </div>
-            </div>
-
-            {/* THE DEVICE */}
-            <div className="w-[340px] h-[700px] bg-slate-950 rounded-[3.5rem] border-[14px] border-slate-900 shadow-[0_0_0_2px_rgba(255,255,255,0.1),0_20px_50px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden ring-1 ring-white/20">
-              {/* Dynamic Notch */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-slate-900 rounded-b-3xl z-40 flex items-center justify-center">
-                <div className="w-12 h-1 rounded-full bg-slate-800/50"></div>
-              </div>
-
-              {/* GAME SCREEN CONTAINER */}
-              <div className="absolute inset-0 bg-gradient-to-b from-indigo-950 via-slate-950 to-black flex flex-col">
-
-                {/* --- PVP MODE SCREEN --- */}
-                <div className={`absolute inset-0 transition-all duration-700 ease-in-out flex flex-col ${activeGameMode === 'pvp' ? 'opacity-100 translate-x-0 bg-slate-950' : 'opacity-0 -translate-x-full bg-slate-950'}`}>
-                  {/* Top Bar with Neon Glow */}
-                  <div className="h-24 bg-gradient-to-b from-slate-900 to-transparent flex items-end justify-between px-6 pb-6 border-b border-white/5 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-red-500 to-transparent opacity-50"></div>
-                    <div className="flex gap-1.5">
-                      {[1, 2, 3].map(i => <div key={i} className="w-8 h-1.5 bg-red-500 rounded-full shadow-[0_0_10px_#ef4444]"></div>)}
-                    </div>
-                    <div className="text-white font-black font-mono tracking-widest drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">VS POPAL</div>
-                  </div>
-
-                  {/* 3D Arena */}
-                  <div className="flex-1 relative overflow-hidden bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-slate-800/20 via-slate-950 to-slate-950 perspective-1000">
-                    {/* Grid Floor */}
-                    <div className="absolute inset-0 bg-[linear-gradient(rgba(249,115,22,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(249,115,22,0.1)_1px,transparent_1px)] bg-[size:50px_50px] [transform:perspective(600px)_rotateX(70deg)_translateY(-100px)] origin-bottom opacity-40 animate-[gridMove_20s_linear_infinite]"></div>
-
-                    {/* Avatars */}
-                    <div className="absolute top-[20%] left-1/2 -translate-x-1/2 flex flex-col items-center gap-10 w-full">
-                      {/* Opponent (Floating) */}
-                      <div className="relative animate-[bounce_2s_infinite]">
-                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-red-500 to-orange-600 border-4 border-slate-900 shadow-[0_0_50px_rgba(239,68,68,0.6)] flex items-center justify-center z-10 relative">
-                          <Swords className="text-white w-10 h-10 drop-shadow-lg" />
-                        </div>
-                        <div className="absolute -inset-4 bg-red-500/30 blur-xl rounded-full -z-10 animate-pulse"></div>
-                      </div>
-
-                      {/* VS Lightning */}
-                      <div className="relative">
-                        <div className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 italic skew-x-[-10deg] animate-pulse drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">VS</div>
-                      </div>
-
-                      {/* You (Card) */}
-                      <div className="w-64 h-32 bg-slate-900/80 backdrop-blur-md rounded-2xl border border-blue-500/30 shadow-[0_0_30px_rgba(59,130,246,0.3)] flex items-center gap-4 p-4 transform perspective-1000 rotate-x-10 hover:rotate-x-0 transition-transform cursor-pointer group">
-                        <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                          <Target className="text-white w-8 h-8" />
-                        </div>
-                        <div>
-                          <div className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Player</div>
-                          <div className="text-xl font-bold text-white">YOU</div>
-                          <div className="text-xs text-slate-400">Lvl 12</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* --- RACE MODE SCREEN --- */}
-                <div className={`absolute inset-0 transition-all duration-700 ease-in-out flex flex-col ${activeGameMode === 'race' ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'}`}>
-                  {/* Top Bar - Neon Timer */}
-                  <div className="pt-14 pb-6 text-center bg-gradient-to-b from-slate-950 to-transparent">
-                    <div className="inline-block px-6 py-2 rounded-full border border-blue-500/20 bg-blue-500/5 backdrop-blur-md">
-                      <div className="text-5xl font-black font-mono text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.6)] animate-pulse tabular-nums">
-                        00:{timeLeft < 10 ? `0${timeLeft}` : timeLeft}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Track & Speedometer */}
-                  <div className="flex-1 relative overflow-hidden flex flex-col items-center justify-end pb-12">
-                    {/* Road Effect (Perspective) */}
-                    <div className="absolute inset-x-0 top-0 bottom-0 bg-gradient-to-b from-indigo-950/50 via-slate-950 to-slate-950 flex justify-center perspective-1000">
-                      <div className="w-[120%] h-full bg-slate-900/50 [transform:perspective(500px)_rotateX(60deg)_scaleY(2)] border-x-[40px] border-slate-950 origin-bottom flex justify-center">
-                        {/* Lane Markers */}
-                        <div className="w-2 h-full bg-dashed border-l-2 border-dashed border-white/20 animate-[roadMove_1s_linear_infinite]"></div>
-                      </div>
-                    </div>
-
-                    {/* Speedometer Gauge (CSS Art) */}
-                    <div className="relative z-10 mb-8">
-                      <div className="w-40 h-40 rounded-full border-[6px] border-slate-800 border-t-cyan-500 border-r-cyan-500 rotate-[135deg] flex items-center justify-center shadow-[0_0_40px_rgba(6,182,212,0.2)] bg-slate-950/80 backdrop-blur-sm">
-                      </div>
-                      <div className="absolute inset-0 flex items-center justify-center flex-col">
-                        <span className="text-4xl font-black text-white drop-shadow-md">124</span>
-                        <span className="text-xs font-bold text-cyan-400 uppercase tracking-widest">km/h</span>
-                      </div>
-                    </div>
-
-                    {/* Answer Buttons (Glass) */}
-                    <div className="w-full px-6 space-y-3 z-10">
-                      <div className="w-full py-4 rounded-xl bg-cyan-500/20 border border-cyan-400/50 backdrop-blur-md flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)] cursor-pointer hover:bg-cyan-500/30 transition-colors">
-                        <span className="text-cyan-100 font-bold text-lg">STOP</span>
-                      </div>
-                      <div className="w-full py-4 rounded-xl bg-slate-800/40 border border-white/5 backdrop-blur-md flex items-center justify-center cursor-pointer hover:bg-white/5 transition-colors">
-                        <span className="text-slate-400 font-bold text-lg">YIELD</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT CONTROLLER: Race */}
-          <div
-            className={`flex-1 text-center lg:text-left cursor-pointer group transition-all duration-500 ${activeGameMode === 'race' ? 'opacity-100 scale-105' : 'opacity-40 hover:opacity-100 blur-[2px] hover:blur-0'}`}
-            onClick={() => setActiveGameMode('race')}
-          >
-            <div className="inline-flex items-center gap-2 mb-4 justify-center lg:justify-start">
-              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors border ${activeGameMode === 'race' ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.3)]' : 'bg-slate-800 text-slate-500 border-slate-700'}`}>
-                Speed Run
-              </span>
-            </div>
-            <h3 className={`text-4xl lg:text-5xl font-black mb-6 leading-tight transition-colors duration-300 ${activeGameMode === 'race' ? 'text-white drop-shadow-[0_0_25px_rgba(255,255,255,0.4)]' : 'text-slate-700 group-hover:text-slate-500'}`}>
-              Blitz Mode
-            </h3>
-            <p className={`text-lg mb-8 max-w-sm transition-colors duration-300 ${activeGameMode === 'race' ? 'text-cyan-200' : 'text-slate-600'}`}>
-              {language === 'ru' ? '15 секунд на вопрос. Никаких прав на ошибку. Только хардкор.' : '15 seconds per question. No room for error. Pure hardcore.'}
-            </p>
-
-            {/* Active Indicator Line */}
-            <div className="flex justify-center lg:justify-start">
-              <div className={`h-1 rounded-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent transition-all duration-700 ${activeGameMode === 'race' ? 'w-full opacity-100 shadow-[0_0_10px_#06b6d4]' : 'w-0 opacity-0'}`}></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Season Rewards Row (Battle Pass Style) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-16">
-          {copy.arena.seasonRewards.map((reward, i) => {
-            const icons = [Sparkles, Zap, Trophy];
-            const Icon = icons[i] || Sparkles;
-            const colors = [
-              "from-purple-500/10 to-pink-500/10 border-purple-500/20 text-purple-400 group-hover:border-purple-500/50",
-              "from-amber-500/10 to-orange-500/10 border-amber-500/20 text-amber-400 group-hover:border-amber-500/50",
-              "from-emerald-500/10 to-teal-500/10 border-emerald-500/20 text-emerald-400 group-hover:border-emerald-500/50"
-            ];
-            const style = colors[i];
-
-            return (
-              <div key={i} className={`group relative overflow-hidden rounded-2xl border bg-gradient-to-br p-6 backdrop-blur-sm transition-all hover:-translate-y-1 ${style}`}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 group-hover:bg-white/10 transition-colors">
-                    <Icon size={24} />
-                  </div>
-                  <div className="text-xs font-bold uppercase tracking-widest opacity-30 group-hover:opacity-100 transition-opacity">Season 1</div>
-                </div>
-                <h4 className="text-lg font-bold text-white mb-1">{reward.title}</h4>
-                <p className="text-sm text-slate-400">{reward.description}</p>
-              </div>
-            )
-          })}
         </div>
       </section>
 
@@ -1458,7 +1379,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
             {/* Brand Column */}
             <div className="lg:col-span-4 space-y-6">
               <div className="scale-75 origin-top-left -ml-2">
-                <LandingLogo theme="dark" variant="bold" />
+                <LandingLogo theme="dark" variant="footer" />
               </div>
               <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
                 {language === 'ru' ?
@@ -1556,6 +1477,6 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
         isOpen={isPartnershipOpen}
         onClose={() => setIsPartnershipOpen(false)}
       />
-    </div>
+    </div >
   );
 };

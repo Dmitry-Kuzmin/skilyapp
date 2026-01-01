@@ -1670,18 +1670,171 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
 /* Custom Animations for Game Hub */
 @keyframes gridMove {
-  0% { background-position: 0 0; }
-  100% { background-position: 0 50px; }
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 0 50px;
+  }
 }
 
 @keyframes roadMove {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(20px); }
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(20px);
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Shimmer effect for text (Idle Mode: Rare Glint) - GPU Optimized */
+@keyframes text-shimmer {
+  0% {
+    background-position: 200% center;
+  }
+
+  15% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: -200% center;
+  }
+}
+
+.animate-text-shimmer {
+  animation: text-shimmer 8s ease-out infinite;
+  background-size: 200% auto;
+  transform: translateZ(0);
+  will-change: background-position;
+}
+
+/* Shimmer effect for text (Hover Mode: Single Trigger) */
+@keyframes shimmer-once {
+  0% {
+    background-position: 200% center;
+  }
+
+  100% {
+    background-position: -200% center;
+  }
+}
+
+/* Beep-Beep Headlight Animation */
+@keyframes beep-beep {
+  0% {
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  25% {
+    opacity: 0;
+  }
+
+  40% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Grid Echo Pulse (Laconic & Professional Sync) */
+@keyframes grid-echo {
+  0% {
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  25% {
+    opacity: 0;
+  }
+
+  40% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Button Echo Pulse (Subtle Breath) - GPU Optimized */
+@keyframes button-echo {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.03);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Glow Sync Animation */
+@keyframes glow-jump {
+  0% {
+    opacity: 0.8;
+    transform: scale(1.25);
+  }
+
+  10% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+
+  25% {
+    opacity: 0.8;
+    transform: scale(1.25);
+  }
+
+  40% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+}
+
+/* Engine Idle Text Breath (Visible Pulse) */
+@keyframes engine-idle {
+
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
