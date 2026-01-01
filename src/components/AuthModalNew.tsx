@@ -841,10 +841,10 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     <>
       {/* Pulsating Aura Effect */}
       <div
-        className="absolute -inset-4 rounded-3xl pointer-events-none animate-[ambient-pulse_5s_ease-in-out_infinite] blur-2xl"
+        className="absolute -inset-8 rounded-[36px] pointer-events-none animate-[ambient-pulse_5s_ease-in-out_infinite]"
         style={{
-          background: 'radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15), transparent 60%)',
-          boxShadow: '0 0 80px 10px rgba(59, 130, 246, 0.3), 0 0 120px 20px rgba(99, 102, 241, 0.2)'
+          background: 'radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.12) 0%, rgba(99, 102, 241, 0.06) 40%, transparent 75%)',
+          border: '1px solid rgba(59, 130, 246, 0.12)'
         }}
       />
 
@@ -939,7 +939,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   {step === 'check-email' && 'Проверьте почту'}
                 </h2>
 
-                <p className="text-sm text-zinc-500 mt-4 font-medium"> {/* Increased margin-top to 8px -> mt-4 (16px) or stick to mt-4 depending on base */}
+                <p className="text-sm text-zinc-400 mt-4 font-medium">
                   {step === 'email' && t('auth.emailPrompt')}
                   {step === 'password-existing' && t('auth.continueProgress')}
 
@@ -1113,17 +1113,17 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                         }
                       />
 
-                      <div className="flex justify-end -mt-3">
+                      <div className="flex justify-end">
                         <button
                           type="button"
                           onClick={() => setStep('password-recovery')}
-                          className="text-xs text-zinc-400 hover:text-blue-400 cursor-pointer transition-colors duration-200 underline decoration-zinc-700 underline-offset-2 hover:decoration-blue-400"
+                          className="text-xs text-zinc-400 hover:text-blue-300 cursor-pointer transition-colors duration-200 underline decoration-zinc-600 underline-offset-2 hover:decoration-blue-300"
                         >
                           {t('auth.forgotPassword')}
                         </button>
                       </div>
 
-                      <div className="relative">
+                      <div className="relative mt-4">
                         <ParticleEmitter isActive={isButtonHovered && !isInputFocused} />
                         <Button
                           type="submit"
@@ -1133,7 +1133,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                           onMouseEnter={() => setIsButtonHovered(true)}
                           onMouseLeave={() => setIsButtonHovered(false)}
                           className="
-                            relative h-12 text-[15px] font-bold overflow-hidden rounded-xl
+                            relative h-11 text-[15px] font-bold overflow-hidden rounded-xl
                             bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600
                             hover:from-blue-500 hover:via-indigo-500 hover:to-purple-600
                             text-white border-none
@@ -1154,35 +1154,21 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                       </div>
                     </form>
 
-                    {/* Magic Link как альтернатива */}
-                    <div className="group/magic relative">
-                      <Button
-                        variant="ghost"
-                        fullWidth
-                        type="button"
-                        onClick={() => setStep('magic-link-existing')}
-                        className="
-                          relative h-11 text-[13px] font-semibold overflow-hidden rounded-xl
-                          bg-gradient-to-r from-indigo-600/20 via-purple-600/15 to-indigo-600/20
-                          hover:from-indigo-500/30 hover:via-purple-500/25 hover:to-indigo-500/30
-                          border border-indigo-400/20 hover:border-indigo-400/40
-                          text-indigo-200 hover:text-white
-                          shadow-[0_0_15px_rgba(99,102,241,0.0)] hover:shadow-[0_0_25px_rgba(99,102,241,0.2)]
-                          transition-all duration-300 ease-out
-                          active:scale-[0.98]
-                        "
-                      >
-                        <span className="flex items-center justify-center gap-2 relative z-10">
-                          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                          <span>{t('auth.signInWithoutPassword') || 'Войти без пароля'}</span>
-                        </span>
-                      </Button>
-
-                      {/* Tooltip */}
-                      <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 text-[10px] text-zinc-600 opacity-0 group-hover/magic:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
-                        {t('auth.magicTooltip')}
-                      </div>
-                    </div>
+                    {/* Magic Link - Ghost Button (Secondary action) */}
+                    <button
+                      type="button"
+                      onClick={() => setStep('magic-link-existing')}
+                      className="
+                        group/magic w-full h-10 text-[13px] font-medium rounded-lg
+                        bg-transparent hover:bg-blue-500/10
+                        text-blue-400 hover:text-blue-300
+                        transition-all duration-200
+                        flex items-center justify-center gap-2
+                      "
+                    >
+                      <Sparkles className="w-3 h-3 opacity-70" />
+                      <span>{t('auth.signInWithoutPassword') || 'Войти без пароля'}</span>
+                    </button>
                   </>
                 ) : (
                   /* --- НЕТ ПАРОЛЯ: ТОЛЬКО кнопка Magic Link (минимализм) --- */
