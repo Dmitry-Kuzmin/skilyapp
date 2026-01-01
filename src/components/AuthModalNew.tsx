@@ -38,6 +38,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [isEmailShaking, setIsEmailShaking] = useState(false);
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [userHasPassword, setUserHasPassword] = useState(true); // по умолчанию true для безопасности
@@ -398,6 +400,16 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     e?.preventDefault();
     if (!isValidEmail) {
       setEmailError(t('auth.errors.invalidEmail'));
+
+      // Telegram вибрация при ошибке
+      if (webApp?.HapticFeedback) {
+        webApp.HapticFeedback.notificationOccurred('error');
+      }
+
+      // Shake анимация
+      setIsEmailShaking(true);
+      setTimeout(() => setIsEmailShaking(false), 500);
+
       return;
     }
 
@@ -455,7 +467,18 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
   const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!password) return;
+
+    // Валидация пустого пароля
+    if (!password || password.trim() === '') {
+      setPasswordError(t('auth.errors.passwordRequired'));
+
+      // Telegram вибрация
+      if (webApp?.HapticFeedback) {
+        webApp.HapticFeedback.notificationOccurred('error');
+      }
+
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -471,12 +494,23 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
+          setPasswordError(t('auth.errors.invalidCredentials'));
+
+          // Telegram вибрация при ошибке
+          if (webApp?.HapticFeedback) {
+            webApp.HapticFeedback.notificationOccurred('error');
+          }
+
           toast({
             title: t('auth.errors.validationError'),
             description: t('auth.errors.invalidCredentials'),
             variant: "destructive"
           });
         } else {
+          // Telegram вибрация при любой другой ошибке
+          if (webApp?.HapticFeedback) {
+            webApp.HapticFeedback.notificationOccurred('error');
+          }
           throw error;
         }
         setIsSubmitting(false);
@@ -979,7 +1013,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                     onFocus={handleInputFocus}
                     onBlur={handleInputBlur}
                     error={emailError ?? undefined}
-                    className="bg-zinc-900/50 border-zinc-800 h-14 text-lg text-center placeholder:text-center"
+                    className={`bg-zinc-900/50 border-zinc-800 h-14 text-lg text-center placeholder:text-center ${isEmailShaking ? 'animate-shake' : ''}`}
                     rightElement={
                       <motion.button
                         type="submit"
@@ -1096,9 +1130,13 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                         label={t('auth.password')}
                         placeholder={t('auth.passwordPlaceholder')}
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => {
+                          setPassword(e.target.value);
+                          if (passwordError) setPasswordError(null);
+                        }}
                         onFocus={handleInputFocus}
                         onBlur={handleInputBlur}
+                        error={passwordError ?? undefined}
                         className="bg-zinc-900/50 border-zinc-800 h-12 text-lg shadow-inner pr-10"
                         autoFocus
                         rightElement={
@@ -1111,19 +1149,18 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                           </button>
                         }
+                        additionalRightElement={
+                          <button
+                            type="button"
+                            onClick={() => setStep('password-recovery')}
+                            className="text-[11px] text-blue-400/60 hover:text-blue-400 cursor-pointer transition-colors duration-200 whitespace-nowrap font-medium"
+                          >
+                            {t('auth.forgotPassword')}
+                          </button>
+                        }
                       />
 
-                      <div className="flex justify-end">
-                        <button
-                          type="button"
-                          onClick={() => setStep('password-recovery')}
-                          className="text-xs text-zinc-400 hover:text-blue-300 cursor-pointer transition-colors duration-200 underline decoration-zinc-600 underline-offset-2 hover:decoration-blue-300"
-                        >
-                          {t('auth.forgotPassword')}
-                        </button>
-                      </div>
-
-                      <div className="relative mt-4">
+                      <div className="relative mt-6">
                         <ParticleEmitter isActive={isButtonHovered && !isInputFocused} />
                         <Button
                           type="submit"

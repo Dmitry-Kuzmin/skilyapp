@@ -212,6 +212,11 @@ export default {
             opacity: "0.6",
           },
         },
+        "shake": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "10%, 30%, 50%, 70%, 90%": { transform: "translateX(-8px)" },
+          "20%, 40%, 60%, 80%": { transform: "translateX(8px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -229,6 +234,7 @@ export default {
         "neural-pulse": "neural-pulse 2.5s ease-in-out infinite",
         "neural-flow": "neural-flow 3s ease-in-out infinite",
         "ambient-pulse": "ambient-pulse 5s ease-in-out infinite",
+        "shake": "shake 0.5s ease-in-out",
       },
     },
   },
