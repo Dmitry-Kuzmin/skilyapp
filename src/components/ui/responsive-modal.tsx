@@ -74,12 +74,12 @@ export function ResponsiveModal({
         setActiveSnapPoint={onSnapPointChange}
         fadeFromIndex={fadeFromIndex}
         modal={true}
-        shouldScaleBackground={true}
+        shouldScaleBackground={false}
       >
         <DrawerContent
           className={cn(
             "flex flex-col",
-            snapPoints ? "max-h-[100dvh]" : (fullscreen ? "h-[100dvh] max-h-[100dvh]" : "max-h-[92dvh]"),
+            snapPoints ? "max-h-[100dvh]" : (fullscreen ? "h-[100dvh] max-h-[100dvh]" : "max-h-[94dvh]"),
             className
           )}
           hideHandle={hideHandle}
@@ -108,7 +108,7 @@ export function ResponsiveModal({
           {/* Scrollable content */}
           <div
             className={cn(
-              "flex-1 overflow-y-auto min-h-0 overscroll-contain",
+              "flex-1 overflow-y-auto min-h-0 overscroll-contain pb-safe-bottom outline-none",
               contentClassName
             )}
             data-scrollable
@@ -116,6 +116,7 @@ export function ResponsiveModal({
             style={{
               WebkitOverflowScrolling: 'touch',
               scrollbarWidth: 'none',
+              paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 2.5rem)', // 40px = 2.5rem для клавиатуры
             }}
           >
             {children}

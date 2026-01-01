@@ -204,6 +204,14 @@ export default {
             opacity: "0",
           },
         },
+        "ambient-pulse": {
+          "0%, 100%": {
+            opacity: "0.3",
+          },
+          "50%": {
+            opacity: "0.6",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -220,6 +228,7 @@ export default {
         "engine-idle": "engine-idle 3s ease-in-out infinite",
         "neural-pulse": "neural-pulse 2.5s ease-in-out infinite",
         "neural-flow": "neural-flow 3s ease-in-out infinite",
+        "ambient-pulse": "ambient-pulse 5s ease-in-out infinite",
       },
     },
   },

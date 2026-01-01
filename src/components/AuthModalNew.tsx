@@ -16,6 +16,7 @@ import { PasskeyLoginButton } from '@/components/auth/PasskeyLoginButton';
 import { LandingLogo } from '@/components/landing/LandingLogo';
 import { checkUserAuthMethod, getClientIP } from '@/lib/auth-utils';
 import { isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/passkey';
+import { ParticleEmitter } from '@/components/ui/ParticleEmitter';
 
 // Schema будет использовать переводы через context
 const createAuthSchema = (t: (key: string) => string) => z.object({
@@ -43,6 +44,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [magicLinkState, setMagicLinkState] = useState<'idle' | 'sending' | 'sent'>('idle');
+  const [isButtonHovered, setIsButtonHovered] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   // --- Loading States ---
   const [checkingEmail, setCheckingEmail] = useState(false);
@@ -789,6 +792,26 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     }
   }, [open, isMobile, viewportHeight]);
 
+  // Обработка фокуса на инпутах
+  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setIsInputFocused(true);
+
+    // На мобильных устройствах скроллим к элементу
+    if (isMobile) {
+      setTimeout(() => {
+        e.target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        });
+      }, 300);
+    }
+  };
+
+  const handleInputBlur = () => {
+    setIsInputFocused(false);
+  };
+
   const getPasskeyLabel = () => {
     if (typeof navigator === 'undefined') return 'Устройство';
 
@@ -816,6 +839,15 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   // Общий контент для обоих режимов (desktop и mobile)
   const modalContent = (
     <>
+      {/* Pulsating Aura Effect */}
+      <div
+        className="absolute -inset-4 rounded-3xl pointer-events-none animate-[ambient-pulse_5s_ease-in-out_infinite] blur-2xl"
+        style={{
+          background: 'radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15), transparent 60%)',
+          boxShadow: '0 0 80px 10px rgba(59, 130, 246, 0.3), 0 0 120px 20px rgba(99, 102, 241, 0.2)'
+        }}
+      />
+
       {/* Ambient Glow */}
       <motion.div
         animate={{
@@ -944,6 +976,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                       setEmail(e.target.value);
                       if (emailError) setEmailError(null);
                     }}
+                    onFocus={handleInputFocus}
+                    onBlur={handleInputBlur}
                     error={emailError ?? undefined}
                     className="bg-zinc-900/50 border-zinc-800 h-14 text-lg text-center placeholder:text-center"
                     rightElement={
@@ -1063,6 +1097,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                         placeholder={t('auth.passwordPlaceholder')}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        onFocus={handleInputFocus}
+                        onBlur={handleInputBlur}
                         className="bg-zinc-900/50 border-zinc-800 h-12 text-lg shadow-inner pr-10"
                         autoFocus
                         rightElement={
@@ -1087,30 +1123,35 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                         </button>
                       </div>
 
-                      <Button
-                        type="submit"
-                        variant="primary"
-                        fullWidth
-                        disabled={isSubmitting}
-                        className="
-                          relative h-12 text-[15px] font-bold overflow-hidden rounded-xl
-                          bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600
-                          hover:from-blue-500 hover:via-indigo-500 hover:to-purple-600
-                          text-white border-none
-                          shadow-[0_4px_20px_rgba(37,99,235,0.3)]
-                          hover:shadow-[0_6px_25px_rgba(37,99,235,0.45)]
-                          transition-all duration-300 ease-out
-                          active:scale-[0.98]
-                          before:absolute before:inset-0
-                          before:bg-gradient-to-r before:from-white/0 before:via-white/20 before:to-white/0
-                          before:-translate-x-full hover:before:translate-x-full
-                          before:transition-transform before:duration-700
-                        "
-                      >
-                        <span className="relative z-10 flex items-center justify-center gap-2">
-                          {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : t('auth.signIn')}
-                        </span>
-                      </Button>
+                      <div className="relative">
+                        <ParticleEmitter isActive={isButtonHovered && !isInputFocused} />
+                        <Button
+                          type="submit"
+                          variant="primary"
+                          fullWidth
+                          disabled={isSubmitting}
+                          onMouseEnter={() => setIsButtonHovered(true)}
+                          onMouseLeave={() => setIsButtonHovered(false)}
+                          className="
+                            relative h-12 text-[15px] font-bold overflow-hidden rounded-xl
+                            bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600
+                            hover:from-blue-500 hover:via-indigo-500 hover:to-purple-600
+                            text-white border-none
+                            shadow-[0_4px_20px_rgba(37,99,235,0.3)]
+                            hover:shadow-[0_6px_25px_rgba(37,99,235,0.45)]
+                            transition-all duration-300 ease-out
+                            active:scale-[0.98]
+                            before:absolute before:inset-0
+                            before:bg-gradient-to-r before:from-white/0 before:via-white/20 before:to-white/0
+                            before:-translate-x-full hover:before:translate-x-full
+                            before:transition-transform before:duration-700
+                          "
+                        >
+                          <span className="relative z-10 flex items-center justify-center gap-2">
+                            {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : t('auth.signIn')}
+                          </span>
+                        </Button>
+                      </div>
                     </form>
 
                     {/* Magic Link как альтернатива */}
