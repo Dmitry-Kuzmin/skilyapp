@@ -1337,24 +1337,48 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   </div>
                 </div>
 
-                {/* Info Card */}
-                <div className="bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20 rounded-2xl p-4 space-y-2">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-5 h-5 text-blue-400" />
+                {/* Magical Info Card - Glass Container with Border Beam */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className="relative bg-white/5 backdrop-blur-2xl border border-blue-500/10 rounded-2xl p-6 overflow-hidden group"
+                >
+                  {/* Border Beam Effect */}
+                  <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
+                    <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-blue-500/80 to-transparent animate-border-beam" />
+                  </div>
+
+                  {/* Inner Glow */}
+                  <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+                  <div className="flex items-start gap-4 relative z-10">
+                    {/* Floating Icon with Glow */}
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full animate-pulse" />
+                      <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-blue-500/30 to-indigo-500/20 flex items-center justify-center flex-shrink-0 animate-float border border-blue-500/30">
+                        <Mail className="w-5 h-5 text-blue-400" />
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-sm font-semibold text-white mb-1">
+
+                    <div className="flex-1 space-y-2">
+                      <h3 className="text-base font-bold text-white">
                         {step === 'magic-link-new' ? 'Быстрая регистрация' : 'Вход без пароля'}
                       </h3>
-                      <p className="text-xs text-zinc-400 leading-relaxed">
-                        Мы отправим вам безопасную ссылку для {step === 'magic-link-new' ? 'создания аккаунта' : 'входа'}. Просто нажмите на ссылку в письме — и всё готово!
+                      <p className="text-sm text-zinc-400 leading-relaxed">
+                        Мы отправим вам{' '}
+                        <span className="text-blue-400 font-medium">безопасную ссылку</span>
+                        {' '}для {step === 'magic-link-new' ? 'создания аккаунта' : 'входа'}. Просто нажмите на ссылку в письме — и{' '}
+                        <span className="text-blue-400 font-medium">всё готово!</span>
                       </p>
                     </div>
                   </div>
-                </div>
 
-                {/* Send Button */}
+                  {/* Bottom Glow */}
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
+                </motion.div>
+
+                {/* Send Button - Different text for registration */}
                 <Button
                   variant="primary"
                   fullWidth
@@ -1372,7 +1396,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                     ) : (
                       <>
                         <Sparkles className="w-5 h-5 text-amber-200 animate-[pulse_3s_ease-in-out_infinite]" />
-                        {t('auth.signInWithoutPassword') || 'Войти без пароля'}
+                        {step === 'magic-link-new' ? 'Создать аккаунт' : (t('auth.signInWithoutPassword') || 'Войти без пароля')}
                       </>
                     )}
                   </span>

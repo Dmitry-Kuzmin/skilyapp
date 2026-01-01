@@ -217,6 +217,14 @@ export default {
           "10%, 30%, 50%, 70%, 90%": { transform: "translateX(-8px)" },
           "20%, 40%, 60%, 80%": { transform: "translateX(8px)" },
         },
+        "float": {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-4px)" },
+        },
+        "border-beam": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -235,6 +243,8 @@ export default {
         "neural-flow": "neural-flow 3s ease-in-out infinite",
         "ambient-pulse": "ambient-pulse 5s ease-in-out infinite",
         "shake": "shake 0.5s ease-in-out",
+        "float": "float 3s ease-in-out infinite",
+        "border-beam": "border-beam 3s linear infinite",
       },
     },
   },
