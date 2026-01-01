@@ -178,6 +178,32 @@ export default {
           "0%, 100%": { opacity: "0.3" },
           "50%": { opacity: "1" },
         },
+        "neural-pulse": {
+          "0%, 100%": {
+            opacity: "0.4",
+            transform: "scale(1)",
+          },
+          "50%": {
+            opacity: "1",
+            transform: "scale(1.05)",
+          },
+        },
+        "neural-flow": {
+          "0%": {
+            strokeDashoffset: "1000",
+            opacity: "0",
+          },
+          "10%": {
+            opacity: "0.8",
+          },
+          "90%": {
+            opacity: "0.8",
+          },
+          "100%": {
+            strokeDashoffset: "0",
+            opacity: "0",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -192,6 +218,8 @@ export default {
         shake: "shake 0.5s cubic-bezier(.36,.07,.19,.97) both infinite",
         "scan-vertical": "scan-vertical 3s linear infinite",
         "engine-idle": "engine-idle 3s ease-in-out infinite",
+        "neural-pulse": "neural-pulse 2.5s ease-in-out infinite",
+        "neural-flow": "neural-flow 3s ease-in-out infinite",
       },
     },
   },

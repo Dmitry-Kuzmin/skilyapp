@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAnalysisHistoryStore, AnalysisRecord } from '@/stores/useAnalysisHistoryStore';
 import { motion, AnimatePresence } from '@/components/optimized/Motion';
 import {
@@ -16,7 +17,8 @@ import {
     Crown,
     Zap,
     LayoutGrid,
-    Target
+    Target,
+    Play
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Drawer, DrawerContent, DrawerTrigger, DrawerClose } from '@/components/ui/drawer';
@@ -44,9 +46,30 @@ const ClockIcon = ({ className }: { className?: string }) => (
 );
 
 export const AIInsightsLibrary = ({ isPremium }: { isPremium: boolean }) => {
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [selectedTopic, setSelectedTopic] = useState<TopicGroup | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
+    const [placeholderIndex, setPlaceholderIndex] = useState(0);
+    const [searchFocused, setSearchFocused] = useState(false);
+
+    // Rotating placeholder examples
+    const placeholderExamples = [
+        "Искать: Маневры...",
+        "Искать: Освещение...",
+        "Искать: Приоритет...",
+        "Искать: Парковка...",
+        "Искать: Знаки..."
+    ];
+
+    useEffect(() => {
+        if (!searchFocused && !searchQuery) {
+            const interval = setInterval(() => {
+                setPlaceholderIndex((prev) => (prev + 1) % placeholderExamples.length);
+            }, 3000);
+            return () => clearInterval(interval);
+        }
+    }, [searchFocused, searchQuery, placeholderExamples.length]);
 
     const analyses = useAnalysisHistoryStore((state) => state.analyses);
 
@@ -148,41 +171,57 @@ export const AIInsightsLibrary = ({ isPremium }: { isPremium: boolean }) => {
                             </DrawerClose>
                         </div>
 
-                        {/* Search Bar with Glassmorphism */}
+                        {/* Search Bar with Glassmorphism & Animated Placeholder */}
                         <div className="relative group">
-                            <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-xl opacity-20 group-hover:opacity-40 blur transition duration-500" />
-                            <div className="relative bg-black/50 backdrop-blur-md rounded-xl border border-white/10 flex items-center px-4 py-3">
-                                <Search className="w-5 h-5 text-indigo-400 mr-3" />
+                            <div className={cn(
+                                "absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-xl blur transition-all duration-500",
+                                searchFocused ? "opacity-60" : "opacity-20 group-hover:opacity-40"
+                            )} />
+                            <div className={cn(
+                                "relative bg-black/50 backdrop-blur-md rounded-xl border flex items-center px-4 py-3 transition-all duration-300",
+                                searchFocused ? "border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.3)]" : "border-white/10"
+                            )}>
+                                <Search className={cn(
+                                    "w-5 h-5 mr-3 transition-colors duration-300",
+                                    searchFocused ? "text-blue-400" : "text-indigo-400"
+                                )} />
                                 <input
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Поиск по темам, правилам и ошибкам..."
-                                    className="bg-transparent border-none outline-none text-white placeholder:text-slate-500 text-sm w-full font-medium"
+                                    onFocus={() => setSearchFocused(true)}
+                                    onBlur={() => setSearchFocused(false)}
+                                    placeholder={placeholderExamples[placeholderIndex]}
+                                    className="bg-transparent border-none outline-none text-white placeholder:text-slate-500 text-sm w-full font-medium transition-all duration-300"
                                 />
                             </div>
                         </div>
                     </div>
 
-                    {/* Premium Upsell Banner - High Impact */}
+                    {/* Premium Upsell Banner - Glassmorphism Edition */}
                     {!isPremium && (
                         <div className="px-6 mb-4">
-                            <div className="relative overflow-hidden rounded-2xl p-[1px] group cursor-pointer">
-                                <div className="absolute inset-0 bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 animate-shimmer" />
-                                <div className="relative bg-black/90 rounded-2xl px-5 py-4 flex items-center justify-between overflow-hidden">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent" />
+                            <div className="relative overflow-hidden rounded-2xl group cursor-pointer">
+                                {/* Grid Pattern Background */}
+                                <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-[0.08] pointer-events-none" />
+
+                                {/* Gradient Background */}
+                                <div className="relative bg-gradient-to-r from-orange-600 to-amber-400 backdrop-blur-md rounded-2xl px-5 py-4 flex items-center justify-between overflow-hidden">
+                                    {/* Glassmorphism Overlay */}
+                                    <div className="absolute inset-0 bg-white/5 backdrop-blur-sm" />
+                                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
 
                                     <div className="relative z-10 flex items-center gap-4">
-                                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/30">
-                                            <Crown className="w-5 h-5 text-white fill-white/20" />
+                                        <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center shadow-lg shadow-black/20 border border-white/20">
+                                            <Crown className="w-5 h-5 text-white fill-white/30" />
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-white text-base">Unlock Full Potential</h3>
-                                            <p className="text-xs text-amber-200/80">Безлимитный доступ ко всем инсайтам и разборам</p>
+                                            <h3 className="font-bold text-white text-base drop-shadow-md">Unlock Full Potential</h3>
+                                            <p className="text-xs text-white/90 drop-shadow-sm">Безлимитный доступ ко всем инсайтам и разборам</p>
                                         </div>
                                     </div>
 
-                                    <button className="relative z-10 px-4 py-2 rounded-lg bg-white text-black text-xs font-black uppercase tracking-wider hover:bg-amber-50 transition-colors">
-                                        Upgrade
+                                    <button className="relative z-10 px-4 py-2 rounded-lg bg-white text-orange-600 text-xs font-black uppercase tracking-wider hover:bg-white/90 transition-all shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] hover:scale-105 active:scale-95">
+                                        UPGRADE
                                     </button>
                                 </div>
                             </div>
@@ -312,14 +351,48 @@ export const AIInsightsLibrary = ({ isPremium }: { isPremium: boolean }) => {
                                     })
                                 ) : (
                                     <div className="col-span-full py-20 flex flex-col items-center text-center">
-                                        <div className="relative">
-                                            <div className="absolute inset-0 bg-indigo-500 blur-2xl opacity-20" />
-                                            <BrainCircuit className="w-16 h-16 text-slate-700 relative z-10" />
+                                        {/* Animated Brain with Neural Glow */}
+                                        <div className="relative mb-8">
+                                            {/* Outer Glow */}
+                                            <div className="absolute inset-0 bg-blue-500 blur-3xl opacity-20 animate-neural-pulse" />
+
+                                            {/* Brain Icon with Pulse */}
+                                            <div className="relative">
+                                                <BrainCircuit className="w-20 h-20 text-blue-400/60 relative z-10 animate-neural-pulse" />
+
+                                                {/* Neural Connection Lines (SVG) */}
+                                                <svg className="absolute inset-0 w-20 h-20 pointer-events-none" viewBox="0 0 80 80">
+                                                    <circle
+                                                        cx="40"
+                                                        cy="40"
+                                                        r="35"
+                                                        fill="none"
+                                                        stroke="#60a5fa"
+                                                        strokeWidth="1"
+                                                        strokeDasharray="10 5"
+                                                        className="animate-neural-flow"
+                                                        style={{ strokeDashoffset: 1000 }}
+                                                    />
+                                                </svg>
+                                            </div>
                                         </div>
-                                        <h3 className="text-lg font-bold text-white mt-6">Библиотека пуста</h3>
-                                        <p className="text-slate-500 text-sm mt-2 max-w-xs mx-auto">
+
+                                        <h3 className="text-lg font-bold text-white mb-2">Библиотека пуста</h3>
+                                        <p className="text-slate-400 text-sm mb-6 max-w-xs mx-auto">
                                             Проходи тесты и используй "Smart Analysis", чтобы наполнить свой учебник знаниями.
                                         </p>
+
+                                        {/* CTA Button - Ghost Style */}
+                                        <button
+                                            onClick={() => {
+                                                setIsOpen(false);
+                                                navigate('/tests');
+                                            }}
+                                            className="group flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-blue-500/50 bg-blue-500/5 hover:bg-blue-500/10 hover:border-blue-400 text-blue-400 hover:text-blue-300 font-bold text-sm transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                                        >
+                                            <Play className="w-4 h-4" />
+                                            Начать практику
+                                        </button>
                                     </div>
                                 )}
                             </div>

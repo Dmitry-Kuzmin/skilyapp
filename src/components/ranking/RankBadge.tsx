@@ -120,12 +120,12 @@ const sizeConfig = {
   },
 };
 
-export function RankBadge({ 
-  rank, 
-  size = "md", 
-  showIcon = true, 
+export function RankBadge({
+  rank,
+  size = "md",
+  showIcon = true,
   variant = "badge",
-  className 
+  className
 }: RankBadgeProps) {
   const config = rankConfig[rank];
   const sizeStyle = sizeConfig[size] ?? sizeConfig.sm;
@@ -262,11 +262,11 @@ export function RankIcon({ rank, size = "md", className }: Omit<RankBadgeProps, 
 }
 
 // Компонент для рамки ранга вокруг аватара
-export function RankFrame({ 
-  rank, 
-  className 
-}: { 
-  rank: RankType; 
+export function RankFrame({
+  rank,
+  className
+}: {
+  rank: RankType;
   className?: string;
 }) {
   const config = rankConfig[rank];

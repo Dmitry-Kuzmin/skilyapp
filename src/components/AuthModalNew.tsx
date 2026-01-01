@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
-import { ScanFace, ArrowRight, ShieldCheck, Loader2, Mail } from 'lucide-react';
+import { ScanFace, ArrowRight, ShieldCheck, Loader2, Mail, Eye, EyeOff, Sparkles, Wand2, Send } from 'lucide-react';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,7 +33,7 @@ interface AuthModalProps {
 
 export function AuthModalNew({ open, onClose }: AuthModalProps) {
   // --- State ---
-  const [step, setStep] = useState<'email' | 'password-existing' | 'magic-link-new' | 'magic-link-existing' | 'check-email'>('email');
+  const [step, setStep] = useState<'email' | 'password-existing' | 'magic-link-new' | 'magic-link-existing' | 'check-email' | 'password-recovery'>('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -41,6 +41,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   const [userName, setUserName] = useState<string | null>(null);
   const [userHasPassword, setUserHasPassword] = useState(true); // по умолчанию true для безопасности
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+  const [magicLinkState, setMagicLinkState] = useState<'idle' | 'sending' | 'sent'>('idle');
 
   // --- Loading States ---
   const [checkingEmail, setCheckingEmail] = useState(false);
@@ -142,9 +144,17 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         setUserName(null);
         setCheckingEmail(false);
         setIsSubmitting(false);
+        setShowPassword(false); // Reset password visibility
       }, 300);
     }
   }, [open]);
+
+  // Сброс magicLinkState
+  useEffect(() => {
+    if (step === 'email') {
+      setMagicLinkState('idle');
+    }
+  }, [step]);
 
   // --- Auto Focus Logic ---
   useEffect(() => {
@@ -408,9 +418,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
             console.log('[AuthModalNew] Profile data:', profile);
             setUserAvatar(profile.avatar_url || null);
 
-            const displayName = [profile.first_name, profile.last_name]
-              .filter(Boolean)
-              .join(' ') || profile.username || email.split('@')[0];
+            const displayName = profile.first_name || profile.username || email.split('@')[0];
 
             setUserName(displayName);
           } else {
@@ -576,6 +584,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   // --- Magic Link Handlers ---
 
   const handleSendMagicLink = async (isNewUser: boolean) => {
+    setMagicLinkState('sending');
     setIsSubmitting(true);
 
     try {
@@ -599,8 +608,13 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
       }
 
       // Успех — переходим на экран "Проверьте почту"
-      setStep('check-email');
-      setIsSubmitting(false);
+      setMagicLinkState('sent');
+
+      setTimeout(() => {
+        setStep('check-email');
+        setIsSubmitting(false);
+        setMagicLinkState('idle');
+      }, 1500);
 
       // Запускаем таймер для повторной отправки (60 секунд)
       setResendCooldown(60);
@@ -621,6 +635,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         variant: "destructive"
       });
       setIsSubmitting(false);
+      setMagicLinkState('idle');
     }
   };
 
@@ -826,28 +841,33 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0, opacity: 0 }}
-                className="relative mb-2"
+                className="relative mb-2 mt-2" // mt-2 чтобы увеличить отступ
               >
-                {userAvatar ? (
-                  <img
-                    src={userAvatar}
-                    alt={userName || "User"}
-                    className="w-20 h-20 rounded-full border-2 border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.1)] object-cover"
-                    onError={() => {
-                      console.log('[AuthModalNew] Avatar failed to load, showing initials');
-                      setUserAvatar(null); // Сбрасываем, чтобы показались инициалы
-                    }}
-                  />
-                ) : (
-                  /* Fallback - First Letter Avatar */
-                  <div className="w-20 h-20 rounded-full border-2 border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.1)] bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
-                    <span className="text-3xl font-bold text-white">
-                      {(userName || email || 'U').charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                {/* Verified Shield Badge */}
-                <div className="absolute -bottom-1 -right-1 bg-zinc-950 rounded-full p-1 border border-zinc-800">
+                {/* Rotating Gradient Border */}
+                <div className="absolute -inset-[3px] rounded-full bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-500 animate-spin-slow opacity-70 blur-[1px]" />
+
+                <div className="relative rounded-full z-10 bg-zinc-950 p-[2px]">
+                  {userAvatar ? (
+                    <img
+                      src={userAvatar}
+                      alt={userName || "User"}
+                      className="w-20 h-20 rounded-full border-2 border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.1)] object-cover"
+                      onError={() => {
+                        console.log('[AuthModalNew] Avatar failed to load, showing initials');
+                        setUserAvatar(null); // Сбрасываем, чтобы показались инициалы
+                      }}
+                    />
+                  ) : (
+                    /* Fallback - First Letter Avatar */
+                    <div className="w-20 h-20 rounded-full border-2 border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.1)] bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+                      <span className="text-3xl font-bold text-white">
+                        {(userName || email || 'U').charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                {/* Verified Shield Badge - Moved slightly for alignment */}
+                <div className="absolute -bottom-1 -right-1 bg-zinc-950 rounded-full p-1 border border-zinc-800 z-20">
                   <ShieldCheck className="w-4 h-4 text-green-500 fill-green-500/20" />
                 </div>
               </motion.div>
@@ -887,7 +907,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   {step === 'check-email' && 'Проверьте почту'}
                 </h2>
 
-                <p className="text-sm text-zinc-500 mt-2 font-medium">
+                <p className="text-sm text-zinc-500 mt-4 font-medium"> {/* Increased margin-top to 8px -> mt-4 (16px) or stick to mt-4 depending on base */}
                   {step === 'email' && t('auth.emailPrompt')}
                   {step === 'password-existing' && t('auth.continueProgress')}
 
@@ -1043,43 +1063,191 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                         placeholder={t('auth.passwordPlaceholder')}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="bg-zinc-900/50 border-zinc-800 h-12 text-lg shadow-inner"
+                        className="bg-zinc-900/50 border-zinc-800 h-12 text-lg shadow-inner pr-10"
                         autoFocus
+                        rightElement={
+                          <button
+                            type="button"
+                            tabIndex={-1}
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors focus:outline-none"
+                          >
+                            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          </button>
+                        }
                       />
+
+                      <div className="flex justify-end -mt-3">
+                        <button
+                          type="button"
+                          onClick={() => setStep('password-recovery')}
+                          className="text-xs text-zinc-400 hover:text-blue-400 cursor-pointer transition-colors duration-200 underline decoration-zinc-700 underline-offset-2 hover:decoration-blue-400"
+                        >
+                          {t('auth.forgotPassword')}
+                        </button>
+                      </div>
 
                       <Button
                         type="submit"
                         variant="primary"
                         fullWidth
-                        loading={isSubmitting}
-                        className="h-12 text-[15px] font-semibold"
+                        disabled={isSubmitting}
+                        className="
+                          relative h-12 text-[15px] font-bold overflow-hidden rounded-xl
+                          bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600
+                          hover:from-blue-500 hover:via-indigo-500 hover:to-purple-600
+                          text-white border-none
+                          shadow-[0_4px_20px_rgba(37,99,235,0.3)]
+                          hover:shadow-[0_6px_25px_rgba(37,99,235,0.45)]
+                          transition-all duration-300 ease-out
+                          active:scale-[0.98]
+                          before:absolute before:inset-0
+                          before:bg-gradient-to-r before:from-white/0 before:via-white/20 before:to-white/0
+                          before:-translate-x-full hover:before:translate-x-full
+                          before:transition-transform before:duration-700
+                        "
                       >
-                        {t('auth.signIn')}
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                          {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : t('auth.signIn')}
+                        </span>
                       </Button>
                     </form>
 
-                    {/* Magic Link как альтернатива — серая кнопка внизу */}
-                    <Button
-                      variant="ghost"
-                      fullWidth
-                      onClick={() => setStep('magic-link-existing')}
-                      className="text-sm font-medium h-11 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50"
-                    >
-                      ✨ {t('auth.magicLinkAlt') || 'Войти через почту (без пароля)'}
-                    </Button>
+                    {/* Magic Link как альтернатива */}
+                    <div className="group/magic relative">
+                      <Button
+                        variant="ghost"
+                        fullWidth
+                        type="button"
+                        onClick={() => setStep('magic-link-existing')}
+                        className="
+                          relative h-11 text-[13px] font-semibold overflow-hidden rounded-xl
+                          bg-gradient-to-r from-indigo-600/20 via-purple-600/15 to-indigo-600/20
+                          hover:from-indigo-500/30 hover:via-purple-500/25 hover:to-indigo-500/30
+                          border border-indigo-400/20 hover:border-indigo-400/40
+                          text-indigo-200 hover:text-white
+                          shadow-[0_0_15px_rgba(99,102,241,0.0)] hover:shadow-[0_0_25px_rgba(99,102,241,0.2)]
+                          transition-all duration-300 ease-out
+                          active:scale-[0.98]
+                        "
+                      >
+                        <span className="flex items-center justify-center gap-2 relative z-10">
+                          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                          <span>{t('auth.signInWithoutPassword') || 'Войти без пароля'}</span>
+                        </span>
+                      </Button>
+
+                      {/* Tooltip */}
+                      <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 text-[10px] text-zinc-600 opacity-0 group-hover/magic:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
+                        {t('auth.magicTooltip')}
+                      </div>
+                    </div>
                   </>
                 ) : (
                   /* --- НЕТ ПАРОЛЯ: ТОЛЬКО кнопка Magic Link (минимализм) --- */
-                  <Button
-                    variant="primary"
-                    fullWidth
-                    loading={isSubmitting}
-                    onClick={() => handleSendMagicLink(false)}
-                    className="h-14 text-[16px] font-semibold bg-white text-black hover:bg-zinc-100"
-                  >
-                    ✨ Отправить ссылку для входа
-                  </Button>
+                  <div className="group/magic relative">
+                    <Button
+                      type="button"
+                      variant="primary"
+                      fullWidth
+                      disabled={isSubmitting} // use disabled prop instead of loading so we can custom content
+                      onClick={() => handleSendMagicLink(false)}
+                      className="h-14 text-[16px] font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border-none shadow-[0_8px_30px_rgba(37,99,235,0.3)] transition-all duration-300 active:scale-[0.98] relative overflow-hidden group/btn"
+                    >
+                      {/* Border Beam Effect on Hover (Internal for primary button can be subtle or omitted if overkill, let's keep it simple shimmery) */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_5s_infinite]" />
+
+                      <span className="flex items-center gap-2 relative z-10">
+                        {magicLinkState === 'sending' ? (
+                          <><Loader2 className="w-5 h-5 animate-spin" /> {t('auth.sendingMagicLink')}</>
+                        ) : magicLinkState === 'sent' ? (
+                          <><ShieldCheck className="w-5 h-5 text-green-300" /> {t('auth.magicLinkSentShort')}</>
+                        ) : (
+                          <>
+                            <Sparkles className="w-5 h-5 text-amber-200 animate-[pulse_3s_ease-in-out_infinite]" />
+                            {t('auth.signInWithoutPassword') || 'Войти без пароля'}
+                          </>
+                        )}
+                      </span>
+                    </Button>
+                    <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] text-zinc-500 opacity-0 group-hover/magic:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
+                      {t('auth.magicTooltip')}
+                    </div>
+                  </div>
                 )}
+              </motion.div>
+
+            ) : step === 'password-recovery' ? (
+              /* --- Password Recovery Screen --- */
+              <motion.div
+                key="password-recovery"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.5, ease: 'easeInOut' }}
+                className="space-y-6 text-center"
+              >
+                {/* Email Pill */}
+                <div className="flex justify-center mb-4">
+                  <div
+                    onClick={handleBackToEmail}
+                    className="group flex items-center gap-3 bg-zinc-900/50 border border-white/5 rounded-full py-1.5 px-4 cursor-pointer hover:bg-zinc-900 hover:border-white/10 transition-all"
+                  >
+                    <span className="text-zinc-300 text-sm font-medium">{email}</span>
+                    <span className="text-[11px] text-sky-400 font-medium group-hover:text-sky-300">
+                      {t('auth.changeEmail')}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Animated Paper Plane Icon */}
+                <motion.div
+                  initial={{ scale: 0.5, opacity: 0, y: 20 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+                  className="relative w-20 h-20 mx-auto"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-tr from-blue-500 to-indigo-500 rounded-full blur-xl opacity-40 animate-pulse" />
+                  <div className="relative w-full h-full bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(59,130,246,0.4)]">
+                    <Send className="w-9 h-9 text-white transform rotate-45" />
+                  </div>
+                </motion.div>
+
+                {/* Success Message */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="space-y-3"
+                >
+                  <h3 className="text-xl font-bold text-white">
+                    Инструкции отправлены!
+                  </h3>
+                  <p className="text-sm text-zinc-400 leading-relaxed max-w-sm mx-auto">
+                    {userName}, мы отправили ссылку для смены пароля на почту{' '}
+                    <span className="text-blue-400 font-medium">{email}</span>
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    Ссылка будет активна 15 минут
+                  </p>
+                </motion.div>
+
+                {/* Back Button */}
+                <Button
+                  variant="ghost"
+                  fullWidth
+                  onClick={() => setStep('password-existing')}
+                  className="
+                    h-11 text-[13px] font-medium rounded-xl
+                    bg-zinc-900/50 hover:bg-zinc-800/70
+                    border border-zinc-800/50 hover:border-zinc-700/70
+                    text-zinc-400 hover:text-zinc-200
+                    transition-all duration-200
+                    active:scale-[0.98]
+                  "
+                >
+                  ← Вернуться назад
+                </Button>
               </motion.div>
 
             ) : step === 'magic-link-new' || step === 'magic-link-existing' ? (
@@ -1127,10 +1295,23 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   variant="primary"
                   fullWidth
                   onClick={() => handleSendMagicLink(step === 'magic-link-new')}
-                  loading={isSubmitting}
-                  className="h-12 text-[15px] font-semibold"
+                  disabled={isSubmitting}
+                  className="h-14 text-[16px] font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border-none shadow-[0_8px_30px_rgba(37,99,235,0.3)] transition-all duration-300 active:scale-[0.98] relative overflow-hidden group/btn"
                 >
-                  ✨ Отправить ссылку для входа
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_5s_infinite]" />
+
+                  <span className="flex items-center gap-2 relative z-10">
+                    {magicLinkState === 'sending' ? (
+                      <><Loader2 className="w-5 h-5 animate-spin" /> {t('auth.sendingMagicLink')}</>
+                    ) : magicLinkState === 'sent' ? (
+                      <><ShieldCheck className="w-5 h-5 text-green-300" /> {t('auth.magicLinkSentShort')}</>
+                    ) : (
+                      <>
+                        <Sparkles className="w-5 h-5 text-amber-200 animate-[pulse_3s_ease-in-out_infinite]" />
+                        {t('auth.signInWithoutPassword') || 'Войти без пароля'}
+                      </>
+                    )}
+                  </span>
                 </Button>
 
                 {/* Back Button */}
@@ -1138,7 +1319,14 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   variant="ghost"
                   fullWidth
                   onClick={handleBackToEmail}
-                  className="text-sm text-zinc-400 hover:text-zinc-200"
+                  className="
+                    h-11 text-[13px] font-medium rounded-xl
+                    bg-zinc-900/50 hover:bg-zinc-800/70
+                    border border-zinc-800/50 hover:border-zinc-700/70
+                    text-zinc-400 hover:text-zinc-200
+                    transition-all duration-200
+                    active:scale-[0.98]
+                  "
                 >
                   ← Назад
                 </Button>
@@ -1203,18 +1391,18 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         </div>
 
         {/* Legal Footer */}
-        <div className="mt-6 text-center text-[10px] text-zinc-500 leading-relaxed">
+        <div className="mt-8 text-center text-[11px] text-zinc-500 leading-relaxed">
           {t('auth.legalFooter')}{' '}
           <Link
             to="/terms"
-            className="underline underline-offset-2 hover:text-blue-400 transition-colors"
+            className="text-white border-b border-transparent hover:border-white transition-all pb-0.5 font-medium"
           >
             {t('auth.terms')}
           </Link>
           {' '}и{' '}
           <Link
             to="/privacy"
-            className="underline underline-offset-2 hover:text-blue-400 transition-colors"
+            className="text-white border-b border-transparent hover:border-white transition-all pb-0.5 font-medium"
           >
             Политику
           </Link>
