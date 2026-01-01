@@ -26,16 +26,16 @@ async function fetchServerTime(): Promise<number | null> {
     // Делаем легкий запрос к Supabase для получения времени сервера
     // Заголовок Date в ответе содержит серверное время
     const startTime = Date.now();
-    
+
     // Получаем URL и ключ из env переменных
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 
-      import.meta.env.PUBLIC_SUPABASE_URL || 
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ||
+      import.meta.env.PUBLIC_SUPABASE_URL ||
       'https://yffjnqegeiorunyvcxkn.supabase.co';
-    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 
-      import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY || 
-      import.meta.env.VITE_SUPABASE_ANON_KEY || 
+    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+      import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+      import.meta.env.VITE_SUPABASE_ANON_KEY ||
       '';
-    
+
     const response = await fetch(`${supabaseUrl}/rest/v1/`, {
       method: 'HEAD',
       headers: {
@@ -55,7 +55,7 @@ async function fetchServerTime(): Promise<number | null> {
 
     const serverTime = new Date(dateHeader).getTime();
     const endTime = Date.now();
-    
+
     // Учитываем задержку сети (latency compensation)
     const latency = (endTime - startTime) / 2;
     const adjustedServerTime = serverTime + latency;
@@ -96,8 +96,10 @@ async function syncServerTime(): Promise<ServerTimeInfo | null> {
     console.warn('[serverTime] Failed to save offset to localStorage:', error);
   }
 
-  console.log(`[serverTime] Synced: offset = ${offset}ms (${(offset / 1000).toFixed(1)}s)`);
-  
+  if (import.meta.env.DEV) {
+    console.log(`[serverTime] Synced: offset = ${offset}ms (${(offset / 1000).toFixed(1)}s)`);
+  }
+
   return timeInfo;
 }
 
@@ -116,7 +118,7 @@ function loadCachedOffset(): ServerTimeInfo | null {
     }
 
     const timeInfo: ServerTimeInfo = JSON.parse(stored);
-    
+
     // Проверяем, не устарел ли offset
     const age = Date.now() - timeInfo.lastSync;
     if (age > OFFSET_VALIDITY_MS) {
@@ -141,7 +143,7 @@ export function getServerTimeSync(): number {
     // Если нет offset - возвращаем локальное время (будет исправлено при следующей синхронизации)
     return Date.now();
   }
-  
+
   // Вычисляем текущее серверное время: локальное время + offset
   return Date.now() + timeInfo.offset;
 }

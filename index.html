@@ -459,7 +459,7 @@
       const SCRIPT_VERSION = 'v6.0-fullscreen';
 
       const log = function (msg, data) {
-        if (typeof console !== 'undefined' && console.log) {
+        if (typeof console !== 'undefined' && console.log && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
           console.log('[System/TG] ' + msg, data || '');
         }
       };
@@ -632,10 +632,12 @@
       // Проверяем версию в localStorage
       const storedVersion = localStorage.getItem(CACHE_KEY);
       if (storedVersion !== APP_VERSION) {
-        console.log('[HTML] 🔄 New version detected! Clearing cache...', {
-          stored: storedVersion,
-          current: APP_VERSION,
-        });
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+          console.log('[HTML] 🔄 New version detected! Clearing cache...', {
+            stored: storedVersion,
+            current: APP_VERSION,
+          });
+        }
 
         // Очищаем localStorage (кроме важных данных)
         const importantKeys = ['sb-yffjnqegeiorunyvcxkn-auth-token', 'user_preferences'];
@@ -677,20 +679,24 @@
       // КРИТИЧНО: Добавляем версию в URL для принудительной инвалидации кэша
       const CACHE_BUST = '?v=' + Date.now();
 
-      console.log('[HTML] ✅ Script execution started', {
-        timestamp: new Date().toISOString(),
-        readyState: document.readyState,
-        location: window.location.href,
-        cacheBust: CACHE_BUST,
-        appVersion: APP_VERSION,
-      });
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('[HTML] ✅ Script execution started', {
+          timestamp: new Date().toISOString(),
+          readyState: document.readyState,
+          location: window.location.href,
+          cacheBust: CACHE_BUST,
+          appVersion: APP_VERSION,
+        });
+      }
 
       // Проверяем, что модули поддерживаются
       // Используем проверку через другие признаки поддержки ES модулей
-      if ('noModule' in HTMLScriptElement.prototype) {
-        console.log('[HTML] ✅ ES modules supported');
-      } else {
-        console.error('[HTML] ❌ ES modules NOT supported!');
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        if ('noModule' in HTMLScriptElement.prototype) {
+          console.log('[HTML] ✅ ES modules supported');
+        } else {
+          console.error('[HTML] ❌ ES modules NOT supported!');
+        }
       }
 
       // Отслеживаем ошибки загрузки модулей
@@ -753,13 +759,13 @@
 
     // Этот скрипт выполняется после загрузки всех модулей
     window.addEventListener('load', function () {
-      console.error('[Telegram Expand LOAD] 🚀 window.load event fired');
+      if (window.location.hostname === 'localhost') console.error('[Telegram Expand LOAD] 🚀 window.load event fired');
       checkAndExpand();
     });
 
     // Также пробуем на DOMContentLoaded
     document.addEventListener('DOMContentLoaded', function () {
-      console.error('[Telegram Expand DOM] 🚀 DOMContentLoaded event fired');
+      if (window.location.hostname === 'localhost') console.error('[Telegram Expand DOM] 🚀 DOMContentLoaded event fired');
       checkAndExpand();
     });
   </script>

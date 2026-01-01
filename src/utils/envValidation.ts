@@ -30,13 +30,13 @@ export function validateEnv(): EnvConfig {
   }
 
   // Критичные переменные (Supabase)
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 
-    import.meta.env.PUBLIC_SUPABASE_URL || 
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ||
+    import.meta.env.PUBLIC_SUPABASE_URL ||
     'https://yffjnqegeiorunyvcxkn.supabase.co';
 
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 
-    import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY || 
-    import.meta.env.VITE_SUPABASE_ANON_KEY || 
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    import.meta.env.VITE_SUPABASE_ANON_KEY ||
     '';
 
   // Валидация критичных переменных
@@ -72,15 +72,7 @@ export function validateEnv(): EnvConfig {
   };
 
   if (import.meta.env.DEV) {
-    console.log('✅ [Env Validation] Environment variables validated:', {
-      supabase: {
-        url: supabaseUrl.substring(0, 30) + '...',
-        hasKey: !!supabaseAnonKey,
-      },
-      paddle: {
-        enabled: paddleEnabled,
-      },
-    });
+    console.log('✅ [Env Validation] Environment variables validated (Muted in Prod)');
   }
 
   return envConfig;

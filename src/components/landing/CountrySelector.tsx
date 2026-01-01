@@ -53,7 +53,7 @@ export const CountrySelector: React.FC = () => {
             {/* Trigger Button */}
             <button
                 onClick={handleToggle}
-                className="flex items-center gap-1.5 px-0 py-1 text-sm font-medium text-slate-400 hover:text-white transition-colors group"
+                className="flex items-center gap-1.5 px-2 md:px-0 py-2 md:py-1 text-sm font-medium text-slate-400 hover:text-white transition-colors group"
                 aria-label="Select Country"
             >
                 <span className="text-lg leading-none">{selectedCountry.flag}</span>
@@ -72,7 +72,7 @@ export const CountrySelector: React.FC = () => {
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <div className="absolute top-full left-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-slate-900/70 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute top-full left-0 mt-2 w-72 max-w-[calc(100vw-32px)] bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="p-1.5 space-y-0.5 max-h-[60vh] overflow-y-auto">
                         {activeCountries.map((country) => {
                             const isSelected = country.code === selectedCountry.code;

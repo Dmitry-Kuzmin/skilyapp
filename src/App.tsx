@@ -281,14 +281,12 @@ const LandingRedirect = () => {
 };
 
 const App = () => {
-  // PARANOID CHECK: TypeScript strict mode test
-  const strictModeTest: number = "this should fail";
-
-  console.log('[App] 🚀🚀🚀 App component rendering started 🚀🚀🚀', {
-    timestamp: new Date().toISOString(),
-    pathname: typeof window !== 'undefined' ? window.location.pathname : 'unknown',
-    readyState: typeof document !== 'undefined' ? document.readyState : 'unknown',
-  });
+  if (import.meta.env.DEV) {
+    console.log('[App] 🚀 App component rendering started', {
+      timestamp: new Date().toISOString(),
+      pathname: typeof window !== 'undefined' ? window.location.pathname : 'unknown',
+    });
+  }
 
   // КРИТИЧНО: Проверяем Telegram WebApp только если мы действительно в Telegram Mini App
   // В браузере window.Telegram может быть моком или заглушкой
@@ -310,13 +308,13 @@ const App = () => {
       // Paint the Status Bar (Top) - matches header/body bg
       if (typeof tg.setHeaderColor === 'function') {
         tg.setHeaderColor('#09090b');
-        console.debug('[App] ✅ setHeaderColor(#09090b) called');
+        if (import.meta.env.DEV) console.debug('[App] ✅ setHeaderColor(#09090b) called');
       }
 
       // Paint the Bottom Area (Home Indicator) - matches page background
       if (typeof tg.setBackgroundColor === 'function') {
         tg.setBackgroundColor('#09090b');
-        console.debug('[App] ✅ setBackgroundColor(#09090b) called');
+        if (import.meta.env.DEV) console.debug('[App] ✅ setBackgroundColor(#09090b) called');
       }
 
       // Enable closing confirmation (recommended for better UX)
@@ -353,9 +351,9 @@ const App = () => {
       if (typeof tg.requestFullscreen === 'function') {
         // @ts-expect-error
         tg.requestFullscreen();
-        console.debug('[App] ✅ requestFullscreen() called - immersive mode enabled');
+        if (import.meta.env.DEV) console.debug('[App] ✅ requestFullscreen() called - immersive mode enabled');
       } else {
-        console.debug('[App] ℹ️ requestFullscreen not available (Mini Apps < 8.0)');
+        if (import.meta.env.DEV) console.debug('[App] ℹ️ requestFullscreen not available (Mini Apps < 8.0)');
       }
     } catch (error) {
       console.warn('[App] Error calling requestFullscreen():', error);

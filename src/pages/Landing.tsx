@@ -158,12 +158,12 @@ const Landing = () => {
 
     // Проверяем партнерский код (приоритет над реферальным)
     const partnerDataStr = sessionStorage.getItem('partner_code');
-    console.log('[Landing] Checking partner code from sessionStorage:', partnerDataStr);
+    if (import.meta.env.DEV) console.log('[Landing] Checking partner code from sessionStorage:', partnerDataStr);
 
     if (partnerDataStr) {
       try {
         const partnerData = JSON.parse(partnerDataStr);
-        console.log('[Landing] Parsed partner data:', partnerData);
+        if (import.meta.env.DEV) console.log('[Landing] Parsed partner data:', partnerData);
 
         // ОПТИМИЗАЦИЯ: Используем сервисную функцию - Supabase загружается динамически
         (async () => {
@@ -192,8 +192,6 @@ const Landing = () => {
         console.error('[Landing] Error parsing partner data:', error);
         sessionStorage.removeItem('partner_code');
       }
-    } else {
-      console.log('[Landing] No partner code in sessionStorage');
     }
 
     // Получаем код из sessionStorage (сохранен при редиректе с /join/:code)
@@ -225,6 +223,9 @@ const Landing = () => {
     })();
   }, [location]);
 
+  // Если проверка прошла и это обычный браузер -> Рендерим Лендинг
+  const { selectedCountry } = useCountry();
+
   // КРИТИЧНО: Если идет проверка - показываем лоадер, чтобы избежать мерцания лендинга
   // Пользователь не должен видеть лендинг, который потом резко исчезнет
   if (isCheckingTelegram) {
@@ -237,9 +238,6 @@ const Landing = () => {
       </div>
     );
   }
-
-  // Если проверка прошла и это обычный браузер -> Рендерим Лендинг
-  const { selectedCountry } = useCountry();
 
   // Выбираем лендинг в зависимости от страны
   const LandingComponent = selectedCountry.code === 'ru' ? LandingRussia : AiStudioLanding;

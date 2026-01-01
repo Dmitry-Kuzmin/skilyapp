@@ -63,8 +63,8 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
     }
 
     const tg = (window as any).Telegram?.WebApp;
-    const shouldLog = !!tg || debugOverride;
-    
+    const shouldLog = (!!tg || debugOverride) && import.meta.env.DEV;
+
     const log = (...args: any[]) => {
       if (shouldLog) {
         console.debug('[TelegramProvider]', ...args);
@@ -92,7 +92,7 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
 
     // КРИТИЧНО: вызываем ready() и expand() только один раз
     tg.ready();
-    
+
     // Вызываем expand() только один раз, если еще не развернуто
     const callExpand = () => {
       try {
@@ -106,10 +106,10 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
         log('⚠️ Error calling expand():', e);
       }
     };
-    
+
     // Вызываем один раз сразу
     callExpand();
-    
+
     // Вызываем на событиях viewport (только если еще не развернуто)
     if (typeof tg.onEvent === 'function') {
       tg.onEvent('viewport_changed', () => {
@@ -118,7 +118,7 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
           callExpand();
         }
       });
-      
+
       tg.onEvent('safeAreaChanged', () => {
         log('📐 safeAreaChanged - checking expand');
         if (!tg.isExpanded) {
@@ -144,7 +144,7 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
     // Применяем platform classes
     const platform = tg.platform || 'unknown';
     const isMobilePlatform = isTelegramMobilePlatformName(platform);
-    
+
     document.documentElement.classList.add('telegram-webapp');
     document.body.classList.add('telegram-webapp');
     document.documentElement.classList.toggle('telegram-mobile-app', isMobilePlatform);
@@ -207,7 +207,7 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
 
     // Обновляем safe areas сразу и с задержкой
     updateSafeAreas('initial');
-    
+
     setTimeout(() => {
       updateSafeAreas('delayed-100ms');
     }, 100);

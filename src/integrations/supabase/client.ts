@@ -14,7 +14,7 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY |
   '';
 
 // Debug: log environment variables (only in development or if explicitly enabled)
-if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+if (import.meta.env.DEV) {
   console.log('🔧 Supabase Environment Variables:', {
     hasUrl: !!import.meta.env.VITE_SUPABASE_URL,
     hasKey: !!import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
@@ -38,21 +38,12 @@ if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === '' || SUPABASE_PUB
   throw new Error('VITE_SUPABASE_PUBLISHABLE_KEY is required. Please set it in your environment variables or GitHub Secrets.');
 }
 
-// Log configuration (without exposing the full key)
-// КРИТИЧНО: Логируем в продакшене тоже для отладки
-if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+if (import.meta.env.DEV) {
+  // Log configuration (without exposing the full key)
   console.log('🔧 Supabase Configuration:', {
     url: SUPABASE_URL,
     keyPrefix: SUPABASE_PUBLISHABLE_KEY.substring(0, 20) + '...',
     keyLength: SUPABASE_PUBLISHABLE_KEY.length,
-  });
-} else {
-  // В продакшене логируем только URL (без ключа)
-  console.log('[Supabase Client] ✅ Initialized', {
-    url: SUPABASE_URL,
-    hasKey: !!SUPABASE_PUBLISHABLE_KEY && SUPABASE_PUBLISHABLE_KEY.length > 0,
-    keyLength: SUPABASE_PUBLISHABLE_KEY.length,
-    timestamp: new Date().toISOString(),
   });
 }
 
