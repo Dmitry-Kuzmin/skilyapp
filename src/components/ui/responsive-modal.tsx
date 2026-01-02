@@ -31,7 +31,7 @@ interface ResponsiveModalProps {
 }
 
 /**
- * 🏆 GOLD STANDARD - ResponsiveModal с Vaul + iOS Keyboard Fix
+ * 🏆 GOLD STANDARD - ResponsiveModal с Vaul + iOS Keyboard Fix v2
  * 
  * - Mobile: Vaul Drawer с нативной физикой iOS + поддержка клавиатуры
  * - Desktop: Dialog (центрированная модалка)
@@ -41,7 +41,8 @@ interface ResponsiveModalProps {
  * - CSS-переменная --visual-viewport-height
  * - meta tag interactive-widget=resizes-content
  * - repositionInputs={false} для Vaul
- * - Динамическая высота при открытии клавиатуры
+ * - Адаптивный layout: убираются отступы когда клавиатура открыта
+ * - justify-start вместо center для скролла
  */
 export function ResponsiveModal({
   open,
@@ -145,14 +146,17 @@ export function ResponsiveModal({
         <DrawerContent
           className={cn(
             "flex flex-col",
+            // 🔥 КРИТИЧНО: НЕТ rounded-t когда клавиатура открыта
+            isKeyboardOpen ? "" : "rounded-t-[32px]",
             className
           )}
           style={{
-            // Используем CSS-переменную с fallback
-            height: 'var(--visual-viewport-height, 96vh)',
+            // 🔥 ВАЖНО: Только maxHeight, БЕЗ height - иначе drawer растягивается на весь экран
             maxHeight: 'var(--visual-viewport-height, 96vh)',
             // Плавный переход при изменении высоты
-            transition: isKeyboardOpen ? 'height 0.2s ease-out, max-height 0.2s ease-out' : 'height 0.15s ease-in, max-height 0.15s ease-in',
+            transition: isKeyboardOpen
+              ? 'max-height 0.2s ease-out, border-radius 0.2s ease-out'
+              : 'max-height 0.15s ease-in, border-radius 0.15s ease-in',
             // Фиксируем позицию drawer внизу
             position: 'fixed',
             bottom: 0,
@@ -168,12 +172,12 @@ export function ResponsiveModal({
             }
           }}
         >
-          {/* Кастомный header */}
-          {headerContent ? (
+          {/* Кастомный header - ТОЛЬКО если есть title И клавиатура закрыта */}
+          {!isKeyboardOpen && headerContent ? (
             <div className="shrink-0">
               {headerContent}
             </div>
-          ) : title ? (
+          ) : !isKeyboardOpen && title ? (
             <DrawerHeader className="text-left shrink-0 border-b border-white/10 pb-3 px-8">
               <DrawerTitle className="text-foreground">{title}</DrawerTitle>
               {description && (
@@ -184,7 +188,7 @@ export function ResponsiveModal({
             </DrawerHeader>
           ) : null}
 
-          {/* Scrollable content */}
+          {/* Scrollable content - 🔥 БЕЗ justify-start - это конфликтует с Vaul */}
           <div
             className={cn(
               "flex-1 overflow-y-auto min-h-0 overscroll-contain outline-none",
@@ -197,15 +201,16 @@ export function ResponsiveModal({
               scrollbarWidth: 'none',
               // Динамический padding в зависимости от состояния клавиатуры
               paddingBottom: isKeyboardOpen
-                ? '0.5rem' // Минимальный padding когда клавиатура открыта
+                ? '1rem' // Минимальный padding когда клавиатура открыта
                 : 'max(env(safe-area-inset-bottom, 0px), 2.5rem)',
             }}
           >
             {children}
 
-            {/* Spacer для iOS - чтобы клавиатура не закрывала последнюю кнопку */}
+            {/* Spacer для iOS - чтобы контент можно было прокрутить ВЫШЕ клавиатуры */}
+            {/* 🔥 Важно: это даст возможность скроллить форму вверх */}
             {isKeyboardOpen && (
-              <div className="h-[10vh]" aria-hidden="true" />
+              <div className="h-[20vh] flex-shrink-0" aria-hidden="true" />
             )}
           </div>
         </DrawerContent>
