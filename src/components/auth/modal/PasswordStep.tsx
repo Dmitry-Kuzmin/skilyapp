@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from '@/components/optimized/Motion';
-import { Eye, EyeOff, Loader2, Sparkles, Wand2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Sparkles, Wand2, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ParticleEmitter } from '@/components/ui/ParticleEmitter';

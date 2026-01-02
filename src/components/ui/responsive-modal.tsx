@@ -27,19 +27,21 @@ interface ResponsiveModalProps {
   fadeFromIndex?: number;
   /** Fullscreen режим */
   fullscreen?: boolean;
+  dismissible?: boolean;
 }
 
 /**
- * 🏆 GOLD STANDARD - ResponsiveModal с Vaul
+ * 🏆 GOLD STANDARD - ResponsiveModal с Vaul + iOS Keyboard Fix
  * 
- * - Mobile: Vaul Drawer с нативной физикой iOS (drag & dismiss, snap points)
+ * - Mobile: Vaul Drawer с нативной физикой iOS + поддержка клавиатуры
  * - Desktop: Dialog (центрированная модалка)
  * 
- * Особенности Vaul:
- * - Физика пружины при drag
- * - Snap points для частичного открытия
- * - Scale эффект для фона
- * - Инерция при свайпе
+ * Особенности:
+ * - Visual Viewport API для iOS клавиатуры
+ * - CSS-переменная --visual-viewport-height
+ * - meta tag interactive-widget=resizes-content
+ * - repositionInputs={false} для Vaul
+ * - Динамическая высота при открытии клавиатуры
  */
 export function ResponsiveModal({
   open,
@@ -58,30 +60,107 @@ export function ResponsiveModal({
   hideHandle = false,
   fadeFromIndex,
   fullscreen = false,
+  dismissible,
 }: ResponsiveModalProps) {
   const isMobile = useIsMobile();
+  const [keyboardHeight, setKeyboardHeight] = React.useState(0);
+
+  // iOS Keyboard handling с Visual Viewport API + CSS-переменная
+  React.useEffect(() => {
+    if (!isMobile || typeof window === 'undefined' || !open) return;
+
+    const handleViewportChange = () => {
+      // Visual Viewport API - правильный способ для iOS
+      if ('visualViewport' in window && window.visualViewport) {
+        const viewport = window.visualViewport;
+        const windowHeight = window.innerHeight;
+        const viewportHeight = viewport.height;
+
+        // Клавиатура открыта если viewport меньше window
+        const keyboardVisible = viewportHeight < windowHeight;
+
+        if (keyboardVisible) {
+          // Высота клавиатуры = разница между window и viewport
+          const kbHeight = windowHeight - viewportHeight;
+          setKeyboardHeight(kbHeight);
+
+          // Записываем в CSS-переменную для использования в стилях
+          document.documentElement.style.setProperty(
+            '--visual-viewport-height',
+            `${viewportHeight}px`
+          );
+        } else {
+          setKeyboardHeight(0);
+          // Сбрасываем в default (96vh)
+          document.documentElement.style.setProperty(
+            '--visual-viewport-height',
+            '96vh'
+          );
+        }
+      }
+    };
+
+    // Подписка на изменения viewport
+    if ('visualViewport' in window && window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportChange);
+      window.visualViewport.addEventListener('scroll', handleViewportChange);
+      // Сразу проверяем при mount
+      handleViewportChange();
+    }
+
+    // Fallback для старых браузеров
+    window.addEventListener('resize', handleViewportChange);
+
+    return () => {
+      if ('visualViewport' in window && window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleViewportChange);
+        window.visualViewport.removeEventListener('scroll', handleViewportChange);
+      }
+      window.removeEventListener('resize', handleViewportChange);
+      setKeyboardHeight(0);
+      // Очищаем CSS-переменную
+      document.documentElement.style.removeProperty('--visual-viewport-height');
+    };
+  }, [isMobile, open]);
 
   // На мобильных используем Vaul Drawer с нативной физикой
   if (isMobile) {
+    // Динамическая высота: используем CSS-переменную ИЛИ calc
+    const isKeyboardOpen = keyboardHeight > 0;
+
     return (
       <Drawer
         open={open}
         onOpenChange={onOpenChange}
-        dismissible={!preventClose}
-        dismissibleThreshold={0.25} // Легкое закрытие - 25% свайпа достаточно
+        dismissible={dismissible !== undefined ? dismissible : !preventClose}
+        dismissibleThreshold={0.25}
         snapPoints={snapPoints}
         activeSnapPoint={activeSnapPoint}
         setActiveSnapPoint={onSnapPointChange}
         fadeFromIndex={fadeFromIndex}
         modal={true}
         shouldScaleBackground={false}
+        repositionInputs={false} // 🔥 КРИТИЧНО: Отключаем авто-скролл Vaul
       >
         <DrawerContent
           className={cn(
             "flex flex-col",
-            snapPoints ? "max-h-[100dvh]" : (fullscreen ? "h-[100dvh] max-h-[100dvh]" : "max-h-[94dvh]"),
             className
           )}
+          style={{
+            // Используем CSS-переменную с fallback
+            height: 'var(--visual-viewport-height, 96vh)',
+            maxHeight: 'var(--visual-viewport-height, 96vh)',
+            // Плавный переход при изменении высоты
+            transition: isKeyboardOpen ? 'height 0.2s ease-out, max-height 0.2s ease-out' : 'height 0.15s ease-in, max-height 0.15s ease-in',
+            // Фиксируем позицию drawer внизу
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            // Предотвращаем overflow за пределы экрана
+            overflow: 'hidden',
+          }}
           hideHandle={hideHandle}
           onInteractOutside={(e) => {
             if (preventClose) {
@@ -108,7 +187,7 @@ export function ResponsiveModal({
           {/* Scrollable content */}
           <div
             className={cn(
-              "flex-1 overflow-y-auto min-h-0 overscroll-contain pb-safe-bottom outline-none",
+              "flex-1 overflow-y-auto min-h-0 overscroll-contain outline-none",
               contentClassName
             )}
             data-scrollable
@@ -116,10 +195,18 @@ export function ResponsiveModal({
             style={{
               WebkitOverflowScrolling: 'touch',
               scrollbarWidth: 'none',
-              paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 2.5rem)', // 40px = 2.5rem для клавиатуры
+              // Динамический padding в зависимости от состояния клавиатуры
+              paddingBottom: isKeyboardOpen
+                ? '0.5rem' // Минимальный padding когда клавиатура открыта
+                : 'max(env(safe-area-inset-bottom, 0px), 2.5rem)',
             }}
           >
             {children}
+
+            {/* Spacer для iOS - чтобы клавиатура не закрывала последнюю кнопку */}
+            {isKeyboardOpen && (
+              <div className="h-[10vh]" aria-hidden="true" />
+            )}
           </div>
         </DrawerContent>
       </Drawer>
