@@ -57,6 +57,13 @@ export function useAnalytics(
     queryFn: async () => {
       if (!profileId) return null;
 
+      // ФИКС 400: Проверяем авторизацию перед запросами
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.warn('[useAnalytics] ⚠️ No active session, returning empty data');
+        return { sessions: [], progress: [] };
+      }
+
       // ОПТИМИЗАЦИЯ: Объединяем запросы
       const [sessionsResult, progressResult] = await Promise.all([
         // 1. Сессии тестов

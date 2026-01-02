@@ -1,0 +1,37 @@
+{
+    "Hero": {
+        "titleTop": "Your path to license",
+        "titleBottom": "starts here",
+        "descriptionHighlight": "Pass theory without driving school",
+        "descriptionRest": "and save up to 500€. Personal study plan, smart algorithms and official DGT 2025 questions.",
+        "button": "ENGINE START",
+        "pressStart": "PRESS START"
+    },
+    "Stats": {
+        "questions": {
+            "value": "3,500+",
+            "label": "Questions",
+            "description": "2025 Database"
+        },
+        "users": {
+            "value": "12k+",
+            "label": "Students",
+            "description": "Already passed"
+        },
+        "passRate": {
+            "value": "94%",
+            "label": "Pass Rate",
+            "description": "On first try"
+        }
+    },
+    "Auth": {
+        "welcome": "Welcome back, {name}!",
+        "login": "Login",
+        "forgotPassword": "Forgot?",
+        "signIn": "Sign In",
+        "createAccount": "Create account",
+        "emailPlaceholder": "name@example.com",
+        "passwordPlaceholder": "Password",
+        "continue": "Continue"
+    }
+}

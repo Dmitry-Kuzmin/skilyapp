@@ -345,7 +345,7 @@ try {
   root.render(
     <StrictMode>
       <ErrorBoundary>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <LanguageProvider>
             <CountryProvider>
               <App />

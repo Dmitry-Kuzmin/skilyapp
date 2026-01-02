@@ -109,33 +109,41 @@ export const WalletWidget = memo(function WalletWidget({ className }: WalletWidg
           </div>
         )}
 
-        {/* Coins Skeleton/Content */}
+        {/* Coins Capsule */}
         {showCoinsSkeleton ? (
-          <Skeleton className="h-8 w-16 rounded-lg" />
+          <Skeleton className="h-8 w-20 rounded-full" />
         ) : (
-          <Button
-            variant="ghost"
-            size="sm"
+          <div
+            className="group relative h-8 flex items-center gap-1.5 px-3 rounded-full bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 transition-all duration-300 hover:bg-white/10 hover:border-white/20 cursor-pointer overflow-visible coin-capsule"
             onClick={handleCoinsClick}
             onTouchStart={(e) => {
-              // КРИТИЧНО: Обработка touch для мгновенной реакции на мобильных
               e.stopPropagation();
             }}
-            className="h-8 px-1.5 md:px-2 gap-1 md:gap-1.5 hover:bg-muted/50"
             style={{
               pointerEvents: 'auto',
               touchAction: 'manipulation',
               WebkitTapHighlightColor: 'transparent',
               position: 'relative',
-              zIndex: 51 // КРИТИЧНО: Выше контейнера
+              zIndex: 51
             }}
           >
-            <Coins className="w-3.5 h-3.5 md:w-4 md:h-4 text-yellow-500" />
-            <span className="text-xs md:text-sm font-semibold">{balance}</span>
-            <div className="w-3.5 h-3.5 rounded-full bg-yellow-500/10 flex items-center justify-center border border-yellow-500/30 ml-0.5">
-              <span className="text-[9px] font-bold text-yellow-600">+</span>
+            {/* Coin Icon */}
+            <Coins className="w-4 h-4 text-yellow-500 coin-icon transition-transform duration-500" />
+
+            {/* Balance Text */}
+            <span className="text-xs md:text-sm font-bold text-foreground coin-balance transition-all duration-300">{balance}</span>
+
+            {/* Vertical Separator */}
+            <div className="w-px h-4 bg-white/10" />
+
+            {/* Plus Button - Integrated */}
+            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-yellow-500/10 border border-yellow-500/30 transition-all duration-200 hover:bg-yellow-500/20 hover:border-yellow-500/50 hover:scale-110 plus-zone">
+              <span className="text-[10px] font-black text-yellow-600 dark:text-yellow-400">+</span>
             </div>
-          </Button>
+
+            {/* Particle Container */}
+            <div className="coin-particles pointer-events-none absolute inset-0" />
+          </div>
         )}
 
         {/* Duel Pass Skeleton/Content - улучшенная версия для мобильных с прогресс-баром и SP */}

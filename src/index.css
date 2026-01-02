@@ -1846,3 +1846,180 @@ html {
     transform: scale(1.25);
   }
 }
+
+/* ============================================================================
+ * COIN ADD ANIMATION - "Golden Rain" Effect
+ * ============================================================================
+ * Premium animation for coin balance updates
+ * Triggered when coins are added to the user's balance
+ * ============================================================================ */
+
+/* Phase 1: Coin Balance Pop & Flip */
+@keyframes coin-balance-pop {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+
+  40% {
+    transform: scale(1.2) translateY(-3px);
+  }
+
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes coin-icon-flip {
+  0% {
+    transform: rotateY(0deg);
+    filter: drop-shadow(0 0 0 rgba(251, 191, 36, 0));
+  }
+
+  50% {
+    transform: rotateY(180deg);
+    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8));
+  }
+
+  100% {
+    transform: rotateY(360deg);
+    filter: drop-shadow(0 0 0 rgba(251, 191, 36, 0));
+  }
+}
+
+/* Phase 2: Plus Zone Pulse */
+@keyframes plus-zone-pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    background-color: rgba(234, 179, 8, 0.1);
+    border-color: rgba(234, 179, 8, 0.3);
+  }
+
+  50% {
+    transform: scale(1.15);
+    background-color: rgba(234, 179, 8, 0.25);
+    border-color: rgba(234, 179, 8, 0.6);
+  }
+}
+
+/* Phase 3: Capsule Afterglow */
+@keyframes capsule-afterglow {
+  0% {
+    box-shadow: 0 0 0 rgba(234, 179, 8, 0);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  30% {
+    box-shadow: 0 0 20px rgba(234, 179, 8, 0.6),
+      0 0 40px rgba(234, 179, 8, 0.3);
+    border-color: rgba(234, 179, 8, 0.5);
+  }
+
+  100% {
+    box-shadow: 0 0 0 rgba(234, 179, 8, 0);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Particle Animations */
+@keyframes coin-particle-1 {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translate(-30px, -10px) scale(0.8);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translate(-50px, 0) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes coin-particle-2 {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translate(-25px, -15px) scale(0.9);
+    opacity: 0.9;
+  }
+
+  100% {
+    transform: translate(-45px, -5px) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes coin-particle-3 {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translate(-20px, -20px) scale(0.7);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: translate(-35px, -10px) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Trigger Classes - Applied via JavaScript */
+.coin-capsule.coin-add-animation .coin-balance {
+  animation: coin-balance-pop 600ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.coin-capsule.coin-add-animation .coin-icon {
+  animation: coin-icon-flip 600ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.coin-capsule.coin-add-animation .plus-zone {
+  animation: plus-zone-pulse 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.coin-capsule.coin-add-animation {
+  animation: capsule-afterglow 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Particles */
+.coin-capsule.coin-add-animation .coin-particles::before,
+.coin-capsule.coin-add-animation .coin-particles::after,
+.coin-capsule.coin-add-animation .coin-particles {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle, rgba(251, 191, 36, 1) 0%, rgba(234, 179, 8, 0.8) 50%, rgba(251, 191, 36, 0) 100%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.coin-capsule.coin-add-animation .coin-particles::before {
+  right: 20px;
+  top: 50%;
+  animation: coin-particle-1 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.coin-capsule.coin-add-animation .coin-particles::after {
+  right: 20px;
+  top: 50%;
+  animation: coin-particle-2 450ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation-delay: 50ms;
+}
+
+.coin-capsule.coin-add-animation .coin-particles {
+  right: 20px;
+  top: 50%;
+  animation: coin-particle-3 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation-delay: 100ms;
+}

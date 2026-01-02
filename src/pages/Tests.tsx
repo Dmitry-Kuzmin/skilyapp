@@ -948,30 +948,38 @@ const Tests = () => {
                     </div>
 
                     {/* Legend */}
-                    <div className="flex flex-wrap items-center gap-6 p-6 rounded-[2rem] bg-slate-950/20 border border-white/5 backdrop-blur-md">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center justify-center">
-                          <Star className="w-5 h-5 text-emerald-400 fill-emerald-400" />
+                    <div className="flex flex-wrap items-center gap-6 p-6 rounded-[2rem] bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-white/10 backdrop-blur-xl shadow-xl relative overflow-hidden">
+                      {/* Ambient glow */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-pink-500/5 opacity-50" />
+                      <div className="absolute top-0 right-0 w-48 h-48 bg-purple-500/20 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2" />
+                      <div className="absolute bottom-0 left-0 w-48 h-48 bg-pink-500/20 blur-3xl rounded-full translate-y-1/2 -translate-x-1/2" />
+
+                      {/* Content */}
+                      <div className="relative z-10 flex flex-wrap items-center gap-6 w-full">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center justify-center">
+                            <Star className="w-5 h-5 text-emerald-400 fill-emerald-400" />
+                          </div>
+                          <span className="text-xs font-black text-emerald-400 uppercase tracking-widest">
+                            {selectedCountry === 'russia' ? 'Сдано' : 'Charged'}
+                          </span>
                         </div>
-                        <span className="text-xs font-black text-emerald-100/70 uppercase tracking-widest">
-                          {selectedCountry === 'russia' ? 'Сдано' : 'Charged'}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-orange-500/20 border border-orange-500/50 shadow-[0_0_15px_rgba(245,158,11,0.3)] flex items-center justify-center">
-                          <div className="w-5 h-5 rounded-full border-2 border-orange-400 border-t-transparent animate-spin" />
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-orange-500/20 border border-orange-500/50 shadow-[0_0_15px_rgba(245,158,11,0.3)] flex items-center justify-center">
+                            <div className="w-5 h-5 rounded-full border-2 border-orange-400 border-t-transparent animate-spin" />
+                          </div>
+                          <span className="text-xs font-black text-orange-400 uppercase tracking-widest">
+                            {selectedCountry === 'russia' ? 'Прохожу' : 'Charging'}
+                          </span>
                         </div>
-                        <span className="text-xs font-black text-orange-100/70 uppercase tracking-widest">
-                          {selectedCountry === 'russia' ? 'Прохожу' : 'Charging'}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.3)] flex items-center justify-center">
-                          <AlertIcon className="w-5 h-5 text-red-400" />
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.3)] flex items-center justify-center">
+                            <AlertIcon className="w-5 h-5 text-red-400" />
+                          </div>
+                          <span className="text-xs font-black text-red-400 uppercase tracking-widest">
+                            {selectedCountry === 'russia' ? 'Ошибка' : 'Damaged'}
+                          </span>
                         </div>
-                        <span className="text-xs font-black text-red-100/70 uppercase tracking-widest">
-                          {selectedCountry === 'russia' ? 'Ошибка' : 'Damaged'}
-                        </span>
                       </div>
                     </div>
                   </div>

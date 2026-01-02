@@ -57,32 +57,50 @@ export default function InviteLanding() {
       }
 
       // Load duel stats
-      const { data: duelStats } = await supabase
-        .from('duel_stats')
-        .select('total_duels, wins')
-        .eq('user_id', profile.id)
-        .single();
+      let duelStats = null;
+      try {
+        const result = await supabase
+          .from('duel_stats')
+          .select('total_duels, wins')
+          .eq('user_id', profile.id)
+          .single();
+        duelStats = result.data;
+      } catch (e) {
+        console.warn('[InviteLanding] Duel stats unavailable:', e);
+      }
 
       // Load test completion stats
-      const { count: testsCount } = await supabase
-        .from('game_sessions')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', profile.id)
-        .eq('is_completed', true);
+      let testsCount = 0;
+      try {
+        const result = await supabase
+          .from('game_sessions')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', profile.id)
+          .eq('is_completed', true);
+        testsCount = result.count || 0;
+      } catch (e) {
+        console.warn('[InviteLanding] Test stats unavailable:', e);
+      }
 
       // Load learned signs count
-      const { count: signsCount } = await supabase
-        .from('user_sign_progress')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', profile.id)
-        .gte('mastery_level', 3); // Считаем выученными с mastery >= 3
+      let signsCount = 0;
+      try {
+        const result = await supabase
+          .from('user_sign_progress')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', profile.id)
+          .gte('mastery_level', 3);
+        signsCount = result.count || 0;
+      } catch (e) {
+        console.warn('[InviteLanding] Signs stats unavailable:', e);
+      }
 
       setUserStats({
         ...profile,
         duel_wins: duelStats?.wins || 0,
         duel_total: duelStats?.total_duels || 0,
-        tests_passed: testsCount || 0,
-        signs_learned: signsCount || 0,
+        tests_passed: testsCount,
+        signs_learned: signsCount,
       });
     } catch (error) {
       console.error('[InviteLanding] Error loading stats:', error);
@@ -96,7 +114,7 @@ export default function InviteLanding() {
     if (!code) return;
 
     setAccepting(true);
-    
+
     // Haptics with fallback
     try {
       haptics?.buttonPressed?.();
@@ -112,27 +130,27 @@ export default function InviteLanding() {
         .select('referred_by')
         .eq('id', profileId)
         .single();
-      
+
       if (profile?.referred_by) {
         toast.error('Вы уже использовали реферальный код!');
         setAccepting(false);
         setTimeout(() => navigate('/'), 1500);
         return;
       }
-      
+
       // User is logged in but hasn't used a referral - apply it now
       const { data: referralResult, error: referralError } = await supabase.rpc('create_referral', {
         p_referrer_code: code.toUpperCase(),
         p_referred_id: profileId
       });
-      
+
       if (referralError) {
         console.error('[InviteLanding] Referral error:', referralError);
         toast.error('Ошибка применения реферального кода');
         setAccepting(false);
         return;
       }
-      
+
       if (referralResult && referralResult.length > 0) {
         const result = referralResult[0];
         if (result.success) {
@@ -153,10 +171,10 @@ export default function InviteLanding() {
     sessionStorage.setItem('referral_code', code.toUpperCase());
     console.log('[InviteLanding] Referral code stored, redirecting to home');
     toast.success('Регистрируйтесь и получите +50 монет! 🎁', { duration: 5000 });
-    
+
     // Small delay for animation
     await new Promise(resolve => setTimeout(resolve, 800));
-    
+
     // Redirect to main page where user will be prompted to register
     console.log('[InviteLanding] Navigating to home page');
     navigate('/');
@@ -190,7 +208,7 @@ export default function InviteLanding() {
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          animate={{ 
+          animate={{
             scale: [1, 1.2, 1],
             rotate: [0, 90, 0],
             opacity: [0.1, 0.2, 0.1]
@@ -199,7 +217,7 @@ export default function InviteLanding() {
           className="absolute -top-40 -right-40 w-80 h-80 bg-pink-500 rounded-full blur-3xl"
         />
         <motion.div
-          animate={{ 
+          animate={{
             scale: [1, 1.3, 1],
             rotate: [0, -90, 0],
             opacity: [0.1, 0.2, 0.1]
@@ -223,11 +241,11 @@ export default function InviteLanding() {
           >
             <div className="text-5xl sm:text-6xl">🚗</div>
           </motion.div>
-          
+
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mb-4 bg-gradient-to-r from-pink-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
             {userName} приглашает тебя<br />учить ПДД!
           </h1>
-          
+
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
             Присоединяйся к тысячам учеников, которые уже сдали экзамен
           </p>
@@ -255,7 +273,7 @@ export default function InviteLanding() {
 
             <div className="space-y-3 mb-6">
               <div className="text-lg font-bold text-muted-foreground mb-3">{userName} уже:</div>
-              
+
               <div className="grid sm:grid-cols-2 gap-3">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
@@ -335,7 +353,7 @@ export default function InviteLanding() {
           <Card className="p-6 sm:p-8 bg-gradient-to-br from-amber-500/20 via-yellow-500/20 to-amber-500/20 border-2 border-amber-500/40 relative overflow-hidden">
             {/* Animated sparkles */}
             <motion.div
-              animate={{ 
+              animate={{
                 rotate: 360,
                 scale: [1, 1.2, 1]
               }}
@@ -349,7 +367,7 @@ export default function InviteLanding() {
               <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
                 <Gift className="h-8 w-8 text-white" />
               </div>
-              
+
               <div className="flex-1">
                 <h3 className="text-2xl sm:text-3xl font-black mb-2 text-amber-700 dark:text-amber-300">
                   Бонус при регистрации
@@ -413,7 +431,7 @@ export default function InviteLanding() {
             className="w-full h-16 text-xl font-black bg-gradient-to-r from-pink-500 via-blue-600 to-indigo-600 hover:from-pink-600 hover:via-blue-700 hover:to-indigo-700 text-white shadow-2xl hover:shadow-pink-500/50 transition-all relative overflow-hidden group"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-            
+
             {accepting ? (
               <>
                 <div className="animate-spin h-6 w-6 border-4 border-white border-t-transparent rounded-full mr-3" />

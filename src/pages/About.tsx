@@ -924,8 +924,7 @@ export default function About() {
     }
   };
 
-  const pageContent = content[language] || content.en;
-  const titleParts = pageContent.hero.title.split('. ');
+  const titleParts = copy.about.heroTitle.split('. ');
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0f172a] text-white font-sans selection:bg-indigo-500/30 overflow-x-hidden">
@@ -956,14 +955,14 @@ export default function About() {
         <div className="text-center mb-24 space-y-8 max-w-4xl mx-auto px-6">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-widest animate-fade-in shadow-lg shadow-blue-500/10">
             <Sparkles size={14} className="animate-pulse" />
-            <span>Our Mission</span>
+            <span>{copy.about.mission}</span>
           </div>
           <h1 className="text-5xl md:text-7xl font-black leading-tight bg-gradient-to-b from-white via-indigo-100 to-indigo-300 bg-clip-text text-transparent drop-shadow-2xl tracking-tight">
             {titleParts[0]}.<br />
             <span className="text-4xl md:text-6xl text-indigo-200">{titleParts[1]}</span>
           </h1>
           <p className="text-xl md:text-2xl text-slate-400 max-w-2xl mx-auto leading-relaxed font-light">
-            {pageContent.hero.subtitle}
+            {copy.about.heroSubtitle}
           </p>
         </div>
 
@@ -988,31 +987,30 @@ export default function About() {
               {/* Header */}
               <div>
                 <h2 className="text-4xl md:text-5xl font-black text-white mb-8 leading-tight tracking-tight drop-shadow-lg">
-                  {language === 'ru' ? (
-                    <>
-                      Skily родился из <span className="text-blue-400 inline-block border-b-2 border-blue-500/30 pb-1">боли</span>.
-                    </>
-                  ) : (
-                    <>
-                      Skily was born from <span className="text-blue-400 inline-block border-b-2 border-blue-500/30 pb-1">pain</span>.
-                    </>
-                  )}
+                  Skily {language === 'es' ? 'nació de la' : language === 'ru' ? 'родился из' : 'was born from'} <span className="text-blue-400 inline-block border-b-2 border-blue-500/30 pb-1">{copy.about.storyHighlight}</span>.
                 </h2>
 
                 {/* Body Text with Emotional Highlights */}
                 <div className="space-y-6 text-lg md:text-xl text-slate-400 leading-relaxed font-light">
-                  <p>
-                    {language === 'ru' ?
-                      <>Устаревшие учебники, бюрократический язык, скучные лекции. В новой стране получение прав часто превращается в <span className="text-blue-200 font-normal">ад</span>.</> :
-                      "Outdated textbooks, bureaucratic language, boring lectures. In a new country, getting a license often turns into <span class='text-blue-200 font-normal'>hell</span>."}
-                  </p>
-                  <p>
-                    {language === 'ru' ?
-                      <>Мы — команда экспатов, которые прошли через это. Мы решили исправить это с помощью <span className="text-blue-200 font-normal">технологий</span> и <span className="text-blue-200 font-normal">геймификации</span>.</> :
-                      "We are a team of expats who went through this. We decided to fix it with technology and gamification."}
-                  </p>
+                  <p dangerouslySetInnerHTML={{
+                    __html: copy.about.storyParagraph1.replace(
+                      language === 'es' ? 'pesadilla' : language === 'ru' ? 'ад' : 'hell',
+                      `<span class="text-blue-200 font-normal">${language === 'es' ? 'pesadilla' : language === 'ru' ? 'ад' : 'hell'}</span>`
+                    )
+                  }} />
+                  <p dangerouslySetInnerHTML={{
+                    __html: copy.about.storyParagraph2
+                      .replace(
+                        language === 'es' ? 'tecnología' : language === 'ru' ? 'технологий' : 'technology',
+                        `<span class="text-blue-200 font-normal">${language === 'es' ? 'tecnología' : language === 'ru' ? 'технологий' : 'technology'}</span>`
+                      )
+                      .replace(
+                        language === 'es' ? 'gamificación' : language === 'ru' ? 'геймификации' : 'gamification',
+                        `<span class="text-blue-200 font-normal">${language === 'es' ? 'gamificación' : language === 'ru' ? 'геймификации' : 'gamification'}</span>`
+                      )
+                  }} />
                   <p className="text-white font-medium border-l-2 border-blue-500/50 pl-4 italic opacity-90">
-                    {language === 'ru' ? "Мы здесь, чтобы вы сдали экзамен играючи, а не страдая." : "We are here to help you pass the exam playfully, not painfully."}
+                    {copy.about.storyQuote}
                   </p>
                 </div>
               </div>
@@ -1024,13 +1022,13 @@ export default function About() {
                     <Sparkles size={18} className="text-blue-400" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold">Que tengas suerte</span>
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold">{copy.about.goodLuck}</span>
                     <span className="text-sm font-bold text-white">Est. 2025</span>
                   </div>
                 </div>
 
                 <div className="text-right">
-                  <p className="text-white font-serif italic mb-1 opacity-80 text-lg">— {language === 'ru' ? 'Основатели Skily' : 'The Skily Founders'}</p>
+                  <p className="text-white font-serif italic mb-1 opacity-80 text-lg">— {copy.about.founders}</p>
                   <p className="text-xs text-slate-500 uppercase tracking-widest">Barcelona</p>
                 </div>
               </div>

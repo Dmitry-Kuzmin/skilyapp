@@ -149,7 +149,7 @@ const DialogContent = React.forwardRef<
           ref={ref}
           className={cn(
             // Базовые стили для dialog (премиум стиль)
-            "relative z-[100000] grid w-full gap-4 border bg-zinc-900 border-zinc-800 border-white/10 p-6 shadow-lg duration-200 pointer-events-auto",
+            "relative z-[100000] grid w-full gap-4 p-6 duration-200 pointer-events-auto",
             // Максимальная ширина
             sizeConfig.maxWidth || "max-w-lg",
             // Максимальная высота

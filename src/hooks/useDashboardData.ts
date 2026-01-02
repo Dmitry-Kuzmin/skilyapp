@@ -156,6 +156,13 @@ export function useDashboardData() {
         return null;
       }
 
+      // ФИКС 400: Проверяем авторизацию перед любыми RPC вызовами
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.warn('[useDashboardData] ⚠️ No active session, skipping RPC calls');
+        return null;
+      }
+
       // SUPER ОПТИМИЗАЦИЯ: Пробуем новый Super RPC
       console.log('[useDashboardData] 🔗 Calling get_dashboard_super...');
       try {
@@ -171,14 +178,6 @@ export function useDashboardData() {
         console.warn('[useDashboardData] ⚠️ get_dashboard_super error or empty:', response.error || response.data?.error);
       } catch (e: any) {
         console.warn('[useDashboardData] ❌ get_dashboard_super failed:', e.message);
-      }
-
-      // Check if data is complete (has profile name). If not, it's legacy RPC -> Force fallback
-      if (data && !(data.profile as any).first_name && !(data.profile as any).username) {
-        console.warn('[useDashboardData] ⚠️ RPC returned incomplete profile (no name). Forcing fallback.');
-        return await fetchDashboardFallback(profileId);
-      } else if (data) {
-        return data;
       }
 
       // Fallback на обычный RPC

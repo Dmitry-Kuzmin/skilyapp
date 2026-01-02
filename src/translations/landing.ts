@@ -112,6 +112,18 @@ export interface LandingCopy {
     }>;
     note: string;
   };
+  about: {
+    mission: string;
+    heroTitle: string;
+    heroSubtitle: string;
+    storyTitle: string;
+    storyHighlight: string;
+    storyParagraph1: string;
+    storyParagraph2: string;
+    storyQuote: string;
+    goodLuck: string;
+    founders: string;
+  };
   referral: {
     badge: string;
     invitesYou: string;
@@ -286,6 +298,18 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       ],
       note: `© ${currentYear} Skilyapp. Plataforma de aprendizaje interactivo para la seguridad vial.`,
     },
+    about: {
+      mission: "Nuestra misión",
+      heroTitle: "Tu carnet sin estrés.",
+      heroSubtitle: "Creemos que prepararse para el examen no debe ser aburrido ni intimidante. Hemos creado la herramienta que nosotros mismos echábamos de menos.",
+      storyTitle: "Nuestra historia",
+      storyHighlight: "frustración",
+      storyParagraph1: "Manuales obsoletos, lenguaje burocrático, clases aburridas. Obtener el carnet puede ser una pesadilla.",
+      storyParagraph2: "Somos un equipo que pasó por esto. Decidimos arreglarlo con tecnología y gamificación.",
+      storyQuote: "Estamos aquí para que apruebes jugando, no sufriendo.",
+      goodLuck: "Que tengas suerte",
+      founders: "Los fundadores de Skily",
+    },
     referral: {
       badge: "Invitación",
       invitesYou: "te invita!",
@@ -452,6 +476,24 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       ],
       note: `© ${currentYear} Skilyapp. Interactive learning platform for road safety education.`,
     },
+    about: {
+      mission: "Our Mission",
+      heroTitle: "License without stress.",
+      heroSubtitle: "We believe exam preparation shouldn't be boring or scary. We built the tool we wished we had.",
+      storyTitle: "Our Story",
+      storyHighlight: "pain",
+      storyParagraph1: "Outdated textbooks, bureaucratic language, boring lectures. In a new country, getting a license often turns into hell.",
+      storyParagraph2: "We are a team of expats who went through this. We decided to fix it with technology and gamification.",
+      storyQuote: "We are here to help you pass the exam playfully, not painfully.",
+      goodLuck: "Good luck",
+      founders: "The Skily Founders",
+    },
+    referral: {
+      badge: "Invitation",
+      invitesYou: "invites you!",
+      coinsOnRegistration: "on registration",
+      join: "Join",
+    },
   },
   ru: {
     controls: {
@@ -611,6 +653,18 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { label: "Партнёрам", href: "#partnership" },
       ],
       note: `© ${currentYear} Skilyapp. Интерактивная платформа для изучения безопасности дорожного движения.`,
+    },
+    about: {
+      mission: "Наша миссия",
+      heroTitle: "Права без стресса.",
+      heroSubtitle: "Мы верим, что подготовка к экзамену не должна быть скучной или пугающей. Мы создали инструмент, которого нам самим не хватало.",
+      storyTitle: "Наша история",
+      storyHighlight: "боли",
+      storyParagraph1: "Устаревшие учебники, бюрократический язык, скучные лекции. В новой стране получение прав часто превращается в ад.",
+      storyParagraph2: "Мы — команда экспатов, которые прошли через это. Мы решили исправить это с помощью технологий и геймификации.",
+      storyQuote: "Мы здесь, чтобы вы сдали экзамен играючи, а не страдая.",
+      goodLuck: "Удачи",
+      founders: "Основатели Skily",
     },
     referral: {
       badge: "Приглашение",
