@@ -198,7 +198,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email' }: AuthModal
       if (webApp?.HapticFeedback) {
         webApp.HapticFeedback.notificationOccurred('success');
       }
-      onClose();
+      setTimeout(() => { onClose(); }, 300);
     } catch (err: any) {
       console.error('[Auth] Login failed:', err);
 
