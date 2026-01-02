@@ -9,6 +9,8 @@ import { checkUserAuthMethod, getClientIP } from '@/lib/auth-utils';
 import { isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/passkey';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTelegram } from '@/contexts/TelegramContext';
+import { useNavigate } from 'react-router-dom';
+import { CheckCircle2 } from 'lucide-react';
 
 // Extracted Components
 import { AuthModalHeader } from './auth/modal/AuthModalHeader';
@@ -26,8 +28,10 @@ interface AuthModalProps {
 }
 
 export function AuthModalNew({ open, onClose, initialStep = 'email' }: AuthModalProps) {
+  const navigate = useNavigate();
   const [step, setStep] = useState<'email' | 'password-existing' | 'magic-link-new' | 'magic-link-existing' | 'check-email' | 'password-recovery' | 'reset-password' | 'reset-success'>(initialStep);
   const [email, setEmail] = useState('');
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -194,11 +198,19 @@ export function AuthModalNew({ open, onClose, initialStep = 'email' }: AuthModal
       }
 
       console.log('[Auth] signInWithPassword success:', data?.user?.id);
+
+      // 🎉 Показываем красивую success анимацию
+      setShowSuccessAnimation(true);
       toast.success(t('auth.success.loggedIn'));
       if (webApp?.HapticFeedback) {
         webApp.HapticFeedback.notificationOccurred('success');
       }
-      setTimeout(() => { onClose(); }, 300);
+
+      // 🚀 Даем время на анимацию, затем редирект на dashboard
+      setTimeout(() => {
+        onClose();
+        navigate('/dashboard', { replace: true });
+      }, 1200);
     } catch (err: any) {
       console.error('[Auth] Login failed:', err);
 
@@ -470,6 +482,44 @@ export function AuthModalNew({ open, onClose, initialStep = 'email' }: AuthModal
       <div className="bg-[#09090b] rounded-[32px] overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_20px_50px_rgba(0,0,0,0.7),0_10px_20px_rgba(0,0,0,0.4)] border border-white/5 relative">
         {/* Subtle top glare for 3D effect */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+
+        {/* Success Animation Overlay */}
+        <AnimatePresence>
+          {showSuccessAnimation && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.1 }}
+              className="absolute inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-green-950/95 via-emerald-950/95 to-teal-950/95 backdrop-blur-sm"
+            >
+              <div className="flex flex-col items-center gap-4">
+                <motion.div
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 200,
+                    damping: 15,
+                    delay: 0.1
+                  }}
+                  className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center border-2 border-green-500/50"
+                >
+                  <CheckCircle2 className="w-12 h-12 text-green-400" strokeWidth={2.5} />
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-center"
+                >
+                  <h3 className="text-2xl font-bold text-white mb-1">Success!</h3>
+                  <p className="text-sm text-green-300/80">Redirecting to dashboard...</p>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {modalContent}
       </div>
     </ResponsiveModal>
