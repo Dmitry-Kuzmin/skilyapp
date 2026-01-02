@@ -9,6 +9,8 @@ import React from 'react';
 import { AuthModalNew as AuthModal } from '@/components/AuthModalNew';
 import { lazy } from 'react';
 
+import { supabase } from '@/integrations/supabase/client';
+
 // Lazy-loaded модалки (загружаются только при открытии)
 const BoostShopModal = lazy(() => import('@/components/shop/BoostShopModal').then(m => ({ default: m.BoostShopModal })));
 const PaywallModal = lazy(() => import('@/components/monetization/PaywallModal').then(m => ({ default: m.PaywallModal })));
@@ -70,7 +72,18 @@ export const GlobalModalManager = () => {
   // Проверяем, что компонент смонтирован и DOM готов
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+
+    // Слушаем событие сброса пароля (из email ссылки)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        openModal('AUTH', { initialStep: 'reset-password' }, false);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [openModal]);
 
   // Синхронизация URL -> модалки при монтировании и изменении URL
   useEffect(() => {

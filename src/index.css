@@ -680,6 +680,23 @@ All colors MUST be HSL.
     animation: spin-radar 6s linear infinite;
   }
 
+  @keyframes levitate {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+
+  .animate-levitate {
+    animation: levitate 3s ease-in-out infinite;
+    will-change: transform;
+  }
+
   .animate-shake {
     animation: shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
   }

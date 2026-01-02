@@ -158,6 +158,29 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
   const [isStarting, setIsStarting] = useState(false);
   const [isEchoActive, setIsEchoActive] = useState(false);
   const [isPartnershipOpen, setIsPartnershipOpen] = useState(false);
+
+  // КРИТИЧНО: Обработка хеша #partnership для открытия портала извне (например, из консоли)
+  useEffect(() => {
+    const checkHash = () => {
+      if (window.location.hash === '#partnership') {
+        setIsPartnershipOpen(true);
+      }
+    };
+
+    // Проверяем при монтировании
+    checkHash();
+
+    // Слушаем изменения хеша
+    window.addEventListener('hashchange', checkHash);
+
+    // Экспонируем функцию глобально для пасхалки в консоли
+    (window as any).openPartnership = () => setIsPartnershipOpen(true);
+
+    return () => {
+      window.removeEventListener('hashchange', checkHash);
+      delete (window as any).openPartnership;
+    };
+  }, []);
   const [demoVariantIndex, setDemoVariantIndex] = useState(0);
   const [avatarError, setAvatarError] = useState(false);
   const { language, setLanguage } = useLanguage();
@@ -543,14 +566,12 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
 
         {/* Right Side: Actions */}
         <div className="flex items-center gap-2 md:gap-3 ml-auto">
-          {/* Language selector hidden for Russia (always Russian) */}
-          {selectedCountry.code !== 'ru' && (
-            <LanguageSelector
-              language={language}
-              onSelect={handleLanguageChange}
-              label={copy.controls.languageLabel}
-            />
-          )}
+          {/* Language selector */}
+          <LanguageSelector
+            language={language}
+            onSelect={handleLanguageChange}
+            label={copy.controls.languageLabel}
+          />
 
           <button
             onClick={handleEnter}
@@ -1416,7 +1437,16 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
                           {item.label}
                         </a>
                       ) : (
-                        <button onClick={() => navigate(item.href)} className="text-slate-400 hover:text-white text-sm transition-colors text-left block">
+                        <button
+                          onClick={() => {
+                            if (item.href === '#partnership') {
+                              setIsPartnershipOpen(true);
+                            } else {
+                              navigate(item.href);
+                            }
+                          }}
+                          className="text-slate-400 hover:text-white text-sm transition-colors text-left block"
+                        >
                           {item.label}
                         </button>
                       )}

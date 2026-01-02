@@ -1,0 +1,37 @@
+{
+    "Hero": {
+        "titleTop": "Tu camino al carnet",
+        "titleBottom": "comienza aquí",
+        "descriptionHighlight": "Aprueba el teórico sin autoescuela",
+        "descriptionRest": "y ahorra hasta 500€. Plan de estudio personal, algoritmos inteligentes y preguntas oficiales de la DGT 2025.",
+        "button": "ENGINE START",
+        "pressStart": "PRESS START"
+    },
+    "Stats": {
+        "questions": {
+            "value": "3,500+",
+            "label": "Preguntas",
+            "description": "Base de datos 2025"
+        },
+        "users": {
+            "value": "12k+",
+            "label": "Estudiantes",
+            "description": "Aprobaron el examen"
+        },
+        "passRate": {
+            "value": "94%",
+            "label": "Aprueban",
+            "description": "A la primera"
+        }
+    },
+    "Auth": {
+        "welcome": "¡Bienvenido de nuevo, {name}!",
+        "login": "Iniciar sesión",
+        "forgotPassword": "¿Olvidaste?",
+        "signIn": "Entrar",
+        "createAccount": "Crear cuenta",
+        "emailPlaceholder": "nombre@ejemplo.com",
+        "passwordPlaceholder": "Contraseña",
+        "continue": "Continuar"
+    }
+}

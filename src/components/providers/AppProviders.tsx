@@ -14,7 +14,7 @@ import { UserProvider } from "@/contexts/UserContext";
 import { PDDProvider } from "@/contexts/PDDContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 // ОПТИМИЗАЦИЯ: Только Sonner для всех уведомлений (унифицированный чёрный стиль)
-import { Toaster as Sonner } from "@/components/ui/sonner";
+
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReconnectHandler } from "@/components/ReconnectHandler";
 import { useAuthEventListener } from "@/hooks/useAuthEventListener.ts";
@@ -146,7 +146,7 @@ export function AppProviders({ children }: AppProvidersProps) {
       }}
     >
       <TooltipProvider>
-        <Sonner />
+
         <UserProvider>
           <NotificationProvider>
             <PDDProvider>

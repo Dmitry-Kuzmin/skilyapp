@@ -150,6 +150,29 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
 }) => {
   const [isStarting, setIsStarting] = useState(false);
   const [isPartnershipOpen, setIsPartnershipOpen] = useState(false);
+
+  // КРИТИЧНО: Обработка хеша #partnership для открытия портала извне (например, из консоли)
+  useEffect(() => {
+    const checkHash = () => {
+      if (window.location.hash === '#partnership') {
+        setIsPartnershipOpen(true);
+      }
+    };
+
+    // Проверяем при монтировании
+    checkHash();
+
+    // Слушаем изменения хеша
+    window.addEventListener('hashchange', checkHash);
+
+    // Экспонируем функцию глобально для пасхалки в консоли
+    (window as any).openPartnership = () => setIsPartnershipOpen(true);
+
+    return () => {
+      window.removeEventListener('hashchange', checkHash);
+      delete (window as any).openPartnership;
+    };
+  }, []);
   const [demoVariantIndex, setDemoVariantIndex] = useState(0);
   const [avatarError, setAvatarError] = useState(false);
   const { language, setLanguage } = useLanguage();
@@ -1398,7 +1421,16 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
                           {item.label}
                         </a>
                       ) : (
-                        <button onClick={() => navigate(item.href)} className="text-slate-400 hover:text-white text-sm transition-colors text-left block">
+                        <button
+                          onClick={() => {
+                            if (item.href === '#partnership') {
+                              setIsPartnershipOpen(true);
+                            } else {
+                              navigate(item.href);
+                            }
+                          }}
+                          className="text-slate-400 hover:text-white text-sm transition-colors text-left block"
+                        >
                           {item.label}
                         </button>
                       )}

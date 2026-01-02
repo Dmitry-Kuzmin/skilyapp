@@ -29,6 +29,7 @@ import { OfflineQueueIndicator } from "@/components/OfflineQueueIndicator";
 const DeepLinkHandler = lazy(() => import("@/components/DeepLinkHandler").then(m => ({ default: m.DeepLinkHandler })));
 // КРИТИЧНО: OAuthCallbackHandler НЕ lazy - должен загружаться сразу для обработки OAuth токенов
 // Иначе при ошибках lazy loading OAuth callback не обработается
+import { Toaster, toast } from "@/components/ui/sonner";
 import { OAuthCallbackHandler } from "@/components/OAuthCallbackHandler";
 const CosmeticsPreviewProvider = lazy(() => import("@/contexts/CosmeticsPreviewContext").then(m => ({ default: m.CosmeticsPreviewProvider })));
 const HallOfFameModal = lazy(() => import("@/components/HallOfFameModal").then(m => ({ default: m.HallOfFameModal })));
@@ -455,6 +456,46 @@ const App = () => {
     }
   }, [basename, isGitHubPages]);
 
+  // КРИТИЧНО: Обработка ошибок аутентификации из URL hash (например, expired OTP)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const hash = window.location.hash;
+    if (hash && (hash.includes('error=') || hash.includes('error_code='))) {
+      try {
+        const params = new URLSearchParams(hash.substring(1));
+        const errorCode = params.get('error_code');
+        const errorDescription = params.get('error_description') || params.get('error');
+
+        if (errorCode || errorDescription) {
+          console.error('[App] Auth error detected in hash:', { errorCode, errorDescription });
+
+          // Формируем понятное сообщение для пользователя
+          let message = 'Ошибка аутентификации';
+          if (errorCode === 'otp_expired') {
+            message = 'Срок действия ссылки истек. Пожалуйста, запросите новую ссылку.';
+          } else if (errorDescription) {
+            message = decodeURIComponent(errorDescription).replace(/\+/g, ' ');
+          }
+
+          // Показываем уведомление
+          // ВАЖНО: На лендинге теперь есть Toaster (глобальный)
+          setTimeout(() => {
+            toast.error(message, {
+              duration: 10000, // Показываем долго, так как это важно
+              id: 'auth-error-hash',
+            });
+          }, 1000);
+
+          // Очищаем hash
+          window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
+      } catch (err) {
+        console.error('[App] Failed to parse auth error from hash:', err);
+      }
+    }
+  }, []);
+
   // КРИТИЧНО: Очистка URL от ~and~ паттернов (проблема с 404.html на Vercel)
   // ОПТИМИЗАЦИЯ SSG: Все обращения к window.location обёрнуты в проверку
   useEffect(() => {
@@ -518,6 +559,7 @@ const App = () => {
 
   return (
     <TelegramProvider>
+      <Toaster />
       <Motion>
         <OfflineBanner />
         <OfflineQueueIndicator />

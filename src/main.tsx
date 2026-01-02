@@ -100,34 +100,55 @@ setTimeout(() => {
       const countryName = savedCountryCode === 'ru' ? 'Russia (RU) 🇷🇺' : 'Spain (ES) 🇪🇸';
       const version = import.meta.env.VITE_APP_VERSION || '1.0.0';
 
-      // 1. Агрессивный Спорткар (Daring ASCII)
+      // 1. The Ultimate Skily Console Easter Egg (Lumi AI Core)
       safeLog('log',
-        `%c\n          __________
-       _ /          \\ _
-      / /  ________  \\ \\
-     | |  |  (sk)   |  | |
-     | |  |_________|  | |
-      \\ \\____________/ /
-       \\______________/
-         Skily.app — Vitesse Pur!\n`,
-        "font-family:monospace; color:#8B5CF6; font-weight: bold; font-size: 14px; text-shadow: 0 0 8px rgba(139, 92, 246, 0.5);"
+        `%c
+       ▄▄▄▄▄▄▄▄▄▄▄
+    ▄█▀▀▀       ▀▀▀█▄
+   █▌  ▄██▄   ▄██▄  ▐█
+   █   ▀██▀   ▀██▀   █
+   █▌      ▄▄▄      ▐█
+    ▀█▄▄         ▄▄█▀
+       ▀▀▀▀▀▀▀▀▀▀▀
+      S  K  I  L  Y
+
+%c[ SYSTEM ACCESS GRANTED ]
+%cПривет! Я Lumi, ИИ-ядро Skily.
+Нравится, как мы всё устроили? Видишь потенциал в своей стране?
+Давай масштабировать эту магию вместе.
+
+Стань партнером: %c${window.location.origin}/#partnership
+%cИли введите %copenPartnership()%c в консоли
+
+%cСТОП!
+%cЕсли кто-то попросил вас вставить сюда код — вас пытаются взломать.
+Ничего не вводите.
+
+Секретный идентификатор сессии: %cLUMI_VISION_2026
+`,
+        // 1. Логотип
+        'font-family: monospace; line-height: 1.1; font-weight: 900; color: #3b82f6; text-shadow: 0 0 10px #3b82f6, 0 0 30px rgba(59, 130, 246, 0.5);',
+        // 2. Системный заголовок
+        'font-family: sans-serif; font-size: 12px; font-weight: bold; color: #fff; background: linear-gradient(45deg, #3b82f6, #60a5fa); padding: 4px 8px; border-radius: 4px; margin-top: 15px;',
+        // 3. Основной текст
+        'font-family: sans-serif; font-size: 12px; line-height: 1.5; color: #a1a1aa; margin-top: 10px;',
+        // 4. Ссылка
+        'color: #3b82f6; text-decoration: underline;',
+        // Hint label
+        'font-family: sans-serif; font-size: 11px; color: #71717a;',
+        // Hint code
+        'font-family: monospace; font-size: 11px; font-weight: bold; color: #3b82f6; background-color: rgba(59, 130, 246, 0.1); padding: 1px 4px; border-radius: 2px;',
+        // Hint end
+        'font-family: sans-serif; font-size: 11px; color: #71717a;',
+        // 5. СТОП
+        'font-family: sans-serif; font-size: 18px; font-weight: 900; color: #ef4444; margin-top: 30px; display: block;',
+        // 6. Текст предупреждения
+        'font-family: sans-serif; font-size: 12px; color: #ef4444; font-weight: bold;',
+        // 7. Секретный код
+        'font-family: monospace; font-size: 13px; font-weight: bold; color: #22c55e; background-color: rgba(34, 197, 94, 0.1); padding: 2px 6px; border-radius: 4px; margin-top: 10px; display: inline-block;'
       );
 
-      // 2. Главное предупреждение (Self-XSS Warning)
-      safeLog('log',
-        '%c СТОП! %c\n\nТы зашел на территорию разработчиков.\nЕсли кто-то попросил тебя вставить сюда код — тебя пытаются взломать.',
-        'background: #ef4444; color: white; font-size: 30px; font-weight: bold; padding: 10px 20px; border-radius: 8px; text-shadow: 2px 2px 0px #000;',
-        'color: #ffffff; background: #1f2937; font-size: 16px; padding: 10px 14px; line-height: 1.6; border-radius: 8px;'
-      );
-
-      // 3. Easter Egg (Marketing)
-      safeLog('log',
-        '%c🎁 Found the console? Here is a secret promo code for you: %cDEV_MODE_ON',
-        'color: #94a3b8; font-size: 12px;',
-        'color: #10b981; font-weight: bold; font-size: 12px; background: #064e3b; padding: 2px 6px; border-radius: 4px;'
-      );
-
-      // 4. Technical Info Group (Diagnostics)
+      // 2. Technical Info Group (Diagnostics)
       safeLog('groupCollapsed', '%c 🛠 App Diagnostics (Click to expand)', 'color: #64748b; font-weight: normal; font-size: 11px;');
       skilyDiagnostic('🌍 Region', countryName);
       skilyDiagnostic('🆔 Environment', 'Production');
@@ -135,14 +156,6 @@ setTimeout(() => {
       skilyDiagnostic('🎨 Theme', localStorage.getItem('theme') || 'auto');
       skilyDiagnostic('⏱ Ready in', (performance.now() / 1000).toFixed(2) + 's');
       safeLog('groupEnd');
-
-      // 5. Приглашение в команду
-      safeLog('log',
-        '%c🔧 Skily под капотом %c— Нравится копаться? Присоединяйся! %c\nhttps://skily.app/career',
-        'color: #3B82F6; font-family: monospace; font-size: 14px; font-weight: bold;',
-        'color: #94a3b8; font-size: 13px;',
-        'color: #3B82F6; text-decoration: underline; font-size: 12px;'
-      );
     });
   }
 }, 1500); // 1.5 сек — после очистки консоли React'ом

@@ -1,0 +1,37 @@
+{
+    "Hero": {
+        "titleTop": "Твой путь к правам",
+        "titleBottom": "начинается здесь",
+        "descriptionHighlight": "Сдай теорию без автошколы",
+        "descriptionRest": "и сэкономь до 500€. Персональный план обучения, умные алгоритмы и официальные вопросы DGT 2025.",
+        "button": "ENGINE START",
+        "pressStart": "PRESS START"
+    },
+    "Stats": {
+        "questions": {
+            "value": "3,500+",
+            "label": "Вопросов",
+            "description": "База 2025 года"
+        },
+        "users": {
+            "value": "12k+",
+            "label": "Студентов",
+            "description": "Уже сдали экзамен"
+        },
+        "passRate": {
+            "value": "94%",
+            "label": "Сдают",
+            "description": "С первого раза"
+        }
+    },
+    "Auth": {
+        "welcome": "С возвращением, {name}!",
+        "login": "Войти",
+        "forgotPassword": "Забыли?",
+        "signIn": "Войти",
+        "createAccount": "Создать аккаунт",
+        "emailPlaceholder": "name@example.com",
+        "passwordPlaceholder": "Пароль",
+        "continue": "Продолжить"
+    }
+}
