@@ -43,6 +43,7 @@ interface ResponsiveModalProps {
  * - repositionInputs={false} для Vaul
  * - Адаптивный layout: убираются отступы когда клавиатура открыта
  * - justify-start вместо center для скролла
+ * - Спейсер для прокрутки над клавиатурой
  */
 export function ResponsiveModal({
   open,
@@ -145,23 +146,19 @@ export function ResponsiveModal({
       >
         <DrawerContent
           className={cn(
-            "flex flex-col",
+            "flex flex-col fixed bottom-0 left-0 right-0 z-50 outline-none transition-all duration-200",
             // 🔥 КРИТИЧНО: НЕТ rounded-t когда клавиатура открыта
             isKeyboardOpen ? "" : "rounded-t-[32px]",
             className
           )}
           style={{
-            // 🔥 ВАЖНО: Только maxHeight, БЕЗ height - иначе drawer растягивается на весь экран
-            maxHeight: 'var(--visual-viewport-height, 96vh)',
+            // Используем CSS-переменную с fallback
+            height: 'var(--visual-viewport-height, 96vh)',
+            maxHeight: '96%', // Ограничиваем максимальную высоту 
             // Плавный переход при изменении высоты
             transition: isKeyboardOpen
-              ? 'max-height 0.2s ease-out, border-radius 0.2s ease-out'
-              : 'max-height 0.15s ease-in, border-radius 0.15s ease-in',
-            // Фиксируем позицию drawer внизу
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
+              ? 'height 0.2s ease-out, border-radius 0.2s ease-out'
+              : 'height 0.15s ease-in, border-radius 0.15s ease-in',
             // Предотвращаем overflow за пределы экрана
             overflow: 'hidden',
           }}
@@ -172,46 +169,68 @@ export function ResponsiveModal({
             }
           }}
         >
-          {/* Кастомный header - ТОЛЬКО если есть title И клавиатура закрыта */}
-          {!isKeyboardOpen && headerContent ? (
-            <div className="shrink-0">
-              {headerContent}
-            </div>
-          ) : !isKeyboardOpen && title ? (
-            <DrawerHeader className="text-left shrink-0 border-b border-white/10 pb-3 px-8">
-              <DrawerTitle className="text-foreground">{title}</DrawerTitle>
-              {description && (
-                <DrawerDescription className="text-muted-foreground">
-                  {description}
-                </DrawerDescription>
+          {/* Глобальный стиль для скрытия элементов на низких экранах */}
+          <style>{`
+            @media (max-height: 650px) {
+              .hide-on-keyboard {
+                display: none !important;
+                opacity: 0 !important;
+                height: 0 !important;
+                margin: 0 !important;
+                pointer-events: none !important;
+              }
+            }
+          `}</style>
+
+          <div className={cn(
+            "flex-1 flex flex-col w-full bg-background/95 backdrop-blur-xl overflow-hidden",
+            isKeyboardOpen ? "" : "rounded-t-[32px]"
+          )}>
+            {/* Полоска-ручка */}
+            {!hideHandle && (
+              <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-700/50 mt-3 mb-2" />
+            )}
+
+            {/* Кастомный header */}
+            {headerContent && (
+              <div className="shrink-0 hide-on-keyboard transition-all duration-300">
+                {headerContent}
+              </div>
+            )}
+
+            {title && (
+              <DrawerHeader className="text-left shrink-0 border-b border-white/10 pb-3 px-8 hide-on-keyboard transition-all duration-300">
+                <DrawerTitle className="text-foreground">{title}</DrawerTitle>
+                {description && (
+                  <DrawerDescription className="text-muted-foreground">
+                    {description}
+                  </DrawerDescription>
+                )}
+              </DrawerHeader>
+            )}
+
+            {/* Scrollable content - 🔥 КРИТИЧНО: justify-start для скролла */}
+            <div
+              className={cn(
+                "flex-1 overflow-y-auto min-h-0 overscroll-contain outline-none w-full px-4",
+                contentClassName
               )}
-            </DrawerHeader>
-          ) : null}
+              id="drawer-scroll-container"
+              data-scrollable
+              data-vaul-no-drag
+              style={{
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'none',
+              }}
+            >
+              <div className="flex flex-col min-h-full justify-start pt-2">
+                {children}
 
-          {/* Scrollable content - 🔥 БЕЗ justify-start - это конфликтует с Vaul */}
-          <div
-            className={cn(
-              "flex-1 overflow-y-auto min-h-0 overscroll-contain outline-none",
-              contentClassName
-            )}
-            data-scrollable
-            data-vaul-no-drag
-            style={{
-              WebkitOverflowScrolling: 'touch',
-              scrollbarWidth: 'none',
-              // Динамический padding в зависимости от состояния клавиатуры
-              paddingBottom: isKeyboardOpen
-                ? '1rem' // Минимальный padding когда клавиатура открыта
-                : 'max(env(safe-area-inset-bottom, 0px), 2.5rem)',
-            }}
-          >
-            {children}
-
-            {/* Spacer для iOS - чтобы контент можно было прокрутить ВЫШЕ клавиатуры */}
-            {/* 🔥 Важно: это даст возможность скроллить форму вверх */}
-            {isKeyboardOpen && (
-              <div className="h-[20vh] flex-shrink-0" aria-hidden="true" />
-            )}
+                {/* Spacer для iOS - чтобы контент можно было прокрутить ВЫШЕ клавиатуры */}
+                {/* 🔥 Важно: 40vh дает огромный запас хода скролла */}
+                <div className="h-[40vh] w-full flex-shrink-0" aria-hidden="true" />
+              </div>
+            </div>
           </div>
         </DrawerContent>
       </Drawer>
