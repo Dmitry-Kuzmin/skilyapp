@@ -1476,7 +1476,7 @@ const TestSession = () => {
       }
 
       // Переход к следующему вопросу (анимация)
-      setSelectedOption(null);
+      // selectedOption сбросится автоматически в examStore
       setIsTransitioning(true);
       setTimeout(() => setIsTransitioning(false), 300);
       return;
@@ -1846,7 +1846,7 @@ const TestSession = () => {
         setMasteryRound(masteryRound + 1);
         setCurrentIndex(0);
         setAnswers([]); // Здесь можно оставить локальный стейт, стор сбросится через resetExam если надо
-        setSelectedOption(null);
+        // selectedOption сбросится автоматически в examStore
         setShowTranslation(false);
         closeAIChat();
         return; // НЕ завершаем тест!
@@ -2460,7 +2460,7 @@ const TestSession = () => {
               disabled={isAnswerLocked || selectedOption !== null}
               onAnswerClick={(answerId) => {
                 if (mode === "exam-russia" && !isAnswerLocked) {
-                  setSelectedOption(answerId);
+                  selectOption(answerId);
                 }
               }}
               onShowExplanation={selectedOption ? handleOpenAIChat : undefined}
@@ -2526,7 +2526,7 @@ const TestSession = () => {
                           key={option.id}
                           onClick={() => {
                             if (!selectedOption) {
-                              setSelectedOption(option.id);
+                              selectOption(option.id);
                               handleAnswer(option.id);
                             }
                           }}
@@ -2594,7 +2594,7 @@ const TestSession = () => {
                         key={option.id}
                         onClick={() => {
                           if (!selectedOption) {
-                            setSelectedOption(option.id);
+                            selectOption(option.id);
                             handleAnswer(option.id);
                           }
                         }}
@@ -2683,7 +2683,7 @@ const TestSession = () => {
                       isTransitioning={isTransitioning}
                       answerPopularity={answerPopularity}
                       onSelect={(val) => {
-                        setSelectedOption(val);
+                        selectOption(val);
                         // Auto-submit logic for non-practice modes or specific settings
                         if (!isPracticeLikeMode && val) {
                           setTimeout(() => handleAnswer(val), 200);
@@ -2775,7 +2775,7 @@ const TestSession = () => {
                       fontSize={fontSize}
                       isTransitioning={isTransitioning}
                       answerPopularity={answerPopularity}
-                      onSelect={setSelectedOption}
+                      onSelect={selectOption}
                       onAnswer={handleAnswer}
                     />
 
@@ -2865,7 +2865,7 @@ const TestSession = () => {
                   fontSize={fontSize}
                   isTransitioning={isTransitioning}
                   answerPopularity={answerPopularity}
-                  onSelect={setSelectedOption}
+                  onSelect={selectOption}
                   onAnswer={handleAnswer}
                 />
 
@@ -2993,7 +2993,7 @@ const TestSession = () => {
                   setCurrentIndex(russiaExam.progress.current - 1);
                 }
 
-                setSelectedOption(null);
+                // selectedOption сбросится автоматически в examStore
                 setIsTransitioning(true);
                 setTimeout(() => setIsTransitioning(false), 300);
               }}
