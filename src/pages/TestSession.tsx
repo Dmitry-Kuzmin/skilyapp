@@ -42,6 +42,7 @@ import { getExamStats, handleMainQuestionAnswer, handleExtraQuestionAnswer } fro
 import { ReportProblemModal } from "@/components/ReportProblemModal";
 import { AIWidget } from "@/components/AIWidget";
 import { useAIChat } from "@/hooks/useAIChat";
+import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
 import { TestExitDialog } from "@/components/test-session/TestExitDialog";
 import { TestQuestionMap } from "@/components/test-session/TestQuestionMap";
 import { TestContentLayout } from "@/components/test-session/TestContentLayout";
@@ -1734,71 +1735,25 @@ const TestSession = () => {
 
 
 
-  // Consolidated Keyboard support: Enter/Space/Numbers
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Игнорируем, если фокус в инпуте
-      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') return;
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
-      // Игнорируем, если открыты модалки
-      if (showQuestionMap || showExitConfirm || showReportModal || showTestSettings) return;
-
-      const currentQ = mode === 'exam-russia' ? russiaExam.currentQuestion : (questionsState[currentIndex] || questions[currentIndex]);
-
-      // Выбор опций 1-9
-      if (/^[1-9]$/.test(e.key) && currentQ) {
-        const currentAnswers = mode === 'exam-russia'
-          ? russiaExam.currentQuestion?.answers
-          : currentQ.answer_options;
-
-        if (currentAnswers) {
-          const index = parseInt(e.key) - 1;
-          if (index < currentAnswers.length) {
-            const answerId = currentAnswers[index].id;
-            if (!isAnswerLocked) {
-              // === PHASE 2: Используем Zustand action ===
-              selectOption(answerId);
-
-              // Автоматически отвечаем только в режимах, где нет кнопки "Подтвердить"
-              // (например, в обычной практике РФ)
-              const hasConfirmButton = mode === 'exam-russia' || !isRussia;
-              if (!hasConfirmButton && !selectedOption) {
-                handleAnswer(answerId);
-              }
-            }
-          }
-        }
-      }
-
-      // Подтверждение/Переход с Enter или Space
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-
-        // Визуальная анимация нажатия
-        if (e.key === 'Enter') {
-          setIsEnterPressed(true);
-          setTimeout(() => setIsEnterPressed(false), 200);
-        }
-
-        // Определяем isPracticeLikeMode локально для правильной работы
-        const practiceModes = ['practice', 'pdd-topic', 'pdd-ticket', 'by-topic', 'traps', 'mastery', 'hardest', 'sequential', 'challenge-bank'];
-        const isPractice = practiceModes.includes(mode);
-
-        // ИСПРАВЛЕНО: Сначала отвечаем, если еще не ответили
-        if (selectedOption && !isAnswerLocked) {
-          handleAnswer();
-        }
-        // Затем переходим дальше, если уже ответили (показывается результат)
-        else if (isAnswerLocked && isPractice) {
-          nextQuestion();
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedOption, showQuestionMap, showExitConfirm, showReportModal, showTestSettings, mode, russiaExam.currentQuestion, questionsState, currentIndex, questions, isAnswerLocked, isRussia]);
+  // === KEYBOARD NAVIGATION ===
+  useKeyboardNavigation({
+    mode,
+    selectedOption,
+    isAnswerLocked,
+    currentIndex,
+    isRussia,
+    showQuestionMap,
+    showExitConfirm,
+    showReportModal,
+    showTestSettings,
+    currentQuestion: questionsState[currentIndex] || questions[currentIndex],
+    russiaExamCurrentQuestion: russiaExam.currentQuestion,
+    selectOption,
+    handleAnswer,
+    nextQuestion,
+    setIsEnterPressed
+  });
 
   const finishTest = async () => {
     // Получаем самое свежее состояние из стора
