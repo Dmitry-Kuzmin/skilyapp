@@ -152,6 +152,7 @@ export function AIChatWidget() {
                     messages: allMessages,
                     imageUrl: context?.imageUrl || '',
                     country: interfaceLanguage === 'ru' ? 'russia' : 'spain',
+                    mode: 'debrief', // 🔥 КРИТИЧНО: отключаем старый system prompt, используем наш unified prompt
                 }),
             });
 
