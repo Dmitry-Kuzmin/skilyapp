@@ -1777,12 +1777,16 @@ const TestSession = () => {
           setTimeout(() => setIsEnterPressed(false), 200);
         }
 
+        // Определяем isPracticeLikeMode локально для правильной работы
+        const practiceModes = ['practice', 'pdd-topic', 'pdd-ticket', 'by-topic', 'traps', 'mastery', 'hardest', 'sequential', 'challenge-bank'];
+        const isPractice = practiceModes.includes(mode);
+
         // ИСПРАВЛЕНО: Сначала отвечаем, если еще не ответили
         if (selectedOption && !isAnswerLocked) {
           handleAnswer();
         }
         // Затем переходим дальше, если уже ответили (показывается результат)
-        else if (isAnswerLocked && isPracticeLikeMode) {
+        else if (isAnswerLocked && isPractice) {
           nextQuestion();
         }
       }
@@ -1790,7 +1794,7 @@ const TestSession = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedOption, isPracticeLikeMode, showQuestionMap, showExitConfirm, showReportModal, showTestSettings, nextQuestion, handleAnswer, mode, russiaExam.currentQuestion, questionsState, currentIndex, questions, isAnswerLocked]);
+  }, [selectedOption, showQuestionMap, showExitConfirm, showReportModal, showTestSettings, nextQuestion, handleAnswer, mode, russiaExam.currentQuestion, questionsState, currentIndex, questions, isAnswerLocked]);
 
   const finishTest = async () => {
     // Получаем самое свежее состояние из стора
