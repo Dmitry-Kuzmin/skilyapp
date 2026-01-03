@@ -60,17 +60,20 @@ Short clear answers (2-3 sentences for hints).
 Respond in the SAME LANGUAGE the user writes in.`;
 };
 
-async function tryGroq(messages: Message[], country: string = 'spain', modelName: string = 'gemma2-9b-it'): Promise<Response | null> {
+async function tryGroq(messages: Message[], country: string = 'spain', mode: string = 'chat', modelName: string = 'gemma2-9b-it'): Promise<Response | null> {
   const apiKey = Deno.env.get('GROQ_API_KEY');
   if (!apiKey) return null;
 
   try {
+    // 🔥 Если mode === 'debrief', НЕ добавляем system prompt (unified prompt уже в messages)
+    const systemMessage = mode === 'debrief' ? [] : [{ role: 'system', content: getSystemPrompt(country) }];
+
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: modelName,
-        messages: [{ role: 'system', content: getSystemPrompt(country) }, ...messages],
+        messages: [...systemMessage, ...messages],
         stream: true,
         temperature: 0.3,
         max_tokens: 4000,
@@ -135,7 +138,7 @@ Deno.serve(async (req) => {
     const gemini = await tryGemini(messages, country, mode);
     if (gemini) return gemini;
 
-    const groq = await tryGroq(messages, country);
+    const groq = await tryGroq(messages, country, mode);
     if (groq) return groq;
 
     return new Response(JSON.stringify({ error: 'AI unavailable' }), { status: 503, headers: corsHeaders });
