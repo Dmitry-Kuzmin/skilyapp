@@ -246,7 +246,10 @@ const TestSession = () => {
   const [showTestSettings, setShowTestSettings] = useState(false);
   const hasLoadedProgressRef = useRef<string | null>(null);
   const previousTestIdRef = useRef<string | null>(null); // Для отслеживания изменения testId
-  const [startTime, setStartTime] = useState<number>(0);
+
+  // === PHASE 3: startTime теперь в examStore.data.startTime ===
+  const startTime = activeState?.kind === 'standard' ? activeState.data.startTime : Date.now();
+
   // AI Chat через Zustand store (глобальный виджет)
   const { openWithQuestion: openAIChat, close: closeAIChat, isOpen: showAIExplanation } = useAIChat();
   const [showChallengeBankNotification, setShowChallengeBankNotification] = useState(false);
@@ -364,9 +367,7 @@ const TestSession = () => {
               answerQuestionZ(ans.selectedAnswerId || '', ans.isCorrect);
             });
             jumpToQuestionZ(savedProgress.currentIndex);
-            if (savedProgress.startTime) {
-              setStartTime(savedProgress.startTime);
-            }
+            // startTime восстанавливается через examStore.initializeExam()
             // Dismiss any existing toasts before showing new one
             toast.dismiss();
             toast.info("Прогресс восстановлен", { icon: "↩️", id: `restore-${testInfo.id}` });
@@ -439,10 +440,7 @@ const TestSession = () => {
 
       const sessionId = getOrCreateSessionId();
 
-      // Инициализируем время старта, если оно еще не задано
-      if (startTime === 0) {
-        setStartTime(Date.now());
-      }
+      // startTime инициализируется автоматически в examStore.initializeExam()
 
       try {
         // Проверяем онлайн статус
