@@ -1794,7 +1794,7 @@ const TestSession = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedOption, showQuestionMap, showExitConfirm, showReportModal, showTestSettings, nextQuestion, handleAnswer, mode, russiaExam.currentQuestion, questionsState, currentIndex, questions, isAnswerLocked]);
+  }, [selectedOption, showQuestionMap, showExitConfirm, showReportModal, showTestSettings, mode, russiaExam.currentQuestion, questionsState, currentIndex, questions, isAnswerLocked, isRussia]);
 
   const finishTest = async () => {
     // Получаем самое свежее состояние из стора
