@@ -25,7 +25,7 @@ export function AuthModalHeader({
     if (isSuccessScreen) return null;
 
     return (
-        <div className={`flex flex-col items-center mb-6 justify-end transition-all duration-500 min-h-[140px] hide-on-keyboard`}>
+        <div className={`flex flex-col items-center mb-6 justify-end transition-all duration-500 min-h-[140px]`}>
             <AnimatePresence mode="wait">
                 {step !== 'email' ? (
                     /* Avatar State - Show for all non-email steps where user is identified */

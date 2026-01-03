@@ -544,11 +544,11 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
 
       <nav className="relative z-[100] px-4 md:px-10 py-4 md:py-6 flex items-center justify-between max-w-[1400px] mx-auto gap-2 md:gap-4" style={{ overflow: 'visible' }}>
         {/* Left Side: Brand + Location */}
-        <div className="flex items-center gap-1 md:gap-4" style={{ overflow: 'visible', position: 'relative' }}>
+        <div className="flex items-center gap-0 md:gap-4" style={{ overflow: 'visible', position: 'relative' }}>
           <LandingLogo
             theme="dark"
             variant="header"
-            className="scale-90 md:scale-105 origin-left"
+            className="scale-90 md:scale-105 origin-left -mr-5 md:mr-0"
             onInteraction={() => {
               if (!isEchoActive) {
                 setIsEchoActive(true);
@@ -558,7 +558,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           />
 
           {/* Divider */}
-          <div className="h-4 w-px bg-white/10 self-center opacity-50" />
+          <div className="h-4 w-px bg-white/20 self-center mx-0.5" />
 
           {/* Country Selector */}
           <CountrySelector onOpenPartnership={() => setIsPartnershipOpen(true)} />

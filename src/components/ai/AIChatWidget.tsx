@@ -5,6 +5,7 @@
  * - Zustand store для глобального состояния
  * - Vaul Drawer для мобильных (нативная физика свайпа)
  * - Dialog для десктопа
+ * - Unified AI Prompts System для консистентности
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -26,6 +27,8 @@ import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { cn } from '@/lib/utils';
+import { generateAIChatPrompt } from '@/lib/aiPrompts';
+import { useProfileData } from '@/hooks/useProfileData';
 
 // Типизация для markdown рендеринга
 type MarkdownProps = {
@@ -56,6 +59,7 @@ export function AIChatWidget() {
     const isMobile = useIsMobile();
     const isTelegram = isTelegramMiniApp();
     const { t } = useLanguage();
+    const { profileData } = useProfileData();
 
     // Zustand Store
     const isOpen = useAIChatStore(selectIsOpen);
@@ -104,20 +108,39 @@ export function AIChatWidget() {
         addMessage({ role: 'user', content: userMessage });
 
         const context = questionContext;
-        const fullContext = context ? `
-Вопрос: ${context.question}
-Правильный ответ: ${context.correctAnswer}
-${context.userAnswer ? `Ответ пользователя: ${context.userAnswer}` : ''}
-${context.isCorrect ? 'Пользователь ответил правильно.' : 'Пользователь ответил неправильно.'}
-${context.topic ? `Тема: ${context.topic}` : ''}
-` : '';
+
+        // 🧠 UNIFIED AI PROMPT SYSTEM
+        // Используем тот же мощный промпт что и в SmartDebriefCard
+        const aiPrompt = generateAIChatPrompt(
+            context ? {
+                questionText: context.question || '',
+                correctAnswer: context.correctAnswer || '',
+                userAnswer: context.userAnswer,
+                topic: context.topic,
+                explanation: context.explanation,
+                isCorrect: context.isCorrect,
+                imageUrl: context.imageUrl,
+            } : undefined,
+            interfaceLanguage === 'ru' ? 'russia' : 'spain',
+            profileData ? {
+                name: profileData.full_name || 'Студент',
+                xp: profileData.xp || 0,
+                streak: profileData.streak || 0,
+                prevWeakness: null, // TODO: добавить tracking слабых тем
+            } : undefined
+        );
 
         try {
             const { data: { session } } = await supabase.auth.getSession();
             const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
             const allMessages = messages.map(m => ({ role: m.role, content: m.content }));
-            allMessages.push({ role: 'user' as const, content: messages.length === 0 ? fullContext + '\n\n' + userMessage : userMessage });
+
+            // В первом сообщении добавляем AI промпт как system context
+            allMessages.push({
+                role: 'user' as const,
+                content: messages.length === 0 ? aiPrompt + '\n\n' + userMessage : userMessage
+            });
 
             const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`, {
                 method: 'POST',

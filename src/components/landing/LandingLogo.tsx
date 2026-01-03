@@ -68,7 +68,7 @@ export const LandingLogo: React.FC<LandingLogoProps> = ({
   if (variant === "bold" || variant === "header" || variant === "footer") {
     return (
       <div
-        className={cn("flex items-center gap-2 p-2 -m-2", cursorClass, isInteractive ? "group" : "", className)}
+        className={cn("flex items-center gap-2 py-2 -my-2 pl-2 -ml-2 pr-0", cursorClass, isInteractive ? "group" : "", className)}
         style={{ overflow: 'visible', position: 'relative' }}
         onClick={() => isInteractive && onInteraction?.()}
         onMouseEnter={() => isInteractive && onInteraction?.()}

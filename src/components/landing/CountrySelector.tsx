@@ -53,7 +53,7 @@ export const CountrySelector: React.FC = () => {
             {/* Trigger Button */}
             <button
                 onClick={handleToggle}
-                className="flex items-center gap-1.5 px-1 md:px-0 py-2 md:py-1 text-sm font-medium text-slate-400 hover:text-white transition-colors group"
+                className="flex items-center gap-1.5 pl-0.5 pr-2 md:px-0 py-2 md:py-1 text-sm font-medium text-slate-400 hover:text-white transition-colors group"
                 aria-label="Select Country"
             >
                 <span className="text-base leading-none">{selectedCountry.flag}</span>
