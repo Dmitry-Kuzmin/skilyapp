@@ -1634,6 +1634,8 @@ const TestSession = () => {
     const isPracticeLikeMode = ['practice', 'pdd-topic', 'pdd-ticket', 'by-topic', 'traps', 'mastery', 'hardest', 'sequential', 'challenge-bank'].includes(mode);
 
     if (isPracticeLikeMode) {
+      // КРИТИЧНО: блокируем ответ чтобы второе нажатие Enter вызывало nextQuestion
+      setIsAnswerLocked(true);
       setIsTransitioning(false); // Stay for feedback
     } else {
       // Auto advance
