@@ -1712,8 +1712,9 @@ const TestSession = () => {
   };
 
   const nextQuestion = () => {
-    // КРИТИЧНО: Сбрасываем выбранный ответ при переходе на следующий вопрос
+    // КРИТИЧНО: Сбрасываем состояние при переходе на следующий вопрос
     setSelectedOption(null);
+    setIsAnswerLocked(false); // Разблокируем клавиши 1-4
 
     if (currentIndex < questions.length - 1) {
       engineNextQuestion();
