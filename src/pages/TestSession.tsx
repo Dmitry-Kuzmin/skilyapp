@@ -194,8 +194,13 @@ const TestSession = () => {
   const tickTimer = useExamStore(state => state.tickTimer);
   const resetExam = useExamStore(state => state.resetExam);
 
-  // Local UI State
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  // === PHASE 2: UI State из Zustand (для standard режимов) ===
+  const selectedOption = useExamStore(state =>
+    state.activeState?.kind === 'standard' ? state.activeState.data.selectedOption : null
+  );
+  const selectOption = useExamStore(state => state.selectOption);
+
+  // Local UI State (анимации - оставляем здесь)
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isEnterPressed, setIsEnterPressed] = useState(false);
 
@@ -380,11 +385,19 @@ const TestSession = () => {
   const [penaltyBlock, setPenaltyBlock] = useState<number | null>(null);
   const [showFailureModal, setShowFailureModal] = useState(false);
   const [failureReason, setFailureReason] = useState<string>("");
-  const [isAnswerLocked, setIsAnswerLocked] = useState(false);
+
+  // === PHASE 2: UI State из Zustand ===
+  const isAnswerLocked = useExamStore(state =>
+    state.activeState?.kind === 'standard' ? state.activeState.data.isAnswerLocked : false
+  );
+  const streak = useExamStore(state =>
+    state.activeState?.kind === 'standard' ? state.activeState.data.streak : 0
+  );
+  const feedbackStatus = useExamStore(state =>
+    state.activeState?.kind === 'standard' ? state.activeState.data.feedbackStatus : null
+  );
 
   const [showExitConfirm, setShowExitConfirm] = useState(false);
-  const [streak, setStreak] = useState(0);
-  const [feedbackStatus, setFeedbackStatus] = useState<'correct' | 'incorrect' | null>(null);
 
   const {
     voiceOver, setVoiceOver,
@@ -1527,15 +1540,8 @@ const TestSession = () => {
       }
     }
 
-    // Streak UI logic (local visual)
-    if (isCorrect) {
-      setStreak(prev => prev + 1);
-      setFeedbackStatus('correct');
-    } else {
-      setStreak(0);
-      setFeedbackStatus('incorrect');
-    }
-    setTimeout(() => setFeedbackStatus(null), 800);
+    // === PHASE 2: Streak и feedbackStatus теперь управляются examStore.answerQuestion() ===
+    // Удалена локальная логика setStreak/setFeedbackStatus
 
     // ============================================
     // REDEMPTION MODE SPECIFIC LOGIC
@@ -1547,7 +1553,7 @@ const TestSession = () => {
           // Deep Dive Loop: show theory again
           setTimeout(() => {
             setShowReflectionOverlay(true);
-            setSelectedOption(null);
+            // selectedOption будет сброшен в examStore при nextQuestion
           }, 800);
           return;
         } else {
@@ -1634,12 +1640,11 @@ const TestSession = () => {
     const isPracticeLikeMode = ['practice', 'pdd-topic', 'pdd-ticket', 'by-topic', 'traps', 'mastery', 'hardest', 'sequential', 'challenge-bank'].includes(mode);
 
     if (isPracticeLikeMode) {
-      // КРИТИЧНО: блокируем ответ чтобы второе нажатие Enter вызывало nextQuestion
-      setIsAnswerLocked(true);
+      // === PHASE 2: isAnswerLocked теперь устанавливается в examStore.answerQuestion() ===
       setIsTransitioning(false); // Stay for feedback
     } else {
       // Auto advance
-      setSelectedOption(null);
+      // selectedOption будет сброшен в examStore при engineNextQuestion
       engineNextQuestion();
     }
   };
@@ -1712,9 +1717,7 @@ const TestSession = () => {
   };
 
   const nextQuestion = () => {
-    // КРИТИЧНО: Сбрасываем состояние при переходе на следующий вопрос
-    setSelectedOption(null);
-    setIsAnswerLocked(false); // Разблокируем клавиши 1-4
+    // === PHASE 2: selectedOption и isAnswerLocked теперь сбрасываются в examStore.nextQuestion() ===
 
     if (currentIndex < questions.length - 1) {
       engineNextQuestion();
@@ -1756,8 +1759,8 @@ const TestSession = () => {
           if (index < currentAnswers.length) {
             const answerId = currentAnswers[index].id;
             if (!isAnswerLocked) {
-              // Всегда позволяем менять выбор
-              setSelectedOption(answerId);
+              // === PHASE 2: Используем Zustand action ===
+              selectOption(answerId);
 
               // Автоматически отвечаем только в режимах, где нет кнопки "Подтвердить"
               // (например, в обычной практике РФ)
