@@ -196,8 +196,12 @@ export const useAIChatStore = create<AIChatState>()(
         {
             name: 'skily-ai-chat',
             partialize: (state) => ({
-                // Сохраняем только настройки, НЕ историю (слишком много данных)
+                // ✅ Сохраняем историю и контекст для бесшовного UX
                 showTranslation: state.showTranslation,
+                messages: state.messages,
+                questionContext: state.questionContext,
+                conversationId: state.conversationId,
+                // ❌ НЕ сохраняем: isOpen, isLoading, smartSuggestions (UI state)
             }),
         }
     )
