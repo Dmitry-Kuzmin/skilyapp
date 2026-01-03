@@ -93,7 +93,7 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
     let prompt = mode === 'debrief' ? '' : getSystemPrompt(country) + '\n\n';
     messages.forEach(m => prompt += `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}\n\n`);
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -143,8 +143,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 1️⃣ Приоритет: Gemini 2.0 Flash (стабильная)
-    console.log('[AI Chat] Trying Gemini 2.0 Flash...');
+    // 1️⃣ Приоритет: Gemini 2.0 Flash Experimental
+    console.log('[AI Chat] Trying Gemini 2.0 Flash Experimental...');
     const gemini = await tryGemini(messages, country, mode);
     if (gemini) {
       console.log('[AI Chat] ✅ Gemini success');

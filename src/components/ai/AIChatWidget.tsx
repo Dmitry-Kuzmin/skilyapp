@@ -133,51 +133,16 @@ export function AIChatWidget() {
             } : undefined
         );
 
-        // 🔄 Краткий контекст для последующих сообщений (чтобы AI помнил уровень студента)
-        const experienceLevel = profileData
-            ? (profileData.xp > 5000 ? 'veteran' : profileData.xp > 1500 ? 'intermediate' : 'beginner')
-            : 'unknown';
-
-        // 🔥 УСИЛЕННЫЙ shortContext с явным указанием баллов
-        const shortContext = profileData
-            ? `⚠️ ВАЖНО - AI MEMORY:\n- Студент: ${profileData.full_name}\n- XP: ${profileData.xp}\n- Уровень: ${experienceLevel === 'beginner' ? '🆕 НОВИЧОК' : experienceLevel === 'intermediate' ? '📚 ПРОДВИНУТЫЙ' : '🏆 ОПЫТНЫЙ'}\n- ${experienceLevel === 'beginner' ? '🚨 КРИТИЧНО: У НОВИЧКОВ В РФ — 8 БАЛЛОВ (НЕ 12!)' : 'Штрафные баллы: 12'}\n- Streak: ${profileData.streak} дней`
-            : '';
-
-        console.log('🤖 [AI Chat v2.0 - CODE UPDATED!] Sending prompt:', {
-            version: 'v2.0-memory-fix',
-            country: interfaceLanguage === 'ru' ? 'russia' : 'spain',
-            student: profileData ? {
-                name: profileData.full_name,
-                xp: profileData.xp,
-                level: experienceLevel,
-                levelLabel: experienceLevel === 'beginner' ? 'НОВИЧОК (8 баллов!)' : experienceLevel === 'intermediate' ? 'ПРОДВИНУТЫЙ (12)' : 'ОПЫТНЫЙ (12)',
-                streak: profileData.streak
-            } : null,
-            promptLength: aiPrompt.length,
-            shortContextLength: shortContext.length,
-            messageCount: messages.length,
-        });
-
         try {
             const { data: { session } } = await supabase.auth.getSession();
             const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
             const allMessages = messages.map(m => ({ role: m.role, content: m.content }));
 
-            // 🔥 КРИТИЧНО: 
-            // - Первое сообщение: полный промпт
-            // - Последующие: УСИЛЕННЫЙ краткий контекст
+            // В первом сообщении добавляем AI промпт как system context
             allMessages.push({
                 role: 'user' as const,
-                content: messages.length === 0
-                    ? `${aiPrompt}\n\n---\n\nВопрос студента: ${userMessage}`
-                    : `${shortContext}\n\n${userMessage}`
-            });
-
-            console.log('📤 [AI Chat] Request:', {
-                messagesCount: allMessages.length,
-                hasShortContext: messages.length > 0,
-                lastMessage: allMessages[allMessages.length - 1].content.substring(0, 200) + '...',
+                content: messages.length === 0 ? aiPrompt + '\n\n' + userMessage : userMessage
             });
 
             const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`, {
