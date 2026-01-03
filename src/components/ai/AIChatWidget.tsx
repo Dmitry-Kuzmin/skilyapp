@@ -133,16 +133,39 @@ export function AIChatWidget() {
             } : undefined
         );
 
+        // 🔄 Краткий контекст для последующих сообщений (чтобы AI помнил уровень студента)
+        const experienceLevel = profileData
+            ? (profileData.xp > 5000 ? 'veteran' : profileData.xp > 1500 ? 'intermediate' : 'beginner')
+            : 'unknown';
+
+        const shortContext = profileData ? `[AI Memory: ${profileData.full_name}, ${profileData.xp} XP, уровень ${experienceLevel === 'beginner' ? 'новичок (8 баллов!)' : experienceLevel === 'intermediate' ? 'продвинутый (12 баллов)' : 'опытный (12 баллов)'}, streak ${profileData.streak} дней]` : '';
+
+        console.log('🤖 [AI Chat] Sending prompt:', {
+            country: interfaceLanguage === 'ru' ? 'russia' : 'spain',
+            student: profileData ? { name: profileData.full_name, xp: profileData.xp, level: experienceLevel, streak: profileData.streak } : null,
+            promptLength: aiPrompt.length,
+            messageCount: messages.length,
+        });
+
         try {
             const { data: { session } } = await supabase.auth.getSession();
             const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
             const allMessages = messages.map(m => ({ role: m.role, content: m.content }));
 
-            // В первом сообщении добавляем AI промпт как system context
+            // 🔥 КРИТИЧНО: 
+            // - Первое сообщение: полный промпт
+            // - Последующие: краткий контекст (чтобы AI помнил уровень студента!)
             allMessages.push({
                 role: 'user' as const,
-                content: messages.length === 0 ? aiPrompt + '\n\n' + userMessage : userMessage
+                content: messages.length === 0
+                    ? `${aiPrompt}\n\n---\n\nВопрос студента: ${userMessage}`
+                    : `${shortContext}\n\n${userMessage}`
+            });
+
+            console.log('📤 [AI Chat] Request:', {
+                messagesCount: allMessages.length,
+                lastMessage: allMessages[allMessages.length - 1].content.substring(0, 150),
             });
 
             const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`, {
