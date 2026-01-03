@@ -24,6 +24,11 @@ interface StandardTestState {
         answeredAt: number;
     }>;
 
+    // === PHASE 1: UI State (было в useState) ===
+    selectedOption: string | null; // Текущий выбранный вариант (до подтверждения)
+    isAnswerLocked: boolean;       // Заблокирован ли ввод (показываем фидбек)
+    feedbackStatus: 'idle' | 'correct' | 'incorrect'; // Статус текущего ответа для подсветки
+
     // Blitz specific
     streak: number;
     bestStreak: number;
@@ -63,6 +68,9 @@ interface ExamActions {
     // Initialization
     initializeExam: (mode: TestMode, questions: UniversalQuestion[], options?: ExamOptions) => void;
     resetExam: () => void;
+
+    // === PHASE 1: UI Interactions ===
+    selectOption: (optionId: string) => void; // Выбор варианта (без подтверждения)
 
     // Interaction
     answerQuestion: (answerId: string, isCorrect: boolean) => void;
@@ -112,6 +120,11 @@ export const useExamStore = create<ExamStore>((set, get) => ({
                 questions,
                 currentIndex: 0,
                 answers: {},
+                // Phase 1: UI State
+                selectedOption: null,
+                isAnswerLocked: false,
+                feedbackStatus: 'idle',
+                // Blitz
                 streak: 0,
                 bestStreak: 0,
                 startTime: Date.now(),
@@ -128,6 +141,22 @@ export const useExamStore = create<ExamStore>((set, get) => ({
     },
 
     resetExam: () => set({ activeState: null }),
+
+    // === PHASE 1: UI Actions Implementation ===
+    selectOption: (optionId) => {
+        const { activeState } = get();
+        if (!activeState || activeState.kind !== 'standard') return;
+
+        // Нельзя менять выбор, если ответ уже дан
+        if (activeState.data.isAnswerLocked) return;
+
+        set({
+            activeState: {
+                kind: 'standard',
+                data: { ...activeState.data, selectedOption: optionId }
+            }
+        });
+    },
 
     answerQuestion: (answerId, isCorrect) => {
         console.log('📝 [ExamStore] answerQuestion called:', { answerId, isCorrect });
@@ -200,7 +229,10 @@ export const useExamStore = create<ExamStore>((set, get) => ({
                         answers: newAnswers,
                         streak: newStreak,
                         bestStreak: newBestStreak,
-                        status: newStatus
+                        status: newStatus,
+                        // === PHASE 1: Обновляем UI state ===
+                        isAnswerLocked: true,  // Блокируем UI
+                        feedbackStatus: isCorrect ? 'correct' : 'incorrect' // Фидбек
                     }
                 }
             });
@@ -222,7 +254,14 @@ export const useExamStore = create<ExamStore>((set, get) => ({
                 set({
                     activeState: {
                         kind: 'standard',
-                        data: { ...data, currentIndex: data.currentIndex + 1 }
+                        data: {
+                            ...data,
+                            currentIndex: data.currentIndex + 1,
+                            // === PHASE 1: Сбрасываем UI state при переходе ===
+                            selectedOption: null,
+                            isAnswerLocked: false,
+                            feedbackStatus: 'idle'
+                        }
                     }
                 });
             } else {
@@ -393,4 +432,25 @@ export const selectIsCorrectAnswer = (store: ExamStore, questionId: string) => {
         return Object.values(store.activeState.data.mainAnswers).find(a => a.questionId === questionId)?.isCorrect;
     }
     return store.activeState.data.answers[questionId]?.isCorrect;
+};
+
+// === PHASE 1: UI State Selectors ===
+export const selectSelectedOption = (store: ExamStore) => {
+    if (!store.activeState || store.activeState.kind !== 'standard') return null;
+    return store.activeState.data.selectedOption;
+};
+
+export const selectIsAnswerLocked = (store: ExamStore) => {
+    if (!store.activeState || store.activeState.kind !== 'standard') return false;
+    return store.activeState.data.isAnswerLocked;
+};
+
+export const selectFeedbackStatus = (store: ExamStore) => {
+    if (!store.activeState || store.activeState.kind !== 'standard') return 'idle';
+    return store.activeState.data.feedbackStatus;
+};
+
+export const selectStreak = (store: ExamStore) => {
+    if (!store.activeState || store.activeState.kind !== 'standard') return 0;
+    return store.activeState.data.streak;
 };
