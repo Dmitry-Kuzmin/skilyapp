@@ -138,12 +138,23 @@ export function AIChatWidget() {
             ? (profileData.xp > 5000 ? 'veteran' : profileData.xp > 1500 ? 'intermediate' : 'beginner')
             : 'unknown';
 
-        const shortContext = profileData ? `[AI Memory: ${profileData.full_name}, ${profileData.xp} XP, уровень ${experienceLevel === 'beginner' ? 'новичок (8 баллов!)' : experienceLevel === 'intermediate' ? 'продвинутый (12 баллов)' : 'опытный (12 баллов)'}, streak ${profileData.streak} дней]` : '';
+        // 🔥 УСИЛЕННЫЙ shortContext с явным указанием баллов
+        const shortContext = profileData
+            ? `⚠️ ВАЖНО - AI MEMORY:\n- Студент: ${profileData.full_name}\n- XP: ${profileData.xp}\n- Уровень: ${experienceLevel === 'beginner' ? '🆕 НОВИЧОК' : experienceLevel === 'intermediate' ? '📚 ПРОДВИНУТЫЙ' : '🏆 ОПЫТНЫЙ'}\n- ${experienceLevel === 'beginner' ? '🚨 КРИТИЧНО: У НОВИЧКОВ В РФ — 8 БАЛЛОВ (НЕ 12!)' : 'Штрафные баллы: 12'}\n- Streak: ${profileData.streak} дней`
+            : '';
 
-        console.log('🤖 [AI Chat] Sending prompt:', {
+        console.log('🤖 [AI Chat v2.0 - CODE UPDATED!] Sending prompt:', {
+            version: 'v2.0-memory-fix',
             country: interfaceLanguage === 'ru' ? 'russia' : 'spain',
-            student: profileData ? { name: profileData.full_name, xp: profileData.xp, level: experienceLevel, streak: profileData.streak } : null,
+            student: profileData ? {
+                name: profileData.full_name,
+                xp: profileData.xp,
+                level: experienceLevel,
+                levelLabel: experienceLevel === 'beginner' ? 'НОВИЧОК (8 баллов!)' : experienceLevel === 'intermediate' ? 'ПРОДВИНУТЫЙ (12)' : 'ОПЫТНЫЙ (12)',
+                streak: profileData.streak
+            } : null,
             promptLength: aiPrompt.length,
+            shortContextLength: shortContext.length,
             messageCount: messages.length,
         });
 
@@ -155,7 +166,7 @@ export function AIChatWidget() {
 
             // 🔥 КРИТИЧНО: 
             // - Первое сообщение: полный промпт
-            // - Последующие: краткий контекст (чтобы AI помнил уровень студента!)
+            // - Последующие: УСИЛЕННЫЙ краткий контекст
             allMessages.push({
                 role: 'user' as const,
                 content: messages.length === 0
@@ -165,7 +176,8 @@ export function AIChatWidget() {
 
             console.log('📤 [AI Chat] Request:', {
                 messagesCount: allMessages.length,
-                lastMessage: allMessages[allMessages.length - 1].content.substring(0, 150),
+                hasShortContext: messages.length > 0,
+                lastMessage: allMessages[allMessages.length - 1].content.substring(0, 200) + '...',
             });
 
             const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`, {
