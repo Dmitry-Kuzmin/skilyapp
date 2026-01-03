@@ -16,7 +16,6 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
 import { isTelegramMiniApp, triggerHapticFeedback } from '@/lib/telegram';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -36,17 +35,21 @@ type MarkdownProps = {
     className?: string;
 };
 
-// ВАЖНО: react-markdown v9+ не поддерживает className prop — оборачиваем в div
+// ВАЖНО: react-markdown без remarkGfm (как в SmartDebriefCard где работает!)
 const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => (
-    <div className={cn("prose prose-sm dark:prose-invert max-w-none", className)}>
+    <div className={cn("text-sm leading-relaxed", className)}>
         <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
             components={{
                 p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
                 ul: ({ children }) => <ul className="list-disc pl-4 mb-2">{children}</ul>,
                 ol: ({ children }) => <ol className="list-decimal pl-4 mb-2">{children}</ol>,
                 li: ({ children }) => <li className="mb-1">{children}</li>,
-                strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                strong: ({ children }) => (
+                    <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-1 rounded">{children}</span>
+                ),
+                em: ({ children }) => (
+                    <span className="font-semibold text-gray-900 dark:text-white not-italic">{children}</span>
+                ),
                 code: ({ children }) => <code className="bg-muted px-1 rounded text-xs">{children}</code>,
             }}
         >
