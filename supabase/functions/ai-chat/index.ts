@@ -122,6 +122,13 @@ Deno.serve(async (req) => {
     const body: ChatRequest = await req.json();
     const { messages, country = 'spain', mode = 'chat' } = body;
 
+    console.log('[AI Chat] Request:', {
+      mode,
+      country,
+      messagesCount: messages.length,
+      lastMessage: messages[messages.length - 1]?.content?.substring(0, 100) + '...'
+    });
+
     const authHeader = req.headers.get('Authorization');
     if (authHeader) {
       const supabase = createPooledSupabaseClient();
@@ -130,23 +137,34 @@ Deno.serve(async (req) => {
       if (user && mode !== 'debrief') {
         const { data: usage } = await supabase.rpc('increment_ai_usage', { p_user_id: user.id }) as { data: UsageData[] | null };
         if (usage?.[0]?.limit_reached) {
+          console.log('[AI Chat] Limit reached for user:', user.id);
           return new Response(JSON.stringify({ error: 'daily_limit_reached', message: 'Дневной лимит Skily исчерпан. Попробуй завтра или активируй Premium!' }), { status: 429, headers: corsHeaders });
         }
       }
     }
 
     // 1️⃣ Приоритет: Gemini 2.0 Flash
+    console.log('[AI Chat] Trying Gemini 2.0 Flash...');
     const gemini = await tryGemini(messages, country, mode);
-    if (gemini) return gemini;
+    if (gemini) {
+      console.log('[AI Chat] ✅ Gemini success');
+      return gemini;
+    }
 
     // 2️⃣ Fallback: Groq (если Gemini недоступен)
+    console.log('[AI Chat] Gemini failed, trying Groq fallback...');
     const groq = await tryGroq(messages, country, mode);
-    if (groq) return groq;
+    if (groq) {
+      console.log('[AI Chat] ✅ Groq success');
+      return groq;
+    }
 
     // 3️⃣ Только если оба не работают → ошибка
+    console.error('[AI Chat] ❌ Both Gemini and Groq failed');
     return new Response(JSON.stringify({ error: 'AI unavailable' }), { status: 503, headers: corsHeaders });
   } catch (e: unknown) {
     const errorMessage = e instanceof Error ? e.message : String(e);
+    console.error('[AI Chat] ERROR:', errorMessage);
     return new Response(JSON.stringify({ error: errorMessage }), { status: 500, headers: corsHeaders });
   }
 });
