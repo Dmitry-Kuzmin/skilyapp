@@ -43,6 +43,11 @@ import { ReportProblemModal } from "@/components/ReportProblemModal";
 import { AIWidget } from "@/components/AIWidget";
 import { useAIChat } from "@/hooks/useAIChat";
 import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
+import { useTestProgress } from "@/hooks/useTestProgress";
+import { useTestTimer } from "@/hooks/useTestTimer";
+import { useRedemptionMode } from "@/hooks/useRedemptionMode";
+import { useMasteryMode } from "@/hooks/useMasteryMode";
+import { useRussiaExamMode } from "@/hooks/useRussiaExamMode";
 import { TestExitDialog } from "@/components/test-session/TestExitDialog";
 import { TestQuestionMap } from "@/components/test-session/TestQuestionMap";
 import { TestContentLayout } from "@/components/test-session/TestContentLayout";
@@ -293,12 +298,21 @@ const TestSession = () => {
   const redemptionFailedQuestions = locState?.failedQuestions || [];
   const redemptionAnalysisData = locState?.analysisData;
   // Log only once on mount via useEffect below
-  const [redemptionStep, setRedemptionStep] = useState<'reflection' | 'drill' | 'completed'>(
-    isRedemptionMode ? 'reflection' : 'completed'
-  );
-  const [showReflectionOverlay, setShowReflectionOverlay] = useState(false);
-  const [redemptionOriginalCount, setRedemptionOriginalCount] = useState(redemptionFailedQuestions.length);
-  const [lastRedemptionAnswerTimestamp, setLastRedemptionAnswerTimestamp] = useState(0);
+
+  // === REDEMPTION MODE ===
+  const {
+    redemptionStep,
+    setRedemptionStep,
+    showReflectionOverlay,
+    setShowReflectionOverlay,
+    redemptionOriginalCount,
+    lastRedemptionAnswerTimestamp,
+    setLastRedemptionAnswerTimestamp,
+    handleReflectionAnswer
+  } = useRedemptionMode({
+    isEnabled: isRedemptionMode,
+    failedQuestions: redemptionFailedQuestions
+  });
 
   // Flashcards для индивидуальных подсказок в режиме Redemption
   const [redemptionFlashcards, setRedemptionFlashcards] = useState<Flashcard[]>([]);
@@ -382,11 +396,21 @@ const TestSession = () => {
     }
   }, [testInfo?.id, questionsState.length, setAnswers, setCurrentIndex]);
 
-  // Состояние для модального окна штрафа в exam-russia
-  const [showPenaltyAlert, setShowPenaltyAlert] = useState(false);
-  const [penaltyBlock, setPenaltyBlock] = useState<number | null>(null);
-  const [showFailureModal, setShowFailureModal] = useState(false);
-  const [failureReason, setFailureReason] = useState<string>("");
+  // === RUSSIA EXAM MODE ===
+  const {
+    showPenaltyAlert,
+    setShowPenaltyAlert,
+    penaltyBlock,
+    setPenaltyBlock,
+    showFailureModal,
+    setShowFailureModal,
+    failureReason,
+    setFailureReason,
+    triggerPenaltyAlert,
+    closePenaltyAlert,
+    triggerFailure,
+    closeFailureModal
+  } = useRussiaExamMode({ isEnabled: mode === 'exam-russia' });
 
   // === PHASE 2: UI State из Zustand ===
   const isAnswerLocked = useExamStore(state =>
@@ -478,9 +502,21 @@ const TestSession = () => {
     startTestSession();
   }, [profileId, questionsState.length, mode, testId]); // Вызываем когда вопросы загружены
 
-  // Mastery Mode - отслеживаем неправильные вопросы для повторения
-  const [masteryWrongQuestions, setMasteryWrongQuestions] = useState<string[]>([]);
-  const [masteryRound, setMasteryRound] = useState(1);
+  // === MASTERY MODE ===
+  const {
+    masteryWrongQuestions,
+    setMasteryWrongQuestions,
+    masteryRound,
+    setMasteryRound,
+    addWrongQuestion,
+    startNextRound,
+    resetMastery,
+    isRoundComplete,
+    shouldContinue
+  } = useMasteryMode({
+    isEnabled: mode === 'mastery',
+    totalQuestions: questions.length
+  });
 
   // КРИТИЧНО: Состояния для отслеживания онлайн/офлайн и синхронизации
   // FIX: Используем useOnlineStatus вместо navigator.onLine (Safari bug)
@@ -849,13 +885,9 @@ const TestSession = () => {
     }
   }, [mode, questionsState, allQuestionsByBlock, initializeExam, initialTimeBudget]);
 
-  // Глобальный таймер (тикает всегда, стор решает что делать с тиком)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      tickTimer();
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [tickTimer]);
+  // === TIMER ===
+  useTestTimer({ tickTimer });
+
 
 
   // Адаптер для совместимости с существующим JSX кодом (временное решение перед полным рефакторингом UI)
