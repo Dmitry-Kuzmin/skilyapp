@@ -135,10 +135,15 @@ Deno.serve(async (req) => {
       }
     }
 
+    // 1️⃣ Приоритет: Gemini 2.0 Flash
     const gemini = await tryGemini(messages, country, mode);
     if (gemini) return gemini;
 
-    // 🚫 Groq fallback убран - используем ТОЛЬКО Gemini 2.0 Flash
+    // 2️⃣ Fallback: Groq (если Gemini недоступен)
+    const groq = await tryGroq(messages, country, mode);
+    if (groq) return groq;
+
+    // 3️⃣ Только если оба не работают → ошибка
     return new Response(JSON.stringify({ error: 'AI unavailable' }), { status: 503, headers: corsHeaders });
   } catch (e: unknown) {
     const errorMessage = e instanceof Error ? e.message : String(e);
