@@ -1,0 +1,1442 @@
+[
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Un turismo con el distintivo ambiental de la imagen, clasificado como C, ¿está autorizado a circular por un carril VAO si su único ocupante es el conductor?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, siempre que lleve el distintivo adhesivo en el parabrisas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, salvo que por los paneles de mensaje variable se autorice su acceso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, aunque no lleve el distintivo adhesivo en el parabrisas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/57326160-35d2-4888-baee-e9efec55a0c4-1734362644-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/57326160-35d2-4888-baee-e9efec55a0c4-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "En una vía de doble sentido, ¿por qué lado de una isleta se circulará?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por su derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Por su izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Por su derecha o por su izquierda, indistintamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c8da4f77-5d87-474d-b8ae-92d696bda434-1650649726-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c8da4f77-5d87-474d-b8ae-92d696bda434-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "Un conjunto de turismo con remolque ligero, que mide menos de 7 metros, ¿por dónde debe circular?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por el carril de la derecha, por ser este el único permitido para remolques.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Por cualquiera de los dos carriles de la izquierda, por ser esta la velocidad máxima a la que puede circular.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Por el carril de la derecha, aunque puede circular por cualquiera de los tres.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7c37f655-d110-4371-ba99-14614a16b906-1650647508-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7c37f655-d110-4371-ba99-14614a16b906-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es el número máximo de plazas autorizadas, incluida la del conductor, que puede tener una furgoneta para poder circular?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "9 plazas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "3 plazas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "5 plazas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6a22a3d5-7a3f-459b-a960-6c70ef3151dd-1649182286-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6a22a3d5-7a3f-459b-a960-6c70ef3151dd-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "Cuando viaje con su mascota, ¿en qué lugar del vehículo podrá situarla para evitar que interfiera en la conducción?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En el asiento delantero ya que si dispone de airbag frontal estará doblemente protegida.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Donde no comprometa su seguridad ni la del resto de pasajeros, además de ir sujeta con el dispositivo adecuado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En los asientos traseros sujeta con el cinturón de seguridad como un pasajero más.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c3d34f8e-2e38-423f-bfc0-943ab0c26559-1650386743-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c3d34f8e-2e38-423f-bfc0-943ab0c26559-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "Cuando no exista zona peatonal o ésta no sea practicable, los peatones, ¿pueden circular por el arcén?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, deben circular por la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sólo en vías urbanas; fuera de poblado no podrán circular.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, o en su defecto, por la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/72d11aa9-05b6-497d-a6f2-47628a7c595f-1652277509-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/72d11aa9-05b6-497d-a6f2-47628a7c595f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "¿Qué indica esta señal?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que solo pueden circular autobuses y motocicletas por ese carril.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Que el carril está destinado exclusivamente a vehículos que tengan más de 2 plazas, aunque viaje solo el conductor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que pueden circular por el carril los turismos que transporten al menos 2 personas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c12aadfe-6cc7-401c-932e-481075bc81cb-1761115896-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c12aadfe-6cc7-401c-932e-481075bc81cb-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, fuera de poblado, ¿por qué lado de la vía deberán circular los peatones?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por su izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Si existe arcén, indistintamente por su derecha o por su izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Por su derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ac513d6e-477c-41df-be06-cdb8acf9fb72-1652277747-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ac513d6e-477c-41df-be06-cdb8acf9fb72-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "Conduce un camión de 3.000 kg de MMA. ¿Qué distancia debe dejar en este tramo de carretera?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "50 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La distancia de seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "La distancia que permita a otros vehículos adelantarme.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8580cb4d-254c-45d1-bf86-5f0b5bffabc1-1652271554-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8580cb4d-254c-45d1-bf86-5f0b5bffabc1-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "En un tramo de vía de doble sentido, si no va a adelantar, ¿en qué caso deberá guardar una distancia mínima de 50 metros con el vehículo de delante?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando conduzca un camión de 3.000 kilos de MMA.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando circule a la velocidad máxima genérica permitida para la vía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando conduzca un conjunto de vehículos de más de 10 metros de longitud.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/28a7c2b4-c748-4ade-9a1d-d839c9d8d798-1652208114-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/28a7c2b4-c748-4ade-9a1d-d839c9d8d798-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitida la circulación de cabezas de ganado, aisladas o en rebaño, por una carretera convencional?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo cuando no exista vía pecuaria practicable.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, aunque siempre deben circular en rebaño.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/96575cde-27c9-4034-b041-6e86075fc719-1656523592-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/96575cde-27c9-4034-b041-6e86075fc719-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "Si un vehículo no prioritario efectúa un servicio de los normalmente reservados a los prioritarios y así lo advierte su conductor con señales acústicas y luminosas, los demás conductores...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "le facilitarán el paso, llegando a detenerse si fuera preciso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "no están obligados a facilitarle el paso, al no tratarse de un vehículo prioritario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "se apartaran a la derecha, pero en ningún caso detendrán sus vehículos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e3958fc1-f99d-4988-af5b-239d428282ce-1657732343-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e3958fc1-f99d-4988-af5b-239d428282ce-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, ¿cuál es la parte de la carretera destinada a la circulación de turismos?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La mediana.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Los carriles y arcenes.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9783d30f-c0e3-44e4-ba86-52956d4571dd-1650386828-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9783d30f-c0e3-44e4-ba86-52956d4571dd-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "Para incorporarse a la vía principal, un turismo tiene que atravesar un carril bici debidamente señalizado; ¿deberá ceder el paso a los ciclistas que circulan por el mismo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí; los ciclistas tienen prioridad de paso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No; el turismo tiene prioridad de paso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo cuando los ciclistas circulen en grupo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/10e201af-c114-4392-8e51-744feb0ce3f8-1657731717-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/10e201af-c114-4392-8e51-744feb0ce3f8-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "El conductor de una motocicleta, ¿puede circular en el mismo carril que la otra motocicleta que está circulando en paralelo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, en columna de a dos orillándose todo lo posible al borde derecho de la vía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo para adelantar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6b9db4ed-ed12-4c7e-b843-b3d525e0a771-1650387065-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6b9db4ed-ed12-4c7e-b843-b3d525e0a771-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "La velocidad máxima para un vehículo mixto adaptable en autopista es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "120 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "100 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "90 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/05c55a86-c6f1-4f26-849c-750929c9761d-1653064183-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/05c55a86-c6f1-4f26-849c-750929c9761d-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "En autopista, ¿a qué velocidad máxima puede circular una motocicleta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "120 km/h, pudiendo alcanzar 140 km/h para adelantar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "120 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "100 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b1e6474f-edaf-47b0-8246-404b08007ed6-1653064192-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b1e6474f-edaf-47b0-8246-404b08007ed6-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "No se tienen en cuenta, a efectos de la normal utilización, los carriles...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "reservados a ciertas maniobras.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "reversibles.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "especiales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ddf9cfcd-04ba-48c1-a872-c1afc8344fe8-1651514666-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ddf9cfcd-04ba-48c1-a872-c1afc8344fe8-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "Los peatones, ¿tienen los mismos derechos que los vehículos para utilizar las vías públicas?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Si.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo en las calles residenciales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/59212339-90cb-4daa-968e-2506758a8281-1649351331-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/59212339-90cb-4daa-968e-2506758a8281-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "En esta autopista, el vehículo que circula por el carril izquierdo y no está adelantando, ¿circula correctamente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, porque no impide el paso a otros vehículos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, porque debe circular por el carril de la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, porque puede utilizar cualquier carril.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/0d25f708-9bd9-4cc3-8be2-5521b5564839-1650647006-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0d25f708-9bd9-4cc3-8be2-5521b5564839-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "Los vehículos de movilidad personal para transporte de personas, ¿deben llevar catadióptricos?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, y sustituirán al alumbrado en condiciones de baja visibilidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, llevarán catadióptricos en la parte delantera, en la trasera y en los laterales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, es un elemento opcional.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/5bb96620-9c0a-4155-9316-404094b31c28-1734361064-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5bb96620-9c0a-4155-9316-404094b31c28-s-1.jpg?t=1768251190",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "¿Por dónde debe circular un rebaño de animales?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por el borde izquierdo de la vía, sin ocupar nunca más de la mitad de la parte izquierda de la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Por el borde derecho de la vía, sin ocupar nunca más de la mitad derecha de la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Indistintamente por el borde derecho o por el izquierdo de la vía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d9c5ee3f-41df-48a4-909c-e4524abf66c6-1656523639-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d9c5ee3f-41df-48a4-909c-e4524abf66c6-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "Este turismo está averiado y circula muy despacio dificultando la circulación. ¿Puede circular por el arcén?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque está prohibido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, para facilitar el paso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si el arcén mide más de 1,50 metros y es transitable.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f35070da-2e9f-454d-8d8d-1661786ae325-1652207336-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f35070da-2e9f-454d-8d8d-1661786ae325-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "¿Por dónde se debe circular en un cambio de rasante de reducida visibilidad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por donde más convenga a mi destino.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Por la izquierda, aunque se invada parte del centro de la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Dejando completamente libre la mitad de la calzada que corresponda a los que puedan circular en sentido contrario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/09992d19-bf5f-4598-a1dd-e3d1f86cf6e1-1650387031-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/09992d19-bf5f-4598-a1dd-e3d1f86cf6e1-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "Estos ciclistas circulan en columna de a dos, ¿circulan correctamente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, porque deben circular por la calzada, sin invadir el arcén.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, porque deben circular en hilera siempre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/5547f85e-fff4-4c89-8749-2153c7a212ef-1652207411-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5547f85e-fff4-4c89-8749-2153c7a212ef-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "¿Quién tiene preferencia de paso en esta intersección sin señalizar y por qué motivo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El tranvía, porque circula sobre raíles.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El turismo, porque circula por la vía pavimentada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El tranvía, porque se aproxima por la derecha del turismo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8daadc66-d7b5-42f5-93da-f5d0c4527331-1657203473-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8daadc66-d7b5-42f5-93da-f5d0c4527331-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "Si el conductor del ciclomotor decide adelantar al tractor, debe de tener en cuenta que...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "deberá realizar la maniobra sin salirse del arcén.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "no podrá circular en paralelo con el tractor más de 15 segundos o 200 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "no podrá adelantar mientras circulen vehículos en sentido contrario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/81b4341d-81e9-4354-a1df-d50dc3bb2db2-1652207384-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/81b4341d-81e9-4354-a1df-d50dc3bb2db2-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "En una autovía, ¿a qué velocidad máxima está permitido circular a un turismo con un remolque de 700 kg de MMA?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A 80 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A 100 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A 90 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c677fa11-afa1-46b0-98d5-797bb5236838-1653063852-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c677fa11-afa1-46b0-98d5-797bb5236838-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "Un turismo con remolque, ¿cuándo puede utilizar el tercer carril circulando fuera de poblado si tiene tres carriles para el mismo sentido?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando pretenda adelantar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando el conjunto mide menos de 7 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando hay mucho tráfico.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2e4486db-2215-4283-aee6-c07297f4b267-1650647124-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2e4486db-2215-4283-aee6-c07297f4b267-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "topic_id": null,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Al cruzar un arcén por el que circulan peatones en una zona en la que no existe zona peatonal, ¿qué debe hacer?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Ceder el paso a los peatones, pues tienen preferencia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Avisar a los peatones de su presencia con señales acústicas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Continuar circulando, ya que tiene preferencia de paso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/90909392-a4f4-4557-bea6-0971a431d2db-1657731782-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/90909392-a4f4-4557-bea6-0971a431d2db-s-1.jpg",
+    "source": "practicavial"
+  }
+]

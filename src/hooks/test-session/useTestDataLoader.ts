@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
-import { useTestQuestions } from "@/hooks/useTestQuestions";
+
 import { useSequentialTestQuestions } from "@/hooks/useTestQuestions";
 import {
     useChallengeBankQuestions,
@@ -12,6 +12,7 @@ import {
 import { usePDDExamQuestions } from "@/hooks/usePDDExamQuestions";
 import { usePDDTicketQuestions, usePDDRandomQuestions, usePDDSequentialQuestions } from "@/hooks/usePDDQuestions";
 import { usePDDTopicQuestions } from "@/hooks/usePDDTopics";
+import { useQuestionsByTopicId } from "@/hooks/useQuestionsByTopicId"; // Загрузка по UUID темы
 import { CountryCode } from "@/types/pdd";
 
 export type TestMode =
@@ -37,9 +38,12 @@ interface UseTestDataLoaderProps {
     profileId: string | null;
     testId?: string;
     topic?: string;
+    topicId?: string; // UUID темы для новой структуры БД (questions_new)
+    topicLevel?: number; // Номер билета (1, 2, 3...) для разбивки темы на порции
     pddCountry?: CountryCode | null;
     ticketNumber?: number | null;
     questionCount?: number;
+    category?: string;
     redemptionData?: {
         failedIds: string[];
     };
@@ -63,20 +67,18 @@ export const useTestDataLoader = ({
     profileId,
     testId,
     topic,
+    topicId, // UUID темы
+    topicLevel, // Номер билета
     pddCountry,
     ticketNumber,
     questionCount = 30,
+    category,
     redemptionData,
 }: UseTestDataLoaderProps): UseTestDataLoaderResult => {
 
-    // Practice/Exam mode questions
-    const shouldLoadPractice = mode === 'practice' || mode === 'exam' || mode === 'blitz';
-    const practiceQuestions = useTestQuestions({
-        topicId: shouldLoadPractice ? topic : null,
-        questionCount,
-        country: pddCountry || undefined, // Передаем страну для фильтрации
-        enabled: shouldLoadPractice,
-    });
+
+
+
 
     // Sequential test questions
     const sequentialQuestions = useSequentialTestQuestions(
@@ -97,13 +99,30 @@ export const useTestDataLoader = ({
 
     // DGT questions
     const dgtQuestions = useDGTQuestions(
-        mode === 'dgt' || mode === 'module' ? questionCount : 0
+        mode === 'dgt' || mode === 'module' ? category || 'B' : null,
+        questionCount
     );
 
-    // Topic-based questions
+    // Topic-based questions (старая система - по названию темы)
+    // Используется для РФ (по названию) или для Испании (как fallback, если нет UUID темы)
+    const shouldLoadTopicOld = (mode === 'by-topic' && topic && !topicId) ||
+        ((mode === 'practice' || mode === 'exam' || mode === 'blitz') && !topicId && pddCountry !== 'russia');
+
     const topicQuestions = useQuestionsByTopic(
-        mode === 'by-topic' && topic ? topic : undefined,
-        questionCount
+        shouldLoadTopicOld ? (topic || null) : undefined,
+        questionCount,
+        true,
+        pddCountry || null
+    );
+
+    // Topic-based questions (новая система - по UUID темы из questions_new)
+    // ФИКС: вызываем ТОЛЬКО если topicId И pddCountry переданы (infinite loop fix)
+    const shouldLoadByTopicId = (mode === 'by-topic' || mode === 'practice') && !!topicId && !!pddCountry;
+    const topicByIdQuestions = useQuestionsByTopicId(
+        shouldLoadByTopicId ? topicId : null,
+        shouldLoadByTopicId ? pddCountry : null,
+        questionCount,
+        topicLevel // Номер билета для разбивки на порции
     );
 
     // PDD Exam questions (Russia) - always call but only use when mode matches
@@ -130,9 +149,10 @@ export const useTestDataLoader = ({
     );
 
     // Random questions - positional args: (country, count)
+    const isRandomRequired = !isSequentialRequired && (mode === 'practice' || mode === 'blitz' || mode === 'exam' || mode === 'mastery' || mode === 'hardest');
     const pddRandomQuestions = usePDDRandomQuestions(
         pddCountry || 'russia',
-        (!isSequentialRequired && (mode === 'practice' || mode === 'blitz' || mode === 'exam' || mode === 'mastery' || mode === 'hardest')) && pddCountry === 'russia' ? questionCount : 0
+        isRandomRequired && (pddCountry === 'russia' || pddCountry === 'spain') ? questionCount : 0
     );
 
     // Redemption questions
@@ -184,18 +204,27 @@ export const useTestDataLoader = ({
             case 'blitz':
             case 'mastery':
             case 'hardest':
-                if (pddCountry === 'russia') {
+                if ((pddCountry === 'russia' || pddCountry === 'spain') && !topicId && !topic) {
                     return {
                         questions: pddRandomQuestions.data || [],
                         isLoading: pddRandomQuestions.isLoading,
                         error: pddRandomQuestions.error as Error | null,
-                        testInfo: { id: 'pdd-practice', title: 'ПДД РФ' },
+                        testInfo: {
+                            id: `${pddCountry}-practice`,
+                            title: pddCountry === 'russia' ? 'ПДД РФ' : 'DGT Practice'
+                        },
                     };
                 }
+
+                // Fallback for other countries (if any)
+                const questionsData = (topicId ? topicByIdQuestions.data : topicQuestions.data) || [];
+                const isLoading = topicId ? topicByIdQuestions.isLoading : topicQuestions.isLoading;
+                const error = (topicId ? topicByIdQuestions.error : topicQuestions.error) as Error | null;
+
                 return {
-                    questions: practiceQuestions.data || [],
-                    isLoading: practiceQuestions.isLoading,
-                    error: practiceQuestions.error as Error | null,
+                    questions: questionsData,
+                    isLoading: isLoading,
+                    error: error,
                     testInfo: { id: 'practice', title: mode === 'exam' ? 'Экзамен DGT' : 'Практика' },
                 };
 
@@ -230,12 +259,27 @@ export const useTestDataLoader = ({
             case 'pdd-topic':
                 {
                     const isRussia = pddCountry === 'russia';
-                    const data = isRussia ? pddTopicQuestions : topicQuestions;
+                    // Приоритет: новая система (по UUID) > старая система (по названию) > PDD система
+                    let data;
+                    if (topicId && topicByIdQuestions.data && topicByIdQuestions.data.length > 0) {
+                        // Используем новую систему (questions_new по UUID)
+                        data = topicByIdQuestions;
+                    } else if (isRussia) {
+                        // Россия: используем PDD систему
+                        data = pddTopicQuestions;
+                    } else {
+                        // Fallback на старую систему (по названию темы)
+                        data = topicQuestions;
+                    }
+
                     return {
                         questions: data.data || [],
                         isLoading: data.isLoading,
                         error: data.error as Error | null,
-                        testInfo: { id: `topic-${topic}`, title: `📚 Тема: ${topic}` },
+                        testInfo: {
+                            id: `topic-${topicId || topic}${topicLevel ? `-level-${topicLevel}` : ''}`,
+                            title: `📚 Тема: ${topic}${topicLevel ? ` - Билет ${topicLevel}` : ''}`
+                        },
                     };
                 }
 
@@ -300,7 +344,6 @@ export const useTestDataLoader = ({
         }
     }, [
         mode,
-        practiceQuestions,
         sequentialQuestions,
         testInfoQuery,
         challengeBankQuestions,

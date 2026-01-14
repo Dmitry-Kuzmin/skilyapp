@@ -1,0 +1,1433 @@
+[
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido conducir un vehículo mientras utiliza, sujetándolo con la mano, un teléfono móvil?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, siempre que se utilice el altavoz del teléfono.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, es una infracción grave que supone la pérdida de 6 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, siempre que quede una mano libre para manejar los mandos del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/88ebf8f4-2bbd-4a9d-a834-48692822c0a7-1734420675-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/88ebf8f4-2bbd-4a9d-a834-48692822c0a7-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Cuando el titular de un permiso de conducir pierda parte de su asignación total de puntos, ¿puede recuperarlos?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, una vez perdidos no es posible recuperarlos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, obteniendo de nuevo el permiso de conducción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, realizando un curso de sensibilización y reeducación vial.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/006b7b6b-36cd-4e28-9195-ce6b1c51fd90-1658328883-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/006b7b6b-36cd-4e28-9195-ce6b1c51fd90-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "¿Qué consecuencias tiene la pérdida del saldo de puntos asignado al titular de un permiso de conducir?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La pérdida de vigencia del permiso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La baja definitiva del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "La suspensión del permiso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/401836c3-db75-49e6-bdfc-51d625c1b060-1658325070-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/401836c3-db75-49e6-bdfc-51d625c1b060-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "Si su turismo ha pasado favorablemente la primera ITV, ¿cuándo tiene que pasar la próxima inspección?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Dentro de 2 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Dentro de 4 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Al año siguiente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/88072d72-1b7a-4f6f-ba5c-a8e4dc040001-1658326435-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/88072d72-1b7a-4f6f-ba5c-a8e4dc040001-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "Si un conductor pierde su saldo total de puntos, ¿puede perder la vigencia de su permiso de conducción?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, una vez notificada la resolución de la declaración de pérdida de vigencia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, el permiso solo pierde su vigencia cuando caduca.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, la vigencia se pierde automáticamente cuando el saldo es de 0 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/fee90d7f-274b-4103-8099-baf9d36a36de-1658324261-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/fee90d7f-274b-4103-8099-baf9d36a36de-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Conducir bajo los efectos de las drogas, ¿puede llevar aparejada la pérdida de puntos del permiso de conducir?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sólo cuando se circule en vías fuera de poblado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, puesto que no es una infracción grave.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, en todo caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/07e0b970-930c-40dd-8a65-c0ca7d2e9eb8-1658328792-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/07e0b970-930c-40dd-8a65-c0ca7d2e9eb8-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "Si realiza una reforma de importancia de su vehículo, ¿debe pasar algún tipo de inspección técnica antes de poder volver a circular con él?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, debe superar una inspección técnica extraordinaria.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, una inspección periódica, salvo que la reforma se realice en un taller oficial.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, solo pasará las inspecciones que le correspondan por antigüedad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e6feb52b-f383-44f9-9480-496e89052f6a-1658326808-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e6feb52b-f383-44f9-9480-496e89052f6a-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la sanción para el conductor que transporta a un niño sin la sillita o sistema de retención infantil adecuado?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Advertencia y recomendación de uso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Multa de 200€ y 3 puntos menos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Multa de 200€ y 4 puntos menos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/0876f1e5-2e76-4425-89d3-3661678e8aa3-1734419223-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0876f1e5-2e76-4425-89d3-3661678e8aa3-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la penalización por adelantar a un ciclista poniendo en peligro su seguridad o sin mantener la separación mínima obligatoria de 1,5 metros, según la Ley de Tráfico y Seguridad Vial?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Amonestación verbal sin penalización.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Multa de 100 euros y la pérdida de 2 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Multa de 200 euros y la pérdida de 6 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/19fec0cd-d0d0-4059-ada0-1d8514bde8c6-1734418974-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/19fec0cd-d0d0-4059-ada0-1d8514bde8c6-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "Con el permiso de la clase B, ¿qué otros vehículos se pueden conducir, además, de turismos?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Motocicletas de más de 125 cc.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Todos los vehículos que se pueden conducir con el permiso A.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Ciclomotores de dos, tres y cuatro ruedas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d1719c40-2065-4c5c-b4bf-710f4282c5e0-1658321746-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d1719c40-2065-4c5c-b4bf-710f4282c5e0-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "Un permiso de conducción caducado, ¿autoriza a su titular a conducir?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, porque aunque haya caducado tiene permiso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si no ha transcurrido más de un año la fecha de caducidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a72900d4-3b8b-4581-9dca-9da4b8c5069f-1658322186-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a72900d4-3b8b-4581-9dca-9da4b8c5069f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "Con el permiso B, ¿se puede conducir un automóvil de más de 3.500 kg?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, pero debe tener una antigüedad superior a 3 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/96c1ad5a-cdc0-48e0-b13e-e4ace7335118-1658321869-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/96c1ad5a-cdc0-48e0-b13e-e4ace7335118-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "¿Cuánto tiempo deberá llevar en su vehículo la placa L, un conductor novel?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "2 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "1 año.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "2 años, hasta cumplir los 20 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/da4f9e2e-ef00-47d1-899c-e072f894dc2c-1658322375-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/da4f9e2e-ef00-47d1-899c-e072f894dc2c-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "Si pierde la vigencia de su permiso de conducción por agotamiento de su saldo de puntos, ¿Qué crédito se le asignará cuando obtenga un nuevo permiso?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "8 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "12 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Los que tuviera antes de declararse la pérdida de vigencia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e92bd331-510c-498d-8d67-b3c59de08cf1-1734420609-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e92bd331-510c-498d-8d67-b3c59de08cf1-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "¿Quién tiene la responsabilidad por las infracciones cometidas sobre las normas de circulación?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Siempre el conductor causante de la infracción cometida.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El conductor y, si es menor de edad, sus padres o tutores legales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El titular del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8e9e6806-e9eb-4494-83b0-79636735ae34-1658328969-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8e9e6806-e9eb-4494-83b0-79636735ae34-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "¿Cuántos puntos de su permiso perderá un conductor sancionado en firme en vía administrativa por conducir con una tasa de alcohol superior a la reglamentariamente establecida?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Entre 2 y 4 puntos, en función de la tasa de alcoholemia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Entre 4 y 6 puntos, en función de la tasa de alcoholemia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "6 puntos, en todo caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a3b067cd-bcb3-485a-9ad1-02ca2c85dfb6-1734421954-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a3b067cd-bcb3-485a-9ad1-02ca2c85dfb6-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es el crédito máximo de puntos que puede acumular un conductor?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "8 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "15 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "12 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/5131dedf-f54f-461f-b91d-56328ca5dfad-1658328543-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5131dedf-f54f-461f-b91d-56328ca5dfad-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la multa estándar por ingresar con un vehículo no autorizado en una Zona de Bajas Emisiones en localidades de más de 50.000 habitantes?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "100€",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "200€",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "300€",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/bd4f6228-de76-43d2-8569-83e354424ac8-1734426843-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/bd4f6228-de76-43d2-8569-83e354424ac8-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Si vende su vehículo, ¿debe comunicarlo a la Jefatura de Tráfico?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, es el nuevo titular el que tiene que comunicar la compra.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solo si el nuevo titular no tiene su residencia en España.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, en un plazo de 10 días.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2ff05751-f573-42f2-b862-9df96d47b7ba-1658326046-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2ff05751-f573-42f2-b862-9df96d47b7ba-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es el crédito inicial de puntos asignados a un conductor que obtiene su primer permiso de conducción?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "12 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "8 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "15 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7fc69d2b-9fa6-4c20-aff9-3e0bd5ff0cc2-1658328649-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7fc69d2b-9fa6-4c20-aff9-3e0bd5ff0cc2-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "¿Qué tipo de daños en general, cubre el seguro de responsabilidad civil de suscripción obligatoria?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solamente los daños materiales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Los daños personales y los materiales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solamente los daños personales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7303d912-7b06-4c2f-9894-5119887ee4cd-1658328443-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7303d912-7b06-4c2f-9894-5119887ee4cd-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "¿Qué documento acredita la matriculación de un turismo y autoriza su circulación por las vías públicas?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El certificado del seguro obligatorio.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El permiso de circulación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "La tarjeta de inspección técnica.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6579173c-f217-4266-98a9-b073b927fcef-1658326014-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6579173c-f217-4266-98a9-b073b927fcef-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "¿Cuándo tiene que pasar una motocicleta la primera ITV desde la fecha de su primera matriculación?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A los 2 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A los 4 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A los 5 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/54cd2c78-05db-4a56-b91a-3e9a73283039-1658326653-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/54cd2c78-05db-4a56-b91a-3e9a73283039-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "El seguro de suscripción obligatoria, ¿cubre los daños causados al conductor no culpable de un accidente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, ni los daños personales ni los materiales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Si , los daños personales y materiales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, los personales pero no los materiales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b9198b30-ea3b-4c72-9542-18222f0c803e-1658328388-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b9198b30-ea3b-4c72-9542-18222f0c803e-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "Con el permiso B, ¿puede conducir una motocicleta de más de 125 centímetros cúbicos?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solo si tiene una antigüedad superior a 3 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, es necesario obtener el permiso de la clase A.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/66bdbd8c-407a-48c0-9b05-0614df0a8cc1-1658322018-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/66bdbd8c-407a-48c0-9b05-0614df0a8cc1-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "¿Cuántos puntos se pueden perder en un día?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No existe límite.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Un máximo de 10 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Un máximo de 8 puntos, salvo que las infracciones cometidas sean muy graves.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f0ea39d9-82a7-4910-920c-32c4f625021e-1734431047-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f0ea39d9-82a7-4910-920c-32c4f625021e-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "El Seguro Obligatorio que debe suscribir para su ciclomotor. ¿cubre los daños ocasionados en el propio ciclomotor asegurado?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c7420522-a900-4e00-859e-da50f3a79511-1734422148-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c7420522-a900-4e00-859e-da50f3a79511-s-1.jpg?t=1768295584",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "En su turismo lleva enganchado un remolque, ¿debe concertar el seguro obligatorio para el remolque?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, sólo para el turismo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, cualquiera que sea la MMA del remolque.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, pero sólo si la MMA del remolque supera los 750 kg.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4d205488-01ba-4584-bd82-97a0706e3936-1658328107-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4d205488-01ba-4584-bd82-97a0706e3936-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "El titular de un permiso de la clase B con una antigüedad superior a tres años, ¿puede conducir una motocicleta dentro del territorio nacional?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, puede conducir cualquier tipo de motocicleta.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, no puede conducir ningún tipo de motocicleta.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, puede conducir una motocicleta de las que autoriza el permiso de la clase A1.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/29bf60c9-6943-451c-901b-e25edebf949f-1658321771-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/29bf60c9-6943-451c-901b-e25edebf949f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "topic_id": null,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "¿Autoriza el permiso de la clase B a conducir motocicletas?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, hasta 250 c.c. de cilindrada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, cuando la antigüedad del permiso supere los 3 años y solo las que autoriza a conducir el permiso A1.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/69dcbdd9-602a-4777-a25a-c10b9b56cc18-1658321787-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/69dcbdd9-602a-4777-a25a-c10b9b56cc18-s-1.jpg",
+    "source": "practicavial"
+  }
+]

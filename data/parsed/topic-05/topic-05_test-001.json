@@ -1,0 +1,1442 @@
+[
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "En relación al uso del cinturón de seguridad, una embarazada...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "puede no utilizarlo si le dificulta los movimientos para conducir.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "siempre está exenta de utilizarlo porque es peligroso para el feto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "debe utilizarlo, salvo exención médica expresa.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d833e4a2-d698-49ff-8a37-6f20e13d13aa-1658254744-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d833e4a2-d698-49ff-8a37-6f20e13d13aa-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Las operaciones de carga y descarga se llevarán a cabo...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "procurando evitar ruidos y molestias innecesarias.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "depositando la mercancía en la calzada y en las zonas peatonales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "por el lado del vehículo más próximo al centro de la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/87202c27-f912-4462-b007-aca9db10e9df-1658313190-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/87202c27-f912-4462-b007-aca9db10e9df-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "En un turismo de nueve plazas, incluida la del conductor, ¿pueden viajar nueve menores de edad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque se supera el número de plazas autorizado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solo si los niños son menores de de 12 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, siempre que el conductor sea su padre, madre o tutor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/94cd419e-b1ae-440f-9d30-a18c76b750c4-1658252720-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/94cd419e-b1ae-440f-9d30-a18c76b750c4-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "En los vehículos comerciales y pesados, ¿es obligatorio colocar la señal de advertencia de peligro de ángulos muertos para advertir del riesgo a los usuarios vulnerables?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No; es obligatoria para los vehículos pesados, pero es voluntaria para los comerciales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No; es una señal que se colocará de forma voluntaria en algunos de ellos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí; es obligatoria su colocación para poder circular.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/fa721e00-c907-45be-bbc1-46c5210a5226-1761033113-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/fa721e00-c907-45be-bbc1-46c5210a5226-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "Si el pasajero de una motocicleta no utiliza el casco de protección, la responsabilidad es del...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "titular del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "pasajero.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "conductor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/aa64a6d6-b96a-455a-81b9-50e7a589fdc5-1658256288-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/aa64a6d6-b96a-455a-81b9-50e7a589fdc5-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido depositar la mercancía en la vía mientras se realizan operaciones de carga o descarga?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, está prohibido depositar la mercancía en la calzada, arcén o aceras.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, se puede depositar la mercancía en la calzada o en el arcén, pero no en la acera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo cuando la carga o descarga se realice fuera de poblado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4cfac5b8-4b0b-4941-b6ee-fac507ce2b9e-1658313155-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4cfac5b8-4b0b-4941-b6ee-fac507ce2b9e-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "¿Cuánto podrá sobresalir por la parte posterior de un turismo una carga indivisible, como un tubo o un poste?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Un tercio de la longitud del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El 10% de la longitud del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El 15% de la longitud del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6aa2737e-1a42-4c88-92bc-1f3f3ddc8a30-1658314229-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6aa2737e-1a42-4c88-92bc-1f3f3ddc8a30-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "Cuando conduce un camión de 3.000 kg de MMA, ¿debe llevar puesto el cinturón de seguridad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo en vías interurbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/5a16fb26-8072-4e61-bcf3-0392fe740f8b-1658253298-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5a16fb26-8072-4e61-bcf3-0392fe740f8b-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "Las operaciones de carga y descarga se deben realizar...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "respetando siempre las normas de parada y estacionamiento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "depositando la mercancía en la calzada para agilizar el trabajo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "únicamente por el lado derecho de la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9c3009fc-d77b-4938-88ee-385a3c66fcde-1658312973-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9c3009fc-d77b-4938-88ee-385a3c66fcde-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, ¿cuál es la altura máxima permitida incluida la carga, para que pueda circular un turismo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "4 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "3 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "4,20 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/04ac71e4-d436-4abc-99f7-f4437c224e1c-1658313504-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/04ac71e4-d436-4abc-99f7-f4437c224e1c-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "Una embarazada, ¿debe llevar puesto el cinturón de seguridad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, es obligatorio.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, no es obligatorio.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, pero sólo en vías interurbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/84e3e8ce-0374-4671-89a8-ae092b2f3b87-1658253176-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/84e3e8ce-0374-4671-89a8-ae092b2f3b87-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "La carga y descarga de un vehículo deberá realizarse...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "fuera de la vía, como norma general.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "depositando la mercancía en zonas peatonales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "por el lado del vehículo más alejado del borde de la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ff5bcb12-3371-4518-9a98-a7f7e7b39694-1658313007-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ff5bcb12-3371-4518-9a98-a7f7e7b39694-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "¿Están exentas las embarazadas de llevar el cinturón de seguridad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, salvo que estén en posesión de un certificado de exención por razones médicas graves.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, además no requieren de certificado médico.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, ya que puede dañar al feto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/616982cb-1bbf-4ca6-95f7-864639fb6f97-1658254912-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/616982cb-1bbf-4ca6-95f7-864639fb6f97-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "El conductor de un vehículo de distribución de mercancías, ¿cuándo podrá circular por vía urbana sin utilizar el cinturón de seguridad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En trayectos cortos, cuando realice sucesivas operaciones de carga y descarga.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En todo momento, en poblado no tiene obligación de utilizar el cinturón de seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En ningún caso, siempre debe utilizar el cinturón de seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/af48d4f1-e8d1-4212-8b9c-9d1c32d0d3e2-1658254781-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/af48d4f1-e8d1-4212-8b9c-9d1c32d0d3e2-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "Si conduce un ciclomotor, ¿en qué tipo de vías es obligatorio utilizar el casco de protección?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En todo tipo de vías, tanto urbanas como interurbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solo cuando circule por carreteras convencionales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En todo tipo de vías, pero solo cuando circule a más de 40 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/87b93c18-413c-401e-b993-ce5ac03f9696-1658312053-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/87b93c18-413c-401e-b993-ce5ac03f9696-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "En una motocicleta, ¿cuánto puede sobresalir, por su parte delantera y por la posterior, la carga transportada?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Nada por delante y hasta 0,25 metros por detrás.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Nada, no puede sobresalir la carga ni por delante ni por detrás.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Hasta 0,25 metros tanto por delante como por detrás.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6c4b689c-b04a-46ca-835a-1a981c00c989-1658314909-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6c4b689c-b04a-46ca-835a-1a981c00c989-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "En un vehículo de 5 plazas incluido el conductor, ¿cuántos menores de edad de estatura igual o inferior a 135 centímetros pueden viajar como máximo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "3 ya que en ningún caso pueden ocupar el asiento delantero.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "4 siempre que todos utilicen un sistema de retención infantil.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "6 aunque alguno de ellos no utilice un sistema de retención infantil.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/823cb67f-84bf-423c-b9f2-581b845fac63-1658252619-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/823cb67f-84bf-423c-b9f2-581b845fac63-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "En un vehículo de menos de 5 metros de longitud, destinado al transporte de mercancías, ¿cuánto podrá sobresalir una carga de longitud indivisible por su parte delantera?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Un tercio de la longitud del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Un 15 % de la longitud del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Nada; solo podrá sobresalir por su parte trasera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/54a38b3b-f53f-457b-b012-e2a28b90eedc-1658314324-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/54a38b3b-f53f-457b-b012-e2a28b90eedc-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "En los camiones de menos de 3.500 kg de MMA, ¿qué ocupantes están obligados a ponerse el cinturón de seguridad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El conductor y los pasajeros de los asientos delanteros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Ninguno.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El conductor solamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2bf2f6a0-5a53-40ad-a6aa-fbfbef494344-1658253139-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2bf2f6a0-5a53-40ad-a6aa-fbfbef494344-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "En un turismo para cinco plazas, incluido el conductor, ¿está permitido que viajen 6 personas?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque no se puede sobrepasar el número de plazas autorizado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, cuando el vehículo circula en vías urbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, cuando no se supera la MMA del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6aea355a-e054-417f-b226-5cb57a5fa9dc-1658252893-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6aea355a-e054-417f-b226-5cb57a5fa9dc-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Antes de abrir las puertas para bajar de un vehículo, debe cerciorarse siempre de que...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "no se ocasiona peligro a otros usuarios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "se ha puesto el chaleco reflectante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "las luces de emergencia del vehículo están encendidas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/21dd6973-0468-4c98-a591-833477bd2c59-1658316314-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/21dd6973-0468-4c98-a591-833477bd2c59-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "En caso de condiciones meteorológicas que disminuyan sensiblemente la visibilidad, ¿cómo debe señalizar la carga que sobresalga por la parte delantera del vehículo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Con una luz blanca.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Con una luz roja.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Con una luz blanca y un dispositivo reflectante también blanco.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/70c37cd6-5546-4634-9a31-fd0d8245edbd-1658315407-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/70c37cd6-5546-4634-9a31-fd0d8245edbd-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "Colocar una silla para niños en el asiento delantero de un vehículo, orientada hacia atrás y con el airbag frontal conectado, ¿es correcto?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, el airbag frontal debe desconectarse previamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, la sillita debe colocarse siempre en los asientos traseros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, para proteger al niño en caso de impacto frontal.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b9d391f0-87bf-440b-890e-74a27e64c0a1-1658253447-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b9d391f0-87bf-440b-890e-74a27e64c0a1-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido llevar las puertas o el maletero abiertos para aumentar la capacidad de carga?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, excepto en los vehículos destinados al transporte de mercancías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Las puertas no, pero sí el maletero si está sujeto de forma que no pueda caer la carga.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/782c25ef-3fa6-4067-bf87-6438b215b359-1658316236-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/782c25ef-3fa6-4067-bf87-6438b215b359-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Un menor de 12 años, ¿puede viajar de pasajero en una motocicleta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, tiene que tener más de 12 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, siempre que sea mayor de 7 años, y el conductor sea su padre, madre, tutor o persona autorizada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, salvo que mida más de 150 cm.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d8e182a8-2968-4219-aaff-23932b2b64bb-1658255921-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d8e182a8-2968-4219-aaff-23932b2b64bb-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "¿Dónde está prohibido depositar la mercancía durante las operaciones de carga y descarga?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En las zonas peatonales, pero si esta permitido depositarla en la calzada y en el arcén.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En la calzada, en el arcén y en las zonas peatonales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En la calzada, pero esta permitido depositarla en el arcén y en las zonas peatonales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/fab12c32-87ed-4390-ac79-6dd33d68201f-1658313060-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/fab12c32-87ed-4390-ac79-6dd33d68201f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "En un turismo con cinco plazas, como norma general, ¿en qué asiento debe viajar un niño que mide menos de 1,35 cm?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En cualquiera, mientras utilice un sistema de retención infantil adecuado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En un asiento trasero.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En el asiento delantero.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2bc744df-912e-4d44-9801-288496c47bd9-1658253543-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2bc744df-912e-4d44-9801-288496c47bd9-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "En vía urbana de un solo sentido, los usuarios de un vehículo estacionado deberán salir de él...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "por el lado derecho o izquierdo, según el lado de la calzada donde se efectúe la inmovilización.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "siempre por el lado del conductor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "por el lado derecho.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/89291d75-1fef-487b-afe6-1c693a870904-1658316343-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/89291d75-1fef-487b-afe6-1c693a870904-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "En un camión de longitud inferior a 5 metros, una carga indivisible no podrá sobresalir más de...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "3 metros por delante y 2 metros por detrás.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "un tercio de la longitud del vehículo, tanto por delante como por detrás.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "2 metros por delante y 3 metros por detrás.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2c5612ac-3bbc-45f7-b824-1ed6bd484ec7-1658314353-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2c5612ac-3bbc-45f7-b824-1ed6bd484ec7-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "topic_id": null,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "¿Están obligados a usar cinturón de seguridad los pasajeros de un taxi?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, sólo cuando viajen en las plazas delanteras.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, excepto cuando circulen en tráfico urbano, no superen los 135 centímetros de estatura y viajen en los asientos traseros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ac0d8222-5227-4b8b-b7c5-3e0f6e767231-1658254412-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ac0d8222-5227-4b8b-b7c5-3e0f6e767231-s-1.jpg",
+    "source": "practicavial"
+  }
+]

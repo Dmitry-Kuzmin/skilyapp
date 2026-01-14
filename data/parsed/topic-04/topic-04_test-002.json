@@ -1,0 +1,1442 @@
+[
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Durante el día, ¿qué alumbrado llevará encendido una motocicleta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El de corto alcance o cruce.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El de posición o el de corto alcance.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Ninguno.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b822c549-cd31-4faa-bf9c-b8a795a536b0-1658246207-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b822c549-cd31-4faa-bf9c-b8a795a536b0-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "En las travesías, ¿está permitido circular con la luz de largo alcance?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, cuando la vía esté insuficientemente iluminada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, siempre que no se deslumbre a ningún usuario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/bad2114e-f309-4583-a549-e824297560b6-1658246802-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/bad2114e-f309-4583-a549-e824297560b6-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "¿Cuándo es obligatorio utilizar la luz de emergencia?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando se reduzca la velocidad en carretera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando se estacione el vehículo en doble fila.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando se inmovilice el vehículo por emergencia dentro de la vía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e7d72979-fb3c-417a-b2d6-b4cb99b9bf2a-1658249152-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e7d72979-fb3c-417a-b2d6-b4cb99b9bf2a-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "El alumbrado que lleva encendido el conductor de este vehículo en un tramo recto de noche y sin condiciones atmosféricas adversas, ¿es el correcto?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, debe apagar las luces antiniebla.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si la anchura de la calzada es inferior a 6,50 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/bdfc27cb-e08a-4680-9666-0d173322c040-1658247581-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/bdfc27cb-e08a-4680-9666-0d173322c040-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "Durante el día, con niebla densa o lluvia intensa, ¿se puede circular con la luz de largo alcance encendida?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, solo puede encenderse la luz de corto alcance.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sólo si la calzada tiene una anchura inferior a 6,50 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/edba7589-af7f-4a0a-b8c7-f966f8e6f94d-1658247309-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/edba7589-af7f-4a0a-b8c7-f966f8e6f94d-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido circular entre la puesta y la salida del sol utilizando solamente el alumbrado de posición del vehículo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, debe utilizarse además el alumbrado de cruce o el de carretera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solo cuando se circula por vías urbanas suficientemente iluminadas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, en cualquier tipo de vía suficientemente iluminada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6fdb92e4-86b7-4c59-9dbd-8008298c67e2-1658245095-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6fdb92e4-86b7-4c59-9dbd-8008298c67e2-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Circula de noche con el alumbrado interior encendido. ¿Es peligroso?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque evita deslumbramiento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, porque descansa la vista.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, porque veo peor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/14f7bfc8-6c77-4e99-9b9f-2f4367b6eebc-1658249486-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/14f7bfc8-6c77-4e99-9b9f-2f4367b6eebc-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido utilizar el alumbrado de largo alcance en una vía urbana?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, cuando la vía está insuficientemente iluminada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, cuando circule a más de 40 km/h y no se moleste a los demás usuarios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, está prohibido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/99735e24-1796-46a8-9361-d826c6e2d2d7-1658246776-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/99735e24-1796-46a8-9361-d826c6e2d2d7-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "La luz antiniebla trasera deberá utilizarse siempre que...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "circule por un túnel.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "circule por un puerto de montaña.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "circule con fuerte nevada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/03ee71ea-28ad-469a-b40b-d99a8e2a0921-1658247860-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/03ee71ea-28ad-469a-b40b-d99a8e2a0921-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "¿Qué vehículos deben llevar encendidas las luces de gálibo cuando sea obligatorio su uso?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Los que transporten mercancías peligrosas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Los de asistencia en carretera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Los que tengan una anchura superior a 2,10 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/12751e05-736a-455a-977f-73a7742aa109-1658245341-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/12751e05-736a-455a-977f-73a7742aa109-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "En una travesía insuficientemente iluminada, ¿es obligatorio llevar encendido el alumbrado de corto alcance?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo si hay peatones en las proximidades de la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, debe usarse el alumbrado de largo alcance.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/406261b4-5f86-47fa-abf0-1f0e1ab9261c-1658246039-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/406261b4-5f86-47fa-abf0-1f0e1ab9261c-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "Si una nube de humo disminuye sensiblemente la visibilidad, ¿debe utilizarse algún tipo de alumbrado?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, la luz antiniebla delantera o la luz de corto o largo alcance.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, excepto entre la puesta y la salida del sol.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo cuando se acerquen vehículos en sentido contrario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2762313d-29fe-436a-96b3-b5ce759c1bda-1658247558-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2762313d-29fe-436a-96b3-b5ce759c1bda-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "Un turismo que circula entre la puesta y la salida del sol, ¿debe llevar iluminadas las placas de matrícula?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sólo la placa delantera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, tanto la placa delantera como la trasera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sólo la placa trasera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b1b04161-581a-41e3-872e-d73abfb4d653-1658249521-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b1b04161-581a-41e3-872e-d73abfb4d653-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "Los ciclistas, ¿están obligados a encender el alumbrado cuando circulen de noche?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, si llevan puestas prendas reflectantes.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo cuando circulen por vías interurbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c2cec183-ab0e-4988-af24-224cf4997beb-1658244958-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c2cec183-ab0e-4988-af24-224cf4997beb-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "Al estacionar un vehículo en una vía urbana suficientemente iluminada, ¿qué alumbrado dejará encendido?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El alumbrado de posición o el de estacionamiento, si se trata de una travesía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El alumbrado de posición.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Ninguno.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4f8fedfe-30ac-4b26-9220-e0d162ef95c8-1658244993-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4f8fedfe-30ac-4b26-9220-e0d162ef95c8-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "Las motocicleta sin sidecar, ¿cuántas luces de corto alcance deben llevar instaladas?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Una o dos delante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sólo una delante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Dos, obligatoriamente, una delante y otra detrás.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/cb921456-6c19-4e4a-aba6-7fd9ef18326d-1658245403-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cb921456-6c19-4e4a-aba6-7fd9ef18326d-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "¿Qué alumbrado debe utilizar un turismo que circule entre la puesta y la salida del sol por una travesía suficientemente iluminada?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El alumbrado de posición y el de corto o largo alcance.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Ninguno.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El alumbrado de posición y el de corto alcance.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8a6ad0da-2038-4b46-a560-52c0c5996db5-1658246286-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8a6ad0da-2038-4b46-a560-52c0c5996db5-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "¿Puede deslumbrar con la luz de largo alcance a los vehículos que circulan delante por su mismo carril?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, sólo se deslumbra a los que se encuentre de frente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, por el reflejo de la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, a través de los espejos retrovisores, por lo que debe cambiar a la luz de corto alcance.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/76664cc4-743c-424e-83cf-e1353a52920f-1658248695-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/76664cc4-743c-424e-83cf-e1353a52920f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "En un tramo de vía con muchas curvas señalizado con la señal de \"curvas peligrosas\", podrá utilizar la luz antiniebla delantera siempre que...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "el vehículo esté pintado de oscuro y la calzada sea de doble sentido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "la calzada sea de sentido único.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "la calzada tenga una anchura igual o inferior a 6,50 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4c5f0412-c614-4069-8b97-5f2983d8f108-1658247623-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4c5f0412-c614-4069-8b97-5f2983d8f108-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "Cuando hay niebla y un turismo no tiene luz especial de niebla, ¿qué luces debe encender?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Las luces largas solamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Luces de posición solamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Luces cortas y las de posición.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/97c54ae7-d6e2-4327-b6ce-5d6f982265ff-1658247165-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/97c54ae7-d6e2-4327-b6ce-5d6f982265ff-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "Desde el anochecer hasta el amanecer, ¿qué luces son obligatorias?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La luz de posición con las de corto o largo alcance, dependiendo de las circunstancias.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La luz de posición solamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "La luz de posición y el alumbrado antiniebla.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c1765d33-ad44-4f03-83ab-d10336e9b1f9-1658245572-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c1765d33-ad44-4f03-83ab-d10336e9b1f9-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "Se considera que una vía está insuficientemente iluminada cuando...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "la vía no permita ver con claridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "con vista normal no se puede leer una placa de matrícula a 10 metros o distinguir un vehículo pintado de oscuro a 50 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "no pueda distinguir la placa de matrícula de otro vehículo a 50 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d21ed5cd-0d40-47bf-9c9b-2a08f0d86730-1658244786-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d21ed5cd-0d40-47bf-9c9b-2a08f0d86730-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "No está permitido utilizar la luz de largo alcance...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "en túneles y tramos de vía afectados por señal de túnel.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "si el vehículo está parado o estacionado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "para avisar a otros usuarios de un posible peligro.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ec38af4a-3dac-4991-a3a9-4829ce6161e9-1658246615-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ec38af4a-3dac-4991-a3a9-4829ce6161e9-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "Es obligatorio utilizar las luces de carretera al circular a más de 40 kilómetros por hora por una vía...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "insuficientemente iluminada, dentro o fuera de poblado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "insuficientemente iluminada fuera de poblado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "suficientemente iluminada fuera de poblado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/704eb647-e0e1-456c-98c2-d205644208cf-1658246880-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/704eb647-e0e1-456c-98c2-d205644208cf-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "Si circula por una vía interurbana insuficientemente iluminada a una velocidad inferior a 40 km/h, ¿qué luces deberá llevar encendidas?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Las luces de corto alcance, al menos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Las luces de largo alcance.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Las luces de posición solamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/55037c3b-6eeb-40fb-9dd5-d4b6c73d2786-1658246855-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/55037c3b-6eeb-40fb-9dd5-d4b6c73d2786-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "¿Cuándo podrá utilizarse la luz antiniebla delantera?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Siempre que se circula de noche.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando existan condiciones ambientales que disminuyan sensiblemente la visibilidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Entre la puesta y la salida del sol en travesías insuficientemente iluminadas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3fd24fe1-fd0e-436f-af21-da138a078d91-1658247433-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3fd24fe1-fd0e-436f-af21-da138a078d91-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "En una vía interurbana insuficientemente iluminada, un vehículo circula a menos de 40 km/h, ¿puede circular utilizando sólo la luz de corto alcance?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, aunque puede encender la de largo alcance si no molesta a otros usuarios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, es obligatorio que circule con la luz de largo alcance.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo cuando circule por una travesía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a349e853-aea6-4896-9862-23930b79f3dc-1658246682-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a349e853-aea6-4896-9862-23930b79f3dc-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "En caso de niebla espesa, ¿qué luces debe utilizar el conductor de un turismo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Las luces antiniebla, las de posición y las de corto alcance.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Las luces antiniebla delanteras y las de emergencia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Las luces antiniebla, las de posición y las de emergencia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a92cebdf-fb3b-49f9-8880-29ea9f5acad9-1658247937-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a92cebdf-fb3b-49f9-8880-29ea9f5acad9-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Si circula de noche con la luz de carretera encendida y ve peatones en el arcén, ¿está obligado a cambiar la luz de largo alcance por la de corto alcance?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, para no deslumbrar a los peatones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, debe seguir circulando con la luz de carretera encendida.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solamente si circula por un tramo de vía recto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d86870e6-9263-4b48-aabd-06cd5f58e302-1658248613-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d86870e6-9263-4b48-aabd-06cd5f58e302-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 4,
+    "topic_id": null,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "De día es obligatorio encender el alumbrado que corresponda...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "cuando se circule por pasos inferiores o tramos de vía afectados por la señal túnel.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "sólo cuando existan condiciones que disminuyan la visibilidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "cuando se circule por carriles para VAO.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/0256c92d-bbab-4045-85ba-456b34d4be18-1658245839-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0256c92d-bbab-4045-85ba-456b34d4be18-s-1.jpg",
+    "source": "practicavial"
+  }
+]

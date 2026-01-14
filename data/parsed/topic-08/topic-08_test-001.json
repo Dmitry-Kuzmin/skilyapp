@@ -1,0 +1,1442 @@
+[
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "Para recordar las pautas básicas de actuación en un accidente se utiliza la regla PAS. ¿Qué significan estas siglas?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Prevenir, atender, servir.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Proteger, alertar y socorrer.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Precaución, atención y seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d34f86f3-12ff-462c-80c4-e9416336e368-1658856138-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d34f86f3-12ff-462c-80c4-e9416336e368-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Para auxiliar a un herido en accidente de circulación. ¿Qué debe hacer?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Pedir ayuda cuando sea necesaria y sentar al herido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Pedir ayuda y dar al herido una bebida para animarle.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Pedir ayuda y controlar su respiración.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/503e2f6b-1522-4fdc-aaf1-fbc26aa7a09b-1658858109-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/503e2f6b-1522-4fdc-aaf1-fbc26aa7a09b-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "Cuando se produce un accidente de tráfico, una actuación rápida y eficaz supone...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "trasladar a los heridos rápidamente a un centro sanitario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "minimizar los daños al máximo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "poner en práctica nuestros conocimientos sobre primeros auxilios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/cb5375e7-d507-448a-8cb8-fab3818e28be-1658856124-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cb5375e7-d507-448a-8cb8-fab3818e28be-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "¿Cómo debe inmovilizar los vehículos accidentados?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Quitando el contacto de la batería.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Con el freno de mano y cortando el contacto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Con unos calzos o cualquier elemento que sirva como tal.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3efa1683-8608-4700-8c29-5ca28ff2d930-1658857952-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3efa1683-8608-4700-8c29-5ca28ff2d930-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "Si un conductor presencia un accidente de tráfico en el que no está implicado, ¿debe detenerse para ayudar o intentar auxiliar a las víctimas?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo si tenemos conocimientos de primeros auxilios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, si no está implicado no tiene ninguna responsabilidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, salvo en los casos que manifiestamente no sea necesaria su colaboración.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/32921a2e-2822-44b7-a44c-4dbfcef51e9d-1658856075-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/32921a2e-2822-44b7-a44c-4dbfcef51e9d-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "Cuando sea necesario mover a un herido en accidente, ¿qué se debe hacer?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Hacer que se mueva para comprobar si tiene alguna herida.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Mantener el eje cabeza-cuello-tronco completamente recto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Administrarle lo más rápido posible un calmante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/33bbcf6c-a309-4201-ad2b-3700d77e8770-1658858216-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/33bbcf6c-a309-4201-ad2b-3700d77e8770-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Al auxiliar a una víctima de un accidente de tráfico, ¿debe darle alimentos o bebidas?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, si lo piden.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Alimentos no, pero bebidas sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/236af91e-a930-4328-8121-5a11e935ea1f-1658858127-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/236af91e-a930-4328-8121-5a11e935ea1f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "Si presencia un accidente de circulación, ¿tiene obligación de avisar a la Autoridad o a sus agentes si solo hay heridos leves y la seguridad de la circulación está restablecida?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, salvo que alguna de las personas implicadas en el accidente lo solicite.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, siempre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/acc2f2a8-f57c-4bf3-83ad-f477e825f776-1658858122-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/acc2f2a8-f57c-4bf3-83ad-f477e825f776-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "En la medida de lo posible, todo usuario de la vía implicado en un accidente de circulación deberá...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "prestar a los heridos el auxilio que resulte más adecuado, según las circunstancias.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "cambiar de sitio los objetos que ayuden a determinar la responsabilidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "ocultar los datos de su vehículo a otras personas implicadas en el accidente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/63ad63e9-e6ff-4241-b8bd-9a3a41b44c69-1658856064-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/63ad63e9-e6ff-4241-b8bd-9a3a41b44c69-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "¿Qué personas incurren en el delito de omisión de socorro?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Las que piden auxilio cuando no pueden prestarlo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Las que no se detienen ante un accidente en el que la ayuda no está organizada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Las que no ayudan a las víctimas por correr riesgo propio.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/52e3f1aa-a3e8-498a-b503-95c7a111fd8d-1658857905-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/52e3f1aa-a3e8-498a-b503-95c7a111fd8d-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "Su vehículo se incendia y no tiene extintor. ¿Cómo debe apagarlo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Con tierra.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Con aire.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Con agua.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/23d3cac2-4c3c-4bc1-be42-cd596bb8ddb3-1658857964-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/23d3cac2-4c3c-4bc1-be42-cd596bb8ddb3-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "La reanimación de un accidentado, ¿cuánto tiempo debe durar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "5 minutos como máximo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Si después de 2 minutos no ha recuperado es mejor dejarlo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Hasta que se recupere o llegue la ayuda médica.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2046c139-0898-4e30-941a-b01aae700d4f-1658858184-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2046c139-0898-4e30-941a-b01aae700d4f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "Si presencia un accidente de tráfico y va a ayudar mientras llegan los servicios de emergencia, ¿debe mover a los heridos?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, cuando no puedan salir por su propio pie del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, salvo que sea imprescindible por su seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/512a49cb-474b-4d37-ab08-06b313418d3c-1658858011-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/512a49cb-474b-4d37-ab08-06b313418d3c-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "Si tiene que auxiliar a las víctimas de un accidente de tráfico lo primero que tiene que tener en cuenta es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "la autoprotección.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "la protección del lugar del accidente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "la protección de las víctimas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/dc7311ea-7ccc-43b7-bc3f-ca953bcde978-1658857940-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/dc7311ea-7ccc-43b7-bc3f-ca953bcde978-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "¿Qué es la hora dorada?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Es la hora inmediata posterior a sufrir un accidente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Lo que tarda la ambulancia en llegar al lugar del accidente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Es lo que se tarda en llegar al hospital después de sufrir un accidente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9fa248c3-52bb-42d8-9add-250b49d046a7-1658856081-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9fa248c3-52bb-42d8-9add-250b49d046a7-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "Si se encuentra con un motorista accidentado, ¿debe quitarle el casco de protección?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solo si el motorista está consciente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, lo antes posible para facilitar la respiración.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/57ec3b39-856d-4bef-8af9-ebccd49b5d99-1745482009-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/57ec3b39-856d-4bef-8af9-ebccd49b5d99-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "¿Qué es lo primero que hay que hacer con un herido hasta que llegue la ayuda sanitaria?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Comprobar si tiene hemorragia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Limpiar las heridas con agua.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Comprobar y mantener su respiración",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ccd07ad4-deeb-4a11-b7f0-0f4abff14aa1-1658858159-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ccd07ad4-deeb-4a11-b7f0-0f4abff14aa1-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la actuación correcta para ayudar en un accidente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Proteger la zona para evitar nuevos accidentes.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Trasladar en mi vehículo a los heridos más graves al hospital más cercano.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No hacer nada hasta que lleguen los agentes de la Autoridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c1f5b88c-ba7a-413b-8d91-f3238e35d81d-1658857973-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c1f5b88c-ba7a-413b-8d91-f3238e35d81d-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Un conductor que, pese a poder hacerlo sin riesgo, no se detiene a ayudar a una víctima grave de accidente que se encuentra desamparada, ¿podría estar cometiendo un delito?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, aunque el conductor no esté implicado en el accidente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No; ayudar a las víctimas es un gesto de solidaridad, pero no es un deber.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, pero solo si el conductor está implicado en el accidente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/df6a62a3-14df-454a-9528-2a41d5ed3547-1658856108-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/df6a62a3-14df-454a-9528-2a41d5ed3547-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "Ante un motorista accidentado con una hemorragia por la nariz, la actuación correcta es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "no realizarle nunca taponamientos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "retirarle el casco para realizarle un taponamiento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "colocarle boca arriba para que deje de sangrar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ef092d7f-89cf-4ac8-9c36-72a81f4c63e1-1658858200-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ef092d7f-89cf-4ac8-9c36-72a81f4c63e1-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, se recomienda no quitar el casco a un motorista accidentado porque...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "puede quedarse frío.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "podrían agravarse posibles lesiones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "está más incómodo sin el casco.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f7e3935e-1887-454a-ad81-07cb063e7a69-1658858005-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f7e3935e-1887-454a-ad81-07cb063e7a69-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "En caso de estar implicado en un accidente, ¿debe detenerse para ayudar a restablecer la seguridad de la circulación?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, esta tarea corresponde a la policía de tráfico.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, en la medida de los posible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si hay fallecidos o heridos graves.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ca8bdd27-a64c-4bf3-a927-737f8ce8174f-1658856039-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ca8bdd27-a64c-4bf3-a927-737f8ce8174f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "En circunstancias especialmente graves, ¿se puede trasladar a enfermos en un turismo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, siempre que no haya otro medio.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, pero nunca una distancia mayor de 50 Km.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/691339d6-95f6-4d51-b75c-b6994555332e-1658858227-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/691339d6-95f6-4d51-b75c-b6994555332e-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "Si presencia un accidente en el que no está implicado, pero de forma manifiesta, es necesaria su colaboración, ¿debe detenerse?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo si se produce fuera de poblado y no hay cerca ningún poste SOS.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, debe detenerse y colaborar siempre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, debe continuar la marcha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d9af85cf-6d63-41b6-a547-8b91af62228b-1658856049-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d9af85cf-6d63-41b6-a547-8b91af62228b-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "¿Quién debe realizar las actuaciones de soporte vital básico a las víctimas de un accidente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El personal especializado, siempre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Estas actuaciones siempre deben realizarse en un hospital.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El personal especializado, salvo que la persona que le auxilie esté totalmente seguro de conocerlas y poder realizarlas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f6e6d87d-c899-4b01-9e25-b7aef3cc6654-1658858131-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f6e6d87d-c899-4b01-9e25-b7aef3cc6654-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "En algunos casos hay que poner a los heridos en posición de defensa, ¿para qué?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Para que circule mejor la sangre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Para que estén conscientes.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Para que no se asfixien.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/17f10584-8da9-4044-a930-a86469ca1db9-1658858175-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/17f10584-8da9-4044-a930-a86469ca1db9-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "Si un herido tiene una hemorragia en el brazo, ¿qué debe hacer?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Darle pomada en la herida.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Taponar la herida y levantarle el brazo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Hacer un torniquete, como norma general.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/334f162d-5f6f-4c11-9755-c02e1eaffed9-1658858195-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/334f162d-5f6f-4c11-9755-c02e1eaffed9-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "¿Cómo se conocen las unidades existentes en muchos hospitales para atender a las víctimas con lesiones, físicas o emocionales, derivadas de un siniestro vial?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Unidad de Urgencias Traumatológicas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Unidad de Accidentes de Tráfico.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Unidad de Medicina Familiar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": null,
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "A un herido en accidente, ¿debe darle algún medicamento?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, porque así sufre menos y se tranquiliza.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando el herido me lo pida yo se lo daré.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/731f7376-5732-4aae-9351-5b016cfa4a63-1658858150-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/731f7376-5732-4aae-9351-5b016cfa4a63-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 8,
+    "topic_id": null,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "Si un conductor presencia un accidente de tráfico, ¿está obligado a prestar auxilio a los accidentados?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo si alguien solicita su colaboración.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, como norma general.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, excepto si está implicado en el accidente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/fa929a27-755f-4df5-83ae-17b598689c88-1658856044-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/fa929a27-755f-4df5-83ae-17b598689c88-s-1.jpg",
+    "source": "practicavial"
+  }
+]

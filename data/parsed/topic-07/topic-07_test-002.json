@@ -1,0 +1,1442 @@
+[
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "En caso de sufrir un reventón circulando por una vía a velocidad elevada, ¿es aconsejable pisar el pedal de freno con brusquedad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, el frenado debe ser suave y progresivo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, para mantener con mayor facilidad la trayectoria recta del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si el reventón se produce en una de las ruedas delanteras.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/83a245f2-dd93-4b67-9306-f31801837c54-1658837133-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/83a245f2-dd93-4b67-9306-f31801837c54-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "En un paso de peatones, ¿hay que hacer señales a los peatones para que crucen la calzada?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque los demás conductores pueden no haberse dado cuenta de su presencia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, pero sólo si van a cruzar por él.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, porque así los peatones pueden cruzar con seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/499890d7-34c5-4f96-bdc9-b143e413e3be-1658512875-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/499890d7-34c5-4f96-bdc9-b143e413e3be-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Es conveniente cambiar los neumáticos del vehículo...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "al menos cada 5 años, aunque no estén gastados.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "sólo si presentan desgastes irregulares, cortes, grietas o deformaciones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "sólo si la profundidad del dibujo es inferior a 1,6 milímetros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/bee744ae-7f0b-49db-ad64-759090423284-1658835534-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/bee744ae-7f0b-49db-ad64-759090423284-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "El alumbrado, los neumáticos y los frenos pertenecen al sistema de...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "conducción eficiente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "seguridad pasiva.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "seguridad activa.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7047ea64-5a6c-4d80-a63b-826ee9b1e620-1658832929-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7047ea64-5a6c-4d80-a63b-826ee9b1e620-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Un vehículo que dispone de la última tecnología, ¿puede sufrir un accidente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, porque la tecnología no aumenta la seguridad, sino la comodidad en la conducción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, cuando no se hace un uso adecuado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4ab19cb7-38de-4b9f-927d-5f7967537b6f-1658831673-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4ab19cb7-38de-4b9f-927d-5f7967537b6f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "Generalmente, ¿con qué mano se acciona el embrague en una motocicleta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Con la mano derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Con la mano izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Indistintamente con la mano derecha o izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/11c1e3ff-20d4-48c8-ac1f-09561b264f62-1658832287-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/11c1e3ff-20d4-48c8-ac1f-09561b264f62-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "¿Dónde sufren los peatones más accidentes?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En las ciudades.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En las vías interurbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Tanto en poblado como fuera de poblado la cantidad de accidentes es igual.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6edf45e0-fcd4-4144-8a14-701669f53c23-1658509841-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6edf45e0-fcd4-4144-8a14-701669f53c23-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "Si un conductor está tomando medicamentos por un tratamiento médico debe saber que...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "los medicamentos recetados por un médico no alteran la capacidad para conducir.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "los medicamentos alteran negativamente la atención y el tiempo de reacción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "está prohibido conducir durante el tiempo que dure el tratamiento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6055c677-9dcb-44d7-ba21-50d21b2a5fd9-1658766069-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6055c677-9dcb-44d7-ba21-50d21b2a5fd9-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "El consumo de drogas de abuso o ilegales, ¿afecta a la seguridad vial?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, en absoluto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, ya que alteran de modo importante las capacidades del conductor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si el conductor no está habituado a consumirlas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/5e1bcf33-78f4-4699-a9d1-d407d1e45f99-1658773831-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5e1bcf33-78f4-4699-a9d1-d407d1e45f99-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "En caso de lluvia intensa, ¿es recomendable aumentar la distancia de seguridad y reducir la velocidad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, ya que la adherencia es menor y, por consiguiente, la distancia de frenado aumenta.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, mejora el agarre de los neumáticos, pero no es recomendable reducir la velocidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, al reducir la velocidad mayor es la proporción de agua en el asfalto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3b51e3be-04ff-467f-9732-75c49271ba8f-1658752514-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3b51e3be-04ff-467f-9732-75c49271ba8f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "¿Por qué es necesario y obligatorio ponerse el cinturón de seguridad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Porque reduce casi a la mitad la probabilidad de que un accidente sea mortal.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Porque absorbe la energía del impacto en un accidente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El cinturón no es obligatorio cuando el vehículo tiene airbag.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/babd1372-b65c-426b-bb9e-303adbe90c2b-1658842415-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/babd1372-b65c-426b-bb9e-303adbe90c2b-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, el pedal de cambio de velocidades de una motocicleta, ¿con qué pie se acciona?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Con el pie izquierdo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Con el pie derecho.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Con ninguno, no se acciona con el pie, sino con la mano.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/59b2ce2b-c120-44b7-b649-0bdb274adada-1658832240-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/59b2ce2b-c120-44b7-b649-0bdb274adada-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "Cuando se consume alcohol, ¿se producen alteraciones en la visión?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, puede aparecer la visión túnel.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, solamente afecta a la capacidad motora.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, pero solamente con tasas de alcohol por encima de las permitidas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6cee1fdd-08fe-468d-b345-15f73b7e6b10-1658770252-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6cee1fdd-08fe-468d-b345-15f73b7e6b10-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "Los navegadores o GPS, ¿pueden ayudar al conductor?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque la información que facilitan no es relevante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, pero también pueden ser causa de distracción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo en vías urbanas porque facilitan la ruta con menos tráfico.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6743d70b-5a39-46da-9f27-39f78f1f46ea-1658769508-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6743d70b-5a39-46da-9f27-39f78f1f46ea-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "En general, ¿en qué tipo de vías suelen producirse más accidentes por fatiga o somnolencia?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En carretera con muchas curvas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En vías urbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En autopistas y autovías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7a9c6d10-d29a-4add-a72e-b1822cd4efb8-1658759166-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7a9c6d10-d29a-4add-a72e-b1822cd4efb8-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Una de las infracciones de los conductores que implica más riesgo para los peatones es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "el exceso de velocidad en autopista.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "estacionar en los pasos para peatones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "no utilizar los cinturones de seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d002d0bd-549f-40d2-aaa4-a97d2ef2d00e-1658511026-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d002d0bd-549f-40d2-aaa4-a97d2ef2d00e-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "Conducir bajo los efectos de anfetaminas es peligroso porque...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "aumenta la sensación de fatiga.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "disminuye la sensación de fatiga.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "disminuye la somnolencia y el conductor infravalora sus propias capacidades.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7b1952a4-65f9-4b21-8595-18dfc2c1f07b-1658829498-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7b1952a4-65f9-4b21-8595-18dfc2c1f07b-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "Montar neumáticos con un código de velocidad distinto al que recomienda el fabricante, ¿está permitido?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, siempre que sea superior al recomendado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, está prohibido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, en cualquier caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/55f34ea7-e299-4f23-b810-81ab40cb6735-1658836359-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/55f34ea7-e299-4f23-b810-81ab40cb6735-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "Fumar mientras se conduce, ¿puede producir distracciones?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, si se tiene cuidado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/dcc47577-a223-4fed-a0c7-b38d0b49b97e-1658769751-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/dcc47577-a223-4fed-a0c7-b38d0b49b97e-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la tasa máxima de alcohol permitida para conducir un turismo, como norma general?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "0,5 gramos por litro de sangre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "0,3 gramos por litro de sangre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "0,8 gramos por litro de sangre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2c5860a9-53b7-4fa3-93bc-50dfd7fa275a-1658772825-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2c5860a9-53b7-4fa3-93bc-50dfd7fa275a-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "La velocidad, ¿influye en la distancia de reacción?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo afecta al tiempo de reacción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, influye en la distancia de reacción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ed0f63bb-ce82-4d68-ba73-df7221348cfc-1658751453-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ed0f63bb-ce82-4d68-ba73-df7221348cfc-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "¿Qué puede hacer para evitar el aquaplaning?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Circular con unos neumáticos inflados adecuadamente y una suficiente profundidad en el dibujo de la banda de rodadura.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Acelerar para pasar cuanto antes sobre el agua embalsada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No conducir por los surcos que van dejando los vehículos que van delante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f2474f12-41b4-46a0-811c-fe91116d3bf1-1658857139-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f2474f12-41b4-46a0-811c-fe91116d3bf1-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "Si sopla un fuerte viento lateral de la izquierda, los conductores de turismos deberán...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "sujetar el volante, con firmeza pero sin rigidez, hacia la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "sujetar el volante, con firmeza pero sin rigidez, hacia la izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "circular por el arcén lentamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d8bffe0d-c19b-4f58-bb33-86c4648a8cd1-1658852864-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d8bffe0d-c19b-4f58-bb33-86c4648a8cd1-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "Los agentes de tráfico inmovilizan un vehículo cuando su conductor tiene una tasa de alcohol mayor de la permitida. ¿Cuándo se dejará sin efecto dicha inmovilización?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando desaparezca la causa que la motivó.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando el conductor viaje con menores de edad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando el agente entregue al conductor el boletín de la denuncia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4cf89f3a-8b1c-472a-bea7-ce493f2eb62a-1658830585-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4cf89f3a-8b1c-472a-bea7-ce493f2eb62a-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "¿Cuándo está bien colocado en el asiento para conducir?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando llevo las piernas dobladas y el cuerpo hacia adelante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando llevo las piernas un poco dobladas y el cuerpo recto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando llevo las piernas rectas y el cuerpo hacia atrás.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/80bc8c2b-c017-40ed-8604-bdb9c1810041-1658831908-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/80bc8c2b-c017-40ed-8604-bdb9c1810041-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "Un amortiguador en malas condiciones, ¿qué consecuencias puede tener?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que disminuya la distancia de frenado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Que el vehículo gane estabilidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que las luces oscilen durante la marcha y puedan deslumbrar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ad9b8af4-0df6-4b14-be92-013002937c64-1658839493-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ad9b8af4-0df6-4b14-be92-013002937c64-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "Si su permiso para conducir de la clase B tiene una antigüedad de un año y medio, ¿cuál es la tasa máxima de alcohol permitida para poder circular?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "0,5 gramos por litro de sangre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "0,3 gramos por litro de sangre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "0,25 gramos por litro de sangre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/59a4ea5d-e65d-4159-824d-7691a86606f7-1658772411-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/59a4ea5d-e65d-4159-824d-7691a86606f7-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, el consumo de alcohol, ¿influye en la distancia de reacción?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, sólo influye en la distancia de frenado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, porque afecta al tiempo de reacción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sólo si la tasa de alcohol supera a la máxima permitida para poder conducir.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7e35807b-5eed-4fae-b08c-221b2ed9926c-1658751519-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7e35807b-5eed-4fae-b08c-221b2ed9926c-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "El mal estado del vehículo, ¿es un factor de riesgo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, cuando el vehículo alcanza poca velocidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6004c024-549f-481c-a28b-d9f9dc5a5782-1658831733-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6004c024-549f-481c-a28b-d9f9dc5a5782-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 7,
+    "topic_id": null,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "La percepción del riesgo, ¿resulta afectada por las drogas?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, la percepción del riesgo aumenta.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, la percepción del riesgo disminuye.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b8e19872-3f52-4e9d-888d-03b3a8056d96-1658774662-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b8e19872-3f52-4e9d-888d-03b3a8056d96-s-1.jpg",
+    "source": "practicavial"
+  }
+]

@@ -247,9 +247,9 @@ export const AnswerOptionsList = memo(function AnswerOptionsList({
         <div className="flex flex-col gap-3 sm:gap-4">
             {options.map((option, index) => {
                 const isSelected = selectedOption === option.id;
-                const displayText = (showTranslation || testLanguage === 'ru')
-                    ? (option.text_ru || option.text_es || option.text || '')
-                    : (testLanguage === 'en' ? (option.text_en || option.text_es || option.text || '') : (option.text_es || option.text || ''));
+                const displayText = showTranslation
+                    ? (option.text_ru || '')
+                    : (testLanguage === 'en' ? (option.text_en || '') : (option.text_es || ''));
 
                 return (
                     <AnswerButton

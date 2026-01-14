@@ -1,0 +1,1442 @@
+[
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿Cuándo se considera que un vehículo estacionado, constituye un grave obstáculo para la circulación?",
+      "en": "When is a parked vehicle considered a serious obstacle to traffic?",
+      "ru": "В каком случае припаркованный автомобиль считается серьезным препятствием для движения?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando el tiempo de estacionamiento exceda de 2 horas.",
+          "en": "When the parking time exceeds 2 hours.",
+          "ru": "Когда время парковки превышает 2 часа."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando se efectúe en zona reservada para el uso exclusivo de minusválidos.",
+          "en": "When it is carried out in a zone reserved for the exclusive use of disabled persons.",
+          "ru": "Когда парковка осуществляется в зоне, предназначенной исключительно для инвалидов."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando se efectúe en doble fila sin conductor.",
+          "en": "When it is carried out in a double row without a driver.",
+          "ru": "Когда парковка осуществляется вторым рядом без водителя."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: Un vehículo en doble fila, especialmente sin conductor, bloquea significativamente el flujo del tráfico. Imagina una calle ya estrecha, ahora con un coche extra impidiendo el paso. \n\n💣 **La Trampa / El Truco**: A veces se piensa que solo bloquear una intersección es un obstáculo grave, pero la doble fila sin conductor es una infracción clara y peligrosa.",
+      "en": "🧠 **The Logic \"Why\"**: A vehicle parked in double file, especially without a driver, significantly blocks the flow of traffic. Imagine an already narrow street, now with an extra car preventing passage.\n\n💣 **The Trap / The Trick**: Sometimes it is thought that only blocking an intersection is a serious obstacle, but double parking without a driver is a clear and dangerous infraction.",
+      "ru": "🧠 **Логика \"Почему\"**: Автомобиль, припаркованный во втором ряду, особенно без водителя, значительно блокирует движение. Представьте себе и без того узкую улицу, теперь с дополнительной машиной, мешающей проезду.\n\n💣 **Ловушка / Трюк**: Иногда думают, что только блокирование перекрестка является серьезным препятствием, но парковка во втором ряду без водителя - это явное и опасное нарушение."
+    },
+    "image_url": "https://teorica.practicavial.com/question/c620f985-dc62-47ad-8422-78f2726f3646-1657903447-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c620f985-dc62-47ad-8422-78f2726f3646-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Está prohibido cambiar el sentido de la marcha siempre que...",
+      "en": "It is prohibited to make a U-turn whenever...",
+      "ru": "Разворот запрещен всегда, когда..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "pueda poner en peligro u obstaculizar a otros usuarios de la vía.",
+          "en": "it may endanger or hinder other road users.",
+          "ru": "это может создать опасность или помехи другим участникам дорожного движения."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "circule por una calzada de doble sentido.",
+          "en": "driving on a two-way roadway.",
+          "ru": "движение осуществляется по проезжей части с двусторонним движением."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "no exista un lugar expresamente autorizado para hacer la maniobra.",
+          "en": "there is no place expressly authorized to perform the maneuver.",
+          "ru": "отсутствует специально отведенное место для выполнения маневра."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: Imagina que intentas cambiar de sentido en una calle con mucho tráfico. Si al hacerlo obligas a otros coches a frenar bruscamente o a desviarse, estás creando una situación peligrosa. La prioridad es siempre la seguridad de todos en la vía.\n\n💣 **La Trampa / El Truco**: A veces, las preguntas sobre maniobras se centran en si la maniobra es legal en un lugar específico, pero esta pregunta se enfoca en la seguridad, que siempre es lo primero.",
+      "en": "🧠 **The Logic \"Why\"**: Imagine you're trying to make a U-turn on a busy street. If doing so forces other cars to brake hard or swerve, you're creating a dangerous situation. The priority is always the safety of everyone on the road.\n\n💣 **The Trap / The Trick**: Sometimes, questions about maneuvers focus on whether the maneuver is legal in a specific location, but this question focuses on safety, which always comes first.",
+      "ru": "🧠 **Логика \"Почему\"**: Представьте, что вы пытаетесь развернуться на оживленной улице. Если при этом вы заставляете другие машины резко тормозить или уклоняться, вы создаете опасную ситуацию. Приоритетом всегда является безопасность всех участников дорожного движения.\n\n💣 **Ловушка / Трюк**: Иногда вопросы о маневрах сосредотачиваются на том, является ли маневр законным в конкретном месте, но этот вопрос фокусируется на безопасности, которая всегда на первом месте."
+    },
+    "image_url": "https://teorica.practicavial.com/question/0a93d74e-8a5e-4ce3-bb21-fe1823174c2c-1657895702-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0a93d74e-8a5e-4ce3-bb21-fe1823174c2c-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Para girar a la izquierda, es obligatorio aproximarse al borde izquierdo de la calzada en las vías...",
+      "en": "To turn left, it is mandatory to approach the left edge of the roadway on roads...",
+      "ru": "Для поворота налево обязательно приближаться к левому краю проезжей части на дорогах..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "con más de un carril para uno de los sentidos de circulación.",
+          "en": "with more than one lane for one of the directions of traffic.",
+          "ru": "имеющих более одной полосы для одного из направлений движения."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "de doble sentido de circulación.",
+          "en": "with two-way traffic.",
+          "ru": "с двусторонним движением."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "de un sólo sentido de circulación.",
+          "en": "with one-way traffic.",
+          "ru": "с односторонним движением."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: En una vía de un solo sentido, te acercas al lado izquierdo para prepararte para girar a la izquierda. Esto asegura que no interfieras con el tráfico que va en la misma dirección. \n\n💣 **La Trampa / El Truco**: La gente olvida que esta regla solo aplica en vías de un solo sentido. En vías de doble sentido, te acercas al eje central.",
+      "en": "🧠 **The Logic \"Why\"**: On a one-way street, you move to the left side to prepare for a left turn. This ensures you don't interfere with traffic moving in the same direction.\n\n💣 **The Trap / The Trick**: People forget that this rule only applies to one-way streets. On two-way streets, you move to the center line.",
+      "ru": "🧠 **Логика \"Почему\"**: На дороге с односторонним движением вы приближаетесь к левой стороне, чтобы подготовиться к повороту налево. Это гарантирует, что вы не будете мешать движению транспорта в том же направлении.\n\n💣 **Ловушка / Трюк**: Люди забывают, что это правило применяется только на дорогах с односторонним движением. На дорогах с двусторонним движением вы приближаетесь к центральной линии."
+    },
+    "image_url": "https://teorica.practicavial.com/question/b6ba71e2-997b-443b-9ceb-1341bbeb3fac-1733930494-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b6ba71e2-997b-443b-9ceb-1341bbeb3fac-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "¿Puede adelantar una motocicleta a otra en esta curva de visibilidad reducida?",
+      "en": "Can a motorcycle overtake another on this curve with reduced visibility?",
+      "ru": "Может ли один мотоцикл обогнать другой в этом повороте с ограниченной видимостью?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque para adelantar siempre debe invadir el sentido contrario.",
+          "en": "No, because to overtake it must always invade the opposite direction.",
+          "ru": "Нет, так как для обгона всегда необходимо выезжать на полосу встречного движения."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, cuando mantiene la separación lateral reglamentaria y no ocupa el sentido contrario.",
+          "en": "Yes, when maintaining the regulatory lateral separation and not occupying the opposite direction.",
+          "ru": "Да, при соблюдении установленного бокового интервала и без выезда на полосу встречного движения."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, en curvas de visibilidad reducida está prohibido adelantar siempre.",
+          "en": "No, overtaking is always prohibited in curves of reduced visibility.",
+          "ru": "Нет, в поворотах с ограниченной видимостью обгон запрещен всегда."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: En una curva de visibilidad reducida, adelantar está prohibido, PERO esta regla no aplica a motocicletas que adelantan a otras motocicletas, siempre que mantengan la distancia lateral segura y no invadan el carril contrario. Imagina que son como dos bicicletas; pueden adelantarse con cuidado.\n\n💣 **La Trampa / El Truco**: Muchos creen que adelantar en curvas siempre está prohibido, sin considerar la excepción para motocicletas que se adelantan entre sí. La clave está en la frase 'no ocupa el sentido contrario'.",
+      "en": "🧠 **The Logic \"Why\"**: Overtaking is prohibited on a curve with reduced visibility, BUT this rule does not apply to motorcycles overtaking other motorcycles, as long as they maintain a safe lateral distance and do not invade the opposite lane. Imagine they are like two bicycles; they can overtake each other carefully.\n\n💣 **The Trap / The Trick**: Many believe that overtaking on curves is always prohibited, without considering the exception for motorcycles overtaking each other. The key is in the phrase 'does not occupy the opposite direction'.",
+      "ru": "🧠 **Логика \"Почему\"**: Обгон запрещен на повороте с ограниченной видимостью, НО это правило не распространяется на мотоциклы, обгоняющие другие мотоциклы, при условии соблюдения безопасного бокового расстояния и не выезда на встречную полосу. Представьте, что это как два велосипеда; они могут осторожно обгонять друг друга.\n\n💣 **Ловушка / Трюк**: Многие считают, что обгон на поворотах всегда запрещен, не учитывая исключение для мотоциклов, обгоняющих друг друга. Ключ в фразе 'не занимает встречное направление'."
+    },
+    "image_url": "https://teorica.practicavial.com/question/6bae3628-7633-41c8-817f-e43e249f4278-1657823492-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6bae3628-7633-41c8-817f-e43e249f4278-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "Si un turismo queda inmovilizado en una autopista debido a una avería, ¿puede ser remolcado por otro turismo?",
+      "en": "If a car is immobilized on a motorway due to a breakdown, can it be towed by another car?",
+      "ru": "Если легковой автомобиль обездвижен на автомагистрали из-за поломки, может ли он быть отбуксирован другим легковым автомобилем?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo hasta un lugar donde pueda quedar convenientemente inmovilizado.",
+          "en": "Only to a place where it can be conveniently immobilized.",
+          "ru": "Только до места, где он может быть безопасно остановлен."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, excepcionalmente y siempre en condiciones de seguridad.",
+          "en": "Yes, exceptionally and always under safe conditions.",
+          "ru": "Да, в виде исключения и при соблюдении условий безопасности."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": "No, in no case.",
+          "ru": "Нет, ни в коем случае."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: Las autopistas son para circular a alta velocidad. Remolcar un vehículo averiado por otro turismo crearía una situación de peligro extremo debido a la baja velocidad y la falta de seguridad. \n\n💣 **La Trampa / El Truco**: La idea de ayudarse mutuamente puede sonar bien, pero en autopistas, la seguridad es primordial y esto está prohibido.",
+      "en": "🧠 **The Logic \"Why\"**: Highways are for high-speed travel. Towing a broken-down car with another car would create an extremely dangerous situation due to the low speed and lack of safety. \n\n💣 **The Trap / The Trick**: The idea of helping each other might sound good, but on highways, safety is paramount, and this is prohibited.",
+      "ru": "🧠 **Логика \"Почему\"**: Автомагистрали предназначены для движения на высокой скорости. Буксировка сломанного автомобиля другим автомобилем создаст крайне опасную ситуацию из-за низкой скорости и недостаточной безопасности.\n\n💣 **Ловушка / Трюк**: Идея помочь друг другу может показаться хорошей, но на автомагистралях безопасность превыше всего, и это запрещено."
+    },
+    "image_url": "https://teorica.practicavial.com/question/718b7b9b-0b12-4b98-9990-1826b8906013-1657901154-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/718b7b9b-0b12-4b98-9990-1826b8906013-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Para girar a la izquierda, en una vía en la que no hay marca que separe los dos sentidos de circulación, ¿dónde debe situarse?",
+      "en": "To turn left on a road with no markings separating the two directions of traffic, where must you position yourself?",
+      "ru": "Где необходимо расположиться для поворота налево на дороге с двусторонним движением, где нет разметки, разделяющей встречные потоки?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Junto al eje de la calzada, sin invadir el sentido contrario.",
+          "en": "Next to the axis of the roadway, without invading the opposite direction.",
+          "ru": "Рядом с осью проезжей части, не выезжая на полосу встречного движения."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Obligatoriamente en el arcén, para realizar la maniobra desde allí.",
+          "en": "Obligatorily on the shoulder, to perform the maneuver from there.",
+          "ru": "Обязательно на обочине, чтобы выполнить маневр оттуда."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En el centro de la calzada, invadiendo parte del sentido contrario si es preciso.",
+          "en": "In the center of the roadway, invading part of the opposite direction if necessary.",
+          "ru": "В центре проезжей части, при необходимости выезжая на встречную полосу."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "En una vía de doble sentido sin líneas delimitadoras de carriles, el conductor debe imaginar el eje longitudinal que divide la calzada en dos partes iguales. Para girar a la izquierda, el vehículo debe situarse junto a este eje imaginario (el centro), pero sin invadir nunca la zona reservada al sentido contrario. Esto facilita el adelantamiento por la derecha a los vehículos que le siguen y evita colisiones frontales.",
+      "en": "On a two-way road without lane markings, the driver must visualize the longitudinal axis dividing the roadway into two equal parts. To turn left, the vehicle must be positioned next to this imaginary axis (the center) but must never invade the area reserved for oncoming traffic. This allows following vehicles to overtake on the right and prevents head-on collisions.",
+      "ru": "🧠 **Логика \"Почему\"**:\nПредставь, что ты за рулем **легкового автомобиля** (Turismo). Ты едешь по дороге с двусторонним движением, но на асфальте нет ни одной линии разметки.\n\nЧтобы повернуть налево, ты должен мысленно разделить дорогу пополам. Эта воображаемая середина называется **осью проезжей части** (eje de la calzada).\n\nТвоя задача:\n1. Прижаться к этой воображаемой оси левым боком машины.\n2. **Ни на сантиметр не выезжать на встречку** (sentido contrario).\n\nЭто положение позволяет водителям сзади объехать тебя справа, пока ты пропускаешь встречный поток. Вариант с выездом на **обочину** (arcén) для поворота налево обычно касается только велосипедов или крупногабаритных ТС, но не легковых автомобилей в стандартной ситуации.\n\n💣 **Ловушка / Трюк**:\nБудьте внимательны к деталям вопроса."
+    },
+    "image_url": "https://teorica.practicavial.com/question/9894a70e-b7c0-45f1-adad-8cd235c4dbd3-1657893587-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9894a70e-b7c0-45f1-adad-8cd235c4dbd3-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "En esta vía de un solo sentido, ¿dónde se colocará para cambiar de dirección a la izquierda?",
+      "en": "On this one-way road, where will you position yourself to change direction to the left?",
+      "ru": "Где вы должны расположиться для поворота налево на этой дороге с односторонним движением?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Tanto en el borde derecho como en el izquierdo de la calzada.",
+          "en": "Both on the right and left edge of the roadway.",
+          "ru": "Как у правого, так и у левого края проезжей части."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Junto al borde derecho de la calzada.",
+          "en": "Next to the right edge of the roadway.",
+          "ru": "У правого края проезжей части."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Junto al borde izquierdo de la calzada.",
+          "en": "Next to the left edge of the roadway.",
+          "ru": "У левого края проезжей части."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, para efectuar un cambio de dirección a la izquierda en vías de un solo sentido, el conductor debe situarse lo más cerca posible del borde izquierdo de la calzada. Al no existir circulación en sentido contrario, esta posición optimiza el flujo de tráfico y la seguridad de la maniobra. En vías de doble sentido, la norma sería diferente (ceñirse al eje central sin invadir el sentido contrario).",
+      "en": "According to the General Traffic Regulations, to change direction to the left on one-way roads, the driver must position the vehicle as close as possible to the left edge of the roadway. Since there is no oncoming traffic, this position optimizes traffic flow and maneuver safety. On two-way roads, the rule would be different (sticking to the center axis without invading the opposite direction).",
+      "ru": "🧠 **Логика \"Почему\"**:\nКлючевое условие в вопросе — **дорога с односторонним движением** (vía de un solo sentido). Это значит, что встречного потока нет, и вся ширина проезжей части используется для движения в одном направлении.\n\nДля поворота налево на такой дороге ты обязан занять **крайнее левое положение** — то есть прижаться непосредственно к левому краю проезжей части (borde izquierdo). Это освобождает правую часть дороги для тех, кто едет прямо, и исключает конфликт с попутными машинами.\n\n💣 **Ловушка / Трюк**:\nБудьте внимательны к деталям вопроса."
+    },
+    "image_url": "https://teorica.practicavial.com/question/c8a7fda7-d0e6-45cb-88d9-d900ffcadddb-1657893417-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c8a7fda7-d0e6-45cb-88d9-d900ffcadddb-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "En los carriles reservados para bicicletas está prohibido...",
+      "en": "In lanes reserved for bicycles, it is prohibited to...",
+      "ru": "На полосах, предназначенных для велосипедов, запрещено..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "parar, pero se permite estacionar.",
+          "en": "stop, but parking is allowed.",
+          "ru": "выполнять остановку, но стоянка разрешена."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "parar y estacionar.",
+          "en": "stop and park.",
+          "ru": "выполнять остановку и стоянку."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "estacionar, pero se permite parar.",
+          "en": "park, but stopping is allowed.",
+          "ru": "выполнять стоянку, но остановка разрешена."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: Imagina que el carril bici es como una autopista para bicis. Parar o estacionar bloquea el tráfico y es peligroso. Solo pueden usarlo las bicis para circular libremente.\n\n💣 **La Trampa / El Truco**: Muchos piensan que parar un momento está bien, pero incluso una parada corta puede causar problemas y accidentes.",
+      "en": "🧠 **The Logic \"Why\"**: Think of a bike lane as a highway for bikes. Stopping or parking blocks the flow of traffic and is dangerous. Only bikes should use it to travel freely.\n\n💣 **The Trap / The Trick**: Many people think stopping for a moment is okay, but even a short stop can cause problems and accidents.",
+      "ru": "🧠 **Логика \"Почему\"**: Представьте себе велосипедную дорожку как шоссе для велосипедов. Остановка или парковка блокирует движение и опасна. Только велосипеды должны использовать его для свободного передвижения.\n\n💣 **Ловушка / Трюк**: Многие думают, что остановиться на мгновение нормально, но даже короткая остановка может вызвать проблемы и аварии."
+    },
+    "image_url": "https://teorica.practicavial.com/question/b115f419-3f63-46f0-88b8-76e147598636-1657905178-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b115f419-3f63-46f0-88b8-76e147598636-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, el vehículo gris, ¿puede hacer la maniobra para adelantar al vehículo amarillo, que está señalizando su intención de desplazarse a la izquierda para adelantar?",
+      "en": "As a general rule, can the gray vehicle maneuver to overtake the yellow vehicle, which is signaling its intention to move to the left to overtake?",
+      "ru": "Как правило, может ли серый автомобиль начать маневр обгона желтого автомобиля, который подает сигнал о намерении сместиться влево для обгона?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque el conductor del vehículo amarillo tiene preferencia.",
+          "en": "No, because the driver of the yellow vehicle has preference.",
+          "ru": "Нет, так как водитель желтого автомобиля имеет преимущество."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, porque el conductor del vehículo gris tiene preferencia.",
+          "en": "Yes, because the driver of the gray vehicle has preference.",
+          "ru": "Да, так как водитель серого автомобиля имеет преимущество."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si el arcén tiene anchura suficiente para utilizarlo durante el adelantamiento.",
+          "en": "Only if the shoulder is wide enough to be used during overtaking.",
+          "ru": "Только если обочина имеет достаточную ширину для использования во время обгона."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: El vehículo amarillo ya ha indicado su intención de adelantar. Tiene prioridad porque ya ha comenzado la maniobra. Es como si estuvieras esperando tu turno en una fila, ¡no puedes colarte si alguien ya está avanzando!\n\n💣 **La Trampa / El Truco**: Muchos piensan que el coche gris tiene derecho a adelantar primero porque está detrás. Pero la señalización del vehículo amarillo cambia la prioridad.",
+      "en": "🧠 **The Logic \"Why\"**: The yellow vehicle has already signaled its intention to overtake. It has priority because it has already started the maneuver. It's like waiting your turn in a line, you can't cut in if someone is already moving forward!\n\n💣 **The Trap / The Trick**: Many people think the gray car has the right to overtake first because it's behind. But the yellow vehicle's signaling changes the priority.",
+      "ru": "🧠 **Логика \"Почему\"**: Желтый автомобиль уже указал о своем намерении обогнать. У него приоритет, потому что он уже начал маневр. Это как ждать своей очереди в очереди, нельзя вклиниться, если кто-то уже продвигается вперед!\n\n💣 **Ловушка / Трюк**: Многие думают, что серая машина имеет право обгонять первой, потому что она находится сзади. Но сигнализация желтого автомобиля меняет приоритет."
+    },
+    "image_url": "https://teorica.practicavial.com/question/f961670c-8dbc-4f91-b934-89f607a58fa9-1657803978-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f961670c-8dbc-4f91-b934-89f607a58fa9-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido adelantar en un paso para peatones señalizado?",
+      "en": "Is overtaking permitted at a marked pedestrian crossing?",
+      "ru": "Разрешен ли обгон на обозначенном пешеходном переходе?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": "No, under no circumstances.",
+          "ru": "Нет, ни в коем случае."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, siempre que se circule a mayor velocidad que el vehículo adelantado.",
+          "en": "Yes, provided that one is traveling at a higher speed than the vehicle being overtaken.",
+          "ru": "Да, при условии движения с большей скоростью, чем обгоняемое ТС."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, a velocidad tan reducida que permita detenerse a tiempo en caso de peligro de atropello.",
+          "en": "Yes, at a speed so reduced that it allows stopping in time in case of danger of running someone over.",
+          "ru": "Да, на скорости настолько сниженной, что она позволяет вовремя остановиться в случае опасности наезда."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: Se permite adelantar en un paso de peatones si la velocidad es muy baja y permite detenerse a tiempo. La prioridad es la seguridad del peatón. \n\n💣 **La Trampa / El Truco**: Muchos creen que adelantar está prohibido en todos los pasos de peatones, pero la clave está en la velocidad y la seguridad.",
+      "en": "🧠 **The Logic \"Why\"**: Overtaking at a pedestrian crossing is allowed if you're going very slowly and can stop in time. The priority is pedestrian safety.\n\n💣 **The Trap / The Trick**: Many believe overtaking is always forbidden at pedestrian crossings, but the key is speed and safety.",
+      "ru": "🧠 **Логика \"Почему\"**: Обгон на пешеходном переходе разрешен, если вы едете очень медленно и можете вовремя остановиться. Приоритет – безопасность пешеходов.\n\n💣 **Ловушка / Трюк**: Многие считают, что обгон всегда запрещен на пешеходных переходах, но главное – скорость и безопасность."
+    },
+    "image_url": "https://teorica.practicavial.com/question/eca5d18f-61cb-4aec-9085-574357aa7925-1657823652-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/eca5d18f-61cb-4aec-9085-574357aa7925-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "Si un vehículo le está adelantando y la maniobra va a generar una situación de peligro, ¿qué debe hacer usted, como norma general?",
+      "en": "If a vehicle is overtaking you and the maneuver is going to generate a dangerous situation, what must you do, as a general rule?",
+      "ru": "Если другое транспортное средство выполняет обгон вас, и этот маневр создает опасную ситуацию, что вы должны сделать согласно общему правилу?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Aumentar la velocidad para impedir el adelantamiento.",
+          "en": "Increase speed to prevent the overtaking.",
+          "ru": "Увеличить скорость, чтобы помешать обгону."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Mantener la velocidad, el problema solo afecta al vehículo que adelanta.",
+          "en": "Maintain speed, the problem only affects the overtaking vehicle.",
+          "ru": "Сохранить скорость, так как проблема касается только обгоняющего."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Disminuir la velocidad para facilitar el adelantamiento.",
+          "en": "Decrease speed to facilitate the overtaking.",
+          "ru": "Снизить скорость, чтобы облегчить обгон."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: En una situación de adelantamiento peligroso, tu prioridad es la seguridad. Reducir la velocidad ayuda al otro vehículo a completar la maniobra más rápido y con menos riesgo, evitando un posible accidente. Es como ceder el paso para evitar un choque.\n\n💣 **La Trampa / El Truco**: La tentación es mantener la velocidad o incluso aumentarla, pero esto empeora la situación. Recuerda, la seguridad es lo primero, incluso si crees que tienes derecho de paso.",
+      "en": "🧠 **The Logic \"Why\"**: In a dangerous overtaking situation, your priority is safety. Reducing your speed helps the other vehicle complete the maneuver faster and with less risk, avoiding a potential accident. It's like yielding to prevent a collision.\n\n💣 **The Trap / The Trick**: The temptation is to maintain or even increase your speed, but this worsens the situation. Remember, safety comes first, even if you believe you have the right of way.",
+      "ru": "🧠 **Логика \"Почему\"**: В опасной ситуации обгона ваш приоритет – безопасность. Снижение скорости помогает другому транспортному средству быстрее и с меньшим риском завершить маневр, избегая возможной аварии. Это как уступить дорогу, чтобы предотвратить столкновение.\n\n💣 **Ловушка / Трюк**: Возникает соблазн сохранить или даже увеличить скорость, но это усугубляет ситуацию. Помните, безопасность превыше всего, даже если вы считаете, что у вас есть преимущество в движении."
+    },
+    "image_url": "https://teorica.practicavial.com/question/e1a16bc7-70cb-4ec9-b180-821cc124007d-1657822677-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e1a16bc7-70cb-4ec9-b180-821cc124007d-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "En poblado, como norma general, ¿está permitido que los vehículos hagan uso de las advertencias acústicas?",
+      "en": "In built-up areas, as a general rule, are vehicles allowed to use acoustic warnings?",
+      "ru": "В населенном пункте, как общее правило, разрешено ли транспортным средствам использовать звуковые сигналы?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, salvo que exista señal que lo prohiba.",
+          "en": "Yes, unless there is a sign prohibiting it.",
+          "ru": "Да, если нет знака, запрещающего это."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, para advertir al conductor de otro vehículo el propósito de adelantar.",
+          "en": "Yes, to warn the driver of another vehicle of the intention to overtake.",
+          "ru": "Да, чтобы предупредить водителя другого транспортного средства о намерении совершить обгон."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sólo de forma excepcional.",
+          "en": "Only exceptionally.",
+          "ru": "Только в исключительных случаях."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: En las ciudades, el ruido está muy controlado. Solo se permite usar el claxon para evitar un accidente, no para saludar o avisar a alguien. \n\n💣 **La Trampa / El Truco**: Mucha gente piensa que se puede usar el claxon para avisar a otros conductores, pero no es así. Solo en casos de emergencia.",
+      "en": "🧠 **The Logic \"Why\"**: In urban areas, noise levels are strictly controlled. Using the horn is only allowed to prevent an accident, not to greet someone or get their attention. \n\n💣 **The Trap / The Trick**: Many people think you can use the horn to warn other drivers, but that's not the case. It's only for emergencies.",
+      "ru": "🧠 **Логика \"Почему\"**: В городах уровень шума строго контролируется. Использовать клаксон разрешено только для предотвращения аварии, а не для приветствия или привлечения внимания. \n\n💣 **Ловушка / Трюк**: Многие думают, что можно использовать клаксон для предупреждения других водителей, но это не так. Только в экстренных случаях."
+    },
+    "image_url": "https://teorica.practicavial.com/question/c2743727-8744-4f43-be5f-3ea457eaaa72-1657798178-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c2743727-8744-4f43-be5f-3ea457eaaa72-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "Circulando por una autopista observa que se ha pasado una salida, ¿puede volver a ella circulando marcha atrás?",
+      "en": "Driving on a motorway, you notice you have missed an exit. Can you reverse to return to it?",
+      "ru": "Двигаясь по автомагистрали (autopista), вы заметили, что пропустили съезд. Можно ли вернуться к нему задним ходом?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, cuando el recorrido no supere los 15 metros.",
+          "en": "Yes, when the distance does not exceed 15 meters.",
+          "ru": "Да, если расстояние не превышает 15 метров."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, comprobando que no existe peligro para otros usuarios.",
+          "en": "Yes, checking that there is no danger to other users.",
+          "ru": "Да, убедившись в отсутствии опасности для других участников движения."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: En autopistas y autovías, está prohibido circular marcha atrás. Imagina el caos y peligro si todos hicieran eso al perder una salida. \n\n💣 **La Trampa / El Truco**: La tentación es pensar en la conveniencia de corregir el error rápidamente, pero la seguridad es primordial.",
+      "en": "🧠 **The Logic \"Why\"**: Reversing on highways and motorways is strictly prohibited. Imagine the chaos and danger if everyone did that when they missed an exit.\n\n💣 **The Trap / The Trick**: The temptation is to think about the convenience of quickly correcting the mistake, but safety is paramount.",
+      "ru": "🧠 **Логика \"Почему\"**: Движение задним ходом на автомагистралях строго запрещено. Представьте себе хаос и опасность, если бы все так делали, пропустив съезд.\n\n💣 **Ловушка / Трюк**: Возникает соблазн подумать об удобстве быстрого исправления ошибки, но безопасность превыше всего."
+    },
+    "image_url": "https://teorica.practicavial.com/question/bd045fef-7a94-47dd-8e22-f2ec45eb775f-1658138571-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/bd045fef-7a94-47dd-8e22-f2ec45eb775f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "Para abandonar una autovía por un carril de deceleración, debe situarse con la suficiente antelación en el carril...",
+      "en": "To leave a motorway via a deceleration lane, you must position yourself well in advance in the lane...",
+      "ru": "Чтобы покинуть автомагистраль по полосе торможения, вы должны заблаговременно перестроиться в полосу..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "de la derecha.",
+          "en": "on the right.",
+          "ru": "правую."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "más próximo a la salida.",
+          "en": "closest to the exit.",
+          "ru": "ближайшую к выходу."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "de la izquierda.",
+          "en": "on the left.",
+          "ru": "левую."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: El carril de deceleración está diseñado para reducir la velocidad antes de salir de la autovía. Para usarlo de manera segura, debes incorporarte al carril más cercano a la salida con suficiente antelación. Imagina que es como prepararte para un desvío en una carretera normal. \n\n💣 **La Trampa / El Truco**: Algunos conductores piensan que pueden cruzar varios carriles rápidamente para llegar a la salida, pero esto es peligroso y puede causar accidentes. La anticipación y la colocación correcta son clave.",
+      "en": "🧠 **The Logic \"Why\"**: Deceleration lanes are designed to allow you to safely reduce your speed before exiting a highway. To use them safely, you need to move into the lane closest to the exit well in advance. Think of it like preparing for a turn-off on a regular road.\n\n💣 **The Trap / The Trick**: Some drivers think they can quickly cut across multiple lanes to reach the exit, but this is dangerous and can cause accidents. Anticipation and correct positioning are key.",
+      "ru": "🧠 **Логика \"Почему\"**: Полосы торможения предназначены для безопасного снижения скорости перед съездом с автомагистрали. Чтобы безопасно их использовать, необходимо заранее перестроиться на полосу, ближайшую к съезду. Представьте, что это как подготовка к повороту на обычной дороге.\n\n💣 **Ловушка / Трюк**: Некоторые водители думают, что могут быстро пересечь несколько полос, чтобы добраться до съезда, но это опасно и может привести к авариям. Предусмотрительность и правильное расположение - вот ключ к успеху."
+    },
+    "image_url": "https://teorica.practicavial.com/question/7a8f1cca-3c69-44ab-ab31-ffc81e63e43f-1657894176-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7a8f1cca-3c69-44ab-ab31-ffc81e63e43f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "El conductor con el brazo extendido está indicando que va a...",
+      "en": "The driver with the extended arm is indicating that he is going to...",
+      "ru": "Водитель с вытянутой рукой показывает, что собирается..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Girar hacia la izquierda.",
+          "en": "Turn left.",
+          "ru": "Повернуть налево."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Girar a la derecha.",
+          "en": "Turn right.",
+          "ru": "Повернуть направо."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Frenar.",
+          "en": "Brake.",
+          "ru": "Затормозить."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**:\nImagina que el brazo es una flecha. Si lo extiendes horizontalmente, apunta hacia la izquierda, indicando la dirección del giro. Es una señal visual clara para otros conductores.\n\n💣 **La Trampa / El Truco**:\nAlgunos confunden esta señal con otras, como detenerse o reducir la velocidad, que tienen señales diferentes con el brazo.",
+      "en": "🧠 **The Logic \"Why\"**:\nThink of the arm as an arrow. When extended horizontally, it points to the left, indicating the direction of the turn. It's a clear visual signal for other drivers.\n\n💣 **The Trap / The Trick**:\nSome people confuse this signal with others, such as stopping or slowing down, which have different arm signals.",
+      "ru": "🧠 **Логика \"Почему\"**:\nПредставьте, что рука - это стрелка. Когда она вытянута горизонтально, она указывает налево, показывая направление поворота. Это четкий визуальный сигнал для других водителей.\n\n💣 **Ловушка / Трюк**:\nНекоторые путают этот сигнал с другими, например, остановкой или замедлением, для которых существуют другие сигналы рукой."
+    },
+    "image_url": "https://teorica.practicavial.com/question/1add46e5-634e-45ce-a0b7-af2d83a8410e-1657808517-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1add46e5-634e-45ce-a0b7-af2d83a8410e-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "El vehículo blanco se quiere incorporar a la circulación proveniente del garaje particular de una vivienda, ¿debe cederle el paso?",
+      "en": "The white vehicle wants to join traffic coming from a private home garage; must you yield the right of way?",
+      "ru": "Белый автомобиль выезжает на дорогу из частного гаража жилого дома. Должны ли вы уступить ему дорогу?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sólo si el vehículo blanco está destinado al servicio público.",
+          "en": "Only if the white vehicle is intended for public service.",
+          "ru": "Только если белый автомобиль предназначен для общественного обслуживания."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, porque se incorpora a la derecha.",
+          "en": "Yes, because it is joining from the right.",
+          "ru": "Да, потому что он выезжает справа."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: Los vehículos que se incorporan desde un garaje o una propiedad privada deben ceder el paso a todos los vehículos que circulan por la vía pública. Es como si estuvieras saliendo de tu casa a la calle, ¡tienes que mirar! \n\n💣 **La Trampa / El Truco**: La prioridad siempre la tiene el vehículo que ya está circulando en la vía principal. No importa si el otro vehículo parece que va más lento o tiene intención de incorporarse.",
+      "en": "🧠 **The Logic \"Why\"**: Vehicles entering the road from a garage or private property must yield to all vehicles already circulating on the public road. It's like exiting your house onto the street – you have to look! \n\n💣 **The Trap / The Trick**: Priority always belongs to the vehicle already traveling on the main road. It doesn't matter if the other vehicle seems slower or intends to merge.",
+      "ru": "🧠 **Логика \"Почему\"**: Транспортные средства, выезжающие из гаража или частной собственности, должны уступать дорогу всем транспортным средствам, уже движущимся по дороге общего пользования. Это как выходить из дома на улицу – нужно смотреть! \n\n💣 **Ловушка / Трюк**: Приоритет всегда у транспортного средства, которое уже движется по главной дороге. Неважно, кажется ли другой автомобиль медленнее или намеревается влиться в поток."
+    },
+    "image_url": "https://teorica.practicavial.com/question/e6f9879a-1063-4ed5-9950-b75b77d1528a-1657730134-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e6f9879a-1063-4ed5-9950-b75b77d1528a-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "En un carril de aceleración, ¿dónde debe detenerse de tener que ceder el paso?",
+      "en": "In an acceleration lane, where must you stop if you have to yield?",
+      "ru": "Где следует остановиться на полосе разгона, если необходимо уступить дорогу?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Al principio del carril.",
+          "en": "At the beginning of the lane.",
+          "ru": "В начале полосы."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Justo antes de entrar en la vía.",
+          "en": "Just before entering the road.",
+          "ru": "Непосредственно перед выездом на дорогу."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Donde tenga que ceder el paso.",
+          "en": "Wherever one has to yield.",
+          "ru": "Там, где придется уступать."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: El carril de aceleración te permite alcanzar la velocidad de la vía a la que te incorporas. Si tienes que ceder el paso, debes hacerlo al principio del carril para no obstaculizar el tráfico principal. \n\n💣 **La Trampa / El Truco**: Muchos piensan que hay que llegar hasta el final del carril, pero si hay que ceder el paso, eso puede ser peligroso y causar una colisión.",
+      "en": "🧠 **The Logic \"Why\"**: The acceleration lane allows you to match the speed of the road you're merging onto. If you need to yield, you should do so at the beginning of the lane to avoid obstructing the main traffic flow.\n\n💣 **The Trap / The Trick**: Many people think you should go to the end of the lane, but if you have to yield, that can be dangerous and cause a collision.",
+      "ru": "🧠 **Логика \"Почему\"**: Полоса разгона позволяет вам достичь скорости дороги, на которую вы выезжаете. Если вам нужно уступить дорогу, вы должны сделать это в начале полосы, чтобы не мешать основному потоку транспорта.\n\n💣 **Ловушка / Трюк**: Многие думают, что нужно доехать до конца полосы, но если нужно уступить дорогу, это может быть опасно и привести к столкновению."
+    },
+    "image_url": "https://teorica.practicavial.com/question/096ec1b4-119b-4a6e-a4ca-a7691a2bb593-1657799473-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/096ec1b4-119b-4a6e-a4ca-a7691a2bb593-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "En la entrada de un túnel observa estos semáforos en rojo, ¿qué debe hacer?",
+      "en": "At the entrance of a tunnel, you observe these red traffic lights. What must you do?",
+      "ru": "На въезде в туннель вы видите эти красные светофоры. Что вы должны сделать?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Circular marcha atrás hasta la salida más próxima.",
+          "en": "Drive in reverse to the nearest exit.",
+          "ru": "Двигаться задним ходом до ближайшего выхода."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Entrar en el túnel y circular a velocidad por debajo de la máxima permitida.",
+          "en": "Enter the tunnel and drive at a speed below the maximum allowed.",
+          "ru": "Въехать в туннель и двигаться со скоростью ниже максимально разрешенной."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Detenerse y esperar hasta que los semáforos permitan el paso.",
+          "en": "Stop and wait until the traffic lights allow passage.",
+          "ru": "Остановиться и ждать, пока светофоры не разрешат проезд."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: Los semáforos en rojo a la entrada de un túnel indican que el acceso está prohibido. Debes detenerte por seguridad, ya que podría haber un peligro dentro del túnel. \n\n💣 **La Trampa / El Truco**: Algunos conductores piensan que pueden ignorar los semáforos si no ven ningún problema inmediato, pero es crucial obedecer las señales para evitar accidentes.",
+      "en": "🧠 **The Logic \"Why\"**: Red traffic lights at a tunnel entrance mean entry is prohibited. You must stop for safety, as there could be a hazard inside the tunnel.\n\n💣 **The Trap / The Trick**: Some drivers think they can ignore the lights if they don't see an immediate problem, but it's crucial to obey the signals to prevent accidents.",
+      "ru": "🧠 **Логика \"Почему\"**: Красные светофоры на въезде в туннель означают, что въезд запрещен. Вы должны остановиться из соображений безопасности, так как внутри туннеля может быть опасность.\n\n💣 **Ловушка / Трюк**: Некоторые водители думают, что могут игнорировать светофоры, если не видят немедленной проблемы, но крайне важно соблюдать сигналы, чтобы избежать аварий."
+    },
+    "image_url": "https://teorica.practicavial.com/question/0b60f74b-4e6d-47ba-8e5b-184a1208bdc9-1657901841-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0b60f74b-4e6d-47ba-8e5b-184a1208bdc9-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "Se considera que una parada o estacionamiento obstaculiza gravemente la circulación cuando...",
+      "en": "Stopping or parking is considered to seriously obstruct traffic when...",
+      "ru": "Остановка или стоянка считаются создающими серьезные помехи движению, когда..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "se obstaculiza la utilización normal de los pasos rebajados para personas con movilidad reducida.",
+          "en": "the normal use of lowered curbs for people with reduced mobility is hindered.",
+          "ru": "создаются помехи для нормального использования заниженных бордюров людьми с ограниченной мобильностью."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "se realiza en una vía pública calificada de atención preferente.",
+          "en": "it is carried out on a public road classified for preferential attention.",
+          "ru": "она осуществляется на дороге общего пользования, отнесенной к категории особого внимания."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "se efectúa en doble fila.",
+          "en": "it is carried out in double parking.",
+          "ru": "она осуществляется во втором ряду."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, se califica como obstáculo grave a la circulación la parada o el estacionamiento que impida la utilización normal de los pasos rebajados para personas con movilidad reducida. Esta conducta justifica la retirada del vehículo por la grúa debido al perjuicio directo a usuarios vulnerables.",
+      "en": "According to the General Traffic Regulations, stopping or parking is classified as a serious obstruction to traffic if it prevents the normal use of lowered curbs intended for people with reduced mobility. This conduct justifies the removal of the vehicle by a tow truck due to the direct harm caused to vulnerable road users.",
+      "ru": "🧠 **Логика \"Почему\"**:\nВодитель легкового автомобиля (Turismo) должен помнить: любое перекрытие заниженного бордюра (съезда с тротуара) классифицируется как **серьезная помеха движению** (obstaculiza gravemente). Это место критически важно для людей с ограниченной мобильностью. Даже кратковременная остановка в этой зоне физически блокирует возможность пересечения проезжей части для человека в инвалидном кресле, поэтому ПДД Испании категорически запрещают здесь и остановку, и стоянку.\n\n💣 **Ловушка / Трюк**:\nЗапомни: **Заниженный бордюр — это «Священный коридор»**. Если перекроешь путь коляске — эвакуатор увезет твою машину."
+    },
+    "image_url": "https://teorica.practicavial.com/question/f27649af-3399-41b0-964f-270a9d3e6aff-1657905351-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f27649af-3399-41b0-964f-270a9d3e6aff-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "En un vehículo provisto de caja de cambios, cuando se estaciona en una pendiente ascendente es obligatorio dejar...",
+      "en": "In a vehicle equipped with a gearbox, when parking on an uphill slope, it is mandatory to leave...",
+      "ru": "В автомобиле с механической коробкой передач при парковке на подъеме обязательно оставить..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "colocada la marcha atrás y accionado el freno de estacionamiento.",
+          "en": "reverse gear engaged and the parking brake applied.",
+          "ru": "включенную заднюю передачу и затянутый стояночный тормоз."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "accionado el freno de estacionamiento y colocada la primera velocidad.",
+          "en": "the parking brake applied and first gear engaged.",
+          "ru": "затянутый стояночный тормоз и включенную первую передачу."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "el freno de estacionamiento accionado, únicamente.",
+          "en": "only the parking brake applied.",
+          "ru": "только затянутый стояночный тормоз."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, todo conductor que estacione un vehículo en una pendiente debe asegurar su inmovilización mediante el freno de estacionamiento. Adicionalmente, si el vehículo posee caja de cambios, es obligatorio dejar seleccionada una marcha para bloquear mecánicamente las ruedas: en pendiente ascendente se debe dejar colocada la primera velocidad, mientras que en pendiente descendente se debe dejar la marcha atrás.",
+      "en": "According to General Traffic Regulations, any driver parking a vehicle on a slope must ensure its immobilization using the parking brake. Additionally, if the vehicle has a gearbox, it is mandatory to leave a gear engaged to mechanically lock the wheels: on an uphill slope, first gear must be engaged, whereas on a downhill slope, reverse gear must be engaged.",
+      "ru": "🧠 **Логика \"Почему\"**:\nПри парковке на уклоне одного стояночного тормоза (ручника) недостаточно. ПДД Испании обязывают водителя **легкового автомобиля** (Turismo) дополнительно заблокировать колеса коробкой передач:\n\n*   Если стоим **в горку** (pendiente ascendente) — включаем **первую передачу**.\n*   Если стоим **с горки** (pendiente descendente) — включаем **заднюю передачу**.\n\nЭто создает механический упор, который не даст машине скатиться, если ручник ослабнет.\n\n💣 **Ловушка / Трюк**:\nКуда смотрит нос машины, туда и передача:\n*   Нос **ВВЕРХ** (хочет ехать назад) → Ставим **1-ю** (тянет вперед).\n*   Нос **ВНИЗ** (хочет ехать вперед) → Ставим **R** (тянет назад).\n\nИли проще: **В горку — как трогаемся (1). С горки — как пятимся (R).**"
+    },
+    "image_url": "https://teorica.practicavial.com/question/582f6034-9b94-4945-bf0c-39510e7d684e-1657905475-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/582f6034-9b94-4945-bf0c-39510e7d684e-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido circular con cortinillas contra el sol, en las ventanillas traseras de un turismo?",
+      "en": "Is it permitted to drive with sunshades on the rear windows of a passenger car?",
+      "ru": "Разрешено ли движение с солнцезащитными шторками на задних окнах легкового автомобиля?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, está completamente prohibido.",
+          "en": "No, it is completely prohibited.",
+          "ru": "Нет, это полностью запрещено."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sólo si el vehículo lleva dos espejos retrovisores exteriores.",
+          "en": "Only if the vehicle has two exterior rear-view mirrors.",
+          "ru": "Только если автомобиль оборудован двумя внешними зеркалами заднего вида."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, en cualquier caso.",
+          "en": "Yes, in any case.",
+          "ru": "Да, в любом случае."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: Las cortinillas traseras limitan la visibilidad. Si tienes dos retrovisores exteriores, compensas esa limitación. Es como tener ojos extra para ver detrás.\n\n💣 **La Trampa / El Truco**: Muchos creen que las cortinillas están prohibidas siempre, pero la clave está en los retrovisores. Si los tienes, ¡adelante con las cortinillas!",
+      "en": "🧠 **The Logic \"Why\"**: Rear window sunshades reduce visibility. If you have two external mirrors, you compensate for this limitation. It's like having extra eyes to see behind you.\n\n💣 **The Trap / The Trick**: Many believe that sunshades are always prohibited, but the key is the mirrors. If you have them, go ahead with the sunshades!",
+      "ru": "🧠 **Логика \"Почему\"**: Задние солнцезащитные шторки ограничивают видимость. Если у вас есть два внешних зеркала, вы компенсируете это ограничение. Это как иметь дополнительные глаза, чтобы видеть позади.\n\n💣 **Ловушка / Трюк**: Многие считают, что солнцезащитные шторки всегда запрещены, но главное - зеркала. Если они у вас есть, смело используйте шторки!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/c1634d59-469f-4a07-ae98-1e4c967a865a-1657807277-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c1634d59-469f-4a07-ae98-1e4c967a865a-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "En caso de caída de la carga en la calzada, el conductor deberá...",
+      "en": "In the event of the load falling onto the road, the driver must...",
+      "ru": "В случае падения груза на проезжую часть водитель обязан..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "proseguir la marcha y avisar del accidente a las autoridades pertinentes.",
+          "en": "continue driving and notify the relevant authorities of the accident.",
+          "ru": "продолжить движение и сообщить о происшествии соответствующим органам."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "retirarla lo antes posible y adoptar entre tanto las medidas necesarias para avisar al resto de usuarios y para que no se dificulte la circulación.",
+          "en": "remove it as soon as possible and meanwhile adopt necessary measures to warn other users and ensure traffic is not hindered.",
+          "ru": "убрать его как можно скорее и тем временем принять необходимые меры для предупреждения остальных участников движения и предотвращения помех движению."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "cortar la circulación en todo caso.",
+          "en": "cut off traffic in any case.",
+          "ru": "в любом случае перекрыть движение."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: Si la carga se cae, es responsabilidad del conductor retirarla rápidamente para evitar accidentes y atascos. Mientras tanto, debe señalizar el peligro para alertar a los demás conductores. \n\n💣 **La Trampa / El Truco**: Algunos pueden pensar que basta con avisar, pero la ley exige actuar para solucionar el problema, no solo informarlo.",
+      "en": "🧠 **The Logic \"Why\"**: If cargo falls onto the road, the driver is responsible for removing it quickly to prevent accidents and traffic jams. In the meantime, they must signal the hazard to alert other drivers.\n\n💣 **The Trap / The Trick**: Some might think it's enough to just warn others, but the law requires action to solve the problem, not just report it.",
+      "ru": "🧠 **Логика \"Почему\"**: Если груз упал на дорогу, водитель обязан быстро убрать его, чтобы предотвратить аварии и пробки. Тем временем необходимо обозначить опасность, чтобы предупредить других водителей.\n\n💣 **Ловушка / Трюк**: Некоторые могут подумать, что достаточно просто предупредить других, но закон требует действий для решения проблемы, а не только информирования о ней."
+    },
+    "image_url": "https://teorica.practicavial.com/question/340e19fb-c82b-4c04-91b5-3ad5bb649d20-1657899987-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/340e19fb-c82b-4c04-91b5-3ad5bb649d20-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "En este tramo de carretera, ¿está permitido hacer un cambio de sentido?",
+      "en": "Is a U-turn permitted on this stretch of road?",
+      "ru": "Разрешен ли разворот на этом участке дороги?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": "Yes.",
+          "ru": "Да."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, pero utilizando la marcha atrás.",
+          "en": "Yes, but using reverse gear.",
+          "ru": "Да, но с использованием заднего хода."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: En un tramo donde está permitido adelantar, también está permitido hacer un cambio de sentido, a menos que una señal lo prohíba explícitamente. No hay señales que lo impidan en la imagen. \n\n💣 **La Trampa / El Truco**: Muchos conductores asumen que los cambios de sentido siempre están prohibidos, pero no es así. Depende de la señalización y las características de la vía.",
+      "en": "🧠 **The Logic \"Why\"**: If overtaking is allowed on a stretch of road, a U-turn is also permitted, unless a sign explicitly prohibits it. There are no signs preventing it in the image. \n\n💣 **The Trap / The Trick**: Many drivers assume that U-turns are always prohibited, but this is not the case. It depends on the signage and road characteristics.",
+      "ru": "🧠 **Логика \"Почему\"**: Если на участке дороги разрешен обгон, то и разворот также разрешен, если нет знака, явно запрещающего его. На изображении нет знаков, запрещающих это.\n\n💣 **Ловушка / Трюк**: Многие водители предполагают, что развороты всегда запрещены, но это не так. Это зависит от знаков и характеристик дороги."
+    },
+    "image_url": "https://teorica.practicavial.com/question/a59ed904-3524-4cf4-b0c1-cff9f73717f5-1657895932-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a59ed904-3524-4cf4-b0c1-cff9f73717f5-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "El conductor de la furgoneta, ¿puede hacer una parada en doble fila para descargar?",
+      "en": "Can the van driver make a stop in double file to unload?",
+      "ru": "Может ли водитель фургона выполнить остановку во втором ряду для разгрузки?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, está prohibido.",
+          "en": "No, it is prohibited.",
+          "ru": "Нет, это запрещено."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, excepcionalmente y respetando las normas sobre paradas.",
+          "en": "Yes, exceptionally and respecting the rules on stops.",
+          "ru": "Да, в виде исключения и с соблюдением правил остановки."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si la parada tiene una duración igual o inferior a 1 minuto.",
+          "en": "Only if the stop lasts 1 minute or less.",
+          "ru": "Только если остановка длится 1 минуту или меньше."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: Las paradas en doble fila están generalmente prohibidas, pero se permiten excepcionalmente para descargar mercancía, siempre que no obstaculicen gravemente el tráfico y se respeten las normas de parada. Es una excepción pensada para facilitar la logística urbana.\n\n💣 **La Trampa / El Truco**: Muchos creen que la doble fila está siempre prohibida, olvidando las excepciones para actividades como la descarga rápida, que son cruciales para el funcionamiento de las ciudades.",
+      "en": "🧠 **The Logic \"Why\"**: Double parking is generally prohibited, but it's exceptionally allowed for unloading goods, as long as it doesn't severely obstruct traffic and parking regulations are respected. It's an exception designed to facilitate urban logistics.\n\n💣 **The Trap / The Trick**: Many believe double parking is always forbidden, forgetting the exceptions for activities like quick unloading, which are crucial for city operations.",
+      "ru": "🧠 **Логика \"Почему\"**: Остановка во втором ряду обычно запрещена, но в виде исключения разрешена для разгрузки товаров, если это не создает серьезных препятствий для движения и соблюдаются правила остановки. Это исключение предназначено для облегчения городской логистики.\n\n💣 **Ловушка / Трюк**: Многие считают, что остановка во втором ряду всегда запрещена, забывая об исключениях для таких действий, как быстрая разгрузка, которые имеют решающее значение для функционирования городов."
+    },
+    "image_url": "https://teorica.practicavial.com/question/5ef04777-bf16-4240-b32e-15bf6fe76053-1657903413-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5ef04777-bf16-4240-b32e-15bf6fe76053-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "El vehículo amarillo está detenido porque quiere cambiar de sentido. ¿Es correcto teniendo en cuenta las circunstancias observadas?",
+      "en": "The yellow vehicle is stopped because it wants to make a U-turn. Is this correct considering the observed circumstances?",
+      "ru": "Желтый автомобиль остановился, так как хочет выполнить разворот. Правильно ли это, учитывая наблюдаемые обстоятельства?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, porque la línea longitudinal que separa ambos sentidos es discontinua.",
+          "en": "Yes, because the longitudinal line separating both directions is broken.",
+          "ru": "Да, потому что продольная линия, разделяющая направления движения, прерывистая."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, porque impide circular al resto de vehículos.",
+          "en": "No, because it prevents other vehicles from circulating.",
+          "ru": "Нет, потому что он мешает движению остальных транспортных средств."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, porque el vehículo que circula en sentido contrario debe facilitarle la maniobra.",
+          "en": "Yes, because the vehicle traveling in the opposite direction must facilitate the maneuver.",
+          "ru": "Да, потому что транспортное средство, движущееся во встречном направлении, должно способствовать маневру."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: Cambiar el sentido está prohibido si obstaculiza la circulación. El vehículo amarillo está bloqueando el tráfico, lo cual es incorrecto. Es como intentar dar la vuelta en una autopista: ¡peligroso e ilegal! \n\n💣 **La Trampa / El Truco**: Muchos piensan que si hay espacio, se puede cambiar el sentido. Pero la clave es NO impedir el paso a otros.",
+      "en": "🧠 **The Logic \"Why\"**: Making a U-turn is prohibited if it obstructs traffic. The yellow vehicle is blocking the road, which is incorrect. It's like trying to turn around on a highway: dangerous and illegal! \n\n💣 **The Trap / The Trick**: Many people think that if there's space, a U-turn is allowed. But the key is NOT impeding other vehicles.",
+      "ru": "🧠 **Логика \"Почему\"**: Разворот запрещен, если он мешает движению. Желтый автомобиль блокирует дорогу, что неправильно. Это как пытаться развернуться на шоссе: опасно и незаконно! \n\n💣 **Ловушка / Трюк**: Многие думают, что если есть место, то разворот разрешен. Но главное - НЕ мешать другим транспортным средствам."
+    },
+    "image_url": "https://teorica.practicavial.com/question/e0fbfb3e-dbc4-4a04-81bb-08e90b1a5b43-1657895556-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e0fbfb3e-dbc4-4a04-81bb-08e90b1a5b43-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "En esta vía, ¿puede parar su vehículo en el arcén para contemplar el paisaje?",
+      "en": "On this road, may you stop your vehicle on the shoulder to admire the landscape?",
+      "ru": "На этой дороге разрешено ли вам остановиться на обочине, чтобы полюбоваться пейзажем?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, porque el arcén es ancho.",
+          "en": "Yes, because the shoulder is wide.",
+          "ru": "Да, потому что обочина широкая."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, está prohibido.",
+          "en": "No, it is prohibited.",
+          "ru": "Нет, это запрещено."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si la parada es inferior a un minuto.",
+          "en": "Only if the stop is less than one minute.",
+          "ru": "Только если остановка длится менее одной минуты."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: El arcén está destinado para emergencias, no para actividades recreativas. Detenerse sin una razón justificada obstaculiza el tráfico y puede ser peligroso.\n\n💣 **La Trampa / El Truco**: La belleza del paisaje puede ser tentadora, pero la ley prioriza la seguridad vial. No confundas un deseo con una necesidad.",
+      "en": "🧠 **The Logic \"Why\"**: The shoulder is for emergencies, not leisure. Stopping without a justified reason obstructs traffic and can be dangerous.\n\n💣 **The Trap / The Trick**: The beautiful scenery might be tempting, but the law prioritizes road safety. Don't confuse a desire with a necessity.",
+      "ru": "🧠 **Логика \"Почему\"**: Обочина предназначена для экстренных случаев, а не для отдыха. Остановка без уважительной причины затрудняет движение и может быть опасной.\n\n💣 **Ловушка / Трюк**: Красота пейзажа может быть заманчивой, но закон ставит безопасность дорожного движения на первое место. Не путайте желание с необходимостью."
+    },
+    "image_url": "https://teorica.practicavial.com/question/0aec6ba6-a989-4dd6-8206-f0cd5b9c8602-1657902728-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0aec6ba6-a989-4dd6-8206-f0cd5b9c8602-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "¿Qué es una detención?",
+      "en": "What is a \"detención\" (detention/stopping)?",
+      "ru": "Что такое \"detención\" (техническая или вынужденная остановка)?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Una parada por cualquier causa.",
+          "en": "A stop (parada) for any cause.",
+          "ru": "Остановка (parada) по любой причине."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Un estacionamiento sin bajarse del vehículo.",
+          "en": "Parking (estacionamiento) without getting out of the vehicle.",
+          "ru": "Стоянка (estacionamiento), не выходя из автомобиля."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "La inmovilización del vehículo por necesidades de la circulación.",
+          "en": "The immobilization of the vehicle due to traffic needs.",
+          "ru": "Неподвижность автомобиля, вызванная потребностями дорожного движения."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: Una detención es cuando te paras porque el tráfico te obliga, como un semáforo o un atasco. No es una parada voluntaria para, por ejemplo, dejar a alguien. \n\n💣 **La Trampa / El Truco**: Muchos confunden detención con estacionamiento o parada, que son acciones voluntarias y tienen sus propias reglas.",
+      "en": "🧠 **The Logic \"Why\"**: A detention is when you stop because traffic forces you to, like at a traffic light or in a traffic jam. It's not a voluntary stop to, for example, drop someone off.\n\n💣 **The Trap / The Trick**: Many people confuse detention with parking or a stop, which are voluntary actions and have their own rules.",
+      "ru": "🧠 **Логика \"Почему\"**: Остановка - это когда вы останавливаетесь, потому что этого требует дорожная обстановка, например, светофор или пробка. Это не добровольная остановка, например, чтобы высадить кого-то.\n\n💣 **Ловушка / Трюк**: Многие путают остановку со стоянкой или парковкой, которые являются добровольными действиями и имеют свои собственные правила."
+    },
+    "image_url": "https://teorica.practicavial.com/question/418eb8ae-26d4-4a4f-9714-be667c294b77-1657899845-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/418eb8ae-26d4-4a4f-9714-be667c294b77-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "En carretera, ¿cuándo puede adelantar por la derecha?",
+      "en": "On an interurban road, when are you allowed to overtake on the right?",
+      "ru": "Когда разрешено выполнять обгон (опережение) справа на загородной дороге?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando está libre el carril de la derecha.",
+          "en": "When the right lane is free.",
+          "ru": "Когда правая полоса движения свободна."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando conduzco por una calzada con más de dos carriles.",
+          "en": "When driving on a roadway with more than two lanes.",
+          "ru": "При движении по проезжей части, имеющей более двух полос."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando el vehículo que va delante va a girar a la izquierda y hay espacio libre en la calzada.",
+          "en": "When the vehicle in front is going to turn left and there is free space on the roadway.",
+          "ru": "Когда транспортное средство впереди собирается повернуть налево, и на проезжей части достаточно места."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: Imagina que el coche de delante es como un barco que va a girar a la izquierda. Si hay un canal libre a la derecha, puedes \"adelantarlo\" por ese lado. Solo en esa situación específica está permitido adelantar por la derecha en carretera.\n\n💣 **La Trampa / El Truco**: La norma general es adelantar por la izquierda. La gente olvida que la excepción solo aplica cuando el otro vehículo va a girar a la izquierda y hay espacio a la derecha.",
+      "en": "🧠 **The Logic \"Why\"**: Think of the car in front like a boat about to turn left. If there's a clear channel on the right, you can \"overtake\" it on that side. This is only allowed in that specific situation on the road.\n\n💣 **The Trap / The Trick**: The general rule is to overtake on the left. People forget that the exception only applies when the other vehicle is turning left and there is space on the right.",
+      "ru": "🧠 **Логика \"Почему\"**: Представьте, что машина впереди как лодка, собирающаяся повернуть налево. Если справа есть свободный канал, вы можете \"обогнать\" ее с этой стороны. Это разрешено только в этой конкретной ситуации на дороге.\n\n💣 **Ловушка / Трюк**: Общее правило - обгонять слева. Люди забывают, что исключение применяется только тогда, когда другое транспортное средство поворачивает налево и справа есть место."
+    },
+    "image_url": "https://teorica.practicavial.com/question/84b51616-415b-45d4-a77a-fe492d28a80e-1657809508-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/84b51616-415b-45d4-a77a-fe492d28a80e-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "¿Debe facilitar la incorporación a la circulación de otros vehículos?",
+      "en": "Must you facilitate the incorporation of other vehicles into traffic?",
+      "ru": "Обязаны ли вы способствовать выезду других транспортных средств в поток?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, pero sólo dentro de poblado.",
+          "en": "Yes, but only within built-up areas.",
+          "ru": "Да, но только в населенных пунктах."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, sobre todo a los vehículos de transporte colectivo de viajeros cuando salgan de una parada señalizada.",
+          "en": "Yes, especially collective passenger transport vehicles when leaving a marked stop.",
+          "ru": "Да, особенно общественному транспорту, выезжающему с обозначенной остановки."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: La norma general es facilitar la incorporación. Los autobuses y otros vehículos de transporte público tienen prioridad al salir de una parada señalizada para no retrasar el servicio. Imagina que eres un autobús lleno de gente, ¡necesitas incorporarte de nuevo al tráfico!\n\n💣 **La Trampa / El Truco**: A veces se olvida que los vehículos de transporte colectivo tienen cierta prioridad al salir de las paradas, lo que puede llevar a pensar que no es necesario facilitar su incorporación.",
+      "en": "🧠 **The Logic \"Why\"**: The general rule is to facilitate merging. Buses and other public transport vehicles have priority when leaving a marked stop to avoid delaying the service. Imagine you are a bus full of people, you need to get back into traffic!\n\n💣 **The Trap / The Trick**: Sometimes it is forgotten that public transport vehicles have some priority when leaving stops, which can lead to thinking that it is not necessary to facilitate their incorporation.",
+      "ru": "🧠 **Логика \"Почему\"**: Общее правило - облегчать въезд в поток. Автобусы и другие транспортные средства общественного транспорта имеют приоритет при отъезде от обозначенной остановки, чтобы не задерживать обслуживание. Представьте, что вы автобус, полный людей, вам нужно вернуться в движение!\n\n💣 **Ловушка / Трюк**: Иногда забывают, что транспортные средства общественного транспорта имеют некоторый приоритет при отъезде от остановок, что может привести к мысли, что не нужно облегчать их въезд."
+    },
+    "image_url": "https://teorica.practicavial.com/question/9a81322f-e6e2-4215-b829-0f07d3e3c516-1657799514-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9a81322f-e6e2-4215-b829-0f07d3e3c516-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "topic_id": null,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "En esta zona destinada a carga y descarga, ¿está permitido parar y estacionar?",
+      "en": "In this zone intended for loading and unloading, is stopping and parking permitted?",
+      "ru": "Разрешено ли останавливаться и парковаться в этой зоне, предназначенной для погрузки и разгрузки?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, ni parar ni estacionar.",
+          "en": "No, neither stopping nor parking.",
+          "ru": "Нет, ни останавливаться, ни парковаться."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Únicamente está permitido parar.",
+          "en": "Only stopping is permitted.",
+          "ru": "Разрешена только остановка."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Únicamente pueden parar y estacionar los camiones.",
+          "en": "Only trucks can stop and park.",
+          "ru": "Останавливаться и парковаться могут только грузовики."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: Las zonas de carga y descarga están diseñadas para permitir operaciones rápidas. Parar está permitido para cargar o descargar, pero estacionar (dejar el vehículo sin actividad) no lo está, ya que bloquearía el espacio para otros usuarios.\n\n💣 **La Trampa / El Truco**: Muchos confunden 'parar' y 'estacionar'. Recuerda que 'parar' es breve y con conductor, mientras que 'estacionar' implica inactividad y ausencia del conductor.",
+      "en": "🧠 **The Logic \"Why\"**: Loading and unloading zones are designed for quick operations. Stopping is allowed to load or unload goods, but parking (leaving the vehicle unattended) is not, as it would block the space for other users.\n\n💣 **The Trap / The Trick**: Many people confuse 'stopping' and 'parking'. Remember that 'stopping' is brief and with the driver present, while 'parking' implies inactivity and the driver's absence.",
+      "ru": "🧠 **Логика \"Почему\"**: Зоны погрузки и разгрузки предназначены для быстрых операций. Остановка разрешена для погрузки или разгрузки товаров, но парковка (оставление транспортного средства без присмотра) запрещена, так как это заблокирует место для других пользователей.\n\n💣 **Ловушка / Трюк**: Многие путают 'остановку' и 'стоянку'. Помните, что 'остановка' - это кратковременное действие с водителем, а 'стоянка' подразумевает бездействие и отсутствие водителя."
+    },
+    "image_url": "https://teorica.practicavial.com/question/6fc27b11-0755-4bce-a18a-d914113005c3-1657903578-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6fc27b11-0755-4bce-a18a-d914113005c3-s-1.jpg",
+    "source": "practicavial"
+  }
+]

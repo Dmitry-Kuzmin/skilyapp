@@ -221,26 +221,99 @@
     });
 
     // ========================================
-    // ШАГ 3: РЕЗУЛЬТАТ
+    // ШАГ 3: ОТПРАВКА НА СЕРВЕР АВТОМАТИЗАЦИИ
     // ========================================
 
-    console.log(`✅ Успешно спаршено ${questions.length} вопросов`);
-    console.log(`📌 Тема: ${topicNumber}`);
-    console.log('');
-    console.log('💾 Для сохранения JSON выполни:');
-    console.log('   copy(JSON.stringify(window.parsedQuestions, null, 2))');
-    console.log('');
-    console.log('📋 Затем создай файл data/topic-' + (topicNumber || 'unknown') + '-batch.json');
+    const testNumberEl = document.querySelector('.progress-left-content h3');
+    let testNumber = null;
+    if (testNumberEl) {
+        const testMatch = testNumberEl.textContent.match(/Nº[:\s]*(\d+)/i);
+        if (testMatch) testNumber = parseInt(testMatch[1]);
+    }
+
+    async function sendToServer(data, tNum, testNum) {
+        console.log('📡 Отправка данных на локальный сервер (http://localhost:3001)...');
+
+        try {
+            const response = await fetch('http://localhost:3001/save-batch', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    questions: data,
+                    topicNumber: tNum,
+                    testNumber: testNum
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                showToast(`✅ Успех! Тест ${testNum} сохранен и импортирован.`, 'success');
+                console.log('🚀 Сервер ответил:', result.message);
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (error) {
+            console.error('❌ Ошибка связи с сервером:', error);
+            console.log('ℹ️ Это нормально — браузер блокирует HTTP запросы с HTTPS сайтов.');
+            console.log('📥 Скачиваю файл напрямую...');
+
+            // Автоматически скачиваем файл
+            downloadAsFile(data, tNum, testNum);
+            showToast(`📥 Файл скачан! Запусти: node scripts/import-golden-dgt.js data/parsed/...`, 'info');
+        }
+    }
+
+    function downloadAsFile(data, topicNum, testNum) {
+        const fileName = `topic-${String(topicNum).padStart(2, '0')}_test-${String(testNum || 'unknown').padStart(3, '0')}.json`;
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        console.log(`✅ Файл ${fileName} скачан в папку "Загрузки"`);
+        console.log('📋 Перемести его в: data/parsed/topic-XX/');
+        console.log('📤 Затем выполни: node scripts/enrich-batch.js data/parsed/topic-XX/test-XXX.json');
+    }
+
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.style.position = 'fixed';
+        toast.style.top = '20px';
+        toast.style.right = '20px';
+        toast.style.padding = '15px 25px';
+        toast.style.borderRadius = '12px';
+        toast.style.color = 'white';
+        toast.style.zIndex = '10000';
+        toast.style.fontWeight = 'bold';
+        toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        toast.style.fontFamily = 'sans-serif';
+        toast.style.transition = 'all 0.3s ease';
+
+        if (type === 'success') toast.style.backgroundColor = '#10B981';
+        else if (type === 'error') toast.style.backgroundColor = '#EF4444';
+        else toast.style.backgroundColor = '#3B82F6'; // info
+
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+    }
 
     // Сохраняем в глобальную переменную
     window.parsedQuestions = questions;
 
-    // Показываем превью первого вопроса
-    if (questions.length > 0) {
-        console.log('');
-        console.log('📄 Превью первого вопроса:');
-        console.log(JSON.stringify(questions[0], null, 2));
-    }
+    // Запускаем автоматическую отправку
+    sendToServer(questions, topicNumber, testNumber);
 
     return questions;
 })();
