@@ -1141,19 +1141,23 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       title={title || dp("title")}
       showTitleBar={false}
       className={cn(
-        "max-h-[85vh] p-0 flex flex-col",
+        "max-h-[85vh] p-0 flex flex-col bg-[#080C14] border-t border-white/10 shadow-2xl overflow-hidden",
         isMobile ? "w-screen max-w-none" : "w-[95vw] max-w-5xl"
       )}
       showHandle={options?.showHandle}
-      contentClassName={options?.contentClassName}
+      contentClassName={cn("p-0 flex flex-col", options?.contentClassName)}
       modalRouteKey="duel-pass-season"
       loading={options?.loading ?? loading}
       skeletonVariant="default"
     >
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto bg-[#080C14]">
+        {/* Fix accessibility - DialogTitle requirement */}
+        <div className="sr-only">
+          <h2>{title || dp("title")}</h2>
+        </div>
         {description && (
-          <div className="px-6 pt-4 pb-2 border-b border-border/40">
-            <p className="text-sm text-muted-foreground">{description}</p>
+          <div className="px-6 pt-4 pb-2 border-b border-white/5">
+            <p className="text-sm text-gray-400">{description}</p>
           </div>
         )}
         {content}
@@ -1165,9 +1169,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     const fallbackContent = loading ? (
       <SkeletonContent />
     ) : (
-      <div className="relative flex flex-col items-center justify-center py-12 px-6 min-h-[400px]">
-        {/* Ambient Background */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.3),transparent_65%)] pointer-events-none" />
+      <div className="relative flex flex-col items-center justify-center py-12 px-6 min-h-[460px] bg-[#050505] overflow-hidden">
+        {/* Extreme Neon Glow */}
+        <div className="absolute inset-x-0 top-0 h-80 bg-gradient-to-b from-blue-600/40 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(59,130,246,0.35),transparent_65%)] pointer-events-none" />
 
         <motion.div
           initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -1175,10 +1180,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           transition={{ type: "spring", duration: 1, bounce: 0.5 }}
           className="relative z-10 flex flex-col items-center text-center max-w-md mx-auto"
         >
-          {/* Main Visual */}
-          <div className="relative mb-6 group cursor-default">
-            <div className="absolute inset-0 bg-blue-500/50 blur-[40px] rounded-full opacity-70 group-hover:opacity-100 transition-opacity duration-700" />
-            <div className="relative text-6xl sm:text-7xl filter drop-shadow-[0_0_20px_rgba(59,130,246,0.8)] group-hover:scale-110 transition-transform duration-500">
+          <div className="relative mb-10 group">
+            <div className="absolute inset-0 bg-blue-500/90 blur-[65px] rounded-full opacity-80" />
+            <div className="relative text-7xl sm:text-8xl drop-shadow-[0_0_40px_rgba(59,130,246,1)] animate-bounce-slow">
               🚀
             </div>
 
@@ -1199,13 +1203,13 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             ))}
           </div>
 
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight mb-3 text-white">
-            Скоро новый сезон
+          <h2 className="text-4xl sm:text-5xl font-black tracking-tighter mb-4 text-white uppercase italic drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+            СЕЗОН <span className="text-blue-500">БЛИЗКО</span>
           </h2>
 
-          <p className="text-sm sm:text-base text-gray-200 font-medium leading-relaxed max-w-xs mb-6">
-            Мы уже готовим легендарные скины, уникальные бейджи и горы монет.
-            Всё начнётся совсем скоро!
+          <p className="text-lg sm:text-xl text-blue-100 font-extrabold leading-tight max-w-xs mb-10 drop-shadow-md">
+            Готовим легендарные награды и эксклюзивные скины.
+            Будь готов!
           </p>
 
           {/* Mystery Rewards Teaser */}
@@ -1229,10 +1233,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
 
           <Button
             size="lg"
-            className="rounded-xl bg-white hover:bg-gray-100 text-slate-950 font-black text-sm sm:text-base px-8 sm:px-12 py-5 sm:py-6 shadow-[0_4px_30px_rgba(255,255,255,0.4)] hover:shadow-[0_6px_40px_rgba(255,255,255,0.6)] transform transition-all duration-200 hover:scale-105 active:scale-95 border-b-4 border-gray-300 active:border-b-2 active:translate-y-0.5"
+            className="w-full sm:w-auto rounded-2xl bg-white hover:bg-white text-slate-950 font-black text-xl px-20 py-8 shadow-[0_20px_60px_rgba(255,255,255,0.4)] transform transition-transform active:scale-90 border-b-8 border-slate-300"
             onClick={() => onOpenChange(false)}
           >
-            Жду открытия
+            ЖДУ ОТКРЫТИЯ
           </Button>
         </motion.div>
       </div>
