@@ -1,0 +1,1412 @@
+[
+  {
+    "topic_number": 2,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "Quiere adelantar a un ciclista que circula por el arcén. ¿Qué distancia lateral debe dejar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No importa la distancia porque circula por el arcén.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Un metro, al menos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Al menos metro y medio.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9aff264b-1c23-4795-816d-b02abd2a76e7-1657809794-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9aff264b-1c23-4795-816d-b02abd2a76e7-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Los ajustes del espejo retrovisor deben realizarse con el vehículo...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "detenido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "en movimiento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "circulando a velocidad reducida.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/462f4003-6dd4-4ff9-b8eb-3061d7ea24f9-1657807938-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/462f4003-6dd4-4ff9-b8eb-3061d7ea24f9-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Para abandonar una autovía por un carril de deceleración, debe situarse con la suficiente antelación en el carril...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "de la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "más próximo a la salida.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "de la izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7a8f1cca-3c69-44ab-ab31-ffc81e63e43f-1657894176-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7a8f1cca-3c69-44ab-ab31-ffc81e63e43f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Al realizar la maniobra de parada, ¿debe señalizarlo de alguna manera?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, con la luz indicadora de dirección del lado donde va a parar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No es necesario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, con las luces de posición o de estacionamiento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ebf21cb9-8ff6-4604-a083-9c4ea0fb89cc-1657901962-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ebf21cb9-8ff6-4604-a083-9c4ea0fb89cc-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "¿Puede circular con su turismo si el equipaje no permite la visión adecuada de la vía por el espejo retrovisor interior?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, en ningún caso la carga puede disminuir la visibilidad a través del espejo retrovisor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, si el vehículo tiene dos espejos retrovisores exteriores, uno a cada lado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si el retrovisor derecho es gran angular y el interior es panorámico.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/1d994339-4bee-4a55-902c-16488bf180aa-1657807764-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1d994339-4bee-4a55-902c-16488bf180aa-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "Cuando un autobús circula por el carril bus más rápido que los vehículos que lo hacen por los carriles normales, ¿se considera adelantamiento?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo cuando el carril esté delimitado por líneas discontinuas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7e979992-f2f9-41ac-8b1c-078cff2179f6-1657803786-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7e979992-f2f9-41ac-8b1c-078cff2179f6-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "El vehículo rojo, ¿está correctamente estacionado?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque está en doble fila.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, si no hay espacio próximo para estacionar de otra manera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, si la duración del estacionamiento es inferior a dos minutos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/053e79e1-b2dd-42f4-bd70-d4f17d35fa41-1657903680-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/053e79e1-b2dd-42f4-bd70-d4f17d35fa41-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "Para incorporarse a la circulación dando marcha atrás, ¿se puede invadir un cruce de vías?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, cuando se sigan las indicaciones de otra persona.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, siempre que no se recorran más de 15 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6aa1b13d-6c1e-4b6b-b157-ca58fa4458bb-1658138919-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6aa1b13d-6c1e-4b6b-b157-ca58fa4458bb-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "En una carretera con un carril para cada sentido, un camión está adelantando y no permite ver la parte delantera de la vía. ¿Puede situarse detrás del camión para adelantar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si el vehículo adelantado es otro camión.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/5f6a2312-4b59-49b4-8c59-56e7a09e2742-1657823363-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5f6a2312-4b59-49b4-8c59-56e7a09e2742-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "Esta carretera no tiene arcén; ¿puede estacionar a la derecha, fuera de la vía?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sólo si hay una señal que permita expresamente el estacionamiento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, porque estoy fuera de la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, porque es una vía interurbana.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3a534ce3-a5d9-41f2-9085-6abe07c6ebc9-1733930714-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3a534ce3-a5d9-41f2-9085-6abe07c6ebc9-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "Para girar a la izquierda, es obligatorio aproximarse al borde izquierdo de la calzada en las vías…",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "con más de un carril para uno de los sentidos de circulación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "de un solo sentido de circulación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "de doble sentido de circulación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d84593bb-eac5-45b4-ba24-97de7013bb4f-1733932502-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d84593bb-eac5-45b4-ba24-97de7013bb4f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "¿Cuándo está permitido estacionar en un túnel?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Nunca.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando la calzada tiene dos carriles de circulación para cada sentido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando el túnel está suficientemente iluminado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/5c507285-2f5c-48e6-b22d-7b4df81b3682-1657904030-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5c507285-2f5c-48e6-b22d-7b4df81b3682-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "El conductor está obligado a advertir mediante señales ópticas...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "solo las maniobras que no impliquen un desplazamiento lateral.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "únicamente las maniobras que impliquen un desplazamiento lateral.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "toda maniobra que implique un desplazamiento lateral o hacia atrás.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b05c4671-26e6-4d75-a998-fb1c2bff764a-1733932844-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b05c4671-26e6-4d75-a998-fb1c2bff764a-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido parar o estacionar en un paso para peatones y en sus proximidades?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, siempre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En el paso para peatones se puede parar y, en sus proximidades, se puede parar y estacionar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En el paso de peatones no, pero en sus proximidades sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8d3ad53b-0c86-4599-8e5a-1c1946728622-1657904937-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8d3ad53b-0c86-4599-8e5a-1c1946728622-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "Quiere girar a la derecha. ¿Cómo debe avisar a los demás conductores?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Con el brazo o con el claxon.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Con las luces o con el claxon.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Con el intermitente o con el brazo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/075a9f43-89d9-4799-aa2e-4c1370b86787-1657808300-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/075a9f43-89d9-4799-aa2e-4c1370b86787-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "El conductor de un vehículo pretende incorporarse a la circulación, ¿debe cerciorarse previamente de que puede hacerlo sin peligro?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, incluso siguiendo las indicaciones de otra persona en caso necesario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, porque tiene prioridad de paso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, porque los demás conductores deben facilitarle la incorporación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/699cb064-e57e-489a-a90a-83b02984df55-1657798988-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/699cb064-e57e-489a-a90a-83b02984df55-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "Cuando se adelante a vehículos de tracción animal, fuera de poblado, la separación lateral...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "no debe ser inferior a 1,5 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "debe ser inferior a 1,5 metros, en todos los casos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "debe ser siempre proporcional a la anchura y características de la vía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/250a7c9f-cd78-4d87-9891-8a18e6a70733-1657809744-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/250a7c9f-cd78-4d87-9891-8a18e6a70733-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "En caso de que, por avería, una motocicleta quede inmovilizada en la calzada de una vía con un carril para cada sentido de la circulación, ¿cómo debe señalizarla?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Con la señal de emergencia, si la tiene instalada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Con un triángulo de preseñalización de peligro, que está obligado a llevar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Con los dos triángulos de preseñalización de peligro que está obligado a llevar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3038ae78-ecd8-4554-a051-0397b91ef1b8-1657900242-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3038ae78-ecd8-4554-a051-0397b91ef1b8-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "En un cambio de rasante, ¿está permitido parar o estacionar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, salvo que tenga visibilidad reducida.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Está permitido parar pero no estacionar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7f58e854-ca9a-4aec-a3c4-1946068f857c-1657903849-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7f58e854-ca9a-4aec-a3c4-1946068f857c-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "El vehículo blanco está inmovilizado. ¿Debe señalizarlo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, con la luz de posición.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, con la luz de emergencia y el triángulo de preseñalización de peligro.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, porque está en el arcén.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c7acc222-05f7-4b8f-930d-028c1cffb57a-1657900805-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c7acc222-05f7-4b8f-930d-028c1cffb57a-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "Al adelantar a peatones fuera de poblado se debe dejar una separación lateral...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "no superior a 1 metro.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "no inferior a 1,5 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "igual o inferior a 1,5 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d754b0bd-c6b1-4491-8591-b1440338c687-1657809718-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d754b0bd-c6b1-4491-8591-b1440338c687-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "Debe señalizar toda maniobra que suponga realizar...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "desplazamientos laterales, únicamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "un desplazamiento lateral o marcha atrás, inmovilizar el vehículo o frenar la marcha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "desplazamientos laterales o inmovilizar el vehículo, únicamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3862f933-1263-49a1-a0ab-c2c064d665dc-1657808263-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3862f933-1263-49a1-a0ab-c2c064d665dc-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "¿Dónde debe colocarse para cambiar de dirección a la izquierda en esta vía de doble sentido y tres carriles?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En el carril central, siempre que esté libre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Ceñido al borde izquierdo de la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Junto al borde derecho de la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/973abe11-8211-44b1-803f-35a98614c36b-1657893618-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/973abe11-8211-44b1-803f-35a98614c36b-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido estacionar en las calles residenciales?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, en cualquier lugar de la vía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, excepto en los lugares señalizados.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, excepto en horas nocturnas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/06bd71c8-504f-4694-b0c7-0a74befe3ba4-1657902835-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/06bd71c8-504f-4694-b0c7-0a74befe3ba4-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "En un paso para peatones, ¿está permitido parar o estacionar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Está permitido parar, pero está prohibido estacionar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/53419a1d-ccf0-437e-ba99-dc23731a5974-1657905108-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/53419a1d-ccf0-437e-ba99-dc23731a5974-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "El conductor está obligado a advertir mediante señales ópticas...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "solo las maniobras que no impliquen un desplazamiento lateral.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "el propósito de inmovilizar su vehículo o frenar su marcha de modo considerable.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "únicamente el propósito de frenar su vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b7b70d9e-242b-4d68-93ba-3dbfb539ef20-1733931685-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b7b70d9e-242b-4d68-93ba-3dbfb539ef20-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "Si circula detrás de un vehículo voluminoso que quiere girar a la derecha, ¿qué debe tener en cuenta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que el vehículo voluminoso, antes de girar, probablemente se desplazará hacia la izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Que el vehículo voluminoso no reducirá su velocidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que el vehículo voluminoso se acercará lo máximo posible a la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/646584cb-a8b9-48e5-bb80-6b600634f146-1657895178-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/646584cb-a8b9-48e5-bb80-6b600634f146-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Cuando la luz de marcha atrás esté averiada, ¿cómo debe indicar que va a dar marcha atrás?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Advirtiéndolo con el claxon.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Moviendo el brazo de arriba abajo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Con el brazo extendido y la palma de la mano hacia atrás.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/140f087f-f725-4779-92b0-1d41a7dda6b4-1657808621-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/140f087f-f725-4779-92b0-1d41a7dda6b4-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "Si por necesidades de la circulación, un vehículo queda inmovilizado en el interior de un paso inferior, el conductor, entre otras medidas, deberá...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "abandonar el vehículo y dirigirse al refugio más próximo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "apagar todos los sistemas eléctricos del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "mantener encendidas las luces de posición y apagar el motor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/72838065-7262-43b2-b6d6-8098845a07ba-1657901769-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/72838065-7262-43b2-b6d6-8098845a07ba-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "En una intersección, ¿está permitido realizar un cambio de sentido?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, como norma general.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, siempre que se pueda efectuar la maniobra en un solo giro.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, está prohibido siempre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d3b5e013-111c-46fa-96d6-964784bb538b-1657897772-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d3b5e013-111c-46fa-96d6-964784bb538b-s-1.jpg",
+    "source": "practicavial"
+  }
+]

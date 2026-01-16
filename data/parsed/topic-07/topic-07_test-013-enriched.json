@@ -1,0 +1,1502 @@
+[
+  {
+    "topic_number": 7,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "El sistema de lavaparabrisas del vehículo, ¿necesita mantenimiento?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, vigilar el nivel del circuito de refrigeración, de donde toma el agua.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, vigilar el nivel de líquido lavaparabrisas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/45247260-1444-4da7-9756-81af1e03aabc-1658852113-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "La tasa máxima de alcohol para un conductor de autobús es de...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "0,25 miligramos por litro de aire espirado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "0,40 miligramos por litro de aire espirado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "0,15 miligramos por litro de aire espirado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/865088ec-d8b9-4465-a8d6-2333ed0123b1-1658772752-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "El conductor de una motocicleta, ¿es aconsejable que lleve guantes?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sólo en vía urbana.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/525d1ab0-f95f-4a8a-a5c6-b6df68524496-1658851923-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Durante el día, ¿Cuándo se produce el mayor número de accidentes?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A primera hora de la mañana.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A la hora de entrada en los trabajos, solamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A las horas de entrada o salida del trabajo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/885c01ba-0b12-44bf-8a2b-5010f866dce5-1658502725-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "Entre los efectos negativos de la velocidad se encuentra el efecto túnel, en el que el conductor...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "solo percibe el centro de la calzada y deja de ver los laterales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "tiene la falsa sensación de que circula a velocidad reducida.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "percibe mejor los laterales de la vía que el centro de la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e4221257-d893-41e7-9e39-6dbe49034baa-1658748292-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "Cuando tomamos alcohol con otras drogas...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "se potencian los efectos negativos sobre la capacidad para conducir.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "se anulan los efectos negativos para conducir.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "sólo tiene efectos negativos en los menores.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d1235cba-b75c-4fdd-9879-bacf536308c6-1658774414-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "La depresión es una grave enfermedad que se sufre cada vez con más frecuencia. Si se padece debemos saber que...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "tiene un claro efecto sobre nuestras capacidades para conducir un vehículo con seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "si no nos medicamos no tiene efectos sobre la conducción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "no debemos conducir hasta pasada al menos una hora de habernos medicado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9e73772d-10e7-4c9a-936d-adc6dc5b00b2-1658765208-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "Evitando los factores de riesgo, ¿puede reducirse la probabilidad de sufrir un accidente de tráfico?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque es algo que es imposible evitar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, pero sólo pueden evitarse los que dependen del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, especialmente evitando los que dependen del propio conductor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7fcdfc15-7df0-4e2d-b6d8-9504038b1af0-1658501843-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Para evitar posibles lesiones, la cinta abdominal del cinturón de seguridad debe situarse...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "en el abdomen.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "debajo del abdomen.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "por encima del abdomen.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7364efeb-f4e7-432b-8b51-fe987f59a4bd-1658842588-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "¿Qué parte del cuerpo resulta más afectada en los accidentes de motocicleta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Los brazos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Las piernas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "La cabeza y la cara.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f224108f-a8a9-4dc8-a2f2-a63b98965a4f-1658507292-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "En una calzada con nieve, ¿el uso brusco o inadecuado de los frenos puede ser causa de derrape?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, si se frena bruscamente, los neumáticos pueden perder la adherencia sobre el pavimento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, si las ruedas están perfectamente alineadas y equilibradas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, si los neumáticos tienen la presión de inflado recomendada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a4a8dabf-b825-4df0-a12b-a8ce61275e42-1658857231-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "La luneta térmica de la ventanilla posterior del vehículo, ¿qué función tiene?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Eliminar el hielo y el vaho que se pueden formar por circunstancias climatológicas adversas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Producir calor para el mejor confort de los pasajeros de los asientos traseros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Evitar la rotura de la luneta posterior que refuerzan los filamentos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9463888c-4ddb-4076-92f8-2b7a76c353ec-1658852041-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "¿Qué es el sistema ISOFIX?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Es un sistema de seguridad activa.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Es un sistema de seguridad pasiva.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Es una técnica de conducción preventiva.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/60c1c7be-98d9-4723-a256-128610efbd9f-1658845810-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "Un conductor que bebe con frecuencia, ¿es probable que con el tiempo acabe sufriendo un accidente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, si tiene experiencia en la conducción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Únicamente si bebe mucho.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8292e4ec-4d69-4aa1-8f62-a173352ce9e9-1658771249-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "Algunas drogas pueden causar...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "aumento del campo visual.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "un nivel de alerta mayor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "ilusiones ópticas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/40902d8e-0f6c-4dd5-8c75-09d20ec816f3-1658774779-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la tasa de alcohol máxima permitida a un conductor novel mayor de edad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "0,3 miligramos de alcohol por litro de aire espirado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "0,15 miligramos de alcohol por litro de aire espirado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "0,25 miligramos de alcohol por litro de aire espirado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/88a3c161-a7cb-450f-9af7-18e7ac8c00f3-1658771748-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "En una zona de calzada helada...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "no se puede circular.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "no se pueden utilizar neumáticos de clavos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "se puede mejorar la adherencia, con cadenas o neumáticos de clavos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/38b4990b-20b3-4239-84d7-96162ec7c907-1663579800-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "Hay medicamentos que producen sueño. Después de tomarlos, ¿puede conducir?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, porque estaré más tranquilo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, siempre que lo haga durante el día.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7c360448-01c0-46e7-99aa-b9c0846888bf-1658765444-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "Para inspeccionar el neumático debe fijarse en...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "el dibujo, si existen grietas o desgaste irregular.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "las llantas, únicamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "la presión del aire, solamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d1689757-3d2c-4d65-bbb0-d1804d16e41a-1658835641-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "Uno de los factores que propician la accidentalidad de los jóvenes conductores es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La menor percepción del riesgo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "la mayor capacidad para controlar el vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "la percepción de la conducción como algo peligroso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/242f85ce-af5a-459a-ab58-d6db82521ecb-1658503726-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "Una correcta presión de inflado...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "hace que el neumático se desgaste de forma irregular.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "reduce el riesgo de reventón del neumático.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "puede aumentar el consumo de carburante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c8a918fc-312e-4112-9c07-37732fbfcadd-1658833649-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "El casco integral protege de:",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que te rompas la clavícula.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La abrasión de la cara contra el asfalto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Únicamente del impacto de la cabeza contra el suelo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b71bcdc1-53f5-4ee8-b388-ed5383f5a999-1658851766-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "Circular a velocidad excesiva, ¿influye en la capacidad de anticipación del conductor ante una situación de peligro?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo cuando se circula por una vía saturada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d3e24b66-e74b-4f29-8258-f9b2b0deb036-1658748213-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "El conductor de una motocicleta que sufre una caída procurará...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "deslizarse por el suelo lo más relajadamente posible hasta quedar detenido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "levantarse antes de haberse detenido totalmente, para evitar ser golpeado contra el suelo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "rodar el cuerpo rápidamente para provocar mayor rozamiento y detenerse lo antes posible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/98a4322d-5d26-427a-9812-0e1bd4b00960-1658505645-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "Cuando se conduce, poner una toalla sobre el asiento...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "no representa ningún peligro.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "puede favorecer el efecto submarino.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "es recomendable, sobre todo en verano, para proteger el asiento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ac76729d-fb3f-498e-8682-9ac8260fb967-1658842466-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "El efecto túnel provocado por una velocidad excesiva es especialmente peligroso en...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "los adelantamientos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "las intersecciones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "las autopista y autovías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/82b19d14-09a8-4e10-8769-ff606116f62c-1658748254-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "Las personas de más de 65 años, ¿son más sensibles a los efectos del alcohol?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, la edad no influye en la sensibilidad al alcohol.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, los jóvenes de entre 18 y 29 años son más sensibles.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/cc8bee69-41dc-4b10-9eaa-d381d5252e27-1658773540-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Un conductor bajo los efectos del alcohol...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "es más fácil que coordine correctamente sus movimientos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "es más difícil que coordine correctamente sus movimientos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "coordina más rápidamente sus movimientos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b721925c-2e76-4994-ae9d-911716983d1c-1658771532-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "Las alteraciones del sueño, ¿pueden afectar al estado del conductor?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, pueden provocar estados de nerviosismo y agresividad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, incrementan los niveles de atención.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/47001089-9918-406f-8dd8-26dec8d79f51-1658758929-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "¿Puede el conductor reducir la probabilidad de accidente debido al \"factor vehículo\"?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, si el vehículo no lleva los modernos sistemas de seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, los fallos mecánicos son impredecibles.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, mediante un mantenimiento adecuado del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2d13bc73-0a1e-4d76-b0bf-52545521eb55-1658501919-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  }
+]

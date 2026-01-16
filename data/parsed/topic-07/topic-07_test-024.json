@@ -1,0 +1,1502 @@
+[
+  {
+    "topic_number": 7,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "En general, un conductor fatigado...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "tiene los músculos más relajados.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "tarda más tiempo en reaccionar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "favorece los movimientos rápidos y precisos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/59066308-8753-4a78-903a-1c3af09fb0fc-1658753630-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "La edad avanzada, ¿puede ser un factor que favorezca la distracción al volante?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, siempre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, si no se toman las debidas precauciones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6f2a87ff-d87b-456a-8a9b-b55a372fb529-1658768396-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Si su permiso para conducir de la clase B tiene un año de antigüedad, ¿cuál es la tasa máxima permitida de alcohol?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "0,15 miligramos por litro de aire espirado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "0,25 miligramos por litro de aire espirado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "0,30 miligramos por litro de aire espirado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/34d64167-3fb2-4f7f-b704-9f9dd5c2cf7b-1658772570-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Respecto a los sistemas de seguridad pasiva, ¿qué relación existe entre el airbag y el cinturón de seguridad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Son sistemas incompatibles; con el cinturón puesto se debe desconectar el airbag.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Son sistemas complementarios, no se puede sustituir uno por otro.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El airbag es un sistema de seguridad que sustituye al cinturón.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4de053bc-9205-4681-b5c5-30e0212bd61b-1658850263-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "¿Qué alteraciones produce el alcohol en el comportamiento del conductor?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Exceso de seguridad en sí mismo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Aumenta el campo visual.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Aumenta los niveles de atención.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d1c006e6-53d8-41f6-81d0-db74d82206d9-1658771344-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "Un vehículo tiene \"servofreno\". ¿Qué ocurre cuando se apaga el motor?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que las ruedas se bloquean.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Que el freno de pie no funciona bien y tengo que pisar el pedal con más fuerza.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que el freno de mano no funciona bien y tengo que tirar de la palanca con más fuerza.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a2260403-962b-42bf-a419-1fd0acb2e0ad-1658837714-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "El consumo de drogas, ¿afecta a la capacidad de reacción?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, disminuyéndola.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, aumentándola.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/beddb71b-96f7-43e1-bf25-49fff18a0988-1658774309-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "En los accidentes de tráfico influyen de forma significativa...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "el conductor y la vía pero no el vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "el conductor, la vía y el vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "la vía y el vehículo fundamentalmente, y en menor medida el conductor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8abebb35-8848-47f3-8fb0-43c7514625d1-1658498029-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "¿Qué debe comprobar en un mantenimiento preventivo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La profundidad de la banda de rodadura, únicamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El estado de los neumáticos, frenos y alumbrado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo el nivel de aceite y del líquido de frenos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/0cb3fb89-e0fc-4f0f-a9a9-0ea9b2a9683c-1658859003-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "Buscar una emisora de radio o manipular el reproductor de música, ¿pueden distraer al conductor?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo si las emisoras de radio no están guardadas en memoria.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, aumentando el riesgo de accidente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/028d74af-283c-4281-811c-ae159860ae06-1658768245-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "Circulando con la calzada nevada las pendientes se deben subir...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "rápidamente, porque si el vehículo se detiene será difícil reanudar la marcha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "con la relación de marchas más corta posible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "lentamente y a velocidad sostenida.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3b069f0c-869e-4a5b-bbe3-707f1bf248e1-1658857249-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "El reposacabezas, ¿cómo debe colocarse?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A la altura de cuello.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Lo más alto posible para que no moleste.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A la altura de la cabeza.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/cbd7fdd1-da5f-4dbb-8ccf-fea439962ae0-1658850959-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "El inflado correcto de los neumáticos es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "el recomendado por el fabricante en cada caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "el superior al recomendado en un 10%.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "el adecuado a los amortiguadores que lleve el coche.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9e3de6e4-a0b9-44cf-ad32-3088fdf43669-1658833358-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "En general, un conductor que sufre un trastorno depresivo...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "sufre menos distracciones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "comete menos errores a la hora de tomar decisiones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "es más inseguro al volante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/49b09b05-ab56-4d43-99d4-bf65e2e27df3-1658765228-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "¿Existen enfermedades cuyo tratamiento, o la falta del mismo, puede ser un factor de riesgo para la conducción?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, el estado del conductor no afecta a la seguridad vial.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, como la depresión o la epilepsia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, pero solo si se trata de enfermedades crónicas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/916a73d2-ffcb-463f-befb-a9c9dee2aaa6-1658765253-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "¿Cuándo se producen más accidentes de ciclistas, en verano o en invierno?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Es indiferente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En invierno, debido a las condiciones meteorológicas adversas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En verano, puesto que con la llegada del buen tiempo hay más ciclistas en las carreteras.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/cfa9d01f-14a2-4326-adb4-cadb4f291d37-1658508706-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "Al circular con un turismo, ¿qué debe hacer para reducir la probabilidad de verse involucrado en un accidente con un vehículo de dos ruedas?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No respetar la distancia lateral de seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No respetar la distancia frontal de seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Circular en paralelo el menor tiempo posible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3a696f90-8ade-49bd-953d-acf11c46c4d6-1658507729-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "Si circula con el aire acondicionado encendido y hace demasiado frío, el tiempo de reacción...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "aumenta.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "disminuye.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "no se ve afectado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/fb92dd42-8cbf-4ae2-8cf4-84f6517ef941-1658767056-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "El casco, ¿se puede incluir entre los elementos de seguridad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, de seguridad pasiva.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, únicamente de la seguridad activa.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/80f74216-250b-4821-b04a-d3da2f04366c-1658851228-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la tasa máxima de alcohol permitida para el conductor mayor de edad de una bicicleta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "0,15 miligramos por litro de aire espirado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "0,25 miligramos por litro de aire espirado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Los conductores de bicicletas no están obligados a someterse a las pruebas de alcoholemia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/358b17e2-993c-4eed-83e2-5bf32fd71848-1658772649-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "Las lámparas de xenón...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "aumentan la fatiga ocular del conductor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "mejoran la iluminación de la vía y reducen la fatiga ocular del conductor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "iluminan peor la vía, pero reducen la fatiga ocular del conductor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b32786b5-33b4-441b-be41-d1826ab96fe1-1658839662-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "Los costes de policía y bomberos, de gestión de seguros y servicios, ¿cómo se llaman?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Costes humanos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Costes sanitarios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Costes administrativos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7ffa56e3-6127-4c6a-bd4b-e8bef9c951e1-1658497723-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "En general, un conductor bajo los efectos del alcohol...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "es menos sensible a los deslumbramientos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "es más sensible a los deslumbramientos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "percibe mejor las distancias y las velocidades.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/5b2e5e00-ac5f-4a96-8372-883ab5e062bb-1658771380-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "Detiene su vehículo en una calzada con nieve. ¿Cuál es la mejor manera de volver a iniciar la marcha?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Poniendo la 1º velocidad y acelerando a fondo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Poniendo la 2º velocidad y acelerando suavemente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Poniendo la 4º velocidad y acelerando a fondo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ea8a48f1-fe1c-4c00-a19d-565c4c6c6b87-1663579595-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "¿En qué carreteras hay más accidentes con resultados mortales?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En vía urbana.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En vía interurbana.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En autopista o autovía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b065d3dc-bb16-4b32-bbe1-1c5288ee6b10-1658502342-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "Una buena técnica para tomar una curva es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "mantener pisado el embrague desde la mitad de la curva hasta salir de ella.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "frenar antes de entrar en la curva y acelerar suavemente a la salida de la misma.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "frenar a la mitad de la curva aproximadamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/1fac5e03-615d-45ab-aa52-d02df97dc5c3-1658852620-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "Entre los momentos de peligro en el uso del teléfono móvil se encuentran...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "no utilizar el teléfono móvil.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "colgar y guardar el móvil.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "recibir una llamada y detenerse en un lugar seguro para hablar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "El estrés, ¿qué efectos puede tener sobre el conductor?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Disminución de la fatiga y el sueño.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Comportamientos excesivamente prudentes.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "La toma de decisiones al volante puede ser más lenta.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/1bc507e1-f1bc-4e81-8f71-0974fd58b057-1658764526-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "La fatiga, ¿influye en los efectos que produce el alcohol?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, los aminora.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, los agrava.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/5e0be8e3-5081-4326-a29d-f42b8bca6f2b-1658773460-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "Entre otros efectos, el consumo de alcohol...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "mejora la atención si se toma en pequeñas cantidades.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "ayuda a mantener la atención al volante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "aumenta las distracciones al volante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/36d8a5cb-69fe-4d3f-a525-f39adf93645b-1658771556-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  }
+]

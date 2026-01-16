@@ -1,0 +1,402 @@
+[
+    {
+        "question_es": "¿Le está permitido el acceso a un vehículo de motor que disponga del distintivo ambiental C a una zona de bajas emisiones delimitada por estas señales?",
+        "question_ru": "Разрешен ли въезд механическому транспортному средству с экологической маркировкой C в зону с низким уровнем выбросов, ограниченную этими знаками?",
+        "question_en": "Is a motor vehicle with environmental label C allowed to enter a low emission zone delimited by these signs?",
+        "image_url": "https://teorica.practicavial.com/question/715874cf-a68d-4eb9-b076-74192de815c6-1734455877-i.jpg",
+        "image_filename": "715874cf-a68d-4eb9-b076-74192de815c6-1734455877-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/715874cf-a68d-4eb9-b076-74192de815c6-s-1.jpg?t=1767569874",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "Solo si el vehículo de motor es una motocicleta.",
+                    "text_ru": "Только если это мотоцикл.",
+                    "text_en": "Only if the motor vehicle is a motorcycle.",
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "Sí.",
+                    "text_ru": "Да.",
+                    "text_en": "Yes.",
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "No, como norma general.",
+                    "text_ru": "Нет, как общее правило.",
+                    "text_en": "No, as a general rule.",
+                    "is_correct": true
+                }
+            ],
+            "explanation_es": "### 1️⃣ 👁️ Análisis Visual\nLa señal de prohibición muestra un coche emitiendo humo, con un panel inferior que especifica las etiquetas permitidas (обычно 0 и ECO).\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nLas zonas de bajas emisiones (ZBE) restringen el acceso según la etiqueta ambiental. Si el panel complementario NO incluye la letra 'C', el acceso está prohibido aunque el coche sea moderno. \n\n### 3️⃣ 💣 La Trampa / El Truco\nMuchos creen que la etiqueta 'C' (verde) es suficiente para entrar en cualquier sitio. ¡Falso! Depende de lo que diga el panel adicional debajo de la señal roja. No te confíes.",
+            "explanation_ru": "### 1️⃣ 👁️ Визуальный анализ\nЗнак запрета показывает автомобиль с дымом из трубы, а на табличке внизу указаны разрешенные наклейки (обычно 0 и ECO).\n\n### 2️⃣ 🧠 Логика «Почему»\nЗоны ZBE ограничивают въезд по экологическому классу. Если на дополнительной панели НЕТ буквы 'C', въезд запрещен, даже если машина современная.\n\n### 3️⃣ 💣 Ловушка / Подвох\nМногие думают, что наклейки 'C' (зеленая) достаточно для въезда везде. Ошибка! Всё зависит от того, что написано на белой табличке под красным кругом. Не дай себя запутать.",
+            "explanation_en": "### 1️⃣ 👁️ Visual Analysis\nThe prohibition sign shows a car with smoke, with a bottom panel specifying allowed labels (usually 0 and ECO).\n\n### 2️⃣ 🧠 The Logic 'Why'\nLEZ zones (ZBE) restrict access based on the environmental label. If the supplementary panel does NOT include the letter 'C', access is prohibited even if the car is modern.\n\n### 3️⃣ 💣 The Trap / The Trick\nMany believe that the 'C' label (green) is enough to enter anywhere. False! It depends on what the additional panel under the red circle says. Don't be fooled.",
+            "source": "practicalvial",
+            "original_number": 1
+        }
+    },
+    {
+        "question_es": "Los distintivos ambientales clasifican a los vehículos en función de...",
+        "question_ru": "Экологические маркировки классифицируют транспортные средства на основе...",
+        "question_en": "Environmental labels classify vehicles based on...",
+        "image_url": "https://teorica.practicavial.com/question/0cf194c7-17ca-4d6e-aa22-0969e7dba982-1663758211-i.jpg",
+        "image_filename": "0cf194c7-17ca-4d6e-aa22-0969e7dba982-1663758211-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/0cf194c7-17ca-4d6e-aa22-0969e7dba982-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "su potencial contaminante.",
+                    "text_ru": "их потенциала загрязнения.",
+                    "text_en": "their polluting potential.",
+                    "is_correct": true
+                },
+                {
+                    "id": "b",
+                    "text_es": "su ahorro energético.",
+                    "text_ru": "их энергосбережения.",
+                    "text_en": "their energy saving.",
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "su contaminación acústica.",
+                    "text_ru": "их шумового загрязнения.",
+                    "text_en": "their noise pollution.",
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": "### 🧠 La Lógica \"Por qué\"\nEl sistema de etiquetas de la DGT se creó para identificar rápidamente cuánto contamina un coche (emisiones de gas). No mide el ruido ni cuánto ahorras, sino qué tan 'limpio' es el motor.\n\n### 💣 La Trampa / El Truco\nNo confundas 'ahorro' con 'contaminación'. Un coche puede gastar poco pero contaminar mucho. La etiqueta mira el 'veneno' que sale del escape.",
+            "explanation_ru": "### 🧠 Логика «Почему»\nСистема наклеек DGT была создана для быстрой идентификации того, насколько машина загрязняет воздух (выбросы газов). Она не измеряет шум или экономию, а только «чистоту» двигателя.\n\n### 💣 Ловушка / Подвох\nНе путай «экономию» с «загрязнением». Машина может тратить мало топлива, но сильно загрязнять среду. Наклейка смотрит на «яд», выходящий из трубы.",
+            "explanation_en": "### 🧠 The Logic 'Why'\nThe DGT label system was created to quickly identify how much a car pollutes (gas emissions). It doesn't measure noise or savings, only how 'clean' the engine is.\n\n### 💣 The Trap / The Trick\nDon't confuse 'savings' with 'pollution'. A car can use little fuel but pollute a lot. The label looks at the 'poison' coming out of the exhaust.",
+            "source": "practicalvial",
+            "original_number": 3
+        }
+    },
+    {
+        "question_es": "Cuando otro vehículo que circula detrás de su turismo está muy próximo, se recomienda...",
+        "question_ru": "Когда другое транспортное средство, едущее позади вашего автомобиля, находится слишком близко, рекомендуется...",
+        "question_en": "When another vehicle driving behind your car is very close, it is recommended to...",
+        "image_url": "https://teorica.practicavial.com/question/8da34e1e-a188-4d57-9da4-ab5a179ce548-1658858779-i.jpg",
+        "image_filename": "8da34e1e-a188-4d57-9da4-ab5a179ce548-1658858779-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/8da34e1e-a188-4d57-9da4-ab5a179ce548-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "echarse a un lado inmediatamente para que pueda adelantar.",
+                    "text_ru": "немедленно отъехать в сторону, чтобы он мог обогнать.",
+                    "text_en": "pull over immediately so they can overtake.",
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "frenar bruscamente para alejar al coche que circula detrás.",
+                    "text_ru": "резко затормозить, чтобы 'отпугнуть' машину сзади.",
+                    "text_en": "brake suddenly to push the car behind away.",
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "aumentar la distancia de seguridad por delante siempre que sea posible.",
+                    "text_ru": "увеличить дистанцию до впереди идущего автомобиля, если это возможно.",
+                    "text_en": "increase the safety distance in front whenever possible.",
+                    "is_correct": true
+                }
+            ],
+            "explanation_es": "### 🧠 La Lógica \"Por qué\"\nSi un coche te sigue muy de cerca, el mayor riesgo es que te choque si tienes que frenar. Al aumentar TÚ el espacio con el coche de delante, ganas margen para frenar suavemente, dándole tiempo al de atrás para reaccionar. \n\n### 💣 La Trampa / El Truco\nNo intentes 'educar' al de atrás frenando (es peligroсо) ni te apartes de forma brusca. La clave es crear una 'burbuja' de seguridad delante de ti para compensar la falta de espacio detrás.",
+            "explanation_ru": "### 🧠 Логика «Почему»\nЕсли кто-то прижался сзади, главный риск — удар при торможении. Увеличивая СВОЮ дистанцию до машины впереди, ты создаешь запас места для плавного торможения, давая заднему водителю время среагировать.\n\n### 💣 Ловушка / Подвох\nНе пытайся «учить» заднего водителя торможениями (это опасно) и не дергайся в сторону. Ключ — создать «пузырь» безопасности перед собой, чтобы компенсировать отсутствие места сзади.",
+            "explanation_en": "### 🧠 The Logic 'Why'\nIf a car follows you too closely, the biggest risk is a rear-end collision if you have to brake. By increasing YOUR distance from the car in front, you gain room to brake smoothly, giving the person behind time to react.\n\n### 💣 The Trap / The Trick\nDon't try to 'teach' the person behind by braking (it's dangerous) or pull over abruptly. The key is to create a 'bubble' of safety in front of you to compensate for the lack of space behind.",
+            "source": "practicalvial",
+            "original_number": 4
+        }
+    },
+    {
+        "question_es": "Está prohibida la circulación de vehículos a motor que no disponen de...",
+        "question_ru": "Запрещено движение механических транспортных средств, не имеющих...",
+        "question_en": "Driving motor vehicles that do not have ... is prohibited.",
+        "image_url": "https://teorica.practicavial.com/question/1cbbbf4c-78f8-4c47-9373-86bc3aef4f29-1663758070-i.jpg",
+        "image_filename": "1cbbbf4c-78f8-4c47-9373-86bc3aef4f29-1663758070-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/1cbbbf4c-78f8-4c47-9373-86bc3aef4f29-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "un extintor de incendios adecuado y eficaz.",
+                    "text_ru": "подходящего и эффективного огнетушителя.",
+                    "text_en": "a suitable and effective fire extinguisher.",
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "un dispositivo silenciador de explosiones.",
+                    "text_ru": "глушителя (устройства для подавления звука выхлопа).",
+                    "text_en": "an explosion silencer device (muffler).",
+                    "is_correct": true
+                },
+                {
+                    "id": "c",
+                    "text_es": "un juego de correas de repuesto para el equipo motor.",
+                    "text_ru": "комплекта запасных ремней для двигателя.",
+                    "text_en": "a set of spare belts for the engine.",
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": "### 🧠 La Lógica \"Por qué\"\nTodos los vehículos de motor deben llevar un silenciador para reducir el ruido. Esto es parte de las normas contra la contaminación acústica. Ir con el 'escape libre' es ilegal.\n\n### 💣 La Trampa / El Truco\nAunque parece que el extintor es obligatorio, para turismos comunes en España NO lo es. Solo es obligatorio para camiones, buses и т.д. А вот глушитель должен ser у ВСЕХ.",
+            "explanation_ru": "### 🧠 Логика «Почему»\nВсе механические транспортные средства должны иметь глушитель для снижения шума. Это часть правил по борьбе с шумовым загрязнением. Езда с «прямотоком» незаконна.\n\n### 💣 Ловушка / Подвох\nХотя может казаться, что огнетушитель обязателен, для обычных легковых авто в Испании это НЕ так. Он обязателен только для грузовиков, автобусов и т.д. А вот глушитель должен быть у ВСЕХ.",
+            "explanation_en": "### 🧠 The Logic 'Why'\nAll motor vehicles must have a muffler/silencer to reduce noise. This is part of anti-noise pollution regulations. Driving with 'open exhaust' is illegal.\n\n### 💣 The Trap / The Trick\nAlthough it might seem like a fire extinguisher is mandatory, for common passenger cars in Spain it is NOT. It's only mandatory for trucks, buses, etc. But a muffler is required for EVERYONE.",
+            "source": "practicalvial",
+            "original_number": 5
+        }
+    },
+    {
+        "question_es": "Situado en un vehículo, ¿qué identifica la señal V-25 distintivo ambiental?",
+        "question_ru": "Что обозначает знак V-25 «экологическая наклейка», размещенный на автомобиле?",
+        "question_en": "Placed on a vehicle, what does the sign V-25 environmental label identify?",
+        "image_url": "https://teorica.practicavial.com/question/5d840670-8cdc-41e9-99a9-a1303b6e470a-1663758222-i.jpg",
+        "image_filename": "5d840670-8cdc-41e9-99a9-a1303b6e470a-1663758222-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/5d840670-8cdc-41e9-99a9-a1303b6e470a-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "Su clasificación ambiental en función de su nivel de emisiones y combustible empleado.",
+                    "text_ru": "Экологическую классификацию в зависимости от уровня выбросов и типа используемого топлива.",
+                    "text_en": "Its environmental classification based on its emission level and fuel used.",
+                    "is_correct": true
+                },
+                {
+                    "id": "b",
+                    "text_es": "El tipo de combustible empleado y su nivel de radiación atmosférica.",
+                    "text_ru": "Тип используемого топлива и уровень его атмосферного излучения.",
+                    "text_en": "The type of fuel used and its atmospheric radiation level.",
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "Su clasificación ambiental en función de su nivel de contaminación acústica.",
+                    "text_ru": "Экологическую классификацию в зависимости от уровня шумового загрязнения.",
+                    "text_en": "Its environmental classification based on its level of noise pollution.",
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": "### 🧠 La Lógica \"Por qué\"\nLa señal V-25 (el círculo de color) clasifica a los vehículos según la normativa Euro de emisiones. Sirve para saber si puedes entrar en zonas restringidas (ZBE).\n\n### 💣 La Trampa / El Truco\nOjo con la opción C: la наклейка НЕ про шум. Она про то, сколько грязи (CO2, NOx) машина выкиda en el aire.",
+            "explanation_ru": "### 🧠 Логика «Почему»\nЗнак V-25 (цветной круг) классифицирует автомобили согласно нормам выбросов Евро. Он служит для того, чтобы понимать, можно ли заезжать в ограниченные зоны (ZBE).\n\n### 💣 Ловушка / Подвох\nОсторожно с вариантом C: наклейка НЕ про шум. Она про то, сколько грязи (CO2, NOx) машина выбрасывает в воздух.",
+            "explanation_en": "### 🧠 The Logic 'Why'\nThe V-25 sign (the colored circle) classifies vehicles according to Euro emission standards. It is used to know if you can enter restricted zones (LEZ/ZBE).\n\n### 💣 The Trap / The Trick\nWatch out for option C: the label is NOT about noise. It's about how much pollution (CO2, NOx) the car releases into the air.",
+            "source": "practicalvial",
+            "original_number": 6
+        }
+    },
+    {
+        "question_es": "¿Qué puede verse afectado si cambia el carenado de una motocicleta?",
+        "question_ru": "На что может повлиять изменение обтекателя (кожуха) мотоцикла?",
+        "question_en": "What can be affected if a motorcycle's fairing is changed?",
+        "image_url": "https://teorica.practicavial.com/question/607a84ea-16be-402d-826a-9be3344b2e8a-1658859021-i.jpg",
+        "image_filename": "607a84ea-16be-402d-826a-9be3344b2e8a-1658859021-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/607a84ea-16be-402d-826a-9be3344b2e8a-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "La visibilidad del vehículo.",
+                    "text_ru": "На видимость транспортного средства.",
+                    "text_en": "The visibility of the vehicle.",
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "La estética, exclusivamente.",
+                    "text_ru": "Исключительно на внешний вид (эстетику).",
+                    "text_en": "The aesthetics, exclusively.",
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "La aerodinámica y el consumo.",
+                    "text_ru": "На аэродинамику и расход топлива.",
+                    "text_en": "The aerodynamics and consumption.",
+                    "is_correct": true
+                }
+            ],
+            "explanation_es": "### 🧠 La Lógica \"Por qué\"\nEl carenado está diseñado para que el aire fluya suavemente alrededor de la moto. Si lo cambias por uno que 'corta' peor el viento, el motor tendrá que hacer más fuerza и расход бензина вырастет.\n\n### 💣 La Trampa / El Truco\nMuchos piensan que es solo algo estético (opción B). Pero en el examen de conducir, casi todo cambio técnico afecta al consumo o a la seguridad.",
+            "explanation_ru": "### 🧠 Логика «Почему»\nОбтекатель спроектирован так, чтобы воздух плавно обтекал мотоцикл. Если заменить его на тот, который хуже «режет» ветер, двигателю придется прикладывать больше усилий, и расход бензина вырастет.\n\n### 💣 Ловушка / Подвох\nМногие думают, что это только эстетика (вариант B). Но на экзамене по вождению почти любое техническое изменение влияет на расход или безопасность.",
+            "explanation_en": "### 🧠 The Logic 'Why'\nThe fairing is designed so that air flows smoothly around the motorcycle. If you change it for one that 'cuts' the wind worse, the engine will have to work harder and fuel consumption will increase.\n\n### 💣 The Trap / The Trick\nMany think it's just aesthetic (option B). But in the driving test, almost every technical change affects consumption or safety.",
+            "source": "practicalvial",
+            "original_number": 7
+        }
+    },
+    {
+        "question_es": "Una buena práctica para evitar accidentes es...",
+        "question_ru": "Хорошей практикой для предотвращения аварий является...",
+        "question_en": "A good practice to avoid accidents is...",
+        "image_url": "https://teorica.practicavial.com/question/9c7c9758-3e13-438b-9762-f0f21b616c04-1658858715-i.jpg",
+        "image_filename": "9c7c9758-3e13-438b-9762-f0f21b616c04-1658858715-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/9c7c9758-3e13-438b-9762-f0f21b616c04-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "procurar que los demás conductores puedan anticiparse a las maniobras, haciéndose ver y entender de forma adecuada.",
+                    "text_ru": "стараться, чтобы другие водители могли предвидеть ваши маневры, делая себя заметным и понятным.",
+                    "text_en": "ensuring that other drivers can anticipate your maneuvers, making yourself seen and understood properly.",
+                    "is_correct": true
+                },
+                {
+                    "id": "b",
+                    "text_es": "circular siempre muy despacio para anticiparse a todas las situaciones de riesgo.",
+                    "text_ru": "всегда ездить очень медленно, чтобы предвидеть любые риски.",
+                    "text_en": "always drive very slowly to anticipate all risky situations.",
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "señalizar con antelación sólo las maniobras que puedan ser peligrosas.",
+                    "text_ru": "сигнализировать заранее только о тех маневрах, которые могут быть опасными.",
+                    "text_en": "signal in advance only those maneuvers that may be dangerous.",
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": "### 🧠 La Lógica \"Por qué\"\nLa conducción no es un acto solitario. Si los demás saben lo que vas a hacer (gracias a los intermitentes y tu posición), evitarás frenazos y sustos.\n\n### 💣 La Trampa / El Truco\nCuidado con la opción B: circular MUY despacio sin causa justificada también es peligroso y puede causar accidentes. La clave es ser PREVISIBLE, no lento.",
+            "explanation_ru": "### 🧠 Логика «Почему»\nВождение — это не одиночный акт. Если другие знают, что ты собираешься делать (благодаря поворотникам и твоему положению), ты избежишь резких торможений и испугов.\n\n### 💣 Ловушка / Подвох\nОсторожно с вариантом B: езда СЛИШКОМ медленно без причины также опасна и может вызвать аварии. Ключ в том, чтобы быть ПРЕДСКАЗУЕМЫМ, а не медленным.",
+            "explanation_en": "### 🧠 The Logic 'Why'\nDriving is not a solitary act. If others know what you are going to do (thanks to indicators and your position), you will avoid sudden braking and scares.\n\n### 💣 The Trap / The Trick\nWatch out for option B: driving VERY slowly without justified cause is also dangerous and can cause accidents. The key is to be PREDICTABLE, not slow.",
+            "source": "practicalvial",
+            "original_number": 8
+        }
+    },
+    {
+        "question_es": "La distribución de la carga en un vehículo, ¿afecta al consumo de combustible?",
+        "question_ru": "Влияет ли распределение груза в автомобиле на расход топлива?",
+        "question_en": "Does the distribution of the load in a vehicle affect fuel consumption?",
+        "image_url": "https://teorica.practicavial.com/question/1632d13f-f945-4273-80a5-211cee895636-1658859077-i.jpg",
+        "image_filename": "1632d13f-f945-4273-80a5-211cee895636-1658859077-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/1632d13f-f945-4273-80a5-211cee895636-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "Sí, por ello es muy importante colocar la carga de manera adecuada.",
+                    "text_ru": "Да, поэтому очень важно правильно размещать груз.",
+                    "text_en": "Yes, therefore it is very important to place the load properly.",
+                    "is_correct": true
+                },
+                {
+                    "id": "b",
+                    "text_es": "No, en el consumo sólo afecta la velocidad.",
+                    "text_ru": "Нет, на расход влияет только скорость.",
+                    "text_en": "No, consumption is only affected by speed.",
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "No, en el consumo sólo afecta el tipo de vehículo.",
+                    "text_ru": "Нет, на расход влияет только тип транспортного средства.",
+                    "text_en": "No, consumption is only affected by the type of vehicle.",
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": "### 🧠 La Lógica \"Por qué\"\nSi el coche está mal equilibrado o lleva cosas mal puestas fuera (como una baca mal cargada), el aire frena más al coche. El motor tiene que trabajar más и тратить больше топлива.\n\n### 💣 La Trampa / El Truco\nMuchos piensan que solo el PESO importa. Pero la FORMA en que lo pones (aerodinámica) es igual de importante para tu bolsillo.",
+            "explanation_ru": "### 🧠 Логика «Почему»\nЕсли машина плохо сбалансирована или груз снаружи закреплен неправильно (например, плохо уложенный багажник на крыше), воздух сильнее тормозит машину. Двигателю приходится работать интенсивнее и тратить больше топлива.\n\n### 💣 Ловушка / Подвох\nМногие думают, что важен только ВЕС. Но то, КАК ты его положишь (аэродинамика), не менее важно для твоего кошелька.",
+            "explanation_en": "### 🧠 The Logic 'Why'\nIf the car is poorly balanced or has things poorly placed outside (like a badly loaded roof rack), the air slows the car down more. The engine has to work harder and spend more fuel.\n\n### 💣 The Trap / The Trick\nMany think only WEIGHT matters. But the WAY you put it (aerodynamics) is just as important for your wallet.",
+            "source": "practicalvial",
+            "original_number": 10
+        }
+    },
+    {
+        "question_es": "Como norma general, para reducir el consumo de combustible, ¿cómo debe ser la conducción?",
+        "question_ru": "Как общее правило, каким должен быть стиль вождения для снижения расхода топлива?",
+        "question_en": "As a general rule, to reduce fuel consumption, how should the driving be?",
+        "image_url": "https://teorica.practicavial.com/question/433f5d52-6466-41ca-8356-91e8e20299f0-1658858999-i.jpg",
+        "image_filename": "433f5d52-6466-41ca-8356-91e8e20299f0-1658858999-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/433f5d52-6466-41ca-8356-91e8e20299f0-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "Llevando el motor revolucionado.",
+                    "text_ru": "Поддерживая высокие обороты двигателя.",
+                    "text_en": "Keeping the engine revved up.",
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "Utilizando marchas cortas.",
+                    "text_ru": "Используя низкие передачи.",
+                    "text_en": "Using low gears.",
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "Utilizando marchas largas.",
+                    "text_ru": "Используя высокие передачи (длинные дистанции).",
+                    "text_en": "Using high gears.",
+                    "is_correct": true
+                }
+            ],
+            "explanation_es": "### 🧠 La Lógica \"Por qué\"\nLas marchas largas (4ª, 5ª, 6ª) permiten que el motor gire a menos revoluciones para mantener la misma velocidad. Menos revoluciones = menos explosiones de combustible = ahorro.\n\n### 💣 La Trampa / El Truco\nCuidado: usar marchas largas no significa ir despacio. Significa cambiar pronto a una marcha superior siempre que el motor lo aguante sin vibrar.",
+            "explanation_ru": "### 🧠 Логика «Почему»\nВысокие передачи (4-я, 5-я, 6-я) позволяют двигателю работать на более низких оборотах при той же скорости. Меньше оборотов = меньше впрысков топлива = экономия.\n\n### 💣 Ловушка / Подвох\nВнимание: использовать высокие передачи не значит ехать медленно. Это значит переключаться «вверх» как можно раньше, если мотор тянет без вибрации.",
+            "explanation_en": "### 🧠 The Logic 'Why'\nHigh gears (4th, 5th, 6th) allow the engine to run at lower RPMs to maintain the same speed. Lower RPM = fewer fuel explosions = savings.\n\n### 💣 The Trap / The Trick\nWarning: using high gears doesn't mean driving slowly. It means shifting up early as long as the engine can handle it without vibrating.",
+            "source": "practicalvial",
+            "original_number": 11
+        }
+    },
+    {
+        "question_es": "En un motor diesel, ¿cómo se puede reducir el consumo de combustible y la emisión de gases?",
+        "question_ru": "Как в дизельном двигателе можно снизить расход топлива и выброс газов?",
+        "question_en": "In a diesel engine, how can fuel consumption and gas emissions be reduced?",
+        "image_url": "https://teorica.practicavial.com/question/ccf95e54-1596-4191-81d3-376518171120-1658859066-i.jpg",
+        "image_filename": "ccf95e54-1596-4191-81d3-376518171120-1658859066-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/ccf95e54-1596-4191-81d3-376518171120-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "Esperando unos segundos después de arrancar para iniciar la marcha.",
+                    "text_ru": "Подождав несколько секунд после запуска перед началом движения.",
+                    "text_en": "Waiting a few seconds after starting before moving off.",
+                    "is_correct": true
+                },
+                {
+                    "id": "b",
+                    "text_es": "Dando acelerones en frío.",
+                    "text_ru": "Газуя (давая нагрузку) «на холодную».",
+                    "text_en": "Revving the engine while cold.",
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "Iniciando la marcha inmediatamente después del arranque.",
+                    "text_ru": "Начиная движение сразу после запуска.",
+                    "text_en": "Moving off immediately after starting.",
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": "### 🧠 La Lógica \"Por qué\"\nLos motores diesel necesitan unos segundos para que el aceite llegue a todas las partes del motor y el sistema se estabilice. Al esperar un poco, evitas desgastes y quemas mejor el combustible desde el inicio.\n\n### 💣 La Trampa / El Truco\nEn los motores de GASOLINA se arranca y se sale casi de inmediato. En los DIESEL hay que tener paciencia y esperar unos segundos. ¡No los confundas!",
+            "explanation_ru": "### 🧠 Логика «Почему»\nДизельным двигателям нужно несколько секунд, чтобы масло достигло всех частей и система стабилизировалась. Подождав немного, ты избегаешь износа и обеспечиваешь лучшее сгорание топлива с самого начала.\n\n### 💣 Ловушка / Подвох\nНа БЕНЗИНОВЫХ моторах можно ехать почти сразу. На ДИЗЕЛЬНЫХ нужно набраться терпения и подождать пару секунд. Не перепутай на тесте!",
+            "explanation_en": "### 🧠 The Logic 'Why'\nDiesel engines need a few seconds for the oil to reach all parts of the engine and for the system to stabilize. By waiting a bit, you avoid wear and burn fuel better from the start.\n\n### 💣 The Trap / The Trick\nIn GASOLINE engines, you start and go almost immediately. In DIESEL engines, you must be patient and wait a few seconds. Don't confuse them!",
+            "source": "practicalvial",
+            "original_number": 12
+        }
+    }
+]

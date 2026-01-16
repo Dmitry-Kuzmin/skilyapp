@@ -1,0 +1,848 @@
+[
+  {
+    "topic_number": 1,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿Quién tiene preferencia de paso en esta intersección sin señalizar y por qué motivo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El tranvía, porque circula sobre raíles.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El turismo, porque circula por la vía pavimentada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El tranvía, porque se aproxima por la derecha del turismo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8daadc66-d7b5-42f5-93da-f5d0c4527331-1657203473-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8daadc66-d7b5-42f5-93da-f5d0c4527331-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "¿Qué alumbrado debe llevar encendido un vehículo que circule por un carril de sentido normal, cuando el contiguo este habilitado para la circulación en sentido contrario al habitual?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El alumbrado de corto alcance o cruce, al menos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El de corto alcance, pero sólo entre la puesta y la salida del sol.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Ninguno, aunque debe circular a una velocidad máxima de 60 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c762e74b-a5f1-443a-807b-bed7fd797553-1652204370-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c762e74b-a5f1-443a-807b-bed7fd797553-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Los conductores, ¿están obligados a colaborar en las pruebas de detección de emisión de ruidos de sus vehículos?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo cuando pasen la revisión periódica en una estación ITV.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d052b652-5e9f-4610-9831-a3f810e11b08-1649351547-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d052b652-5e9f-4610-9831-a3f810e11b08-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Estas líneas pintadas en la calzada, ¿dan preferencia de paso a los peatones?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, pero sólo en las vías urbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8b59dfa7-f4e0-427d-b813-72045b31d865-1657731853-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8b59dfa7-f4e0-427d-b813-72045b31d865-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "La velocidad máxima de un vehículo mixto adaptado en una vía para automóviles será de...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "90 kilómetros por hora.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "80 kilómetros por hora.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "70 kilómetros por hora.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7cc565c9-54fd-405c-8da3-fd835d161121-1653063889-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7cc565c9-54fd-405c-8da3-fd835d161121-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "En esta carretera convencional sin separación física de los dos sentidos de circulación, ¿qué velocidad máxima podrá alcanzar una motocicleta para adelantar a otro vehículo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "110 km/h, siempre que el otro vehículo circule a una velocidad inferior a 90 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "90 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "110 km/h, independientemente de la velocidad de circulación del otro vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/fc76831e-4239-4a12-b5b9-b6e523a28218-1653070910-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/fc76831e-4239-4a12-b5b9-b6e523a28218-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "En un carril reversible, los conductores deberán...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "utilizar, al menos, el alumbrado de cruce, tanto de día como de noche.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "circular como mínimo a 60 km/h y como máximo a 80 km/h y utilizar la luz de cruce durante la noche.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "utilizar la luz de posición y circular como mínimo a 60 km/h y como máximo a 80 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b717d59b-1a26-4db9-b12c-36d7c62894c2-1652199949-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b717d59b-1a26-4db9-b12c-36d7c62894c2-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "Si el conductor del ciclomotor decide adelantar al tractor, debe de tener en cuenta que...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "deberá realizar la maniobra sin salirse del arcén.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "no podrá circular en paralelo con el tractor más de 15 segundos o 200 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "no podrá adelantar mientras circulen vehículos en sentido contrario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/81b4341d-81e9-4354-a1df-d50dc3bb2db2-1652207384-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/81b4341d-81e9-4354-a1df-d50dc3bb2db2-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Los vehículos prioritarios, ¿tienen prioridad de paso sobre el resto de los usuarios de la vía?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, siempre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, nunca.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sólo cuando circulen en servicio de urgencia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d3660d71-8367-4748-bf55-e7e1d1b83c2a-1657732162-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d3660d71-8367-4748-bf55-e7e1d1b83c2a-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la velocidad máxima a la que puede circular un cuadriciclo ligero por una vía fuera de poblado?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "90 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "70 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "45 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9b209c11-b85f-4fba-8744-4ba1418df1ba-1653072690-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9b209c11-b85f-4fba-8744-4ba1418df1ba-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "Por un carril para vehículos de alta ocupación (VAO), ¿le está permitido circular a un vehículo mixto adaptable?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sólo si el vehículo lleva la señal de minusválido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/cefc9db7-9349-428d-bdb5-246d0679f5e5-1652198520-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cefc9db7-9349-428d-bdb5-246d0679f5e5-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "En vías interurbanas con tres o más carriles para el mismo sentido de la marcha, un conjunto de vehículos de más de 7 metros, ¿podrá utilizar el carril inmediato al derecho?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, si las circunstancias del tráfico o la vía lo aconsejan y no se entorpece la marcha de otro vehículo que le siga.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, solo el derecho.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, en cualquier caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/74c6c6ec-abcf-4874-a7cc-08dd0a34d9ef-1650647171-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/74c6c6ec-abcf-4874-a7cc-08dd0a34d9ef-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "¿Qué documento debe llevar obligatoriamente un vehículo de movilidad personal para poder circular por las vías públicas?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Un certificado de características técnicas para VMP.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Una tarjeta de inspección técnica de vehículos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Un certificado de circulación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/410c0f3a-d325-49ea-b395-be54f22af447-1734362529-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/410c0f3a-d325-49ea-b395-be54f22af447-s-1.jpg?t=1768425564",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "¿Pueden influir otros factores en un accidente, cuando las condiciones climatológicas son adversas?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, el conductor, si conduce a una velocidad inadecuada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, el mal estado de la vía, únicamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2fdbe83f-03f5-436a-ac11-fb608b092dbd-1658136335-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2fdbe83f-03f5-436a-ac11-fb608b092dbd-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "Por una autovía, ¿puede circular un ciclomotor?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Depende de la velocidad a la que circule.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, por el arcén.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/140fd0f6-0e06-4ace-ba0c-b217e3ac807e-1650386855-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/140fd0f6-0e06-4ace-ba0c-b217e3ac807e-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "Durante la conducción, ¿está permitido arrojar la colilla de un cigarro a la vía o en sus inmediaciones?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque puede provocar un incendio o poner en peligro a otros usuarios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solo si se circula por una vía urbana.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/44b1cf99-6bcc-4316-afc1-7fa186770bbe-1649351514-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/44b1cf99-6bcc-4316-afc1-7fa186770bbe-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "Debido a una avería, circula por una autopista a una velocidad que dificulta la circulación de otros usuarios, ¿qué debe hacer?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Inmovilizar siempre el vehículo en el arcén.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Circular por el carril derecho.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Circular por el arcén y abandonar la vía por la primera salida.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/bb3f1975-4023-4156-bdec-e745a8ba7445-1652207170-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/bb3f1975-4023-4156-bdec-e745a8ba7445-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "Los vehículos de tracción animal, ¿pueden circular por autopistas y autovías?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Por autopistas no, por autovías sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c91f4674-1a2e-4008-828e-c63d051c2c2f-1656523656-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c91f4674-1a2e-4008-828e-c63d051c2c2f-s-1.jpg",
+    "source": "practicavial"
+  }
+]

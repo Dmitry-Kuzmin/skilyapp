@@ -3,6 +3,17 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
+/**
+ * SKILY LOGO COMPONENT
+ * 
+ * Current logo reference (static SVG): public/logo/skily-logo-current.svg
+ * Icon: car-front from Lucide (car facing forward with headlights)
+ * Gradient: blue-500 → blue-600 → blue-700
+ * 
+ * For watermarks/external use, use the SVG file above.
+ */
+
+
 interface LandingLogoProps {
   className?: string;
   showText?: boolean;

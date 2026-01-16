@@ -1,0 +1,1412 @@
+[
+  {
+    "topic_number": 3,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "Esta señal, ¿qué indica?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El lugar a partir del cual rigen las normas de las autopistas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Las direcciones de las distintas salidas en la próxima glorieta.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que hay una vía que tiene cuatro carreteras.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2d7218eb-7169-43f7-95e5-8615d76c7e45-1658169143-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2d7218eb-7169-43f7-95e5-8615d76c7e45-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "La señal indica...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "entrada prohibida a peatones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "camino reservado para peatones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "situación de un paso para peatones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8cbe59c2-f206-488a-a3ec-a0739d3ab450-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8cbe59c2-f206-488a-a3ec-a0739d3ab450-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Cuando el semáforo se ponga verde, ¿qué debe hacer?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Obedecer la señal de stop.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Obedecer al semáforo, que tiene prioridad sobre la señal de stop.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Obedecer al semáforo, pero debo ceder el paso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9137e33e-4efe-4382-a2e1-04bcf30781a0-1658166731-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9137e33e-4efe-4382-a2e1-04bcf30781a0-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "En esta vía deben obedecer a las indicaciones del semáforo situado a la izquierda los que pretendan...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "girar a la izquierda, solamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "girar a la izquierda o seguir de frente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "seguir de frente o girar a la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/06e05a63-a9d9-4e24-9add-a966d1107b96-1658166884-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/06e05a63-a9d9-4e24-9add-a966d1107b96-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "Una marca longitudinal formada por dos líneas continuas adosadas...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "indica que circulamos por un carril reversible",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "tiene el mismo significado que una marca longitudinal continua.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "indica que circulamos por un carril adicional circunstancial.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/eb441c6f-b581-4d41-bbd6-741f7078eb46-1658238853-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/eb441c6f-b581-4d41-bbd6-741f7078eb46-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "Estas señales, sobre autopista o autovía, indican salida inmediata hacia...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "una carretera convencional",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "una autopista o autovía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "la población indicada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/de5bc004-ba32-4e1a-aab7-585f33d17a51-1658169078-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/de5bc004-ba32-4e1a-aab7-585f33d17a51-s-1.jpg?t=1768426185",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "Un semáforo con línea blanca horizontal sobre fondo negro...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "permite el paso a autobuses y tranvías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "prohíbe el paso a autobuses de líneas regulares y tranvías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "permite girar a la derecha y a la izquierda a autobuses y tranvías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f662afe7-0a70-4eaf-b862-7525496e2378-1658147907-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f662afe7-0a70-4eaf-b862-7525496e2378-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "Circula con un turismo con remolque, ¿puede entrar en una vía con esta señal?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, cuando el remolque tenga un solo eje.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, con ningún vehículo que arrastre un remolque.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, con cualquier conjunto de vehículos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/22cc6d91-2320-4e57-83d1-07254fbb3c8f-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/22cc6d91-2320-4e57-83d1-07254fbb3c8f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "¿En qué momento del día sufren más siniestralidad los furgones?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Festivos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A las 7:00 horas o al anochecer.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "De 15:00 a 16:00 horas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": null,
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "Esta señal indica...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "que se permite la circulación en paralelo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "la entrada a una autopista o autovía de dos carriles.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "una calzada de sentido único y dos carriles.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/787743ab-6f24-4c14-b9a4-7d74bab041e4-1658164415-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/787743ab-6f24-4c14-b9a4-7d74bab041e4-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "Si existen semáforos con indicaciones distintas a la derecha y a la izquierda, ¿a cuál obedecerán los que pretendan seguir de frente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Al situado inmediatamente a su izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Al que se encuentre más cerca del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Al situado a su derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/76316da2-5e03-40c8-badc-394f4a5efdb8-1658166901-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/76316da2-5e03-40c8-badc-394f4a5efdb8-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "¿Qué indica esta señal?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Entrada prohibida a motocicletas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Entrada prohibida a vehículos de dos ruedas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Entrada prohibida a ciclomotores.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/1fa12343-13d8-4b5c-9c5f-052262b44a30-1658158108-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1fa12343-13d8-4b5c-9c5f-052262b44a30-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "La flecha verde está iluminada. Si quiere girar a la derecha, ¿tiene preferencia de paso?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque la luz roja me prohíbe girar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, porque la flecha verde me obliga a girar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, porque la flecha verde me permite pasar pero debo ceder el paso al vehículo que se aproxima.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4f7d03ff-7cfc-4562-b779-5308325c6fee-1658147395-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4f7d03ff-7cfc-4562-b779-5308325c6fee-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "En esta situación, ¿qué debe hacer si pretende girar a la derecha?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Detenerse antes de entrar en la intersección.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Continuar la marcha, cediendo el paso a los vehículos que circulen por la vía transversal.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Ignorar el semáforo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4347cb9f-4dcd-46b1-9272-ad700d245551-1658147158-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4347cb9f-4dcd-46b1-9272-ad700d245551-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "¿Qué indica esta señal?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Las únicas direcciones permitidas para los vehículos que circulan por los carriles señalizados.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Una bifurcación con confluencia de carriles.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Las distancias a las que se encuentran las próximas salidas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/111ebded-70be-41ba-b1e4-f1762f925cf1-1761288379-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/111ebded-70be-41ba-b1e4-f1762f925cf1-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "En la próxima intersección, ¿qué dirección hay que seguir?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Girar a la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Continuar de frente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Girar a la izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2c36769b-79e0-4328-afa8-698db3461e85-1658148316-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2c36769b-79e0-4328-afa8-698db3461e85-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "Una línea longitudinal discontinua con los trazos muy juntos, ¿qué puede indicar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La proximidad de un tramo de vía que presenta un riesgo especial.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Un carril especial.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El inicio de la línea discontinua.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7d1a6920-abf4-4b1c-82d8-937dbfd3f239-1658238985-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7d1a6920-abf4-4b1c-82d8-937dbfd3f239-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "La línea blanca continua del centro de la calzada, ¿qué prohíbe?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cambiar de carril a los vehículos que circulan por el carril de la izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cambiar de carril a los vehículos que circulan por el carril derecho.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Estacionar en ambos lados de la vía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/67741262-a951-4782-98f8-44db09b003bd-1658239286-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/67741262-a951-4782-98f8-44db09b003bd-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "La inscripción \"BUS\" dentro de un carril indica que es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "una zona de la vía reservada sólo a turismos y autobuses.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "un carril reservado para la circulación de autobuses.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "un carril destinado al estacionamiento de autobuses.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e4dedbc7-3f4b-4a35-81d5-5dfcf5d3ea1b-1658240293-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e4dedbc7-3f4b-4a35-81d5-5dfcf5d3ea1b-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "En este paso para peatones si no funciona el semáforo, ¿es obligatorio parar y ceder el paso a los peatones que intenten cruzarlo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, ya que los peatones no tienen prioridad de paso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, porque los peatones tienen prioridad como indica la marca vial.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, porque sin las indicaciones del semáforo los vehículos tienen prioridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b4455aac-02d1-425c-ae99-dbeaf31b3754-1658239666-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b4455aac-02d1-425c-ae99-dbeaf31b3754-s-1.jpg?t=1768426185",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "¿Qué señala la flecha de la señal?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El lado del refugio por el que los vehículos han de pasar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sentido único.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Recomienda el lado del refugio por el que los vehículos pueden pasar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a5ad7c77-67e8-4871-99e8-54385e27a62d-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a5ad7c77-67e8-4871-99e8-54385e27a62d-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "¿Qué le indica esta señal?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La prohibición de que ciclos y vehículos de movilidad personal circulen en posición paralela.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Fin de vía reservada para ciclos y para vehículos de movilidad personal.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "La prohibición de circular a ciclos y vehículos de movilidad personal.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f03f3aa2-afef-4102-86ca-0f6c6f8b4d2f-1761302639-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f03f3aa2-afef-4102-86ca-0f6c6f8b4d2f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "La línea de borde de la calzada, ¿se puede atravesar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, está prohibido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, cuando sea necesario y las circunstancias lo permitan.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, cuando la línea es discontinua; no, cuando es continua.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/39554309-54ff-4020-8b8f-603ddcec2529-1658239373-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/39554309-54ff-4020-8b8f-603ddcec2529-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "¿Qué indica esta señal?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que el itinerario que sigue de frente tiene prioridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Que el itinerario que sigue el ramal de la derecha tiene prioridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que el itinerario que sigue el ramal de la izquierda tiene prioridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/1371fd13-8b6a-4968-9e93-0ff25e603840-1658169471-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1371fd13-8b6a-4968-9e93-0ff25e603840-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "Este pictograma incluido en el envase de un medicamento, ¿permite la conducción de vehículos mientras dure el tratamiento con el mismo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, aunque advierte de posibles efectos secundarios que afectan a la conducción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, indica que el medicamento no tiene efectos secundarios negativos para la conducción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, su ingesta es incompatible con la conducción de vehículos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c1382571-10ad-4e50-aade-485cc097094f-1759744177-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c1382571-10ad-4e50-aade-485cc097094f-s-1.jpg?t=1768426185",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "¿Qué indica esta señal?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La ubicación de un área donde se permite estacionar caravanas y autocaravanas durante la noche.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La existencia de un punto para el vaciado de aguas residuales de caravanas y autocaravanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Un área exclusiva para la limpieza exterior de caravanas y autocaravanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/203e2f1b-b822-4a71-b674-922535557fd7-1761286826-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/203e2f1b-b822-4a71-b674-922535557fd7-s-1.jpg?t=1768426185",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "La señal triangular indica que se debe...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "detener el vehículo y ceder el paso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "ceder el paso cuando sea necesario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "acelerar para aumentar la velocidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d6993d45-7871-470b-919d-46f4c014fbff-1658157394-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d6993d45-7871-470b-919d-46f4c014fbff-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "¿Qué indican estos paneles?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La presencia de una curva y su sentido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Prohíben el paso a la zona que delimitan.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "La presencia de una curva en la que se están realizando obras.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/aebed347-a065-45a5-aa10-9478d25a369e-1658146920-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/aebed347-a065-45a5-aa10-9478d25a369e-s-1.jpg?t=1768426185",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "Esta señal indica dirección y sentido...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "obligatorios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "aconsejados.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "prohibidos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3e5c61bf-5c55-4242-975c-bf58ec2a24bd-1658160244-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3e5c61bf-5c55-4242-975c-bf58ec2a24bd-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "¿Qué indica la señal?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cambio de dirección dentro de la vía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Intersección de dos vías al mismo nivel.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Salida con cambio de sentido a distinto nivel.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d82e43d4-2cc1-49fd-bfcb-ff2820cd5d21-1658168151-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d82e43d4-2cc1-49fd-bfcb-ff2820cd5d21-s-1.jpg",
+    "source": "practicavial"
+  }
+]

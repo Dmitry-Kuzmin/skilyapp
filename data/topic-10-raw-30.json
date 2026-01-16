@@ -1,0 +1,1202 @@
+[
+    {
+        "question_es": "¿Le está permitido el acceso a un vehículo de motor que disponga del distintivo ambiental C a una zona de bajas emisiones delimitada por estas señales?",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/715874cf-a68d-4eb9-b076-74192de815c6-1734455877-i.jpg",
+        "image_filename": "715874cf-a68d-4eb9-b076-74192de815c6-1734455877-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/715874cf-a68d-4eb9-b076-74192de815c6-s-1.jpg?t=1767569874",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "Solo si el vehículo de motor es una motocicleta.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "Sí.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "No, como norma general.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 1
+        }
+    },
+    {
+        "question_es": "Los distintivos ambientales clasifican a los vehículos en función de...",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/0cf194c7-17ca-4d6e-aa22-0969e7dba982-1663758211-i.jpg",
+        "image_filename": "0cf194c7-17ca-4d6e-aa22-0969e7dba982-1663758211-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/0cf194c7-17ca-4d6e-aa22-0969e7dba982-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "su potencial contaminante.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "b",
+                    "text_es": "su ahorro energético.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "su contaminación acústica.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 3
+        }
+    },
+    {
+        "question_es": "Cuando otro vehículo que circula detrás de su turismo está muy próximo, se recomienda...",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/8da34e1e-a188-4d57-9da4-ab5a179ce548-1658858779-i.jpg",
+        "image_filename": "8da34e1e-a188-4d57-9da4-ab5a179ce548-1658858779-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/8da34e1e-a188-4d57-9da4-ab5a179ce548-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "echarse a un lado inmediatamente para que pueda adelantar.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "frenar bruscamente para alejar al coche que circula detrás.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "aumentar la distancia de seguridad por delante siempre que sea posible.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 4
+        }
+    },
+    {
+        "question_es": "Está prohibida la circulación de vehículos a motor que no disponen de...",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/1cbbbf4c-78f8-4c47-9373-86bc3aef4f29-1663758070-i.jpg",
+        "image_filename": "1cbbbf4c-78f8-4c47-9373-86bc3aef4f29-1663758070-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/1cbbbf4c-78f8-4c47-9373-86bc3aef4f29-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "un extintor de incendios adecuado y eficaz.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "un dispositivo silenciador de explosiones.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "c",
+                    "text_es": "un juego de correas de repuesto para el equipo motor.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 5
+        }
+    },
+    {
+        "question_es": "Situado en un vehículo, ¿qué identifica la señal V-25 distintivo ambiental?",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/5d840670-8cdc-41e9-99a9-a1303b6e470a-1663758222-i.jpg",
+        "image_filename": "5d840670-8cdc-41e9-99a9-a1303b6e470a-1663758222-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/5d840670-8cdc-41e9-99a9-a1303b6e470a-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "Su clasificación ambiental en función de su nivel de emisiones y combustible empleado.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "b",
+                    "text_es": "El tipo de combustible empleado y su nivel de radiación atmosférica.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "Su clasificación ambiental en función de su nivel de contaminación acústica.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 6
+        }
+    },
+    {
+        "question_es": "¿Qué puede verse afectado si cambia el carenado de una motocicleta?",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/607a84ea-16be-402d-826a-9be3344b2e8a-1658859021-i.jpg",
+        "image_filename": "607a84ea-16be-402d-826a-9be3344b2e8a-1658859021-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/607a84ea-16be-402d-826a-9be3344b2e8a-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "La visibilidad del vehículo.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "La estética, exclusivamente.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "La aerodinámica y el consumo.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 7
+        }
+    },
+    {
+        "question_es": "Una buena práctica para evitar accidentes es...",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/9c7c9758-3e13-438b-9762-f0f21b616c04-1658858715-i.jpg",
+        "image_filename": "9c7c9758-3e13-438b-9762-f0f21b616c04-1658858715-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/9c7c9758-3e13-438b-9762-f0f21b616c04-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "procurar que los demás conductores puedan anticiparse a las maniobras, haciéndose ver y entender de forma adecuada.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "b",
+                    "text_es": "circular siempre muy despacio para anticiparse a todas las situaciones de riesgo.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "señalizar con antelación sólo las maniobras que puedan ser peligrosas.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 8
+        }
+    },
+    {
+        "question_es": "La distribución de la carga en un vehículo, ¿afecta al consumo de combustible?",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/1632d13f-f945-4273-80a5-211cee895636-1658859077-i.jpg",
+        "image_filename": "1632d13f-f945-4273-80a5-211cee895636-1658859077-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/1632d13f-f945-4273-80a5-211cee895636-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "Sí, por ello es muy importante colocar la carga de manera adecuada.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "b",
+                    "text_es": "No, en el consumo sólo afecta la velocidad.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "No, en el consumo sólo afecta el tipo de vehículo.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 10
+        }
+    },
+    {
+        "question_es": "Al arrancar los motores actuales, ¿es necesario acelerar?",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/fa047cd7-1799-4b54-949b-96500946135c-1658858917-i.jpg",
+        "image_filename": "fa047cd7-1799-4b54-949b-96500946135c-1658858917-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/fa047cd7-1799-4b54-949b-96500946135c-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "Sí, en los vehículos de gasolina.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "Sí, en cualquier tipo de vehículo.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "No.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 11
+        }
+    },
+    {
+        "question_es": "Las técnicas de conducción eficiente...",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/1e135c1b-f7fa-4eba-b93d-8d32be977d4d-1658858901-i.jpg",
+        "image_filename": "1e135c1b-f7fa-4eba-b93d-8d32be977d4d-1658858901-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/1e135c1b-f7fa-4eba-b93d-8d32be977d4d-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "son más eficaces que las técnicas de conducción preventiva.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "son lo mismo que las técnicas de conducción preventiva.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "son complementarias a las técnicas de conducción preventiva.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 12
+        }
+    },
+    {
+        "question_es": "¿Está permitida la circulación de vehículos si el silenciador está estropeado y, por tanto no cumple su función con eficacia?",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/0035e3c5-d265-4093-ac39-d3b0570c4d69-1663756973-i.jpg",
+        "image_filename": "0035e3c5-d265-4093-ac39-d3b0570c4d69-1663756973-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/0035e3c5-d265-4093-ac39-d3b0570c4d69-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "Sí, pero solo puede circular por vías interurbanas.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "No, excepto las motocicletas, que no necesitan silenciador.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "No, debido a la contaminación acústica que produce.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 13
+        }
+    },
+    {
+        "question_es": "¿En qué categorías se clasifican los vehículos en función de su límite de emisiones y combustible empleado?",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/c8cd39f6-cdfa-4917-82b4-682722738a0a-1734454659-i.jpg",
+        "image_filename": "c8cd39f6-cdfa-4917-82b4-682722738a0a-1734454659-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/c8cd39f6-cdfa-4917-82b4-682722738a0a-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "0 emisiones, ECO, D, C y B, no existiendo distintivo para los de categoría B.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "SIN, ECO, C, B, y A, no existiendo distintivo para los de categoría SIN.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "0 emisiones, ECO, C, B y A, no existiendo distintivo para los de categoría A.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 14
+        }
+    },
+    {
+        "question_es": "Las técnicas de conducción preventiva se basan en los principios de...",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/2f63e44d-fc34-45ba-8546-c4051fe1ab7e-1658858685-i.jpg",
+        "image_filename": "2f63e44d-fc34-45ba-8546-c4051fe1ab7e-1658858685-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/2f63e44d-fc34-45ba-8546-c4051fe1ab7e-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "visión, anticipación y gestión del espacio.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "b",
+                    "text_es": "visión, anticipación y gestión del tiempo.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "visión y gestión del espacio, únicamente.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 15
+        }
+    },
+    {
+        "question_es": "Una motocicleta, ¿puede circular sin tubo de escape?",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/6c8b03a2-88ee-459c-9db2-1a0d351b966f-1663758040-i.jpg",
+        "image_filename": "6c8b03a2-88ee-459c-9db2-1a0d351b966f-1663758040-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/6c8b03a2-88ee-459c-9db2-1a0d351b966f-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "No, porque se rompe el motor.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "Sí, cuando la motocicleta es deportiva.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "No, porque está prohibido, excepto si es eléctrica.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 17
+        }
+    },
+    {
+        "question_es": "Cuando no utiliza la baca del vehículo, ¿es aconsejable quitarla?",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/61c0d3e2-7b9a-458c-864e-3ba9f7f7a4f0-1658859031-i.jpg",
+        "image_filename": "61c0d3e2-7b9a-458c-864e-3ba9f7f7a4f0-1658859031-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/61c0d3e2-7b9a-458c-864e-3ba9f7f7a4f0-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "Es igual, porque la baca no influye en el consumo.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "Sí, porque sin baca ahorro carburante.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "c",
+                    "text_es": "No, porque la baca aumenta la estabilidad del vehículo.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 20
+        }
+    },
+    {
+        "question_es": "Para ahorrar combustible, lo más efectivo es...",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/5da94f56-6979-4674-8512-0664aa42e442-1658858934-i.jpg",
+        "image_filename": "5da94f56-6979-4674-8512-0664aa42e442-1658858934-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/5da94f56-6979-4674-8512-0664aa42e442-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "cambiar frecuentemente de marcha, sin saltarse ninguna.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "circular en marchas cortas, con el acelerador muy pisado.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "circular con la marcha más larga posible y a bajas revoluciones.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 21
+        }
+    },
+    {
+        "question_es": "¿Qué debe hacer para ahorrar carburante y circular con seguridad?",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/3d4ea181-df3f-43f1-bbe3-f752f94a9895-1658858987-i.jpg",
+        "image_filename": "3d4ea181-df3f-43f1-bbe3-f752f94a9895-1658858987-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/3d4ea181-df3f-43f1-bbe3-f752f94a9895-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "Circular pegado al vehículo de delante para disminuir la resistencia del aire.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "Conducir con suavidad, sin frenazos ni acelerones.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "c",
+                    "text_es": "Mantener la velocidad lo más elevada y constante posible.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 23
+        }
+    },
+    {
+        "question_es": "¿Está permitido circular con un vehículo que supera los límites permitidos de emisión de humo?",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/e9a32a1d-6083-4998-b0ab-14d28f29179c-1663758083-i.jpg",
+        "image_filename": "e9a32a1d-6083-4998-b0ab-14d28f29179c-1663758083-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/e9a32a1d-6083-4998-b0ab-14d28f29179c-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "Sí, en todo caso.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "Solo si el humo es de color blanco o azulado.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "No, está prohibido.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 26
+        }
+    },
+    {
+        "question_es": "¿Qué vehículos, como norma general, pueden acceder a una vía a cuya entrada se encuentra esta señal?",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/e5150156-ac77-4c4e-9a86-0b8b9dbc90f5-1736265512-i.jpg",
+        "image_filename": "e5150156-ac77-4c4e-9a86-0b8b9dbc90f5-1736265512-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/e5150156-ac77-4c4e-9a86-0b8b9dbc90f5-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "Cualquier vehículo.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "Vehículos con distintivo ambiental A o B.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "Vehículos con distintivo ambiental 0, ECO o C.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 27
+        }
+    },
+    {
+        "question_es": "Para anticiparse al peligro y tomar decisiones seguras...",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/3904186b-1a9c-44c0-b63f-68697dec6294-1658858694-i.jpg",
+        "image_filename": "3904186b-1a9c-44c0-b63f-68697dec6294-1658858694-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/3904186b-1a9c-44c0-b63f-68697dec6294-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "debe centrar la atención en el vehículo de delante.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "prestar atención constante a la vía y su entorno.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "c",
+                    "text_es": "debe mirar hasta donde se encuentre transcurridos 5 segundos.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 29
+        }
+    },
+    {
+        "question_es": "Circulando cuesta abajo, ¿puede poner punto muerto para ahorrar carburante?",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/e498df0a-83d3-44a6-8436-d05086d4491b-1658859036-i.jpg",
+        "image_filename": "e498df0a-83d3-44a6-8436-d05086d4491b-1658859036-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/e498df0a-83d3-44a6-8436-d05086d4491b-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "Sí, porque en punto muerto el motor no consume.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "No, porque puedo perder el control del vehículo.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "c",
+                    "text_es": "No, porque se puede romper el motor.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 2
+        }
+    },
+    {
+        "question_es": "¿Cuáles son los cuatro distintivos ambientales, para clasificar los vehículos por su potencial contaminante?",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/32785615-d3f5-4c87-86ae-f8401a48d418-1734455570-i.jpg",
+        "image_filename": "32785615-d3f5-4c87-86ae-f8401a48d418-1734455570-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/32785615-d3f5-4c87-86ae-f8401a48d418-s-1.jpg?t=1767569874",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "Sin emisiones, ECO, A y B.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "0 emisiones, ECO, C y B.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "c",
+                    "text_es": "0 emisiones, BIO, C y D.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 9
+        }
+    },
+    {
+        "question_es": "Cuando un conductor circula a velocidad adecuada...",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/cc662367-ef80-460f-9848-41904f541888-1658858720-i.jpg",
+        "image_filename": "cc662367-ef80-460f-9848-41904f541888-1658858720-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/cc662367-ef80-460f-9848-41904f541888-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "hace que la circulación sea lenta y peligrosa.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "puede detectar las intenciones de otros usuarios y reaccionar a tiempo para evitar un accidente.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "c",
+                    "text_es": "estorba a otros conductores y puede causar un accidente.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 16
+        }
+    },
+    {
+        "question_es": "Para ahorrar combustible es recomendable...",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/b17d1fac-cc64-4dbe-bb94-f3e7e4ddde09-1658859015-i.jpg",
+        "image_filename": "b17d1fac-cc64-4dbe-bb94-f3e7e4ddde09-1658859015-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/b17d1fac-cc64-4dbe-bb94-f3e7e4ddde09-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "circular con las ventanillas bajadas.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "circular con las ventanillas subidas.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "c",
+                    "text_es": "utilizar en todo momento el aire acondicionado.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 18
+        }
+    },
+    {
+        "question_es": "En un vehículo con motor diésel, una vez arrancado el motor es conveniente...",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/1049e889-8ede-4cf9-b8be-481b2ac1db76-1658858909-i.jpg",
+        "image_filename": "1049e889-8ede-4cf9-b8be-481b2ac1db76-1658858909-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/1049e889-8ede-4cf9-b8be-481b2ac1db76-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "iniciar la marcha inmediatamente.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "esperar unos segundos antes de iniciar la marcha.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "c",
+                    "text_es": "acelerar en punto muerto para que el motor se caliente.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 19
+        }
+    },
+    {
+        "question_es": "Cuando aumente la velocidad, debe...",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/66e41f00-0bf2-4efe-8afe-b9fab1a44a4e-1658858699-i.jpg",
+        "image_filename": "66e41f00-0bf2-4efe-8afe-b9fab1a44a4e-1658858699-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/66e41f00-0bf2-4efe-8afe-b9fab1a44a4e-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "mirar hacia atrás con menor frecuencia.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "mirar a lo lejos una distancia mayor.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "c",
+                    "text_es": "aumentar la visión por los laterales.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 22
+        }
+    },
+    {
+        "question_es": "Para circular con seguridad debe haber un espacio suficiente...",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/140fdd88-2dc0-4ca2-91dc-d75a9bd34e89-1658858744-i.jpg",
+        "image_filename": "140fdd88-2dc0-4ca2-91dc-d75a9bd34e89-1658858744-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/140fdd88-2dc0-4ca2-91dc-d75a9bd34e89-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "por detrás, por delante y en los laterales.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "b",
+                    "text_es": "por delante, únicamente.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "sólo a los lados.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 24
+        }
+    },
+    {
+        "question_es": "Como norma general, es aconsejable mantener con el vehículo que circula delante...",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/2c55c381-4607-47d2-b5bf-18d2a5d230cb-1658858767-i.jpg",
+        "image_filename": "2c55c381-4607-47d2-b5bf-18d2a5d230cb-1658858767-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/2c55c381-4607-47d2-b5bf-18d2a5d230cb-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "un intervalo mínimo de 4 segundos.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "un intervalo mínimo de 2 segundos, aunque es recomendable ampliarlo a 3 segundos cuando se circule fuera de poblado.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "c",
+                    "text_es": "un intervalo mínimo de 1 segundo, aunque puede ampliarse a 2 segundos cuando se circule por una vía fuera de poblado.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 25
+        }
+    },
+    {
+        "question_es": "Llevar encendido el aire acondicionado o climatizador del vehículo, ¿aumenta el consumo de combustible?",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/e5d91710-2b9f-4fae-9a86-67266148684f-1658859041-i.jpg",
+        "image_filename": "e5d91710-2b9f-4fae-9a86-67266148684f-1658859041-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/e5d91710-2b9f-4fae-9a86-67266148684f-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "Sólo aumenta el consumo si se programa por encima de los 30° centígrados.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "Sí, por lo que hay que usarlo de forma racional.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                },
+                {
+                    "id": "c",
+                    "text_es": "No, llevar conectado el climatizador no afecta al consumo de combustible.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 28
+        }
+    },
+    {
+        "question_es": "La conducción preventiva permite...",
+        "question_ru": null,
+        "question_en": null,
+        "image_url": "https://teorica.practicavial.com/question/1f71ffdd-ac3e-48cc-9431-36dc8355f3b4-1658858668-i.jpg",
+        "image_filename": "1f71ffdd-ac3e-48cc-9431-36dc8355f3b4-1658858668-i.jpg",
+        "schema_url": "https://teorica.practicavial.com/question/1f71ffdd-ac3e-48cc-9431-36dc8355f3b4-s-1.jpg",
+        "type": "single",
+        "country": "es",
+        "metadata": {
+            "answer_options": [
+                {
+                    "id": "a",
+                    "text_es": "ahorrar combustible.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "b",
+                    "text_es": "evitar totalmente los atropellos.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": false
+                },
+                {
+                    "id": "c",
+                    "text_es": "reaccionar con tiempo suficiente para evitar riesgos.",
+                    "text_ru": null,
+                    "text_en": null,
+                    "is_correct": true
+                }
+            ],
+            "explanation_es": null,
+            "explanation_ru": null,
+            "explanation_en": null,
+            "source": "practicalvial",
+            "original_number": 30
+        }
+    }
+]

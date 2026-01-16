@@ -1,0 +1,1532 @@
+[
+  {
+    "topic_number": 10,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "Para evitar los alcances, es recomendable que el conductor del último vehículo de una fila...",
+      "en": "To avoid rear-end collisions, it is recommended that the driver of the last vehicle in a line...",
+      "ru": "Чтобы избежать наезда сзади, водителю последнего транспортного средства в ряду рекомендуется..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "disminuya la distancia respecto al de delante.",
+          "en": "decrease the distance to the vehicle in front.",
+          "ru": "уменьшить дистанцию до впереди идущего транспортного средства."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "no mantenga el pedal del freno pisado.",
+          "en": "not keep the brake pedal pressed.",
+          "ru": "не удерживать педаль тормоза нажатой."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "vigile a los vehículos que se acerquen por detrás.",
+          "en": "watch the vehicles approaching from behind.",
+          "ru": "следить за транспортными средствами, приближающимися сзади."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según los principios de conducción preventiva, el conductor del último vehículo en una retención se encuentra en una posición vulnerable a sufrir un alcance. La recomendación técnica es vigilar constantemente los espejos retrovisores para anticipar la velocidad y comportamiento de los vehículos que se aproximan por detrás. Además, se aconseja mantener una distancia de seguridad de 2 a 3 metros con el vehículo precedente (para evitar ser proyectado contra él en caso de impacto) y mantener el freno pisado para que las luces de freno adviertan de la detención.",
+      "en": "According to defensive driving principles, the driver of the last vehicle in a traffic jam is in a vulnerable position for a rear-end collision. The technical recommendation is to constantly monitor the rear-view mirrors to anticipate the speed and behavior of vehicles approaching from behind. Additionally, it is advised to maintain a safety gap of 2 to 3 meters from the vehicle in front (to avoid being pushed into it in the event of an impact) and to keep the brake pedal pressed so that the brake lights warn of the stop.",
+      "ru": "1️⃣ **🎓 Правило**\nКогда твой легковой автомобиль (Turismo) оказывается последним в заторе или на светофоре, ты становишься «живым щитом». Риск наезда сзади (alcance) максимален именно для тебя.\n\nПравила защитного вождения диктуют четкий алгоритм:\n• **Смотри назад:** Твоя главная задача — следить в зеркала за теми, кто приближается с тыла. Если водитель сзади летит слишком быстро и не тормозит, у тебя будут секунды, чтобы среагировать (например, уйти на обочину).\n• **Держи дистанцию:** Оставь 2–3 метра до машины спереди. Это твой «запасной выход» и гарантия того, что при ударе сзади тебя не сплющит об передний автомобиль.\n• **Свети:** Не отпускай педаль тормоза (вариант B — ошибка), твои стоп-сигналы должны гореть, предупреждая об остановке.\n\n2️⃣ **💡 Шпаргалка**\nПоследний в строю? \nСмотри не вперед, а на корму!\n(Чтобы не стать начинкой в бутерброде из машин)."
+    },
+    "image_url": "https://teorica.practicavial.com/question/ba6504b4-9f97-4ba3-b337-69fc5164707f-1658858789-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ba6504b4-9f97-4ba3-b337-69fc5164707f-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Circular con las ventanillas bajadas, ¿modifica la aerodinámica del vehículo?",
+      "en": "Does driving with the windows down modify the vehicle's aerodynamics?",
+      "ru": "Изменяет ли движение с опущенными стеклами аэродинамику автомобиля?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, reduciéndose el consumo de combustible si se circula a velocidad elevada.",
+          "en": "Yes, reducing fuel consumption if driving at high speed.",
+          "ru": "Да, снижая расход топлива при движении на высокой скорости."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, incrementándose el consumo de combustible si se circula a velocidad elevada.",
+          "en": "Yes, increasing fuel consumption if driving at high speed.",
+          "ru": "Да, увеличивая расход топлива при движении на высокой скорости."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, por lo que no influye en el consumo de combustible.",
+          "en": "No, so it does not influence fuel consumption.",
+          "ru": "Нет, поэтому это не влияет на расход топлива."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "La aerodinámica de un turismo está diseñada para permitir que el aire fluya alrededor de la carrocería con la mínima resistencia posible. Al circular con las ventanillas bajadas, se rompe este flujo laminar y el aire entra en el habitáculo, generando turbulencias y un efecto de resistencia conocido como 'efecto paracaídas'. Esto obliga al motor a ejercer más fuerza para mantener la velocidad, lo que resulta en un incremento directo del consumo de combustible. Este fenómeno es técnicamente relevante y perjudicial para la eficiencia energética principalmente cuando se circula a velocidad elevada.",
+      "en": "The aerodynamics of a passenger car are designed to allow air to flow around the bodywork with minimal resistance. Driving with the windows down disrupts this laminar flow, allowing air to enter the cabin, creating turbulence and a drag effect known as the 'parachute effect.' This forces the engine to exert more power to maintain speed, resulting in a direct increase in fuel consumption. This phenomenon is technically significant and detrimental to energy efficiency primarily when driving at high speeds.",
+      "ru": "1️⃣ **🎓 Правило**\nВодитель легкового автомобиля (Turismo) должен знать, что кузов машины спроектирован для максимально легкого рассекания воздуха. Когда ты опускаешь стекла во время движения, ты нарушаешь эту обтекаемость.\n\nВоздух начинает врываться в салон, ударяется о заднюю часть интерьера и создает сильные завихрения (турбулентность). Это работает как тормозной парашют: сопротивление движению резко возрастает. Чтобы преодолеть это сопротивление и сохранить скорость, двигателю приходится сжигать больше топлива.\n\nВажно: этот эффект критичен именно на **высокой скорости**. В городской пробке влияние открытых окон минимально, но на трассе это приводит к значительному перерасходу топлива.\n\n3️⃣ **💡 Шпаргалка**\nПредставь, что твоя машина — это самолет.\n• Закрытые окна = обтекаемый фюзеляж, летит легко.\n• Открытые окна = выпущенные закрылки, которые тормозят самолет.\n\nЗапомни простую логику:\n**Окно открыл — парашют выпустил — деньги в трубу вылетели.**"
+    },
+    "image_url": "https://teorica.practicavial.com/question/3ac8e721-b3ca-4ac6-9fc3-7bbe0ffeb0d1-1658859085-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3ac8e721-b3ca-4ac6-9fc3-7bbe0ffeb0d1-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Si el vehículo de detrás se acerca demasiado, es conveniente...",
+      "en": "If the vehicle behind gets too close, it is advisable to...",
+      "ru": "Если транспортное средство сзади приближается слишком близко, целесообразно..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "disminuir la separación con el vehículo de delante.",
+          "en": "decrease the separation with the vehicle in front.",
+          "ru": "уменьшить дистанцию до транспортного средства спереди."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "aumentar la separación con el vehículo de delante.",
+          "en": "increase the separation with the vehicle in front.",
+          "ru": "увеличить дистанцию до транспортного средства спереди."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "mantener la misma separación con el vehículo de delante.",
+          "en": "maintain the same separation with the vehicle in front.",
+          "ru": "сохранить ту же дистанцию до транспортного средства спереди."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Cuando un vehículo circula demasiado cerca por detrás (no respeta la distancia de seguridad), aumenta el riesgo de colisión por alcance en caso de frenada brusca. Según las técnicas de conducción preventiva, el conductor debe compensar este riesgo aumentando la separación con el vehículo de delante. Esto permite disponer de más espacio para frenar de manera progresiva y suave ante cualquier imprevisto, concediendo así más tiempo de reacción al conductor que circula detrás y evitando que impacte contra nuestro vehículo.",
+      "en": "When a vehicle follows too closely behind (tailgating), the risk of a rear-end collision increases in the event of sudden braking. According to defensive driving techniques, the driver must compensate for this risk by increasing the separation distance from the vehicle in front. This provides more space to brake progressively and smoothly in case of any unforeseen event, thereby granting the driver behind more reaction time and preventing them from impacting your vehicle.",
+      "ru": "🎓 **Правило**\n\nЕсли водитель сзади не соблюдает дистанцию и «висит на хвосте», ты находишься в зоне повышенного риска удара сзади (colisión por alcance). Ты не можешь заставить его отъехать, но ты обязан компенсировать эту опасность.\n\nТвоя задача — **увеличить дистанцию до автомобиля спереди**.\nЛогика проста: большой запас места спереди позволит тебе в случае опасности тормозить очень плавно и постепенно, а не резко бить по тормозам. Плавное замедление даст водителю сзади лишние секунды на реакцию, чтобы он успел затормозить и не въехал в твой бампер.\n\n💡 **Шпаргалка**\n\nЗапомни закон сохранения места: **Если сзади места мало — спереди должно быть много.**\nДавят сзади? Отпусти переднего подальше."
+    },
+    "image_url": "https://teorica.practicavial.com/question/f7b9916d-213a-4b0f-9f77-c7061306ec0e-1658858762-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f7b9916d-213a-4b0f-9f77-c7061306ec0e-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "En función de su nivel de emisiones y combustible empleado, se clasifican en la categoría 0 emisiones...",
+      "en": "Based on their emission level and fuel used, which vehicles are classified in the 0 emissions category?",
+      "ru": "В зависимости от уровня выбросов и используемого топлива, к категории «0 выбросов» (0 emisiones) относятся..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "los vehículos eléctricos de batería.",
+          "en": "battery electric vehicles.",
+          "ru": "электромобили на аккумуляторных батареях."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "los vehículos con motor de combustión interna.",
+          "en": "internal combustion engine vehicles.",
+          "ru": "автомобили с двигателем внутреннего сгорания."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "los vehículos propulsados por gas licuado del petróleo (GLP).",
+          "en": "vehicles powered by Liquefied Petroleum Gas (LPG).",
+          "ru": "автомобили, работающие на сжиженном нефтяном газе (GLP)."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según la normativa de la DGT sobre el distintivo ambiental, la etiqueta '0 Emisiones' (color azul) identifica a los vehículos más eficientes. Se asigna a: 1) Vehículos eléctricos de batería (BEV), 2) Vehículos eléctricos de autonomía extendida (REEV), 3) Vehículos híbridos enchufables (PHEV) con una autonomía mínima de 40 km, y 4) Vehículos de pila de combustible. Los vehículos de GLP obtienen el distintivo ECO, mientras que los de combustión interna obtienen C o B según su antigüedad.",
+      "en": "According to DGT regulations regarding environmental badges, the '0 Emisiones' label (blue) identifies the most efficient vehicles. It is assigned to: 1) Battery Electric Vehicles (BEV), 2) Range-Extended Electric Vehicles (REEV), 3) Plug-in Hybrid Electric Vehicles (PHEV) with a minimum range of 40 km, and 4) Fuel Cell Vehicles. LPG vehicles receive the ECO badge, while internal combustion vehicles receive C or B depending on their age.",
+      "ru": "🎓 **Правило**\n\nВ Испании действует строгая система экологической маркировки для доступа в центры городов (зоны ZBE). Наклейка **«0 Emisiones»** (синего цвета) выдается самым экологически чистым транспортным средствам. К ним относятся:\n\n1.  **Электромобили на аккумуляторах (BEV)** — это правильный ответ.\n2.  Электромобили с увеличенным запасом хода (REEV).\n3.  Подключаемые гибриды (PHEV), но только если они могут проехать на электричестве **40 км и более**.\n4.  Водородные автомобили (на топливных элементах).\n\nВажно различать:\n*   Автомобили на газе (GLP) считаются чистыми, но не нулевыми — они получают наклейку **ECO** (зелено-синюю).\n*   Обычные бензиновые и дизельные авто получают наклейки **C** (зеленую) или **B** (желтую).\n\n🇷🇺 **Сравнение с РФ**\n\nВ РФ экологический класс указан в документах, но физические наклейки для допуска в определенные зоны города практически не используются. В Испании же отсутствие нужной наклейки на лобовом стекле означает **штраф** при въезде в экологические зоны Мадрида, Барселоны и других крупных городов.\n\n💡 **Шпаргалка**\n\n**0** — это «бублик». У электромобиля выхлопная труба — это дырка от бублика (ее просто нет).\nЕсли машина дымит (даже газом) — это не ноль."
+    },
+    "image_url": "https://teorica.practicavial.com/question/499b7bc2-183d-48f0-89d3-70dce9ba1735-1734454845-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/499b7bc2-183d-48f0-89d3-70dce9ba1735-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "Está prohibida la circulación de vehículos a motor que no disponen de...",
+      "en": "It is prohibited to drive motor vehicles that do not have...",
+      "ru": "Запрещено движение механических транспортных средств, которые не имеют..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "un extintor de incendios adecuado y eficaz.",
+          "en": "a suitable and effective fire extinguisher.",
+          "ru": "подходящего и эффективного огнетушителя."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "un dispositivo silenciador de explosiones.",
+          "en": "an explosion silencing device.",
+          "ru": "устройства глушителя взрывов (глушителя)."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "un juego de correas de repuesto para el equipo motor.",
+          "en": "a set of spare belts for the engine equipment.",
+          "ru": "комплекта запасных ремней для двигателя."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Vehículos, tanto en vías urbanas como interurbanas, se prohíbe la circulación de vehículos a motor y ciclomotores sin el preceptivo dispositivo silenciador de las explosiones. La conducción con 'escape libre' o sin silenciador no solo conlleva una sanción, sino que los agentes de la autoridad podrán inmovilizar el vehículo si este supera los niveles de ruido o gases permitidos reglamentariamente. El extintor solo es obligatorio para determinados vehículos (como los destinados al transporte de mercancías o pasajeros) y los recambios mecánicos (correas) ya no son exigibles.",
+      "en": "According to the General Vehicle Regulations, on both urban and interurban roads, it is prohibited to drive motor vehicles and mopeds without the mandatory explosion silencing device (muffler). Driving with an 'open exhaust' or without a silencer not only carries a penalty, but law enforcement agents may also immobilize the vehicle if it exceeds the legally permitted noise or gas levels. A fire extinguisher is only mandatory for certain vehicles (such as those for transporting goods or passengers), and mechanical spare parts (belts) are no longer required.",
+      "ru": "**🎓 Правило**\nДля водителя **легкового автомобиля** (Turismo) наличие исправного глушителя (dispositivo silenciador de explosiones) является строгим требованием. ПДД Испании категорически запрещают движение по любым дорогам (городским и междугородним) без этого устройства или с так называемым «свободным выхлопом» (escape libre). Глушитель не только снижает шум, но и предотвращает выброс газов экстремально высокой температуры.\n\nВажно знать: если уровень шума превышает норму или глушитель отсутствует, полиция имеет полное право **обездвижить** (inmovilizar) ваш автомобиль на месте до устранения неисправности.\n\nЧто касается остальных вариантов: огнетушитель в обычном легковом авто обязателен только при наличии прицепа, а возить запасные ремни больше не требуется законом.\n\n**💡 Шпаргалка**\nЗапомни метод исключения:\n• Ремни — это прошлое (отменили).\n• Огнетушитель — это для грузовиков (или если тянешь прицеп).\n• Глушитель — это **обязательно для всех**, чтобы не оглушать окружающих.\nНет глушителя = нет поездки (машину заберут на штрафстоянку)."
+    },
+    "image_url": "https://teorica.practicavial.com/question/1cbbbf4c-78f8-4c47-9373-86bc3aef4f29-1663758070-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1cbbbf4c-78f8-4c47-9373-86bc3aef4f29-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "Para realizar una conducción económica se recomienda en los motores de gasolina realizar los cambios de marcha...",
+      "en": "To perform economic driving, it is recommended to change gears in gasoline engines...",
+      "ru": "Для экономичного вождения на бензиновых двигателях рекомендуется переключать передачи..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "entre 1.500 rpm. a 2.000 revoluciones por minuto.",
+          "en": "between 1,500 rpm and 2,000 revolutions per minute.",
+          "ru": "в диапазоне от 1 500 до 2 000 оборотов в минуту."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "entre 2.000 rpm. a 2.500 revoluciones por minuto.",
+          "en": "between 2,000 rpm and 2,500 revolutions per minute.",
+          "ru": "в диапазоне от 2 000 до 2 500 оборотов в минуту."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "entre 3.000 rpm. a 3.500 revoluciones por minuto.",
+          "en": "between 3,000 rpm and 3,500 revolutions per minute.",
+          "ru": "в диапазоне от 3 000 до 3 500 оборотов в минуту."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según las técnicas de conducción eficiente establecidas, el rango de revoluciones óptimo para cambiar de marcha varía según el tipo de combustible. En los motores de gasolina, el cambio debe realizarse entre las 2.000 y 2.500 rpm. Por el contrario, los motores diésel requieren realizar el cambio antes, entre las 1.500 y 2.000 rpm. Circular con marchas largas y a bajas revoluciones reduce el consumo y la contaminación.",
+      "en": "According to established efficient driving techniques, the optimal RPM range for changing gears varies by fuel type. In gasoline engines, the gear change should be performed between 2,000 and 2,500 rpm. Conversely, diesel engines require shifting earlier, between 1,500 and 2,000 rpm. Driving in high gears at low revolutions reduces consumption and pollution.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя **легкового автомобиля** (Turismo) с бензиновым двигателем стандарты экономичного вождения DGT предписывают переключать передачи в диапазоне **2000–2500 оборотов в минуту**.\n\nЭто позволяет двигателю работать эффективно, не расходуя лишнее топливо. Важно четко различать требования для разных типов двигателей:\n• **Бензин:** переключаемся на 2000–2500 об/мин.\n• **Дизель:** переключаемся раньше, на 1500–2000 об/мин (так как у них крутящий момент доступен на более низких оборотах).\n\nОбщее правило: используй максимально возможную высокую передачу при минимально возможных оборотах, если это позволяет дорожная ситуация.\n\n3️⃣ **💡 Шпаргалка**\nЗапомни принцип «Дизель — Дешевле, Бензин — Быстрее»:\n• **Д**изель (экономичнее) — цифры меньше (**1.5**–2.0).\n• **Б**ензин (оборотистее) — цифры больше (**2.0**–2.5).\n\nИли просто: **Д**изель до **Д**вух, Бензин — после."
+    },
+    "image_url": "https://teorica.practicavial.com/question/f24acb4f-961e-4e78-9869-7050224593e8-1658858921-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f24acb4f-961e-4e78-9869-7050224593e8-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido que un vehículo con motor térmico circule sin silenciador de explosiones?",
+      "en": "Is it permitted for a vehicle with a thermal engine to circulate without an explosion silencer?",
+      "ru": "Разрешено ли транспортному средству с двигателем внутреннего сгорания двигаться без глушителя?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solo pueden circular sin silenciador los ciclomotores.",
+          "en": "Only mopeds can circulate without a silencer.",
+          "ru": "Без глушителя могут ездить только мопеды."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, como norma general.",
+          "en": "Yes, as a general rule.",
+          "ru": "Да, как общее правило."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, está prohibida la circulación de vehículos a motor y ciclomotores con el llamado 'escape libre', es decir, sin el preceptivo dispositivo silenciador de explosiones. Esta prohibición aplica tanto en vías urbanas como interurbanas. Los silenciadores reducen el ruido y evitan la salida de gases a temperaturas muy altas. Además, los agentes de la autoridad podrán inmovilizar el vehículo si este supera los niveles de gases, humos y ruidos permitidos reglamentariamente.",
+      "en": "According to the General Traffic Regulations, driving motor vehicles and mopeds with a so-called 'free exhaust' (without the mandatory explosion silencer device) is prohibited. This prohibition applies to both urban and interurban roads. Silencers reduce noise and prevent the release of gases at very high temperatures. Furthermore, authorities may immobilize the vehicle if it exceeds the legally permitted levels of gases, fumes, and noise.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя легкового автомобиля (Turismo) с двигателем внутреннего сгорания (motor térmico) наличие исправного глушителя обязательно. ПДД Испании строго запрещают езду с так называемым «свободным выхлопом» (escape libre) — то есть без глушителя или с неисправной системой выпуска.\n\nЭто устройство выполняет две функции:\n1. Снижает уровень шума.\n2. Охлаждает выхлопные газы, предотвращая их выход при опасно высоких температурах.\n\nЗапрет действует везде: и в городе, и на трассе. Если ваш автомобиль превышает допустимый уровень шума или дымности, полиция имеет право не просто выписать штраф, но и **inmovilizar** (задержать/обездвижить) транспортное средство до устранения неисправности.\n\n3️⃣ **💡 Шпаргалка**\nЗапомни простое правило:\n**Нет глушителя — нет движения.**\nЕсли машина «рычит» (escape libre), инспектор её «замолчит» (inmovilización)."
+    },
+    "image_url": "https://teorica.practicavial.com/question/da3ecd94-c45f-462b-ad4d-2172d13339cb-1663758095-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/da3ecd94-c45f-462b-ad4d-2172d13339cb-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, ¿a qué tipo de vehículos se prohíbe la entrada a una zona delimitada con la señal de la imagen?",
+      "en": "As a general rule, what type of vehicles are prohibited from entering a zone delimited by the sign in the image?",
+      "ru": "Как правило, каким типам транспортных средств запрещен въезд в зону, обозначенную знаком на изображении?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A los vehículos a motor.",
+          "en": "To motor vehicles.",
+          "ru": "Механическим транспортным средствам."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A los vehículos a motor excepto a las motocicletas.",
+          "en": "To motor vehicles except motorcycles.",
+          "ru": "Механическим транспортным средствам, за исключением мотоциклов."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A todos los vehículos excepto a las bicicletas y a los VMP.",
+          "en": "To all vehicles except bicycles and PMVs (Personal Mobility Vehicles).",
+          "ru": "Всем транспортным средствам, за исключением велосипедов и СИМ."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "La señal R-120 prohíbe la entrada a vehículos a motor en función de su distintivo ambiental u otros criterios ambientales establecidos. La silueta del automóvil en la señal representa genéricamente a los vehículos a motor. Esta prohibición no excluye a las motocicletas, ya que también son vehículos a motor sujetos a clasificación ambiental. Los ciclos y VMP no se ven afectados por esta señal específica al no ser vehículos a motor.",
+      "en": "Sign R-120 prohibits entry to motor vehicles based on their environmental badge or other established environmental criteria. The car silhouette on the sign generically represents motor vehicles. This prohibition does not exclude motorcycles, as they are also motor vehicles subject to environmental classification. Cycles and PMVs are not affected by this specific sign as they are not motor vehicles.",
+      "ru": "1️⃣ **🎓 Правило**\nЗнак R-120 (красный круг с силуэтом автомобиля и точками выхлопа) обозначает въезд в зону с низкими выбросами. Он запрещает въезд именно **механическим транспортным средствам** (vehículos a motor), если они не соответствуют экологическим критериям (например, не имеют нужной эко-наклейки).\n\nДля водителя *Turismo* (легкового автомобиля) это означает:\n• Ограничение касается всех, у кого есть двигатель (включая мотоциклы, так как они тоже загрязняют воздух).\n• Велосипеды и *VMP* (СИМ, электросамокаты) не относятся к механическим ТС в данном контексте, поэтому им въезд под этот знак не запрещен.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nВ РФ есть аналог — знак 5.35 «Зона с ограничением экологического класса механических транспортных средств».\n• **Сходство:** Оба знака действуют только на **механические** ТС (с двигателем).\n• **Отличие:** В Испании критерием часто служит наличие цветной наклейки (Distintivo Ambiental) на лобовом стекле, а контроль осуществляется камерами автоматически.\n\n3️⃣ **💡 Шпаргалка**\nВидишь точки за машиной на знаке? Это выхлопные газы.\n• У кого есть выхлоп? У **механических ТС**.\n• Значит, знак для них. Велосипед «не газует» — проезжай."
+    },
+    "image_url": "https://teorica.practicavial.com/question/ecfc8a9c-4258-42a1-aeba-1a1f787431bf-1734368620-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ecfc8a9c-4258-42a1-aeba-1a1f787431bf-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Arrancar el motor sin acelerar, ¿evita un consumo de combustible innecesario?",
+      "en": "Does starting the engine without accelerating avoid unnecessary fuel consumption?",
+      "ru": "Позволяет ли запуск двигателя без нажатия на педаль газа избежать лишнего расхода топлива?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, además no es posible arrancar sin acelerar.",
+          "en": "No, moreover, it is impossible to start without accelerating.",
+          "ru": "Нет, к тому же завестись без газа невозможно."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, en los vehículos actuales no es necesario pisar el acelerador.",
+          "en": "Yes, in current vehicles it is not necessary to step on the accelerator.",
+          "ru": "Да, в современных автомобилях нажимать на педаль газа не нужно."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, se debe acelerar para arrancar.",
+          "en": "No, one must accelerate to start.",
+          "ru": "Нет, для запуска необходимо газовать."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según las técnicas de conducción eficiente, los motores modernos disponen de sistemas de inyección electrónica que regulan automáticamente el aporte de combustible necesario para el arranque. Por tanto, pisar el acelerador al arrancar no es necesario y provoca un consumo de combustible superfluo, además de aumentar las emisiones contaminantes.",
+      "en": "According to efficient driving techniques, modern engines are equipped with electronic injection systems that automatically regulate the fuel supply needed for starting. Therefore, stepping on the accelerator when starting is unnecessary and causes superfluous fuel consumption, in addition to increasing polluting emissions.",
+      "ru": "1️⃣ **🎓 Правило**\nВ современном легковом автомобиле (Turismo) за подачу топлива отвечает электроника. Когда вы поворачиваете ключ или нажимаете кнопку Start, компьютер сам рассчитывает идеальную смесь для запуска. Нажатие на педаль газа в этот момент — это грубая ошибка: вы принудительно впрыскиваете лишнее топливо, которое сгорает впустую, увеличивая расход и вредные выбросы. Правильный алгоритм: сел, выжал сцепление (на механике) или тормоз (на автомате) и запустил двигатель, **не касаясь педали газа**.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nЭто критически важно для водителей старой закалки, учившихся на карбюраторных «Жигулях» или «Волгах», где нужно было «подгазовывать» или вытягивать «подсос» для запуска. В Испании (и в любой современной машине) этот рефлекс вреден. Забудьте о педали газа при запуске — техника всё сделает сама.\n\n3️⃣ **💡 Шпаргалка**\nЗаводишь мотор? **Убери ногу с газа!**\nЕсли давишь на педаль — жжёшь бензин и деньги жаль."
+    },
+    "image_url": "https://teorica.practicavial.com/question/90839aa4-2297-4127-be48-4e4742abf8a9-1658858913-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/90839aa4-2297-4127-be48-4e4742abf8a9-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "Para realizar una conducción eficiente, la primera velocidad debe utilizarse...",
+      "en": "To drive efficiently, the first gear should be used...",
+      "ru": "Для эффективного вождения первая передача должна использоваться..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "solo para subir pendientes muy pronunciadas.",
+          "en": "only for climbing very steep slopes.",
+          "ru": "только для подъема на очень крутые склоны."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "el menor tiempo posible.",
+          "en": "for the shortest time possible.",
+          "ru": "минимально возможное время."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "el mayor tiempo posible.",
+          "en": "for the longest time possible.",
+          "ru": "максимально возможное время."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según los principios de la conducción eficiente, la primera velocidad es la que registra el mayor consumo de combustible, ya que su función es vencer la inercia del vehículo detenido. Por ello, la norma técnica dicta utilizarla el menor tiempo posible: estrictamente lo necesario para iniciar el movimiento. Se recomienda cambiar a segunda marcha aproximadamente a los 2 segundos de arrancar o tras recorrer unos 6 metros.",
+      "en": "According to the principles of efficient driving, the first gear records the highest fuel consumption, as its function is to overcome the inertia of the stopped vehicle. Therefore, technical standards dictate using it for the shortest time possible: strictly what is necessary to start moving. It is recommended to shift to second gear approximately 2 seconds after starting or after traveling about 6 meters.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя **легкового автомобиля (Turismo)** первая передача — это исключительно инструмент для старта с места. Она обладает самой большой мощностью, но и самым высоким расходом топлива. Правила эффективного вождения требуют использовать её **минимально возможное время**.\n\nТвоя задача — только сдвинуть машину с места. Переключаться на вторую передачу нужно практически сразу: обычно через **2 секунды** после старта или проехав всего **6 метров**. Длительное движение на первой передаче без необходимости считается грубой ошибкой с точки зрения экологии и экономии.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nВ РФ водители часто привыкли разгоняться на первой передаче до 20 км/ч или «до рева мотора». В Испании на экзамене это будет ошибкой по критерию «Эффективное вождение». Здесь требуют переключаться вверх почти мгновенно, не раскручивая двигатель, чтобы снизить шум и выбросы.\n\n3️⃣ **💡 Шпаргалка**\nПервая передача — как **спичка**: чиркнул (тронулся) и сразу выбросил (переключил). Не держи её горящей в руках!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/cc387e88-6571-4a36-b70e-2e90f9e363a1-1658858939-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cc387e88-6571-4a36-b70e-2e90f9e363a1-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "¿Le está permitido el acceso a un vehículo de motor que disponga del distintivo ambiental C a una zona de bajas emisiones delimitada por estas señales?",
+      "en": "Is a motor vehicle with the environmental badge C allowed access to a low emission zone delimited by these signs?",
+      "ru": "Разрешен ли въезд механическому транспортному средству с экологической меткой C в зону с низким уровнем выбросов, обозначенную этими знаками?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo si el vehículo de motor es una motocicleta.",
+          "en": "Only if the motor vehicle is a motorcycle.",
+          "ru": "Только если механическое ТС — это мотоцикл."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": "Yes.",
+          "ru": "Да."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, como norma general.",
+          "en": "No, as a general rule.",
+          "ru": "Нет, как правило."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "La señal vertical R-120 (Entrada prohibida a vehículos de motor) restringe el acceso según criterios medioambientales. El panel complementario S-860 indica 'EXCEPTO' seguido de los distintivos '0' y 'ECO'. Esto significa que la prohibición de entrada se aplica a todos los vehículos que no posean dichos distintivos específicos. Al tener el vehículo el distintivo C, no se encuentra dentro de las excepciones listadas, por lo que su acceso está prohibido.",
+      "en": "The vertical sign R-120 (No entry for motor vehicles) restricts access based on environmental criteria. The supplementary panel S-860 indicates 'EXCEPTO' (Except) followed by the badges '0' and 'ECO'. This means the entry prohibition applies to all vehicles that do not possess these specific badges. Since the vehicle has badge C, it is not within the listed exceptions, and therefore its access is prohibited.",
+      "ru": "1️⃣ **🎓 Правило**\nЗнак R-120 (красный круг с силуэтом автомобиля и точками выхлопа) запрещает въезд любым механическим транспортным средствам (vehículos de motor) по экологическим причинам.\nОднако под знаком установлена белая табличка с надписью **«EXCEPTO»** (Кроме), на которой изображены конкретные метки: **«0»** и **«ECO»**.\nЭто означает, что проезд разрешен ТОЛЬКО обладателям этих двух типов наклеек. Поскольку в вопросе указано, что твой автомобиль (Turismo) имеет метку **«C»**, ты не попадаешь в список исключений. Въезд тебе запрещен.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nВ России существуют знаки экологического класса (5.35), но они встречаются крайне редко и часто игнорируются. В Испании зоны ZBE (Zona de Bajas Emisiones) есть почти в каждом крупном городе, и контроль осуществляется автоматическими камерами. Въезд под такой знак без нужной наклейки гарантирует высокий штраф, поэтому относись к ним так же серьезно, как к «кирпичу».\n\n3️⃣ **💡 Шпаргалка**\nТабличка «EXCEPTO» — это список VIP-гостей на входе в клуб.\nЕсли на фейс-контроле написано «Только 0 и ECO», а у тебя на стекле наклейка «C» — тебя не пустят.\n**Нет в списке — нет въезда.**"
+    },
+    "image_url": "https://teorica.practicavial.com/question/715874cf-a68d-4eb9-b076-74192de815c6-1734455877-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/715874cf-a68d-4eb9-b076-74192de815c6-s-1.jpg?t=1768428925",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "En detenciones de más de 60 segundos, es importante...",
+      "en": "During stops of more than 60 seconds, it is important to...",
+      "ru": "При остановках продолжительностью более 60 секунд важно..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "apagar el motor para disminuir la contaminación.",
+          "en": "switch off the engine to reduce pollution.",
+          "ru": "выключить двигатель, чтобы уменьшить загрязнение окружающей среды."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "conectar la señal de emergencia.",
+          "en": "switch on the hazard warning lights.",
+          "ru": "включить аварийную световую сигнализацию."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "encender todas las luces.",
+          "en": "switch on all the lights.",
+          "ru": "включить все фары."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Desde el punto de vista de la conducción eficiente y la normativa medioambiental, en las detenciones impuestas por las circunstancias del tráfico (como atascos o retenciones) que se prevean superiores a 60 segundos, se debe apagar el motor. Mantener el vehículo al ralentí provoca un consumo innecesario de combustible y aumenta las emisiones contaminantes y acústicas sin aportar movimiento. El uso de la señal de emergencia se reserva para casos donde el vehículo represente un peligro o esté averiado, no para detenciones ordinarias.",
+      "en": "From the perspective of efficient driving and environmental regulations, during stops imposed by traffic circumstances (such as traffic jams or hold-ups) expected to last more than 60 seconds, the engine should be switched off. Keeping the vehicle idling causes unnecessary fuel consumption and increases polluting and acoustic emissions without providing movement. The use of hazard warning lights is reserved for cases where the vehicle represents a danger or has broken down, not for ordinary stops.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя **легкового автомобиля** (Turismo) в Испании действуют строгие рекомендации по «Эффективному вождению» (Conducción eficiente). Если вы вынуждены остановиться из-за дорожной обстановки (detención) — например, в глухой пробке или перед заведомо долгим светофором — и простой продлится более 60 секунд, необходимо заглушить двигатель.\n\nРабота мотора на холостом ходу в такой ситуации бессмысленна: вы не едете, но продолжаете сжигать топливо и загрязнять воздух. Выключение двигателя помогает снизить уровень шума и вредных выбросов.\n\nВключать аварийную сигнализацию или все фары не нужно, так как это штатная ситуация в потоке, а не поломка или экстренное торможение.\n\n3️⃣ **💡 Шпаргалка**\n«Минута простоя — глуши мотор смело!»\nПредставь, что после 60-й секунды из выхлопной трубы начинают вылетать твои евроценты. Лучше перекрыть этот поток."
+    },
+    "image_url": "https://teorica.practicavial.com/question/72983130-ae1a-49fe-bcce-246c86424c34-1658859026-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/72983130-ae1a-49fe-bcce-246c86424c34-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "El consumo de combustible puede incrementarse cuando...",
+      "en": "Fuel consumption can increase when...",
+      "ru": "Расход топлива может увеличиться, когда..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "las ventanillas del vehículo están subidas.",
+          "en": "the vehicle's windows are rolled up.",
+          "ru": "окна автомобиля закрыты."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "los neumáticos carecen de dibujo.",
+          "en": "the tires lack tread.",
+          "ru": "у шин отсутствует протектор."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "el vehículo va muy cargado.",
+          "en": "the vehicle is heavily loaded.",
+          "ru": "автомобиль сильно загружен."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "El peso del vehículo es un factor determinante en el consumo de combustible. Un vehículo muy cargado requiere más potencia para acelerar y mantener la velocidad, lo que incrementa el gasto de carburante. Además, una mala distribución de la carga o el uso de una baca (que aumenta la resistencia al aire) agravan este efecto. Por el contrario, llevar las ventanillas subidas mejora la aerodinámica y reduce el consumo.",
+      "en": "The weight of the vehicle is a determining factor in fuel consumption. A heavily loaded vehicle requires more power to accelerate and maintain speed, which increases fuel usage. Furthermore, poor load distribution or the use of a roof rack (which increases air resistance) exacerbates this effect. Conversely, keeping the windows rolled up improves aerodynamics and reduces consumption.",
+      "ru": "🎓 **Правило**\nДля водителя легкового автомобиля (Turismo) вес — это критический фактор экономии. Физика проста: чем тяжелее машина, тем больше усилий требуется двигателю, чтобы сдвинуть её с места и поддерживать скорость. Следовательно, перегруженный автомобиль всегда потребляет больше топлива.\n\nТакже важно учитывать аэродинамику. Если груз размещен на крыше (baca), он создает сопротивление воздуху, что может увеличить расход примерно на 1 литр на 100 км. Самый экономичный способ перевозки — размещать вещи внутри багажника.\n\nЧто касается других вариантов: закрытые окна, наоборот, улучшают обтекаемость кузова и снижают расход. Отсутствие протектора на шинах — это проблема безопасности (сцепления), а на расход топлива гораздо сильнее влияет низкое давление в шинах, а не рисунок протектора.\n\n💡 **Шпаргалка**\nМашина — как турист в походе.\nЕсли рюкзак неподъемный (перегруз) — турист быстрее устанет и съест больше еды (топлива).\nЕсли куртка застегнута (окна закрыты) — бежать легче, ветер не мешает."
+    },
+    "image_url": "https://teorica.practicavial.com/question/853d4773-2c6d-49b5-9c8d-735c34acf23b-1658858993-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/853d4773-2c6d-49b5-9c8d-735c34acf23b-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "Las técnicas de conducción eficiente pueden ahorrar entre un 10 y un 25% del combustible...",
+      "en": "Efficient driving techniques can save between 10% and 25% of fuel...",
+      "ru": "Техники экономичного вождения позволяют сэкономить от 10 до 25% топлива..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "y reducir de forma importante las emisiones contaminantes.",
+          "en": "and significantly reduce polluting emissions.",
+          "ru": "и значительно снизить выбросы загрязняющих веществ."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "pero no pueden reducir las emisiones contaminantes.",
+          "en": "but cannot reduce polluting emissions.",
+          "ru": "но не могут снизить выбросы загрязняющих веществ."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "y reducir las emisiones contaminantes en la misma cantidad.",
+          "en": "and reduce polluting emissions by the same amount.",
+          "ru": "и снизить выбросы загрязняющих веществ на ту же величину."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "La conducción eficiente aprovecha las tecnologías de los motores modernos para optimizar el rendimiento. Existe una correlación directa: al reducir el consumo de carburante, se disminuye proporcionalmente la quema de combustible fósil y, por ende, se reducen de forma importante las emisiones de gases contaminantes (CO2, NOx) y la contaminación acústica.",
+      "en": "Efficient driving leverages modern engine technologies to optimize performance. There is a direct correlation: reducing fuel consumption proportionally decreases the burning of fossil fuels and, consequently, significantly reduces emissions of polluting gases (CO2, NOx) and noise pollution.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя легкового автомобиля (Turismo) работает простая физика: выхлопные газы — это результат сгорания топлива. Если благодаря плавному вождению и правильному выбору передач вы сжигаете на 10–25% меньше бензина или дизеля, то и количество вредных веществ, вылетающих в трубу, **значительно снижается**. Экономичное вождение не только бережет ваш кошелек, но и уменьшает загрязнение воздуха и уровень шума в городах.\n\n3️⃣ **💡 Шпаргалка**\nЗапомни простую цепочку:\n**Меньше жмёшь (на газ) → Меньше жжёшь (топлива) → Чище дышишь.**\nЭкономия денег = Экология."
+    },
+    "image_url": "https://teorica.practicavial.com/question/c8640268-4420-441b-836f-a7c8d8f013b3-1658858896-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c8640268-4420-441b-836f-a7c8d8f013b3-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "La densidad del tráfico en zona urbana produce frecuentes zonas de incertidumbre, por lo que el conductor de una motocicleta deberá:",
+      "en": "Traffic density in urban areas creates frequent zones of uncertainty, so a motorcycle rider must:",
+      "ru": "Плотность движения в населенном пункте создает частые зоны неопределенности, поэтому водитель мотоцикла должен:"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Advertir su presencia a los demás usuarios accionando la luz de carretera.",
+          "en": "Warn others of their presence by using the high beam headlights.",
+          "ru": "Предупредить остальных участников о своем присутствии, включив дальний свет."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Prever y anticiparse a los posibles comportamientos de los demás usuarios.",
+          "en": "Foresee and anticipate the possible behaviors of other users.",
+          "ru": "Предвидеть и действовать на опережение возможных действий других участников движения."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Aumentar la velocidad para salir cuanto antes de esta situación.",
+          "en": "Increase speed to exit this situation as soon as possible.",
+          "ru": "Увеличить скорость, чтобы как можно скорее покинуть эту ситуацию."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según los principios de la conducción preventiva, las 'zonas de incertidumbre' son espacios donde el conductor no puede estar seguro de las intenciones de otros usuarios (ángulos muertos, vehículos estacionados, peatones ocultos). La normativa exige mantener una actitud de anticipación para reaccionar ante posibles errores ajenos. El uso de la luz de carretera (largas) está prohibido en vías urbanas suficientemente iluminadas (Art. 101 RGCir), y aumentar la velocidad en tráfico denso incrementa exponencialmente el riesgo de colisión.",
+      "en": "According to the principles of defensive driving, 'zones of uncertainty' are spaces where the driver cannot be sure of the intentions of other users (blind spots, parked vehicles, hidden pedestrians). Regulations require maintaining an attitude of anticipation to react to possible errors by others. The use of high beam headlights is prohibited on sufficiently lit urban roads, and increasing speed in dense traffic exponentially increases the risk of collision.",
+      "ru": "1️⃣ **🎓 Правило**\nХотя в вопросе речь о мотоцикле, это правило — фундамент безопасности для водителя любого **Turismo** (легкового автомобиля). В плотном городском потоке постоянно возникают «зоны неопределенности» — это пространство вокруг других участников движения, куда они могут внезапно переместиться (открытая дверь, резкое перестроение, выход пешехода из-за автобуса).\n\nТвоя обязанность — применять **Conducción Preventiva** (Защитное вождение). Это значит:\n1. **Не доверять:** Исходи из того, что другие могут нарушить правила.\n2. **Предвидеть:** Ожидай маневра до того, как он начнется.\n3. **Быть готовым:** Держи ногу над тормозом, а не на газу.\n\nИспользование дальнего света в городе запрещено (он слепит), а увеличение скорости в плотном потоке лишает тебя времени на реакцию.\n\n2️⃣ **💡 Шпаргалка**\nЕсли видишь слово **«Incertidumbre»** (Неопределенность) — ищи ответ со словом **«Anticiparse»** (Предвидеть/Опережать).\n\nЗапомни логику:\n— Не знаешь, что сделает сосед? **Думай за него.**\n— Хочешь проскочить побыстрее? **Плохая идея.**\n— Хочешь поморгать дальним? **Получишь штраф.**"
+    },
+    "image_url": "https://teorica.practicavial.com/question/92de6179-a0eb-4b9c-b0e4-96a09995704c-1658858784-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/92de6179-a0eb-4b9c-b0e4-96a09995704c-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "Los vehículos con motor eléctrico, durante su funcionamiento, ¿emiten gases que puedan perjudicar al medio ambiente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, y además las baterías que usan son residuos muy contaminantes al final de su vida útil.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No; no emiten a la atmósfera ni gases contaminantes ni de efecto invernadero.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, pero consumen mayor cantidad de energía en las deceleraciones y frenadas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/0758afbf-1810-4d19-8d72-bbb37ea05517-1761030471-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0758afbf-1810-4d19-8d72-bbb37ea05517-s-1.jpg?t=1768428925",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "Una buena práctica para evitar accidentes es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "señalizar con antelación sólo las maniobras que puedan ser peligrosas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "procurar que los demás conductores puedan anticiparse a las maniobras, haciéndose ver y entender de forma adecuada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "circular siempre muy despacio para anticiparse a todas las situaciones de riesgo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9c7c9758-3e13-438b-9762-f0f21b616c04-1658858715-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9c7c9758-3e13-438b-9762-f0f21b616c04-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "Los agentes de tráfico, ¿pueden inmovilizar un vehículo que supera los niveles de ruido permitido?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, ya que no supone un peligro para la circulación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sólo si circula de noche por vías urbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ccbf5fe7-3055-46cd-bb03-4458fb8b6232-1663758056-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ccbf5fe7-3055-46cd-bb03-4458fb8b6232-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "Los vehículos no podrán circular por las vías públicas si...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "emiten niveles de ruido superiores a los límites establecidos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "expulsan humos o gases por el tubo de escape.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "carecen de rueda de repuesto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e8d42e59-341b-4823-af5e-ab52f9a125c5-1663758099-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e8d42e59-341b-4823-af5e-ab52f9a125c5-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "¿Qué significa esta señal situada a la entrada de una calle?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Entrada prohibida a todos los vehículos excepto motocicletas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Zona de bajas emisiones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Entrada prohibida a todos los vehículos a motor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/eb6d4f2b-79f5-4258-999c-d52f59943643-1734432628-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/eb6d4f2b-79f5-4258-999c-d52f59943643-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "A la actitud ante la conducción que permite circular de una manera segura se le llama conducción...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "prudente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "eficiente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "preventiva.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/39358f9d-c6d5-448a-b108-0a03be69e06c-1658858681-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/39358f9d-c6d5-448a-b108-0a03be69e06c-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "¿Es posible ahorrar combustible evitando cambios de marcha innecesarios?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, se puede reducir el consumo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Depende de si el vehículo tiene motor diésel o de gasolina.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4a7ae554-853d-418c-9437-d24acc320c00-1658858927-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4a7ae554-853d-418c-9437-d24acc320c00-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "Mientras conduce, ¿es necesario utilizar los espejos retrovisores con regularidad?",
+      "en": "While driving, is it necessary to use the rearview mirrors regularly?",
+      "ru": "Необходимо ли регулярно пользоваться зеркалами заднего вида во время вождения?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, sólo es necesario cuando se vaya a realizar alguna maniobra.",
+          "en": "No, it is only necessary when a maneuver is going to be performed.",
+          "ru": "Нет, это необходимо только перед выполнением маневра."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, aunque no se vaya a realizar ninguna maniobra.",
+          "en": "Yes, even if no maneuver is going to be performed.",
+          "ru": "Да, даже если не планируется выполнение каких-либо маневров."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El uso de los espejos retrovisores no aporta seguridad adicional a la conducción.",
+          "en": "The use of rearview mirrors does not provide additional safety to driving.",
+          "ru": "Использование зеркал заднего вида не повышает безопасность вождения."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según los principios de la conducción preventiva y el Reglamento General de Circulación, el conductor debe mantener una visión completa de todo lo que ocurre alrededor del vehículo (delante, a los lados y detrás). La observación no se limita al momento previo a una maniobra; es un proceso continuo necesario para anticipar peligros. Se recomienda consultar los espejos retrovisores brevemente pero con frecuencia: cada 5-10 segundos en vías urbanas y cada 10-15 segundos en carreteras interurbanas, para garantizar un control total del entorno.",
+      "en": "According to the principles of defensive driving and the General Traffic Regulations, the driver must maintain a complete view of everything happening around the vehicle (front, sides, and rear). Observation is not limited to the moment before a maneuver; it is a continuous process necessary to anticipate hazards. It is recommended to check the rearview mirrors briefly but frequently: every 5-10 seconds on urban roads and every 10-15 seconds on interurban roads, to ensure full control of the environment.",
+      "ru": "1️⃣ **🎓 Правило**\nВождение — это непрерывный сбор информации. Даже если ты управляешь **turismo** и просто едешь прямо по своей полосе, ситуация сзади постоянно меняется. Сзади может приближаться скорая помощь, мотоциклист или другое ТС на высокой скорости. Принципы защитного вождения (Conducción preventiva) требуют сканировать зеркала постоянно, чтобы иметь круговой обзор на 360 градусов. Рекомендуемая частота проверки зеркал: в городе — каждые 5–10 секунд, на трассе — каждые 10–15 секунд. Это позволяет заметить опасность заранее, а не в последнюю секунду.\n\n3️⃣ **💡 Шпаргалка**\nЗеркала — это твой «прямой эфир» с дорогой.\n• Если смотришь только перед маневром — ты видишь «фотографию».\n• Если смотришь регулярно — ты видишь «видео» и понимаешь ситуацию.\nНе выключай прямой эфир, даже если едешь прямо!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/1cf4bf64-353c-463f-9b45-6f0c1b33f078-1658858707-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1cf4bf64-353c-463f-9b45-6f0c1b33f078-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "Una técnica para ahorrar combustible es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "apurar la utilización de las marchas cortas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "ir subiendo de marcha de una en una, sin saltarse ninguna.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "utilizar marchas altas, incluso en ciudad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d7089017-022c-4cad-87d4-d9915d9ce68b-1658858963-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d7089017-022c-4cad-87d4-d9915d9ce68b-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "La conducción preventiva es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "una forma de conducción lenta e inadecuada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "una forma de conducir peligrosa.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "una actitud ante la conducción que permite al conductor circular de una manera más segura.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/da72b060-e6e1-47bb-9ba1-124438edf8bf-1658858677-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/da72b060-e6e1-47bb-9ba1-124438edf8bf-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "Para ahorrar combustible es recomendable...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "circular con las ventanillas bajadas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "circular con las ventanillas subidas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "utilizar en todo momento el aire acondicionado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b17d1fac-cc64-4dbe-bb94-f3e7e4ddde09-1658859015-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b17d1fac-cc64-4dbe-bb94-f3e7e4ddde09-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "Se prohíbe circular con el llamado escape libre...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "tanto en vías urbanas como interurbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "sólo en vías urbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "sólo en vías interurbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/aadfaf15-0e04-46dc-84d2-edee9e9053f7-1663758090-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/aadfaf15-0e04-46dc-84d2-edee9e9053f7-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, es aconsejable mantener con el vehículo que circula delante...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "un intervalo mínimo de 4 segundos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "un intervalo mínimo de 2 segundos, aunque es recomendable ampliarlo a 3 segundos cuando se circule fuera de poblado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "un intervalo mínimo de 1 segundo, aunque puede ampliarse a 2 segundos cuando se circule por una vía fuera de poblado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2c55c381-4607-47d2-b5bf-18d2a5d230cb-1658858767-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2c55c381-4607-47d2-b5bf-18d2a5d230cb-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "Para contaminar lo menos posible es recomendable...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "mantener siempre la misma velocidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "utilizar lo menos posible el transporte público.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "mantener la velocidad lo más uniforme posible evitando acelerones y frenazos innecesarios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c43e2f4b-344c-4e68-96e1-b719cb01025b-1658858982-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c43e2f4b-344c-4e68-96e1-b719cb01025b-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "¿En qué clase clasificarías a un coche eléctrico de batería y un híbrido enchufable con una autonomía mínima de 40 km?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "0 emisiones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "ECO.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En la clase A.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3dd7c8ca-6ae3-4a5b-8a55-43d182f5b45a-1663758385-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3dd7c8ca-6ae3-4a5b-8a55-43d182f5b45a-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  }
+]

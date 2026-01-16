@@ -1,0 +1,1412 @@
+[
+  {
+    "topic_number": 6,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿Quién es el responsable de las infracciones cometidas durante la conducción?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Siempre el titular del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El autor del hecho en que consista la infracción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El tomador del seguro.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/692e7d31-cf89-4f41-8935-52bdeaf4f17a-1658328934-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/692e7d31-cf89-4f41-8935-52bdeaf4f17a-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "¿Quién es responsable de las infracciones relativas a la documentación y el estado del vehículo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El conductor en el momento en el que se detecta la infracción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El titular del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El tomador del seguro.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/77291bbf-6d02-44bd-b895-1ea6d3afe0e3-1658329111-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/77291bbf-6d02-44bd-b895-1ea6d3afe0e3-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Para que pueda circular un ciclomotor, ¿es obligatorio que esté asegurado?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, pero solo si tiene más de dos ruedas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b070f7c6-5d4a-4bd9-b5e0-56ebf2f3bff0-1658328154-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b070f7c6-5d4a-4bd9-b5e0-56ebf2f3bff0-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Los remolques y semirremolques, ¿deben tener tarjeta de inspección técnica?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, todos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, pero únicamente los no ligeros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, es suficiente con la del vehículo que los arrastra.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/bcab1b6c-e37f-4b28-a36e-040979073885-1658326346-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/bcab1b6c-e37f-4b28-a36e-040979073885-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "En un turismo, ¿dónde debe colocar la placa \"L\" un conductor novel?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En un lugar visible en la parte posterior derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En un lugar visible en la parte posterior izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En cualquier lugar visible de la parte posterior.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c6c51c66-cd44-4d73-9c73-b301e344aa10-1658322343-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c6c51c66-cd44-4d73-9c73-b301e344aa10-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "¿Qué sanción podrá imponerse al propietario de un vehículo que circula sin seguro?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Una multa y la inmovilización del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Una multa y la pérdida de puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Una multa fija de 300 euros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7cdfa9bb-4db4-4cf1-9ccd-de477b229f88-1658328510-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7cdfa9bb-4db4-4cf1-9ccd-de477b229f88-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "¿De cuántos puntos dispone un conductor novel?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "De 12 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "De 14 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "De 8 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/10cbe572-31c5-443a-9b87-c4f828ab1776-1658328570-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/10cbe572-31c5-443a-9b87-c4f828ab1776-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "Una furgoneta con una antigüedad de más de 10 años, ¿con qué frecuencia debe pasar la inspección técnica periódica?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Bienal.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cada cuatro años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Semestral.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/dcfe7cee-0982-4f5d-bcda-82df9228de12-1658326477-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/dcfe7cee-0982-4f5d-bcda-82df9228de12-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "¿Puede perder puntos de su saldo si conduce un turismo con un menor, de 1,20 metros de estatura, con el sistema de retención infantil sin abrochar o mal abrochado?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, es una infracción que supone la pérdida de 4 puntos del saldo del conductor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, es una infracción que supone la pérdida de 2 puntos del saldo del conductor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No; aunque es una infracción, no supone la pérdida de puntos para el conductor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/71379d3a-0c1b-4760-8aec-438a86091dbf-1734420294-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/71379d3a-0c1b-4760-8aec-438a86091dbf-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "Una vez superada la prueba correspondiente, ¿cuál será su saldo de puntos si obtiene un nuevo permiso tras una pérdida de vigencia por la pérdida total de puntos?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "8 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "6 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "12 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c238c24f-8a38-41b6-8580-7ba7f45cf08a-1658328612-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c238c24f-8a38-41b6-8580-7ba7f45cf08a-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "¿Qué tiene que hacer si el resultado de la ITV resulta negativo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Circular con el vehículo hasta el taller para reparar los defectos encontrados.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Llevar el vehículo al taller en una grúa y volver a pasar una inspección en un plazo inferior a 2 meses.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Reparar los defectos encontrados en el plazo de un año como máximo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/46448016-d353-4f63-b720-c4eb36e5aa2f-1658328055-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/46448016-d353-4f63-b720-c4eb36e5aa2f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "¿Qué vehículos deben tener concertado el Seguro Obligatorio?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Los vehículos a motor y ciclomotores.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Todos los vehículos a motor excepto los ciclomotores.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Todos los vehículos que circulen por las vías públicas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/97f7b054-29aa-45a8-a9ac-22044901a3e0-1658328075-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/97f7b054-29aa-45a8-a9ac-22044901a3e0-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "Con el permiso B, ¿se puede conducir un turismo con remolque que pesa menos de 750 kg de MMA?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, pero debe obtenerse autorización especial.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/47461690-25fd-45b8-b3ba-7f27a89fb4c5-1658322072-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/47461690-25fd-45b8-b3ba-7f27a89fb4c5-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "El seguro obligatorio de un vehículo, ¿cubre los daños ocasionados en el mismo cuando su conductor sea el responsable de un accidente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solamente si existen daños personales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/604100f7-9a9c-44d1-add0-c323eecf262c-1658328231-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/604100f7-9a9c-44d1-add0-c323eecf262c-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "Además del recibo del seguro obligatorio y del permiso del conductor, ¿qué otra documentación debe llevar el conductor de un turismo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El permiso de circulación, solamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El permiso de circulación y la tarjeta ITV.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No es obligatorio llevar ningún documento más.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4f1cf620-6a13-43cc-bcac-682939e2aebd-1658325516-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4f1cf620-6a13-43cc-bcac-682939e2aebd-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "El permiso de conducción de la clase A1, ¿autoriza a conducir motocicletas con sidecar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, si tiene una antigüedad de 2 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/66d0f525-8ee7-496d-81bf-e2818b3dd4a3-1658321576-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/66d0f525-8ee7-496d-81bf-e2818b3dd4a3-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "Una furgoneta de MMA inferior a 3,5 toneladas y una antigüedad de 5 años, ¿con qué frecuencia debe pasar la inspección técnica periódica?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Bienal, hasta los 6 años de antigüedad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Anual, hasta los 5 años de antigüedad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Bienal, hasta los 10 años de antigüedad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/93a0ee3d-744f-4770-a420-e04d409a08f2-1658326498-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/93a0ee3d-744f-4770-a420-e04d409a08f2-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "Si un adulto viaja en el asiento trasero de un coche sin utilizar el cinturón de seguridad, ¿qué penalización se aplica?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Aviso verbal sin multa.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Multa de 200€ y retirada de 2 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Multa de 200€ y retirada de 4 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a97b9079-bf47-4140-9cbb-26282914543e-1734419337-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a97b9079-bf47-4140-9cbb-26282914543e-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "Un turismo nuevo, ¿cuándo debe pasar la primera ITV?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A los cuatro años de haber sido matriculado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A los dos años de haber sido matriculado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A los tres años de haber sido matriculado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ac71992f-5f76-4ddb-b792-073e07454966-1658326581-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ac71992f-5f76-4ddb-b792-073e07454966-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "Para conducir un turismo con un remolque de menos de 750 Kg de M.M.A., ¿qué permiso, al menos, se necesita?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El de la clase C1, al ser un remolque ligero.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El de la clase BE.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El de la clase B.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2dacea2f-6c07-4a3d-adce-bb382f23ae60-1658321926-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2dacea2f-6c07-4a3d-adce-bb382f23ae60-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "El permiso de conducción de la clase B, ¿autoriza a conducir una furgoneta de 3.500 kilogramos de MMA?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, es necesario el permiso de la clase C.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, pero solo cuando el permiso tenga una antigüedad superior a 2 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9bfad26c-9121-44e6-80a0-bab8bd2a10ce-1658329126-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9bfad26c-9121-44e6-80a0-bab8bd2a10ce-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "Un camión con una MMA de 2.500 kg y una antigüedad de 7 años está obligado a pasar inspección técnica...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "cada dos años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "anualmente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "cada seis meses.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f563e1f0-9f2b-4ffd-9681-e0b31847f1c2-1658326636-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f563e1f0-9f2b-4ffd-9681-e0b31847f1c2-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "El permiso de conducción de la clase A1, ¿autoriza conducir motocicletas con sidecar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, motocicletas de cualquier cilindrada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, motocicletas con una cilindrada de 125 centímetros cúbicos como máximo y una potencia no superior a 11 kilovatios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b29b5a28-2608-4dd2-802f-088964341be9-1658321614-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b29b5a28-2608-4dd2-802f-088964341be9-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la multa por llevar un detector de radares en el vehículo, aunque no se esté utilizando?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No hay multa.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "200€ y retirada de 2 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "500€ y retirada de 3 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/cd05a391-2832-4309-9bf1-37c345ee3043-1734370496-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cd05a391-2832-4309-9bf1-37c345ee3043-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "Si ha cambiado de domicilio, ¿tiene obligación de comunicarlo a la Jefatura de Tráfico?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, debo comunicar mi nuevo domicilio en el plazo de 15 días.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, pero esperaré a comunicarlo cuando me caduque la validez del permiso de conducción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/dd36a1a3-e1dd-4dee-8469-eb5e562fece7-1658322262-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/dd36a1a3-e1dd-4dee-8469-eb5e562fece7-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "Un turismo de uso privado con once años de antigüedad, debe someterse a la inspección técnica periódica...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "cada año.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "cada dos años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "cada cuatro años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b9734ac2-ccec-4bed-8e23-de3549a80b8f-1658326759-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b9734ac2-ccec-4bed-8e23-de3549a80b8f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "¿Qué documento acredita que un vehículo reúne las condiciones técnicas necesarias para circular?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El recibo del impuesto de vehículos de tracción mecánica.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La tarjeta ITV.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El certificado del seguro y el último recibo del pago de la prima.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c81e66b7-8169-4719-a3ad-78185e7cfd4a-1658326379-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c81e66b7-8169-4719-a3ad-78185e7cfd4a-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Para recuperar la pérdida de la totalidad de los puntos del permiso de conducir, debe asistir a un curso y, si supera una prueba tipo test, recuperará...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "un máximo de 4 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "los 12 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "sólo 8 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/cba2d8d0-3f3c-4790-b960-2d5c5d579fc5-1734420817-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cba2d8d0-3f3c-4790-b960-2d5c5d579fc5-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "¿A qué está obligado si el resultado de la inspección ITV es favorable?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A llevar únicamente la tarjeta ITV sellada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A colocar el distintivo en cualquier sitio visible del parabrisas y a llevar la tarjeta ITV sellada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A colocar el distintivo acreditativo en el ángulo superior derecho del parabrisas y a llevar el informe de la inspección en el vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/74f33fbf-6e0d-4f56-b970-f107d4182555-1658327959-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/74f33fbf-6e0d-4f56-b970-f107d4182555-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "Si tiene su permiso de la clase B desde hace más de un año, y ahora obtiene el de la clase A, ¿está obligado a llevar la placa L en su motocicleta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, durante un año, en la parte trasera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, durante un año, en parte delantera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/0df842c3-7a9a-4c02-aa78-6e557bca739f-1658322334-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0df842c3-7a9a-4c02-aa78-6e557bca739f-s-1.jpg",
+    "source": "practicavial"
+  }
+]

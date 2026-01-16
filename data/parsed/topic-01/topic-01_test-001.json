@@ -1,11 +1,10 @@
 [
   {
     "topic_number": 1,
-    "topic_id": null,
     "question_number": 1,
     "category": "B",
     "question": {
-      "es": "El conductor del vehículo verde, si prevé que los animales pueden invadir la vía, debe...",
+      "es": "Circula con un turismo por una autovía con tráfico muy denso, ¿está permitido circular por el arcén para tomar la siguiente salida?",
       "en": null,
       "ru": null
     },
@@ -13,25 +12,25 @@
       {
         "id": "a",
         "text": {
-          "es": "dejar una separación lateral no inferior a 1,50 metros para rebasarlos.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "moderar la velocidad, llegando a detener el vehículo si fuera preciso.",
+          "es": "No.",
           "en": null,
           "ru": null
         },
         "is_correct": true
       },
       {
+        "id": "b",
+        "text": {
+          "es": "Sí, para facilitar la fluidez.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
         "id": "c",
         "text": {
-          "es": "detener la marcha hasta que todos los animales estén encerrados.",
+          "es": "Sí, con las luces de emergencia.",
           "en": null,
           "ru": null
         },
@@ -43,17 +42,16 @@
       "en": null,
       "ru": null
     },
-    "image_url": "https://teorica.practicavial.com/question/d56d4df6-b9c8-4b82-a654-263e8ddc6052-1658136765-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/d56d4df6-b9c8-4b82-a654-263e8ddc6052-s-1.jpg",
+    "image_url": "https://teorica.practicavial.com/question/39121580-0eb6-4c5b-8349-433ace109cb4-1652204836-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/39121580-0eb6-4c5b-8349-433ace109cb4-s-1.jpg",
     "source": "practicavial"
   },
   {
     "topic_number": 1,
-    "topic_id": null,
-    "question_number": 5,
+    "question_number": 2,
     "category": "B",
     "question": {
-      "es": "Los conductores de bicicletas tienen prioridad de paso respecto a los vehículos de motor...",
+      "es": "¿Está permitido circular con un Vehículo de Movilidad Personal (VMP) que dispone de un sillín?",
       "en": null,
       "ru": null
     },
@@ -61,7 +59,7 @@
       {
         "id": "a",
         "text": {
-          "es": "cuando circulen por un paso para ciclistas.",
+          "es": "Sólo si el VMP está equipado con un sistema de autoequilibrado.",
           "en": null,
           "ru": null
         },
@@ -70,7 +68,7 @@
       {
         "id": "b",
         "text": {
-          "es": "en las zonas peatonales debidamente señalizadas.",
+          "es": "Únicamente en zonas peatonales.",
           "en": null,
           "ru": null
         },
@@ -79,7 +77,7 @@
       {
         "id": "c",
         "text": {
-          "es": "en todas las intersecciones.",
+          "es": "No, está prohibido si el VMP tiene un sillín.",
           "en": null,
           "ru": null
         },
@@ -91,734 +89,13 @@
       "en": null,
       "ru": null
     },
-    "image_url": "https://teorica.practicavial.com/question/aed3cd58-73c8-4966-80dd-01dd2b8eabbd-1657731705-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/aed3cd58-73c8-4966-80dd-01dd2b8eabbd-s-1.jpg",
+    "image_url": "https://teorica.practicavial.com/question/6b3b3969-d95f-40e2-b3f5-ea74eede5bdf-1734362080-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6b3b3969-d95f-40e2-b3f5-ea74eede5bdf-s-1.jpg?t=1768425312",
     "source": "practicavial"
   },
   {
     "topic_number": 1,
-    "topic_id": null,
-    "question_number": 6,
-    "category": "B",
-    "question": {
-      "es": "En tramos con suficiente visibilidad y sin formar aglomeración, ¿podrán los ciclistas circular en columna de a dos, pegándose a la derecha?",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "Sí.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "No, siempre circularan por el arcén.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "No, siempre circularan en fila de a uno.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/bffba579-9ff5-44b0-8513-6e93bc68a41b-1652207480-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/bffba579-9ff5-44b0-8513-6e93bc68a41b-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 7,
-    "category": "B",
-    "question": {
-      "es": "A más de 120 kilómetros por hora en autopista, la probabilidad de sobrevivir a un accidente...",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "no varía.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "aumenta.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "disminuye.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/a3bae1e8-93cd-4691-ab94-debd2c2da33c-1653072518-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/a3bae1e8-93cd-4691-ab94-debd2c2da33c-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 8,
-    "category": "B",
-    "question": {
-      "es": "En esta vía se ha habilitado un carril adicional. ¿Circula correctamente el turismo amarillo?",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "Sí, siempre que no supere los 80 km/h.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "No, porque circula invadiendo el arcén.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "No, porque no lleva encendida, al menos, la luz de cruce.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/0f8fb902-b781-4aae-b46d-a92d46e5a555-1652200015-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/0f8fb902-b781-4aae-b46d-a92d46e5a555-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 9,
-    "category": "B",
-    "question": {
-      "es": "En una carretera convencional sin arcenes, ¿cuál es la velocidad anormalmente reducida para un turismo?",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "La inferior a 45 kilómetros por hora.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "45 Kilómetros por hora.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "60 Kilómetros por hora.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/7a5a5bb9-b869-4d75-93f9-05d3f8afc03f-1653072808-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/7a5a5bb9-b869-4d75-93f9-05d3f8afc03f-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 10,
-    "category": "B",
-    "question": {
-      "es": "¿A qué velocidad puede circular un turismo con remolque por una carretera con un arcén de 1,50 metros de ancho?",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "100 km/h.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "120 km/h.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "80 km/h.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/b2e35242-229c-4394-9144-bd60f8ecf5e4-1653063868-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/b2e35242-229c-4394-9144-bd60f8ecf5e4-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 12,
-    "category": "B",
-    "question": {
-      "es": "¿Qué vehículos pueden circular por un carril habilitado en sentido contrario al habitual, por razones de fluidez?",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "Los turismos con o sin remolque.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "Los autobuses.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "Las motocicletas y los turismos sin remolque.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/a9419030-bc3f-4b88-b64b-0bcd9d6ca497-1652203028-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/a9419030-bc3f-4b88-b64b-0bcd9d6ca497-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 13,
-    "category": "B",
-    "question": {
-      "es": "Circulando por autopista, prevé que su vehículo puede quedar inmovilizado por circunstancias del tráfico, ¿cómo deberá advertirlo?",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "Encendiendo las luces de posición, aunque sea de día.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "Mediante el empleo reiterado de las luces de frenado.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "Mediante la luz antiniebla trasera y la señal de emergencia.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/9fcf1bb3-7ad1-4a4d-857e-764b7c187180-1658137525-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/9fcf1bb3-7ad1-4a4d-857e-764b7c187180-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 14,
-    "category": "B",
-    "question": {
-      "es": "En una carretera convencional, ¿por dónde deben circular los animales conducidos en rebaño?",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "Por el centro de la calzada.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "Por el arcén izquierdo.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "Lo más cerca posible del borde derecho de la vía.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/453f96ea-56e7-425c-9f77-1cd45166a4e0-1656523629-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/453f96ea-56e7-425c-9f77-1cd45166a4e0-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 17,
-    "category": "B",
-    "question": {
-      "es": "En vías fuera de poblado que no dispongan de espacio especialmente reservado para ellos, ¿qué peatones deben circular por su derecha y obedecer las señales dirigidas a los conductores?",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "Los que conduzcan un rebaño de animales.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "Los que empujen o arrastren una motocicleta de dos ruedas.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "Los discapacitados que se desplacen en silla de ruedas.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/04b710c2-ec80-40ef-855c-0ccb89adf4a8-1652277619-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/04b710c2-ec80-40ef-855c-0ccb89adf4a8-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 18,
-    "category": "B",
-    "question": {
-      "es": "En un cruce, se enciende la luz roja y el vehículo azul bloquea el paso. ¿Qué debe hacer?",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "Esperar a que se encienda la luz verde.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "Salir del cruce, pero sin molestar a otros usuarios.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "Esperar a que se encienda la luz intermitente amarilla.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/2358ffa9-7540-45bd-a19f-6563fa500a9f-1657730323-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/2358ffa9-7540-45bd-a19f-6563fa500a9f-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 19,
-    "category": "B",
-    "question": {
-      "es": "Circulando a una velocidad superior a la velocidad máxima permitida, está circulando...",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "con exceso de velocidad.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "a una velocidad máxima.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "a una velocidad moderada, según las circunstancias.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/3f08c8f6-ab43-4375-afbf-c4c400accddc-1658136579-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/3f08c8f6-ab43-4375-afbf-c4c400accddc-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 21,
-    "category": "B",
-    "question": {
-      "es": "Si en un paso a nivel las barreras están en movimiento...",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "no se debe entrar.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "no se debe entrar, salvo que estén levantándose y haya espacio suficiente.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "se puede entrar antes de que las barreras corten el paso.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/27a7e7b1-367b-4267-ba27-7acd9a764b27-1657731504-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/27a7e7b1-367b-4267-ba27-7acd9a764b27-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 24,
-    "category": "B",
-    "question": {
-      "es": "¿Cuál es la velocidad máxima a la que puede circular un turismo en esta autovía?",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "120 km/h.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "120 km/h, pudiendo rebasarla en 20 km/h para adelantar.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "100 km/h, pudiendo alcanzar los 120 km/h para adelantar.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/8045bd7e-69c2-4a6f-9515-a84ce97a92a8-1653063940-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/8045bd7e-69c2-4a6f-9515-a84ce97a92a8-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 25,
-    "category": "B",
-    "question": {
-      "es": "El vehículo derivado de turismo está destinado...",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "a transporte de personas.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "a servicios o a transporte exclusivo de mercancías.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "a transporte, simultáneo o no, de personas y mercancías.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/96bc45f3-5aef-4ac8-99f6-811d35d8ec7a-1649182168-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/96bc45f3-5aef-4ac8-99f6-811d35d8ec7a-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 26,
-    "category": "B",
-    "question": {
-      "es": "El conductor del vehículo que circula delante ha extendido el brazo y ha comenzado a moverlo alternativamente de arriba abajo con movimientos cortos y rápidos, ¿qué está indicando?",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "Que va a girar a la derecha.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "Que va a girar a la izquierda.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "Que va a disminuir la velocidad.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/55a76620-9746-441a-b992-f8394c882478-1658137621-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/55a76620-9746-441a-b992-f8394c882478-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 27,
+    "question_number": 3,
     "category": "B",
     "question": {
       "es": "En una autopista que transcurre por zona urbana, ¿a qué velocidad máxima puede circular un turismo si no existe señalización?",
@@ -865,203 +142,10 @@
   },
   {
     "topic_number": 1,
-    "topic_id": null,
-    "question_number": 28,
-    "category": "B",
-    "question": {
-      "es": "¿Está permitido realizar competiciones de velocidad en las vías públicas?",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "No, como norma general.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "Sí, siempre.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "Solo si un vehículo de la organización encabeza la carrera con una bandera verde.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/b1dbf9c3-f8c3-4d4d-84a9-dc2a30372bc8-1658137653-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/b1dbf9c3-f8c3-4d4d-84a9-dc2a30372bc8-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 29,
-    "category": "B",
-    "question": {
-      "es": "¿Qué tipo de vías urbanas tiene establecida una velocidad como genérica de 20 kilómetros por hora?",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "Las de un carril de sentido único.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "Las que disponen de plataforma única de calzada y acera.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "Las de un único carril por sentido de la circulación.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/a50e91a2-26da-40be-8673-2c76a2fc8d23-1734081226-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/a50e91a2-26da-40be-8673-2c76a2fc8d23-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 2,
-    "category": "B",
-    "question": {
-      "es": "Un autobús realiza transporte urbano. ¿Cuál es su velocidad máxima permitida dentro de poblado en vías de dos carriles por sentido?",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "40 kilómetros por hora.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "50 kilómetros por hora.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "60 kilómetros por hora.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/5d845418-0951-424c-a2e0-377a3d0fd945-1653063147-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/5d845418-0951-424c-a2e0-377a3d0fd945-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
-    "question_number": 3,
-    "category": "B",
-    "question": {
-      "es": "Como norma general, en esta vía, ¿cuál es la velocidad máxima permitida para un turismo, si no pretende adelantar?",
-      "en": null,
-      "ru": null
-    },
-    "answers": [
-      {
-        "id": "a",
-        "text": {
-          "es": "110 km/h",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "90 km/h",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "120 km/h",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      }
-    ],
-    "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
-    },
-    "image_url": "https://teorica.practicavial.com/question/141e2274-187a-41f3-99df-df78de7dfb05-1653064164-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/141e2274-187a-41f3-99df-df78de7dfb05-s-1.jpg",
-    "source": "practicavial"
-  },
-  {
-    "topic_number": 1,
-    "topic_id": null,
     "question_number": 4,
     "category": "B",
     "question": {
-      "es": "En una carretera convencional sin arcenes, la velocidad máxima para un furgón es...",
+      "es": "¿Está permitido que un turismo utilice un tramo de carril reservado para autobuses, delimitado por línea discontinua?",
       "en": null,
       "ru": null
     },
@@ -1069,7 +153,54 @@
       {
         "id": "a",
         "text": {
-          "es": "110 km/h.",
+          "es": "Sí, para realizar alguna maniobra que no sea parar, estacionar, cambiar el sentido o adelantar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, pero sólo para cambiar de dirección a la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, siempre está prohibido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/75dc57d4-85fc-4d9a-bd70-94297e507add-1651514957-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/75dc57d4-85fc-4d9a-bd70-94297e507add-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "Los conductores de vehículos que llegan a un paso a nivel cerrado deben...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "cambiar el sentido de la marcha y buscar un itinerario alternativo.",
           "en": null,
           "ru": null
         },
@@ -1077,21 +208,209 @@
       },
       {
         "id": "b",
+        "text": {
+          "es": "detenerse uno detrás de otro en el carril que corresponda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "avisar a los demás conductores con las luces de emergencia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/bdb2e54c-91d9-480e-8212-186a0781c696-1657731532-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/bdb2e54c-91d9-480e-8212-186a0781c696-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "Circula con su turismo por esta carretera que tiene un arcén de menos de 1,5 metros, ¿cuál es la velocidad máxima permitida?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
         "text": {
           "es": "80 km/h.",
           "en": null,
           "ru": null
         },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "90 km/h.",
+          "en": null,
+          "ru": null
+        },
         "is_correct": true
       },
       {
         "id": "c",
+        "text": {
+          "es": "100 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/339b4197-6e11-4f86-b265-a92efb9cc225-1653062302-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/339b4197-6e11-4f86-b265-a92efb9cc225-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "Circular por una autopista a 120 km/h con lluvia intensa, es circular a una velocidad...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "adecuada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "prohibida.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "inadecuada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9db65c74-d2d8-4895-8fa6-e6c0c4e4010d-1658136516-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9db65c74-d2d8-4895-8fa6-e6c0c4e4010d-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "Los animales tienen prioridad de paso sobre los vehículos...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "en las cañadas debidamente señalizadas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "en los tramos regulados por la señal de peligro por la proximidad de un lugar de paso de animales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "cuando circulen en rebaño y estén dirigidos por un pastor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ab50bb9f-550c-4392-964f-0cb201dadbd1-1657732057-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ab50bb9f-550c-4392-964f-0cb201dadbd1-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la velocidad máxima a la que le está permitido circular por una autovía con una autocaravana de MMA inferior a 3.500 kg?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "120 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
         "text": {
           "es": "90 km/h.",
           "en": null,
           "ru": null
         },
         "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "100 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
       }
     ],
     "explanation": {
@@ -1099,17 +418,63 @@
       "en": null,
       "ru": null
     },
-    "image_url": "https://teorica.practicavial.com/question/2fbcfdb8-33a1-43f5-a7ef-fd7e291c722e-1653064252-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/2fbcfdb8-33a1-43f5-a7ef-fd7e291c722e-s-1.jpg",
+    "image_url": "https://teorica.practicavial.com/question/5e05c5c6-1000-4e1b-92d6-10c443635ae4-1653062157-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5e05c5c6-1000-4e1b-92d6-10c443635ae4-s-1.jpg",
     "source": "practicavial"
   },
   {
     "topic_number": 1,
-    "topic_id": null,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "En vías fuera de poblado que no dispongan de espacio especialmente reservado para ellos, ¿qué peatones deben circular por su derecha y obedecer las señales dirigidas a los conductores?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Los que conduzcan un rebaño de animales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Los que empujen o arrastren una motocicleta de dos ruedas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Los discapacitados que se desplacen en silla de ruedas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/04b710c2-ec80-40ef-855c-0ccb89adf4a8-1652277619-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/04b710c2-ec80-40ef-855c-0ccb89adf4a8-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
     "question_number": 11,
     "category": "B",
     "question": {
-      "es": "Circula detrás de otro vehículo y quiere adelantarlo. ¿Qué distancia debe dejar?",
+      "es": "Un vehículo mixto, ¿a qué velocidad está permitido que adelante en esta vía?",
       "en": null,
       "ru": null
     },
@@ -1117,25 +482,25 @@
       {
         "id": "a",
         "text": {
-          "es": "La distancia de seguridad.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "50 metros o más.",
+          "es": "A 110 km/h.",
           "en": null,
           "ru": null
         },
         "is_correct": false
       },
       {
+        "id": "b",
+        "text": {
+          "es": "A 90 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
         "id": "c",
         "text": {
-          "es": "El doble de la longitud del vehículo.",
+          "es": "A 100 km/h.",
           "en": null,
           "ru": null
         },
@@ -1147,17 +512,157 @@
       "en": null,
       "ru": null
     },
-    "image_url": "https://teorica.practicavial.com/question/6cc46325-ccad-4d62-842a-e2ced81f69ed-1652271458-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/6cc46325-ccad-4d62-842a-e2ced81f69ed-s-1.jpg",
+    "image_url": "https://teorica.practicavial.com/question/7d3fffc6-b454-452f-adc0-e63649ef6bde-1653062337-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7d3fffc6-b454-452f-adc0-e63649ef6bde-s-1.jpg",
     "source": "practicavial"
   },
   {
     "topic_number": 1,
-    "topic_id": null,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "Un ciclomotor y un turismo llegan al mismo tiempo a un estrechamiento en el que no está señalizada la prioridad de paso. ¿Qué vehículo pasará primero?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El ciclomotor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El que tenga una menor masa máxima autorizada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El turismo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/662f6f82-b357-4bb1-9315-a94e7d56ba61-1657732498-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/662f6f82-b357-4bb1-9315-a94e7d56ba61-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "En una carretera cuya velocidad genérica es de 90 km/h, ¿qué velocidad se considera anormalmente reducida para un turismo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La inferior a 55 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La inferior a 60 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "La inferior a 45 km/h",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e5d6902d-7a80-4224-85cc-768415bfa539-1653072786-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e5d6902d-7a80-4224-85cc-768415bfa539-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "En esta intersección sin señalizar, ¿qué vehículo pasará primero?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El turismo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El camión.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El ciclomotor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/de859345-0966-4cf1-94ed-45fc9e44696c-1657204169-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/de859345-0966-4cf1-94ed-45fc9e44696c-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
     "question_number": 15,
     "category": "B",
     "question": {
-      "es": "En vías interurbanas y en calzadas con más de un carril para el mismo sentido de marcha, ¿por dónde circulará normalmente un automóvil?",
+      "es": "En vías fuera de poblado que no dispongan de espacio especialmente reservado para ellos, a los peatones, ¿les está permitido circular por su derecha?",
       "en": null,
       "ru": null
     },
@@ -1165,16 +670,16 @@
       {
         "id": "a",
         "text": {
-          "es": "Por el carril derecho.",
+          "es": "No, en ningún caso.",
           "en": null,
           "ru": null
         },
-        "is_correct": true
+        "is_correct": false
       },
       {
         "id": "b",
         "text": {
-          "es": "Por el que más convenga a su destino.",
+          "es": "Sí, los peatones siempre circularán por su derecha en este tipo de vías.",
           "en": null,
           "ru": null
         },
@@ -1183,11 +688,11 @@
       {
         "id": "c",
         "text": {
-          "es": "Por el carril central.",
+          "es": "Solo excepcionalmente si existen razones de mayor seguridad.",
           "en": null,
           "ru": null
         },
-        "is_correct": false
+        "is_correct": true
       }
     ],
     "explanation": {
@@ -1195,17 +700,16 @@
       "en": null,
       "ru": null
     },
-    "image_url": "https://teorica.practicavial.com/question/4979353e-fb5f-48be-9f1b-1b4ac52f6bc3-1650647087-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/4979353e-fb5f-48be-9f1b-1b4ac52f6bc3-s-1.jpg",
+    "image_url": "https://teorica.practicavial.com/question/5c662614-949f-43d3-b9b2-4fbf23d368a8-1652277766-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5c662614-949f-43d3-b9b2-4fbf23d368a8-s-1.jpg",
     "source": "practicavial"
   },
   {
     "topic_number": 1,
-    "topic_id": null,
     "question_number": 16,
     "category": "B",
     "question": {
-      "es": "¿Cuál es la velocidad máxima permitida en esta vía para un camión de 3.500 kg de MMA?",
+      "es": "En un paso de peatones señalizado, que no esté regulado por agente ni semáforo, los peatones sólo deben penetrar en la calzada cuando...",
       "en": null,
       "ru": null
     },
@@ -1213,25 +717,25 @@
       {
         "id": "a",
         "text": {
-          "es": "90 kilómetros por hora.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "80 kilómetros por hora.",
+          "es": "la distancia y velocidad de los vehículos permita hacerlo con seguridad.",
           "en": null,
           "ru": null
         },
         "is_correct": true
       },
       {
+        "id": "b",
+        "text": {
+          "es": "no exista ningún vehículo cerca del paso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
         "id": "c",
         "text": {
-          "es": "70 kilómetros por hora.",
+          "es": "los conductores indique con movimientos del brazo que pueden cruzar.",
           "en": null,
           "ru": null
         },
@@ -1243,17 +747,157 @@
       "en": null,
       "ru": null
     },
-    "image_url": "https://teorica.practicavial.com/question/794431be-294b-4cdf-8734-d46deb3f4536-1653064173-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/794431be-294b-4cdf-8734-d46deb3f4536-s-1.jpg",
+    "image_url": "https://teorica.practicavial.com/question/d93608fb-b68d-4b01-8654-b4e9e196c036-1652277794-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d93608fb-b68d-4b01-8654-b4e9e196c036-s-1.jpg",
     "source": "practicavial"
   },
   {
     "topic_number": 1,
-    "topic_id": null,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "En una carretera, ¿qué vehículos deben guardar una separación mínima de 50 metros?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Los turismos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Todos los camiones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Los conjuntos de vehículos de más de 10 metros de longitud.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/955a30fe-42a0-4cb5-ab94-363b7f01d727-1652208101-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/955a30fe-42a0-4cb5-ab94-363b7f01d727-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "Ciclo es el vehículo de…",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Dos ruedas por lo menos, accionado por su conductor mediante pedales o manivelas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Dos a mas ruedas accionado con un motor o con pedales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Dos ruedas accionado con un motor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/80259446-6515-4d3b-80a7-553fa9f43909-1649180836-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/80259446-6515-4d3b-80a7-553fa9f43909-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "¿Para qué sirve el carril de aceleración?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Para alcanzar 120 km/h antes de incorporarse a la vía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Para incorporarse a la vía a una velocidad adecuada a las circunstancias de la circulación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Para incorporarse lentamente a la vía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3909e8ef-17d8-4e89-beec-ad7ea150fcb5-1652199660-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3909e8ef-17d8-4e89-beec-ad7ea150fcb5-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
     "question_number": 20,
     "category": "B",
     "question": {
-      "es": "Si por obras en la vía, se ha abierto un carril en sentido contrario al habitual, ¿puede circular por este carril un vehículo mixto?",
+      "es": "Como norma general, y muy especialmente en las curvas y cambios de rasante de reducida visibilidad, los vehículos circularán por...",
       "en": null,
       "ru": null
     },
@@ -1261,7 +905,7 @@
       {
         "id": "a",
         "text": {
-          "es": "Sí, pero sólo cuando transporte pasajeros.",
+          "es": "el centro de la calzada, por ser más seguro.",
           "en": null,
           "ru": null
         },
@@ -1270,20 +914,20 @@
       {
         "id": "b",
         "text": {
-          "es": "Sí.",
-          "en": null,
-          "ru": null
-        },
-        "is_correct": true
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "No, porque sólo pueden circular turismos y motocicletas.",
+          "es": "la derecha y lo más cerca posible del centro de la calzada.",
           "en": null,
           "ru": null
         },
         "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "la derecha y lo más cerca posible del borde de la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
       }
     ],
     "explanation": {
@@ -1291,17 +935,16 @@
       "en": null,
       "ru": null
     },
-    "image_url": "https://teorica.practicavial.com/question/d9ac4d30-e76c-4c08-8bb9-13af8d791fca-1652203051-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/d9ac4d30-e76c-4c08-8bb9-13af8d791fca-s-1.jpg",
+    "image_url": "https://teorica.practicavial.com/question/a1273625-fc51-4a31-9aea-c4c2c4dd57f0-1650386995-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a1273625-fc51-4a31-9aea-c4c2c4dd57f0-s-1.jpg",
     "source": "practicavial"
   },
   {
     "topic_number": 1,
-    "topic_id": null,
-    "question_number": 22,
+    "question_number": 21,
     "category": "B",
     "question": {
-      "es": "En calzadas con doble sentido de circulación y tres carriles separados por marcas longitudinales discontinuas, ¿se podrá circular por el situado más a la izquierda?",
+      "es": "Una persona en silla de ruedas, ¿debe obedecer las señales de los Agentes y semáforos cuando circula por el arcén de una vía fuera de poblado?",
       "en": null,
       "ru": null
     },
@@ -1309,7 +952,7 @@
       {
         "id": "a",
         "text": {
-          "es": "Sí, cuando no se aproxime otro vehículo.",
+          "es": "Solo obedecerá las señales de los agentes, pero no las de los semáforos.",
           "en": null,
           "ru": null
         },
@@ -1317,6 +960,44 @@
       },
       {
         "id": "b",
+        "text": {
+          "es": "No, no está obligado porque es un peatón.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, siempre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c218e014-9c6f-4ae4-8235-7f7df3427223-1652277640-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c218e014-9c6f-4ae4-8235-7f7df3427223-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "En este tramo de autovía, ¿se puede circular a más de 100 km/h para adelantar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
         "text": {
           "es": "No.",
           "en": null,
@@ -1325,9 +1006,18 @@
         "is_correct": true
       },
       {
+        "id": "b",
+        "text": {
+          "es": "Sí, hasta 120 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
         "id": "c",
         "text": {
-          "es": "Sólo para girar a la izquierda.",
+          "es": "Solo turismos y motocicletas.",
           "en": null,
           "ru": null
         },
@@ -1339,17 +1029,16 @@
       "en": null,
       "ru": null
     },
-    "image_url": "https://teorica.practicavial.com/question/649ef0fe-5474-45cf-9591-ea49f922b0b6-1650387116-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/649ef0fe-5474-45cf-9591-ea49f922b0b6-s-1.jpg",
+    "image_url": "https://teorica.practicavial.com/question/31ec2ba0-10bd-436b-94a6-41c61b0ad270-1653061435-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/31ec2ba0-10bd-436b-94a6-41c61b0ad270-s-1.jpg",
     "source": "practicavial"
   },
   {
     "topic_number": 1,
-    "topic_id": null,
     "question_number": 23,
     "category": "B",
     "question": {
-      "es": "Conduce su turismo en una autopista dentro de poblado, ¿qué carril utilizará normalmente?",
+      "es": "El conductor del vehículo que circula delante ha extendido el brazo y ha comenzado a moverlo alternativamente de arriba abajo con movimientos cortos y rápidos, ¿qué está indicando?",
       "en": null,
       "ru": null
     },
@@ -1357,7 +1046,7 @@
       {
         "id": "a",
         "text": {
-          "es": "El de la derecha, pudiendo utilizar el resto cuando las circunstancias del tráfico lo aconsejen.",
+          "es": "Que va a disminuir la velocidad.",
           "en": null,
           "ru": null
         },
@@ -1366,7 +1055,7 @@
       {
         "id": "b",
         "text": {
-          "es": "El carril de la derecha, pudiendo utilizar el resto sólo para adelantar.",
+          "es": "Que va a girar a la derecha.",
           "en": null,
           "ru": null
         },
@@ -1375,7 +1064,7 @@
       {
         "id": "c",
         "text": {
-          "es": "El carril por el que haya menos vehículos.",
+          "es": "Que va a girar a la izquierda.",
           "en": null,
           "ru": null
         },
@@ -1387,17 +1076,16 @@
       "en": null,
       "ru": null
     },
-    "image_url": "https://teorica.practicavial.com/question/d96d1389-41ff-455c-af44-879923105cc5-1650648680-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/d96d1389-41ff-455c-af44-879923105cc5-s-1.jpg",
+    "image_url": "https://teorica.practicavial.com/question/55a76620-9746-441a-b992-f8394c882478-1658137621-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/55a76620-9746-441a-b992-f8394c882478-s-1.jpg",
     "source": "practicavial"
   },
   {
     "topic_number": 1,
-    "topic_id": null,
-    "question_number": 30,
+    "question_number": 24,
     "category": "B",
     "question": {
-      "es": "En una glorieta, ¿por dónde se debe circular?",
+      "es": "¿Puede usar el teléfono móvil mientras conduce con cualquier dispositivo de manos libres?",
       "en": null,
       "ru": null
     },
@@ -1405,7 +1093,7 @@
       {
         "id": "a",
         "text": {
-          "es": "Puedo circular por la derecha o por la izquierda indistintamente.",
+          "es": "No, nunca se puede utilizar el teléfono móvil conduciendo, ni siquiera con el dispositivo manos libres.",
           "en": null,
           "ru": null
         },
@@ -1414,7 +1102,148 @@
       {
         "id": "b",
         "text": {
-          "es": "Por la derecha, dejando a mi izquierda el centro de la glorieta.",
+          "es": "No, sólo con aquellos que estén homologados.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, mientras se pueda hacer sin emplear las manos, ni usar cascos o auriculares.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3bfb39ed-e901-4b8f-b217-0420f3687e5f-1649351716-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3bfb39ed-e901-4b8f-b217-0420f3687e5f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "En relación con la seguridad vial, ¿por qué es importante no superar la velocidad máxima genérica de 50 km/h en vía urbana?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Porque a menor velocidad, menor es también el consumo de combustible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Porque el tráfico es más fluido y no existe riesgo de accidentes.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Porque a partir de 50 km/h la probabilidad de que un atropello sea mortal aumenta en un 50%.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4b33df9d-aef5-46f8-9e58-e70806475ac8-1653072498-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4b33df9d-aef5-46f8-9e58-e70806475ac8-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "En esta autovía, el turismo está adelantando, ¿a qué velocidad máxima se puede circular para adelantar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A 140 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A 130 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A 120 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/634a9ce4-25e8-4989-97ba-47e96e29a9bb-1653063922-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/634a9ce4-25e8-4989-97ba-47e96e29a9bb-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "En una autovía, el límite de velocidad para una motocicleta es de...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "120 km/h, pudiéndose superar en 20 km/h para adelantar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "120 km/h.",
           "en": null,
           "ru": null
         },
@@ -1423,7 +1252,7 @@
       {
         "id": "c",
         "text": {
-          "es": "Por la izquierda, dejando a mi derecha el centro de la glorieta.",
+          "es": "100 km/h.",
           "en": null,
           "ru": null
         },
@@ -1435,8 +1264,149 @@
       "en": null,
       "ru": null
     },
-    "image_url": "https://teorica.practicavial.com/question/65645c68-586d-4de6-9216-a3e6dda3bdba-1650648930-i.jpg",
-    "schema_url": "https://teorica.practicavial.com/question/65645c68-586d-4de6-9216-a3e6dda3bdba-s-1.jpg",
+    "image_url": "https://teorica.practicavial.com/question/5649301c-7b7e-493d-a62a-79b0c1ee1375-1653064129-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5649301c-7b7e-493d-a62a-79b0c1ee1375-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "¿Circula correctamente el vehículo amarillo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, porque circula a más de 70 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Si, porque puede circular por el carril que más convenga a su destino.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, porque está libre el carril de la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/5d9281b1-b067-445e-b115-3854fe1693e5-1651514703-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5d9281b1-b067-445e-b115-3854fe1693e5-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "En un estrechamiento sin señalizar donde no es posible el cruce simultáneo, coinciden dos vehículos, ¿quién pasará primero como norma general, si el tramo es llano?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El vehículo que hubiese entrado el primero en el estrechamiento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El vehículo con mayor masa máxima autorizada (MMA).",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El vehículo con mayores dificultades de maniobra.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3b9791b4-8a96-490c-abae-9199967c2cf5-1657732412-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3b9791b4-8a96-490c-abae-9199967c2cf5-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "Circular en ciudad a más de 50 km/h, ¿supone algún peligro?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, porque a esa velocidad un atropello puede ser mortal.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, siempre que se pueda controlar el vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No supone peligro hasta los 80 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/716d9c77-554e-4728-b417-28cf632df79f-1653072535-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/716d9c77-554e-4728-b417-28cf632df79f-s-1.jpg",
     "source": "practicavial"
   }
 ]

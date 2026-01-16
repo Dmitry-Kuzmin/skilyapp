@@ -1,0 +1,256 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import fs from "fs/promises";
+import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const IMAGES_DIR = "data/images";
+
+if (!GEMINI_API_KEY) {
+    console.error("❌ Ошибка: GEMINI_API_KEY не установлен в окружении.");
+    process.exit(1);
+}
+
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+// Используем 2.0 Flash для скорости и качества
+const model = genAI.getGenerativeModel({
+    model: "gemini-2.0-flash-exp",
+    generationConfig: { responseMimeType: "application/json" }
+});
+
+async function fileToGenerativePart(filePath, mimeType) {
+    const data = await fs.readFile(filePath);
+    return {
+        inlineData: {
+            data: Buffer.from(data).toString("base64"),
+            mimeType
+        },
+    };
+}
+
+async function processQuestion(question, imagePath = null) {
+    const prompt = `# 🚗 SKILY "ULTIMATE TEACHER" ENGINE V3
+
+Ты — **Легендарный Инструктор Автошколы DGT**, который объясняет ПДД так, что ученики сдают с первого раза.
+Твоя цель: Не просто дать правильный ответ, а **"взломать" мозг ученика**, чтобы он запомнил правило НАВСЕГДА.
+
+---
+
+## 👨‍🏫 ПЕДАГОГИЧЕСКИЙ СТИЛЬ (ГЛАВНОЕ!):
+
+1. **БЕЗ "канцелярита":** Забудь фразы "Согласно статье 12...". Говори живым языком.
+2. **Аналогии и Метафоры:** Сравнивай дорогу с рекой, тормозной путь с прыжком в воду, инерцию с бегущим человеком.
+3. **Эффект присутствия:** "Представь, что ты...", "Смотри на картинке...", "Если сделаешь так, то...".
+4. **Эмоциональные якоря:** Не "это неправильно", а "это мгновенная авария" или "это eliminatoria на экзамене".
+5. **Разбор ловушек:** Укажи, где 90% учеников ошибаются в этом конкретном вопросе.
+
+---
+
+## 📝 СТРУКТУРА ОБЪЯСНЕНИЯ (3 БЛОКА):
+
+### 1️⃣ **👁️ Análisis Visual** (Только если есть изображение):
+"Смотри на картинку. Видишь этот знак треугольника справа? А машину слева? Она уже выехала на круг..."
+
+### 2️⃣ **🧠 La Lógica "Por qué"** (ОБЯЗАТЕЛЬНО):
+Объясни суть правила через **безопасность** или **физику**, а не через "так в законе написано".
+
+*Плохо:* "Запрещено обгонять из-за сплошной."
+*Хорошо:* "Сплошная линия здесь нарисована кровью. Если ты начнешь обгон, ты окажешься на встречке в слепом повороте. Это мгновенная лобовая."
+
+### 3️⃣ **💣 La Trampa / El Truco** (ОБЯЗАТЕЛЬНО):
+Укажи типичную ошибку + мнемонику.
+"90% путают знаки А и Б. Запомни: **Круг — приказ, Треугольник — предупреждение**."
+
+---
+
+## 🌍 LANGUAGE ISOLATION (СТРОЖАЙШИЙ КОНТРОЛЬ):
+
+### 🇪🇸 ESPAÑOL (Основа):
+- Живой, современный испанский (Castellano neutro).
+- НИ ОДНОЙ буквы кириллицы или английского!
+
+### 🇷🇺 РУССКИЙ (Тон: Опытный русский инструктор):
+**Глоссарий (обновленный):**
+- "Escape libre" → "выхлопная система без глушителя (прямоток)"
+- "Salpicadero" → "дефлекторы обдува" (вентиляция) / "торпеда" (панель)
+- "Marchas" → "передачи" (НИКОГДА "скорости"!)
+- "Distintivo ambiental" → "экологическая наклейка"
+- "Ángulo muerto" → "слепая (мёртвая) зона"
+- "Arcén" → "обочина"
+- "Retención" → "затор / пробка"
+- "Freno motor" → "торможение двигателем"
+- **"Turismo"** → **"легковой автомобиль"** (НЕ "туризм"!)
+- **"Ciclomotor"** → **"мопед"**
+- **"Calzada"** → **"проезжая часть"**
+
+Тон: Разговорный, но экзаменационный. Используй "встречка", "обочина", "занос", "газ в пол".
+
+### 🇬🇧 ENGLISH (UK English):
+Tone: Professional driving coach.
+- "Arcén" → "Hard shoulder"
+- "Adelantamiento" → "Overtaking"
+
+---
+
+## 🇷🇺 VS 🇪🇸 CONTRASTIVE LEARNING (ТОЛЬКО ДЛЯ РУССКОГО ПЕРЕВОДА!):
+
+**КОГДА ПИСАТЬ СРАВНЕНИЕ С РФ:**
+- Только если есть **реальная опасная разница** между ПДД РФ и Испании
+- Формат блока: "💡 Отличие от РФ: [В России делают так], [но в Испании правило другое]. [Последствия на экзамене]."
+- Если правило одинаковое — НЕ ПИШИ ничего про РФ!
+
+**CONFLICT POINTS (Критические различия):**
+
+| Тема | ПДД РФ (привычка) | DGT Испания (реальность) | Опасность |
+|------|-------------------|--------------------------|-----------|
+| **Круговое движение** | Въезд с любой полосы, выезд с правой | **Выезд ТОЛЬКО с внешнего (правого) ряда!** | Eliminatoria (провал) |
+| **Балльная система** | НЕТ накопительной системы | **8 баллов для Noveles (стаж <3 лет)!** | На экзамене спросят |
+| **Алкоголь Noveles** | 0.16 мг/л (погрешность) | **0.15 мг/л для новичков/профи** | Жестче, чем в РФ |
+| **Обочина (Arcén)** | Разрешена остановка | **Запрещена на автомагистралях (кроме ЧП)** | Штраф |
+| **Скорость в городе** | 60 км/ч (общее) | **30 км/ч (1 полоса), 50 км/ч (2+ полосы)** | Новые нормы 2021 |
+
+**Пример правильного использования в 'explanation_ru':**
+```
+...физика торможения такая же везде.
+
+💡 Отличие от РФ: В России на круге действует правило "помеха справа", но в Испании круг ВСЕГДА главный.Если въедешь не уступив — это eliminatoria(мгновенный провал экзамена).
+```
+
+**Пример, когда НЕ НУЖНО писать сравнение:**
+Если речь про ремни безопасности (правило одинаковое везде) — просто объясни суть, без упоминания РФ.
+
+---
+
+## 🖼️ ЕСЛИ ЕСТЬ ИЗОБРАЖЕНИЕ:
+
+1. **Описывай активно:** "Смотри, здесь две машины подъехали к перекрестку..."
+2. **Выделяй ключевое:** "Обрати внимание на знак R-1 (СТОП). Видишь, что разметка стерлась? Знак важнее."
+3. **Создавай визуальный след:** "Мысленно проведи линию от твоего капота до мотоциклиста..."
+
+---
+
+## 🎯 ВХОДНЫЕ ДАННЫЕ:
+
+**Вопрос (ES):** ${question.question_es}
+
+**Варианты:**
+A) ${question.option_a_es}
+B) ${question.option_b_es}
+C) ${question.option_c_es}
+
+**Изображение:** ${imagePath ? 'Attached (анализируй!)' : 'None (объяснение без визуального блока)'}
+
+---
+
+## 🚀 ВЫХОД (ТОЛЬКО JSON, БЕЗ МАРКДАУНА):
+
+{
+  "question_es": "...",
+  "question_en": "...",
+  "question_ru": "...",
+  "option_a_es": "...",
+  "option_a_en": "...",
+  "option_a_ru": "...",
+  "option_b_es": "...",
+  "option_b_en": "...",
+  "option_b_ru": "...",
+  "option_c_es": "...",
+  "option_c_en": "...",
+  "option_c_ru": "...",
+  "explanation_es": "[Твое крутое педагогическое объяснение с 3 блоками в Markdown]",
+  "explanation_en": "[Полный адаптированный перевод]",
+  "explanation_ru": "[Полный адаптированный перевод с глоссарием. ВАЖНО: Если тема из таблицы CONFLICT POINTS — добавь блок '💡 Отличие от РФ:' ПОСЛЕ основного объяснения]"
+}
+
+---
+
+## 🛡️ ФИНАЛЬНАЯ ПРОВЕРКА:
+
+- [ ] В \`_es\` полях НЕТ кириллицы
+- [ ] В \`explanation_ru\` использованы термины из глоссария
+- [ ] Есть блок "💣 La Trampa" (ловушка/лайфхак)
+- [ ] JSON валидный (без trailing commas)
+
+Поехали! 🏁`;
+
+    try {
+        const parts = [prompt];
+        if (imagePath) {
+            const ext = path.extname(imagePath).toLowerCase();
+            const mimeType = ext === '.png' ? 'image/png' : 'image/jpeg';
+            parts.push(await fileToGenerativePart(imagePath, mimeType));
+        }
+
+        const result = await model.generateContent(parts);
+        const responseText = result.response.text();
+
+        // 🧹 ЗАЩИТА: Убираем markdown-обертки (```json ... ```)
+        const cleanJson = responseText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+
+        return JSON.parse(cleanJson);
+    } catch (error) {
+        if (error.message.includes('429')) {
+            throw new Error('RATE_LIMIT');
+        }
+        console.error(`  ❌ Ошибка для вопроса #${question.question_number}:`, error.message);
+        return null;
+    }
+}
+
+async function main() {
+    const jsonPath = process.argv[2];
+    if (!jsonPath) {
+        console.error("❌ Укажите путь к JSON файлу.");
+        process.exit(1);
+    }
+
+    const data = JSON.parse(await fs.readFile(jsonPath, 'utf8'));
+    const questions = Array.isArray(data) ? data : data.questions;
+
+    console.log(`🚀 Начинаем принудительное исправление и перевод ${questions.length} вопросов...`);
+
+    for (const q of questions) {
+        console.log(`🔄 Обработка #${q.question_number}...`);
+
+        // 🔍 УЛУЧШЕННЫЙ ПОИСК: Сначала Схема, потом Фото
+        let imagePath = null;
+        const potentialImages = [q.schema_filename, q.image_filename].filter(Boolean);
+
+        for (const imgName of potentialImages) {
+            const p = path.join(IMAGES_DIR, imgName);
+            try {
+                await fs.access(p);
+                imagePath = p;
+                console.log(`   📸 ${path.basename(imagePath)}`);
+                break;
+            } catch (e) { }
+        }
+
+        try {
+            const updates = await processQuestion(q, imagePath);
+            if (updates) {
+                Object.assign(q, updates);
+                // Сохраняем после каждого вопроса, чтобы не потерять прогресс
+                await fs.writeFile(jsonPath, JSON.stringify(data, null, 2));
+                console.log(`  ✅ Готово! (Исправлено ES, EN, RU)`);
+            }
+
+            // ⚡ УМНАЯ ЗАДЕРЖКА: Быстрее без изображения
+            const delay = imagePath ? 6000 : 3000;
+            await new Promise(r => setTimeout(r, delay));
+        } catch (err) {
+            if (err.message === 'RATE_LIMIT') {
+                console.warn("  ⏳ Лимит достигнут. Ждем 30 секунд...");
+                await new Promise(r => setTimeout(r, 30000));
+            } else {
+                console.error("  ❌ Ошибка:", err.message);
+            }
+        }
+    }
+
+    console.log("✨ Вся база вычищена и переведена по высшему стандарту!");
+}
+
+main().catch(console.error);

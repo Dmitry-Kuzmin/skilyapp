@@ -12,6 +12,13 @@ import "./index.css";
 // import "./components/lumi/animations.css"; // Lazy loaded when needed
 import { reportWebVitals } from "./utils/webVitals";
 import { performanceMonitor } from "./utils/performance";
+
+// Initialize Telegram Mock for localhost development
+if (import.meta.env.DEV) {
+  import('./utils/telegramMock').then(({ initTelegramMock }) => {
+    initTelegramMock();
+  });
+}
 // ⚠️ ОТКЛЮЧЕНО: Service Worker вызывает проблемы с кэшированием старого кода
 // import { registerSW } from 'virtual:pwa-register';
 // import { initPWAVersionCheck } from "./utils/pwaVersionCheck";

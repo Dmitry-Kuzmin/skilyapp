@@ -1,0 +1,1412 @@
+[
+  {
+    "topic_number": 2,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿Cómo debe avisar la intención de girar a la derecha?",
+      "en": "How should you signal your intention to turn right?",
+      "ru": "Как следует предупреждать о намерении повернуть направо?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Con los indicadores de dirección o con el claxon.",
+          "en": "With direction indicators or the horn.",
+          "ru": "Указателями поворота или звуковым сигналом."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Siempre con los indicadores de dirección, nunca con el brazo.",
+          "en": "Always with direction indicators, never with the arm.",
+          "ru": "Всегда указателями поворота, никогда рукой."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Como norma general con los indicadores de dirección y, cuando no sea posible, con el brazo.",
+          "en": "As a general rule with direction indicators and, when not possible, with the arm.",
+          "ru": "Как правило, указателями поворота, а если это невозможно — рукой."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Los conductores están obligados a advertir al resto de los usuarios de la vía las maniobras que vayan a efectuar. Como norma general, se utilizan los indicadores de dirección luminosos. En su defecto, o si no funcionan, se debe utilizar el brazo. Para indicar un giro a la derecha, el conductor extenderá su brazo izquierdo doblado hacia arriba en ángulo recto. En caso de contradicción entre la señal luminosa y la del brazo, prevalece la señal del brazo.",
+      "en": "Drivers are obliged to warn other road users of the maneuvers they intend to perform. As a general rule, luminous direction indicators are used. Failing that, or if they are not working, the arm must be used. To indicate a right turn, the driver extends their left arm bent upwards at a right angle. In case of contradiction between the light signal and the arm signal, the arm signal prevails.",
+      "ru": "1️⃣ **🎓 Правило**\nВодитель **легкового автомобиля** (Turismo) обязан предупреждать других участников движения о любых маневрах. Основной способ — это световые указатели поворота. Однако, если они неисправны или их использование невозможно, ты обязан подать сигнал рукой. Для поворота направо водитель выставляет левую руку в окно и сгибает её в локте под прямым углом (ладонью вперед, пальцы вверх). Важно помнить: если сигнал рукой противоречит мигающему поворотнику, приоритет всегда имеет **сигнал рукой**.\n\n3️⃣ **💡 Шпаргалка**\nЧтобы повернуть **направо**, нужно поднять левую руку вверх, как отличник в школе. Рука буквой «L» — значит, поворачиваем в другую сторону от руки (направо)."
+    },
+    "image_url": "https://teorica.practicavial.com/question/ccad093d-3f60-4e45-8b7d-e08cbf0755ba-1657893256-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ccad093d-3f60-4e45-8b7d-e08cbf0755ba-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "¿Es correcto este adelantamiento?",
+      "en": "Is this overtaking maneuver correct?",
+      "ru": "Правилен ли этот обгон?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, porque el turismo ocupa parte del sentido contrario y deja más de 1,50 metros de separación con el ciclista.",
+          "en": "Yes, because the car occupies part of the opposite lane and leaves more than 1.50 meters of separation from the cyclist.",
+          "ru": "Да, так как легковой автомобиль занимает часть встречной полосы и оставляет более 1,50 метра бокового интервала до велосипедиста."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, porque el turismo invade el carril contrario.",
+          "en": "No, because the car invades the opposite lane.",
+          "ru": "Нет, так как легковой автомобиль выезжает на встречную полосу."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, porque en una vía sin arcén está prohibido adelantar.",
+          "en": "No, because overtaking is prohibited on a road without a hard shoulder.",
+          "ru": "Нет, так как на дороге без обочины обгон запрещен."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Fuera de poblado, para adelantar a peatones, animales, vehículos de dos ruedas o de tracción animal, es obligatorio dejar una separación lateral mínima de 1,50 metros. Para realizar esta maniobra con seguridad, el Reglamento General de Circulación permite ocupar parte o la totalidad del carril contrario, incluso pisando una línea continua, siempre que no exista peligro para la circulación en sentido contrario.",
+      "en": "Outside built-up areas, when overtaking pedestrians, animals, two-wheeled vehicles, or animal-drawn vehicles, it is mandatory to leave a minimum lateral separation of 1.50 meters. To perform this maneuver safely, the General Traffic Regulations allow occupying part or all of the opposite lane, even crossing a solid continuous line, provided there is no danger to oncoming traffic.",
+      "ru": "1️⃣ **🎓 Правило**\nПри обгоне велосипедистов (а также пешеходов, мопедов и животных) вне населенных пунктов водитель **легкового автомобиля** (Turismo) обязан соблюдать боковой интервал не менее **1,50 метра**. Чтобы обеспечить это безопасное расстояние, ПДД Испании официально **разрешают** (и даже требуют) выезжать на полосу встречного движения (частично или полностью), пересекая сплошную линию разметки, при условии, что маневр безопасен и не создает помех встречному транспорту.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nЭто **критическое отличие**! В РФ пересечение сплошной линии (1.1) для обгона велосипедиста часто квалифицируется как нарушение (выезд на встречку), если велосипедист не является препятствием или тихоходным ТС с соответствующим знаком. В Испании же вы **обязаны** пересечь сплошную, если иначе невозможно выдержать интервал 1,5 метра. Если вы побоитесь пересечь линию и проедете слишком близко к велосипедисту — это будет грубым нарушением.\n\n3️⃣ **💡 Шпаргалка**\nВидишь велосипедиста за городом? Для тебя сплошная линия превращается в пунктирную! Главное — **1,5 метра** жизни между вами."
+    },
+    "image_url": "https://teorica.practicavial.com/question/69f4aec0-d486-436f-ae01-0446114e0919-1721115669-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/69f4aec0-d486-436f-ae01-0446114e0919-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "El conductor del ciclomotor que circula delante, ¿qué indica?",
+      "en": "What is the moped driver ahead indicating?",
+      "ru": "Что показывает водитель мопеда, едущий впереди?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que va a circular marcha atrás.",
+          "en": "That they are going to reverse.",
+          "ru": "Что он собирается ехать задним ходом."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Que va a inmovilizar el vehículo.",
+          "en": "That they are going to immobilize the vehicle.",
+          "ru": "Что он собирается остановить транспортное средство."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que va a girar a la izquierda.",
+          "en": "That they are going to turn left.",
+          "ru": "Что он собирается повернуть налево."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, los conductores están obligados a advertir las maniobras. La intención de girar a la izquierda se señaliza con el indicador luminoso izquierdo o extendiendo el brazo izquierdo en posición horizontal con la palma de la mano hacia abajo. En caso de contradicción entre la señalización luminosa y la manual, prevalece la señal que realice el conductor.",
+      "en": "According to the General Traffic Regulations, drivers are obliged to warn of maneuvers. The intention to turn left is signaled with the left indicator light or by extending the left arm horizontally with the palm facing down. In case of contradiction between the light signal and the hand signal, the driver's hand signal prevails.",
+      "ru": "1️⃣ **🎓 Правило**\nВодители обязаны предупреждать остальных участников движения о своих маневрах. Если водитель впереди (будь то мопед, мотоцикл или водитель **легкового автомобиля** с открытым окном) вытянул левую руку горизонтально в сторону ладонью вниз — это официальный сигнал поворота налево или смены полосы влево. Ты должен воспринимать этот жест так же, как включенный левый поворотник. Важно помнить: если сигналы рукой противоречат световым сигналам (например, мигает правый поворотник, а рука показывает влево), приоритет всегда имеет рука.\n\n3️⃣ **💡 Шпаргалка**\nКуда рука — туда и еду. Левая рука вытянута влево — значит, поворот налево. Это работает как живая стрелка указателя."
+    },
+    "image_url": "https://teorica.practicavial.com/question/ccf1c05d-7795-4df6-ac0d-f714cea2ac10-1657808498-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ccf1c05d-7795-4df6-ac0d-f714cea2ac10-s-1.jpg?t=1768425826",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "En una carretera convencional, ¿está permitido cambiar el sentido de la marcha?",
+      "en": "On a conventional road, is it permitted to make a U-turn?",
+      "ru": "Разрешено ли менять направление движения (разворачиваться) на обычной дороге?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, está siempre prohibido.",
+          "en": "No, it is always prohibited.",
+          "ru": "Нет, всегда запрещено."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, en cualquier lugar.",
+          "en": "Yes, in any place.",
+          "ru": "Да, в любом месте."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, en un lugar adecuado.",
+          "en": "Yes, in a suitable place.",
+          "ru": "Да, в подходящем месте."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "El Reglamento General de Circulación estipula que en una carretera convencional se permite realizar el cambio de sentido, pero no indiscriminadamente. Debe elegirse un lugar adecuado donde la maniobra pueda efectuarse con seguridad, sin obstaculizar la vía y con visibilidad suficiente. Es imperativo que el giro se realice de un solo trazo, sin utilizar la marcha atrás. Si la calzada es demasiado estrecha para hacerlo en una sola maniobra o si se impide el paso a otros vehículos, el conductor deberá abstenerse o esperar en el lado derecho (arcén) hasta que sea seguro.",
+      "en": "The General Traffic Regulations stipulate that making a U-turn is permitted on a conventional road, but not indiscriminately. A suitable place must be chosen where the maneuver can be performed safely, without obstructing the road, and with sufficient visibility. It is imperative that the turn be executed in a single continuous movement, without using reverse gear. If the roadway is too narrow to complete the turn in one maneuver or if other vehicles are obstructed, the driver must refrain from turning or wait on the right side (shoulder) until it is safe.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя легкового автомобиля (*Turismo*) разворот на обычной дороге (*carretera convencional*) разрешен, но с жесткими условиями. Ты должен выбрать **подходящее место** (*lugar adecuado*). \n\nЧтобы маневр был законным:\n1. Ты должен развернуться **за один прием**, не используя заднюю передачу.\n2. Должна быть идеальная видимость в обе стороны.\n3. Ты не должен заставлять других водителей тормозить или менять траекторию.\n\nЕсли дорога узкая и разворот в один прием невозможен, или если за тобой скопились машины, ты обязан съехать на правую обочину (*arcén*) и пропустить поток, либо искать другое место.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nВ Испании действует правило «одного приема»: если ширина проезжей части (*calzada*) не позволяет развернуться без включения задней передачи, разворот в этом месте **запрещен**. В РФ на перегонах дорог (вне перекрестков) часто допускается разворот в три приема с использованием заднего хода, если это безопасно. В Испании это нарушение — ищи место шире или круговое движение (*glorieta*).\n\n3️⃣ **💡 Шпаргалка**\nВидишь категоричные слова «Всегда» (Siempre) или «Везде» (Cualquier)? В ПДД это почти всегда ловушка. Правильный ответ ищет баланс: «Да, можно, НО только там, где это безопасно»."
+    },
+    "image_url": "https://teorica.practicavial.com/question/ecd41d29-1978-42d7-9898-039b163d4667-1657895523-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ecd41d29-1978-42d7-9898-039b163d4667-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "¿Cuándo obstaculiza gravemente la circulación una parada?",
+      "en": "When does a stop seriously obstruct traffic?",
+      "ru": "В каком случае остановка создает серьезные помехи движению?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando se efectúe en una parada de transporte público señalizada y delimitada.",
+          "en": "When it is carried out at a signposted and delimited public transport stop.",
+          "ru": "Когда она выполняется на обозначенной и разграниченной остановке общественного транспорта."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando obstaculiza el acceso normal a un inmueble de personas o animales.",
+          "en": "When it obstructs normal access to a property for people or animals.",
+          "ru": "Когда она препятствует нормальному доступу людей или животных к недвижимости (зданию)."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando se efectúe en doble fila.",
+          "en": "When it is carried out in double file (double parking).",
+          "ru": "Когда она выполняется во втором ряду."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, se considera que una parada obstaculiza gravemente la circulación cuando impide la utilización normal del paso de salida o acceso a un inmueble de personas o animales, o de vehículos en un vado señalizado correctamente. La parada en doble fila no se considera automáticamente una obstrucción grave, ya que está permitida si no hay espacio libre en las proximidades y no se obstaculiza la circulación.",
+      "en": "According to the General Traffic Regulations, a stop is considered to seriously obstruct traffic when it prevents the normal use of the exit or access to a property for people or animals, or for vehicles at a properly signaled ford. Stopping in double file is not automatically considered a serious obstruction, as it is permitted if there is no free space nearby and traffic is not obstructed.",
+      "ru": "1️⃣ 🎓 **Правило**\nДля водителя **легкового автомобиля** (Turismo) важно различать просто «запрещенную остановку» и «остановку, создающую серьезные помехи». Согласно ПДД Испании, ваша остановка (Parada — до 2 минут, водитель внутри) считается создающей **серьезные помехи**, если вы перекрыли нормальный вход или выход из здания людям или животным. Это грубое нарушение.\n\n2️⃣ 🇷🇺 **Сравнение с РФ**\nЗдесь есть критическое отличие, из-за которого водители из РФ часто ошибаются, выбирая вариант про «второй ряд»:\n*   В РФ остановка во втором ряду запрещена всегда.\n*   В Испании **Parada** (остановка) во втором ряду (doble fila) **РАЗРЕШЕНА**, если у обочины нет мест и вы не блокируете движение. Поэтому сам факт остановки во втором ряду не является нарушением или серьезной помехой.\n\n3️⃣ 💡 **Шпаргалка**\nЗапомни приоритеты: «Люди и звери важнее железа».\n*   Встал вторым рядом на минутку? Можно (если осторожно).\n*   Забаррикадировал дверью машине вход в дом бабушке или собаке? **Серьезная помеха!**"
+    },
+    "image_url": "https://teorica.practicavial.com/question/f03922bf-145f-462a-9ec6-d27213b77e9f-1657905242-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f03922bf-145f-462a-9ec6-d27213b77e9f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "¿Qué deben hacer quienes creen un obstáculo o peligro sobre la vía hasta que lo hagan desaparecer?",
+      "en": "What must those who create an obstacle or danger on the road do until they make it disappear?",
+      "ru": "Что должны предпринять лица, создавшие препятствие или опасность на дороге, до момента их устранения?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Nada, serán los servicios de emergencia los que tomen medidas.",
+          "en": "Nothing, emergency services will take measures.",
+          "ru": "Ничего, меры примут экстренные службы."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Señalizarlo para que sea advertido por los demás usuarios.",
+          "en": "Signal it so that it is noticed by other users.",
+          "ru": "Обозначить его, чтобы предупредить других участников движения."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Atravesar el vehículo en la calzada para evitar la circulación.",
+          "en": "Block the roadway with the vehicle to prevent traffic circulation.",
+          "ru": "Перегородить автомобилем проезжую часть, чтобы заблокировать движение."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, quienes hayan creado sobre la vía algún obstáculo o peligro deberán hacerlo desaparecer lo antes posible. Mientras subsista el obstáculo, están obligados a adoptar las medidas necesarias para que sea advertido por los demás usuarios y para que no dificulte la circulación. Dejar que los servicios de emergencia actúen sin señalizar previamente o bloquear la calzada deliberadamente son conductas prohibidas y peligrosas.",
+      "en": "According to the General Traffic Regulations, those who have created an obstacle or danger on the road must remove it as soon as possible. While the obstacle remains, they are obliged to take the necessary measures so that it is noticed by other users and does not hinder traffic. Leaving it for emergency services without prior signaling or deliberately blocking the roadway are prohibited and dangerous behaviors.",
+      "ru": "🎓 **Правило**\n\nЕсли ты за рулем **легкового автомобиля (Turismo)** создал препятствие на дороге (например, выпал груз или произошла поломка), ты обязан устранить его как можно скорее. Однако, пока препятствие находится на **проезжей части (calzada)** или **обочине (arcén)**, твоя первоочередная задача — **обозначить** его.\n\nТы должен использовать доступные средства (аварийную сигнализацию, знак аварийной остановки или проблесковый сигнал V-16), чтобы другие водители заранее заметили опасность. Просто ждать помощь, ничего не предпринимая, или специально перекрывать дорогу автомобилем категорически запрещено, так как это может привести к серьезному ДТП.\n\n💡 **Шпаргалка**\n\nСоздал помеху? Сделай её заметной!\nНе жди спасателей в тишине: сначала предупреди всех вокруг, чтобы в твой «сюрприз» никто не въехал."
+    },
+    "image_url": "https://teorica.practicavial.com/question/7c7779b0-bd0d-46ba-843c-cfbfcf363fc9-1657900442-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7c7779b0-bd0d-46ba-843c-cfbfcf363fc9-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "Es de noche y necesita inmovilizar su vehículo en el arcén de una carretera por avería. ¿Qué luces debe encender?",
+      "en": "It is night and you need to immobilize your vehicle on the shoulder of a road due to a breakdown. Which lights must you switch on?",
+      "ru": "Ночь, вы вынуждены остановить автомобиль на обочине дороги из-за поломки. Какие огни вы должны включить?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sólo las luces de posición.",
+          "en": "Only the position lights.",
+          "ru": "Только габаритные огни."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Las luces de emergencia y las luces cortas.",
+          "en": "The hazard warning lights and the low beam lights.",
+          "ru": "Аварийную сигнализацию и ближний свет."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Las de posición y las de emergencia.",
+          "en": "The position lights and the hazard warning lights.",
+          "ru": "Габаритные огни и аварийную сигнализацию."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, todo vehículo inmovilizado en la calzada o arcén por emergencia (avería) debe señalizar su presencia. Es obligatorio encender la luz de emergencia (si el vehículo la lleva) para advertir del peligro. Además, al ser de noche o en condiciones de visibilidad reducida, es obligatorio mantener encendidas las luces de posición para indicar la presencia y anchura del vehículo a los demás usuarios.",
+      "en": "According to the General Traffic Regulations, any vehicle immobilized on the roadway or shoulder due to an emergency (breakdown) must signal its presence. It is mandatory to switch on the hazard warning lights (if the vehicle is equipped with them) to warn of the danger. Furthermore, since it is night or under conditions of reduced visibility, the position lights (sidelights) must be kept on to indicate the presence and width of the vehicle to other road users.",
+      "ru": "🎓 **Правило**\nПри вынужденной остановке (поломке) на проезжей части или обочине (Arcén) водитель легкового автомобиля (Turismo) обязан сделать свой автомобиль заметным для других.\n\n1. **Аварийная сигнализация (Luces de emergencia):** Включается **всегда** при поломке, независимо от времени суток, чтобы предупредить об опасности.\n2. **Габаритные огни (Luces de posición):** Обязательны в данном случае, так как на улице **ночь**. Они обозначают углы вашего автомобиля, чтобы в темноте в него никто не врезался.\n\n💡 **Шпаргалка**\nЗапомни простую формулу для ночной поломки:\n• Случилась беда? Жми **аварийку**.\n• На улице темно? Оставь **габариты**.\nИтог: **Аварийка + Габариты**."
+    },
+    "image_url": "https://teorica.practicavial.com/question/8f46dcad-91dd-4767-9692-372f9b08a5e6-1657900852-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8f46dcad-91dd-4767-9692-372f9b08a5e6-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "En una vía urbana de sentido único, ¿está permitido estacionar en el lado...?",
+      "en": "On a one-way urban road, is parking permitted on the side...?",
+      "ru": "На городской дороге с односторонним движением разрешено ли парковаться на стороне...?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "derecho.",
+          "en": "right.",
+          "ru": "правой."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "derecho o izquierdo, fuera de la calzada o el arcén.",
+          "en": "right or left, outside the roadway or shoulder.",
+          "ru": "правой или левой, за пределами проезжей части или обочины."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "derecho o izquierdo.",
+          "en": "right or left.",
+          "ru": "правой или левой."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, en las vías urbanas de sentido único, la parada y el estacionamiento se pueden realizar tanto en el lado derecho como en el izquierdo de la calzada, situando el vehículo lo más cerca posible de su borde. La opción que sugiere hacerlo 'fuera de la calzada' es incorrecta, ya que esa norma se aplica exclusivamente a vías interurbanas.",
+      "en": "According to General Traffic Regulations, on one-way urban roads, stopping and parking are permitted on both the right and left sides of the roadway (calzada), positioning the vehicle as close as possible to the edge. The option suggesting parking 'outside the roadway' is incorrect, as that rule applies exclusively to interurban roads.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя **легкового автомобиля** (Turismo) правило парковки в городе зависит от направления движения.\n\nЕсли ты находишься на **городской дороге** (vía urbana) и движение здесь **одностороннее** (sentido único), ты имеешь право парковаться как на правой, так и на левой стороне **проезжей части** (calzada). Главное условие — поставить машину так, чтобы не мешать проезду.\n\nОбрати внимание: вариант ответа про парковку «за пределами проезжей части» относится к загородным трассам. В городе мы паркуемся у края бордюра, то есть на самой проезжей части.\n\n2️⃣ **💡 Шпаргалка**\nЗапоминаем через принцип «Встречка»:\n*   Есть встречка (двустороннее) — паркуйся **только справа**.\n*   Нет встречки (одностороннее) — паркуйся **с любой стороны** (и справа, и слева)."
+    },
+    "image_url": "https://teorica.practicavial.com/question/712ce281-ad66-4a3f-8260-b3f86d73342f-1657902383-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/712ce281-ad66-4a3f-8260-b3f86d73342f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Un conductor ha estacionado su vehículo en la parte transitable del arcén de una vía interurbana, ¿ha estacionado de forma correcta?",
+      "en": "A driver has parked their vehicle on the passable part of the shoulder of an interurban road. Have they parked correctly?",
+      "ru": "Водитель припарковал автомобиль на пригодной для движения части обочины (arcén) междугородней дороги. Правильно ли он припарковался?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, porque el vehículo está fuera de la calzada.",
+          "en": "Yes, because the vehicle is outside the roadway.",
+          "ru": "Да, так как автомобиль находится за пределами проезжей части."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solo si el estacionamiento es inferior a 2 minutos.",
+          "en": "Only if the parking lasts less than 2 minutes.",
+          "ru": "Только если парковка длится менее 2 минут."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, en el arcén no se puede estacionar.",
+          "en": "No, parking is not allowed on the shoulder.",
+          "ru": "Нет, на обочине парковка запрещена."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, en vías interurbanas, la parada y el estacionamiento deben efectuarse siempre fuera de la calzada y de la parte transitable del arcén. El arcén transitable está destinado a la circulación de determinados usuarios (peatones, ciclos, ciclomotores, vehículos de tracción animal) y su ocupación por un vehículo estacionado obstaculizaría su paso y pondría en riesgo la seguridad. Por tanto, el vehículo debe situarse totalmente fuera de la zona pavimentada, en el lado derecho.",
+      "en": "According to the General Traffic Regulations, on interurban roads, stopping and parking must always be carried out outside the roadway (calzada) and outside the passable part of the shoulder (arcén). The passable shoulder is designated for the circulation of specific road users (pedestrians, cycles, mopeds, animal-drawn vehicles), and occupying it with a parked vehicle would obstruct their path and pose a safety risk. Therefore, the vehicle must be positioned completely off the paved area, on the right side.",
+      "ru": "1️⃣ **🎓 Правило**\nНа дорогах вне населенных пунктов (vía interurbana) остановка и стоянка разрешены **только за пределами** как проезжей части (calzada), так и пригодной для движения обочины (arcén).\n\nВ Испании асфальтированная (пригодная для движения) обочина — это полоса для пешеходов, велосипедов, мопедов и спецтехники. Если ты оставишь там машину, ты перекроешь им путь. Чтобы припарковаться легально, ты должен съехать с асфальта полностью на грунт или траву с правой стороны.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nЭто **критическое отличие**!\nВ РФ ПДД требуют парковаться на трассе именно **на обочине**.\nВ Испании парковка на асфальтированной обочине за городом — это **штраф**. Здесь обочина — это рабочая зона для уязвимых участников движения, а не парковка.\n\n3️⃣ **💡 Шпаргалка**\n**Город:** Можно у бордюра.\n**Трасса:** Вон с асфальта! (Даже с обочины).\nЕсли под колесами твердое покрытие — стоять нельзя."
+    },
+    "image_url": "https://teorica.practicavial.com/question/3e81d3dc-89c9-4be6-8f67-f238ea87b29b-1733932035-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3e81d3dc-89c9-4be6-8f67-f238ea87b29b-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "¿Puede adelantar al vehículo rojo?",
+      "en": "Can you overtake the red vehicle?",
+      "ru": "Можно ли обогнать красный автомобиль?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque la marca vial continua me prohíbe adelantar.",
+          "en": "No, because the continuous road marking prohibits me from overtaking.",
+          "ru": "Нет, так как сплошная линия разметки запрещает мне обгон."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, porque no vienen vehículos en sentido contrario.",
+          "en": "Yes, because there are no vehicles coming in the opposite direction.",
+          "ru": "Да, потому что нет встречных транспортных средств."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, porque no puedo circular a más de 70 km/h.",
+          "en": "No, because I cannot drive faster than 70 km/h.",
+          "ru": "Нет, потому что мне нельзя двигаться быстрее 70 км/ч."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Una marca longitudinal continua sobre la calzada significa que ningún conductor con su vehículo o animal debe atravesarla ni circular sobre ella, ni cuando la marca separe los dos sentidos de circulación, circular por la izquierda de la misma. Dado que para adelantar al vehículo rojo sería necesario invadir el carril de sentido contrario atravesando la línea, la maniobra está prohibida independientemente de si vienen vehículos de frente o no.",
+      "en": "A continuous longitudinal marking on the roadway means that no driver with their vehicle or animal may cross it or drive on it, nor, when the marking separates the two directions of traffic, drive to the left of it. Since overtaking the red vehicle would require invading the opposite lane by crossing the line, the maneuver is prohibited regardless of whether there are oncoming vehicles or not.",
+      "ru": "1️⃣ **🎓 Правило**\nНа данном участке дороги полосы движения разделены сплошной продольной линией разметки. Согласно ПДД Испании, водителю легкового автомобиля (Turismo) категорически запрещено пересекать эту линию, наезжать на нее колесами или двигаться слева от нее (по встречной полосе). Поскольку обгон впереди идущего автомобиля неизбежно потребует выезда на полосу встречного движения через эту линию, такой маневр запрещен. Отсутствие встречного транспорта не дает права нарушать требования разметки.\n\n3️⃣ **💡 Шпаргалка**\nПредставь, что сплошная линия — это бетонная стена высотой в метр. Ты же не будешь пытаться проехать сквозь стену, даже если за ней никого нет? Сплошная = Стена."
+    },
+    "image_url": "https://teorica.practicavial.com/question/025edbff-16c3-4258-af9a-413196fc07f4-1657823168-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/025edbff-16c3-4258-af9a-413196fc07f4-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "¿A qué vehículos debe dejar 1,5 metros o más de separación en un adelantamiento fuera de poblado?",
+      "en": "To which vehicles must you leave a lateral separation of 1.5 meters or more when overtaking outside built-up areas?",
+      "ru": "При обгоне каких транспортных средств вне населенных пунктов необходимо соблюдать боковой интервал 1,5 метра или более?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando adelanto a vehículos de dos ruedas o de tracción animal.",
+          "en": "When overtaking two-wheeled vehicles or animal-drawn vehicles.",
+          "ru": "При обгоне двухколесных транспортных средств или гужевых повозок."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando adelanto a cualquier vehículo.",
+          "en": "When overtaking any vehicle.",
+          "ru": "При обгоне любого транспортного средства."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando adelanto a vehículos especiales.",
+          "en": "When overtaking special vehicles.",
+          "ru": "При обгоне специальных транспортных средств."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, fuera de poblado, el conductor de un automóvil que pretenda adelantar a ciclos, ciclomotores, motocicletas, vehículos de tracción animal, peatones o animales, deberá realizarlo dejando una separación lateral no inferior a 1,50 metros. Además, podrá ocupar parte o la totalidad del carril contiguo, siempre que las condiciones de seguridad lo permitan. Para el resto de vehículos (como otros turismos o camiones), la separación será proporcional a la velocidad y a la anchura de la calzada, sin una cifra fija obligatoria.",
+      "en": "According to the General Traffic Regulations, outside built-up areas, a driver of a car intending to overtake cycles, mopeds, motorcycles, animal-drawn vehicles, pedestrians, or animals must do so leaving a lateral separation of not less than 1.50 meters. Additionally, they may occupy part or all of the adjacent lane, provided safety conditions allow. For other vehicles (such as other cars or trucks), the separation must be proportional to the speed and width of the roadway, without a mandatory fixed figure.",
+      "ru": "1️⃣ **🎓 Правило**\nКогда ты управляешь легковым автомобилем (*Turismo*) вне населенного пункта (*fuera de poblado*), правила обгона делят всех участников движения на две группы:\n\n1. **«Уязвимые»**: Велосипеды, мопеды, мотоциклы (все двухколесные), а также гужевые повозки (*Vehículos de tracción animal*), пешеходы и животные. При их обгоне ты **обязан** оставить боковой интервал минимум **1,5 метра**.\n2. **Остальные**: Другие автомобили, грузовики, автобусы. При их обгоне жесткого требования в 1,5 метра нет — интервал должен быть просто «пропорциональным скорости и ширине дороги».\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nЭто критически важное отличие. В РФ ПДД требуют соблюдать лишь абстрактный «безопасный боковой интервал» (п. 9.10), не указывая точных цифр. В Испании за интервал менее **1,5 метров** при обгоне велосипедиста или мотоциклиста следует крупный штраф и снятие баллов. Здесь нельзя полагаться на глазомер и привычку «протискиваться».\n\n3️⃣ **💡 Шпаргалка**\nВилишь **два колеса** или **четыре ноги**? Держи **1,5 метра** строго!\n«Два колеса — полтора метра»."
+    },
+    "image_url": "https://teorica.practicavial.com/question/576a96d7-bb19-415c-979d-79cf7cb028f1-1657809907-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/576a96d7-bb19-415c-979d-79cf7cb028f1-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "Siempre que el recorrido hacia atrás no supere los 15 metros ni invada un cruce de vías, podrá circular marcha atrás...",
+      "en": "Provided that the backward distance does not exceed 15 meters and does not invade an intersection, you may reverse...",
+      "ru": "При условии, что движение задним ходом не превышает 15 метров и не предполагает выезда на перекресток, разрешается сдавать назад..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "cuando no sea posible marchar hacia delante ni cambiar de dirección o sentido de la marcha.",
+          "en": "when it is not possible to move forward, change direction, or make a U-turn.",
+          "ru": "когда невозможно двигаться вперед, изменить направление или развернуться."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "como maniobra complementaria del estacionamiento.",
+          "en": "as a complementary maneuver for parking.",
+          "ru": "в качестве дополнительного маневра при парковке."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "en autovías y autopistas que discurran por poblado.",
+          "en": "on dual carriageways and motorways running through urban areas.",
+          "ru": "на скоростных дорогах и автомагистралях, проходящих через населенные пункты."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, se prohíbe circular marcha atrás como norma general, salvo en dos excepciones. 1) Cuando no sea posible marchar hacia adelante ni cambiar de dirección o sentido (calle cortada): se permite el recorrido mínimo indispensable y SÍ se puede invadir un cruce de vías. 2) Como maniobra complementaria de la parada, el estacionamiento o la incorporación a la circulación: el recorrido NO podrá ser superior a 15 metros ni invadir un cruce de vías. La pregunta describe las restricciones del segundo caso.",
+      "en": "According to the General Traffic Regulations, reversing is generally prohibited, with two exceptions. 1) When it is impossible to move forward, change direction, or make a U-turn (dead end): the minimum necessary distance is allowed, and invading an intersection IS permitted. 2) As a complementary maneuver for stopping, parking, or merging into traffic: the distance must NOT exceed 15 meters and must NOT invade an intersection. The question describes the restrictions of the second case.",
+      "ru": "1️⃣ **🎓 Правило**\nВодителю легкового автомобиля (Turismo) запрещено движение задним ходом, кроме двух исключений. Важно различать их условия:\n\n1. **Тупик** (невозможно ехать вперед, повернуть или развернуться): сдавать назад можно на минимально необходимое расстояние, и при этом **разрешено** выезжать на перекресток.\n2. **Маневр** (парковка, остановка, выезд): сдавать назад можно, но **не более 15 метров** и **строго запрещено** выезжать на перекресток.\n\nВ вопросе указаны ограничения «не более 15 метров» и «не выезжая на перекресток», значит, речь идет именно о маневре парковки.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nВ РФ движение задним ходом на перекрестках запрещено всегда (п. 8.12 ПДД). В Испании есть критическое отличие: если вы попали в тупик (calle cortada), закон **разрешает** вам выехать задним ходом через перекресток, если другого пути нет. Однако для обычной парковки (как в этом вопросе) запрет на перекрестки действует так же, как и дома.\n\n3️⃣ **💡 Шпаргалка**\nПарковка — это «короткий поводок»: максимум 15 метров и никаких перекрестков.\nТупик — ползи назад, пока не спасешься (даже через перекресток)."
+    },
+    "image_url": "https://teorica.practicavial.com/question/25ade28a-8f0c-41b7-9173-cea89d00a208-1658138988-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/25ade28a-8f0c-41b7-9173-cea89d00a208-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "Circula con su turismo por el arcén detrás del tractor para facilitar el adelantamiento del camión. ¿Es correcto?",
+      "en": "You are driving your passenger car on the shoulder behind a tractor to facilitate overtaking by a truck. Is this correct?",
+      "ru": "Вы едете на легковом автомобиле по обочине за трактором, чтобы облегчить обгон грузовику. Правильно ли это?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, porque el arcén es ancho.",
+          "en": "Yes, because the shoulder is wide.",
+          "ru": "Да, потому что обочина широкая."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, para evitar retenciones.",
+          "en": "Yes, to avoid traffic jams.",
+          "ru": "Да, чтобы избежать заторов."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, como norma general, el conductor de un turismo debe circular por la calzada y no por el arcén. La obligación de apartarse al arcén para facilitar el adelantamiento aplica exclusivamente a vehículos pesados o de grandes dimensiones cuando la circulación o el estado de la vía lo exijan. Un turismo tiene prohibido circular por el arcén con este fin, debiendo limitarse a ceñirse al borde derecho de la calzada sin invadir el arcén.",
+      "en": "According to the General Traffic Regulations, as a general rule, the driver of a passenger car must drive on the roadway (calzada) and not on the shoulder (arcén). The obligation to move onto the shoulder to facilitate overtaking applies exclusively to heavy or large vehicles when traffic or road conditions require it. A passenger car is prohibited from driving on the shoulder for this purpose and must limit itself to keeping to the right edge of the roadway without invading the shoulder.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя **легкового автомобиля** (Turismo) движение по обочине (arcén) строго запрещено, за исключением случаев аварийной остановки или поломки. Даже если вы хотите проявить вежливость и пропустить грузовик, вы **не имеете права** выезжать на обочину. Вы должны лишь прижаться к правому краю своей полосы (проезжей части), не пересекая линию разметки, отделяющую обочину.\n\nПравило, предписывающее смещаться на обочину для облегчения обгона, касается **только** крупногабаритных или тяжелых транспортных средств, и только если дорога узкая или движение плотное. Легковые автомобили под это исключение не попадают.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nВ РФ движение по обочине запрещено (п. 9.9 ПДД), но водители часто съезжают туда «из вежливости», чтобы пропустить тех, кто едет быстрее, и это часто игнорируется ДПС. В Испании за такую «вежливость» на легковом авто вы гарантированно получите штраф. Здесь обочина — это строго регламентированная зона для спецтранспорта, велосипедов и аварийных ситуаций.\n\n3️⃣ **💡 Шпаргалка**\nОбочина для легковушки — это **лава**.\nНаступил (заехал) без поломки — сгорел (получил штраф).\nТрактор может там ехать, ты — нет."
+    },
+    "image_url": "https://teorica.practicavial.com/question/ebcc8abd-d9ee-4eb8-b38f-6c9100d18a65-1657822538-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ebcc8abd-d9ee-4eb8-b38f-6c9100d18a65-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "¿Puede realizar un cambio de sentido en un lugar donde esté prohibido adelantar?",
+      "en": "Can you make a U-turn in a place where overtaking is prohibited?",
+      "ru": "Можно ли выполнить разворот в месте, где запрещен обгон?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, cuando la circulación en sentido contrario lo permita.",
+          "en": "Yes, when oncoming traffic allows it.",
+          "ru": "Да, если встречное движение это позволяет."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, salvo que el cambio de sentido esté expresamente autorizado.",
+          "en": "No, unless the U-turn is expressly authorized.",
+          "ru": "Нет, кроме случаев, когда разворот прямо разрешен."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, excepto entre la puesta y la salida de sol, porque disminuye la visibilidad.",
+          "en": "Yes, except between sunset and sunrise, because visibility decreases.",
+          "ru": "Да, за исключением времени от заката до рассвета, так как видимость снижается."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, se prohíbe efectuar el cambio de sentido en todos los tramos de vía en que esté prohibido el adelantamiento. Esta norma se aplica por defecto para garantizar la seguridad, dado que la prohibición de adelantar suele implicar falta de visibilidad o condiciones de vía peligrosas. La única excepción válida es que exista una señalización específica que autorice expresamente la maniobra de cambio de sentido en ese punto.",
+      "en": "According to the General Traffic Regulations, making a U-turn is prohibited on all road sections where overtaking is prohibited. This rule applies by default to ensure safety, as the prohibition of overtaking usually implies a lack of visibility or dangerous road conditions. The only valid exception is if there is specific signaling that expressly authorizes the U-turn maneuver at that point.",
+      "ru": "🎓 **Правило**\nДля водителя *Turismo* действует жесткая связка правил: там, где запрещен *Adelantamiento* (обгон), автоматически запрещен и разворот. Это логично, так как запрет на обгон обычно вводится на участках с плохой видимостью или узкой *Calzada*. Единственное исключение — если вы видите специальный дорожный знак, который **прямо разрешает** разворот в этом конкретном месте (например, квадратный синий знак с разворотной стрелкой), даже если обгон там запрещен.\n\n🇷🇺 **Сравнение с РФ**\nЭто **критическое отличие**, на котором часто ошибаются опытные водители! В РФ знак 3.20 «Обгон запрещен» сам по себе **не запрещает** разворот. В Испании же юридическая норма строже: запрет на обгон автоматически влечет за собой запрет на разворот. Не применяйте здесь российскую логику.\n\n💡 **Шпаргалка**\nНельзя обгонять — нельзя и разворачиваться. (Если только знак не кричит: «А вот развернуться тут можно!»)."
+    },
+    "image_url": "https://teorica.practicavial.com/question/9b42b0ba-d008-4520-8d6c-237bea543a22-1657898382-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9b42b0ba-d008-4520-8d6c-237bea543a22-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "El conductor de la furgoneta, ¿puede hacer una parada en doble fila para descargar?",
+      "en": "Can the van driver make a stop in double file to unload?",
+      "ru": "Может ли водитель фургона совершить остановку во втором ряду для разгрузки?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, está prohibido.",
+          "en": "No, it is prohibited.",
+          "ru": "Нет, это запрещено."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, excepcionalmente y respetando las normas sobre paradas.",
+          "en": "Yes, exceptionally and respecting the rules on stops.",
+          "ru": "Да, в исключительных случаях и с соблюдением правил остановки."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si la parada tiene una duración igual o inferior a 1 minuto.",
+          "en": "Only if the stop lasts 1 minute or less.",
+          "ru": "Только если остановка длится 1 минуту или меньше."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, la parada (inmovilización voluntaria inferior a 2 minutos sin abandonar el vehículo) en doble fila está permitida excepcionalmente. Para que sea legal, deben cumplirse simultáneamente dos condiciones: que no exista espacio libre en las proximidades del borde de la calzada y que no se obstaculice la circulación. El estacionamiento en doble fila, por el contrario, está siempre prohibido.",
+      "en": "According to the General Traffic Regulations, a stop (voluntary immobilization for less than 2 minutes without leaving the vehicle) in double file is permitted exceptionally. For it to be legal, two conditions must be met simultaneously: there must be no free space available near the edge of the roadway, and traffic must not be obstructed. Parking in double file, on the other hand, is always prohibited.",
+      "ru": "1️⃣ **🎓 Правило**\nХотя в вопросе упоминается *furgoneta* (фургон), это правило касается и тебя на *turismo* (легковом автомобиле). В Испании существует четкое различие между остановкой (*parada*) и стоянкой (*estacionamiento*).\n\nОстановка (*parada*) во втором ряду (doble fila) **разрешена**, но только как исключение и при строгом соблюдении условий:\n1. Длительность менее 2 минут.\n2. Водитель НЕ покидает ТС.\n3. Поблизости нет свободного места у края проезжей части (*calzada*).\n4. Маневр не создает опасных помех движению.\n\nЕсли ты уйдешь из машины или простоишь 2 минуты и более — это уже стоянка (*estacionamiento*), которая во втором ряду запрещена всегда.\n\n2️⃣ **🇷🇺 Отличия от РФ**\nЭто **КРИТИЧЕСКОЕ** отличие! В РФ (п. 12.2 ПДД) остановка во втором ряду для автомобилей **категорически запрещена** (разрешена только двухколесным мотоциклам без коляски).\nВ Испании же это легальный маневр. Не удивляйся, если увидишь авто на аварийке во втором ряду — водитель не нарушает, если он внутри и стоит меньше 2 минут.\n\n3️⃣ **💡 Шпаргалка**\n**Parada** (остановка) — это **Пауза**.\nПаузу во втором ряду сделать можно (если первый занят).\nПарковку — нельзя никогда."
+    },
+    "image_url": "https://teorica.practicavial.com/question/5ef04777-bf16-4240-b32e-15bf6fe76053-1657903413-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5ef04777-bf16-4240-b32e-15bf6fe76053-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "¿Es obligatorio emplear el dispositivo de preseñalización de peligro para advertir la presencia de un turismo averiado en la calzada?",
+      "en": "Is it mandatory to use the hazard warning device to warn of the presence of a broken-down passenger car on the roadway?",
+      "ru": "Обязательно ли использовать устройство предварительной сигнализации об опасности для предупреждения о наличии сломанного легкового автомобиля на проезжей части?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": "Yes.",
+          "ru": "Да."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sólo si la visibilidad es insuficiente.",
+          "en": "Only if visibility is insufficient.",
+          "ru": "Только если видимость недостаточна."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, cuando un vehículo queda inmovilizado en la calzada o en el arcén debido a una emergencia (avería o accidente), el conductor está obligado a señalizar su presencia. Para ello, debe utilizar los dispositivos de preseñalización de peligro reglamentarios (triángulos de señalización o la señal luminosa V-16) y encender la luz de emergencia, si el vehículo dispone de ella. Esta obligación es independiente de las condiciones de visibilidad.",
+      "en": "According to the General Traffic Regulations, when a vehicle is immobilized on the roadway (calzada) or shoulder (arcén) due to an emergency (breakdown or accident), the driver is required to signal its presence. To do this, the driver must use the regulatory hazard warning devices (warning triangles or the V-16 luminous signal) and switch on the hazard warning lights if the vehicle is equipped with them. This obligation applies regardless of visibility conditions.",
+      "ru": "1️⃣ **🎓 Правило**\nЕсли твой **Turismo** (легковой автомобиль) сломался и застрял на **Calzada** (проезжей части) или **Arcén** (обочине), ты становишься опасным препятствием. Ты **обязан** предупредить других водителей, независимо от погоды или времени суток. Для этого нужно:\n1. Включить аварийную световую сигнализацию (аварийку).\n2. Выставить устройства предварительной сигнализации об опасности. Это могут быть либо аварийные треугольники (устанавливаются минимум за 50 метров, чтобы их было видно со 100 метров), либо проблесковый маячок V-16 на крыше.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nВ РФ знак аварийной остановки выставляется на расстоянии 15 м (в городе) или 30 м (за городом). В Испании требования строже: треугольники ставятся **минимум за 50 метров** от машины. Это критически важно, так как скорости здесь часто выше, и у водителей должно быть больше времени на реакцию.\n\n3️⃣ **💡 Шпаргалка**\nСломался на дороге? Не играй в прятки!\n**Встал — обозначься.** Иначе твой багажник станет чьим-то капотом."
+    },
+    "image_url": "https://teorica.practicavial.com/question/53cfcd1c-5249-4ee6-9320-023d3d3fb5fe-1657900111-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/53cfcd1c-5249-4ee6-9320-023d3d3fb5fe-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "En esta vía de doble sentido, el vehículo rojo, ¿adelanta correctamente?",
+      "en": "On this two-way road, is the red vehicle overtaking correctly?",
+      "ru": "На этой дороге с двусторонним движением красный автомобиль выполняет обгон правильно?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, porque la calzada por la que circula tiene prioridad en la intersección.",
+          "en": "Yes, because the roadway it is traveling on has priority at the intersection.",
+          "ru": "Да, так как проезжая часть, по которой он движется, имеет приоритет на перекрестке."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, porque la calzada no tiene prioridad en la intersección.",
+          "en": "No, because the roadway does not have priority at the intersection.",
+          "ru": "Нет, так как проезжая часть не имеет приоритета на перекрестке."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si el vehículo azul ha indicado su intención de girar a la derecha.",
+          "en": "Only if the blue vehicle has indicated its intention to turn right.",
+          "ru": "Только если синий автомобиль подал сигнал о намерении повернуть направо."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "El Reglamento General de Circulación establece como norma general la prohibición de realizar un adelantamiento en las intersecciones y en sus proximidades. Existe una excepción que permite adelantar cuando la calzada por la que se circula tiene prioridad de paso expresa. Sin embargo, la presencia de la señal P-2 (intersección con prioridad de la derecha) indica que rige la norma general de prioridad a la derecha. Por lo tanto, al no tener prioridad la vía por la que circula el vehículo rojo, la maniobra de adelantamiento está prohibida.",
+      "en": "The General Traffic Regulations establish a general rule prohibiting overtaking at intersections and in their vicinity. There is an exception that allows overtaking when the roadway being traveled on has express priority. However, the presence of the P-2 sign (intersection with priority from the right) indicates that the general rule of yielding to the right applies. Therefore, since the road on which the red vehicle is traveling does not have priority, the overtaking maneuver is prohibited.",
+      "ru": "1️⃣ **🎓 Правило**\nВодитель *Turismo* (легкового автомобиля) обязан знать жесткое правило: **Adelantamiento** (обгон) на перекрестках и вблизи них запрещен.\n\nИз этого правила есть важное исключение: обгон разрешен, если знаки явно дают тебе приоритет (например, знак «Главная дорога»).\n\nВ данной ситуации установлен предупреждающий знак P-2 (треугольник с черным крестом «X»). Он означает пересечение равнозначных дорог, где действует правило «помеха справа». Поскольку этот знак НЕ дает тебе приоритета (наоборот, ты обязан уступать тем, кто справа), исключение не работает. Следовательно, обгон запрещен.\n\n3️⃣ **💡 Шпаргалка**\nВидишь в красном треугольнике черный крест (**X**) — ставь на обгоне крест (**X**)."
+    },
+    "image_url": "https://teorica.practicavial.com/question/e8516a97-d74b-4113-b6c0-c316acb13a95-1657810628-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e8516a97-d74b-4113-b6c0-c316acb13a95-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "Para girar a la izquierda, es obligatorio aproximarse al borde izquierdo de la calzada en las vías...",
+      "en": "To turn left, it is mandatory to approach the left edge of the roadway on roads...",
+      "ru": "Для поворота налево обязательно приближаться к левому краю проезжей части на дорогах..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "con más de un carril para uno de los sentidos de circulación.",
+          "en": "with more than one lane for one of the directions of traffic.",
+          "ru": "имеющих более одной полосы для одного из направлений движения."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "de doble sentido de circulación.",
+          "en": "with two-way traffic.",
+          "ru": "с двусторонним движением."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "de un sólo sentido de circulación.",
+          "en": "with one-way traffic.",
+          "ru": "с односторонним движением."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, la colocación del vehículo para girar a la izquierda depende del sentido de la vía. En vías de doble sentido, el conductor debe ceñirse a la marca longitudinal de separación o al eje de la calzada, sin invadir el sentido contrario. Sin embargo, en vías de un solo sentido, al no haber circulación en contra, la norma obliga a situarse lo más cerca posible del borde izquierdo de la calzada.",
+      "en": "According to traffic regulations, vehicle positioning for a left turn depends on the direction of the road. On two-way roads, the driver must stick to the longitudinal separation line or the axis of the roadway, without invading the opposite direction. However, on one-way roads, since there is no oncoming traffic, the rule requires positioning the vehicle as close as possible to the left edge of the roadway.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя **легкового автомобиля** (Turismo) правило выбора позиции перед поворотом налево зависит от наличия встречного потока:\n\n*   **На дорогах с двусторонним движением**: Ты должен прижаться к центральной линии (оси дороги), не выезжая на встречную полосу. Прижиматься к левому краю **проезжей части** (calzada) запрещено, так как там едут встречные машины.\n*   **На дорогах с односторонним движением**: Встречных машин нет, вся ширина дороги используется для движения в одном направлении. В этом случае ПДД Испании требуют занять крайнее левое положение, то есть прижаться непосредственно к **левому краю проезжей части**.\n\nЗнак «Дорога с односторонним движением» (квадратный синий со стрелкой) подтверждает, что встречных нет, и маневр от левого бордюра безопасен.\n\n3️⃣ **💡 Шпаргалка**\nИспользуй логику «Свой — Чужой»:\n*   Если левый край **чужой** (там встречка) — жмись к центру.\n*   Если левый край **свой** (одностороннее) — жмись к левому краю.\n\nВ вопросе требуют прижаться именно к **краю** — значит, дорога полностью твоя (односторонняя)."
+    },
+    "image_url": "https://teorica.practicavial.com/question/b6ba71e2-997b-443b-9ceb-1341bbeb3fac-1733930494-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b6ba71e2-997b-443b-9ceb-1341bbeb3fac-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "Todo conductor está obligado a...",
+      "en": "Every driver is obliged to...",
+      "ru": "Каждый водитель обязан..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "cambiar de carril para permitir la incorporación de otros vehículos a la vía por la que circula.",
+          "en": "change lanes to allow other vehicles to merge onto the road they are traveling on.",
+          "ru": "сменить полосу движения, чтобы позволить другим транспортным средствам выехать на дорогу, по которой он движется."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "facilitar, en la medida de lo posible, la incorporación de otros vehículos a la vía por la que circula.",
+          "en": "facilitate, to the extent possible, the merging of other vehicles onto the road they are traveling on.",
+          "ru": "способствовать, насколько это возможно, выезду других транспортных средств на дорогу, по которой он движется."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "ceder el paso a los vehículos que se incorporan a la vía por la que circula.",
+          "en": "give way to vehicles merging onto the road they are traveling on.",
+          "ru": "уступить дорогу транспортным средствам, выезжающим на дорогу, по которой он движется."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, los conductores que circulan por una vía tienen prioridad sobre los vehículos que pretenden incorporarse a ella. Sin embargo, existe la obligación legal de facilitar dicha maniobra 'en la medida de lo posible'. Esto puede implicar un cambio de carril o una ligera modificación de la velocidad, siempre que no suponga un riesgo ni obligue a realizar maniobras bruscas. No se debe confundir 'facilitar' con 'ceder el paso' (perder la prioridad) ni con una obligación absoluta de 'cambiar de carril' si las circunstancias del tráfico no lo permiten de forma segura.",
+      "en": "According to the General Traffic Regulations, drivers traveling on a road have priority over vehicles attempting to merge onto it. However, there is a legal obligation to facilitate this maneuver 'to the extent possible.' This may involve changing lanes or slightly adjusting speed, provided it does not pose a risk or require abrupt maneuvers. 'Facilitating' should not be confused with 'giving way' (losing priority) nor with an absolute obligation to 'change lanes' if traffic conditions do not safely permit it.",
+      "ru": "1️⃣ 🎓 **Правило**\nВодитель легкового автомобиля (*Turismo*), движущийся по главной дороге (часто это *Autovía* или *Autopista*), имеет приоритет перед теми, кто въезжает на нее с полосы разгона. Однако ПДД Испании накладывают на вас обязанность **способствовать** (*facilitar*) их въезду.\n\nЭто означает, что если вы видите въезжающий автомобиль, вы должны по возможности:\n— Сменить полосу (*carril*) левее, если она свободна.\n— Или слегка изменить скорость, чтобы создать «окно».\n\nПочему другие ответы неверны?\n— Вы НЕ обязаны **менять полосу** любой ценой (ответ A), если это опасно или соседняя полоса занята.\n— Вы НЕ обязаны **уступать дорогу** (ответ C), то есть останавливаться или резко тормозить. Приоритет сохраняется у вас.\n\n2️⃣ 🇷🇺 **Сравнение с РФ**\nВ РФ (п. 8.10 ПДД) водитель на полосе разгона обязан уступить дорогу, а водитель на главной просто пользуется преимуществом. Смещение влево в РФ считается «водительским этикетом» или правилом хорошего тона. В Испании же «способствование въезду» — это **юридическая обязанность**, прописанная в регламенте. Инспектор на экзамене может засчитать ошибку, если вы могли безопасно перестроиться для впускающего, но не сделали этого.\n\n3️⃣ 💡 **Шпаргалка**\n— **Facilitar** (Помочь) — да.\n— **Ceder** (Уступить/Сдаться) — нет.\n— Представь, что ты хозяин дома: ты открываешь гостю дверь (помогаешь войти), но не отдаешь ему ключи от дома (не отдаешь приоритет)."
+    },
+    "image_url": "https://teorica.practicavial.com/question/f4c538d9-e5e5-4600-84f1-92a0cbe1ac1b-1657799626-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f4c538d9-e5e5-4600-84f1-92a0cbe1ac1b-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido adelantar a un vehículo que ha señalizado a su vez la intención de adelantar?",
+      "en": "Is it permitted to overtake a vehicle that has itself signaled the intention to overtake?",
+      "ru": "Разрешено ли выполнить обгон транспортного средства, которое само подало сигнал о намерении совершить обгон?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, si lo ha señalizado, tiene preferencia.",
+          "en": "No, if it has signaled, it has preference.",
+          "ru": "Нет, если оно подало сигнал, оно имеет преимущество."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, si después de un tiempo prudencial no lo hace y le advierte con las señales acústicas u ópticas.",
+          "en": "Yes, if after a reasonable time it does not do so and you warn it with acoustic or optical signals.",
+          "ru": "Да, если спустя разумное время оно не начинает маневр, и вы предупредите его звуковыми или световыми сигналами."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, tiene que esperar a que termine la maniobra o apague el intermitente.",
+          "en": "No, you have to wait for it to finish the maneuver or turn off the indicator.",
+          "ru": "Нет, нужно ждать, пока оно закончит маневр или выключит поворотник."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "El conductor que precede tiene preferencia si ha señalizado su propósito de adelantar. Sin embargo, si después de un tiempo prudencial no inicia la maniobra, el vehículo que le sigue puede adelantarle, advirtiéndoselo previamente con señales acústicas u ópticas.",
+      "en": "The driver ahead has priority if they have signaled their intention to overtake. However, if after a reasonable time they do not initiate the maneuver, the following vehicle may overtake them, having previously warned them with acoustic or optical signals.",
+      "ru": "🎓 **Правило**\n\nКогда вы управляете **легковым автомобилем (Turismo)** и видите, что машина впереди включила левый поворотник для **обгона (Adelantamiento)**, она имеет приоритет. Вы обязаны ждать. Однако ПДД Испании не требуют ждать бесконечно. Если водитель впереди включил сигнал, но в течение **разумного времени** так и не начал маневр (забыл выключить, боится или отвлекся), вы имеете право его обогнать.\n\n**Важное условие:** Перед началом своего обгона вы **обязаны** предупредить этого водителя о своих намерениях. Для этого используются:\n1. Кратковременное переключение фар (световой сигнал).\n2. Или звуковой сигнал (вне населенных пунктов).\n\n🇷🇺 **Сравнение с РФ**\n\nЭто критическое отличие! В РФ (п. 11.2 ПДД) обгон **категорически запрещен**, если транспортное средство впереди подало сигнал левого поворота. Российские правила не содержат оговорки про «разумное время» или возможность «посигналить и поехать». В Испании же, если водитель впереди «мигает, но не едет», закон разрешает вам взять инициативу на себя после предупреждения.\n\n💡 **Шпаргалка**\n\n«Мигает, но спит? Разбуди и обгони!»\nЕсли перед тобой «вечный мигальщик», не стой за ним до старости: посигналь (светом или звуком) и проезжай."
+    },
+    "image_url": "https://teorica.practicavial.com/question/52283488-1143-4120-85b1-1b3d5e80ae66-1657804040-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/52283488-1143-4120-85b1-1b3d5e80ae66-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "Con carácter general, en el borde izquierdo de una calzada, ¿se puede parar?",
+      "en": "Generally speaking, is it permitted to stop on the left edge of a roadway?",
+      "ru": "Как правило, разрешено ли выполнять остановку на левом краю проезжей части?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, siempre que no se obstaculice la circulación.",
+          "en": "Yes, provided that traffic is not obstructed.",
+          "ru": "Да, при условии, что это не создает помех движению."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": "No, under no circumstances.",
+          "ru": "Нет, ни в коем случае."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, en vías urbanas de sentido único.",
+          "en": "Yes, on one-way urban roads.",
+          "ru": "Да, на городских дорогах с односторонним движением."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, la norma general establece que la parada y el estacionamiento se deben realizar en el lado derecho de la marcha. Sin embargo, existe una excepción específica para vías urbanas: cuando la vía es de sentido único, se permite situar el vehículo tanto en el borde derecho como en el izquierdo de la calzada. En vías interurbanas, la parada siempre debe realizarse en el lado derecho y fuera de la calzada.",
+      "en": "According to the General Traffic Regulations, the general rule states that stopping and parking must be done on the right side of the direction of travel. However, there is a specific exception for urban roads: when the road is one-way, vehicles are permitted to stop or park on both the right and left edges of the roadway. On interurban roads, stopping must always be done on the right side and off the roadway.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя легкового автомобиля (Turismo) правила выбора стороны для остановки зависят от типа дороги:\n\n*   **Вне города (Vía interurbana):** Остановка разрешена *только* справа и *только* за пределами проезжей части (calzada). Слева — запрещено всегда.\n*   **В городе (Vía urbana):**\n    *   Если движение двустороннее: остановка только справа.\n    *   Если движение **одностороннее (sentido único)**: остановка разрешена и справа, и **слева**.\n\nПоскольку в вопросе спрашивают про возможность остановки на левом краю, единственный законный сценарий — это городская улица с односторонним движением.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nЭто **КРИТИЧЕСКОЕ** отличие, из-за которого опытные водители проваливают экзамен!\n*   В РФ (п. 12.1 ПДД) в населенных пунктах на двухполосных дорогах разрешена остановка слева даже при двустороннем движении (чтобы сходить в магазин на той стороне).\n*   В Испании на двусторонней улице парковка слева (против движения) — это **штраф** за выезд на встречную полосу. Слева можно встать только если вся улица едет в одну сторону.\n\n3️⃣ **💡 Шпаргалка**\nЗапомни принцип «Наоборот»:\n*   **Один** поток (одностороннее) = **Две** стороны для парковки.\n*   **Два** потока (двустороннее) = **Одна** сторона (правая)."
+    },
+    "image_url": "https://teorica.practicavial.com/question/47b6ccec-1a86-47f1-ab0c-759cffea09a0-1657902321-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/47b6ccec-1a86-47f1-ab0c-759cffea09a0-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "En un cambio de rasante sin visibilidad, ¿se permite realizar un cambio de sentido de la marcha?",
+      "en": "On a crest (change of grade) without visibility, is it permitted to make a U-turn?",
+      "ru": "Разрешено ли выполнять разворот на переломе профиля дороги с ограниченной видимостью?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, sólo se prohíbe adelantar.",
+          "en": "Yes, only overtaking is prohibited.",
+          "ru": "Да, запрещен только обгон."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, siempre que no vengan vehículos en sentido contrario.",
+          "en": "Yes, provided no vehicles are approaching from the opposite direction.",
+          "ru": "Да, при условии, что нет встречных транспортных средств."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "El Reglamento General de Circulación prohíbe expresamente realizar un cambio de sentido en todo lugar donde la visibilidad no sea suficiente. Esto incluye específicamente los cambios de rasante y curvas de visibilidad reducida. La prohibición es absoluta en estas circunstancias para garantizar la seguridad vial, independientemente de la presencia momentánea de otros vehículos.",
+      "en": "The General Traffic Regulations expressly prohibit making a U-turn in any location where visibility is insufficient. This specifically includes crests (changes of grade) and curves with reduced visibility. The prohibition is absolute in these circumstances to ensure road safety, regardless of the momentary presence of other vehicles.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя **легкового автомобиля** (Turismo) правило однозначно: если ты не видишь дорогу на достаточном расстоянии, маневр запрещен. Перелом профиля дороги (cambio de rasante) — это участок, где дорога идет на подъем, а затем резко вниз, создавая слепую зону. В таких местах, а также на поворотах с плохим обзором, ПДД Испании запрещают разворот (cambio de sentido). Даже если прямо сейчас ты не видишь встречных машин, они могут появиться внезапно из-за «горба» дороги.\n\n3️⃣ **💡 Шпаргалка**\nЗапомни простое правило выживания: **«Не вижу — не кручу»**. Если дорога закрывает горизонт, разворачиваться там — всё равно что играть в рулетку."
+    },
+    "image_url": "https://teorica.practicavial.com/question/7c65b632-fe30-4021-8d6d-59f6f9d79ef1-1657898006-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7c65b632-fe30-4021-8d6d-59f6f9d79ef1-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "En los pasos a nivel, ¿está permitido adelantar a un turismo?",
+      "en": "Is it permitted to overtake a passenger car at level crossings?",
+      "ru": "Разрешено ли обгонять легковой автомобиль на железнодорожных переездах?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo cuando no existan señales que prohíban adelantar.",
+          "en": "Only when there are no signs prohibiting overtaking.",
+          "ru": "Только если нет знаков, запрещающих обгон."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": "Yes.",
+          "ru": "Да."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "El Reglamento General de Circulación prohíbe expresamente el adelantamiento en los pasos a nivel y en sus proximidades. Existe una excepción específica: se permite adelantar a vehículos de dos ruedas que no impidan la visibilidad lateral, siempre que se les advierta previamente con señales ópticas o acústicas. Dado que un turismo no es un vehículo de dos ruedas, el adelantamiento está prohibido en cualquier caso.",
+      "en": "The General Traffic Regulations expressly prohibit overtaking at level crossings and in their vicinity. There is a specific exception: overtaking two-wheeled vehicles that do not obstruct lateral visibility is permitted, provided they are previously warned with optical or acoustic signals. Since a passenger car (turismo) is not a two-wheeled vehicle, overtaking is prohibited in any case.",
+      "ru": "1️⃣ **🎓 Правило**\nСогласно ПДД Испании, обгон на железнодорожных переездах и вблизи них **запрещен**. Это базовое правило безопасности.\n\nОднако есть важное исключение: разрешено обгонять **двухколесные транспортные средства** (мотоциклы, велосипеды), но только при соблюдении двух условий:\n1. Они не закрывают вам боковой обзор.\n2. Вы предупредили их о маневре звуковым или световым сигналом.\n\nВ вопросе речь идет о **легковом автомобиле** (turismo). Это не двухколесное ТС, и оно перекрывает обзор, поэтому обгонять его на переезде категорически нельзя.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nВ РФ обгон на переездах запрещен абсолютно для всех транспортных средств (и за 100 метров до них). В Испании правило мягче для двухколесных: мотоцикл обогнать можно (если осторожно), а вот машину — так же, как и в РФ, нельзя. Не перенеси эту «поблажку» на автомобили!\n\n3️⃣ **💡 Шпаргалка**\nЗапомни формулу переезда:\n**2 колеса** — можно (посигналив).\n**4 колеса** — НЕТ.\n\nПоезд не прощает ошибок, а машина закрывает обзор на поезд."
+    },
+    "image_url": "https://teorica.practicavial.com/question/6b7e2227-3164-4655-897d-4f621b0bdc0d-1657823544-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6b7e2227-3164-4655-897d-4f621b0bdc0d-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "¿Cuándo debe comprobar el reglaje de los espejos retrovisores?",
+      "en": "When must you check the adjustment of the rear-view mirrors?",
+      "ru": "Когда следует проверять настройку зеркал заднего вида?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando el vehículo circule en terreno llano y recto.",
+          "en": "When the vehicle is driving on flat and straight terrain.",
+          "ru": "Когда транспортное средство движется по ровному и прямому участку."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Antes de iniciar la marcha en terreno llano y recto.",
+          "en": "Before starting to drive on flat and straight terrain.",
+          "ru": "Перед началом движения на ровном и прямом участке."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Circulando a una velocidad lenta.",
+          "en": "While driving at a slow speed.",
+          "ru": "Во время движения на низкой скорости."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "El reglaje de los espejos retrovisores debe realizarse siempre con el vehículo inmovilizado, antes de iniciar la marcha y situando el vehículo en un terreno llano y recto para evitar distorsiones en la perspectiva. Realizar esta operación con el vehículo en movimiento, aunque sea a baja velocidad, compromete la seguridad vial al distraer al conductor. El orden correcto de acomodación es: primero el asiento y el respaldo, y posteriormente los espejos.",
+      "en": "The adjustment of the rear-view mirrors must always be performed with the vehicle immobilized, before starting to drive, and with the vehicle positioned on flat and straight terrain to avoid perspective distortions. Performing this operation while the vehicle is in motion, even at low speed, compromises road safety by distracting the driver. The correct sequence for setup is: first the seat and backrest, and then the mirrors.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя **легкового автомобиля** (Turismo) правильная подготовка рабочего места критически важна. Существует строгий алгоритм действий перед поездкой, который нельзя нарушать:\n\n1. Настроить сиденье и спинку (под свой рост).\n2. Настроить зеркала заднего вида.\n3. Пристегнуть ремень безопасности.\n\nНастройка зеркал должна производиться **исключительно на неподвижном автомобиле** и на ровной поверхности. Если машина стоит под наклоном, вы настроите зеркала неверно, и на дороге горизонт «уплывет». Пытаться регулировать зеркала во время движения (даже медленного) — опасно, так как это отвлекает внимание от дороги.\n\n3️⃣ **💡 Шпаргалка**\nЗапомни порядок действий как «Святую Троицу» водителя:\n**Стул → Зеркало → Ремень**.\n\nАссоциация: «На ходу зеркала крутить — беду будить». Настраиваемся только в покое, пока машина стоит ровно."
+    },
+    "image_url": "https://teorica.practicavial.com/question/ac415a52-04f7-4b5d-8273-bbf32389f2ca-1657807921-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ac415a52-04f7-4b5d-8273-bbf32389f2ca-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "Cuando se incorpore a la circulación, debe...",
+      "en": "When joining the traffic flow, you must...",
+      "ru": "При начале движения и вливании в транспортный поток вы должны..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "evitar hacerlo sin el alumbrado de posición encendido.",
+          "en": "avoid doing so without the position lights switched on.",
+          "ru": "избегать выполнения маневра без включенных габаритных огней."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "hacerlo lo más rápido posible.",
+          "en": "do it as fast as possible.",
+          "ru": "выполнить маневр как можно быстрее."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "ceder el paso a otros vehículos.",
+          "en": "yield the right of way to other vehicles.",
+          "ru": "уступить дорогу другим транспортным средствам."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, el conductor que se incorpore a la circulación (desde una parada, estacionamiento o vía de acceso) deberá ceder el paso a los vehículos que ya circulen por la vía. Es obligatorio cerciorarse previamente, observando directamente y a través de los espejos retrovisores, de que la maniobra puede realizarse sin peligro y sin obligar a los demás usuarios a modificar bruscamente su trayectoria o velocidad.",
+      "en": "According to General Traffic Regulations, a driver joining the traffic flow (from a stop, parking spot, or access road) must yield to vehicles already circulating on the road. It is mandatory to verify beforehand, using direct observation and rear-view mirrors, that the maneuver can be performed safely without danger and without forcing other road users to abruptly change their trajectory or speed.",
+      "ru": "1️⃣ **🎓 Правило**\nТы за рулем **легкового автомобиля** (Turismo). Когда ты выезжаешь с парковки или вливаешься в поток с прилегающей территории, ты входишь в чужое пространство.\n\nГлавный принцип: **приоритет всегда у тех, кто уже едет по дороге**.\n\nТвои действия:\n1. Оценить обстановку (зеркала + слепые зоны).\n2. Включить поворотник.\n3. **Уступить дорогу** (ceder el paso) всем движущимся ТС.\n\nТы не должен заставлять других водителей резко тормозить или менять полосу (Carril) из-за твоего маневра. Вариант «сделать это как можно быстрее» неверен, так как скорость должна быть безопасной, а не просто высокой.\n\n3️⃣ **💡 Шпаргалка**\nВливаешься в поток? Ты — гость на этой вечеринке.\nСначала пропусти хозяев (тех, кто уже едет), потом заходи сам.\n**Выезжаешь — уступаешь.**"
+    },
+    "image_url": "https://teorica.practicavial.com/question/02db951a-ce02-4f63-95cd-81f123a744dc-1657798980-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/02db951a-ce02-4f63-95cd-81f123a744dc-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "¿Puede girar en una intersección a la izquierda si no tiene visibilidad?",
+      "en": "Can you turn left at an intersection if you do not have visibility?",
+      "ru": "Можно ли повернуть налево на перекрестке, если нет видимости?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, aunque esté permitido por la señalización.",
+          "en": "No, even if permitted by signage.",
+          "ru": "Нет, даже если это разрешено знаками."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, con precaución.",
+          "en": "Yes, with caution.",
+          "ru": "Да, с осторожностью."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, siempre.",
+          "en": "Yes, always.",
+          "ru": "Да, всегда."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "El Reglamento General de Circulación prohíbe el cambio de dirección a la izquierda en lugares donde no exista visibilidad suficiente. Esta prohibición prevalece incluso si la señalización (como una línea discontinua) permite teóricamente la maniobra. Al girar a la izquierda, se invade el sentido contrario, por lo que es imprescindible tener visibilidad plena para no poner en peligro a otros usuarios ni obstaculizar la vía.",
+      "en": "The General Traffic Regulations prohibit turning left in places where there is insufficient visibility. This prohibition prevails even if signage (such as a broken line) theoretically permits the maneuver. Turning left involves crossing into the oncoming lane, so full visibility is essential to ensure that the maneuver does not endanger other road users or obstruct the roadway.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя легкового автомобиля (Turismo) поворот налево — это маневр, связанный с пересечением пути встречного транспорта. ПДД Испании устанавливают жесткий приоритет безопасности: если видимость ограничена (из-за рельефа, строений или растительности), поворот налево **запрещен**. Это правило действует даже в том случае, если дорожная разметка (прерывистая линия) или знаки формально разрешают маневр. Отсутствие запрещающего знака не отменяет физического отсутствия видимости.\n\n3️⃣ **💡 Шпаргалка**\nНе видишь — не едешь. Если горизонт закрыт — поворот закрыт. Даже если разметка разрешает, «слепота» запрещает."
+    },
+    "image_url": "https://teorica.practicavial.com/question/9d2d6d0c-cf03-4381-b303-29ebf97eeabd-1657895264-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9d2d6d0c-cf03-4381-b303-29ebf97eeabd-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "En un paso para peatones, ¿está permitido cambiar el sentido de la marcha?",
+      "en": "Is it permitted to make a U-turn at a pedestrian crossing?",
+      "ru": "Разрешен ли разворот на пешеходном переходе?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, ni siquiera en sus proximidades.",
+          "en": "No, not even in its vicinity.",
+          "ru": "Нет, даже в непосредственной близости от него."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, pero sí en sus proximidades.",
+          "en": "No, but it is allowed in its vicinity.",
+          "ru": "Нет, но разрешено поблизости."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí.",
+          "en": "Yes.",
+          "ru": "Да."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, se prohíbe expresamente efectuar el cambio de sentido en los pasos para peatones señalizados como tales, así como en sus proximidades. Esta prohibición se aplica también en los pasos a nivel y en las intersecciones con pasos para ciclistas. La normativa busca evitar situaciones de riesgo en puntos donde los usuarios vulnerables tienen prioridad y donde la maniobra podría obstaculizar la visibilidad o poner en peligro a los peatones.",
+      "en": "According to the General Traffic Regulations, making a U-turn is expressly prohibited on marked pedestrian crossings as well as in their vicinity. This prohibition also applies to level crossings and intersections with cyclist crossings. The regulation aims to avoid hazardous situations in spots where vulnerable users have priority and where the maneuver could obstruct visibility or endanger pedestrians.",
+      "ru": "1️⃣ 🎓 **Правило**\nДля водителя *Turismo* (легкового автомобиля) выполнение разворота (*cambio de sentido*) в таких местах строго запрещено. Правила дорожного движения Испании устанавливают запрет на разворот не только непосредственно на пешеходном переходе, но и в его окрестностях (proximidades). Это ограничение также распространяется на железнодорожные переезды и пересечения с велосипедными дорожками. Логика проста: маневрируя рядом с переходом, вы можете не заметить пешехода или закрыть обзор другим водителям.\n\n2️⃣ 🇷🇺 **Сравнение с РФ**\nЭто критический момент для водителей с опытом в РФ. В России (п. 8.11 ПДД) разворот запрещен только **на** самом пешеходном переходе. Разворот непосредственно *перед* ним или *сразу за* ним разрешен (при соблюдении видимости и разметки). В Испании же запрет действует и **вблизи** перехода. Если вы начнете разворот за пару метров до «зебры», экзамен будет провален.\n\n3️⃣ 💡 **Шпаргалка**\nЗапомни правило «Ауры»: у пешеходного перехода в Испании есть невидимая защитная зона. Нельзя разворачиваться ни на полосках, ни рядом с ними. Если видишь пешехода — только пропуск, никаких пируэтов."
+    },
+    "image_url": "https://teorica.practicavial.com/question/9f0b5638-18ce-431c-a9ac-cfa9f225fd33-1657897808-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9f0b5638-18ce-431c-a9ac-cfa9f225fd33-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Este vehículo va a girar a la izquierda, ¿está permitido adelantarle por la derecha?",
+      "en": "This vehicle is going to turn left, is it permitted to overtake it on the right?",
+      "ru": "Это транспортное средство собирается повернуть налево, разрешено ли обогнать его справа?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo cuando suponga un riesgo para la seguridad vial el no adelantar.",
+          "en": "Only when not overtaking poses a risk to road safety.",
+          "ru": "Только если отказ от обгона создает риск для безопасности дорожного движения."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, porque el adelantamiento siempre debe efectuarse por la izquierda.",
+          "en": "No, because overtaking must always be done on the left.",
+          "ru": "Нет, потому что обгон всегда должен выполняться слева."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, porque está indicando claramente su propósito de girar a la izquierda.",
+          "en": "Yes, because it is clearly indicating its intention to turn left.",
+          "ru": "Да, так как оно ясно показывает намерение повернуть налево."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, como norma general el adelantamiento debe efectuarse por la izquierda. Sin embargo, existe una excepción taxativa: está permitido adelantar por la derecha cuando el conductor del vehículo al que se pretende adelantar esté indicando claramente su propósito de cambiar de dirección a la izquierda o parar en ese lado. Para realizar esta maniobra, es requisito indispensable que exista espacio suficiente para hacerlo con seguridad.",
+      "en": "According to the General Traffic Regulations, as a general rule, overtaking must be carried out on the left. However, there is a strict exception: overtaking on the right is permitted when the driver of the vehicle to be overtaken is clearly indicating their intention to change direction to the left or stop on that side. To perform this maneuver, it is an essential requirement that there is sufficient space to do so safely.",
+      "ru": "🎓 **Правило**\n\nДля водителя **легкового автомобиля** (Turismo) действует базовое правило: любой **Adelantamiento** (обгон или опережение) выполняется слева. Однако ПДД Испании предусматривают важное исключение.\n\nЕсли транспортное средство впереди **ясно сигнализирует** о намерении повернуть налево (включен левый поворотник, смещение к осевой линии) или остановиться на левой стороне, ты **имеешь право** опередить его справа.\n\nОбязательные условия:\n1. Намерение водителя впереди очевидно.\n2. Справа есть достаточно места для безопасного проезда (свободная часть полосы или пригодная обочина).\n\n💡 **Шпаргалка**\n\nЗапомни принцип «Противовес»:\n• Если он уходит **влево** — ты ныряешь **вправо**.\n• Если он едет прямо — ты обгоняешь **слева**.\n\nЛевый поворотник впереди работает как зеленый свет для проезда справа."
+    },
+    "image_url": "https://teorica.practicavial.com/question/9c78bccc-5a2f-4eaf-9073-bd03397ffc36-1657809427-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9c78bccc-5a2f-4eaf-9073-bd03397ffc36-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "En este tramo de vía de visibilidad reducida, ¿está permitido realizar un cambio de sentido?",
+      "en": "On this stretch of road with reduced visibility, is it permitted to make a U-turn?",
+      "ru": "На этом участке дороги с ограниченной видимостью разрешено ли выполнять разворот?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, cuando no hay circulación en sentido contrario.",
+          "en": "Yes, when there is no oncoming traffic.",
+          "ru": "Да, когда нет встречного движения."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, señalizando la maniobra convenientemente.",
+          "en": "Yes, signaling the maneuver properly.",
+          "ru": "Да, подав соответствующий сигнал."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, está prohibido.",
+          "en": "No, it is prohibited.",
+          "ru": "Нет, запрещено."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "El Reglamento General de Circulación prohíbe expresamente realizar un cambio de sentido en los lugares donde no exista visibilidad suficiente. Aunque no haya tráfico en ese momento, la falta de visibilidad impide comprobar si se puede realizar la maniobra sin poner en peligro o obstaculizar a otros usuarios.",
+      "en": "The General Traffic Regulations expressly prohibit making a U-turn in places where there is not sufficient visibility. Even if there is no traffic at that moment, the lack of visibility prevents verifying whether the maneuver can be performed without endangering or hindering other road users.",
+      "ru": "🎓 **Правило**\nДля водителя **легкового автомобиля** (Turismo) действует жесткий запрет: разворот (cambio de sentido) недопустим везде, где нет достаточной видимости. Это касается крутых поворотов, подъемов и любых участков, где обзор ограничен. Даже если дорога кажется пустой, начинать маневр нельзя, так как ты не сможешь вовремя заметить внезапно появившееся встречное ТС.\n\n💡 **Шпаргалка**\nНе видишь дорогу далеко вперед? Не крути руль обратно. Нет обзора — нет разворота."
+    },
+    "image_url": "https://teorica.practicavial.com/question/02252593-2636-452c-9d3e-1454fccbe898-1657897867-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/02252593-2636-452c-9d3e-1454fccbe898-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "El vehículo rojo, ¿debe apartarse a la derecha cuando termine el adelantamiento?",
+      "en": "Should the red vehicle move to the right when the overtaking is finished?",
+      "ru": "Должен ли красный легковой автомобиль перестроиться вправо после завершения опережения?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, para no obstaculizar al vehículo que le sigue.",
+          "en": "Yes, so as not to obstruct the vehicle following it.",
+          "ru": "Да, чтобы не создавать помех следующему за ним транспортному средству."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, porque existe un carril a la izquierda que está libre.",
+          "en": "No, because there is a lane to the left that is free.",
+          "ru": "Нет, так как левая полоса свободна."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, puede continuar circulado por el carril central.",
+          "en": "No, it can continue driving in the central lane.",
+          "ru": "Нет, он может продолжить движение по средней полосе."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, fuera de poblado, en calzadas con más de un carril para el mismo sentido, se debe circular normalmente por el situado más a su derecha. Se permite utilizar los restantes carriles para adelantar cuando las circunstancias del tráfico lo aconsejen, pero a condición de que no entorpezca la marcha de otro vehículo que le siga. Por tanto, al finalizar la maniobra, el conductor debe reintegrarse al carril derecho.",
+      "en": "According to the General Traffic Regulations, outside built-up areas, on roadways with more than one lane for the same direction, one must normally drive in the lane furthest to the right. The remaining lanes may be used for overtaking when traffic circumstances advise it, but on the condition that this does not obstruct the progress of another vehicle following. Therefore, upon completing the maneuver, the driver must return to the right lane.",
+      "ru": "1️⃣ **🎓 Правило**\nНа дорогах вне населенных пунктов (Autopista/Autovía) водитель **легкового автомобиля** (Turismo) обязан двигаться по крайней правой полосе (Carril). Остальные полосы предназначены исключительно для маневров. Как только ты завершил **опережение** (Adelantamiento), ты обязан вернуться в правую полосу. Оставаться в центральной полосе разрешено только в одном случае: если ты планируешь сразу же опередить еще одно транспортное средство, и при этом твои действия **не создают помех** машинам, движущимся сзади быстрее тебя. Если сзади кто-то есть — уходи вправо немедленно.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nВ РФ (п. 9.4 ПДД) правило аналогично: при свободных правых полосах занимать левые запрещено. Однако в Испании за «беспричинную» езду по средней полосе (так называемый «синдром левой полосы») на экзамене ставят ошибку гораздо строже, чем в РФ. Нельзя просто ехать посередине, потому что «там асфальт лучше» или «так удобнее».\n\n3️⃣ **💡 Шпаргалка**\nПравая полоса — это твой «дом», а левые — это «встречка» (по степени опасности и ответственности). Сделал дело (обогнал) — возвращайся домой! Не «живи» в гостях."
+    },
+    "image_url": "https://teorica.practicavial.com/question/ec48a0be-acab-4b7e-afa7-cc5e1a7e08e0-1657809598-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ec48a0be-acab-4b7e-afa7-cc5e1a7e08e0-s-1.jpg",
+    "source": "practicavial"
+  }
+]

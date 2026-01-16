@@ -1,0 +1,1472 @@
+[
+  {
+    "topic_number": 1,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "Circulando a una velocidad superior a la velocidad máxima permitida, está circulando...",
+      "en": "Driving at a speed higher than the maximum permitted speed, you are driving...",
+      "ru": "Двигаясь со скоростью выше максимально разрешенной, вы двигаетесь..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "con exceso de velocidad.",
+          "en": "with excess speed.",
+          "ru": "с превышением скорости."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "a una velocidad máxima.",
+          "en": "at a maximum speed.",
+          "ru": "с максимальной скоростью."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "a una velocidad moderada, según las circunstancias.",
+          "en": "at a moderate speed, depending on circumstances.",
+          "ru": "с умеренной скоростью, в зависимости от обстоятельств."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Desde el punto de vista normativo, circular a una velocidad superior a la establecida por la señalización o las normas generales se tipifica como 'exceso de velocidad'. Es fundamental distinguir este concepto de la 'velocidad excesiva' o 'inadecuada'. La velocidad excesiva se refiere a una velocidad no adaptada a las circunstancias de la vía o del entorno (lluvia, tráfico denso), incluso si es inferior al límite máximo. Sin embargo, el enunciado especifica claramente que se supera el límite legal ('velocidad máxima permitida'), lo cual constituye objetivamente un exceso de velocidad sancionable.",
+      "en": "From a regulatory standpoint, driving at a speed higher than that established by signs or general rules is classified as 'excess speed' (speeding). It is crucial to distinguish this concept from 'excessive speed' or 'inadequate speed.' Excessive speed refers to speed not adapted to road or environmental conditions (rain, heavy traffic), even if it is below the maximum limit. However, the question clearly states that the legal limit ('maximum permitted speed') is being exceeded, which objectively constitutes punishable excess speed.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя **Turismo** (легкового автомобиля) важно различать два похожих термина в испанских ПДД, чтобы не ошибиться в билетах:\n\n1. **Exceso de velocidad** (Превышение скорости) — это чисто математическое нарушение. Если знак показывает 120, а ты едешь 121 км/ч — это *exceso*. Ты нарушил закон, превысив цифру.\n2. **Velocidad excesiva / inadecuada** (Чрезмерная / несоответствующая скорость) — это нарушение логики безопасности. Например, ты едешь 90 км/ч (по правилам), но в густой туман или гололед. Ты не превысил лимит, но твоя скорость опасна для условий.\n\nВ вопросе четко сказано: «выше максимально разрешенной» (superior a la velocidad máxima permitida). Значит, речь идет именно о нарушении лимита — **exceso de velocidad**.\n\n3️⃣ **💡 Шпаргалка**\nКак не запутаться в словах:\n*   **Exceso** (Эксцесс) — это про **Закон** (цифры, штрафы).\n*   **Excesiva** (Чрезмерная) — это про **Здравый смысл** (погода, трафик).\n\nВидишь в вопросе «выше разрешенной»? Ищи ответ со словом **Exceso**."
+    },
+    "image_url": "https://teorica.practicavial.com/question/3f08c8f6-ab43-4375-afbf-c4c400accddc-1658136579-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3f08c8f6-ab43-4375-afbf-c4c400accddc-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "3f08c8f6-ab43-4375-afbf-c4c400accddc",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "En esta intersección, ¿Qué vehículo pasará primero?",
+      "en": "In this intersection, which vehicle will pass first?",
+      "ru": "Какой автомобиль проедет этот перекресток первым?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El rojo.",
+          "en": "The red one.",
+          "ru": "Красный."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El amarillo.",
+          "en": "The yellow one.",
+          "ru": "Желтый."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El azul.",
+          "en": "The blue one.",
+          "ru": "Синий."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "En las intersecciones sin señalizar, rige la norma general de prioridad establecida en el Reglamento General de Circulación. Según esta normativa, el conductor está obligado a ceder el paso a los vehículos que se aproximen por su derecha. Al analizar la posición de los turismos, se observa que el vehículo azul tiene al amarillo a su derecha, y el vehículo amarillo tiene al rojo a su derecha. El vehículo rojo, por el contrario, tiene la vía a su derecha libre de vehículos. En consecuencia, al no tener que ceder el paso a nadie por su derecha, el turismo rojo tiene prioridad de paso y circulará en primer lugar.",
+      "en": "At unsignaled intersections, the general priority rule established in the General Traffic Regulations applies. According to this rule, drivers are obliged to yield to vehicles approaching from their right. Analyzing the position of the vehicles, the blue car has the yellow car on its right, and the yellow car has the red car on its right. The red car, conversely, has a clear road on its right side. Consequently, having no vehicle to yield to on its right, the red car has the right of way and will proceed first.",
+      "ru": "1️⃣ **🎓 Правило**\nВ данной ситуации мы имеем дело с нерегулируемым перекрестком равнозначных дорог (Intersección sin señalizar). Для водителя легкового автомобиля (Turismo) здесь действует фундаментальное правило приоритета: **уступи тому, кто приближается справа**.\n\nРазберем очередность проезда:\n1. У синего автомобиля справа находится желтый — синий обязан уступить.\n2. У желтого автомобиля справа находится красный — желтый обязан уступить.\n3. У красного автомобиля дорога справа свободна — у него нет помехи, поэтому он никому не уступает.\n\nТаким образом, красный автомобиль начинает движение первым, открывая возможность для проезда остальным.\n\n3️⃣ **💡 Шпаргалка**\nЗапомни принцип «Цепочка уважения»:\nСиний ждет Желтого, Желтый ждет Красного, а Красный никого не ждет.\n\nИли коротко:\n**У кого правый бок чист — тот и танкист (едет первым).**"
+    },
+    "image_url": "https://teorica.practicavial.com/question/4729d24e-9577-4c41-9ded-a3b4ffaefded-1657796565-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4729d24e-9577-4c41-9ded-a3b4ffaefded-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "4729d24e-9577-4c41-9ded-a3b4ffaefded",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "En esta vía se ha habilitado un carril adicional; ¿a qué velocidad como máximo circulará el vehículo naranja?",
+      "en": "An additional lane has been enabled on this road; what is the maximum speed the orange vehicle can drive?",
+      "ru": "На этой дороге была организована дополнительная полоса; с какой максимальной скоростью может двигаться оранжевый автомобиль?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A 80 kilómetros por hora.",
+          "en": "At 80 km/h.",
+          "ru": "80 км/ч."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A 60 kilómetros por hora.",
+          "en": "At 60 km/h.",
+          "ru": "60 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A la genérica de la vía.",
+          "en": "At the generic speed limit of the road.",
+          "ru": "С обычной скоростью для данной дороги."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Cuando se habilita un carril adicional circunstancial en una calzada con arcenes, la normativa establece obligaciones específicas para mejorar la fluidez. Todos los vehículos que circulen por este tramo, tanto los que van por el carril adicional (centro) como los que se desplazan a los arcenes (como el vehículo naranja), deben llevar encendido el alumbrado de cruce (al menos) y respetar los límites de velocidad: máxima 80 km/h y mínima 60 km/h.",
+      "en": "When an additional lane is enabled on a roadway with shoulders to improve traffic flow, specific regulations apply. All vehicles traveling in this section, whether in the additional center lane or shifted onto the shoulders (like the orange vehicle), must use dipped headlights and adhere to specific speed limits: a maximum of 80 km/h and a minimum of 60 km/h.",
+      "ru": "1️⃣ **🎓 Правило**\nКогда на дороге организуют **дополнительную полосу** (*carril adicional*), используя конусы, движение меняется для всех. Чтобы вместить третий ряд посередине, крайние машины (в данном случае оранжевый автомобиль) обязаны ехать по обочине (*arcén*).\n\nДля **всех** участников этого участка (и тех, кто в центре, и тех, кто на обочине) действуют жесткие правила:\n• **Скорость:** Максимум **80 км/ч**, минимум 60 км/ч.\n• **Свет:** Обязательно включить ближний свет фар днем и ночью.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nВ РФ движение по обочине обычно запрещено (штраф) и считается нарушением («обочечники»). В Испании же создание *carril adicional* делает езду по обочине в этом месте **законной и обязательной**. Не бойся выезжать на асфальтированную обочину, если видишь ряд конусов, смещающих поток — это требование ПДД, а не нарушение.\n\n3️⃣ **💡 Шпаргалка**\nВидишь конусы, создающие доп. ряд?\n**Дополнительная** полоса = **Дополнительные** ограничения (свет + скорость 80).\nЗапомни формулу: **Конусы + Обочина = 80 км/ч**."
+    },
+    "image_url": "https://teorica.practicavial.com/question/6d098241-d6c3-4447-834e-c7468ef53b51-1652200397-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6d098241-d6c3-4447-834e-c7468ef53b51-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "6d098241-d6c3-4447-834e-c7468ef53b51",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Si debido a circunstancias del tráfico prevé que va a quedar detenido en una intersección obstaculizando la vía transversal, ¿qué debe hacer?",
+      "en": "If, due to traffic circumstances, you foresee that you will remain stopped in an intersection obstructing cross traffic, what must you do?",
+      "ru": "Если из-за дорожной обстановки вы предвидите, что будете вынуждены остановиться на перекрестке, создавая помехи поперечному движению, что вы должны сделать?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Siempre que tenga prioridad de paso, entrar en la intersección.",
+          "en": "Enter the intersection, provided you have the right of way.",
+          "ru": "Въехать на перекресток, если у вас есть преимущество в движении."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Detener el vehículo antes de entrar en la intersección.",
+          "en": "Stop the vehicle before entering the intersection.",
+          "ru": "Остановить автомобиль перед въездом на перекресток."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Entrar en la intersección y quitarse de en medio cuando el tráfico lo permita.",
+          "en": "Enter the intersection and move out of the way when traffic permits.",
+          "ru": "Въехать на перекресток и освободить его, как только позволит движение."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, aun cuando goce de prioridad de paso (por ejemplo, semáforo en verde), ningún conductor deberá penetrar con su vehículo en una intersección o paso para peatones si la situación de la circulación es tal que, previsiblemente, pueda quedar detenido de forma que impida u obstruya la circulación transversal. A menudo, estas zonas están marcadas con una cuadrícula de marcas amarillas.",
+      "en": "According to the General Traffic Regulations, even if you have the right of way (e.g., a green light), no driver should enter an intersection or pedestrian crossing if the traffic situation suggests that they will likely get stopped in a way that impedes or obstructs cross traffic. These areas are often marked with a yellow grid on the road surface.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя **легкового автомобиля** (Turismo) действует приоритет здравого смысла над формальным правом проезда. Даже если горит зеленый сигнал светофора или знаки дают вам преимущество, въезжать на перекресток ЗАПРЕЩЕНО, если за ним образовался затор.\n\nЕсли вы видите, что не сможете полностью покинуть пересечение проезжих частей и вынужденно остановитесь, перекрыв путь поперечному потоку, вы обязаны остановиться **перед** перекрестком. В Испании на таких участках часто наносится специальная желтая сетчатая разметка (cuadrícula amarilla), которая визуально напоминает: «Не въезжай, если не можешь выехать».\n\n3️⃣ **💡 Шпаргалка**\nЗапомни правило «Забитой коробки»:\nЕсли в коробке (на перекрестке) нет места для твоего выезда — вход закрыт.\nВ этой ситуации **Затор сильнее Зеленого света**."
+    },
+    "image_url": "https://teorica.practicavial.com/question/ee0f24e8-e21b-4940-81ba-a705d3802365-1657730264-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ee0f24e8-e21b-4940-81ba-a705d3802365-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "ee0f24e8-e21b-4940-81ba-a705d3802365",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "Los vehículos de movilidad personal (VMP), ¿deben disponer de un sistema de frenado que permita desacelerar el vehículo hasta su total detención?",
+      "en": "Must personal mobility vehicles (VMP) have a braking system that allows the vehicle to decelerate to a complete stop?",
+      "ru": "Должны ли средства индивидуальной мобильности (СИМ) иметь тормозную систему, позволяющую замедлить транспортное средство до полной остановки?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No; el sistema de frenado es un elemento opcional en los VMP.",
+          "en": "No; the braking system is an optional element on VMPs.",
+          "ru": "Нет, тормозная система является необязательным элементом для СИМ."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No; solo es obligatorio para los VMP para transporte de mercancías.",
+          "en": "No; it is only mandatory for VMPs for transporting goods.",
+          "ru": "Нет, это обязательно только для СИМ, предназначенных для перевозки грузов."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí; todos los VMP deberán disponer de dos frenos independientes.",
+          "en": "Yes; all VMPs must have two independent brakes.",
+          "ru": "Да, все СИМ должны быть оснащены двумя независимыми тормозами."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Manual de características de los vehículos de movilidad personal (VMP) de la DGT, es obligatorio que estos vehículos dispongan de un sistema de frenado eficaz. La normativa especifica que todos los VMP deberán disponer de dos frenos independientes, que pueden ser accionados desde el mismo actuador, para garantizar la seguridad y la capacidad de detención total.",
+      "en": "According to the DGT's Manual of Characteristics for Personal Mobility Vehicles (VMP), it is mandatory for these vehicles to have an effective braking system. The regulations specify that all VMPs must be equipped with two independent brakes, which may be operated from the same actuator, to ensure safety and the ability to come to a complete stop.",
+      "ru": "1️⃣ **🎓 Правило**\nКак водитель легкового автомобиля, ты должен понимать, что СИМ (электросамокаты и т.д.) в Испании — это полноценные транспортные средства, а не игрушки. Регламент DGT предъявляет к ним строгие технические требования. Главное из них: **все СИМ обязаны иметь два независимых тормоза**. Это сделано для того, чтобы гарантировать их способность безопасно замедлиться и полностью остановиться перед твоим автомобилем или пешеходным переходом.\n\n2️⃣ **💡 Шпаргалка**\nУ самоката **два** колеса? Значит, и тормоза должно быть **два**.\nЗапомни формулу: **2 колеса = 2 тормоза**. Безопасность любит пары."
+    },
+    "image_url": "https://teorica.practicavial.com/question/319cebfc-65e1-401d-af00-afc2574ecaf0-1734362335-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/319cebfc-65e1-401d-af00-afc2574ecaf0-s-1.jpg?t=1768425332",
+    "source": "practicavial",
+    "external_id": "319cebfc-65e1-401d-af00-afc2574ecaf0",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "Ante este semáforo apagado, ¿qué debe hacer?",
+      "en": "What must you do at this switched-off traffic light?",
+      "ru": "Что вы должны сделать перед этим выключенным светофором?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Pasar sin detenerme.",
+          "en": "Pass without stopping.",
+          "ru": "Проехать без остановки."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Ceder el paso a los vehículos que vengan por la derecha.",
+          "en": "Give way to vehicles approaching from the right.",
+          "ru": "Уступить дорогу транспортным средствам, приближающимся справа."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Detenerme y después ceder el paso.",
+          "en": "Stop and then give way.",
+          "ru": "Остановиться, а затем уступить дорогу."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el orden de prevalencia de las señales, un semáforo apagado no regula el paso y se considera inexistente a efectos de prioridad. En ausencia de Agentes, señales de balizamiento o señales verticales (como un STOP o Ceda el paso) que regulen la intersección, se debe aplicar la norma general de prioridad establecida en el Reglamento General de Circulación. Esta norma dicta que se debe ceder el paso a los vehículos que se aproximen por la derecha. La detención total solo es obligatoria si es necesaria para ceder el paso, a diferencia de una señal de STOP.",
+      "en": "According to the hierarchy of traffic signals, a switched-off traffic light does not regulate traffic and is considered non-existent for priority purposes. In the absence of police officers, temporary signals, or vertical signs (such as a STOP or Yield sign) regulating the intersection, the general priority rule established in the General Traffic Regulations applies. This rule dictates that you must give way to vehicles approaching from the right. A full stop is only mandatory if necessary to yield, unlike with a STOP sign.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя **легкового автомобиля** (Turismo) выключенный светофор означает, что этот уровень регулирования временно отсутствует. В такой ситуации ты обязан следовать иерархии сигналов:\n1. Если нет регулировщика;\n2. Если нет временных знаков;\n3. И (как в данном случае) светофор не работает;\n4. Ты должен искать **вертикальные знаки** приоритета (например, «STOP» или «Уступите дорогу»).\n\nЕсли знаков приоритета тоже нет, вступает в силу **общая норма приоритета**: на равнозначном перекрестке ты обязан уступить дорогу транспортным средствам, приближающимся **справа**. Останавливаться обязательно только в том случае, если справа действительно едет машина. Если дорога свободна — можно проезжать без полной остановки (в отличие от знака STOP).\n\n3️⃣ **💡 Шпаргалка**\n«Светофор ослеп? Смотри направо!»\nЕсли светофор черный (выключен) и нет знаков — работает правило «Помеха справа».\nНе путай с мигающим желтым: мигающий желтый требует осторожности, а выключенный — превращает перекресток в нерегулируемый."
+    },
+    "image_url": "https://teorica.practicavial.com/question/59019599-5347-4ff4-b8b4-2c220a82decb-1657730053-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/59019599-5347-4ff4-b8b4-2c220a82decb-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "59019599-5347-4ff4-b8b4-2c220a82decb",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "¿Se pueden arrojar o dejar sobre la vía objetos que puedan entorpecer la libre circulación, la parada o el estacionamiento?",
+      "en": "Can objects that may hinder free circulation, stopping, or parking be thrown or left on the road?",
+      "ru": "Можно ли выбрасывать или оставлять на дороге предметы, которые могут помешать свободному движению, остановке или стоянке?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": "Yes.",
+          "ru": "Да."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, está prohibido.",
+          "en": "No, it is prohibited.",
+          "ru": "Нет, это запрещено."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si no se deteriora la vía o sus instalaciones.",
+          "en": "Only if the road or its facilities do not deteriorate.",
+          "ru": "Только если это не портит дорогу или ее сооружения."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "El Reglamento General de Circulación establece que está prohibido arrojar, depositar o abandonar sobre la vía objetos o materias que puedan entorpecer la libre circulación, la parada o el estacionamiento, hacerlos peligrosos o deteriorar la vía o sus instalaciones. Esto incluye acciones como lavar el vehículo en la vía o arrojar colillas, que además pueden provocar incendios.",
+      "en": "The General Traffic Regulations state that it is prohibited to throw, deposit, or abandon on the road objects or materials that may hinder free circulation, stopping, or parking, make them dangerous, or deteriorate the road or its facilities. This includes actions such as washing the vehicle on the road or throwing cigarette butts, which can also cause fires.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя легкового автомобиля (Turismo) действует абсолютный запрет на загрязнение дороги. Проезжая часть (Calzada) и обочина (Arcén) должны оставаться свободными и безопасными. Запрещено выбрасывать или оставлять любые предметы, которые могут:\n• Создать помехи для движения, остановки или стоянки других ТС.\n• Вызвать опасность (например, скользкое пятно масла или осколки стекла).\n• Привести к пожару (выброшенные окурки).\n• Испортить дорожное покрытие.\n\nДаже мытье машины на улице запрещено, так как вода и моющие средства загрязняют дорогу и могут сделать её скользкой.\n\n3️⃣ **💡 Шпаргалка**\nДорога — не мусорка. Выбросил окурок в окно — штраф влетел в салон."
+    },
+    "image_url": "https://teorica.practicavial.com/question/286ee2a8-f250-4aca-b764-d89fe42a0115-1649351386-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/286ee2a8-f250-4aca-b764-d89fe42a0115-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "286ee2a8-f250-4aca-b764-d89fe42a0115",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "Con el vehículo en movimiento, ¿puede el conductor poner en marcha un navegador GPS?",
+      "en": "With the vehicle in motion, can the driver set up a GPS navigator?",
+      "ru": "Разрешается ли водителю настраивать GPS-навигатор во время движения?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, ya que es incompatible con la obligatoria atención a la conducción.",
+          "en": "No, as it is incompatible with the mandatory attention to driving.",
+          "ru": "Нет, так как это несовместимо с обязательным вниманием к вождению."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, ya que no supone ningún peligro.",
+          "en": "Yes, as it poses no danger.",
+          "ru": "Да, так как это не представляет никакой опасности."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, mientras que no entorpezca el manejo del vehículo.",
+          "en": "Yes, provided it does not hinder the handling of the vehicle.",
+          "ru": "Да, при условии, что это не мешает управлению транспортным средством."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "El Reglamento General de Circulación establece que se considera incompatible con la obligatoria atención permanente a la conducción el uso por el conductor, con el vehículo en movimiento, de dispositivos tales como pantallas de acceso a internet, monitores o navegadores. Se prohíbe explícitamente la manipulación del GPS durante la conducción; cualquier ajuste debe realizarse antes de iniciar la marcha o con el vehículo estacionado en lugar seguro.",
+      "en": "The General Traffic Regulations state that the use of devices such as internet screens, monitors, or navigators by the driver while the vehicle is in motion is considered incompatible with the mandatory permanent attention to driving. Manipulating the GPS while driving is explicitly prohibited; any adjustments must be made before starting the journey or with the vehicle parked in a safe place.",
+      "ru": "1️⃣ **🎓 Правило**\nВодителю **легкового автомобиля** (Turismo) категорически запрещено касаться навигатора или настраивать его, пока машина движется. ПДД Испании определяют это действие как несовместимое с обязательным вниманием к вождению. Даже быстрый ввод адреса отвлекает взгляд от дороги на опасное время. Маршрут необходимо проложить ДО начала поездки или совершив полную остановку в разрешенном месте.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nВ РФ многие водители привыкли нажимать кнопки на навигаторе на ходу, так как ПДД (п. 2.7) делают акцент на запрете использования телефона *в руке*. В Испании правила жестче: сам факт **манипуляции** (настройки, касания экрана) навигатором во время движения является прямым нарушением и карается штрафом с потерей баллов, так как это критически снижает внимание.\n\n3️⃣ **💡 Шпаргалка**\nХочешь карту посмотреть — изволь на месте попотеть (настроить до старта).\nЕсли едешь — руки прочь от экрана! Навигатор — только глазами, руками — руль."
+    },
+    "image_url": "https://teorica.practicavial.com/question/036d7ad2-b17c-474b-b096-9d569540cf98-1649351588-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/036d7ad2-b17c-474b-b096-9d569540cf98-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "036d7ad2-b17c-474b-b096-9d569540cf98",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Los peatones que quieran atravesar una glorieta en la que no exista paso para peatones, están obligados a...",
+      "en": "Pedestrians wishing to cross a roundabout where there is no pedestrian crossing are obliged to...",
+      "ru": "Пешеходы, желающие пересечь перекресток с круговым движением (Glorieta), где нет пешеходного перехода, обязаны..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "rodearla.",
+          "en": "go around it.",
+          "ru": "обойти его по периметру."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "cruzarla por el camino más recto posible.",
+          "en": "cross it by the most direct route possible.",
+          "ru": "пересечь его по кратчайшему пути."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "caminar por el borde interior de la isleta central.",
+          "en": "walk along the inner edge of the central island.",
+          "ru": "идти по внутреннему краю центрального островка."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, para atravesar plazas y glorietas, los peatones deben rodearlas. Está prohibido cruzar por la calzada interior o atravesar la isleta central, ya que esto genera situaciones de alto riesgo y entorpece la circulación de los vehículos.",
+      "en": "According to the General Traffic Regulations, to cross squares and roundabouts, pedestrians must go around them. It is prohibited to cross the inner roadway or traverse the central island, as this creates high-risk situations and obstructs vehicle traffic.",
+      "ru": "1️⃣ **🎓 Правило**\nХотя вопрос касается пешеходов, тебе как водителю **легкового автомобиля** (Turismo) важно понимать их траекторию, чтобы избежать наезда. ПДД Испании устанавливают жесткое правило: пешеходы **никогда** не должны пересекать перекресток с круговым движением (Glorieta) или площадь напрямик через центр.\n\nОни обязаны **обойти** кольцо по периметру. Это означает, что ты не должен ожидать людей посреди проезжей части круга, но должен быть предельно внимателен на въездах и выездах с кольца, где пешеходы законно пересекают дорогу, двигаясь вокруг.\n\n3️⃣ **💡 Шпаргалка**\n**Круг**овое движение требует движения по **кругу**.\nВидим **Glorieta** (Кольцо) — ищем ответ **Rodearla** (Обойти/Окружить).\nУмный в кольцо не пойдет, умный кольцо обойдет."
+    },
+    "image_url": "https://teorica.practicavial.com/question/119f82bf-49a5-4f9b-9866-5ea1db095bc2-1652277826-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/119f82bf-49a5-4f9b-9866-5ea1db095bc2-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "119f82bf-49a5-4f9b-9866-5ea1db095bc2",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "Un turismo que arrastra un remolque ligero, ¿a qué velocidad máxima puede circular por autopista o autovía?",
+      "en": "At what maximum speed can a passenger car towing a light trailer drive on a motorway or dual carriageway?",
+      "ru": "С какой максимальной скоростью разрешено движение легковому автомобилю с легким прицепом по автомагистрали или скоростной дороге?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A 100 km/h.",
+          "en": "At 100 km/h.",
+          "ru": "100 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A 80 km/h.",
+          "en": "At 80 km/h.",
+          "ru": "80 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A 90 km/h.",
+          "en": "At 90 km/h.",
+          "ru": "90 км/ч."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, aunque el límite genérico para un turismo en autopista o autovía es de 120 km/h, al arrastrar un remolque (ligero o no) la clasificación de velocidad cambia. Los automóviles con remolque tienen el mismo límite que los camiones en estas vías, que es de 90 km/h.",
+      "en": "According to the General Traffic Regulations, although the generic speed limit for a passenger car on a motorway or dual carriageway is 120 km/h, towing a trailer (light or otherwise) changes the speed classification. Cars with trailers are subject to the same limit as trucks on these roads, which is 90 km/h.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя легкового автомобиля (*Turismo*) стандартный лимит на таких дорогах — 120 км/ч. Но как только ты цепляешь прицеп (даже маленький и легкий), правила меняются.\nВ Испании любой автомобиль с прицепом на *Autopista* или *Autovía* юридически приравнивается к грузовикам в плане скорости. Твой новый лимит — **90 км/ч**.\nЭто жесткое ограничение: 100 км/ч разрешено автобусам, а тебе с прицепом — только 90.\n\n3️⃣ **💡 Шпаргалка**\nЗапомни простую формулу:\n**Прицеп = Грузовик.**\nГрузовикам можно 90? Значит, и тебе с прицепом тоже 90.\nНе пытайся ехать 100 (как автобус) или 120 (как одиночка). Твой «хвост» тянет стрелку спидометра вниз до 90."
+    },
+    "image_url": "https://teorica.practicavial.com/question/1b78e9b8-6cd0-4814-996c-65a1d29870c8-1653062257-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1b78e9b8-6cd0-4814-996c-65a1d29870c8-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "1b78e9b8-6cd0-4814-996c-65a1d29870c8",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "Su vehículo arrastra un remolque ligero, ¿puede circular por esta vía a 90 kilómetros por hora?",
+      "en": "Your vehicle is towing a light trailer. Can you drive on this road at 90 km/h?",
+      "ru": "Ваш легковой автомобиль буксирует легкий прицеп. Можно ли двигаться по этой дороге со скоростью 90 км/ч?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, como máximo circulará a 70 kilómetros por hora.",
+          "en": "No, the maximum speed is 70 km/h.",
+          "ru": "Нет, максимум 70 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": "Yes.",
+          "ru": "Да."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "La señal de velocidad máxima de 90 km/h indica que se circula por una carretera convencional. En este tipo de vías, la velocidad genérica para un turismo es de 90 km/h. Sin embargo, al arrastrar un remolque (aunque sea ligero), el vehículo pasa a considerarse un conjunto de vehículos. Según el Reglamento General de Circulación, el límite de velocidad para turismos con remolque en carreteras convencionales se reduce a 80 km/h. Por tanto, no está permitido circular a 90 km/h. La opción de 70 km/h es incorrecta porque el límite legal es 80 km/h.",
+      "en": "The 90 km/h speed limit sign indicates that you are driving on a conventional road (Carretera Convencional). On these roads, the generic speed limit for a passenger car (Turismo) is 90 km/h. However, when towing a trailer (even a light one), the vehicle is classified as a vehicle combination. According to traffic regulations, the speed limit for a car with a trailer on conventional roads is reduced to 80 km/h. Therefore, driving at 90 km/h is not permitted. The option suggesting 70 km/h is incorrect because the actual legal limit is 80 km/h.",
+      "ru": "1️⃣ **🎓 Правило**\nДорожный знак ограничения скорости **90 км/ч** указывает на то, что вы находитесь на обычной дороге (Carretera Convencional). Для одиночного легкового автомобиля (Turismo) этот лимит действует — можно ехать 90 км/ч. Однако, как только вы цепляете прицеп, ваш статус меняется на «Автопоезд» (Conjunto de vehículos). Согласно ПДД Испании, на обычных дорогах для автомобилей с прицепом скорость ограничена до **80 км/ч**. Следовательно, ехать 90 км/ч нельзя. Правильный ответ — просто «Нет».\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nВнимание, ловушка для водителей с опытом в РФ! В России легковым автомобилям с прицепом на загородных дорогах разрешено ехать не более **70 км/ч**. Если вы примените российскую привычку, то выберете неверный вариант ответа «Нет, максимум 70 км/ч». В Испании лимит выше — **80 км/ч**, поэтому этот вариант ответа является ошибкой.\n\n3️⃣ **💡 Шпаргалка**\nВидишь знак **90**?\nТы с «хвостом» (прицепом)?\nХвост тянет назад: **минус 10**.\n90 - 10 = **80**.\nОтвет «70» — для тех, кто перепутал страны, ответ «Да» — для нарушителей. Твой ответ — твердое «Нет»."
+    },
+    "image_url": "https://teorica.practicavial.com/question/e8750ee0-8a4f-4ca4-b2bc-6935bbf80688-1653064111-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e8750ee0-8a4f-4ca4-b2bc-6935bbf80688-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "e8750ee0-8a4f-4ca4-b2bc-6935bbf80688",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "En vía urbana con varios carriles para cada sentido, ¿por cuál de ellos circulará como norma general?",
+      "en": "On an urban road with several lanes for each direction, which one should you generally drive on?",
+      "ru": "По какой полосе, как правило, следует двигаться на городской дороге с несколькими полосами для каждого направления?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por el que más convenga a su destino, estén o no delimitados los carriles.",
+          "en": "The one that best suits your destination, whether the lanes are delimited or not.",
+          "ru": "По той, которая лучше всего подходит для пункта назначения, независимо от наличия разметки."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Por el carril de la derecha, siempre.",
+          "en": "On the right lane, always.",
+          "ru": "Всегда по правой полосе."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Por el que más convenga a su destino, cuando los carriles estén delimitados por marcas longitudinales.",
+          "en": "The one that best suits your destination, when the lanes are delimited by longitudinal markings.",
+          "ru": "По той, которая лучше всего подходит для пункта назначения, при условии, что полосы обозначены продольной разметкой."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, en vías urbanas con al menos dos carriles para el mismo sentido, delimitados por marcas longitudinales, se permite circular por el que mejor convenga al destino. Si los carriles no están delimitados por marcas viales, es obligatorio circular por el carril de la derecha.",
+      "en": "According to the General Traffic Regulations, on urban roads with at least two lanes for the same direction delimited by longitudinal markings, you are allowed to drive in the lane that best suits your destination. If the lanes are not delimited by road markings, you must drive in the right lane.",
+      "ru": "1️⃣ **🎓 Правило**\nВ населенных пунктах (vía urbana) для водителя легкового автомобиля (Turismo) действует правило «свободного выбора полосы», но с важным условием.\nЕсли на проезжей части в твоем направлении есть несколько полос и они **разделены разметкой** (линиями), ты можешь ехать по любой полосе, которая удобнее для твоего маршрута (например, чтобы повернуть налево или опередить поток).\n\nОднако, если **разметки нет** (полосы не выделены линиями), ты обязан двигаться строго по **правой стороне**, даже если ширина дороги позволяет ехать в несколько рядов.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nВ РФ (п. 9.4 ПДД) в населенных пунктах водители могут использовать любую удобную полосу. В Испании это право жестко привязано к **наличию линий** на асфальте.\n*   В РФ: Если разметки нет, водители сами определяют рядность и могут ехать левее.\n*   В Испании: Нет разметки — **только право!** Это частая ошибка водителей с опытом в СНГ.\n\n3️⃣ **💡 Шпаргалка**\n*   Вилишь **линии** — выбирай **любую**.\n*   Асфальт **чистый** (без линий) — жмись **вправо**.\n*   «Есть разметка — есть выбор. Нет разметки — нет выбора (только право)»."
+    },
+    "image_url": "https://teorica.practicavial.com/question/9f1fd15b-cfd5-420f-b524-0259ee088540-1650648382-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9f1fd15b-cfd5-420f-b524-0259ee088540-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "9f1fd15b-cfd5-420f-b524-0259ee088540",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "Los resaltos en los pasos para peatones, ¿se consideran obstáculos en la calzada?",
+      "en": "Are speed bumps at pedestrian crossings considered obstacles on the roadway?",
+      "ru": "Считаются ли искусственные неровности («лежачие полицейские») на пешеходных переходах препятствиями на проезжей части?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, siempre que se garantice la seguridad vial de los usuarios y especialmente de los ciclistas.",
+          "en": "No, provided that road safety for users and especially cyclists is guaranteed.",
+          "ru": "Нет, при условии обеспечения безопасности дорожного движения пользователей и особенно велосипедистов."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, cuando son metálicos.",
+          "en": "Yes, when they are metallic.",
+          "ru": "Да, если они металлические."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, puesto que dificultan el cruce de los pasos de peatones.",
+          "en": "Yes, since they make crossing pedestrian crossings difficult.",
+          "ru": "Да, так как они затрудняют пересечение пешеходных переходов."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, quienes hubieran creado sobre la vía algún obstáculo o peligro deberán hacerlo desaparecer lo antes posible. Sin embargo, no se considerarán obstáculos en la calzada los resaltos en los pasos para peatones ni las bandas transversales, siempre que cumplan la regulación básica establecida al efecto por el Ministerio de Fomento y se garantice la seguridad vial de los usuarios y, en particular, de los ciclistas.",
+      "en": "According to the General Traffic Regulations, anyone who has created an obstacle or danger on the road must remove it as soon as possible. However, speed bumps at pedestrian crossings and transverse rumble strips are not considered obstacles on the roadway, provided they comply with the basic regulations established for this purpose by the Ministry of Development and guarantee the road safety of users, particularly cyclists.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя **легкового автомобиля (Turismo)** важно понимать юридическую разницу между помехой и элементом дороги. Согласно ПДД Испании, искусственные неровности (resaltos) на пешеходных переходах и поперечные шумовые полосы НЕ считаются препятствиями на **проезжей части (calzada)**.\n\nОднако закон ставит четкое условие: эти элементы должны соответствовать техническим регламентам Министерства развития и гарантировать безопасность всех участников движения. Особое внимание в правиле уделено велосипедистам: конструкция неровности не должна создавать для них угрозу падения или потери управления. Если эти требования соблюдены, то это легальная часть дорожной инфраструктуры.\n\n3️⃣ **💡 Шпаргалка**\nЗапомни простую логику:\n• Случайный камень на дороге — это **препятствие** (ошибка, опасность).\n• «Лежачий полицейский» — это **инфраструктура** (план, закон).\n\nПравило «Велосипедист»: Если об этот выступ не убьется велосипедист — значит, это не препятствие, а законный элемент дороги."
+    },
+    "image_url": "https://teorica.practicavial.com/question/aeb575cf-2a41-4c5e-abde-d62a40766a16-1649351375-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/aeb575cf-2a41-4c5e-abde-d62a40766a16-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "aeb575cf-2a41-4c5e-abde-d62a40766a16",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "Al aproximarse a un paso para peatones, ¿qué se debe hacer?",
+      "en": "When approaching a pedestrian crossing, what must you do?",
+      "ru": "Что необходимо сделать при приближении к пешеходному переходу?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Emplear el claxon para avisar a los peatones.",
+          "en": "Use the horn to warn pedestrians.",
+          "ru": "Подать звуковой сигнал, чтобы предупредить пешеходов."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Detenerse siempre.",
+          "en": "Always stop.",
+          "ru": "Всегда останавливаться."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Moderar la velocidad, deteniéndose si es necesario.",
+          "en": "Moderate speed, stopping if necessary.",
+          "ru": "Снизить скорость и остановиться при необходимости."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, todo conductor debe moderar la velocidad y, si fuera preciso, detener el vehículo al aproximarse a pasos para peatones no regulados por semáforo o agentes. La obligación de detenerse existe solo si hay peatones cruzando o con intención de hacerlo, no siempre. El uso de señales acústicas está prohibido en este contexto salvo para evitar un accidente inminente.",
+      "en": "According to the General Traffic Regulations, every driver must moderate their speed and, if necessary, stop the vehicle when approaching pedestrian crossings not regulated by traffic lights or officers. The obligation to stop exists only if there are pedestrians crossing or intending to cross, not always. The use of acoustic signals is prohibited in this context except to avoid an imminent accident.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя **легкового автомобиля** (Turismo) приближение к пешеходному переходу — это сигнал к повышенному вниманию. ПДД Испании требуют **снизить скорость** (moderar la velocidad) заранее, чтобы иметь возможность безопасно остановиться, если это потребуется. \n\nОстанавливаться *всегда* (вариант B) не нужно — если переход пуст и никто не собирается переходить, вы продолжаете движение. Использовать клаксон (вариант A) запрещено, так как это пугает пешеходов и нарушает правила использования звуковых сигналов в населенных пунктах.\n\n3️⃣ **💡 Шпаргалка**\nВидишь «зебру» — убирай ногу с газа. Видишь человека — жми на тормоз. Пусто — проезжай накатом."
+    },
+    "image_url": "https://teorica.practicavial.com/question/ba663cbc-40f9-48ff-aafd-70bffe885aa8-1658137362-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ba663cbc-40f9-48ff-aafd-70bffe885aa8-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "ba663cbc-40f9-48ff-aafd-70bffe885aa8",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "¿Por dónde se debe circular en un cambio de rasante de reducida visibilidad?",
+      "en": "Where must you drive on a change of grade (hill crest) with reduced visibility?",
+      "ru": "Где следует двигаться на переломе профиля дороги (вершине подъема) с ограниченной видимостью?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por donde más convenga a mi destino.",
+          "en": "Wherever is most convenient for my destination.",
+          "ru": "Там, где удобнее для моего маршрута."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Por la izquierda, aunque se invada parte del centro de la calzada.",
+          "en": "On the left, even if invading part of the center of the roadway.",
+          "ru": "По левой стороне, даже если занимается часть центра проезжей части."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Dejando completamente libre la mitad de la calzada que corresponda a los que puedan circular en sentido contrario.",
+          "en": "Leaving completely free the half of the roadway corresponding to those who may be driving in the opposite direction.",
+          "ru": "Оставляя полностью свободной половину проезжей части, предназначенную для встречного движения."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Un cambio de rasante es un lugar en el que se encuentran dos tramos de distinta inclinación (una pendiente). Cuando es de reducida visibilidad, impide ver el ancho total de la calzada o los vehículos que circulan en sentido contrario. El Reglamento General de Circulación establece que, en estas circunstancias, todo conductor debe circular por la derecha y dejar completamente libre la mitad de la calzada que corresponde al sentido contrario, para evitar colisiones frontales.",
+      "en": "A change of grade (hill crest) is a point where two road sections with different slopes meet. When visibility is reduced, it prevents you from seeing the full width of the roadway or vehicles traveling in the opposite direction. The General Traffic Regulations state that, in these circumstances, every driver must drive on the right and leave the half of the roadway corresponding to the opposite direction completely free to avoid head-on collisions.",
+      "ru": "1️⃣ **🎓 Правило**\nПерелом профиля дороги (cambio de rasante) — это место, где меняется наклон дороги, например, вершина холма. Если видимость ограничена, водитель **легкового автомобиля** физически не видит транспорт, приближающийся с другой стороны подъема.\n\nПДД Испании требуют в такой ситуации строго придерживаться правой стороны. Твоя обязанность — оставить половину **проезжей части**, предназначенную для встречного движения, абсолютно свободной. Это правило действует всегда, даже если нет сплошной линии разметки. Это критически важно для предотвращения лобовых столкновений с теми, кто может внезапно появиться из-за гребня холма.\n\n2️⃣ **💡 Шпаргалка**\nНе видишь, кто за горкой мчит?\nДержись правее — жизнь велит!\n\n(Если не видишь встречку из-за холма — считай, что там едет грузовик, и заранее освободи ему дорогу)."
+    },
+    "image_url": "https://teorica.practicavial.com/question/09992d19-bf5f-4598-a1dd-e3d1f86cf6e1-1650387031-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/09992d19-bf5f-4598-a1dd-e3d1f86cf6e1-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "09992d19-bf5f-4598-a1dd-e3d1f86cf6e1",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "En una vía urbana de un único carril por sentido de circulación, ¿se puede circular a una velocidad máxima de 50 kilómetros por hora?",
+      "en": "On an urban road with a single lane for each direction of travel, can you drive at a maximum speed of 50 km/h?",
+      "ru": "Можно ли двигаться с максимальной скоростью 50 км/ч на городской дороге, имеющей по одной полосе движения в каждом направлении?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, en ningún caso, en este tipo de vías la velocidad máxima es de 30 km/h.",
+          "en": "No, in no case; on this type of road the maximum speed is 30 km/h.",
+          "ru": "Нет, ни в коем случае; на дорогах такого типа максимальная скорость составляет 30 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sólo si existe señalización específica que lo permita.",
+          "en": "Only if there is specific signaling that allows it.",
+          "ru": "Только при наличии специального знака, разрешающего это."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, como norma general; en este tipo de vías la velocidad máxima es de 50 km/h.",
+          "en": "Yes, as a general rule; on this type of road the maximum speed is 50 km/h.",
+          "ru": "Да, как общее правило; на дорогах такого типа максимальная скорость составляет 50 км/ч."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, el límite genérico de velocidad en vías urbanas con un único carril por sentido de circulación es de 30 km/h. Sin embargo, la Autoridad Municipal tiene la potestad de aumentar la velocidad en estas vías hasta un máximo de 50 km/h, pero esto requiere obligatoriamente una señalización específica (señal vertical de velocidad máxima). Por tanto, circular a 50 km/h solo es legal si existe dicha señal; en ausencia de señalización, rige el límite de 30 km/h.",
+      "en": "According to the General Traffic Regulations, the generic speed limit on urban roads with a single lane for each direction of travel is 30 km/h. However, the Municipal Authority has the power to increase the speed on these roads up to a maximum of 50 km/h, but this mandatorily requires specific signaling (maximum speed vertical sign). Therefore, driving at 50 km/h is only legal if such a sign exists; in the absence of signaling, the 30 km/h limit applies.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя **легкового автомобиля** (Turismo) в Испании действуют строгие правила скоростного режима в населенных пунктах. Если ты едешь по улице, где есть только **одна полоса** в твоем направлении (или всего одна полоса для движения в обе стороны), то по умолчанию максимальная скорость — **30 км/ч**.\n\nОднако мэрия города имеет право повысить этот лимит до 50 км/ч, но только установив соответствующий дорожный знак. Поэтому правильный ответ: ехать 50 км/ч можно, но **только если ты видишь разрешающий знак**. Если знака нет — строго 30 км/ч.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nЭто критическое отличие. В РФ в городе действует общий лимит 60 км/ч (плюс нештрафуемый порог). В Испании на узких улицах (одна полоса) лимит в два раза ниже — **30 км/ч**. Попытка ехать по привычке 60 км/ч будет считаться превышением на 30 км/ч, что влечет крупный штраф и потерю баллов. Нештрафуемого порога в Испании не существует.\n\n3️⃣ **💡 Шпаргалка**\nЗапомни простую арифметику полос:\n• **1** полоса = **30** км/ч.\n• **2** полосы = **50** км/ч.\nВижу одну полосу — убираю ногу с газа."
+    },
+    "image_url": "https://teorica.practicavial.com/question/8ec6faf6-0248-4bdc-be69-ebb2b39cc3bc-1734082109-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8ec6faf6-0248-4bdc-be69-ebb2b39cc3bc-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "8ec6faf6-0248-4bdc-be69-ebb2b39cc3bc",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "Cuando viaje con su mascota, ¿en qué lugar del vehículo podrá situarla para evitar que interfiera en la conducción?",
+      "en": "When traveling with your pet, where in the vehicle can you place it to prevent it from interfering with driving?",
+      "ru": "Путешествуя с домашним животным, где в автомобиле его можно разместить, чтобы оно не мешало управлению?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En el asiento delantero ya que si dispone de airbag frontal estará doblemente protegida.",
+          "en": "In the front seat, since if there is a frontal airbag, it will be doubly protected.",
+          "ru": "На переднем сиденье, так как при наличии фронтальной подушки безопасности оно будет защищено вдвойне."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Donde no comprometa su seguridad ni la del resto de pasajeros, además de ir sujeta con el dispositivo adecuado.",
+          "en": "Where it does not compromise its safety or that of the rest of the passengers, in addition to being secured with the appropriate device.",
+          "ru": "Там, где это не угрожает его безопасности или безопасности остальных пассажиров, при условии фиксации соответствующим устройством."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En los asientos traseros sujeta con el cinturón de seguridad como un pasajero más.",
+          "en": "In the rear seats fastened with the seat belt like another passenger.",
+          "ru": "На задних сиденьях, пристегнутым ремнем безопасности, как обычный пассажир."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "El Reglamento General de Circulación establece que el conductor está obligado a mantener su propia libertad de movimientos, el campo necesario de visión y la atención permanente a la conducción. Para garantizar esto, deberá cuidar especialmente de la adecuada colocación de los objetos o animales transportados para que no haya interferencia entre el conductor y cualquiera de ellos. Por lo tanto, la mascota debe ir siempre sujeta mediante un dispositivo homologado (arnés, transportín o rejilla divisoria) y ubicada de tal forma que no comprometa la seguridad del vehículo ni de sus ocupantes.",
+      "en": "The General Traffic Regulations state that the driver is obliged to maintain freedom of movement, the necessary field of vision, and constant attention to driving. To ensure this, special care must be taken regarding the proper placement of transported objects or animals so that there is no interference between the driver and any of them. Therefore, the pet must always be secured using an approved device (harness, carrier, or divider grille) and positioned in such a way that it does not compromise the safety of the vehicle or its occupants.",
+      "ru": "1️⃣ 🎓 **Правило**\nВодитель легкового автомобиля (Turismo) обязан обеспечить себе полную свободу движений и обзор. Главное требование ПДД Испании к перевозке животных — исключить любую возможность их вмешательства в управление автомобилем.\n\nЖивотное не должно иметь возможности прыгнуть к водителю на колени или попасть под педали. Для этого оно должно быть **обязательно зафиксировано** специальным устройством. Это может быть:\n— Специальная шлейка, которая крепится в замок ремня безопасности (но не просто ремень, накинутый на шею!).\n— Переноска, размещенная на полу за передними сиденьями.\n— Разделительная решетка или сетка между багажником и салоном.\n\nВариант с передним сиденьем и подушкой безопасности опасен: при срабатывании подушка может нанести животному смертельные травмы.\n\n3️⃣ 💡 **Шпаргалка**\nЗапомни принцип: **«Свобода — водителю, фиксация — зверю»**.\nСобака — друг человека, но в салоне машины незакрепленный друг превращается в опасный снаряд."
+    },
+    "image_url": "https://teorica.practicavial.com/question/c3d34f8e-2e38-423f-bfc0-943ab0c26559-1650386743-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c3d34f8e-2e38-423f-bfc0-943ab0c26559-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "c3d34f8e-2e38-423f-bfc0-943ab0c26559",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "Al aproximarse a un autobús en situación de parada, ¿qué precauciones se deben tomar?",
+      "en": "When approaching a stopped bus, what precautions should be taken?",
+      "ru": "Какие меры предосторожности следует предпринять при приближении к остановившемуся автобусу?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Mantener la velocidad y estar atento al cumplimiento de la señalización vertical.",
+          "en": "Maintain speed and be attentive to vertical signage compliance.",
+          "ru": "Сохранить скорость и следить за соблюдением требований вертикальной разметки/знаков."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Ninguna si no vienen vehículos en sentido contrario.",
+          "en": "None if no vehicles are coming in the opposite direction.",
+          "ru": "Никаких, если нет встречных транспортных средств."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Moderar la velocidad y si fuera preciso, detener el vehículo.",
+          "en": "Moderate speed and if necessary, stop the vehicle.",
+          "ru": "Снизить скорость и, при необходимости, остановить автомобиль."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "El Reglamento General de Circulación estipula explícitamente que se debe moderar la velocidad y, si fuera preciso, detener el vehículo al aproximarse a un autobús en situación de parada. Esta precaución es obligatoria debido al riesgo de que peatones o pasajeros irrumpan en la calzada ocultos por la masa del vehículo, especialmente si se trata de transporte escolar.",
+      "en": "The General Traffic Regulations explicitly state that speed must be moderated and, if necessary, the vehicle must be stopped when approaching a stopped bus. This precaution is mandatory due to the risk of pedestrians or passengers entering the roadway while hidden by the vehicle's bulk, especially in the case of school transport.",
+      "ru": "🎓 **Правило**\n\nДля водителя *Turismo* любой стоящий автобус — это источник повышенной опасности. Согласно ПДД Испании, приближение к автобусу в ситуации остановки (en situación de parada) входит в официальный перечень случаев, требующих **обязательного снижения скорости** (moderar la velocidad).\n\nЭто требование существует потому, что корпус автобуса создает огромную «слепую зону». Пассажиры, выйдя из автобуса, могут внезапно решить перебежать *Calzada* прямо перед ним. Если вы продолжите движение с прежней скоростью, у вас не будет времени на реакцию.\n\nПоэтому закон требует не просто внимательности, а именно физического замедления, вплоть до полной остановки, если возникнет опасность.\n\n💡 **Шпаргалка**\n\nАвтобус стоит — опасность ходит.\nВидите стоящий автобус? Считайте, что перед ним уже бежит невидимый пешеход. Ногу на тормоз!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/e119a9c2-8bd6-4c46-b410-de3a21e23c88-1658136790-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e119a9c2-8bd6-4c46-b410-de3a21e23c88-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "e119a9c2-8bd6-4c46-b410-de3a21e23c88",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "Si no existe paso señalizado, ¿cómo deben cruzar la calzada los peatones?",
+      "en": "If there is no marked crossing, how must pedestrians cross the roadway?",
+      "ru": "Если нет обозначенного перехода, как пешеходы должны переходить проезжую часть?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Caminando perpendicularmente al eje de la calzada.",
+          "en": "Walking perpendicularly to the axis of the roadway.",
+          "ru": "Перпендикулярно оси проезжей части."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En diagonal, para ver y ser vistos mejor por los conductores.",
+          "en": "Diagonally, to see and be seen better by drivers.",
+          "ru": "По диагонали, чтобы лучше видеть и быть видимыми для водителей."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Parándose sobre las líneas de separación de carriles, aunque no sea necesario.",
+          "en": "Stopping on the lane separation lines, even if not necessary.",
+          "ru": "Останавливаясь на разделительных линиях полос, даже если в этом нет необходимости."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, cuando no existe un paso habilitado, los peatones deben cruzar la calzada perpendicularmente a su eje. Esta trayectoria constituye la distancia más corta entre los bordes, reduciendo al mínimo el tiempo de permanencia en la vía y el riesgo de accidente. Cruzar en diagonal aumenta innecesariamente el tiempo de exposición al tráfico.",
+      "en": "According to the General Traffic Regulations, when there is no designated crossing, pedestrians must cross the roadway perpendicularly to its axis. This trajectory constitutes the shortest distance between the edges, minimizing the time spent on the road and the risk of an accident. Crossing diagonally unnecessarily increases exposure time to traffic.",
+      "ru": "1️⃣ **🎓 Правило**\nХотя вопрос касается пешеходов, ты как водитель легкового автомобиля (Turismo) должен знать их обязанности, чтобы предвидеть поведение людей на дороге. Если поблизости нет пешеходного перехода, ПДД Испании обязывают пешеходов пересекать проезжую часть строго перпендикулярно её оси.\n\nЛогика здесь чисто геометрическая: перпендикуляр — это кратчайшее расстояние от одного края до другого. Чем короче путь, тем меньше времени человек находится в зоне опасности перед машинами. Переход по диагонали увеличивает время нахождения на дороге, что запрещено.\n\n3️⃣ **💡 Шпаргалка**\nЗапомни правило геометрии:\n«Перпендикуляр — самый быстрый путь к спасению».\nДиагональ — это лишние секунды под прицелом."
+    },
+    "image_url": "https://teorica.practicavial.com/question/d9307d88-0c2d-4144-a36b-fe3bb73babbf-1652277910-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d9307d88-0c2d-4144-a36b-fe3bb73babbf-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "d9307d88-0c2d-4144-a36b-fe3bb73babbf",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "En una carretera convencional, ¿está permitido que un peatón circule por la calzada?",
+      "en": "On a conventional road, is a pedestrian allowed to walk on the roadway?",
+      "ru": "Разрешено ли пешеходу двигаться по проезжей части на обычной загородной дороге?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, cuando arrastra un vehículo.",
+          "en": "Yes, when dragging a vehicle.",
+          "ru": "Да, когда он буксирует транспортное средство."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, cuando no existe arcén o no es transitable.",
+          "en": "Yes, when there is no shoulder or it is not passable.",
+          "ru": "Да, если обочина отсутствует или по ней невозможно пройти."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, los peatones deben transitar por la zona peatonal o, en su defecto, por el arcén. Sin embargo, si el arcén no existe o no es transitable (por ejemplo, debido a maleza o mal estado), se permite que circulen por la calzada. En este caso, deben hacerlo aproximándose lo máximo posible al borde exterior de la misma y ocupando el mínimo espacio imprescindible para garantizar la seguridad.",
+      "en": "According to the General Traffic Regulations, pedestrians must use the pedestrian zone or, failing that, the shoulder. However, if the shoulder does not exist or is not passable (for example, due to vegetation or poor condition), they are allowed to walk on the roadway. In this case, they must stay as close as possible to the outer edge and occupy the minimum necessary space to ensure safety.",
+      "ru": "1️⃣ **🎓 Правило**\nТы, как водитель *Turismo* (легкового автомобиля), должен быть готов к встрече с людьми прямо на асфальте загородных трасс. По общему правилу пешеходы обязаны идти по обочине (*arcén*). Однако ПДД Испании учитывают реальность: если обочины физически нет или она непригодна для движения (заросла, затоплена, разрушена), пешеходу **разрешено** выйти на край проезжей части (*calzada*).\n\nДля тебя это означает одно: на узких дорогах без обочин всегда снижай скорость и держись подальше от края, так как там законно может находиться человек.\n\n3️⃣ **💡 Шпаргалка**\nЗапомни иерархию места пешехода:\nТротуар ➔ Обочина ➔ Край дороги.\nЕсли предыдущей ступеньки нет — спускаемся на следующую."
+    },
+    "image_url": "https://teorica.practicavial.com/question/9ffb6ed5-cb2e-4580-9df4-485a2115eee6-1652277480-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9ffb6ed5-cb2e-4580-9df4-485a2115eee6-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "9ffb6ed5-cb2e-4580-9df4-485a2115eee6",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "Para evitar colisionar con el vehículo que circula delante, ¿qué es lo más importante?",
+      "en": "To avoid colliding with the vehicle driving in front, what is the most important thing?",
+      "ru": "Что важнее всего для предотвращения столкновения с впереди идущим транспортным средством?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que el vehículo disponga de ABS.",
+          "en": "That the vehicle has ABS.",
+          "ru": "Наличие у автомобиля системы ABS."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Circular a una velocidad constante.",
+          "en": "Driving at a constant speed.",
+          "ru": "Движение с постоянной скоростью."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Mantener una distancia frontal de seguridad suficiente.",
+          "en": "Maintaining a sufficient frontal safety distance.",
+          "ru": "Соблюдение достаточной безопасной дистанции."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, el factor determinante para evitar una colisión por alcance es mantener una distancia de seguridad frontal adecuada. Esta distancia debe ser tal que permita detener el vehículo sin colisionar con el que le precede en caso de que este frene bruscamente, teniendo en cuenta la velocidad, las condiciones de adherencia y frenado. Aunque el ABS es un sistema de seguridad activa importante, no sustituye la necesidad física de espacio para detenerse.",
+      "en": "According to the General Traffic Regulations, the determining factor in avoiding a rear-end collision is maintaining an adequate frontal safety distance. This distance must be such that it allows the vehicle to stop without colliding with the one in front in the event of sudden braking, taking into account speed, adhesion conditions, and braking capabilities. Although ABS is an important active safety system, it does not replace the physical need for space to stop.",
+      "ru": "1️⃣ **🎓 Правило**\nГлавное условие безопасности — это пространство. Управляя **легковым автомобилем**, ты обязан держать такую дистанцию до лидера, которая позволит тебе остановиться без столкновения, даже если он резко ударит по тормозам. \n\nЭта дистанция не является фиксированной цифрой для легковых авто, она зависит от:\n— Твоей скорости (выше скорость = больше дистанция);\n— Видимости (туман, дождь);\n— Сцепления с дорогой (лед, мокрый асфальт).\n\nДля справки: водители тяжелых грузовиков (более 3500 кг) или длинномеров (более 10 м) обязаны соблюдать фиксированную дистанцию в 50 метров, но твой критерий — возможность безопасной остановки в текущих условиях.\n\n3️⃣ **💡 Шпаргалка**\nABS помогает рулить при торможении, но **дистанция** дает время на это торможение.\nЗапомни: Дистанция — это твой «воздушный бампер»."
+    },
+    "image_url": "https://teorica.practicavial.com/question/5e634509-d2e1-41b1-8f77-83e6de5f22a1-1652207605-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5e634509-d2e1-41b1-8f77-83e6de5f22a1-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "5e634509-d2e1-41b1-8f77-83e6de5f22a1",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "¿Podrá utilizar el carril VAO un turismo ocupado por cuatro personas si lleva enganchado un remolque ligero?",
+      "en": "Can a passenger car occupied by four people use the VAO lane if it is towing a light trailer?",
+      "ru": "Может ли легковой автомобиль с четырьмя людьми использовать полосу VAO, если к нему прицеплен легкий прицеп?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": "Yes.",
+          "ru": "Да."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si el carril no esta ocupado.",
+          "en": "Only if the lane is not occupied.",
+          "ru": "Только если полоса не занята."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, la utilización del carril VAO está prohibida para los vehículos con remolque, independientemente del número de ocupantes. Aunque el turismo cumpla con el requisito de alta ocupación (4 personas), el hecho de llevar un remolque lo excluye de los vehículos autorizados (turismos sin remolque, motocicletas, vehículos mixtos, etc.).",
+      "en": "According to the General Traffic Regulations, the use of the VAO lane is prohibited for vehicles with trailers, regardless of the number of occupants. Even if the passenger car meets the high occupancy requirement (4 people), towing a trailer excludes it from the list of authorized vehicles (passenger cars without trailers, motorcycles, mixed vehicles, etc.).",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя **легкового автомобиля** (Turismo) правило строгое: использование **полосы VAO** (Carril VAO) с прицепом запрещено при любых обстоятельствах.\n\nНесмотря на то, что в салоне находятся 4 человека (что соответствует критерию высокой заполняемости), наличие прицепа является блокирующим фактором. ПДД Испании разрешают въезд на VAO только одиночным транспортным средствам (легковым без прицепа, мотоциклам, грузопассажирским автомобилям), чтобы поддерживать высокую скорость и безопасность потока. Любой состав транспортных средств (машина + прицеп) считается менее маневренным и не допускается.\n\n3️⃣ **💡 Шпаргалка**\nПредставь, что **VAO** — это скоростной VIP-вход.\nС «багажом» (прицепом) туда не пускают, даже если вас целая толпа.\n**Есть прицеп — нет VAO.**"
+    },
+    "image_url": "https://teorica.practicavial.com/question/2782342e-bde9-422b-8d02-bddce08b7916-1651515121-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2782342e-bde9-422b-8d02-bddce08b7916-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "2782342e-bde9-422b-8d02-bddce08b7916",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "En una vía fuera de poblado en la que no existe zona peatonal ni arcén practicable, ¿está permitido que un peatón circule por la calzada?",
+      "en": "On a road outside a built-up area where there is no pedestrian zone or usable shoulder, is a pedestrian allowed to walk on the roadway?",
+      "ru": "На дороге вне населенного пункта, где нет ни пешеходной зоны, ни пригодной для движения обочины, разрешено ли пешеходу идти по проезжей части?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, siempre que tome las debidas precauciones.",
+          "en": "Yes, provided they take due precautions.",
+          "ru": "Да, при условии соблюдения необходимых мер предосторожности."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si arrastra un vehículo de reducidas dimensiones que no sea de motor.",
+          "en": "Only if dragging a small non-motorized vehicle.",
+          "ru": "Только если он везет небольшое безмоторное транспортное средство."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, el orden de prioridad para el tránsito de peatones es: zona peatonal, arcén y, en su defecto, la calzada. Si no existe zona peatonal ni arcén practicable, la normativa permite expresamente circular por la calzada. Sin embargo, deben hacerlo con prudencia, adoptando las debidas precauciones para no entorpecer innecesariamente la circulación y garantizar su seguridad.",
+      "en": "According to the General Traffic Regulations, the priority order for pedestrian traffic is: pedestrian zone, shoulder (arcén), and failing that, the roadway (calzada). If there is no pedestrian zone or usable shoulder, regulations explicitly permit walking on the roadway. However, pedestrians must do so prudently, taking due precautions to avoid unnecessarily impeding traffic and to ensure their safety.",
+      "ru": "1️⃣ **🎓 Правило**\nПредставь, что ты управляешь легковым автомобилем (*Turismo*) на загородной трассе. Обычно пешеходы обязаны находиться на тротуаре или обочине (*Arcén*). Однако, если дорога узкая и на ней нет ни пешеходной зоны, ни пригодной для ходьбы обочины, пешеходам **разрешено** выходить непосредственно на проезжую часть (*Calzada*).\n\nДля тебя это означает, что появление человека на асфальте в таких условиях — это не нарушение, а законная необходимость. Пешеход при этом обязан соблюдать меры предосторожности и, как правило, идти по левому краю навстречу движению, чтобы видеть твой автомобиль.\n\n3️⃣ **💡 Шпаргалка**\nЗапомни иерархию места для пешехода:\nТротуар ➡️ Обочина ➡️ Асфальт.\nЕсли первых двух ступенек нет, пешеход законно стоит на третьей.\n**Нет обочины — иду по краю, но осторожно.**"
+    },
+    "image_url": "https://teorica.practicavial.com/question/b5df31df-117b-4ad7-876b-35d18fe62a32-1652277571-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b5df31df-117b-4ad7-876b-35d18fe62a32-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "b5df31df-117b-4ad7-876b-35d18fe62a32",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "Un peatón que empuja un carrito, ¿por dónde puede circular?",
+      "en": "Where may a pedestrian pushing a small cart circulate?",
+      "ru": "Где может двигаться пешеход, толкающий тележку?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por la zona peatonal, o por el arcén o la calzada si pudiera obstaculizar el paso.",
+          "en": "On the pedestrian zone, or on the shoulder or roadway if they might obstruct passage.",
+          "ru": "По пешеходной зоне, либо по обочине или проезжей части, если он может создать помехи."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sólo por la zona peatonal.",
+          "en": "Only on the pedestrian zone.",
+          "ru": "Только по пешеходной зоне."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sólo por la calzada.",
+          "en": "Only on the roadway.",
+          "ru": "Только по проезжей части."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, un peatón que empuje un vehículo de reducidas dimensiones sin motor o transporte objetos voluminosos debe circular, por norma general, por la zona peatonal. No obstante, si su circulación por ella o por el arcén pudiera constituir un estorbo considerable para los demás peatones, está autorizado a utilizar la calzada. En este último caso, deberá obedecer las normas genéricas de los vehículos y circular por la derecha.",
+      "en": "According to the General Traffic Regulations, a pedestrian pushing a small non-motorized vehicle or carrying bulky objects must generally circulate in the pedestrian zone. However, if doing so on the pedestrian zone or shoulder would constitute a considerable obstruction for other pedestrians, they are authorized to use the roadway. In the latter case, they must obey the general rules for vehicles and circulate on the right.",
+      "ru": "1️⃣ **🎓 Правило**\nКак водителю **turismo** (легкового автомобиля), тебе важно понимать, кого ты можешь встретить на дороге. Обычно пешеходы обязаны находиться на тротуарах. Однако, если человек толкает тележку, везет громоздкий груз или катит **vehículo** малых размеров без мотора, он занимает много места.\n\nПДД Испании устанавливают четкую иерархию:\n1. По умолчанию такой пешеход идет по **пешеходной зоне**.\n2. Если он создает там помехи другим людям — он обязан спуститься на **arcén** (обочину).\n3. Если и на обочине он мешает или её нет — он выходит на край **calzada** (проезжей части).\n\nТы должен быть готов увидеть такого человека на краю дороги, даже если рядом есть тротуар — это законно, если его груз мешает проходу людей.\n\n2️⃣ **💡 Шпаргалка**\nЗапомни принцип вежливости:\n**«Мешаешь людям — иди к машинам».**\nЕсли тележка широкая и на тротуаре тесно — закон отправляет такого пешехода на дорогу."
+    },
+    "image_url": "https://teorica.practicavial.com/question/f8833c68-3b21-41e8-8c9e-89de18319ba4-1652276920-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f8833c68-3b21-41e8-8c9e-89de18319ba4-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "f8833c68-3b21-41e8-8c9e-89de18319ba4",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "En una vía interurbana, el conductor de un ciclomotor, ¿puede adelantar a un tractor agrícola que circula por el arcén?",
+      "en": "On an interurban road, can a moped driver overtake an agricultural tractor driving on the shoulder?",
+      "ru": "Может ли водитель мопеда обогнать сельскохозяйственный трактор, движущийся по обочине, на междугородней дороге?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, en todo caso.",
+          "en": "Yes, in any case.",
+          "ru": "Да, в любом случае."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, los vehículos que circulan por el arcén no se pueden adelantar.",
+          "en": "No, vehicles driving on the shoulder cannot be overtaken.",
+          "ru": "Нет, транспортные средства, движущиеся по обочине, обгонять нельзя."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si el recorrido en paralelo no supera los 200 metros o los 15 segundos.",
+          "en": "Only if the parallel distance does not exceed 200 meters or 15 seconds.",
+          "ru": "Только если движение параллельно не превышает 200 метров или 15 секунд."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, los conductores de vehículos obligados a circular por el arcén (como ciclomotores, vehículos para personas de movilidad reducida, o tractores agrícolas cuya MMA no exceda de 3500 kg) pueden adelantarse entre sí. Sin embargo, este adelantamiento está estrictamente limitado: la duración de la marcha en paralelo no puede exceder los 15 segundos ni el recorrido efectuado en paralelo puede superar los 200 metros.",
+      "en": "According to the General Traffic Regulations, drivers of vehicles obligated to use the shoulder (such as mopeds, vehicles for people with reduced mobility, or agricultural tractors with an MMA not exceeding 3500 kg) may overtake each other. However, this overtaking is strictly limited: the duration of parallel travel must not exceed 15 seconds, and the distance covered in parallel must not exceed 200 meters.",
+      "ru": "1️⃣ **🎓 Правило**\nТы, как водитель **легкового автомобиля** (Turismo), по **обочине** (Arcén) ездить не имеешь права. Однако там ездят «тихоходы»: мопеды, велосипеды и тракторы. Тебе важно знать их правила, чтобы не испугаться, если один из них внезапно начнет маневр.\n\nТранспортные средства, обязанные двигаться по обочине, **имеют право обгонять друг друга**. Например, быстрый мопед может обогнать медленный трактор. Но есть жесткое ограничение, чтобы они не блокировали обочину надолго:\n— Максимальная дистанция бок о бок: **200 метров**.\n— Максимальное время бок о бок: **15 секунд**.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nВ РФ движение по обочине для механических ТС запрещено (штраф), кроме мопедов. Однако в российских ПДД нет специфического правила «15 секунд / 200 метров» для обгона мопедами друг друга. В Испании это четкий норматив, который нужно запомнить.\n\n3️⃣ **💡 Шпаргалка**\nПредставь, что это «гонки черепах» на обочине. Судья дает им лимит:\n**15 секунд** славы или **200 метров** дистанции. Если не успел обогнать — возвращайся назад в строй!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/f0ba00eb-26ca-4b17-bd74-45bfc2d1b116-1652207462-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f0ba00eb-26ca-4b17-bd74-45bfc2d1b116-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "f0ba00eb-26ca-4b17-bd74-45bfc2d1b116",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "Si en poblado no hay zonas peatonales, ¿por dónde deben circular los peatones?",
+      "en": "If there are no pedestrian zones in a built-up area, where must pedestrians walk?",
+      "ru": "Если в населенном пункте нет пешеходных зон, по какой стороне должны двигаться пешеходы?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Siempre por su derecha.",
+          "en": "Always on their right.",
+          "ru": "Всегда по правой стороне."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Siempre por su izquierda.",
+          "en": "Always on their left.",
+          "ru": "Всегда по левой стороне."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Por la derecha o por la izquierda, dependiendo de las circunstancias.",
+          "en": "On the right or on the left, depending on the circumstances.",
+          "ru": "По правой или по левой стороне, в зависимости от обстоятельств."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, dentro de poblado, cuando no existan zonas peatonales o aceras, los peatones podrán circular por la derecha o por la izquierda de la calzada o del arcén, según las circunstancias de seguridad. Esto difiere de la norma fuera de poblado, donde generalmente deben circular por la izquierda.",
+      "en": "According to the General Traffic Regulations, inside built-up areas (poblado), when there are no pedestrian zones or sidewalks, pedestrians may walk on either the right or the left side of the roadway (calzada) or shoulder (arcén), depending on safety circumstances. This differs from the rule outside built-up areas, where they generally must walk on the left.",
+      "ru": "1️⃣ **🎓 Правило**\nКак водитель легкового автомобиля (Turismo), ты должен быть предельно внимателен в населенных пунктах (en poblado), где отсутствуют тротуары. \n\nСогласно ПДД Испании, в такой ситуации пешеходы имеют законное право двигаться **как по правой, так и по левой стороне** проезжей части (Calzada) или обочины (Arcén). Они сами выбирают сторону в зависимости от того, где безопаснее в конкретных обстоятельствах.\n\nЭто правило отличается от езды за городом: там пешеходы обязаны идти строго слева (навстречу движению), чтобы видеть приближающийся автомобиль. Но внутри поселка у них есть выбор.\n\n2️⃣ **💡 Шпаргалка**\nЗапомни разницу:\n• **В городе (Poblado) — демократия:** пешеход идет где хочет (слева или справа).\n• **За городом — инстинкт самосохранения:** только слева (навстречу потоку), чтобы видеть опасность в лицо."
+    },
+    "image_url": "https://teorica.practicavial.com/question/27f4de2a-d8f2-4a1e-b336-2bae44d19cff-1652277665-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/27f4de2a-d8f2-4a1e-b336-2bae44d19cff-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "27f4de2a-d8f2-4a1e-b336-2bae44d19cff",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "Los conductores de bicicletas tienen prioridad de paso respecto a los vehículos de motor...",
+      "en": "Bicycle riders have right of way over motor vehicles...",
+      "ru": "Водители велосипедов имеют приоритет проезда перед механическими транспортными средствами..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "cuando circulen por un paso para ciclistas.",
+          "en": "when riding on a cycle crossing.",
+          "ru": "когда движутся по велосипедному переезду."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "en las zonas peatonales debidamente señalizadas.",
+          "en": "in properly signaled pedestrian zones.",
+          "ru": "в должным образом обозначенных пешеходных зонах."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "en todas las intersecciones.",
+          "en": "at all intersections.",
+          "ru": "на всех перекрестках."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, los ciclistas tienen prioridad de paso respecto a los vehículos de motor cuando circulen por un carril bici, paso para ciclistas o arcén debidamente señalizados. También tienen prioridad cuando el vehículo de motor gire para entrar en otra vía y haya un ciclista en las proximidades, o cuando circulando en grupo el primero haya iniciado ya el cruce o haya entrado en una glorieta.",
+      "en": "According to the General Traffic Regulations, cyclists have right of way over motor vehicles when riding on a properly signaled cycle lane, cycle crossing, or hard shoulder. They also have priority when a motor vehicle turns to enter another road and there is a cyclist nearby, or when riding in a group if the first cyclist has already started crossing or entered a roundabout.",
+      "ru": "1️⃣ 🎓 **Правило**\nКак водитель легкового автомобиля (Turismo), ты обязан знать ситуации, когда велосипедисты имеют безусловный приоритет. Правильный ответ касается специальной инфраструктуры: **велосипедный переезд** (paso para ciclistas).\n\nЭто место на проезжей части (Calzada), обозначенное двумя поперечными прерывистыми линиями и/или символом велосипеда. Если велосипедист находится на таком переезде или приближается к нему, ты обязан остановиться и уступить дорогу.\n\nТакже ты должен уступать им в двух других случаях:\n1. Если ты поворачиваешь на другую улицу, а там движется велосипедист (даже без разметки).\n2. Если группа велосипедистов проезжает перекресток или круговое движение (Glorieta), и первый из них уже въехал — вся группа считается единым транспортным средством, пропускай всех.\n\n2️⃣ 🇷🇺 **Сравнение с РФ**\n❗ **Критическое отличие!**\nВ РФ (п. 24.4 ПДД) велосипедист, пересекающий дорогу по велосипедной дорожке **вне перекрестка**, обязан уступить дорогу автомобилям. В Испании на обозначенном **велосипедном переезде** преимущество всегда у велосипедиста. Не перепутай этот момент, иначе рискуешь сбить человека, который уверен в своем праве на проезд.\n\n3️⃣ 💡 **Шпаргалка**\nВилишь разметку с «великом» поперек дороги?\n**Велосипед на своей разметке — священная корова.**\nТормози, даже если он только подъезжает."
+    },
+    "image_url": "https://teorica.practicavial.com/question/aed3cd58-73c8-4966-80dd-01dd2b8eabbd-1657731705-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/aed3cd58-73c8-4966-80dd-01dd2b8eabbd-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "aed3cd58-73c8-4966-80dd-01dd2b8eabbd",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "En esta vía urbana circula por el carril de la izquierda porque en la próxima intersección quiere girar a la izquierda. ¿Es correcto?",
+      "en": "On this urban road, you are driving in the left lane because you want to turn left at the next intersection. Is this correct?",
+      "ru": "На этой городской дороге вы движетесь по левой полосе, так как на следующем перекрестке хотите повернуть налево. Правильно ли это?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque todavía no se observa la intersección.",
+          "en": "No, because the intersection is not yet visible.",
+          "ru": "Нет, потому что перекресток еще не виден."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, porque hay más de dos carriles.",
+          "en": "Yes, because there are more than two lanes.",
+          "ru": "Да, потому что полос больше двух."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, porque es el carril que más conviene a mí destino.",
+          "en": "Yes, because it is the lane that best suits my destination.",
+          "ru": "Да, потому что эта полоса лучше всего подходит для моего маршрута."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "En vías urbanas con al menos dos carriles para el mismo sentido, delimitados por marcas longitudinales, el conductor de un turismo puede utilizar el carril que mejor convenga a su destino. En este caso, al tener la intención de girar a la izquierda, la elección del carril izquierdo es reglamentaria según el Reglamento General de Circulación. No se debe abandonar dicho carril salvo para prepararse a cambiar de dirección, adelantar, parar o estacionar.",
+      "en": "On urban roads with at least two lanes for the same direction separated by longitudinal markings, the driver of a passenger car (turismo) may use the lane that best suits their destination. In this case, since the intention is to turn left, choosing the left lane is compliant with regulations. One should not leave said lane except to prepare for a change of direction, overtaking, stopping, or parking.",
+      "ru": "1️⃣ **🎓 Правило**\nВ населенных пунктах (poblado), если на проезжей части (calzada) есть разметка, разделяющая полосы, и их как минимум две в твоем направлении, правило «держись строго правой стороны» отменяется.\n\nТы имеешь право занимать ту полосу (carril), которая **лучше всего подходит для твоего маршрута**. Поскольку ты планируешь поворот налево, ты заранее занимаешь левую полосу. Это абсолютно законно. Главное — не менять полосу без причины (смена разрешена только для маневров: поворота, разворота, обгона, остановки).\n\n3️⃣ **💡 Шпаргалка**\nВ городе полосы — как очереди в кассу: вставай в ту, которая быстрее приведет тебя к выходу (повороту).\n• За городом — строго справа.\n• В городе с разметкой — где удобнее для цели поездки."
+    },
+    "image_url": "https://teorica.practicavial.com/question/d35f5e2e-e550-47e1-a390-ce7efd54e582-1650647725-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d35f5e2e-e550-47e1-a390-ce7efd54e582-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "d35f5e2e-e550-47e1-a390-ce7efd54e582",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "Un turismo por una autovía, ¿a qué velocidad máxima puede circular?",
+      "en": "What is the maximum speed a passenger car can drive on a dual carriageway (autovía)?",
+      "ru": "С какой максимальной скоростью может двигаться легковой автомобиль по скоростной дороге (autovía)?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "140 km/h.",
+          "en": "140 km/h.",
+          "ru": "140 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "120 km/h.",
+          "en": "120 km/h.",
+          "ru": "120 км/ч."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "100 km/h.",
+          "en": "100 km/h.",
+          "ru": "100 км/ч."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, la velocidad máxima genérica para los turismos y las motocicletas en autopistas y autovías es de 120 km/h. Para los autobuses, vehículos derivados de turismo y vehículos mixtos adaptables el límite es de 100 km/h, y para camiones, tractocamiones, furgones y furgonetas es de 90 km/h.",
+      "en": "According to the General Traffic Regulations, the generic maximum speed for passenger cars and motorcycles on motorways and dual carriageways is 120 km/h. For buses, car-derived vehicles, and adaptable mixed vehicles, the limit is 100 km/h, and for trucks, tractor-trailers, and vans, it is 90 km/h.",
+      "ru": "1️⃣ **🎓 Правило**\nДля водителя **легкового автомобиля** (Turismo) и мотоцикла на **автомагистралях** (Autopista) и **скоростных дорогах** (Autovía) установлен общий лимит скорости — **120 км/ч**. Это максимально возможная скорость на дорогах общего пользования в Испании. Ты должен знать, что другие участники движения обязаны ехать медленнее: автобусы и **грузопассажирские автомобили** (Vehículo mixto) — до 100 км/ч, а грузовики и **фургоны** — до 90 км/ч. Минимальная разрешенная скорость на таких дорогах — 60 км/ч.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nКритически важно: в Испании **нет** нештрафуемого порога превышения скорости (+20 км/ч), как в РФ. Если ограничение 120 км/ч, то за 121 км/ч уже предусмотрен штраф. Кроме того, в РФ стандартный лимит на автомагистрали часто 110 км/ч, а здесь — 120 км/ч.\n\n3️⃣ **💡 Шпаргалка**\nЗапомни цифру **120** — это абсолютный потолок скорости в Испании для легковушек. Быстрее легально ездить нельзя нигде. Видишь синий знак дороги — твой предел 120."
+    },
+    "image_url": "https://teorica.practicavial.com/question/1cbb0c93-ea8f-400a-bd44-46c7310d3441-1653063845-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1cbb0c93-ea8f-400a-bd44-46c7310d3441-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "1cbb0c93-ea8f-400a-bd44-46c7310d3441",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 1,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "El uso del teléfono móvil mientras se conduce, ¿Cuándo está permitido?",
+      "en": "When is the use of a mobile phone allowed while driving?",
+      "ru": "Когда разрешено использование мобильного телефона во время вождения?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Nunca, porque puede producir distracciones.",
+          "en": "Never, because it can cause distractions.",
+          "ru": "Никогда, так как это может вызвать отвлечение внимания."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Siempre.",
+          "en": "Always.",
+          "ru": "Всегда."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sólo cuando se disponga de un dispositivo \"manos libres\".",
+          "en": "Only when a \"hands-free\" device is available.",
+          "ru": "Только при наличии устройства \"hands-free\" (свободные руки)."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, se prohíbe la utilización durante la conducción de dispositivos de telefonía móvil y cualquier otro medio o sistema de comunicación, excepto cuando el desarrollo de la comunicación tenga lugar sin emplear las manos ni usar cascos, auriculares o instrumentos similares. El uso de dispositivos 'manos libres' está permitido, aunque se recomienda no mantener conversaciones largas para evitar distracciones.",
+      "en": "According to the General Traffic Regulations, the use of mobile phone devices and any other means or systems of communication while driving is prohibited, except when communication takes place without using hands or wearing headsets, earphones, or similar instruments. The use of 'hands-free' devices is permitted, although it is recommended not to hold long conversations to avoid distractions.",
+      "ru": "1️⃣ **🎓 Правило**  Для водителя легкового автомобиля (Turismo) использование телефона разрешено **исключительно** при наличии системы «свободные руки» (manos libres). Это означает, что вы не должны держать телефон в руках, а звук должен выводиться через динамики автомобиля. Использование любых наушников или вставной гарнитуры запрещено. Запрет на удержание телефона в руке действует постоянно, даже если вы остановились на красный свет светофора или стоите в заторе.  2️⃣ **🇷🇺 Сравнение с РФ**  Критическое отличие касается наушников. В РФ многие водители используют гарнитуру (наушник в ухе), считая это законным «hands-free». В Испании **запрещено использование наушников** или шлемов с аудиосистемой (кроме специальных для мотоциклов). Разрешена только громкая связь.  3️⃣ **💡 Шпаргалка**  Запомни формулу: **«Нет наушникам, нет рукам»**. Если телефон касается тела (руки, уха) — это нарушение. Если телефон лежит, а ты говоришь — это ОК."
+    },
+    "image_url": "https://teorica.practicavial.com/question/c4ddf3d8-197c-440d-a046-e1e56428c0e3-1649351726-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c4ddf3d8-197c-440d-a046-e1e56428c0e3-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "c4ddf3d8-197c-440d-a046-e1e56428c0e3",
+    "enriched_from_cache": true
+  }
+]

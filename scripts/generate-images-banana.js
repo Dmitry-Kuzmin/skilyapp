@@ -112,6 +112,14 @@ IMPORTANT: Do NOT mention which option is correct or give hints about the answer
    - Warning lights
    - Barriers or obstacles
 
+## CRITICAL VALIDATION:
+**Before describing any speed limit sign, verify the road type:**
+- If highway (autopista/autovía): Speed limits should be 60, 80, 90, 100, or 120 km/h
+- If urban street: Speed limits should be 20, 30, 40, or 50 km/h
+- If rural road: Speed limits should be 50, 70, 80, or 90 km/h
+
+**If you see a speed limit that doesn't match the road type (e.g., 20 km/h on highway), DO NOT include it in your description - it may be an error in the original image.**
+
 ## OUTPUT FORMAT:
 
 Return ONLY a detailed scene description in this format:
@@ -131,7 +139,15 @@ Remember: DESCRIBE what you see, NOT what the driver should do!`;
 // МАСТЕР-ПРОМПТ (GOLDEN STANDARD)
 // ========================================
 
-const STYLE_MASTER_PROMPT = `Professional 3D isometric top-down view of Spanish DGT driving test scenario.
+const STYLE_MASTER_PROMPT = `⚠️ STRICT RULE OF VISUAL REALISM:
+The generated image must depict a 100% authentic real-world scene.
+Any technical codes, catalog numbers (e.g., "R-301", "S-17", "P-23"), or internal labels mentioned in the prompt are strictly meant to define the *type* of object, not its visual appearance text.
+
+**NEVER render these technical codes as visible text on the objects within the image.** Road signs and markings must look exactly as they do in reality, without any extra labels, identifiers, or catalog numbers printed on or above them.
+
+---
+
+Professional 3D isometric top-down view of Spanish DGT driving test scenario.
 
 ## VISUAL STYLE (MANDATORY):
 - 3D isometric bird's eye view (45-60 degree angle)
@@ -155,24 +171,49 @@ const STYLE_MASTER_PROMPT = `Professional 3D isometric top-down view of Spanish 
 - Proper scale and proportions
 - Clear windshields, visible body panels
 
-## TRAJECTORY LINES:
-- Orange curved arrows (#FF8C00) showing vehicle path
-- Thickness: 8-10px
-- Smooth bezier curves
-- Clear direction indicators (arrowheads)
-
 ## ENVIRONMENT:
 - Green grass verges: vibrant #228B22
 - Trees: realistic Spanish landscape (pine, olive)
 - Clear blue sky: #87CEEB
 - Subtle depth of field (background slightly blurred)
 
-## ROAD SIGNS (CRITICAL):
+## ROAD SIGNS (CRITICAL - NO CODE TEXT):
 - MUST use exact Spanish DGT specifications
 - Proper shapes: triangle (danger), octagon (STOP), circle (prohibition/obligation)
 - Correct colors: red borders, white backgrounds, blue for obligation
 - Mounted on standard gray poles (3.5m height)
 - Readable symbols at viewing distance
+- **IMPORTANT:** Signs show ONLY symbols/pictograms, NEVER technical codes like "R-301" or "S-17"
+- Example: Speed limit sign shows "120" number, NOT "R-301 120"
+
+## LOGICAL SIGN VALIDATION (CRITICAL):
+🚦 **TRAFFIC LOGIC ENFORCEMENT (STRICT):**
+Before describing any traffic sign, analyze Scene Context and apply these MANDATORY rules. NEVER violate them.
+
+| Scene Context | Allowed Speed Signs (R-301) | FORBIDDEN Values |
+|:--------------|:----------------------------|:-----------------|
+| **Autovía / Autopista** (Highway) | **120** or **100** ONLY | 20, 30, 40, 50, 60, 80, 90 |
+| **Carretera Convencional** (Rural Road) | **90** or **70** | 120, 20, 30 |
+| **Vía Urbana** (City Street) | **30** or **50** | 90, 100, 120 |
+| **Residential / School Zone** | **20** ONLY | > 30 |
+
+**LOGIC CHECK (MANDATORY):**
+- If scene shows Highway (multiple lanes, blue overhead signs, median barrier):
+  → Speed limit sign MUST read "120" or "100"
+  → NEVER "20", "30", "40", "50"
+  
+- If scene shows Urban Street (buildings, pedestrian crossings):
+  → Speed limit sign MUST read "30" or "50"
+  → NEVER "120", "100", "90"
+
+**EXPLICIT SIGN GENERATION:**
+When describing a speed limit sign, ALWAYS specify the exact number:
+❌ WRONG: "a speed limit sign"
+✅ CORRECT: "a circular R-301 speed limit sign explicitly reading '120' in black text"
+
+**⚠️ VALIDATION RULE:**
+If you cannot determine the correct speed for the road type → DO NOT include any speed limit sign.
+Physical reality > visual creativity.
 
 ## LIGHTING:
 - Natural sunlight from top-left (10-11am sun position)
@@ -291,68 +332,158 @@ function analyzeQuestion(question) {
  * Создаёт специфичный промпт на основе вопроса
  * Если есть анализ от Gemini Vision - использует его
  */
+// ========================================
+// DYNAMIC VIEWPORT SELECTOR
+// ========================================
+function detectSceneType(questionText, analysis) {
+    const text = (questionText + ' ' + analysis).toLowerCase();
+
+    // Keywords for Interior View
+    const interiorOpeners = [
+        'volante', 'steering wheel', 'salpicadero', 'dashboard', 'gps', 'navi',
+        'cinturón', 'seatbelt', 'espejo', 'mirror', 'retrovisor',
+        'conductor', 'driver', 'pasajero', 'passenger', 'asiento', 'seat',
+        'testigo', 'warning light', 'indicador', 'gauge', 'aire acondicionado'
+    ];
+
+    // Keywords for Exterior Close-up
+    const closeUpOpeners = [
+        'rueda', 'tire', 'neumático', 'faro', 'headlight', 'intermitente', 'blinker',
+        'matrícula', 'license plate', 'tubo de escape', 'exhaust',
+        'limpiaparabrisas', 'wiper', 'maletero', 'trunk', 'capó', 'hood'
+    ];
+
+    if (interiorOpeners.some(kw => text.includes(kw))) return 'INTERIOR';
+    if (closeUpOpeners.some(kw => text.includes(kw))) return 'CLOSEUP';
+    return 'ISOMETRIC'; // Default
+}
+
+// PROMPTS DATABASE
+const PROMPTS = {
+    ISOMETRIC: `Professional 3D isometric top-down view of Spanish DGT driving test scenario.
+    ## VISUAL STYLE:
+    - Camera Angle: High isometric (45-60 degrees), sim-city style but photorealistic
+    - Scale: 1:1 real world physics
+    - Elements: Cars, road markings, and signs must be strictly proportional
+    - Grounding: All objects (cones, cars) must cast accurate shadows contacting the ground
+    
+    ## TRAFFIC LOGIC (MANDATORY):
+    - RIGHT-HAND TRAFFIC: Cars drive on the RIGHT side of the road.
+    - NO HEAD-ON COLLISIONS: Vehicles in the same lane MUST travel in the same direction.
+    - Lane Discipline: Vehicles stay centered in their lanes.
+    - Road Markings: Standard white dashed lines separating lanes, solid lines at edges.
+    - NO ABSTRACT ARROWS: Do NOT paint giant arrows on the road unless specifically requested for a lane turn.
+    
+    ## INTERSECTION LOGIC (CRITICAL):
+    - ASYMMETRY RULE: One road is MAIN (Priority), the other is SIDE (Yield).
+    - MAIN ROAD: No yield markings, continuous or dashed center line through intersection (if allowed).
+    - SIDE ROAD: MUST have 'Give Way' (inverted triangle) or 'STOP' line markings.
+    - DEADLOCK PREVENTION: NEVER place yield/stop markings on ALL 4 roads simultaneously.`,
+
+    INTERIOR: `Photorealistic First-Person Point of View (POV) from driver's seat inside a modern European car.
+    ## VISUAL STYLE:
+    - Camera: Eye-level view from driver's position (camera at head height)
+    - Lighting: Natural daylight entering through windows, soft interior shadows
+    - Details: High detailed dashboard, steering wheel texture, readable instruments
+    - Context: Road visible through windshield (depth of field applied to road)
+    
+    ## ANATOMY & REALISM:
+    - If driver's hand is visible: It MUST be connected to a visible arm/shoulder (no floating hands).
+    - Skin texture: Realistic, natural lighting on skin.
+    - Better: Show only the steering wheel and dashboard without hands if adjusting GPS.` ,
+
+    CLOSEUP: `Photorealistic Close-up Detail Shot of a vehicle part or specific road element.
+    ## VISUAL STYLE:
+    - Camera: Macro or close telephoto lens
+    - Focus: Sharp focus on the subject (e.g., tire, light), bokeh background
+    - Lighting: Studio-like outdoor lighting highlighting textures`
+};
+
+/**
+ * GENERATE SCENE DESCRIPTION
+ */
 function generateScenePrompt(question, visionAnalysis = null) {
     const questionText = question.question?.es || question.question_es || '';
+    const sceneType = detectSceneType(questionText, visionAnalysis || '');
+
+    console.log(`  🎥 Detected Scene Type: ${sceneType}`);
 
     let sceneDescription = '';
+    const masterStyle = PROMPTS[sceneType];
 
-    // Если есть анализ оригинального изображения - используем его как основу
+    // ... Vision Analysis logic ...
     if (visionAnalysis) {
-        console.log(`  🎯 Используется AI анализ оригинального изображения`);
-        sceneDescription = `Based on original DGT question image analysis:\n\n${visionAnalysis}\n\n`;
-        sceneDescription += `Recreate this EXACT scene with the following improvements:\n`;
-        sceneDescription += `- Professional 3D isometric top-down style\n`;
-        sceneDescription += `- Premium educational quality\n`;
-        sceneDescription += `- Crystal clear road signs (Spanish DGT standard)\n`;
-        sceneDescription += `- Vibrant colors matching the style guide\n`;
+        console.log(`  🎯 Using Vision Analysis with ${sceneType} perspective`);
+        sceneDescription = `⚠️ STRICT PERSPECTIVE RULE: GENERATE A ${sceneType} VIEW.\n\n`;
+        sceneDescription += `${masterStyle}\n\n`;
+        sceneDescription += `Based on analysis:\n${visionAnalysis}\n\n`;
+
+        // Add specific fixes based on scene type
+        if (sceneType === 'ISOMETRIC') {
+            sceneDescription += `## PHYSICS & SCALE CORRECTION:
+             - Traffic Cones: MUST be standard size (75cm tall), NOT tiny toys.
+             - Road Markings: Painted ON the asphalt texture, not floating.
+             - Shadows: Contact shadows are mandatory for all objects.\n\n`;
+        }
+
+        sceneDescription += `⚠️ CRITICAL SIGN RULE:
+Include ONLY the road signs explicitly mentioned in the analysis above.
+Do NOT add any additional signs, warning signs, or obligatory signs that are not listed.
+If no signs are mentioned in the analysis, do NOT add any signs to the scene.\n`;
     } else {
-        // Fallback: используем простой анализ по ключевым словам
-        console.log(`  📝 Генерация сцены на основе текста вопроса`);
-        const analysis = analyzeQuestion(question);
-
-        // Описание транспортных средств
-        if (analysis.vehicles.length > 0) {
-            const vehicleDescriptions = {
-                car: 'modern orange hatchback car',
-                motorcycle: 'red motorcycle with rider',
-                truck: 'blue semi-truck',
-                bicycle: 'cyclist on road bike'
-            };
-            sceneDescription += 'Vehicles in scene: ' + analysis.vehicles.map(v => vehicleDescriptions[v]).join(', ') + '. ';
-        } else {
-            sceneDescription += 'One orange car and one white car. ';
-        }
-
-        // Описание ситуации
-        const situationDescriptions = {
-            overtaking: 'Car overtaking situation with curved trajectory arrow showing path',
-            merging: 'Vehicle merging into main lane from entrance ramp',
-            priority: 'Intersection with priority markings and vehicles approaching',
-            parking: 'Car parking maneuver with angle or parallel positioning',
-            slope: 'Road on hillside with visible incline',
-            intersection: 'T-junction or crossroads with clear lane markings'
-        };
-
-        if (analysis.situation && situationDescriptions[analysis.situation]) {
-            sceneDescription += situationDescriptions[analysis.situation] + '. ';
-        }
-
-        // Добавление знаков
-        if (analysis.signs.length > 0) {
-            sceneDescription += 'Road signs visible: ';
-            analysis.signs.forEach(signCode => {
-                const signPrompt = generateSignPrompt(signCode);
-                if (signPrompt) sceneDescription += signPrompt + '. ';
-            });
-        }
-
-        // Если анализ не дал результатов - generic сцена
-        if (!sceneDescription.trim()) {
-            sceneDescription = 'Generic traffic situation with two cars (orange and white) on two-lane road with proper Spanish road markings.';
-        }
+        // ... Fallback logic ...
+        sceneDescription = `${masterStyle}\n\nScanario based on: ${questionText}`;
     }
 
-    return `${STYLE_MASTER_PROMPT}
+    return sceneDescription;
+}
+// Fallback: используем простой анализ по ключевым словам
+console.log(`  📝 Генерация сцены на основе текста вопроса`);
+const analysis = analyzeQuestion(question);
+
+// Описание транспортных средств
+if (analysis.vehicles.length > 0) {
+    const vehicleDescriptions = {
+        car: 'modern orange hatchback car',
+        motorcycle: 'red motorcycle with rider',
+        truck: 'blue semi-truck',
+        bicycle: 'cyclist on road bike'
+    };
+    sceneDescription += 'Vehicles in scene: ' + analysis.vehicles.map(v => vehicleDescriptions[v]).join(', ') + '. ';
+} else {
+    sceneDescription += 'One orange car and one white car. ';
+}
+
+// Описание ситуации
+const situationDescriptions = {
+    overtaking: 'Car overtaking situation with curved trajectory arrow showing path',
+    merging: 'Vehicle merging into main lane from entrance ramp',
+    priority: 'Intersection with priority markings and vehicles approaching',
+    parking: 'Car parking maneuver with angle or parallel positioning',
+    slope: 'Road on hillside with visible incline',
+    intersection: 'T-junction or crossroads with clear lane markings'
+};
+
+if (analysis.situation && situationDescriptions[analysis.situation]) {
+    sceneDescription += situationDescriptions[analysis.situation] + '. ';
+}
+
+// Добавление знаков
+if (analysis.signs.length > 0) {
+    sceneDescription += 'Road signs visible: ';
+    analysis.signs.forEach(signCode => {
+        const signPrompt = generateSignPrompt(signCode);
+        if (signPrompt) sceneDescription += signPrompt + '. ';
+    });
+}
+
+// Если анализ не дал результатов - generic сцена
+if (!sceneDescription.trim()) {
+    sceneDescription = 'Generic traffic situation with two cars (orange and white) on two-lane road with proper Spanish road markings.';
+}
+    }
+
+return `${STYLE_MASTER_PROMPT}
 
 ## SCENE DESCRIPTION:
 ${sceneDescription}
@@ -372,7 +503,16 @@ async function callBananaAPI(prompt) {
             prompt: prompt,
             negative_prompt: `low quality, blurry, distorted, unrealistic, cartoon, anime, text, watermark, logo, 
 signature, wrong perspective, incorrect road signs, american cars, left-hand traffic, 
-dark lighting, night scene, rain, fog, pixelated, noise, artifacts`,
+dark lighting, night scene, rain, fog, pixelated, noise, artifacts,
+arrows, trajectory arrows, orange arrows, yellow arrows, curved arrows, path indicators, 
+direction arrows, motion arrows, overlay graphics, graphic overlays,
+technical codes, catalog numbers, sign codes, R-301, S-17, P-23, label text on signs, 
+identification codes, reference numbers, alphanumeric codes on objects,
+illogical traffic signs, 20 km/h sign on highway, 30 km/h on freeway, low speed limit on autopista,
+120 km/h in city, 100 km/h on urban street, contradictory signs, text glitch, distorted numbers on signs,
+floating hands, severed limbs, disembodied body parts, anatomical errors, mutant hands,
+head-on collision, cars driving on wrong side, chaotic traffic, cars merging into each other,
+deadlock intersection, yield signs on all sides, stop signs on all 4 roads, symmetric road markings`,
             num_inference_steps: 30,
             guidance_scale: 7.5,
             width: 1024,

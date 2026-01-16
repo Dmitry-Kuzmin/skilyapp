@@ -1,0 +1,1412 @@
+[
+  {
+    "topic_number": 5,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "El conductor de una motocicleta, que lleva una persona en el asiento trasero...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "debe utilizar el casco protector y aconsejar al acompañante que lo utilice.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "debe utilizar el casco protector y será responsable de que lo utilice el acompañante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "debe utilizar el casco protector y será responsable de que lo utilice el acompañante, pero sólo en vías interurbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9a0eeede-894a-4975-b245-82d2beffb487-1658256091-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9a0eeede-894a-4975-b245-82d2beffb487-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "¿Qué significa este distintivo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Vehículo de uso compartido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Servicio Público.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Alquiler de vehículos con conductor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c0d26ad9-5dd3-46a8-8e6c-e9d8dc28890d-1658306470-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c0d26ad9-5dd3-46a8-8e6c-e9d8dc28890d-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "¿Cuándo se podrán abrir las puertas para salir del vehículo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando se encuentre inmovilizado y tras comprobar que no hay peligro.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Siempre que esté inmovilizado aunque entorpezca el paso a otros usuarios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando se encuentre inmovilizado o circule a menos de 10 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/cae0b527-037b-4d98-8729-b639d5161b19-1658316084-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cae0b527-037b-4d98-8729-b639d5161b19-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "La carga transportada en una motocicleta de anchura inferior a 1 metro, ¿puede sobresalir por la parte delantera o trasera?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por la parte delantera, no; por la trasera sí, hasta 0,25 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, hasta 0,50 metros tanto por la parte delantera como por la trasera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, pero solo por la parte trasera hasta 0,50metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/22c7d067-8277-4f21-9c6d-fd0bb933ce6f-1658315045-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/22c7d067-8277-4f21-9c6d-fd0bb933ce6f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "Si los ocupantes de los asientos traseros de un vehículo son menores de edad y de estatura igual o inferior a 135 cm de altura, ¿qué dispositivos de seguridad deben utilizar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Un dispositivo de retención infantil adaptado a su talla y peso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El cinturón de seguridad que viene instalado en el vehículo",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Obligatoriamente un sistema de retención infantil soldado a la carrocería del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/74b5b09d-dc82-49f8-9ebd-1eef77fc2786-1658253644-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/74b5b09d-dc82-49f8-9ebd-1eef77fc2786-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "¿Puede viajar en el asiento delantero un menor de 1 año si todas las plazas traseras están ocupadas por niños con sistemas de retención infantil?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque no debe viajar en el asiento delantero.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, con un sistema de retención infantil adaptado a su talla y peso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, pero con el cinturón de seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/0267ef0d-73e3-4e89-adad-3bfd3989d4e3-1658253620-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0267ef0d-73e3-4e89-adad-3bfd3989d4e3-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "Un turismo no tiene un sistema de sujeción apropiado para un niño de 8 años que tiene una estatura superior a 135 cm, ¿dónde debe sentarse normalmente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En el asiento delantero, con el cinturón de seguridad abrochado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Es indiferente porque tiene más de dos años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En el asiento trasero con el cinturón de seguridad abrochado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/73ab1de4-c811-48af-bf11-ec2cb10ad9a7-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "¿De qué manera se debe acondicionar siempre la carga transportada en la baca de un turismo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "De tal forma que no comprometa la estabilidad del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cubriéndola totalmente con una lona o u plástico.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Ocultando parcialmente los dispositivos de señalización luminosa.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7c6e9371-cc1d-44c7-9743-f423599bfb80-1658313370-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7c6e9371-cc1d-44c7-9743-f423599bfb80-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Un menor de edad, ¿puede viajar de pasajero en una motocicleta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, siempre que el conductor sea mayor de edad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, está prohibido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si es mayor de 12 años o, excepcionalmente, de 7 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3cc3c615-0045-412f-9ffd-ac3ff995833d-1658255946-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3cc3c615-0045-412f-9ffd-ac3ff995833d-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "En un turismo, ¿quiénes están obligados a llevar puesto el cinturón de seguridad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo los ocupantes de los asientos delanteros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solo los ocupantes de los asientos traseros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Todos los ocupantes del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f01f8939-ba65-4305-9884-28f18c6c6ce8-1658252962-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f01f8939-ba65-4305-9884-28f18c6c6ce8-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "En los vehículos de anchura inferior a un metro, la carga no debe sobresalir por la parte posterior más de...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "0,40 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "0,25 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "0,50 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/959c51d7-e985-4276-a201-68d7ca17d291-1658315013-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/959c51d7-e985-4276-a201-68d7ca17d291-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "Los distribuidores de mercancías, cuando realicen sus operaciones de carga y descarga en recorridos cortos, ¿están exentos de utilizar el cinturón de seguridad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, en todo tipo de vías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, en poblado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c084acf8-643f-4d2d-ba59-7a0ef4358ad5-1658254662-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c084acf8-643f-4d2d-ba59-7a0ef4358ad5-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, los ocupantes de un vehículo deben entrar al mismo por...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "cualquier lado, siempre que no se entorpezca a otros usuarios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "el lado más alejado del borde de la vía y con el vehículo parado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "el lado más próximo al borde de la vía y con el vehículo inmovilizado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/23717043-ad82-4298-851c-f2d6a2102038-1658316262-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/23717043-ad82-4298-851c-f2d6a2102038-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "Un ciclomotor de cuatro ruedas tiene cinturones de seguridad. ¿Es obligatorio ponerse el casco?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, pero solamente fuera de poblado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, cuando el vehículo no tiene capota.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8ab7e8fb-2fa9-4aa4-a6b6-722ddcbde0c1-1658312163-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8ab7e8fb-2fa9-4aa4-a6b6-722ddcbde0c1-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "La carga que sobresalga de la proyección en planta del vehículo, ¿debe ir protegida?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, en la parte saliente para reducir los efectos de un roce o choque posibles.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Únicamente cuando se circule entre la puesta y la salida del sol.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, no es necesario si va debidamente señalizada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/cf02d642-7236-4b74-9eb1-4cdf63c18883-1658315144-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cf02d642-7236-4b74-9eb1-4cdf63c18883-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "Transportar un niño situado entre el manillar y el conductor en una motocicleta, ¿está permitido?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, con el correspondiente casco adecuado a su talla.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, pero sólo cuando el conductor sea el padre, la madre o una persona autorizada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c3a5b938-c9fd-4aba-9e83-7bc249d87721-1658255972-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c3a5b938-c9fd-4aba-9e83-7bc249d87721-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál de las siguientes afirmaciones acerca del cinturón de seguridad es correcta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En los asientos traseros no hace falta llevar cinturón.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Si el vehículo dispone de airbag no es aconsejable utilizarlo",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En caso de enfermedad grave debidamente justificada, puede no utilizarse.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e40a0287-4218-4269-8613-b40d831626c3-1658254719-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e40a0287-4218-4269-8613-b40d831626c3-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "Las señales y placas de la parte trasera del camión, ¿qué indican?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que transporta productos alimenticios",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Que transporta mercancías peligrosas y mide más de 12 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que su peso y dimensiones son mayores de los normales",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/0f5b4877-5f1c-4ecc-b595-820f0dae168f-1658316411-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0f5b4877-5f1c-4ecc-b595-820f0dae168f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "Relativo a la disposición de la carga en un vehículo, ¿cómo es obligatorio transportar siempre las materias que produzcan polvo o puedan caer?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En vehículos totalmente cerrados.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En pequeños contenedores.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cubriéndolas total y eficazmente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/678cfeb7-b1ed-4955-b8c0-8b0cbb4a6078-1658313468-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/678cfeb7-b1ed-4955-b8c0-8b0cbb4a6078-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "El conductor de una motocicleta que cuenta con estructura de autoprotección y cinturón de seguridad, ¿está obligado a utilizar el casco?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, aunque está obligado a utilizar el cinturón de seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, como en cualquier motocicleta.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo cuando circule fuera de poblado, en cuyo caso debe utilizar casco y cinturón de seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a616a39f-5651-4abe-9422-bb5ad64cb943-1658256243-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a616a39f-5651-4abe-9422-bb5ad64cb943-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "Todo conductor que abandone su puesto para descargar mercancía del vehículo, deberá dejar siempre...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "el motor arrancado y las luces de emergencia encendidas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "el motor parado y el vehículo debidamente calzado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "el motor parado y el sistema de arranque desconectado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/259304ca-0fa5-4fe1-b2c7-d441e5a93822-1658313125-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/259304ca-0fa5-4fe1-b2c7-d441e5a93822-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "A la entrada y salida del colegio, para evitar riesgos, ¿qué precauciones deberá tomar cuando los niños desciendan del vehículo, además de la previa vigilancia del entorno?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No deberán abrir las puertas ni apearse antes de la completa inmovilización del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Para mayor seguridad lo harán siempre por la puerta del conductor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Deberán bajar del vehículo por la puerta más alejada del borde de la vía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/63bd39c3-c492-4583-88d9-97d21db76f0c-1658316298-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/63bd39c3-c492-4583-88d9-97d21db76f0c-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "Para ahorrar carburante, ¿dónde se debe poner el equipaje?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En el maletero.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En el maletero o en la baca, es igual.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En la baca.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a83c26ea-05fc-4bfe-8fc5-d02aeb29bec2-1658313344-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a83c26ea-05fc-4bfe-8fc5-d02aeb29bec2-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "En un vehículo es obligatorio colocar y sujetar la carga de forma que...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "no pueda arrastrar, caer o desplazarse de manera peligrosa.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "oculte las advertencias manuales que realice el conductor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "produzca ruido, para advertir del peligro a otros usuarios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/40e04a1b-56ac-41c6-bdbc-c61c77b5a15e-1658313415-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/40e04a1b-56ac-41c6-bdbc-c61c77b5a15e-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "Un vehículo con esta señal indica que...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "es lento y no puede superar los 40 Km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "transporta mercancías peligrosas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "es especial y está realizando trabajos en la vía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7b221fb6-d30a-4941-8109-da312be637e9-1658316598-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7b221fb6-d30a-4941-8109-da312be637e9-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "En los vehículos de uso compartido o “carsharing”, los menores de estatura igual o inferior a 135 centímetros, ¿están obligados a utilizar sistemas de retención infantil?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sólo si el vehículo tiene.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/16e521a0-36ab-40a2-aef5-157a3d0a905a-1658253499-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/16e521a0-36ab-40a2-aef5-157a3d0a905a-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "El conductor, al circular marcha atrás para estacionar, ¿debe llevar puesto el cinturón de seguridad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo podrá quitárselo si es taxista o repartidor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, debe llevarlo abrochado hasta que el vehículo esté inmovilizado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, no es obligatorio.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/74342f1d-efe8-47e5-ad45-f81b0fbd82b1-1658254692-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/74342f1d-efe8-47e5-ad45-f81b0fbd82b1-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Los vehículos destinados a obras y servicios, ¿cómo advertirán de su presencia cuando estén realizando obras de reparación en la calzada?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Mediante un dispositivo luminoso con una luz rotativa de color azul o rojo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Mediante un dispositivo luminoso con una o varias luces de color amarillo auto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Mediante un dispositivo luminoso con una o varias luces de color azul.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/41192007-b923-4a75-ad9e-588686275701-1658316490-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/41192007-b923-4a75-ad9e-588686275701-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "La luz rotativa de color amarillo auto que llevan los vehículos especiales, ¿les concede prioridad frente a los demás vehículos?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, solo señaliza su situación en la vía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo cuando circulen con ella encendida.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/77048c1d-167a-4373-950e-777fa609a9a6-1658316559-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/77048c1d-167a-4373-950e-777fa609a9a6-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "El conductor de un turismo, ¿debe llevar abrochado el cinturón de seguridad cuando realiza un recorrido corto?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, cuando circule por una vía urbana.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solo si conduce un taxi, tanto en vías urbanas como interurbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b4949ddb-2bd7-451e-84ee-24ce5c7d07b2-1658253214-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b4949ddb-2bd7-451e-84ee-24ce5c7d07b2-s-1.jpg",
+    "source": "practicavial"
+  }
+]

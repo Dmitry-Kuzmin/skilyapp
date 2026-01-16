@@ -1,0 +1,1532 @@
+[
+  {
+    "topic_number": 10,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "Para evitar los alcances, es recomendable que el conductor del último vehículo de una fila...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "disminuya la distancia respecto al de delante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "no mantenga el pedal del freno pisado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "vigile a los vehículos que se acerquen por detrás.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ba6504b4-9f97-4ba3-b337-69fc5164707f-1658858789-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ba6504b4-9f97-4ba3-b337-69fc5164707f-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Circular con las ventanillas bajadas, ¿modifica la aerodinámica del vehículo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, reduciéndose el consumo de combustible si se circula a velocidad elevada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, incrementándose el consumo de combustible si se circula a velocidad elevada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, por lo que no influye en el consumo de combustible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3ac8e721-b3ca-4ac6-9fc3-7bbe0ffeb0d1-1658859085-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3ac8e721-b3ca-4ac6-9fc3-7bbe0ffeb0d1-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Si el vehículo de detrás se acerca demasiado, es conveniente...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "disminuir la separación con el vehículo de delante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "aumentar la separación con el vehículo de delante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "mantener la misma separación con el vehículo de delante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f7b9916d-213a-4b0f-9f77-c7061306ec0e-1658858762-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f7b9916d-213a-4b0f-9f77-c7061306ec0e-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "En función de su nivel de emisiones y combustible empleado, se clasifican en la categoría 0 emisiones...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "los vehículos eléctricos de batería.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "los vehículos con motor de combustión interna.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "los vehículos propulsados por gas licuado del petróleo (GLP).",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/499b7bc2-183d-48f0-89d3-70dce9ba1735-1734454845-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/499b7bc2-183d-48f0-89d3-70dce9ba1735-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "Está prohibida la circulación de vehículos a motor que no disponen de...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "un extintor de incendios adecuado y eficaz.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "un dispositivo silenciador de explosiones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "un juego de correas de repuesto para el equipo motor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/1cbbbf4c-78f8-4c47-9373-86bc3aef4f29-1663758070-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1cbbbf4c-78f8-4c47-9373-86bc3aef4f29-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "Para realizar una conducción económica se recomienda en los motores de gasolina realizar los cambios de marcha...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "entre 1.500 rpm. a 2.000 revoluciones por minuto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "entre 2.000 rpm. a 2.500 revoluciones por minuto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "entre 3.000 rpm. a 3.500 revoluciones por minuto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f24acb4f-961e-4e78-9869-7050224593e8-1658858921-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f24acb4f-961e-4e78-9869-7050224593e8-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido que un vehículo con motor térmico circule sin silenciador de explosiones?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solo pueden circular sin silenciador los ciclomotores.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, como norma general.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/da3ecd94-c45f-462b-ad4d-2172d13339cb-1663758095-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/da3ecd94-c45f-462b-ad4d-2172d13339cb-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, ¿a qué tipo de vehículos se prohíbe la entrada a una zona delimitada con la señal de la imagen?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A los vehículos a motor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A los vehículos a motor excepto a las motocicletas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A todos los vehículos excepto a las bicicletas y a los VMP.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ecfc8a9c-4258-42a1-aeba-1a1f787431bf-1734368620-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ecfc8a9c-4258-42a1-aeba-1a1f787431bf-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Arrancar el motor sin acelerar, ¿evita un consumo de combustible innecesario?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, además no es posible arrancar sin acelerar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, en los vehículos actuales no es necesario pisar el acelerador.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, se debe acelerar para arrancar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/90839aa4-2297-4127-be48-4e4742abf8a9-1658858913-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/90839aa4-2297-4127-be48-4e4742abf8a9-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "Para realizar una conducción eficiente, la primera velocidad debe utilizarse...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "solo para subir pendientes muy pronunciadas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "el menor tiempo posible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "el mayor tiempo posible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/cc387e88-6571-4a36-b70e-2e90f9e363a1-1658858939-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cc387e88-6571-4a36-b70e-2e90f9e363a1-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "¿Le está permitido el acceso a un vehículo de motor que disponga del distintivo ambiental C a una zona de bajas emisiones delimitada por estas señales?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo si el vehículo de motor es una motocicleta.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, como norma general.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/715874cf-a68d-4eb9-b076-74192de815c6-1734455877-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/715874cf-a68d-4eb9-b076-74192de815c6-s-1.jpg?t=1768428925",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "En detenciones de más de 60 segundos, es importante...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "apagar el motor para disminuir la contaminación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "conectar la señal de emergencia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "encender todas las luces.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/72983130-ae1a-49fe-bcce-246c86424c34-1658859026-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/72983130-ae1a-49fe-bcce-246c86424c34-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "El consumo de combustible puede incrementarse cuando...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "las ventanillas del vehículo están subidas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "los neumáticos carecen de dibujo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "el vehículo va muy cargado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/853d4773-2c6d-49b5-9c8d-735c34acf23b-1658858993-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/853d4773-2c6d-49b5-9c8d-735c34acf23b-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "Las técnicas de conducción eficiente pueden ahorrar entre un 10 y un 25% del combustible...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "y reducir de forma importante las emisiones contaminantes.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "pero no pueden reducir las emisiones contaminantes.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "y reducir las emisiones contaminantes en la misma cantidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c8640268-4420-441b-836f-a7c8d8f013b3-1658858896-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c8640268-4420-441b-836f-a7c8d8f013b3-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "La densidad del trafico en zona urbana produce frecuentes zonas de incertidumbre, por lo que el conductor de una motocicleta deberá:",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Advertir su presencia a los demás usuarios accionando la luz de carretera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Prever y anticiparse a los posibles comportamientos de los demás usuarios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Aumentar la velocidad para salir cuanto antes de esta situación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/92de6179-a0eb-4b9c-b0e4-96a09995704c-1658858784-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/92de6179-a0eb-4b9c-b0e4-96a09995704c-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "Los vehículos con motor eléctrico, durante su funcionamiento, ¿emiten gases que puedan perjudicar al medio ambiente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, y además las baterías que usan son residuos muy contaminantes al final de su vida útil.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No; no emiten a la atmósfera ni gases contaminantes ni de efecto invernadero.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, pero consumen mayor cantidad de energía en las deceleraciones y frenadas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/0758afbf-1810-4d19-8d72-bbb37ea05517-1761030471-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0758afbf-1810-4d19-8d72-bbb37ea05517-s-1.jpg?t=1768428925",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "Una buena práctica para evitar accidentes es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "señalizar con antelación sólo las maniobras que puedan ser peligrosas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "procurar que los demás conductores puedan anticiparse a las maniobras, haciéndose ver y entender de forma adecuada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "circular siempre muy despacio para anticiparse a todas las situaciones de riesgo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9c7c9758-3e13-438b-9762-f0f21b616c04-1658858715-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9c7c9758-3e13-438b-9762-f0f21b616c04-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "Los agentes de tráfico, ¿pueden inmovilizar un vehículo que supera los niveles de ruido permitido?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, ya que no supone un peligro para la circulación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sólo si circula de noche por vías urbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ccbf5fe7-3055-46cd-bb03-4458fb8b6232-1663758056-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ccbf5fe7-3055-46cd-bb03-4458fb8b6232-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "Los vehículos no podrán circular por las vías públicas si...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "emiten niveles de ruido superiores a los límites establecidos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "expulsan humos o gases por el tubo de escape.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "carecen de rueda de repuesto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e8d42e59-341b-4823-af5e-ab52f9a125c5-1663758099-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e8d42e59-341b-4823-af5e-ab52f9a125c5-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "¿Qué significa esta señal situada a la entrada de una calle?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Entrada prohibida a todos los vehículos excepto motocicletas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Zona de bajas emisiones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Entrada prohibida a todos los vehículos a motor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/eb6d4f2b-79f5-4258-999c-d52f59943643-1734432628-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/eb6d4f2b-79f5-4258-999c-d52f59943643-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "A la actitud ante la conducción que permite circular de una manera segura se le llama conducción...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "prudente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "eficiente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "preventiva.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/39358f9d-c6d5-448a-b108-0a03be69e06c-1658858681-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/39358f9d-c6d5-448a-b108-0a03be69e06c-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "¿Es posible ahorrar combustible evitando cambios de marcha innecesarios?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, se puede reducir el consumo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Depende de si el vehículo tiene motor diésel o de gasolina.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4a7ae554-853d-418c-9437-d24acc320c00-1658858927-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4a7ae554-853d-418c-9437-d24acc320c00-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "Mientras conduce, ¿es necesario utilizar los espejos retrovisores con regularidad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, sólo es necesario cuando se vaya a realizar alguna maniobra.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, aunque no se vaya a realizar ninguna maniobra.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El uso de los espejos retrovisores no aporta seguridad adicional a la conducción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/1cf4bf64-353c-463f-9b45-6f0c1b33f078-1658858707-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1cf4bf64-353c-463f-9b45-6f0c1b33f078-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "Una técnica para ahorrar combustible es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "apurar la utilización de las marchas cortas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "ir subiendo de marcha de una en una, sin saltarse ninguna.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "utilizar marchas altas, incluso en ciudad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d7089017-022c-4cad-87d4-d9915d9ce68b-1658858963-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d7089017-022c-4cad-87d4-d9915d9ce68b-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "La conducción preventiva es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "una forma de conducción lenta e inadecuada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "una forma de conducir peligrosa.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "una actitud ante la conducción que permite al conductor circular de una manera más segura.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/da72b060-e6e1-47bb-9ba1-124438edf8bf-1658858677-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/da72b060-e6e1-47bb-9ba1-124438edf8bf-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "Para ahorrar combustible es recomendable...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "circular con las ventanillas bajadas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "circular con las ventanillas subidas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "utilizar en todo momento el aire acondicionado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b17d1fac-cc64-4dbe-bb94-f3e7e4ddde09-1658859015-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b17d1fac-cc64-4dbe-bb94-f3e7e4ddde09-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "Se prohíbe circular con el llamado escape libre...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "tanto en vías urbanas como interurbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "sólo en vías urbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "sólo en vías interurbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/aadfaf15-0e04-46dc-84d2-edee9e9053f7-1663758090-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/aadfaf15-0e04-46dc-84d2-edee9e9053f7-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, es aconsejable mantener con el vehículo que circula delante...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "un intervalo mínimo de 4 segundos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "un intervalo mínimo de 2 segundos, aunque es recomendable ampliarlo a 3 segundos cuando se circule fuera de poblado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "un intervalo mínimo de 1 segundo, aunque puede ampliarse a 2 segundos cuando se circule por una vía fuera de poblado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2c55c381-4607-47d2-b5bf-18d2a5d230cb-1658858767-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2c55c381-4607-47d2-b5bf-18d2a5d230cb-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "Para contaminar lo menos posible es recomendable...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "mantener siempre la misma velocidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "utilizar lo menos posible el transporte público.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "mantener la velocidad lo más uniforme posible evitando acelerones y frenazos innecesarios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c43e2f4b-344c-4e68-96e1-b719cb01025b-1658858982-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c43e2f4b-344c-4e68-96e1-b719cb01025b-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "¿En qué clase clasificarías a un coche eléctrico de batería y un híbrido enchufable con una autonomía mínima de 40 km?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "0 emisiones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "ECO.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En la clase A.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3dd7c8ca-6ae3-4a5b-8a55-43d182f5b45a-1663758385-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3dd7c8ca-6ae3-4a5b-8a55-43d182f5b45a-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  }
+]

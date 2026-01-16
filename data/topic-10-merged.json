@@ -1,0 +1,1602 @@
+[
+  {
+    "question_es": "¿Qué significa esta señal situada a la entrada de una calle?",
+    "question_ru": "Что означает этот знак, установленный на въезде в улицу?",
+    "question_en": "What does this sign located at the entrance of a street mean?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/eb6d4f2b-79f5-4258-999c-d52f59943643-1734432628-i.jpg",
+    "image_filename": "eb6d4f2b-79f5-4258-999c-d52f59943643-1734432628-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/eb6d4f2b-79f5-4258-999c-d52f59943643-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Entrada prohibida a todos los vehículos excepto motocicletas.",
+          "text_ru": "A: Въезд запрещен для всех транспортных средств, кроме мотоциклов.",
+          "text_en": "A: Entry prohibited to all vehicles except motorcycles.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "Zona de bajas emisiones.",
+          "text_ru": "B: Зона с низким уровнем выбросов.",
+          "text_en": "B: Low emission zone.",
+          "is_correct": true
+        },
+        {
+          "id": "c",
+          "text_es": "Entrada prohibida a todos los vehículos a motor.",
+          "text_ru": "C: Въезд запрещен для всех механических транспортных средств.",
+          "text_en": "C: Entry prohibited to all motor vehicles.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 1️⃣ 👁️ Análisis Visual\nObserva la señal. Es un círculo rojo con un coche que emite humo dentro. Debajo pone \"EXCEPTO\" con varios símbolos.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nEsta señal indica que estás entrando en una Zona de Bajas Emisiones (ZBE). El objetivo es proteger la calidad del aire restringiendo el acceso a los vehículos más contaminantes. La señal prohíbe la entrada a vehículos en función de su distintivo ambiental (la pegatina que llevas en el parabrisas) o según otros criterios ambientales que establezca el ayuntamiento.\n\n### 3️⃣ 💣 La Trampa / El Truco\nFíjate en la palabra \"EXCEPTO\" debajo del coche. Esto significa que algunos vehículos SÍ pueden entrar, como los que tienen etiqueta ECO o CERO emisiones. La trampa está en que la opción A habla de \"todos los vehículos a motor\", lo cual no es cierto debido a las excepciones. La respuesta correcta es la B.",
+      "explanation_ru": "### 1️⃣ 👁️ Análisis Visual\nПосмотри на знак. Это красный круг с изображением автомобиля, выпускающего дым. Под ним написано \"EXCEPTO\" с несколькими символами.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nЭтот знак означает, что ты въезжаешь в Зону с Низким Уровнем Выбросов (ZBE). Цель – защитить качество воздуха, ограничив доступ для самых загрязняющих окружающую среду транспортных средств. Знак запрещает въезд транспортным средствам в зависимости от их экологической наклейки (distintivo ambiental, та, что крепится на лобовом стекле) или в соответствии с другими экологическими критериями, установленными муниципалитетом.\n\n### 3️⃣ 💣 La Trampa / El Truco\nОбрати внимание на слово \"EXCEPTO\" (ИСКЛЮЧЕНИЯ) под автомобилем. Это значит, что некоторым транспортным средствам въезд РАЗРЕШЕН, например, тем, у кого есть экологическая наклейка ECO или CERO. Подвох в том, что вариант А говорит о \"всех механических транспортных средствах\", что неверно из-за исключений. Правильный ответ – B.",
+      "explanation_en": "### 1️⃣ 👁️ Visual Analysis\nLook at the sign. It's a red circle with a car emitting smoke inside. Below it says \"EXCEPTO\" with several symbols.\n\n### 2️⃣ 🧠 The Logic \"Why\"\nThis sign indicates that you are entering a Low Emission Zone (LEZ). The aim is to protect air quality by restricting access to the most polluting vehicles. The sign prohibits entry to vehicles based on their environmental badge (the sticker you have on your windshield) or according to other environmental criteria established by the city council.\n\n### 3️⃣ 💣 The Trap / The Trick\nNotice the word \"EXCEPTO\" below the car. This means that some vehicles CAN enter, such as those with an ECO or ZERO emissions label. The trap is that option A talks about \"all motor vehicles\", which is not true due to the exceptions. The correct answer is B.",
+      "source": "practicalvial",
+      "original_number": 1
+    }
+  },
+  {
+    "question_es": "Para ahorrar carburante, ¿cómo se debe ventilar el vehículo?",
+    "question_ru": "Чтобы сэкономить топливо, как правильно вентилировать автомобиль?",
+    "question_en": "To save fuel, how should the vehicle be ventilated?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/4c435300-5d9f-45a7-a095-400ead5d1ce6-1658859011-i.jpg",
+    "image_filename": "4c435300-5d9f-45a7-a095-400ead5d1ce6-1658859011-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/4c435300-5d9f-45a7-a095-400ead5d1ce6-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Abriendo solamente las ventanillas traseras.",
+          "text_ru": "Открывая только задние окна.",
+          "text_en": "By opening only the rear windows.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "Con las entradas de aire que hay en el salpicadero.",
+          "text_ru": "Используя дефлекторы обдува на торпеде.",
+          "text_en": "Using the air vents on the dashboard.",
+          "is_correct": true
+        },
+        {
+          "id": "c",
+          "text_es": "Abriendo todas las ventanillas.",
+          "text_ru": "Открывая все окна.",
+          "text_en": "By opening all the windows.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "1️⃣ **👁️ Análisis Visual:** Mira la imagen. Ves los controles de ventilación en el salpicadero.  \n\n2️⃣ **🧠 La Lógica \"Por qué\":** Abrir las ventanas, especialmente a alta velocidad, crea resistencia aerodinámica. Imagina que estás corriendo con una paracaídas. ¡El motor tiene que trabajar MÁS para avanzar, y consume más combustible! Usar los ventiladores del salpicadero (sin aire acondicionado) es como respirar por nariz, no рor boca.\n\n3️⃣ **💣 La Trampa / El Truco:**  Mucha gente piensa que \"aire fresco = ahorro\". ¡Falso! Aerodinámica es la clave.  Recuerda: **Ventanas cerradas + Ventilación = Ahorro.**",
+      "explanation_ru": "1️⃣ **👁️ Análisis Visual:** Посмотри на картинку. Видишь элементы управления вентиляцией на торпеде.\n\n2️⃣ **🧠 La Lógica \"Por qué\":** Открытие окон, особенно на высокой скорости, создает аэродинамическое сопротивление. Представь, что ты бежишь с парашютом. Двигателю приходится работать ТЯЖЕЛЕЕ, чтобы двигаться вперед, и он потребляет больше топлива! Использование дефлекторов обдува (без кондиционера) — это как дышать носом, а не ртом.\n\n3️⃣ **💣 La Trampa / El Truco:** Многие думают, что «свежий воздух = экономия». Неверно! Аэродинамика – вот ключ к экономии. Запомни: **Закрытые окна + Вентиляция = Экономия.**",
+      "explanation_en": "1️⃣ **👁️ Visual Analysis:** Look at the image. You see the ventilation controls on the dashboard.\n\n2️⃣ **🧠 The Logic \"Why\":** Opening the windows, especially at high speed, creates aerodynamic drag. Imagine you are running with a parachute. The engine has to work HARDER to move forward, and it consumes more fuel! Using the dashboard vents (without air conditioning) is like breathing through your nose, not your mouth.\n\n3️⃣ **💣 The Trap / The Trick:** Many people think that \"fresh air = savings.\" False! Aerodynamics are key. Remember: **Windows closed + Ventilation = Savings.**",
+      "source": "practicalvial",
+      "original_number": 4
+    }
+  },
+  {
+    "question_es": "¿Qué debe hacer un conductor para que los demás usuarios puedan anticiparse a sus intenciones?",
+    "question_ru": "Что должен сделать водитель, чтобы другие участники движения могли предвидеть его намерения?",
+    "question_en": "What should a driver do so that other road users can anticipate their intentions?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/b7c3e7b8-b4f3-445b-a20e-830e8840326e-1658858724-i.jpg",
+    "image_filename": "b7c3e7b8-b4f3-445b-a20e-830e8840326e-1658858724-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/b7c3e7b8-b4f3-445b-a20e-830e8840326e-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "No debe hacer nada, el resto de users debe estar atento a su velocidad y trayectoria.",
+          "text_ru": "A) А: Не должен ничего делать, остальные участники движения должны следить за его скоростью и траекторией.",
+          "text_en": "A) A: Should not do anything, the rest of users must be attentive to their speed and trajectory.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "Permanecer en el ángulo muerto de los retrovisores de otro vehículo.",
+          "text_ru": "B) B: Находиться в слепой зоне зеркал заднего вида другого транспортного средства.",
+          "text_en": "B) B: Stay in the blind spot of another vehicle's mirrors.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "Señalizar siempre las maniobras con antelación.",
+          "text_ru": "C) C: Всегда заранее сигнализировать о маневрах.",
+          "text_en": "C) C: Always signal maneuvers in advance.",
+          "is_correct": true
+        }
+      ],
+      "explanation_es": "🧠 **La Lógica \"Por qué\"**\nImagina que estás jugando al ajedrez. ¿Adivinarías el movimiento de tu oponente o preferirías que te lo dijera? Señalizar tus maniobras es como anunciar tu jugada. Das a los demás conductores la oportunidad de reaccionar y evitar accidentes.\n\n💣 **La Trampa / El Truco**\nMuchos piensan que es suficiente con ir atento. ¡Error! Ser previsible es tan importante como estar atento. Señalizar SIEMPRE es la clave. Recuerda: **Atento + Previsible = Seguridad MAXIMA**.",
+      "explanation_ru": "🧠 **La Lógica \"Por qué\"**\nПредставь, что играешь в шахматы. Будешь угадывать ход противника или предпочтешь, чтобы он сам сказал? Сигнализировать о своих маневрах — это как объявить свой ход. Ты даешь другим водителям возможность среагировать и избежать аварий.\n\n💣 **La Trampa / El Truco**\nМногие думают, что достаточно просто быть внимательным. Ошибка! Быть предсказуемым так же важно, как и быть внимательным. Сигнализировать ВСЕГДА — это ключ к успеху. Запомни: **Внимательный + Предсказуемый = Максимальная безопасность.**",
+      "explanation_en": "🧠 **The Logic \"Why\"**\nImagine you're playing chess. Would you guess your opponent's move or would you prefer them to tell you? Signaling your maneuvers is like announcing your move. You give other drivers the opportunity to react and avoid accidents.\n\n💣 **The Trap / The Trick**\nMany people think it is enough to be attentive. Wrong! Being predictable is as important as being attentive. Always signaling is key. Remember: **Attentive + Predictable = MAX Security**.",
+      "source": "practicalvial",
+      "original_number": 5
+    }
+  },
+  {
+    "question_es": "Se prohíbe circular con el llamado escape libre...",
+    "question_ru": "Запрещено ли движение с так называемой выхлопной системой без глушителя (прямотоком)...",
+    "question_en": "Is it prohibited to drive with the so-called open exhaust...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/aadfaf15-0e04-46dc-84d2-edee9e9053f7-1663758090-i.jpg",
+    "image_filename": "aadfaf15-0e04-46dc-84d2-edee9e9053f7-1663758090-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/aadfaf15-0e04-46dc-84d2-edee9e9053f7-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "tanto en vías urbanas como interurbanas.",
+          "text_ru": "A: как в населенных пунктах, так и за их пределами.",
+          "text_en": "A: both in urban and interurban areas.",
+          "is_correct": true
+        },
+        {
+          "id": "b",
+          "text_es": "sólo en vías urbanas.",
+          "text_ru": "B: только в населенных пунктах.",
+          "text_en": "B: only in urban areas.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "sólo en vías interurbanas.",
+          "text_ru": "C: только за пределами населенных пунктов.",
+          "text_en": "C: only in interurban areas.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 2️⃣ 🧠 La Lógica \"Por qué\":\nПредставь себе, что ты стоишь рядом с мотоциклом, у которого нет глушителя. Это просто невыносимо! Загрязнение окружающей среды звуком влияет на всех, поэтому использование \"escape libre\" запрещено везде.\n\n### 3️⃣ 💣 La Trampa / El Truco:\nБольшинство думают, что громкий выхлоп разрешен за городом, где меньше людей. Но нет! Запрещено везде. Запомни: **громкий выхлоп = всегда плохо**.",
+      "explanation_ru": "### 2️⃣ 🧠 La Lógica \"Por qué\":\nПредставь, что ты стоишь рядом с мотоциклом, у которого выхлопная система без глушителя (прямоток). Это просто невыносимо! Загрязнение окружающей среды звуком влияет на всех, поэтому использование \"escape libre\" запрещено везде.\n\n### 3️⃣ 💣 La Trampa / El Truco:\nБольшинство думают, что громкий выхлоп разрешен за городом, где меньше людей. Но нет! Запрещено везде. Запомни: **громкий выхлоп = всегда плохо**.",
+      "explanation_en": "### 2️⃣ 🧠 The Logic \"Why\":\nImagine you're standing next to a motorcycle with no muffler. It's simply unbearable! Noise pollution affects everyone, so using an open exhaust is prohibited everywhere.\n\n### 3️⃣ 💣 The Trap / The Trick:\nMost people think that a loud exhaust is allowed outside the city, where there are fewer people. But no! It's prohibited everywhere. Remember: **loud exhaust = always bad**.",
+      "source": "practicalvial",
+      "original_number": 8
+    }
+  },
+  {
+    "question_es": "Para realizar una conducción eficiente, la primera velocidad debe utilizarse...",
+    "question_ru": "Для достижения эффективного вождения первую передачу следует использовать...",
+    "question_en": "To achieve efficient driving, first gear should be used...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/cc387e88-6571-4a36-b70e-2e90f9e363a1-1658858939-i.jpg",
+    "image_filename": "cc387e88-6571-4a36-b70e-2e90f9e363a1-1658858939-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/cc387e88-6571-4a36-b70e-2e90f9e363a1-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "solo para subir pendientes muy pronunciadas.",
+          "text_ru": "только для подъема по очень крутым склонам.",
+          "text_en": "only for climbing very steep slopes.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "el menor tiempo posible.",
+          "text_ru": "как можно меньше по времени.",
+          "text_en": "for the shortest possible time.",
+          "is_correct": true
+        },
+        {
+          "id": "c",
+          "text_es": "el mayor tiempo posible.",
+          "text_ru": "как можно дольше по времени.",
+          "text_en": "for the longest possible time.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "🧠 **La Lógica \"Por qué\"**: La primera marcha es la que más combustible consume y ofrece menos rendimiento. Usarla solo para arrancar y superar obstáculos puntuales (como una cuesta muy pronunciada) es lo más eficiente.\n\n💣 **La Trampa / El Truco**: Muchos caen en la trampa de pensar que 'más tiempo' es 'más eficiente' en general. Pero en este caso, es al revés. Piensa en el consumo de gasolina: ¿quieres gastar mucho o poco?",
+      "explanation_ru": "🧠 **La Lógica \"Por qué\"**: Первая передача потребляет больше всего топлива и обеспечивает наименьшую производительность. Использовать её только для старта и преодоления конкретных препятствий (например, очень крутого подъема) — наиболее эффективно.\n\n💣 **La Trampa / El Truco**: Многие попадают в ловушку, думая, что «больше времени» — это «более эффективно» в целом. Но в этом случае все наоборот. Подумай о расходе бензина: ты хочешь тратить много или мало?",
+      "explanation_en": "🧠 **The Logic \"Why\"**: First gear consumes the most fuel and offers the least performance. Using it only to start and overcome specific obstacles (like a very steep hill) is the most efficient.\n\n💣 **The Trap / The Trick**: Many fall into the trap of thinking that 'more time' is 'more efficient' in general. But in this case, it's the opposite. Think about fuel consumption: do you want to spend a lot or a little?",
+      "source": "practicalvial",
+      "original_number": 10
+    }
+  },
+  {
+    "question_es": "Si el vehículo de detrás se acerca demasiado, es conveniente...",
+    "question_ru": "Если автомобиль сзади приближается слишком близко, рекомендуется...",
+    "question_en": "If the vehicle behind you is getting too close, it is advisable to...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/f7b9916d-213a-4b0f-9f77-c7061306ec0e-1658858762-i.jpg",
+    "image_filename": "f7b9916d-213a-4b0f-9f77-c7061306ec0e-1658858762-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/f7b9916d-213a-4b0f-9f77-c7061306ec0e-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "disminuir la separación con el vehículo de delante.",
+          "text_ru": "A: уменьшить расстояние до впереди идущего автомобиля.",
+          "text_en": "A: decrease the separation with the vehicle in front.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "aumentar la separación con el vehículo de delante.",
+          "text_ru": "B: увеличить расстояние до впереди идущего автомобиля.",
+          "text_en": "B: increase the separation with the vehicle in front.",
+          "is_correct": true
+        },
+        {
+          "id": "c",
+          "text_es": "mantener la misma separación con el vehículo de delante.",
+          "text_ru": "C: поддерживать то же расстояние до впереди идущего автомобиля.",
+          "text_en": "C: maintain the same separation with the vehicle in front.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 2️⃣ 🧠 La Lógica \"Por qué\"\nImagina que estás en una autopista y el coche de atrás se te pega. Si frenas bruscamente, ¡zas!, te golpea. Aumentando la distancia con el coche de delante, creas un colchón de seguridad. Así, tienes más tiempo para reaccionar y frenar suavemente, evitando que el de atrás te embista. Es física pura: más distancia = más tiempo para reaccionar = menos riesgo de accidente.\n\n### 3️⃣ 💣 La Trampa / El Truco\nMuchos piensan que pegar al coche de adelante \"intimida\" al de atrás. ¡Error! Lo único que intimidas es a la muerte. En el examen, recuerda: **más distancia, más vida.**",
+      "explanation_ru": "### 2️⃣ 🧠 La Lógica \"Por qué\"\nПредставь, что ты едешь по трассе, а сзади какой-то умник пристроился вплотную. Если ты резко затормозишь, он тебе точно въедет в зад! Увеличивая дистанцию до машины впереди, ты создаешь себе подушку безопасности. Больше места, чтобы плавно затормозить и избежать аварии. Это чистая физика: больше дистанция = больше времени на реакцию = меньше шансов на ДТП.\n\n### 3️⃣ 💣 La Trampa / El Truco\nМногие думают, что если прижаться к впереди идущей машине, то это \"спугнет\" прилипалу сзади. Ошибка! Единственное, что ты спугнешь – это ангела-хранителя. Запомни на экзамене: **больше дистанция – дольше жизнь.**",
+      "explanation_en": "### 2️⃣ 🧠 The Logic \"Why\"\nImagine you are on a highway and the car behind you is tailgating you. If you brake suddenly, bam!, they hit you. By increasing the distance to the car in front, you create a safety cushion. This gives you more time to react and brake gently, preventing the car behind from rear-ending you. It's pure physics: more distance = more reaction time = less risk of accident.\n\n### 3️⃣ 💣 The Trap / The Trick\nMany people think that sticking close to the car in front \"intimidates\" the car behind. Wrong! The only thing you intimidate is death. On the exam, remember: **more distance, more life.**",
+      "source": "practicalvial",
+      "original_number": 11
+    }
+  },
+  {
+    "question_es": "La densidad del trafico en zona urbana produce frecuentes zonas de incertidumbre, por lo que el conductor de una motocicleta deberá:",
+    "question_ru": "Плотность трафика в городе создает частые зоны неопределенности, поэтому водитель мотоцикла должен:",
+    "question_en": "The density of traffic in urban areas produces frequent zones of uncertainty, so the driver of a motorcycle should:",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/92de6179-a0eb-4b9c-b0e4-96a09995704c-1658858784-i.jpg",
+    "image_filename": "92de6179-a0eb-4b9c-b0e4-96a09995704c-1658858784-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/92de6179-a0eb-4b9c-b0e4-96a09995704c-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Advertir su presencia a los demás usuarios accionando la luz de carretera.",
+          "text_ru": "Предупреждать других участников движения о своем присутствии, включая дальний свет.",
+          "text_en": "Warn other road users of their presence by using the high beam.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "Prever y anticiparse a los posibles comportamientos de los demás usuarios.",
+          "text_ru": "Предвидеть и предугадывать возможное поведение других участников движения.",
+          "text_en": "Anticipate possible behaviors of other road users.",
+          "is_correct": true
+        },
+        {
+          "id": "c",
+          "text_es": "Aumentar la velocidad para salir cuanto antes de esta situación.",
+          "text_ru": "Увеличить скорость, чтобы как можно скорее покинуть эту ситуацию.",
+          "text_en": "Increase speed to get out of this situation as soon as possible.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "1️⃣ **👁️ Análisis Visual:**\nObserva la imagen. El texto \"Conducción Preventiva - Anticipación\" es la clave. El motociclista debe ser precavido.\n\n2️⃣ **🧠 La Lógica \"Por qué\":**\nEn tráfico denso, всё как в джунглях. Каждый участник может выкинуть что угодно. Предвидеть их действия — это как читать мысли хищника, чтобы не стать обедом.\n\n3️⃣ **💣 La Trampa / El Truco:**\nLa opción A (luces de carretera) puede parecer lógica, pero en realidad deslumbra a los demás. La opción C es una locura: acelerar в пробке? ¡Riesgo de accidente!",
+      "explanation_ru": "1️⃣ **👁️ Análisis Visual:**\nПосмотри на картинку. Текст \"Предупредительное Вождение - Предусмотрительность\" - это ключ. Мотоциклист должен быть очень внимательным и осторожным.\n\n2️⃣ **🧠 La Lógica \"Por qué\":**\nВ плотном трафике, всё как в джунглях. Каждый участник может выкинуть что угодно. Предвидеть их действия — это как читать мысли хищника, чтобы не стать обедом. Твоя задача как мотоциклиста – предугадывать хаос вокруг, чтобы не попасть в ДТП.\n\n3️⃣ **💣 La Trampa / El Truco:**\nВариант A (дальний свет) кажется логичным, но ослепляет других. Вариант C – мгновенная авария: ускоряться в пробке? Ответ B – единственный способ остаться живым.",
+      "explanation_en": "1️⃣ **👁️ Visual Analysis:**\nLook at the image. The text \"Preventive Driving - Anticipation\" is key. The motorcyclist must be careful.\n\n2️⃣ **🧠 The Logic \"Why\":**\nIn heavy traffic, it's all like a jungle. Any participant can do anything. Anticipating their actions is like reading a predator's mind so you don't become dinner.\n\n3️⃣ **💣 The Trap / The Trick:**\nOption A (high beams) may seem logical, but it actually dazzles others. Option C is crazy: speeding in traffic? Risk of accident!",
+      "source": "practicalvial",
+      "original_number": 12
+    }
+  },
+  {
+    "question_es": "¿Es conveniente hacer una revisión exhaustiva del estado de nuestro vehículo si el humo que despide el tubo de escape es de color negro?",
+    "question_ru": "Стоит ли проводить тщательную проверку состояния нашего автомобиля, если из выхлопной трубы идет черный дым?",
+    "question_en": "Is it advisable to carry out a thorough check of the condition of our vehicle if the smoke coming out of the exhaust pipe is black?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/cbd84ba4-7dab-455c-9c2f-1d6263d98e47-1658859089-i.jpg",
+    "image_filename": "cbd84ba4-7dab-455c-9c2f-1d6263d98e47-1658859089-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/cbd84ba4-7dab-455c-9c2f-1d6263d98e47-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Sí, porque el motor puede estar quemando aceite en exceso.",
+          "text_ru": "Да, потому что двигатель может сжигать избыточное количество масла.",
+          "text_en": "Yes, because the engine may be burning excessive oil.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "No, porque solo es un problema de refrigeración que suele desaparecer.",
+          "text_ru": "Нет, потому что это всего лишь проблема с охлаждением, которая обычно исчезает.",
+          "text_en": "No, because it is only a cooling problem that usually disappears.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "Sí, porque en este caso esto puede estar relacionado con una mala combustión.",
+          "text_ru": "Да, потому что в этом случае это может быть связано с плохим сгоранием.",
+          "text_en": "Yes, because in this case it may be related to poor combustion.",
+          "is_correct": true
+        }
+      ],
+      "explanation_es": "### 1️⃣ 👁️ Análisis Visual\n\nMira la imagen. Ves el humo negro saliendo del tubo de escape? Eso es una señal de que algo no va bien en la combustión del motor.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\n\nEl humo negro indica una combustión incompleta. Esto significa que el motor está recibiendo demasiado combustible en relación con el aire. Las causas pueden ser muchas: inyectores sucios, filtro de aire obstruido, o incluso problemas más serios. Ignorarlo puede llevar a una avería mayor y a contaminar más.\n\n### 3️⃣ 💣 La Trampa / El Truco\n\nMuchos piensan que el color del humo no es importante, o lo asocian solo a problemas de refrigeración. ¡Error! **Humo negro = problema de combustión = revisión INMEDIATA**.  Recuerda: ¡Los colores del humo son como semáforos para tu motor!  El negro es rojo: ¡PELIGRO!",
+      "explanation_ru": "### 1️⃣ 👁️ Análisis Visual\n\nСмотри на картинку. Видишь черный дым, идущий из выхлопной трубы? Это явный признак того, что в процессе сгорания в двигателе что-то идет не так.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\n\nЧерный дым говорит о неполном сгорании топлива. Это значит, что в двигатель поступает слишком много топлива по отношению к воздуху. Причин может быть множество: грязные форсунки, забитый воздушный фильтр или даже более серьезные проблемы. Игнорирование может привести к серьезной поломке и увеличению загрязнения окружающей среды.\n\n### 3️⃣ 💣 La Trampa / El Truco\n\nМногие считают, что цвет дыма не важен или связывают его только с проблемами охлаждения. Ошибка! **Черный дым = проблема сгорания = НЕМЕДЛЕННАЯ проверка**. Запомни: цвета дыма – это как светофоры для твоего двигателя! Черный – это красный: ОПАСНОСТЬ!\n\n💡 Отличие от РФ: В России тоже обращают внимание на цвет выхлопа, но часто это игнорируют. В Испании это может стать причиной отказа в техосмотре (ITV) и штрафа. Будь внимателен!",
+      "explanation_en": "### 1️⃣ 👁️ Visual Analysis\n\nLook at the image. Do you see the black smoke coming out of the exhaust pipe? That's a sign that something is not right with the engine combustion.\n\n### 2️⃣ 🧠 The Logic \"Why\"\n\nBlack smoke indicates incomplete combustion. This means the engine is receiving too much fuel relative to air. The causes can be many: dirty injectors, a clogged air filter, or even more serious problems. Ignoring it can lead to a major breakdown and more pollution.\n\n### 3️⃣ 💣 The Trap / The Trick\n\nMany people think that the color of the smoke is not important, or they associate it only with cooling problems. Wrong! **Black smoke = combustion problem = IMMEDIATE check**. Remember: Smoke colors are like traffic lights for your engine! Black is red: DANGER!",
+      "source": "practicalvial",
+      "original_number": 14
+    }
+  },
+  {
+    "question_es": "La conducción preventiva es...",
+    "question_ru": "Что такое превентивное вождение?",
+    "question_en": "Defensive driving is...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/da72b060-e6e1-47bb-9ba1-124438edf8bf-1658858677-i.jpg",
+    "image_filename": "da72b060-e6e1-47bb-9ba1-124438edf8bf-1658858677-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/da72b060-e6e1-47bb-9ba1-124438edf8bf-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "una forma de conducción lenta e inadecuada.",
+          "text_ru": "A: Медленный и неподходящий стиль вождения.",
+          "text_en": "A: a slow and inadequate way of driving.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "una forma de conducir peligrosa.",
+          "text_ru": "B: Опасный стиль вождения.",
+          "text_en": "B: a dangerous way of driving.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "una actitud ante la conducción que permite al conductor circular de una manera más segura.",
+          "text_ru": "C: Подход к вождению, который позволяет водителю двигаться более безопасно.",
+          "text_en": "C: an attitude towards driving that allows the driver to drive in a safer way.",
+          "is_correct": true
+        }
+      ],
+      "explanation_es": "### 1️⃣ 👁️ Análisis Visual\n\nMira la imagen. Ves las pelotas en la calle? Imagina que un niño corre detrás de ellas. La conducción preventiva es anticipar este tipo de situaciones.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\n\nLa conducción preventiva no es ir lento, ¡es ir pensando! Es como jugar al ajedrez en la carretera. Anticipas los movimientos de los demás (peatones, coches, etc.) y actúas con tiempo para evitar sustos (o accidentes).\n\n*Malo:* \"Es más seguro\".\n*Bueno:* \"Es la diferencia entre llegar a casa o no.\"\n\n### 3️⃣ 💣 La Trampa / El Truco\n\nLa gente piensa que \"preventivo\" es ir lento. ¡Error! Es usar la cabeza. **Recuerda: No es la velocidad, es la anticipación.**",
+      "explanation_ru": "### 1️⃣ 👁️ Análisis Visual\n\nСмотри на картинку. Видишь мячи на дороге? Представь, что за ними выбежит ребенок. Превентивное вождение — это предвидеть такие ситуации.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\n\nПревентивное вождение — это не ехать медленно, а ехать с умом! Это как играть в шахматы на дороге. Ты предугадываешь действия других (пешеходов, машин и т.д.) и действуешь заранее, чтобы избежать неприятностей (или аварий).\n\n*Плохо:* \"Это безопаснее\".\n*Хорошо:* \"Это разница между тем, чтобы добраться домой или нет.\"\n\n### 3️⃣ 💣 La Trampa / El Truco\n\nМногие думают, что \"превентивный\" значит медленный. Ошибка! Это значит думать головой. **Запомни: дело не в скорости, а в предвидении.**",
+      "explanation_en": "### 1️⃣ 👁️ Visual Analysis\n\nLook at the image. See the balls in the street? Imagine a child running after them. Defensive driving is anticipating these types of situations.\n\n### 2️⃣ 🧠 The Logic \"Why\"\n\nDefensive driving isn't about going slow, it's about thinking! It's like playing chess on the road. You anticipate the movements of others (pedestrians, cars, etc.) and act in time to avoid scares (or accidents).\n\n*Bad:* \"It's safer\".\n*Good:* \"It's the difference between getting home or not.\"\n\n### 3️⃣ 💣 The Trap / The Trick\n\nPeople think \"preventive\" means going slow. Wrong! It's about using your head. **Remember: It's not the speed, it's the anticipation.**",
+      "source": "practicalvial",
+      "original_number": 15
+    }
+  },
+  {
+    "question_es": "En una intersección, un vehículo parece que no va a cumplir con una señal de ceda el paso. ¿Qué puede hacer para anticiparse?",
+    "question_ru": "На перекрестке, кажется, что транспортное средство не собирается уступать дорогу, хотя должно. Что можно сделать, чтобы предвидеть это?",
+    "question_en": "At an intersection, a vehicle appears not to be complying with a yield sign. What can you do to anticipate this?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/3e101bca-a26a-42fe-b497-440d50b3f704-1658858728-i.jpg",
+    "image_filename": "3e101bca-a26a-42fe-b497-440d50b3f704-1658858728-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/3e101bca-a26a-42fe-b497-440d50b3f704-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Continuar la marcha, porque en caso de accidente la culpa recaerá sobre el otro conductor.",
+          "text_ru": "A) A: Продолжать движение, потому что в случае аварии вина ляжет на другого водителя.",
+          "text_en": "A) A: Continue driving, because in the event of an accident, the other driver will be at fault.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "Acelerar para llegar antes a la intersección y cruzarla sin peligro.",
+          "text_ru": "B) B: Ускориться, чтобы быстрее добраться до перекрестка и безопасно его проехать.",
+          "text_en": "B) B: Accelerate to reach the intersection earlier and cross it safely.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "Colocar el pie sobre el pedal de freno, sin necesidad de llegar a frenar.",
+          "text_ru": "C) C: Поставить ногу на педаль тормоза, не обязательно тормозить.",
+          "text_en": "C) C: Place your foot on the brake pedal, without needing to brake.",
+          "is_correct": true
+        }
+      ],
+      "explanation_es": "### 1️⃣ 👁️ Análisis Visual\nAunque no hay una imagen específica del cruce, la pregunta te pone en la situación. Imagina que te acercas a una intersección y ves que otro coche NO parece que va a ceder el paso. La anticipación es clave.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nLa seguridad es lo primero. Nunca asumas que el otro conductor va a cumplir las normas. Prepararte para frenar te da tiempo para reaccionar si el otro coche se salta el ceda el paso. Es como un шахматный ход: думаешь наперед.\n\n### 3️⃣ 💣 La Trampa / El Truco\nMuchos piensan \"tengo prioridad, que frene él\". ¡ERROR! En el examen y en la vida, la prioridad no te salva de un accidente.  La respuesta correcta es la C: prepárate para frenar. **Recuerda: Anticipar = Sobrevivir.**",
+      "explanation_ru": "### 1️⃣ 👁️ Análisis Visual\nХотя конкретного изображения перекрестка нет, вопрос ставит тебя в ситуацию. Представь, что ты подъезжаешь к перекрестку и видишь, что другая машина, кажется, НЕ собирается уступать дорогу. Предусмотрительность – это ключ к безопасности.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nБезопасность прежде всего. Никогда не предполагай, что другой водитель будет соблюдать правила. Подготовка к торможению дает тебе время для реакции, если другая машина проигнорирует знак \"Уступи дорогу\". Это как шахматный ход: думаешь наперед.\n\n### 3️⃣ 💣 La Trampa / El Truco\nМногие думают: \"У меня приоритет, пусть он тормозит\". ОШИБКА! На экзамене и в жизни приоритет не спасет тебя от аварии. Правильный ответ - C: подготовься к торможению. **Помни: Предусмотреть = Выжить.**",
+      "explanation_en": "### 1️⃣ 👁️ Visual Analysis\nAlthough there isn't a specific image of the crossing, the question puts you in the situation. Imagine you are approaching an intersection and see that another car does NOT seem to be yielding. Anticipation is key.\n\n### 2️⃣ 🧠 The Logic \"Why\"\nSafety comes first. Never assume that the other driver will comply with the rules. Preparing to brake gives you time to react if the other car ignores the yield sign. It's like a chess move: you think ahead.\n\n### 3️⃣ 💣 The Trap / The Trick\nMany people think \"I have priority, let him brake\". WRONG! In the exam and in life, priority doesn't save you from an accident. The correct answer is C: prepare to brake. **Remember: Anticipate = Survive.**",
+      "source": "practicalvial",
+      "original_number": 16
+    }
+  },
+  {
+    "question_es": "¿Cuál de las siguientes es una técnica propia de la conducción eficiente?",
+    "question_ru": "Что из перечисленного является методом экономичного вождения?",
+    "question_en": "Which of the following is a technique specific to efficient driving?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/ff676f0b-9339-4936-af26-bd9d2b966843-1658858968-i.jpg",
+    "image_filename": "ff676f0b-9339-4936-af26-bd9d2b966843-1658858968-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/ff676f0b-9339-4936-af26-bd9d2b966843-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Utilizar marchas largas a más bajas revoluciones.",
+          "text_ru": "Использовать повышенные передачи на более низких оборотах.",
+          "text_en": "Use high gears at lower revolutions.",
+          "is_correct": true
+        },
+        {
+          "id": "b",
+          "text_es": "Cambiar de marcha a más alta revoluciones.",
+          "text_ru": "Переключать передачи на более высоких оборотах.",
+          "text_en": "Shift gears at higher revolutions.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "Circular 10 km/h por debajo de la velocidad máxima permitida en cada tipo de vía.",
+          "text_ru": "Двигаться на 10 км/ч ниже максимально разрешенной скорости на каждом типе дороги.",
+          "text_en": "Drive 10 km/h below the maximum speed allowed on each type of road.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 1️⃣ 👁️ Análisis Visual\nMira la imagen. Ves la palanca de cambios? Para ahorrar combustible, ¡piensa en usar las marchas más altas! El texto en la imagen te da pistas.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nImagínate que estás pedaleando en una bicicleta. ¿Es más fácil pedalear en una marcha alta (como la 7) o en una marcha baja (como la 1)? En una marcha alta, usas menos energía para cubrir la misma distancia. Lo mismo ocurre en un coche. Usar marchas largas (5ª o 6ª) a bajas revoluciones significa que el motor no tiene que trabajar tanto, lo que reduce el consumo de combustible.\n\n### 3️⃣ 💣 La Trampa / El Truco\nLa opción B te tienta a revolucionar el motor, pero eso es justo lo contrario de lo que quieres. Piensa: **menos revoluciones = menos gasto**. La opción C podría parecer buena, pero no es una técnica *específica* de conducción eficiente, sino más bien una práctica general de seguridad. La respuesta correcta es la A.",
+      "explanation_ru": "### 1️⃣ 👁️ Análisis Visual\nСмотри на картинку. Видишь рычаг переключения передач? Чтобы экономить топливо, старайся использовать повышенные передачи! Текст на картинке даёт подсказки.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nПредставь, что ты едешь на велосипеде. Легче крутить педали на высокой передаче (например, на 7-й) или на низкой (например, на 1-й)? На высокой передаче ты тратишь меньше энергии, чтобы проехать то же расстояние. То же самое и в машине. Использование повышенных передач (5-я или 6-я) на низких оборотах означает, что двигателю не нужно так сильно напрягаться, что снижает расход топлива.\n\n### 3️⃣ 💣 La Trampa / El Truco\nВариант B подталкивает тебя к тому, чтобы раскрутить двигатель, но это прямо противоположно тому, что нужно. Запомни: **меньше оборотов = меньше расход**. Вариант C может показаться хорошим, но это не *конкретный* метод экономичного вождения, а скорее общая практика безопасности. Правильный ответ — A.",
+      "explanation_en": "### 1️⃣ 👁️ Visual Analysis\nLook at the image. See the gear stick? To save fuel, think about using higher gears! The text in the image gives you clues.\n\n### 2️⃣ 🧠 The Logic \"Why\"\nImagine you're cycling on a bicycle. Is it easier to pedal in a high gear (like 7th) or in a low gear (like 1st)? In a high gear, you use less energy to cover the same distance. The same goes for a car. Using high gears (5th or 6th) at low revolutions means the engine doesn't have to work as hard, which reduces fuel consumption.\n\n### 3️⃣ 💣 The Trap / The Trick\nOption B tempts you to rev the engine, but that's the opposite of what you want. Think: **fewer revolutions = less fuel**. Option C might seem good, but it's not a *specific* technique for efficient driving, but rather a general safety practice. The correct answer is A.",
+      "source": "practicalvial",
+      "original_number": 17
+    }
+  },
+  {
+    "question_es": "Para anticiparse al peligro es muy importante que el conductor...",
+    "question_ru": "Для предвидения опасности очень важно, чтобы водитель...",
+    "question_en": "To anticipate danger, it is very important that the driver...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/5912ee2f-303d-4de6-b8c1-97660050ed48-1658858734-i.jpg",
+    "image_filename": "5912ee2f-303d-4de6-b8c1-97660050ed48-1658858734-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/5912ee2f-303d-4de6-b8c1-97660050ed48-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "esté siempre preparado para actuar en una situación peligrosa.",
+          "text_ru": "всегда был готов к действиям в опасной ситуации.",
+          "text_en": "is always prepared to act in a dangerous situation.",
+          "is_correct": true
+        },
+        {
+          "id": "b",
+          "text_es": "piense que únicamente los demás conductores cometen errores.",
+          "text_ru": "считал, что только другие водители совершают ошибки.",
+          "text_en": "thinks that only other drivers make mistakes.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "lleve siempre el pie puesto encima del pedal del freno.",
+          "text_ru": "всегда держал ногу на педали тормоза.",
+          "text_en": "always keeps their foot on the brake pedal.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "1️⃣ **👁️ Análisis Visual:**\nLa imagen refuerza la idea de la anticipación: vemos un coche frenando y una moto con las luces traseras encendidas. La \"conducción preventiva\" implica estar atento a todo.\n\n2️⃣ **🧠 La Lógica \"Por qué\":**\nAnticiparse al peligro no significa ser un adivino, sino estar mentalmente preparado para lo inesperado. Es como un portero de fútbol: no sabe dónde va a ir el balón, pero está listo para saltar en cualquier dirección.\n\n3️⃣ **💣 La Trampa / El Truco:**\nLa opción B es la trampa clásica. **NUNCA pienses que los errores solo los cometen los demás.** Asume que todos (¡incluido tú!) pueden equivocarse. ¡Esa mentalidad te salvará de un susto (o algo peor)!",
+      "explanation_ru": "1️⃣ **👁️ Análisis Visual:**\nИзображение усиливает идею предвидения: мы видим тормозящий автомобиль и мотоцикл с включенными задними фонарями. «Предупредительное вождение» подразумевает внимание ко всему.\n\n2️⃣ **🧠 La Lógica \"Por qué\":**\nПредвидеть опасность - это не значит быть провидцем, а быть мысленно готовым к неожиданностям. Это как вратарь в футболе: он не знает, куда полетит мяч, но готов прыгнуть в любом направлении.\n\n3️⃣ **💣 La Trampa / El Truco:**\nВариант B - классическая ловушка. **НИКОГДА не думай, что ошибки совершают только другие.** Предположи, что каждый (включая тебя!) может ошибиться. Такой настрой убережет от неприятностей (или чего похуже)!",
+      "explanation_en": "1️⃣ **👁️ Visual Analysis:**\nThe image reinforces the idea of anticipation: we see a car braking and a motorcycle with its rear lights on. \"Preventive driving\" implies being attentive to everything.\n\n2️⃣ **🧠 The Logic \"Why\":**\nAnticipating danger doesn't mean being a fortune teller, but being mentally prepared for the unexpected. It's like a football goalkeeper: they don't know where the ball is going, but they're ready to jump in any direction.\n\n3️⃣ **💣 The Trap / The Trick:**\nOption B is the classic trap. **NEVER think that only others make mistakes.** Assume that everyone (including you!) can make mistakes. That mentality will save you from a scare (or worse)!",
+      "source": "practicalvial",
+      "original_number": 19
+    }
+  },
+  {
+    "question_es": "Al conducir de forma eficiente...",
+    "question_ru": "При эффективном вождении...",
+    "question_en": "When driving efficiently...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/60b7b201-4d6e-44da-b123-39c985b8f8b4-1658858892-i.jpg",
+    "image_filename": "60b7b201-4d6e-44da-b123-39c985b8f8b4-1658858892-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/60b7b201-4d6e-44da-b123-39c985b8f8b4-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "el ruido que produce el vehículo aumenta.",
+          "text_ru": "A: шум, производимый транспортным средством, увеличивается.",
+          "text_en": "A: the noise produced by the vehicle increases.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "el gasto de combustible aumenta.",
+          "text_ru": "B: расход топлива увеличивается.",
+          "text_en": "B: fuel consumption increases.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "los costes de uso y mantenimiento del vehículo se reducen.",
+          "text_ru": "C: снижаются затраты на использование и техническое обслуживание транспортного средства.",
+          "text_en": "C: the costs of using and maintaining the vehicle are reduced.",
+          "is_correct": true
+        }
+      ],
+      "explanation_es": "### 2️⃣ 🧠 La Lógica \"Por qué\"\nПредставь, что ты супер-водитель, который плавно разгоняется, не тормозит резко и предвидит ситуацию на дороге. Как ты думаешь, что будет с затратами на бензин и ремонт?\n\nЭффективное вождение — это как экономия в банке. Чем меньше ты \"дергаешь\" машину, тем дольше она служит и меньше \"ест\".\n\n### 3️⃣ 💣 La Trampa / El Truco\nЛегко запутаться, думая, что экономичное вождение как-то связано с комфортом или скоростью. Главное здесь — **экономия денег и ресурсов**. Запомни: плавность = экономия.",
+      "explanation_ru": "### 2️⃣ 🧠 La Lógica \"Por qué\"\nПредставь, что ты – опытный водитель, который плавно разгоняется, не тормозит резко и предвидит ситуацию на дороге. Что произойдет с расходом топлива и затратами на ремонт?\n\nЭффективное вождение – это как откладывать деньги в копилку. Чем меньше ты \"дергаешь\" машину, тем дольше она служит и меньше \"ест\".\n\n### 3️⃣ 💣 La Trampa / El Truco\nЛегко запутаться, думая, что экономичное вождение как-то связано с комфортом или скоростью. Главное здесь – **экономия денег и ресурсов**. Запомни: плавность = экономия.",
+      "explanation_en": "### 2️⃣ 🧠 The Logic \"Why\"\nImagine you are a super driver who accelerates smoothly, doesn't brake suddenly, and anticipates the road situation. What do you think will happen to the cost of gas and repairs?\n\nEfficient driving is like saving in a bank. The less you \"jerk\" the car, the longer it lasts and the less it \"eats\".\n\n### 3️⃣ 💣 The Trap / The Trick\nIt's easy to get confused, thinking that economical driving is somehow related to comfort or speed. The main thing here is **saving money and resources**. Remember: smoothness = savings.",
+      "source": "practicalvial",
+      "original_number": 20
+    }
+  },
+  {
+    "question_es": "¿Es posible ahorrar combustible evitando cambios de marcha innecesarios?",
+    "question_ru": "Возможно ли экономить топливо, избегая ненужных переключений передач?",
+    "question_en": "Is it possible to save fuel by avoiding unnecessary gear changes?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/4a7ae554-853d-418c-9437-d24acc320c00-1658858927-i.jpg",
+    "image_filename": "4a7ae554-853d-418c-9437-d24acc320c00-1658858927-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/4a7ae554-853d-418c-9437-d24acc320c00-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Sí, se puede reducir el consumo.",
+          "text_ru": "Да, расход можно снизить.",
+          "text_en": "Yes, consumption can be reduced.",
+          "is_correct": true
+        },
+        {
+          "id": "b",
+          "text_es": "No, en ningún caso.",
+          "text_ru": "Нет, ни в коем случае.",
+          "text_en": "No, in no case.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "Depende de si el vehículo tiene motor diésel o de gasolina.",
+          "text_ru": "Зависит от того, дизельный или бензиновый двигатель у автомобиля.",
+          "text_en": "It depends on whether the vehicle has a diesel or gasoline engine.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "1️⃣ **👁️ Análisis Visual:** Observa la imagen. Se mencionan las técnicas de conducción eficiente, como arrancar sin acelerar y cambiar de marcha tan pronto como sea posible.\n\n2️⃣ **🧠 La Lógica \"Por qué\":** Evitar cambios de marcha innecesarios significa que el motor está funcionando en el rango óptimo de revoluciones. Si aceleras demasiado en una marcha baja, estás quemando combustible en exceso.  Si vas en una marcha muy alta a bajas revoluciones, el motor tiene que esforzarse más y también consume más.\n\n3️⃣ **💣 La Trampa / El Truco:** Mucha gente piensa que acelerar a fondo gasta más, y es cierto. Но главное — поддерживать оптимальные обороты. Запомни: **Плавно разгоняйся, переключай вовремя, и бак скажет «gracias»**.",
+      "explanation_ru": "1️⃣ **👁️ Análisis Visual:** Посмотри на картинку. Там упоминаются приемы экономичного вождения, например, запуск двигателя без нажатия на газ и переключение передач как можно скорее.\n\n2️⃣ **🧠 La Lógica \"Por qué\":** Избегая ненужных переключений передач, ты позволяешь двигателю работать в оптимальном диапазоне оборотов. Если ты слишком сильно разгоняешься на низкой передаче, ты сжигаешь лишнее топливо. Если ты едешь на слишком высокой передаче при низких оборотах, двигателю приходится больше напрягаться, и он тоже потребляет больше.\n\n3️⃣ **💣 La Trampa / El Truco:** Многие думают, что если давить газ в пол, то это тратит больше топлива, и это правда. Но главное — поддерживать оптимальные обороты. Запомни: **Плавно разгоняйся, переключай вовремя, и бак скажет «gracias».**",
+      "explanation_en": "1️⃣ **👁️ Visual Analysis:** Look at the image. It mentions efficient driving techniques, such as starting the engine without accelerating and changing gears as soon as possible.\n\n2️⃣ **🧠 The Logic \"Why\":** Avoiding unnecessary gear changes means that the engine is running in its optimal RPM range. If you accelerate too much in a low gear, you are burning excess fuel. If you are in a very high gear at low RPMs, the engine has to work harder and also consumes more.\n\n3️⃣ **💣 The Trap / The Trick:** Many people think that accelerating fully spends more, and that's right. But the main thing is to maintain optimal revs. Remember: **Accelerate smoothly, shift in time, and the fuel tank will say \"gracias\".**",
+      "source": "practicalvial",
+      "original_number": 21
+    }
+  },
+  {
+    "question_es": "¿Cómo puede reducir la velocidad de su vehículo?",
+    "question_ru": "Как можно снизить скорость вашего автомобиля?",
+    "question_en": "How can you reduce the speed of your vehicle?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/6c88f044-98bf-405f-be40-b9339f28eccf-1658858972-i.jpg",
+    "image_filename": "6c88f044-98bf-405f-be40-b9339f28eccf-1658858972-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/6c88f044-98bf-405f-be40-b9339f28eccf-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Solo con el sistema de frenado.",
+          "text_ru": "Только с помощью тормозной системы.",
+          "text_en": "Only with the braking system.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "Solo con el motor.",
+          "text_ru": "Только с помощью двигателя.",
+          "text_en": "Only with the engine.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "Tanto con el sistema de frenado como el motor.",
+          "text_ru": "Как с помощью тормозной системы, так и с помощью двигателя.",
+          "text_en": "Both with the braking system and the engine.",
+          "is_correct": true
+        }
+      ],
+      "explanation_es": "### 2️⃣ 🧠 La Lógica \"Por qué\"\n\nПредставь, что ты несешься на велосипеде с горы. Ты можешь тормозить только ручными тормозами, но они перегреются и откажут. Гораздо безопаснее переключать передачи вниз (торможение двигателем) и использовать тормоза плавно, чтобы контролировать скорость.\n\n### 3️⃣ 💣 La Trampa / El Truco\n\nМногие забывают про торможение двигателем и думают только про педаль тормоза. Запомни: **двигатель — твой друг в контроле скорости**, особенно на спусках и при плохой погоде.",
+      "explanation_ru": "### 2️⃣ 🧠 La Lógica \"Por qué\"\n\nПредставь, что ты несёшься на велосипеде с горы. Ты можешь тормозить только ручными тормозами, но они перегреются и откажут. Гораздо безопаснее переключать передачи вниз (торможение двигателем) и использовать тормоза плавно, чтобы контролировать скорость.\n\n### 3️⃣ 💣 La Trampa / El Truco\n\nМногие забывают про торможение двигателем и думают только про педаль тормоза. Запомни: **двигатель — твой друг в контроле скорости**, особенно на спусках и при плохой погоде.",
+      "explanation_en": "### 2️⃣ 🧠 The Logic \"Why\"\n\nImagine you're speeding down a hill on a bicycle. You could only use the hand brakes, but they will overheat and fail. It's much safer to downshift (engine braking) and use the brakes smoothly to control the speed.\n\n### 3️⃣ 💣 The Trap / The Trick\n\nMany people forget about engine braking and only think about the brake pedal. Remember: **the engine is your friend in controlling speed**, especially on downhills and in bad weather.",
+      "source": "practicalvial",
+      "original_number": 22
+    }
+  },
+  {
+    "question_es": "A la actitud ante la conducción que permite circular de una manera segura se le llama conducción...",
+    "question_ru": "Как называется манера вождения, позволяющая безопасно управлять автомобилем?",
+    "question_en": "The attitude towards driving that allows you to drive safely is called driving...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/39358f9d-c6d5-448a-b108-0a03be69e06c-1658858681-i.jpg",
+    "image_filename": "39358f9d-c6d5-448a-b108-0a03be69e06c-1658858681-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/39358f9d-c6d5-448a-b108-0a03be69e06c-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "prudente.",
+          "text_ru": "A) A: осмотрительная.",
+          "text_en": "A) A: prudent.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "eficiente.",
+          "text_ru": "B) B: эффективная.",
+          "text_en": "B) B: efficient.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "preventiva.",
+          "text_ru": "C) C: превентивная.",
+          "text_en": "C) C: preventive.",
+          "is_correct": true
+        }
+      ],
+      "explanation_es": "### 1️⃣ 👁️ Análisis Visual\nObserva la imagen. Ves las pelotas en la carretera? La conducción preventiva implica anticiparse a posibles peligros, como un niño que corre detrás de esas pelotas.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nLa **conducción preventiva** no se trata solo de seguir las reglas, sino de *anticipar* lo que podría pasar. Es как шахматы на дороге. Ты должен думать на два хода вперед. Если видишь мяч на дороге, будь готов, что за ним выбежит ребенок.\n\n### 3️⃣ 💣 La Trampa / El Truco\nMuchos eligen \"prudente\" porque suena bien, pero la clave está en la *anticipación*.  Recuerda: **Pre-ven-ti-va** = **Ver** antes de que el problema te golpee.",
+      "explanation_ru": "### 1️⃣ 👁️ Análisis Visual\nПосмотри на картинку. Видишь мячи на дороге? Превентивное вождение – это предвидение опасностей, например, ребенок, выбегающий за этими мячами.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\n**Превентивное вождение** – это не просто соблюдение правил, а *предвидение* того, что может произойти. Это как шахматы на дороге. Ты должен думать на два хода вперед. Если видишь мяч на дороге, будь готов, что за ним выскочит ребенок.\n\n### 3️⃣ 💣 La Trampa / El Truco\nМногие выбирают \"осмотрительное\", потому что звучит неплохо, но главное – *предвидение*. Запомни: **Пре-вен-тив-ное** = **Видеть** до того, как проблема тебя ударит.",
+      "explanation_en": "### 1️⃣ 👁️ Visual Analysis\nLook at the image. See the balls on the road? Preventive driving involves anticipating possible dangers, such as a child running after those balls.\n\n### 2️⃣ 🧠 The Logic \"Why\"\n**Preventive driving** is not just about following the rules, but about *anticipating* what might happen. It's like chess on the road. You have to think two moves ahead. If you see a ball on the road, be prepared for a child to run out after it.\n\n### 3️⃣ 💣 The Trap / The Trick\nMany choose \"prudent\" because it sounds good, but the key is *anticipation*. Remember: **Pre-ven-ti-ve** = **See** before the problem hits you.",
+      "source": "practicalvial",
+      "original_number": 24
+    }
+  },
+  {
+    "question_es": "Si se modifica la aerodinámica del vehículo añadiendo elementos para hacerlo más atractivo...",
+    "question_ru": "Если изменить аэродинамику автомобиля, добавив элементы для большей привлекательности...",
+    "question_en": "If the aerodynamics of the vehicle are modified by adding elements to make it more attractive...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/bf112ca0-65af-4061-b321-48ed6cd3fde6-1658859081-i.jpg",
+    "image_filename": "bf112ca0-65af-4061-b321-48ed6cd3fde6-1658859081-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/bf112ca0-65af-4061-b321-48ed6cd3fde6-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "será más seguro.",
+          "text_ru": "A: это сделает его безопаснее.",
+          "text_en": "A: it will be safer.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "será más ligero.",
+          "text_ru": "B: это сделает его легче.",
+          "text_en": "B: it will be lighter.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "afectará considerablemente al consumo del carburante.",
+          "text_ru": "C: это значительно повлияет на расход топлива.",
+          "text_en": "C: it will significantly affect fuel consumption.",
+          "is_correct": true
+        }
+      ],
+      "explanation_es": "### 1️⃣ 👁️ Análisis Visual:\nObserva la imagen. Ves la diferencia entre el coche original y el 'monster truck'? Los apéndices aerodinámicos y las ruedas gigantes aumentan la resistencia al aire.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\":\nLa aerodinámica está directamente relacionada con la eficiencia del combustible. Si añades elementos que aumentan la resistencia al viento, el motor tiene que trabajar más para mantener la misma velocidad, lo que significa mayor consumo de combustible. Imagina correr с рюкзаком против ветра: энергии тратишь больше!\n\n### 3️⃣ 💣 La Trampa / El Truco:\nLa palabra clave es \"estético\". El DGT te está intentando distraer con la idea de que algo más \"atractivo\" podría ser más seguro. ¡Error! Seguridad y estética no siempre van de la mano. Enfócate en la aerodinámica y el consumo.",
+      "explanation_ru": "### 1️⃣ 👁️ Análisis Visual:\nСмотри на картинку. Видишь разницу между обычным легковым автомобилем и 'monster truck'? Аэродинамические элементы и гигантские колеса увеличивают сопротивление воздуха.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\":\nАэродинамика напрямую связана с расходом топлива. Если ты добавляешь элементы, которые увеличивают сопротивление ветру, двигателю приходится работать больше, чтобы поддерживать ту же скорость. А это значит – больше топлива. Представь, что бежишь с рюкзаком против ветра: энергии тратишь больше!\n\n### 3️⃣ 💣 La Trampa / El Truco:\nКлючевое слово – \"эстетика\". DGT пытается отвлечь тебя идеей, что что-то более \"привлекательное\" может быть более безопасным. Ошибка! Безопасность и эстетика не всегда идут рука об руку. Сосредоточься на аэродинамике и расходе топлива.",
+      "explanation_en": "### 1️⃣ 👁️ Visual Analysis:\nLook at the image. Can you see the difference between the original car and the 'monster truck'? The aerodynamic appendages and giant wheels increase air resistance.\n\n### 2️⃣ 🧠 The Logic \"Why\":\nAerodynamics are directly related to fuel efficiency. If you add elements that increase wind resistance, the engine has to work harder to maintain the same speed, which means higher fuel consumption. Imagine running with a backpack against the wind: you spend more energy!\n\n### 3️⃣ 💣 The Trap / The Trick:\nThe key word is \"aesthetic\". The DGT is trying to distract you with the idea that something more \"attractive\" could be safer. Wrong! Safety and aesthetics don't always go hand in hand. Focus on aerodynamics and consumption.",
+      "source": "practicalvial",
+      "original_number": 25
+    }
+  },
+  {
+    "question_es": "¿Cómo se llama la conducción que nos permite circular, anticipando posibles riesgos?",
+    "question_ru": "Как называется стиль вождения, который позволяет нам ездить, предвосхищая возможные риски?",
+    "question_en": "What is the name of the driving style that allows us to drive, anticipating possible risks?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/37c1a0d8-b0a4-45ac-bbfd-654a3692a44a-1658858689-i.jpg",
+    "image_filename": "37c1a0d8-b0a4-45ac-bbfd-654a3692a44a-1658858689-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/37c1a0d8-b0a4-45ac-bbfd-654a3692a44a-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Preventiva.",
+          "text_ru": "A: Превентивное.",
+          "text_en": "A: Preventive.",
+          "is_correct": true
+        },
+        {
+          "id": "b",
+          "text_es": "Eficiente.",
+          "text_ru": "B: Эффективное.",
+          "text_en": "B: Efficient.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "Peligrosa.",
+          "text_ru": "C: Опасное.",
+          "text_en": "C: Dangerous.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 1️⃣ 👁️ Análisis Visual\nMira la imagen. Ves las pelotas en la calle? La situación sugiere que podría haber niños jugando cerca. \n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nLa conducción preventiva se basa en anticipar los peligros en la carretera. No se trata de reaccionar a lo que ya está pasando, sino de prever lo que *podría* pasar. Si ves una señal de niños, reduce la velocidad. Si ves un balón en la calle, prepárate para frenar. Es como jugar al ajedrez: siempre pensando varios movimientos por delante.\n\n### 3️⃣ 💣 La Trampa / El Truco\nMuchos eligen \"eficiente\" porque suena bien. Pero recuerda: **La seguridad SIEMPRE va antes que la eficiencia.**",
+      "explanation_ru": "### 1️⃣ 👁️ Análisis Visual\nПосмотри на картинку. Видишь мячи на дороге? Ситуация намекает, что рядом могут играть дети.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nПревентивное вождение основано на предвосхищении опасностей на дороге. Речь идёт не о реагировании на то, что уже происходит, а о прогнозировании того, что *может* произойти. Если видишь знак \"Дети\", снижай скорость. Если видишь мяч на дороге, будь готов тормозить. Это как играть в шахматы: всегда думай на несколько ходов вперёд.\n\n### 3️⃣ 💣 La Trampa / El Truco\nМногие выбирают \"эффективное\", потому что это звучит хорошо. Но запомни: **Безопасность ВСЕГДА важнее эффективности.**",
+      "explanation_en": "### 1️⃣ 👁️ Visual Analysis\nLook at the image. Do you see the balls on the street? The situation suggests that there might be children playing nearby.\n\n### 2️⃣ 🧠 The Logic \"Why\"\nPreventive driving is based on anticipating hazards on the road. It's not about reacting to what's already happening, but about predicting what *could* happen. If you see a children's sign, reduce your speed. If you see a ball in the street, be prepared to brake. It's like playing chess: always thinking several moves ahead.\n\n### 3️⃣ 💣 The Trap / The Trick\nMany choose \"efficient\" because it sounds good. But remember: **Safety ALWAYS comes before efficiency.**",
+      "source": "practicalvial",
+      "original_number": 26
+    }
+  },
+  {
+    "question_es": "Las técnicas de conducción eficiente pueden ahorrar entre un 10 y 25% de combustible...",
+    "question_ru": "Техники экономичного вождения позволяют сэкономить от 10 до 25% топлива...",
+    "question_en": "Efficient driving techniques can save between 10 and 25% of fuel...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/c8640268-4420-441b-836f-a7c8d8f013b3-1658858896-i.jpg",
+    "image_filename": "c8640268-4420-441b-836f-a7c8d8f013b3-1658858896-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/c8640268-4420-441b-836f-a7c8d8f013b3-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "y reducir de forma importante las emisiones contaminantes.",
+          "text_ru": "и значительно снизить уровень загрязняющих выбросов.",
+          "text_en": "and significantly reduce polluting emissions.",
+          "is_correct": true
+        },
+        {
+          "id": "b",
+          "text_es": "pero no pueden reducir las emisiones contaminantes.",
+          "text_ru": "но не могут снизить уровень загрязняющих выбросов.",
+          "text_en": "but they cannot reduce polluting emissions.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "y reducir las emisiones contaminantes en el mismo volumen.",
+          "text_ru": "и снизить уровень загрязняющих выбросов в том же объеме.",
+          "text_en": "and reduce polluting emissions in the same volume.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 🧠 La Lógica \"Por qué\"\nImagina que el motor de tu coche es como un atleta. Si conduces de forma agresiva (acelerones, frenazos), el motor gasta más energía (combustible) y libera más \"humo\" (emisiones). La conducción eficiente busca suavidad, anticipación, como un corredor de maratón que dosifica sus fuerzas. Menos combustible = menos contaminación.\n\n### 💣 La Trampa / El Truco\nLa respuesta B te dice que *NO* se reducen las emisiones. ¡Falso! Es la trampa típica. Recuerda: **Eficiencia = Ahorro en TODO** (combustible, emisiones, desgaste).",
+      "explanation_ru": "### 🧠 La Lógica \"Por qué\"\nПредставь, что мотор твоей машины — это спортсмен. Если ты водишь агрессивно (газ в пол, резкое торможение), мотор тратит больше энергии (топлива) и выпускает больше \"дыма\" (выбросов). Экономичное вождение стремится к плавности, прогнозированию, как марафонец, который дозирует свои силы. Меньше топлива = меньше загрязнения.\n\n### 💣 La Trampa / El Truco\nОтвет B говорит, что выбросы *НЕ* уменьшаются. Неправда! Это типичная ловушка. Запомни: **Экономия = Выгода во ВСЕМ** (топливо, выбросы, износ).",
+      "explanation_en": "### 🧠 The Logic \"Why\"\nImagine your car's engine is like an athlete. If you drive aggressively (accelerations, braking), the engine spends more energy (fuel) and releases more \"smoke\" (emissions). Efficient driving seeks smoothness, anticipation, like a marathon runner who doses their strength. Less fuel = less pollution.\n\n### 💣 The Trap / The Trick\nAnswer B tells you that emissions are *NOT* reduced. False! It's the typical trap. Remember: **Efficiency = Savings in EVERYTHING** (fuel, emissions, wear).",
+      "source": "practicalvial",
+      "original_number": 27
+    }
+  },
+  {
+    "question_es": "¿Está permitida la circulación de vehículos cuyo nivel de ruido supera los límites establecidos?",
+    "question_ru": "Разрешено ли движение транспортных средств, уровень шума которых превышает установленные нормы?",
+    "question_en": "Is the circulation of vehicles whose noise level exceeds the established limits allowed?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/075a6f79-fc7a-4a27-bd73-c623d53e1c7e-1663758206-i.jpg",
+    "image_filename": "075a6f79-fc7a-4a27-bd73-c623d53e1c7e-1663758206-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/075a6f79-fc7a-4a27-bd73-c623d53e1c7e-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "No.",
+          "text_ru": "Нет.",
+          "text_en": "No.",
+          "is_correct": true
+        },
+        {
+          "id": "b",
+          "text_es": "Solo está permitida su circulación por vías urbanas.",
+          "text_ru": "Разрешено движение только по дорогам в населенных пунктах.",
+          "text_en": "It is only allowed to circulate on urban roads.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "Sí.",
+          "text_ru": "Да.",
+          "text_en": "Yes.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 🧠 La Lógica \"Por qué\"\nImagina que vives al lado de una carretera. ¿Te gustaría que pasaran coches haciendo un ruido infernal a todas horas? ¡Claro que no! Por eso, la ley prohíbe circular con vehículos que superen los límites de ruido establecidos. No solo molesta, sino que también puede ser perjudicial para la salud.\n\n### 💣 La Trampa / El Truco\nRecuerda: ¡El ruido, como la contaminación, es un problema para todos! La respuesta correcta siempre será la que proteja el medio ambiente y la salud pública. Piensa en ello como si estuvieras cuidando a tus vecinos.",
+      "explanation_ru": "### 🧠 La Lógica \"Por qué\"\nПредставь, что ты живешь рядом с дорогой. Тебе понравится, если машины будут проезжать и создавать адский шум круглые сутки? Конечно, нет! Поэтому закон запрещает движение транспортных средств, уровень шума которых превышает установленные нормы. Это не только раздражает, но и может быть вредным для здоровья.\n\n### 💣 La Trampa / El Truco\nЗапомни: Шум, как и загрязнение окружающей среды, — это проблема для всех! Правильный ответ всегда будет тем, который защищает окружающую среду и здоровье населения. Думай об этом так, как будто ты заботишься о своих соседях.",
+      "explanation_en": "### 🧠 The Logic \"Why\"\nImagine you live next to a road. Would you like cars to pass by making a hellish noise at all hours? Of course not! That's why the law prohibits driving vehicles that exceed the established noise limits. It is not only annoying, but it can also be harmful to health.\n\n### 💣 The Trap / The Trick\nRemember: Noise, like pollution, is a problem for everyone! The correct answer will always be the one that protects the environment and public health. Think of it as taking care of your neighbors.",
+      "source": "practicalvial",
+      "original_number": 30
+    }
+  },
+  {
+    "question_es": "¿Para contaminar el medio ambiente lo menos posible, se recomienda...?",
+    "question_ru": "Чтобы загрязнять окружающую среду как можно меньше, рекомендуется...?",
+    "question_en": "To pollute the environment as little as possible, it is recommended to...?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/c43e2f4b-344c-4e68-96e1-b719cb01025b-1658858982-i.jpg",
+    "image_filename": "c43e2f4b-344c-4e68-96e1-b719cb01025b-1658858982-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/c43e2f4b-344c-4e68-96e1-b719cb01025b-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "mantener siempre la misma velocidad.",
+          "text_ru": "A) A: всегда поддерживать одну и ту же скорость.",
+          "text_en": "A) A: always maintain the same speed.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "utilizar lo menos posible el transporte público.",
+          "text_ru": "B) B: как можно меньше пользоваться общественным транспортом.",
+          "text_en": "B) B: use public transport as little as possible.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "mantener la velocidad lo más uniforme posible, evitando aceleraciones y frenazos bruscos.",
+          "text_ru": "C) C: поддерживать скорость максимально равномерной, избегая резких ускорений и торможений.",
+          "text_en": "C) C: maintain the speed as uniform as possible, avoiding sudden accelerations and braking.",
+          "is_correct": true
+        }
+      ],
+      "explanation_es": "1️⃣ **👁️ Análisis Visual:**\nMira la imagen, aunque no es directamente relevante para la pregunta, nos recuerda la importancia de una conducción eficiente.\n\n2️⃣ **🧠 La Lógica \"Por qué\":**\nPiensa en la física. Cada vez que pisas el acelerador a fondo o frenas bruscamente, el motor quema más combustible. Y más combustible significa más emisiones contaminantes. Una conducción suave y constante es como un río que fluye tranquilamente, mientras que los acelerones y frenazos son como rápidos turbulentos: gastan más energía.\n\n3️⃣ **💣 La Trampa / El Truco:**\nMuchos piensan que usar menos el transporte público es la solución, ¡error! El transporte público, aunque no lo uses tú directamente, reduce la cantidad de coches individuales en la carretera, disminuyendo la contaminación general. Recuerda: **Suavidad = menos contaminación**.",
+      "explanation_ru": "1️⃣ **👁️ Análisis Visual:**\nВзгляни на изображение, хотя оно напрямую и не относится к вопросу, оно напоминает нам о важности эффективного вождения.\n\n2️⃣ **🧠 La Lógica \"Por qué\":**\nПредставь физику процесса. Каждый раз, когда ты давишь на газ в пол или резко тормозишь, двигатель сжигает больше топлива. А больше топлива означает больше вредных выбросов. Плавная и постоянная езда похожа на реку, текущую спокойно, в то время как резкие ускорения и торможения - как бурные пороги: они потребляют больше энергии.\n\n3️⃣ **💣 La Trampa / El Truco:**\nМногие думают, что меньше пользоваться общественным транспортом – это решение проблемы, но это ошибка! Общественный транспорт, даже если ты им не пользуешься напрямую, уменьшает количество отдельных автомобилей на дороге, снижая общее загрязнение. Запомни: **Плавность = меньше загрязнения**.",
+      "explanation_en": "1️⃣ **👁️ Visual Analysis:**\nLook at the image, although it is not directly relevant to the question, it reminds us of the importance of efficient driving.\n\n2️⃣ **🧠 The Logic \"Why\":**\nThink about physics. Every time you step on the accelerator fully or brake suddenly, the engine burns more fuel. And more fuel means more polluting emissions. A smooth and constant ride is like a river flowing quietly, while accelerations and braking are like turbulent rapids: they consume more energy.\n\n3️⃣ **💣 The Trap / The Trick:**\nMany people think that using public transport less is the solution, mistake! Public transport, even if you don't use it directly, reduces the number of individual cars on the road, reducing general pollution. Remember: **Smoothness = less pollution**.",
+      "source": "practicalvial",
+      "original_number": 2
+    }
+  },
+  {
+    "question_es": "¿Qué velocidades o marchas sirven para alcanzar mayor velocidad?",
+    "question_ru": "Какие передачи используются для достижения максимальной скорости?",
+    "question_en": "Which speeds or gears are used to reach the highest speed?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/fdab9881-0c87-4e57-844d-fc50b3d6ed72-1658858950-i.jpg",
+    "image_filename": "fdab9881-0c87-4e57-844d-fc50b3d6ed72-1658858950-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/fdab9881-0c87-4e57-844d-fc50b3d6ed72-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "La 3ª y la 4ª.",
+          "text_ru": "3-я и 4-я.",
+          "text_en": "3rd and 4th.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "La 1ª y la 2ª.",
+          "text_ru": "1-я и 2-я.",
+          "text_en": "1st and 2nd.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "La 4ª y la 5ª.",
+          "text_ru": "4-я и 5-я.",
+          "text_en": "4th and 5th.",
+          "is_correct": true
+        }
+      ],
+      "explanation_es": "### 1️⃣ 👁️ Análisis Visual\n\nObserva la imagen. Se muestra una palanca de cambios. Las marchas más altas (4ª, 5ª, 6ª) están diseñadas para alcanzar velocidades mayores una vez que el vehículo ha ganado inercia.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\n\nImagina que estás corriendo. Necesitas un empujón inicial (1ª marcha), luego un poco más (2ª marcha). Pero para correr rápido, necesitas usar las marchas más largas para mantener la velocidad con menos esfuerzo del motor. Es como cambiar a una zancada más larga para ir más rápido.\n\n### 3️⃣ 💣 La Trampa / El Truco\n\nMuchos piensan que la 1ª es la más rápida porque tiene más fuerza. ¡Error! La fuerza es para empezar a moverte. Para la velocidad, necesitas las marchas altas. Piensa en ello como en una bicicleta: no vas a ir muy lejos en la marcha más baja.",
+      "explanation_ru": "### 1️⃣ 👁️ Análisis Visual\n\nПосмотри на изображение. Здесь показана ручка переключения передач. Более высокие передачи (4-я, 5-я, 6-я) предназначены для достижения более высоких скоростей, когда автомобиль уже набрал инерцию.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\n\nПредставь, что ты бежишь. Тебе нужен начальный толчок (1-я передача), затем еще немного (2-я передача). Но чтобы бежать быстро, тебе нужно использовать более длинные передачи, чтобы поддерживать скорость с меньшим усилием двигателя. Это как перейти на более длинный шаг, чтобы идти быстрее.\n\n### 3️⃣ 💣 La Trampa / El Truco\n\nМногие думают, что 1-я передача самая быстрая, потому что у нее больше силы. Ошибка! Сила нужна, чтобы начать движение. Для скорости нужны высокие передачи. Представь это как на велосипеде: ты не уедешь далеко на самой низкой передаче.",
+      "explanation_en": "### 1️⃣ 👁️ Visual Analysis\n\nLook at the image. It shows a gear stick. Higher gears (4th, 5th, 6th) are designed to reach higher speeds once the vehicle has gained momentum.\n\n### 2️⃣ 🧠 The Logic \"Why\"\n\nImagine you are running. You need an initial push (1st gear), then a bit more (2nd gear). But to run fast, you need to use the longer gears to maintain speed with less engine effort. It's like switching to a longer stride to go faster.\n\n### 3️⃣ 💣 The Trap / The Trick\n\nMany think that 1st is the fastest because it has more force. Wrong! The force is to start moving. For speed, you need the high gears. Think of it like a bicycle: you're not going to get very far in the lowest gear.",
+      "source": "practicalvial",
+      "original_number": 3
+    }
+  },
+  {
+    "question_es": "¿Qué vehículos son principalmente el objetivo de las restricciones en Zonas de Bajas Emisiones en localidades con más de 50.000 habitantes?",
+    "question_ru": "Какие транспортные средства в основном являются целью ограничений в зонах с низким уровнем выбросов в населенных пунктах с населением более 50 000 человек?",
+    "question_en": "Which vehicles are primarily targeted by restrictions in Low Emission Zones in towns with more than 50,000 inhabitants?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/337753b5-c604-41f0-8402-fb83ad933c50-1734426446-i.jpg",
+    "image_filename": "337753b5-c604-41f0-8402-fb83ad933c50-1734426446-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/337753b5-c604-41f0-8402-fb83ad933c50-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Vehículos eléctricos.",
+          "text_ru": "Электромобили.",
+          "text_en": "Electric vehicles.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "Vehículos con altas emisiones de CO2.",
+          "text_ru": "Транспортные средства с высоким уровнем выбросов CO2.",
+          "text_en": "Vehicles with high CO2 emissions.",
+          "is_correct": true
+        },
+        {
+          "id": "c",
+          "text_es": "Bicicletas.",
+          "text_ru": "Велосипеды.",
+          "text_en": "Bicycles.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 1️⃣ 👁️ Análisis Visual:\nMira la imagen. Ves el coche tachado con las partículas saliendo del tubo de escape? Eso ya te da una pista.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\":\nLas Zonas de Bajas Emisiones (ZBE) se crean para proteger la calidad del aire en las ciudades. Por lo tanto, el objetivo principal son los vehículos que más contaminan, es decir, aquellos con altas emisiones de CO2 y otros gases contaminantes.\n\n### 3️⃣ 💣 La Trampa / El Truco:\nLa respuesta fácil sería pensar en \"vehículos\", pero la clave está en \"altas emisiones\". No te dejes engañar por la opción A (vehículos eléctricos), que son todo lo contrario. Recuerda: **ZBE = Contra la Contaminación**",
+      "explanation_ru": "### 1️⃣ 👁️ Análisis Visual:\nСмотри на картинку. Видишь, машина перечеркнута, а из выхлопной трубы летят частицы? Это уже подсказка.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\":\nЗоны с низким уровнем выбросов (ZBE) создаются для защиты качества воздуха в городах. Поэтому основная цель - транспортные средства, которые больше всего загрязняют окружающую среду, то есть те, у которых высокий уровень выбросов CO2 и других загрязняющих газов.\n\n### 3️⃣ 💣 La Trampa / El Truco:\nЛегким ответом было бы подумать о \"транспортных средствах\", но ключ в \"высоких выбросах\". Не дайте себя обмануть вариантом А (электромобили), которые являются полной противоположностью. Запомни: **ZBE = Против Загрязнения**",
+      "explanation_en": "### 1️⃣ 👁️ Visual Analysis:\nLook at the image. See the car crossed out with particles coming out of the exhaust pipe? That already gives you a clue.\n\n### 2️⃣ 🧠 The Logic \"Why\":\nLow Emission Zones (LEZ) are created to protect air quality in cities. Therefore, the main target is vehicles that pollute the most, that is, those with high CO2 emissions and other polluting gases.\n\n### 3️⃣ 💣 The Trap / The Trick:\nThe easy answer would be to think of \"vehicles\", but the key is in \"high emissions\". Don't be fooled by option A (electric vehicles), which are the opposite. Remember: **LEZ = Against Pollution**",
+      "source": "practicalvial",
+      "original_number": 6
+    }
+  },
+  {
+    "question_es": "Si durante la conducción conecta el sistema de aire acondicionado, el consumo de carburante...",
+    "question_ru": "Если во время вождения включить систему кондиционирования, расход топлива...",
+    "question_en": "If you turn on the air conditioning system while driving, fuel consumption...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/17604e7c-5075-4ca6-a806-7d7709ca6182-1658858998-i.jpg",
+    "image_filename": "17604e7c-5075-4ca6-a806-7d7709ca6182-1658858998-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/17604e7c-5075-4ca6-a806-7d7709ca6182-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "no varía.",
+          "text_ru": "A: не меняется.",
+          "text_en": "A: does not vary.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "aumenta.",
+          "text_ru": "B: увеличивается.",
+          "text_en": "B: increases.",
+          "is_correct": true
+        },
+        {
+          "id": "c",
+          "text_es": "disminuye si las temperaturas son bajas.",
+          "text_ru": "C: уменьшается, если температура низкая.",
+          "text_en": "C: decreases if the temperatures are low.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 2️⃣ 🧠 La Lógica \"Por qué\"\nImagina el motor de tu coche como un atleta. Si le pides que corra (impulsar el coche) Y que además cargue una pesa (aire acondicionado), va a necesitar más energía (combustible), ¿verdad? El aire acondicionado chupa energía del motor.\n\n### 3️⃣ 💣 La Trampa / El Truco\nMuchos piensan que a baja temperatura el aire acondicionado gasta menos. ¡Error! Siempre gasta más. Recuerda: **aire = gasto extra.**",
+      "explanation_ru": "### 2️⃣ 🧠 La Lógica \"Por qué\"\nПредставь себе мотор твоего автомобиля как спортсмена. Если ты попросишь его бежать (толкать машину) И при этом нести вес (кондиционер), ему понадобится больше энергии (топлива), верно? Кондиционер высасывает энергию из двигателя.\n\n### 3️⃣ 💣 La Trampa / El Truco\nМногие думают, что при низкой температуре кондиционер потребляет меньше. Ошибка! Он всегда потребляет больше. Запомни: **кондиционер = дополнительный расход.**",
+      "explanation_en": "### 2️⃣ 🧠 The Logic \"Why\"\nImagine your car's engine as an athlete. If you ask it to run (power the car) AND carry a weight (air conditioning), it will need more energy (fuel), right? The air conditioning sucks energy from the engine.\n\n### 3️⃣ 💣 The Trap / The Trick\nMany think that at low temperatures the air conditioning consumes less. Wrong! It always consumes more. Remember: **air = extra cost.**",
+      "source": "practicalvial",
+      "original_number": 7
+    }
+  },
+  {
+    "question_es": "Circular demasiado cerca del vehículo de delante, ¿puede ser peligroso?",
+    "question_ru": "Опасно ли ехать слишком близко к впереди идущему автомобилю?",
+    "question_en": "Is it dangerous to drive too close to the vehicle in front?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/4cdad4df-560c-4823-86cd-2cc2beffdb15-1658858773-i.jpg",
+    "image_filename": "4cdad4df-560c-4823-86cd-2cc2beffdb15-1658858773-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/4cdad4df-560c-4823-86cd-2cc2beffdb15-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Sí, por el riesgo de alcance en caso de frenada.",
+          "text_ru": "Да, из-за риска столкновения в случае торможения.",
+          "text_en": "Yes, due to the risk of rear-end collision in case of braking.",
+          "is_correct": true
+        },
+        {
+          "id": "b",
+          "text_es": "No, si los frenos de mi automóvil están en buen estado.",
+          "text_ru": "Нет, если тормоза моего автомобиля в хорошем состоянии.",
+          "text_en": "No, if my car's brakes are in good condition.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "No, si se circula a la misma velocidad que el vehículo de delante.",
+          "text_ru": "Нет, если вы едете с той же скоростью, что и впереди идущий автомобиль.",
+          "text_en": "No, if you are traveling at the same speed as the vehicle in front.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 1️⃣ 👁️ Análisis Visual\nMira la imagen. Ves los coches chocados? Eso pasa cuando no dejas suficiente distancia.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nImagina que el coche de delante clava los frenos. Tu reacción no es instantánea. Ты necesita tiempo para reaccionar y frenar. Si no hay suficiente espacio, vas a besar su parachoques. Es física básica, como бегущий человек не может остановиться мгновенно.\n\n### 3️⃣ 💣 La Trampa / El Truco\nMuchos piensan: \"Yo freno a tiempo\". ¡Error! El tiempo de reacción es constante, y la distancia de frenado aumenta con la velocidad. A más velocidad, ¡más espacio necesitas!",
+      "explanation_ru": "### 1️⃣ 👁️ Análisis Visual\nПосмотри на картинку. Видишь разбитые машины? Это происходит, когда не оставляешь достаточную дистанцию.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nПредставь, что машина впереди резко тормозит. Твоя реакция не мгновенная. Тебе нужно время, чтобы среагировать и нажать на тормоз. Если не будет достаточно места, ты поцелуешь его бампер. Это элементарная физика, как бегущий человек не может остановиться мгновенно.\n\n### 3️⃣ 💣 La Trampa / El Truco\nМногие думают: \"Я успею затормозить\". Ошибка! Время реакции постоянно, а тормозной путь увеличивается с увеличением скорости. Чем выше скорость, тем больше места тебе нужно!",
+      "explanation_en": "### 1️⃣ 👁️ Visual Analysis\nLook at the image. See the crashed cars? That's what happens when you don't leave enough distance.\n\n### 2️⃣ 🧠 The Logic \"Why\"\nImagine the car in front slams on the brakes. Your reaction isn't instant. You need time to react and brake. If there isn't enough space, you'll kiss their bumper. It's basic physics, like a running person can't stop instantly.\n\n### 3️⃣ 💣 The Trap / The Trick\nMany people think: \"I'll brake in time\". Wrong! Reaction time is constant, and braking distance increases with speed. The faster you go, the more space you need!",
+      "source": "practicalvial",
+      "original_number": 9
+    }
+  },
+  {
+    "question_es": "Una de las técnicas de visión en la conducción preventiva consiste en...",
+    "question_ru": "Одна из техник визуального контроля при безопасном вождении заключается в...",
+    "question_en": "One of the vision techniques in defensive driving consists of...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/b53f2f4b-4ae9-405c-b904-5cbd43a8ddf0-1658858702-i.jpg",
+    "image_filename": "b53f2f4b-4ae9-405c-b904-5cbd43a8ddf0-1658858702-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/b53f2f4b-4ae9-405c-b904-5cbd43a8ddf0-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "mirar a lo lejos, a los lados y por los espejos retrovisores.",
+          "text_ru": "смотрение вдаль, по сторонам и в зеркала заднего вида.",
+          "text_en": "looking far ahead, to the sides, and through the rearview mirrors.",
+          "is_correct": true
+        },
+        {
+          "id": "b",
+          "text_es": "acostumbrarse a los deslumbramientos.",
+          "text_ru": "привыкании к ослеплению.",
+          "text_en": "getting used to glare.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "instalar espejos panorámicos.",
+          "text_ru": "установке панорамных зеркал.",
+          "text_en": "installing panoramic mirrors.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 1️⃣ 👁️ Análisis Visual\n\nMira la imagen. Observa cómo el conductor está usando el espejo retrovisor interior para tener una visión completa de lo que sucede detrás. También se ilustran los ángulos muertos, esas zonas que no se ven directamente y requieren usar los espejos.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\n\nLa conducción preventiva se basa en anticipar los peligros. Para eso, necesitas estar constantemente escaneando el entorno: lejos para prever situaciones, a los lados para detectar peatones o vehículos, y por los espejos para controlar el tráfico que te rodea. Es как глаза у осьминога, чтобы видеть всё.\n\n### 3️⃣ 💣 La Trampa / El Truco\n\nMuchos piensan que basta con mirar adelante, pero descuidar los espejos es un fallo eliminatorio. Imagina que un motorista обгоняет тебя, и ты не посмотрел в зеркало. ¡Catástrofe! Recuerda: **visión 360° es la clave**.",
+      "explanation_ru": "### 1️⃣ 👁️ Análisis Visual\n\nПосмотри на картинку. Видишь, как водитель использует зеркало заднего вида, чтобы видеть, что происходит сзади? Также показаны слепые зоны — места, которые не видны напрямую и требуют использования зеркал.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\n\nБезопасное вождение основано на предвидении опасностей. Для этого нужно постоянно сканировать окружающую обстановку: смотреть вдаль, чтобы прогнозировать ситуации, по сторонам, чтобы видеть пешеходов или другие автомобили, и в зеркала, чтобы контролировать трафик вокруг. Это как глаза у осьминога, чтобы видеть всё.\n\n### 3️⃣ 💣 La Trampa / El Truco\n\nМногие думают, что достаточно смотреть вперёд, но пренебрегать зеркалами — это грубейшая ошибка. Представь, что мотоциклист идёт на обгон, а ты не посмотрел в зеркало. Всё, приехали! Запомни: **обзор на 360° — это твой ключ к безопасности**.",
+      "explanation_en": "### 1️⃣ 👁️ Análisis Visual\n\nLook at the image. Notice how the driver is using the interior rearview mirror to have a complete view of what is happening behind. Blind spots are also illustrated, those areas that are not seen directly and require the use of mirrors.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\n\nDefensive driving is based on anticipating hazards. For that, you need to be constantly scanning the environment: far ahead to foresee situations, to the sides to detect pedestrians or vehicles, and through the mirrors to control the traffic around you. It's like having octopus eyes to see everything.\n\n### 3️⃣ 💣 La Trampa / El Truco\n\nMany think that it is enough to look ahead, but neglecting the mirrors is a critical error. Imagine a motorcyclist overtaking you, and you didn't look in the mirror. Catastrophe! Remember: **360° vision is the key**.",
+      "source": "practicalvial",
+      "original_number": 13
+    }
+  },
+  {
+    "question_es": "Al circular a velocidad adecuada es más fácil...",
+    "question_ru": "При движении с адекватной скоростью легче...",
+    "question_en": "When driving at an appropriate speed, it is easier to...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/08a7e49f-cbd9-4448-8aad-c5ca735d145b-1658858740-i.jpg",
+    "image_filename": "08a7e49f-cbd9-4448-8aad-c5ca735d145b-1658858740-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/08a7e49f-cbd9-4448-8aad-c5ca735d145b-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "tener más accidentes.",
+          "text_ru": "A: попадать в большее количество аварий.",
+          "text_en": "A: have more accidents.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "controlar el vehículo ante cualquier obstáculo o imprevisto.",
+          "text_ru": "B: контролировать транспортное средство перед любым препятствием или неожиданностью.",
+          "text_en": "B: control the vehicle in the face of any obstacle or unforeseen event.",
+          "is_correct": true
+        },
+        {
+          "id": "c",
+          "text_es": "entorpecer el tráfico.",
+          "text_ru": "C: затруднять движение.",
+          "text_en": "C: hinder traffic.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 1️⃣ 👁️ Análisis Visual\nObserva la imagen. Se enfoca en la importancia de la conducción preventiva y la anticipación. La clave está en circular a una velocidad adecuada a las circunstancias, lo que facilita el control del vehículo.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nImagina que vas conduciendo y de repente un niño cruza la calle. Si vas a la velocidad adecuada, tendrás más tiempo para reaccionar y evitar un atropello. La velocidad adecuada no es solo un número, es una red de seguridad.\n\n### 3️⃣ 💣 La Trampa / El Truco\nMuchos piensan que ir rápido te hace llegar antes, ¡error! Una velocidad excesiva te quita tiempo de reacción y te acerca al accidente. Recuerda: **velocidad adecuada = control total**.",
+      "explanation_ru": "### 1️⃣ 👁️ Análisis Visual\nПосмотри на картинку. Она подчеркивает важность превентивного вождения и предвидения. Ключ к безопасности – двигаться со скоростью, соответствующей условиям. Это облегчает контроль над транспортным средством.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nПредставь, что ты едешь, и вдруг на дорогу выбегает ребенок. Если ты едешь с адекватной скоростью, у тебя будет больше времени на реакцию и чтобы избежать наезда. Подходящая скорость – это не просто цифра, это твоя страховка.\n\n### 3️⃣ 💣 La Trampa / El Truco\nМногие думают, что быстрая езда позволяет быстрее добраться до места – это ошибка! Слишком высокая скорость сокращает время реакции и приближает к аварии. Запомни: **адекватная скорость = полный контроль**.",
+      "explanation_en": "### 1️⃣ 👁️ Análisis Visual\nLook at the image. It focuses on the importance of preventive driving and anticipation. The key is to drive at a speed appropriate to the circumstances, which makes it easier to control the vehicle.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nImagine you are driving and suddenly a child crosses the street. If you are going at the right speed, you will have more time to react and avoid an accident. The right speed is not just a number, it's a safety net.\n\n### 3️⃣ 💣 La Trampa / El Truco\nMany people think that going fast makes you arrive earlier, wrong! An excessive speed takes away reaction time and brings you closer to the accident. Remember: **appropriate speed = total control**.",
+      "source": "practicalvial",
+      "original_number": 18
+    }
+  },
+  {
+    "question_es": "¿Qué velocidades o marchas dan más fuerza al vehículo?",
+    "question_ru": "Какие передачи обеспечивают автомобилю наибольшую силу (тягу)?",
+    "question_en": "Which speeds or gears give the vehicle more force?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/d273ec3d-f8cf-450b-b99d-4785d590ac76-1658858944-i.jpg",
+    "image_filename": "d273ec3d-f8cf-450b-b99d-4785d590ac76-1658858944-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/d273ec3d-f8cf-450b-b99d-4785d590ac76-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "La 3º y la 4º.",
+          "text_ru": "A) 3-я и 4-я.",
+          "text_en": "A) A: The 3rd and 4th.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "La 1º y la 2º.",
+          "text_ru": "B) 1-я и 2-я.",
+          "text_en": "B) B: The 1st and 2nd.",
+          "is_correct": true
+        },
+        {
+          "id": "c",
+          "text_es": "La 4º y la 5º.",
+          "text_ru": "C) 4-я и 5-я.",
+          "text_en": "C) C: The 4th and 5th.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 1️⃣ 👁️ Análisis Visual\n\nMira la imagen. Observa el cambio de marchas. Las marchas más bajas están a la izquierda y las más altas a la derecha.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\n\nImagina que estás escalando una montaña en bicicleta. ¿Qué marcha usarías para subir una pendiente pronunciada? ¡La más baja! La primera y la segunda marcha te dan la fuerza necesaria para superar obstáculos, aunque no vayas muy rápido. Es como un боксер: короткий удар, но очень сильный.\n\n### 3️⃣ 💣 La Trampa / El Truco\n\nMuchos piensan que la velocidad está relacionada con la fuerza, pero es al revés. **Marchas bajas = mucha fuerza, poca velocidad**. Piensa en un tractor tirando un remolque pesado: no va rápido, ¡pero tiene una fuerza brutal!",
+      "explanation_ru": "### 1️⃣ 👁️ Análisis Visual\n\nСмотри на картинку. Видишь схему переключения передач? Самые низкие передачи расположены слева, самые высокие – справа.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\n\nПредставь, что ты поднимаешься в гору на велосипеде. Какую передачу ты выберешь для крутого подъема? Самую низкую! Первая и вторая передачи дают тебе необходимую тягу, чтобы преодолеть препятствия, даже если едешь не очень быстро. Это как удар у боксера: короткий, но очень мощный.\n\n### 3️⃣ 💣 La Trampa / El Truco\n\nМногие думают, что скорость связана с силой, но все наоборот. **Низкие передачи = большая сила (тяга), маленькая скорость**. Вспомни трактор, тянущий тяжелый прицеп: он едет медленно, но у него огромная сила!",
+      "explanation_en": "### 1️⃣ 👁️ Visual Analysis\n\nLook at the image. Observe the gear stick. The lower gears are to the left and the higher gears are to the right.\n\n### 2️⃣ 🧠 The Logic \"Why\"\n\nImagine you're climbing a mountain on a bicycle. Which gear would you use to climb a steep slope? The lowest one! First and second gear give you the force needed to overcome obstacles, even if you're not going very fast. It's like a boxer: a short punch, but very powerful.\n\n### 3️⃣ 💣 The Trap / The Trick\n\nMany people think that speed is related to force, but it's the other way around. **Low gears = lots of force, little speed**. Think of a tractor pulling a heavy trailer: it doesn't go fast, but it has brutal force!",
+      "source": "practicalvial",
+      "original_number": 23
+    }
+  },
+  {
+    "question_es": "¿Qué es el ángulo muerto?",
+    "question_ru": "Что такое слепая зона?",
+    "question_en": "What is the blind spot?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/e608fe61-c5aa-477a-bf61-988a9d04aac0-1657807959-i.jpg",
+    "image_filename": "e608fe61-c5aa-477a-bf61-988a9d04aac0-1657807959-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/e608fe61-c5aa-477a-bf61-988a9d04aac0-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Es una parte de los coches que puede producir accidentes.",
+          "text_ru": "Это часть автомобиля, которая может привести к аварии.",
+          "text_en": "It is a part of cars that can cause accidents.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "Es una zona alrededor del vehículo, que no se ve en los espejos.",
+          "text_ru": "Это зона вокруг автомобиля, которая не видна в зеркалах.",
+          "text_en": "It is an area around the vehicle that is not visible in the mirrors.",
+          "is_correct": true
+        },
+        {
+          "id": "c",
+          "text_es": "Es la zona sin visibilidad que tiene el conductor al tomar una curva.",
+          "text_ru": "Это зона без видимости, которая есть у водителя при прохождении поворота.",
+          "text_en": "It is the area without visibility that the driver has when taking a curve.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 1️⃣ 👁️ Análisis Visual\n\nMira la imagen. Ves el retrovisor? Y el coche rojo acercándose? En ese punto, el coche уже находится en tu ángulo muerto.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\n\nEl ángulo muerto es esa zona traicionera que los espejos no alcanzan a cubrir. Imagina que estás cambiando de carril en la autopista. Si no compruebas el ángulo muerto, podrías golpear a otro coche que está justo ahí, invisible a tus espejos. Es como un ninja escondido.\n\n### 3️⃣ 💣 La Trampa / El Truco\n\nMuchos piensan que los espejos lo ven todo, ¡error! **Siempre, SIEMPRE** gira la cabeza para echar un vistazo rápido antes de cambiar de carril o girar. Es un pequeño gesto que te puede salvar de un buen susto (o algo peor).",
+      "explanation_ru": "### 1️⃣ 👁️ Análisis Visual\n\nСмотри на картинку. Видишь зеркало заднего вида? А красный автомобиль приближается? В этот момент машина уже находится в твоей слепой зоне.\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\n\nСлепая зона – это коварный участок, который не покрывается зеркалами. Представь, что ты перестраиваешься в другой ряд на трассе. Если ты не проверишь слепую зону, ты можешь задеть другую машину, которая находится прямо там, невидимая в твоих зеркалах. Это как ниндзя-невидимка.\n\n### 3️⃣ 💣 La Trampa / El Truco\n\nМногие думают, что зеркала все видят, ошибка! **Всегда, ВСЕГДА** поворачивай голову, чтобы быстро взглянуть, прежде чем перестраиваться или поворачивать. Это маленький жест, который может спасти тебя от неприятностей (или чего-то похуже).",
+      "explanation_en": "### 1️⃣ 👁️ Visual Analysis\n\nLook at the image. See the rearview mirror? And the red car approaching? At that point, the car is already in your blind spot.\n\n### 2️⃣ 🧠 The Logic \"Why\"\n\nThe blind spot is that treacherous area that the mirrors don't cover. Imagine you're changing lanes on the highway. If you don't check the blind spot, you could hit another car that's right there, invisible to your mirrors. It's like a hidden ninja.\n\n### 3️⃣ 💣 The Trap / The Trick\n\nMany people think that the mirrors see everything, mistake! **Always, ALWAYS** turn your head to take a quick look before changing lanes or turning. It's a small gesture that can save you from a good scare (or worse).",
+      "source": "practicalvial",
+      "original_number": 28
+    }
+  },
+  {
+    "question_es": "Si queda detenido en un atasco, ¿qué distancia es deseable mantener con el vehículo de delante?",
+    "question_ru": "Если вы остановились в пробке, какое расстояние желательно сохранять до впереди идущего транспортного средства?",
+    "question_en": "If you are stopped in a traffic jam, what distance is desirable to maintain with the vehicle in front?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/f8492e11-1cab-4a15-8cc2-f7740e21d7f1-1658858794-i.jpg",
+    "image_filename": "f8492e11-1cab-4a15-8cc2-f7740e21d7f1-1658858794-i.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/f8492e11-1cab-4a15-8cc2-f7740e21d7f1-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Un metro como máximo.",
+          "text_ru": "Максимум один метр.",
+          "text_en": "One meter maximum.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "Un espacio mínimo para ocupar menos espacio.",
+          "text_ru": "Минимальное пространство, чтобы занимать меньше места.",
+          "text_en": "A minimum space to occupy less space.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "Dos o tres metros para no chocar con el vehículo de delante en caso de impacto por detrás.",
+          "text_ru": "Два или три метра, чтобы не столкнуться с впереди идущим транспортным средством в случае удара сзади.",
+          "text_en": "Two or three meters to avoid colliding with the vehicle in front in case of a rear impact.",
+          "is_correct": true
+        }
+      ],
+      "explanation_es": "### 1️⃣ 👁️ Análisis Visual\nMira la imagen. Ves los coches parados en la retención? Imagina que el coche de atrás no frena a tiempo...\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nEn un atasco, nunca sabes si el coche de atrás va a frenar a tiempo. Si te pegas al coche de delante, y te golpean por detrás, ¡chocarás con el de adelante! Es como efecto dominó, pero с очень плохими последствиями.\n\n### 3️⃣ 💣 La Trampa / El Truco\nLa respuesta B suena lógica (\"занимать меньше места\"), pero это мгновенная eliminatoria. Всегда оставляй запас! 2-3 метра — твой шанс не разбить обе машины.",
+      "explanation_ru": "### 1️⃣ 👁️ Análisis Visual\nСмотри на картинку. Видишь машины, стоящие в пробке? Представь, что водитель сзади зазевался и не успел затормозить...\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nВ пробке никогда не знаешь, успеет ли затормозить машина сзади. Если ты прижмешься к впереди идущему автомобилю, а тебя ударят сзади, то ты автоматически врежешься в переднюю машину! Получится эффект домино, только с очень печальными последствиями.\n\n### 3️⃣ 💣 La Trampa / El Truco\nОтвет B звучит логично («занимать меньше места»), но это мгновенный провал на экзамене. Всегда оставляй запас! 2-3 метра — твой шанс не разбить обе машины.",
+      "explanation_en": "### 1️⃣ 👁️ Visual Analysis\nLook at the image. See the cars stopped in the traffic jam? Imagine the car behind doesn't brake in time...\n\n### 2️⃣ 🧠 The Logic \"Why\"\nIn a traffic jam, you never know if the car behind will brake in time. If you stick close to the car in front and get hit from behind, you'll crash into the one in front! It's like a domino effect, but with very bad consequences.\n\n### 3️⃣ 💣 The Trap / The Trick\nAnswer B sounds logical (\"occupy less space\"), but it's an immediate fail. Always leave a margin! 2-3 meters is your chance to avoid wrecking both cars.",
+      "source": "practicalvial",
+      "original_number": 29
+    }
+  },
+  {
+    "question_es": "¿Le está permitido el acceso a un vehículo de motor que disponga del distintivo ambiental C a una zona de bajas emisiones delimitada por estas señales?",
+    "question_ru": "Разрешен ли въезд механическому транспортному средству с экологической маркировкой C в зону с низким уровнем выбросов, ограниченную этими знаками?",
+    "question_en": "Is a motor vehicle with environmental label C allowed to enter a low emission zone delimited by these signs?",
+    "image_url": "https://teorica.practicavial.com/question/715874cf-a68d-4eb9-b076-74192de815c6-1734455877-i.jpg",
+    "image_filename": "715874cf-a68d-4eb9-b076-74192de815c6-1734455877-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/715874cf-a68d-4eb9-b076-74192de815c6-s-1.jpg?t=1767569874",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Solo si el vehículo de motor es una motocicleta.",
+          "text_ru": "Только если это мотоцикл.",
+          "text_en": "Only if the motor vehicle is a motorcycle.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "Sí.",
+          "text_ru": "Да.",
+          "text_en": "Yes.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "No, como norma general.",
+          "text_ru": "Нет, как общее правило.",
+          "text_en": "No, as a general rule.",
+          "is_correct": true
+        }
+      ],
+      "explanation_es": "### 1️⃣ 👁️ Análisis Visual\nLa señal de prohibición muestra un coche emitiendo humo, con un panel inferior que especifica las etiquetas permitidas (обычно 0 и ECO).\n\n### 2️⃣ 🧠 La Lógica \"Por qué\"\nLas zonas de bajas emisiones (ZBE) restringen el acceso según la etiqueta ambiental. Si el panel complementario NO incluye la letra 'C', el acceso está prohibido aunque el coche sea moderno. \n\n### 3️⃣ 💣 La Trampa / El Truco\nMuchos creen que la etiqueta 'C' (verde) es suficiente para entrar en cualquier sitio. ¡Falso! Depende de lo que diga el panel adicional debajo de la señal roja. No te confíes.",
+      "explanation_ru": "### 1️⃣ 👁️ Визуальный анализ\nЗнак запрета показывает автомобиль с дымом из трубы, а на табличке внизу указаны разрешенные наклейки (обычно 0 и ECO).\n\n### 2️⃣ 🧠 Логика «Почему»\nЗоны ZBE ограничивают въезд по экологическому классу. Если на дополнительной панели НЕТ буквы 'C', въезд запрещен, даже если машина современная.\n\n### 3️⃣ 💣 Ловушка / Подвох\nМногие думают, что наклейки 'C' (зеленая) достаточно для въезда везде. Ошибка! Всё зависит от того, что написано на белой табличке под красным кругом. Не дай себя запутать.",
+      "explanation_en": "### 1️⃣ 👁️ Visual Analysis\nThe prohibition sign shows a car with smoke, with a bottom panel specifying allowed labels (usually 0 and ECO).\n\n### 2️⃣ 🧠 The Logic 'Why'\nLEZ zones (ZBE) restrict access based on the environmental label. If the supplementary panel does NOT include the letter 'C', access is prohibited even if the car is modern.\n\n### 3️⃣ 💣 The Trap / The Trick\nMany believe that the 'C' label (green) is enough to enter anywhere. False! It depends on what the additional panel under the red circle says. Don't be fooled.",
+      "source": "practicalvial",
+      "original_number": 1
+    }
+  },
+  {
+    "question_es": "Los distintivos ambientales clasifican a los vehículos en función de...",
+    "question_ru": "Экологические маркировки классифицируют транспортные средства на основе...",
+    "question_en": "Environmental labels classify vehicles based on...",
+    "image_url": "https://teorica.practicavial.com/question/0cf194c7-17ca-4d6e-aa22-0969e7dba982-1663758211-i.jpg",
+    "image_filename": "0cf194c7-17ca-4d6e-aa22-0969e7dba982-1663758211-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0cf194c7-17ca-4d6e-aa22-0969e7dba982-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "su potencial contaminante.",
+          "text_ru": "их потенциала загрязнения.",
+          "text_en": "their polluting potential.",
+          "is_correct": true
+        },
+        {
+          "id": "b",
+          "text_es": "su ahorro energético.",
+          "text_ru": "их энергосбережения.",
+          "text_en": "their energy saving.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "su contaminación acústica.",
+          "text_ru": "их шумового загрязнения.",
+          "text_en": "their noise pollution.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 🧠 La Lógica \"Por qué\"\nEl sistema de etiquetas de la DGT se creó para identificar rápidamente cuánto contamina un coche (emisiones de gas). No mide el ruido ni cuánto ahorras, sino qué tan 'limpio' es el motor.\n\n### 💣 La Trampa / El Truco\nNo confundas 'ahorro' con 'contaminación'. Un coche puede gastar poco pero contaminar mucho. La etiqueta mira el 'veneno' que sale del escape.",
+      "explanation_ru": "### 🧠 Логика «Почему»\nСистема наклеек DGT была создана для быстрой идентификации того, насколько машина загрязняет воздух (выбросы газов). Она не измеряет шум или экономию, а только «чистоту» двигателя.\n\n### 💣 Ловушка / Подвох\nНе путай «экономию» с «загрязнением». Машина может тратить мало топлива, но сильно загрязнять среду. Наклейка смотрит на «яд», выходящий из трубы.",
+      "explanation_en": "### 🧠 The Logic 'Why'\nThe DGT label system was created to quickly identify how much a car pollutes (gas emissions). It doesn't measure noise or savings, only how 'clean' the engine is.\n\n### 💣 The Trap / The Trick\nDon't confuse 'savings' with 'pollution'. A car can use little fuel but pollute a lot. The label looks at the 'poison' coming out of the exhaust.",
+      "source": "practicalvial",
+      "original_number": 3
+    }
+  },
+  {
+    "question_es": "Cuando otro vehículo que circula detrás de su turismo está muy próximo, se recomienda...",
+    "question_ru": "Когда другое транспортное средство, едущее позади вашего автомобиля, находится слишком близко, рекомендуется...",
+    "question_en": "When another vehicle driving behind your car is very close, it is recommended to...",
+    "image_url": "https://teorica.practicavial.com/question/8da34e1e-a188-4d57-9da4-ab5a179ce548-1658858779-i.jpg",
+    "image_filename": "8da34e1e-a188-4d57-9da4-ab5a179ce548-1658858779-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8da34e1e-a188-4d57-9da4-ab5a179ce548-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "echarse a un lado inmediatamente para que pueda adelantar.",
+          "text_ru": "немедленно отъехать в сторону, чтобы он мог обогнать.",
+          "text_en": "pull over immediately so they can overtake.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "frenar bruscamente para alejar al coche que circula detrás.",
+          "text_ru": "резко затормозить, чтобы 'отпугнуть' машину сзади.",
+          "text_en": "brake suddenly to push the car behind away.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "aumentar la distancia de seguridad por delante siempre que sea posible.",
+          "text_ru": "увеличить дистанцию до впереди идущего автомобиля, если это возможно.",
+          "text_en": "increase the safety distance in front whenever possible.",
+          "is_correct": true
+        }
+      ],
+      "explanation_es": "### 🧠 La Lógica \"Por qué\"\nSi un coche te sigue muy de cerca, el mayor riesgo es que te choque si tienes que frenar. Al aumentar TÚ el espacio con el coche de delante, ganas margen para frenar suavemente, dándole tiempo al de atrás para reaccionar. \n\n### 💣 La Trampa / El Truco\nNo intentes 'educar' al de atrás frenando (es peligroсо) ni te apartes de forma brusca. La clave es crear una 'burbuja' de seguridad delante de ti para compensar la falta de espacio detrás.",
+      "explanation_ru": "### 🧠 Логика «Почему»\nЕсли кто-то прижался сзади, главный риск — удар при торможении. Увеличивая СВОЮ дистанцию до машины впереди, ты создаешь запас места для плавного торможения, давая заднему водителю время среагировать.\n\n### 💣 Ловушка / Подвох\nНе пытайся «учить» заднего водителя торможениями (это опасно) и не дергайся в сторону. Ключ — создать «пузырь» безопасности перед собой, чтобы компенсировать отсутствие места сзади.",
+      "explanation_en": "### 🧠 The Logic 'Why'\nIf a car follows you too closely, the biggest risk is a rear-end collision if you have to brake. By increasing YOUR distance from the car in front, you gain room to brake smoothly, giving the person behind time to react.\n\n### 💣 The Trap / The Trick\nDon't try to 'teach' the person behind by braking (it's dangerous) or pull over abruptly. The key is to create a 'bubble' of safety in front of you to compensate for the lack of space behind.",
+      "source": "practicalvial",
+      "original_number": 4
+    }
+  },
+  {
+    "question_es": "Está prohibida la circulación de vehículos a motor que no disponen de...",
+    "question_ru": "Запрещено движение механических транспортных средств, не имеющих...",
+    "question_en": "Driving motor vehicles that do not have ... is prohibited.",
+    "image_url": "https://teorica.practicavial.com/question/1cbbbf4c-78f8-4c47-9373-86bc3aef4f29-1663758070-i.jpg",
+    "image_filename": "1cbbbf4c-78f8-4c47-9373-86bc3aef4f29-1663758070-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1cbbbf4c-78f8-4c47-9373-86bc3aef4f29-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "un extintor de incendios adecuado y eficaz.",
+          "text_ru": "подходящего и эффективного огнетушителя.",
+          "text_en": "a suitable and effective fire extinguisher.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "un dispositivo silenciador de explosiones.",
+          "text_ru": "глушителя (устройства для подавления звука выхлопа).",
+          "text_en": "an explosion silencer device (muffler).",
+          "is_correct": true
+        },
+        {
+          "id": "c",
+          "text_es": "un juego de correas de repuesto para el equipo motor.",
+          "text_ru": "комплекта запасных ремней для двигателя.",
+          "text_en": "a set of spare belts for the engine.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 🧠 La Lógica \"Por qué\"\nTodos los vehículos de motor deben llevar un silenciador para reducir el ruido. Esto es parte de las normas contra la contaminación acústica. Ir con el 'escape libre' es ilegal.\n\n### 💣 La Trampa / El Truco\nAunque parece que el extintor es obligatorio, para turismos comunes en España NO lo es. Solo es obligatorio para camiones, buses и т.д. А вот глушитель должен ser у ВСЕХ.",
+      "explanation_ru": "### 🧠 Логика «Почему»\nВсе механические транспортные средства должны иметь глушитель для снижения шума. Это часть правил по борьбе с шумовым загрязнением. Езда с «прямотоком» незаконна.\n\n### 💣 Ловушка / Подвох\nХотя может казаться, что огнетушитель обязателен, для обычных легковых авто в Испании это НЕ так. Он обязателен только для грузовиков, автобусов и т.д. А вот глушитель должен быть у ВСЕХ.",
+      "explanation_en": "### 🧠 The Logic 'Why'\nAll motor vehicles must have a muffler/silencer to reduce noise. This is part of anti-noise pollution regulations. Driving with 'open exhaust' is illegal.\n\n### 💣 The Trap / The Trick\nAlthough it might seem like a fire extinguisher is mandatory, for common passenger cars in Spain it is NOT. It's only mandatory for trucks, buses, etc. But a muffler is required for EVERYONE.",
+      "source": "practicalvial",
+      "original_number": 5
+    }
+  },
+  {
+    "question_es": "Situado en un vehículo, ¿qué identifica la señal V-25 distintivo ambiental?",
+    "question_ru": "Что обозначает знак V-25 «экологическая наклейка», размещенный на автомобиле?",
+    "question_en": "Placed on a vehicle, what does the sign V-25 environmental label identify?",
+    "image_url": "https://teorica.practicavial.com/question/5d840670-8cdc-41e9-99a9-a1303b6e470a-1663758222-i.jpg",
+    "image_filename": "5d840670-8cdc-41e9-99a9-a1303b6e470a-1663758222-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5d840670-8cdc-41e9-99a9-a1303b6e470a-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Su clasificación ambiental en función de su nivel de emisiones y combustible empleado.",
+          "text_ru": "Экологическую классификацию в зависимости от уровня выбросов и типа используемого топлива.",
+          "text_en": "Its environmental classification based on its emission level and fuel used.",
+          "is_correct": true
+        },
+        {
+          "id": "b",
+          "text_es": "El tipo de combustible empleado y su nivel de radiación atmosférica.",
+          "text_ru": "Тип используемого топлива и уровень его атмосферного излучения.",
+          "text_en": "The type of fuel used and its atmospheric radiation level.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "Su clasificación ambiental en función de su nivel de contaminación acústica.",
+          "text_ru": "Экологическую классификацию в зависимости от уровня шумового загрязнения.",
+          "text_en": "Its environmental classification based on its level of noise pollution.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 🧠 La Lógica \"Por qué\"\nLa señal V-25 (el círculo de color) clasifica a los vehículos según la normativa Euro de emisiones. Sirve para saber si puedes entrar en zonas restringidas (ZBE).\n\n### 💣 La Trampa / El Truco\nOjo con la opción C: la наклейка НЕ про шум. Она про то, сколько грязи (CO2, NOx) машина выкиda en el aire.",
+      "explanation_ru": "### 🧠 Логика «Почему»\nЗнак V-25 (цветной круг) классифицирует автомобили согласно нормам выбросов Евро. Он служит для того, чтобы понимать, можно ли заезжать в ограниченные зоны (ZBE).\n\n### 💣 Ловушка / Подвох\nОсторожно с вариантом C: наклейка НЕ про шум. Она про то, сколько грязи (CO2, NOx) машина выбрасывает в воздух.",
+      "explanation_en": "### 🧠 The Logic 'Why'\nThe V-25 sign (the colored circle) classifies vehicles according to Euro emission standards. It is used to know if you can enter restricted zones (LEZ/ZBE).\n\n### 💣 The Trap / The Trick\nWatch out for option C: the label is NOT about noise. It's about how much pollution (CO2, NOx) the car releases into the air.",
+      "source": "practicalvial",
+      "original_number": 6
+    }
+  },
+  {
+    "question_es": "¿Qué puede verse afectado si cambia el carenado de una motocicleta?",
+    "question_ru": "На что может повлиять изменение обтекателя (кожуха) мотоцикла?",
+    "question_en": "What can be affected if a motorcycle's fairing is changed?",
+    "image_url": "https://teorica.practicavial.com/question/607a84ea-16be-402d-826a-9be3344b2e8a-1658859021-i.jpg",
+    "image_filename": "607a84ea-16be-402d-826a-9be3344b2e8a-1658859021-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/607a84ea-16be-402d-826a-9be3344b2e8a-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "La visibilidad del vehículo.",
+          "text_ru": "На видимость транспортного средства.",
+          "text_en": "The visibility of the vehicle.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "La estética, exclusivamente.",
+          "text_ru": "Исключительно на внешний вид (эстетику).",
+          "text_en": "The aesthetics, exclusively.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "La aerodinámica y el consumo.",
+          "text_ru": "На аэродинамику и расход топлива.",
+          "text_en": "The aerodynamics and consumption.",
+          "is_correct": true
+        }
+      ],
+      "explanation_es": "### 🧠 La Lógica \"Por qué\"\nEl carenado está diseñado para que el aire fluya suavemente alrededor de la moto. Si lo cambias por uno que 'corta' peor el viento, el motor tendrá que hacer más fuerza и расход бензина вырастет.\n\n### 💣 La Trampa / El Truco\nMuchos piensan que es solo algo estético (opción B). Pero en el examen de conducir, casi todo cambio técnico afecta al consumo o a la seguridad.",
+      "explanation_ru": "### 🧠 Логика «Почему»\nОбтекатель спроектирован так, чтобы воздух плавно обтекал мотоцикл. Если заменить его на тот, который хуже «режет» ветер, двигателю придется прикладывать больше усилий, и расход бензина вырастет.\n\n### 💣 Ловушка / Подвох\nМногие думают, что это только эстетика (вариант B). Но на экзамене по вождению почти любое техническое изменение влияет на расход или безопасность.",
+      "explanation_en": "### 🧠 The Logic 'Why'\nThe fairing is designed so that air flows smoothly around the motorcycle. If you change it for one that 'cuts' the wind worse, the engine will have to work harder and fuel consumption will increase.\n\n### 💣 The Trap / The Trick\nMany think it's just aesthetic (option B). But in the driving test, almost every technical change affects consumption or safety.",
+      "source": "practicalvial",
+      "original_number": 7
+    }
+  },
+  {
+    "question_es": "Una buena práctica para evitar accidentes es...",
+    "question_ru": "Хорошей практикой для предотвращения аварий является...",
+    "question_en": "A good practice to avoid accidents is...",
+    "image_url": "https://teorica.practicavial.com/question/9c7c9758-3e13-438b-9762-f0f21b616c04-1658858715-i.jpg",
+    "image_filename": "9c7c9758-3e13-438b-9762-f0f21b616c04-1658858715-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9c7c9758-3e13-438b-9762-f0f21b616c04-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "procurar que los demás conductores puedan anticiparse a las maniobras, haciéndose ver y entender de forma adecuada.",
+          "text_ru": "стараться, чтобы другие водители могли предвидеть ваши маневры, делая себя заметным и понятным.",
+          "text_en": "ensuring that other drivers can anticipate your maneuvers, making yourself seen and understood properly.",
+          "is_correct": true
+        },
+        {
+          "id": "b",
+          "text_es": "circular siempre muy despacio para anticiparse a todas las situaciones de riesgo.",
+          "text_ru": "всегда ездить очень медленно, чтобы предвидеть любые риски.",
+          "text_en": "always drive very slowly to anticipate all risky situations.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "señalizar con antelación sólo las maniobras que puedan ser peligrosas.",
+          "text_ru": "сигнализировать заранее только о тех маневрах, которые могут быть опасными.",
+          "text_en": "signal in advance only those maneuvers that may be dangerous.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 🧠 La Lógica \"Por qué\"\nLa conducción no es un acto solitario. Si los demás saben lo que vas a hacer (gracias a los intermitentes y tu posición), evitarás frenazos y sustos.\n\n### 💣 La Trampa / El Truco\nCuidado con la opción B: circular MUY despacio sin causa justificada también es peligroso y puede causar accidentes. La clave es ser PREVISIBLE, no lento.",
+      "explanation_ru": "### 🧠 Логика «Почему»\nВождение — это не одиночный акт. Если другие знают, что ты собираешься делать (благодаря поворотникам и твоему положению), ты избежишь резких торможений и испугов.\n\n### 💣 Ловушка / Подвох\nОсторожно с вариантом B: езда СЛИШКОМ медленно без причины также опасна и может вызвать аварии. Ключ в том, чтобы быть ПРЕДСКАЗУЕМЫМ, а не медленным.",
+      "explanation_en": "### 🧠 The Logic 'Why'\nDriving is not a solitary act. If others know what you are going to do (thanks to indicators and your position), you will avoid sudden braking and scares.\n\n### 💣 The Trap / The Trick\nWatch out for option B: driving VERY slowly without justified cause is also dangerous and can cause accidents. The key is to be PREDICTABLE, not slow.",
+      "source": "practicalvial",
+      "original_number": 8
+    }
+  },
+  {
+    "question_es": "La distribución de la carga en un vehículo, ¿afecta al consumo de combustible?",
+    "question_ru": "Влияет ли распределение груза в автомобиле на расход топлива?",
+    "question_en": "Does the distribution of the load in a vehicle affect fuel consumption?",
+    "image_url": "https://teorica.practicavial.com/question/1632d13f-f945-4273-80a5-211cee895636-1658859077-i.jpg",
+    "image_filename": "1632d13f-f945-4273-80a5-211cee895636-1658859077-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1632d13f-f945-4273-80a5-211cee895636-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Sí, por ello es muy importante colocar la carga de manera adecuada.",
+          "text_ru": "Да, поэтому очень важно правильно размещать груз.",
+          "text_en": "Yes, therefore it is very important to place the load properly.",
+          "is_correct": true
+        },
+        {
+          "id": "b",
+          "text_es": "No, en el consumo sólo afecta la velocidad.",
+          "text_ru": "Нет, на расход влияет только скорость.",
+          "text_en": "No, consumption is only affected by speed.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "No, en el consumo sólo afecta el tipo de vehículo.",
+          "text_ru": "Нет, на расход влияет только тип транспортного средства.",
+          "text_en": "No, consumption is only affected by the type of vehicle.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 🧠 La Lógica \"Por qué\"\nSi el coche está mal equilibrado o lleva cosas mal puestas fuera (como una baca mal cargada), el aire frena más al coche. El motor tiene que trabajar más и тратить больше топлива.\n\n### 💣 La Trampa / El Truco\nMuchos piensan que solo el PESO importa. Pero la FORMA en que lo pones (aerodinámica) es igual de importante para tu bolsillo.",
+      "explanation_ru": "### 🧠 Логика «Почему»\nЕсли машина плохо сбалансирована или груз снаружи закреплен неправильно (например, плохо уложенный багажник на крыше), воздух сильнее тормозит машину. Двигателю приходится работать интенсивнее и тратить больше топлива.\n\n### 💣 Ловушка / Подвох\nМногие думают, что важен только ВЕС. Но то, КАК ты его положишь (аэродинамика), не менее важно для твоего кошелька.",
+      "explanation_en": "### 🧠 The Logic 'Why'\nIf the car is poorly balanced or has things poorly placed outside (like a badly loaded roof rack), the air slows the car down more. The engine has to work harder and spend more fuel.\n\n### 💣 The Trap / The Trick\nMany think only WEIGHT matters. But the WAY you put it (aerodynamics) is just as important for your wallet.",
+      "source": "practicalvial",
+      "original_number": 10
+    }
+  },
+  {
+    "question_es": "Como norma general, para reducir el consumo de combustible, ¿cómo debe ser la conducción?",
+    "question_ru": "Как общее правило, каким должен быть стиль вождения для снижения расхода топлива?",
+    "question_en": "As a general rule, to reduce fuel consumption, how should the driving be?",
+    "image_url": "https://teorica.practicavial.com/question/433f5d52-6466-41ca-8356-91e8e20299f0-1658858999-i.jpg",
+    "image_filename": "433f5d52-6466-41ca-8356-91e8e20299f0-1658858999-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/433f5d52-6466-41ca-8356-91e8e20299f0-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Llevando el motor revolucionado.",
+          "text_ru": "Поддерживая высокие обороты двигателя.",
+          "text_en": "Keeping the engine revved up.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text_es": "Utilizando marchas cortas.",
+          "text_ru": "Используя низкие передачи.",
+          "text_en": "Using low gears.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "Utilizando marchas largas.",
+          "text_ru": "Используя высокие передачи (длинные дистанции).",
+          "text_en": "Using high gears.",
+          "is_correct": true
+        }
+      ],
+      "explanation_es": "### 🧠 La Lógica \"Por qué\"\nLas marchas largas (4ª, 5ª, 6ª) permiten que el motor gire a menos revoluciones para mantener la misma velocidad. Menos revoluciones = menos explosiones de combustible = ahorro.\n\n### 💣 La Trampa / El Truco\nCuidado: usar marchas largas no significa ir despacio. Significa cambiar pronto a una marcha superior siempre que el motor lo aguante sin vibrar.",
+      "explanation_ru": "### 🧠 Логика «Почему»\nВысокие передачи (4-я, 5-я, 6-я) позволяют двигателю работать на более низких оборотах при той же скорости. Меньше оборотов = меньше впрысков топлива = экономия.\n\n### 💣 Ловушка / Подвох\nВнимание: использовать высокие передачи не значит ехать медленно. Это значит переключаться «вверх» как можно раньше, если мотор тянет без вибрации.",
+      "explanation_en": "### 🧠 The Logic 'Why'\nHigh gears (4th, 5th, 6th) allow the engine to run at lower RPMs to maintain the same speed. Lower RPM = fewer fuel explosions = savings.\n\n### 💣 The Trap / The Trick\nWarning: using high gears doesn't mean driving slowly. It means shifting up early as long as the engine can handle it without vibrating.",
+      "source": "practicalvial",
+      "original_number": 11
+    }
+  },
+  {
+    "question_es": "En un motor diesel, ¿cómo se puede reducir el consumo de combustible y la emisión de gases?",
+    "question_ru": "Как в дизельном двигателе можно снизить расход топлива и выброс газов?",
+    "question_en": "In a diesel engine, how can fuel consumption and gas emissions be reduced?",
+    "image_url": "https://teorica.practicavial.com/question/ccf95e54-1596-4191-81d3-376518171120-1658859066-i.jpg",
+    "image_filename": "ccf95e54-1596-4191-81d3-376518171120-1658859066-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ccf95e54-1596-4191-81d3-376518171120-s-1.jpg",
+    "type": "single",
+    "country": "es",
+    "metadata": {
+      "answer_options": [
+        {
+          "id": "a",
+          "text_es": "Esperando unos segundos después de arrancar para iniciar la marcha.",
+          "text_ru": "Подождав несколько секунд после запуска перед началом движения.",
+          "text_en": "Waiting a few seconds after starting before moving off.",
+          "is_correct": true
+        },
+        {
+          "id": "b",
+          "text_es": "Dando acelerones en frío.",
+          "text_ru": "Газуя (давая нагрузку) «на холодную».",
+          "text_en": "Revving the engine while cold.",
+          "is_correct": false
+        },
+        {
+          "id": "c",
+          "text_es": "Iniciando la marcha inmediatamente después del arranque.",
+          "text_ru": "Начиная движение сразу после запуска.",
+          "text_en": "Moving off immediately after starting.",
+          "is_correct": false
+        }
+      ],
+      "explanation_es": "### 🧠 La Lógica \"Por qué\"\nLos motores diesel necesitan unos segundos para que el aceite llegue a todas las partes del motor y el sistema se estabilice. Al esperar un poco, evitas desgastes y quemas mejor el combustible desde el inicio.\n\n### 💣 La Trampa / El Truco\nEn los motores de GASOLINA se arranca y se sale casi de inmediato. En los DIESEL hay que tener paciencia y esperar unos segundos. ¡No los confundas!",
+      "explanation_ru": "### 🧠 Логика «Почему»\nДизельным двигателям нужно несколько секунд, чтобы масло достигло всех частей и система стабилизировалась. Подождав немного, ты избегаешь износа и обеспечиваешь лучшее сгорание топлива с самого начала.\n\n### 💣 Ловушка / Подвох\nНа БЕНЗИНОВЫХ моторах можно ехать почти сразу. На ДИЗЕЛЬНЫХ нужно набраться терпения и подождать пару секунд. Не перепутай на тесте!",
+      "explanation_en": "### 🧠 The Logic 'Why'\nDiesel engines need a few seconds for the oil to reach all parts of the engine and for the system to stabilize. By waiting a bit, you avoid wear and burn fuel better from the start.\n\n### 💣 The Trap / The Trick\nIn GASOLINE engines, you start and go almost immediately. In DIESEL engines, you must be patient and wait a few seconds. Don't confuse them!",
+      "source": "practicalvial",
+      "original_number": 12
+    }
+  }
+]

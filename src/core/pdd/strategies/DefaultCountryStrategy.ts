@@ -9,9 +9,10 @@
 import { supabase } from '@/integrations/supabase/client';
 import { CountryCode, UniversalQuestion, PDDTicketSummary } from '@/types/pdd';
 import { PDDDataStrategy } from '../PDDDataStrategy';
+import { getSpainTopicName, getSpainTopicNumber } from '../spainTopics';
 
 export class DefaultCountryStrategy implements PDDDataStrategy {
-  constructor(private countryCode: CountryCode) {}
+  constructor(private countryCode: CountryCode) { }
 
   async getTickets(country: CountryCode): Promise<PDDTicketSummary[]> {
     if (country !== this.countryCode) {
@@ -24,7 +25,7 @@ export class DefaultCountryStrategy implements PDDDataStrategy {
     //   .from('pdd_questions')
     //   .select('id, metadata')
     //   .eq('country_code', country);
-    
+
     // Пока таблица не создана, возвращаем пустой массив
     // Это позволит зарегистрировать стратегию, но данные будут пустыми до создания таблицы
     console.warn(`[DefaultCountryStrategy] Table pdd_questions not created yet for ${country}. Returning empty array.`);
@@ -39,7 +40,7 @@ export class DefaultCountryStrategy implements PDDDataStrategy {
     // // Группируем по билетам/темам из metadata
     // // metadata может содержать: { ticket_number: 5 } или { topic_id: "uuid" }
     // const ticketsMap = new Map<string | number, number>();
-    
+
     // questions.forEach((q) => {
     //   const metadata = q.metadata || {};
     //   // Поддерживаем разные форматы metadata
@@ -81,7 +82,7 @@ export class DefaultCountryStrategy implements PDDDataStrategy {
     //   .eq('country_code', country)
     //   .or(`metadata->>ticket_number.eq.${ticketNumber},metadata->>topic_id.eq.${ticketNumber}`)
     //   .order('metadata->>question_number', { ascending: true });
-    
+
     console.warn(`[DefaultCountryStrategy] Table pdd_questions not created yet for ${country}. Returning empty array.`);
     return [];
 
@@ -147,7 +148,7 @@ export class DefaultCountryStrategy implements PDDDataStrategy {
     //   .select('*')
     //   .eq('country_code', country)
     //   .limit(count);
-    
+
     console.warn(`[DefaultCountryStrategy] Table pdd_questions not created yet for ${country}. Returning empty array.`);
     return [];
 
@@ -214,11 +215,189 @@ export class DefaultCountryStrategy implements PDDDataStrategy {
     // Для стандартных стран экзамен = случайные вопросы
     // Можно переопределить в конкретной стратегии, если нужна специфичная логика
     const questions = await this.getRandomQuestions(country, 20);
-    
+
     return {
       selectedQuestions: questions,
       allQuestionsByBlock: {}, // Для стандартных стран блоки не используются
     };
+  }
+
+  /**
+   * Получить темы с количеством вопросов
+   * Работает с таблицей questions_new (metadata->topics)
+   */
+  async getTopicsWithCounts(country: CountryCode): Promise<Array<{
+    name: string;
+    count: number;
+  }>> {
+    if (country !== this.countryCode) {
+      return [];
+    }
+
+    // Маппинг country code для таблицы questions_new
+    const countryCodeMap: Record<string, string> = {
+      'spain': 'es',
+      'russia': 'ru',
+      'ukraine': 'ua',
+    };
+
+    const dbCountryCode = countryCodeMap[country] || country;
+
+    // Получаем все темы из metadata
+    const { data: questions, error } = await supabase
+      .from('questions_new')
+      .select('metadata')
+      .eq('country', dbCountryCode);
+
+    if (error) {
+      console.error(`[DefaultCountryStrategy] Error fetching topics for ${country}:`, error);
+      throw error;
+    }
+
+    if (!questions || questions.length === 0) {
+      console.warn(`[DefaultCountryStrategy] No questions found for ${country}`);
+      return [];
+    }
+
+    // Группируем по темам
+    const topicsMap = new Map<string, number>();
+
+    questions.forEach((q) => {
+      let topicName: string | null = null;
+
+      // Для Испании темы хранятся в test_id как "topic-01_test-001"
+      if (country === 'spain' && q.metadata?.test_id) {
+        const testId = q.metadata.test_id as string;
+        const match = testId.match(/^topic-(\d+)_/);
+        if (match) {
+          topicName = getSpainTopicName(match[1]);
+        }
+      } else {
+        // Для других стран используем metadata->topics
+        const topics = q.metadata?.topics;
+        if (topics && Array.isArray(topics) && topics.length > 0) {
+          topicName = topics[0]; // Берём первую тему
+        }
+      }
+
+      if (topicName) {
+        const count = topicsMap.get(topicName) || 0;
+        topicsMap.set(topicName, count + 1);
+      }
+    });
+
+    // Преобразуем и сортируем
+    return Array.from(topicsMap.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+  }
+
+  /**
+   * Получить вопросы по теме
+   * Работает с таблицей questions_new (metadata->topics)
+   */
+  async getQuestionsByTopic(
+    country: CountryCode,
+    topicName: string,
+    count?: number
+  ): Promise<UniversalQuestion[]> {
+    if (country !== this.countryCode) {
+      return [];
+    }
+
+    // Маппинг country code для таблицы questions_new
+    const countryCodeMap: Record<string, string> = {
+      'spain': 'es',
+      'russia': 'ru',
+      'ukraine': 'ua',
+    };
+
+    const dbCountryCode = countryCodeMap[country] || country;
+
+    // Фильтруем вопросы
+    let query = supabase
+      .from('questions_new')
+      .select('*')
+      .eq('country', dbCountryCode);
+
+    // Для Испании фильтруем по test_id (например, "topic-01_test-001" -> "Определения и использование дорог")
+    if (country === 'spain') {
+      // Получаем номер темы из названия
+      const topicNumber = getSpainTopicNumber(topicName);
+      if (topicNumber) {
+        // ВАЖНО: используем ->> вместо -> для преобразования JSONB в текст
+        // Иначе LIKE не работает (ошибка "operator does not exist: jsonb ~~ unknown")
+        query = query.filter('metadata->>test_id', 'like', `%topic-${topicNumber}_%`);
+      } else {
+        // Если формат не совпадает, возвращаем пустой массив
+        console.warn(`[DefaultCountryStrategy] Invalid topic name format: ${topicName}`);
+        return [];
+      }
+    } else {
+      // Для других стран фильтруем по topics в metadata (JSONB array contains)
+      query = query.filter('metadata->topics', 'cs', `["${topicName}"]`);
+    }
+
+    if (count) {
+      query = query.limit(count);
+    }
+
+    const { data: questions, error: questionsError } = await query;
+
+    if (questionsError) {
+      console.error(`[DefaultCountryStrategy] Error fetching questions by topic for ${country}:`, questionsError);
+      throw questionsError;
+    }
+
+    if (!questions || questions.length === 0) {
+      return [];
+    }
+
+    // Получаем ответы
+    const questionIds = questions.map((q) => q.id);
+
+    const { data: answers, error: answersError } = await supabase
+      .from('answer_options')
+      .select('*')
+      .in('question_id', questionIds)
+      .order('position', { ascending: true });
+
+    if (answersError) {
+      console.error(`[DefaultCountryStrategy] Error fetching answers:`, answersError);
+      throw answersError;
+    }
+
+    // Группируем ответы
+    const answersByQuestion = new Map<string, typeof answers>();
+    answers?.forEach((answer) => {
+      const existing = answersByQuestion.get(answer.question_id) || [];
+      existing.push(answer);
+      answersByQuestion.set(answer.question_id, existing);
+    });
+
+    // Преобразуем к универсальному формату (используем ту же логику что в RussiaUnifiedStrategy)
+    const result = questions.map((q): UniversalQuestion => {
+      const questionAnswers = answersByQuestion.get(q.id) || [];
+      const metadata = q.metadata || {};
+
+      return {
+        id: q.id,
+        text: q.question_ru || q.question_es || '',
+        image: q.image_url || metadata.image_src || null,
+        answers: questionAnswers.map((a) => ({
+          id: a.id,
+          text: a.text_ru || a.text_es || '',
+          isCorrect: a.is_correct,
+          position: a.position,
+        })),
+        explanation: q.explanation_ru || q.explanation_es || null,
+        topics: metadata.topics || [],
+        difficulty: q.difficulty || 'medium',
+      };
+    });
+
+    // Перемешиваем
+    return result.sort(() => Math.random() - 0.5);
   }
 }
 

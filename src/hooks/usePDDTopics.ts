@@ -11,7 +11,7 @@ export function usePDDTopics(country: CountryCode) {
     queryKey: ['pdd-topics', country],
     queryFn: async () => {
       try {
-        if (!country || country !== 'russia') {
+        if (!country) {
           return [];
         }
         const strategy = getPDDStrategy(country);
@@ -24,7 +24,7 @@ export function usePDDTopics(country: CountryCode) {
         return [];
       }
     },
-    enabled: !!country && country === 'russia',
+    enabled: !!country,
     retry: 1,
     staleTime: 5 * 60 * 1000, // 5 минут
   });
@@ -52,7 +52,7 @@ export function usePDDTopicQuestions(
         return [];
       }
     },
-    enabled: !!country && !!topicName && country === 'russia',
+    enabled: !!country && !!topicName,
     retry: 1,
   });
 }

@@ -1,0 +1,1412 @@
+[
+  {
+    "topic_number": 5,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "Los vehículos especiales que circulan por una vía de uso público deben utilizar la luz rotativa amarillo auto cuando circulen a una velocidad...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "superior a 40 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "no superior a 40 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "no superior a 40 km/h, solamente de noche.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/de92558e-8703-4b0d-b1a6-44c45d577b95-1658316885-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/de92558e-8703-4b0d-b1a6-44c45d577b95-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Si conduce un cuadriciclo equipado con cinturones de seguridad, ¿quiénes deben utilizarlos y en que tipo de vías?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Tanto el conductor como el pasajero, en todo tipo de vías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solo el conductor tanto en vías urbanas como en interurbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Tanto el conductor como el pasajero, solo en vías interurbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/de663ebd-cad6-4fc7-a9b1-d28ec2d7ee1b-1658312081-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/de663ebd-cad6-4fc7-a9b1-d28ec2d7ee1b-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "En caso de avería de la señal luminosa V-2, los transportes especiales o en régimen de transporte especial...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "tienen prohibida la circulación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "circularán por el carril derecho a una velocidad inferior a 40 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "circularán con la luz de cruce y la señal de emergencia encendidas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4d4718eb-5f84-4fa8-a86f-9507b98e506c-1658316535-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4d4718eb-5f84-4fa8-a86f-9507b98e506c-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Los conductores de ciclomotores, ¿están obligados a llevar casco de protección cuando circulen por una vía urbana?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, los conductores de ciclomotores no están obligados a llevar casco.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, es obligatorio.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Los conductores sí están obligados, pero los pasajeros no lo están.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6b79803a-bb52-4117-8f5d-81a4d8b3dee2-1658312291-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6b79803a-bb52-4117-8f5d-81a4d8b3dee2-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "Si circula entre la puesta y la salida del sol, ¿cómo debe señalizar una carga indivisible que sobresale por la parte delantera y la trasera de su vehículo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Con una luz roja en ambos extremos de la carga.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Con una luz roja en la parte trasera de la carga y una luz blanca en la delantera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Con una luz blanca en la parte trasera de la carga y una luz roja en la delantera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4c5a674e-dd08-433f-8f0c-7ddbdaf02913-1658315366-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4c5a674e-dd08-433f-8f0c-7ddbdaf02913-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "¿A qué vehículos identifica el distintivo de la imagen?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A los vehículos de uso compartido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A los vehículos destinados al transporte público de viajeros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A los vehículos que no emiten gases contaminantes.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/47a6589b-d2b6-4e30-8a55-3ca13f23a636-1658306450-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/47a6589b-d2b6-4e30-8a55-3ca13f23a636-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "Entre la puesta y la salida del sol, ¿está permitido conducir una motocicleta que arrastra un remolque?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, como a cualquier otra hora del día.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, si se hace a una velocidad un 10 por ciento por debajo de la genérica de la vía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/fa889584-ba9d-4c04-8c00-99d33f6bad60-1658316023-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/fa889584-ba9d-4c04-8c00-99d33f6bad60-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "¿Puede el conductor de una bicicleta transportar un pasajero?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, está prohibido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, sentado entre el conductor y el manillar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, a un menor de hasta siete años siempre que lo haga en un asiento adicional homologado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/270d8c31-afd1-42f7-acae-f48ef519cf6a-1658256004-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/270d8c31-afd1-42f7-acae-f48ef519cf6a-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "El conductor, ¿está obligado a cuidar que el resto de pasajeros mantengan una posición adecuada en el vehículo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si el vehículo es de transporte colectivo de personas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/86262bd9-d37e-48c5-9daa-ade4fcb83084-1658252703-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/86262bd9-d37e-48c5-9daa-ade4fcb83084-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "Circulando en un turismo, ¿se puede prescindir en algún momento del cinturón de seguridad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El conductor no, pero sí los pasajeros que viajen en los asientos traseros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, excepto el conductor y cuando esté realizando la maniobra de marcha atrás o de estacionamiento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, circulando por vías urbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d9248fb9-0b42-4402-82e4-afaa4e9acfbb-1658254633-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d9248fb9-0b42-4402-82e4-afaa4e9acfbb-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "Los ciclistas están exentos de llevar casco cuando circulen...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "por vías interurbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "por pendientes descendentes.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "en condiciones extremas de calor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f1107fd2-1246-4a99-b372-7644fa42f8fd-1658256178-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f1107fd2-1246-4a99-b372-7644fa42f8fd-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "La señal V-24, ¿en qué vehículos se debe colocar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En las grúas de plataforma solamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En las grúas de arrastre únicamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En los vehículos de servicio de auxilio en vías públicas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/990783c3-fc20-471e-ae52-ce055bb5d651-1761115620-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/990783c3-fc20-471e-ae52-ce055bb5d651-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "¿Qué indica el panel de franjas rojas y blancas que lleva este vehículo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que transporta una carga que sobresale por detrás.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Que tiene limitada la velocidad máxima a la que puede circular.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que transporta mercancías peligrosas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/74115a55-8c3e-43ae-867d-65dd4d707efe-1658316816-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/74115a55-8c3e-43ae-867d-65dd4d707efe-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "¿Le está permitido circular con una carga si esta sobresale por las ventanillas laterales de su vehículo, como una escalera?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, señalizando debidamente la carga.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solo si la carga no sobresale mas de 40 cm.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9159b83f-d3b4-4690-8a19-3301f58106a6-1658313531-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9159b83f-d3b4-4690-8a19-3301f58106a6-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "No está obligado a utilizar el casco de protección, cuando conduzca una motocicleta...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "con estructura de autoprotección y utilice el cinturón de seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "destinada a la distribución de mercancías y realice recorridos cortos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "con sidecar y circule por vías urbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b23c6a53-f673-4952-a68e-cbb72bf192a5-1658312950-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b23c6a53-f673-4952-a68e-cbb72bf192a5-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "El peso de un turismo y de su carga es superior a la masa máxima autorizada que figura en la ficha técnica del vehículo, ¿está permitido circular en estas condiciones?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo si no se transportan personas, aparte del conductor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3f7a5794-a8da-490f-ad82-8a08c771ea33-1658252674-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3f7a5794-a8da-490f-ad82-8a08c771ea33-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "En los vehículos no destinados exclusivamente al transporte de mercancías, ¿puede sobresalir una carga indivisible por la parte posterior?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, hasta un 10 por ciento de la longitud del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, hasta un 15 por ciento de la longitud del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/54e6dac2-113b-4f11-8567-256646e433ce-1658313888-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/54e6dac2-113b-4f11-8567-256646e433ce-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la edad mínima para viajar como acompañante en una motocicleta conducida por alguien distinto a los padres o el tutor del menor, o por una persona mayor de edad autorizada?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "14 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "7 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "12 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/84c8e4e2-5da2-42a4-a54e-a63bf6cef651-1658256038-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/84c8e4e2-5da2-42a4-a54e-a63bf6cef651-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "Cargar un vehículo con más carga de la autorizada...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "no influye para nada en la seguridad vial.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "influye, especialmente, en la aceleración, frenado y estabilidad del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "solo afecta a los neumáticos, por lo que se deberá incrementar su presión.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6ff54091-2660-44da-b13f-38a7ea8cd3da-1658313440-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6ff54091-2660-44da-b13f-38a7ea8cd3da-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido que la carga de un turismo sobresalga por los laterales?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, siempre que vaya debidamente señalizada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si no compromete la estabilidad del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f2136c89-774c-4422-91a9-03eedd3b1218-1658313614-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f2136c89-774c-4422-91a9-03eedd3b1218-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "Si circulan por vías de uso publico sin superar la velocidad, los vehículos especiales utilizarán la señal luminosa cuando...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "circulen tanto de día como de noche.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "circulen entre la puesta y la salida del sol, únicamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "trabajen en operaciones de limpieza o conservación de la vía únicamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/eda6e468-0ca0-4085-a319-051730c2a271-1658316429-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/eda6e468-0ca0-4085-a319-051730c2a271-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "¿Qué significa esta señal colocada en el lateral de una furgoneta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Advertencia de peligro de ángulos muertos para advertir a vehículos pesados.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Advertencia de peligro de ángulos muertos para advertir a usuarios vulnerables.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Precaución con las motocicletas estacionadas en la acera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ecbf4996-7279-40e9-83cd-dadf2631d1c7-1761114032-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ecbf4996-7279-40e9-83cd-dadf2631d1c7-s-1.jpg?t=1768426582",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "En las motocicletas, el equipaje transportado debe colocarse de forma que...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "no sobresalga por la parte trasera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "no sobresalga por los laterales del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "no comprometa la estabilidad del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a3caed1c-9433-4ce4-89ee-631f5ba91517-1658313283-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a3caed1c-9433-4ce4-89ee-631f5ba91517-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "Un vehículo lleva más carga que la Masa Máxima Autorizada (MMA). ¿Está permitido circular así?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, cuando es un vehículo de transporte de mercancías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, porque es peligroso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, pero solamente cuando transporta equipaje y personas dentro de poblado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/37bbbb16-9012-44c3-9e29-88c2dd71d0e6-1658252637-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/37bbbb16-9012-44c3-9e29-88c2dd71d0e6-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "Un vehículo de tres ruedas, ¿puede arrastrar un remolque?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, nunca.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sólo remolques cuya masa máxima autorizada no supere los 50 kilos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, cumpliendo determinadas condiciones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/5df2322e-83f4-4fcc-8f14-b05328f8bffb-1658315949-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5df2322e-83f4-4fcc-8f14-b05328f8bffb-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "Cuando la carga sobresale de un vehículo, ¿es obligatorio señalizarla con el panel de la imagen?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, excepto para los vehículos destinados al transporte de mercancías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solo es obligatorio si la carga sobresale por la parte trasera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, para todo tipo de vehículos, pero solo cuando la carga sea indivisible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/5bca03bb-9fd2-4437-b332-861d8311491f-1658315204-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5bca03bb-9fd2-4437-b332-861d8311491f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "Los asientos de un vehículo mixto tienen cinturones de seguridad, ¿está obligado el conductor a utilizarlo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, en vías fuera de poblado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, en ningún tipo de vía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, en todas las vías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/db233882-a90a-4c4c-954d-bfeeb10b54f1-1658252928-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/db233882-a90a-4c4c-954d-bfeeb10b54f1-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Si un cuadriciclo ligero tiene instalados cinturones de seguridad, ¿es obligatorio ponerse el casco?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, pero únicamente fuera de poblado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, pero únicamente en vías urbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9c3caa47-0c38-46d0-b1ba-962888a07b22-1658256316-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9c3caa47-0c38-46d0-b1ba-962888a07b22-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "Una motocicleta, ¿puede arrastrar un remolque o semirremolque?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, si no supera el 50% de la masa en vacío del vehículo tractor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, está prohibido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, y además puede llevar personas en el mismo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d49eec93-cabb-4512-917e-ca307cb1995d-1658316058-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d49eec93-cabb-4512-917e-ca307cb1995d-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "Se debe desactivar el airbag frontal cuando en el asiento correspondiente al copiloto...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "se instale un dispositivo de retención infantil orientado hacia delante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "viaje una mujer embarazada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "se instale un dispositivo de retención infantil orientado hacia atrás.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/dad7323b-04f2-48a1-9bf6-7eccb0d8ee6f-1658253411-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/dad7323b-04f2-48a1-9bf6-7eccb0d8ee6f-s-1.jpg",
+    "source": "practicavial"
+  }
+]

@@ -1,0 +1,1412 @@
+[
+  {
+    "topic_id": 10,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "El conductor del vehículo verde, si prevé que los animales pueden invadir la vía, debe...",
+      "en": "If the driver of the green vehicle foresees that animals may invade the road, they must...",
+      "ru": "Если водитель зеленого автомобиля предвидит, что животные могут выйти на дорогу, он должен..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "dejar una separación lateral no inferior a 1,50 metros para rebasarlos.",
+          "en": "leave a lateral separation of no less than 1.50 meters to overtake them.",
+          "ru": "оставить боковой интервал не менее 1,50 метров для их обгона."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "moderar la velocidad, llegando a detener el vehículo si fuera preciso.",
+          "en": "moderate the speed, even stopping the vehicle if necessary.",
+          "ru": "снизить скорость, вплоть до остановки транспортного средства, если это необходимо."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "detener la marcha hasta que todos los animales estén encerrados.",
+          "en": "stop the vehicle until all the animals are enclosed.",
+          "ru": "остановить движение, пока все животные не будут загнаны."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "### 🧠 La Lógica \"Por qué\"\n\nImagina que vas conduciendo y ves animales cerca de la carretera. ¿Qué es más seguro? ¿Intentar adelantarlos rápido y cerca, esperar a que los encierren (¡quién sabe cuándo!) o reducir la velocidad y estar preparado para frenar?\n\nLa seguridad es lo primero. Los animales son impredecibles. Pueden asustarse y cruzar la carretera de repente. Reducir la velocidad te da tiempo para reaccionar y evitar un accidente.\n\n### 💣 La Trampa / El Truco\n\nMuchos piensan en adelantar con cuidado (opción A), pero ¡error! Nunca sabes cómo reaccionarán los animales. La opción C es ridícula, ¡no vas a esperar a que los encierren! La clave es la **PREVENCIÓN**: reduce la velocidad y prepárate para frenar. Piensa: **\"Animal = Alerta Roja\".**",
+      "en": "### 🧠 The Logic \"Why\"\n\nImagine you are driving and see animals near the road. What is safer? Trying to overtake them quickly and closely, waiting for them to be enclosed (who knows when!), or reducing speed and being prepared to brake?\n\nSafety comes first. Animals are unpredictable. They can get scared and cross the road suddenly. Reducing speed gives you time to react and avoid an accident.\n\n### 💣 The Trap / The Trick\n\nMany think about overtaking carefully (option A), but that's wrong! You never know how the animals will react. Option C is ridiculous; you're not going to wait for them to be enclosed! The key is **PREVENTION**: reduce speed and prepare to brake. Think: **\"Animal = Red Alert\".**",
+      "ru": "### 🧠 Логика \"Почему\"\n\nПредставь, что ты едешь и видишь животных рядом с дорогой. Что безопаснее? Пытаться быстро и близко их обогнать, ждать, пока их загонят (кто знает когда!), или снизить скорость и быть готовым затормозить?\n\nБезопасность прежде всего. Животные непредсказуемы. Они могут испугаться и внезапно выбежать на дорогу. Снижение скорости дает тебе время для реакции и предотвращения аварии.\n\n### 💣 Ловушка / Трюк\n\nМногие думают об обгоне с осторожностью (вариант А), но это ошибка! Никогда не знаешь, как отреагируют животные. Вариант C смешон, ты не будешь ждать, пока их загонят! Ключ в **ПРЕДОТВРАЩЕНИИ**: снизь скорость и будь готов к торможению. Думай: **\"Животное = Красная Тревога\".**"
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/2de51524513fb51af8ac47b066c377fd.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/24c515fe4952d778923e5a57b7fe4e0d.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "Los conductores de bicicletas tienen prioridad de paso respecto a los vehículos de motor...",
+      "en": "Bicycle riders have right of way over motor vehicles...",
+      "ru": "Водители велосипедов имеют преимущество проезда по отношению к механическим транспортным средствам..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "cuando circulen por un paso para ciclistas.",
+          "en": "when riding through a bicycle lane.",
+          "ru": "когда они едут по велосипедной дорожке."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "en las zonas peatonales debidamente señalizadas.",
+          "en": "in duly marked pedestrian zones.",
+          "ru": "в специально обозначенных пешеходных зонах."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "en todas las intersecciones.",
+          "en": "at all intersections.",
+          "ru": "на всех перекрестках."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Imagina que eres un ciclista. ¿Te sentirías seguro si pensaras que tienes prioridad en CADA cruce? ¡Sería una locura! La respuesta correcta es la B: SOLO en zonas peatonales señalizadas. \n\nLa lógica es simple: la prioridad se da donde el ciclista es MÁS vulnerable y donde la ley le protege ESPECIALMENTE. Una zona peatonal señalizada es como un 'territorio seguro' para el ciclista.\n\nAquí está la trampa: muchos piensan 'ciclista = siempre prioridad'. ¡Falso! Recuerda: **Prioridad = Protección ESPECIAL, no carta blanca**.",
+      "en": "Imagine you are a cyclist. Would you feel safe if you thought you had priority at EVERY intersection? It would be madness! The correct answer is B: ONLY in marked pedestrian zones.\n\nThe logic is simple: priority is given where the cyclist is MOST vulnerable and where the law ESPECIALLY protects them. A marked pedestrian zone is like a 'safe territory' for the cyclist.\n\nHere's the trick: many people think 'cyclist = always priority'. False! Remember: **Priority = SPECIAL protection, not carte blanche**.",
+      "ru": "Представь, что ты велосипедист. Чувствовал бы ты себя в безопасности, если бы думал, что у тебя приоритет на КАЖДОМ перекрестке? Это было бы безумием! Правильный ответ - B: ТОЛЬКО в обозначенных пешеходных зонах.\n\nЛогика проста: приоритет дается там, где велосипедист НАИБОЛЕЕ уязвим, и где закон его ОСОБЕННО защищает. Обозначенная пешеходная зона - это как 'безопасная территория' для велосипедиста.\n\nВот в чем подвох: многие думают 'велосипедист = всегда приоритет'. Неверно! Запомни: **Приоритет = ОСОБАЯ защита, а не карт-бланш**."
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/7adc4d373aa89ee33de83a4ce90b9261.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/5c21607f69696d85a0bf511ae446ee47.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "En tramos con suficiente visibilidad y sin formar aglomeración, ¿podrán los ciclistas circular en columna de a dos, pegándose a la derecha?",
+      "en": "On sections with sufficient visibility and without forming a crowd, can cyclists ride two abreast, sticking to the right?",
+      "ru": "На участках с достаточной видимостью и без создания помех движению, могут ли велосипедисты ехать в колонну по двое, прижимаясь к правой стороне?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": "Yes.",
+          "ru": "Да."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, siempre circularan por el arcén.",
+          "en": "No, they will always ride on the shoulder.",
+          "ru": "Нет, они всегда должны ехать по обочине."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, siempre circularan en fila de a uno.",
+          "en": "No, they will always ride in single file.",
+          "ru": "Нет, они всегда должны ехать в один ряд."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "La clave está en la seguridad y el sentido común. Imagina que eres un ciclista en una carretera estrecha. Si vas en paralelo con otro ciclista, ocupas más espacio, ¿verdad? Esto reduce la visibilidad para los coches que vienen detrás y aumenta el riesgo de accidente, especialmente si no hay arcén. La norma general es que los ciclistas circulen por el arcén si es transitable y suficiente, y si no lo hay, lo más pegados posible a la derecha de la calzada. Solo pueden ir en columna de a dos si hay buena visibilidad, no hay aglomeraciones y siempre pegados a la derecha. \n\nLa trampa aquí es pensar que 'siempre' pueden ir en columna de a dos. ¡Error! Recuerda: Prioridad a la seguridad. Si hay riesgo, ¡fila india obligatoria!",
+      "en": "The key is safety and common sense. Imagine you are a cyclist on a narrow road. If you ride side by side with another cyclist, you take up more space, right? This reduces visibility for cars coming from behind and increases the risk of an accident, especially if there is no shoulder. The general rule is that cyclists ride on the shoulder if it is passable and sufficient, and if there is none, as close as possible to the right of the roadway. They can only ride two abreast if there is good visibility, no crowds, and always close to the right. \n\nThe trap here is to think that they can 'always' ride two abreast. Wrong! Remember: Priority to safety. If there is a risk, single file is mandatory!",
+      "ru": "Ключ к ответу — безопасность и здравый смысл. Представь, что ты велосипедист на узкой дороге. Если ты едешь рядом с другим велосипедистом, вы занимаете больше места, верно? Это снижает видимость для автомобилей, едущих сзади, и увеличивает риск аварии, особенно если нет обочины. Общее правило заключается в том, что велосипедисты едут по обочине, если она проходима и достаточна, а если её нет, то как можно ближе к правой стороне проезжей части. Ехать в колонну по двое разрешается только при хорошей видимости, отсутствии заторов и всегда прижимаясь к правой стороне.\n\nЗдесь легко попасть в ловушку и подумать, что 'всегда' можно ехать в колонну по двое. Ошибка! Помни: приоритет — безопасность. Если есть риск, то обязательно в один ряд!"
+    },
+    "image_url": null,
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/92a10c8cf356d808e8b638490d28157f.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "A más de 120 kilómetros por hora en autopista, la probabilidad de sobrevivir a un accidente...",
+      "en": "At more than 120 kilometers per hour on a highway, the probability of surviving an accident...",
+      "ru": "На скорости более 120 километров в час на автомагистрали вероятность выжить в аварии..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "no varía.",
+          "en": "does not vary.",
+          "ru": "не меняется."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "aumenta.",
+          "en": "increases.",
+          "ru": "увеличивается."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "disminuye.",
+          "en": "decreases.",
+          "ru": "уменьшается."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: Imagina que estás corriendo a toda velocidad y de repente te encuentras con una pared. A más velocidad, mayor es el impacto, ¿verdad? Lo mismo ocurre en un coche. A más de 120 km/h, la energía del impacto en un accidente es brutal, y las posibilidades de salir vivo se desploman.\n\n💣 **La Trampa / El Truco**: Muchos piensan que \"si voy rápido, llego antes al hospital\". ¡Error! A esa velocidad, es más probable que no llegues a ningún hospital. Recuerda: **La velocidad mata. Literalmente.**",
+      "en": "🧠 **The Logic \"Why\"**: Imagine you're running at full speed and suddenly encounter a wall. The faster you go, the greater the impact, right? The same thing happens in a car. At more than 120 km/h, the impact energy in an accident is brutal, and the chances of surviving plummet.\n\n💣 **The Trap / The Trick**: Many think that \"if I go fast, I get to the hospital sooner\". Wrong! At that speed, it's more likely you won't get to any hospital. Remember: **Speed kills. Literally.**",
+      "ru": "🧠 **Логика \"Почему\"**: Представь, что ты бежишь на полной скорости и вдруг врезаешься в стену. Чем выше скорость, тем сильнее удар, верно? То же самое происходит в машине. На скорости более 120 км/ч энергия удара при аварии огромна, и шансы выжить резко падают.\n\n💣 **Ловушка / Трюк**: Многие думают, что \"если я поеду быстро, я быстрее доберусь до больницы\". Ошибка! На такой скорости скорее всего ты вообще ни до какой больницы не доедешь. Запомни: **Скорость убивает. В прямом смысле.**"
+    },
+    "image_url": null,
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/b61926feaa9d8cb2c08a9ef02576cbb7.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "En una carretera convencional sin arcenes, ¿cuál es la velocidad anormalmente reducida para un turismo?",
+      "en": "On a conventional road without hard shoulders, what is the abnormally reduced speed for a passenger car?",
+      "ru": "На обычной дороге без обочин, какая скорость считается ненормально низкой для легкового автомобиля?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La inferior a 45 kilómetros por hora.",
+          "en": "Less than 45 kilometers per hour.",
+          "ru": "Менее 45 километров в час."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "45 Kilómetros por hora.",
+          "en": "45 Kilometers per hour.",
+          "ru": "45 километров в час."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "60 Kilómetros por hora.",
+          "en": "60 Kilometers per hour.",
+          "ru": "60 километров в час."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "La velocidad anormalmente reducida es aquella que impide el flujo normal del tráfico y puede generar peligro. En una vía convencional sin arcén, para un turismo, se considera velocidad anormalmente reducida cualquier velocidad igual o inferior a 45 km/h.  \n\n**🧠 La Lógica \"Por qué\":** Imagina que estás conduciendo en una carretera y de repente te encuentras con un coche que va a paso de tortuga. Esto obliga a los demás conductores a frenar bruscamente o a realizar maniobras peligrosas para adelantarlo. La seguridad es lo primero.\n\n**💣 La Trampa / El Truco:**  Muchos piensan que una velocidad reducida siempre es segura, ¡pero no!  Una velocidad demasiado baja puede ser tan peligrosa como una velocidad excesiva. Recuerda: **anormalmente reducida = 45 km/h o menos** en este caso.",
+      "en": "An abnormally reduced speed is one that impedes the normal flow of traffic and can create danger. On a conventional road without hard shoulder, for a passenger car, any speed equal to or less than 45 km/h is considered abnormally reduced.\n\n**🧠 The \"Why\" Logic:** Imagine you are driving on a road and suddenly come across a car that is moving at a snail's pace. This forces other drivers to brake sharply or perform dangerous maneuvers to overtake it. Safety comes first.\n\n**💣 The Trap / The Trick:** Many think that a reduced speed is always safe, but no! A speed that is too low can be as dangerous as an excessive speed. Remember: **abnormally reduced = 45 km/h or less** in this case.",
+      "ru": "Ненормально низкая скорость - это скорость, которая мешает нормальному потоку движения и может создать опасность. На обычной дороге без обочины, для легкового автомобиля, любой скоростью равной или менее 45 км/ч считается ненормально низкой.\n\n**🧠 Логика \"Почему\":** Представь, что ты едешь по дороге и вдруг натыкаешься на машину, которая движется со скоростью улитки. Это вынуждает других водителей резко тормозить или совершать опасные маневры для обгона. Безопасность превыше всего.\n\n**💣 Ловушка / Трюк:** Многие думают, что низкая скорость всегда безопасна, но нет! Слишком низкая скорость может быть такой же опасной, как и чрезмерная. Запомни: **ненормально низкая = 45 км/ч или меньше** в этом случае."
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/a29546e2abd76537a9e9e117b3315f24.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/cb83e58fa242f690b8e4174ffa575f9a.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "¿A qué velocidad puede circular un turismo con remolque por una carretera con un arcén de 1,50 metros de ancho?",
+      "en": "What is the maximum speed a passenger car with a trailer can travel on a road with a shoulder of 1.50 meters wide?",
+      "ru": "С какой максимальной скоростью может двигаться легковой автомобиль с прицепом по дороге с обочиной шириной 1,50 метра?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "100 km/h.",
+          "en": "100 km/h.",
+          "ru": "100 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "120 km/h.",
+          "en": "120 km/h.",
+          "ru": "120 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "80 km/h.",
+          "en": "80 km/h.",
+          "ru": "80 км/ч."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**\n\nПредставь, что ты едешь на легковом автомобиле с прицепом. У тебя уже и так управляемость хуже, чем обычно. На дорогах с обочиной 1,5 метра или больше, максимальная скорость для таких транспортных средств составляет 80 км/ч. Это сделано для твоей же безопасности и безопасности окружающих. Больше скорость = меньше контроля = больше шансов улететь в кювет. \n\n💣 **La Trampa / El Truco**\n\nМногие думают, что раз дорога \"нормальная\", то можно ехать как обычно. Запомни: **прицеп = минус 20 км/ч от обычной скорости**. Всегда! Это eliminatoria.",
+      "en": "🧠 **The Logic \"Why\"**\n\nImagine you're driving a passenger car with a trailer. Your handling is already worse than usual. On roads with a shoulder of 1.5 meters or more, the maximum speed for such vehicles is 80 km/h. This is for your safety and the safety of others. More speed = less control = more chances to end up in the ditch.\n\n💣 **The Trap / The Trick**\n\nMany people think that since the road is \"normal,\" you can drive as usual. Remember: **trailer = minus 20 km/h from the usual speed**. Always! This is an eliminatory question.",
+      "ru": "🧠 **Логика: Почему так?**\n\nПредставь, что ты за рулём легкового автомобиля с прицепом. Управляемость и так хуже обычного. На дорогах с обочиной шириной 1,5 метра и более, максимальная скорость для таких транспортных средств — 80 км/ч. Это для твоей же безопасности и безопасности окружающих. Больше скорость = меньше контроля = выше шанс улететь в кювет.\n\n💣 **Ловушка / Подвох**\n\nМногие думают, раз дорога \"нормальная\", можно ехать как обычно. Запомни: **прицеп = минус 20 км/ч от обычной скорости**. Всегда! Иначе провал на экзамене."
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/94d1d98e4237606754cb94b73c06d6c2.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/da542e8c9863156be5a4d1347ebce55c.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "Circula detrás de otro vehículo y quiere adelantarlo. ¿Qué distancia debe dejar?",
+      "en": "You are driving behind another vehicle and want to overtake it. What distance should you leave?",
+      "ru": "Вы едете за другим транспортным средством и хотите его обогнать. Какую дистанцию вы должны оставить?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La distancia de seguridad.",
+          "en": "The safety distance.",
+          "ru": "Безопасную дистанцию."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "50 metros o más.",
+          "en": "50 meters or more.",
+          "ru": "50 метров или больше."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El doble de la longitud del vehículo.",
+          "en": "Twice the length of the vehicle.",
+          "ru": "Двойную длину транспортного средства."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 La Lógica \"Por qué\":\nПредставь, что ты готовишься к прыжку в длину. Тебе нужен разбег, верно? Обгон - это такой же \"прыжок\", только на дороге. 50 метров - это твой \"разбег\" для безопасного обгона. Это как дать себе достаточно места, чтобы разогнаться и не врезаться.\n\n💣 La Trampa / El Truco:\nМногие думают о безопасной дистанции, но здесь речь идет именно о дистанции для НАЧАЛА обгона. Запомни: 50 метров - это как \"полста\", чтобы начать обгон без проблем!",
+      "en": "🧠 The Logic \"Why\":\nImagine you're preparing for a long jump. You need a run-up, right? Overtaking is like a \"jump\" on the road. 50 meters is your \"run-up\" for a safe overtake. It's like giving yourself enough space to accelerate and not crash.\n\n💣 The Trap / The Trick:\nMany people think about the safety distance, but this is specifically about the distance to START overtaking. Remember: 50 meters is like \"half a hundred\" to start overtaking without problems!",
+      "ru": "🧠 Логика \"Почему\":\nПредставь, что ты готовишься к прыжку в длину. Тебе нужен разбег, верно? Обгон - это такой же \"прыжок\", только на дороге. 50 метров - это твой \"разбег\" для безопасного обгона. Это как дать себе достаточно места, чтобы разогнаться и не врезаться.\n\n💣 Ловушка / Трюк:\nМногие думают о безопасной дистанции, но здесь речь идет именно о дистанции для НАЧАЛА обгона. Запомни: 50 метров - это как \"полста\", чтобы начать обгон без проблем!"
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/b61f7812ea816a9c9045733c6d648c31.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/2e54ab25b7cb9c1fb64f044d700c68b8.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "¿Qué vehículos pueden circular por un carril habilitado en sentido contrario al habitual, por razones de fluidez?",
+      "en": "Which vehicles are allowed to use a lane enabled in the opposite direction to the usual one, for reasons of traffic flow?",
+      "ru": "Какие транспортные средства могут двигаться по полосе, открытой в направлении, противоположном обычному, для улучшения пропускной способности?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Los turismos con o sin remolque.",
+          "en": "Passenger cars with or without a trailer.",
+          "ru": "Легковые автомобили с прицепом или без него."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Los autobuses.",
+          "en": "Buses.",
+          "ru": "Автобусы."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Las motocicletas y los turismos sin remolque.",
+          "en": "Motorcycles and passenger cars without a trailer.",
+          "ru": "Мотоциклы и легковые автомобили без прицепа."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Imagina una autopista colapsada. Para aliviar el tráfico, se abre un carril en sentido contrario. Pero, ¡ojo! No todos pueden usarlo. Solo los autobuses tienen permitido circular por ese carril habilitado en sentido contrario por razones de fluidez. \n\n**La Lógica \"Por qué\":** Piensa en la seguridad y en la capacidad. Un autobús lleva a mucha gente, y su tamaño permite que sea visto mejor en condiciones de tráfico alterado. Permitir coches con remolque o motos sería un caos.\n\n**La Trampa / El Truco:** Muchos piensan que los coches también pueden usarlo para \"ir más rápido\", ¡ERROR! Es una trampa común. Recuerda: **Solo los autobuses** cuando está habilitado por fluidez. Si se habilita por obras, podrán circular otros vehículos, pero si es por fluidez solo autobuses.",
+      "en": "Imagine a congested highway. To alleviate traffic, a lane is opened in the opposite direction. But be careful! Not everyone can use it. Only buses are allowed to travel in that lane enabled in the opposite direction for reasons of traffic flow.\n\n**The Logic \"Why\":** Think about safety and capacity. A bus carries many people, and its size allows it to be seen better in altered traffic conditions. Allowing cars with trailers or motorcycles would be chaos.\n\n**The Trap / The Trick:** Many think that cars can also use it to \"go faster\", ERROR! It's a common trap. Remember: **Only buses** when it's enabled for traffic flow. If it is enabled for roadworks, other vehicles may circulate, but if it is for traffic flow, only buses.",
+      "ru": "Представь себе перегруженную автомагистраль. Чтобы разгрузить движение, открывают полосу в противоположном направлении. Но будь осторожен! Не всем разрешено ею пользоваться. Только автобусам разрешено движение по этой полосе, открытой в противоположном направлении для увеличения пропускной способности.\n\n**Логика \"Почему\":** Подумай о безопасности и вместимости. Автобус перевозит много людей, и его размер позволяет лучше его видеть в условиях измененного движения. Разрешить движение легковых автомобилей с прицепами или мотоциклов было бы хаосом.\n\n**Ловушка / Трюк:** Многие думают, что легковые автомобили тоже могут использовать ее, чтобы \"ехать быстрее\", ОШИБКА! Это распространенная ловушка. Запомни: **Только автобусы**, когда полоса открыта для увеличения пропускной способности. Если она открыта из-за дорожных работ, то могут двигаться и другие транспортные средства, но если это для пропускной способности, то только автобусы."
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/868f9a518b6b1c605f886738d94920cb.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/7d2552feaf24ef78ff037bf3a146d65a.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "Circulando por autopista, prevé que su vehículo puede quedar inmovilizado por circunstancias del tráfico, ¿cómo deberá advertirlo?",
+      "en": "While driving on the motorway, if you anticipate that your vehicle may become immobilized due to traffic conditions, how should you warn others?",
+      "ru": "При движении по автомагистрали, если вы предвидите, что ваш автомобиль может быть обездвижен из-за дорожных условий, как вы должны предупредить других?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Encendiendo las luces de posición, aunque sea de día.",
+          "en": "By turning on the parking lights, even during the day.",
+          "ru": "Включив габаритные огни, даже днем."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Mediante el empleo reiterado de las luces de frenado.",
+          "en": "By repeatedly using the brake lights.",
+          "ru": "Многократно используя стоп-сигналы."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Mediante la luz antiniebla trasera y la señal de emergencia.",
+          "en": "Using the rear fog light and the hazard warning lights.",
+          "ru": "Используя задний противотуманный фонарь и аварийную сигнализацию."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "### 🧠 La Lógica \"Por qué\"\n\nImagina que estás en una autopista. El tráfico fluye rápido, y de repente, la circulación se ralentiza drásticamente. Para alertar a los conductores que vienen detrás de ti, necesitas hacer algo que capte su atención INMEDIATAMENTE. Usar repetidamente las luces de freno es como gritar: \"¡Oye, cuidado, estoy frenando!\" Es una señal clara y universal.\n\n### 💣 La Trampa / El Truco\n\nMuchos caen en la trampa de la opción C (antiniebla + emergencia).  PERO, la luz antiniebla solo se usa en condiciones de baja visibilidad (niebla, lluvia intensa). Y la emergencia es para cuando YA estás parado. Aquí, la clave es **PREVER** la inmovilización.  Recuerda: **Frenos repetidos = Peligro inminente**.",
+      "en": "### 🧠 The Logic \"Why\"\n\nImagine you're on a motorway. Traffic is flowing quickly, and suddenly, the traffic slows down drastically. To alert the drivers behind you, you need to do something that grabs their attention IMMEDIATELY. Using the brake lights repeatedly is like shouting: \"Hey, watch out, I'm braking!\" It's a clear and universal signal.\n\n### 💣 The Trap / The Trick\n\nMany fall into the trap of option C (fog light + hazard lights). BUT, the fog light is only used in low visibility conditions (fog, heavy rain). And the hazard lights are for when you ARE already stopped. Here, the key is to **ANTICIPATE** the immobilization. Remember: **Repeated brakes = Imminent danger**.",
+      "ru": "### 🧠 Логика \"Почему\"\n\nПредставь, что ты едешь по автомагистрали. Движение быстрое, и вдруг поток машин резко замедляется. Чтобы предупредить водителей сзади, нужно сделать что-то, что немедленно привлечет их внимание. Многократное использование стоп-сигналов – это как кричать: \"Эй, осторожно, я торможу!\" Это четкий и универсальный сигнал.\n\n### 💣 Ловушка / Трюк\n\nМногие попадают в ловушку варианта C (противотуманный фонарь + аварийка). НО, противотуманный фонарь используется только в условиях плохой видимости (туман, сильный дождь). А аварийка – когда ты УЖЕ остановился. Здесь ключевое слово – **ПРЕДВИДЕТЬ** обездвиживание. Запомни: **Многократные торможения = Неминуемая опасность**."
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/4fc1a69423667d641d66568746c63d2c.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/189ed00ad5986a2cd15a64e9f087d1bb.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "En vías interurbanas y en calzadas con más de un carril para el mismo sentido de marcha, ¿por dónde circulará normalmente un automóvil?",
+      "en": "On interurban roads and on carriageways with more than one lane in the same direction, where will a car normally drive?",
+      "ru": "На междугородних дорогах и на проезжей части с несколькими полосами движения в одном направлении, где обычно должен двигаться легковой автомобиль?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por el carril derecho.",
+          "en": "In the right lane.",
+          "ru": "По правой полосе."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Por el que más convenga a su destino.",
+          "en": "By the one that best suits your destination.",
+          "ru": "По той, которая больше всего подходит для его направления."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Por el carril central.",
+          "en": "In the central lane.",
+          "ru": "По центральной полосе."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: Imagina que la carretera es como un río. Normalmente, un río fluye por el centro de su cauce, ¿verdad? Pero, ¿qué pasa si quieres salir del río para llegar a un destino específico en la orilla? Necesitas usar los carriles más cercanos a esa orilla.\n\nSi hay varios carriles, usa el de la derecha para circular normalmente. Si vas a adelantar o prepararte para girar a la izquierda, entonces usas los otros carriles temporalmente.\n\n💣 **La Trampa / El Truco**: Muchos piensan que siempre deben ir por el carril derecho, ¡pero no es así! La clave está en la palabra \"normalmente\". Si necesitas adelantar o prepararte para un giro, puedes usar otros carriles. Recuerda: **\"Normalmente a la derecha, maniobra, ¡a la izquierda!\"**",
+      "en": "🧠 **The Logic \"Why\"**: Imagine the road is like a river. Normally, a river flows through the center of its course, right? But what happens if you want to leave the river to reach a specific destination on the shore? You need to use the lanes closest to that shore.\n\nIf there are multiple lanes, use the right lane for normal driving. If you are going to overtake or prepare to turn left, then you use the other lanes temporarily.\n\n💣 **The Trap / The Trick**: Many think that they should always go in the right lane, but that is not the case! The key is the word \"normally\". If you need to overtake or prepare for a turn, you can use other lanes. Remember: **\"Normally on the right, maneuver, to the left!\"",
+      "ru": "🧠 **Логика \"Почему\"**: Представь, что дорога - это река. Обычно река течет посередине своего русла, верно? Но что произойдет, если ты захочешь покинуть реку, чтобы добраться до определенного места на берегу? Тебе нужно использовать полосы, ближайшие к этому берегу.\n\nЕсли есть несколько полос, используй правую полосу для обычной езды. Если ты собираешься обгонять или готовиться к повороту налево, то временно используешь другие полосы.\n\n💣 **Ловушка / Трюк**: Многие думают, что всегда должны ехать по правой полосе, но это не так! Ключ в слове \"обычно\". Если тебе нужно обогнать или подготовиться к повороту, ты можешь использовать другие полосы. Запомни: **\"Обычно справа, маневр - влево!\"**"
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/bfc6a8363b208177ca3eb9d742ad732d.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/2f87dc4c33173802ccf1425cf3e6763d.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la velocidad máxima permitida en esta vía para un camión de 3.500 kg de MMA?",
+      "en": "What is the maximum permitted speed on this road for a truck with a maximum authorised mass (MMA) of 3,500 kg?",
+      "ru": "Какова максимальная разрешенная скорость на этой дороге для грузовика с максимальной разрешенной массой (MMA) 3500 кг?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "90 kilómetros por hora.",
+          "en": "90 kilometres per hour.",
+          "ru": "90 километров в час."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "80 kilómetros por hora.",
+          "en": "80 kilometres per hour.",
+          "ru": "80 километров в час."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "70 kilómetros por hora.",
+          "en": "70 kilometres per hour.",
+          "ru": "70 километров в час."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "No hay imagen, así que vamos directo al grano.\n\n🧠 **La Lógica \"Por qué\"**:  Imagina que estás conduciendo un camión cargado.  Necesitas más tiempo para frenar, ¿verdad? Por eso, la velocidad máxima para camiones de hasta 3.500 kg de MMA (Masa Máxima Autorizada) en una vía que no es autopista ni autovía es de 80 km/h.  Piensa en la seguridad de todos, ¡tuya incluida!\n\n💣 **La Trampa / El Truco**:  Aquí está la trampa: muchos piensan en los límites de velocidad para turismos y se confunden.  Recuerda: **Camión pequeño = 80 km/h en carretera normal**. ¡No caigas en la trampa de los 90 km/h!",
+      "en": "Since there's no image, let's get straight to the point.\n\n🧠 **The Logic \"Why\"**: Imagine you're driving a loaded truck. You need more time to brake, right? That's why the maximum speed for trucks up to 3,500 kg of MMA (Maximum Authorised Mass) on a road that is neither a motorway nor an expressway is 80 km/h. Think about everyone's safety, including your own!\n\n💣 **The Trap / The Trick**: Here's the trap: many people think about the speed limits for passenger cars and get confused. Remember: **Small truck = 80 km/h on a normal road**. Don't fall into the 90 km/h trap!",
+      "ru": "Так как изображения нет, переходим сразу к делу.\n\n🧠 **Логика \"Почему\"**: Представь, что ты ведешь загруженный грузовик. Тебе нужно больше времени для торможения, верно?  Поэтому максимальная скорость для грузовиков до 3500 кг полной массы на дороге, которая не является автомагистралью или автодорогой, составляет 80 км/ч.  Подумай о безопасности всех, включая твою!\n\n💣 **Ловушка / Трюк**: Вот в чем подвох: многие думают о скоростных ограничениях для легковых автомобилей и путаются. Запомни: **Маленький грузовик = 80 км/ч на обычной дороге**. Не попадайся в ловушку с 90 км/ч!"
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/2a48ba7ee25811645a6d2d81c3772108.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/2c6a78d21b3380a443e9c7a8aa657775.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "En un cruce, se enciende la luz roja y el vehículo azul bloquea el paso. ¿Qué debe hacer?",
+      "en": "At an intersection, the red light comes on and the blue vehicle is blocking the way. What should you do?",
+      "ru": "На перекрестке загорелся красный свет, и синий автомобиль заблокировал проезд. Что вам следует сделать?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Esperar a que se encienda la luz verde.",
+          "en": "Wait for the green light to come on.",
+          "ru": "Дождаться, пока загорится зеленый свет."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Salir del cruce, pero sin molestar a otros usuarios.",
+          "en": "Leave the intersection, but without disturbing other users.",
+          "ru": "Выехать с перекрестка, не создавая помех другим участникам движения."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Esperar a que se encienda la luz intermitente amarilla.",
+          "en": "Wait for the yellow flashing light to come on.",
+          "ru": "Дождаться, пока загорится мигающий желтый свет."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "### 🧠 La Lógica \"Por qué\"\n\nImagina que estás en el cruce y la luz se pone roja de repente. ¡Pánico! Pero recuerda: ya estás *dentro* del cruce. La clave es no quedarte bloqueando a los demás. Debes salir, pero con cuidado de no estorbar a otros coches o peatones que ya tienen derecho de paso.\n\n### 💣 La Trampa / El Truco\n\nMuchos piensan que hay que esperar a que se ponga verde otra vez, ¡ERROR! Eso solo crearía un atasco enorme. La respuesta correcta es salir, pero haciéndolo con cabeza y cediendo el paso si es necesario. **Recuerda: Si ya estás dentro, ¡sal con cuidado!**",
+      "en": "### 🧠 The Logic \"Why\"\n\nImagine you're in the intersection and the light suddenly turns red. Panic! But remember: you are *already* inside the intersection. The key is not to block others. You must leave, but be careful not to hinder other cars or pedestrians who already have the right of way.\n\n### 💣 The Trap / The Trick\n\nMany think you have to wait for it to turn green again, ERROR! That would only create a huge traffic jam. The correct answer is to exit, but doing so carefully and yielding if necessary. **Remember: If you are already inside, get out carefully!**",
+      "ru": "### 🧠 Логика \"Почему\"\n\nПредставь, что ты на перекрестке, и внезапно загорается красный свет. Паника! Но помни: ты *уже* на перекрестке. Главное - не блокировать других. Нужно выехать, но осторожно, чтобы не мешать другим автомобилям или пешеходам, у которых уже есть право проезда.\n\n### 💣 Ловушка / Трюк\n\nМногие думают, что нужно дождаться, пока снова загорится зеленый, ОШИБКА! Это только создаст огромную пробку. Правильный ответ - выехать, но делая это с умом и уступая дорогу, если это необходимо. **Запомни: Если ты уже внутри, выезжай осторожно!**"
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/6e09acc30f92b9b0bb1955352b89fbf6.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/73d4bc962b9d5f5928d51fe09fcc86d0.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "Circulando a una velocidad superior a la velocidad máxima permitida, está circulando...",
+      "en": "When driving at a speed exceeding the maximum permitted speed, you are driving...",
+      "ru": "Двигаясь со скоростью, превышающей максимально разрешенную, вы двигаетесь..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "con exceso de velocidad.",
+          "en": "with excessive speed.",
+          "ru": "с превышением скорости."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "a una velocidad máxima.",
+          "en": "at a maximum speed.",
+          "ru": "с максимальной скоростью."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "a una velocidad moderada, según las circunstancias.",
+          "en": "at a moderate speed, depending on the circumstances.",
+          "ru": "с умеренной скоростью, в зависимости от обстоятельств."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\":**\nImagina que la velocidad máxima es como un límite de crédito en tu tarjeta. Si te pasas, el banco te cobra intereses. En la carretera, si te pasas de la velocidad, la física te cobra con un accidente o una multa.\n\n💣 **La Trampa / El Truco:**\nMuchos creen que \"moderada\" siempre es seguro, ¡ERROR! \"Moderada\" debe ser SIEMPRE dentro del límite. Recuerda: **Exceso = Problemas.**",
+      "en": "🧠 **The Logic \"Why\":**\nImagine that the maximum speed is like a credit limit on your card. If you exceed it, the bank charges you interest. On the road, if you exceed the speed, physics charges you with an accident or a fine.\n\n💣 **The Trap / The Trick:**\nMany believe that \"moderate\" is always safe, ERROR! \"Moderate\" must ALWAYS be within the limit. Remember: **Excess = Problems.**",
+      "ru": "🧠 **Логика \"Почему\":**\nПредставь, что максимальная скорость – это кредитный лимит на твоей карте. Если ты его превысишь, банк начислит проценты. На дороге, если ты превысишь скорость, физика накажет тебя аварией или штрафом.\n\n💣 **Ловушка / Трюк:**\nМногие думают, что \"умеренная\" скорость всегда безопасна, ОШИБКА! \"Умеренная\" должна БЫТЬ ВСЕГДА в пределах лимита. Запомни: **Превышение = Проблемы.**"
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/6ce3a1c52b2c899bf628fd51447a628f.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/a67f4361524d3cee31eeca630788d75a.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "Si por obras en la vía, se ha abierto un carril en sentido contrario al habitual, ¿puede circular por este carril un vehículo mixto?",
+      "en": "If a lane has been opened in the opposite direction to the usual one due to roadworks, can a mixed-use vehicle travel in this lane?",
+      "ru": "Если из-за дорожных работ открыта полоса, предназначенная для движения в направлении, противоположном обычному, может ли смешанный автомобиль двигаться по этой полосе?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, pero sólo cuando transporte pasajeros.",
+          "en": "Yes, but only when carrying passengers.",
+          "ru": "Да, но только когда перевозит пассажиров."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": "Yes.",
+          "ru": "Да."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, porque sólo pueden circular turismos y motocicletas.",
+          "en": "No, because only passenger cars and motorcycles can use it.",
+          "ru": "Нет, потому что по ней могут двигаться только легковые автомобили и мотоциклы."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**\n\nCuando se habilita un carril en sentido contrario al habitual por obras, la norma general permite la circulación de *todos* los vehículos que estén permitidos en la vía, sin restringir solo a turismos y motocicletas. El objetivo es facilitar el tráfico y minimizar las molestias causadas por las obras.\n\n💣 **La Trampa / El Truco**\n\nMuchos piensan que solo los turismos pueden usar estos carriles, pero ¡ojo! La clave está en recordar que *todos* los vehículos permitidos en la vía pueden usarlo, a menos que se indique lo contrario. Recuerda: **Sentido contrario = Todos los vehículos (siempre que esté permitido en esa vía)**",
+      "en": "🧠 **The Logic \"Why\"**\n\nWhen a lane is opened in the opposite direction to the usual one due to roadworks, the general rule allows *all* vehicles permitted on the road to use it, without restricting it only to passenger cars and motorcycles. The goal is to facilitate traffic and minimize the inconvenience caused by the roadworks.\n\n💣 **The Trap / The Trick**\n\nMany people think that only passenger cars can use these lanes, but be careful! The key is to remember that *all* vehicles permitted on the road can use it, unless otherwise indicated. Remember: **Opposite direction = All vehicles (as long as it is permitted on that road)**",
+      "ru": "🧠 **Логика \"Почему\"**\n\nКогда из-за дорожных работ открывается полоса, предназначенная для движения в направлении, противоположном обычному, общее правило разрешает движение *всем* транспортным средствам, которым разрешено движение по этой дороге, а не только легковым автомобилям и мотоциклам. Цель состоит в том, чтобы облегчить движение и свести к минимуму неудобства, вызванные дорожными работами.\n\n💣 **Ловушка / Подвох**\n\nМногие думают, что только легковые автомобили могут использовать эти полосы, но будьте внимательны! Ключ в том, чтобы помнить, что *все* транспортные средства, которым разрешено движение по этой дороге, могут использовать ее, если не указано иное. Запомните: **Встречное движение = Все транспортные средства (если это разрешено на этой дороге)**"
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/8c056ba3e02575a25327ba6487c1a5cd.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/6f8418630a4e36107555dda2371ba2fa.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "Si en un paso a nivel las barreras están en movimiento...",
+      "en": "If the barriers at a level crossing are moving...",
+      "ru": "Если на железнодорожном переезде шлагбаумы находятся в движении..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "no se debe entrar.",
+          "en": "you must not enter.",
+          "ru": "въезжать нельзя."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "no se debe entrar, salvo que estén levantándose y haya espacio suficiente.",
+          "en": "you must not enter, unless they are rising and there is sufficient space.",
+          "ru": "въезжать нельзя, за исключением случаев, когда они поднимаются и имеется достаточно места."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "se puede entrar antes de que las barreras corten el paso.",
+          "en": "you can enter before the barriers block the way.",
+          "ru": "можно въехать до того, как шлагбаумы перекроют проезд."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**: Imagina que las barreras son como una señal de \"¡Peligro!\". Si están en movimiento, ya sea bajando o subiendo, significa que el tren está cerca o acaba de pasar. Intentar \"ganarle\" al tren es una ruleta rusa con tu vida.\n\n💣 **La Trampa / El Truco**: Muchos piensan \"si están subiendo, ya pasó el tren\". ¡Error! Podría venir otro en dirección contraria. La clave es la PRECAUCIÓN: **NUNCA pases si las barreras se mueven**. ¡Es eliminatoria en el examen!",
+      "en": "🧠 **The Logic \"Why\"**: Imagine the barriers as a \"Danger!\" sign. If they are moving, either down or up, it means the train is near or has just passed. Trying to \"beat\" the train is like playing Russian roulette with your life.\n\n💣 **The Trap / The Trick**: Many think \"if they are going up, the train has already passed\". Wrong! Another one could be coming in the opposite direction. The key is CAUTION: **NEVER pass if the barriers are moving**. It's an instant fail on the test!",
+      "ru": "🧠 **Логика \"Почему\"**: Представь, что шлагбаумы — это как сигнал \"Опасно!\". Если они в движении, будь то опускаются или поднимаются, это означает, что поезд близко или только что проехал. Пытаться \"перехитрить\" поезд — это русская рулетка с твоей жизнью.\n\n💣 **Ловушка / Трюк**: Многие думают: \"Если они поднимаются, поезд уже прошел\". Ошибка! Может ехать другой во встречном направлении. Ключ в ПРЕДОСТОРОЖНОСТИ: **НИКОГДА не проезжай, если шлагбаумы двигаются**. Это моментальный провал на экзамене!"
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/e3d6c8bbe819e44fce4902b1a15ce6c4.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/ab8b8774eac0445e09efd902f251a042.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la velocidad máxima a la que puede circular un turismo en esta autovía?",
+      "en": "What is the maximum speed at which a passenger car can travel on this motorway?",
+      "ru": "Какова максимальная скорость, с которой может двигаться легковой автомобиль на этой автомагистрали?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "120 km/h.",
+          "en": "120 km/h.",
+          "ru": "120 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "120 km/h, pudiendo rebasarla en 20 km/h para adelantar.",
+          "en": "120 km/h, being able to exceed it by 20 km/h to overtake.",
+          "ru": "120 км/ч, с возможностью превышения на 20 км/ч для обгона."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "100 km/h, pudiendo alcanzar los 120 km/h para adelantar.",
+          "en": "100 km/h, being able to reach 120 km/h to overtake.",
+          "ru": "100 км/ч, с возможностью достижения 120 км/ч для обгона."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\"**:\nНа autovía (автомагистрали) для turismos (легковых автомобилей) действует общее правило: 120 км/ч. Но! Есть одна хитрость. Только для обгона можно временно увеличить скорость на 20 км/ч, то есть до 140 км/ч. Это сделано для повышения безопасности: чтобы обгон завершался быстрее, минимизируя время на встречной полосе.\n\n💣 **La Trampa / El Truco**:\nМногие забывают про эти \"+20 км/ч\". Запомни: **Обгон – это спринт. Спринт разрешен.**",
+      "en": "🧠 **The Logic \"Why\"**:\nOn motorways for passenger cars, the general rule is 120 km/h. But! There's a trick. Only for overtaking can you temporarily increase the speed by 20 km/h, that is, up to 140 km/h. This is done to improve safety: to complete the overtaking faster, minimizing time in the oncoming lane.\n\n💣 **The Trap / The Trick**:\nMany forget about these \"+20 km/h\". Remember: **Overtaking is a sprint. A sprint is allowed.**",
+      "ru": "🧠 **Логика \"Почему\"**:\nНа автомагистрали для легковых автомобилей действует общее правило: 120 км/ч. Но! Есть одна хитрость. Только для обгона можно временно увеличить скорость на 20 км/ч, то есть до 140 км/ч. Это сделано для повышения безопасности: чтобы обгон завершался быстрее, минимизируя время на встречной полосе.\n\n💣 **Ловушка / Трюк**:\nМногие забывают про эти \"+20 км/ч\". Запомни: **Обгон – это спринт. Спринт разрешен.**"
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/d699f52e221b2eca12d8d41063ce28a6.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/a264ec82e6603c0a28ec5772583b1ecc.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "El vehículo derivado de turismo está destinado...",
+      "en": "A passenger car derivative is intended...",
+      "ru": "Легковой фургон предназначен для..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "a transporte de personas.",
+          "en": "for transporting people.",
+          "ru": "для перевозки людей."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "a servicios o a transporte exclusivo de mercancías.",
+          "en": "for services or the exclusive transport of goods.",
+          "ru": "для оказания услуг или для исключительной перевозки грузов."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "a transporte, simultáneo o no, de personas y mercancías.",
+          "en": "for the transport, whether simultaneous or not, of people and goods.",
+          "ru": "для перевозки, одновременной или нет, людей и грузов."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "La clave está en la palabra 'derivado'. Un vehículo derivado de turismo ha sido modificado para transportar mercancías exclusivamente.  \n\n**La Lógica \"Por qué\":** Imagina que compras un coche normal y le quitas los asientos de atrás para usarlo como furgoneta. Ese es el derivado. No está pensado para personas, sino para trabajo.\n\n**La Trampa / El Truco:** Muchos piensan que 'derivado' significa que puede hacer ambas cosas (personas y mercancías). ¡Error! Es solo para mercancías. Recuerda: **Derivado = Mercancías Exclusivamente**.",
+      "en": "The key is in the word 'derivative'. A passenger car derivative has been modified to transport goods exclusively.\n\n**The Logic \"Why\":** Imagine you buy a normal car and remove the back seats to use it as a van. That's the derivative. It is not intended for people, but for work.\n\n**The Trap / The Trick:** Many people think that 'derivative' means it can do both (people and goods). Wrong! It is only for goods. Remember: **Derivative = Goods Exclusively**.",
+      "ru": "Ключ к ответу кроется в слове \"фургон\" (derivado). Легковой фургон – это автомобиль, переоборудованный исключительно для перевозки грузов.\n\n**Логика \"Почему\":** Представь, что ты купил обычный легковой автомобиль и убрал задние сиденья, чтобы использовать его как грузовой фургон. Это и есть фургон (derivado). Он предназначен не для людей, а для работы.\n\n**Ловушка / Подвох:** Многие думают, что \"фургон\" означает, что он может делать обе вещи (перевозить людей и товары). Ошибка! Только для грузов. Запомни: **Фургон (Derivado) = Исключительно Грузы**."
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/f4b8260499564dba6a81aedb42dc29de.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/fe83cccbb7c8c05cc841dfddebcf4a68.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "En una autopista que transcurre por zona urbana, ¿a qué velocidad máxima puede circular un turismo si no existe señalización?",
+      "en": "On a motorway running through an urban area, what is the maximum speed at which a passenger car can travel if there are no signs?",
+      "ru": "С какой максимальной скоростью может двигаться легковой автомобиль по автомагистрали, проходящей через городскую зону, при отсутствии знаков?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A 100 km/h.",
+          "en": "At 100 km/h.",
+          "ru": "100 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A 120 km/h.",
+          "en": "At 120 km/h.",
+          "ru": "120 км/ч."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A 80 km/h.",
+          "en": "At 80 km/h.",
+          "ru": "80 км/ч."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Imagina que estás conduciendo por una autopista que atraviesa la ciudad. No ves ninguna señal de velocidad. ¿A qué velocidad debes ir? La ley es clara: en autopistas y autovías dentro de poblado, el límite genérico para un turismo es de 120 km/h. \n\nLa Lógica \"Por qué\": Piensa en la seguridad. Aunque estés en la ciudad, una autopista está diseñada para un flujo rápido y constante. 120 km/h es el límite que permite ese equilibrio entre velocidad y seguridad.\n\nLa Trampa / El Truco: Mucha gente piensa que, por estar en ciudad, la velocidad máxima es menor. ¡Error! 120 km/h es la clave. Recuérdalo: **Autopista en ciudad = 120 km/h**.",
+      "en": "Imagine you are driving on a motorway that passes through the city. You don't see any speed limit signs. What speed should you be driving at? The law is clear: on motorways and dual carriageways within a built-up area, the general limit for a passenger car is 120 km/h.\n\nThe Logic \"Why\": Think about safety. Even though you are in the city, a motorway is designed for a fast and constant flow of traffic. 120 km/h is the limit that allows for that balance between speed and safety.\n\nThe Trap / The Trick: Many people think that because you are in the city, the maximum speed is lower. Wrong! 120 km/h is the key. Remember it: **Motorway in city = 120 km/h**.",
+      "ru": "Представь, что ты едешь по автомагистрали, которая проходит через город. Ты не видишь никаких знаков ограничения скорости. С какой скоростью тебе следует ехать? Закон ясен: на автомагистралях и автодорогах в пределах населенного пункта общий предел для легкового автомобиля составляет 120 км/ч.\n\nЛогика \"Почему\": Подумай о безопасности. Даже если ты находишься в городе, автомагистраль предназначена для быстрого и постоянного потока транспорта. 120 км/ч - это предел, который обеспечивает баланс между скоростью и безопасностью.\n\nЛовушка / Уловка: Многие думают, что из-за того, что ты в городе, максимальная скорость ниже. Ошибка! 120 км/ч - это ключ. Запомни это: **Автомагистраль в городе = 120 км/ч**."
+    },
+    "image_url": null,
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/ff4bccb0fccbd0772e501e01178cc999.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido realizar competiciones de velocidad en las vías públicas?",
+      "en": "Is it allowed to hold speed competitions on public roads?",
+      "ru": "Разрешено ли проводить соревнования по скорости на дорогах общего пользования?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, como norma general.",
+          "en": "No, as a general rule.",
+          "ru": "Нет, как правило."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, siempre.",
+          "en": "Yes, always.",
+          "ru": "Да, всегда."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si un vehículo de la organización encabeza la carrera con una bandera verde.",
+          "en": "Only if an organization vehicle leads the race with a green flag.",
+          "ru": "Только если автомобиль организатора возглавляет гонку с зеленым флагом."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "### 🧠 La Lógica \"Por qué\"\nImagina que la vía pública es como un río donde todos navegamos. Permitir competiciones de velocidad sin control sería como dejar que lanchas a motor corran a toda velocidad entre kayaks y barcas de pesca. ¡Un caos total y peligroso!\n\nLa seguridad es lo primero. Las vías públicas están diseñadas para la circulación general, no para pruebas de velocidad. \n\n### 💣 La Trampa / El Truco\nMuchos caen en la trampa de pensar que \"si hay un organizador, todo está bien\". ¡Error! **Recuerda: Velocidad en la calle = Peligro**. No importa si hay bandera verde o un unicornio mágico, está prohibido.",
+      "en": "### 🧠 The Logic \"Why\"\nImagine the public road is like a river where everyone navigates. Allowing speed competitions uncontrolled would be like letting speedboats race at full speed between kayaks and fishing boats. Total and dangerous chaos!\n\nSafety comes first. Public roads are designed for general traffic, not for speed tests.\n\n### 💣 The Trap / The Trick\nMany fall into the trap of thinking that \"if there is an organizer, everything is fine\". Wrong! **Remember: Speeding on the street = Danger**. It doesn't matter if there is a green flag or a magical unicorn, it is forbidden.",
+      "ru": "### 🧠 Логика \"Почему\"\nПредставь, что дорога общего пользования – это река, по которой все плывут. Разрешить соревнования по скорости без контроля – это как позволить скоростным катерам гонять на полной скорости между байдарками и рыбацкими лодками. Полный и опасный хаос!\n\nБезопасность – прежде всего. Дороги общего пользования предназначены для общего движения, а не для скоростных испытаний.\n\n### 💣 Ловушка / Трюк\nМногие попадают в ловушку, думая, что \"если есть организатор, то все в порядке\". Ошибка! **Запомни: Скорость на улице = Опасность**. Неважно, есть ли зеленый флаг или волшебный единорог, это запрещено."
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/7006d224c748b2c35af3973ac57365aa.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/0bac6f3b1a1d9e525b3803434a3ed778.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "En una glorieta, ¿por dónde se debe circular?",
+      "en": "In a roundabout, which way should you drive?",
+      "ru": "Как нужно двигаться по круговому перекрестку?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Puedo circular por la derecha o por la izquierda indistintamente.",
+          "en": "I can drive on the right or the left interchangeably.",
+          "ru": "Я могу двигаться по правой или левой стороне, без разницы."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Por la derecha, dejando a mi izquierda el centro de la glorieta.",
+          "en": "On the right, leaving the centre of the roundabout to my left.",
+          "ru": "По правой стороне, оставляя центр кругового перекрестка слева от меня."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Por la izquierda, dejando a mi derecha el centro de la glorieta.",
+          "en": "On the left, leaving the centre of the roundabout to my right.",
+          "ru": "По левой стороне, оставляя центр кругового перекрестка справа от меня."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Imagina que la glorieta es un río que fluye. ¿Permitirías que los coches naveguen en cualquier dirección? ¡Sería un caos total!\n\n🧠 **La Lógica \"Por qué\":** Las glorietas están diseñadas para que el tráfico fluya en una sola dirección (hacia la derecha, en España). Esto reduce los puntos de conflicto y hace que sea mucho más seguro. Circular al revés es como nadar contra la corriente: ¡accidente seguro!\n\n💣 **La Trampa / El Truco:** Muchos piensan que pueden cambiar de carril dentro de la glorieta como les da la gana. ¡Error! Recuerda: la glorieta es una autopista circular. Debes mantenerte en el carril exterior si vas a salir pronto, y usar los carriles interiores para rodear la glorieta. Piensa en ello como si estuvieras tejiendo una trenza: ¡cada movimiento cuenta!",
+      "en": "Imagine the roundabout is a flowing river. Would you allow cars to navigate in any direction? It would be complete chaos!\n\n🧠 **The Logic \"Why\":** Roundabouts are designed so that traffic flows in one direction (to the right in Spain). This reduces conflict points and makes it much safer. Driving the wrong way is like swimming against the current: a guaranteed accident!\n\n💣 **The Trap / The Trick:** Many people think they can change lanes within the roundabout as they please. Wrong! Remember: the roundabout is a circular motorway. You must stay in the outside lane if you are leaving soon, and use the inside lanes to go around the roundabout. Think of it as weaving a braid: every move counts!",
+      "ru": "Представь, что круговой перекресток – это река. Разве можно позволить машинам плыть в любом направлении? Это был бы полный хаос!\n\n🧠 **Логика \"Почему\":** Круговые перекрестки спроектированы так, чтобы движение шло в одном направлении (вправо, в Испании). Это уменьшает количество точек конфликта и делает движение намного безопаснее. Ехать в обратном направлении – это как плыть против течения: гарантированная авария!\n\n💣 **Ловушка / Трюк:** Многие думают, что могут перестраиваться внутри круга как им вздумается. Ошибка! Помни: круговое движение – это как кольцевая автострада. Ты должен оставаться в крайнем правом ряду, если скоро съезжаешь, и использовать внутренние ряды, чтобы объехать круг. Представь, что плетешь косу: каждое движение имеет значение!"
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/8cb5426e7d6b33f4d8dade2dee50e9d4.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/34eb152bb5c45020fb309ca7aac7c130.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Un autobús realiza transporte urbano. ¿Cuál es su velocidad máxima permitida dentro de poblado en vías de dos carriles por sentido?",
+      "en": "A bus is providing urban transport. What is its maximum permitted speed within a built-up area on roads with two lanes in each direction?",
+      "ru": "Автобус осуществляет городские перевозки. Какова его максимальная разрешенная скорость в населенном пункте на дорогах с двумя полосами в каждом направлении?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "40 kilómetros por hora.",
+          "en": "40 kilometers per hour.",
+          "ru": "40 километров в час."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "50 kilómetros por hora.",
+          "en": "50 kilometers per hour.",
+          "ru": "50 километров в час."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "60 kilómetros por hora.",
+          "en": "60 kilometers per hour.",
+          "ru": "60 километров в час."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 La Lógica \"Por qué\":\nВ городе, где много пешеходов и перекрестков, скорость движения должна быть снижена для безопасности всех участников движения. Представь себе автобус, резко тормозящий на скорости 60 км/ч – это может привести к серьезным травмам пассажиров и пешеходов.\n\n💣 La Trampa / El Truco:\nМногие думают, что 60 км/ч – это стандартная скорость в городе, но это не так для всех транспортных средств. Запомни: **автобусы и грузовики имеют ограничения!** Стандартная скорость в городе 50 км/ч.",
+      "en": "🧠 The Logic \"Why\":\nIn a city, where there are many pedestrians and intersections, the speed of movement must be reduced for the safety of all road users. Imagine a bus braking suddenly at 60 km/h – this could lead to serious injuries to passengers and pedestrians.\n\n💣 The Trap / The Trick:\nMany people think that 60 km/h is the standard speed in the city, but this is not the case for all vehicles. Remember: **buses and trucks have restrictions!** The standard speed in the city is 50 km/h.",
+      "ru": "🧠 Логика \"Почему\":\nВ городе, где много пешеходов и перекрестков, скорость движения должна быть снижена для безопасности всех участников движения. Представь себе автобус, резко тормозящий на скорости 60 км/ч – это может привести к серьезным травмам пассажиров и пешеходов.\n\n💣 Ловушка / Трюк:\nМногие думают, что 60 км/ч – это стандартная скорость в городе, но это не так для всех транспортных средств. Запомни: **автобусы и грузовики имеют ограничения!** Стандартная скорость в городе 50 км/ч."
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/6d57cbfcf073dd0ab9388bc80811cbb0.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/bfc0dbe1169e45f5396bb497b48ef934.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, en esta vía, ¿cuál es la velocidad máxima permitida para un turismo, si no pretende adelantar?",
+      "en": "As a general rule, on this road, what is the maximum permitted speed for a passenger car if it is not intending to overtake?",
+      "ru": "Как правило, какова максимальная разрешенная скорость для легкового автомобиля на этой дороге, если он не собирается обгонять?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "110 km/h",
+          "en": "110 km/h",
+          "ru": "110 км/ч"
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "90 km/h",
+          "en": "90 km/h",
+          "ru": "90 км/ч"
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "120 km/h",
+          "en": "120 km/h",
+          "ru": "120 км/ч"
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "La velocidad máxima permitida para un turismo en una vía fuera de poblado que no es autopista ni autovía es de 90 km/h.  \n\n🧠 **La Lógica \"Por qué\":** Imagina que estás conduciendo por una carretera secundaria. Hay curvas, cambios de rasante y posibles imprevistos (un tractor, un ciclista...). Circular a más de 90 km/h reduce drásticamente tu capacidad de reacción y aumenta el riesgo de accidente. La velocidad está directamente relacionada con la seguridad.\n\n💣 **La Trampa / El Truco:** Muchos se confunden y piensan en los 120 km/h de la autovía.  ¡Ojo! Aquí NO estamos en autovía.  Recuerda: **Carretera convencional = 90 km/h (si no hay señalización diferente)**.",
+      "en": "The maximum permitted speed for a passenger car on a road outside a built-up area that is neither a motorway nor an expressway is 90 km/h.\n\n🧠 **The Logic \"Why\":** Imagine you are driving on a secondary road. There are curves, changes in elevation, and potential unforeseen events (a tractor, a cyclist...). Driving at more than 90 km/h drastically reduces your reaction capacity and increases the risk of an accident. Speed is directly related to safety.\n\n💣 **The Trap / The Trick:** Many get confused and think of the 120 km/h on the motorway. Watch out! We are NOT on a motorway here. Remember: **Conventional road = 90 km/h (unless there is different signage)**.",
+      "ru": "Максимальная разрешенная скорость для легкового автомобиля на дороге вне населенного пункта, которая не является автомагистралью или скоростной автомагистралью, составляет 90 км/ч.\n\n🧠 **Логика \"Почему\":** Представь, что ты едешь по второстепенной дороге. Там есть повороты, изменения высоты и возможные непредвиденные обстоятельства (трактор, велосипедист...). Движение со скоростью более 90 км/ч резко снижает твою способность реагировать и увеличивает риск аварии. Скорость напрямую связана с безопасностью.\n\n💣 **Ловушка / Уловка:** Многие путают с 120 км/ч на автомагистрали. Осторожно! Здесь мы НЕ на автомагистрали. Запомни: **Обычная дорога = 90 км/ч (если нет других знаков)**."
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/eb058c603bcd40aa5599854fcf764347.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/077cb6e3011a1c4a0e022362e6af442b.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "En una carretera convencional sin arcenes, la velocidad máxima para un furgón es...",
+      "en": "On a conventional road without hard shoulders, the maximum speed for a van is...",
+      "ru": "На обычной дороге без обочин максимальная скорость для фургона составляет..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "110 km/h.",
+          "en": "110 km/h.",
+          "ru": "110 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "80 km/h.",
+          "en": "80 km/h.",
+          "ru": "80 км/ч."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "90 km/h.",
+          "en": "90 km/h.",
+          "ru": "90 км/ч."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "La respuesta correcta es la B. \n\n**🧠 La Lógica \"Por qué\"**\n\nImagina que estás conduciendo tu furgón por una carretera estrecha sin arcén. No tienes espacio para maniobrar en caso de emergencia. A mayor velocidad, menor tiempo de reacción y mayor distancia de frenado. ¡Es una ecuación peligrosa! 80 km/h te da un margen de seguridad crucial en estas condiciones.\n\n**💣 La Trampa / El Truco**\n\nMuchos piensan en 90 km/h porque es la velocidad genérica en carreteras convencionales. Pero aquí, la ausencia de arcén es la clave. ¡Recuerda: Sin arcén, menos velocidad!",
+      "en": "The correct answer is B.\n\n**🧠 The Logic \"Why\"**\n\nImagine you're driving your van on a narrow road without a hard shoulder. You don't have room to maneuver in an emergency. The higher the speed, the less reaction time and the greater the braking distance. It's a dangerous equation! 80 km/h gives you a crucial safety margin in these conditions.\n\n**💣 The Trap / The Trick**\n\nMany think of 90 km/h because it's the generic speed on conventional roads. But here, the absence of a hard shoulder is the key. Remember: No hard shoulder, less speed!",
+      "ru": "Правильный ответ - B.\n\n**🧠 La Lógica \"Por qué\"**\n\nПредставь, что ты едешь на своем фургоне по узкой дороге без обочины. У тебя нет места для маневра в случае чрезвычайной ситуации. Чем выше скорость, тем меньше времени на реакцию и тем больше тормозной путь. Это опасное уравнение! 80 км/ч дает тебе решающий запас прочности в этих условиях.\n\n**💣 La Trampa / El Truco**\n\nМногие думают о 90 км/ч, потому что это общая скорость на обычных дорогах. Но здесь отсутствие обочины - это ключевой момент. Запомни: Нет обочины - меньше скорость!"
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/02f4fa665ce4c3cc84615895aa60fa69.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/1f020fabc30ab84fdcc5136ff842555a.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "En esta vía se ha habilitado un carril adicional. ¿Circula correctamente el turismo amarillo?",
+      "en": "An additional lane has been enabled on this road. Is the yellow car driving correctly?",
+      "ru": "На этой дороге была открыта дополнительная полоса. Правильно ли движется жёлтый легковой автомобиль?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, siempre que no supere los 80 km/h.",
+          "en": "Yes, as long as it does not exceed 80 km/h.",
+          "ru": "Да, если он не превышает 80 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, porque circula invadiendo el arcén.",
+          "en": "No, because it is driving on the shoulder.",
+          "ru": "Нет, потому что он едет, заезжая на обочину."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, porque no lleva encendida, al menos, la luz de cruce.",
+          "en": "No, because it does not have at least the low beam headlights on.",
+          "ru": "Нет, потому что у него не включён, как минимум, ближний свет фар."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "### 🧠 La Lógica \"Por qué\":\nImagina que la carretera es como un río, y los carriles son el cauce por donde fluyen los coches. Si invades el arcén (la orilla), te sales del flujo normal y pones en riesgo tanto tu seguridad como la de los demás. Este carril adicional está para aliviar el tráfico, no para usar la parte que no está destinada a la circulación.\n\n### 💣 La Trampa / El Truco:\nMuchos piensan que si hay un carril adicional, pueden usar cualquier parte de la vía. ¡Error! El arcén es para emergencias, no para adelantar o circular normalmente. Recuerda: **Arcén = Emergencia, No Tránsito Normal**.",
+      "en": "### 🧠 The Logic \"Why\":\nImagine the road is like a river, and the lanes are the channel where cars flow. If you drive on the shoulder, you are leaving the normal flow and endangering both your safety and that of others. This additional lane is to alleviate traffic, not to use the part that is not intended for circulation.\n\n### 💣 The Trap / The Trick:\nMany people think that if there is an additional lane, they can use any part of the road. Wrong! The shoulder is for emergencies, not for overtaking or normal driving. Remember: **Shoulder = Emergency, Not Normal Traffic**.",
+      "ru": "### 🧠 Логика \"Почему\":\nПредставь, что дорога — это река, а полосы — русло, по которому текут машины. Если ты заезжаешь на обочину, ты выходишь из нормального потока и подвергаешь риску свою безопасность и безопасность других. Эта дополнительная полоса предназначена для облегчения движения, а не для использования части дороги, не предназначенной для движения.\n\n### 💣 Ловушка / Уловка:\nМногие думают, что если есть дополнительная полоса, они могут использовать любую часть дороги. Ошибка! Обочина предназначена для экстренных случаев, а не для обгона или нормального движения. Запомни: **Обочина = Аварийная ситуация, Не Нормальное Движение**."
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/8e1f30e062e0835475307d0e9d3bfbc5.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/9f58f9fced84555d748504f9ffda7b35.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "En una carretera convencional, ¿por dónde deben circular los animales conducidos en rebaño?",
+      "en": "On a conventional road, where should animals being herded travel?",
+      "ru": "На обычной дороге, где должны двигаться животные, которых перегоняют стадом?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por el centro de la calzada.",
+          "en": "In the centre of the road.",
+          "ru": "По центру проезжей части."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Por el arcén izquierdo.",
+          "en": "On the left shoulder.",
+          "ru": "По левой обочине."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Lo más cerca posible del borde derecho de la vía.",
+          "en": "As close as possible to the right edge of the road.",
+          "ru": "Как можно ближе к правому краю дороги."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\":** Imagina que eres un pastor. ¿Dónde quieres que estén tus animales? ¡Lo más lejos posible del tráfico! Por eso, la ley obliga a llevarlos por el arcén izquierdo (siempre que sea transitable y suficiente), ya que así los vehículos que vengan de frente tendrán más espacio para reaccionar y evitar un accidente.\n\n💣 **La Trampa / El Truco:** Muchos piensan en llevarlos a la derecha para \"no molestar\", pero es justo lo contrario. A la derecha están más expuestos al tráfico que viene por detrás, ¡y eso es peligroso! Recuerda: **¡Izquierda es seguridad!**",
+      "en": "🧠 **The Logic \"Why\":** Imagine you're a shepherd. Where do you want your animals to be? As far away from the traffic as possible! That's why the law requires you to lead them on the left shoulder (provided it is passable and sufficient), as this gives oncoming vehicles more room to react and avoid an accident.\n\n💣 **The Trap / The Trick:** Many think about taking them to the right so as \"not to disturb\", but it's just the opposite. On the right they are more exposed to traffic coming from behind, and that's dangerous! Remember: **Left is safety!**",
+      "ru": "🧠 **Логика \"Почему\":** Представь, что ты пастух. Где ты хочешь, чтобы были твои животные? Как можно дальше от трафика! Поэтому закон обязывает вести их по левой обочине (если она проходима и достаточна), так как это дает встречным транспортным средствам больше места для реакции и избежания аварии.\n\n💣 **Ловушка / Трюк:** Многие думают о том, чтобы вести их справа, чтобы \"не мешать\", но все наоборот. Справа они больше подвержены риску столкновения с попутным транспортом, а это опасно! Запомни: **Лево - это безопасность!**"
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/c3f8a4d5cf83620999e8ca7002c3a7dc.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/69c3ab1f1ed768034fd16952e57e52ec.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "En vías fuera de poblado que no dispongan de espacio especialmente reservado para ellos, ¿qué peatones deben circular por su derecha y obedecer las señales dirigidas a los conductores?",
+      "en": "On roads outside built-up areas that do not have a space specially reserved for them, which pedestrians should walk on their right and obey the signals addressed to drivers?",
+      "ru": "На дорогах вне населенных пунктов, где нет специально отведенного для них места, какие пешеходы должны идти по правой стороне и подчиняться сигналам, адресованным водителям?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Los que conduzcan un rebaño de animales.",
+          "en": "Those who are driving a herd of animals.",
+          "ru": "Те, кто ведет стадо животных."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Los que empujen o arrastren una motocicleta de dos ruedas.",
+          "en": "Those who push or drag a two-wheeled motorcycle.",
+          "ru": "Те, кто толкает или тащит двухколесный мотоцикл."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Los discapacitados que se desplacen en silla de ruedas.",
+          "en": "Disabled people who are travelling in a wheelchair.",
+          "ru": "Инвалиды, передвигающиеся в инвалидной коляске."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Imagina que estás caminando по дороге fuera de poblado, donde los coches pasan muy rápido. Si vas por la izquierda, ¡le das la espalda al tráfico! Это мгновенная авария. \n\nLa lógica aquí es simple: **seguridad**. Si empujas una moto averiada o sin gasolina, eres como un vehículo más. Debes ir por la derecha para que los conductores te vean de frente.\n\n¡Ojo! La trampa está en pensar que 'discapacitado' siempre tiene la razón. No siempre. Aquí, solo los que empujan o arrastran vehículos deben ir por la derecha. **Recuerda: Moto averiada = vehículo temporal**.",
+      "en": "Imagine you are walking on a road outside a built-up area, where cars pass very quickly. If you walk on the left, you turn your back to the traffic! This is an instant accident.\n\nThe logic here is simple: **safety**. If you are pushing a broken-down or out-of-gas motorcycle, you are like another vehicle. You must go to the right so that drivers see you head-on.\n\nCareful! The trap is to think that 'disabled' is always right. Not always. Here, only those who push or drag vehicles must go to the right. **Remember: Broken motorcycle = temporary vehicle**.",
+      "ru": "Представь, что ты идешь по дороге вне населенного пункта, где машины проносятся очень быстро. Если ты идешь по левой стороне, ты поворачиваешься спиной к транспорту! Это мгновенная авария.\n\nЛогика здесь проста: **безопасность**. Если ты толкаешь сломанный мотоцикл или мотоцикл без бензина, ты как будто еще одно транспортное средство. Ты должен идти справа, чтобы водители видели тебя в лицо.\n\nВнимание! Ловушка в том, чтобы думать, что 'инвалид' всегда прав. Не всегда. Здесь только те, кто толкает или тащит транспортные средства, должны идти справа. **Запомни: Сломанный мотоцикл = временное транспортное средство**."
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/1648fd014d9bc8657da3760fec1875c1.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/c4f28f3d8ae4b7bfcf42de53262efec2.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "En calzadas con doble sentido de circulación y tres carriles separados por marcas longitudinales discontinuas, ¿se podrá circular por el situado más a la izquierda?",
+      "en": "On roads with two-way traffic and three lanes separated by broken longitudinal markings, can you drive in the leftmost lane?",
+      "ru": "На дорогах с двусторонним движением и тремя полосами, разделенными прерывистой продольной разметкой, разрешено ли движение по крайней левой полосе?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, cuando no se aproxime otro vehículo.",
+          "en": "Yes, when no other vehicle is approaching.",
+          "ru": "Да, если не приближается другое транспортное средство."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sólo para girar a la izquierda.",
+          "en": "Only to turn left.",
+          "ru": "Только для поворота налево."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 La Lógica \"Por qué\": Imagina la carretera como un río con tres течения (carriles). En una carretera de doble sentido, el carril central es como una zona de conflicto: lo usas puntualmente para adelantar, pero no te quedas ahí a vivir. El carril de la izquierda está reservado para adelantar y para girar a la izquierda, pero no para circular normalmente.\n\n💣 La Trampa / El Truco: Piensa en esto: si te quedas en el carril izquierdo sin adelantar a nadie, estás obligando a los demás a adelantarte por la derecha, ¡y eso está prohibido! No seas tú el que causa el atasco y la multa. Recuerda: **carril central = adelantamiento puntual, carril izquierdo = solo para momentos especiales (adelantar o girar)**.",
+      "en": "🧠 The Logic \"Why\": Imagine the road as a river with three streams (lanes). On a two-way road, the middle lane is like a conflict zone: you use it briefly to overtake, but you don't stay there to live. The leftmost lane is reserved for overtaking and turning left, but not for normal driving.\n\n💣 The Trap / The Trick: Think of it this way: if you stay in the left lane without overtaking anyone, you are forcing others to overtake you on the right, and that is prohibited! Don't be the one causing the traffic jam and the fine. Remember: **middle lane = occasional overtaking, left lane = only for special moments (overtaking or turning)**.",
+      "ru": "🧠 Логика \"Почему\": Представь дорогу как реку с тремя потоками (полосами). На дороге с двусторонним движением средняя полоса — как зона конфликта: ты используешь её кратковременно для обгона, но не остаёшься там жить. Крайняя левая полоса зарезервирована для обгона и поворота налево, но не для обычного движения.\n\n💣 Ловушка / Трюк: Подумай вот о чём: если ты остаёшься в левой полосе, никого не обгоняя, ты вынуждаешь других обгонять тебя справа, а это запрещено! Не будь тем, кто вызывает затор и штраф. Запомни: **средняя полоса = кратковременный обгон, левая полоса = только для особых моментов (обгон или поворот)**."
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/c94cc8a40c31152eb01f8fd33d0852f8.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/0e961019eeb1f34e9445b542beb3fd18.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "Conduce su turismo en una autopista dentro de poblado, ¿qué carril utilizará normalmente?",
+      "en": "You are driving your car on a motorway within a built-up area, which lane should you normally use?",
+      "ru": "Вы едете на своем легковом автомобиле по автомагистрали в населенном пункте. Какую полосу вы должны использовать обычно?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El carril de la derecha, pudiendo utilizar el resto sólo para adelantar.",
+          "en": "The right-hand lane, being able to use the rest only to overtake.",
+          "ru": "Правую полосу, имея возможность использовать остальные только для обгона."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El carril por el que haya menos vehículos.",
+          "en": "The lane with the fewest vehicles.",
+          "ru": "Полосу, на которой меньше всего транспортных средств."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El de la derecha, pudiendo utilizar el resto cuando las circunstancias del tráfico lo aconsejen.",
+          "en": "The one on the right, being able to use the rest when traffic circumstances advise it.",
+          "ru": "Правую, имея возможность использовать остальные, когда этого требуют обстоятельства движения."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\":**\n\nImagina la autopista como un río con varios русла (carriles).  Tu турismo es как маленькая лодка.  В городе главное - организовать движение, чтобы все ехали спокойно. Поэтому, как правило, держись \"правого берега\", чтобы не мешать тем, кто хочет \"плыть\" быстрее. \n\nSi vas por la izquierda sin necesidad, ¡eres como un tronco поперек реки! Creas atascos y enfadas a los demás conductores.\n\n💣 **La Trampa / El Truco:**\n\nMuchos piensan: \"Автомагистраль = свобода! Еду где хочу!\" ¡NO! Dentro de poblado, la norma cambia.  Recuerda: **En ciudad, el carril derecho es tu amigo.** Piensa en ello como si estuvieras caminando por la calle: siempre caminas por la acera de la derecha, ¿verdad?",
+      "en": "🧠 **The Logic \"Why\":**\n\nImagine the motorway as a river with several channels (lanes). Your car is like a small boat. In the city, the main thing is to organise traffic so that everyone drives calmly. Therefore, as a general rule, keep to the \"right bank\" so as not to disturb those who want to \"swim\" faster.\n\nIf you go on the left unnecessarily, you are like a log across the river! You create traffic jams and annoy other drivers.\n\n💣 **The Trap / The Trick:**\n\nMany people think: \"Motorway = freedom! I drive where I want!\" NO! Within a built-up area, the rule changes. Remember: **In the city, the right lane is your friend.** Think of it as if you were walking down the street: you always walk on the right-hand pavement, don't you?",
+      "ru": "🧠 **Логика: Почему так?**\n\nПредставь автомагистраль как реку с несколькими руслами (полосами). Твой легковой автомобиль – как маленькая лодка. В городе главное – организовать движение, чтобы все ехали спокойно. Поэтому, как правило, держись \"правого берега\", чтобы не мешать тем, кто хочет \"плыть\" быстрее.\n\nЕсли ты едешь по левой полосе без необходимости, ты как бревно поперек реки! Создаешь заторы и раздражаешь других водителей.\n\n💣 **Ловушка / Подвох:**\n\nМногие думают: \"Автомагистраль = свобода! Еду где хочу!\" НЕТ! В населенном пункте правило меняется. Запомни: **В городе правая полоса – твой друг.** Представь, что ты идешь по улице: ты всегда идешь по тротуару справа, верно?"
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/750b639208a57f3519608afd922a4b81.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/ae87e4e340bf9c3cfc6142071565b3e7.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "El conductor del vehículo que circula delante ha extendido el brazo y ha comenzado a moverlo alternativamente de arriba abajo con movimientos cortos y rápidos, ¿qué está indicando?",
+      "en": "The driver of the vehicle in front has extended their arm and is moving it alternately up and down with short, rapid movements. What is this indicating?",
+      "ru": "Водитель транспортного средства, движущегося впереди, вытянул руку и начал двигать ею попеременно вверх и вниз короткими, быстрыми движениями. Что это означает?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que va a girar a la derecha.",
+          "en": "That they are going to turn right.",
+          "ru": "Что он собирается повернуть направо."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Que va a girar a la izquierda.",
+          "en": "That they are going to turn to the left.",
+          "ru": "Что он собирается повернуть налево."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que va a disminuir la velocidad.",
+          "en": "That they are going to decrease speed.",
+          "ru": "Что он собирается снизить скорость."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🧠 **La Lógica \"Por qué\":** Imagina que estás en una bici. Si quieres avisar que vas a frenar, ¿qué haces? ¡Exacto! Sacas la mano y la mueves arriba y abajo para que el de atrás no te coma. En el coche es lo mismo. Este gesto es un clásico para avisar que vas a reducir la velocidad, especialmente si las luces de freno fallan o no son suficientes.\n\n💣 **La Trampa / El Truco:** Muchos caen en la trampa de los giros. Recuerda: brazo extendido horizontalmente es giro a la izquierda, brazo en ángulo es giro a la derecha. ¡Arriba y abajo es frenar!",
+      "en": "🧠 **The Logic \"Why\":** Imagine you're on a bike. If you want to signal that you're going to brake, what do you do? Exactly! You put your hand out and move it up and down so the person behind doesn't run into you. It's the same in the car. This gesture is a classic way to signal that you're going to reduce speed, especially if the brake lights fail or are not enough.\n\n💣 **The Trap / The Trick:** Many fall into the trap of the turns. Remember: arm extended horizontally is turning to the left, arm at an angle is turning to the right. Up and down is braking!",
+      "ru": "🧠 **Суть правила \"Почему\":** Представь, что ты едешь на велосипеде. Если ты хочешь предупредить, что собираешься тормозить, что ты делаешь? Правильно! Вытягиваешь руку и двигаешь ей вверх и вниз, чтобы тот, кто сзади, не врезался в тебя. В автомобиле то же самое. Этот жест - классический способ предупредить, что ты собираешься снизить скорость, особенно если стоп-сигналы не работают или их недостаточно.\n\n💣 **Ловушка / Трюк:** Многие попадают в ловушку с поворотами. Запомни: вытянутая горизонтально рука - это поворот налево, рука под углом - поворот направо. Вверх и вниз - это торможение!"
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/69dedebf92701eca58fdb92ed7190d31.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/e165b057de927a56d329b381a506ba36.jpg",
+    "source": "practicalvial"
+  },
+  {
+    "topic_id": 10,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "¿Qué tipo de vías urbanas tiene establecida una velocidad como genérica de 20 kilómetros por hora?",
+      "en": "What type of urban roads has a generic speed limit of 20 kilometers per hour?",
+      "ru": "На каких типах городских дорог установлена общая скорость 20 километров в час?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Las de un carril de sentido único.",
+          "en": "Those with a single one-way lane.",
+          "ru": "На дорогах с односторонним движением по одной полосе."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Las que disponen de plataforma única de calzada y acera.",
+          "en": "Those with a single platform for the road and pavement.",
+          "ru": "На дорогах с единой платформой для проезжей части и тротуара."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Las de un único carril por sentido de la circulación.",
+          "en": "Those with a single lane in each direction of traffic.",
+          "ru": "На дорогах с одной полосой движения в каждом направлении."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🧠 La Lógica \"Por qué\": Представь себе улицу, где тротуар и проезжая часть находятся на одном уровне, без бордюров. Там полно пешеходов, детей, велосипедистов. 20 км/ч – это скорость пешехода, чтобы успеть затормозить и избежать наезда.\n\n💣 La Trampa / El Truco: Не путай с улицами, где просто одна полоса. Здесь важна именно «plataforma única» – единый уровень для всех. Запомни: Единая платформа = единая скорость (маленькая).",
+      "en": "🧠 The Logic \"Why\": Imagine a street where the pavement and the road are on the same level, without curbs. There are lots of pedestrians, children, cyclists. 20 km/h is the speed of a pedestrian, so you have time to brake and avoid running someone over.\n\n💣 The Trap / The Trick: Don't confuse it with streets that simply have one lane. What's important here is the 'plataforma única' – a single level for everyone. Remember: Single platform = single speed (slow).",
+      "ru": "🧠 Логика «Почему»: Представь себе улицу, где тротуар и проезжая часть находятся на одном уровне, без бордюров. Там полно пешеходов, детей, велосипедистов. 20 км/ч – это скорость пешехода, чтобы успеть затормозить и избежать наезда.\n\n💣 Ловушка / Трюк: Не путай с улицами, где просто одна полоса. Здесь важна именно «plataforma única» – единый уровень для всех. Запомни: Единая платформа = единая скорость (маленькая)."
+    },
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/a0786fe243a4dd0099a556e8e8cf0fe3.jpg",
+    "schema_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/07db18df193d8572a9f2724dce16993c.jpg",
+    "source": "practicalvial"
+  }
+]

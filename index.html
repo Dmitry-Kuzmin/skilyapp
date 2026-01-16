@@ -554,15 +554,7 @@
     })();
   </script>
 
-  <!-- Development: Telegram WebApp Mock - загружаем только на localhost -->
-  <script>
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      const script = document.createElement('script');
-      script.src = '/telegram-mock.js';
-      script.defer = true;
-      document.head.appendChild(script);
-    }
-  </script>
+  <!-- Development: Telegram WebApp Mock - загружается через main.tsx -->
 
 
 </head>

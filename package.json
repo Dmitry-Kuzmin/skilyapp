@@ -40,7 +40,10 @@
     "check:pdd-images": "node scripts/check-pdd-images.js",
     "reupload:pdd-images": "node scripts/reupload-pdd-images.js",
     "find:pdd-missing": "node scripts/find-missing-questions.js",
-    "import:pdd-missing": "node scripts/find-and-import-missing-questions.js"
+    "import:pdd-missing": "node scripts/find-and-import-missing-questions.js",
+    "validator": "node validator-server.js",
+    "generate:images": "node scripts/generate-images-batch.js",
+    "generate:images:test": "node scripts/generate-images-batch.js --dry-run"
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^5.0.1",

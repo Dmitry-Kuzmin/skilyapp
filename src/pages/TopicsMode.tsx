@@ -4,7 +4,10 @@ import { BookOpen, ArrowRight, Play, Star, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
 import { usePDDContext } from "@/contexts/PDDContext";
-import { usePDDTopics } from "@/hooks/usePDDTopics";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { usePDDTopicQuestions } from "@/hooks/usePDDTopics";
+import { TopicDetailDialog } from "@/components/topics/TopicDetailDialog";
 import { motion } from "@/components/optimized/Motion";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +31,7 @@ const ICON_COLORS = [
 
 const TopicsMode = () => {
   const navigate = useNavigate();
+  const [selectedTopic, setSelectedTopic] = useState<{ id: string; name: string; count: number } | null>(null);
 
   // Безопасное получение контекста с fallback
   let selectedCountry: string = 'russia';
@@ -39,15 +43,36 @@ const TopicsMode = () => {
   }
 
   const country = selectedCountry || 'russia';
-  const { data: topics = [], isLoading, error } = usePDDTopics(country as any);
 
-  const handleTopicSelect = (topicName: string) => {
-    if (!topicName) return;
-    navigate(`/test/by-topic?topic=${encodeURIComponent(topicName)}&country=${country}&count=30`);
+  // Загружаем темы из таблицы topics (как в Dashboard)
+  const { data: topics = [], isLoading, error } = useQuery({
+    queryKey: ['topics', country],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('topics')
+        .select('id, number, title_ru, title_es, title_en, cover_image, gradient_from, gradient_to, is_premium')
+        .order('number');
+
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // Загружаем вопросы для выбранной темы
+  const { data: topicQuestions = [] } = usePDDTopicQuestions(
+    country as any,
+    selectedTopic?.name || '',
+    selectedTopic?.count || 0
+  );
+
+  const handleTopicSelect = (topicId: string, topicName: string, topicCount: number) => {
+    if (!topicId) return;
+    // Открываем попап с выбором билета вместо прямого перехода
+    setSelectedTopic({ id: topicId, name: topicName, count: topicCount });
   };
 
-  // Сортируем темы по количеству вопросов (убывание)
-  const sortedTopics = useMemo(() => [...topics].sort((a, b) => b.count - a.count), [topics]);
+  // Сортируем темы по number (возрастание)
+  const sortedTopics = useMemo(() => [...topics].sort((a, b) => (a.number || 0) - (b.number || 0)), [topics]);
 
   return (
     <Layout>
@@ -145,13 +170,13 @@ const TopicsMode = () => {
 
                   return (
                     <motion.div
-                      key={topic.name}
+                      key={topic.id}
                       variants={{
                         hidden: { opacity: 0, y: 20 },
                         show: { opacity: 1, y: 0 }
                       }}
                       whileHover={{ y: -8 }}
-                      onClick={() => handleTopicSelect(topic.name)}
+                      onClick={() => handleTopicSelect(topic.id, topic.title_es || topic.title_ru, 30)} // TODO: подсчёт вопросов
                       className="group relative flex flex-col h-full cursor-pointer"
                     >
                       {/* Card Body */}
@@ -173,13 +198,13 @@ const TopicsMode = () => {
                             </div>
                             <div className="flex flex-col items-end">
                               <Badge className="bg-white/5 hover:bg-white/10 text-zinc-300 border-white/10 font-bold px-3 py-1 rounded-full text-[10px] tracking-widest uppercase">
-                                {topic.count} вопросов
+                                30 вопросов
                               </Badge>
                             </div>
                           </div>
 
                           <h3 className="text-xl font-black text-white leading-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-zinc-400 transition-all duration-300">
-                            {topic.name}
+                            {topic.title_es || topic.title_ru}
                           </h3>
                         </div>
 
@@ -215,6 +240,19 @@ const TopicsMode = () => {
           </div>
         </div>
       </div>
+
+      {/* Попап выбора билета */}
+      {selectedTopic && (
+        <TopicDetailDialog
+          open={!!selectedTopic}
+          onOpenChange={(open) => !open && setSelectedTopic(null)}
+          topicId={selectedTopic.id}
+          topicName={selectedTopic.name}
+          topicCount={selectedTopic.count}
+          allQuestionIds={topicQuestions.map(q => q.id)}
+          country={country}
+        />
+      )}
     </Layout>
   );
 };

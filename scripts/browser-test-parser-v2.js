@@ -1,319 +1,232 @@
 /**
- * ========================================
- * BROWSER TEST PARSER V2 (Golden Standard + Topic Auto-Detection)
- * ========================================
- * Парсит результаты теста с PracticaVial в формат Golden Standard
- * ВАЖНО: Автоматически определяет тему!
+ * ============================================
+ * UNIVERSAL BROWSER COLLECTOR V10.6 (Total-Check)
+ * ============================================
  * 
- * ИСПОЛЬЗОВАНИЕ:
- * 1. Открой результаты теста на PracticaVial
- * 2. Скопируй весь код этого файла
- * 3. Вставь в консоль браузера (F12 → Console)
- * 4. Скопируй полученный JSON: copy(JSON.stringify(window.parsedQuestions, null, 2))
+ * ЧТО НОВОГО:
+ * - Сквозная проверка на 404: теперь ловит ошибку даже на этапе результатов.
+ * - Улучшенная логика ретраев.
  */
 
 (function () {
-    console.log('🚀 Golden Standard Parser V2.0 (with Topic Auto-Detection)');
-    console.log('📋 Извлечение данных с PracticaVial...');
+    async function orchestrator() {
+        console.log('🚀 Orchestrator V10.6 Starting...');
 
-    // ========================================
-    // ШАГ 1: ОПРЕДЕЛЯЕМ ТЕМУ
-    // ========================================
+        var categoryBase = "test";
+        var topicNum = 0;
+        var tag = "general";
 
-    /**
-     * Извлекает номер темы из URL или заголовка страницы
-     */
-    function extractTopicNumber() {
-        // Вариант 1: Из URL (например: /test?topic=10 или /tema/10)
-        const urlParams = new URLSearchParams(window.location.search);
-        const topicParam = urlParams.get('topic') || urlParams.get('tema');
-        if (topicParam) {
-            const num = parseInt(topicParam);
-            console.log(`🔍 Тема найдена в URL: ${num}`);
-            return num;
+        var mainHeader = (document.querySelector('.section-title h4, h1, h2, .badcome-sin-tex') || {}).innerText || "";
+        if (mainHeader.toLowerCase().indexOf('tema') !== -1) {
+            var match = mainHeader.match(/Tema\s*(\d+)/i);
+            topicNum = match ? parseInt(match[1]) : 1;
+            categoryBase = "topic-" + String(topicNum).padStart(2, '0');
+            tag = "topic";
+        } else {
+            tag = mainHeader.toLowerCase().indexOf('dgt') !== -1 ? "dgt" : "essential";
+            categoryBase = tag;
         }
 
-        // Проверяем путь URL
-        const pathMatch = window.location.pathname.match(/tema[\/\-](\d+)/i);
-        if (pathMatch) {
-            const num = parseInt(pathMatch[1]);
-            console.log(`🔍 Тема найдена в пути URL: ${num}`);
-            return num;
-        }
-
-        // Вариант 2: Из заголовка страницы
-        const titleMatch = document.title.match(/tema[:\s]*(\d+)/i);
-        if (titleMatch) {
-            const num = parseInt(titleMatch[1]);
-            console.log(`🔍 Тема найдена в заголовке: ${num}`);
-            return num;
-        }
-
-        // Вариант 3: Из хлебных крошек, заголовков или навигации
-        const selectors = [
-            '.breadcrumb', 'nav a', '.nav-link', 'h1', 'h2', '.test-title',
-            '[class*="topic"]', '[class*="tema"]'
-        ];
-
-        for (const selector of selectors) {
-            const elements = document.querySelectorAll(selector);
-            for (const el of elements) {
-                const match = el.textContent.match(/tema[:\s]*(\d+)/i);
-                if (match) {
-                    const num = parseInt(match[1]);
-                    console.log(`🔍 Тема найдена в элементе ${selector}: ${num}`);
-                    return num;
-                }
-            }
-        }
-
-        // Вариант 4: Ручной ввод
-        console.warn('⚠️ Не удалось автоматически определить тему');
-        const userInput = prompt('Введите номер темы (1-29, или оставьте пустым):');
-        if (userInput && userInput.trim()) {
-            const num = parseInt(userInput);
-            if (!isNaN(num) && num >= 1 && num <= 29) {
-                console.log(`✍️ Тема введена вручную: ${num}`);
-                return num;
-            }
-        }
-
-        console.warn('⚠️ Тема не определена, topic_id будет null');
-        return null;
-    }
-
-    const topicNumber = extractTopicNumber();
-    console.log(`📌 Номер темы: ${topicNumber}`);
-
-    // ========================================
-    // ШАГ 2: ПАРСИНГ ВОПРОСОВ
-    // ========================================
-
-    const questionElements = document.querySelectorAll('.fallos-color-wrapper');
-    const questions = [];
-
-    if (questionElements.length === 0) {
-        console.error('❌ Вопросы не найдены на странице!');
-        console.log('Попробуйте другой селектор или убедитесь что страница загружена');
-        return;
-    }
-
-    console.log(`✅ Найдено ${questionElements.length} вопросов`);
-
-    questionElements.forEach((el, index) => {
-        try {
-            // Извлекаем текст вопроса - ищем в блоке .fallos-blk p
-            // В мобильной и десктопной версии текст дублируется, берем любой доступный непустой
-            let questionText = '';
-            const textElements = el.querySelectorAll('.fallos-blk p');
-
-            for (const textEl of textElements) {
-                // Убираем номер вопроса из начала (например "1\n")
-                // Ищем span с номером и удаляем его из текста, но лучше брать textContent узла, следующего за span
-                const clone = textEl.cloneNode(true);
-                const span = clone.querySelector('span'); // Номер вопроса
-                if (span) span.remove();
-                const img = clone.querySelector('img'); // Картинка может быть внутри p
-                if (img) img.remove();
-
-                const rawText = clone.textContent.trim();
-                if (rawText) {
-                    questionText = rawText;
-                    break;
-                }
-            }
-
-            // Очистка текста от лишних переносов и пробелов
-            questionText = questionText.replace(/\s+/g, ' ').trim();
-
-            // Извлекаем номер вопроса
-            let questionNumber = index + 1;
-            const numberSpan = el.querySelector('.fallos-blk span');
-            if (numberSpan) {
-                const numMatch = numberSpan.textContent.match(/(\d+)/);
-                if (numMatch) questionNumber = parseInt(numMatch[1]);
-            }
-
-            // Извлекаем картинку
-            // Ищем img внутри .fallos-thumb или .fallos-mobile
-            let imageEl = el.querySelector('.fallos-thumb img');
-            if (!imageEl) {
-                imageEl = el.querySelector('.fallos-mobile');
-            }
-
-            let imageUrl = null;
-            if (imageEl && imageEl.src) {
-                // Если src относительный, делаем абсолютным
-                imageUrl = imageEl.src;
-                // Убеждаемся что это не заглушка 0-20.png или подобное
-                if (imageUrl.includes('faces/')) imageUrl = null;
-            }
-
-            // Извлекаем схему (если есть) - ищем .pop-src с data-type="img"
-            const schemaEl = el.querySelector('.pop-src[data-type="img"]');
-            let schemaUrl = null;
-            if (schemaEl) {
-                const schemaSrc = schemaEl.getAttribute('data-src');
-                if (schemaSrc) {
-                    schemaUrl = new URL(schemaSrc, window.location.origin).href;
-                }
-            }
-
-            // Извлекаем варианты ответов
-            const answerElements = el.querySelectorAll('.fallos-button a');
-            const answers = [];
-
-            answerElements.forEach((answerEl, i) => {
-                const answerId = String.fromCharCode(97 + i); // a, b, c
-
-                let answerText = answerEl.textContent.trim();
-                // Убираем префикс "A ", "B ", "C " из начала
-                // Обычно там span с буквой
-                const letterSpan = answerEl.querySelector('span');
-                if (letterSpan) {
-                    // Текст ответа идет после span
-                    // Можно просто вычесть текст спана из всего текста
-                    answerText = answerText.substring(letterSpan.textContent.length).trim();
-                } else if (answerText.match(/^[ABC]\s/)) {
-                    answerText = answerText.substring(2).trim();
-                }
-
-                const isCorrect = answerEl.classList.contains('ok');
-
-                if (answerText) {
-                    answers.push({
-                        id: answerId,
-                        text: {
-                            es: answerText,
-                            en: null,
-                            ru: null
-                        },
-                        is_correct: isCorrect
-                    });
-                }
+        var links = Array.from(document.querySelectorAll('.test-slider-items a'))
+            .filter(function (a) {
+                return a.href && a.href.indexOf('#') === -1 && a.href.indexOf('/test/') !== -1;
+            })
+            .map(function (a) {
+                var nameText = (a.querySelector('h4') || {}).innerText || '001';
+                var numMatch = nameText.match(/(\d+)/);
+                return {
+                    url: a.href,
+                    testNum: numMatch ? numMatch[1].padStart(3, '0') : '001'
+                };
             });
 
-            if (questionText && answers.length > 0) {
-                questions.push({
-                    topic_number: topicNumber, // Номер темы (будет преобразован в UUID)
-                    topic_id: null, // UUID темы (будет заполнен позже)
-                    question_number: questionNumber,
-                    category: "B", // По умолчанию B, можно изменить
-                    question: {
-                        es: questionText,
-                        en: null,
-                        ru: null
-                    },
-                    answers: answers,
-                    explanation: {
-                        es: null,
-                        en: null,
-                        ru: null
-                    },
-                    image_url: imageUrl,
-                    schema_url: schemaUrl,
-                    source: "practicavial"
+        if (links.length === 0) return alert('❌ Тесты не найдены.');
+        if (!confirm('Всего тестов: ' + links.length + '. Начать сбор [' + categoryBase + ']?')) return;
+
+        for (var i = 0; i < links.length; i++) {
+            var test = links[i];
+            var config = { categoryTitle: categoryBase, topicNum: topicNum, tag: tag, testNum: test.testNum };
+
+            var success = false;
+            var maxAttempts = 2;
+
+            for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+                console.log('\n🔷 [' + (i + 1) + '/' + links.length + '] ' + categoryBase + '_test-' + test.testNum + (attempt > 1 ? ' (Повторно)' : ''));
+
+                success = await processIndividualTest(test.url, config);
+                if (success) break;
+
+                if (attempt < maxAttempts) {
+                    await new Promise(function (r) { setTimeout(r, 2000); });
+                }
+            }
+        }
+        console.log('✅ Все задачи выполнены!');
+    }
+
+    async function processIndividualTest(url, config) {
+        var testWindow = window.open(url, '_blank', 'width=1200,height=900');
+        if (!testWindow) return false;
+
+        return new Promise(function (resolve) {
+            var globalTimeout = setTimeout(function () {
+                console.warn('  - [!] Тайм-аут 60с');
+                try { testWindow.close(); } catch (e) { }
+                resolve(false);
+            }, 60000);
+
+            // Единая функция проверки на смерть страницы
+            function isDead() {
+                try {
+                    if (!testWindow || testWindow.closed) return true;
+                    var title = (testWindow.document.title || "").toLowerCase();
+                    var body = testWindow.document.body ? testWindow.document.body.innerText.toLowerCase() : "";
+                    var href = testWindow.location.href.toLowerCase();
+
+                    if (title.indexOf('encontrada') !== -1 || body.indexOf('página no encontrada') !== -1 || href.indexOf('error') !== -1) {
+                        return true;
+                    }
+                } catch (e) { /* Если CORS мешает читать, игнорируем пока не прогрузится */ }
+                return false;
+            }
+
+            var checker = setInterval(function () {
+                if (isDead()) {
+                    console.error('  - [!] ОБНАРУЖЕНА ОШИБКА 404 / ERROR');
+                    clearInterval(checker);
+                    clearTimeout(globalTimeout);
+                    testWindow.close();
+                    resolve(false);
+                    return;
+                }
+
+                try {
+                    if (testWindow.document.readyState === 'complete' && testWindow.document.getElementById('mainTest')) {
+                        clearInterval(checker);
+                        console.log('  - Запуск солвера...');
+
+                        var s = testWindow.document.createElement('script');
+                        s.textContent = '(' + solver.toString() + ')(' + JSON.stringify(config) + ');';
+                        testWindow.document.body.appendChild(s);
+
+                        // Следим за переходом к результатам
+                        var navChecker = setInterval(function () {
+                            if (isDead()) {
+                                console.error('  - [!] Ошибка после решения теста');
+                                clearInterval(navChecker);
+                                clearTimeout(globalTimeout);
+                                testWindow.close();
+                                resolve(false);
+                                return;
+                            }
+
+                            try {
+                                if (testWindow.location.href.indexOf('test-result') !== -1) {
+                                    clearInterval(navChecker);
+
+                                    var resChecker = setInterval(function () {
+                                        var div = testWindow.document.querySelector('.fallos-color-wrapper');
+                                        if (testWindow.document.readyState === 'complete' && div) {
+                                            clearInterval(resChecker);
+                                            console.log('  - Сохранение JSON...');
+
+                                            var p = testWindow.document.createElement('script');
+                                            p.textContent = '(' + resultParser.toString() + ')(' + JSON.stringify(config) + ');';
+                                            testWindow.document.body.appendChild(p);
+
+                                            var doneListener = function (e) {
+                                                if (e.data === 'test_captured_done') {
+                                                    window.removeEventListener('message', doneListener);
+                                                    clearTimeout(globalTimeout);
+                                                    testWindow.close();
+                                                    resolve(true);
+                                                }
+                                            };
+                                            window.addEventListener('message', doneListener);
+                                        }
+                                    }, 1000);
+                                }
+                            } catch (e) { }
+                        }, 1000);
+                    }
+                } catch (e) { }
+            }, 1000);
+        });
+    }
+
+    function solver(cfg) {
+        async function run() {
+            var mainTest = document.getElementById('mainTest');
+            var total = parseInt(mainTest ? mainTest.getAttribute('data-num-questions') : "30");
+            for (var i = 0; i < total; i++) {
+                var ans = document.querySelector('.owl-item.active .answerAction');
+                if (ans) ans.click();
+                if (window.$) window.$('.owl-carousel').trigger('next.owl.carousel');
+                await new Promise(function (r) { setTimeout(r, 120); });
+            }
+            var exit = document.querySelector('.exit-test-block');
+            if (exit) exit.click();
+            await new Promise(function (r) { setTimeout(r, 800); });
+            var fin = document.querySelector('.modal-content a[href*="finalizar"]');
+            if (fin) fin.click();
+
+            var att = 0;
+            var v = setInterval(function () {
+                var btn = Array.from(document.querySelectorAll('a')).find(function (a) {
+                    return a.textContent.toLowerCase().indexOf('resultados') !== -1;
                 });
-            }
-        } catch (error) {
-            console.error(`❌ Ошибка при парсинге вопроса #${index + 1}:`, error);
+                if (btn) { clearInterval(v); btn.click(); }
+                if (att++ > 15) clearInterval(v);
+            }, 1000);
         }
-    });
-
-    // ========================================
-    // ШАГ 3: ОТПРАВКА НА СЕРВЕР АВТОМАТИЗАЦИИ
-    // ========================================
-
-    const testNumberEl = document.querySelector('.progress-left-content h3');
-    let testNumber = null;
-    if (testNumberEl) {
-        const testMatch = testNumberEl.textContent.match(/Nº[:\s]*(\d+)/i);
-        if (testMatch) testNumber = parseInt(testMatch[1]);
+        run();
     }
 
-    async function sendToServer(data, tNum, testNum) {
-        console.log('📡 Отправка данных на локальный сервер (http://localhost:3001)...');
-
-        try {
-            const response = await fetch('http://localhost:3001/save-batch', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    questions: data,
-                    topicNumber: tNum,
-                    testNumber: testNum
-                })
+    function resultParser(cfg) {
+        var results = [];
+        var seen = {};
+        var wrappers = document.querySelectorAll('.fallos-color-wrapper');
+        for (var i = 0; i < wrappers.length; i++) {
+            var w = wrappers[i];
+            var p = w.querySelector('.fallos-blk.hide-mobile p') || w.querySelector('.fallos-blk p');
+            if (!p) continue;
+            var txt = p.textContent.trim();
+            var s = p.querySelector('span');
+            if (s) txt = txt.substring(s.textContent.length).trim();
+            txt = txt.replace(/\s+/g, ' ').trim();
+            if (!txt || seen[txt]) continue;
+            seen[txt] = true;
+            var imgEl = w.querySelector('.fallos-thumb img') || w.querySelector('.fallos-blk img');
+            var schEl = w.querySelector('.pop-src[data-type="img"]');
+            var ansEls = Array.from(w.querySelectorAll('.fallos-button a'));
+            results.push({
+                topic_number: cfg.topicNum,
+                question_number: results.length + 1,
+                category: "B",
+                question: { es: txt, en: null, ru: null },
+                answers: ansEls.map(function (a, idx) {
+                    return {
+                        id: String.fromCharCode(97 + idx),
+                        text: { es: a.innerText.replace(/^[a-c][.)\s]*/i, '').trim(), en: null, ru: null },
+                        is_correct: a.classList.contains('ok') || (a.parentElement && a.parentElement.classList.contains('ok'))
+                    };
+                }),
+                explanation: { es: null, en: null, ru: null },
+                image_url: imgEl ? imgEl.src : null,
+                schema_url: schEl ? new URL(schEl.getAttribute('data-src'), window.location.origin).href : null,
+                source: "practicavial",
+                tags: ["practicavial", cfg.tag]
             });
-
-            const result = await response.json();
-            if (result.success) {
-                showToast(`✅ Успех! Тест ${testNum} сохранен и импортирован.`, 'success');
-                console.log('🚀 Сервер ответил:', result.message);
-            } else {
-                throw new Error(result.error);
-            }
-        } catch (error) {
-            console.error('❌ Ошибка связи с сервером:', error);
-            console.log('ℹ️ Это нормально — браузер блокирует HTTP запросы с HTTPS сайтов.');
-            console.log('📥 Скачиваю файл напрямую...');
-
-            // Автоматически скачиваем файл
-            downloadAsFile(data, tNum, testNum);
-            showToast(`📥 Файл скачан! Запусти: node scripts/import-golden-dgt.js data/parsed/...`, 'info');
         }
+        if (results.length > 0) {
+            var file = cfg.categoryTitle + '_test-' + cfg.testNum + '.json';
+            var blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url; a.download = file; a.click();
+        }
+        setTimeout(function () { window.opener.postMessage('test_captured_done', '*'); }, 1000);
     }
 
-    function downloadAsFile(data, topicNum, testNum) {
-        const fileName = `topic-${String(topicNum).padStart(2, '0')}_test-${String(testNum || 'unknown').padStart(3, '0')}.json`;
-        const jsonStr = JSON.stringify(data, null, 2);
-        const blob = new Blob([jsonStr], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-
-        console.log(`✅ Файл ${fileName} скачан в папку "Загрузки"`);
-        console.log('📋 Перемести его в: data/parsed/topic-XX/');
-        console.log('📤 Затем выполни: node scripts/enrich-batch.js data/parsed/topic-XX/test-XXX.json');
-    }
-
-    function showToast(message, type) {
-        const toast = document.createElement('div');
-        toast.style.position = 'fixed';
-        toast.style.top = '20px';
-        toast.style.right = '20px';
-        toast.style.padding = '15px 25px';
-        toast.style.borderRadius = '12px';
-        toast.style.color = 'white';
-        toast.style.zIndex = '10000';
-        toast.style.fontWeight = 'bold';
-        toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-        toast.style.fontFamily = 'sans-serif';
-        toast.style.transition = 'all 0.3s ease';
-
-        if (type === 'success') toast.style.backgroundColor = '#10B981';
-        else if (type === 'error') toast.style.backgroundColor = '#EF4444';
-        else toast.style.backgroundColor = '#3B82F6'; // info
-
-        toast.textContent = message;
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => toast.remove(), 300);
-        }, 5000);
-    }
-
-    // Сохраняем в глобальную переменную
-    window.parsedQuestions = questions;
-
-    // Запускаем автоматическую отправку
-    sendToServer(questions, topicNumber, testNumber);
-
-    return questions;
+    orchestrator();
 })();

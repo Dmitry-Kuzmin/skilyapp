@@ -388,18 +388,21 @@ const Tests = () => {
         gradient: selectedCountry === 'russia' ? "from-purple-600 to-pink-600" : "from-slate-600 to-gray-600",
         featured: selectedCountry === 'russia',
       },
+      // По Темам - универсальный режим для всех стран
+      {
+        id: 7,
+        title: selectedCountry === 'russia' ? 'По Темам' : 'Por Temas',
+        description: selectedCountry === 'russia'
+          ? 'Изучайте правила по главам. Выберите тему и прорешайте вопросы только по ней'
+          : 'Estudia las reglas por temas. Elige un tema y resuelve solo esas preguntas',
+        icon: BookOpen,
+        color: "primary",
+        premium: false,
+        difficulty: "Средняя",
+        route: "/test/by-topics",
+        gradient: "from-blue-600 to-cyan-600",
+      },
       ...(selectedCountry === 'russia' ? [
-        {
-          id: 7,
-          title: 'По Темам',
-          description: 'Изучайте правила по главам. Выберите тему и прорешайте вопросы только по ней',
-          icon: BookOpen,
-          color: "primary",
-          premium: false,
-          difficulty: "Средняя",
-          route: "/test/by-topics",
-          gradient: "from-blue-600 to-cyan-600",
-        },
         {
           id: 8,
           title: 'Нон-стоп',

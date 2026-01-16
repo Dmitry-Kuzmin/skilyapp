@@ -111,8 +111,8 @@ export function TopicDetailDialog({
     }, [topicCount, userProgress]);
 
     const handleStartTicket = (ticket: TopicLevel) => {
-        // Переходим к тесту с фильтрацией по вопросам этого билета
-        navigate(`/test/practice?topicId=${topicId}&topic=${encodeURIComponent(topicName)}&count=${QUESTIONS_PER_TICKET}&level=${ticket.level}&country=${country}`);
+        // Переходим к тесту с UUID темы (как в Dashboard)
+        navigate(`/test/practice?topic=${topicId}&count=${QUESTIONS_PER_TICKET}&country=${country}`);
         onOpenChange(false);
     };
 
