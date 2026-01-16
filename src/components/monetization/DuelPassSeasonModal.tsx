@@ -1165,59 +1165,79 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     const fallbackContent = loading ? (
       <SkeletonContent />
     ) : (
-      <div className="flex flex-col items-center justify-center py-12 px-6 min-h-[400px]">
+      <div className="relative flex flex-col items-center justify-center py-16 px-6 min-h-[500px] overflow-hidden">
+        {/* Ambient Background */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.15),transparent_70%)] pointer-events-none" />
+        <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-blue-500/10 to-transparent pointer-events-none" />
+
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", duration: 0.8 }}
-          className="relative mb-8"
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          transition={{ type: "spring", duration: 1, bounce: 0.5 }}
+          className="relative z-10 flex flex-col items-center text-center max-w-md mx-auto"
         >
-          <div className="absolute inset-0 bg-blue-500/20 blur-3xl rounded-full" />
-          <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-white/10 flex items-center justify-center backdrop-blur-sm shadow-2xl">
-            <Rocket className="w-12 h-12 text-blue-400" />
-            <motion.div
-              animate={{ rotate: [0, 15, -15, 0] }}
-              transition={{ duration: 4, repeat: Infinity, repeatDelay: 1 }}
-              className="absolute -top-2 -right-2"
-            >
-              <Sparkles className="w-6 h-6 text-yellow-300 drop-shadow-md" />
-            </motion.div>
+          {/* Main Visual */}
+          <div className="relative mb-8 group cursor-default">
+            <div className="absolute inset-0 bg-blue-500/30 blur-[60px] rounded-full opacity-50 group-hover:opacity-75 transition-opacity duration-700" />
+            <div className="relative text-7xl mb-2 grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500 transform group-hover:scale-110">
+              🚀
+            </div>
+
+            {/* Orbiting particles */}
+            {[...Array(3)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute inset-0 border border-blue-500/30 rounded-full"
+                animate={{ rotate: 360, scale: [1, 1.1, 1] }}
+                transition={{
+                  rotate: { duration: 10 + i * 5, repeat: Infinity, ease: "linear", reverse: i % 2 === 0 },
+                  scale: { duration: 4, repeat: Infinity, ease: "easeInOut", delay: i }
+                }}
+                style={{ width: `${100 + i * 40}%`, height: `${100 + i * 40}%`, left: `-${i * 20}%`, top: `-${i * 20}%` }}
+              >
+                <div className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-blue-400 rounded-full shadow-[0_0_10px_rgba(59,130,246,1)]" />
+              </motion.div>
+            ))}
           </div>
-        </motion.div>
 
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="text-center space-y-4 max-w-sm mx-auto"
-        >
-          <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-white">
-            Новый сезон скоро!
+          <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-4">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-300 via-white to-blue-300 animate-gradient-x">
+              Скоро новый сезон
+            </span>
           </h2>
-          <p className="text-muted-foreground leading-relaxed">
-            Мы готовим новые эпические награды, задания и достижения.
-            Совсем скоро вы сможете начать новое приключение!
-          </p>
-        </motion.div>
 
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="mt-8 flex gap-3"
-        >
+          <p className="text-base text-muted-foreground/80 leading-relaxed max-w-xs mb-8">
+            Мы уже готовим легендарные скины, уникальные бейджи и горы монет.
+            <br className="hidden sm:block" />
+            Всё начнётся совсем скоро!
+          </p>
+
+          {/* Mystery Rewards Teaser */}
+          <div className="flex items-center gap-3 mb-10 px-6 py-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="relative group/item">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center border border-white/10 overflow-hidden">
+                  <span className="text-lg opacity-30 select-none">?</span>
+                  <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px]" />
+                </div>
+                {i === 2 && (
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(250,204,21,0.5)]" />
+                )}
+              </div>
+            ))}
+            <div className="h-8 w-px bg-white/10 mx-1" />
+            <div className="text-left">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Награды</p>
+              <p className="text-xs font-semibold text-white/90">Секретно</p>
+            </div>
+          </div>
+
           <Button
-            variant="outline"
-            className="rounded-xl border-white/10 hover:bg-white/5"
+            size="lg"
+            className="rounded-xl bg-white text-black hover:bg-white/90 hover:scale-105 active:scale-95 transition-all duration-300 font-bold px-12 shadow-xl shadow-white/10"
             onClick={() => onOpenChange(false)}
           >
-            Закрыть
-          </Button>
-          <Button
-            className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/20"
-            onClick={() => onOpenChange(false)}
-          >
-            Жду с нетерпением!
+            Жду открытия
           </Button>
         </motion.div>
       </div>
