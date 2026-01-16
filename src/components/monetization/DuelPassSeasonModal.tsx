@@ -8,7 +8,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Loader2, Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2, Zap, Gift, Star, ArrowRight, ChevronRight, Flame, Gauge, Hourglass, Shield, Sticker, Swords, Award, BarChart3, Users, type LucideIcon } from "lucide-react";
+import { Loader2, Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2, Zap, Gift, Star, ArrowRight, ChevronRight, Flame, Gauge, Hourglass, Shield, Sticker, Swords, Award, BarChart3, Users, Rocket, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -1165,22 +1165,61 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     const fallbackContent = loading ? (
       <SkeletonContent />
     ) : (
-      <div className="text-center py-12 space-y-4 px-6">
-        <p className="text-muted-foreground">{dp("migration.noSeason")}</p>
-        <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
-          <p className="font-semibold mb-2">{dp("migration.warningTitle")}</p>
-          <p className="text-xs mb-2">
-            {dp("migration.warningDescription")}
+      <div className="flex flex-col items-center justify-center py-12 px-6 min-h-[400px]">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", duration: 0.8 }}
+          className="relative mb-8"
+        >
+          <div className="absolute inset-0 bg-blue-500/20 blur-3xl rounded-full" />
+          <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-white/10 flex items-center justify-center backdrop-blur-sm shadow-2xl">
+            <Rocket className="w-12 h-12 text-blue-400" />
+            <motion.div
+              animate={{ rotate: [0, 15, -15, 0] }}
+              transition={{ duration: 4, repeat: Infinity, repeatDelay: 1 }}
+              className="absolute -top-2 -right-2"
+            >
+              <Sparkles className="w-6 h-6 text-yellow-300 drop-shadow-md" />
+            </motion.div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-center space-y-4 max-w-sm mx-auto"
+        >
+          <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-white">
+            Новый сезон скоро!
+          </h2>
+          <p className="text-muted-foreground leading-relaxed">
+            Мы готовим новые эпические награды, задания и достижения.
+            Совсем скоро вы сможете начать новое приключение!
           </p>
-          <ol className="text-xs list-decimal list-inside space-y-1 text-left">
-            <li>{dp("migration.steps.0")}</li>
-            <li>
-              {dp("migration.steps.1")}{" "}
-              <code className="bg-background px-1 rounded">APPLY_SEASON_MIGRATION_NOW.sql</code>
-            </li>
-            <li>{dp("migration.steps.2")}</li>
-          </ol>
-        </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="mt-8 flex gap-3"
+        >
+          <Button
+            variant="outline"
+            className="rounded-xl border-white/10 hover:bg-white/5"
+            onClick={() => onOpenChange(false)}
+          >
+            Закрыть
+          </Button>
+          <Button
+            className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/20"
+            onClick={() => onOpenChange(false)}
+          >
+            Жду с нетерпением!
+          </Button>
+        </motion.div>
       </div>
     );
 
