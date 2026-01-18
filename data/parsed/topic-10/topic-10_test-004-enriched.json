@@ -1,0 +1,155 @@
+[
+  {
+    "topic_number": 10,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la principal causa de los accidentes por alcance?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Las velocidades anormalmente reducidas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Las velocidades superiores a 100 km por hora.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No guardar la distancia de seguridad con el vehículo que circula delante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3424ee9c-da50-400d-9826-ffacc3d2b26c-1658858757-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3424ee9c-da50-400d-9826-ffacc3d2b26c-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Una de las técnicas de visión en la conducción preventiva consiste en...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "mirar a lo lejos, a los lados y por los retrovisores.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "acostumbrarse a los deslumbramientos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "instalar espejos panorámicos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b53f2f4b-4ae9-405c-b904-5cbd43a8ddf0-1658858702-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b53f2f4b-4ae9-405c-b904-5cbd43a8ddf0-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Es recomendable aumentar la distancia de seguridad...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "cuando el vehículo de detrás se acerca demasiado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "al circular de día.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "cuando el conductor se encuentre en perfecto estado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/108c2d1c-9551-43b8-a883-16cb52617e0a-1658858751-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/108c2d1c-9551-43b8-a883-16cb52617e0a-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  }
+]

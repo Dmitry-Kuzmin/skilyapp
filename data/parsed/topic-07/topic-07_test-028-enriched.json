@@ -1,0 +1,1452 @@
+[
+  {
+    "topic_number": 7,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "El accidente de motocicleta más frecuente es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "la colisión frontal o frontolateral con otro vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "la colisión frontal con otras motocicletas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "la colisión por alcance de vehículos que van a más velocidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a44c5aa7-da9f-473a-a6c9-0dd85e18a6bd-1658507480-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "¿Es correcto el uso frecuente del freno de mano cuando se conduce?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, siempre que el vehículo tenga ABS.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, sólo se debe utilizar en los casos de inmovilización del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, se debe utilizar en curvas cerradas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/1e19dd2d-0c13-4476-9bce-09f1944bc2bb-1658832099-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Cuando la calzada está helada...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "la distancia de frenado se mantiene igual que en condiciones normales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "la distancia de frenado disminuye.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "la distancia de frenado aumenta.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c04877e0-8b7c-41db-a1f0-61cab727f754-1663579706-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "¿En qué situación suelen tener menos accidentes las personas mayores como peatones?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando van solas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando van distraídas hablando con otra persona mayor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando van acompañando a niños y son responsables de ellos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b716331a-db4b-4e5c-9b26-590890b706ad-1658511685-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "Para comprobar la presión de inflado, ¿cómo deben estar los neumáticos?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Calientes.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Fríos o calientes, es igual.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Fríos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c55655b6-7630-43b9-9552-9ed29ac9f947-1658833937-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "La velocidad, ¿influye en la distancia de reacción?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, disminuye la distancia de reacción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, aumenta la distancia de reacción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, sólo influye sobre el tiempo de reacción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4eefa534-7463-4efc-9c45-ff43c39e87a1-1658751198-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "Si conduciendo una motocicleta no puede evitar un bache que se encuentra en la calzada, ¿cuál de los siguientes comportamientos es el más idóneo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Reducir la velocidad y mantener vertical la motocicleta al pasar sobre el bache.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Ponerme de pie sobre los reposapiés laterales y aumentar la velocidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Aumentar la velocidad y desembragar al pasar sobre el bache.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b5816e76-6b4d-41a8-a6ad-48ef8cc20c69-1658852553-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "Fumar, mientras conduce, puede provocar...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "un aumento de la capacidad de atención.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "distracciones y problemas de visión a causa del humo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "somnolencia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8b3b3cb4-575c-4670-81e9-7db8eb3626ad-1658770040-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Uno de los problemas que afectan a la capacidad para conducir de las personas mayores es la disminución...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "del tiempo de reacción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "de la visión y del oído.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "de la visión únicamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/dd6b5341-08df-4355-b3eb-b671416ecc11-1658504072-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "¿Qué debe procurar hacer el conductor de una motocicleta que sufre una caída y se desliza por el suelo para minimizar las lesiones?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Intentar ponerse de pie antes de detenerse por completo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Intentar que el cuerpo ruede por el suelo a la mayor velocidad posible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Deslizarse lo más relajadamente posible hasta quedar detenido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/faa0d27c-e890-45ee-b84a-657f9c2dee5a-1658507516-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "En general, ¿a quiénes afecta más el alcohol?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A los hombres.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A las mujeres.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Los efectos del alcohol no dependen del sexo de la persona.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/991a4f97-f014-4fbb-baed-40d1ee18aa44-1658773210-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "¿Se pueden evitar los accidentes de tráfico?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, en general son sucesos predecibles.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, se deben al azar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si se mejora el estado de las vías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e11c5dde-68f5-4938-b3a8-78d6068ddabc-1658498435-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "En general, si se conduce por una vía con un entorno monótono y hay poco tráfico, lo más normal es que...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "tarde más en aparecer la somnolencia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "el conductor se distraiga con mayor facilidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "el conductor se mantenga más concentrado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c7fac6b8-4aef-457c-a15e-b6c3294cb49b-1658767607-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "¿Cómo puede afectar la depresión durante la conducción?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Aumentando las distracciones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Creando una sensación de falsa seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Recopilando demasiada información relevante, especialmente en situaciones sencillas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/39315ec4-8898-4938-a436-3e3496b3e3bb-1658764566-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "Si los frenos se mojan...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "pueden dejar de frenar, perdiendo temporalmente su eficacia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "se estropean y deben cambiarse las zapatas o pastillas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "se frena en menos espacio.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e0ba38ff-ed0b-4ecf-b1d5-af355515ff65-1658838611-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "La depresión es una grave enfermedad que se sufre cada vez con más frecuencia. Si se padece debemos saber que...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "si no nos medicamos no tiene efectos sobre la conducción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "no debemos conducir hasta pasada al menos una hora de habernos medicado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "no es recomendable conducir de noche o por entornos monótonos o durante muchas horas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a7933c6f-a2fe-4e49-bc6a-2dc34cbd61b0-1658764741-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "¿Es aconsejable conducir con uno o varios cojines en el asiento?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, porque la altura mejora el campo de visión del conductor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, porque puede limitar la eficacia del cinturón de seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, porque el conductor va más cómodo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/41340eef-4143-438b-aa49-ec9991a2057a-1658845163-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "¿Puede aumentar el tiempo de reacción del conductor?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, sólo puede disminuir.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, siempre es menos de un segundo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, dependiendo por ejemplo de su estado físico.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/060805af-374c-4302-81fc-f5b4aa0807cc-1658750393-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "El alcohol, tomado junto con la comida, pasa a la sangre...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "más lentamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "más rápidamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "con la misma rapidez que sin comida.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e3ba6323-e329-4012-a196-0d1d3419caed-1658773585-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "En la conducción, el uso del teléfono móvil manos libres...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "se permite, porque no produce distracciones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "se permite, pero debe saberse que también puede producir distracciones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "está prohibido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/71e2f752-7ddc-4df9-a613-a96fe76e3dbb-1658769072-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "Un conductor fatigado...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "se distrae menos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "se comporta de forma más prudente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "reacciona más tarde ante cualquier peligro.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7cc22726-4c5e-45ae-a7ab-7cfed15e213e-1658754036-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "Una de las principales causas de los accidentes de las personas mayores es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "el deterioro de las capacidades psicomotoras.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "la menor percepción del riesgo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "la falta de paciencia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/51269db2-1dbf-4420-8087-1dc0e42284bf-1658504221-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "Si un conductor está en tratamiento y consume determinados medicamentos como analgésicos o antihistamínicos, es aconsejable que...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "se informe si pueden producir efectos secundarios que afecten a la conducción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "no conduzca durante el tiempo que dure el tratamiento o solo lo haga por la noche.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "entregue su permiso de conducción en la Jefatura de Tráfico mientras esté en tratamiento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/0e181c2f-e219-4dcd-9f52-980d58d37bc5-1658766129-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "Un neumático con una presión de inflado incorrecta...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "se desgasta de forma irregular y tiene mayor riesgo de reventón.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "se desgasta menos y tiene menor riesgo de reventón.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "normalmente consume menos carburante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b84a1801-3278-4f81-9176-0f46439135e5-1658834669-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "Si se circula con la calzada mojada, ¿qué consecuencias puede tener un amortiguador en mal estado?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que disminuya la distancia de frenado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Que aumente el riesgo de aquaplaning.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que disminuya el riesgo de aquaplaning.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/eb2be111-6002-4e29-8750-3d7abdce315b-1658857150-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "¿Hay que revisar periódicamente el estado de las pastillas y los discos de freno?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El estado de las pastillas sí, los discos no se estropean.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e34a05e1-036d-4ca9-975e-5fa6ab27f0df-1658838390-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "¿Son todos los medicamentos peligrosos para la conducción?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sólo los psicofármacos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, todos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, sólo algunos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c2156737-0380-4bce-9ab8-2fefbff1a3bc-1658765581-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "¿Qué puede hacer para evitar los peligros que causa el uso del teléfono móvil durante la conducción?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Dejar el móvil en el asiento del copiloto y colgar cuando suene una llamada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Detener el vehículo en un lugar seguro para  poder usar el teléfono.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Responder solo a las llamadas, pero no a los WhastsApp.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/75a5da15-50fb-42fa-9df2-5cbfcbfaa297-1658769229-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  },
+  {
+    "topic_number": 7,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "La distancia de frenado es la que recorre el vehículo desde que el conductor...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "percibe un peligro hasta que pisa el freno.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "pisa el freno hasta que se detiene totalmente el vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "percibe un peligro hasta que se detiene totalmente el vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9f7008ee-7d35-49a1-bf99-b932af6aa30f-1658752290-i.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "topic"
+    ]
+  }
+]

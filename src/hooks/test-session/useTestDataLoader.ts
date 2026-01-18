@@ -10,6 +10,7 @@ import {
     useTestInfo,
 } from "@/hooks/useTestQuestionsByMode";
 import { usePDDExamQuestions } from "@/hooks/usePDDExamQuestions";
+import { useDGTExamQuestions } from "@/hooks/useDGTExamQuestions";
 import { usePDDTicketQuestions, usePDDRandomQuestions, usePDDSequentialQuestions } from "@/hooks/usePDDQuestions";
 import { usePDDTopicQuestions } from "@/hooks/usePDDTopics";
 import { useQuestionsByTopicId } from "@/hooks/useQuestionsByTopicId"; // Загрузка по UUID темы
@@ -128,6 +129,9 @@ export const useTestDataLoader = ({
     // PDD Exam questions (Russia) - always call but only use when mode matches
     const pddExamQuestions = usePDDExamQuestions();
 
+    // DGT Exam questions (Spain) - for exam mode without specific test
+    const dgtExamQuestions = useDGTExamQuestions(questionCount);
+
     // PDD Ticket questions - positional args: (country, ticketNumber)
     const pddTicketQuestions = usePDDTicketQuestions(
         pddCountry || 'russia',
@@ -204,6 +208,7 @@ export const useTestDataLoader = ({
             case 'blitz':
             case 'mastery':
             case 'hardest':
+                // Russia/Spain with random questions (no specific topic)
                 if ((pddCountry === 'russia' || pddCountry === 'spain') && !topicId && !topic) {
                     return {
                         questions: pddRandomQuestions.data || [],
@@ -216,7 +221,17 @@ export const useTestDataLoader = ({
                     };
                 }
 
-                // Fallback for other countries (if any)
+                // DGT Exam mode (Spain, no specific topic/test) - use random questions from all DGT tests
+                if (mode === 'exam' && !pddCountry && !topicId && !topic) {
+                    return {
+                        questions: dgtExamQuestions.data || [],
+                        isLoading: dgtExamQuestions.isLoading,
+                        error: dgtExamQuestions.error as Error | null,
+                        testInfo: { id: 'dgt-exam', title: '🚦 Экзамен DGT' },
+                    };
+                }
+
+                // Fallback for topic-based practice/exam
                 const questionsData = (topicId ? topicByIdQuestions.data : topicQuestions.data) || [];
                 const isLoading = topicId ? topicByIdQuestions.isLoading : topicQuestions.isLoading;
                 const error = (topicId ? topicByIdQuestions.error : topicQuestions.error) as Error | null;
@@ -227,6 +242,7 @@ export const useTestDataLoader = ({
                     error: error,
                     testInfo: { id: 'practice', title: mode === 'exam' ? 'Экзамен DGT' : 'Практика' },
                 };
+
 
             case 'sequential':
                 return {

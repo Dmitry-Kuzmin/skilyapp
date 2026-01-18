@@ -1141,23 +1141,19 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       title={title || dp("title")}
       showTitleBar={false}
       className={cn(
-        "max-h-[85vh] p-0 flex flex-col bg-[#080C14] border-t border-white/10 shadow-2xl overflow-hidden",
+        "max-h-[85vh] p-0 flex flex-col",
         isMobile ? "w-screen max-w-none" : "w-[95vw] max-w-5xl"
       )}
       showHandle={options?.showHandle}
-      contentClassName={cn("p-0 flex flex-col", options?.contentClassName)}
+      contentClassName={options?.contentClassName}
       modalRouteKey="duel-pass-season"
       loading={options?.loading ?? loading}
       skeletonVariant="default"
     >
-      <div className="flex-1 overflow-y-auto bg-[#080C14]">
-        {/* Fix accessibility - DialogTitle requirement */}
-        <div className="sr-only">
-          <h2>{title || dp("title")}</h2>
-        </div>
+      <div className="flex-1 overflow-y-auto">
         {description && (
-          <div className="px-6 pt-4 pb-2 border-b border-white/5">
-            <p className="text-sm text-gray-400">{description}</p>
+          <div className="px-6 pt-4 pb-2 border-b border-border/40">
+            <p className="text-sm text-muted-foreground">{description}</p>
           </div>
         )}
         {content}
@@ -1169,10 +1165,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     const fallbackContent = loading ? (
       <SkeletonContent />
     ) : (
-      <div className="relative flex flex-col items-center justify-center py-12 px-6 min-h-[460px] bg-[#050505] overflow-hidden">
-        {/* Extreme Neon Glow */}
-        <div className="absolute inset-x-0 top-0 h-80 bg-gradient-to-b from-blue-600/40 to-transparent pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(59,130,246,0.35),transparent_65%)] pointer-events-none" />
+      <div className="relative flex flex-col items-center justify-center py-16 px-6 min-h-[500px] overflow-hidden">
+        {/* Ambient Background */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.15),transparent_70%)] pointer-events-none" />
+        <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-blue-500/10 to-transparent pointer-events-none" />
 
         <motion.div
           initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -1180,9 +1176,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           transition={{ type: "spring", duration: 1, bounce: 0.5 }}
           className="relative z-10 flex flex-col items-center text-center max-w-md mx-auto"
         >
-          <div className="relative mb-10 group">
-            <div className="absolute inset-0 bg-blue-500/90 blur-[65px] rounded-full opacity-80" />
-            <div className="relative text-7xl sm:text-8xl drop-shadow-[0_0_40px_rgba(59,130,246,1)] animate-bounce-slow">
+          {/* Main Visual */}
+          <div className="relative mb-8 group cursor-default">
+            <div className="absolute inset-0 bg-blue-500/30 blur-[60px] rounded-full opacity-50 group-hover:opacity-75 transition-opacity duration-700" />
+            <div className="relative text-7xl mb-2 grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500 transform group-hover:scale-110">
               🚀
             </div>
 
@@ -1190,7 +1187,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             {[...Array(3)].map((_, i) => (
               <motion.div
                 key={i}
-                className="absolute inset-0 border-2 border-blue-400/50 rounded-full"
+                className="absolute inset-0 border border-blue-500/30 rounded-full"
                 animate={{ rotate: 360, scale: [1, 1.1, 1] }}
                 transition={{
                   rotate: { duration: 10 + i * 5, repeat: Infinity, ease: "linear", reverse: i % 2 === 0 },
@@ -1198,45 +1195,49 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                 }}
                 style={{ width: `${100 + i * 40}%`, height: `${100 + i * 40}%`, left: `-${i * 20}%`, top: `-${i * 20}%` }}
               >
-                <div className="absolute top-0 left-1/2 w-2 h-2 bg-blue-400 rounded-full shadow-[0_0_15px_rgba(59,130,246,1)]" />
+                <div className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-blue-400 rounded-full shadow-[0_0_10px_rgba(59,130,246,1)]" />
               </motion.div>
             ))}
           </div>
 
-          <h2 className="text-4xl sm:text-5xl font-black tracking-tighter mb-4 text-white uppercase italic drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
-            СЕЗОН <span className="text-blue-500">БЛИЗКО</span>
+          <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-4">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-300 via-white to-blue-300 animate-gradient-x">
+              Скоро новый сезон
+            </span>
           </h2>
 
-          <p className="text-lg sm:text-xl text-blue-100 font-extrabold leading-tight max-w-xs mb-10 drop-shadow-md">
-            Готовим легендарные награды и эксклюзивные скины.
-            Будь готов!
+          <p className="text-base text-muted-foreground/80 leading-relaxed max-w-xs mb-8">
+            Мы уже готовим легендарные скины, уникальные бейджи и горы монет.
+            <br className="hidden sm:block" />
+            Всё начнётся совсем скоро!
           </p>
 
           {/* Mystery Rewards Teaser */}
-          <div className="flex items-center gap-2 sm:gap-3 mb-8 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-800/60 border border-white/30 backdrop-blur-xl shadow-2xl">
+          <div className="flex items-center gap-3 mb-10 px-6 py-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
             {[1, 2, 3].map((i) => (
               <div key={i} className="relative group/item">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center border border-white/20 shadow-lg">
-                  <span className="text-base sm:text-lg text-white/60 font-bold select-none">?</span>
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center border border-white/10 overflow-hidden">
+                  <span className="text-lg opacity-30 select-none">?</span>
+                  <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px]" />
                 </div>
                 {i === 2 && (
-                  <div className="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-yellow-400 rounded-full animate-pulse shadow-[0_0_12px_rgba(250,204,21,1)] border border-yellow-100" />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(250,204,21,0.5)]" />
                 )}
               </div>
             ))}
-            <div className="h-6 sm:h-8 w-px bg-white/30 mx-1" />
+            <div className="h-8 w-px bg-white/10 mx-1" />
             <div className="text-left">
-              <p className="text-[9px] sm:text-[10px] uppercase tracking-widest text-gray-300 font-bold">Награды</p>
-              <p className="text-xs font-black text-white">СЕКРЕТНО</p>
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Награды</p>
+              <p className="text-xs font-semibold text-white/90">Секретно</p>
             </div>
           </div>
 
           <Button
             size="lg"
-            className="w-full sm:w-auto rounded-2xl bg-white hover:bg-white text-slate-950 font-black text-xl px-20 py-8 shadow-[0_20px_60px_rgba(255,255,255,0.4)] transform transition-transform active:scale-90 border-b-8 border-slate-300"
+            className="rounded-xl bg-white text-black hover:bg-white/90 hover:scale-105 active:scale-95 transition-all duration-300 font-bold px-12 shadow-xl shadow-white/10"
             onClick={() => onOpenChange(false)}
           >
-            ЖДУ ОТКРЫТИЯ
+            Жду открытия
           </Button>
         </motion.div>
       </div>
@@ -1244,9 +1245,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
 
     return (
       <>
-        {renderModalShell(fallbackContent, "Система сезонов", undefined, {
+        {renderModalShell(fallbackContent, dp("title"), dp("migration.description"), {
           showHandle: true,
-          contentClassName: "px-0 sm:px-6 sm:py-6",
+          contentClassName: "px-4 sm:px-6 py-4",
           loading: loading,
         })}
         <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />

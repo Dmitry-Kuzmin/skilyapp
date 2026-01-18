@@ -225,8 +225,8 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
             players: playersData?.map(p => ({ id: p.id, user_id: p.user_id, is_bot: p.is_bot }))
           });
 
-          // Если есть 2 реальных игрока - пытаемся запустить дуэль вручную
-          if (realPlayers.length === 2) {
+          // Если есть 2 игрока (включая бота) - пытаемся запустить дуэль вручную
+          if (playersData?.length === 2) {
             console.log('[useDuelData] 🚀 2 players detected in waiting duel, attempting manual start...');
             try {
               const { data: startData, error: startError } = await supabase.functions.invoke('duel-manager', {

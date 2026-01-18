@@ -12,6 +12,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import axios from 'axios';
 import fs from 'fs/promises';
+import fsSync from 'fs'; // For sync methods in checkpoint
 import path from 'path';
 import dotenv from 'dotenv';
 import crypto from 'crypto';
@@ -27,7 +28,7 @@ if (!GEMINI_API_KEY) {
 }
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-const visionModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' }); // Vision analysis
+const visionModel = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' }); // Vision analysis: Newest Flash model!
 const imagenModel = genAI.getGenerativeModel({ model: 'gemini-3-pro-image-preview' }); // Best quality + traffic signs!
 
 // ==========================================
@@ -38,7 +39,7 @@ const CONFIG = {
     originalsDir: './data/originals',
     checkpointFile: './data/image-gen-checkpoint.json',
     reviewQueueFile: './data/review-queue.json',
-    maxRetries: 3,
+    maxRetries: 5,
     delayBetweenImages: 15000, // 15 секунд (очень безопасно)
     delayBetweenVisionAndImagen: 5000, // 5 сек между Vision и Imagen
     batchSize: 10, // Генерировать пачками по 10
@@ -51,209 +52,101 @@ const CONFIG = {
 // ВАШ ПРОВЕРЕННЫЙ ПРОМПТ (из generate-images-gemini.js)
 // ==========================================
 
-const VISION_ANALYSIS_PROMPT = `You are an expert traffic safety educator analyzing a Spanish DGT driving test question image.
+const VISION_ANALYSIS_PROMPT = `ROLE: Traffic Safety Expert (Spanish DGT).
+TASK: Analyze image components for precise 3D recreation.
+CONSTRAINT: DO NOT reveal correct answer.
 
-Your task: Create a DETAILED scene description for regenerating this image WITHOUT revealing the correct answer.
+OUTPUT FORMAT: Structured breakdown.
 
-IMPORTANT: Do NOT mention which option is correct or give hints about the answer!
+1. VIEWPOINT: Exact angle (top-down, driver POV).
+2. VEHICLES:
+   - List each: Type, Color, Lane/Shoulder position, Direction.
+   - SHOULDER CHECK: If vehicle is on "Arcén", state explicitly.
+3. INFRASTRUCTURE:
+   - Type (Autopista, Conventional, Urban).
+   - Lane count & Surface.
+   - TEMPORARY: Cones? Yellow markings?
+4. SIGNS: List all visible DGT codes (R-301, P-4, etc). Verify consistency with road.
+5. MARKINGS:
+   - Center: Continuous or Dashed? White or Yellow?
+   - Arrows/Crosswalks.
+6. TRAFFIC FLOW:
+   - Map vehicle directions relative to markings.
+   - Detect contradictions (e.g., solid line but vehicle overtaking).
+7. ENVIRONMENT: Lighting, Weather, Surrounding (Urban/Rural).
+8. SCENARIO: Objective description of situation (Overtaking, Junction, Parking).
+9. TRAJECTORIES: Describe arrow paths (Color, Start/End).
 
-## ANALYZE AND DESCRIBE:
+ACCURACY IS PARAMOUNT. FLAG LOGICAL ERRORS.`;
 
-1. **View Angle**: Specify exact perspective (isometric top-down 45°, driver's POV, side view)
+const STYLE_MASTER_PROMPT = `STYLE: Unreleased Unreal Engine 5 rendering. Spanish DGT Driving Test Digital Twin.
 
-2. **Vehicles** (CRITICAL DETAILS):
-   - Type: car/turismo, motorcycle/motocicleta, truck/camión, bus, PMV/ciclomotor, bicycle
-   - EXACT color (orange/naranja, white/blanco, blue/azul, red/rojo, yellow/amarillo)
-   - Position on road (left lane, right lane, shoulder, center)
-   - Direction (approaching, departing, turning, stopped)
-   - Visible details (windshield, wheels, body panels)
+## VISUAL SPECS:
+- PROJECTION: Isometric Top-Down (45°).
+- RENDER: Photorealistic, 8K textures, Ray-traced lighting (Daylight).
+- COMPOSITION: Full-frame, edge-to-edge terrain (NO black voids).
 
-3. **Road Infrastructure**:
-   - Type (autopista, autovía, carretera convencional, urbana)
-   - Lanes (número de carriles) - COUNT CAREFULLY
-   - Surface quality
-   - Features (rotonda, paso a nivel, pendiente, túnel)
+## SIGNAGE RULES (STRICT):
+- RENDER SYMBOLS, NOT TEXT LABELS.
+- **NEVER WRITE THE SIGN CODE (e.g., "R-301", "P-4") ON THE IMAGE.**
+- Sign codes are for YOUR definition only. They are NOT physical plates.
+- Prompt "R-301 (60)" -> Draw ONLY a Red Circle with "60". NO extra text below.
+- Prompt "Stop" -> Draw Red Octagon with "STOP".
 
-4. **Traffic Signs** (LIST ALL with DGT codes):
-   - P-series (warning triangles)
-   - R-series (prohibition/obligation circles)
-   - S-series (information squares)
-   - Position and visibility
-   - VERIFY: Do signs match road layout? (e.g., 3-lane sign = 3 visible lanes)
+## NEGATIVE PROMPT (THINGS TO AVOID):
+- **TEXT PLATES WITH CODES** (e.g. small white box saying "R-301").
+- Floating text, UI elements, watermarks.
+- American road markings (Double yellow lines).
 
-5. **Road Markings** (Spanish DGT Standard):
-   - Center: WHITE continuous/dashed (#FFFFFF) - NEVER YELLOW
-   - Lanes: white dashed (#FFFFFF)
-   - Edges: white continuous
-   - Arrows, crosswalks, stop lines
-   - NO dimension text or measurements visible
-   - CRITICAL: Dashed center = TWO-WAY, Continuous = NO OVERTAKING
+## INFRASTRUCTURE:
+1. AUTOPISTA: DUAL carriageway. MUST have PHYSICAL MEDIAN (concrete/grass).
+2. CONVENTIONAL: Single carriageway. Dashed/Solid center line. Two-way traffic.
+3. URBAN: Curbs, sidewalks, buildings.
 
-6. **Traffic Flow Direction** (CRITICAL - ANALYZE CAREFULLY):
-   - For EACH vehicle, state EXPLICIT direction:
-     * "Vehicle 1 (white sedan): traveling NORTH in right lane"
-     * "Vehicle 2 (blue truck): traveling SOUTH in left lane"
-   - Check if center markings match traffic flow:
-     * Dashed center line = vehicles going OPPOSITE directions
-     * No center line / white edges only = ALL vehicles SAME direction
-   - Flag any contradictions: "WARNING: One-way markings but opposing traffic"
+## VEHICLES:
+- MODELS: Modern European (Seat, Renault, VW).
+- DETAIL: Realistic lights, glass, tires.
+- PLACEMENT: Strictly centered in lanes (unless overtaking/parking).
 
-7. **Environment**:
-   - Lighting (día soleado, nublado, atardecer)
-   - Weather (seco, húmedo)
-   - Setting (urbano, rural, montaña, autopista)
-   - Trees, buildings, landscape
-   - Spanish landmarks if visible (RENFE, Correos, Mercadona, DIA, Farmacias, Estancos)
+## OVERLAYS:
+- ARROWS: Orange (#FF8C00), 3D projected on road, smooth curves.
+- LOGIC: Show SAFE, LEGAL paths only.
 
-8. **Traffic Situation** (describe WITHOUT giving answer):
-   - Overtaking scenario?
-   - Merging?
-   - Priority conflict?
-   - Parking?
-   - Railroad crossing?
-   - Pedestrian?
+## LOGIC CHECKS:
+- ONE-WAY vs TWO-WAY: Check center line consistency.
+- SIGNS vs LANES: 3-lane sign requires 3 actual lanes.
+- BARRIERS: High speed = Barrier required.
 
-9. **Trajectory Arrows**:
-   - Color (usually orange #FF8C00)
-   - Path showing vehicle movement
-   - START and END points with COMPASS directions
-   - VERIFY: Do arrows show SAFE paths? (no collisions)
+## SPANISH ATMOSPHERE & VARIETY (SELECT 1-2 ELEMENTS PER SCENE, DO NOT OVERLOAD):
+- **COMMERCIAL VEHICLES (Randomize)**: "Correos" Yellow Vans, "Amazon Prime" Dark Grey Vans, "Mercadona" delivery trucks, "Guardia Civil" green patrol cars.
+- **STREET LIFE (Randomize)**:
+   - "Bar" terraces with metal tables.
+   - "Farmacia" (Green LED cross).
+   - "Tabacos" (Yellow flag).
+   - "Kiosco" (Newsstand).
+   - "Carrefour Express" or "Dia" supermarkets.
+- **LANDSCAPES (Context dependent)**:
+   - *Coastal*: Blue Mediterranean sea visible in distance, palm trees.
+   - *Mountain*: Pyrenees style, grey rocky cliffs, pine trees.
+   - *Rural*: Dry "Meseta" plains, olive groves, bullboards (Osborne bull) in distance.
+   - *Urban*: Modern apartment blocks with awnings (toldos), narrow "pueblo" streets.
+- **LIGHTING & WEATHER (Vary this)**:
+   - Golden Hour (Warm low sun, long shadows).
+   - High Noon (Harsh contrast).
+   - Occasional Overcast (Soft lighting, Northern Spain vibes).
+- **TRANSPORT**: RENFE trains (if rails exist), ALSA buses, City Taxis (White with Red stripe or Black/Yellow).
 
-OUTPUT only structured description:
+**IMPORTANT: BE SUBTLE. DO NOT CROWD THE SCENE. LET THE AI CHOOSE THE BEST VIBE.**
 
-PERSPECTIVE: [exact angle]
-VEHICLES: [each with TYPE, COLOR, POSITION, DIRECTION (N/S/E/W)]
-ROAD: [lanes count, type, width]
-SIGNS: [all signs with codes + verify match to road]
-MARKINGS: [all markings + traffic flow type (one-way/two-way)]
-TRAFFIC_FLOW: [explicit direction for each vehicle + contradictions if any]
-ENVIRONMENT: [setting + Spanish brands/landmarks]
-SITUATION: [traffic scenario]
-TRAJECTORIES: [arrows with compass directions + collision check]
-
-Remember: ACCURACY > BEAUTY! Flag logical errors!`;
-
-const STYLE_MASTER_PROMPT = `Professional 3D isometric top-down view of Spanish DGT driving test scenario.
-
-## VISUAL STYLE (MANDATORY):
-- 3D isometric bird's eye view (45-60 degree angle)
-- Clean educational diagram aesthetic
-- Photorealistic but simplified geometry
-- Bright daylight, soft shadows
-- Professional driving school quality
-- **COMPOSITION RULE**: Full-frame crop. Terrain MUST extend to all 4 edges. NO "floating island" look. NO empty background voids.
-
-## ROAD ELEMENTS (SPANISH DGT STANDARD):
-- Asphalt: realistic gray texture (#404040)
-- Road markings: SPANISH STANDARD (NOT USA/YELLOW)
-  * Center line: WHITE continuous/dashed (#FFFFFF) - NEVER YELLOW
-  * Lane dividers: WHITE dashed (#FFFFFF)
-  * Edge lines: WHITE continuous (#FFFFFF)
-- Lane width: 3.5 meters standard
-- NO dimension annotations, NO measurement text on road
-
-## ROAD INFRASTRUCTURE (CRITICAL):
-1. **Autopista/Autovía (DUAL CARRIAGEWAY)**:
-   - MUST BE TWO SEPARATE ROADWAYS
-   - Separated by PHYSICAL MEDIAN (concrete wall or grass strip)
-   - Left roadway: traffic direction A
-   - Right roadway: traffic direction B
-   - High speed geometry (120 km/h)
-   
-2. **Carretera convencional (regular road)**:
-   - TWO-WAY with dashed center line
-   - Vehicles going opposite directions
-   - No physical barrier
-   
-3. **Urban streets**:
-   - May have painted center line or no markings
-   - Lower speed, buildings nearby
-
-## VEHICLES (SPANISH FLEET):
-- Modern European cars (Seat, Citroën, Renault, Peugeot style)
-- EXACT colors as specified in description
-- Realistic 3D models with visible details
-- Proper scale and proportions
-- Clear windshields, body panels, wheels
-
-## TRAJECTORY LINES:
-- Orange curved arrows (#FF8C00) showing vehicle path
-- Thickness: 8-10px
-- Smooth bezier curves
-- Clear arrowheads for direction
-- **CRITICAL**: Show ONLY legal and safe maneuvers:
-  * NO crossing solid center lines (illegal overtaking)
-  * NO dangerous weaving between vehicles
-  * Follow traffic rules (give way, lane discipline)
-  * Arrows = what SHOULD happen, not collision path
-
-## ENVIRONMENT (AUTHENTIC SPAIN):
-- Green grass verges: vibrant #228B22
-- Trees: realistic Spanish landscape (pine, olive, cypress)
-- Composition: FILL FRAME completely. TERRAIN MUST TOUCH ALL EDGES.
-- Horizon: Hills, city buildings, or trees (NEVER plain blue background)
-- NO ISOLATED 3D MODEL look. This is a full scene.
-- Subtle depth of field
-- **Optional Spanish atmosphere** (add creatively, let AI decide details):
-  * Urban: Mercadona, DIA, Farmacias, Estancos
-  * Delivery: Correos, Amazon, Glovo
-  * Highways: Repsol, Cepsa
-  * Railways: RENFE trains (correct authentic branding)
-  * Vary elements! Each image should feel unique
-
-## ROAD SIGNS (CRITICAL - ONLY IF IN ORIGINAL):
-- Generate ONLY signs that exist in the original image
-- NEVER invent or add extra signs
-- EXACT Spanish DGT specifications
-- Correct shapes: triangle (danger), octagon (STOP), circle (prohibition/obligation)
-- Proper colors: red borders, white backgrounds, blue for obligation
-- Mounted on gray poles (3.5m height)
-- Readable symbols
-- **VERIFY**: 3-lane sign = draw 3 actual lanes
-
-## TRAFFIC LOGIC (CRITICAL - MUST OBEY):
-1. **Road Type Infrastructure**:
-   - **Autopista (120km/h)** = MUST NO DOUBT have physical barrier/median. If missing -> INVALID IMAGE.
-   - **Carretera (90km/h)** = dashed center line.
-2. **Markings ↔ Flow**:
-   - Dashed center = TWO-WAY (cars opposite directions) - regular roads only
-   - Dual carriageway = ONE-WAY each side
-   - Physical barrier visible = separate one-way sections
-3. **Lane Count**: Match signs to actual road (3-lane sign = 3 visible lanes)
-4. **Speed Limits (LOGICAL CHECK)**:
-   - **Autopista**: Signs MUST be 80, 90, 100, or 120. NEVER < 60 on main road.
-   - **Urban**: 30, 40, 50.
-   - **Construction**: Yellow background signs if low speed.
-   - **Context**: Don't put "20 km/h" on a 3-lane highway!
-5. **No Collisions**: Trajectory arrows MUST show SAFE paths, not crashes
-6. **Coherence**: If autopista, MUST have physical separator between opposing flows
-
-## LIGHTING:
-- Natural sunlight from top-left
-- Soft ambient occlusion
-- Subtle highlights on vehicles
-- No harsh shadows
-
-## COMPOSITION:
-- Centered on key decision point
-- Clear spatial relationships
-- All elements visible
-- NO text/labels in image
-- Educational clarity
-
-## QUALITY:
-- 1024x1024 resolution
-- Sharp road signs
-- Anti-aliased vehicles
-- Consistent perspective`;
+GENERATE EXACT SCENE FROM DESCRIPTION.`;
 
 // ==========================================
 // CHECKPOINT SYSTEM
 // ==========================================
 function loadCheckpoint() {
     try {
-        if (fs.existsSync(CONFIG.checkpointFile)) {
-            const data = JSON.parse(fs.readFileSync(CONFIG.checkpointFile, 'utf8'));
+        if (fsSync.existsSync(CONFIG.checkpointFile)) {
+            const data = JSON.parse(fsSync.readFileSync(CONFIG.checkpointFile, 'utf8'));
             return {
                 ...data,
                 processed: new Set(data.processed || [])
@@ -269,7 +162,7 @@ function loadCheckpoint() {
 }
 
 function saveCheckpoint(checkpoint) {
-    fs.writeFileSync(
+    fsSync.writeFileSync(
         CONFIG.checkpointFile,
         JSON.stringify({
             ...checkpoint,
@@ -300,8 +193,19 @@ async function analyzeOriginalImage(imageUrl) {
         const result = await visionModel.generateContent([VISION_ANALYSIS_PROMPT, imagePart]);
         const analysis = result.response.text();
 
-        // Лог теперь в главном цикле
-        return { analysis, imageBuffer }; // Возвращаем и анализ, и оригинал
+        // Calculate Vision Cost (Gemini Flash: ~$0.10/1M in, ~$0.40/1M out)
+        // Image is approx 258 tokens + prompt tokens
+        const usage = result.response.usageMetadata || { promptTokenCount: 0, candidatesTokenCount: 0 };
+        const visionCost = ((usage.promptTokenCount / 1000000) * 0.10) + ((usage.candidatesTokenCount / 1000000) * 0.40);
+
+        console.log(`  📊 Токенов: ${usage.promptTokenCount} (in) + ${usage.candidatesTokenCount} (out) | Cost: ~$${visionCost.toFixed(5)}`);
+
+        return {
+            analysis: analysis,
+            imageBuffer: imageBuffer,
+            mimeType: mimeType, // 'image/jpeg' or 'image/png'
+            visionCost: visionCost
+        };
 
     } catch (error) {
         console.error(`  ⚠️  Ошибка анализа: ${error.message}`);
@@ -313,19 +217,124 @@ async function analyzeOriginalImage(imageUrl) {
 // ГЕНЕРАЦИЯ ИЗОБРАЖЕНИЯ (Imagen)
 // ==========================================
 async function generateImage(question, visionAnalysis, attempt = 1) {
-    const questionText = question.question?.es || '';
+    let prompt;
 
-    const prompt = `${STYLE_MASTER_PROMPT}
+    if (question.custom_prompt) {
+        console.log(`   🎨 Используем кастомный промт пользователя`);
+        prompt = question.custom_prompt;
+    } else {
+        const questionText = question.question?.es || '';
+
+        // Формируем блок с ответами для контекста
+        const answersContext = question.answers ? question.answers.map((ans, idx) => {
+            const isCorrect = ans.is_correct !== undefined ? ans.is_correct : (idx === 0);
+
+            // Extract text handling different formats
+            let text = '';
+            if (typeof ans.text === 'object') {
+                text = ans.text.es || ans.text.ru || ans.text.en || JSON.stringify(ans.text);
+            } else {
+                text = ans.text || ans;
+            }
+
+            return `- ${isCorrect ? '[CORRECT ANSWER] ' : ''}${text}`;
+        }).join('\n') : 'No answers provided';
+
+        // Detect unregulated intersection context
+        const correctAnswerText = question.answers?.find(a => a.is_correct)?.text?.es?.toLowerCase() || "";
+        // If answer mentions yielding to the right, it's unregulated!
+        const isPriorityRightContext = correctAnswerText.includes('derecha') &&
+            (correctAnswerText.includes('ceder') || correctAnswerText.includes('prioridad'));
+
+        const textToScan = (questionText + ' ' + (typeof visionAnalysis === 'string' ? visionAnalysis : '')).toLowerCase();
+
+        // Extract explanation for context
+        let explanationText = "";
+        if (question.explanation) {
+            if (typeof question.explanation === 'string') {
+                explanationText = question.explanation;
+            } else {
+                explanationText = question.explanation.en || question.explanation.es || question.explanation.ru || "";
+            }
+        }
+        // Clean up explanation (remove markdown bolding for prompt clarity)
+        explanationText = explanationText.replace(/\*\*/g, '').replace(/\*/g, '');
+
+        const isUnregulated =
+            textToScan.includes('sin señalizar') ||
+            (textToScan.includes('prioridad') && textToScan.includes('derecha')) ||
+            textToScan.includes('unregulated') ||
+            textToScan.includes('no signs') ||
+            isPriorityRightContext;
+
+        // Detect "Carril Adicional" (Temporary lane using shoulders)
+        const isCarrilAdicional =
+            textToScan.includes('carril adicional') ||
+            textToScan.includes('additional lane') ||
+            explanationText.toLowerCase().includes('carril adicional'); // Check explanation too!
+
+        // Detect Broken Traffic Light
+        const isBrokenTrafficLight =
+            textToScan.includes('semáforo apagado') ||
+            textToScan.includes('no funciona') ||
+            textToScan.includes('intermitente') ||
+            questionText.toLowerCase().includes('amarillo intermitente'); // blinking yellow is also "broken" mode
+
+        prompt = `${STYLE_MASTER_PROMPT}
 
 ## SCENE TO GENERATE:
-Based on original DGT test image:
+Based on original DGT test image analysis:
 
 ${visionAnalysis}
+
+${explanationText ? `
+## CONTEXT FROM EXPERT EXPLANATION (USE FOR VISUAL DETAILS):
+The standard DGT explanation for this scenario is:
+"${explanationText}"
+
+**AUTO-INSTRUCTION**: If the explanation mentions specific markings (colored lines, cones) or signs, YOU MUST DRAW THEM EXACTLY AS DESCRIBED.
+` : ''}
+
+## QUESTION CONTEXT (CRITICAL):
+"${questionText}"
+
+## ANSWERS CONTEXT (LOGIC MUST MATCH CORRECT ANSWER):
+${answersContext}
 
 Recreate this EXACT scene with improvements:
 - Professional 3D isometric style
 - Premium educational quality
 - Crystal clear DGT road signs (ONLY those from original, NO extras)
+
+${isUnregulated ? `
+## 🚫 SPECIAL RULES: UNREGULATED INTERSECTION (CRITICAL)
+This scenario tests "Right-of-Way" (Priority to the Right).
+To ensure the question is valid, you MUST COMPLY:
+1. **NO YIELD MARKINGS**: Do NOT draw white triangles (shark teeth) on the road.
+2. **NO STOP LINES**: Do NOT draw transverse lines at the intersection.
+3. **CLEAN ASPHALT**: The center of the intersection must be EMPTY and UNMARKED.
+4. **NO SIGNS**: Do not generate vertical Stop or Yield signs.
+5. **VISUAL EQUALITY**: All roads must look identical in width and importance.
+` : ''}
+
+${isCarrilAdicional ? `
+## 🚧 SPECIAL RULES: CARRIL ADICIONAL (TEMPORARY ADD. LANE)
+This scenario depicts a road where shoulders are used as lanes.
+**MANDATORY VISUAL LOGIC**:
+1. **SIDE VEHICLES ON SHOULDER**: The vehicles on the FAR LEFT and FAR RIGHT must be driving ON THE PAVED SHOULDER (Arcén), OUTSIDE the main white edge lines.
+2. **CENTER VEHICLE**: Only the middle vehicle is in the original lane.
+3. **CONES**: A line of CONES separates the traffic.
+4. **LIGHTS**: All vehicles must have HEADLIGHTS ON (Low beam).
+` : ''}
+
+${isBrokenTrafficLight ? `
+## 🚦 SPECIAL RULES: BROKEN/INACTIVE TRAFFIC LIGHT (CRITICAL)
+The question context indicates the traffic light is OFF (apagado) or BLINKING.
+**MANDATORY VISUAL LOGIC**:
+1. **DORMANT SIGNAL**: The traffic light heads MUST BE DARK (Black/Grey) or blinking YELLOW if specified.
+2. **NO RED/GREEN**: Absolutely NO solid Red or Green lights.
+3. **VISIBILITY**: The traffic light pole must be visible but inactive.
+` : ''}
 
 ## CRITICAL CONSTRAINTS:
 - Road markings: WHITE ONLY (Spanish standard, NOT yellow/USA)
@@ -335,18 +344,79 @@ Recreate this EXACT scene with improvements:
 - Clean visual without labels or text overlays
 
 ## TRAFFIC LOGIC (OBEY STRICTLY):
-- **Autopista/Autovía** = MUST draw physical barrier (concrete/metal/median) between opposing flows
+- **PRIORITY RULES**: The visual situation MUST justify the correct answer!
+- If correct answer says "Blue car passes first", ensure Blue car has NO obstacles/yield signs.
+- If answer says "Red car yields", ensure Red car has a Stop/Yield sign or is on minor road.
+- **Autopista/Autovía** = MUST draw physical barrier between opposing flows
 - **Carretera** = dashed center line for two-way traffic
-- If analysis says "autopista" + "one-way section" = NO center line, only lane dividers
-- **SPEED SIGNS**: MUST match road type (Autopista = 80-120, Urban = 30-50). NO "20km/h" on highways!
-- Lane count in signs MUST match actual drawn lanes
-- Trajectory arrows MUST show SAFE paths (no collisions)
-- Vehicles stay in lanes, trucks on right lane
+- **SPEED SIGNS**: MUST match road type.
+- Vehicles stay in lanes, trucks on right lane.
+- Trajectory arrows (if any) MUST show SAFE paths.
 
-## QUESTION CONTEXT (for reference, do NOT show answer):
-"${questionText.substring(0, 200)}${questionText.length > 200 ? '...' : ''}"
+Generate precise, LOGICALLY CORRECT educational traffic scenario that perfectly illustrates why the correct answer is true.
 
-Generate precise, LOGICALLY CORRECT educational traffic scenario.`;
+## NEGATIVE PROMPT (AVOID THESE):
+- Yellow center lines (USA style) -> MUST BE WHITE
+- Text labels floating in air
+        - Distorted wheels or cars floating above ground
+- Dark or night scenes (unless specified)
+- Rain/Snow (unless specified)`;
+    }
+
+    // ==========================================
+    // AI PROMPT REWRITER (Smart User Instructions)
+    // ==========================================
+    if (question.user_instruction) {
+        console.log(`\n   🧞‍♂️ AI ANALYZING USER WISH: "${question.user_instruction}"`);
+        console.log(`   📝 Rewriting technical prompt...`);
+
+        try {
+            // Logs to file for debugging
+            const logFile = path.resolve('generation-debug.log');
+            const log = (msg) => fsSync.appendFileSync(logFile, `[${new Date().toISOString()}] ${msg}\n`);
+
+            log(`Starting Rewrite for QID: ${question.id}`);
+            log(`User Instruction: ${question.user_instruction}`);
+
+            const rewriterPrompt = `ROLE: Expert Prompt Engineer for DGT Traffic Simulations.
+TASK: Modify the EXISTING PROMPT to incorporate the USER INSTRUCTION.
+
+EXISTING PROMPT:
+"""
+${prompt}
+"""
+
+USER INSTRUCTION:
+"${question.user_instruction}"
+
+STRICT GUIDELINES:
+1. **INTEGRATE** the user's request seamlessly into the "SCENE TO GENERATE" section.
+2. **TRANSLATE**: If the USER INSTRUCTION is in Russian, Spanish, or any other language, TRANSLATE the intent to English before integrating.
+3. **RESOLVE CONTRADICTIONS**: If user asks for "Truck", remove conflicting "Car" descriptions. **CRITICAL: If user asks for "Narrow Road", "Bottleneck", or "Works", YOU MUST REMOVE the "WIDTH: Standard 3.5m lanes" line from DGT standards.**
+4. **MAINTAIN STYLE**: Keep "Unreleased Unreal Engine 5", "Isometric" headers intact.
+5. **KEEP TECHNICAL RULES**: Keep "WHITE LINES ONLY" unless user explicitly asks for yellow (works).
+6. **OUTPUT format**: Return ONLY the full, final, ready-to-use prompt text. NO markdown code blocks, NO "Here is the prompt". Just the raw text.`;
+
+            // Protect against infinite hang with 45s timeout (increased from 10s)
+            const rewriterPromise = visionModel.generateContent(rewriterPrompt);
+            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Rewriter Timeout (45s)')), 45000));
+
+            const rewriterResult = await Promise.race([rewriterPromise, timeoutPromise]);
+            const newPrompt = rewriterResult.response.text();
+
+            if (newPrompt && newPrompt.length > 100) {
+                prompt = newPrompt.replace(/```/g, '').trim();
+                log(`Success! New prompt length: ${prompt.length}`);
+                console.log(`   ✨ Prompt successfully rewritten!`);
+            } else {
+                log(`Rewriter returned invalid prompt.`);
+                console.warn(`   ⚠️  Rewriter returned empty/short prompt. Using original.`);
+            }
+        } catch (rwError) {
+            fsSync.appendFileSync(path.resolve('generation-debug.log'), `[ERROR] Rewriter failed: ${rwError.message}\n`);
+            console.error(`   ⚠️  Rewriter failed: ${rwError.message}. Using original prompt.`);
+        }
+    }
 
     try {
         // Лог теперь в главном цикле
@@ -371,12 +441,16 @@ Generate precise, LOGICALLY CORRECT educational traffic scenario.`;
             throw new Error('Gemini 3 Pro не вернул изображение');
         }
 
-        return Buffer.from(imageData.data, 'base64');
+        return {
+            buffer: Buffer.from(imageData.data, 'base64'),
+            prompt: prompt
+        };
 
     } catch (error) {
         if (attempt <= CONFIG.maxRetries) {
-            console.log(`   ⚠️  [Попытка ${attempt}/${CONFIG.maxRetries}] Ошибка: ${error.message.substring(0, 100)}... Повтор через ${3 * attempt}с`);
-            await new Promise(r => setTimeout(r, 3000 * attempt));
+            console.error(`   ⚠️  [Попытка ${attempt}/${CONFIG.maxRetries}] Полная ошибка:`, error);
+            console.log(`   ⏳ Повтор через ${5 * attempt}с...`);
+            await new Promise(r => setTimeout(r, 5000 * attempt));
             return generateImage(question, visionAnalysis, attempt + 1);
         }
         console.error(`   ❌ Все попытки (${CONFIG.maxRetries}) исчерпаны. Пропускаем.`);
@@ -438,8 +512,48 @@ async function processAllQuestions() {
 
     await scanForEnriched(parsedDir);
 
+    await scanForEnriched(parsedDir);
+
     // Обработка --ids-file (если передано из Dashboard)
     const args = process.argv.slice(2);
+
+    // Check for direct input file (first argument not starting with --)
+    const inputFileArg = args.find(a => !a.startsWith('--'));
+
+    if (inputFileArg) {
+        try {
+            console.log(`📂 Загрузка вопросов из файла: ${inputFileArg}`);
+            const inputData = JSON.parse(await fsSync.readFileSync(inputFileArg, 'utf8'));
+
+            // Clear map and populate only with file content
+            questionsMap.clear();
+
+            const questionsArray = Array.isArray(inputData) ? inputData : [inputData];
+
+            questionsArray.forEach(q => {
+                if (q.external_id || q.id) {
+                    // Normalize ID
+                    const id = q.external_id || q.id;
+
+                    questionsMap.set(id, {
+                        id: id,
+                        question: q.question,
+                        // Fix URL loading - check both fields
+                        originalUrl: q.image_url || q.schema_url || q.originalUrl,
+                        sourceFile: inputFileArg,
+                        testId: q.testId || 'single-gen',
+                        // Valid for both format types
+                        generation_prompt: q.generation_prompt
+                    });
+                }
+            });
+            console.log(`🎯 Загружено ${questionsMap.size} вопросов из целевого файла`);
+
+        } catch (e) {
+            console.error(`❌ Ошибка чтения входного файла: ${e.message}`);
+        }
+    }
+
     const idsFileArg = args.find(a => a.startsWith('--ids-file='));
     let targetIds = null;
 
@@ -476,8 +590,12 @@ async function processAllQuestions() {
             }
         });
         console.log(`✅ Найдено совпадений: ${found}`);
+    } else if (inputFileArg) {
+        // Single file mode = FORCE PROCESS ALL (ignore checkpoint)
+        console.log(`⚡ Режим одного файла: Игнорируем чекпоинт, обрабатываем всё`);
+        toProcess = Array.from(questionsMap.values());
     } else {
-        // Если списка нет, берем все необработанные
+        // Normal batch mode
         toProcess = Array.from(questionsMap.values()).filter(q => !checkpoint.processed.has(q.id));
     }
 
@@ -503,11 +621,10 @@ async function processAllQuestions() {
     for (const question of toProcess) {
         processedCount++;
         const progress = `[${processedCount}/${toProcess.length}]`;
-        const questionText = (question.question?.es || 'Без текста').substring(0, 50);
-
+        const safeQ = (question.question?.es || 'Unknown').replace(/\n/g, ' ').substring(0, 40);
         console.log(`\n${'='.repeat(70)}`);
-        console.log(`${progress} 📝 Вопрос: "${questionText}..."`);
-        console.log(`${progress} 🆔 ID: ${question.id}`);
+        // Single line log for UI visibility
+        console.log(`${progress} 🚀 Processing [${question.id.substring(0, 8)}]: "${safeQ}..."`);
 
         const testId = question.testId || 'unknown';
         const testOutputDir = path.join(CONFIG.outputDir, testId);
@@ -517,7 +634,8 @@ async function processAllQuestions() {
         await fs.mkdir(testOutputDir, { recursive: true });
         await fs.mkdir(testOriginalsDir, { recursive: true });
 
-        const outputPath = path.join(testOutputDir, `${question.id}.png`);
+        const timestamp = Date.now();
+        const outputPath = path.join(testOutputDir, `${question.id}_${timestamp}.png`);
         const originalPath = path.join(testOriginalsDir, `${question.id}_original.jpg`);
 
         try {
@@ -540,21 +658,30 @@ async function processAllQuestions() {
             if (CONFIG.dryRun) {
                 console.log(`${progress} 🔍 DRY RUN: Генерация пропущена`);
             } else {
-                console.log(`${progress} 🎨 Gemini 3 Pro → генерация 2K...`);
-                const imageBuffer = await generateImage(question, visionResult.analysis);
+                console.log(`${progress} 🎨 Drawing Scene: "${safeQ}..." (Gemini 3 Pro)`);
+                const generationResult = await generateImage(question, visionResult.analysis);
 
-                if (imageBuffer) {
-                    await fs.writeFile(outputPath, imageBuffer);
-                    const genSizeMB = (imageBuffer.length / 1024 / 1024).toFixed(2);
-                    totalCost += 0.05;
-                    console.log(`${progress} ✅ Сохранено: ${genSizeMB} MB | ~$0.05`);
+                if (generationResult && generationResult.buffer) {
+                    await fs.writeFile(outputPath, generationResult.buffer);
+                    // Also save the prompt!
+                    const promptPath = path.join(testOutputDir, `${question.id}_${timestamp}.prompt.txt`);
+                    await fs.writeFile(promptPath, generationResult.prompt);
+
+                    const genSizeMB = (generationResult.buffer.length / 1024 / 1024).toFixed(2);
+
+                    const visionCost = visionResult.visionCost || 0;
+                    const imagenCost = 0.04; // Imagen 3 standard pricing
+                    const itemCost = visionCost + imagenCost;
+
+                    totalCost += itemCost;
+                    console.log(`${progress} ✅ Сохранено: ${genSizeMB} MB | Cost: $${itemCost.toFixed(4)} (Vision: $${visionCost.toFixed(4)} + Img: $${imagenCost})`);
                 } else {
                     console.log(`${progress} ❌ Генерация не удалась после всех попыток`);
                 }
 
                 console.log(`${progress} 💰 Общая стоимость темы: ~$${totalCost.toFixed(2)}`);
 
-                if (imageBuffer) {
+                if (generationResult && generationResult.buffer) {
                     // Добавляем в очередь на проверку
                     reviewQueue.push({
                         id: question.id,
@@ -568,7 +695,9 @@ async function processAllQuestions() {
 
             // Обновляем checkpoint
             checkpoint.processed.add(question.id);
-            checkpoint.stats.success++;
+            if (checkpoint.stats) {
+                checkpoint.stats.success++;
+            }
 
             // Проверка: нужна ли пауза для review?
             if (processedCount % CONFIG.batchSize === 0 && CONFIG.pauseForReview && !CONFIG.dryRun) {
@@ -626,11 +755,17 @@ async function processAllQuestions() {
 
         } catch (error) {
             console.error(`  ❌ ОШИБКА: ${error.message}`);
-            checkpoint.failed.push({ id: question.id, error: error.message });
-            checkpoint.stats.failed++;
+            if (checkpoint.failed) {
+                checkpoint.failed.push({ id: question.id, error: error.message });
+            }
+            if (checkpoint.stats) {
+                checkpoint.stats.failed++;
+            }
         }
 
-        checkpoint.stats.total = processedCount;
+        if (checkpoint.stats) {
+            checkpoint.stats.total = processedCount;
+        }
     }
 
     // Финальное сохранение
@@ -640,14 +775,15 @@ async function processAllQuestions() {
     console.log('\n' + '='.repeat(60));
     console.log('📊 ИТОГИ ГЕНЕРАЦИИ');
     console.log('='.repeat(60));
-    console.log(`Обработано: ${checkpoint.stats.total}`);
-    console.log(`✅ Успешно: ${checkpoint.stats.success}`);
-    console.log(`❌ Ошибок: ${checkpoint.stats.failed}`);
+    const stats = checkpoint.stats || { total: 0, success: 0, failed: 0 };
+    console.log(`Обработано: ${stats.total}`);
+    console.log(`✅ Успешно: ${stats.success}`);
+    console.log(`❌ Ошибок: ${stats.failed}`);
     console.log(`\n💾 Checkpoint: ${CONFIG.checkpointFile}`);
     console.log(`📁 Изображения: ${CONFIG.outputDir}`);
     console.log('='.repeat(60) + '\n');
 
-    if (checkpoint.failed.length > 0) {
+    if (Array.isArray(checkpoint.failed) && checkpoint.failed.length > 0) {
         console.log('❌ Ошибки:');
         checkpoint.failed.slice(-10).forEach(f => {
             console.log(`  - ${f.id.substring(0, 12)}: ${f.error}`);

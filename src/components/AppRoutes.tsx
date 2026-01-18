@@ -61,6 +61,9 @@ const AdminPDDRussia = lazy(() =>
 const AdminFeatureFlags = lazy(() =>
   import("../components/admin/AdminFeatureFlags").then((module) => ({ default: module.AdminFeatureFlags }))
 );
+const AdminMissionControl = lazy(() =>
+  import("../pages/admin/AdminMissionControl").then((module) => ({ default: module.AdminMissionControl }))
+);
 const PartnerDashboard = lazy(() => import("../pages/PartnerDashboard"));
 const ModernPartnerDashboard = lazy(() => import("../pages/ModernPartnerDashboard"));
 const PartnerLinkRedirect = lazy(() => import("../pages/PartnerLinkRedirect"));
@@ -331,6 +334,11 @@ export function AppRoutes() {
         <Route path="pdd-russia" element={
           <Suspense fallback={<PageSkeleton />}>
             <AdminPDDRussia />
+          </Suspense>
+        } />
+        <Route path="mission-control" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <AdminMissionControl />
           </Suspense>
         } />
       </Route >

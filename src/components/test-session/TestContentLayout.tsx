@@ -27,9 +27,9 @@ export const TestContentLayout = ({
             // BLITZ MODE: Centered cockpit layout, no sidebar space
             isBlitzMode
                 ? "max-w-3xl px-4"
-                // EXAM MODE: Unified container strategy - everything centered
+                // EXAM MODE: Wide layout like practice but centered (no sidebar)
                 : isExamMode
-                    ? "max-w-3xl px-4"
+                    ? "max-w-full xl:max-w-[1440px] 2xl:max-w-[1600px] px-2 sm:px-4 lg:px-8"
                     // Grid Layout for Practice Mode on Desktop (with Sidebar)
                     // We only move sidebar to the side on XL (1280px+) to ensure enough room for question content
                     : !isTelegramApp && isPracticeLikeMode

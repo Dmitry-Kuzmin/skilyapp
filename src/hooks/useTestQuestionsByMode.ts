@@ -94,60 +94,46 @@ export function useDGTQuestions(category: string | null, limit: number = 30) {
     queryFn: async () => {
       if (!category) return [];
 
-      const { data: dgtQuestions, error: dgtError } = await supabase.rpc(
-        "get_random_dgt_questions",
-        {
-          p_category: category.toUpperCase(),
-          p_limit: limit,
-        }
-      );
+      console.log(`[useDGTQuestions] Loading ${limit} questions from questions_new for Spain`);
 
-      if (dgtError) throw dgtError;
-      if (!dgtQuestions || dgtQuestions.length === 0) return [];
+      // NEW: Load from questions_new (spain unified table) instead of old dgt_questions
+      const { data: questions, error } = await supabase
+        .from('questions_new')
+        .select(`
+          *,
+          topics (title_ru, title_es),
+          answer_options (*)
+        `)
+        .eq('country', 'es')
+        .limit(Math.max(limit * 2, 100)); // Load extra for shuffling
 
-      // Преобразуем DGT вопросы в формат TestSession
-      return dgtQuestions.map((q: any) => ({
+      if (error) {
+        console.error('[useDGTQuestions] Error:', error);
+        throw error;
+      }
+
+      if (!questions || questions.length === 0) {
+        console.warn('[useDGTQuestions] No questions found in questions_new for Spain');
+        return [];
+      }
+
+      // Shuffle and take requested amount
+      const shuffled = [...questions].sort(() => Math.random() - 0.5).slice(0, limit);
+
+      console.log(`[useDGTQuestions] Loaded ${shuffled.length} questions with answers`);
+
+      // Map to unified format
+      return shuffled.map((q: any) => ({
         id: q.id,
-        question_ru: q.question_es,
+        question_ru: q.question_ru,
         question_es: q.question_es,
-        question_en: q.question_es,
-        image_url: q.image_filename || null,
-        explanation_ru: q.explanation_es || "Нет объяснения",
-        explanation_es: q.explanation_es || "Sin explicación",
-        explanation_en: q.explanation_es || "No explanation",
-        topics: {
-          title_ru: `DGT Экзамен ${category.toUpperCase()}`,
-          title_es: `Examen DGT ${category.toUpperCase()}`,
-        },
-        answer_options: [
-          {
-            id: `${q.id}_a`,
-            question_id: q.id,
-            text_ru: q.option_a_es,
-            text_es: q.option_a_es,
-            text_en: q.option_a_es,
-            is_correct: q.correct_answer === "a",
-            position: 1,
-          },
-          {
-            id: `${q.id}_b`,
-            question_id: q.id,
-            text_ru: q.option_b_es,
-            text_es: q.option_b_es,
-            text_en: q.option_b_es,
-            is_correct: q.correct_answer === "b",
-            position: 2,
-          },
-          {
-            id: `${q.id}_c`,
-            question_id: q.id,
-            text_ru: q.option_c_es,
-            text_es: q.option_c_es,
-            text_en: q.option_c_es,
-            is_correct: q.correct_answer === "c",
-            position: 3,
-          },
-        ],
+        question_en: q.question_en,
+        image_url: q.image_url || null,
+        explanation_ru: q.explanation_ru || null,
+        explanation_es: q.explanation_es || null,
+        explanation_en: q.explanation_en || null,
+        topics: q.topics ? { title_ru: q.topics.title_ru, title_es: q.topics.title_es } : null,
+        answer_options: (q.answer_options || []).sort((a: any, b: any) => a.position - b.position)
       }));
     },
     enabled: !!category,
@@ -174,12 +160,23 @@ export function useQuestionsByTopic(
         .from("questions_new")
         .select(`
           *,
-          topics (title_ru, title_es),
+          topics!inner (id, title_ru, title_es, number),
           answer_options (*)
         `);
 
       if (topicId) {
-        query = query.eq("topic_id", topicId);
+        // Check if topicId is a UUID
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(topicId);
+
+        if (isUUID) {
+          query = query.eq("topic_id", topicId);
+        } else if (topicId.toString().startsWith('topic-')) {
+          // Handle legacy format "topic-01" -> extract number
+          const number = parseInt(topicId.toString().replace('topic-', ''), 10);
+          if (!isNaN(number)) {
+            query = query.eq("topics.number", number);
+          }
+        }
       }
 
       const { data, error } = await query;

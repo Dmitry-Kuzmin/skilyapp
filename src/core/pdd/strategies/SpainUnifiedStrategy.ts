@@ -150,14 +150,17 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
             .from('questions_new')
             .select('*')
             .eq('country', this.COUNTRY)
-            .order('id') // Fallback order
-            .limit(count);
+            .limit(Math.max(count * 2, 100)); // Загружаем с запасом для рандомизации
 
-        // Randomize on client side since order('random()') is not directly supported in Supabase JS select
-        const shuffled = (questions || []).sort(() => Math.random() - 0.5);
+        if (questionsError) {
+            console.error('[SpainUnifiedStrategy] Error fetching random questions:', questionsError);
+            throw questionsError;
+        }
 
-        if (questionsError) throw questionsError;
-        if (!shuffled || shuffled.length === 0) return [];
+        if (!questions || questions.length === 0) return [];
+
+        // Перемешиваем и берем нужное количество
+        const shuffled = [...questions].sort(() => Math.random() - 0.5).slice(0, count);
 
         const questionIds = shuffled.map((q) => q.id);
         const answers = await fetchAnswersInBatches(questionIds);
@@ -169,7 +172,7 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
             answersByQuestion.set(a.question_id, existing);
         });
 
-        return questions.map((q) => {
+        return shuffled.map((q) => {
             const questionAnswers = answersByQuestion.get(q.id) || [];
             return mapUnifiedToUniversal(q, questionAnswers);
         });

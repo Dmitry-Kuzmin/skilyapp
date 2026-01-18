@@ -13,24 +13,30 @@ const OUTPUT_DIR = path.resolve(__dirname, '../data/optimized-images');
 // SETTINGS (Mobile Optimized)
 const TARGET_WIDTH = 1200;
 const QUALITY = 75;
-const WATERMARK_SCALE = 0.08; // 8% от ширины
+const WATERMARK_SCALE = 0.20; // 20% от ширины
 const PADDING_PX = 40;
 
 /**
- * PROFESSIONAL WATERMARK (Original Style with 75% Opacity)
+ * PROFESSIONAL WATERMARK (Skily Only - 100% Opacity)
  * 
- * Design: Original blue gradient logo with transparency
+ * Design: Original blue gradient logo with full opacity
  * - Blue gradient background (brand recognition)
- * - 75% opacity (visible but not distracting)
- * - Full domain name for SEO
+ * - 100% opacity (maximum visibility)
+ * - "Skily" brand name
  * 
  * Source: public/logo/skily-logo-current.svg
  */
 function generateWatermarkSvg(width) {
-    const height = Math.round(width * 0.32);
+    // Aspect ratio needs to be maintained based on content
+    // Original: 200x52 for "SkilyApp.com"
+    // New: "Skily" is shorter, so we reduce the width to keep the icon:text ratio tight.
+    // Icon takes ~52px width. Gap 10px. Text "Skily" ~60-70px. Total ~130.
+    const viewBoxWidth = 140;
+    const viewBoxHeight = 52;
+    const height = Math.round(width * (viewBoxHeight / viewBoxWidth));
 
     return Buffer.from(`
-    <svg width="${width}" height="${height}" viewBox="0 0 200 52" xmlns="http://www.w3.org/2000/svg">
+    <svg width="${width}" height="${height}" viewBox="0 0 ${viewBoxWidth} ${viewBoxHeight}" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="blue_gradient" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stop-color="#3b82f6" />
@@ -48,7 +54,7 @@ function generateWatermarkSvg(width) {
         </filter>
       </defs>
       
-      <g filter="url(#shadow)" opacity="0.6">
+      <g filter="url(#shadow)" opacity="1.0">
           <!-- Blue rounded square -->
           <rect x="1" y="1" width="50" height="50" rx="14" fill="url(#blue_gradient)" />
           <rect x="1" y="1" width="50" height="50" rx="14" fill="url(#innerGlow)" />
@@ -63,13 +69,13 @@ function generateWatermarkSvg(width) {
              <path d="M19 18v2" />
           </g>
 
-          <!-- Text "SkilyApp.com" -->
+          <!-- Text "Skily" -->
           <text x="62" y="38" 
                 font-family="Inter, -apple-system, system-ui, sans-serif" 
                 font-weight="900" 
                 font-size="28" 
                 letter-spacing="-1" 
-                fill="white">SkilyApp.com</text>
+                fill="white">Skily</text>
       </g>
     </svg>
     `);
@@ -136,10 +142,10 @@ async function main() {
     const args = process.argv.slice(2);
     const filter = args.find(a => !a.startsWith('--'));
 
-    console.log(`🚀 Image Pipeline: Professional Watermark (75% Opacity)`);
+    console.log(`🚀 Image Pipeline: Professional Watermark (100% Opacity)`);
     console.log(`   - Original blue gradient logo`);
-    console.log(`   - 75% transparency for balance`);
-    console.log(`   - Comprehensive metadata protection`);
+    console.log(`   - 100% opacity for maximum visibility`);
+    console.log(`   - "Skily" brand name`);
 
     const entries = await fs.readdir(INPUT_DIR, { withFileTypes: true });
 

@@ -141,64 +141,77 @@ export class DefaultCountryStrategy implements PDDDataStrategy {
       return [];
     }
 
-    // TODO: Когда будет создана единая таблица pdd_questions, раскомментировать:
-    // Получаем случайные вопросы из единой таблицы
-    // const { data: questions, error: questionsError } = await supabase
-    //   .from('pdd_questions')
-    //   .select('*')
-    //   .eq('country_code', country)
-    //   .limit(count);
+    // Маппинг country code для таблицы questions_new
+    const countryCodeMap: Record<string, string> = {
+      'spain': 'es',
+      'russia': 'ru',
+      'ukraine': 'ua',
+    };
 
-    console.warn(`[DefaultCountryStrategy] Table pdd_questions not created yet for ${country}. Returning empty array.`);
-    return [];
+    const dbCountryCode = countryCodeMap[country] || country;
 
-    // if (questionsError) throw questionsError;
+    // Получаем случайные вопросы из таблицы questions_new
+    // Используем rpc для случайного выбора или просто выбираем с запасом и перемешиваем
+    // В Supabase нет прямого .order('random()'), поэтому берем последние N или используем фильтр
+    const { data: questions, error: questionsError } = await supabase
+      .from('questions_new')
+      .select('*')
+      .eq('country', dbCountryCode)
+      .limit(Math.min(count * 2, 100)); // Берем чуть больше для рандомизации на клиенте
 
-    // if (!questions || questions.length === 0) {
-    //   return [];
-    // }
+    if (questionsError) {
+      console.error(`[DefaultCountryStrategy] Error fetching random questions for ${country}:`, questionsError);
+      throw questionsError;
+    }
 
-    // // Перемешиваем
-    // const shuffled = [...questions].sort(() => Math.random() - 0.5).slice(0, count);
+    if (!questions || questions.length === 0) {
+      return [];
+    }
 
-    // // Получаем ответы
-    // const questionIds = shuffled.map((q) => q.id);
-    // const { data: answers, error: answersError } = await supabase
-    //   .from('pdd_answers')
-    //   .select('*')
-    //   .in('question_id', questionIds)
-    //   .order('position', { ascending: true });
+    // Перемешиваем и берем нужное количество
+    const shuffled = [...questions].sort(() => Math.random() - 0.5).slice(0, count);
 
-    // if (answersError) throw answersError;
+    // Получаем ответы
+    const questionIds = shuffled.map((q) => q.id);
+    const { data: answers, error: answersError } = await supabase
+      .from('answer_options')
+      .select('*')
+      .in('question_id', questionIds)
+      .order('position', { ascending: true });
 
-    // // Группируем ответы
-    // const answersByQuestion = new Map<string, typeof answers>();
-    // answers?.forEach((answer) => {
-    //   const existing = answersByQuestion.get(answer.question_id) || [];
-    //   existing.push(answer);
-    //   answersByQuestion.set(answer.question_id, existing);
-    // });
+    if (answersError) {
+      console.error(`[DefaultCountryStrategy] Error fetching answers for random questions:`, answersError);
+      throw answersError;
+    }
 
-    // // Преобразуем к универсальному формату
-    // const universalQuestions: UniversalQuestion[] = shuffled.map((q) => {
-    //   const questionAnswers = answersByQuestion.get(q.id) || [];
-    //   return {
-    //     id: q.id,
-    //     text: q.question_text,
-    //     image: q.image_url,
-    //     answers: questionAnswers.map((a) => ({
-    //       id: a.id,
-    //       text: a.answer_text,
-    //       isCorrect: a.is_correct,
-    //       position: a.position,
-    //     })),
-    //     explanation: q.explanation,
-    //     topics: q.topics || [],
-    //     difficulty: (q.difficulty as 'easy' | 'medium' | 'hard') || 'medium',
-    //   };
-    // });
+    // Группируем ответы
+    const answersByQuestion = new Map<string, typeof answers>();
+    answers?.forEach((answer) => {
+      const existing = answersByQuestion.get(answer.question_id) || [];
+      existing.push(answer);
+      answersByQuestion.set(answer.question_id, existing);
+    });
 
-    // return universalQuestions;
+    // Преобразуем к универсальному формату
+    return shuffled.map((q): UniversalQuestion => {
+      const questionAnswers = answersByQuestion.get(q.id) || [];
+      const metadata = q.metadata || {};
+
+      return {
+        id: q.id,
+        text: q.question_ru || q.question_es || '',
+        image: q.image_url || metadata.image_src || null,
+        answers: questionAnswers.map((a) => ({
+          id: a.id,
+          text: a.text_ru || a.text_es || '',
+          isCorrect: a.is_correct,
+          position: a.position,
+        })),
+        explanation: q.explanation_ru || q.explanation_es || null,
+        topics: metadata.topics || [],
+        difficulty: q.difficulty || 'medium',
+      };
+    }).sort(() => Math.random() - 0.5);
   }
 
   async getExamQuestions(country: CountryCode): Promise<{
@@ -212,9 +225,11 @@ export class DefaultCountryStrategy implements PDDDataStrategy {
       };
     }
 
+    // Для Испании (DGT) в экзамене 30 вопросов
+    const questionCount = country === 'spain' ? 30 : 20;
+
     // Для стандартных стран экзамен = случайные вопросы
-    // Можно переопределить в конкретной стратегии, если нужна специфичная логика
-    const questions = await this.getRandomQuestions(country, 20);
+    const questions = await this.getRandomQuestions(country, questionCount);
 
     return {
       selectedQuestions: questions,

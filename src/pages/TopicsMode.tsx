@@ -44,14 +44,12 @@ const TopicsMode = () => {
 
   const country = selectedCountry || 'russia';
 
-  // Загружаем темы из таблицы topics (как в Dashboard)
+  // Загружаем темы из таблицы topics с количеством вопросов через RPC
   const { data: topics = [], isLoading, error } = useQuery({
-    queryKey: ['topics', country],
+    queryKey: ['topics-with-counts', country],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('topics')
-        .select('id, number, title_ru, title_es, title_en, cover_image, gradient_from, gradient_to, is_premium')
-        .order('number');
+        .rpc('get_topics_with_counts');
 
       if (error) throw error;
       return data || [];
@@ -176,7 +174,7 @@ const TopicsMode = () => {
                         show: { opacity: 1, y: 0 }
                       }}
                       whileHover={{ y: -8 }}
-                      onClick={() => handleTopicSelect(topic.id, topic.title_es || topic.title_ru, 30)} // TODO: подсчёт вопросов
+                      onClick={() => handleTopicSelect(topic.id, topic.title_es || topic.title_ru, topic.questions_count)}
                       className="group relative flex flex-col h-full cursor-pointer"
                     >
                       {/* Card Body */}
@@ -198,7 +196,7 @@ const TopicsMode = () => {
                             </div>
                             <div className="flex flex-col items-end">
                               <Badge className="bg-white/5 hover:bg-white/10 text-zinc-300 border-white/10 font-bold px-3 py-1 rounded-full text-[10px] tracking-widest uppercase">
-                                30 вопросов
+                                {topic.questions_count} вопросов
                               </Badge>
                             </div>
                           </div>

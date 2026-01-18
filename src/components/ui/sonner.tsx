@@ -1,4 +1,5 @@
 import { useTheme } from "next-themes";
+import { createPortal } from "react-dom";
 import { Toaster as Sonner, toast } from "sonner";
 import { useSafeArea } from "@/hooks/useSafeArea";
 import { isTelegramMiniApp } from "@/lib/telegram";
@@ -7,7 +8,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme();
+  const { theme = "system", resolvedTheme } = useTheme();
   const safeArea = useSafeArea();
   const isTelegram = isTelegramMiniApp();
   const isMobile = useIsMobile();
@@ -16,37 +17,95 @@ const Toaster = ({ ...props }: ToasterProps) => {
   const shouldCenter = isTelegram || isMobile;
 
   // Вычисляем отступ сверху с учетом safe area для Telegram
-  // Учитываем высоту нативной навигации Telegram (кнопка Назад и т.д.)
-  const TELEGRAM_NAV_HEIGHT = 50; // Уменьшено с 110, так как было слишком много
-  const topOffset = isTelegram
-    ? safeArea.top + safeArea.contentTop + TELEGRAM_NAV_HEIGHT
-    : 16;
+  // ИЛИ используем env(safe-area-inset-top) как базу
+  // Добавляем небольшой отступ (16px) для красоты
+  const marginTop = isTelegram
+    ? 'calc(max(var(--tg-content-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px)) + 16px)'
+    : undefined;
 
-  return (
-    <Sonner
-      theme={theme as ToasterProps["theme"]}
-      className="toaster group"
-      position={shouldCenter ? "top-center" : "top-right"}
-      richColors
-      expand={true}
-      // Важно: z-index должен быть МАКСИМАЛЬНЫМ (таким же как у модалок проекта)
-      containerAriaLabel="Уведомления"
-      toastOptions={{
-        classNames: {
-          toast:
-            "group toast group-[.toaster]:bg-zinc-950/80 group-[.toaster]:backdrop-blur-xl group-[.toaster]:text-zinc-200 group-[.toaster]:border-white/10 group-[.toaster]:shadow-2xl font-medium rounded-2xl group-[.toaster]:ring-1 group-[.toaster]:ring-white/5",
-          description: "group-[.toast]:text-zinc-400 group-[.toast]:text-xs",
-          actionButton: "group-[.toast]:bg-white group-[.toast]:text-black group-[.toast]:rounded-lg group-[.toast]:hover:bg-zinc-200 transition-colors",
-          cancelButton: "group-[.toast]:bg-zinc-800 group-[.toast]:text-zinc-300 group-[.toast]:rounded-lg",
-        },
-      }}
-      // Используем CSS переменную для отступа сверху, которая учитывает safe area
+  // Используем Portal чтобы избежать проблем с z-index и stacking context (transform, filter и т.д.)
+  // Это гарантирует, что уведомления всегда будут поверх всего
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div
       style={{
-        marginTop: isTelegram ? 'var(--tg-content-safe-area-inset-top, 20px)' : undefined,
-        zIndex: 2147483647,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none', // КРИТИЧНО: пропускаем клики сквозь контейнер
+        zIndex: 2147483647, // Максимальный Z-Index
+        display: 'flex',
+        flexDirection: 'column',
+        // Если центрируем - то center, иначе justify-end чтобы прижать к правому краю (но sonner сам умеет в право)
+        // Но так как мы обернули в div, лучше дать sonner самому позиционироваться внутри или управлять этим здесь.
+        // Sonner использует fixed positioning внутри себя. Дадим ему работать, но в нашем контейнере.
+        // ВАЖНО: Если мы дадим Sonner работать внутри fixed контейнера, его fixed координаты будут относительно окна (viewport).
       }}
-      {...props}
-    />
+    >
+      <style>{`
+        @keyframes toast-progress {
+          from { width: 100%; }
+          to { width: 0%; }
+        }
+        .toast-progress {
+          position: relative;
+          overflow: hidden;
+        }
+        .toast-progress::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          height: 3px;
+          width: 100%;
+          background-color: var(--primary, #3b82f6);
+          opacity: 0.3;
+          animation: toast-progress 4000ms linear forwards;
+          transform-origin: left;
+        }
+        .group:hover .toast-progress::after {
+          animation-play-state: paused;
+        }
+      `}</style>
+      <Sonner
+        theme={theme as ToasterProps["theme"]}
+        className="toaster group"
+        position={shouldCenter ? "top-center" : "top-right"}
+        richColors
+        expand={true}
+        closeButton={true}
+        visibleToasts={5} // Показываем историю из 5 уведомлений (максимум)
+        gap={12} // Расстояние между карточками
+        offset={isMobile ? 16 : 24} // Отступ от края экрана
+        // Важно: z-index должен быть МАКСИМАЛЬНЫМ
+        containerAriaLabel="Уведомления"
+        toastOptions={{
+          duration: 4000,
+          classNames: {
+            toast:
+              // Стандартные стили Shadcn UI (используют CSS переменные темы)
+              // Добавляем toast-progress класс для индикатора
+              "group toast toast-progress group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg pointer-events-auto font-medium",
+            description: "group-[.toast]:text-muted-foreground",
+            actionButton:
+              "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
+            cancelButton:
+              "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+            closeButton:
+              "group-[.toast]:text-muted-foreground group-[.toast]:hover:text-foreground transition-colors",
+          },
+        }}
+        // Используем CSS переменную для отступа сверху, которая учитывает safe area
+        style={{
+          marginTop,
+        }}
+        {...props}
+      />
+    </div>,
+    document.body
   );
 };
 

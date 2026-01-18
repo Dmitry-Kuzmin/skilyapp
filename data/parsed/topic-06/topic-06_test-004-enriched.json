@@ -1,0 +1,989 @@
+[
+  {
+    "topic_number": 6,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿Qué vehículos están exentos de pasar la Inspección Técnica de Vehículos (ITV) de manera obligatoria en España?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Todos los vehículos eléctricos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Vehículos matriculados antes del 1 de enero de 1950.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Vehículos de más de 30 años sin clasificar como históricos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c6818eac-d0bb-451b-9f21-c28a9e0c47ba-1734419169-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c6818eac-d0bb-451b-9f21-c28a9e0c47ba-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Para circular con un turismo, ¿qué documentos se necesitan en todo caso, además del permiso de conducción?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El Permiso de Circulación y la Tarjeta de Inspección Técnica.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El Permiso de Circulación solamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El Impuesto de Vehículos de Tracción Mecánica (Impuesto Municipal de Circulación) del año en curso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/bd9de34f-6a1d-42ab-9c13-e14305577cec-1658325992-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/bd9de34f-6a1d-42ab-9c13-e14305577cec-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Al conductor de una motocicleta, ¿le está permitido utilizar el teléfono móvil mientras conduce manteniéndolo ajustado entre la cabeza y el casco?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No; es una infracción grave que supone la pérdida de 3 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, mientras no utilice las manos para sujetar el teléfono.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, es un delito contra la seguridad vial contemplado en el Código Penal.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/19161bf3-f905-43c7-bf18-de9ab32cc077-1734420437-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/19161bf3-f905-43c7-bf18-de9ab32cc077-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Las motocicletas que se pueden conducir con el permiso de la clase A1, ¿están obligadas a llevar placa de matrícula?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sólo si llevan sidecar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7d12468e-74bf-4d1b-be6b-540ebcdbc162-1658326148-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7d12468e-74bf-4d1b-be6b-540ebcdbc162-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "El permiso de circulación es obligatorio para los remolques y semirremolques...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "que tengan una MMA. no superior a 750 kg.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "que tengan una MMA. superior a 750 kg.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "cualquiera que sea su MMA.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b2feb50c-a600-456b-afbe-85d03a7cea7d-1658326080-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b2feb50c-a600-456b-afbe-85d03a7cea7d-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "¿Cuántos puntos se pueden perder en un día?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Un máximo de 10 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Un máximo de 8 puntos, salvo que las infracciones cometidas sean muy graves.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No existe límite.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e9316e4b-7e4e-460b-9013-2ec607b242fb-1734430851-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e9316e4b-7e4e-460b-9013-2ec607b242fb-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "¿Cuáles son los daños que cubre el seguro obligatorio al causante de un accidente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Los daños del vehículo del causante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Los daños del otro vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Los daños de los dos vehículos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/538f858a-75cc-4f07-bed0-979eb0e5f104-1658328366-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/538f858a-75cc-4f07-bed0-979eb0e5f104-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "El seguro obligatorio, ¿cubre los daños en la persona del conductor del vehículo asegurado?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, en todo caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, salvo cuando el conductor es el tomador del seguro.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e5238546-190e-412b-9b33-6cc13482630e-1658328414-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e5238546-190e-412b-9b33-6cc13482630e-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "El permiso de la clase B, ¿autoriza a conducir un cuadriciclo ligero?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, cuando no se dedica al transporte de mercancías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/dcf7a8e6-23d9-45cb-b5ed-341e1105f3c8-1658321999-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/dcf7a8e6-23d9-45cb-b5ed-341e1105f3c8-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "El titular de un permiso de conducción de clase B con una antigüedad mayor a 3 años, ¿puede conducir una motocicleta de 125 cc?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, pero solo por el territorio nacional.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, es necesario obtener el permiso de la clase A.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, es necesario obtener el permiso de la clase A1.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/1e29a53c-2255-40a8-845f-bab8f8ea91ec-1658321808-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1e29a53c-2255-40a8-845f-bab8f8ea91ec-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "Una persona que obtiene el permiso de la clase B a los 18 años, ¿debe renovarlo posteriormente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque este permiso no pierde nunca su validez.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, a los diez años de su expedición, como norma general.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, salvo que obtenga cualquier otro permiso o licencia de conducción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d013f243-7bbc-44bb-b59e-fe5be16279b8-1658322155-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d013f243-7bbc-44bb-b59e-fe5be16279b8-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "¿Qué tiene que hacer si ha caducado la vigencia de su permiso y quiere seguir conduciendo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solicitar la prórroga aportando la documentación necesaria.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Volver a examinarse de las pruebas prácticas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Presentarse a un nuevo examen teórico.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/0ea49862-9d92-4a68-b565-8cbf46cf19af-1658322235-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0ea49862-9d92-4a68-b565-8cbf46cf19af-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "¿Qué ocurre si un conductor circula sin llevar puesto el casco en una motocicleta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No hay sanción si circula en ciudad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Multa de 200€ sin pérdida de puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Multa de 200€ y pérdida de 4 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8fb7876c-f60f-45bb-a4fa-b8bf718996bd-1734419389-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8fb7876c-f60f-45bb-a4fa-b8bf718996bd-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "Realizar por las vías públicas carreras y competiciones no autorizadas, ¿puede acarrear la pérdida de puntos del permiso de conducción?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, además están prohibidas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, solamente tendrían una sanción económica.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, puesto que se trata de competiciones deportivas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/66263d93-07a4-41e8-bcb9-d9d846620714-1658328834-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/66263d93-07a4-41e8-bcb9-d9d846620714-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, ¿qué plazo de vigencia tiene el permiso de la clase B?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "5 años, hasta que el titular cumpla los 45 años de edad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "10 años, hasta que el titular cumpla los 65 años de edad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "10 años, hasta que el titular cumpla los 70 años de edad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f274a12c-764d-4324-8ae2-7239989c7d7f-1658322211-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f274a12c-764d-4324-8ae2-7239989c7d7f-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "¿Qué documentos relativos al vehículo debe llevar consigo un conductor de una motocicleta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La tarjeta de inspección técnica y el permiso de circulación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La tarjeta de inspección técnica, solamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El permiso de circulación, solamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c2cc590a-3326-429c-a6a0-3575f00f58e4-1658325497-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c2cc590a-3326-429c-a6a0-3575f00f58e4-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "Conducir de forma temeraria...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "es recomendable en algunas situaciones de emergencia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "es una infracción muy grave que conlleva pérdida de puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "es una infracción muy grave aunque no conlleva pérdida de puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9c27dabf-35be-4f75-9a86-d902050aec64-1734420003-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9c27dabf-35be-4f75-9a86-d902050aec64-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, ¿cuántos puntos de su saldo, como máximo, podrá perder un conductor por acumulación de infracciones en un solo día?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "8 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No hay límite, el número total de puntos que correspondan a las infracciones cometidas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "10 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a4ed962a-231a-408f-a330-fd659991df92-1658328751-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a4ed962a-231a-408f-a330-fd659991df92-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "¿Puede perder puntos de su saldo si pone en peligro a un grupo de ciclistas durante un adelantamiento?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, es una infracción que supone la pérdida de 6 puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, es una infracción que no supone la pérdida de puntos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, porque es un delito contra la seguridad vial no una infracción administrativa.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f0309b9a-1bc2-4636-abe3-123c7ffb2328-1658328865-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f0309b9a-1bc2-4636-abe3-123c7ffb2328-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "Las motocicletas con más de cinco años de antigüedad deben pasar la inspección técnica periódica (ITV)...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "cada año.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "cada dos años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "cada cinco años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3dee49a5-bfa4-4546-967d-f6014e3ce668-1658326523-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3dee49a5-bfa4-4546-967d-f6014e3ce668-s-1.jpg",
+    "source": "practicavial"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "El distintivo de la ITV, ¿dónde debe ir colocado?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En el ángulo superior derecho interno.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En el ángulo superior izquierdo interno.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Indistintamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ae5ebf19-510e-449d-af27-6f5568c4c07c-1658327978-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ae5ebf19-510e-449d-af27-6f5568c4c07c-s-1.jpg",
+    "source": "practicavial"
+  }
+]

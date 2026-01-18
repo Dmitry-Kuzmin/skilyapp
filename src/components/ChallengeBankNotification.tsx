@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ChallengeBankNotificationProps {
@@ -10,14 +10,27 @@ interface ChallengeBankNotificationProps {
 export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankNotificationProps) => {
   const { t, language } = useLanguage();
   const [position, setPosition] = useState({ top: 80, right: 16, buttonWidth: 44 });
-  const [autoCloseTimer, setAutoCloseTimer] = useState<NodeJS.Timeout | null>(null);
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  // Эффект автоматического закрытия
+  useEffect(() => {
+    if (isVisible) {
+      const timer = setTimeout(() => {
+        onCloseRef.current();
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible]);
 
   // Функция для обновления позиции
   const updatePosition = useCallback(() => {
     const bookmarkButton = document.getElementById('challenge-bank-bookmark-button');
     if (bookmarkButton) {
       const rect = bookmarkButton.getBoundingClientRect();
-      
+
       setPosition({
         top: rect.bottom + 8,
         right: window.innerWidth - rect.right,
@@ -40,14 +53,14 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
     const updatePositionWithRAF = () => {
       const currentScrollY = window.scrollY;
       const currentScrollX = window.scrollX;
-      
+
       // Обновляем позицию только если произошел скролл
       if (currentScrollY !== lastScrollY || currentScrollX !== lastScrollX) {
         updatePosition();
         lastScrollY = currentScrollY;
         lastScrollX = currentScrollX;
       }
-      
+
       rafId = requestAnimationFrame(updatePositionWithRAF);
     };
 
@@ -66,18 +79,11 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
     window.addEventListener('scroll', handleScroll, { passive: true });
     document.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleResize, { passive: true });
-    
+
     // Также обновляем позицию периодически для надежности (на случай если скролл не сработал)
     const positionInterval = setInterval(() => {
       updatePosition();
     }, 200);
-
-    // Автоматическое закрытие через 6 секунд
-    const timer = setTimeout(() => {
-      onClose();
-    }, 6000);
-
-    setAutoCloseTimer(timer);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -87,9 +93,8 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
         cancelAnimationFrame(rafId);
       }
       clearInterval(positionInterval);
-      if (timer) clearTimeout(timer);
     };
-  }, [isVisible, onClose, updatePosition]);
+  }, [isVisible, updatePosition]);
 
   const handleDontShowAgain = () => {
     localStorage.setItem('challenge-bank-notification-hidden', 'true');
@@ -115,9 +120,9 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          style={{ 
+          style={{
             top: `${position.top - dotSize / 2}px`,
-            right: `${position.right}px` 
+            right: `${position.right}px`
           }}
           className="fixed z-50 w-[280px] sm:w-[320px] md:w-[360px]"
         >
@@ -125,13 +130,13 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
           <motion.div
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ 
+            transition={{
               duration: 0.3,
               delay: 0.2,
               ease: "backOut"
             }}
             className="absolute -top-[20px] w-[10px] h-[10px] rounded-full bg-white"
-            style={{ 
+            style={{
               right: `${position.buttonWidth / 2 - dotSize / 2}px`,
               boxShadow: '0 0 0 2px hsl(217 91% 60%), 0 0 10px hsla(217, 91%, 60%, 0.5)',
               zIndex: 1
@@ -139,10 +144,10 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
           >
             {/* Синий центр - используем secondary цвет */}
             <div className="absolute inset-[2px] rounded-full bg-secondary" />
-            
+
             {/* Пульсирующие кольца */}
             <motion.div
-              animate={{ 
+              animate={{
                 scale: [1, 2.2],
                 opacity: [0.5, 0]
               }}
@@ -156,7 +161,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               style={{ willChange: 'transform, opacity' }}
             />
             <motion.div
-              animate={{ 
+              animate={{
                 scale: [1, 2.5],
                 opacity: [0.3, 0]
               }}
@@ -171,18 +176,18 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               style={{ willChange: 'transform, opacity' }}
             />
           </motion.div>
-          
+
           {/* Вертикальная линия - синяя с тенью для видимости */}
           <motion.div
             initial={{ scaleY: 0, opacity: 0 }}
             animate={{ scaleY: 1, opacity: 1 }}
-            transition={{ 
-              duration: 0.4, 
+            transition={{
+              duration: 0.4,
               delay: 0.3,
               ease: "easeOut"
             }}
             className="absolute w-[2px] bg-secondary origin-top"
-            style={{ 
+            style={{
               right: `${position.buttonWidth / 2 - 1}px`,
               top: `-${dotSize / 2}px`,
               height: `${lineHeight}px`,
@@ -191,38 +196,38 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               boxShadow: '0 0 4px hsla(217, 91%, 60%, 0.6), 0 0 8px hsla(217, 91%, 60%, 0.3)'
             }}
           />
-          
+
           {/* Треугольник-указатель */}
           <motion.div
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ 
+            transition={{
               delay: 0.5,
               duration: 0.2,
               ease: "backOut"
             }}
             className="absolute w-[10px] h-[10px] bg-secondary transform rotate-45"
-            style={{ 
+            style={{
               right: `${position.buttonWidth / 2 - 5}px`,
               top: `${lineHeight - dotSize / 2 - 5}px`,
               zIndex: 1,
               boxShadow: '0 2px 4px hsla(217, 91%, 60%, 0.4)'
             }}
           />
-          
+
           {/* Уведомление в синем стиле */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ 
-              type: 'spring', 
-              stiffness: 400, 
+            transition={{
+              type: 'spring',
+              stiffness: 400,
               damping: 25,
               delay: 0.6
             }}
             className="bg-secondary rounded-xl px-4 sm:px-5 py-3.5 sm:py-4 shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-transform"
-            style={{ 
+            style={{
               marginTop: `${lineHeight - dotSize / 2 + 6}px`,
               boxShadow: '0 10px 40px hsla(217, 91%, 60%, 0.25)',
               zIndex: 1,
@@ -233,7 +238,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
           >
             <div className="flex items-start gap-3 sm:gap-4">
               {/* Иконка сохранения */}
-              <motion.div 
+              <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.7, type: 'spring', stiffness: 600 }}
@@ -243,9 +248,9 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </motion.div>
-              
+
               {/* Текст уведомления */}
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, x: -5 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.8, duration: 0.3 }}
@@ -257,7 +262,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
                 <p className="text-white/90 text-xs sm:text-sm leading-relaxed">
                   {t('challengeBankDesc')}
                 </p>
-                
+
                 {/* Кнопка "Не показывать" */}
                 <button
                   onClick={(e) => {

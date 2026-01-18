@@ -158,10 +158,11 @@ export const TestQuestionMap = ({
                     onScroll={(e) => setContentScrollTop(e.currentTarget.scrollTop)}
                 >
                     <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2 sm:gap-3">
-                        {questions.map((_, idx) => {
-                            const answer = answers.find((a) => a.questionId === questions[idx].id);
+                        {questions.map((question, idx) => {
+                            const answer = answers.find((a) => a.questionId === question.id);
                             const isAnswered = answer !== undefined;
                             const isCurrent = idx === currentIndex;
+                            const imageUrl = question.image_url;
 
                             return (
                                 <button
@@ -171,22 +172,53 @@ export const TestQuestionMap = ({
                                         handleCloseModal();
                                     }}
                                     className={`
-                    aspect-square w-full rounded-lg font-semibold text-xs sm:text-sm transition-all duration-200
+                    relative aspect-square w-full rounded-xl overflow-hidden font-bold transition-all duration-300 group
                     ${isCurrent
-                                            ? "ring-2 ring-accent ring-offset-2 scale-110 shadow-lg z-10 bg-accent text-accent-foreground"
-                                            : "hover:scale-105"
+                                            ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-background scale-105 shadow-xl z-10"
+                                            : "hover:scale-105 hover:ring-2 hover:ring-white/20 hover:ring-offset-1 hover:ring-offset-background"
                                         }
                     ${!isAnswered
-                                            ? "bg-muted/30 text-muted-foreground border border-border/50 hover:border-muted-foreground/30 hover:bg-muted/50"
+                                            ? "bg-muted/40 border border-white/5"
                                             : mode === "exam"
-                                                ? "bg-blue-500/20 text-blue-700 dark:text-blue-400 border-2 border-blue-500/50 hover:bg-blue-500/30"
+                                                ? "border-2 border-blue-500"
                                                 : answer.isCorrect
-                                                    ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-2 border-emerald-500/50 hover:bg-emerald-500/30"
-                                                    : "bg-red-500/20 text-red-700 dark:text-red-400 border-2 border-red-500/50 hover:bg-red-500/30"
+                                                    ? "border-2 border-emerald-500"
+                                                    : "border-2 border-red-500"
                                         }
                   `}
                                 >
-                                    {idx + 1}
+                                    {/* Background Image or Placeholder Pattern */}
+                                    {imageUrl ? (
+                                        <div
+                                            className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+                                            style={{ backgroundImage: `url(${imageUrl})` }}
+                                        />
+                                    ) : (
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0 opacity-50" />
+                                    )}
+
+                                    {/* Overlay Gradient for readability */}
+                                    <div className={`absolute inset-0 bg-black/40 backdrop-blur-[1px] ${isCurrent ? 'bg-black/20' : ''}`} />
+
+                                    {/* Status Color Overlay (Subtle) */}
+                                    {isAnswered && (
+                                        <div className={`absolute inset-0 opacity-20 ${mode === "exam" ? "bg-blue-500" :
+                                                answer.isCorrect ? "bg-emerald-500" : "bg-red-500"
+                                            }`} />
+                                    )}
+
+                                    {/* Content (Number & Status Icon) */}
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-2">
+                                        <span className="text-xl text-white drop-shadow-md">
+                                            {idx + 1}
+                                        </span>
+
+                                        {/* Optional: Add status icon for answered questions */}
+                                        {isAnswered && mode !== 'exam' && (
+                                            <div className={`absolute bottom-2 right-2 w-2 h-2 rounded-full shadow-sm ${answer.isCorrect ? "bg-emerald-400 shadow-emerald-500/50" : "bg-red-500 shadow-red-500/50"
+                                                }`} />
+                                        )}
+                                    </div>
                                 </button>
                             );
                         })}

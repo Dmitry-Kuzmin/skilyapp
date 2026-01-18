@@ -1038,8 +1038,8 @@ const TestSession = () => {
     return currentQuestion.question_es;
   };
 
-  // Приоритет: ПДД РФ > testLanguage (настройки + кнопка)
-  const effectiveLanguage = shouldUsePDD ? 'ru' : testLanguage;
+  // Приоритет: ПДД РФ > Кнопка перевода (showTranslation) > testLanguage (настройки)
+  const effectiveLanguage = (shouldUsePDD || showTranslation) ? 'ru' : testLanguage;
   const displayQuestion = getQuestionText(effectiveLanguage);
   const displayTopic = currentQuestion.topics?.title_es || 'Sin tema';
 

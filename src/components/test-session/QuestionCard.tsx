@@ -126,7 +126,7 @@ export const QuestionCard = ({
                                 {(isPracticeLikeMode || mode === 'by-topic') && !isRussia && (
                                     <button
                                         onClick={handleOpenAIChat}
-                                        className="group w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 shadow-lg flex items-center justify-center transition-all active:scale-95 shrink-0 xl:hidden"
+                                        className="group w-14 h-14 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center transition-all hover:bg-slate-200 dark:hover:bg-white/10 active:scale-95 shrink-0 xl:hidden shadow-sm"
                                     >
                                         <LumiCharacter size="sm" mood="happy" animate={true} />
                                     </button>
@@ -213,7 +213,7 @@ export const QuestionCard = ({
                             <div className="sticky bottom-0 left-0 right-0 z-50 pt-6 pb-4 bg-gradient-to-t from-white via-white/80 dark:from-slate-900/60 dark:via-slate-900/20 to-transparent sm:relative sm:bg-none sm:bg-transparent sm:from-transparent sm:via-transparent sm:to-transparent sm:dark:from-transparent sm:pt-0 sm:mt-8 sm:z-10 sm:backdrop-blur-0">
                                 <div className="flex gap-3 items-center">
                                     {(isPracticeLikeMode || mode === 'by-topic') && !isRussia && (
-                                        <button onClick={handleOpenAIChat} className="group w-12 h-12 rounded-xl flex items-center justify-center active:scale-95 bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 shadow-lg shrink-0 xl:hidden">
+                                        <button onClick={handleOpenAIChat} className="group w-12 h-12 rounded-xl flex items-center justify-center active:scale-95 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 shrink-0 xl:hidden hover:bg-slate-200 dark:hover:bg-white/10 transition-colors shadow-sm">
                                             <LumiCharacter size="sm" mood="happy" animate={true} />
                                         </button>
                                     )}
@@ -300,7 +300,7 @@ export const QuestionCard = ({
                         {(isPracticeLikeMode || mode === 'by-topic') && !isRussia && (
                             <button
                                 onClick={handleOpenAIChat}
-                                className="group w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 shadow-lg flex items-center justify-center transition-all active:scale-95 shrink-0 xl:hidden"
+                                className="group w-14 h-14 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center transition-all hover:bg-slate-200 dark:hover:bg-white/10 active:scale-95 shrink-0 xl:hidden shadow-sm"
                             >
                                 <LumiCharacter size="sm" mood="happy" animate={true} />
                             </button>

@@ -403,7 +403,12 @@ const TestResults = () => {
 
           {!passed && (mode === 'exam' || mode === 'exam-russia') && (
             <p className="text-red-400 font-medium bg-red-500/10 inline-block px-4 py-1.5 rounded-full text-sm border border-red-500/20">
-              Допущено {incorrectCount} {incorrectCount === 1 ? 'ошибка' : 'ошибки'}. Это критично для экзамена РФ.
+              Допущено {incorrectCount} {(() => {
+                const n = incorrectCount;
+                if (n % 10 === 1 && n % 100 !== 11) return 'ошибка';
+                if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) return 'ошибки';
+                return 'ошибок';
+              })()}. Это критично для экзамена {mode === 'exam-russia' || country === 'russia' ? 'РФ' : 'DGT'}.
             </p>
           )}
 
@@ -440,7 +445,7 @@ const TestResults = () => {
             <div className="absolute inset-0 bg-amber-500/10 blur-xl" />
             <Sparkles className="w-5 h-5 text-amber-400 mb-1 relative z-10" />
             <span className="text-xl sm:text-2xl font-bold text-amber-400 relative z-10">
-              +{rewardResult?.coins_awarded || (passed ? 10 : 2)}
+              +{rewardResult?.coins_awarded ?? 0}
             </span>
             <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium relative z-10">Монеты</span>
           </div>
@@ -450,7 +455,7 @@ const TestResults = () => {
             <div className="absolute inset-0 bg-yellow-500/10 blur-xl" />
             <Zap className="w-5 h-5 text-yellow-400 mb-1 relative z-10" />
             <span className="text-xl sm:text-2xl font-bold text-yellow-400 relative z-10">
-              +{rewardResult?.sp_awarded || (passed ? 20 : 5)}
+              +{rewardResult?.sp_awarded ?? 0}
             </span>
             <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium relative z-10">XP получен</span>
           </div>

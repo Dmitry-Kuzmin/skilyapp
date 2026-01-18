@@ -1,0 +1,51 @@
+[
+  {
+    "topic_number": 1,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "En esta vía se ha habilitado un carril adicional; ¿a qué velocidad como máximo circulará el vehículo naranja?",
+      "en": "An additional lane has been enabled on this road; what is the maximum speed the orange vehicle can drive?",
+      "ru": "На этой дороге была организована дополнительная полоса; с какой максимальной скоростью может двигаться оранжевый автомобиль?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A 80 kilómetros por hora.",
+          "en": "At 80 km/h.",
+          "ru": "80 км/ч."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A 60 kilómetros por hora.",
+          "en": "At 60 km/h.",
+          "ru": "60 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A la genérica de la vía.",
+          "en": "At the generic speed limit of the road.",
+          "ru": "С обычной скоростью для данной дороги."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Cuando se habilita un carril adicional circunstancial en una calzada con arcenes, la normativa establece obligaciones específicas para mejorar la fluidez. Todos los vehículos que circulen por este tramo, tanto los que van por el carril adicional (centro) como los que se desplazan a los arcenes (como el vehículo naranja), deben llevar encendido el alumbrado de cruce (al menos) y respetar los límites de velocidad: máxima 80 km/h y mínima 60 km/h.",
+      "en": "When an additional lane is enabled on a roadway with shoulders to improve traffic flow, specific regulations apply. All vehicles traveling in this section, whether in the additional center lane or shifted onto the shoulders (like the orange vehicle), must use dipped headlights and adhere to specific speed limits: a maximum of 80 km/h and a minimum of 60 km/h.",
+      "ru": "1️⃣ **🎓 Правило**\nКогда на дороге организуют **дополнительную полосу** (*carril adicional*), используя конусы, движение меняется для всех. Чтобы вместить третий ряд посередине, крайние машины (в данном случае оранжевый автомобиль) обязаны ехать по обочине (*arcén*).\n\nДля **всех** участников этого участка (и тех, кто в центре, и тех, кто на обочине) действуют жесткие правила:\n• **Скорость:** Максимум **80 км/ч**, минимум 60 км/ч.\n• **Свет:** Обязательно включить ближний свет фар днем и ночью.\n\n2️⃣ **🇷🇺 Сравнение с РФ**\nВ РФ движение по обочине обычно запрещено (штраф) и считается нарушением («обочечники»). В Испании же создание *carril adicional* делает езду по обочине в этом месте **законной и обязательной**. Не бойся выезжать на асфальтированную обочину, если видишь ряд конусов, смещающих поток — это требование ПДД, а не нарушение.\n\n3️⃣ **💡 Шпаргалка**\nВидишь конусы, создающие доп. ряд?\n**Дополнительная** полоса = **Дополнительные** ограничения (свет + скорость 80).\nЗапомни формулу: **Конусы + Обочина = 80 км/ч**."
+    },
+    "image_url": "https://teorica.practicavial.com/question/6d098241-d6c3-4447-834e-c7468ef53b51-1652200397-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6d098241-d6c3-4447-834e-c7468ef53b51-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "6d098241-d6c3-4447-834e-c7468ef53b51",
+    "enriched_from_cache": true
+  }
+]

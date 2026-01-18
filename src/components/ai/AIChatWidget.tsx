@@ -234,14 +234,16 @@ export function AIChatWidget() {
         <div className="flex flex-col h-full">
             {/* Header */}
             <div
-                className="flex items-center justify-between px-4 py-3 border-b shrink-0"
+                className="flex items-center justify-between px-6 py-4 border-b border-border/10 shrink-0 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md z-10"
                 style={{
                     paddingTop: isTelegram && isMobile ? 'calc(var(--tg-content-safe-area-inset-top, 0px) + 48px)' : undefined,
                 }}
             >
-                <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-primary" />
-                    <span className="font-medium">AI Помощник</span>
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                        <Sparkles className="w-4 h-4 text-blue-500" />
+                    </div>
+                    <span className="font-bold text-lg tracking-tight">AI Помощник</span>
                 </div>
                 <div className="flex items-center gap-2">
                     {questionContext?.explanationRu && (
@@ -249,18 +251,19 @@ export function AIChatWidget() {
                             variant="ghost"
                             size="sm"
                             onClick={toggleTranslation}
-                            className="h-8 px-2"
+                            className="h-10 px-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400"
                         >
-                            <Languages className="w-4 h-4" />
+                            <Languages className="w-4 h-4 mr-2" />
+                            <span className="text-xs font-bold">{showTranslation ? 'ES' : 'RU'}</span>
                         </Button>
                     )}
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={closeChat}
-                        className="h-8 w-8"
+                        className="h-10 w-10 text-muted-foreground hover:text-foreground hover:bg-muted"
                     >
-                        <X className="w-4 h-4" />
+                        <X className="w-5 h-5" />
                     </Button>
                 </div>
             </div>
@@ -410,27 +413,28 @@ export function AIChatWidget() {
 
             {/* Input */}
             <div
-                className="px-4 py-3 border-t shrink-0"
+                className="px-4 py-4 border-t border-border/10 shrink-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md"
                 style={{
-                    paddingBottom: isTelegram ? 'calc(var(--tg-content-safe-area-inset-bottom, 0px) + 12px)' : undefined,
+                    paddingBottom: isTelegram ? 'calc(var(--tg-content-safe-area-inset-bottom, 0px) + 20px)' : '20px',
+                    paddingTop: '16px'
                 }}
             >
-                <form onSubmit={handleSubmit} className="flex gap-2">
+                <form onSubmit={handleSubmit} className="flex gap-2 max-w-2xl mx-auto w-full">
                     <Input
                         ref={inputRef}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         placeholder={interfaceLanguage === 'ru' ? 'Задай вопрос...' : 'Haz tu pregunta...'}
                         disabled={isLoading}
-                        className="flex-1 h-10"
+                        className="flex-1 h-12 rounded-full px-5 border-border/50 focus:ring-blue-500/20 bg-background/50"
                     />
                     <Button
                         type="submit"
                         disabled={!input.trim() || isLoading}
                         size="icon"
-                        className="h-10 w-10 shrink-0"
+                        className="h-12 w-12 shrink-0 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 transition-all active:scale-95"
                     >
-                        {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                     </Button>
                 </form>
             </div>
@@ -468,9 +472,11 @@ export function AIChatWidget() {
             <Dialog open={isOpen} onOpenChange={(open) => !open && closeChat()}>
                 <DialogContent
                     hideCloseButton
-                    className="w-screen h-screen max-w-none max-h-none m-0 p-0 flex flex-col rounded-none"
+                    className="w-screen h-screen max-w-none max-h-none m-0 p-0 flex flex-col rounded-none border-none bg-white/95 dark:bg-zinc-950/98 backdrop-blur-2xl"
                 >
-                    {chatContent}
+                    <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full shadow-2xl bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md overflow-hidden my-0 sm:my-8 sm:rounded-2xl sm:border sm:border-border/10">
+                        {chatContent}
+                    </div>
                 </DialogContent>
             </Dialog>
 

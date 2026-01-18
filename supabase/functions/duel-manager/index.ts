@@ -97,6 +97,78 @@ function fisherYatesShuffle<T>(array: T[], rng: () => number): T[] {
   return shuffled;
 }
 
+// Helper to fetch random questions efficiently (avoiding SELECT * on large table and RPC issues)
+async function fetchRandomQuestions(
+  supabase: SupabaseClient,
+  count: number,
+  country: string,
+  categories?: string[] | null,
+  difficulty?: string | null,
+  seed: number
+) {
+  const t1 = Date.now();
+  let query = supabase.from('questions_new').select('id');
+
+  // Map country: 'russia'/'ru' -> 'ru', 'spain'/'es' -> 'es', others -> 'es'
+  let countryCode = 'es';
+  const c = country ? country.toLowerCase().trim() : 'spain';
+  if (c === 'russia' || c === 'ru') countryCode = 'ru';
+  else if (c === 'spain' || c === 'es') countryCode = 'es';
+  query = query.eq('country', countryCode);
+
+  if (categories && categories.length > 0) {
+    query = query.in('category_id', categories);
+  }
+
+  if (difficulty && difficulty !== 'mix') {
+    query = query.eq('difficulty', difficulty);
+  }
+
+  const { data: ids, error } = await query;
+
+  if (error) {
+    console.error('[fetchRandomQuestions] Error fetching IDs:', error);
+    throw error;
+  }
+
+  if (!ids || ids.length === 0) return [];
+
+  console.log(`[fetchRandomQuestions] Found ${ids.length} potential questions for country=${countryCode}, diff=${difficulty}`);
+  const t2 = Date.now();
+  console.log(`[fetchRandomQuestions] ⏱️ ID fetch took ${t2 - t1}ms`);
+
+  // Shuffle IDs
+  const rng = mulberry32(seed);
+  const shuffledIds = fisherYatesShuffle(ids.map(x => x.id), rng);
+  const selectedIds = shuffledIds.slice(0, count);
+
+  console.log(`[fetchRandomQuestions] Selected ${selectedIds.length} IDs`);
+  const t3 = Date.now();
+  console.log(`[fetchRandomQuestions] ⏱️ Shuffle took ${t3 - t2}ms`);
+
+  // Fetch details with options
+  const { data: questions, error: detailsError } = await supabase
+    .from('questions_new')
+    .select(`
+      id, question_ru, question_es, question_en, image_url, difficulty,
+      answer_options (id, text_ru, text_es, text_en, is_correct, position)
+    `)
+    .in('id', selectedIds);
+
+  const t4 = Date.now();
+  console.log(`[fetchRandomQuestions] ⏱️ Details fetch took ${t4 - t3}ms`);
+  console.log(`[fetchRandomQuestions] ⏱️ Total fetch time ${t4 - t1}ms`);
+
+  if (detailsError) {
+    console.error('[fetchRandomQuestions] Error fetching details:', detailsError);
+    throw detailsError;
+  }
+
+  // Restore order from selectedIds (important for seed consistency)
+  const questionsMap = new Map((questions || []).map(q => [q.id, q]));
+  return selectedIds.map(id => questionsMap.get(id)).filter(q => !!q);
+}
+
 const BASE_INSURANCE_RATE = 0.15;
 const MIN_INSURANCE_RATE = 0.05;
 const MAX_INSURANCE_RATE = 0.35;
@@ -1743,6 +1815,7 @@ Deno.serve(async (req) => {
               question_seed: questionSeed,
               bet_amount,
               bet_type,
+              country: playerCountry,
             })
             .select()
             .single();
@@ -1805,26 +1878,22 @@ Deno.serve(async (req) => {
           try {
             console.log('[find_match] 🚀 AUTO-START: 2 players detected, starting duel...');
 
-            // Auto-start: Load questions using RPC with randomization
-            console.log('[find_match] Loading questions for 2 real players via RPC...');
-            const { data: allQuestions, error: questionsError } = await supabase.rpc('get_random_duel_questions', {
-              p_limit: num_questions + 10, // Fetch a few more for shuffling
-              p_categories: (categories && categories.length > 0) ? categories : null,
-              p_difficulty: (difficulty && difficulty !== 'mix') ? difficulty : null,
-              p_country: playerCountry
-            });
+            // Auto-start: Load questions using efficient fetch
+            console.log('[find_match] Loading questions for 2 real players...');
+            // Need to fetch slightly more to allow for better shuffle? No, fetchRandomQuestions handles shuffle
+            const selectedQuestions = await fetchRandomQuestions(
+              supabase,
+              num_questions,
+              playerCountry,
+              categories,
+              difficulty,
+              questionSeed
+            );
 
-            if (questionsError || !allQuestions || allQuestions.length === 0) {
-              console.error('[find_match] ❌ Error loading questions via RPC:', questionsError);
+            if (!selectedQuestions || selectedQuestions.length === 0) {
+              console.error('[find_match] ❌ No questions found with filters');
               throw new Error('No questions found with filters');
             }
-
-            console.log(`[find_match] ✅ Total questions for shuffle: ${allQuestions.length}`);
-
-            // We still shuffle with the seed to ensure both players get SAME questions in SAME order
-            const rng = mulberry32(questionSeed);
-            const shuffled = fisherYatesShuffle(allQuestions, rng);
-            const selectedQuestions = shuffled.slice(0, num_questions);
 
             console.log(`[find_match] ✅ Selected ${selectedQuestions.length} questions using seed ${questionSeed}`);
 
@@ -1949,6 +2018,7 @@ Deno.serve(async (req) => {
             question_seed: questionSeed,
             bet_amount,
             bet_type,
+            country: playerCountry,
           })
           .select()
           .single();
@@ -2012,31 +2082,32 @@ Deno.serve(async (req) => {
           .eq('id', queueEntry.id);
 
         // Автозапуск дуэли с ботом (аналогично реальному сопернику)
+        let autoStarted = false;
         try {
           console.log('[find_match] 🚀 AUTO-START with bot: starting duel...');
 
-          // Auto-start with bot: Load questions using RPC
-          console.log('[find_match] Loading questions for bot duel via RPC...');
-          const { data: allQuestions, error: questionsError } = await supabase.rpc('get_random_duel_questions', {
-            p_limit: num_questions + 10,
-            p_categories: (categories && categories.length > 0) ? categories : null,
-            p_difficulty: (difficulty && difficulty !== 'mix') ? difficulty : null,
-            p_country: playerCountry
-          });
+          // Auto-start with bot: Load questions
+          console.log('[find_match] Loading questions for bot duel...');
+          const tBotStart = Date.now();
+          const selectedQuestions = await fetchRandomQuestions(
+            supabase,
+            num_questions,
+            playerCountry,
+            categories,
+            difficulty,
+            questionSeed
+          );
+          console.log(`[find_match] ⏱️ Bot questions loaded in ${Date.now() - tBotStart}ms`);
 
-          if (questionsError || !allQuestions || allQuestions.length === 0) {
-            console.error('[find_match] ❌ Error loading questions for bot via RPC:', questionsError);
+          if (!selectedQuestions || selectedQuestions.length === 0) {
+            console.error('[find_match] ❌ No questions found via fetch');
             throw new Error('No questions found');
           }
-
-          const rng = mulberry32(questionSeed);
-          const shuffled = fisherYatesShuffle(allQuestions, rng);
-          const selectedQuestions = shuffled.slice(0, num_questions);
 
           console.log(`[find_match] ✅ Bot duel: Selected ${selectedQuestions.length} random questions using seed ${questionSeed}`);
 
           // Insert duel questions
-          const duelQuestions = selectedQuestions.map((q: { id: string; question_ru: string; question_es: string; question_en: string; image_url: string | null; difficulty?: string; answer_options: Array<{ id: string; text_ru: string; text_es: string; text_en: string; is_correct: boolean; position: number }> }, idx: number) => ({
+          const duelQuestions = selectedQuestions.map((q: any, idx: number) => ({
             duel_id: duel.id,
             question_id: q.id,
             position: idx + 1,
@@ -2046,7 +2117,7 @@ Deno.serve(async (req) => {
               question_en: q.question_en,
               image_url: q.image_url,
               difficulty: q.difficulty,
-              answer_options: q.answer_options.map((opt: { id: string; text_ru: string; text_es: string; text_en: string; is_correct: boolean; position: number }) => ({
+              answer_options: (q.answer_options || []).map((opt: any) => ({
                 id: opt.id,
                 text_ru: opt.text_ru,
                 text_es: opt.text_es,
@@ -2055,9 +2126,9 @@ Deno.serve(async (req) => {
                 position: opt.position,
               })),
             },
-            correct_option_ids: q.answer_options
-              .filter((opt: { is_correct: boolean }) => opt.is_correct)
-              .map((opt: { id: string }) => opt.id),
+            correct_option_ids: (q.answer_options || [])
+              .filter((opt: any) => opt.is_correct)
+              .map((opt: any) => opt.id),
           }));
 
           const { error: insertError } = await supabase
@@ -2093,19 +2164,20 @@ Deno.serve(async (req) => {
           }
 
           console.log('[find_match] ✅ Duel with bot auto-started successfully');
+          autoStarted = true;
         } catch (autoStartError) {
           console.error('[find_match] ❌ Error during auto-start with bot:', autoStartError);
           // Не прерываем выполнение, дуэль создана, но не запущена
         }
 
         return new Response(JSON.stringify({
-          duel,
+          duel: { ...duel, status: autoStarted ? 'active' : 'waiting' },
           code,
           opponent_type: 'bot',
           bot_name: botProfile.name,
           bot_avatar: botProfile.avatar,
-          auto_started: true
-        }), {
+          auto_started: autoStarted
+        }), ...{
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
@@ -2265,22 +2337,38 @@ Deno.serve(async (req) => {
         }
 
         // 2. Generate questions
-        console.log('[start_duel_now] Loading questions from questions_new...');
-        const { data: allQuestions, error: questionsError } = await supabase
-          .from('questions_new')
-          .select(`
-            id, question_ru, question_es, question_en, image_url, difficulty,
-            answer_options(id, text_ru, text_es, text_en, is_correct, position)
-          `);
+        console.log('[start_duel_now] Loading questions via efficient fetch...');
 
-        if (questionsError || !allQuestions || allQuestions.length === 0) {
-          console.error('[start_duel_now] ❌ Questions error:', questionsError);
-          return new Response(JSON.stringify({ error: 'Failed to load questions' }), { status: 500, headers: corsHeaders });
+        const selectedQuestions = await fetchRandomQuestions(
+          supabase,
+          duel.num_questions || 10,
+          duel.country || 'spain',
+          duel.categories,
+          duel.difficulty,
+          duel.question_seed
+        );
+
+        if (!selectedQuestions || selectedQuestions.length === 0) {
+          console.error('[start_duel_now] ❌ No questions found');
+          return new Response(JSON.stringify({ error: 'Failed to find questions' }), { status: 500, headers: corsHeaders });
         }
 
-        const rng = mulberry32(duel.question_seed);
-        const shuffled = fisherYatesShuffle(allQuestions, rng);
-        const selectedQuestions = shuffled.slice(0, duel.num_questions);
+        const duelQuestions = selectedQuestions.map((q: any, idx: number) => ({
+          duel_id: duel.id,
+          question_id: q.id,
+          position: idx + 1,
+          question_snapshot: {
+            question_ru: q.question_ru,
+            question_es: q.question_es,
+            question_en: q.question_en,
+            image_url: q.image_url,
+            answer_options: q.answer_options || [],
+            difficulty: q.difficulty,
+          },
+          correct_option_ids: (q.answer_options || [])
+            .filter((opt: any) => opt.is_correct)
+            .map((opt: any) => opt.id),
+        }));
 
         const duelQuestions = selectedQuestions.map((q, idx) => ({
           duel_id: duel.id,
@@ -2575,39 +2663,24 @@ Deno.serve(async (req) => {
         const totalPlayers = allPlayers?.length || 0;
 
         if (realPlayers.length === 2 && totalPlayers >= 2) {
-          console.log('[join_duel] 🚀 AUTO-START: 2 real players detected, starting duel...', {
-            realPlayersCount: realPlayers.length,
-            totalPlayersCount: totalPlayers,
-            players: realPlayers.map(p => ({ id: p.id, user_id: p.user_id }))
-          });
+          console.log('[join_duel] 🚀 AUTO-START: 2 real players detected, starting duel...');
 
           try {
-            // Auto-start: Load questions via RPC for better filtering and performance
-            console.log('[join_duel] Loading questions via RPC...');
-            const { data: allQuestions, error: questionsError } = await supabase.rpc('get_random_duel_questions', {
-              p_limit: duel.num_questions + 10,
-              p_categories: (duel.categories && Array.isArray(duel.categories) && duel.categories.length > 0) ? duel.categories : null,
-              p_difficulty: (duel.difficulty && duel.difficulty !== 'mix') ? duel.difficulty : null,
-              p_country: duel.country || 'spain'
-            });
+            // Auto-start: Load questions
+            console.log('[join_duel] Loading questions via efficient fetch...');
+            const selectedQuestions = await fetchRandomQuestions(
+              supabase,
+              duel.num_questions,
+              duel.country || 'spain',
+              duel.categories,
+              duel.difficulty,
+              duel.question_seed
+            );
 
-            if (questionsError) {
-              console.error('[join_duel] ❌ Error loading questions:', questionsError);
-              throw questionsError;
-            }
-
-            if (!allQuestions || allQuestions.length === 0) {
-              console.error('[join_duel] ❌ No questions found in database');
+            if (!selectedQuestions || selectedQuestions.length === 0) {
+              console.error('[join_duel] ❌ No questions found via fetch');
               throw new Error('No questions found');
             }
-
-            console.log(`[join_duel] ✅ Total questions loaded: ${allQuestions.length}`);
-
-            // Smart randomization: Fisher-Yates shuffle for better distribution
-            // Use seed for reproducible randomness (same seed = same questions for both players)
-            const rng = mulberry32(duel.question_seed);
-            const shuffled = fisherYatesShuffle(allQuestions, rng);
-            const selectedQuestions = shuffled.slice(0, duel.num_questions);
 
             console.log(`[join_duel] ✅ Selected ${selectedQuestions.length} random questions using seed ${duel.question_seed}`);
 
@@ -2693,24 +2766,19 @@ Deno.serve(async (req) => {
             );
           } catch (autoStartError: unknown) {
             console.error('[join_duel] ❌❌❌ CRITICAL ERROR in auto-start:', autoStartError);
-            console.error('[join_duel] Error message:', autoStartError?.message);
-            console.error('[join_duel] Error stack:', autoStartError?.stack);
-            console.error('[join_duel] Error details:', JSON.stringify(autoStartError, null, 2));
 
-            // КРИТИЧНО: Не возвращаем ошибку 500 - это блокирует присоединение игрока
-            // Вместо этого логируем ошибку и возвращаем успешный ответ, но без auto_started
-            // Вопросы можно будет сгенерировать позже через start_duel action
             console.warn('[join_duel] ⚠️ Auto-start failed, but player was added. Duel remains in "waiting" status.');
             return new Response(JSON.stringify({
               duel,
               player,
               auto_started: false,
-              warning: 'Failed to auto-start duel: ' + (autoStartError?.message || 'Unknown error')
+              warning: 'Failed to auto-start duel: ' + (autoStartError instanceof Error ? autoStartError.message : 'Unknown error')
             }), {
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             });
           }
         }
+
 
         console.log('[join_duel] ⏳ Only 1 real player, waiting for opponent', {
           realPlayersCount: realPlayers.length,
@@ -2740,56 +2808,39 @@ Deno.serve(async (req) => {
           });
         }
 
-        // Get questions using seed
-        const rng = mulberry32(duel.question_seed);
-        let query = supabase.from('questions_new').select('*');
+        // Get questions using seed and efficient fetch
+        const selectedQuestions = await fetchRandomQuestions(
+          supabase,
+          duel.num_questions,
+          duel.country || 'spain',
+          duel.categories,
+          duel.difficulty,
+          duel.question_seed
+        );
 
-        if (duel.difficulty && duel.difficulty !== 'mix') {
-          query = query.eq('difficulty', duel.difficulty);
-        }
-
-        if (duel.categories) {
-          query = query.in('topic_id', duel.categories);
-        }
-
-        const { data: allQuestions, error: questionsError } = await query;
-        if (questionsError || !allQuestions || allQuestions.length === 0) {
+        if (!selectedQuestions || selectedQuestions.length === 0) {
           throw new Error('No questions available');
         }
 
-        // Smart randomization: Fisher-Yates shuffle for better distribution
-        const shuffled = fisherYatesShuffle(allQuestions, rng);
-        const selectedQuestions = shuffled.slice(0, duel.num_questions);
-
         // Create question snapshots
-        for (let i = 0; i < selectedQuestions.length; i++) {
-          const q = selectedQuestions[i];
-
-          const { data: options } = await supabase
-            .from('answer_options')
-            .select('*')
-            .eq('question_id', q.id)
-            .order('position');
-
-          const snapshot = {
+        const duelQuestions = selectedQuestions.map((q: any, idx: number) => ({
+          duel_id: duel.id,
+          question_id: q.id,
+          position: idx + 1,
+          question_snapshot: {
             question_ru: q.question_ru,
             question_es: q.question_es,
             question_en: q.question_en,
             image_url: q.image_url,
-            answer_options: options || [],
+            answer_options: q.answer_options || [],
             difficulty: q.difficulty,
-          };
+          },
+          correct_option_ids: (q.answer_options || [])
+            .filter((opt: any) => opt.is_correct)
+            .map((opt: any) => opt.id),
+        }));
 
-          const correctOptionIds = options?.filter(o => o.is_correct).map(o => o.id) || [];
-
-          await supabase.from('duel_questions').insert({
-            duel_id: duel.id,
-            question_id: q.id,
-            position: i + 1,
-            question_snapshot: snapshot,
-            correct_option_ids: correctOptionIds,
-          });
-        }
+        await supabase.from('duel_questions').insert(duelQuestions);
 
         // Update duel status & RESET SCORES
         console.log('[start_duel] Resetting player scores matching duel_id:', duel.id);
