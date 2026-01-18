@@ -103,7 +103,133 @@ const CONFIG = {
 let activeGenerationProcess = null;
 
 // ==========================================
-// LOAD QUESTIONS DATA
+// SEARCH INDEX
+// ==========================================
+let GLOBAL_SEARCH_INDEX = [];
+let GLOBAL_QUESTION_LOCATIONS = {}; // ID -> Set<TestID>
+
+function normalizeText(str) {
+    if (!str) return '';
+    return str.toLowerCase()
+        .replace(/ё/g, 'е')
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[\u00A0\u1680\u180E\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, ' ')
+        .replace(/[.,/#!$%^&*;:{}=\-_`~()?¿¡]/g, " ")
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+async function buildSearchIndex() {
+    console.log('🏗️ Building Global Search Index (Normalized) + Tracking Duplicates...');
+    GLOBAL_QUESTION_LOCATIONS = {};
+    const index = [];
+
+    async function scan(dir) {
+        try {
+            const ent = await fs.readdir(dir, { withFileTypes: true });
+            for (const dirent of ent) {
+                const fullPath = path.join(dir, dirent.name);
+                if (dirent.isDirectory()) {
+                    await scan(fullPath);
+                } else if (dirent.name.endsWith('-enriched.json')) {
+                    const testId = dirent.name.replace('-enriched.json', '');
+                    try {
+                        const data = JSON.parse(await fs.readFile(fullPath, 'utf8'));
+                        data.forEach(q => {
+                            if (!q.external_id) return;
+                            // 1. Track Locations
+                            if (!GLOBAL_QUESTION_LOCATIONS[q.external_id]) {
+                                GLOBAL_QUESTION_LOCATIONS[q.external_id] = new Set();
+                            }
+                            GLOBAL_QUESTION_LOCATIONS[q.external_id].add(testId);
+
+                            const textSource = [
+                                q.question?.es,
+                                q.question?.ru,
+                                q.question?.en,
+                                q.external_id,
+                                testId
+                            ].filter(Boolean).join(' ');
+
+                            index.push({
+                                id: q.external_id,
+                                testId: testId,
+                                question_ru: q.question?.ru,
+                                question_es: q.question?.es,
+                                question_en: q.question?.en,
+                                searchText: normalizeText(textSource)
+                            });
+                        });
+                    } catch (e) {
+                        // ignore bad json
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Search Index Scan Error:', e);
+        }
+    }
+
+    await scan(CONFIG.parsedDir);
+
+    // Enrich index with location counts and lists
+    GLOBAL_SEARCH_INDEX = index.map(item => ({
+        ...item,
+        locationCount: GLOBAL_QUESTION_LOCATIONS[item.id]?.size || 1,
+        locations: Array.from(GLOBAL_QUESTION_LOCATIONS[item.id] || [])
+    }));
+
+    console.log(`✅ Search Index Ready: ${index.length} questions. (Unique IDs tracked: ${Object.keys(GLOBAL_QUESTION_LOCATIONS).length})`);
+}
+
+// Start building on launch
+buildSearchIndex();
+
+// API Search Endpoint
+// API Search Endpoint
+app.get('/api/search', (req, res) => {
+    try {
+        const rawQ = (req.query.q || '');
+        if (!rawQ || rawQ.length < 2) return res.json([]);
+
+        // Inline Normalization (to avoid changing global scope if risky)
+        // Normalize: Lowercase, remove accents, replace 'ё', handle NBSP, punctuation to space
+        const normalizedQ = rawQ.toLowerCase()
+            .replace(/ё/g, 'е')
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/[\u00A0\u1680\u180E\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, ' ')
+            .replace(/[.,/#!$%^&*;:{}=\-_`~()?]/g, " ")
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        const tokens = normalizedQ.split(' ').filter(t => t.length > 0);
+
+        console.log(`[SEARCH] "${normalizedQ.substring(0, 30)}..." [${tokens.length} tokens]`);
+
+        const results = GLOBAL_SEARCH_INDEX.filter(item => {
+            // AND-search: Matches if ALL query tokens are present in the text
+            // Note: GLOBAL_SEARCH_INDEX must also be normalized or at least insensitive.
+            // Since we didn't normalize index yet (previous failed), let's keep it simple 'includes' 
+            // BUT: If the index text has punctuation, token match might fail if we strip it from query.
+            // Ideally we normalize index too. 
+            // I'll assume index text is raw data. So "word," includes "word". This works.
+            // BUT "word" does NOT include "word,".
+            // So query tokens (clean) should match inside text (dirty). Yes.
+            // BUT search text casing? We saved it as .toLowerCase().
+            // So we need to handle "ё" in index.
+            // Since I can't easily rebuild index without restarting or complex edit, I will do "best effort" here.
+            return tokens.every(token => item.searchText.includes(token));
+        }).slice(0, 50);
+
+        res.json(results);
+    } catch (e) {
+        console.error('[SEARCH ERROR]', e);
+        res.status(500).json([]);
+    }
+});
+
+// ==========================================
+// LOAD QUESTIONS DATA (Legacy / Helper)
 // ==========================================
 async function loadQuestionData() {
     const questionsMap = new Map(); // external_id -> question_data
@@ -175,6 +301,39 @@ async function buildFileTree() {
         generatedIds = new Set(checkpoint.processed || []);
     } catch (e) { }
 
+    // Load Deployed Status from Supabase (Source of Truth: 'tests' table)
+    let deployedTestIds = new Set();
+    try {
+        // 1. Get Topics Map (id -> number)
+        const { data: topics } = await supabase.from('topics').select('id, number');
+        const topicIdToNumber = {};
+        if (topics) {
+            topics.forEach(t => topicIdToNumber[t.id] = t.number);
+        }
+
+        // 2. Get All Deployed Tests
+        // We need 1000+ support? Usually tests count is small (<1000). 
+        // If >1000, we might need paging, but for now 1000 tests is huge.
+        const { data: tests } = await supabase.from('tests').select('topic_id, test_number');
+
+        if (tests) {
+            console.log(`[Debug] Fetched ${tests.length} tests from DB.`);
+            tests.forEach((t, idx) => {
+                const topicNum = topicIdToNumber[t.topic_id];
+                if (topicNum !== undefined) {
+                    // Reconstruct ID: topic-XX_test-XXX
+                    // Note: Ensure padding matches file naming convention
+                    const tId = `topic-${String(topicNum).padStart(2, '0')}_test-${String(t.test_number).padStart(3, '0')}`;
+                    deployedTestIds.add(tId);
+                    if (idx < 5) console.log(`[Debug] Mapped deployed test: ${tId}`);
+                }
+            });
+        }
+        console.log(`[Validator] Loaded ${deployedTestIds.size} deployed tests from DB.`);
+    } catch (e) {
+        console.error("⚠️ Could not fetch deployed status:", e.message);
+    }
+
     async function scanDirectory(dir, category) {
         try {
             const files = await fs.readdir(dir);
@@ -202,7 +361,6 @@ async function buildFileTree() {
                         const data = JSON.parse(await fs.readFile(fullPath, 'utf8'));
 
                         // Check if all questions in this test are generated
-                        // For raw files, we assume nothing is generated yet naturally, or need ID extraction
                         let allGenerated = false;
                         if (isEnriched) {
                             allGenerated = data.every(q => q.external_id && generatedIds.has(q.external_id));
@@ -213,8 +371,9 @@ async function buildFileTree() {
                             name: testId.replace(/_/g, ' ').replace('test-', 'Test '),
                             questionCount: data.length,
                             generated: allGenerated,
+                            deployed: deployedTestIds.has(testId), // New Field
                             filePath: fullPath,
-                            isEnriched: isEnriched // Flag for frontend
+                            isEnriched: isEnriched
                         });
                     } catch (e) {
                         console.error(`Error parsing ${file}:`, e.message);
@@ -710,27 +869,85 @@ app.post('/api/generate/category', async (req, res) => {
 });
 
 
+let enrichmentStats = {
+    isRunning: false,
+    latestLog: null
+};
+let activeEnrichProcess = null;
+
 // ==========================================
 // API: RUN BATCH ENRICHMENT
 // ==========================================
 app.post('/api/enrich/all', async (req, res) => {
     try {
-        console.log('[API] Starting Batch Enrichment...');
+        if (enrichmentStats.isRunning) {
+            return res.json({ success: false, error: "Enrichment already running" });
+        }
 
-        const enrichProcess = spawn('node', ['scripts/run-enrichment-all.js'], {
+        const { filter } = req.body || {};
+        console.log(`[API DEBUG] Received enrichment request. Body:`, req.body);
+        console.log(`[API DEBUG] Filter extracted: "${filter}"`);
+
+        console.log(`[API] Starting Enrichment... Filter: ${filter || 'ALL'}`);
+        enrichmentStats.isRunning = true;
+        enrichmentStats.latestLog = filter ? `Starting enrichment for ${filter}...` : "Starting batch process...";
+
+        const args = ['scripts/run-enrichment-all.js'];
+        if (filter) args.push(filter);
+
+        console.log(`[API DEBUG] Spawning: node ${args.join(' ')}`);
+
+        activeEnrichProcess = spawn('node', args, {
             cwd: process.cwd(),
-            stdio: 'inherit' // Pipe output to server console for now
         });
 
-        enrichProcess.on('close', (code) => {
+        activeEnrichProcess.stdout.on('data', (data) => {
+            const output = data.toString().trim();
+            if (output) {
+                console.log(`[Enrichment] ${output}`);
+                enrichmentStats.latestLog = output;
+            }
+        });
+
+        activeEnrichProcess.stderr.on('data', (data) => {
+            const output = data.toString().trim();
+            if (output) {
+                console.error(`[Enrichment ERR] ${output}`);
+                enrichmentStats.latestLog = `ERROR: ${output}`;
+            }
+        });
+
+        activeEnrichProcess.on('close', (code) => {
             console.log(`[Enrichment] Process finished with code ${code}`);
+            enrichmentStats.isRunning = false;
+            enrichmentStats.latestLog = code === 0 || code === null ? "✨ Process Finished" : "❌ Process Terminated/Failed";
+            activeEnrichProcess = null;
         });
 
-        res.json({ success: true, message: "Enrichment started in background" });
+        res.json({ success: true, message: "Enrichment started" });
     } catch (error) {
         console.error('[API] Enrichment Error:', error);
+        enrichmentStats.isRunning = false;
+        activeEnrichProcess = null;
         res.status(500).json({ success: false, error: error.message });
     }
+});
+
+app.post('/api/enrich/stop', (req, res) => {
+    if (activeEnrichProcess) {
+        activeEnrichProcess.kill();
+        activeEnrichProcess = null;
+        enrichmentStats.isRunning = false;
+        enrichmentStats.latestLog = "🛑 Process stopped by user";
+        console.log('[API] Enrichment process killed by user');
+        res.json({ success: true });
+    } else {
+        res.json({ success: false, message: "No process running" });
+    }
+});
+
+app.get('/api/enrich/status', (req, res) => {
+    res.json(enrichmentStats);
 });
 
 // ==========================================
@@ -1063,27 +1280,62 @@ app.post('/api/test/:testId/sync-images', async (req, res) => {
 
             const files = await fs.readdir(sourceDir);
 
-            // Map files to UUIDs they belong to
-            // We look for files starting with UUID + related extensions
+            // Create a Set of available files in this source dir for fast lookup
+            const availableFiles = new Set(files);
 
-            for (const uuid of missingUuids) {
-                // We want to find best match for this UUID in sourceDir
+            // Iterate through missing questions (UUIDs)
+            for (const missingUuid of Array.from(missingUuids)) {
+
+                // 1. Try EXACT ID Match (Legacy)
+                let targetIdToSearch = missingUuid;
+
+                // 2. Try TEXT CONTENT Match (Smart Deduplication)
+                // Find the question data for the missing UUID
+                const missingQ = questions.find(q => (q.external_id || q.id) === missingUuid);
+
+                if (missingQ) {
+                    const missingTextNorm = normalizeText(missingQ.question?.es || missingQ.question?.ru);
+
+                    // Search in GLOBAL INDEX for any question with same text
+                    const duplicate = GLOBAL_SEARCH_INDEX.find(item => {
+                        // Skip self
+                        if (item.id === missingUuid) return false;
+                        // Check fuzzy text match (using normalized text from index)
+                        // Note: item.searchText includes all languages. 
+                        // Let's rely on item.question_es matching if available.
+                        const itemTextNorm = normalizeText(item.question_es || item.question_ru);
+                        return itemTextNorm === missingTextNorm && itemTextNorm.length > 10;
+                    });
+
+                    if (duplicate) {
+                        // If we found a duplicate question (e.g. ID_555) for our missing one (ID_111)
+                        // We should look for ID_555's image in this directory!
+                        targetIdToSearch = duplicate.id;
+                        // console.log(`[Sync] Found duplicate text match: ${missingUuid} -> ${duplicate.id}`);
+                    }
+                }
+
+                // Now look for image for strict ID match OR content match
+                // We want to find best match for targetIdToSearch
                 // 1. Exact match: UUID.png
                 // 2. Candidate match: UUID_timestamp.png (pick latest)
 
                 let bestMatch = null;
                 let latestTime = 0;
 
+                // Check specific files relevant to the ID we are looking for
+                // Optimization: Iterate files only if we haven't found match
                 for (const file of files) {
                     if (!file.endsWith('.png')) continue;
 
-                    if (file === `${uuid}.png`) {
+                    // Match strict ID
+                    if (file === `${targetIdToSearch}.png`) {
                         bestMatch = file;
-                        break; // Found perfect match, stop looking in this dir for this uuid
+                        break;
                     }
 
-                    if (file.startsWith(`${uuid}_`)) {
-                        // Check if it follows UUID_timestamp pattern
+                    // Match timestamped ID
+                    if (file.startsWith(`${targetIdToSearch}_`)) {
                         const parts = file.replace('.png', '').split('_');
                         const timestamp = parseInt(parts[parts.length - 1]);
                         if (!isNaN(timestamp) && timestamp > latestTime) {
@@ -1095,13 +1347,13 @@ app.post('/api/test/:testId/sync-images', async (req, res) => {
 
                 if (bestMatch) {
                     const sourceFile = path.join(sourceDir, bestMatch);
-                    // Copy as UUID.png (Approved) to target since we are restoring it
-                    const targetFile = path.join(targetDir, `${uuid}.png`);
+                    // Copy to TARGET using the MISSING UUID (restore as the current question's image)
+                    const targetFile = path.join(targetDir, `${missingUuid}.png`);
 
                     await fs.copyFile(sourceFile, targetFile);
-                    console.log(`[Sync] Restored ${uuid} from ${dir}/${bestMatch}`);
+                    console.log(`[Sync] Restored ${missingUuid} (via match ${targetIdToSearch}) from ${dir}/${bestMatch}`);
 
-                    missingUuids.delete(uuid); // Remove from search list
+                    missingUuids.delete(missingUuid);
                     copiedCount++;
                 }
             }

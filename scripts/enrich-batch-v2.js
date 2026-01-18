@@ -77,14 +77,38 @@ const responseSchema = {
     required: ["question", "answers", "explanation"]
 };
 
-const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-exp",
-    generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: responseSchema,
-        temperature: 0.2  // Снижена для строгого следования словарю терминов
+// Модели в порядке приоритета.
+// User specific request with exact model names.
+const MODELS_PRIORITY = [
+    "gemini-3-pro-preview",
+    "gemini-3-flash-preview",
+    "gemini-2.0-flash-exp"
+];
+
+const generationConfig = {
+    responseMimeType: "application/json",
+    responseSchema: responseSchema,
+    temperature: 0.4 // Чуть повышаем для "живости" объяснений, но не сильно
+};
+
+async function generateWithFallback(parts) {
+    let lastError = null;
+
+    for (const modelName of MODELS_PRIORITY) {
+        try {
+            // console.log(`   👉 Trying model: ${modelName}...`); 
+            const model = genAI.getGenerativeModel({ model: modelName, generationConfig });
+            const result = await model.generateContent(parts);
+            return result;
+        } catch (error) {
+            // 404/400/500 errors -> try next model
+            lastError = error;
+            // console.warn(`   ⚠️ Model ${modelName} failed: ${error.message.split(' ')[0]}... Trying next.`);
+            continue;
+        }
     }
-});
+    throw new Error(`All models failed. Last error: ${lastError?.message}`);
+}
 
 async function downloadImageAsBase64(url) {
     try {
@@ -178,7 +202,7 @@ VMP → СИМ (Средства индивидуальной мобильнос
   ✅ Четкая логика без эмоций
   ❌ НИКАКИХ шуток, сравнений, лайфхаков
 
-🇬� EN (Английский) — ТЕХНИЧЕСКИЙ ПИСАТЕЛЬ
+�� EN (Английский) — ТЕХНИЧЕСКИЙ ПИСАТЕЛЬ
 Профессиональный технический перевод испанского объяснения.
   ✅ Точность терминологии
   ✅ Нейтральный тон
@@ -200,7 +224,7 @@ VMP → СИМ (Средства индивидуальной мобильнос
   • "согласно инфографике"
   • "см. изображение А/Б"
   
-�🎯 ПРИНЦИП САМОДОСТАТОЧНОСТИ:
+🎯 ПРИНЦИП САМОДОСТАТОЧНОСТИ:
 - Если берешь данные из schema_url (таблицу скоростей, знаки), вплетай их в текст как ФАКТЫ.
 - Описывай ситуацию словами так, чтобы визуал не требовался.
 - Вместо "как на схеме, лимит 90" пиши "Согласно ПДД Испании, лимит — 90 км/ч".
@@ -213,7 +237,7 @@ VMP → СИМ (Средства индивидуальной мобильнос
 
 🇷🇺 [Здесь текст ТОЛЬКО про КРИТИЧЕСКИЕ отличия от РФ, если они есть. Если отличий нет или они мелкие — ПРОПУСТИ ВСЮ ЭТУ СТРОКУ]. Запрещены фразы "В РФ нет аналога".
 
-💡 [Здесь короткая, яркая мнемотехника, ассоциация или рифма. Юмор, абсурд, принцип "свой-чужой"].
+💡 [Здесь ЛОГИЧНАЯ и ЗВУЧНАЯ запоминалка. Лучше РИФМА или четкое правило. Пример: "Видимость на ноль — скорость на пятьдесят!". Избегай абстрактного юмора, делай упор на пользу и звучание].
 
 ВАЖНО: НИКАКИХ СЛОВ "Правило", "Сравнение", "Шпаргалка", "Запоминалка" перед текстом. Только эмодзи.
 
@@ -260,7 +284,9 @@ VMP → СИМ (Средства индивидуальной мобильнос
                 if (imagePart) parts.push(imagePart);
             }
 
-            const result = await model.generateContent(parts);
+            // ИСПОЛЬЗУЕМ ФУНКЦИЮ С FALLBACK
+            const result = await generateWithFallback(parts);
+
             let responseText = result.response.text();
 
             // С JSON Schema не нужно чистить markdown блоки, но на всякий случай
@@ -305,26 +331,67 @@ async function main() {
     const rawData = await fs.readFile(filePath, 'utf8');
     const questions = JSON.parse(rawData);
 
-    // ⚠️ КРИТИЧЕСКАЯ ПРОВЕРКА: должно быть ровно 30 вопросов
-    // ВРЕМЕННО ОТКЛЮЧЕНО для обработки частичных батчей
-    // if (questions.length !== 30) {
-    //     console.error(`\n❌ ОШИБКА: Ожидается 30 вопросов, получено ${questions.length}!`);
-    //     process.exit(1);
-    // }
+    const enrichedPath = filePath.replace('.json', '-enriched.json');
+    let finalQuestions = [];
 
-    console.log(`🧠 Начинаем AI-обогащение с валидацией (${questions.length} вопросов)...`);
+    // 1. Пытаемся загрузить уже существующий прогресс (Resume/Repair mode)
+    try {
+        const existingData = await fs.readFile(enrichedPath, 'utf8');
+        finalQuestions = JSON.parse(existingData);
+        console.log(`📁 Нашел существующий файл: ${enrichedPath}. Проверяю пропуски...`);
 
-    const enrichedQuestions = [];
+        // Синхронизируем с исходником (если вопросов стало больше или порядок изменился)
+        if (finalQuestions.length !== questions.length) {
+            console.warn(`⚠️ Mismatch in length: Source ${questions.length} vs Enriched ${finalQuestions.length}. Merging by ID/Index...`);
+            // Простая стратегия: берем исходный массив и подменяем обогащенными данными где есть
+            finalQuestions = questions.map((srcQ, idx) => {
+                const existing = finalQuestions[idx]; // Или поиск по ID если они есть
+                // Если существующий выглядит обогащенным, берем его, иначе исходный
+                return (existing && existing.explanation?.ru) ? existing : srcQ;
+            });
+        }
+    } catch (e) {
+        // Файла нет, начинаем с чистого листа (копии исходника)
+        finalQuestions = JSON.parse(JSON.stringify(questions));
+    }
+
+    // Функция проверки: нужно ли обрабатывать вопрос?
+    const needsProcessing = (q) => {
+        // Проверяем наличие вопроса на 3 языках
+        if (!q.question?.es || !q.question?.en || !q.question?.ru) return true;
+        // Проверяем наличие объяснения на 3 языках
+        if (!q.explanation?.es || !q.explanation?.en || !q.explanation?.ru) return true;
+        // Проверяем ответы
+        if (q.answers.some(a => !a.text?.es || !a.text?.en || !a.text?.ru)) return true;
+
+        return false;
+    };
+
+    const pendingIndices = finalQuestions.map((q, i) => needsProcessing(q) ? i : -1).filter(i => i !== -1);
+
+    if (pendingIndices.length === 0) {
+        console.log(`✨ Файл полностью готов! Пропусков нет.`);
+        return enrichedPath;
+    }
+
+    console.log(`🧠 Начинаем AI-обогащение. Осталось обработать: ${pendingIndices.length} из ${questions.length}`);
+
     const maxRetries = 3;
 
-    for (let i = 0; i < questions.length; i++) {
+    for (let i = 0; i < pendingIndices.length; i++) {
+        const idx = pendingIndices[i];
+        const q = finalQuestions[idx];
+
+        //console.log(`\nTARGET Q:`, JSON.stringify(q, null, 2));
+
         let enriched = null;
         let attempt = 0;
 
         while (attempt < maxRetries) {
             try {
-                process.stdout.write(`   🔄 Обработка ${i + 1}/${questions.length}... (попытка ${attempt + 1})\r`);
-                enriched = await enrichQuestion(questions[i]);
+                const shortName = filePath.split('/').pop().replace('.json', '');
+                process.stdout.write(`   [${shortName}] 🔄 Q ${idx + 1} (${i + 1}/${pendingIndices.length})... (att ${attempt + 1})\r`);
+                enriched = await enrichQuestion(q);
 
                 // Валидация IDs: должны быть строго 'a', 'b', 'c'
                 const ids = enriched.answers.map(a => a.id);
@@ -334,35 +401,34 @@ async function main() {
                     throw new Error(`Неверные IDs ответов: ${JSON.stringify(ids)}. Ожидаются: a, b, c`);
                 }
 
-                enrichedQuestions.push(enriched);
+                // УСПЕХ: Обновляем массив и СОХРАНЯЕМ ФАЙЛ СРАЗУ (Checkpoint)
+                finalQuestions[idx] = enriched;
+                await fs.writeFile(enrichedPath, JSON.stringify(finalQuestions, null, 2));
+
                 break; // Успех, выходим из retry-loop
+
             } catch (error) {
                 attempt++;
-                console.error(`\n⚠️ Ошибка на вопросе ${i + 1}: ${error.message}`);
+                console.error(`\n⚠️ Ошибка на вопросе ${idx + 1}: ${error.message}`);
 
                 if (attempt >= maxRetries) {
-                    console.error(`❌ Не удалось обработать вопрос ${i + 1} после ${maxRetries} попыток.`);
-                    process.exit(1);
+                    console.error(`❌ Не удалось обработать вопрос ${idx + 1}. Оставляем как есть и идем дальше.`);
+                    // Не выходим (process.exit), просто идем к следующему, чтобы добить остальные
                 }
 
-                await new Promise(r => setTimeout(r, 5000)); // Пауза перед повтором
+                if (error.message.includes('429') || error.message.includes('quota')) {
+                    console.error(`⏳ Rate limit hit. Waiting 10s before retry...`);
+                    await new Promise(r => setTimeout(r, 10000));
+                } else {
+                    await new Promise(r => setTimeout(r, 5000));
+                }
             }
         }
 
         await new Promise(r => setTimeout(r, 2000));
     }
 
-    // Финальная проверка: должно быть ровно 30 обогащенных вопросов
-    if (enrichedQuestions.length !== 30) {
-        console.warn(`\n⚠️ ВНИМАНИЕ: Обработано ${enrichedQuestions.length} вопросов (стандарт: 30).`);
-        // process.exit(1); // Relaxed for partial batches
-    }
-
-    const enrichedPath = filePath.replace('.json', '-enriched.json');
-    await fs.writeFile(enrichedPath, JSON.stringify(enrichedQuestions, null, 2));
-
-    console.log(`\n✅ Обогащение завершено! Файл: ${enrichedPath}`);
-    console.log(`✅ Проверено: все 30 вопросов с корректными IDs (a/b/c)`);
+    console.log(`\n✅ Обработка файла завершена: ${enrichedPath}`);
     return enrichedPath;
 }
 

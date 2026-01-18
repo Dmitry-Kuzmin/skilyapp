@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Search, FileText, CheckCircle2, ChevronRight, Folder, ChevronDown, AlertTriangle } from "lucide-react";
+import { Search, FileText, CheckCircle2, ChevronRight, Folder, ChevronDown, AlertTriangle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
     CommandDialog,
@@ -21,13 +21,34 @@ interface MissionSidebarProps {
     selectedQuestionId: string | null;
     serverOnline: boolean;
     questions?: any[];
+    generatingQuestionId?: string | null; // New Prop
 }
 
-export function MissionSidebar({ onSelectTest, onSelectQuestion, selectedTestId, selectedQuestionId, serverOnline, questions = [] }: MissionSidebarProps) {
+export function MissionSidebar({ onSelectTest, onSelectQuestion, selectedTestId, selectedQuestionId, serverOnline, questions = [], generatingQuestionId }: MissionSidebarProps) {
     const [structure, setStructure] = useState<any>({});
     const [loading, setLoading] = useState(false);
     const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+    // Search State
+    const [searchQuery, setSearchQuery] = useState("");
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+
+    useEffect(() => {
+        const timer = setTimeout(async () => {
+            if (!searchQuery || searchQuery.length < 2) {
+                setSearchResults([]);
+                return;
+            }
+            try {
+                const res = await fetch(`http://localhost:3030/api/search?q=${encodeURIComponent(searchQuery)}`);
+                if (res.ok) {
+                    setSearchResults(await res.json());
+                }
+            } catch (e) { console.error(e); }
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -79,7 +100,7 @@ export function MissionSidebar({ onSelectTest, onSelectQuestion, selectedTestId,
                 >
                     <div className="flex items-center gap-2">
                         <Search className="w-3.5 h-3.5 opacity-50" />
-                        <span className="text-xs font-medium">Search tests...</span>
+                        <span className="text-xs font-medium">Search all questions...</span>
                     </div>
                     <div className="flex items-center gap-1">
                         <span className="text-[10px] text-zinc-600 bg-zinc-800/50 px-1.5 py-0.5 rounded border border-zinc-800">⌘K</span>
@@ -114,7 +135,8 @@ export function MissionSidebar({ onSelectTest, onSelectQuestion, selectedTestId,
                         <ScrollArea className="flex-1">
                             <div className="p-2 space-y-0.5">
                                 {questions.map((q, idx) => {
-                                    const isSelected = selectedQuestionId === `${selectedTestId}_${q.external_id}`;
+                                    const fullId = `${selectedTestId}_${q.external_id}`;
+                                    const isSelected = selectedQuestionId === fullId;
                                     const isPending = !q.is_published;
                                     const hasImageCandidate = !q.is_published && q.is_generated;
 
@@ -142,13 +164,17 @@ export function MissionSidebar({ onSelectTest, onSelectQuestion, selectedTestId,
                                                 </div>
                                             </div>
 
-                                            {/* Status Indicator */}
-                                            {q.is_published ? (
-                                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 ml-2 flex-shrink-0" />
-                                            ) : hasImageCandidate ? (
-                                                <div className="w-2 h-2 rounded-full bg-amber-500 ml-2 flex-shrink-0 animate-pulse" />
+                                            {(q.is_published || q.is_generated) ? (
+                                                <div className={cn(
+                                                    "w-2 h-2 rounded-full ml-auto flex-shrink-0 mr-2",
+                                                    q.is_published ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"
+                                                )} />
                                             ) : (
-                                                <div className="w-2 h-2 rounded-full bg-zinc-800 ml-2 flex-shrink-0" />
+                                                <div className="w-2 h-2 rounded-full bg-zinc-800 ml-auto mr-2 flex-shrink-0" />
+                                            )}
+
+                                            {generatingQuestionId === fullId && (
+                                                <Loader2 className="w-3.5 h-3.5 text-indigo-400 animate-spin absolute right-2" />
                                             )}
 
                                             {isSelected && (
@@ -188,12 +214,25 @@ export function MissionSidebar({ onSelectTest, onSelectQuestion, selectedTestId,
                                                     onClick={() => onSelectTest(test.id)}
                                                     className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900/50 rounded-md transition-all text-left group"
                                                 >
-                                                    {test.isEnriched === false ? (
-                                                        <AlertTriangle className="w-3.5 h-3.5 text-amber-600/70 group-hover:text-amber-500" />
-                                                    ) : (
-                                                        <FileText className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 group-hover:text-blue-400" />
-                                                    )}
-                                                    <span className={cn("truncate", test.isEnriched === false && "text-amber-600/70 group-hover:text-amber-500")}>{test.name}</span>
+                                                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                        {test.deployed ? (
+                                                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                                                        ) : !test.isEnriched ? (
+                                                            <AlertTriangle className="w-3.5 h-3.5 text-amber-600/70 shrink-0 group-hover:text-amber-500" />
+                                                        ) : test.generated ? (
+                                                            <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                                                        ) : (
+                                                            <FileText className="w-3.5 h-3.5 opacity-50 shrink-0 group-hover:opacity-100 group-hover:text-blue-400" />
+                                                        )}
+
+                                                        <span className={cn(
+                                                            "truncate",
+                                                            !test.isEnriched && "text-amber-600/70 group-hover:text-amber-500",
+                                                            test.deployed && "text-emerald-500/90"
+                                                        )}>
+                                                            {test.name}
+                                                        </span>
+                                                    </div>
                                                 </button>
                                             ))}
                                         </div>
@@ -205,34 +244,66 @@ export function MissionSidebar({ onSelectTest, onSelectQuestion, selectedTestId,
                 )}
             </div>
 
-            {/* COMMAND PALETTE (CMDK) */}
-            <CommandDialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
-                <CommandInput placeholder="Search tests (e.g. 'Topic 1')..." />
+            {/* COMMAND PALETTE (Global Search) */}
+            <CommandDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} shouldFilter={false}>
+                <CommandInput
+                    placeholder="Search API (Try Spanish for max results)..."
+                    value={searchQuery}
+                    onValueChange={setSearchQuery}
+                />
                 <CommandList>
                     <CommandEmpty>No results found.</CommandEmpty>
 
-                    {/* Iterate over Categories */}
-                    {Object.keys(structure).map(category => (
-                        <CommandGroup key={category} heading={category}>
-                            {structure[category].map((test: any) => (
+                    {searchResults.length > 0 && (
+                        <CommandGroup heading={`Found ${searchResults.length} matches`}>
+                            {searchResults.map((res: any) => (
                                 <CommandItem
-                                    key={test.id}
+                                    key={`${res.testId}-${res.id}`}
                                     onSelect={() => {
-                                        onSelectTest(test.id);
+                                        onSelectTest(res.testId);
+                                        // Wait a tick for state to propagate if needed, but React handles this
+                                        setTimeout(() => onSelectQuestion(`${res.testId}_${res.id}`), 100);
                                         setIsSearchOpen(false);
-                                        // Auto-expand category
-                                        if (!expandedCategories.includes(category)) toggleCategory(category);
                                     }}
-                                    className="cursor-pointer"
-                                    value={test.name + " " + test.id}
+                                    className="cursor-pointer flex flex-col items-start gap-1 py-2 aria-selected:bg-zinc-800"
+                                    value={`${res.testId}-${res.id}`}
                                 >
-                                    <FileText className="mr-2 h-4 w-4" />
-                                    <span>{test.name}</span>
-                                    <span className="ml-auto text-xs text-zinc-500 font-mono">{test.id}</span>
+                                    <div className="flex items-center gap-2 w-full mb-0.5">
+                                        <Badge variant="outline" className="text-[9px] px-1 h-4 border-zinc-700 text-zinc-400 font-mono tracking-tighter">
+                                            {res.testId}
+                                        </Badge>
+                                        <span className="text-[10px] bg-zinc-800 text-zinc-500 px-1 rounded font-mono">#{res.id.substring(0, 8)}</span>
+
+                                        {/* Duplicate Indicator */}
+                                        {res.locationCount > 1 && (
+                                            <Badge variant="secondary" className="text-[9px] px-1 h-4 bg-amber-500/10 text-amber-500 border border-amber-500/20 ml-auto">
+                                                Found in {res.locationCount} tests
+                                            </Badge>
+                                        )}
+                                    </div>
+                                    <p className="text-sm text-zinc-100 line-clamp-1 leading-tight">
+                                        {res.question_ru || "..."}
+                                    </p>
+                                    {res.question_es && (
+                                        <p className="text-xs text-zinc-500 line-clamp-1">
+                                            {res.question_es}
+                                        </p>
+                                    )}
+                                    {/* Duplicates Detail */}
+                                    {res.locationCount > 1 && res.locations && (
+                                        <div className="flex flex-wrap gap-1 mt-1 opacity-50">
+                                            {res.locations.filter((Loc: string) => Loc !== res.testId).slice(0, 3).map((loc: string) => (
+                                                <span key={loc} className="text-[9px] text-zinc-600 bg-zinc-900 px-1 rounded">
+                                                    {loc}
+                                                </span>
+                                            ))}
+                                            {res.locations.length > 4 && <span className="text-[9px] text-zinc-600">+{res.locations.length - 4} more</span>}
+                                        </div>
+                                    )}
                                 </CommandItem>
                             ))}
                         </CommandGroup>
-                    ))}
+                    )}
 
                 </CommandList>
             </CommandDialog>
