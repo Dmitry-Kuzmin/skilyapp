@@ -235,24 +235,27 @@ const DashboardContent = memo(function DashboardContent() {
   // Правильная логика: hasClaimedToday = !can_claim (если can_claim false, значит уже получено)
   const hasClaimedToday = dashboardData?.daily_bonus ? !dashboardData.daily_bonus.can_claim : false;
 
+  // Determine effective error state
+  const hasError = error || (!loading && !dashboardData);
+
   return (
     <>
-      {showWelcome && (
+      {showWelcome && !hasError && (
         <WelcomeOverlay
           onComplete={handleWelcomeComplete}
-          isLoading={loading || !dashboardData}
+          isLoading={loading}
           isPremium={isPremium}
         />
       )}
       <Suspense fallback={<PageLoader />}>
         <Layout hideNavigation={showWelcome}>
-          <div className={`w-full pb-6 ${(showWelcome && !dashboardData) || (loading && !dashboardData) ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
-            {error ? (
+          <div className={`w-full pb-6 ${(showWelcome && !hasError) || loading ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
+            {hasError ? (
               <div className="min-h-[60vh] bg-[#0f172a] p-6 md:p-10 font-sans text-white flex items-center justify-center rounded-[2.5rem] border border-slate-800/50">
                 <div className="text-center max-w-md space-y-6">
                   <div>
                     <h2 className="text-2xl font-bold mb-2 text-indigo-400">Ошибка инициализации</h2>
-                    <p className="text-slate-400 text-sm">{error.message}</p>
+                    <p className="text-slate-400 text-sm">{error?.message || 'Не удалось загрузить данные профиля. Попробуйте обновить страницу.'}</p>
                   </div>
                   <div className="flex flex-wrap gap-3 justify-center">
                     <button
@@ -260,6 +263,12 @@ const DashboardContent = memo(function DashboardContent() {
                       className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all font-medium text-sm shadow-[0_0_20px_rgba(79,70,229,0.3)]"
                     >
                       Повторить запуск
+                    </button>
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-xl transition-all font-medium text-sm"
+                    >
+                      Перезагрузить
                     </button>
                   </div>
                 </div>
