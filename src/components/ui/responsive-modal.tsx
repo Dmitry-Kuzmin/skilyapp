@@ -146,7 +146,7 @@ export function ResponsiveModal({
       >
         <DrawerContent
           className={cn(
-            "flex flex-col fixed bottom-0 left-0 right-0 z-50 outline-none transition-all duration-200",
+            "flex flex-col fixed bottom-0 left-0 right-0 z-[100001] outline-none transition-all duration-200",
             // 🔥 КРИТИЧНО: НЕТ rounded-t когда клавиатура открыта
             isKeyboardOpen ? "" : "rounded-t-[32px]",
             className
