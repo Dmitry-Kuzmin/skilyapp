@@ -11,12 +11,16 @@
 
 import express from 'express';
 import fs from 'fs/promises';
+import fsSync from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { spawn } from 'child_process';
 import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import { processImageForUpload } from './scripts/utils/image-processor.js';
+import { v5 as uuidv5 } from 'uuid';
+
+const NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341'; // Deterministic Namespace
 
 dotenv.config();
 
@@ -87,6 +91,44 @@ app.get('/', (req, res) => {
 app.use(express.static('.'));
 
 // EXPLICIT: Serve generated images under /generated-images URL
+// EXPLICIT: Serve generated images with fallback logic for IDs
+app.get('/generated-images/:testId/:filename', (req, res, next) => {
+    const { testId, filename } = req.params;
+
+    // 1. Try exact match (e.g. topic-02_test-002_560d...png)
+    const exactPath = path.join(process.cwd(), 'data', 'generated-images', testId, filename);
+
+    // Check if exact file exists
+    if (fsSync.existsSync(exactPath)) {
+        return res.sendFile(exactPath);
+    }
+
+    // 2. Try bare UUID match (if filename is composite)
+    // filename might be "topic-02_test-002_560d....png"
+    // We want to try "560d....png"
+
+    // Improved regex to strip the prefix safely
+    // Looking for pattern: prefix_UUID.png -> UUID.png
+    // We assume the UUID part is the LAST segment separated by underscore before .png
+    // But wait, UUIDs don't have underscores usually.
+    // Let's rely on the strategy: if exact fail, try just the last part.
+
+    const parts = filename.split('_');
+    if (parts.length >= 2) {
+        const potentialUuidWithExt = parts[parts.length - 1]; // "560d....png"
+
+        // Sanity check: is it a valid-ish file name?
+        if (potentialUuidWithExt.endsWith('.png')) {
+            const fallbackPath = path.join(process.cwd(), 'data', 'generated-images', testId, potentialUuidWithExt);
+            if (fsSync.existsSync(fallbackPath)) {
+                return res.sendFile(fallbackPath);
+            }
+        }
+    }
+
+    next(); // forward to standard static handler or 404
+});
+
 app.use('/generated-images', express.static('data/generated-images'));
 
 // ==========================================
@@ -124,39 +166,61 @@ async function buildSearchIndex() {
     GLOBAL_QUESTION_LOCATIONS = {};
     const index = [];
 
+    const visitedTests = new Set();
+
     async function scan(dir) {
         try {
             const ent = await fs.readdir(dir, { withFileTypes: true });
+            // Sort to ensure enriched comes first ('-' < '.')
+            ent.sort((a, b) => a.name.localeCompare(b.name));
+
             for (const dirent of ent) {
                 const fullPath = path.join(dir, dirent.name);
                 if (dirent.isDirectory()) {
                     await scan(fullPath);
-                } else if (dirent.name.endsWith('-enriched.json')) {
-                    const testId = dirent.name.replace('-enriched.json', '');
+                } else if (dirent.name.includes('test-') && dirent.name.endsWith('.json')) {
+                    const testId = dirent.name.replace('-enriched.json', '').replace('.json', '');
+
+                    // Skip if already processed (prioritize enriched)
+                    if (visitedTests.has(testId)) continue;
+                    visitedTests.add(testId);
+
                     try {
-                        const data = JSON.parse(await fs.readFile(fullPath, 'utf8'));
+                        const content = await fs.readFile(fullPath, 'utf8');
+                        const json = JSON.parse(content);
+                        const data = Array.isArray(json) ? json : (json.questions || []);
+
                         data.forEach(q => {
-                            if (!q.external_id) return;
-                            // 1. Track Locations
-                            if (!GLOBAL_QUESTION_LOCATIONS[q.external_id]) {
-                                GLOBAL_QUESTION_LOCATIONS[q.external_id] = new Set();
+                            let id = q.external_id || q.id;
+
+                            // Generate ID if missing (Essential for JSONs without IDs)
+                            if (!id && q.question_number) {
+                                id = uuidv5(`${testId}_q-${q.question_number}`, NAMESPACE);
+                                // q.id = id; // Optional: mutate object
                             }
-                            GLOBAL_QUESTION_LOCATIONS[q.external_id].add(testId);
+
+                            if (!id) return;
+
+                            // 1. Track Locations
+                            if (!GLOBAL_QUESTION_LOCATIONS[id]) {
+                                GLOBAL_QUESTION_LOCATIONS[id] = new Set();
+                            }
+                            GLOBAL_QUESTION_LOCATIONS[id].add(testId);
+
+                            const ru = q.question?.ru || q.question_text_ru || '';
+                            const es = q.question?.es || q.question_text || q.question || '';
+                            const en = q.question?.en || '';
 
                             const textSource = [
-                                q.question?.es,
-                                q.question?.ru,
-                                q.question?.en,
-                                q.external_id,
-                                testId
+                                es, ru, en, id, testId
                             ].filter(Boolean).join(' ');
 
                             index.push({
-                                id: q.external_id,
+                                id: id,
                                 testId: testId,
-                                question_ru: q.question?.ru,
-                                question_es: q.question?.es,
-                                question_en: q.question?.en,
+                                question_ru: ru,
+                                question_es: es,
+                                question_en: en,
                                 searchText: normalizeText(textSource)
                             });
                         });
@@ -187,13 +251,31 @@ buildSearchIndex();
 
 // API Search Endpoint
 // API Search Endpoint
-app.get('/api/search', (req, res) => {
+app.get('/api/search', async (req, res) => {
     try {
         const rawQ = (req.query.q || '');
+        const country = req.query.country || 'spain';
         if (!rawQ || rawQ.length < 2) return res.json([]);
 
-        // Inline Normalization (to avoid changing global scope if risky)
-        // Normalize: Lowercase, remove accents, replace 'ё', handle NBSP, punctuation to space
+        if (country === 'russia') {
+            console.log(`[SEARCH RU] "${rawQ.substring(0, 30)}..."`);
+            const { data: questions, error } = await supabase
+                .from('pdd_russia_questions')
+                .select('id, ticket_number, question_number, question_text, source_id')
+                .or(`question_text.ilike.%${rawQ}%,explanation.ilike.%${rawQ}%`)
+                .limit(50);
+
+            if (error) throw error;
+
+            return res.json(questions.map(q => ({
+                id: q.source_id || String(q.id),
+                testId: `ticket-${String(q.ticket_number).padStart(2, '0')}`,
+                question_ru: q.question_text,
+                locationCount: 1
+            })));
+        }
+
+        // Spain Logic (existing index based)
         const normalizedQ = rawQ.toLowerCase()
             .replace(/ё/g, 'е')
             .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -204,22 +286,14 @@ app.get('/api/search', (req, res) => {
 
         const tokens = normalizedQ.split(' ').filter(t => t.length > 0);
 
-        console.log(`[SEARCH] "${normalizedQ.substring(0, 30)}..." [${tokens.length} tokens]`);
+        console.log(`[SEARCH ES] "${normalizedQ.substring(0, 30)}..." [${tokens.length} tokens]`);
 
         const results = GLOBAL_SEARCH_INDEX.filter(item => {
-            // AND-search: Matches if ALL query tokens are present in the text
-            // Note: GLOBAL_SEARCH_INDEX must also be normalized or at least insensitive.
-            // Since we didn't normalize index yet (previous failed), let's keep it simple 'includes' 
-            // BUT: If the index text has punctuation, token match might fail if we strip it from query.
-            // Ideally we normalize index too. 
-            // I'll assume index text is raw data. So "word," includes "word". This works.
-            // BUT "word" does NOT include "word,".
-            // So query tokens (clean) should match inside text (dirty). Yes.
-            // BUT search text casing? We saved it as .toLowerCase().
-            // So we need to handle "ё" in index.
-            // Since I can't easily rebuild index without restarting or complex edit, I will do "best effort" here.
             return tokens.every(token => item.searchText.includes(token));
-        }).slice(0, 50);
+        }).slice(0, 50).map(item => ({
+            ...item,
+            imageUrl: `/data/generated-images/${item.testId}/${item.id}.png`
+        }));
 
         res.json(results);
     } catch (e) {
@@ -291,113 +365,145 @@ async function saveDecisions(decisions) {
 // ==========================================
 // HELPER: Build File Tree
 // ==========================================
-async function buildFileTree() {
+async function buildFileTree(country = 'spain') {
     const tree = {};
 
-    // Load checkpoint to know what's generated
-    let generatedIds = new Set();
     try {
-        const checkpoint = JSON.parse(await fs.readFile('./data/image-gen-checkpoint.json', 'utf8'));
-        generatedIds = new Set(checkpoint.processed || []);
-    } catch (e) { }
-
-    // Load Deployed Status from Supabase (Source of Truth: 'tests' table)
-    let deployedTestIds = new Set();
-    try {
-        // 1. Get Topics Map (id -> number)
-        const { data: topics } = await supabase.from('topics').select('id, number');
-        const topicIdToNumber = {};
-        if (topics) {
-            topics.forEach(t => topicIdToNumber[t.id] = t.number);
-        }
-
-        // 2. Get All Deployed Tests
-        // We need 1000+ support? Usually tests count is small (<1000). 
-        // If >1000, we might need paging, but for now 1000 tests is huge.
-        const { data: tests } = await supabase.from('tests').select('topic_id, test_number');
-
-        if (tests) {
-            console.log(`[Debug] Fetched ${tests.length} tests from DB.`);
-            tests.forEach((t, idx) => {
-                const topicNum = topicIdToNumber[t.topic_id];
-                if (topicNum !== undefined) {
-                    // Reconstruct ID: topic-XX_test-XXX
-                    // Note: Ensure padding matches file naming convention
-                    const tId = `topic-${String(topicNum).padStart(2, '0')}_test-${String(t.test_number).padStart(3, '0')}`;
-                    deployedTestIds.add(tId);
-                    if (idx < 5) console.log(`[Debug] Mapped deployed test: ${tId}`);
-                }
-            });
-        }
-        console.log(`[Validator] Loaded ${deployedTestIds.size} deployed tests from DB.`);
-    } catch (e) {
-        console.error("⚠️ Could not fetch deployed status:", e.message);
-    }
-
-    async function scanDirectory(dir, category) {
+        // Load checkpoint to know what's generated
+        let generatedIds = new Set();
         try {
-            const files = await fs.readdir(dir);
-            const testsMap = new Map(); // Use map to deduplicate (enriched vs raw)
+            const checkpoint = JSON.parse(await fs.readFile('./data/image-gen-checkpoint.json', 'utf8'));
+            generatedIds = new Set(checkpoint.processed || []);
+        } catch (e) { }
 
-            for (const file of files) {
-                const fullPath = path.join(dir, file);
-                const stat = await fs.stat(fullPath);
-
-                if (stat.isDirectory()) {
-                    continue;
-                }
-
-                // Check for test files
-                const isEnriched = file.endsWith('-enriched.json');
-                const isRaw = !isEnriched && file.endsWith('.json') && file.includes('test-');
-
-                if (isEnriched || isRaw) {
-                    const testId = file.replace('-enriched.json', '').replace('.json', '');
-
-                    // Prefer enriched if we already found this test
-                    if (testsMap.has(testId) && !isEnriched) continue;
-
-                    try {
-                        const data = JSON.parse(await fs.readFile(fullPath, 'utf8'));
-
-                        // Check if all questions in this test are generated
-                        let allGenerated = false;
-                        if (isEnriched) {
-                            allGenerated = data.every(q => q.external_id && generatedIds.has(q.external_id));
-                        }
-
-                        testsMap.set(testId, {
-                            id: testId,
-                            name: testId.replace(/_/g, ' ').replace('test-', 'Test '),
-                            questionCount: data.length,
-                            generated: allGenerated,
-                            deployed: deployedTestIds.has(testId), // New Field
-                            filePath: fullPath,
-                            isEnriched: isEnriched
-                        });
-                    } catch (e) {
-                        console.error(`Error parsing ${file}:`, e.message);
-                    }
-                }
+        // Load Deployed Status from Supabase (Source of Truth: 'tests' table)
+        let deployedTestIds = new Set();
+        try {
+            // 1. Get Topics Map (id -> number)
+            const { data: topicsData } = await supabase.from('topics').select('id, number');
+            const topicIdToNumber = {};
+            if (topicsData) {
+                topicsData.forEach(t => topicIdToNumber[t.id] = t.number);
             }
 
-            return Array.from(testsMap.values()).sort((a, b) => a.id.localeCompare(b.id));
+            // 2. Get All Deployed Tests
+            if (country === 'russia') {
+                const { data: deployedRussia } = await supabase.from('pdd_russia_questions').select('ticket_number');
+                if (deployedRussia) {
+                    deployedRussia.forEach(t => {
+                        if (t.ticket_number) {
+                            deployedTestIds.add(`ticket-${String(t.ticket_number).padStart(2, '0')}`);
+                        }
+                    });
+                }
+            } else { // Spain
+                // Use 'tests' table as source of truth for Spain
+                const { data: deployedSpain } = await supabase.from('tests').select('test_number, topic_id');
+                if (deployedSpain) {
+                    deployedSpain.forEach(t => {
+                        const topicNum = topicIdToNumber[t.topic_id];
+                        if (topicNum !== undefined) {
+                            deployedTestIds.add(`topic-${String(topicNum).padStart(2, '0')}_test-${String(t.test_number).padStart(3, '0')}`);
+                        }
+                    });
+                }
+            }
         } catch (e) {
-            return [];
+            console.error('Error loading deployed status from Supabase:', e.message);
         }
-    }
 
-    // Scan each category
-    const categories = await fs.readdir(CONFIG.parsedDir);
-    for (const category of categories) {
-        const categoryPath = path.join(CONFIG.parsedDir, category);
-        const stat = await fs.stat(categoryPath);
-        if (stat.isDirectory()) {
-            tree[category] = await scanDirectory(categoryPath, category);
+        // Load Generated Status (check folders in data/generated-images)
+        let generatedTestFolders = new Set();
+        try {
+            const subfolders = await fs.readdir(CONFIG.generatedDir, { withFileTypes: true });
+            for (const dirent of subfolders) {
+                if (dirent.isDirectory()) {
+                    generatedTestFolders.add(dirent.name);
+                }
+            }
+        } catch (e) { }
+
+        async function scanDirectory(dir, category) {
+            try {
+                const files = await fs.readdir(dir);
+                const testsMap = new Map();
+
+
+                for (const file of files) {
+                    if (file.endsWith('.json')) {
+                        const fullPath = path.join(dir, file);
+                        const isEnriched = file.includes('-enriched.json');
+                        const testId = file.replace('-enriched.json', '').replace('.json', '');
+
+                        if (testsMap.has(testId) && !isEnriched) continue;
+
+                        try {
+                            const data = JSON.parse(await fs.readFile(fullPath, 'utf8'));
+                            const questionsCount = Array.isArray(data) ? data.length : (data.questions ? data.questions.length : 0);
+
+                            testsMap.set(testId, {
+                                id: testId,
+                                name: testId.replace(/_/g, ' ').replace('test-', 'Test '),
+                                questionCount: questionsCount,
+                                generated: generatedTestFolders.has(testId),
+                                deployed: deployedTestIds.has(testId),
+                                filePath: fullPath,
+                                isEnriched: isEnriched
+                            });
+                        } catch (e) { }
+                    }
+                }
+                return Array.from(testsMap.values()).sort((a, b) => a.id.localeCompare(b.id));
+            } catch (e) {
+                console.error(`Error scanning directory ${dir}:`, e);
+                return [];
+            }
         }
-    }
 
-    return tree;
+        // Russia logic
+        if (country === 'russia') {
+            const russiaDir = path.join(CONFIG.parsedDir, 'russia');
+            const exists = await fs.access(russiaDir).then(() => true).catch(() => false);
+
+            if (exists) {
+                const categories = await fs.readdir(russiaDir);
+                for (const category of categories) {
+                    const categoryPath = path.join(russiaDir, category);
+                    const stat = await fs.stat(categoryPath);
+                    if (stat.isDirectory()) {
+                        tree[category] = await scanDirectory(categoryPath, category);
+                    }
+                }
+            } else {
+                // Virtual tickets if no local files for Russia
+                tree['Tickets'] = Array.from({ length: 40 }, (_, i) => ({
+                    id: `ticket-${String(i + 1).padStart(2, '0')}`,
+                    name: `Ticket ${i + 1}`,
+                    questionCount: 20,
+                    generated: false,
+                    deployed: true,
+                    isEnriched: true
+                }));
+            }
+            return tree;
+        }
+
+        // Spain logic (default)
+        const categories = await fs.readdir(CONFIG.parsedDir);
+        for (const category of categories) {
+            if (category === 'russia') continue;
+            const categoryPath = path.join(CONFIG.parsedDir, category);
+            const stat = await fs.stat(categoryPath);
+            if (stat.isDirectory()) {
+                tree[category] = await scanDirectory(categoryPath, category);
+            }
+        }
+
+        return tree;
+    } catch (error) {
+        console.error('Error building file tree:', error);
+        return {};
+    }
 }
 
 // ==========================================
@@ -405,7 +511,8 @@ async function buildFileTree() {
 // ==========================================
 app.get('/api/files/tree', async (req, res) => {
     try {
-        const tree = await buildFileTree();
+        const country = req.query.country || 'spain';
+        const tree = await buildFileTree(country);
         res.json(tree);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -965,8 +1072,8 @@ app.post('/api/generate/single', async (req, res) => {
         }
 
         console.log(`[Generate Single] QuestionID: ${questionId}, Test: ${testId}`);
-        if (customPrompt) console.log(`[Generate Single] Using custom prompt provided by user`);
-        if (userInstruction) console.log(`[Generate Single] Providing user instruction: "${userInstruction}"`);
+        if (customPrompt) console.log(`[Generate Single] Custom Prompt length: ${customPrompt.length}`);
+        if (userInstruction) console.log(`[Generate Single] 🧞‍♂️ User Wish: "${userInstruction}"`);
 
         // Extract UUID from questionId if it's in format topic-01_test-001_UUID
         const uuid = questionId.includes('_') ? questionId.split('_').pop() : questionId;
@@ -1090,7 +1197,46 @@ app.post('/api/generate/single', async (req, res) => {
 // ========================================
 app.get('/api/test/:testId/questions', async (req, res) => {
     try {
-        const { testId } = req.params; // e.g. topic-01_test-017
+        const { testId } = req.params;
+        const country = req.query.country || 'spain';
+
+        if (country === 'russia') {
+            const ticketMatch = testId.match(/ticket-(\d+)/);
+            if (!ticketMatch) throw new Error('Invalid ticket format for Russia');
+            const ticketNumber = parseInt(ticketMatch[1]);
+
+            const { data: questions, error } = await supabase
+                .from('pdd_russia_questions')
+                .select('*, pdd_russia_answers(*)')
+                .eq('ticket_number', ticketNumber)
+                .order('question_number', { ascending: true });
+
+            if (error) throw error;
+
+            // Format to match Spain structure
+            const formattedQuestions = questions.map(q => ({
+                id: String(q.id),
+                external_id: q.source_id,
+                question_ru: q.question_text,
+                explanation_ru: q.explanation,
+                correct_answer: q.correct_answer_text,
+                image_url: q.image_url,
+                is_published: true, // They are already in DB
+                is_generated: !!q.is_ai_image,
+                answers: q.pdd_russia_answers?.map(a => ({
+                    answer_text: a.answer_text,
+                    is_correct: a.is_correct
+                })) || []
+            }));
+
+            return res.json({
+                success: true,
+                questions: formattedQuestions,
+                is_enriched: true
+            });
+        }
+
+        // Spain Logic (existing)
         const parts = testId.split('_');
         if (parts.length < 2) throw new Error('Invalid test ID format');
 
@@ -1138,45 +1284,72 @@ app.get('/api/test/:testId/questions', async (req, res) => {
                 if (match) uuid = match[1];
             }
 
-            // Fallback if regex fails
+            // Fallback if regex fails (Use stable UUIDv5 just like in single-fetch fallback)
             if (!uuid) {
-                uuid = `${testId}_q${index + 1}`;
+                if (q.question_number) {
+                    uuid = uuidv5(`${testId}_q-${q.question_number}`, NAMESPACE);
+                } else {
+                    uuid = `${testId}_q${index + 1}`;
+                }
+            }
+
+            // CRITICAL FIX: Ensure ID contains test context for file fallback lookup
+            // If the ID is just a UUID (no topic/test prefix) and we are browsing a file-based test,
+            // we MUST prepend the testId so the detail endpoint can find the file.
+            if (uuid && !uuid.startsWith(testId) && !uuid.includes('topic-')) {
+                uuid = `${testId}_${uuid}`;
             }
 
             // Check local file existence
-            const localPath = path.join(process.cwd(), 'data', 'generated-images', testId, `${uuid}.png`);
+            // We need to check BOTH:
+            // 1. Bare UUID: if we generated it before we started using composite IDs
+            // 2. Composite ID: if we generated it now
+
+            // Prioritize checking the ID we are returning to the frontend
+            const checkPaths = [
+                path.join(process.cwd(), 'data', 'generated-images', testId, `${uuid}.png`),
+                path.join(process.cwd(), 'data', 'generated-images', testId, `${uuid.split('_').pop()}.png`) // Try bare UUID
+            ];
+
             let isGenerated = false;
             let isPublished = false;
 
-            // Check if ANY image exists (candidate or final)
-            // But we specifically want to know if "Approved" (UUID.png) exists
-            try {
-                await fs.access(localPath);
-                isPublished = true; // UUID.png exists = Approved & Deployed
-                isGenerated = true;
-            } catch (e) {
-                // If checking for UUID.png failed, check for draft UUID_*.png
+            for (const localPath of checkPaths) {
                 try {
-                    const dir = path.dirname(localPath);
-                    const files = await fs.readdir(dir);
-                    if (files.some(f => f.startsWith(uuid + '_') && f.endsWith('.png'))) {
-                        isGenerated = true;
-                    }
-                } catch (err) { }
+                    await fs.access(localPath);
+                    isGenerated = true; // Local file exists
+                    break;
+                } catch (e) {
+                    // Check for draft UUID_*.png
+                    try {
+                        const dir = path.dirname(localPath);
+                        try { await fs.access(dir); } catch { continue; }
+
+                        const files = await fs.readdir(dir);
+                        const fileName = path.basename(localPath, '.png');
+
+                        if (files.some(f => f.startsWith(fileName + '_') && f.endsWith('.png'))) {
+                            isGenerated = true; // Draft exists
+                        }
+                    } catch (err) { }
+                }
             }
+
+            const hasRemoteImage = !!q.image_path || !!q.image_url_original || !!q.image_url;
 
             return {
                 id: uuid,
                 external_id: uuid,
                 question_ru: q.question?.ru || q.question_ru || "",
                 question_es: q.question?.es || q.question_es || "",
-                has_image: !!q.image_path || !!q.image_url_original || !!q.image_url,
+                has_image: hasRemoteImage,
+                image_ready: isGenerated || hasRemoteImage, // Key metric for coverage
                 is_generated: isGenerated,
-                is_published: isPublished
+                is_published: false // Default to false, will be set by DB check below
             };
         }));
 
-        // SUPPLEMENTAL DB CHECK (Optional, but good for sync)
+        // SUPPLEMENTAL DB CHECK (Only source of truth for Production status)
         const validIds = questionsList.map(q => q.external_id).filter(id => id && id.length > 20);
         if (validIds.length > 0) {
             try {
@@ -1186,7 +1359,7 @@ app.get('/api/test/:testId/questions', async (req, res) => {
                     .in('id', validIds);
 
                 if (dbData) {
-                    const dbMap = new Set(dbData.filter(row => row.image_url && row.image_url.includes('supabase')).map(r => r.id));
+                    const dbMap = new Set(dbData.map(r => r.id)); // Just existence in DB is enough to be "Published"
                     questionsList.forEach(q => {
                         if (dbMap.has(q.external_id)) q.is_published = true;
                     });
@@ -1206,6 +1379,57 @@ app.get('/api/test/:testId/questions', async (req, res) => {
     } catch (error) {
         console.error('Error fetching test questions:', error);
         res.status(500).json({ error: error.message });
+    }
+});
+
+// DELETE or ARCHIVE Candidate Image
+app.delete('/api/candidates/:testId/:filename', async (req, res) => {
+    try {
+        const { testId, filename } = req.params;
+        const { action } = req.query; // 'trash' or 'archive'
+
+        const imagePath = path.join(process.cwd(), 'data', 'generated-images', testId, filename);
+
+        // Find associated prompt file (try both .prompt.txt and .txt)
+        const promptPath = imagePath.replace('.png', '.prompt.txt');
+        const txtPath = imagePath.replace('.png', '.txt');
+
+        // Target Directories
+        const trashDir = path.join(process.cwd(), '_DELETED_ITEMS');
+        const poolDir = path.join(process.cwd(), 'data', 'rejected-pool');
+
+        const targetDir = action === 'archive' ? poolDir : trashDir;
+        await fs.mkdir(targetDir, { recursive: true });
+
+        // Check if file exists
+        try {
+            await fs.access(imagePath);
+        } catch (e) {
+            return res.status(404).json({ error: 'Image not found' });
+        }
+
+        // Rename logic
+        // We append timestamp to ensure uniqueness in the flat pool/trash
+        const timestamp = Date.now();
+        const baseName = path.basename(filename, '.png');
+        const newImageName = `${baseName}_${testId}_${timestamp}.png`;
+
+        await fs.rename(imagePath, path.join(targetDir, newImageName));
+
+        // 2. Prompt (if exists)
+        try {
+            if (fs.existsSync(promptPath)) {
+                await fs.rename(promptPath, path.join(targetDir, newImageName.replace('.png', '.prompt.txt')));
+            } else if (fs.existsSync(txtPath)) {
+                await fs.rename(txtPath, path.join(targetDir, newImageName.replace('.png', '.txt')));
+            }
+        } catch (e) { }
+
+        res.json({ success: true, movedTo: targetDir });
+
+    } catch (e) {
+        console.error('Delete error:', e);
+        res.status(500).json({ error: e.message });
     }
 });
 
@@ -1268,6 +1492,7 @@ app.post('/api/test/:testId/sync-images', async (req, res) => {
         const testDirs = await fs.readdir(imagesRoot);
 
         let copiedCount = 0;
+        const restoredIds = [];
 
         for (const dir of testDirs) {
             if (dir === testId) continue; // Skip self
@@ -1355,12 +1580,14 @@ app.post('/api/test/:testId/sync-images', async (req, res) => {
 
                     missingUuids.delete(missingUuid);
                     copiedCount++;
+                    restoredIds.push(missingUuid);
                 }
             }
         }
 
         res.json({
             synced: copiedCount,
+            restoredIds,
             message: `Successfully synced ${copiedCount} images from other tests.`
         });
 
@@ -1370,32 +1597,52 @@ app.post('/api/test/:testId/sync-images', async (req, res) => {
     }
 });
 
-
-
 // ==========================================
 // API: DB OPERATIONS (CONTROL CENTER)
 // ==========================================
 
 // Get question details from DB
 app.get('/api/db/question/:id', async (req, res) => {
+    let queryId;
+    let id;
     try {
-        const { id } = req.params;
+        id = req.params.id;
+        queryId = id;
 
-        // First try questions_new with proper answer_options JOIN
-        const { data, error } = await supabase
-            .from('questions_new')
-            .select('*')
-            .eq('id', id)
-            .maybeSingle();
+        // Handle composite IDs from search (extract UUID from end)
+        const uuidMatch = id.match(/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$/);
+        if (uuidMatch) {
+            queryId = uuidMatch[1];
+        }
 
-        if (error) throw error;
+        let questionData = null;
 
-        if (data) {
-            // Fetch answer_options separately (Supabase doesn't support nested joins in select)
+        // Validate UUID to prevent DB type errors
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(queryId);
+
+        if (isUuid) {
+            // First try questions_new with proper answer_options JOIN
+            const { data, error } = await supabase
+                .from('questions_new')
+                .select('*')
+                .eq('id', queryId) // In questions_new, ID is the UUID
+                .maybeSingle();
+
+            if (error) throw error;
+            questionData = data;
+        }
+
+        // If not found by UUID in new table
+        // let questionData = data; (Removed, already assigned)
+
+        // Add fallback for integer ID lookups if needed, but for now we rely on UUID match
+
+        if (questionData) {
+            // Fetch answer_options separately
             const { data: answers, error: answersError } = await supabase
                 .from('answer_options')
                 .select('*')
-                .eq('question_id', id)
+                .eq('question_id', questionData.id)
                 .order('position', { ascending: true });
 
             if (answersError) {
@@ -1413,29 +1660,111 @@ app.get('/api/db/question/:id', async (req, res) => {
                 is_correct: a.is_correct
             })) || [];
 
-            return res.json({
-                question: {
-                    ...data,
-                    answer_options: formattedAnswers // Inject answers into question object
+            // NORMALIZE FLAT DB COLUMNS TO NESTED OBJECTS (For Frontend Compatibility)
+            const normalizedQuestion = {
+                ...questionData,
+                question: questionData.question || {
+                    ru: questionData.question_ru,
+                    es: questionData.question_es,
+                    en: questionData.question_en
                 },
+                explanation: questionData.explanation || {
+                    ru: questionData.explanation_ru,
+                    es: questionData.explanation_es,
+                    en: questionData.explanation_en
+                },
+                answer_options: formattedAnswers
+            };
+
+            return res.json({
+                question: normalizedQuestion,
                 table: 'questions_new'
             });
         }
 
-        // Fallback to old 'questions' table (legacy support)
-        const { data: oldData, error: oldError } = await supabase
-            .from('questions')
-            .select('*')
-            .eq('external_id', id)
-            .maybeSingle();
+        // Fallback: Read from local JSON files if not in DB
+        if (!questionData) {
+            try {
+                // Parse testId from identifier (e.g. topic-02_test-003_UUID)
+                const testIdMatch = id.match(/(topic-[^_]+)_test-([^_]+)/);
+                if (testIdMatch) {
+                    const topic = testIdMatch[1];
+                    const testName = `${topic}_test-${testIdMatch[2]}`;
+                    const paths = [
+                        path.join(process.cwd(), 'data', 'parsed', topic, `${testName}-enriched.json`),
+                        path.join(process.cwd(), 'data', 'parsed', topic, `${testName}.json`),
+                        // Try data/topic/file
+                        path.join(process.cwd(), 'data', topic, `${testName}-enriched.json`),
+                        path.join(process.cwd(), 'data', topic, `${testName}.json`),
+                        // Try root data/file
+                        path.join(process.cwd(), 'data', `${testName}-enriched.json`),
+                        path.join(process.cwd(), 'data', `${testName}.json`)
+                    ];
 
-        if (oldError) throw oldError;
+                    for (const p of paths) {
+                        try {
+                            const content = await fs.readFile(p, 'utf8');
+                            const json = JSON.parse(content);
+                            const questions = Array.isArray(json) ? json : json.questions;
 
-        if (!oldData) {
-            return res.status(404).json({ error: 'Question not found' });
+                            // Find by UUID or ID (with generation if missing)
+                            const q = questions?.find((item, index) => {
+                                let itemId = item.external_id || item.id;
+
+                                if (!itemId && item.image_url) {
+                                    const match = item.image_url.match(/\/question\/([a-f0-9-]{36})/);
+                                    if (match) itemId = match[1];
+                                }
+
+                                if (!itemId) {
+                                    if (item.question_number) {
+                                        itemId = uuidv5(`${testName}_q-${item.question_number}`, NAMESPACE);
+                                    } else {
+                                        itemId = `${testName}_q${index + 1}`;
+                                    }
+                                }
+
+                                // 1. Direct match (UUID vs UUID)
+                                if (String(itemId) === String(queryId)) return true;
+
+                                // 2. Composite match (UUID in file vs Composite Query)
+                                // If queryId includes the testName, we check if it ends with the itemId
+                                if (queryId.includes(testName) && queryId.endsWith(itemId)) return true;
+
+                                return false;
+                            });
+
+                            if (q) {
+                                // CRITICAL FIX: Ensure the returned question has the Composite ID
+                                // The frontend relies on parsing "topic-XX_test-YY_UUID" to know the test context.
+                                // The raw 'q' object only has the bare UUID.
+                                // We overwrite/set 'id' to the queryId (which is the Composite ID we successfully matched against).
+                                const questionWithCompositeId = {
+                                    ...q,
+                                    id: queryId // This ensures MissionImageControl can split(testId_uuid) correctly
+                                };
+
+                                return res.json({
+                                    question: questionWithCompositeId,
+                                    source: 'file',
+                                    sourceFile: p,
+                                    // Mock answer_options structure for frontend compatibility
+                                    answer_options: q.answers?.map((a, idx) => ({
+                                        id: idx + 1,
+                                        text: a.text,
+                                        is_correct: a.is_correct
+                                    }))
+                                });
+                            }
+                        } catch (e) { } // Ignore file read errors
+                    }
+                }
+            } catch (e) {
+                console.warn('File fallback error:', e);
+            }
+
+            return res.status(404).json({ error: 'Question not found anywhere' });
         }
-
-        return res.json({ question: oldData, table: 'questions' });
 
     } catch (error) {
         console.error('Error fetching from DB:', error);
@@ -1447,17 +1776,47 @@ app.get('/api/db/question/:id', async (req, res) => {
 // Update text content (Syncs DB and Local File)
 app.post('/api/db/update-text', async (req, res) => {
     try {
-        const { id, testId, question_ru, question_es, question_en, explanation_ru, explanation_es, explanation_en, answer_options, table } = req.body;
+        const { id, testId, country = 'spain', question_ru, question_es, question_en, explanation_ru, explanation_es, explanation_en, answer_options, table } = req.body;
 
         if (!id) throw new Error('No ID provided');
 
-        // 1. Update Supabase (Main Table)
+        if (country === 'russia') {
+            console.log(`[UPDATE RU] Question ID: ${id}`);
+
+            // Update Main
+            const { error: qErr } = await supabase
+                .from('pdd_russia_questions')
+                .update({
+                    question_text: question_ru,
+                    explanation: explanation_ru,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', id);
+
+            if (qErr) throw qErr;
+
+            // Update Answers
+            if (answer_options && Array.isArray(answer_options)) {
+                await supabase.from('pdd_russia_answers').delete().eq('question_id', id);
+                const toInsert = answer_options.map((opt, idx) => ({
+                    question_id: id,
+                    answer_text: opt.text?.ru || '',
+                    is_correct: opt.is_correct || false,
+                    position: idx + 1
+                }));
+                await supabase.from('pdd_russia_answers').insert(toInsert);
+            }
+
+            return res.json({ success: true, message: 'Russia question updated in DB' });
+        }
+
+        // Spain Logic (existing)
         const updateData = {
             question_ru,
             question_es,
-            question_en, // Added support for EN
+            question_en,
             explanation_ru,
-            explanation_es, // Added support for ES/EN explanations
+            explanation_es,
             explanation_en,
             updated_at: new Date().toISOString()
         };
@@ -1965,27 +2324,45 @@ app.get('/api/candidates/:testId/:uuid', async (req, res) => {
         // Find files matching pattern: {uuid}.png or {uuid}_123456789.png
         const candidates = [];
 
+        // Handle composite UUIDs (e.g. topic-02_test-002_560d...)
+        const bareUuid = uuid.includes('_') ? uuid.split('_').pop() : uuid;
+        const searchUuids = [uuid];
+        if (bareUuid !== uuid) searchUuids.push(bareUuid);
+
         for (const file of files) {
-            // Check if file starts with uuid
-            if (!file.startsWith(uuid)) continue;
             if (!file.endsWith('.png')) continue; // Only source pngs are candidates
 
-            // Validate it's this question's file
-            // pattern 1: exactly uuid.png (Default/Main)
-            // pattern 2: uuid_timestamp.png (Version)
+            let isMatch = false;
+            let matchedUuid = null;
 
-            const isExactMatch = file === `${uuid}.png`;
-            const isVersionMatch = file.match(new RegExp(`^${uuid}_\\d+\\.png$`));
+            for (const searchId of searchUuids) {
+                // Check if file match: either exact searchId.png OR searchId_timestamp...
+                const isExact = file === `${searchId}.png`;
+                const isVersion = file.startsWith(searchId + '_') && file.match(new RegExp(`^${searchId}_\\d+(?:_[a-zA-Z0-9]+)?\\.png$`));
 
-            if (isExactMatch || isVersionMatch) {
+                if (isExact || isVersion) {
+                    isMatch = true;
+                    matchedUuid = searchId;
+                    break;
+                }
+            }
+
+            if (isMatch) {
                 const stat = await fs.stat(path.join(dir, file));
+
+                let model = 'Gen AI'; // Default
+                if (file.includes('_pro')) model = 'Gemini 3 Pro';
+                if (file.includes('_flash')) model = 'Gemini Flash';
+                if (file.includes('manual')) model = 'Manual';
+
                 candidates.push({
                     filename: file,
                     path: path.join('data/generated-images', testId, file), // Relative path for frontend
-                    url: `http://localhost:${PORT}/data/generated-images/${testId}/${file}`,
+                    url: `http://localhost:${PORT}/generated-images/${testId}/${file}`, // Use middleware URL
                     timestamp: stat.mtimeMs,
                     size: stat.size,
-                    isMain: isExactMatch
+                    isMain: file === `${matchedUuid}.png` || file === `${uuid}.png`,
+                    model: model
                 });
             }
         }
@@ -2077,16 +2454,86 @@ app.delete('/api/candidates/:testId/:filename', async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 });
+
+// Open file in Editor
+app.post('/api/open-file', async (req, res) => {
+    try {
+        const { path: filePath, id } = req.body;
+        if (!filePath) return res.status(400).json({ error: 'No path provided' });
+
+        // Find line number
+        let lineNumber = 1;
+        if (id) {
+            try {
+                const content = await fs.readFile(filePath, 'utf8');
+                const lines = content.split('\n');
+                const idx = lines.findIndex(line => line.includes(id));
+                if (idx !== -1) lineNumber = idx + 1;
+            } catch (readErr) {
+                console.warn('[Open] Could not calculate line number:', readErr.message);
+            }
+        }
+
+        console.log(`[Open] Opening ${filePath}:${lineNumber}`);
+
+        // Use 'cursor://' URL scheme to open in Cursor at specific line
+        // Command: open "cursor://file/FULL_PATH:LINE"
+        const command = `open "cursor://file/${filePath}:${lineNumber}"`;
+
+        require('child_process').exec(command, (error) => {
+            if (error) {
+                console.error('[Open] URL scheme failed, trying fallback:', error);
+                // Fallback: default OS open
+                require('child_process').exec(`open "${filePath}"`);
+            }
+        });
+
+        res.json({ success: true });
+    } catch (e) {
+        console.error('[Open] Failed:', e);
+        res.status(500).json({ error: e.message });
+    }
+});
 // ========================================
 // NEW: Get full question details by ID
 // ========================================
 app.get('/api/question/:questionId/full', async (req, res) => {
     try {
-        const { questionId } = req.params; // e.g. topic-01_test-001_39121580-0eb6-4c5b-8349-433ace109cb4
+        const { questionId } = req.params;
+        const country = req.query.country || 'spain';
 
-        // Extract UUID part (last segment after underscore)
+        if (country === 'russia') {
+            // questionId could be source_id or PK
+            let query = supabase.from('pdd_russia_questions').select('*, pdd_russia_answers(*)');
+
+            if (questionId.length > 30) { // source_id
+                query = query.eq('source_id', questionId);
+            } else {
+                query = query.eq('id', questionId);
+            }
+
+            const { data: q, error } = await query.maybeSingle();
+            if (error) throw error;
+            if (!q) return res.status(404).json({ error: 'Russia question not found' });
+
+            // Map to Mission Control layout
+            const mapped = {
+                id: String(q.id),
+                external_id: q.source_id,
+                question: { ru: q.question_text, es: '', en: '' },
+                explanation: { ru: q.explanation || '', es: '', en: '' },
+                answers: q.pdd_russia_answers?.map(a => ({
+                    text: { ru: a.answer_text, es: '', en: '' },
+                    is_correct: a.is_correct
+                })) || []
+            };
+
+            return res.json({ question: mapped });
+        }
+
+        // Spain Logic (existing)
         const parts = questionId.split('_');
-        const uuid = parts[parts.length - 1]; // Just the UUID
+        const uuid = parts[parts.length - 1];
 
         console.log(`[API] Searching for question UUID: ${uuid} (from ${questionId})`);
 
@@ -2164,6 +2611,68 @@ app.post('/api/generate/stop', (req, res) => {
             success: false,
             error: error.message
         });
+    }
+});
+
+// ========================================
+// DEBUG: Check Missing Questions
+// ========================================
+app.get('/api/debug/check-missing/:topic/:test', async (req, res) => {
+    try {
+        const { topic, test } = req.params;
+        const jsonPath = path.join(process.cwd(), `data/parsed/${topic}/${topic}_${test}-enriched.json`);
+
+        console.log(`[Debug] Checking missing questions for ${topic} / ${test}...`);
+
+        // 1. Read JSON
+        const content = await fs.readFile(jsonPath, 'utf8');
+        const questions = JSON.parse(content);
+        console.log(`[Debug] Found ${questions.length} questions in local file.`);
+
+        // 2. Extract IDs
+        const localIds = questions.map(q => q.external_id || q.id);
+
+        // 3. Query Supabase (We need the topic UUID first)
+        // Ideally we should know the topic UUID. Let's find it by order_index if possible, or just search questions by looking up topic first.
+        const topicNumber = parseInt(topic.replace('topic-', ''), 10);
+
+        const { data: topicData, error: topicError } = await supabase
+            .from('topics')
+            .select('id')
+            .eq('order_index', topicNumber)
+            .single();
+
+        if (topicError) throw new Error(`Topic not found: ${topicError.message}`);
+
+        const { data: dbQuestions, error: dbError } = await supabase
+            .from('questions_new')
+            .select('id')
+            .eq('topic_id', topicData.id);
+
+        if (dbError) throw new Error(`DB Error: ${dbError.message}`);
+
+        const dbIds = new Set(dbQuestions.map(q => q.id));
+
+        // 4. Compare
+        const missing = questions
+            .filter(q => !dbIds.has(q.external_id || q.id))
+            .map(q => ({
+                number: q.question_number,
+                id: q.external_id || q.id,
+                text: q.question.es.substring(0, 50) + '...'
+            }));
+
+        res.json({
+            success: true,
+            totalLocal: questions.length,
+            totalInDbForTopic: dbQuestions.length,
+            missingCount: missing.length,
+            missing
+        });
+
+    } catch (e) {
+        console.error('[Debug] Error:', e);
+        res.status(500).json({ error: e.message });
     }
 });
 

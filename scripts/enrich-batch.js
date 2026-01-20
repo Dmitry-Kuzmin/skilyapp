@@ -26,7 +26,7 @@ if (!GEMINI_API_KEY) {
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-exp",
+    model: "gemini-3-pro-preview", // User requested strict usage of this model
     generationConfig: { responseMimeType: "application/json" }
 });
 
@@ -81,23 +81,40 @@ async function enrichQuestion(q) {
         if (imagePart) parts.push(imagePart);
     }
 
-    try {
-        const result = await model.generateContent(parts);
-        const responseText = result.response.text();
-        const cleanJson = responseText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-        const data = JSON.parse(cleanJson);
+    let retries = 0;
+    const MAX_RETRIES = 5;
 
-        // Merge AI data back to original question structure
-        return {
-            ...q,
-            question: data.question,
-            answers: data.answers,
-            explanation: data.explanation
-        };
-    } catch (error) {
-        console.error(`  ❌ Ошибка AI для вопроса:`, error.message);
-        return q; // Возвращаем как есть в случае ошибки
+    while (retries < MAX_RETRIES) {
+        try {
+            const result = await model.generateContent(parts);
+            const responseText = result.response.text();
+            const cleanJson = responseText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+            const data = JSON.parse(cleanJson);
+
+            // Merge AI data back to original question structure
+            return {
+                ...q,
+                question: data.question,
+                answers: data.answers,
+                explanation: data.explanation
+            };
+        } catch (error) {
+            const isRateLimit = error.message.includes('429') || error.message.includes('Quota exceeded');
+
+            if (isRateLimit || error.message.includes('503')) {
+                retries++;
+                const waitTime = 5000 * Math.pow(2, retries); // Exponential backoff: 10s, 20s, 40s...
+                console.warn(`\n   ⚠️ Rate limit/Error hit. Retrying in ${waitTime / 1000}s (Attempt ${retries}/${MAX_RETRIES})...`);
+                await new Promise(r => setTimeout(r, waitTime));
+            } else {
+                console.error(`  ❌ Fatal AI Error for question:`, error.message);
+                return q; // Non-retriable error
+            }
+        }
     }
+
+    console.error(`  ❌ Failed after ${MAX_RETRIES} retries. Skipping.`);
+    return q;
 }
 
 async function main() {
@@ -119,7 +136,8 @@ async function main() {
         enrichedQuestions.push(enriched);
 
         // Маленькая задержка для соблюдения лимитов
-        await new Promise(r => setTimeout(r, 2000));
+        // Delay to respect rate limits (Pro model needs significantly more time)
+        await new Promise(r => setTimeout(r, 20000));
     }
 
     // Сохраняем поверх того же файла (или в новый)

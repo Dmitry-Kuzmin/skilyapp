@@ -12,7 +12,8 @@ import {
     Trash2,
     Check,
     UploadCloud,
-    Plus
+    Plus,
+    Archive
 } from "lucide-react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,6 +31,7 @@ export interface MissionImageControlHandle {
     approve: () => Promise<boolean>;
     regenerate: () => Promise<void>;
     reject: () => Promise<void>;
+    archive: () => Promise<void>;
 }
 
 interface Candidate {
@@ -38,10 +40,11 @@ interface Candidate {
     url: string;
     timestamp: number;
     isMain: boolean;
+    model?: string;
 }
 
 export const MissionImageControl = forwardRef<MissionImageControlHandle, MissionImageControlProps>(
-    ({ questionId, serverOnline, onImageReady }, ref) => {
+    ({ questionId, serverOnline, onImageReady, onGenerationStart, onGenerationEnd }, ref) => {
         const { addLog } = useActivityLog();
         const [originalUrl, setOriginalUrl] = useState<string | null>(null);
 
@@ -61,6 +64,29 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
         const [uploading, setUploading] = useState(false);
         const [questionData, setQuestionData] = useState<any>(null);
         const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+
+        // Helper to ensure URLs point to the backend (port 3030) if they are local
+        const fixUrl = (url: string | null | undefined) => {
+            if (!url) return "";
+            if (url.startsWith('http')) return url;
+
+            const baseUrl = 'http://localhost:3030';
+
+            // Handle local validator paths
+            if (url.startsWith('candidates/') || url.startsWith('/candidates/')) {
+                const cleanPath = url.startsWith('/') ? url : `/${url}`;
+                return `${baseUrl}${cleanPath}`;
+            }
+
+            // Handle original images (if UUID-like filename without path)
+            const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i.test(url);
+            if (isUuid && !url.includes('/')) {
+                return `${baseUrl}/data/originals/${url}`;
+            }
+
+            const cleanPath = url.startsWith('/') ? url : `/${url}`;
+            return `${baseUrl}${cleanPath}`;
+        };
 
         // ----------------------------------------------------
         // FETCH DATA & CANDIDATES
@@ -105,27 +131,8 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
 
                             if (onImageReady) onImageReady();
                         } else {
-                            // FALLBACK: Try fetching the standard file directly
-                            const genPath = `http://localhost:3030/data/generated-images/${testId}/${uuid}.png`;
-                            try {
-                                const head = await fetch(genPath, { method: 'HEAD' });
-                                if (head.ok) {
-                                    const legacyCandidate = {
-                                        filename: `${uuid}.png`,
-                                        path: `data/generated-images/${testId}/${uuid}.png`,
-                                        url: genPath,
-                                        timestamp: Date.now(),
-                                        isMain: true
-                                    };
-                                    setCandidates([legacyCandidate]);
-                                    setSelectedFilename(legacyCandidate.filename);
-                                    if (onImageReady) onImageReady();
-                                } else {
-                                    setSelectedFilename(null);
-                                }
-                            } catch {
-                                setSelectedFilename(null);
-                            }
+                            // No candidates found
+                            setSelectedFilename(null);
                         }
                     }
                 }
@@ -137,7 +144,15 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
         }, [questionId, onImageReady, selectedFilename]);
 
         useEffect(() => {
-            if (questionId) fetchData();
+            if (questionId) {
+                setPrompt("");
+                setUserInstruction("");
+                setCandidates([]);
+                setSelectedFilename(null);
+                setQuestionData(null);
+                setOriginalUrl(null);
+                fetchData();
+            }
         }, [questionId]);
 
 
@@ -209,8 +224,8 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
         // ----------------------------------------------------
         // ACTIONS (DELETE with NO CONFIRM)
         // ----------------------------------------------------
-        const deleteCandidate = async (candidate: Candidate) => {
-            console.log("Starting delete process for:", candidate.filename);
+        const deleteCandidate = async (candidate: Candidate, action: 'trash' | 'archive' = 'trash') => {
+            console.log(`Starting ${action} process for:`, candidate.filename);
 
             const parts = questionId.split('_');
             const testId = parts.slice(0, -1).join('_');
@@ -218,14 +233,14 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
             addLog(`Deleting ${candidate.filename}...`, 'loading');
 
             try {
-                const url = `http://localhost:3030/api/candidates/${testId}/${encodeURIComponent(candidate.filename)}`;
+                const url = `http://localhost:3030/api/candidates/${testId}/${encodeURIComponent(candidate.filename)}?action=${action}`;
                 console.log("Delete URL:", url);
 
                 const res = await fetch(url, { method: 'DELETE' });
 
                 if (res.ok) {
-                    addLog("Candidate deleted", 'info');
-                    toast.success("Image deleted");
+                    addLog(`Candidate ${action === 'archive' ? 'archived' : 'deleted'}`, 'info');
+                    toast.success(`Image ${action === 'archive' ? 'Archived' : 'Deleted'}`);
                     console.log("Delete success");
 
                     setCandidates(prev => prev.filter(c => c.filename !== candidate.filename));
@@ -255,14 +270,15 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
             approve: async () => {
                 if (!selectedCandidate || !questionData) {
                     addLog("No image selected to publish", 'error');
+                    toast.error("Select an image first!");
                     return false;
                 }
 
                 if (selectedCandidate.isMain) {
-                    toast.info("This is already the approved production image!");
+                    toast.info("This version is already LIVE");
                 }
 
-                addLog(`Publishing version: ${selectedCandidate.filename}...`, 'loading');
+                addLog(`🚀 [SINGLE APPROVE] Deploying "${selectedCandidate.filename}" to Production...`, 'loading');
                 try {
                     const parts = questionId.split('_');
                     const uuid = parts[parts.length - 1];
@@ -297,7 +313,9 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
             },
             regenerate: async () => {
                 if (!serverOnline) return addLog("Server offline", 'error');
+                setLoading(true);
                 addLog(`Generating new candidate...`, 'loading');
+                onGenerationStart?.();
 
                 const parts = questionId.split('_');
                 const category = parts[0];
@@ -342,6 +360,7 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                                     setCandidates(newCandidates);
                                     if (newCandidates[0]) setSelectedFilename(newCandidates[0].filename);
                                     addLog("New candidate arrived!", 'success');
+                                    onGenerationEnd?.();
                                 }
                             }
                         } catch (e) { console.error(e); }
@@ -349,16 +368,23 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                         if (attempts > 150) {
                             clearInterval(interval);
                             addLog("Generation timeout (5m limit reached)", 'error');
+                            onGenerationEnd?.();
                         }
                     }, 2000);
 
                 } catch (e) {
                     addLog(`Generation failed: ${e}`, 'error');
+                    onGenerationEnd?.();
                 }
             },
             reject: async () => {
                 if (selectedCandidate) {
-                    await deleteCandidate(selectedCandidate);
+                    await deleteCandidate(selectedCandidate, 'trash');
+                }
+            },
+            archive: async () => {
+                if (selectedCandidate) {
+                    await deleteCandidate(selectedCandidate, 'archive');
                 }
             }
         }), [prompt, userInstruction, selectedCandidate, questionId, candidates, questionData, serverOnline]);
@@ -376,9 +402,10 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                             <>
                                 <Badge variant="outline" className="absolute top-2 left-2 z-10 bg-black/50 text-[10px]">ORIGINAL</Badge>
                                 <img
-                                    src={originalUrl}
+                                    src={fixUrl(originalUrl)}
                                     className="w-full h-full object-contain cursor-zoom-in"
-                                    onClick={() => setZoomedImage(originalUrl)}
+                                    onClick={() => setZoomedImage(fixUrl(originalUrl))}
+                                // onError={(e) => { e.currentTarget.style.opacity = '0.3'; }} 
                                 />
                             </>
                         ) : (
@@ -398,9 +425,11 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                                     </Badge>
                                 </div>
                                 <img
-                                    src={selectedCandidate.url}
+                                    src={fixUrl(selectedCandidate.url)}
                                     className="flex-1 w-full h-full object-contain cursor-zoom-in bg-zinc-900/50"
-                                    onClick={() => setZoomedImage(selectedCandidate.url)}
+                                    onClick={() => setZoomedImage(fixUrl(selectedCandidate.url))}
+                                    loading="lazy"
+                                // onError={(e) => { e.currentTarget.style.opacity = '0.3'; }}
                                 />
 
                                 {/* Prompt & Info Overlay */}
@@ -408,7 +437,10 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                                     <Button size="sm" variant="secondary" className="h-7 text-[10px]" onClick={() => setIsPromptOpen(true)}>
                                         <Edit2 className="w-3 h-3 mr-1" /> Prompt
                                     </Button>
-                                    <Button size="sm" variant="destructive" className="h-7 w-7 p-0" onClick={() => deleteCandidate(selectedCandidate)}>
+                                    <Button size="sm" variant="secondary" className="h-7 w-7 p-0 bg-blue-500/20 text-blue-400 hover:bg-blue-500/40" onClick={() => deleteCandidate(selectedCandidate, 'archive')} title="Archive (Pool)">
+                                        <Archive className="w-3 h-3" />
+                                    </Button>
+                                    <Button size="sm" variant="destructive" className="h-7 w-7 p-0" onClick={() => deleteCandidate(selectedCandidate, 'trash')} title="Trash (Delete)">
                                         <Trash2 className="w-3 h-3" />
                                     </Button>
                                 </div>
@@ -435,8 +467,16 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                         )}
                     >
                         <input {...getInputProps()} />
-                        {uploading ? <Loader2 className="w-5 h-5 animate-spin text-indigo-400" /> : <Plus className="w-6 h-6 text-zinc-500" />}
-                        <span className="text-[9px] text-zinc-500 mt-1">{uploading ? '...' : 'Add'}</span>
+                        {uploading ? <Loader2 className="w-5 h-5 animate-spin text-indigo-400" /> : <UploadCloud className="w-6 h-6 text-zinc-500" />}
+                        <span className="text-[9px] text-zinc-500 mt-1">{uploading ? '...' : 'Upload'}</span>
+                    </div>
+
+                    <div
+                        onClick={() => setIsPromptOpen(true)}
+                        className="min-w-[70px] h-[70px] rounded-lg border-2 border-dashed border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 hover:bg-purple-500/10 transition-colors shrink-0"
+                    >
+                        <Sparkles className="w-6 h-6 text-purple-500/70" />
+                        <span className="text-[9px] text-purple-500/70 mt-1">AI Gen</span>
                     </div>
 
                     {/* Candidate List */}
@@ -451,10 +491,14 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                                     : (cand.isMain ? "border-emerald-500/50 opacity-80" : "border-transparent opacity-60 hover:opacity-100")
                             )}
                         >
-                            <img src={cand.url} className="w-full h-full object-cover" loading="lazy" />
-
+                            <img
+                                src={fixUrl(cand.url)}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                                onError={(e) => { e.currentTarget.style.filter = 'grayscale(100%) blur(2px)'; }}
+                            />
                             <div className="absolute bottom-0 right-0 left-0 bg-black/60 text-[8px] text-white px-1 truncate text-center backdrop-blur-sm">
-                                {new Date(cand.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {cand.model || new Date(cand.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </div>
 
                             <button
@@ -481,7 +525,7 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                 {/* ZOOM & PROMPT OVERLAYS */}
                 {zoomedImage && (
                     <div className="fixed inset-0 z-[150] bg-black/95 backdrop-blur-xl flex items-center justify-center p-8 animate-in fade-in" onClick={() => setZoomedImage(null)}>
-                        <img src={zoomedImage} className="max-w-full max-h-full object-contain shadow-2xl rounded-lg" onClick={e => e.stopPropagation()} />
+                        <img src={fixUrl(zoomedImage)} className="max-w-full max-h-full object-contain shadow-2xl rounded-lg" onClick={e => e.stopPropagation()} />
                         <Button className="absolute top-4 right-4 rounded-full w-12 h-12 bg-zinc-800/50" onClick={() => setZoomedImage(null)}>
                             <X className="w-6 h-6" />
                         </Button>
@@ -537,7 +581,7 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                                 disabled={loading}
                             >
                                 {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                                {userInstruction ? "Apply Magic & Generate" : "Regenerate"}
+                                {candidates.length === 0 ? "Start Magic (Initial)" : (userInstruction ? "Apply Magic & Generate" : "Regenerate")}
                             </Button>
                         </div>
                     </div>

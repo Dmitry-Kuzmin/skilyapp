@@ -6,7 +6,8 @@ import {
     Check,
     X,
     RefreshCcw,
-    Trash2
+    Trash2,
+    Archive
 } from "lucide-react";
 
 interface FloatingDockProps {
@@ -14,6 +15,7 @@ interface FloatingDockProps {
     onPrev: () => void;
     onApprove: () => void;
     onReject: () => void;
+    onArchive?: () => void;
     onRegenerate: () => void;
     hasSelection: boolean;
     isGenerating?: boolean;
@@ -25,6 +27,7 @@ export function FloatingDock({
     onPrev,
     onApprove,
     onReject,
+    onArchive,
     onRegenerate,
     hasSelection,
     isGenerating = false,
@@ -52,13 +55,26 @@ export function FloatingDock({
 
             {/* Actions Group */}
             <div className="flex items-center gap-2">
-                {/* Reject */}
+                {/* Archive (Soft Delete) */}
+                {onArchive && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-10 w-10 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20"
+                        onClick={onArchive}
+                        title="Archive (Move to Pool)"
+                    >
+                        <Archive className="w-4 h-4" />
+                    </Button>
+                )}
+
+                {/* Trash (Hard Delete) */}
                 <Button
                     variant="ghost"
                     size="icon"
                     className="h-10 w-10 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20"
                     onClick={onReject}
-                    title="Reject / Delete (Del)"
+                    title="Trash (Delete Forever)"
                 >
                     <Trash2 className="w-4 h-4" />
                 </Button>
@@ -79,9 +95,9 @@ export function FloatingDock({
 
                 {/* Approve */}
                 <Button
-                    className="h-10 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-500/20"
+                    className="h-10 px-6 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium shadow-lg shadow-blue-500/20"
                     onClick={onApprove}
-                    title="Approve & Next (Enter)"
+                    title="Approve CURRENT & Next (Enter)"
                 >
                     <Check className="w-4 h-4 mr-2" />
                     Approve

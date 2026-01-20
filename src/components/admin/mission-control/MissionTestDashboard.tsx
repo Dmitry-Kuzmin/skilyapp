@@ -1,312 +1,443 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Languages, Rocket, Image as ImageIcon, FileText, CheckCircle2, AlertTriangle, Play, Eye, Loader2, RefreshCw } from "lucide-react";
+import { Sparkles, Languages, Rocket, Image as ImageIcon, FileText, CheckCircle2, Play, Eye, Loader2, RefreshCw, Cpu, Database, Activity, Zap, Layers, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useActivityLog } from "@/contexts/ActivityLogContext";
+import { Progress } from "@/components/ui/progress";
+import { motion } from "framer-motion";
 
 interface MissionTestDashboardProps {
     testId: string;
     serverOnline: boolean;
-    stats?: {
+    stats: {
         total: number;
         generated: number;
         published: number;
     };
-    onStartReview?: () => void;
+    onStartReview: () => void;
     isEnriched?: boolean;
 }
 
-export function MissionTestDashboard({ testId, serverOnline, stats = { total: 0, generated: 0, published: 0 }, onStartReview, isEnriched = true }: MissionTestDashboardProps) {
-    const { addLog, setIsProcessing, isProcessing } = useActivityLog(); // Global log
-    const [localProcessing, setLocalProcessing] = useState(false); // Local lock
+export const MissionTestDashboard = ({ testId, serverOnline, stats, onStartReview, isEnriched = true }: MissionTestDashboardProps) => {
+    const { addLog } = useActivityLog();
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [localProcessing, setLocalProcessing] = useState(false);
+    const [activeTaskType, setActiveTaskType] = useState<'generate' | 'enrich' | null>(null);
+    const [processLog, setProcessLog] = useState<string | null>(null);
 
+    // Poll for STATUS (Enrichment only for now)
+    useEffect(() => {
+        const checkStatus = async () => {
+            if (!serverOnline) return;
+            try {
+                const res = await fetch('http://localhost:3030/api/enrich/status');
+                const data = await res.json();
+
+                if (data.isRunning) {
+                    if (!localProcessing) setLocalProcessing(true);
+                    if (activeTaskType !== 'enrich') setActiveTaskType('enrich');
+                    setProcessLog(typeof data.latestLog === 'string' ? data.latestLog : JSON.stringify(data.latestLog));
+                } else {
+                    // If we were processing but now stopped
+                    if (activeTaskType === 'enrich') {
+                        setLocalProcessing(false);
+                        setActiveTaskType(null);
+                        setProcessLog(typeof data.latestLog === 'string' ? data.latestLog : JSON.stringify(data.latestLog)); // Final message
+                        toast.info("Enrichment Process Finished");
+                        // Optionally reload
+                        // window.location.reload(); 
+                    }
+                }
+            } catch (e) {
+                console.error("Status poll error:", e);
+            }
+        };
+
+        const interval = setInterval(checkStatus, 1000);
+        checkStatus(); // Initial check
+        return () => clearInterval(interval);
+    }, [serverOnline, activeTaskType, localProcessing]);
+
+    // BATCH GENERATE
     const handleBatchGenerate = async () => {
         if (!serverOnline) {
-            addLog("Validator server is offline", 'error');
-            return toast.error("Validator server is offline");
+            toast.error("Validator Server Offline. Run 'npm run validator'");
+            return;
         }
 
-        setLocalProcessing(true);
-        // We still set global isProcessing for top-bar indication, but we won't disable buttons purely on it if we want concurrency.
-        // But for clarity, let's keep global synced but use local for disabling.
         setIsProcessing(true);
-
-        addLog(`Starting batch generation for test: ${testId}`, 'info');
+        setLocalProcessing(true);
+        setActiveTaskType('generate');
+        addLog(`Starting batch generation for ${testId}...`, 'info');
 
         try {
-            await fetch('http://localhost:3030/api/generate/test', {
+            toast.info("Mission Start: Batch Generation Init...");
+            await fetch('http://localhost:3030/api/generate/batch', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ category: testId.split('_')[0], testId: testId })
+                body: JSON.stringify({
+                    testId,
+                    forceRegenerate: false
+                })
             });
 
-            addLog(`Batch generation triggered for ${stats.total} items. Watching for updates...`, 'success');
+            addLog("Batch command sent to server. Check terminal for progress.", 'success');
+            toast.success("Batch Generation Started (Server-Side)");
+
+            // Poll for completion? or just let user check manually?
+            // For now, simple timeout to re-enable button
             setTimeout(() => {
-                addLog(`Batch Process: ~5% complete (Simulated)`, 'loading');
-                setLocalProcessing(false); // Unlock local after trigger
+                setLocalProcessing(false);
                 setIsProcessing(false);
-            }, 3000);
+                setActiveTaskType(null);
+            }, 5000);
 
         } catch (e) {
-            addLog(`Failed to start generation: ${e}`, 'error');
+            console.error(e);
+            addLog(`Batch start failed: ${e}`, 'error');
             setLocalProcessing(false);
             setIsProcessing(false);
+            setActiveTaskType(null);
         }
     };
 
+    // BATCH ENRICH
     const handleBatchEnrich = async () => {
-        if (!serverOnline) return toast.error("Validator server is offline");
-
-        setLocalProcessing(true);
-        addLog("Starting text enrichment task...", 'info');
-
-        try {
-            await fetch('http://localhost:3030/api/enrich/all', { method: 'POST' });
-            addLog("Enrichment task started successfully", 'success');
-        } catch (e) {
-            addLog("Enrichment failed to start", 'error');
-        } finally {
-            setLocalProcessing(false);
+        if (!serverOnline) {
+            toast.error("Validator Server Offline");
+            return;
         }
-    };
-
-    const handleDeploy = async () => {
-        if (!serverOnline) return toast.error("Validator server is offline");
-        if (stats.generated === 0) return toast.error("No generated images to deploy");
 
         setLocalProcessing(true);
-        addLog(`Starting deployment of ${stats.generated} questions to Supabase...`, 'info');
+        setActiveTaskType('enrich');
+        addLog(`Igniting Enrichment Sequence for ${testId}...`, 'info');
 
         try {
-            const res = await fetch('http://localhost:3030/api/db/deploy-test', {
+            const res = await fetch(`http://localhost:3030/api/enrich/all`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ testId })
+                body: JSON.stringify({ filter: testId })
             });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                addLog(`Enrichment Initiated. Check logs.`, 'success');
+                toast.success("Enrichment Background Process Started");
+                // The polling effect will take over updating state
+            } else {
+                throw new Error(data.error || "Unknown server error");
+            }
+        } catch (e: any) {
+            addLog(`Enrichment failed: ${e.message}`, 'error');
+            toast.error(`Enrichment Error: ${e.message}`);
+            setLocalProcessing(false);
+            setActiveTaskType(null);
+        }
+    };
+
+    // DEPLOY
+    const handleDeploy = async () => {
+        if (!serverOnline) return toast.error("Server Offline");
+
+        setLocalProcessing(true);
+        addLog(`Deploying test ${testId} to Production...`, 'warn');
+
+        try {
+            const res = await fetch(`http://localhost:3030/api/deploy-test/${testId}`, { method: 'POST' });
+            const data = await res.json();
 
             if (res.ok) {
-                const data = await res.json();
-                addLog(`✅ Deployed ${data.deployed || 0} questions successfully!`, 'success');
-                toast.success(`Deployed ${data.deployed || 0} questions to production`);
+                addLog(`Deployment Successful: ${data.deployed} questions live.`, 'success');
+                toast.success("Rocket Launched! Test is live on Supabase.");
+                setTimeout(() => window.location.reload(), 2000);
             } else {
-                throw new Error('Deploy failed');
+                throw new Error(data.error);
             }
-        } catch (e) {
-            addLog(`Deploy error: ${e}`, 'error');
-            toast.error("Failed to deploy questions");
+        } catch (e: any) {
+            addLog(`Deploy failed: ${e.message}`, 'error');
+            toast.error(`Deploy Failed: ${e.message}`);
         } finally {
             setLocalProcessing(false);
         }
     };
 
+    // SYNC
     const handleSyncImages = async () => {
-        if (!serverOnline) return toast.error("Validator server is offline");
-
+        if (!serverOnline) return;
         setLocalProcessing(true);
-        addLog("Syncing duplicates from other tests...", 'info');
-
+        addLog("Syncing duplicates...", 'info');
         try {
             const res = await fetch(`http://localhost:3030/api/test/${testId}/sync-images`, { method: 'POST' });
             const data = await res.json();
-
-            if (data.synced > 0) {
-                addLog(`✅ Synced ${data.synced} images from other tests!`, 'success');
-                toast.success(`Restored ${data.synced} images`);
-                // Trigger refresh if possible (parent usually handles polling or we can force reload logic)
-            } else {
-                addLog("No duplicates found to sync.", 'info');
-                toast.info("No duplicates found");
-            }
+            toast.success(`Synced ${data.copied} images from other tests`);
+            setTimeout(() => window.location.reload(), 1000);
         } catch (e) {
-            addLog("Sync failed", 'error');
+            toast.error("Sync failed");
         } finally {
             setLocalProcessing(false);
         }
     };
 
+    const handleStopProcess = () => {
+        setLocalProcessing(false);
+        setIsProcessing(false);
+        setActiveTaskType(null);
+        addLog("Process interrupted by user.", 'warn');
+    };
+
+    // UI Metrics
+    // Fallback if image_ready is not yet passed (during transition)
+    const generatedCount = (stats as any).image_ready ?? stats.generated;
+
+    const completionRate = stats.total > 0 ? (generatedCount / stats.total) * 100 : 0;
+    const deploymentRate = stats.total > 0 ? (stats.published / stats.total) * 100 : 0;
+    const isReadyForDeploy = generatedCount >= stats.total;
+
+    const container = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: { staggerChildren: 0.05 }
+        }
+    };
+
+    const item = {
+        hidden: { y: 10, opacity: 0 },
+        show: { y: 0, opacity: 1 }
+    };
+
     return (
-        <div className="h-full bg-zinc-950 p-8 overflow-y-auto">
-            <div className="max-w-6xl mx-auto space-y-8">
+        <div className="h-full bg-[#050505] p-6 overflow-y-auto custom-scrollbar relative">
+            {/* Background */}
+            <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/10 via-[#050505] to-[#050505] pointer-events-none" />
 
-                {/* Header with Review Action */}
-                <div className="flex items-center justify-between border-b border-zinc-800 pb-8">
+            <div className="max-w-6xl mx-auto space-y-6 relative z-10">
+
+                {/* Compact Header */}
+                <div className="flex items-end justify-between border-b border-white/5 pb-4">
                     <div>
-                        <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline" className="text-blue-400 border-blue-400/30 uppercase tracking-widest text-[10px]">Test Control Panel</Badge>
+                        <div className="flex items-center gap-2 mb-1">
+                            <Badge variant="outline" className="text-[10px] font-mono bg-blue-500/10 text-blue-400 border-blue-500/20 px-2 py-0.5 rounded uppercase tracking-wider">
+                                Unit {testId.split('_')[1] || '00'}
+                            </Badge>
+                            {!serverOnline && <Badge variant="destructive" className="h-4 text-[9px] px-1">OFFLINE</Badge>}
                         </div>
-                        <h1 className="text-3xl font-bold text-white tracking-tight leading-tight">{testId.toUpperCase()}</h1>
-                        <p className="text-zinc-400 mt-1">Manage generation, enrichment, and deployment for this test module.</p>
-                    </div>
-
-                    {/* Primary Action */}
-                    <div className="flex items-center gap-4">
-                        <Button
-                            size="lg"
-                            className="h-12 px-8 rounded-full bg-white text-black hover:bg-zinc-200 font-bold shadow-2xl shadow-white/10"
-                            onClick={onStartReview}
-                        >
-                            <Eye className="w-5 h-5 mr-2" /> Start Review
-                        </Button>
+                        <h1 className="text-3xl font-bold text-white tracking-tight leading-none">
+                            {testId.replace(/_/g, ' ').toUpperCase()}
+                        </h1>
                     </div>
                 </div>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card className="bg-zinc-900/50 border-zinc-800">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-xs uppercase tracking-wider font-semibold text-zinc-500">Total Questions</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-bold text-white">{stats.total}</div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-zinc-900/50 border-zinc-800">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-xs uppercase tracking-wider font-semibold text-zinc-500">AI Candidates</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-bold text-emerald-400 flex items-center gap-2">
-                                {stats.generated}
-                                <span className="text-sm font-normal text-zinc-600">items</span>
+                {/* Metrics Row (Compact) */}
+                <motion.div
+                    variants={container}
+                    initial="hidden"
+                    animate="show"
+                    className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                >
+                    {/* Dataset */}
+                    <div className="bg-zinc-900/40 border border-white/5 rounded-xl p-4 flex items-center justify-between backdrop-blur-sm">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-zinc-800 rounded-lg text-zinc-400">
+                                <Database className="w-5 h-5" />
                             </div>
-                            <div className="h-1.5 w-full bg-zinc-800 mt-3 rounded-full overflow-hidden">
-                                <div className="h-full bg-emerald-500 transition-all" style={{ width: `${(stats.generated / (stats.total || 1)) * 100}%` }} />
+                            <div>
+                                <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Total Items</div>
+                                <div className="text-2xl font-mono text-white">{stats.total}</div>
                             </div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-zinc-900/50 border-zinc-800">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-xs uppercase tracking-wider font-semibold text-zinc-500">Ready to Deploy</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-bold text-blue-400">{stats.published}</div>
-                        </CardContent>
-                    </Card>
-                </div>
+                        </div>
+                    </div>
 
-                {/* Actions Section Title */}
-                <div>
-                    <h3 className="text-lg font-semibold text-white mb-4">Batch Operations</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                        {/* Batch Generation & Sync */}
-                        <div className="group relative overflow-hidden rounded-2xl bg-zinc-900/40 border border-zinc-800 hover:border-indigo-500/50 transition-all p-6 hover:bg-zinc-900/60">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                <Sparkles className="w-32 h-32 text-indigo-500" />
+                    {/* Coverage */}
+                    <div className="bg-zinc-900/40 border border-blue-500/10 rounded-xl p-4 flex items-center justify-between backdrop-blur-sm relative overflow-hidden">
+                        <div className="absolute bottom-0 left-0 h-1 bg-blue-500/20 w-full">
+                            <div className="h-full bg-blue-500 transition-all duration-500" style={{ width: `${completionRate}%` }} />
+                        </div>
+                        <div className="flex items-center gap-3 relative z-10">
+                            <div className="p-2 bg-blue-500/10 text-blue-400 rounded-lg">
+                                <ImageIcon className="w-5 h-5" />
                             </div>
-                            <div className="relative z-10 flex flex-col h-full">
-                                <div className="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center mb-4 text-indigo-400 border border-indigo-500/20">
-                                    <ImageIcon className="w-5 h-5" />
-                                </div>
-                                <h3 className="text-base font-semibold text-white mb-1">Generate Images</h3>
-                                <p className="text-sm text-zinc-400 mb-6 flex-1">
-                                    Run AI generation or sync existing duplicates.
-                                </p>
-                                <div className="flex flex-col gap-3">
-                                    <Button
-                                        onClick={handleSyncImages}
-                                        disabled={localProcessing}
-                                        variant="outline"
-                                        className="w-full border-zinc-700 hover:bg-zinc-800 text-zinc-300"
-                                    >
-                                        <RefreshCw className="w-4 h-4 mr-2" /> Sync Duplicates
-                                    </Button>
-                                    <Button
-                                        onClick={handleBatchGenerate}
-                                        disabled={localProcessing}
-                                        variant="secondary"
-                                        className={cn(
-                                            "w-full bg-zinc-800 transition-colors border border-zinc-700",
-                                            isProcessing ? "border-indigo-500/50 text-indigo-400" : "hover:bg-indigo-600 hover:text-white hover:border-indigo-500"
-                                        )}
-                                    >
-                                        {isProcessing ? (
-                                            <>
-                                                <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Batch Running...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Play className="w-4 h-4 mr-2 fill-current" /> Run Batch AI
-                                            </>
-                                        )}
-                                    </Button>
+                            <div>
+                                <div className="text-[10px] uppercase tracking-wider text-blue-400/60 font-bold">Image Ready</div>
+                                <div className="text-2xl font-mono text-white">
+                                    {generatedCount} <span className="text-sm text-zinc-600">/ {stats.total}</span>
                                 </div>
                             </div>
                         </div>
+                        <div className="text-right">
+                            <div className="text-xl font-bold text-blue-500">{completionRate.toFixed(0)}%</div>
+                        </div>
+                    </div>
 
-                        {/* Text Enrichment */}
-                        <div className={cn(
-                            "group relative overflow-hidden rounded-2xl border transition-all p-6",
-                            !isEnriched
-                                ? "bg-amber-950/20 border-amber-500/50 hover:bg-amber-900/30"
-                                : "bg-zinc-900/40 border-zinc-800 hover:border-amber-500/50 hover:bg-zinc-900/60"
-                        )}>
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                <FileText className="w-32 h-32 text-amber-500" />
+                    {/* Production */}
+                    <div className="bg-zinc-900/40 border border-emerald-500/10 rounded-xl p-4 flex items-center justify-between backdrop-blur-sm relative overflow-hidden">
+                        <div className="absolute bottom-0 left-0 h-1 bg-emerald-500/20 w-full">
+                            <div className="h-full bg-emerald-500 transition-all duration-500" style={{ width: `${deploymentRate}%` }} />
+                        </div>
+                        <div className="flex items-center gap-3 relative z-10">
+                            <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg">
+                                <Rocket className="w-5 h-5" />
                             </div>
-                            <div className="relative z-10 flex flex-col h-full">
-                                <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center mb-4 text-amber-400 border border-amber-500/20">
+                            <div>
+                                <div className="text-[10px] uppercase tracking-wider text-emerald-400/60 font-bold">In Production</div>
+                                <div className="text-2xl font-mono text-white">
+                                    {stats.published} <span className="text-sm text-zinc-600">live</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <div className="text-xl font-bold text-emerald-500">{deploymentRate.toFixed(0)}%</div>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Command Deck (Modern Horizontal List) */}
+                <motion.div variants={container} initial="hidden" animate="show" className="space-y-3">
+                    <div className="flex items-center gap-2 mb-2 pb-2 border-b border-white/5">
+                        <Zap className="w-4 h-4 text-yellow-500" />
+                        <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Command Operations</h3>
+                    </div>
+
+                    {/* 1. Generator Module */}
+                    <motion.div variants={item} className="group relative bg-[#09090b] border border-zinc-800 hover:border-indigo-500/50 rounded-xl p-1 transition-all duration-300">
+                        <div className="flex flex-col md:flex-row items-center gap-4 p-4 rounded-lg bg-zinc-900/30">
+                            <div className="flex items-center gap-4 flex-1">
+                                <div className="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                                    <Sparkles className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h4 className="text-base font-bold text-white group-hover:text-indigo-400 transition-colors">Image Synthesis</h4>
+                                    <p className="text-sm text-zinc-400">Gen-2.0 Neural Engine</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 w-full md:w-auto">
+                                <Button
+                                    onClick={handleSyncImages}
+                                    variant="outline"
+                                    className="border-zinc-700 bg-transparent text-zinc-300 hover:bg-zinc-800 hover:text-white h-10 px-4"
+                                    disabled={localProcessing}
+                                >
+                                    <RefreshCw className="w-4 h-4 mr-2" /> Sync
+                                </Button>
+                                <Button
+                                    onClick={handleBatchGenerate}
+                                    disabled={localProcessing}
+                                    className={cn(
+                                        "h-10 px-6 font-bold shadow-[0_0_20px_rgba(79,70,229,0.1)] transition-all hover:scale-105 active:scale-95",
+                                        isProcessing
+                                            ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/50"
+                                            : "bg-indigo-600 hover:bg-indigo-500 text-white"
+                                    )}
+                                >
+                                    {isProcessing ? (
+                                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> PROCESSING ({activeTaskType})</>
+                                    ) : (
+                                        <><Play className="w-4 h-4 mr-2 fill-current" /> GENERATE BATCH</>
+                                    )}
+                                </Button>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* 2. Enrichment Module */}
+                    <motion.div variants={item} className="group relative bg-[#09090b] border border-zinc-800 hover:border-amber-500/50 rounded-xl p-1 transition-all duration-300">
+                        <div className="flex flex-col md:flex-row items-center gap-4 p-4 rounded-lg bg-zinc-900/30">
+                            <div className="flex items-center gap-4 flex-1">
+                                <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform">
                                     <Languages className="w-5 h-5" />
                                 </div>
-                                <h3 className="text-base font-semibold text-white mb-1">
-                                    {!isEnriched ? "⚠️ Enrichement Required" : "Enrich Texts"}
-                                </h3>
-                                <p className="text-sm text-zinc-400 mb-6 flex-1">
-                                    {!isEnriched
-                                        ? "This test has not been enriched yet. Run this process first to prepare data."
-                                        : "Translate and optimize text without generating images."
-                                    }
-                                </p>
+                                <div>
+                                    <h4 className="text-lg font-bold text-white mb-2">Neural Translation</h4>
+                                    <p className="text-sm text-zinc-400 leading-relaxed min-h-[40px]">
+                                        {activeTaskType === 'enrich' && processLog ? (
+                                            <span className="font-mono text-xs text-amber-400 block p-2 bg-black/50 rounded border border-amber-500/20">
+                                                <Loader2 className="w-3 h-3 inline mr-2 animate-spin" />
+                                                {processLog}
+                                            </span>
+                                        ) : !isEnriched
+                                            ? "Required: Translate and enrich raw data structures."
+                                            : "All data is enriched and ready for production."}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 w-full md:w-auto">
                                 <Button
                                     onClick={handleBatchEnrich}
-                                    variant={!isEnriched ? "default" : "secondary"}
+                                    disabled={false}
                                     className={cn(
-                                        "w-full transition-colors border",
+                                        "h-10 px-6 font-bold transition-all hover:scale-105 active:scale-95",
                                         !isEnriched
-                                            ? "bg-amber-600 hover:bg-amber-500 text-white border-amber-500"
-                                            : "bg-zinc-800 hover:bg-amber-600 hover:text-white border-zinc-700 hover:border-amber-500"
+                                            ? "bg-amber-500 hover:bg-amber-400 text-black shadow-[0_0_20px_rgba(245,158,11,0.2)]"
+                                            : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700"
                                     )}
                                 >
-                                    <Sparkles className="w-4 h-4 mr-2" /> Start Enrichment
+                                    <FileText className="w-4 h-4 mr-2" />
+                                    {!isEnriched ? "START ENRICHMENT" : "RE-ENRICH DATA"}
                                 </Button>
                             </div>
                         </div>
+                    </motion.div>
 
-                        {/* Deploy */}
-                        <div className="group relative overflow-hidden rounded-2xl bg-zinc-900/40 border border-zinc-800 hover:border-emerald-500/50 transition-all p-6 hover:bg-zinc-900/60">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                <Rocket className="w-32 h-32 text-emerald-500" />
-                            </div>
-                            <div className="relative z-10 flex flex-col h-full">
-                                <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4 text-emerald-400 border border-emerald-500/20">
-                                    <CheckCircle2 className="w-5 h-5" />
+                    {/* 3. Deployment Module */}
+                    <motion.div variants={item} className={cn(
+                        "group relative bg-[#09090b] border rounded-xl p-1 transition-all duration-300",
+                        !isReadyForDeploy ? "border-zinc-800 opacity-80" : "border-emerald-900/50 hover:border-emerald-500/50"
+                    )}>
+                        <div className="flex flex-col md:flex-row items-center gap-4 p-4 rounded-lg bg-zinc-900/30">
+                            <div className="flex items-center gap-4 flex-1">
+                                <div className={cn(
+                                    "w-10 h-10 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110",
+                                    isReadyForDeploy ? "bg-emerald-500/10 text-emerald-500" : "bg-zinc-800 text-zinc-600"
+                                )}>
+                                    <Rocket className="w-5 h-5" />
                                 </div>
-                                <h3 className="text-base font-semibold text-white mb-1">Deploy to Supabase</h3>
-                                <p className="text-sm text-zinc-400 mb-6 flex-1">
-                                    Publish {stats.generated} approved items to live production.
-                                </p>
+                                <div>
+                                    <h4 className={cn("text-base font-bold transition-colors", isReadyForDeploy ? "text-white group-hover:text-emerald-500" : "text-zinc-500")}>
+                                        Production Deploy
+                                    </h4>
+                                    <p className="text-sm text-zinc-400">
+                                        {!isReadyForDeploy ? `${stats.total - generatedCount} images missing` : "Ready for launch"}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 w-full md:w-auto">
                                 <Button
                                     onClick={handleDeploy}
-                                    disabled={stats.generated === 0 || localProcessing}
-                                    variant="secondary"
-                                    className="w-full bg-zinc-800 hover:bg-emerald-600 hover:text-white transition-colors border border-zinc-700 hover:border-emerald-500 disabled:opacity-50"
+                                    disabled={!isReadyForDeploy || localProcessing}
+                                    className={cn(
+                                        "h-10 px-8 font-bold transition-all hover:scale-105 active:scale-95 shadow-lg",
+                                        !isReadyForDeploy
+                                            ? "bg-zinc-800 text-zinc-600 border border-zinc-700 cursor-not-allowed"
+                                            : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20"
+                                    )}
                                 >
                                     {localProcessing ? (
-                                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Deploying...</>
+                                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> DEPLOYING...</>
+                                    ) : !isReadyForDeploy ? (
+                                        <><AlertCircle className="w-4 h-4 mr-2" /> NOT READY</>
                                     ) : (
-                                        <><Rocket className="w-4 h-4 mr-2" /> Deploy All</>
+                                        <><Rocket className="w-4 h-4 mr-2" /> LAUNCH TO PROD</>
                                     )}
                                 </Button>
                             </div>
                         </div>
+                    </motion.div>
 
+                </motion.div>
+
+                <div className="flex justify-center pt-8 opacity-30 hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-4 text-zinc-600 text-[10px] font-mono uppercase tracking-widest">
+                        <span>System v2.5</span>
+                        <span>•</span>
+                        <span>Secure Connection</span>
                     </div>
                 </div>
-
             </div>
         </div>
     );
-}
+};
