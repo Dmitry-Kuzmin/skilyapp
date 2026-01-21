@@ -38,3 +38,10 @@ dist-ssr
 .vercel
 .env.upstash
 .env.upstash.example
+
+# Data folders
+data/generated-images/
+data/originals/
+data/rejected-images/
+data/rejected-pool/
+data/temp-generation-ids.json
