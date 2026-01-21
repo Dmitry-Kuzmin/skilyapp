@@ -140,17 +140,64 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
         return this.getRandomQuestions(country, 30);
     }
 
+    private cachedIds: string[] | null = null;
+    private idsFetchPromise: Promise<string[]> | null = null;
+
     async getRandomQuestions(
         country: CountryCode,
         count: number
     ): Promise<UniversalQuestion[]> {
         if (country !== 'spain') return [];
 
+        // 1. Get ALL IDs (cached or fresh)
+        let allIds: string[] = [];
+
+        if (this.cachedIds) {
+            allIds = this.cachedIds;
+        } else {
+            // Dedupe concurrent requests
+            if (!this.idsFetchPromise) {
+                this.idsFetchPromise = (async () => {
+                    const { data, error } = await (supabase as any)
+                        .from('questions_new')
+                        .select('id')
+                        .eq('country', this.COUNTRY);
+
+                    if (error) {
+                        console.error('[SpainUnifiedStrategy] Error fetching IDs:', error);
+                        throw error;
+                    }
+                    return (data || []).map((q: any) => q.id);
+                })();
+            }
+
+            try {
+                allIds = await this.idsFetchPromise;
+                this.cachedIds = allIds;
+                this.idsFetchPromise = null;
+            } catch (err) {
+                this.idsFetchPromise = null;
+                throw err;
+            }
+        }
+
+        if (allIds.length === 0) return [];
+
+        // 2. Shuffle IDs client-side (Fisher-Yates for perfect randomness)
+        // copy array
+        const shuffled = [...allIds];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+
+        const selectedIds = shuffled.slice(0, count);
+
+        // 3. Fetch full details for selected IDs
         const { data: questions, error: questionsError } = await (supabase as any)
             .from('questions_new')
             .select('*')
-            .eq('country', this.COUNTRY)
-            .limit(Math.max(count * 2, 100)); // Загружаем с запасом для рандомизации
+            .in('id', selectedIds);
 
         if (questionsError) {
             console.error('[SpainUnifiedStrategy] Error fetching random questions:', questionsError);
@@ -159,10 +206,8 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
 
         if (!questions || questions.length === 0) return [];
 
-        // Перемешиваем и берем нужное количество
-        const shuffled = [...questions].sort(() => Math.random() - 0.5).slice(0, count);
-
-        const questionIds = shuffled.map((q) => q.id);
+        // 4. Fetch answers
+        const questionIds = questions.map((q: any) => q.id);
         const answers = await fetchAnswersInBatches(questionIds);
 
         const answersByQuestion = new Map<string, any[]>();
@@ -172,7 +217,7 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
             answersByQuestion.set(a.question_id, existing);
         });
 
-        return shuffled.map((q) => {
+        return questions.map((q: any) => {
             const questionAnswers = answersByQuestion.get(q.id) || [];
             return mapUnifiedToUniversal(q, questionAnswers);
         });
