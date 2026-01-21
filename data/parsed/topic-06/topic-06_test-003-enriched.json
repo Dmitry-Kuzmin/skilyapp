@@ -5,16 +5,16 @@
     "category": "B",
     "question": {
       "es": "¿Quién es el responsable de las infracciones cometidas durante la conducción?",
-      "en": null,
-      "ru": null
+      "en": "Who is responsible for traffic violations committed while driving?",
+      "ru": "Кто несет ответственность за нарушения, совершенные во время движения?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Siempre el titular del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "Always the vehicle owner.",
+          "ru": "Всегда собственник (titular) транспортного средства."
         },
         "is_correct": false
       },
@@ -22,8 +22,8 @@
         "id": "b",
         "text": {
           "es": "El autor del hecho en que consista la infracción.",
-          "en": null,
-          "ru": null
+          "en": "The person who commits the act constituting the violation.",
+          "ru": "Лицо, совершившее действие, являющееся нарушением."
         },
         "is_correct": true
       },
@@ -31,16 +31,16 @@
         "id": "c",
         "text": {
           "es": "El tomador del seguro.",
-          "en": null,
-          "ru": null
+          "en": "The policyholder of the insurance.",
+          "ru": "Страхователь (лицо, на которое оформлена страховка)."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La responsabilidad por las infracciones cometidas durante la conducción recae directamente sobre el autor del hecho. No obstante, el titular del vehículo es responsable de las infracciones relativas a la documentación del vehículo, su estado de conservación y la inspección técnica (ITV). Asimismo, el titular tiene la obligación de identificar al conductor responsable de una infracción cuando sea requerido por la autoridad. En vehículos donde sea obligatorio el uso del casco, el conductor es responsable de que el pasajero lo lleve puesto.",
+      "en": "Responsibility for violations committed while driving lies with the person who commits the act. However, the vehicle owner is responsible for violations related to vehicle documentation, maintenance, and the technical inspection (ITV). The owner is also required to identify the driver responsible for a violation when requested by authorities. In vehicles where helmet use is mandatory, the driver is held responsible if a passenger fails to wear one.",
+      "ru": "🎓 Ответственность за нарушения, совершенные в процессе управления, несет лицо, совершившее противоправное действие. Если ты за рулем легкового автомобиля превысил скорость — платишь ты. Но помни: собственник (titular) всегда отвечает за документы, страховку и техосмотр (ITV). Если нарушение совершил несовершеннолетний, платить будут родители. Важное правило для категории B: если ты везешь пассажира на мопеде или мотоцикле без шлема, штраф за это нарушение заплатишь ты как водитель. 🇷🇺 В Испании при фиксации нарушения камерой собственник обязан идентифицировать водителя, иначе штраф за отказ в идентификации может в три раза превысить сумму первоначального штрафа. 💡 Кто крутит руль, тот и платит штраф!"
     },
     "image_url": "https://teorica.practicavial.com/question/692e7d31-cf89-4f41-8935-52bdeaf4f17a-1658328934-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/692e7d31-cf89-4f41-8935-52bdeaf4f17a-s-1.jpg",
@@ -54,16 +54,16 @@
     "category": "B",
     "question": {
       "es": "¿Quién es responsable de las infracciones relativas a la documentación y el estado del vehículo?",
-      "en": null,
-      "ru": null
+      "en": "Who is responsible for infractions related to the vehicle's documentation and condition?",
+      "ru": "Кто несет ответственность за нарушения, связанные с документацией и техническим состоянием транспортного средства?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "El conductor en el momento en el que se detecta la infracción.",
-          "en": null,
-          "ru": null
+          "en": "The driver at the time the infraction is detected.",
+          "ru": "Водитель, находящийся за рулем в момент обнаружения нарушения."
         },
         "is_correct": false
       },
@@ -71,8 +71,8 @@
         "id": "b",
         "text": {
           "es": "El titular del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "The vehicle owner.",
+          "ru": "Собственник (titular) транспортного средства."
         },
         "is_correct": true
       },
@@ -80,16 +80,16 @@
         "id": "c",
         "text": {
           "es": "El tomador del seguro.",
-          "en": null,
-          "ru": null
+          "en": "The policyholder of the insurance.",
+          "ru": "Страхователь (лицо, оформившее страховку)."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La responsabilidad por las infracciones derivadas del incumplimiento de las normas en materia de documentación, estado de conservación y revisiones obligatorias (ITV) del vehículo corresponde legalmente al titular administrativo del mismo. El conductor es responsable únicamente de las infracciones cometidas durante la conducción, salvo en casos específicos como el uso del casco por el pasajero en motocicletas.",
+      "en": "Legal responsibility for infractions arising from non-compliance with regulations regarding vehicle documentation, maintenance status, and mandatory inspections (ITV) lies with the registered owner (titular). The driver is only responsible for moving violations committed during operation, except in specific cases such as a passenger not wearing a helmet on a motorcycle.",
+      "ru": "🎓 За всё, что касается «бумаг» и технического состояния легкового автомобиля (Turismo), таких как техосмотр (ITV), страховка или регистрационные документы, несёт ответственность собственник — **titular**. Водитель отвечает исключительно за нарушения, совершённые непосредственно в процессе езды (например, проезд под знак или превышение скорости). Если машина неисправна или не имеет действующего техосмотра, штраф получит владелец, даже если в этот момент за рулём был другой человек. 🇷🇺 В Испании ответственность за административный статус машины (страховка, техосмотр) всегда жестко закреплена за владельцем, тогда как в РФ за отсутствие полиса ОСАГО или СТС при управлении часто наказывают именно водителя. 💡 За руль сел — за знаки в ответе, а за техосмотр — хозяин в совете!"
     },
     "image_url": "https://teorica.practicavial.com/question/77291bbf-6d02-44bd-b895-1ea6d3afe0e3-1658329111-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/77291bbf-6d02-44bd-b895-1ea6d3afe0e3-s-1.jpg",
@@ -102,17 +102,17 @@
     "question_number": 3,
     "category": "B",
     "question": {
-      "es": "Para que pueda circular un ciclomotor, ¿es obligatorio que esté asegurado?",
-      "en": null,
-      "ru": null
+      "es": "¿Es obligatorio que un ciclomotor esté asegurado para circular?",
+      "en": "Is it mandatory for a moped to be insured to circulate?",
+      "ru": "Обязательно ли наличие страховки для движения мопеда?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       },
@@ -120,8 +120,8 @@
         "id": "b",
         "text": {
           "es": "Sí, pero solo si tiene más de dos ruedas.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but only if it has more than two wheels.",
+          "ru": "Да, но только если у него более двух колес."
         },
         "is_correct": false
       },
@@ -129,16 +129,16 @@
         "id": "c",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Todo vehículo de motor y los ciclomotores deben estar cubiertos por un seguro de responsabilidad civil obligatorio para circular por las vías públicas. La circulación sin el seguro obligatorio supone una infracción administrativa que conlleva una sanción económica y la inmovilización del vehículo por parte de los agentes de la autoridad. Los remolques y semirremolques cuya MMA sea superior a 750 kg también deben estar asegurados de forma independiente.",
+      "en": "All motor vehicles and mopeds must be covered by compulsory civil liability insurance to circulate on public roads. Driving without mandatory insurance constitutes an administrative offense resulting in a financial penalty and the impoundment of the vehicle by law enforcement officers. Trailers and semi-trailers with an MMA exceeding 750 kg must also be independently insured.",
+      "ru": "🎓 Любое механическое транспортное средство, а также все мопеды обязаны иметь действующий полис обязательного страхования гражданской ответственности для движения по дорогам общего пользования. Хотя в Испании мопед юридически не относится к «механическим транспортным средствам», страховка для него строго обязательна независимо от количества колес. Управление без полиса влечет за собой крупный штраф и принудительную иммобилизацию (задержание) транспортного средства. Также важно знать, что прицепы с РММ более 750 кг требуют отдельного страхового полиса, в то время как легкие прицепы достаточно просто вписать в страховку основного автомобиля. 💡 Есть мотор или мопед — страховка в бардачок идет!"
     },
     "image_url": "https://teorica.practicavial.com/question/b070f7c6-5d4a-4bd9-b5e0-56ebf2f3bff0-1658328154-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/b070f7c6-5d4a-4bd9-b5e0-56ebf2f3bff0-s-1.jpg",
@@ -151,17 +151,17 @@
     "question_number": 4,
     "category": "B",
     "question": {
-      "es": "Los remolques y semirremolques, ¿deben tener tarjeta de inspección técnica?",
-      "en": null,
-      "ru": null
+      "es": "¿Deben los remolques y semirremolques tener tarjeta de inspección técnica?",
+      "en": "Must trailers and semi-trailers have a technical inspection card?",
+      "ru": "Должны ли прицепы и полуприцепы иметь карточку технического осмотра (технический паспорт)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, todos.",
-          "en": null,
-          "ru": null
+          "en": "Yes, all of them.",
+          "ru": "Да, все."
         },
         "is_correct": true
       },
@@ -169,8 +169,8 @@
         "id": "b",
         "text": {
           "es": "Sí, pero únicamente los no ligeros.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but only non-light ones.",
+          "ru": "Да, но только нелегкие (тяжелые)."
         },
         "is_correct": false
       },
@@ -178,16 +178,16 @@
         "id": "c",
         "text": {
           "es": "No, es suficiente con la del vehículo que los arrastra.",
-          "en": null,
-          "ru": null
+          "en": "No, the one from the towing vehicle is sufficient.",
+          "ru": "Нет, достаточно документа тягача."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Vehículos, todos los remolques y semirremolques deben estar provistos de una tarjeta de inspección técnica (Ficha Técnica), independientemente de su Masa Máxima Autorizada (MMA). Los remolques ligeros (hasta 750 kg de MMA) solo necesitan este documento para circular. Los remolques no ligeros (más de 750 kg de MMA) requieren, además de la tarjeta ITV, un permiso de circulación propio, seguro obligatorio independiente y llevar una matrícula roja específica del remolque además de la del vehículo tractor.",
+      "en": "According to the General Vehicle Regulations, all trailers and semi-trailers must be provided with a technical inspection card (Ficha Técnica), regardless of their Maximum Authorized Mass (MMA). Light trailers (up to 750 kg MMA) only need this document to circulate. Non-light trailers (over 750 kg MMA) require, in addition to the ITV card, their own circulation permit, independent mandatory insurance, and must display a specific red license plate for the trailer in addition to the towing vehicle's plate.",
+      "ru": "🎓 Абсолютно все прицепы и полуприцепы, независимо от их Разрешенной максимальной массы (РММ), обязаны иметь карточку технического осмотра (Tarjeta de Inspección Técnica). Для легких прицепов (до 750 кг) это единственный документ, который должен быть на руках. Если твой прицеп весит более 750 кг (нелегкий), то к карточке техосмотра добавляются: собственное разрешение на движение (Permiso de circulación), отдельная страховка и специальный красный номерной знак. Помни, что при буксировке любого несельскохозяйственного прицепа в автомобиле обязательно должен быть огнетушитель. 🇷🇺 В Испании легкие прицепы (до 750 кг) не имеют собственного СТС и отдельного белого номера, в отличие от РФ, где даже на самый маленький прицеп выдается свидетельство о регистрации и госномер. 💡 Прицеп любой, мал или велик — техпаспорт иметь привык!"
     },
     "image_url": "https://teorica.practicavial.com/question/bcab1b6c-e37f-4b28-a36e-040979073885-1658326346-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/bcab1b6c-e37f-4b28-a36e-040979073885-s-1.jpg",
@@ -201,16 +201,16 @@
     "category": "B",
     "question": {
       "es": "En un turismo, ¿dónde debe colocar la placa \"L\" un conductor novel?",
-      "en": null,
-      "ru": null
+      "en": "In a passenger car, where must a novice driver place the \"L\" plate?",
+      "ru": "Где начинающий водитель должен разместить знак «L» на легковом автомобиле?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "En un lugar visible en la parte posterior derecha.",
-          "en": null,
-          "ru": null
+          "en": "In a visible place on the rear right side.",
+          "ru": "На видном месте в задней правой части."
         },
         "is_correct": false
       },
@@ -218,8 +218,8 @@
         "id": "b",
         "text": {
           "es": "En un lugar visible en la parte posterior izquierda.",
-          "en": null,
-          "ru": null
+          "en": "In a visible place on the rear left side.",
+          "ru": "На видном месте в задней левой части."
         },
         "is_correct": true
       },
@@ -227,16 +227,16 @@
         "id": "c",
         "text": {
           "es": "En cualquier lugar visible de la parte posterior.",
-          "en": null,
-          "ru": null
+          "en": "In any visible place on the rear part.",
+          "ru": "В любом видном месте задней части."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Vehículos (señal V-13), los conductores que obtienen su primer permiso de conducción deben llevar la placa en la parte posterior izquierda del turismo, en un lugar visible, durante un año. Si el vehículo dispone de luneta trasera, se colocará preferentemente en el ángulo superior izquierdo. Asimismo, durante los dos primeros años, la tasa de alcohol permitida se reduce a 0,15 mg/l en aire espirado.",
+      "en": "According to the General Vehicle Regulations (V-13 sign), drivers obtaining their first driving license must display the plate on the rear left side of the passenger car in a visible location for one year. If the vehicle has a rear window, it should preferably be placed in the upper left corner. Additionally, for the first two years, the permitted alcohol limit is reduced to 0.15 mg/l in exhaled air.",
+      "ru": "🎓 После получения первого водительского удостоверения ты обязан в течение одного года обозначать свой легковой автомобиль знаком «L» (белая буква на зеленом фоне). Этот знак должен быть установлен строго в задней левой части транспортного средства на видном месте. Такое расположение выбрано специально, чтобы водители, совершающие опережение или обгон, сразу видели статус новичка. Кроме того, помни: первые два года твой предел алкоголя составляет всего 0,15 мг/л в выдыхаемом воздухе. 🇷🇺 В отличие от Испании, где знак «L» ставится строго слева, в РФ знак «Начинающий водитель» разрешено размещать в любом месте задней части кузова или стекла. 💡 Слева «L» — всё будет окей! Год пролетит — снимешь скорей!"
     },
     "image_url": "https://teorica.practicavial.com/question/c6c51c66-cd44-4d73-9c73-b301e344aa10-1658322343-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/c6c51c66-cd44-4d73-9c73-b301e344aa10-s-1.jpg",
@@ -250,16 +250,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué sanción podrá imponerse al propietario de un vehículo que circula sin seguro?",
-      "en": null,
-      "ru": null
+      "en": "What penalty can be imposed on the owner of a vehicle circulating without insurance?",
+      "ru": "Какое наказание может быть наложено на владельца транспортного средства, которое движется без страховки?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Una multa y la inmovilización del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "A fine and the immobilization of the vehicle.",
+          "ru": "Штраф и задержание транспортного средства."
         },
         "is_correct": true
       },
@@ -267,8 +267,8 @@
         "id": "b",
         "text": {
           "es": "Una multa y la pérdida de puntos.",
-          "en": null,
-          "ru": null
+          "en": "A fine and the loss of points.",
+          "ru": "Штраф и лишение баллов."
         },
         "is_correct": false
       },
@@ -276,16 +276,16 @@
         "id": "c",
         "text": {
           "es": "Una multa fija de 300 euros.",
-          "en": null,
-          "ru": null
+          "en": "A fixed fine of 300 euros.",
+          "ru": "Фиксированный штраф в размере 300 евро."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El incumplimiento de la obligación de asegurar los vehículos de motor, ciclomotores y remolques de MMA superior a 750 kg conlleva una sanción pecuniaria cuya cuantía varía según el tipo de vehículo y las circunstancias. Adicionalmente, los agentes de la autoridad procederán a la inmovilización del vehículo hasta que se acredite la existencia del seguro obligatorio. Esta infracción no conlleva la pérdida de puntos del permiso de conducir.",
+      "en": "Failure to comply with the obligation to insure motor vehicles, mopeds, and trailers with a MMA exceeding 750 kg results in a financial penalty, the amount of which varies depending on the type of vehicle and the circumstances. Additionally, law enforcement officers will proceed to immobilize the vehicle until the existence of mandatory insurance is proven. This infraction does not lead to the loss of driving license points.",
+      "ru": "🎓 В Испании страхование гражданской ответственности является обязательным для всех моторных транспортных средств, мопедов, а также прицепов с разрешенной максимальной массой (РММ) более 750 кг. Если ты выедешь на дорогу на легковом автомобиле без действующего полиса, тебе грозит не только крупный денежный штраф (от 601 до 3005 евро), но и немедленное задержание транспортного средства. Полиция доставит машину на штрафстоянку, и забрать её можно будет только после оформления страховки и оплаты расходов на хранение. Важно помнить: баллы за отсутствие страховки не снимаются, так как это нарушение не влияет напрямую на технику вождения, но финансовые последствия крайне серьезны. 🇷🇺 В отличие от РФ, где за отсутствие ОСАГО предусмотрен только штраф, в Испании полиция обязана задержать твой легковой автомобиль до устранения нарушения. 💡 Нет страховки — нет пути, тачку в бокс и штраф плати!"
     },
     "image_url": "https://teorica.practicavial.com/question/7cdfa9bb-4db4-4cf1-9ccd-de477b229f88-1658328510-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/7cdfa9bb-4db4-4cf1-9ccd-de477b229f88-s-1.jpg",
@@ -299,16 +299,16 @@
     "category": "B",
     "question": {
       "es": "¿De cuántos puntos dispone un conductor novel?",
-      "en": null,
-      "ru": null
+      "en": "How many points does a novice driver have?",
+      "ru": "Сколько баллов имеет начинающий водитель?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "De 12 puntos.",
-          "en": null,
-          "ru": null
+          "en": "12 points.",
+          "ru": "12 баллов."
         },
         "is_correct": false
       },
@@ -316,8 +316,8 @@
         "id": "b",
         "text": {
           "es": "De 14 puntos.",
-          "en": null,
-          "ru": null
+          "en": "14 points.",
+          "ru": "14 баллов."
         },
         "is_correct": false
       },
@@ -325,16 +325,16 @@
         "id": "c",
         "text": {
           "es": "De 8 puntos.",
-          "en": null,
-          "ru": null
+          "en": "8 points.",
+          "ru": "8 баллов."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Conductores, los conductores que obtienen su primer permiso de conducción inician su historial con un saldo de 8 puntos. Este saldo se mantiene durante los dos primeros años. Si en ese periodo no se cometen infracciones que resten puntos, el saldo aumenta automáticamente a 12 puntos. El sistema permite alcanzar un máximo de 15 puntos tras años de conducción sin infracciones.",
+      "en": "According to the General Driver Regulations, drivers obtaining their first license start with a balance of 8 points. This balance remains for the first two years. If no point-deducting offenses are committed during this period, the balance automatically increases to 12 points. The system allows a maximum of 15 points to be reached after years of offense-free driving.",
+      "ru": "🎓 При получении первого водительского удостоверения на легковой автомобиль тебе начисляется стартовый баланс в 8 баллов. Этот лимит сохраняется в течение первых 2 лет стажа. Если за это время ты не совершишь нарушений, лишающих баллов, твой счет автоматически увеличится до 12. В дальнейшем, за примерное вождение, можно накопить максимум 15 баллов. Важно знать: если водитель лишается всех баллов, после восстановления прав он снова начинает путь с 8 баллов, как новичок. 🇷🇺 В РФ отсутствует накопительная система баллов, привязанная к водительскому удостоверению, которая приводит к его аннулированию. 💡 Новичок — восьмерка в кармане, два года без бед — и двенадцать в плане!"
     },
     "image_url": "https://teorica.practicavial.com/question/10cbe572-31c5-443a-9b87-c4f828ab1776-1658328570-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/10cbe572-31c5-443a-9b87-c4f828ab1776-s-1.jpg",
@@ -348,16 +348,16 @@
     "category": "B",
     "question": {
       "es": "Una furgoneta con una antigüedad de más de 10 años, ¿con qué frecuencia debe pasar la inspección técnica periódica?",
-      "en": null,
-      "ru": null
+      "en": "A van more than 10 years old, how often must it pass the periodic technical inspection (ITV)?",
+      "ru": "Фургон старше 10 лет, с какой периодичностью он должен проходить техосмотр (ITV)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Bienal.",
-          "en": null,
-          "ru": null
+          "en": "Biennial.",
+          "ru": "Раз в два года."
         },
         "is_correct": false
       },
@@ -365,8 +365,8 @@
         "id": "b",
         "text": {
           "es": "Cada cuatro años.",
-          "en": null,
-          "ru": null
+          "en": "Every four years.",
+          "ru": "Раз в четыре года."
         },
         "is_correct": false
       },
@@ -374,16 +374,16 @@
         "id": "c",
         "text": {
           "es": "Semestral.",
-          "en": null,
-          "ru": null
+          "en": "Every six months.",
+          "ru": "Раз в полгода."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Vehículos, los vehículos destinados al transporte de mercancías con una MMA menor o igual a 3.500 kg (furgonetas) deben pasar la ITV con una frecuencia semestral cuando su antigüedad sea superior a los 10 años. Hasta los dos años están exentos, de los dos a los seis años es bienal, y de los seis a los diez años es anual.",
+      "en": "According to the General Vehicle Regulations, vehicles intended for the transport of goods with a Maximum Authorized Mass (MMA) up to 3,500 kg (vans) must undergo a technical inspection every six months once they are over 10 years old. They are exempt for the first two years, biennial from two to six years, and annual from six to ten years.",
+      "ru": "🎓 Фургон или грузопассажирский автомобиль с разрешенной максимальной массой (РММ) до 3500 кг проходит техосмотр значительно чаще, чем обычный легковой автомобиль. Если твой легковой автомобиль (Turismo) старше 10 лет должен посещать станцию ITV раз в год, то для фургона того же возраста закон устанавливает периодичность раз в полгода. Общий цикл для фургонов такой: до 2 лет — осмотр не требуется, от 2 до 6 лет — раз в два года, от 6 до 10 лет — ежегодно, и после 10 лет — каждые 6 месяцев. 🇷🇺 В Испании контроль за состоянием коммерческого транспорта строже: после 10 лет эксплуатации фургоны обязаны подтверждать исправность дважды в год. 💡 Фургон в возрасте — как пенсионер: проверка здоровья каждые шесть месяцев!"
     },
     "image_url": "https://teorica.practicavial.com/question/dcfe7cee-0982-4f5d-bcda-82df9228de12-1658326477-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/dcfe7cee-0982-4f5d-bcda-82df9228de12-s-1.jpg",
@@ -397,16 +397,16 @@
     "category": "B",
     "question": {
       "es": "¿Puede perder puntos de su saldo si conduce un turismo con un menor, de 1,20 metros de estatura, con el sistema de retención infantil sin abrochar o mal abrochado?",
-      "en": null,
-      "ru": null
+      "en": "Can you lose points from your balance if you drive a passenger car with a minor, 1.20 meters tall, with the child restraint system unbuckled or incorrectly buckled?",
+      "ru": "Можете ли вы лишиться баллов, если управляете легковым автомобилем с несовершеннолетним пассажиром ростом 1,20 метра, у которого детское удерживающее устройство не пристегнуто или пристегнуто неправильно?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, es una infracción que supone la pérdida de 4 puntos del saldo del conductor.",
-          "en": null,
-          "ru": null
+          "en": "Yes, it is an offense that involves the loss of 4 points from the driver's balance.",
+          "ru": "Да, это нарушение, которое влечет за собой потерю 4 баллов из баланса водителя."
         },
         "is_correct": true
       },
@@ -414,8 +414,8 @@
         "id": "b",
         "text": {
           "es": "Sí, es una infracción que supone la pérdida de 2 puntos del saldo del conductor.",
-          "en": null,
-          "ru": null
+          "en": "Yes, it is an offense that involves the loss of 2 points from the driver's balance.",
+          "ru": "Да, это нарушение, которое влечет за собой потерю 2 баллов из баланса водителя."
         },
         "is_correct": false
       },
@@ -423,16 +423,16 @@
         "id": "c",
         "text": {
           "es": "No; aunque es una infracción, no supone la pérdida de puntos para el conductor.",
-          "en": null,
-          "ru": null
+          "en": "No; although it is an offense, it does not involve the loss of points for the driver.",
+          "ru": "Нет; хотя это и является нарушением, оно не влечет за собой потерю баллов для водителя."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación y la Ley sobre Tráfico establecen que no utilizar los sistemas de retención infantil obligatorios, o no hacerlo de forma adecuada, se tipifica como una infracción grave. Esta conducta conlleva una sanción económica de 200 euros y la detracción de 4 puntos del permiso de conducir. La responsabilidad por el uso correcto de estos sistemas recae directamente sobre el conductor del vehículo.",
+      "en": "The General Circulation Regulations and the Traffic Law establish that failing to use mandatory child restraint systems, or failing to do so properly, is classified as a serious offense. This conduct carries a financial penalty of 200 euros and the deduction of 4 points from the driving license. Responsibility for the correct use of these systems lies directly with the driver of the vehicle.",
+      "ru": "🎓 Если ты управляешь легковым автомобилем и перевозишь ребенка ростом менее 135 см без детского удерживающего устройства или если оно не пристегнуто (либо пристегнуто неправильно), это считается серьезным нарушением. Согласно ПДД Испании, за такое нарушение предусмотрен штраф 200 евро и вычет 4 баллов из твоего водительского удостоверения. Помни: даже если кресло установлено, но ремни не затянуты должным образом, ответственность за безопасность ребенка и сохранность баллов несет именно водитель. 🇷🇺 В РФ за нарушение правил перевозки детей предусмотрен только денежный штраф, балльная система наказаний отсутствует. 💡 Ребёнок в кресле, ремень затяни — баллы и жизнь в пути сохрани!"
     },
     "image_url": "https://teorica.practicavial.com/question/71379d3a-0c1b-4760-8aec-438a86091dbf-1734420294-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/71379d3a-0c1b-4760-8aec-438a86091dbf-s-1.jpg",
@@ -446,16 +446,16 @@
     "category": "B",
     "question": {
       "es": "Una vez superada la prueba correspondiente, ¿cuál será su saldo de puntos si obtiene un nuevo permiso tras una pérdida de vigencia por la pérdida total de puntos?",
-      "en": null,
-      "ru": null
+      "en": "Once the corresponding test has been passed, what will be your point balance if you obtain a new license after a loss of validity due to total loss of points?",
+      "ru": "Каким будет ваш баланс баллов, если вы получите новое водительское удостоверение после лишения прав из-за полной потери баллов?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "8 puntos.",
-          "en": null,
-          "ru": null
+          "en": "8 points.",
+          "ru": "8 баллов."
         },
         "is_correct": true
       },
@@ -463,8 +463,8 @@
         "id": "b",
         "text": {
           "es": "6 puntos.",
-          "en": null,
-          "ru": null
+          "en": "6 points.",
+          "ru": "6 баллов."
         },
         "is_correct": false
       },
@@ -472,16 +472,16 @@
         "id": "c",
         "text": {
           "es": "12 puntos.",
-          "en": null,
-          "ru": null
+          "en": "12 points.",
+          "ru": "12 баллов."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Conductores, el titular de un permiso cuya vigencia haya sido declarada extinguida por la pérdida total de los puntos asignados, tras realizar el curso de sensibilización y reeducación vial y superar la prueba teórica, obtendrá un nuevo permiso con un saldo inicial de 8 puntos, igual que un conductor novel.",
+      "en": "According to the General Driver Regulations, a license holder whose validity has expired due to the total loss of assigned points will, after completing a road safety awareness and re-education course and passing the theoretical test, obtain a new license with an initial balance of 8 points, the same as a novice driver.",
+      "ru": "🎓 Если ты полностью растерял свои баллы и лишился прав, путь к возвращению за руль лежит через обязательный курс переподготовки и теоретический экзамен. После успешной сдачи ты получишь новое водительское удостоверение, но твой счетчик баллов будет равен стартовому уровню. Согласно ПДД Испании, в этом случае начисляется 8 баллов — столько же, сколько получает новичок, управляющий легковым автомобилем впервые. 🇷🇺 В РФ отсутствует накопительная система баллов, приводящая к автоматическому аннулированию прав при достижении лимита. 💡 Начинаешь с восьми — как новичок, не иначе!"
     },
     "image_url": "https://teorica.practicavial.com/question/c238c24f-8a38-41b6-8580-7ba7f45cf08a-1658328612-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/c238c24f-8a38-41b6-8580-7ba7f45cf08a-s-1.jpg",
@@ -495,16 +495,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué tiene que hacer si el resultado de la ITV resulta negativo?",
-      "en": null,
-      "ru": null
+      "en": "What should you do if the ITV result is negative?",
+      "ru": "Что вы должны сделать, если результат техосмотра (ITV) оказался негативным (negativo)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Circular con el vehículo hasta el taller para reparar los defectos encontrados.",
-          "en": null,
-          "ru": null
+          "en": "Drive the vehicle to the workshop to repair the defects found.",
+          "ru": "Доехать на автомобиле до мастерской для устранения обнаруженных неисправностей."
         },
         "is_correct": false
       },
@@ -512,8 +512,8 @@
         "id": "b",
         "text": {
           "es": "Llevar el vehículo al taller en una grúa y volver a pasar una inspección en un plazo inferior a 2 meses.",
-          "en": null,
-          "ru": null
+          "en": "Take the vehicle to the workshop on a tow truck and pass an inspection again within a period of less than 2 months.",
+          "ru": "Доставить автомобиль в мастерскую на эвакуаторе и повторно пройти осмотр в срок менее 2 месяцев."
         },
         "is_correct": true
       },
@@ -521,16 +521,16 @@
         "id": "c",
         "text": {
           "es": "Reparar los defectos encontrados en el plazo de un año como máximo.",
-          "en": null,
-          "ru": null
+          "en": "Repair the defects found within a maximum period of one year.",
+          "ru": "Устранить обнаруженные неисправности в срок не более одного года."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Un resultado negativo en la ITV indica que el vehículo presenta deficiencias que suponen un peligro inminente para la seguridad vial. En este supuesto, el vehículo no está autorizado a circular por las vías públicas bajo ninguna circunstancia, ni siquiera para dirigirse al taller. El traslado debe realizarse obligatoriamente mediante grúa u otro medio ajeno. El titular dispone de un plazo máximo de dos meses para subsanar los defectos y presentar el vehículo a una nueva inspección en la misma estación o en otra de su elección.",
+      "en": "A negative ITV result indicates that the vehicle has deficiencies that pose an imminent danger to road safety. In this case, the vehicle is not authorized to circulate on public roads under any circumstances, not even to go to the workshop. The transfer must be carried out by a tow truck or other external means. The owner has a maximum period of two months to rectify the defects and present the vehicle for a new inspection at the same station or another of their choice.",
+      "ru": "🎓 Если твой легковой автомобиль (Turismo) получил статус «negativo» на техосмотре (ITV), это означает наличие критических поломок, создающих прямую угрозу безопасности. В этой ситуации движение по проезжей части (calzada) запрещено полностью: ты не имеешь права ехать даже в сервис своим ходом. Транспортировка в мастерскую разрешена только на эвакуаторе. На устранение неисправностей и повторный визит в центр техосмотра закон отводит максимум 2 месяца. Не путай это с результатом «desfavorable» (неблагоприятный), при котором разрешено доехать до сервиса самостоятельно. Если же всё в порядке (favorable), наклейку нужно закрепить в верхнем правом углу лобового стекла. 🇷🇺 В Испании существует строгое разделение: при «неблагоприятном» исходе ехать в сервис самому можно, а при «негативном» — только на эвакуаторе, что жестче регламентировано, чем в РФ. 💡 Если статус «негатив» — вызывай эвакуатор актив!"
     },
     "image_url": "https://teorica.practicavial.com/question/46448016-d353-4f63-b720-c4eb36e5aa2f-1658328055-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/46448016-d353-4f63-b720-c4eb36e5aa2f-s-1.jpg",
@@ -544,16 +544,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué vehículos deben tener concertado el Seguro Obligatorio?",
-      "en": null,
-      "ru": null
+      "en": "Which vehicles are required to have Mandatory Insurance?",
+      "ru": "Какие транспортные средства должны иметь полис обязательного страхования?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Los vehículos a motor y ciclomotores.",
-          "en": null,
-          "ru": null
+          "en": "Motor vehicles and mopeds.",
+          "ru": "Транспортные средства с двигателем и мопеды."
         },
         "is_correct": true
       },
@@ -561,8 +561,8 @@
         "id": "b",
         "text": {
           "es": "Todos los vehículos a motor excepto los ciclomotores.",
-          "en": null,
-          "ru": null
+          "en": "All motor vehicles except mopeds.",
+          "ru": "Все транспортные средства с двигателем, кроме мопедов."
         },
         "is_correct": false
       },
@@ -570,16 +570,16 @@
         "id": "c",
         "text": {
           "es": "Todos los vehículos que circulen por las vías públicas.",
-          "en": null,
-          "ru": null
+          "en": "All vehicles circulating on public roads.",
+          "ru": "Все транспортные средства, движущиеся по дорогам общего пользования."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Están obligados a suscribir un contrato de seguro de responsabilidad civil todos los propietarios de vehículos a motor y ciclomotores que tengan su estacionamiento habitual en España. Asimismo, deben estar asegurados de forma independiente los remolques y semirremolques cuya MMA sea superior a 750 kg. El incumplimiento de esta obligación conlleva sanciones económicas y la inmovilización del vehículo por parte de los agentes de la autoridad.",
+      "en": "All owners of motor vehicles and mopeds habitually parked in Spain are required to enter into a civil liability insurance contract. Likewise, trailers and semi-trailers with a MAM exceeding 750 kg must be independently insured. Failure to comply with this obligation results in financial penalties and the immobilization of the vehicle by law enforcement officers.",
+      "ru": "🎓 В Испании обязательное страхование гражданской ответственности необходимо для всех транспортных средств с двигателем (включая твой легковой автомобиль — Turismo) и мопедов (ciclomotores). Также страховку обязаны иметь прицепы и полуприцепы, если их РММ (MMA) превышает 750 кг. Если прицеп легкий (до 750 кг), отдельный полис не нужен, но необходимо уведомить страховую компанию тягача. За отсутствие страховки владельцу грозит крупный штраф, а само транспортное средство будет немедленно обездвижено полицией. 🇷🇺 В Испании страхование мопеда (ciclomotor) является строго обязательным, в то время как в РФ для мопедов полис ОСАГО не требуется. 💡 Есть мотор или мопед — страхуй, иначе выезд запрещен!"
     },
     "image_url": "https://teorica.practicavial.com/question/97f7b054-29aa-45a8-a9ac-22044901a3e0-1658328075-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/97f7b054-29aa-45a8-a9ac-22044901a3e0-s-1.jpg",
@@ -593,16 +593,16 @@
     "category": "B",
     "question": {
       "es": "Con el permiso B, ¿se puede conducir un turismo con remolque que pesa menos de 750 kg de MMA?",
-      "en": null,
-      "ru": null
+      "en": "With a Class B license, can you drive a passenger car with a trailer that weighs less than 750 kg MMA?",
+      "ru": "С категорией B можно ли управлять легковым автомобилем с прицепом, разрешенная максимальная масса (РММ) которого менее 750 кг?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       },
@@ -610,8 +610,8 @@
         "id": "b",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       },
@@ -619,16 +619,16 @@
         "id": "c",
         "text": {
           "es": "Sí, pero debe obtenerse autorización especial.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but special authorization must be obtained.",
+          "ru": "Да, но необходимо получить специальное разрешение."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El permiso de conducción de la clase B autoriza a conducir automóviles cuya masa máxima autorizada no exceda de 3.500 kg y que estén diseñados y construidos para el transporte de no más de ocho pasajeros además del conductor. Dichos automóviles podrán llevar enganchado un remolque cuya masa máxima autorizada no exceda de 750 kg (remolque ligero) en cualquier caso.",
+      "en": "The Class B driving license authorizes the driving of motor vehicles with a maximum authorized mass (MMA) not exceeding 3,500 kg, designed for the transport of no more than 8 passengers plus the driver. These vehicles may tow a trailer with an MMA not exceeding 750 kg (light trailer) in any case.",
+      "ru": "🎓 С категорией B ты имеешь полное право управлять легковым автомобилем (РММ до 3500 кг) в связке с легким прицепом. Легким считается любой прицеп, разрешенная максимальная масса (РММ) которого не превышает 750 кг. В этом случае общая масса автопоезда может достигать 4250 кг (3500 кг машина + 750 кг прицеп), и это не требует никаких дополнительных разрешений или подкатегорий. 💡 Легкий прицеп до семисот пятидесяти — категория B везет без лишней спеси!"
     },
     "image_url": "https://teorica.practicavial.com/question/47461690-25fd-45b8-b3ba-7f27a89fb4c5-1658322072-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/47461690-25fd-45b8-b3ba-7f27a89fb4c5-s-1.jpg",
@@ -641,17 +641,17 @@
     "question_number": 14,
     "category": "B",
     "question": {
-      "es": "El seguro obligatorio de un vehículo, ¿cubre los daños ocasionados en el mismo cuando su conductor sea el responsable de un accidente?",
-      "en": null,
-      "ru": null
+      "es": "¿El seguro obligatorio de un vehículo, ¿cubre los daños ocasionados en el mismo cuando su conductor sea el responsable de un accidente?",
+      "en": "Does the mandatory insurance of a vehicle cover the damages caused to it when its driver is responsible for an accident?",
+      "ru": "Обязательная страховка Легкового автомобиля покрывает ущерб, нанесенный этому же автомобилю, если водитель является виновником ДТП?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       },
@@ -659,8 +659,8 @@
         "id": "b",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": false
       },
@@ -668,16 +668,16 @@
         "id": "c",
         "text": {
           "es": "Solamente si existen daños personales.",
-          "en": null,
-          "ru": null
+          "en": "Only if there is personal injury.",
+          "ru": "Только если есть телесные повреждения."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El seguro obligatorio del vehículo responsable cubrirá los daños ocasionados al otro vehículo implicado, tanto materiales como personales. Sin embargo, no cubrirá los daños propios del vehículo cuyo conductor sea el responsable del accidente.",
+      "en": "The mandatory insurance of the responsible vehicle will cover the damages caused to the other vehicle involved, both material and personal. However, it will not cover the damages to the vehicle whose driver is responsible for the accident.",
+      "ru": "🎓 Обязательная страховка автомобиля, виновного в ДТП, покроет ущерб, нанесенный другому транспортному средству, как материальный, так и личный. Однако она не покроет ущерб, нанесенный автомобилю, водитель которого несет ответственность за аварию."
     },
     "image_url": "https://teorica.practicavial.com/question/604100f7-9a9c-44d1-add0-c323eecf262c-1658328231-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/604100f7-9a9c-44d1-add0-c323eecf262c-s-1.jpg",
@@ -691,16 +691,16 @@
     "category": "B",
     "question": {
       "es": "Además del recibo del seguro obligatorio y del permiso del conductor, ¿qué otra documentación debe llevar el conductor de un turismo?",
-      "en": null,
-      "ru": null
+      "en": "In addition to the compulsory insurance receipt and the driver's license, what other documentation must the driver of a turismo carry?",
+      "ru": "Помимо квитанции об обязательном страховании и водительского удостоверения, какие еще документы должен иметь при себе водитель легкового автомобиля?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "El permiso de circulación, solamente.",
-          "en": null,
-          "ru": null
+          "en": "The registration certificate (permiso de circulación), only.",
+          "ru": "Только Permiso de circulación (разрешение на движение)."
         },
         "is_correct": false
       },
@@ -708,8 +708,8 @@
         "id": "b",
         "text": {
           "es": "El permiso de circulación y la tarjeta ITV.",
-          "en": null,
-          "ru": null
+          "en": "The registration certificate (permiso de circulación) and the ITV card.",
+          "ru": "Permiso de circulación и tarjeta ITV (карта техосмотра)."
         },
         "is_correct": true
       },
@@ -717,16 +717,16 @@
         "id": "c",
         "text": {
           "es": "No es obligatorio llevar ningún documento más.",
-          "en": null,
-          "ru": null
+          "en": "It is not mandatory to carry any further documents.",
+          "ru": "Никаких дополнительных документов возить не обязательно."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "De acuerdo con el Reglamento General de Vehículos, todo conductor de un turismo debe llevar consigo el permiso de conducción válido, el permiso de circulación del vehículo y la tarjeta de inspección técnica (ITV) en vigor. Aunque el seguro obligatorio es exigible, no es estrictamente obligatorio portar el justificante de pago físico, ya que los agentes pueden verificarlo telemáticamente, pero el resto de la documentación técnica y administrativa del vehículo es indispensable.",
+      "en": "According to the General Vehicle Regulations, every driver of a turismo must carry a valid driver's license, the vehicle's registration certificate (permiso de circulación), and the technical inspection card (ITV). While compulsory insurance is required, carrying the physical proof of payment is not strictly mandatory as authorities can verify it electronically, but the rest of the vehicle's technical and administrative documentation is essential.",
+      "ru": "🎓 Для управления легковым автомобилем в Испании необходимо иметь при себе три основных документа: водительское удостоверение, Permiso de circulación (разрешение на движение) и tarjeta ITV (карту техосмотра). Несмотря на то, что страхование является обязательным, физическую квитанцию об оплате страховки возить с собой не обязательно, так как агенты дорожной полиции могут проверить её наличие через электронную базу данных. Однако наличие Permiso de circulación и tarjeta ITV в оригинале (или заверенных копиях) является строго обязательным. 🇷🇺 В отличие от РФ, где диагностическую карту (техосмотр) возить с собой не требуется, в Испании tarjeta ITV является обязательным документом, который должен всегда находиться в легковом автомобиле. 💡 Права, техпаспорт и техосмотр — три кита твоей поездки!"
     },
     "image_url": "https://teorica.practicavial.com/question/4f1cf620-6a13-43cc-bcac-682939e2aebd-1658325516-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/4f1cf620-6a13-43cc-bcac-682939e2aebd-s-1.jpg",
@@ -739,17 +739,17 @@
     "question_number": 16,
     "category": "B",
     "question": {
-      "es": "El permiso de conducción de la clase A1, ¿autoriza a conducir motocicletas con sidecar?",
-      "en": null,
-      "ru": null
+      "es": "¿El permiso de conducción de la clase A1, autoriza a conducir motocicletas con sidecar?",
+      "en": "Does a class A1 driving license authorize driving motorcycles with a sidecar?",
+      "ru": "Разрешает ли водительское удостоверение категории A1 управлять мотоциклами с боковым прицепом?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       },
@@ -757,8 +757,8 @@
         "id": "b",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       },
@@ -766,16 +766,16 @@
         "id": "c",
         "text": {
           "es": "Sí, si tiene una antigüedad de 2 años.",
-          "en": null,
-          "ru": null
+          "en": "Yes, if you have held it for 2 years.",
+          "ru": "Да, если стаж вождения составляет 2 года."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El permiso de la clase A1 autoriza la conducción de motocicletas, con o sin sidecar, con una cilindrada máxima de 125 cm³, una potencia máxima de 11 kW y una relación potencia/peso máxima de 0,1 kW/kg. Asimismo, autoriza la conducción de triciclos de motor cuya potencia máxima no exceda de 15 kW. La edad mínima para su obtención es de 16 años cumplidos e implica la concesión del permiso AM.",
+      "en": "The class A1 driving license authorizes the operation of motorcycles, with or without a sidecar, with a maximum displacement of 125 cm³, a maximum power of 11 kW, and a maximum power-to-weight ratio of 0.1 kW/kg. It also permits driving motor tricycles with a maximum power not exceeding 15 kW. The minimum age for this license is 16 years, and it automatically includes the AM license.",
+      "ru": "🎓 Категория A1 позволяет управлять мотоциклами как с боковым прицепом, так и без него. Основные технические лимиты для этой категории: объем двигателя до 125 куб. см, мощность до 11 кВт и удельная мощность до 0,1 кВт/кг. Также это удостоверение дает право управлять трициклами мощностью до 15 кВт и всеми транспортными средствами категории AM (мопеды). Минимальный возраст для получения — 16 лет. 🇷🇺 В РФ категория А1 имеет аналогичные ограничения по объему (125 куб. см) и мощности (11 кВт). 💡 А-один: до ста двадцати пяти и коляска на месте!"
     },
     "image_url": "https://teorica.practicavial.com/question/66d0f525-8ee7-496d-81bf-e2818b3dd4a3-1658321576-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/66d0f525-8ee7-496d-81bf-e2818b3dd4a3-s-1.jpg",
@@ -789,16 +789,16 @@
     "category": "B",
     "question": {
       "es": "Una furgoneta de MMA inferior a 3,5 toneladas y una antigüedad de 5 años, ¿con qué frecuencia debe pasar la inspección técnica periódica?",
-      "en": null,
-      "ru": null
+      "en": "How often must a van with an MMA of less than 3.5 tons and 5 years of age undergo a periodic technical inspection?",
+      "ru": "Фургон с РММ менее 3,5 тонн и возрастом 5 лет, как часто он должен проходить периодический техосмотр (ITV)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Bienal, hasta los 6 años de antigüedad.",
-          "en": null,
-          "ru": null
+          "en": "Biennial, until 6 years of age.",
+          "ru": "Раз в два года, пока возраст не достигнет 6 лет."
         },
         "is_correct": true
       },
@@ -806,8 +806,8 @@
         "id": "b",
         "text": {
           "es": "Anual, hasta los 5 años de antigüedad.",
-          "en": null,
-          "ru": null
+          "en": "Annual, until 5 years of age.",
+          "ru": "Ежегодно, пока возраст не достигнет 5 лет."
         },
         "is_correct": false
       },
@@ -815,16 +815,16 @@
         "id": "c",
         "text": {
           "es": "Bienal, hasta los 10 años de antigüedad.",
-          "en": null,
-          "ru": null
+          "en": "Biennial, until 10 years of age.",
+          "ru": "Раз в два года, пока возраст не достигнет 10 лет."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Real Decreto 920/2017, la periodicidad de la ITV para vehículos dedicados al transporte de mercancías con MMA ≤ 3.500 kg es: hasta 2 años exento, de 2 a 6 años bienal, de 6 a 10 años anual y de más de 10 años semestral. Al tener 5 años, se encuentra en el periodo bienal.",
+      "en": "According to Royal Decree 920/2017, the ITV frequency for goods transport vehicles with MMA ≤ 3,500 kg is: exempt up to 2 years, biennial from 2 to 6 years, annual from 6 to 10 years, and every six months for those over 10 years. At 5 years old, it falls into the biennial period.",
+      "ru": "🎓 Для фургонов и грузопассажирских автомобилей с разрешенной максимальной массой (РММ) до 3,5 тонн установлены следующие сроки техосмотра: до 2 лет — освобожден, от 2 до 6 лет — раз в два года, от 6 до 10 лет — ежегодно, старше 10 лет — каждые полгода. Так как фургону 5 лет, он обязан проходить осмотр раз в два года. 🇷🇺 В Испании для легкого коммерческого транспорта требования жестче: после 10 лет техосмотр становится полугодовым. 💡 Фургон до шести — раз в два года ищи встречи!"
     },
     "image_url": "https://teorica.practicavial.com/question/93a0ee3d-744f-4770-a420-e04d409a08f2-1658326498-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/93a0ee3d-744f-4770-a420-e04d409a08f2-s-1.jpg",
@@ -838,16 +838,16 @@
     "category": "B",
     "question": {
       "es": "Si un adulto viaja en el asiento trasero de un coche sin utilizar el cinturón de seguridad, ¿qué penalización se aplica?",
-      "en": null,
-      "ru": null
+      "en": "If an adult travels in the back seat of a car without using a seat belt, what penalty applies?",
+      "ru": "Если взрослый едет на заднем сиденье легкового автомобиля без ремня безопасности, какое наказание применяется?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Aviso verbal sin multa.",
-          "en": null,
-          "ru": null
+          "en": "Verbal warning without a fine.",
+          "ru": "Устное предупреждение без штрафа."
         },
         "is_correct": false
       },
@@ -855,8 +855,8 @@
         "id": "b",
         "text": {
           "es": "Multa de 200€ y retirada de 2 puntos.",
-          "en": null,
-          "ru": null
+          "en": "Fine of 200€ and removal of 2 points.",
+          "ru": "Штраф 200€ и лишение 2 баллов."
         },
         "is_correct": false
       },
@@ -864,16 +864,16 @@
         "id": "c",
         "text": {
           "es": "Multa de 200€ y retirada de 4 puntos.",
-          "en": null,
-          "ru": null
+          "en": "Fine of 200€ and removal of 4 points.",
+          "ru": "Штраф 200€ и лишение 4 баллов."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El incumplimiento de la obligación de utilizar el cinturón de seguridad está tipificado como una infracción grave. Según la normativa vigente, la sanción económica es de 200 euros y conlleva la detracción de 4 puntos del permiso de conducir.",
+      "en": "Failure to comply with the mandatory use of seat belts is classified as a serious offense. According to current regulations, the financial penalty is 200 euros and involves the deduction of 4 points from the driving license.",
+      "ru": "🎓 В Испании использование ремня безопасности обязательно для всех пассажиров. Нарушение этого правила в легковом автомобиле (Turismo) влечет за собой штраф 200€ и лишение 4 баллов. Безопасность на дороге начинается с каждого пристегнутого человека. 🇷🇺 В РФ отсутствует система вычета баллов за это нарушение, применяется только денежный штраф. 💡 Ремень пристегнул — баллы сохранил, жизнь сберег — в ДТП не залег!"
     },
     "image_url": "https://teorica.practicavial.com/question/a97b9079-bf47-4140-9cbb-26282914543e-1734419337-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/a97b9079-bf47-4140-9cbb-26282914543e-s-1.jpg",
@@ -887,16 +887,16 @@
     "category": "B",
     "question": {
       "es": "Un turismo nuevo, ¿cuándo debe pasar la primera ITV?",
-      "en": null,
-      "ru": null
+      "en": "When must a new passenger car pass its first ITV inspection?",
+      "ru": "Когда новый легковой автомобиль должен пройти первый технический осмотр (ITV)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "A los cuatro años de haber sido matriculado.",
-          "en": null,
-          "ru": null
+          "en": "Four years after being registered.",
+          "ru": "Через четыре года после регистрации."
         },
         "is_correct": true
       },
@@ -904,8 +904,8 @@
         "id": "b",
         "text": {
           "es": "A los dos años de haber sido matriculado.",
-          "en": null,
-          "ru": null
+          "en": "Two years after being registered.",
+          "ru": "Через два года после регистрации."
         },
         "is_correct": false
       },
@@ -913,16 +913,16 @@
         "id": "c",
         "text": {
           "es": "A los tres años de haber sido matriculado.",
-          "en": null,
-          "ru": null
+          "en": "Three years after being registered.",
+          "ru": "Через три года после регистрации."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Los turismos de uso privado están exentos de pasar la Inspección Técnica de Vehículos (ITV) hasta que cumplen cuatro años desde su fecha de primera matriculación. A partir de ese momento, la frecuencia será bienal hasta los diez años, y anual una vez superada dicha antigüedad. El Real Decreto 920/2017 regula estas inspecciones obligatorias para garantizar la seguridad vial y la protección del medio ambiente.",
+      "en": "Private passenger cars are exempt from the Technical Vehicle Inspection (ITV) until four years have passed since their initial registration. From four to ten years of age, the inspection must be performed every two years (biennially). Once the vehicle is more than ten years old, the inspection becomes mandatory on an annual basis. These requirements are established to ensure vehicle safety and environmental standards.",
+      "ru": "🎓 Для тебя, как водителя легкового автомобиля (Turismo), важно помнить: первая проверка ITV проводится ровно через 4 года после даты первой регистрации. После этого, пока машине не исполнится 10 лет, ты обязан проходить осмотр каждые 2 года. Как только автомобилю исполнится 10 лет, визиты на станцию станут ежегодными. Учти, что для грузопассажирских автомобилей (Vehículo mixto) правила строже — они едут на первый осмотр уже через 2 года. 🇷🇺 В Испании сроки жестко регламентированы: 4 года тишины, затем раз в два года, а после десятилетия — каждый год. В РФ же техосмотр для личных легковых авто в большинстве случаев сейчас носит добровольный характер. 💡 Четыре года ждем — потом двойками идем, а за десять перевалило — каждый год в депо привалило!"
     },
     "image_url": "https://teorica.practicavial.com/question/ac71992f-5f76-4ddb-b792-073e07454966-1658326581-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/ac71992f-5f76-4ddb-b792-073e07454966-s-1.jpg",
@@ -936,16 +936,16 @@
     "category": "B",
     "question": {
       "es": "Para conducir un turismo con un remolque de menos de 750 Kg de M.M.A., ¿qué permiso, al menos, se necesita?",
-      "en": null,
-      "ru": null
+      "en": "To drive a passenger car with a trailer of less than 750 kg of MAM, what license is required at least?",
+      "ru": "Какое водительское удостоверение как минимум необходимо для управления легковым автомобилем с прицепом, разрешенная максимальная масса (РММ) которого менее 750 кг?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "El de la clase C1, al ser un remolque ligero.",
-          "en": null,
-          "ru": null
+          "en": "Class C1, as it is a light trailer.",
+          "ru": "Класса C1, так как это легкий прицеп."
         },
         "is_correct": false
       },
@@ -953,8 +953,8 @@
         "id": "b",
         "text": {
           "es": "El de la clase BE.",
-          "en": null,
-          "ru": null
+          "en": "Class BE.",
+          "ru": "Класса BE."
         },
         "is_correct": false
       },
@@ -962,16 +962,16 @@
         "id": "c",
         "text": {
           "es": "El de la clase B.",
-          "en": null,
-          "ru": null
+          "en": "Class B.",
+          "ru": "Класса B."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El permiso de conducción de la clase B autoriza a conducir automóviles cuya masa máxima autorizada no exceda de 3.500 kg y que no tengan más de 9 plazas. Dichos vehículos pueden llevar enganchado un remolque ligero (cuya MMA no exceda de 750 kg) en cualquier caso, incluso si el conjunto supera los 3.500 kg (hasta un máximo de 4.250 kg).",
+      "en": "The Class B driving license authorizes the operation of motor vehicles with a Maximum Authorized Mass (MAM) not exceeding 3,500 kg and designed for no more than 9 occupants. These vehicles may tow a light trailer (MAM up to 750 kg) in all cases, even if the total combination weight exceeds 3,500 kg (up to a maximum of 4,250 kg).",
+      "ru": "🎓 С категорией B ты имеешь право управлять легковым автомобилем (Turismo) с разрешенной максимальной массой (РММ) до 3500 кг. К такому автомобилю закон всегда разрешает прицеплять легкий прицеп (РММ до 750 кг). В этом случае общая масса состава может достигать 4250 кг (3500 кг машина + 750 кг прицеп), и тебе всё равно будет достаточно обычного удостоверения категории B без каких-либо дополнительных кодов или разрешений. 🇷🇺 В РФ действуют аналогичные требования: для прицепа до 750 кг категория E к B не требуется, даже если общая масса состава превышает 3,5 тонны. 💡 Прицеп до семисот пятидесяти — вози с категорией B и не бойся ничего!"
     },
     "image_url": "https://teorica.practicavial.com/question/2dacea2f-6c07-4a3d-adce-bb382f23ae60-1658321926-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/2dacea2f-6c07-4a3d-adce-bb382f23ae60-s-1.jpg",
@@ -984,17 +984,17 @@
     "question_number": 21,
     "category": "B",
     "question": {
-      "es": "El permiso de conducción de la clase B, ¿autoriza a conducir una furgoneta de 3.500 kilogramos de MMA?",
-      "en": null,
-      "ru": null
+      "es": "¿El permiso de conducción de la clase B autoriza a conducir una furgoneta de 3.500 kilogramos de MMA?",
+      "en": "Does a class B driving license authorize you to drive a van with a 3,500 kg MMA?",
+      "ru": "Разрешает ли водительское удостоверение категории B управление фургоном с разрешенной максимальной массой (РММ) 3500 кг?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       },
@@ -1002,8 +1002,8 @@
         "id": "b",
         "text": {
           "es": "No, es necesario el permiso de la clase C.",
-          "en": null,
-          "ru": null
+          "en": "No, a class C license is required.",
+          "ru": "Нет, необходимо водительское удостоверение категории C."
         },
         "is_correct": false
       },
@@ -1011,16 +1011,16 @@
         "id": "c",
         "text": {
           "es": "Sí, pero solo cuando el permiso tenga una antigüedad superior a 2 años.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but only when the license is more than 2 years old.",
+          "ru": "Да, но только если стаж вождения превышает 2 года."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El permiso de clase B autoriza a conducir automóviles cuya masa máxima autorizada (MMA) no exceda de 3.500 kg y que estén diseñados y construidos para el transporte de no más de ocho pasajeros además del conductor. Las furgonetas están incluidas en esta autorización siempre que no superen dicho peso. Como norma adicional, en España se permite conducir vehículos de mercancías con combustibles alternativos de hasta 4.250 kg de MMA con el permiso B, siempre que se tenga una antigüedad superior a 2 años, debido al peso adicional de las baterías o sistemas de propulsión.",
+      "en": "The class B license authorizes the driving of motor vehicles with a maximum authorized mass (MAM) not exceeding 3,500 kg, designed and constructed for the carriage of no more than eight passengers in addition to the driver. Vans are included in this authorization as long as they do not exceed this weight. Additionally, in Spain, goods vehicles powered by alternative fuels up to 4,250 kg MAM can be driven with a class B license, provided the license has been held for more than 2 years, to account for the extra weight of batteries or propulsion systems.",
+      "ru": "🎓 Категория B дает тебе право управлять легковыми автомобилями и фургонами, если их разрешенная максимальная масса (РММ) не превышает 3500 кг, а количество пассажирских мест — не более 8 (водитель девятый). Фургон весом ровно 3500 кг идеально вписывается в эти требования. В Испании есть важное дополнение: если фургон предназначен для перевозки грузов и работает на альтернативном топливе (например, электрокар), то при стаже вождения более 2 лет разрешается управлять таким ТС с РММ до 4250 кг, так как аккумуляторы сильно увеличивают общий вес машины. 🇷🇺 В Испании допустимый вес для категории B может достигать 4250 кг для эко-транспорта при стаже от 2 лет, в то время как в РФ лимит в 3500 кг является строгим и окончательным для этой категории. 💡 Три с половиной тонны — предел для B, если больше — категорию C бери!"
     },
     "image_url": "https://teorica.practicavial.com/question/9bfad26c-9121-44e6-80a0-bab8bd2a10ce-1658329126-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/9bfad26c-9121-44e6-80a0-bab8bd2a10ce-s-1.jpg",
@@ -1034,16 +1034,16 @@
     "category": "B",
     "question": {
       "es": "Un camión con una MMA de 2.500 kg y una antigüedad de 7 años está obligado a pasar inspección técnica...",
-      "en": null,
-      "ru": null
+      "en": "A truck with an MMA of 2,500 kg and an age of 7 years is required to undergo a technical inspection...",
+      "ru": "Грузовой автомобиль с РММ 2500 кг и возрастом 7 лет обязан проходить техосмотр (ITV)..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "cada dos años.",
-          "en": null,
-          "ru": null
+          "en": "every two years.",
+          "ru": "каждые два года."
         },
         "is_correct": false
       },
@@ -1051,8 +1051,8 @@
         "id": "b",
         "text": {
           "es": "anualmente.",
-          "en": null,
-          "ru": null
+          "en": "annually.",
+          "ru": "ежегодно."
         },
         "is_correct": true
       },
@@ -1060,16 +1060,16 @@
         "id": "c",
         "text": {
           "es": "cada seis meses.",
-          "en": null,
-          "ru": null
+          "en": "every six months.",
+          "ru": "каждые шесть месяцев."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Real Decreto 920/2017, los vehículos destinados al transporte de mercancías con una MMA menor o igual a 3.500 kg deben someterse a la Inspección Técnica de Vehículos (ITV) con la siguiente periodicidad: exento hasta los dos años de antigüedad, bienal de los dos a los seis años, anual de los seis a los diez años, y semestral si superan los diez años. Al tener el vehículo 7 años, se encuentra en el tramo de inspección anual.",
+      "en": "According to Spanish regulations (Royal Decree 920/2017), goods transport vehicles with an MMA of up to 3,500 kg follow a specific inspection schedule: exempt for the first 2 years, biennial from 2 to 6 years, annual from 6 to 10 years, and every six months after 10 years. Since the vehicle is 7 years old, it falls within the 6-10 year bracket, requiring an annual inspection.",
+      "ru": "🎓 Для транспортных средств, предназначенных для перевозки грузов с РММ до 3500 кг (включая фургоны и грузовики), установлены более строгие сроки техосмотра (ITV), чем для легковых автомобилей. До 2 лет они освобождены от проверки. С 2 до 6 лет осмотр проводится раз в 2 года. В возрасте от 6 до 10 лет — ежегодно. Если же возраст превышает 10 лет, проверку нужно проходить каждые 6 месяцев. Так как нашему грузовику 7 лет, он попадает в категорию ежегодного контроля. 🇷🇺 В Испании для коммерческого транспорта старше 10 лет предусмотрен техосмотр каждые полгода, что значительно строже российских норм для категории B. 💡 Грузовик после шести — каждый год его вези!"
     },
     "image_url": "https://teorica.practicavial.com/question/f563e1f0-9f2b-4ffd-9681-e0b31847f1c2-1658326636-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/f563e1f0-9f2b-4ffd-9681-e0b31847f1c2-s-1.jpg",
@@ -1083,16 +1083,16 @@
     "category": "B",
     "question": {
       "es": "El permiso de conducción de la clase A1, ¿autoriza conducir motocicletas con sidecar?",
-      "en": null,
-      "ru": null
+      "en": "Does the class A1 driving license authorize driving motorcycles with a sidecar?",
+      "ru": "Разрешает ли водительское удостоверение категории A1 управлять мотоциклами с боковым прицепом?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, motocicletas de cualquier cilindrada.",
-          "en": null,
-          "ru": null
+          "en": "Yes, motorcycles of any displacement.",
+          "ru": "Да, мотоциклами с любым рабочим объемом двигателя."
         },
         "is_correct": false
       },
@@ -1100,8 +1100,8 @@
         "id": "b",
         "text": {
           "es": "Sí, motocicletas con una cilindrada de 125 centímetros cúbicos como máximo y una potencia no superior a 11 kilovatios.",
-          "en": null,
-          "ru": null
+          "en": "Yes, motorcycles with a maximum displacement of 125 cubic centimeters and a power not exceeding 11 kilowatts.",
+          "ru": "Да, мотоциклами с рабочим объемом двигателя максимум 125 кубических сантиметров и мощностью не более 11 киловатт."
         },
         "is_correct": true
       },
@@ -1109,16 +1109,16 @@
         "id": "c",
         "text": {
           "es": "No, en ningún caso.",
-          "en": null,
-          "ru": null
+          "en": "No, in no case.",
+          "ru": "Нет, ни в коем случае."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El permiso de la clase A1 autoriza la conducción de motocicletas, con o sin sidecar, con una cilindrada máxima de 125 cm³, una potencia máxima de 11 kW y una relación potencia/peso máxima de 0,1 kW/kg. También permite conducir triciclos de motor cuya potencia máxima no exceda de 15 kW. La edad mínima para obtenerlo es de 16 años y su obtención implica la concesión del permiso AM.",
+      "en": "The class A1 license authorizes the operation of motorcycles, with or without a sidecar, with a maximum displacement of 125 cc, a maximum power of 11 kW, and a maximum power-to-weight ratio of 0.1 kW/kg. It also allows driving motor tricycles with a maximum power not exceeding 15 kW. The minimum age is 16 years, and obtaining it includes the AM license.",
+      "ru": "🎓 Категория A1 позволяет тебе управлять легкими мотоциклами, при этом наличие бокового прицепа разрешено. Главное соблюдать технические границы: объем двигателя до 125 куб. см, мощность до 11 кВт и соотношение мощности к весу не более 0,1 кВт/кг. Также это удостоверение дает право водить трициклы мощностью до 15 кВт и любые мопеды (категория AM). Получить такие права в Испании можно с 16 лет. 💡 А-один: сто двадцать пять кубов предел, и в люльке кто-то засиделся!"
     },
     "image_url": "https://teorica.practicavial.com/question/b29b5a28-2608-4dd2-802f-088964341be9-1658321614-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/b29b5a28-2608-4dd2-802f-088964341be9-s-1.jpg",
@@ -1132,16 +1132,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuál es la multa por llevar un detector de radares en el vehículo, aunque no se esté utilizando?",
-      "en": null,
-      "ru": null
+      "en": "What is the fine for carrying a radar detector in the vehicle, even if it is not being used?",
+      "ru": "Каков размер штрафа за наличие детектора радаров в транспортном средстве, даже если он не используется?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No hay multa.",
-          "en": null,
-          "ru": null
+          "en": "There is no fine.",
+          "ru": "Штраф отсутствует."
         },
         "is_correct": false
       },
@@ -1149,8 +1149,8 @@
         "id": "b",
         "text": {
           "es": "200€ y retirada de 2 puntos.",
-          "en": null,
-          "ru": null
+          "en": "200€ and withdrawal of 2 points.",
+          "ru": "200 евро и списание 2 пунктов."
         },
         "is_correct": false
       },
@@ -1158,16 +1158,16 @@
         "id": "c",
         "text": {
           "es": "500€ y retirada de 3 puntos.",
-          "en": null,
-          "ru": null
+          "en": "500€ and withdrawal of 3 points.",
+          "ru": "500 евро и списание 3 пунктов."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La Ley sobre Tráfico, Circulación de Vehículos a Motor y Seguridad Vial prohíbe expresamente llevar en el vehículo mecanismos de detección de radares o cinemómetros. Tras la reforma de la ley en 2022, el mero hecho de tener instalado o simplemente llevar dicho dispositivo en el vehículo constituye una infracción grave, independientemente de si el aparato está en funcionamiento o no. La sanción económica es de 500 euros y conlleva la pérdida de 3 puntos del permiso de conducir. Es fundamental distinguir entre los avisadores (permitidos), los detectores (prohibidos: 500€ y 3 puntos) y los inhibidores (prohibidos: 6.000€ y 6 puntos).",
+      "en": "The Act on Traffic, Motor Vehicle Circulation, and Road Safety expressly prohibits carrying radar or speed camera detection mechanisms in the vehicle. Following the 2022 legal reform, the mere fact of having such a device installed or simply carrying it in the vehicle constitutes a serious offense, regardless of whether the device is operational or not. The financial penalty is 500 euros and involves the loss of 3 points from the driving license. It is essential to distinguish between radar warning apps (permitted), detectors (prohibited: 500€ and 3 points), and jammers (prohibited: 6,000€ and 6 points).",
+      "ru": "🎓 В Испании правила очень строги к устройствам, мешающим контролю скорости. С 2022 года само наличие детектора радаров в твоем легковом автомобиле является серьезным нарушением. Даже если прибор выключен и просто лежит в бардачке, закон трактует это как нарушение: штраф составляет 500 евро и списание 3 пунктов с водительского удостоверения. Тебе как водителю важно различать три типа устройств: навигаторы с базой камер (разрешены), детекторы (запрещены, 500€) и ингибиторы-подавители сигнала (строжайше запрещены, штраф 6000€ и 6 пунктов). 🇷🇺 В РФ использование обычных радар-детекторов разрешено, наказывается только применение «антирадаров», которые создают активные помехи. В Испании же за простой детектор в салоне ты получишь крупный штраф. 💡 Детектор в машине нашел — три пункта и пятьсот евро долой!"
     },
     "image_url": "https://teorica.practicavial.com/question/cd05a391-2832-4309-9bf1-37c345ee3043-1734370496-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/cd05a391-2832-4309-9bf1-37c345ee3043-s-1.jpg",
@@ -1181,16 +1181,16 @@
     "category": "B",
     "question": {
       "es": "Si ha cambiado de domicilio, ¿tiene obligación de comunicarlo a la Jefatura de Tráfico?",
-      "en": null,
-      "ru": null
+      "en": "If you have changed your address, are you obliged to notify the Traffic Headquarters?",
+      "ru": "Если вы сменили место жительства, обязаны ли вы сообщить об этом в дорожную полицию (Jefatura de Tráfico)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, debo comunicar mi nuevo domicilio en el plazo de 15 días.",
-          "en": null,
-          "ru": null
+          "en": "Yes, I must communicate my new address within 15 days.",
+          "ru": "Да, я обязан сообщить о новом адресе в течение 15 дней."
         },
         "is_correct": true
       },
@@ -1198,8 +1198,8 @@
         "id": "b",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       },
@@ -1207,16 +1207,16 @@
         "id": "c",
         "text": {
           "es": "Sí, pero esperaré a comunicarlo cuando me caduque la validez del permiso de conducción.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but I will wait to communicate it when my driving permit expires.",
+          "ru": "Да, но я подожду и сообщу об этом, когда истечет срок действия водительского удостоверения."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El titular de un permiso de conducción está obligado a comunicar a la Jefatura Provincial de Tráfico cualquier variación de los datos que figuran en el mismo, especialmente el cambio de domicilio, en un plazo de 15 días. Este trámite es esencial para el mantenimiento del Registro de Conductores e Infractores y la correcta recepción de notificaciones administrativas. El incumplimiento de este plazo puede dar lugar a sanciones pecuniarias.",
+      "en": "The holder of a driving permit is legally required to notify the Provincial Traffic Headquarters of any changes to the personal data recorded on the permit, such as a change of address. This notification must be completed within 15 days of the change. This ensures the accuracy of the Drivers and Offenders Registry and the proper delivery of administrative communications. Failure to comply within the established timeframe is subject to administrative penalties.",
+      "ru": "🎓 Любое изменение персональных данных, указанных в водительском удостоверении, включая смену места жительства, должно быть официально зарегистрировано в Jefatura de Tráfico. На уведомление ведомства водителю легкового автомобиля (Turismo) отводится ровно 15 дней. Важно помнить, что при продаже транспортного средства срок уведомления о смене владельца еще короче и составляет 10 дней. Своевременное обновление адреса гарантирует получение официальных уведомлений и исключает штрафы за предоставление недостоверных данных. 🇷🇺 В Испании уведомление о смене адреса в течение 15 дней является строгой обязанностью, в то время как в РФ адрес проживания не печатается на самом удостоверении и процедура уведомления при смене прописки не имеет столь жестких временных рамок для водителя. 💡 Сменил жильё — не тяни, за 15 дней в Трафико данные обнови!"
     },
     "image_url": "https://teorica.practicavial.com/question/dd36a1a3-e1dd-4dee-8469-eb5e562fece7-1658322262-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/dd36a1a3-e1dd-4dee-8469-eb5e562fece7-s-1.jpg",
@@ -1230,16 +1230,16 @@
     "category": "B",
     "question": {
       "es": "Un turismo de uso privado con once años de antigüedad, debe someterse a la inspección técnica periódica...",
-      "en": null,
-      "ru": null
+      "en": "A private passenger car (turismo) that is eleven years old must undergo a periodic technical inspection...",
+      "ru": "Легковой автомобиль для частного использования возрастом одиннадцать лет должен проходить периодический техосмотр (ITV)..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "cada año.",
-          "en": null,
-          "ru": null
+          "en": "every year.",
+          "ru": "каждый год."
         },
         "is_correct": true
       },
@@ -1247,8 +1247,8 @@
         "id": "b",
         "text": {
           "es": "cada dos años.",
-          "en": null,
-          "ru": null
+          "en": "every two years.",
+          "ru": "каждые два года."
         },
         "is_correct": false
       },
@@ -1256,16 +1256,16 @@
         "id": "c",
         "text": {
           "es": "cada cuatro años.",
-          "en": null,
-          "ru": null
+          "en": "every four years.",
+          "ru": "каждые четыре года."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Real Decreto 920/2017, la frecuencia de la Inspección Técnica de Vehículos (ITV) para turismos de uso privado se establece en función de su antigüedad: hasta los cuatro años están exentos, de los cuatro a los diez años la inspección es bienal, y una vez superados los diez años de antigüedad, la inspección debe realizarse con una periodicidad anual.",
+      "en": "According to Royal Decree 920/2017, the frequency of the Technical Vehicle Inspection (ITV) for private passenger cars is determined by their age: they are exempt for the first four years, inspections are biennial from four to ten years, and once the vehicle is over ten years old, the inspection must be carried out annually.",
+      "ru": "🎓 Для легкового автомобиля (Turismo) периодичность прохождения техосмотра (ITV) напрямую зависит от его возраста с момента первой регистрации. До 4 лет автомобиль освобожден от проверок. В период с 4 до 10 лет техосмотр проводится раз в два года. Как только возраст автомобиля превышает 10 лет, ты обязан предоставлять его на проверку ежегодно. Так как в условии указано 11 лет, правильный интервал — каждый год. 🇷🇺 В Испании правила обязательны для всех старых авто, в то время как в РФ техосмотр для легковых автомобилей, используемых в личных целях, в настоящее время является добровольным (кроме случаев смены владельца или изменения конструкции для авто старше 4 лет). 💡 До четырех — гуляй смело, до десяти — раз в два года дело, а за десять перевалил — каждый год на стенд заехал!"
     },
     "image_url": "https://teorica.practicavial.com/question/b9734ac2-ccec-4bed-8e23-de3549a80b8f-1658326759-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/b9734ac2-ccec-4bed-8e23-de3549a80b8f-s-1.jpg",
@@ -1279,16 +1279,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué documento acredita que un vehículo reúne las condiciones técnicas necesarias para circular?",
-      "en": null,
-      "ru": null
+      "en": "Which document certifies that a vehicle meets the technical conditions required to circulate?",
+      "ru": "Какой документ подтверждает, что транспортное средство соответствует техническим условиям, необходимым для движения?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "El recibo del impuesto de vehículos de tracción mecánica.",
-          "en": null,
-          "ru": null
+          "en": "The mechanical traction vehicle tax receipt.",
+          "ru": "Квитанция об уплате налога на механические транспортные средства."
         },
         "is_correct": false
       },
@@ -1296,8 +1296,8 @@
         "id": "b",
         "text": {
           "es": "La tarjeta ITV.",
-          "en": null,
-          "ru": null
+          "en": "The ITV card.",
+          "ru": "Карта ITV (технический паспорт)."
         },
         "is_correct": true
       },
@@ -1305,16 +1305,16 @@
         "id": "c",
         "text": {
           "es": "El certificado del seguro y el último recibo del pago de la prima.",
-          "en": null,
-          "ru": null
+          "en": "The insurance certificate and the last premium payment receipt.",
+          "ru": "Страховой сертификат и последняя квитанция об уплате страхового взноса."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La Tarjeta de Inspección Técnica de Vehículos (ITV) es el documento oficial que acredita que el vehículo cumple con las condiciones técnicas exigidas para circular con seguridad. Es obligatoria para todos los vehículos de motor, remolques, semirremolques y ciclomotores. El titular del vehículo es el responsable de mantener las inspecciones periódicas en vigor. En caso de realizar reformas de importancia en el vehículo, se debe realizar una inspección extraordinaria. Si un agente detecta que la ITV no está en vigor, se otorga un plazo máximo de 10 días para regularizar la situación.",
+      "en": "The Vehicle Technical Inspection Card (ITV) is the official document certifying that the vehicle meets the technical requirements necessary for safe circulation. It is mandatory for all motor vehicles, trailers, semi-trailers, and mopeds. The vehicle owner is responsible for ensuring that periodic inspections are up to date. In the event of significant modifications to the vehicle, an extraordinary inspection must be carried out. If an officer detects an expired ITV, a maximum period of 10 days is granted to pass the inspection.",
+      "ru": "🎓 Твой легковой автомобиль (Turismo) обязан иметь карту ITV (Tarjeta de Inspección Técnica). Это единственный официальный документ, который подтверждает, что машина исправна и безопасна для движения. Карта обязательна для всех моторных ТС, прицепов и даже мопедов. Как владелец, ты лично отвечаешь за то, чтобы техосмотр был пройден вовремя. Если ты внесешь серьезные изменения в конструкцию, придется проходить проверку вне очереди. Помни: если полиция поймает тебя с просроченным техосмотром, у тебя будет всего 10 дней, чтобы доехать до станции ITV и получить допуск. 🇷🇺 В Испании карта ITV — это обязательный физический документ, который всегда должен быть с собой, в то время как в РФ диагностическая карта сейчас чаще проверяется инспекторами через электронную базу ЕАИSTO. 💡 Нет ITV — в гараж иди, за 10 дней всё подтверди!"
     },
     "image_url": "https://teorica.practicavial.com/question/c81e66b7-8169-4719-a3ad-78185e7cfd4a-1658326379-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/c81e66b7-8169-4719-a3ad-78185e7cfd4a-s-1.jpg",
@@ -1328,16 +1328,16 @@
     "category": "B",
     "question": {
       "es": "Para recuperar la pérdida de la totalidad de los puntos del permiso de conducir, debe asistir a un curso y, si supera una prueba tipo test, recuperará...",
-      "en": null,
-      "ru": null
+      "en": "To recover the loss of all points on your driving license, you must attend a course and, if you pass a test, you will recover...",
+      "ru": "Для восстановления водительского удостоверения после полной потери всех баллов необходимо пройти курс и, в случае успешной сдачи теста, вы восстановите..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "un máximo de 4 puntos.",
-          "en": null,
-          "ru": null
+          "en": "a maximum of 4 points.",
+          "ru": "максимум 4 балла."
         },
         "is_correct": false
       },
@@ -1345,8 +1345,8 @@
         "id": "b",
         "text": {
           "es": "los 12 puntos.",
-          "en": null,
-          "ru": null
+          "en": "the 12 points.",
+          "ru": "12 баллов."
         },
         "is_correct": false
       },
@@ -1354,16 +1354,16 @@
         "id": "c",
         "text": {
           "es": "sólo 8 puntos.",
-          "en": null,
-          "ru": null
+          "en": "only 8 points.",
+          "ru": "только 8 баллов."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La recuperación de la vigencia del permiso tras la pérdida total de puntos requiere la superación de un curso de sensibilización y reeducación vial de 20 horas de duración y una prueba teórica en la Jefatura de Tráfico. El permiso recuperado tendrá un saldo de 8 puntos, equivalente al de un conductor novel.",
+      "en": "Recovering a driving license after a total loss of points requires completing a 20-hour road awareness and re-education course and passing a theoretical test at the Traffic Department. The reinstated license will start with a balance of 8 points, the same as a novice driver.",
+      "ru": "🎓 Если ты полностью исчерпал свой лимит баллов, твоё водительское удостоверение аннулируется. Чтобы снова сесть за руль легкового автомобиля (Turismo), тебе придётся пройти 20-часовой курс переподготовки и сдать экзамен в дорожной полиции. Важно помнить: после этого ты не вернёшь себе полные 12 баллов. Твой новый баланс составит всего 8 баллов — столько же, сколько выдают новичкам. Чтобы вернуться к стандартным 12 баллам, нужно будет отъездить два года без нарушений. 🇷🇺 В России балльная система в таком виде отсутствует: за нарушения начисляются штрафы или следует лишение прав, но накопительного счёта баллов, который нужно восстанавливать через экзамен, нет. 💡 Потерял всё до нуля — на счету лишь восемь, не зевни и не наглей!"
     },
     "image_url": "https://teorica.practicavial.com/question/cba2d8d0-3f3c-4790-b960-2d5c5d579fc5-1734420817-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/cba2d8d0-3f3c-4790-b960-2d5c5d579fc5-s-1.jpg",
@@ -1377,16 +1377,16 @@
     "category": "B",
     "question": {
       "es": "¿A qué está obligado si el resultado de la inspección ITV es favorable?",
-      "en": null,
-      "ru": null
+      "en": "What are you required to do if the result of the ITV inspection is favorable?",
+      "ru": "Что вы обязаны сделать, если результат техосмотра (ITV) является благоприятным?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "A llevar únicamente la tarjeta ITV sellada.",
-          "en": null,
-          "ru": null
+          "en": "To carry only the stamped ITV card.",
+          "ru": "Иметь при себе только карту техосмотра с печатью."
         },
         "is_correct": false
       },
@@ -1394,8 +1394,8 @@
         "id": "b",
         "text": {
           "es": "A colocar el distintivo en cualquier sitio visible del parabrisas y a llevar la tarjeta ITV sellada.",
-          "en": null,
-          "ru": null
+          "en": "To place the sticker anywhere visible on the windshield and carry the stamped ITV card.",
+          "ru": "Разместить наклейку в любом видимом месте на лобовом стекле и иметь при себе карту техосмотра с печатью."
         },
         "is_correct": false
       },
@@ -1403,16 +1403,16 @@
         "id": "c",
         "text": {
           "es": "A colocar el distintivo acreditativo en el ángulo superior derecho del parabrisas y a llevar el informe de la inspección en el vehículo.",
-          "en": null,
-          "ru": null
+          "en": "To place the accreditation sticker in the upper right corner of the windshield and carry the inspection report in the vehicle.",
+          "ru": "Разместить опознавательную наклейку в верхнем правом углу лобового стекла и иметь при себе акт осмотра в легковом автомобиле."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Vehículos, tras una inspección técnica favorable, es obligatorio colocar el distintivo V-19 en el ángulo superior derecho del parabrisas por su cara interior para garantizar la visibilidad. Asimismo, el conductor debe llevar consigo el informe de inspección y la tarjeta ITV para exhibirlos ante los agentes de la autoridad si fuera necesario.",
+      "en": "According to the General Vehicle Regulations, after a favorable technical inspection, it is mandatory to place the V-19 sticker in the upper right corner of the windshield on its inner side to ensure visibility. Additionally, the driver must carry the inspection report and the ITV card to present them to the authorities if required.",
+      "ru": "🎓 После успешного прохождения техосмотра (ITV) водитель легкового автомобиля обязан разместить опознавательную наклейку в верхнем правом углу лобового стекла с внутренней стороны. Это необходимо для оперативного контроля со стороны дорожной полиции. Помимо наклейки, в машине обязательно должен находиться оригинал акта технического осмотра. Если инспектор обнаружит отсутствие действующего техосмотра, водителю дается максимум 10 дней на его прохождение. 🇷🇺 В отличие от РФ, где диагностическая карта для частных легковых автомобилей требуется лишь в определенных случаях, в Испании наличие наклейки на стекле и документов в машине строго обязательно для всех. 💡 Справа сверху наклейку лепи — штраф от полиции не получи!"
     },
     "image_url": "https://teorica.practicavial.com/question/74f33fbf-6e0d-4f56-b970-f107d4182555-1658327959-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/74f33fbf-6e0d-4f56-b970-f107d4182555-s-1.jpg",
@@ -1426,16 +1426,16 @@
     "category": "B",
     "question": {
       "es": "Si tiene su permiso de la clase B desde hace más de un año, y ahora obtiene el de la clase A, ¿está obligado a llevar la placa L en su motocicleta?",
-      "en": null,
-      "ru": null
+      "en": "If you have held a class B license for more than a year and now obtain a class A license, are you required to carry the L plate on your motorcycle?",
+      "ru": "Если у вас есть водительское удостоверение категории B более года, и теперь вы получаете категорию A, обязаны ли вы устанавливать знак «L» на свой мотоцикл?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, durante un año, en la parte trasera.",
-          "en": null,
-          "ru": null
+          "en": "Yes, for one year, on the rear part.",
+          "ru": "Да, в течение года, сзади."
         },
         "is_correct": false
       },
@@ -1443,25 +1443,25 @@
         "id": "b",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
-        "is_correct": false
+        "is_correct": true
       },
       {
         "id": "c",
         "text": {
           "es": "Sí, durante un año, en parte delantera.",
-          "en": null,
-          "ru": null
+          "en": "Yes, for one year, on the front part.",
+          "ru": "Да, в течение года, спереди."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Vehículos, la señal V-13 (L) debe ser utilizada únicamente por aquellos conductores que obtengan su primer permiso de conducción, durante el plazo de un año. Si el conductor ya posee una antigüedad superior a un año en cualquier otro permiso (como el de clase B), no se considera conductor novel a efectos de señalización, por lo que no está obligado a llevar la placa L al obtener una nueva categoría. Asimismo, la tasa de alcoholemia reducida (0,15 mg/l en aire) se aplica solo durante los dos primeros años desde la obtención del primer permiso.",
+      "en": "According to the General Vehicle Regulations, the V-13 (L) sign must only be displayed by drivers during the first year after obtaining their first driving license. If a driver has held another license (such as class B) for more than one year, they are no longer classified as a new driver for signaling purposes. Therefore, they are not required to display the L plate when obtaining a new category like class A. Additionally, the reduced blood alcohol limit (0.15 mg/l in exhaled air) only applies during the first two years from the date the very first license was issued.",
+      "ru": "🎓 Опознавательный знак V-13 (белая буква «L» на зеленом фоне) обязан устанавливать только водитель-новичок в течение первого года после получения своего самого первого водительского удостоверения. Если ты уже управляешь легковым автомобилем более года, то при получении категории A (мотоцикл) вешать знак «L» не нужно. Стаж вождения в Испании считается с даты получения первого разрешения. Также помни, что для новичков первые два года действуют строгие ограничения по алкоголю: 0,15 мг/л в выдыхаемом воздухе (или 0,3 г/л в крови). По истечении двух лет стажа норма становится стандартной: 0,25 мг/л в воздухе (или 0,5 г/л в крови). 🇷🇺 В Испании статус новичка для знака «L» длится 1 год, а пониженный лимит алкоголя — 2 года, в то время как в РФ знак «Начинающий водитель» обязателен в течение 2 лет. 💡 Первый год с «L» промчался — статус новичка скончался!"
     },
     "image_url": "https://teorica.practicavial.com/question/0df842c3-7a9a-4c02-aa78-6e557bca739f-1658322334-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/0df842c3-7a9a-4c02-aa78-6e557bca739f-s-1.jpg",

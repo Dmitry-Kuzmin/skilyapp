@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo, useRef } from "react";
 import { TelegramUser } from "@/types/window";
 import { getTelegramUser, getPlatform } from "@/core/TelegramInit";
 import { isTelegramMiniApp } from "@/lib/telegram";
@@ -31,10 +31,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [platform, setPlatform] = useState<'telegram' | 'web'>('web');
   const [isLoading, setIsLoading] = useState(true);
-
-  // АРХИТЕКТУРА: Используем TelegramProvider вместо прямого вызова initTelegram()
-  const webApp = useTelegram();
   const [profileId, setProfileId] = useState<string | null>(null);
+  const webApp = useTelegram(); // Получаем webApp из контекста для использования в эффектах
+
+  // Ref to track last processed user to prevent redundant fetches
+  const lastProcessedUserRef = useRef<string | null>(null);
 
   // Load profile ID when user changes with optimistic loading and retry
   useEffect(() => {
@@ -42,8 +43,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
     const loadProfileId = async () => {
       if (supabaseUser) {
+        // ОПТИМИЗАЦИЯ: Если мы уже загрузили профиль для этого пользователя, не делаем запрос снова
+        if (lastProcessedUserRef.current === supabaseUser.id && profileId) {
+          return;
+        }
+
         // For web users - get profile by user_id
         console.log("[UserContext] 🔍 Loading profile for Supabase user:", supabaseUser.id);
+
+        // Обновляем ref сразу, чтобы предотвратить параллельные запросы
+        lastProcessedUserRef.current = supabaseUser.id;
 
         // КРИТИЧНО: Всегда запрашиваем актуальный ID из базы при входе, чтобы избежать stale cache
         const { data, error } = await supabase
@@ -51,8 +60,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
           .select('id')
           .eq('user_id', supabaseUser.id)
           .maybeSingle();
-
-        console.log("[UserContext] 📊 Profile query result:", { data, error });
 
         if (error) {
           console.error("[UserContext] Error fetching profile:", error);
@@ -62,10 +69,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
             setProfileId(cachedId);
             setGlobalProfileId(cachedId);
           }
+          // Сбрасываем ref при ошибке, чтобы попробовать снова
+          lastProcessedUserRef.current = null;
         } else if (isMounted && data && (data as any).id) {
           const actualProfileId = (data as any).id;
-          setProfileId(actualProfileId);
-          setGlobalProfileId(actualProfileId);
+          // Проверяем, изменился ли ID, чтобы избежать лишних ре-рендеров
+          if (profileId !== actualProfileId) {
+            setProfileId(actualProfileId);
+            setGlobalProfileId(actualProfileId);
+          }
           localStorage.setItem(`profile_${supabaseUser.id}`, actualProfileId);
           console.log("[UserContext] ✅ Profile ID synced from DB:", actualProfileId);
         } else if (isMounted && !data) {
@@ -92,9 +104,19 @@ export function UserProvider({ children }: { children: ReactNode }) {
             localStorage.setItem(`profile_${supabaseUser.id}`, newProfile.id);
           } else {
             console.error("[UserContext] ❌ Failed to create profile:", createError);
+            // Сбрасываем ref при ошибке
+            lastProcessedUserRef.current = null;
           }
         }
       } else if (user) {
+        // ОПТИМИЗАЦИЯ: Telegram user handling
+        const telegramIdStr = user.id.toString();
+        if (lastProcessedUserRef.current === telegramIdStr && profileId) {
+          return;
+        }
+
+        lastProcessedUserRef.current = telegramIdStr;
+
         // For Telegram users - get profile by telegram_id with retry
         console.log("[UserContext] Loading profile for Telegram user:", user.id);
 
@@ -103,8 +125,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
         if (cachedId) {
           console.log("[UserContext] ✅ Using cached profileId (no DB request):", cachedId);
           if (isMounted) {
-            setProfileId(cachedId);
-            setGlobalProfileId(cachedId); // 🔒 Синхронизация с глобальным синглтоном
+            if (profileId !== cachedId) {
+              setProfileId(cachedId);
+              setGlobalProfileId(cachedId);
+            }
           }
           return; // ОПТИМИЗАЦИЯ: Не делаем запрос, если есть кэш
         }
@@ -121,24 +145,32 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
           if (error) {
             console.error('[UserContext] Error loading profile:', error);
+            if (attempt >= 3) lastProcessedUserRef.current = null;
           } else if (data && (data as any).id) {
             console.log("[UserContext] Loaded profile ID for Telegram user:", (data as any).id);
             if (isMounted) {
-              setProfileId((data as any).id);
-              setGlobalProfileId((data as any).id); // 🔒 Синхронизация с глобальным синглтоном
-              localStorage.setItem(`profile_${user.id}`, (data as any).id);
+              const pid = (data as any).id;
+              if (profileId !== pid) {
+                setProfileId(pid);
+                setGlobalProfileId(pid);
+              }
+              localStorage.setItem(`profile_${user.id}`, pid);
             }
           } else if (attempt < 3) { // ОПТИМИЗАЦИЯ: Снижаем retry с 5 до 3
             console.log(`[UserContext] Profile not found, retry ${attempt}/3 in 1000ms...`);
             setTimeout(() => queryProfile(attempt + 1), 1000);
           } else {
             console.log("[UserContext] No profile found after 3 retries");
+            lastProcessedUserRef.current = null;
           }
         };
 
         queryProfile();
       } else {
-        if (isMounted) setProfileId(null);
+        if (isMounted) {
+          setProfileId(null);
+          lastProcessedUserRef.current = null;
+        }
       }
     };
 
@@ -410,7 +442,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     };
 
     initializeAuth();
-  }, [webApp]); // АРХИТЕКТУРА: Зависим от webApp из TelegramProvider
+  }, []); // АРХИТЕКТУРА: Зависимость от webApp убрана, так как получаем актуальное состояние внутри
 
   const login = useCallback(async (userData: TelegramUser) => {
     console.log("[UserContext] Login started for:", userData.first_name);

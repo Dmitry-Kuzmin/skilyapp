@@ -5,16 +5,16 @@
     "category": "B",
     "question": {
       "es": "Cuando se dispone de parabrisas delantero, ¿dónde se colocará el distintivo ambiental, en caso de tener la obligación?",
-      "en": null,
-      "ru": null
+      "en": "If a front windshield is available, where should the environmental badge be placed, if required?",
+      "ru": "При наличии лобового стекла, где следует разместить экологическую наклейку, если это обязательно?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "En el ángulo inferior derecho del parabrisas.",
-          "en": null,
-          "ru": null
+          "en": "In the lower right corner of the windshield.",
+          "ru": "В правом нижнем углу лобового стекла."
         },
         "is_correct": true
       },
@@ -22,8 +22,8 @@
         "id": "b",
         "text": {
           "es": "En un lateral del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "On the side of the vehicle.",
+          "ru": "На боковой части транспортного средства."
         },
         "is_correct": false
       },
@@ -31,16 +31,16 @@
         "id": "c",
         "text": {
           "es": "En el ángulo superior izquierdo del parabrisas.",
-          "en": null,
-          "ru": null
+          "en": "In the upper left corner of the windshield.",
+          "ru": "В левом верхнем углу лобового стекла."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El distintivo ambiental (V-25) debe colocarse en el ángulo inferior derecho del parabrisas delantero, por su cara interior. En caso de que el vehículo no disponga de parabrisas, se colocará en un lugar bien visible. Su colocación es voluntaria a nivel nacional, aunque las ordenanzas municipales pueden regular su obligatoriedad para acceder a Zonas de Bajas Emisiones. Los turismos con el distintivo 'Cero emisiones' están autorizados a circular por el carril VAO con solo el conductor.",
+      "en": "The environmental badge (V-25) must be placed in the lower right corner of the front windshield, on the inner side. If the vehicle does not have a windshield, it should be placed in a clearly visible location. Placement is voluntary at the national level, although municipal ordinances may mandate it for access to Low Emission Zones. Passenger cars (Turismo) with the 'Zero emissions' badge are authorized to use VAO lanes with only the driver present.",
+      "ru": "🎓 Если на твоем легковом автомобиле (Turismo) есть лобовое стекло, экологическую наклейку нужно клеить в правый нижний угол с внутренней стороны. Это делается для того, чтобы минимизировать помехи обзору водителя. Если стекла нет, наклейка размещается на любом видном месте. Хотя на уровне всей Испании это добровольно, муниципалитеты часто делают её обязательной для въезда в центр города. Важный бонус для тебя: легковой автомобиль с синей наклейкой «0» (Cero emisiones) может ехать по полосе VAO, даже если в машине находится только водитель. Остальным типам наклеек нужно следовать указаниям на световых табло перед въездом на полосу.\n\n💡 Правый нижний — обзор не лишний!"
     },
     "image_url": "https://teorica.practicavial.com/question/985d84be-21bc-48ed-9cac-8a684c69c31a-1658859187-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/985d84be-21bc-48ed-9cac-8a684c69c31a-s-1.jpg?t=1768428908",
@@ -58,16 +58,16 @@
     "category": "B",
     "question": {
       "es": "La distribución de la carga en un vehículo, ¿afecta al consumo de combustible?",
-      "en": null,
-      "ru": null
+      "en": "Does the distribution of cargo in a vehicle affect fuel consumption?",
+      "ru": "Влияет ли распределение груза в транспортном средстве на расход топлива?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, por ello es muy importante colocar la carga de manera adecuada.",
-          "en": null,
-          "ru": null
+          "en": "Yes, therefore it is very important to place the cargo properly.",
+          "ru": "Да, поэтому очень важно размещать груз надлежащим образом."
         },
         "is_correct": true
       },
@@ -75,8 +75,8 @@
         "id": "b",
         "text": {
           "es": "No, en el consumo sólo afecta la velocidad.",
-          "en": null,
-          "ru": null
+          "en": "No, only speed affects consumption.",
+          "ru": "Нет, на расход влияет только скорость."
         },
         "is_correct": false
       },
@@ -84,16 +84,16 @@
         "id": "c",
         "text": {
           "es": "No, en el consumo sólo afecta el tipo de vehículo.",
-          "en": null,
-          "ru": null
+          "en": "No, only the type of vehicle affects consumption.",
+          "ru": "Нет, на расход влияет только тип транспортного средства."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La distribución de la carga influye directamente en la aerodinámica y el peso del vehículo. Una colocación inadecuada, especialmente en el exterior (baca), aumenta la resistencia al aire, incrementando significativamente el consumo de combustible. El maletero es el lugar óptimo por seguridad y eficiencia energética.",
+      "en": "Cargo distribution directly influences the vehicle's aerodynamics and weight balance. Improper placement, particularly on external roof racks, increases air resistance, significantly raising fuel consumption. The trunk is the optimal location for both safety and energy efficiency.",
+      "ru": "🎓 Правильное размещение груза в легковом автомобиле (Turismo) напрямую влияет на аэродинамику. Если ты крепишь вещи на открытую раму на крыше (baca), сопротивление воздуха резко возрастает, что приводит к увеличению расхода топлива примерно на 1 литр на каждые 100 км пути. Самое безопасное и экономичное место для перевозки — это основной багажник (maletero), так как там груз не создает лишнего сопротивления ветру и не нарушает центр тяжести. 🇷🇺 В РФ правила также обязывают водителя следить за размещением и креплением груза для предотвращения падения и создания помех движению, но испанские нормы подчеркивают еще и экономический аспект. 💡 Багажник — в кузов, ветер — побоку. Чем выше гора на крыше, тем быстрее пустеет бак."
     },
     "image_url": "https://teorica.practicavial.com/question/1632d13f-f945-4273-80a5-211cee895636-1658859077-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/1632d13f-f945-4273-80a5-211cee895636-s-1.jpg",
@@ -110,17 +110,17 @@
     "question_number": 3,
     "category": "B",
     "question": {
-      "es": "Llevar encendido el aire acondicionado o climatizador del vehículo, ¿aumenta el consumo de combustible?",
-      "en": null,
-      "ru": null
+      "es": "¿Llevar encendido el aire acondicionado o climatizador del vehículo, aumenta el consumo de combustible?",
+      "en": "Does having the vehicle's air conditioning or climate control turned on increase fuel consumption?",
+      "ru": "Увеличивает ли расход топлива включенный в легковом автомобиле кондиционер или климат-контроль?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sólo aumenta el consumo si se programa por encima de los 30° centígrados.",
-          "en": null,
-          "ru": null
+          "en": "It only increases consumption if it is programmed above 30° Celsius.",
+          "ru": "Расход увеличивается только в том случае, если установлена температура выше 30 градусов Цельсия."
         },
         "is_correct": false
       },
@@ -128,8 +128,8 @@
         "id": "b",
         "text": {
           "es": "Sí, por lo que hay que usarlo de forma racional.",
-          "en": null,
-          "ru": null
+          "en": "Yes, so it must be used rationally.",
+          "ru": "Да, поэтому его нужно использовать рационально."
         },
         "is_correct": true
       },
@@ -137,16 +137,16 @@
         "id": "c",
         "text": {
           "es": "No, llevar conectado el climatizador no afecta al consumo de combustible.",
-          "en": null,
-          "ru": null
+          "en": "No, having the climate control connected does not affect fuel consumption.",
+          "ru": "Нет, использование климат-контроля не влияет на расход топлива."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El uso del sistema de aire acondicionado o climatizador supone una carga adicional para el motor, lo que incrementa el consumo de carburante. Para un uso eficiente, se recomienda mantener una temperatura de confort de entre 22 y 23 grados centígrados. A velocidades elevadas, circular con las ventanillas bajadas afecta negativamente a la aerodinámica del vehículo, pudiendo generar un consumo superior al del propio aire acondicionado. Asimismo, se aconseja apagar el motor en detenciones superiores a 60 segundos para optimizar el ahorro.",
+      "en": "Operating the air conditioning or climate control system places an additional load on the engine, resulting in increased fuel consumption. For efficient operation, it is recommended to maintain a comfort temperature between 22 and 23 degrees Celsius. At high speeds, driving with the windows down negatively affects the vehicle's aerodynamics, potentially leading to higher fuel consumption than using the air conditioning system. Additionally, turning off the engine during stops exceeding 60 seconds is advised to optimize fuel savings.",
+      "ru": "🎓 Использование кондиционера или климат-контроля заставляет двигатель легкового автомобиля работать интенсивнее, что напрямую ведет к увеличению расхода топлива. Для эффективного вождения следует использовать систему рационально: оптимальная температура в салоне должна составлять 22–23 градуса Цельсия. Важно помнить, что на больших скоростях открытые окна нарушают аэродинамику и создают сопротивление воздуха, из-за чего расход может вырасти даже сильнее, чем при включенном кондиционере. Также для экономии топлива рекомендуется выключать двигатель во время остановок, длящихся более 60 секунд. 💡 Хочешь ехать в прохладе — плати бензином, но не делай из машины холодильник."
     },
     "image_url": "https://teorica.practicavial.com/question/e5d91710-2b9f-4fae-9a86-67266148684f-1658859041-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/e5d91710-2b9f-4fae-9a86-67266148684f-s-1.jpg",
@@ -163,17 +163,17 @@
     "question_number": 4,
     "category": "B",
     "question": {
-      "es": "Circular demasiado cerca del vehículo de delante, ¿puede ser peligroso?",
-      "en": null,
-      "ru": null
+      "es": "¿Circular demasiado cerca del vehículo de delante, puede ser peligroso?",
+      "en": "Is driving too close to the vehicle in front potentially dangerous?",
+      "ru": "Может ли быть опасным движение слишком близко к впереди идущему транспортному средству?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, por el riesgo de alcance en caso de frenada.",
-          "en": null,
-          "ru": null
+          "en": "Yes, due to the risk of a rear-end collision in case of braking.",
+          "ru": "Да, из-за риска попутного столкновения в случае торможения."
         },
         "is_correct": true
       },
@@ -181,8 +181,8 @@
         "id": "b",
         "text": {
           "es": "No, si los frenos de mi vehículo están en buen estado.",
-          "en": null,
-          "ru": null
+          "en": "No, if my vehicle's brakes are in good condition.",
+          "ru": "Нет, если тормоза моего легкового автомобиля (Turismo) находятся в хорошем состоянии."
         },
         "is_correct": false
       },
@@ -190,16 +190,16 @@
         "id": "c",
         "text": {
           "es": "No, si se circula a la misma velocidad que el vehículo de delante.",
-          "en": null,
-          "ru": null
+          "en": "No, if you are driving at the same speed as the vehicle in front.",
+          "ru": "Нет, если вы движетесь с той же скоростью, что и впереди идущее транспортное средство."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El conductor debe mantener una distancia de seguridad que permita detener el vehículo en caso de frenado brusco sin colisionar con el precedente. No mantener esta distancia es la causa principal de las colisiones por alcance. Se establece como norma general dejar un margen de 2 segundos en zona urbana y 3 segundos en vías interurbanas. En caso de retención, si se es el último de la fila, se debe mantener una separación de 2 a 3 metros.",
+      "en": "The driver must maintain a safety distance that allows the vehicle to stop in the event of sudden braking without colliding with the one in front. Failure to maintain this distance is the primary cause of rear-end collisions. It is generally established to leave a 2-second gap in urban areas and 3 seconds on interurban roads. In a traffic jam, if you are the last in line, a 2 to 3-meter gap should be maintained.",
+      "ru": "🎓 Как водитель легкового автомобиля (Turismo), ты обязан всегда держать дистанцию безопасности. Основная причина попутных столкновений (colisión por alcance) — нехватка места для маневра. Правило простое: держи дистанцию в 2 секунды в городе и 3 секунды на трассах (Автомагистраль / Скоростная дорога). Если ты оказался последним в пробке, оставь перед собой 2–3 метра, чтобы в случае удара сзади тебя не впечатало в переднюю машину. Если же кто-то едет вплотную за тобой, сам увеличь дистанцию до того, кто впереди. 💡 Считай «раз-и-два», чтобы не встретить беду!"
     },
     "image_url": "https://teorica.practicavial.com/question/4cdad4df-560c-4823-86cd-2cc2beffdb15-1658858773-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/4cdad4df-560c-4823-86cd-2cc2beffdb15-s-1.jpg",
@@ -217,16 +217,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué debe hacer para ahorrar carburante y circular con seguridad?",
-      "en": null,
-      "ru": null
+      "en": "What should you do to save fuel and drive safely?",
+      "ru": "Что необходимо делать для экономии топлива и обеспечения безопасности движения?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Circular pegado al vehículo de delante para disminuir la resistencia del aire.",
-          "en": null,
-          "ru": null
+          "en": "Drive close to the vehicle in front to reduce air resistance.",
+          "ru": "Двигаться вплотную к впереди идущему транспортному средству для уменьшения сопротивления воздуха."
         },
         "is_correct": false
       },
@@ -234,8 +234,8 @@
         "id": "b",
         "text": {
           "es": "Conducir con suavidad, sin frenazos ni acelerones.",
-          "en": null,
-          "ru": null
+          "en": "Drive smoothly, without sudden braking or acceleration.",
+          "ru": "Водить плавно, без резких торможений и ускорений."
         },
         "is_correct": true
       },
@@ -243,16 +243,16 @@
         "id": "c",
         "text": {
           "es": "Mantener la velocidad lo más elevada y constante posible.",
-          "en": null,
-          "ru": null
+          "en": "Maintain the highest and most constant speed possible.",
+          "ru": "Поддерживать максимально высокую и постоянную скорость."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La conducción eficiente se basa en el mantenimiento de una velocidad uniforme, evitando cambios bruscos de ritmo. La normativa técnica recomienda circular con la marcha más alta posible y a bajas revoluciones, realizando los cambios de marcha entre 2.000 y 2.500 rpm en motores de gasolina y entre 1.500 y 2.000 rpm en motores diésel. El mantenimiento de la distancia de seguridad es obligatorio y no debe sacrificarse por la aerodinámica.",
+      "en": "Efficient driving is based on maintaining a uniform speed and avoiding sudden changes in pace. Technical regulations recommend driving in the highest gear possible at low RPM, shifting between 2,000 and 2,500 RPM for gasoline engines and between 1,500 and 2,000 RPM for diesel engines. Maintaining a safe following distance is mandatory and must not be sacrificed for aerodynamics.",
+      "ru": "🎓 Для экономии топлива и безопасности необходимо вести легковой автомобиль плавно, поддерживая равномерную скорость. Избегай резких ускорений и торможений — это не только увеличивает расход, но и снижает устойчивость. Переключайся на повышенную передачу как можно раньше: для бензинового двигателя при 2000–2500 об/мин, для дизельного — при 1500–2000 об/мин. Использование первой передачи должно быть минимальным (не более 2 секунд или 6 метров пути). Прижиматься к впереди идущему авто ради экономии запрещено, так как это нарушает безопасную дистанцию. 💡 Представь, что на капоте лежит сырое яйцо: твоя задача — довезти его целым. Плавность — залог экономии."
     },
     "image_url": "https://teorica.practicavial.com/question/3d4ea181-df3f-43f1-bbe3-f752f94a9895-1658858987-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/3d4ea181-df3f-43f1-bbe3-f752f94a9895-s-1.jpg",
@@ -270,16 +270,16 @@
     "category": "B",
     "question": {
       "es": "¿En qué categorías se clasifican los vehículos en función de su límite de emisiones y combustible empleado?",
-      "en": null,
-      "ru": null
+      "en": "In which categories are vehicles classified based on their emission limits and the fuel used?",
+      "ru": "На какие категории классифицируются транспортные средства в зависимости от уровня их выбросов и используемого топлива?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "0 emisiones, ECO, D, C y B, no existiendo distintivo para los de categoría B.",
-          "en": null,
-          "ru": null
+          "en": "0 emissions, ECO, D, C and B, with no sticker for category B.",
+          "ru": "0 emisiones, ECO, D, C и B, при этом для категории B наклейка не предусмотрена."
         },
         "is_correct": false
       },
@@ -287,8 +287,8 @@
         "id": "b",
         "text": {
           "es": "SIN, ECO, C, B, y A, no existiendo distintivo para los de categoría SIN.",
-          "en": null,
-          "ru": null
+          "en": "SIN, ECO, C, B, and A, with no sticker for category SIN.",
+          "ru": "SIN, ECO, C, B и A, при этом для категории SIN наклейка не предусмотрена."
         },
         "is_correct": false
       },
@@ -296,16 +296,16 @@
         "id": "c",
         "text": {
           "es": "0 emisiones, ECO, C, B y A, no existiendo distintivo para los de categoría A.",
-          "en": null,
-          "ru": null
+          "en": "0 emissions, ECO, C, B and A, with no sticker for category A.",
+          "ru": "0 emisiones, ECO, C, B и A, при этом для категории A наклейка не предусмотрена."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La clasificación ambiental de los vehículos en España se divide en cinco categorías: 0 emisiones, ECO, C, B y A. Esta clasificación se basa en el impacto ambiental de los vehículos según el Plan Nacional de Calidad del Aire. Los distintivos ambientales (etiquetas) se emiten únicamente para las categorías 0, ECO, C y B. Los vehículos de categoría A son aquellos más contaminantes (generalmente gasolina anteriores a 2001 y diésel anteriores a 2006) y no tienen derecho a distintivo físico. Su colocación es voluntaria a nivel nacional, aunque obligatoria en ciertos municipios.",
+      "en": "Vehicle environmental classification in Spain consists of five categories: 0 emissions, ECO, C, B, and A. This system categorizes vehicles based on their environmental impact and fuel type. Physical environmental stickers are only produced for categories 0, ECO, C, and B. Category A represents the most polluting vehicles, for which no physical sticker is issued. While placement is voluntary under national law, municipal ordinances may require them for access to low-emission zones.",
+      "ru": "🎓 В Испании транспортные средства классифицируются по уровню выбросов на пять категорий: 0 emisiones, ECO, C, B и A. Для категорий 0, ECO, C и B предусмотрены специальные экологические наклейки разных цветов, которые обычно размещаются в правом нижнем углу лобового стекла. Категория A объединяет наиболее старые и загрязняющие среду автомобили (бензиновые до 2001 г. и дизельные до 2006 г.), для которых физическая наклейка не предусмотрена. Тебе как водителю легкового автомобиля (Turismo) важно знать, что наличие наклейки «0 emisiones» дает право использовать Полосу VAO даже при отсутствии пассажиров. 🇷🇺 В РФ экологический класс прописывается в документах, но системы обязательных цветных меток на стекле для доступа в экологические зоны на данный момент не существует. 💡 Категория «А» — это «Аутсайдеры» без наклейки. Остальные: Ноль, Эко и буквы С, В (как оценки в школе, только наоборот)."
     },
     "image_url": "https://teorica.practicavial.com/question/c8cd39f6-cdfa-4917-82b4-682722738a0a-1734454659-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/c8cd39f6-cdfa-4917-82b4-682722738a0a-s-1.jpg",
@@ -323,16 +323,16 @@
     "category": "B",
     "question": {
       "es": "La conducción preventiva permite...",
-      "en": null,
-      "ru": null
+      "en": "Preventive driving allows...",
+      "ru": "Превентивное вождение позволяет..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "ahorrar combustible.",
-          "en": null,
-          "ru": null
+          "en": "save fuel.",
+          "ru": "экономить топливо."
         },
         "is_correct": false
       },
@@ -340,8 +340,8 @@
         "id": "b",
         "text": {
           "es": "evitar totalmente los atropellos.",
-          "en": null,
-          "ru": null
+          "en": "totally avoid running over pedestrians.",
+          "ru": "полностью избежать наездов на пешеходов."
         },
         "is_correct": false
       },
@@ -349,16 +349,16 @@
         "id": "c",
         "text": {
           "es": "reaccionar con tiempo suficiente para evitar riesgos.",
-          "en": null,
-          "ru": null
+          "en": "react with enough time to avoid risks.",
+          "ru": "реагировать заблаговременно для избежания рисков."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La conducción preventiva es una técnica de seguridad activa que se fundamenta en la anticipación y el control del entorno. Sus tres principios básicos son: visión, anticipación y espacio. Permite al conductor identificar peligros potenciales y actuar con la antelación necesaria para neutralizar riesgos antes de que se conviertan en accidentes.",
+      "en": "Preventive driving is an active safety technique based on anticipation and environmental control. Its three basic principles are: vision, anticipation, and space. It allows the driver to identify potential hazards and act with the necessary lead time to neutralize risks before they turn into accidents.",
+      "ru": "🎓 Превентивное вождение — это искусство предвидения. Твоя задача как водителя легкового автомобиля — не просто реагировать на опасность, а действовать на опережение. Этот метод строится на трех китах: обзор, предсказание и пространство. Если ты замечаешь потенциальную угрозу, например, мяч на проезжей части, ты должен начать торможение заранее, предполагая появление пешехода. Это обеспечивает запас времени и места для маневра, превращая вождение в контролируемый процесс. 💡 Видишь мяч — жди игрока. Превентивное вождение — это когда ты на шаг впереди дорожной ситуации!"
     },
     "image_url": "https://teorica.practicavial.com/question/1f71ffdd-ac3e-48cc-9431-36dc8355f3b4-1658858668-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/1f71ffdd-ac3e-48cc-9431-36dc8355f3b4-s-1.jpg",
@@ -375,17 +375,17 @@
     "question_number": 8,
     "category": "B",
     "question": {
-      "es": "Para ahorrar carburante, ¿cómo se debe ventilar el vehículo?",
-      "en": null,
-      "ru": null
+      "es": "¿Para ahorrar carburante, cómo se debe ventilar el vehículo?",
+      "en": "To save fuel, how should the vehicle be ventilated?",
+      "ru": "Как следует проветривать легковой автомобиль для экономии топлива?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Abriendo solamente las ventanillas traseras.",
-          "en": null,
-          "ru": null
+          "en": "By opening only the rear windows.",
+          "ru": "Открывая только задние окна."
         },
         "is_correct": false
       },
@@ -393,8 +393,8 @@
         "id": "b",
         "text": {
           "es": "Con las entradas de aire que hay en el salpicadero.",
-          "en": null,
-          "ru": null
+          "en": "Using the air inlets on the dashboard.",
+          "ru": "С помощью дефлекторов (воздуховодов) на передней панели."
         },
         "is_correct": true
       },
@@ -402,16 +402,16 @@
         "id": "c",
         "text": {
           "es": "Abriendo todas las ventanillas.",
-          "en": null,
-          "ru": null
+          "en": "By opening all the windows.",
+          "ru": "Открывая все окна."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Para optimizar el consumo de combustible, se recomienda utilizar las entradas de aire del salpicadero. Abrir las ventanillas, especialmente a altas velocidades, modifica la aerodinámica del vehículo y genera turbulencias que aumentan la resistencia al avance, elevando el consumo. El uso del aire acondicionado también incrementa el gasto de carburante al someter al motor a un esfuerzo adicional; si se utiliza, se aconseja mantener una temperatura de entre 22 y 23 grados. En detenciones prolongadas de más de 60 segundos, es recomendable apagar el motor.",
+      "en": "To optimize fuel consumption, it is recommended to use the air inlets on the dashboard. Opening windows, especially at high speeds, alters the vehicle's aerodynamics and creates turbulence that increases drag, leading to higher fuel usage. Using the air conditioning also increases fuel consumption by placing an additional load on the engine; if used, it is advisable to maintain a temperature between 22 and 23 degrees Celsius. For prolonged stops exceeding 60 seconds, it is recommended to turn off the engine.",
+      "ru": "🎓 Для экономии топлива в легковом автомобиле лучше всего использовать штатную систему вентиляции через дефлекторы на передней панели. Открытые окна на скорости нарушают аэродинамику и создают завихрения воздуха, которые «тормозят» машину, заставляя двигатель тратить больше горючего. Использование кондиционера также повышает расход, так как он забирает мощность у мотора. Если без него не обойтись, поддерживай температуру в диапазоне 22–23 градусов. Также помни: при остановках более 60 секунд рекомендуется глушить двигатель. 💡 Окна открыл — деньги на ветер, дефлектор включил — бак поберег."
     },
     "image_url": "https://teorica.practicavial.com/question/4c435300-5d9f-45a7-a095-400ead5d1ce6-1658859011-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/4c435300-5d9f-45a7-a095-400ead5d1ce6-s-1.jpg",
@@ -429,16 +429,16 @@
     "category": "B",
     "question": {
       "es": "Para anticiparse al peligro y tomar decisiones seguras...",
-      "en": null,
-      "ru": null
+      "en": "To anticipate danger and make safe decisions...",
+      "ru": "Чтобы предвидеть опасность и принимать безопасные решения..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "debe centrar la atención en el vehículo de delante.",
-          "en": null,
-          "ru": null
+          "en": "you must focus your attention on the vehicle in front.",
+          "ru": "необходимо сосредоточить внимание на транспортном средстве впереди."
         },
         "is_correct": false
       },
@@ -446,8 +446,8 @@
         "id": "b",
         "text": {
           "es": "prestar atención constante a la vía y su entorno.",
-          "en": null,
-          "ru": null
+          "en": "pay constant attention to the road and its surroundings.",
+          "ru": "постоянно уделять внимание проезжей части и окружающей обстановке."
         },
         "is_correct": true
       },
@@ -455,16 +455,16 @@
         "id": "c",
         "text": {
           "es": "debe mirar hasta donde se encuentre transcurridos 5 segundos.",
-          "en": null,
-          "ru": null
+          "en": "you must look as far as where you will be in 5 seconds.",
+          "ru": "необходимо смотреть вперед на расстояние, которое вы проедете за 5 секунд."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La conducción preventiva se basa en la visión, la anticipación y el espacio. Para anticiparse a los riesgos, el conductor debe realizar una vigilancia constante del entorno de la vía, no limitándose al vehículo precedente. Esto permite detectar con antelación cualquier anomalía en la calzada o los arcenes y adoptar medidas de seguridad antes de que el peligro sea inminente.",
+      "en": "Preventive driving is based on vision, anticipation, and space management. To anticipate risks, the driver must maintain constant surveillance of the road environment, not just the vehicle ahead. This allows for the early detection of any anomalies on the road or shoulders and the adoption of safety measures before a hazard becomes imminent.",
+      "ru": "🎓 Для эффективного прогнозирования дорожной ситуации водитель легкового автомобиля (turismo) должен постоянно сканировать не только проезжую часть (calzada), но и всё окружение, включая обочины (arcén). Ожидание опасности требует широкого обзора: нельзя концентрироваться только на задних фонарях машины впереди. Важно смотреть как можно дальше вперед, регулярно проверять зеркала заднего вида и контролировать \"слепые зоны\", поворачивая голову. Это позволяет заранее заметить пешехода или начало затора. 💡 Будь как сова: крути головой и смотри во все стороны, а не только в хвост соседу!"
     },
     "image_url": "https://teorica.practicavial.com/question/3904186b-1a9c-44c0-b63f-68697dec6294-1658858694-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/3904186b-1a9c-44c0-b63f-68697dec6294-s-1.jpg",
@@ -482,16 +482,16 @@
     "category": "B",
     "question": {
       "es": "¿Está permitida la circulación de vehículos cuyo nivel de emisión de ruidos supere los límites establecidos?",
-      "en": null,
-      "ru": null
+      "en": "Is the circulation of vehicles whose noise emission level exceeds the established limits allowed?",
+      "ru": "Разрешено ли движение транспортных средств, уровень шума которых превышает установленные пределы?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       },
@@ -499,8 +499,8 @@
         "id": "b",
         "text": {
           "es": "Solo está permitida su circulación por vías urbanas.",
-          "en": null,
-          "ru": null
+          "en": "It is only allowed on urban roads.",
+          "ru": "Разрешено только на городских дорогах."
         },
         "is_correct": false
       },
@@ -508,16 +508,16 @@
         "id": "c",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Queda prohibida la circulación de vehículos a motor y ciclomotores que superen los límites de emisión de ruidos, gases o humos establecidos reglamentariamente. Asimismo, se prohíbe la circulación con el llamado escape libre o sin el dispositivo silenciador de explosiones. Los agentes de la autoridad pueden proceder a la inmovilización del vehículo si se superan dichos niveles según el Reglamento General de Vehículos.",
+      "en": "The circulation of motor vehicles and mopeds that exceed the regulatory limits for noise, gas, or smoke emissions is prohibited. Additionally, driving with an open exhaust or without the mandatory silencer device is forbidden. Authorities may proceed to immobilize the vehicle if these levels are exceeded according to the General Vehicle Regulations.",
+      "ru": "🎓 Твой легковой автомобиль (Turismo) обязан соответствовать акустическим и экологическим нормам. Движение с неисправным глушителем или вовсе без него (так называемый «прямоток») категорически запрещено как в городе, так и на скоростных трассах. Если уровень шума, дыма или выбросов газов превышает установленные законом пределы, сотрудники полиции имеют право не только оштрафовать тебя, но и иммобилизовать (задержать) транспортное средство до устранения неисправности. 💡 Тихий выхлоп — залог спокойной поездки без лишних встреч с полицией."
     },
     "image_url": "https://teorica.practicavial.com/question/075a6f79-fc7a-4a27-bd73-c623d53e1c7e-1663758206-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/075a6f79-fc7a-4a27-bd73-c623d53e1c7e-s-1.jpg",
@@ -535,16 +535,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuáles son los cuatro distintivos ambientales, para clasificar los vehículos por su potencial contaminante?",
-      "en": null,
-      "ru": null
+      "en": "What are the four environmental labels used to classify vehicles based on their potential to pollute?",
+      "ru": "Какие четыре экологических знака используются для классификации транспортных средств по уровню выбросов?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sin emisiones, ECO, A y B.",
-          "en": null,
-          "ru": null
+          "en": "Sin emisiones, ECO, A and B.",
+          "ru": "Sin emisiones, ECO, A и B."
         },
         "is_correct": false
       },
@@ -552,8 +552,8 @@
         "id": "b",
         "text": {
           "es": "0 emisiones, ECO, C y B.",
-          "en": null,
-          "ru": null
+          "en": "0 emissions, ECO, C and B.",
+          "ru": "0 emisiones, ECO, C и B."
         },
         "is_correct": true
       },
@@ -561,16 +561,16 @@
         "id": "c",
         "text": {
           "es": "0 emisiones, BIO, C y D.",
-          "en": null,
-          "ru": null
+          "en": "0 emissions, BIO, C and D.",
+          "ru": "0 emisiones, BIO, C и D."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La Dirección General de Tráfico (DGT) establece cuatro distintivos ambientales para clasificar el parque automovilístico según su impacto medioambiental: 0 emisiones (azul), ECO (verde y azul), C (verde) y B (amarillo). Los vehículos más antiguos y contaminantes se clasifican técnicamente como categoría A, pero para ellos no se emite ninguna etiqueta física. Su colocación es voluntaria, aunque recomendada en la parte inferior derecha del parabrisas delantero. Los turismos con el distintivo '0 emisiones' están autorizados a circular por los carriles VAO con un solo ocupante.",
+      "en": "The Directorate-General for Traffic (DGT) establishes four environmental labels to classify the vehicle fleet according to its environmental impact: 0 emissions (blue), ECO (green and blue), C (green), and B (yellow). The oldest and most polluting vehicles are technically classified as category A, but no physical sticker is issued for them. Placement is voluntary, although recommended in the lower right part of the front windshield. Passenger cars with the '0 emissions' label are authorized to use VAO lanes with only the driver present.",
+      "ru": "🎓 В Испании существует четыре типа экологических наклеек: «0 emisiones» (синяя), «ECO» (сине-зеленая), «C» (зеленая) и «B» (желтая). Самые старые и грязные машины относятся к категории «A», но для них физическая наклейка не предусмотрена. Хотя наклеивание знака считается добровольным, оно крайне рекомендуется, так как муниципалитеты ограничивают въезд в центры городов на основании этих категорий. Легковой автомобиль с наклейкой «0 emisiones» имеет право ехать по полосе VAO, даже если в машине находится только водитель. Знак обычно размещается в нижнем правом углу лобового стекла. 🇷🇺 В РФ экологический класс автомобиля указывается в документах, однако системы цветных наклеек на лобовое стекло, дающих право на льготный проезд по спецполосам, не существует. 💡 Запомни: 0-ECO-C-B. Буква «A» — это «Аутсайдер», ей наклейка не положена."
     },
     "image_url": "https://teorica.practicavial.com/question/32785615-d3f5-4c87-86ae-f8401a48d418-1734455570-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/32785615-d3f5-4c87-86ae-f8401a48d418-s-1.jpg?t=1768428908",
@@ -588,16 +588,16 @@
     "category": "B",
     "question": {
       "es": "¿Está permitido circular con un vehículo que supera los límites permitidos de emisión de humo?",
-      "en": null,
-      "ru": null
+      "en": "Is it permitted to drive a vehicle that exceeds the allowed smoke emission limits?",
+      "ru": "Разрешено ли движение на транспортном средстве, которое превышает установленные нормы выброса дыма?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, en todo caso.",
-          "en": null,
-          "ru": null
+          "en": "Yes, in any case.",
+          "ru": "Да, в любом случае."
         },
         "is_correct": false
       },
@@ -605,8 +605,8 @@
         "id": "b",
         "text": {
           "es": "Solo si el humo es de color blanco o azulado.",
-          "en": null,
-          "ru": null
+          "en": "Only if the smoke is white or bluish.",
+          "ru": "Только если дым белого или синеватого цвета."
         },
         "is_correct": false
       },
@@ -614,16 +614,16 @@
         "id": "c",
         "text": {
           "es": "No, está prohibido.",
-          "en": null,
-          "ru": null
+          "en": "No, it is prohibited.",
+          "ru": "Нет, это запрещено."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Queda prohibida la circulación de vehículos a motor y ciclomotores que superen los niveles de emisión de gases, humos y ruidos permitidos reglamentariamente. Los agentes de la autoridad podrán proceder a la inmovilización del vehículo en caso de incumplimiento. Asimismo, es obligatorio el uso de un dispositivo silenciador de explosiones eficiente.",
+      "en": "Driving motor vehicles and mopeds that exceed the legally established limits for gas, smoke, and noise emissions is prohibited. Law enforcement officers may immobilize the vehicle if these limits are exceeded. Vehicles must be equipped with an effective explosion silencer to reduce noise and prevent high-temperature gas discharge.",
+      "ru": "🎓 Согласно ПДД Испании, любому транспортному средству, включая твой легковой автомобиль, категорически запрещено движение, если уровень выброса газов, дыма или шума превышает установленные нормы. Это касается как городских, так и междугородних дорог. Если из выхлопной трубы валит густой дым или машина ревет слишком громко, полиция имеет право не просто оштрафовать тебя, но и иммобилизовать транспортное средство до устранения неисправности. Также запрещено ездить без глушителя. 🇷🇺 В Испании полиция имеет право немедленно иммобилизовать автомобиль на месте за превышение норм выбросов. 💡 Дымит как паровоз или орет как спорткар? Жди эвакуатор и пустой кошелек!"
     },
     "image_url": "https://teorica.practicavial.com/question/e9a32a1d-6083-4998-b0ab-14d28f29179c-1663758083-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/e9a32a1d-6083-4998-b0ab-14d28f29179c-s-1.jpg",
@@ -641,16 +641,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué vehículos, como norma general, pueden acceder a una vía a cuya entrada se encuentra esta señal?",
-      "en": null,
-      "ru": null
+      "en": "Which vehicles, as a general rule, can access a road where this sign is located at the entrance?",
+      "ru": "Каким транспортным средствам, как правило, разрешен въезд на дорогу, перед которой установлен этот знак?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Cualquier vehículo.",
-          "en": null,
-          "ru": null
+          "en": "Any vehicle.",
+          "ru": "Любому транспортному средству."
         },
         "is_correct": false
       },
@@ -658,8 +658,8 @@
         "id": "b",
         "text": {
           "es": "Vehículos con distintivo ambiental A o B.",
-          "en": null,
-          "ru": null
+          "en": "Vehicles with environmental badge A or B.",
+          "ru": "Легковым автомобилям с экологической маркировкой A или B."
         },
         "is_correct": false
       },
@@ -667,16 +667,16 @@
         "id": "c",
         "text": {
           "es": "Vehículos con distintivo ambiental 0, ECO o C.",
-          "en": null,
-          "ru": null
+          "en": "Vehicles with environmental badge 0, ECO, or C.",
+          "ru": "Легковым автомобилям с экологической маркировкой 0, ECO или C."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal R-120 prohíbe el acceso a vehículos en función de su distintivo ambiental en las Zonas de Bajas Emisiones (ZBE). El panel complementario especifica las excepciones a dicha prohibición. En este caso, el acceso está permitido exclusivamente a los vehículos que porten las etiquetas ambientales 0 emisiones, ECO y C. El incumplimiento de esta restricción conlleva una sanción económica de 200 euros.",
+      "en": "Sign R-120 prohibits access to vehicles based on their environmental classification in Low Emission Zones (ZBE). The supplementary panel specifies the exceptions to this prohibition. In this specific case, access is granted only to vehicles displaying the 0, ECO, or C environmental badges. Entering with a non-authorized vehicle results in a financial penalty of 200 euros.",
+      "ru": "🎓 Знак R-120 регулирует въезд в зоны с низким уровнем выбросов (ZBE). Основной знак запрещает движение, но дополнительная табличка с надписью EXCEPTO указывает исключения. В данном случае проезд разрешен только легковым автомобилям, имеющим экологическую маркировку 0, ECO или C. Транспортные средства без маркировки или с маркировкой B в эту зону допускаться не будут. Штраф за нарушение составляет 200 евро. 💡 Видишь «облако точек» за кормой — это зона чистого дома. Пропускаем только «чистюль»: Нулевых, Экологов и отличников класса «С»."
     },
     "image_url": "https://teorica.practicavial.com/question/e5150156-ac77-4c4e-9a86-0b8b9dbc90f5-1736265512-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/e5150156-ac77-4c4e-9a86-0b8b9dbc90f5-s-1.jpg",
@@ -694,16 +694,16 @@
     "category": "B",
     "question": {
       "es": "¿Está permitida la circulación de vehículos si el silenciador está estropeado y, por tanto no cumple su función con eficacia?",
-      "en": null,
-      "ru": null
+      "en": "Is it permitted for vehicles to circulate if the silencer is broken and, therefore, does not perform its function effectively?",
+      "ru": "Разрешено ли движение транспортных средств, если глушитель неисправен и, следовательно, не выполняет свою функцию эффективно?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, pero solo puede circular por vías interurbanas.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but it can only circulate on interurban roads.",
+          "ru": "Да, но только по междугородним дорогам."
         },
         "is_correct": false
       },
@@ -711,8 +711,8 @@
         "id": "b",
         "text": {
           "es": "No, excepto las motocicletas, que no necesitan silenciador.",
-          "en": null,
-          "ru": null
+          "en": "No, except for motorcycles, which do not need a silencer.",
+          "ru": "Нет, за исключением мотоциклов, которым глушитель не требуется."
         },
         "is_correct": false
       },
@@ -720,16 +720,16 @@
         "id": "c",
         "text": {
           "es": "No, debido a la contaminación acústica que produce.",
-          "en": null,
-          "ru": null
+          "en": "No, due to the noise pollution it produces.",
+          "ru": "Нет, из-за создаваемого акустического загрязнения."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Está prohibida la circulación de vehículos a motor y ciclomotores que no dispongan de un dispositivo silenciador de explosiones o que este sea ineficaz. El objetivo es evitar que el ruido producido supere los niveles máximos permitidos por la normativa vigente. El incumplimiento de esta norma conlleva la inmovilización del vehículo por parte de los agentes de la autoridad si se superan los niveles de emisión sonora.",
+      "en": "Motor vehicles and mopeds are prohibited from circulating without an explosion silencer device or with one that is ineffective. The objective is to prevent the noise produced from exceeding the maximum levels permitted by current regulations. Failure to comply with this rule leads to the impounding of the vehicle by the authorities if noise emission levels are exceeded.",
+      "ru": "🎓 Легковой автомобиль и любые другие моторные транспортные средства обязаны иметь исправный глушитель. Движение с неисправным или неэффективным глушителем строго запрещено, так как это вызывает акустическое загрязнение среды. Если уровень шума или выбросов газов превышает установленные нормы, полиция имеет право иммобилизовать твой автомобиль до устранения причины. 🇷🇺 В РФ также запрещена эксплуатация ТС при превышении уровня шума или неисправности системы выпуска. 💡 Тихий глушитель — залог спокойной поездки и целого кошелька."
     },
     "image_url": "https://teorica.practicavial.com/question/0035e3c5-d265-4093-ac39-d3b0570c4d69-1663756973-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/0035e3c5-d265-4093-ac39-d3b0570c4d69-s-1.jpg",
@@ -747,16 +747,16 @@
     "category": "B",
     "question": {
       "es": "Circulando cuesta abajo, ¿puede poner punto muerto para ahorrar carburante?",
-      "en": null,
-      "ru": null
+      "en": "When driving downhill, can you put the car in neutral to save fuel?",
+      "ru": "При движении под уклон, можно ли включать нейтральную передачу для экономии топлива?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, porque en punto muerto el motor no consume.",
-          "en": null,
-          "ru": null
+          "en": "Yes, because in neutral the engine does not consume fuel.",
+          "ru": "Да, так как на нейтральной передаче двигатель не потребляет топливо."
         },
         "is_correct": false
       },
@@ -764,8 +764,8 @@
         "id": "b",
         "text": {
           "es": "No, porque puedo perder el control del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "No, because I can lose control of the vehicle.",
+          "ru": "Нет, так как я могу потерять контроль над транспортным средством."
         },
         "is_correct": true
       },
@@ -773,16 +773,16 @@
         "id": "c",
         "text": {
           "es": "No, porque se puede romper el motor.",
-          "en": null,
-          "ru": null
+          "en": "No, because the engine could break.",
+          "ru": "Нет, так как это может привести к поломке двигателя."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Está prohibido circular en punto muerto en pendientes descendentes. El motor debe permanecer acoplado para permitir el freno motor, garantizando la estabilidad y evitando el sobrecalentamiento de los frenos. La seguridad vial prevalece sobre cualquier técnica de ahorro de combustible.",
+      "en": "Coasting in neutral while driving downhill is prohibited. The engine must remain engaged to provide engine braking, ensuring vehicle stability and preventing brake overheating. Road safety takes precedence over any fuel-saving techniques.",
+      "ru": "🎓 На крутых спусках категорически запрещено переходить на нейтральную передачу. Твой Легковой автомобиль должен всегда оставаться на включенной передаче, чтобы работало торможение двигателем. Это предотвращает перегрев тормозных колодок и позволяет полностью контролировать движение. Современные двигатели при движении на передаче с отпущенной педалью газа и так прекращают подачу топлива, поэтому езда на нейтралке не только опасна, но и бессмысленна для экономии. 💡 Нейтралка на спуске — это билет в кювет. Держи передачу, береги тормоза!"
     },
     "image_url": "https://teorica.practicavial.com/question/e498df0a-83d3-44a6-8436-d05086d4491b-1658859036-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/e498df0a-83d3-44a6-8436-d05086d4491b-s-1.jpg",
@@ -800,16 +800,16 @@
     "category": "B",
     "question": {
       "es": "¿Cómo se llama la conducción que nos permite circular anticipándonos a los posibles riesgos?",
-      "en": null,
-      "ru": null
+      "en": "What is the name of the driving style that allows us to circulate by anticipating possible risks?",
+      "ru": "Как называется стиль вождения, который позволяет нам двигаться, предвидя возможные риски?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Preventiva.",
-          "en": null,
-          "ru": null
+          "en": "Preventive.",
+          "ru": "Превентивное."
         },
         "is_correct": true
       },
@@ -817,8 +817,8 @@
         "id": "b",
         "text": {
           "es": "Eficiente.",
-          "en": null,
-          "ru": null
+          "en": "Efficient.",
+          "ru": "Эффективное."
         },
         "is_correct": false
       },
@@ -826,16 +826,16 @@
         "id": "c",
         "text": {
           "es": "Peligrosa.",
-          "en": null,
-          "ru": null
+          "en": "Dangerous.",
+          "ru": "Опасное."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La conducción preventiva se define como la aplicación de técnicas que permiten al conductor anticiparse a situaciones de riesgo. Se articula sobre tres principios básicos: visión, anticipación y gestión del espacio. El objetivo primordial es garantizar un margen de reacción suficiente ante imprevistos en la calzada, permitiendo actuar antes de que el peligro sea inminente.",
+      "en": "Preventive driving is defined as the application of techniques that allow the driver to anticipate risky situations. It is structured around three basic principles: vision, anticipation, and space management. The primary objective is to ensure a sufficient reaction margin in the event of unforeseen circumstances on the roadway, allowing action before the danger becomes imminent.",
+      "ru": "🎓 Превентивное вождение — это стратегия управления легковым автомобилем, основанная на трех принципах: Обзор, Предвидение и Пространство. Водитель должен смотреть далеко вперед по полосе движения, чтобы заранее распознать опасность. Например, если на проезжую часть вылетает мяч, превентивный водитель начинает снижать скорость немедленно, предвидя появление ребенка, даже если его еще не видно. Это обеспечивает необходимый запас времени и места для реакции. Эффективное же вождение направлено на экономию топлива, а не на безопасность.\n💡 Мяч на пути — жди беды, тормози заранее ты!"
     },
     "image_url": "https://teorica.practicavial.com/question/37c1a0d8-b0a4-45ac-bbfd-654a3692a44a-1658858689-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/37c1a0d8-b0a4-45ac-bbfd-654a3692a44a-s-1.jpg",
@@ -853,16 +853,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué es el ángulo muerto?",
-      "en": null,
-      "ru": null
+      "en": "What is a blind spot?",
+      "ru": "Что такое \"слепая зона\" (мертвая зона)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Es una parte de los coches que puede producir accidentes.",
-          "en": null,
-          "ru": null
+          "en": "It is a part of the car that can cause accidents.",
+          "ru": "Это часть автомобиля, которая может стать причиной аварии."
         },
         "is_correct": false
       },
@@ -870,8 +870,8 @@
         "id": "b",
         "text": {
           "es": "Es una zona alrededor del vehículo que no se ve con los retrovisores.",
-          "en": null,
-          "ru": null
+          "en": "It is an area around the vehicle that cannot be seen through the rearview mirrors.",
+          "ru": "Это зона вокруг транспортного средства, которую не видно в зеркала заднего вида."
         },
         "is_correct": true
       },
@@ -879,16 +879,16 @@
         "id": "c",
         "text": {
           "es": "Es la zona sin visibilidad que tiene el conductor al tomar una curva.",
-          "en": null,
-          "ru": null
+          "en": "It is the area with no visibility that the driver has when taking a curve.",
+          "ru": "Это зона отсутствия видимости, возникающая у водителя при прохождении поворота."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El ángulo muerto es el área alrededor de un vehículo que no puede ser observada directamente por el conductor a través de los espejos retrovisores, incluso si están correctamente regulados. Esta falta de visibilidad se debe a la estructura del propio vehículo y a la posición del conductor. Para garantizar la seguridad en maniobras como el cambio de carril, es necesario complementar la visión de los espejos con un giro rápido de la cabeza para verificar visualmente la zona ciega.",
+      "en": "The blind spot is the area around a vehicle that cannot be directly observed by the driver through the rearview mirrors, even if they are correctly adjusted. This lack of visibility is due to the vehicle's structure and the driver's position. To ensure safety during maneuvers such as lane changes, it is necessary to supplement the mirrors' view with a quick turn of the head to visually verify the blind area.",
+      "ru": "🎓 Слепая зона — это пространство вокруг твоего легкового автомобиля (Turismo), которое невозможно увидеть в зеркала заднего вида, даже если они настроены идеально. Это происходит из-за стоек кузова и твоего положения в кресле. Единственный надежный способ убедиться в безопасности перед перестроением — это быстрый поворот головы в сторону маневра, чтобы увидеть то, что скрыто от зеркал. 💡 Зеркало может врать — поверни голову, чтобы не попасть в аварию!"
     },
     "image_url": "https://teorica.practicavial.com/question/e608fe61-c5aa-477a-bf61-988a9d04aac0-1657807959-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/e608fe61-c5aa-477a-bf61-988a9d04aac0-s-1.jpg",
@@ -906,16 +906,16 @@
     "category": "B",
     "question": {
       "es": "Para evitar ruidos excesivos e innecesarios en la conducción, se debe...",
-      "en": null,
-      "ru": null
+      "en": "To avoid excessive and unnecessary noise while driving, you must...",
+      "ru": "Чтобы избежать чрезмерного и ненужного шума при вождении, необходимо..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "circular con el tubo de escape libre.",
-          "en": null,
-          "ru": null
+          "en": "drive with an open exhaust pipe.",
+          "ru": "двигаться с открытым (свободным) выпуском."
         },
         "is_correct": false
       },
@@ -923,8 +923,8 @@
         "id": "b",
         "text": {
           "es": "utilizar el claxon frecuentemente pero sin producir ruidos estridentes o notas musicales.",
-          "en": null,
-          "ru": null
+          "en": "use the horn frequently but without producing strident noises or musical notes.",
+          "ru": "часто использовать звуковой сигнал, но не издавать резких звуков или музыкальных нот."
         },
         "is_correct": false
       },
@@ -932,16 +932,16 @@
         "id": "c",
         "text": {
           "es": "cuidar de que el tubo de escape y el silenciador del vehículo estén siempre en buen estado.",
-          "en": null,
-          "ru": null
+          "en": "ensure that the exhaust pipe and the vehicle's silencer are always in good condition.",
+          "ru": "следить за тем, чтобы выхлопная труба и глушитель легкового автомобиля всегда были в хорошем состоянии."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Vehículos prohíbe la circulación de vehículos a motor con el escape libre o sin un silenciador de explosiones eficaz. Los conductores están obligados a mantener el sistema de escape en buen estado para no superar los niveles de ruido permitidos. En caso de incumplimiento, los agentes de la autoridad pueden proceder a la inmovilización del vehículo.",
+      "en": "The General Vehicle Regulations prohibit motor vehicles from operating with an open exhaust or without an effective explosion silencer. Drivers are required to maintain the exhaust system in good condition to ensure noise levels do not exceed legal limits. Failure to comply may lead to the immobilization of the vehicle by authorities.",
+      "ru": "🎓 Как водителю легкового автомобиля, тебе запрещено вносить изменения в систему выпуска или ездить с неисправным глушителем. Выхлопные газы должны проходить через эффективный и исправный глушитель, чтобы снижать уровень шума до установленных норм. Помни: если при проверке выяснится, что уровень шума или выбросов превышает допустимый предел, полиция имеет право иммобилизовать твой легковой автомобиль. Использование звукового сигнала допускается только в исключительных случаях для предотвращения аварии, а не для частого использования. 💡 Тихий глушитель — крепкие нервы соседей и пустой бланк штрафа."
     },
     "image_url": "https://teorica.practicavial.com/question/491d7358-dd5e-4854-90ad-82aca53a635a-1663758008-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/491d7358-dd5e-4854-90ad-82aca53a635a-s-1.jpg",
@@ -959,16 +959,16 @@
     "category": "B",
     "question": {
       "es": "Los distintivos ambientales clasifican a los vehículos en función de...",
-      "en": null,
-      "ru": null
+      "en": "Environmental badges classify vehicles based on...",
+      "ru": "Экологические наклейки классифицируют транспортные средства в зависимости от..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "su potencial contaminante.",
-          "en": null,
-          "ru": null
+          "en": "their polluting potential.",
+          "ru": "их потенциала загрязнения."
         },
         "is_correct": true
       },
@@ -976,8 +976,8 @@
         "id": "b",
         "text": {
           "es": "su ahorro energético.",
-          "en": null,
-          "ru": null
+          "en": "their energy savings.",
+          "ru": "их энергосбережения."
         },
         "is_correct": false
       },
@@ -985,16 +985,16 @@
         "id": "c",
         "text": {
           "es": "su contaminación acústica.",
-          "en": null,
-          "ru": null
+          "en": "their noise pollution.",
+          "ru": "их шумового загрязнения."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Los distintivos ambientales (señal V-25) tienen como objetivo clasificar el parque automovilístico en función de su potencial contaminante. Existen cuatro categorías oficiales: 0 emisiones (azul), ECO (azul y verde), C (verde) y B (amarillo). Los vehículos más antiguos (categoría A) no disponen de distintivo. En caso de ser obligatoria por ordenanza municipal, la etiqueta debe colocarse en el ángulo inferior derecho del parabrisas delantero. Los turismos con el distintivo '0 emisiones' están autorizados a circular por el carril VAO con un solo ocupante.",
+      "en": "Environmental badges (V-25 signal) are designed to classify the vehicle fleet based on its polluting potential. There are four official categories: 0 emissions (blue), ECO (blue and green), C (green), and B (yellow). Older vehicles (Category A) do not receive a badge. If mandatory by local ordinance, the sticker must be placed in the lower right corner of the front windshield. Turismos with the '0 emissions' badge are authorized to use VAO lanes with only the driver present.",
+      "ru": "🎓 Экологические наклейки (сигнал V-25) классифицируют транспортные средства исключительно по их потенциалу загрязнения окружающей среды. Существует четыре типа маркировки: 0 (синяя), ECO (сине-зеленая), C (зеленая) и B (желтая). Для старых машин (категория A) наклейка не предусмотрена. Если установка обязательна, её нужно размещать в правом нижнем углу лобового стекла. Легковой автомобиль (Turismo) с наклейкой «0 выбросов» имеет право ехать по полосе VAO, даже если в машине находится только водитель. Для остальных типов наклеек правила въезда на полосу VAO зависят от текущих указаний на информационных табло.\n\n🇷🇺 В РФ экологический класс указывается в документах (СТС), но цветные наклейки на лобовое стекло для доступа в спецзоны или на полосы движения не используются.\n\n💡 Чем «чище» выхлоп, тем больше льгот: «Ноль» — это твой VIP-пропуск на полосу VAO даже в одиночку!"
     },
     "image_url": "https://teorica.practicavial.com/question/0cf194c7-17ca-4d6e-aa22-0969e7dba982-1663758211-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/0cf194c7-17ca-4d6e-aa22-0969e7dba982-s-1.jpg",
@@ -1012,16 +1012,16 @@
     "category": "B",
     "question": {
       "es": "Si queda detenido en un atasco, ¿qué distancia es aconsejable mantener con el vehículo de delante?",
-      "en": null,
-      "ru": null
+      "en": "If you are stopped in a traffic jam, what distance is it advisable to maintain from the vehicle in front?",
+      "ru": "Если вы остановились в пробке, какую дистанцию рекомендуется соблюдать до впереди идущего транспортного средства?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Un metro como máximo.",
-          "en": null,
-          "ru": null
+          "en": "One meter maximum.",
+          "ru": "Максимум один метр."
         },
         "is_correct": false
       },
@@ -1029,8 +1029,8 @@
         "id": "b",
         "text": {
           "es": "Un espacio mínimo para ocupar menos espacio.",
-          "en": null,
-          "ru": null
+          "en": "A minimum space to occupy less room.",
+          "ru": "Минимальное расстояние, чтобы занимать меньше места."
         },
         "is_correct": false
       },
@@ -1038,16 +1038,16 @@
         "id": "c",
         "text": {
           "es": "Dos o tres metros para no golpear al vehículo de delante en caso de alcance trasero.",
-          "en": null,
-          "ru": null
+          "en": "Two or three meters to avoid hitting the vehicle in front in case of a rear-end collision.",
+          "ru": "Два или три метра, чтобы не ударить впереди идущий автомобиль в случае наезда сзади."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "En situaciones de detención por congestión del tráfico, se recomienda mantener una separación de seguridad de entre dos y tres metros con el vehículo precedente. Esta medida de conducción preventiva tiene como objetivo evitar colisiones por alcance en cadena. Si un tercer vehículo impacta por detrás, el espacio permite absorber el desplazamiento y evita el golpe contra el coche de delante. Es especialmente relevante cuando se es el último vehículo de la fila.",
+      "en": "When stopped due to traffic congestion, it is advisable to maintain a safety distance of two to three meters from the vehicle ahead. This preventive driving measure is intended to avoid chain-reaction rear-end collisions. If a third vehicle strikes from behind, this gap provides a buffer to prevent being pushed into the vehicle in front. This is particularly important when being the last vehicle in a queue.",
+      "ru": "🎓 Когда твой легковой автомобиль останавливается в пробке, крайне важно держать дистанцию в 2–3 метра до впереди идущего транспортного средства. Это правило превентивного вождения: если в тебя сзади врежется другой автомобиль, этот зазор позволит твоему авто не ударить машину впереди. Особенно внимательно следи за этим, если ты замыкаешь колонну. 🇷🇺 В ПДД РФ дистанция в метрах при остановке в заторе четко не прописана, в то время как в Испании 2-3 метра — официальная рекомендация для предотвращения «эффекта домино». 💡 Видишь асфальт под задними колесами соседа — значит, ты в безопасности!"
     },
     "image_url": "https://teorica.practicavial.com/question/f8492e11-1cab-4a15-8cc2-f7740e21d7f1-1658858794-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/f8492e11-1cab-4a15-8cc2-f7740e21d7f1-s-1.jpg",
@@ -1065,16 +1065,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué vehículos son principalmente el objetivo de las restricciones en Zonas de Bajas Emisiones en localidades con más de 50.000 habitantes?",
-      "en": null,
-      "ru": null
+      "en": "Which vehicles are primarily targeted by restrictions in Low Emission Zones (ZBE) in towns with more than 50.000 inhabitants?",
+      "ru": "Какие транспортные средства в первую очередь являются целью ограничений в зонах с низким уровнем выбросов (ZBE) в населенных пунктах с населением более 50 000 человек?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Vehículos eléctricos.",
-          "en": null,
-          "ru": null
+          "en": "Electric vehicles.",
+          "ru": "Электромобили."
         },
         "is_correct": false
       },
@@ -1082,8 +1082,8 @@
         "id": "b",
         "text": {
           "es": "Vehículos con altas emisiones de CO2.",
-          "en": null,
-          "ru": null
+          "en": "Vehicles with high CO2 emissions.",
+          "ru": "Транспортные средства с высокими выбросами CO2."
         },
         "is_correct": true
       },
@@ -1091,16 +1091,16 @@
         "id": "c",
         "text": {
           "es": "Bicicletas.",
-          "en": null,
-          "ru": null
+          "en": "Bicycles.",
+          "ru": "Велосипеды."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según la Ley 7/2021 de cambio climático, los municipios de más de 50.000 habitantes tienen la obligación de establecer Zonas de Bajas Emisiones (ZBE). Estas restricciones afectan principalmente a los vehículos de motor de combustión interna (gasolina o diésel) que carecen de distintivo ambiental de la DGT o poseen etiquetas de menor eficiencia (B o C), al ser considerados los principales responsables de la contaminación por dióxido de carbono (CO2) y partículas nocivas.",
+      "en": "According to Law 7/2021 on climate change, municipalities with more than 50,000 inhabitants are required to establish Low Emission Zones (ZBE). These restrictions primarily target internal combustion engine vehicles (gasoline or diesel) that lack a DGT environmental label or have less efficient labels (B or C), as they are considered the main contributors to carbon dioxide (CO2) and harmful particle pollution.",
+      "ru": "🎓 Согласно закону 7/2021 об изменении климата, в Испании города с населением более 50 000 человек обязаны вводить зоны с низким уровнем выбросов (ZBE). Эти ограничения направлены на легковые автомобили с двигателями внутреннего сгорания, которые имеют высокие показатели выбросов CO2 и твердых частиц. В первую очередь это касается машин без экологической наклейки DGT или с этикетками категорий B и C. Въезд в такие зоны обозначается круглым запрещающим знаком с изображением автомобиля, из-под которого вылетают точки, символизирующие выбросы. 🇷🇺 В РФ экологические зоны регулируются знаками 5.35 и 5.36, ограничивающими въезд ТС ниже определенного экологического класса, указанного в документах на машину. 💡 Видишь на знаке «грязный хвост» за машиной — старым и «дымным» въезд запрещен!"
     },
     "image_url": "https://teorica.practicavial.com/question/337753b5-c604-41f0-8402-fb83ad933c50-1734426446-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/337753b5-c604-41f0-8402-fb83ad933c50-s-1.jpg",
@@ -1117,17 +1117,17 @@
     "question_number": 22,
     "category": "B",
     "question": {
-      "es": "Los agentes de tráfico, ¿pueden inmovilizar un vehículo que supere los límites de humo establecidos?",
-      "en": null,
-      "ru": null
+      "es": "¿Pueden los agentes de tráfico inmovilizar un vehículo que supere los límites de humo establecidos?",
+      "en": "Can traffic agents immobilize a vehicle that exceeds the established smoke limits?",
+      "ru": "Могут ли сотрудники дорожной полиции задержать (обездвижить) транспортное средство, которое превышает установленные нормы выброса дыма?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Solo si el vehículo tiene más de diez años de antigüedad.",
-          "en": null,
-          "ru": null
+          "en": "Only if the vehicle is more than ten years old.",
+          "ru": "Только если легковой автомобиль старше десяти лет."
         },
         "is_correct": false
       },
@@ -1135,8 +1135,8 @@
         "id": "b",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       },
@@ -1144,16 +1144,16 @@
         "id": "c",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, los agentes de la autoridad podrán proceder a la inmovilización de un vehículo en el caso de que supere los niveles de gases, humos y ruidos permitidos reglamentariamente. Asimismo, queda prohibida la circulación con el llamado escape libre o sin el preceptivo dispositivo silenciador de las explosiones.",
+      "en": "According to the General Traffic Regulations, traffic authorities may proceed to immobilize a vehicle if it exceeds the legally permitted levels of gases, smoke, and noise. Furthermore, driving with an open exhaust or without the mandatory explosion muffler device is prohibited.",
+      "ru": "🎓 Сотрудники дорожной полиции имеют право обездвижить твой легковой автомобиль (Turismo), если он выбрасывает дым, газы или шумит сверх установленных законом норм. Это правило направлено на защиту окружающей среды и здоровья граждан. Запрещено передвигаться как по городу, так и по скоростным дорогам с неисправным глушителем или системой «прямотока» (escape libre). Возраст машины значения не имеет: если норма превышена — движение прекращается.\n\n🇷🇺 В Испании за экологические нарушения и шум полиция действует жестче: они могут запретить дальнейшее движение на месте, в то время как в РФ чаще ограничиваются штрафом за неисправность.\n\n💡 Дымишь как паровоз — стой и жди эвакуатор!"
     },
     "image_url": "https://teorica.practicavial.com/question/51a8d9b1-7001-48ad-b2ad-dcc208bcc30b-1663758173-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/51a8d9b1-7001-48ad-b2ad-dcc208bcc30b-s-1.jpg",
@@ -1171,16 +1171,16 @@
     "category": "B",
     "question": {
       "es": "Los agentes de la autoridad encargados de la vigilancia del tráfico podrán inmovilizar un vehículo cuando...",
-      "en": null,
-      "ru": null
+      "en": "Traffic authorities may immobilize a vehicle when...",
+      "ru": "Сотрудники дорожной полиции могут иммобилизовать (задержать) транспортное средство, когда..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "su conductor no disponga del permiso de circulación.",
-          "en": null,
-          "ru": null
+          "en": "its driver does not have the vehicle registration certificate.",
+          "ru": "его водитель не имеет при себе свидетельства о регистрации (permiso de circulación)."
         },
         "is_correct": false
       },
@@ -1188,8 +1188,8 @@
         "id": "b",
         "text": {
           "es": "su conductor sea sancionado dos veces en el mismo día.",
-          "en": null,
-          "ru": null
+          "en": "its driver is fined twice on the same day.",
+          "ru": "его водитель был оштрафован дважды в один и тот же день."
         },
         "is_correct": false
       },
@@ -1197,16 +1197,16 @@
         "id": "c",
         "text": {
           "es": "supere los niveles de gases, humos y ruidos permitidos reglamentariamente.",
-          "en": null,
-          "ru": null
+          "en": "it exceeds the legally permitted levels of gases, smoke, and noise.",
+          "ru": "оно превышает установленные уровни выбросов газов, дыма и шума."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "De acuerdo con el Reglamento General de Circulación y la Ley sobre Tráfico, los agentes de la autoridad están facultados para proceder a la inmovilización de un vehículo cuando este presente deficiencias que supongan un riesgo para el medio ambiente o la seguridad vial. Específicamente, se contempla esta medida si el vehículo supera los niveles de emisión de gases, humos o ruidos permitidos, o si circula con el escape libre o carece del dispositivo silenciador de explosiones preceptivo.",
+      "en": "In accordance with the General Traffic Regulations and the Traffic Law, authorities are empowered to immobilize a vehicle if it has deficiencies that pose a risk to the environment or road safety. Specifically, this measure is applied if the vehicle exceeds the permitted levels of gas emissions, smoke, or noise, or if it operates with an open exhaust (straight pipe) or lacks the mandatory explosion muffler device.",
+      "ru": "🎓 В Испании полиция имеет право временно задержать (иммобилизовать) твой легковой автомобиль (Turismo), если он наносит вред экологии или окружающим. Это касается не только превышения норм по выхлопным газам и дыму, но и слишком громкого звука. Езда с «прямотоком» (без глушителя) или с неисправной системой выпуска запрещена как в городе, так и на скоростных дорогах. Если инспектор зафиксирует, что машина ревет или дымит выше нормы, он вправе запретить дальнейшее движение до устранения неисправности. 💡 Громкий выхлоп и сизый дым — жди полицию и «клин» (иммобилизацию)."
     },
     "image_url": "https://teorica.practicavial.com/question/239804c2-62b2-457a-9559-5fe18d5b2b9d-1663757505-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/239804c2-62b2-457a-9559-5fe18d5b2b9d-s-1.jpg",
@@ -1224,16 +1224,16 @@
     "category": "B",
     "question": {
       "es": "¿Cómo se puede ahorrar combustible?",
-      "en": null,
-      "ru": null
+      "en": "How can fuel be saved?",
+      "ru": "Как можно сэкономить топливо?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Circulando, con mayor frecuencia, a altas revoluciones.",
-          "en": null,
-          "ru": null
+          "en": "By driving more frequently at high revolutions.",
+          "ru": "Часто двигаясь на высоких оборотах."
         },
         "is_correct": false
       },
@@ -1241,8 +1241,8 @@
         "id": "b",
         "text": {
           "es": "Cambiando a marchas superiores lo antes posible.",
-          "en": null,
-          "ru": null
+          "en": "By shifting to higher gears as soon as possible.",
+          "ru": "Переключаясь на более высокие передачи как можно раньше."
         },
         "is_correct": true
       },
@@ -1250,16 +1250,16 @@
         "id": "c",
         "text": {
           "es": "Cambiando a marchas inferiores lo antes posible.",
-          "en": null,
-          "ru": null
+          "en": "By shifting to lower gears as soon as possible.",
+          "ru": "Переключаясь на более низкие передачи как можно раньше."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Para una conducción eficiente y ahorro de combustible, se debe circular el mayor tiempo posible en marchas largas y con el motor a bajas revoluciones. En motores de gasolina, el cambio de marcha debe realizarse entre 2.000 y 2.500 rpm, y en motores diésel entre 1.500 y 2.000 rpm. Las marchas cortas (1ª y 2ª) tienen mucha fuerza pero consumen mucho combustible.",
+      "en": "For efficient driving and fuel economy, you should drive as much as possible in high gears with the engine at low revolutions. In gasoline engines, gear shifts should occur between 2,000 and 2,500 rpm, and in diesel engines between 1,500 and 2,000 rpm. Low gears (1st and 2nd) provide high power but consume significantly more fuel.",
+      "ru": "🎓 Для экономичного вождения на легковом автомобиле (Turismo) необходимо как можно быстрее переходить на высшие передачи, чтобы двигатель работал на низких оборотах. Первая передача используется только для начала движения (рекомендуется переключаться на вторую уже через 2 секунды или 6 метров пути). Оптимальный момент для переключения: в бензиновых двигателях при достижении 2000–2500 об/мин, в дизельных — при 1500–2000 об/мин. Помни: чем выше передача, тем меньше топлива тратит твой автомобиль при той же скорости. 💡 Выше передача — ниже расход, тише мотор — целее доход."
     },
     "image_url": "https://teorica.practicavial.com/question/fabd03c4-9704-4e04-8e2c-68fa9eb8517f-1658858958-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/fabd03c4-9704-4e04-8e2c-68fa9eb8517f-s-1.jpg",
@@ -1277,16 +1277,16 @@
     "category": "B",
     "question": {
       "es": "Las técnicas de conducción preventiva se basan en los principios de...",
-      "en": null,
-      "ru": null
+      "en": "Preventive driving techniques are based on the principles of...",
+      "ru": "На каких принципах основаны методы профилактического вождения?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "visión, anticipación y gestión del espacio.",
-          "en": null,
-          "ru": null
+          "en": "vision, anticipation, and space management.",
+          "ru": "обзор, предвидение и управление пространством."
         },
         "is_correct": true
       },
@@ -1294,8 +1294,8 @@
         "id": "b",
         "text": {
           "es": "visión, anticipación y gestión del tiempo.",
-          "en": null,
-          "ru": null
+          "en": "vision, anticipation, and time management.",
+          "ru": "обзор, предвидение и управление временем."
         },
         "is_correct": false
       },
@@ -1303,16 +1303,16 @@
         "id": "c",
         "text": {
           "es": "visión y gestión del espacio, únicamente.",
-          "en": null,
-          "ru": null
+          "en": "vision and space management, only.",
+          "ru": "только обзор и управление пространством."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La conducción preventiva se fundamenta en tres pilares: visión, anticipación y gestión del espacio. La visión implica observar no solo lo que ocurre inmediatamente delante, sino también a lo lejos y a los lados. La anticipación consiste en prever posibles peligros basándose en indicios del entorno. La gestión del espacio asegura que el vehículo mantenga distancias de seguridad adecuadas (frontal, trasera y lateral) para permitir maniobras de emergencia.",
+      "en": "Preventive driving techniques are based on three fundamental pillars: vision, anticipation, and space management. Vision involves scanning the environment both far ahead and to the sides. Anticipation is the ability to predict potential hazards before they materialize. Space management focuses on maintaining sufficient safety margins around the vehicle to allow for corrective actions if necessary.",
+      "ru": "🎓 Профилактическое вождение — это стратегия, позволяющая водителю легкового автомобиля избегать аварийных ситуаций до их возникновения. Она опирается на три столпа: обзор (постоянный мониторинг обстановки впереди и по сторонам), предвидение (оценка потенциальных рисков, например, готовность к торможению при виде катящегося на дорогу мяча) и управление пространством (сохранение безопасной дистанции и боковых интервалов). Это позволяет всегда иметь время и место для маневра. 💡 Вижу, предвижу, место держу!"
     },
     "image_url": "https://teorica.practicavial.com/question/2f63e44d-fc34-45ba-8546-c4051fe1ab7e-1658858685-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/2f63e44d-fc34-45ba-8546-c4051fe1ab7e-s-1.jpg",
@@ -1330,16 +1330,16 @@
     "category": "B",
     "question": {
       "es": "En los coches con motor de gasolina es recomendable, para reducir las emisiones contaminantes, iniciar la marcha...",
-      "en": null,
-      "ru": null
+      "en": "In gasoline-powered cars, to reduce polluting emissions, it is recommended to start driving...",
+      "ru": "В легковых автомобилях с бензиновым двигателем для снижения вредных выбросов рекомендуется начинать движение..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "inmediatamente después de arrancar el motor.",
-          "en": null,
-          "ru": null
+          "en": "immediately after starting the engine.",
+          "ru": "сразу после запуска двигателя."
         },
         "is_correct": true
       },
@@ -1347,8 +1347,8 @@
         "id": "b",
         "text": {
           "es": "esperando unos segundos una vez arrancado el motor.",
-          "en": null,
-          "ru": null
+          "en": "waiting a few seconds once the engine has started.",
+          "ru": "подождав несколько секунд после запуска двигателя."
         },
         "is_correct": false
       },
@@ -1356,16 +1356,16 @@
         "id": "c",
         "text": {
           "es": "tras arrancar el motor acelerando a fondo.",
-          "en": null,
-          "ru": null
+          "en": "after starting the engine by accelerating fully.",
+          "ru": "после запуска двигателя, нажав педаль акселератора до упора."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "De acuerdo con el manual de conducción eficiente, en los motores de gasolina el inicio de la marcha debe ser inmediato tras el arranque. Los sistemas de inyección actuales no requieren calentamiento previo al ralentí para operar de forma limpia. En los motores diésel, por el contrario, se debe esperar unos segundos para garantizar la lubricación adecuada de los componentes internos antes de someterlos a carga.",
+      "en": "According to efficient driving guidelines, gasoline engines should start moving immediately after ignition. Modern injection systems do not require pre-heating at idle to operate cleanly. Conversely, diesel engines require a few seconds of waiting to ensure proper lubrication of internal components before placing them under load.",
+      "ru": "🎓 Для эффективного вождения легкового автомобиля (Turismo) с бензиновым двигателем начинать движение нужно сразу после запуска. Современные системы впрыска настроены так, что двигатель быстрее и экологичнее прогревается именно в движении, а не на холостом ходу. Если бы ты управлял машиной с дизельным двигателем, тебе следовало бы подождать пару секунд для распределения масла по системе, но для бензина это не требуется. 🇷🇺 В отличие от распространенной в РФ привычки долго прогревать мотор во дворах, испанские правила и экологические нормы требуют немедленного старта для минимизации загрязнения среды. 💡 Бензин — завел и полетел! Дизель — завел, вздохнул и поехал."
     },
     "image_url": "https://teorica.practicavial.com/question/7d3fbe8c-9c17-4f27-a8fb-8ed73701960b-1658858905-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/7d3fbe8c-9c17-4f27-a8fb-8ed73701960b-s-1.jpg",
@@ -1383,16 +1383,16 @@
     "category": "B",
     "question": {
       "es": "¿Cómo debe circular para realizar una conducción eficiente?",
-      "en": null,
-      "ru": null
+      "en": "How should you drive to achieve efficient driving?",
+      "ru": "Как следует управлять транспортным средством для обеспечения эффективного вождения?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Circulando con la relación de marchas más corta posible.",
-          "en": null,
-          "ru": null
+          "en": "By driving in the lowest gear ratio possible.",
+          "ru": "Двигаясь на максимально низкой передаче."
         },
         "is_correct": false
       },
@@ -1400,8 +1400,8 @@
         "id": "b",
         "text": {
           "es": "Cambiando constantemente de velocidad para no fatigar el motor.",
-          "en": null,
-          "ru": null
+          "en": "By constantly changing speed to avoid fatiguing the engine.",
+          "ru": "Постоянно меняя скорость, чтобы не перегружать двигатель."
         },
         "is_correct": false
       },
@@ -1409,16 +1409,16 @@
         "id": "c",
         "text": {
           "es": "A una velocidad uniforme, evitando los frenazos y los acelerones.",
-          "en": null,
-          "ru": null
+          "en": "At a uniform speed, avoiding sudden braking and acceleration.",
+          "ru": "С равномерной скоростью, избегая резких торможений и ускорений."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La conducción eficiente se basa en mantener una velocidad uniforme, evitando aceleraciones y frenazos bruscos. Se deben utilizar marchas largas y realizar el cambio de relación en los rangos de revoluciones recomendados (1500-2000 rpm para diésel y 2000-2500 rpm para gasolina). El uso de la primera marcha debe limitarse al inicio del movimiento, no superando los 2 segundos o 6 metros.",
+      "en": "Efficient driving is based on maintaining a uniform speed, avoiding sudden acceleration and braking. High gears should be used, and gear changes should be performed within the recommended revolution ranges (1500-2000 rpm for diesel and 2000-2500 rpm for gasoline). The use of first gear should be limited to the start of the movement, not exceeding 2 seconds or 6 meters.",
+      "ru": "🎓 Чтобы твой легковой автомобиль потреблял меньше топлива, двигайся с равномерной скоростью, избегая резких ускорений и торможений. Переключайся на повышенную передачу как можно раньше: для дизельных моторов при 1500–2000 об/мин, для бензиновых — при 2000–2500 об/мин. Используй первую передачу только для старта (не дольше 2 секунд или 6 метров). При возможности пропускай передачи и всегда используй торможение двигателем. 🇷🇺 В Испании принципы экологичного вождения являются официальной частью экзамена с четкими требованиями по оборотам двигателя, в то время как в РФ эти правила не регламентированы так строго в билетах. 💡 Представь, что педаль газа — это кошелек: чем резче жмешь, тем быстрее он пустеет. Плавность — это деньги."
     },
     "image_url": "https://teorica.practicavial.com/question/e6ed720b-d032-498f-89db-e7a692e9575c-1658858978-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/e6ed720b-d032-498f-89db-e7a692e9575c-s-1.jpg",
@@ -1436,16 +1436,16 @@
     "category": "B",
     "question": {
       "es": "Cuando no utiliza la baca del vehículo, ¿es aconsejable quitarla?",
-      "en": null,
-      "ru": null
+      "en": "When not using the vehicle's roof rack, is it advisable to remove it?",
+      "ru": "Если вы не используете багажник на крыше легкового автомобиля, рекомендуется ли его снимать?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Es igual, porque la baca no influye en el consumo.",
-          "en": null,
-          "ru": null
+          "en": "It is the same, because the roof rack does not influence consumption.",
+          "ru": "Это не имеет значения, так как багажник на крыше не влияет на расход."
         },
         "is_correct": false
       },
@@ -1453,8 +1453,8 @@
         "id": "b",
         "text": {
           "es": "Sí, porque sin baca ahorro carburante.",
-          "en": null,
-          "ru": null
+          "en": "Yes, because without the roof rack I save fuel.",
+          "ru": "Да, потому что без багажника на крыше экономится топливо."
         },
         "is_correct": true
       },
@@ -1462,16 +1462,16 @@
         "id": "c",
         "text": {
           "es": "No, porque la baca aumenta la estabilidad del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "No, because the roof rack increases the stability of the vehicle.",
+          "ru": "Нет, так как багажник на крыше увеличивает устойчивость автомобиля."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El uso de la baca incrementa la resistencia aerodinámica del vehículo, lo que se traduce en un aumento directo del consumo de carburante. Para optimizar la eficiencia energética, la normativa técnica recomienda retirar cualquier accesorio exterior que no sea estrictamente necesario para el transporte de carga en ese momento.",
+      "en": "Using a roof rack increases the vehicle's aerodynamic resistance, leading to a direct increase in fuel consumption. To optimize energy efficiency, technical guidelines recommend removing any external accessories that are not strictly necessary for transporting cargo at that time.",
+      "ru": "🎓 Если ты не используешь багажник на крыше, его обязательно нужно снять. Любые внешние элементы на кузове легкового автомобиля ухудшают аэродинамику и создают дополнительное сопротивление воздуху. Из-за этого расход топлива возрастает примерно на 1 литр на каждые 100 км пути. Помни, что самое эффективное и безопасное место для вещей — это штатный внутренний багажник, так как он не портит обтекаемость машины и не требует лишних затрат энергии. 💡 Лишние детали на крыше — это лишние траты на заправке. Нет груза — снимай «рога»!"
     },
     "image_url": "https://teorica.practicavial.com/question/61c0d3e2-7b9a-458c-864e-3ba9f7f7a4f0-1658859031-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/61c0d3e2-7b9a-458c-864e-3ba9f7f7a4f0-s-1.jpg",
@@ -1489,16 +1489,16 @@
     "category": "B",
     "question": {
       "es": "Para circular con seguridad debe haber un espacio suficiente...",
-      "en": null,
-      "ru": null
+      "en": "To drive safely, there must be sufficient space...",
+      "ru": "Для обеспечения безопасности движения необходимо наличие достаточного пространства..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "por detrás, por delante y en los laterales.",
-          "en": null,
-          "ru": null
+          "en": "behind, in front and on the sides.",
+          "ru": "сзади, спереди и по бокам."
         },
         "is_correct": true
       },
@@ -1506,8 +1506,8 @@
         "id": "b",
         "text": {
           "es": "por delante, únicamente.",
-          "en": null,
-          "ru": null
+          "en": "in front, only.",
+          "ru": "только спереди."
         },
         "is_correct": false
       },
@@ -1515,16 +1515,16 @@
         "id": "c",
         "text": {
           "es": "sólo a los lados.",
-          "en": null,
-          "ru": null
+          "en": "only on the sides.",
+          "ru": "только по бокам."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Para garantizar la seguridad vial y permitir maniobras evasivas o frenados de emergencia, el conductor debe mantener un espacio libre alrededor de todo el perímetro del vehículo (delante, detrás y laterales). Este espacio permite reaccionar ante imprevistos y evitar colisiones por alcance o laterales. En zona urbana se recomienda una separación frontal de 2 segundos y en vías interurbanas de 3 segundos. Si un vehículo circula demasiado cerca por detrás, se debe aumentar la distancia con el vehículo precedente.",
+      "en": "To ensure road safety and allow for evasive maneuvers or emergency braking, the driver must maintain a clear space around the entire perimeter of the vehicle (front, rear, and sides). This safety cushion allows for reaction time to unforeseen events and prevents rear-end or side collisions. In urban areas, a 2-second following distance is recommended, increasing to 3 seconds on interurban roads. If a vehicle follows too closely from behind, the distance to the vehicle ahead should be increased.",
+      "ru": "🎓 Чтобы вождение было безопасным, твой легковой автомобиль должен находиться в своеобразном «пузыре безопасности». Это значит, что свободное пространство должно быть со всех сторон: спереди (чтобы успеть затормозить), сзади (чтобы тебя не догнали при резкой остановке) и по бокам (для соблюдения бокового интервала). В городе держи дистанцию до впереди идущего авто минимум 2 секунды, а на трассе — 3 секунды. Если видишь, что кто-то «прилип» к твоему багажнику сзади, просто увеличь дистанцию до машины впереди — это даст тебе запас для более плавного торможения. Если ты стоишь последним в пробке, оставь перед собой 2–3 метра, чтобы иметь путь для маневра, если сзади кто-то не успеет вовремя остановиться. 💡 Представь, что твоя машина — это интроверт: ей нужно личное пространство со всех сторон, чтобы чувствовать себя комфортно!"
     },
     "image_url": "https://teorica.practicavial.com/question/140fdd88-2dc0-4ca2-91dc-d75a9bd34e89-1658858744-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/140fdd88-2dc0-4ca2-91dc-d75a9bd34e89-s-1.jpg",
@@ -1542,16 +1542,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuál de las siguientes es una técnica propia de la conducción eficiente?",
-      "en": null,
-      "ru": null
+      "en": "Which of the following is a technique of efficient driving?",
+      "ru": "Какая из следующих техник относится к эффективному (экономичному) вождению?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Utilizar marchas largas a más bajas revoluciones.",
-          "en": null,
-          "ru": null
+          "en": "Using high gears at lower revolutions.",
+          "ru": "Использовать высшие передачи на более низких оборотах."
         },
         "is_correct": true
       },
@@ -1559,8 +1559,8 @@
         "id": "b",
         "text": {
           "es": "Cambiar de marcha a más alta revoluciones.",
-          "en": null,
-          "ru": null
+          "en": "Changing gears at higher revolutions.",
+          "ru": "Переключать передачи на более высоких оборотах."
         },
         "is_correct": false
       },
@@ -1568,16 +1568,16 @@
         "id": "c",
         "text": {
           "es": "Circular 10 km/h por debajo de la velocidad máxima permitida en cada tipo de vía.",
-          "en": null,
-          "ru": null
+          "en": "Driving 10 km/h below the maximum speed allowed on each type of road.",
+          "ru": "Двигаться со скоростью на 10 км/ч ниже максимально разрешенной на данном типе дороги."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La conducción eficiente busca optimizar el rendimiento del motor para reducir el consumo de combustible y las emisiones contaminantes. Una técnica fundamental es circular el mayor tiempo posible en marchas largas y a bajas revoluciones. En motores de gasolina, el cambio de marcha debe realizarse entre las 2.000 y 2.500 rpm, mientras que en motores diésel se recomienda entre las 1.500 y 2.000 rpm. El uso prolongado de marchas cortas aumenta drásticamente el consumo de carburante.",
+      "en": "Efficient driving aims to optimize engine performance to reduce fuel consumption and pollutant emissions. A fundamental technique is to drive as much as possible in high gears and at low revolutions. In gasoline engines, gear changes should be made between 2,000 and 2,500 rpm, while in diesel engines, it is recommended between 1,500 and 2,000 rpm. Prolonged use of low gears drastically increases fuel consumption.",
+      "ru": "🎓 Эффективное вождение позволяет водителю легкового автомобиля существенно экономить топливо. Главное правило: как можно быстрее переключайся на высшие передачи и старайся ехать на низких оборотах. Для бензинового двигателя оптимальный момент переключения — это диапазон 2000–2500 оборотов, для дизеля — 1500–2000 оборотов. Первая передача нужна только для того, чтобы тронуться с места, а вторая — для минимального разгона. Помни, что низкие передачи обладают большой силой, но потребляют максимум топлива, в то время как высшие передачи (5-я и 6-я) обеспечивают экономичный скоростной режим.\n\n💡 Высокая передача, низкий пульс мотора — залог пухлого кошелька!"
     },
     "image_url": "https://teorica.practicavial.com/question/ff676f0b-9339-4936-af26-bd9d2b966843-1658858968-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/ff676f0b-9339-4936-af26-bd9d2b966843-s-1.jpg",

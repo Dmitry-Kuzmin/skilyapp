@@ -1,0 +1,1533 @@
+[
+  {
+    "topic_number": 0,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "Si un agente de tráfico, desde su vehículo, le ordena detenerse mediante el encendido de una luz roja intermitente hacia delante, ¿dónde deberá hacerlo?",
+      "en": "If a traffic officer, from their vehicle, orders you to stop by flashing a red light forward, where must you do so?",
+      "ru": "Если сотрудник дорожной полиции из своего автомобиля приказывает вам остановиться, включив мигающий красный свет, направленный вперед, где вы должны это сделать?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En el lado derecho de la calzada, detrás del vehículo policial.",
+          "en": "On the right side of the roadway, behind the police vehicle.",
+          "ru": "С правой стороны проезжей части, позади полицейского автомобиля."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Donde no genere mayores riesgos ni molestias para el resto de usuarios.",
+          "en": "Where it does not create greater risks or inconvenience for other users.",
+          "ru": "В месте, где это не создаст рисков или помех для других участников движения."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En el lado izquierdo de la calzada, delante del vehículo policial.",
+          "en": "On the left side of the roadway, in front of the police vehicle.",
+          "ru": "С левой стороны проезжей части, перед полицейским автомобилем."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 La norma dice que ante una **luz roja o amarilla intermitente** hacia delante de un coche policial, debes detenerte en el **lado derecho**, **delante** del vehículo policial y en un lugar seguro (sin generar riesgos). \n💡 Aunque la regla exacta es 'a la derecha y delante', la opción correcta aquí enfatiza la **seguridad**. Las otras opciones son trampas porque te dicen 'detrás' o 'a la izquierda'. Recuerda: ¡Quédate dentro del coche hasta que el agente te dé instrucciones! 🛑👮‍♂️",
+      "en": "🎓 The rule states that if a police car flashes a **red or yellow light** forward, you must stop on the **right side**, **in front** of the police vehicle, and in a safe place (without causing risks). \n💡 Although the exact rule is 'on the right and in front', the correct option here emphasizes **safety**. The other options are traps because they say 'behind' or 'on the left'. Remember: Stay inside the car until the officer gives you instructions! 🛑👮‍♂️",
+      "ru": "🎓 Правило гласит: если полицейская машина мигает **красным или желтым светом** вперед, вы должны остановиться с **правой стороны**, **перед** полицейским автомобилем и в безопасном месте. \n💡 Хотя точное правило — «справа и спереди», правильный вариант здесь делает акцент на **безопасности**. Остальные варианты — ловушки, так как предлагают остановиться «позади» или «слева». Запомните: не выходите из машины, пока офицер не даст указания! 🛑👮‍♂️"
+    },
+    "image_url": "https://teorica.practicavial.com/question/756a39ca-d4f2-4ca1-9912-875968338e09-1759303831-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/756a39ca-d4f2-4ca1-9912-875968338e09-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "756a39ca-d4f2-4ca1-9912-875968338e09",
+    "external_id": "756a39ca-d4f2-4ca1-9912-875968338e09"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "En un túnel, ¿para qué sirve el apartadero indicado por la señal?",
+      "en": "In a tunnel, what is the lay-by indicated by the sign used for?",
+      "ru": "Для чего служит аварийный карман в туннеле, обозначенный этим знаком?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Para poder descongestionar la vía en caso de circulación saturada.",
+          "en": "To decongest the road in case of saturated traffic.",
+          "ru": "Для разгрузки дороги в случае плотного движения."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Para realizar una parada, con el fin de no entorpecer el paso a los demás.",
+          "en": "To make a stop, in order not to hinder other road users.",
+          "ru": "Для выполнения остановки, чтобы не мешать другим участникам движения."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Para poder apartar el vehículo en caso de avería.",
+          "en": "To be able to move the vehicle aside in case of breakdown.",
+          "ru": "Для того чтобы убрать транспортное средство с дороги в случае поломки."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🎓 La señal azul cuadrada (S-34) indica un **apartadero**. En los túneles, la regla general es que está **prohibido parar y estacionar**. Por lo tanto, este espacio NO es para hacer una parada voluntaria (descansar, hablar por teléfono) ni para aliviar el tráfico.\n\n💡 **Lógica:** Su única función es **seguridad**: sirve para apartar tu vehículo de la calzada si sufres una **avería o emergencia**, evitando así bloquear el túnel y causar accidentes.",
+      "en": "🎓 The blue square sign (S-34) indicates a **lay-by**. In tunnels, stopping and parking are strictly **forbidden**. Therefore, this area is NOT for voluntary stops (resting, phone calls) or for traffic flow management.\n\n💡 **Logic:** Its sole purpose is **safety**: it allows you to move your vehicle off the roadway in case of a **breakdown or emergency**, preventing you from blocking the tunnel and causing accidents.",
+      "ru": "🎓 Синий квадратный знак (S-34) обозначает **аварийный карман**. В туннелях **остановка и стоянка запрещены**. Поэтому это место НЕ предназначено для добровольной остановки (отдых, телефон) или для разгрузки пробок.\n\n💡 **Логика:** Его единственная функция — **безопасность**: карман нужен, чтобы убрать машину с проезжей части в случае **поломки или аварийной ситуации**, чтобы не блокировать туннель."
+    },
+    "image_url": "https://teorica.practicavial.com/question/66374c63-f262-4ae2-90b9-633b8bdd6c7d-1659375057-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/66374c63-f262-4ae2-90b9-633b8bdd6c7d-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "66374c63-f262-4ae2-90b9-633b8bdd6c7d",
+    "external_id": "66374c63-f262-4ae2-90b9-633b8bdd6c7d"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "¿Qué indican las líneas de borde quebradas?",
+      "en": "What do the broken edge lines (zigzag lines) indicate?",
+      "ru": "Что означают ломаные краевые линии (зигзагообразная разметка)?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que se acerca una zona de adelantamiento permitido, donde se puede aumentar la velocidad.",
+          "en": "That an allowed overtaking zone is approaching, where speed can be increased.",
+          "ru": "Что приближается зона разрешенного обгона, где можно увеличить скорость."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Que el carril se va a estrechar y está prohibido estacionar.",
+          "en": "That the lane is going to narrow and parking is prohibited.",
+          "ru": "Что полоса сужается и стоянка запрещена."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que se aproxima a un paso para peatones o ciclistas y se debe reducir la velocidad.",
+          "en": "That you are approaching a pedestrian or cyclist crossing and must reduce speed.",
+          "ru": "Что вы приближаетесь к пешеходному или велосипедному переходу и необходимо снизить скорость."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🎓 Estas líneas en zigzag (quebradas) pintadas en los bordes de la calzada tienen una función muy específica: te avisan de que te estás acercando a un **paso de peatones** (o de ciclistas).\n\n💡 **El truco visual:** Su forma crea un efecto óptico de estrechamiento. Tu cerebro percibe que la carretera se hace más pequeña y, por instinto, levantas el pie del acelerador. ¡Es psicología aplicada a la conducción! 🛑 Así que ya sabes: al verlas, reduce la velocidad y aumenta la atención.",
+      "en": "🎓 These broken edge lines (zigzag markings) serve as a warning that you are approaching a **pedestrian or cyclist crossing**.\n\n💡 **Visual Hack:** It is a clever design! The zigzag pattern creates an optical illusion that the road is narrowing. This naturally prompts you to slow down instinctively, even if the lane width stays the same. 🛑 So, when you see them: ease off the accelerator and scan for pedestrians!",
+      "ru": "🎓 Эти ломаные (зигзагообразные) линии по краям проезжей части предупреждают о приближении к **пешеходному или велосипедному переходу**.\n\n💡 **Лайфхак:** Это своего рода визуальный трюк. Такая разметка создает оптическую иллюзию сужения дороги. Водитель инстинктивно снижает скорость, когда видит это, даже если физически ширина полосы не меняется. 🛑 Видишь зигзаг по бокам? Сбрасывай газ и смотри в оба — впереди люди!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/0b35c441-ae3a-468d-a35a-e2ffae91f1c2-1759768251-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0b35c441-ae3a-468d-a35a-e2ffae91f1c2-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "0b35c441-ae3a-468d-a35a-e2ffae91f1c2",
+    "external_id": "0b35c441-ae3a-468d-a35a-e2ffae91f1c2"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Dos vehículos del mismo tipo se encuentran en un estrechamiento y no se sabe cuál tiene preferencia, ¿cuál de ellos tiene prioridad?",
+      "en": "Two vehicles of the same type meet in a narrow passage and it is unknown which has preference. Which of them has priority?",
+      "ru": "Два транспортных средства одного типа встречаются в узком проезде, и неизвестно, у кого преимущество. Кто из них имеет приоритет?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El vehículo que tenga mayor anchura o longitud.",
+          "en": "The vehicle with greater width or length.",
+          "ru": "Транспортное средство с большей шириной или длиной."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El vehículo que tenga que dar marcha atrás una menor distancia.",
+          "en": "The vehicle that has to reverse a shorter distance.",
+          "ru": "Транспортное средство, которому нужно сдать назад на меньшее расстояние."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El vehículo que tenga que dar marcha atrás mayor distancia.",
+          "en": "The vehicle that has to reverse a greater distance.",
+          "ru": "Транспортное средство, которому нужно сдать назад на большее расстояние."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🎓 Cuando dos vehículos del **mismo tipo** se encuentran en un estrechamiento sin señales y no sabemos quién entró primero, la norma dice que tiene prioridad el que tenga que dar marcha atrás **mayor distancia**. \n\n💡 **La lógica es la eficiencia**: Es más fácil y rápido que retroceda el que lo tiene más cerca (menor distancia). Por tanto, ¡el que tendría que retroceder mucho se libra y pasa primero! Solo si las distancias fueran iguales, miraríamos la anchura o longitud.",
+      "en": "🎓 When two vehicles of the **same type** meet in a narrow passage without signs and we don't know who entered first, the rule states that priority goes to the one who would have to reverse the **greater distance**. \n\n💡 **Think about efficiency**: It is safer and quicker for the vehicle closest to the exit (shorter reversing distance) to back up. Therefore, the one with the long way back gets to stay and go first! We only look at width or length if the distances are exactly the same.",
+      "ru": "🎓 Когда два ТС **одного типа** встречаются в узком проезде без знаков, и неизвестно, кто въехал первым, правило гласит: приоритет у того, кому пришлось бы сдавать назад **большее расстояние**. \n\n💡 **Логика проста**: Пятиться назад — это сложно и опасно. Поэтому назад сдает тот, кому ехать меньше (кто ближе к выходу). А тот, кому пришлось бы пятиться далеко, проезжает первым! Ширину и длину сравнивают только в самом крайнем случае, если расстояния одинаковы."
+    },
+    "image_url": "https://teorica.practicavial.com/question/15f0a528-a4e9-41ed-bebc-04fd4de70842-1657732608-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/15f0a528-a4e9-41ed-bebc-04fd4de70842-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "15f0a528-a4e9-41ed-bebc-04fd4de70842",
+    "external_id": "15f0a528-a4e9-41ed-bebc-04fd4de70842"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "Para obedecer esta señal de stop, ¿dónde hay que detenerse?",
+      "en": "To obey this stop sign, where must you stop?",
+      "ru": "Где необходимо остановиться, чтобы выполнить требование этого знака «Стоп»?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Antes de la marca vial de stop.",
+          "en": "Before the 'STOP' road marking.",
+          "ru": "Перед дорожной разметкой (надписью) «STOP»."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Inmediatamente antes de la intersección.",
+          "en": "Immediately before the intersection.",
+          "ru": "Непосредственно перед перекрестком."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Después de la marca vial de stop.",
+          "en": "After the 'STOP' road marking.",
+          "ru": "После дорожной разметки (надписи) «STOP»."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 La señal vertical de STOP (R-2) es muy estricta sobre el lugar de detención. La norma dice: debes detenerte ante la **línea de detención** (la línea blanca transversal continua). Si dicha línea **no existe**, debes detenerte **inmediatamente antes de la intersección**.\n\n💡 **Truco:** ¡No te confundas con la palabra 'STOP' pintada en el suelo! Eso es solo una 'marca vial', no una línea de detención. Como aquí no hay línea transversal, avanza hasta el borde del cruce (sin invadirlo) para tener visibilidad y detente ahí. 🛑",
+      "en": "🎓 The STOP sign (R-2) has a strict hierarchy for where to stop. You must stop immediately before the **stop line** (solid white line across the lane). If there is **no stop line**, you must stop **immediately before entering the intersection**.\n\n💡 **Coach's Tip:** Don't be fooled by the word 'STOP' painted on the road! That is just a marking, not the stop line itself. Since there is no transverse line here, drive up to the edge of the junction (where you can see clearly) and stop there before crossing. 🛑",
+      "ru": "🎓 Знак STOP (R-2) четко регламентирует место остановки. Вы обязаны остановиться перед **стоп-линией** (сплошная белая полоса поперек дороги). Если стоп-линии **нет**, вы должны остановиться **непосредственно перед пересечением проезжих частей** (перед перекрестком).\n\n💡 **Лайфхак:** Не путай надпись «STOP» на асфальте со стоп-линией! Надпись — это просто напоминание. В данной ситуации линии нет, поэтому не останавливайся у надписи за 5 метров до перекрестка. Подъезжай к самому краю пересекаемой дороги, чтобы видеть поток, и фиксируй остановку там. 🛑"
+    },
+    "image_url": "https://teorica.practicavial.com/question/22deec84-ff69-4b5c-9c41-70a17df021c0-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/22deec84-ff69-4b5c-9c41-70a17df021c0-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "22deec84-ff69-4b5c-9c41-70a17df021c0",
+    "external_id": "22deec84-ff69-4b5c-9c41-70a17df021c0"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "¿Influye el estado de los neumáticos en la distancia de frenado?",
+      "en": "Does the condition of the tires influence the braking distance?",
+      "ru": "Влияет ли состояние шин на тормозной путь?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque la distancia de frenado depende sólo de la velocidad.",
+          "en": "No, because braking distance depends only on speed.",
+          "ru": "Нет, так как тормозной путь зависит только от скорости."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": "Yes.",
+          "ru": "Да."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, porque la distancia de frenado es siempre la misma.",
+          "en": "No, because braking distance is always the same.",
+          "ru": "Нет, так как тормозной путь всегда одинаков."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 ¡Claro que sí! Los neumáticos son los \"zapatos\" de tu coche y son el único punto de contacto con el suelo. Si el dibujo está gastado (menos de 1,6 mm) o la goma está vieja y cristalizada, el agarre disminuye drásticamente. Esto hace que el coche necesite más metros para detenerse.\n\n💡 Ojo con la trampa: Aunque la velocidad es un factor clave, NO es el único. La distancia de frenado depende del conductor, del estado del vehículo (frenos, suspensión, neumáticos) y de la vía. ¡Un neumático liso frena mucho peor! 🛑",
+      "en": "🎓 Absolutely. Tires are the sole point of contact between the car and the road. If the tread is worn down or the rubber is in poor condition, traction is significantly reduced. This causes the braking distance to increase because the car cannot grip the road effectively to stop.\n\n💡 Exam tip: Don't be fooled by answers saying \"only speed matters\". While speed is a major factor, the condition of the vehicle (tires, brakes, suspension) and the road surface are equally important. Worn tires = longer stops! ⚠️",
+      "ru": "🎓 Конечно, влияет! Шины — это единственное, что связывает автомобиль с дорогой. Если протектор стерт (глубина менее 1,6 мм) или резина старая, сцепление с асфальтом ухудшается. Из-за этого при нажатии на тормоз машина проедет гораздо большее расстояние до полной остановки.\n\n💡 Лайфхак: Не попадайся на уловку \"зависит только от скорости\". Скорость важна, но техническое состояние машины (шины, тормоза, амортизаторы) играет огромную роль. На \"лысой\" резине тормозной путь увеличивается! 🚗💨"
+    },
+    "image_url": "https://teorica.practicavial.com/question/48523bb3-6016-4e47-a02f-f4f0adf5e9dd-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/48523bb3-6016-4e47-a02f-f4f0adf5e9dd-s-1.jpg?t=1768470903",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "48523bb3-6016-4e47-a02f-f4f0adf5e9dd",
+    "external_id": "48523bb3-6016-4e47-a02f-f4f0adf5e9dd"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "Una motocicleta, ¿puede llevar instaladas luces antiniebla?",
+      "en": "Can a motorcycle have fog lights installed?",
+      "ru": "Разрешено ли устанавливать противотуманные фары на мотоцикл?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, pero únicamente en la parte trasera.",
+          "en": "Yes, but only on the rear.",
+          "ru": "Да, но только сзади."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, de forma opcional, tanto en la parte delantera como trasera.",
+          "en": "Yes, optionally, both at the front and rear.",
+          "ru": "Да, по желанию, как спереди, так и сзади."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, las motocicletas no pueden llevar luces antiniebla.",
+          "en": "No, motorcycles cannot have fog lights.",
+          "ru": "Нет, на мотоциклы нельзя устанавливать противотуманные фары."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 Para las motocicletas (con o sin sidecar), las luces antiniebla son totalmente **opcionales**. Puedes llevar instaladas tanto la delantera como la trasera si quieres, pero la normativa no te obliga a tener ninguna de las dos.\n\n💡 **Truco:** Diferéncialo del turismo. En el coche, la antiniebla trasera es **obligatoria**. En la moto, todo lo que sea antiniebla es **opcional** (voluntario). ¡Tú decides!",
+      "en": "🎓 For motorcycles (with or without a sidecar), fog lights are completely **optional**. You are allowed to have both front and rear fog lights installed if you wish, but the regulations do not require you to have either.\n\n💡 **Pro Tip:** Contrast this with a car. On a car, the rear fog light is **mandatory**. On a bike, anything 'fog light' related is **optional**. It's up to you!",
+      "ru": "🎓 Для мотоциклов (с коляской или без) противотуманные фары являются полностью **опциональными** (по желанию). Вы имеете право установить их и спереди, и сзади, но правила не обязывают вас это делать.\n\n💡 **Лайфхак:** Почувствуйте разницу с автомобилем. На легковом авто (Turismo) задняя противотуманка — это **обязательно**. На мотоцикле любые противотуманки — это **добровольно**. Хотите — ставьте, не хотите — нет!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/b525804c-dc5f-4605-ac41-b442f87bc824-1658247237-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b525804c-dc5f-4605-ac41-b442f87bc824-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "b525804c-dc5f-4605-ac41-b442f87bc824",
+    "external_id": "b525804c-dc5f-4605-ac41-b442f87bc824"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "El agente, ¿a quién ordena detenerse?",
+      "en": "Who does the officer order to stop?",
+      "ru": "Кому приказывает остановиться регулировщик?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A todos los usuarios de la vía.",
+          "en": "To all road users.",
+          "ru": "Всем участникам дорожного движения."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A los que se aproximen desde los lados.",
+          "en": "To those approaching from the sides.",
+          "ru": "Тем, кто приближается с боковых сторон."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A los usuarios que se aproximen tanto por delante como por detrás.",
+          "en": "To users approaching from both the front and the back.",
+          "ru": "Пользователям, приближающимся как спереди, так и сзади."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🎓 Cuando un agente tiene los brazos extendidos horizontalmente, obliga a detenerse a todos los usuarios que se acerquen desde direcciones que corten la línea de sus brazos. Es decir, a los que vienen de frente (pecho) y por detrás (espalda).\n💡 Regla de oro: Si ves al agente de **FRENTE** o de **ESPALDA**, es como un semáforo en ROJO 🛑. Si lo ves de **PERFIL**, puedes pasar.",
+      "en": "🎓 When an officer extends their arms horizontally, they are ordering all road users approaching from directions that cut across their arms to stop. This applies to traffic coming from the front and the back.\n💡 Think of it this way: If you see the officer's **CHEST** or **BACK**, it means STOP 🛑. If you see their **PROFILE** (side), you may proceed.",
+      "ru": "🎓 Когда руки регулировщика вытянуты в стороны, он запрещает движение всем, кто пересекает линию его рук. Это касается водителей, приближающихся спереди (со стороны лица) и сзади (со спины).\n💡 Запомни старую добрую поговорку: **«Грудь и спина — для водителя стена»** 🛑. Если видишь офицера в профиль (боком) — проезд разрешен."
+    },
+    "image_url": "https://teorica.practicavial.com/question/dbed76aa-8848-43dd-bccf-083cd4388668-1659113782-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/dbed76aa-8848-43dd-bccf-083cd4388668-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "dbed76aa-8848-43dd-bccf-083cd4388668",
+    "external_id": "dbed76aa-8848-43dd-bccf-083cd4388668"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido estacionar en las zonas de estancia y juego?",
+      "en": "Is parking allowed in residential and play zones?",
+      "ru": "Разрешена ли парковка в жилых зонах (зонах для игр и отдыха)?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, está siempre prohibido.",
+          "en": "No, it is always prohibited.",
+          "ru": "Нет, всегда запрещена."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, donde no se estorbe a los peatones.",
+          "en": "Yes, where it does not hinder pedestrians.",
+          "ru": "Да, если это не мешает пешеходам."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, excepto en los lugares señalizados.",
+          "en": "No, except in marked places.",
+          "ru": "Нет, за исключением специально обозначенных мест."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🎓 La señal S-28 (Zona de estancia y juego) indica una calle especial donde los peatones tienen prioridad absoluta y pueden usar toda la calzada para jugar. Por seguridad, la norma es estricta: **los vehículos NO pueden estacionar**, salvo que existan marcas viales o señales que delimiten un lugar específico para ello.\n\n💡 **Truco:** Imagina que esta calle es el 'salón de casa' de los peatones. Tú eres el invitado con el coche, así que solo puedes dejarlo aparcado si hay un sitio explícitamente marcado para ello. Si no hay pintura en el suelo, ¡prohibido aparcar! 🚫🅿️",
+      "en": "🎓 The S-28 sign indicates a 'Residential Zone' (Home Zone). Here, pedestrians have priority and can use the entire width of the street for playing. Because of this, parking is restricted: **vehicles may ONLY park in designated areas** marked by signs or road markings.\n\n💡 **Tip:** Think of this zone as a pedestrian's playground. You cannot just park anywhere even if you aren't blocking anyone. Unless you see a painted parking bay or a sign saying 'P', parking is forbidden! 🚫🅿️",
+      "ru": "🎓 Знак S-28 обозначает 'Жилую зону' (Zona de estancia y juego). Здесь пешеходы — главные, они могут ходить и играть по всей ширине дороги. Правила парковки здесь строже, чем обычно: **стоянка разрешена ТОЛЬКО в специально обозначенных разметкой или знаками местах**.\n\n💡 **Лайфхак:** В отличие от привычных правил СНГ, где в жилой зоне можно парковаться у края, если не мешаешь проходу, в Испании действует принцип 'запрещено всё, что не разрешено'. Нет нарисованного парковочного места? Парковаться нельзя! 🚫🅿️"
+    },
+    "image_url": "https://teorica.practicavial.com/question/dde8acbe-9f72-48b7-91a0-d392a0133946-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/dde8acbe-9f72-48b7-91a0-d392a0133946-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "dde8acbe-9f72-48b7-91a0-d392a0133946",
+    "external_id": "dde8acbe-9f72-48b7-91a0-d392a0133946"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "La señal significa...",
+      "en": "The sign means...",
+      "ru": "Этот знак означает..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "parada de autobuses.",
+          "en": "a bus stop.",
+          "ru": "автобусную остановку."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "carril reservado para autobuses, motocicletas y taxis.",
+          "en": "a lane reserved for buses, motorcycles, and taxis.",
+          "ru": "полосу, предназначенную для автобусов, мотоциклов и такси."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "vía obligatoria para los autobuses.",
+          "en": "a mandatory road for buses.",
+          "ru": "дорогу с обязательным движением автобусов."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 Esta señal cuadrada y azul (S-51) indica la existencia de un **carril reservado** exclusivamente para la circulación de autobuses, taxis y, en este caso, también motocicletas. No indica una parada ni obliga a circular por ahí a toda la calzada, solo afecta a ese carril específico.\n\n💡 **Truco:** Fíjate en la forma. Las señales **cuadradas** suelen ser informativas o de carriles especiales. Si fuera redonda y azul, sería de obligación estricta. Recuerda que con tu turismo no puedes circular por aquí, salvo para realizar un giro si la línea longitudinal es discontinua.",
+      "en": "🎓 This square blue sign (S-51) indicates the existence of a **lane reserved** exclusively for buses, taxis, and in this case, motorcycles. It does not indicate a bus stop, nor does it make the entire road mandatory for them; it only applies to that specific lane.\n\n💡 **Coach's Tip:** Look at the shape. **Square** signs are usually informative or denote special lanes. If it were round and blue, it would be a mandatory sign. Remember, you cannot drive your car (Turismo) here, unless you need to make a turn and the lane line is broken (dashed).",
+      "ru": "🎓 Этот квадратный синий знак (S-51) указывает на наличие **выделенной полосы**, предназначенной исключительно для движения автобусов, такси и, в данном случае, мотоциклов. Это не знак остановки и не знак, обязывающий всех ехать только так; он относится только к конкретной полосе.\n\n💡 **Совет наставника:** Обратите внимание на форму. **Квадратные** знаки обычно информируют о режимах движения по полосам. Если бы знак был круглым и синим, это было бы строгое предписание. Помните: на обычном автомобиле (Turismo) ехать по этой полосе нельзя, кроме случаев поворота, когда линия разметки прерывистая."
+    },
+    "image_url": "https://teorica.practicavial.com/question/85097630-fcdb-48af-a12c-73fc63f1af1d-1761317132-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/85097630-fcdb-48af-a12c-73fc63f1af1d-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "85097630-fcdb-48af-a12c-73fc63f1af1d",
+    "external_id": "85097630-fcdb-48af-a12c-73fc63f1af1d"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "¿Qué significa esta señal?",
+      "en": "What does this sign mean?",
+      "ru": "Что означает этот знак?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que se aproxima a una zona con nieve en la calzada.",
+          "en": "That you are approaching a zone with snow on the roadway.",
+          "ru": "Что вы приближаетесь к зоне со снегом на проезжей части."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Avisa de que puede haber hielo en la calzada.",
+          "en": "Warns that there may be ice on the roadway.",
+          "ru": "Предупреждает, что на проезжей части может быть лед."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que en caso de nieve no puede superar la velocidad indicada.",
+          "en": "That in case of snow, you cannot exceed the indicated speed.",
+          "ru": "Что в случае снега нельзя превышать указанную скорость."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🎓 Esta combinación está formada por una señal de prohibición (velocidad máxima 40) y un panel complementario debajo con copos de nieve. La norma es clara: la señal superior SOLO se aplica cuando se cumple la condición del panel inferior. Por tanto, el límite de 40 km/h es obligatorio únicamente si hay nieve. 💡 Truco: Lee el panel de abajo como una condición «SI». SI hay nieve, ENTONCES máximo 40. Si hace sol, la señal «duerme» y no te afecta.",
+      "en": "🎓 This setup consists of a prohibitory sign (maximum speed 40) and a supplementary panel underneath showing snowflakes. The rule is specific: the sign above applies ONLY when the condition shown below is met. Therefore, the 40 km/h speed limit is mandatory only in case of snow. 💡 Tip: Treat the bottom panel as an 'IF' statement. IF there is snow, THEN max speed is 40. If the weather is clear, this specific limit is not active.",
+      "ru": "🎓 Эта комбинация состоит из запрещающего знака (максимальная скорость 40) и таблички дополнительной информации со снежинками. Правило гласит: знак сверху действует ТОЛЬКО тогда, когда выполняется условие снизу. Значит, ограничение 40 км/ч обязательно только в случае снега. 💡 Лайфхак: Читай нижнюю табличку как условие «ЕСЛИ». ЕСЛИ есть снег, ТОГДА едем максимум 40. Если погода ясная, это ограничение на тебя не распространяется."
+    },
+    "image_url": "https://teorica.practicavial.com/question/47cf0a11-ff38-4eb7-be9f-1cff30af720a-1761199134-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/47cf0a11-ff38-4eb7-be9f-1cff30af720a-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "47cf0a11-ff38-4eb7-be9f-1cff30af720a",
+    "external_id": "47cf0a11-ff38-4eb7-be9f-1cff30af720a"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "La luz antiniebla trasera solo se utilizará cuando...",
+      "en": "The rear fog light shall only be used when...",
+      "ru": "Задний противотуманный фонарь следует использовать только когда..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "se circule a velocidad anormalmente reducida.",
+          "en": "driving at an abnormally reduced speed.",
+          "ru": "движение осуществляется с аномально низкой скоростью."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "las condiciones meteorológicas sean especialmente desfavorables.",
+          "en": "weather conditions are especially unfavorable.",
+          "ru": "метеорологические условия являются особенно неблагоприятными."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "se circule por carreteras de alta montaña.",
+          "en": "driving on high mountain roads.",
+          "ru": "движение осуществляется по высокогорным дорогам."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 La luz antiniebla trasera es muy potente y **deslumbra** a los conductores que van detrás. Por eso, la DGT es muy estricta: SOLO se puede encender en condiciones **especialmente desfavorables** (niebla espesa, lluvia muy intensa, fuerte nevada o nubes densas de polvo/humo).\n\n💡 **El truco:** Busca siempre los adjetivos \"exagerados\". Si dice solo \"lluvia\" o \"niebla\", usa las delanteras. Si dice \"muy intensa\" o \"espesa\", ¡enciende la trasera! 🛑",
+      "en": "🎓 The rear fog light is extremely bright and can **dazzle** drivers behind you. That is why its use is strictly restricted to **especially unfavorable** conditions (thick fog, very heavy rain, heavy snow, or dense clouds of dust/smoke).\n\n💡 **Pro Tip:** Look for \"extreme\" adjectives. If the weather is just bad (rain/fog), use front fog lights. If it is TERRIBLE (very heavy/thick), you MUST use the rear one to be seen! 🛑",
+      "ru": "🎓 Задний противотуманный фонарь светит очень ярко и **слепит** водителей сзади. Поэтому правила разрешают включать его ТОЛЬКО в **особенно неблагоприятных** условиях (густой туман, очень сильный дождь, сильный снегопад).\n\n💡 **Лайфхак:** Ищи слова-усилители. Если просто «дождь» — заднюю включать нельзя. Если «ОЧЕНЬ сильный дождь» или «ГУСТОЙ туман» — тогда нужно! Не ослепи соседа в потоке. 🛑"
+    },
+    "image_url": "https://teorica.practicavial.com/question/19bb2284-b4ca-43d1-9595-be336110e9d2-1658248142-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/19bb2284-b4ca-43d1-9595-be336110e9d2-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "19bb2284-b4ca-43d1-9595-be336110e9d2",
+    "external_id": "19bb2284-b4ca-43d1-9595-be336110e9d2"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "Si no existe vía o parte de ella que les esté especialmente destinada, los ciclomotores...",
+      "en": "If there is no specific lane or part of the road designated for them, mopeds...",
+      "ru": "Если для них не выделена специальная дорога или ее часть, мопеды..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "pueden circular por autovía.",
+          "en": "can drive on a dual carriageway (autovía).",
+          "ru": "могут двигаться по скоростной дороге (autovía)."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "deben circular por el arcén de la carretera, si fuera transitable y suficiente.",
+          "en": "must drive on the road shoulder, if it is passable and sufficient.",
+          "ru": "должны двигаться по обочине дороги, если она проходима и достаточна."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "pueden circular en columna de a dos utilizando la parte imprescindible de la calzada.",
+          "en": "can drive in a column of two using the essential part of the roadway.",
+          "ru": "могут двигаться колонной по двое, используя необходимую часть проезжей части."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 **La Regla de Oro**: Los ciclomotores son vehículos lentos y están obligados a circular por el **arcén** (la orilla derecha) siempre que sea transitable y suficiente. Si no hay arcén, deben ir pegaditos a la derecha de la calzada.\n\n💡 **La Trampa**: A diferencia de las bicicletas, los ciclomotores **NO** pueden ir en columna de a dos por la calzada. Y recuerda: ¡tienen prohibido entrar en autopistas y autovías (salvo excepciones muy específicas)!",
+      "en": "🎓 **The Golden Rule**: Mopeds are considered slow vehicles and are mandatory to drive on the **hard shoulder** (arcén) whenever it is passable and wide enough. If there is no shoulder, they must stick to the far right edge of the roadway.\n\n💡 **Exam Trap**: Unlike cyclists, mopeds are **NOT** allowed to ride two abreast (side by side) on the main road. Also, remember: they are generally banned from Motorways (Autopistas) and Dual Carriageways (Autovías)!",
+      "ru": "🎓 **Золотое правило**: Мопеды (ciclomotores) считаются медленным транспортом, поэтому они обязаны двигаться по **обочине** (arcén), если она есть и пригодна для езды. Если обочины нет — нужно ехать по проезжей части, прижимаясь как можно правее.\n\n💡 **Ловушка экзамена**: В отличие от велосипедистов, водителям мопедов **НЕЛЬЗЯ** ехать парами (в два ряда) по проезжей части. И помни: на автомагистрали (Autopista/Autovía) им въезд обычно запрещен!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/15780b5f-3c22-43fa-a31e-9a9f97053639-1652204659-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/15780b5f-3c22-43fa-a31e-9a9f97053639-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "15780b5f-3c22-43fa-a31e-9a9f97053639",
+    "external_id": "15780b5f-3c22-43fa-a31e-9a9f97053639"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "¿En qué momento del día sufren más siniestralidad los furgones?",
+      "en": "At what time of day do vans have the highest accident rate?",
+      "ru": "В какое время дня фургоны чаще всего попадают в аварии?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Festivos.",
+          "en": "On public holidays.",
+          "ru": "В праздничные дни."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A las 7:00 horas o al anochecer.",
+          "en": "At 7:00 am or at dusk.",
+          "ru": "В 7:00 утра или с наступлением темноты."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "De 15:00 a 16:00 horas.",
+          "en": "From 15:00 to 16:00 hours.",
+          "ru": "С 15:00 до 16:00 часов."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🎓 Según las estadísticas de la DGT, los accidentes de **furgones** son más frecuentes durante la jornada laboral. El pico de siniestralidad se sitúa entre las **15:00 y las 16:00 horas**. Esto suele coincidir con la fatiga acumulada, el sueño después de comer o las prisas por terminar el reparto.\n\n💡 **Truco**: Piensa en el repartidor que lleva trabajando desde temprano. A las 3 o 4 de la tarde ya está muy cansado y acaba de comer (somnolencia). ¡Es la \"hora de la siesta\" peligrosa!",
+      "en": "🎓 According to DGT statistics, accidents involving **vans** occur mostly during working hours. The highest accident rate is recorded between **15:00 and 16:00 hours**. This is often due to accumulated fatigue, post-lunch drowsiness, or the rush to finish deliveries.\n\n💡 **Tip**: Think of a delivery driver's schedule. By 3 or 4 PM, they are tired and have just had lunch. It's the \"post-lunch dip\" danger zone!",
+      "ru": "🎓 Согласно статистике DGT, аварии с участием **фургонов** чаще всего происходят в рабочее время. Пик аварийности приходится на период с **15:00 до 16:00**. Это связано с накопившейся усталостью, сонливостью после обеда или спешкой закончить доставку грузов.\n\n💡 **Совет**: Представь водителя доставки. К 15:00-16:00 он уже устал и, возможно, плотно пообедал. Внимание падает, а желание быстрее закончить работу растет — это опасное сочетание."
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": null,
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 0,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "Conducir durante mucho tiempo sin descansar…",
+      "en": "Driving for a long time without resting…",
+      "ru": "Вождение в течение длительного времени без отдыха…"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Mantiene al conductor más atento ante cualquier peligro.",
+          "en": "Keeps the driver more attentive to any danger.",
+          "ru": "Позволяет водителю быть более внимательным к любой опасности."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Disminuye el riesgo de accidente.",
+          "en": "Decreases the risk of an accident.",
+          "ru": "Снижает риск ДТП."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Propicia la aparición de la fatiga.",
+          "en": "Promotes the onset of fatigue.",
+          "ru": "Способствует появлению усталости."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🎓 Conducir muchas horas seguidas exige un esfuerzo físico y mental constante. Si no paras, tu cerebro se agota y aparece la **fatiga**. Esto hace que reacciones más lento, cometas más errores y te distraigas con facilidad, aumentando el riesgo de accidente.\n\n💡 ¡Regla de oro! La DGT recomienda descansar cada **2 horas o cada 200 km**. No te hagas el héroe: para, estira las piernas y toma un café. ☕🛑",
+      "en": "🎓 Driving for long periods requires constant concentration. Without breaks, **fatigue** sets in naturally. Fatigue increases your reaction time and makes you less alert, significantly increasing the risk of an accident, rather than making you more attentive.\n\n💡 The golden rule for safety is to take a break every **2 hours or 200 km**. Stop, have a coffee, and stretch your legs to stay fresh! ☕🛑",
+      "ru": "🎓 Длительное вождение требует постоянного напряжения внимания. Если не делать остановок, организм истощается и наступает **усталость (fatiga)**. Это состояние опасно: реакция замедляется, а внимание рассеивается, что резко повышает риск аварии.\n\n💡 Запомни правило «2/200»: делай перерыв каждые **2 часа или 200 км** пути. Лучше потратить 15 минут на кофе и разминку, чем потерять бдительность на дороге! ☕🛑"
+    },
+    "image_url": "https://teorica.practicavial.com/question/73e6fb3e-c79d-4197-80d2-00c3c3181223-1659113350-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/73e6fb3e-c79d-4197-80d2-00c3c3181223-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "73e6fb3e-c79d-4197-80d2-00c3c3181223",
+    "external_id": "73e6fb3e-c79d-4197-80d2-00c3c3181223"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "Con lluvia intensa, una motocicleta, ¿puede sufrir aquaplaning?",
+      "en": "In heavy rain, can a motorcycle suffer from aquaplaning?",
+      "ru": "Может ли мотоцикл подвергнуться аквапланированию во время сильного дождя?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque eso sólo les sucede a los turismos.",
+          "en": "No, because that only happens to cars.",
+          "ru": "Нет, потому что это случается только с легковыми автомобилями."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, especialmente al circular a velocidad elevada.",
+          "en": "Yes, especially when traveling at high speeds.",
+          "ru": "Да, особенно при движении на высокой скорости."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, debido al poco peso de la motocicleta.",
+          "en": "No, due to the light weight of the motorcycle.",
+          "ru": "Нет, из-за небольшого веса мотоцикла."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 El aquaplaning ocurre cuando el neumático no puede evacuar el agua y flota sobre ella, perdiendo el contacto con el asfalto. Las motocicletas también lo sufren. 💡 ¡Ojo! La velocidad es el factor determinante: a mayor velocidad, menos tiempo tiene el dibujo del neumático para desplazar el agua. Si sientes que la dirección flota, reduce la velocidad suavemente sin frenar a fondo.",
+      "en": "🎓 Aquaplaning occurs when the tire cannot disperse the water fast enough and starts to glide on top of it, losing contact with the road. Motorcycles are not immune to this. 💡 Driving coach tip: Speed is the critical factor. The faster you go, the less time the tire tread has to push the water away. If you encounter heavy rain, slow down to maintain grip!",
+      "ru": "🎓 Аквапланирование возникает, когда протектор шины не успевает отводить воду, и колесо начинает «плыть» по поверхности, теряя контакт с асфальтом. Мотоциклы подвержены этому так же, как и другие транспортные средства. 💡 Лайфхак: Главный враг здесь — скорость. Чем она выше, тем выше риск «всплыть». Если чувствуешь, что руль стал слишком легким, плавно сбавь газ, но не тормози резко!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/3a4f41e2-c7f7-4a2b-bfbb-b986e23ea6b9-1658917829-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3a4f41e2-c7f7-4a2b-bfbb-b986e23ea6b9-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "3a4f41e2-c7f7-4a2b-bfbb-b986e23ea6b9",
+    "external_id": "3a4f41e2-c7f7-4a2b-bfbb-b986e23ea6b9"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "¿Qué indica esta señal?",
+      "en": "What does this sign indicate?",
+      "ru": "Что означает этот дорожный знак?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La ubicación de un área donde se permite estacionar caravanas y autocaravanas durante la noche.",
+          "en": "The location of an area where caravans and motorhomes are allowed to park overnight.",
+          "ru": "Местоположение зоны, где разрешена ночная парковка жилых прицепов и автодомов."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La existencia de un punto para el vaciado de aguas residuales de caravanas y autocaravanas.",
+          "en": "The existence of a point for emptying waste water from caravans and motorhomes.",
+          "ru": "Наличие места для слива сточных вод из жилых прицепов и автодомов."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Un área exclusiva para la limpieza exterior de caravanas y autocaravanas.",
+          "en": "An exclusive area for the exterior cleaning of caravans and motorhomes.",
+          "ru": "Зона, предназначенная исключительно для внешней мойки жилых прицепов и автодомов."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 La señal S-128 es una señal de servicio que informa sobre la proximidad o ubicación de un punto de vaciado de aguas residuales para caravanas y autocaravanas. 💡 Para no confundirte, fíjate en el pictograma: las líneas onduladas debajo del vehículo representan el desagüe o alcantarillado. ¡No es un parking ni un lavadero de coches!",
+      "en": "🎓 Sign S-128 is a service sign that informs about the proximity or location of a waste water disposal point for caravans and motorhomes. 💡 To avoid confusion, look at the icon: the wavy lines under the vehicle represent a drain or sewer. It is not a parking area or a car wash!",
+      "ru": "🎓 Знак S-128 — это сервисный знак, который информирует о близости или месте расположения точки слива сточных вод для жилых прицепов (caravanas) и автодомов (autocaravanas). 💡 Чтобы не запутаться, посмотри на пиктограмму: волнистые линии под транспортным средством символизируют канализацию или слив. Это не парковка и не мойка, а именно точка для опорожнения баков!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/203e2f1b-b822-4a71-b674-922535557fd7-1761286826-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/203e2f1b-b822-4a71-b674-922535557fd7-s-1.jpg?t=1768470903",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "203e2f1b-b822-4a71-b674-922535557fd7",
+    "external_id": "203e2f1b-b822-4a71-b674-922535557fd7"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "Esta señal...",
+      "en": "This sign...",
+      "ru": "Этот знак..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "obliga a las bicicletas a circular por la vía que señaliza, y prohíbe hacerlo a los demás usuarios.",
+          "en": "obliges bicycles to use the path it signals and prohibits other users from doing so.",
+          "ru": "обязывает велосипеды двигаться по дороге, на которую он указывает, и запрещает это другим пользователям."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "obliga a las bicicletas a circular por la vía que señaliza, pero no prohíbe hacerlo a los demás usuarios.",
+          "en": "obliges bicycles to use the path it signals but does not prohibit other users from doing so.",
+          "ru": "обязывает велосипеды двигаться по дороге, на которую он указывает, но не запрещает это другим пользователям."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "indica la existencia de una vía destinada a la circulación de ciclos y prohibición a los demás usuarios de la vía de utilizarla.",
+          "en": "indicates the existence of a path intended for the movement of cycles and a prohibition for other road users to use it.",
+          "ru": "указывает на наличие дорожки, предназначенной для движения велосипедов, и запрет на ее использование другими участниками дорожного движения."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🎓 Esta es la señal S-35 (cuadrada y azul con una bicicleta blanca). Al ser cuadrada, es una señal de indicación: informa que la vía está reservada exclusivamente para ciclos. Esto significa que cualquier otro usuario (coches, motos o peatones) tiene prohibido entrar. 💡 ¡Truco de examen! No la confundas con la señal REDONDA azul de bicicleta: la redonda OBLIGA a los ciclistas a ir por ahí, mientras que esta cuadrada solo INDICA que la vía es para ellos. En ambos casos, tú con tu coche no puedes pasar.",
+      "en": "🎓 This is the S-35 sign (square and blue with a white bicycle). Because it is square, it is an information sign: it indicates that the path is reserved exclusively for cycles. This means any other user (cars, motorcycles, or pedestrians) is prohibited from entering. 💡 Exam Tip! Do not confuse it with the ROUND blue bicycle sign: the round one MANDATES cyclists to use that path, while this square one simply INDICATES the path is reserved for them. In both cases, as a car driver, you are not allowed to enter.",
+      "ru": "🎓 Это знак S-35 (квадратный синий с белым велосипедом). Поскольку он квадратный, это информационный знак: он сообщает, что дорожка зарезервирована исключительно для велосипедов. Это означает, что любым другим участникам (машинам, мотоциклам или пешеходам) вход запрещен. 💡 Ловушка экзамена! Не путай его с КРУГЛЫМ синим знаком: круглый ОБЯЗЫВАЕТ велосипедистов ехать там, а этот квадратный просто УКАЗЫВАЕТ на предназначение дорожки. В обоих случаях тебе на легковом автомобиле (Turismo) заезжать туда нельзя."
+    },
+    "image_url": "https://teorica.practicavial.com/question/79c7f201-ff06-4eae-b2b7-7c5ea5ec0a70-1761302099-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/79c7f201-ff06-4eae-b2b7-7c5ea5ec0a70-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "79c7f201-ff06-4eae-b2b7-7c5ea5ec0a70",
+    "external_id": "79c7f201-ff06-4eae-b2b7-7c5ea5ec0a70"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "El conductor del vehículo que utiliza el carril adicional...",
+      "en": "The driver of a vehicle using the additional lane...",
+      "ru": "Водитель транспортного средства, использующий дополнительную полосу (carril adicional)..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "llevará encendida, al menos, la luz de cruce.",
+          "en": "must have at least the dipped headlights switched on.",
+          "ru": "должен включить, как минимум, ближний свет фар."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "deberá abandonar la vía en cuanto le sea posible.",
+          "en": "must leave the road as soon as possible.",
+          "ru": "должен покинуть дорогу при первой возможности."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "circulará, como máximo, a 100 km/h.",
+          "en": "must drive at a maximum speed of 100 km/h.",
+          "ru": "должен двигаться со скоростью не более 100 км/ч."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 El carril adicional circunstancial se habilita mediante conos cuando la densidad del tráfico lo requiere, aprovechando los arcenes. La norma exige que TODOS los vehículos que circulen por esa calzada (tanto los que van por el carril adicional como los que van por los carriles normales) utilicen la luz de cruce día y noche, y mantengan una velocidad entre 60 y 80 km/h. 💡 ¡Truco de examen! Esta regla de 'Luz + 60-80' se aplica a todos los conductores en ese tramo, no solo al que va por los conos.",
+      "en": "🎓 A circumstantial additional lane is created using cones and shoulders (arcenes) to ease heavy traffic. The rule states that ALL vehicles on that road—both in the additional lane and the original lanes—must use dipped headlights (luz de cruce) day and night. The speed limit is also strictly set between 60 km/h (minimum) and 80 km/h (maximum). 💡 Driving Coach Tip: Remember the '60-80-Lights' rule; it applies to everyone on that section of the road, not just the cars inside the cones!",
+      "ru": "🎓 Дополнительная полоса (carril adicional) создается с помощью конусов и использования обочин (arcenes) для улучшения пропускной способности. Правила DGT гласят: ВСЕ транспортные средства на этом участке (и в доп. полосе, и в основных полосах) ОБЯЗАНЫ включить ближний свет фар (luz de cruce) в любое время суток. Скоростной режим ограничен: минимум 60 км/ч, максимум 80 км/ч. 💡 Лайфхак: На экзамене часто ловят на том, что свет якобы нужен только тем, кто едет между конусов. Нет! Свет и ограничение 60-80 обязательны для ВСЕХ на этой дороге."
+    },
+    "image_url": "https://teorica.practicavial.com/question/85faf79f-b551-4cd7-a369-74715184f37a-1658938936-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/85faf79f-b551-4cd7-a369-74715184f37a-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "85faf79f-b551-4cd7-a369-74715184f37a",
+    "external_id": "85faf79f-b551-4cd7-a369-74715184f37a"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "Un turismo de uso privado con once años de antigüedad, debe someterse a la inspección técnica periódica…",
+      "en": "A private car that is eleven years old must undergo a periodic technical inspection…",
+      "ru": "Легковой автомобиль (turismo) для частного использования возрастом одиннадцать лет должен проходить периодический техосмотр (ITV)…"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cada año.",
+          "en": "Every year.",
+          "ru": "Каждый год."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cada cuatro años.",
+          "en": "Every four years.",
+          "ru": "Каждые четыре года."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cada dos años.",
+          "en": "Every two years.",
+          "ru": "Каждые два года."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 Para un turismo de uso privado, la frecuencia de la ITV cambia según su edad: los primeros 4 años está exento, de los 4 a los 10 años la pasa cada dos años (bienal), y una vez que supera los 10 años de antigüedad, debe pasarla cada año (anual). 💡 ¡Acuérdate de la regla 4-2-1! Hasta los 4 años nada, de los 4 a los 10 de dos en dos, y a partir de los 10... ¡cada año te toca visita! ⚠️ No confundas un turismo con un vehículo mixto, ¡sus calendarios son diferentes!",
+      "en": "🎓 For a private car (turismo), the ITV frequency depends on its age: it is exempt for the first 4 years, must be inspected every two years (biennial) between ages 4 and 10, and every year (annual) once it is over 10 years old. 💡 Remember the 4-2-1 rule! Up to 4 years: zero. From 4 to 10: every 2 years. Over 10: every 1 year. ⚠️ Be careful: mixed vehicles (furgonetas) have a much stricter schedule, don't mix them up!",
+      "ru": "🎓 Для легкового автомобиля (turismo) правила техосмотра (ITV) зависят от его возраста: первые 4 года осмотр не требуется, с 4 до 10 лет его проходят раз в два года, а как только машине исполняется больше 10 лет — каждый год. 💡 Запомни формулу «4-2-1»: до 4 лет — 0 проверок, с 4 до 10 лет — раз в 2 года, после 10 лет — раз в 1 год. ⚠️ Ловушка экзамена: для грузопассажирских авто (vehículo mixto) сроки гораздо строже, всегда проверяй тип транспортного средства в вопросе!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/1d5eea45-17a7-45c9-ab98-e92b72f8346d-1659112652-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1d5eea45-17a7-45c9-ab98-e92b72f8346d-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "1d5eea45-17a7-45c9-ab98-e92b72f8346d",
+    "external_id": "1d5eea45-17a7-45c9-ab98-e92b72f8346d"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "¿En qué vías está prohibido circular marcha atrás como norma general?",
+      "en": "On which roads is reversing prohibited as a general rule?",
+      "ru": "На каких дорогах движение задним ходом запрещено в качестве общего правила?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En todas las vías, salvo como complemento a determinadas maniobras.",
+          "en": "On all roads, except as a complement to certain maneuvers.",
+          "ru": "На всех дорогах, за исключением случаев, когда это необходимо для выполнения определенных маневров."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sólo en las autopistas y autovías.",
+          "en": "Only on motorways and dual carriageways.",
+          "ru": "Только на автомагистралях и скоростных дорогах."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sólo en las vías urbanas.",
+          "en": "Only on urban roads.",
+          "ru": "Только на городских дорогах."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 Como norma general, circular marcha atrás está prohibido en todas las vías. Sin embargo, se permite excepcionalmente en dos casos: 1) Como maniobra complementaria para parar, estacionar o incorporarse (recorrido máximo 15 metros y sin invadir un cruce de vías). 2) En calles cortadas donde no sea posible seguir adelante ni cambiar de sentido (aquí se permite el recorrido mínimo imprescindible, incluso invadiendo un cruce). 💡 ¡Ojo! En Autopista y Autovía la prohibición es ABSOLUTA; nunca se puede dar marcha atrás. Recuerda: para realizar esta maniobra, ¡está permitido quitarse el cinturón de seguridad!",
+      "en": "🎓 As a general rule, reversing is prohibited on all roads. There are only two exceptions: 1) As a necessary part of stopping, parking, or joining traffic (maximum 15 meters and you cannot enter an intersection). 2) In a dead-end street where you cannot go forward or turn around (you can reverse the minimum distance needed, even crossing an intersection if necessary). 💡 Exam Tip: On Autopistas and Autovías, reversing is strictly forbidden under any circumstances. Also, a handy rule: you are legally allowed to unfasten your seatbelt while reversing to gain better visibility!",
+      "ru": "🎓 По общему правилу, движение задним ходом запрещено на всех дорогах. Но есть два исключения: 1) Как дополнение к остановке, парковке или началу движения (максимум 15 метров и без заезда на перекрестки). 2) Если вы оказались в тупике, где невозможно проехать вперед или развернуться (в этом случае можно ехать назад столько, сколько необходимо, даже пересекая перекресток). 💡 Ловушка экзамена: На Autopista и Autovía задний ход запрещен КАТЕГОРИЧЕСКИ, никаких исключений! И лайфхак: при движении задним ходом правила разрешают отстегнуть ремень безопасности, чтобы было удобнее смотреть назад."
+    },
+    "image_url": "https://teorica.practicavial.com/question/859feb08-ae29-42e5-89ff-98a9c495252b-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/859feb08-ae29-42e5-89ff-98a9c495252b-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "859feb08-ae29-42e5-89ff-98a9c495252b",
+    "external_id": "859feb08-ae29-42e5-89ff-98a9c495252b"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "Si la temperatura en el interior del vehículo es muy alta, ¿puede influir en el tiempo de reacción del conductor?",
+      "en": "If the temperature inside the vehicle is very high, can it influence the driver's reaction time?",
+      "ru": "Если температура внутри транспортного средства очень высокая, может ли это повлиять на время реакции водителя?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, aumentándolo.",
+          "en": "Yes, increasing it.",
+          "ru": "Да, увеличивая его."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, no influye.",
+          "en": "No, it does not influence.",
+          "ru": "Нет, это не влияет."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, disminuyéndolo.",
+          "en": "Yes, decreasing it.",
+          "ru": "Да, уменьшая его."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 El calor excesivo (por encima de 35°C) genera fatiga y somnolencia, lo que hace que el conductor tarde más en reaccionar ante un imprevisto. 💡 ¡Cuidado con la trampa de la DGT! El calor siempre AUMENTA el tiempo de reacción (tardas más segundos en actuar) pero DISMINUYE la capacidad de conducción. Lo ideal es mantener el interior entre 20 y 23 grados. ⚠️",
+      "en": "🎓 Excessive heat (above 35°C) causes fatigue and drowsiness, making the driver take longer to respond to hazards. 💡 Exam Hack: Heat INCREASES reaction time (you take more seconds to act) and DECREASES reaction capacity (you are less sharp). Always aim for an interior temperature between 20-23°C for safety. ⚠️",
+      "ru": "🎓 Избыточное тепло (выше 35°C) вызывает усталость и сонливость, из-за чего водителю требуется больше времени, чтобы среагировать на опасность. 💡 Ловушка экзамена: Жара УВЕЛИЧИВАЕТ время реакции (ты становишься медленнее, время идет вверх) и УМЕНЬШАЕТ способность к реакции (твои навыки идут вниз). Оптимальная температура в салоне — 20–23°C. ⚠️"
+    },
+    "image_url": "https://teorica.practicavial.com/question/63bf8312-7d20-4c87-ba0e-ddee72738699-1659110839-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/63bf8312-7d20-4c87-ba0e-ddee72738699-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "63bf8312-7d20-4c87-ba0e-ddee72738699",
+    "external_id": "63bf8312-7d20-4c87-ba0e-ddee72738699"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "Entre los sistemas de seguridad pasiva se incluye el parabrisas del vehículo, en caso de accidente, ¿qué tipo de vidrio es más seguro?",
+      "en": "Among the passive safety systems is the vehicle's windshield; in the event of an accident, which type of glass is safer?",
+      "ru": "К системам пассивной безопасности относится лобовое стекло автомобиля. Какой тип стекла наиболее безопасен в случае аварии?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El laminado.",
+          "en": "Laminated.",
+          "ru": "Многослойное (ламинированное)."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El templado.",
+          "en": "Tempered.",
+          "ru": "Закаленное."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El tintado.",
+          "en": "Tinted.",
+          "ru": "Тонированное."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 El cristal laminado está fabricado con varias capas unidas por una lámina de plástico. En caso de impacto, el cristal se agrieta pero los trozos se quedan pegados a la lámina, evitando que salten a la cara de los ocupantes y manteniendo cierta visibilidad. 💡 ¡Ojo! El cristal templado se rompe en mil pedazos pequeños que pueden proyectarse hacia ti, por eso el laminado es el rey de la seguridad en el parabrisas.",
+      "en": "🎓 Laminated glass is made of several layers held together by a plastic film. In an impact, the glass cracks but the pieces stick to the film, preventing shards from flying into the occupants' faces and maintaining some visibility. 💡 Pro tip: Tempered glass shatters into thousands of tiny pieces that can hit you, which is why laminated glass is the safety standard for windshields.",
+      "ru": "🎓 Многослойное (ламинированное) стекло состоит из слоев, склеенных специальной полимерной пленкой. При ударе оно трескается, но осколки остаются на пленке, а не летят в лицо водителю и пассажирам. Кроме того, оно позволяет сохранить минимальный обзор. 💡 Лайфхак для экзамена: Запомни, что «ламинированное» — это как «защищенное пленкой». Закаленное стекло (templado) при ударе рассыпается на мелкие крошки, что может мгновенно ослепить водителя и лишить его контроля."
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cee681f4-7d67-418c-84ef-85ba666f6149-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 0,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "El permiso de conducción de la clase A1, ¿autoriza a conducir motocicletas con sidecar?",
+      "en": "Does the class A1 driving license authorize you to drive motorcycles with a sidecar?",
+      "ru": "Разрешает ли водительское удостоверение категории A1 управлять мотоциклами с боковым прицепом (коляской)?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": "Yes.",
+          "ru": "Да."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, si tiene una antigüedad de 2 años.",
+          "en": "Yes, if you have held it for 2 years.",
+          "ru": "Да, если стаж вождения составляет 2 года."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 El permiso A1 (desde los 16 años) autoriza a conducir motocicletas con una cilindrada máxima de 125 cm³, una potencia máxima de 11 kW y una relación potencia/peso de 0,1 kW/kg. La normativa de la DGT especifica claramente que estas motocicletas pueden ser con o sin sidecar. 💡 ¡Ojo! No te dejes confundir por el sidecar: lo que define si puedes llevarla con el A1 son siempre los límites de 125cc y 11kW, independientemente de si tiene dos o tres ruedas.",
+      "en": "🎓 The A1 license (available from age 16) permits driving motorcycles with a maximum displacement of 125 cm³, a maximum power of 11 kW, and a power-to-weight ratio of 0.1 kW/kg. DGT regulations clearly state that these motorcycles can be with or without a sidecar. 💡 Driving Coach Tip: Don't let the sidecar trip you up! The key factors for the A1 category are always the 125cc and 11kW limits, regardless of whether that third wheel is attached.",
+      "ru": "🎓 Права категории A1 (можно получить с 16 лет) позволяют управлять мотоциклами с рабочим объемом двигателя до 125 см³, мощностью до 11 кВт и соотношением мощности к весу до 0,1 кВт/кг. Правила DGT прямо указывают, что такие мотоциклы могут быть как с боковым прицепом, так и без него. 💡 Ловушка экзамена: Часто ученики думают, что коляска требует более высокой категории. Запомни: если байк вписывается в рамки 125 кубов и 11 кВт, наличие коляски ничего не меняет!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/66d0f525-8ee7-496d-81bf-e2818b3dd4a3-1658321576-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/66d0f525-8ee7-496d-81bf-e2818b3dd4a3-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "66d0f525-8ee7-496d-81bf-e2818b3dd4a3",
+    "external_id": "66d0f525-8ee7-496d-81bf-e2818b3dd4a3"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "Entre las conductas de riesgo más comunes que cometen los peatones está...",
+      "en": "Among the most common risky behaviors committed by pedestrians is...",
+      "ru": "К числу наиболее распространенных опасных действий пешеходов относится..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "no situarse en las calzadas o en los arcenes correctamente.",
+          "en": "not positioning themselves correctly on the roadways or shoulders.",
+          "ru": "неправильное расположение на проезжей части или обочине."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "respetar los semáforos pero no los pasos para peatones.",
+          "en": "respecting traffic lights but not pedestrian crossings.",
+          "ru": "соблюдение сигналов светофора, но игнорирование пешеходных переходов."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "cruzar la vía de manera reglamentaria.",
+          "en": "crossing the road in a regulatory manner.",
+          "ru": "переход дороги в соответствии с правилами."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 Los peatones son usuarios vulnerables y muchas veces cometen errores fatales. Las conductas de riesgo más habituales son: no caminar por la izquierda fuera de poblado (para ver venir a los coches), cruzar por lugares sin visibilidad o no usar los pasos de peatones cuando existen. 💡 ¡Truco de examen! Si una respuesta dice 'de manera reglamentaria', nunca puede ser una conducta de riesgo, ¡así que descártala de inmediato!",
+      "en": "🎓 Pedestrians are vulnerable road users. Common risky behaviors include not walking on the left side of the road outside built-up areas (you must face oncoming traffic), crossing at red lights, or walking on the roadway when a sidewalk is available. 💡 Driving Coach Tip: On the DGT exam, 'reglamentaria' means following the rules. If the question asks for a risk, any answer that says 'correct' or 'regulatory' is automatically wrong!",
+      "ru": "🎓 Пешеходы — это уязвимые участники движения. К наиболее частым нарушениям относятся: ходьба по правой стороне дороги вне города (нужно идти слева, навстречу движению), выход на проезжую часть при наличии тротуара или переход в неположенном месте. 💡 Лайфхак для экзамена: Если в варианте ответа видишь слово 'reglamentaria' (по правилам), это не может быть рискованным поведением. Сразу отсекай такие варианты при поиске ошибок!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/47deccaf-a56d-4972-973a-1964d7f1731d-1659107402-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/47deccaf-a56d-4972-973a-1964d7f1731d-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "47deccaf-a56d-4972-973a-1964d7f1731d",
+    "external_id": "47deccaf-a56d-4972-973a-1964d7f1731d"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "¿Tener el estómago lleno influye en la tasa de alcoholemia?",
+      "en": "Does having a full stomach influence the blood alcohol level?",
+      "ru": "Влияет ли полный желудок на уровень алкоголя в крови?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, ya que el alcohol se absorbe más lentamente, pero no evita el riesgo de accidente.",
+          "en": "Yes, as alcohol is absorbed more slowly, but it does not prevent the risk of an accident.",
+          "ru": "Да, так как алкоголь всасывается медленнее, но это не исключает риск аварии."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, porque la cantidad de alcohol que pasa a la sangre es más grande y se absorbe más deprisa.",
+          "en": "Yes, because the amount of alcohol that passes into the blood is larger and is absorbed faster.",
+          "ru": "Да, потому что количество алкоголя, попадающего в кровь, становится больше и он всасывается быстрее."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, no influye.",
+          "en": "No, it has no influence.",
+          "ru": "Нет, не влияет."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 Tener comida en el estómago (especialmente proteínas y grasas) hace que el alcohol tarde más tiempo en pasar al intestino, que es donde se absorbe principalmente. Esto retrasa la aparición de los efectos y puede hacer que el pico de alcoholemia sea algo menor, pero el alcohol ingerido acabará llegando a la sangre igualmente. 💡 ¡Cuidado! Es uno de los grandes mitos: comer mucho NO te hace estar sobrio ni elimina el riesgo. La única tasa realmente segura para conducir es 0,0.",
+      "en": "🎓 Having food in your stomach acts as a buffer, slowing down the rate at which alcohol moves into the small intestine where it is mostly absorbed. This delays the onset of the effects, but it doesn't stop the alcohol from eventually reaching your bloodstream. 💡 Driving Coach Tip: Don't fall for the myth! Eating a big meal doesn't 'neutralize' alcohol; it just delays the inevitable. The risk of an accident remains high regardless of how much you ate.",
+      "ru": "🎓 Наличие пищи в желудке замедляет процесс перехода алкоголя в кишечник, где происходит его основное всасывание в кровь. Это означает, что опьянение наступит позже, а максимальная концентрация может быть чуть ниже, но весь выпитый алкоголь всё равно окажется в организме. 💡 Ловушка экзамена: DGT часто проверяет знание 'мифов'. Запомните: обильная еда НЕ отменяет действие алкоголя и НЕ делает вождение безопасным. Единственный безопасный уровень для водителя — 0,0."
+    },
+    "image_url": "https://teorica.practicavial.com/question/d922e4fb-d196-477e-babb-c6bb236d4433-1658773422-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d922e4fb-d196-477e-babb-c6bb236d4433-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "d922e4fb-d196-477e-babb-c6bb236d4433",
+    "external_id": "d922e4fb-d196-477e-babb-c6bb236d4433"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "Montar neumáticos con un código de velocidad distinto al que recomienda el fabricante, ¿está permitido?",
+      "en": "Is it allowed to fit tires with a speed rating different from the one recommended by the manufacturer?",
+      "ru": "Разрешено ли устанавливать шины с индексом скорости, отличным от рекомендованного производителем?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, siempre que sea superior al recomendado.",
+          "en": "Yes, as long as it is higher than the recommended one.",
+          "ru": "Да, при условии, что он выше рекомендованного."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, está prohibido.",
+          "en": "No, it is prohibited.",
+          "ru": "Нет, это запрещено."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, en cualquier caso.",
+          "en": "Yes, in any case.",
+          "ru": "Да, в любом случае."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 El código de velocidad es una letra que indica la velocidad máxima que el neumático puede soportar de forma segura. La normativa permite montar neumáticos con un índice de velocidad igual o superior al que figura en la ficha técnica del vehículo. 💡 ¡Ojo! Nunca pongas uno inferior, ya que pondrías en riesgo tu seguridad y no pasarías la ITV. Más calidad siempre es bienvenida.",
+      "en": "🎓 The speed rating is a letter indicating the maximum speed a tire can safely sustain. Regulations allow you to fit tires with a speed index equal to or higher than the one specified by the vehicle manufacturer. 💡 Pro tip: Think of the manufacturer's recommendation as a \"safety floor.\" You can go above it for better performance, but never below it, or you will fail the technical inspection!",
+      "ru": "🎓 Индекс скорости — это буквенное обозначение максимальной скорости, которую шина может выдержать без риска разрушения. Правила DGT разрешают устанавливать шины с индексом скорости, который равен или ПРЕВЫШАЕТ рекомендованный производителем. 💡 Лайфхак: Запомни, что производитель задает \"нижнюю планку\" безопасности. Ставить шины \"лучше\" (с более высоким индексом) можно, а \"хуже\" (с более низким) — категорически запрещено."
+    },
+    "image_url": "https://teorica.practicavial.com/question/55f34ea7-e299-4f23-b810-81ab40cb6735-1658836359-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/55f34ea7-e299-4f23-b810-81ab40cb6735-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "55f34ea7-e299-4f23-b810-81ab40cb6735",
+    "external_id": "55f34ea7-e299-4f23-b810-81ab40cb6735"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Un turismo de nueva matriculación de uso privado, ¿cuándo deberá pasar la próxima inspección técnica del vehículo?",
+      "en": "When must a newly registered private car (Turismo) pass its first technical vehicle inspection (ITV)?",
+      "ru": "Когда должен пройти первый техосмотр (ITV) новый легковой автомобиль (Turismo) для частного использования?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A los 4 años desde la fecha de matriculación.",
+          "en": "At 4 years from the date of registration.",
+          "ru": "Через 4 года с даты регистрации."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A los 3 años desde la fecha de expedición de la Tarjeta de Inspección Técnica.",
+          "en": "At 3 years from the date of issue of the Technical Inspection Card.",
+          "ru": "Через 3 года с даты выдачи карты техосмотра."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A los 5 años.",
+          "en": "At 5 years.",
+          "ru": "Через 5 лет."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 Los turismos de uso privado están exentos de pasar la ITV durante los primeros 4 años de vida. Una vez cumplidos los 4 años desde su matriculación, deben pasarla cada 2 años hasta que el vehículo tenga más de 10 años, momento en el que la inspección pasa a ser anual. 💡 ¡Truco de examen! Memoriza la regla '4-2-1': la primera a los 4 años, luego cada 2, y al final cada 1. Y recuerda, la fecha que manda siempre es la de matriculación que aparece en el permiso de circulación.",
+      "en": "🎓 Private cars (Turismos) are exempt from the ITV (MOT) for the first 4 years after their initial registration. From year 4 to year 10, the inspection is biennial (every 2 years). Once the car is older than 10 years, it must pass the inspection annually. 💡 Driving coach tip: Remember the '4-2-1' sequence! The countdown starts specifically from the registration date (fecha de matriculación) listed on the vehicle's logbook, not from when you started driving it.",
+      "ru": "🎓 Легковые автомобили (Turismo) для частного использования освобождены от техосмотра (ITV) на первые 4 года. После этого, в возрасте от 4 до 10 лет, проверку нужно проходить каждые 2 года. Если машине больше 10 лет — ежегодно. 💡 Лайфхак: Запомни формулу «4-2-1» (через 4 года, потом каждые 2, потом каждый 1). Главная ловушка экзамена: отсчет всегда идет от даты регистрации (matriculación), а не от даты выпуска машины или выдачи документов."
+    },
+    "image_url": "https://teorica.practicavial.com/question/991791b9-88ed-4faa-bf05-02704555a303-1658915052-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/991791b9-88ed-4faa-bf05-02704555a303-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "991791b9-88ed-4faa-bf05-02704555a303",
+    "external_id": "991791b9-88ed-4faa-bf05-02704555a303"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "¿Qué se debe hacer si caen objetos en la calzada?",
+      "en": "What should be done if objects fall on the roadway?",
+      "ru": "Что необходимо сделать, если на проезжую часть упали предметы?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Señalizarlo tanto si caen en la calzada como en el arcén.",
+          "en": "Signal it whether they fall on the roadway or the shoulder.",
+          "ru": "Обозначить их, независимо от того, упали они на проезжую часть или на обочину."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No señalizarlo.",
+          "en": "Do not signal it.",
+          "ru": "Не обозначать их."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Señalizarlo solo si los objetos caen en la calzada, no en el arcén.",
+          "en": "Signal it only if the objects fall on the roadway, not on the shoulder.",
+          "ru": "Обозначать только в том случае, если предметы упали на проезжую часть, а не на обочину."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 Si por accidente o avería la carga cae a la vía, tienes la obligación de señalizar el obstáculo inmediatamente. No importa si está en la calzada o en el arcén, ya que ambos forman parte de la vía y pueden causar un accidente. 💡 ¡Ojo! La regla es: señalizar, proteger y retirar lo antes posible. Si no puedes quitarlo tú mismo, avisa a las autoridades.",
+      "en": "🎓 If your load falls onto the road, you must signal the hazard immediately. This applies whether the objects are on the roadway (calzada) or the shoulder (arcén). Both areas must be kept clear for safety. 💡 Remember: signal first to warn others, then try to remove the obstacle safely. If you can't move it, call for help!",
+      "ru": "🎓 Если груз или предметы выпали на дорогу, водитель обязан немедленно обозначить это препятствие. Это касается как проезжей части (calzada), так и обочины (arcén), поскольку они являются частями дороги, где движение или остановка должны быть безопасными. 💡 Запомни: безопасность превыше всего! Даже если предмет лежит на обочине, он может стать причиной аварии для тех, кто вынужден там остановиться. Сначала сигнализируем (аварийка/знаки), потом убираем, если это безопасно."
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cc690a9c-ed4f-4b03-99e1-52f3580d9356-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  }
+]

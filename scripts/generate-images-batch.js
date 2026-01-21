@@ -16,20 +16,51 @@ import fsSync from 'fs'; // For sync methods in checkpoint
 import path from 'path';
 import dotenv from 'dotenv';
 import crypto from 'crypto';
+import { v5 as uuidv5 } from 'uuid';
+import { getCreativeScenario } from './creative-scenarios.js';
+
+const NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341'; // Same as validator-server
 
 dotenv.config({ path: '.env.local' });
 dotenv.config();
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const PRIMARY_KEY = process.env.GEMINI_API_KEY;
+const BACKUP_KEY = 'AIzaSyAQ8ph7DB8P8D-EpJ5Vij6bzqndDRtYR1c';
 
-if (!GEMINI_API_KEY) {
+if (!PRIMARY_KEY) {
     console.error('❌ Ошибка: Не задан GEMINI_API_KEY в .env.local');
     process.exit(1);
 }
 
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-const visionModel = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' }); // Vision analysis: Newest Flash model!
-const imagenModel = genAI.getGenerativeModel({ model: 'gemini-3-pro-image-preview' }); // Best quality + traffic signs!
+// API Key Rotation
+const API_KEYS = [PRIMARY_KEY, BACKUP_KEY].filter(Boolean);
+let currentKeyIndex = 0;
+
+let genAI;
+let visionModel;
+let imagenModel;
+let imagenModelFlash;
+
+function initializeAI() {
+    const key = API_KEYS[currentKeyIndex];
+    console.log(`🔑 [System] Initializing Gemini with Key #${currentKeyIndex + 1} (${key.slice(0, 10)}...)`);
+
+    genAI = new GoogleGenerativeAI(key);
+    visionModel = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+    imagenModel = genAI.getGenerativeModel({ model: 'gemini-3-pro-image-preview' });
+    imagenModelFlash = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-image' });
+}
+
+function rotateApiKey() {
+    if (API_KEYS.length <= 1) return false;
+    currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
+    console.log(`🔄 [System] Rotating API Key to Key #${currentKeyIndex + 1}...`);
+    initializeAI();
+    return true;
+}
+
+// Initial Sync
+initializeAI();
 
 // ==========================================
 // КОНФИГУРАЦИЯ
@@ -66,7 +97,7 @@ OUTPUT FORMAT: Structured breakdown.
    - Type (Autopista, Conventional, Urban).
    - Lane count & Surface.
    - TEMPORARY: Cones? Yellow markings?
-4. SIGNS: List all visible DGT codes (R-301, P-4, etc). Verify consistency with road.
+4. SIGNS: List all visible DGT codes (R-301, P-4, etc) AND provide a VISUAL DESCRIPTION for each (e.g., "Red circle with number 60", "Blue rectangle with white P symbol"). Verify consistency with road.
 5. MARKINGS:
    - Center: Continuous or Dashed? White or Yellow?
    - Arrows/Crosswalks.
@@ -79,64 +110,37 @@ OUTPUT FORMAT: Structured breakdown.
 
 ACCURACY IS PARAMOUNT. FLAG LOGICAL ERRORS.`;
 
-const STYLE_MASTER_PROMPT = `STYLE: Unreleased Unreal Engine 5 rendering. Spanish DGT Driving Test Digital Twin.
+const STYLE_MASTER_PROMPT = `
+STYLE: High-end Photorealistic Automotive Photography. 8k resolution, Cinematic lighting.
+LOCATION: {{DYNAMIC_LOCATION_PLACEHOLDER}}
 
-## VISUAL SPECS:
-- PROJECTION: Isometric Top-Down (45°).
-- RENDER: Photorealistic, 8K textures, Ray-traced lighting (Daylight).
-- COMPOSITION: Full-frame, edge-to-edge terrain (NO black voids).
 
-## SIGNAGE RULES (STRICT):
-- RENDER SYMBOLS, NOT TEXT LABELS.
-- **NEVER WRITE THE SIGN CODE (e.g., "R-301", "P-4") ON THE IMAGE.**
-- Sign codes are for YOUR definition only. They are NOT physical plates.
-- Prompt "R-301 (60)" -> Draw ONLY a Red Circle with "60". NO extra text below.
-- Prompt "Stop" -> Draw Red Octagon with "STOP".
+### 🛑 VISUAL CONSTITUTION & CRITICAL DGT RULES
 
-## NEGATIVE PROMPT (THINGS TO AVOID):
-- **TEXT PLATES WITH CODES** (e.g. small white box saying "R-301").
-- Floating text, UI elements, watermarks.
-- American road markings (Double yellow lines).
+**RULE 1: NO TEXT HALLUCINATIONS**
+* **FORBIDDEN:** Never write catalog codes (e.g., "S-34", "R-3") on signs.
+* **VISUAL ONLY:** Render the *graphical symbol* of the sign, NEVER the catalog code.
+* **PURE GEOMETRY:** Signs must be geometrically perfect (Perfect Circles, Triangles, Rectangles).
 
-## INFRASTRUCTURE:
-1. AUTOPISTA: DUAL carriageway. MUST have PHYSICAL MEDIAN (concrete/grass).
-2. CONVENTIONAL: Single carriageway. Dashed/Solid center line. Two-way traffic.
-3. URBAN: Curbs, sidewalks, buildings.
+**RULE 2: RENDER STYLE**
+* Perspective: Isometric Top-Down (45°). 
+* RENDER: Photorealistic, 8K, Ray-traced.
+* NO black voids.
 
-## VEHICLES:
-- MODELS: Modern European (Seat, Renault, VW).
-- DETAIL: Realistic lights, glass, tires.
-- PLACEMENT: Strictly centered in lanes (unless overtaking/parking).
+**RULE 3: DGT 2026 UPDATE - EMERGENCY SIGNALS**
+* **NO TRIANGLES:** Do NOT generate "Warning Triangles" (Triángulos de preseñalización) on the road.
+* **V16 BEACON:** For breakdowns/accidents, use **V16 Orange Flashing Beacon** (Luz de emergencia V-16) on the vehicle roof.
+* **VISUAL:** Small orange dome light on roof, emitting generic orange glow. No physical triangles on asphalt.
 
-## OVERLAYS:
-- ARROWS: Orange (#FF8C00), 3D projected on road, smooth curves.
-- LOGIC: Show SAFE, LEGAL paths only.
+{{DYNAMIC_BRANDING_PLACEHOLDER}}
 
-## LOGIC CHECKS:
-- ONE-WAY vs TWO-WAY: Check center line consistency.
-- SIGNS vs LANES: 3-lane sign requires 3 actual lanes.
-- BARRIERS: High speed = Barrier required.
+## NEGATIVE PROMPT:
+Cluttered scene, cartoon, low poly, ugly text, huge sci-fi buildings, flying cars, watermarks, signature, blurry, distorted, accident, crash, dead body, injury, blood, collision, smashed car, dented car, broken glass, violence, tragedy, gore, road warning triangle, red triangle on road.
 
-## SPANISH ATMOSPHERE & VARIETY (SELECT 1-2 ELEMENTS PER SCENE, DO NOT OVERLOAD):
-- **COMMERCIAL VEHICLES (Randomize)**: "Correos" Yellow Vans, "Amazon Prime" Dark Grey Vans, "Mercadona" delivery trucks, "Guardia Civil" green patrol cars.
-- **STREET LIFE (Randomize)**:
-   - "Bar" terraces with metal tables.
-   - "Farmacia" (Green LED cross).
-   - "Tabacos" (Yellow flag).
-   - "Kiosco" (Newsstand).
-   - "Carrefour Express" or "Dia" supermarkets.
-- **LANDSCAPES (Context dependent)**:
-   - *Coastal*: Blue Mediterranean sea visible in distance, palm trees.
-   - *Mountain*: Pyrenees style, grey rocky cliffs, pine trees.
-   - *Rural*: Dry "Meseta" plains, olive groves, bullboards (Osborne bull) in distance.
-   - *Urban*: Modern apartment blocks with awnings (toldos), narrow "pueblo" streets.
-- **LIGHTING & WEATHER (Vary this)**:
-   - Golden Hour (Warm low sun, long shadows).
-   - High Noon (Harsh contrast).
-   - Occasional Overcast (Soft lighting, Northern Spain vibes).
-- **TRANSPORT**: RENFE trains (if rails exist), ALSA buses, City Taxis (White with Red stripe or Black/Yellow).
-
-**IMPORTANT: BE SUBTLE. DO NOT CROWD THE SCENE. LET THE AI CHOOSE THE BEST VIBE.**
+## INFRASTRUCTURE & LOGIC (DGT STANDARDS):
+1. **MARKINGS**: WHITE lines only (No yellow US lines).
+2. **TRAFFIC LOGIC**: Vehicles centered in lanes.
+3. **PRIORITY**: The DGT Question Logic (SCENE TO GENERATE below) is the ABSOLUTE MASTER. If Branding contradicts Traffic Rules, ignore Branding.
 
 GENERATE EXACT SCENE FROM DESCRIPTION.`;
 
@@ -214,9 +218,99 @@ async function analyzeOriginalImage(imageUrl) {
 }
 
 // ==========================================
+// RANDOMIZATION ASSETS (Dynamic Diversity)
+// ==========================================
+// ==========================================
+// RANDOMIZATION ASSETS (Skily Branding)
+// ==========================================
+const SPAIN_REGIONS = [
+    { name: "Bilbao/Basque", desc: "Green mountains, soft overcast light", weather: "Cloudy/Mist" },
+    { name: "Galicia", desc: "Lush forests, wet stone roads, hydrangeas", weather: "Rainy/Foggy/Soft" },
+    { name: "Valencia/Coast", desc: "Palm trees, modern white architecture", weather: "Sunny bright blue sky" },
+    { name: "Barcelona/Urban", desc: "Gothic/Modernist mix, busy avenues", weather: "Warm golden light" },
+    { name: "Madrid/Central", desc: "Dry high plains, wide horizons, warm tones", weather: "Dry clear sky" },
+    { name: "Andalusia", desc: "White villages, olive groves, intense sun", weather: "Hard contrasts, bright sun" },
+    { name: "Canary Islands", desc: "Volcanic rock, tropical palms, haze", weather: "Hazy warm sun" },
+    { name: "Pyrenees", desc: "Dramatic limestone peaks, waterfalls", weather: "Dramatic Post-Rain" }
+];
+
+const SKILY_VARIANTS = [
+    {
+        id: 'A',
+        tags: ['urban', 'city', 'street', 'intersection', 'town'],
+        text: `OPTIONAL BACKGROUND: A small six-wheeled **Skily Delivery Robot** (White/Cyan) visible on the sidewalk (do not obstruct traffic).`
+    },
+    {
+        id: 'B',
+        tags: ['urban', 'city', 'bus', 'stop', 'avenue'],
+        text: `OPTIONAL BACKGROUND: A modern bus stop or billboard displaying a "Skily" advertisement.`
+    },
+    {
+        id: 'C',
+        tags: ['parking', 'station', 'rest'],
+        text: `OPTIONAL BACKGROUND: A "Skily" EV Charging Station visible in the parking area.`
+    }
+];
+
+
+function getSkilyBranding(text, isSafetyCritical = false) {
+    // 1. Creative Scenario (Location & Weather)
+    const locationString = getCreativeScenario(text);
+
+    // 🔴 SAFETY CRITICAL OVERRIDE:
+    // If scene is dangerous (Accident, V16, Emergency), DISABLE branding to avoid "Skily caused the accident" look.
+    if (isSafetyCritical) {
+        return {
+            location: locationString,
+            branding: `## BRANDING DISABLED (SAFETY CRITICAL):
+**NEUTRALITY RULE**: This is an emergency/accident scenario.
+1. DO NOT place any logos or branded vehicles.
+2. All vehicles must be generic and neutral.
+3. ABSOLUTELY NO ROBOTS or sci-fi elements.
+4. Focus purely on the V16 Beacon and safety elements.`
+        };
+    }
+
+    // 2. Branding Elements (Context-Strict & Subtle)
+    let brandingText = "";
+
+    // Check for matching context
+    const candidates = SKILY_VARIANTS.filter(v => v.tags.some(t => text.includes(t)));
+
+    const SAFETY_PROTOCOL = `
+**BRAND SAFETY (CRITICAL):**
+* Skily vehicles (marked with livery) must NEVER be involved in accidents, collisions, or illegal maneuvers.
+* Skily vehicles must always be PARKED legally or DRIVING safely.
+* If the scene requires an accident, use neutral unbranded cars. Skily car must be strictly safe or not present.`;
+
+    if (candidates.length > 0 && Math.random() < 0.3) { // Reduced probability to 30%
+        const selected = candidates[Math.floor(Math.random() * candidates.length)];
+        brandingText = `## SKILY BRANDING (SUBTLE TOUCH):
+${selected.text}
+Also: One of the cars (preferable the main car) should have the Skily Livery (White/Blue/Cyan).
+${SAFETY_PROTOCOL}`;
+    } else {
+        // Default: Just the car logo, minimal intrusion
+        brandingText = `## SKILY BRANDING (MINIMAL):
+One of the vehicles (the main car) should use the Skily Livery (White/Blue with Cyan accents). NO other branding objects.
+${SAFETY_PROTOCOL}`;
+    }
+
+    return {
+        location: locationString,
+        branding: brandingText
+    };
+}
+
+// ==========================================
 // ГЕНЕРАЦИЯ ИЗОБРАЖЕНИЯ (Imagen)
 // ==========================================
-async function generateImage(question, visionAnalysis, attempt = 1) {
+async function generateImage(question, visionAnalysis, attempt = 1, useBackup = false) {
+    if (attempt > CONFIG.maxRetries) {
+        console.error(`   ❌ Все попытки (${CONFIG.maxRetries}) исчерпаны.`);
+        return null;
+    }
+
     let prompt;
 
     if (question.custom_prompt) {
@@ -280,7 +374,39 @@ async function generateImage(question, visionAnalysis, attempt = 1) {
             textToScan.includes('intermitente') ||
             questionText.toLowerCase().includes('amarillo intermitente'); // blinking yellow is also "broken" mode
 
-        prompt = `${STYLE_MASTER_PROMPT}
+        const isInterior =
+            textToScan.includes('interior') ||
+            textToScan.includes('inside') ||
+            textToScan.includes('dashboard') ||
+            textToScan.includes('steering wheel') ||
+            textToScan.includes('windshield') ||
+            (typeof visionAnalysis === 'string' && (
+                visionAnalysis.toLowerCase().includes('viewpoint: driver pov') ||
+                visionAnalysis.toLowerCase().includes('viewpoint: interior') ||
+                visionAnalysis.toLowerCase().includes('inside vehicle')
+            ));
+
+        // Detect Breakdown / Emergency / V16 Context
+        // STRICTER LOGIC: Only trigger V16 if it's clearly an emergency/stopped vehicle scenario AND NOT inside the car
+        const isEmergencyV16 =
+            !isInterior && (
+                textToScan.includes('avería') ||
+                textToScan.includes('breakdown') ||
+                textToScan.includes('emergencia') ||
+                textToScan.includes('siniestro') || // accident
+                (textToScan.includes('inmoviliz') && (textToScan.includes('arcén') || textToScan.includes('calzada'))) || // immobilized on road/shoulder
+                textToScan.includes('v-16') ||
+                textToScan.includes('v16') ||
+                textToScan.includes('warning triangle') ||
+                textToScan.includes('triángulo de preseñalización')
+            );
+        // REMOVED: 'arcén' (too broad), 'chaleco', 'golpe', single 'triangle'
+
+
+        // INJECT SKILY BRANDING (SUBTLE MODE)
+        // Pass isEmergencyV16 to disable branding in accidents
+        const branding = getSkilyBranding(textToScan, isEmergencyV16);
+        prompt = `${STYLE_MASTER_PROMPT.replace('{{DYNAMIC_LOCATION_PLACEHOLDER}}', branding.location).replace('{{DYNAMIC_BRANDING_PLACEHOLDER}}', branding.branding)}
 
 ## SCENE TO GENERATE:
 Based on original DGT test image analysis:
@@ -288,20 +414,27 @@ Based on original DGT test image analysis:
 ${visionAnalysis}
 
 ${explanationText ? `
-## CONTEXT FROM EXPERT EXPLANATION (USE FOR VISUAL DETAILS):
-The standard DGT explanation for this scenario is:
+## CONTEXT FROM EXPERT EXPLANATION:
 "${explanationText}"
-
-**AUTO-INSTRUCTION**: If the explanation mentions specific markings (colored lines, cones) or signs, YOU MUST DRAW THEM EXACTLY AS DESCRIBED.
 ` : ''}
 
-## QUESTION CONTEXT (CRITICAL):
+## TRUTH SOURCE:
 "${questionText}"
-
-## ANSWERS CONTEXT (LOGIC MUST MATCH CORRECT ANSWER):
 ${answersContext}
 
-Recreate this EXACT scene with improvements:
+${isEmergencyV16 ? `
+## 🚨 CRITICAL VISUAL MODIFICATION: V16 BEACON PROTOCOL
+**You must MODIFY the scene described above to comply with 2026 Regulations.**
+Even if the original image (or description) shows Warning Triangles or nothing on the roof, you **MUST CHANGE IT**:
+
+1.  **ADD A V16 BEACON**: Draw a bright **ORANGE FLASHING LIGHT** (small dome shape) on the highest point of the **stopped/damaged vehicle's ROOF**.
+2.  **GLOW EFFECT**: The beacon must be emitting a visible orange light/glow.
+3.  **REMOVE TRIANGLES**: Do NOT include any red warning triangles on the road.
+4.  **HAZARD LIGHTS**: Ensure the vehicle's amber hazard blinkers are ON.
+` : ''}
+
+## MISSION:
+Recreate the scene with high fidelity, BUT **APPLY THE V16 BEACON MODIFICATION if applicable above**.
 - Professional 3D isometric style
 - Premium educational quality
 - Crystal clear DGT road signs (ONLY those from original, NO extras)
@@ -336,10 +469,21 @@ The question context indicates the traffic light is OFF (apagado) or BLINKING.
 3. **VISIBILITY**: The traffic light pole must be visible but inactive.
 ` : ''}
 
+${isEmergencyV16 ? `
+## 🚨 SPECIAL RULES: EMERGENCY / BREAKDOWN (V16 STANDARD)
+The scenario involves a stopped or broken down vehicle.
+**MANDATORY 2026 DGT RULES**:
+1. **NO WARNING TRIANGLES**: Do NOT place red triangles on the road. They are obsolete.
+2. **MUST USE V16 BEACON**: The stopped vehicle MUST have a small **ORANGE FLASHING LIGHT** (V16 Beacon) on top of the roof.
+3. **HAZARD LIGHTS**: The vehicle should have orange hazard lights (blinkers) active.
+4. **POSITION**: If on "Arcén" (Shoulder), ensure it is fully outside the white line using the shoulder.
+` : ''}
+
 ## CRITICAL CONSTRAINTS:
 - Road markings: WHITE ONLY (Spanish standard, NOT yellow/USA)
 - NO dimension text ("10cm", "6m", "3.5m") on the road
 - NO measurement annotations
+- **NO CATALOG CODES**: Do not include codes like "S-34", "R-1" in the prompt. Use visual descriptions (e.g. "Rectangular blue sign with train icon").
 - NO invented traffic signs
 - Clean visual without labels or text overlays
 
@@ -366,9 +510,14 @@ Generate precise, LOGICALLY CORRECT educational traffic scenario that perfectly 
     // ==========================================
     // AI PROMPT REWRITER (Smart User Instructions)
     // ==========================================
+    if (question.user_instruction || question.custom_prompt) {
+        console.log(`\n   🧞‍♂️ AI DIRECTOR STATUS:`);
+        if (question.user_instruction) console.log(`   - 🖊️  User Wish: "${question.user_instruction}"`);
+        if (question.custom_prompt) console.log(`   - 📜  Custom Manual Prompt: ${question.custom_prompt.length} chars`);
+    }
+
     if (question.user_instruction) {
-        console.log(`\n   🧞‍♂️ AI ANALYZING USER WISH: "${question.user_instruction}"`);
-        console.log(`   📝 Rewriting technical prompt...`);
+        console.log(`   📝 Rewriting technical prompt to include wish...`);
 
         try {
             // Logs to file for debugging
@@ -395,7 +544,8 @@ STRICT GUIDELINES:
 3. **RESOLVE CONTRADICTIONS**: If user asks for "Truck", remove conflicting "Car" descriptions. **CRITICAL: If user asks for "Narrow Road", "Bottleneck", or "Works", YOU MUST REMOVE the "WIDTH: Standard 3.5m lanes" line from DGT standards.**
 4. **MAINTAIN STYLE**: Keep "Unreleased Unreal Engine 5", "Isometric" headers intact.
 5. **KEEP TECHNICAL RULES**: Keep "WHITE LINES ONLY" unless user explicitly asks for yellow (works).
-6. **OUTPUT format**: Return ONLY the full, final, ready-to-use prompt text. NO markdown code blocks, NO "Here is the prompt". Just the raw text.`;
+6. **UNPACK SIGN CODES (CRITICAL)**: If you see DGT codes (e.g., "S-34", "R-301"), DO NOT include the text code in the result. Replace it with its VISUAL DESCRIPTION (e.g., "Blue rectangular sign with white P and train icon").
+7. **OUTPUT format**: Return ONLY the full, final, ready-to-use prompt text. NO markdown code blocks, NO "Here is the prompt". Just the raw text.`;
 
             // Protect against infinite hang with 45s timeout (increased from 10s)
             const rewriterPromise = visionModel.generateContent(rewriterPrompt);
@@ -419,20 +569,30 @@ STRICT GUIDELINES:
     }
 
     try {
-        // Лог теперь в главном цикле
+        const activeModel = useBackup ? imagenModelFlash : imagenModel;
+        const modelName = useBackup ? "Gemini 2.5 Flash Image" : "Gemini 3 Pro";
 
-        const result = await imagenModel.generateContent({
-            contents: [{ role: 'user', parts: [{ text: prompt }] }],
-            generationConfig: {
-                temperature: 0.4,
-                candidateCount: 1,
-                responseModalities: ['Image'], // Only image, no text
-                imageConfig: {
-                    aspectRatio: '16:9', // Landscape for DGT tests
-                    imageSize: '2K'      // Optimal: clear signs, but ~2MB instead of 10MB
+        console.log(`   🎨 Генерируем через: ${modelName}...`);
+
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Generation Timeout (60s)")), 60000)
+        );
+
+        const result = await Promise.race([
+            activeModel.generateContent({
+                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                generationConfig: {
+                    temperature: 0.4,
+                    candidateCount: 1,
+                    responseModalities: ['Image'],
+                    imageConfig: {
+                        aspectRatio: '16:9',
+                        imageSize: '2K'
+                    }
                 }
-            }
-        });
+            }),
+            timeoutPromise
+        ]);
 
         const response = await result.response;
         const imageData = response.candidates?.[0]?.content?.parts?.[0]?.inlineData;
@@ -443,15 +603,35 @@ STRICT GUIDELINES:
 
         return {
             buffer: Buffer.from(imageData.data, 'base64'),
-            prompt: prompt
+            prompt: prompt,
+            model: useBackup ? 'flash' : 'pro'
         };
 
     } catch (error) {
-        if (attempt <= CONFIG.maxRetries) {
-            console.error(`   ⚠️  [Попытка ${attempt}/${CONFIG.maxRetries}] Полная ошибка:`, error);
+        if (attempt < CONFIG.maxRetries) {
+            console.error(`   ⚠️  [Попытка ${attempt}/${CONFIG.maxRetries}] Ошибка (${useBackup ? 'Backup' : 'Primary'}):`, error.message);
+
+            // Fallback logic
+            const isLimitError = error.message.includes('429') || error.message.includes('Quota') || error.message.includes('503');
+            const isTimeout = error.message.includes('Timeout');
+
+            // 1. Try Key Rotation (if Limit Error)
+            if (isLimitError) {
+                if (rotateApiKey()) {
+                    console.log(`   🔄 Key rotated successfully. Retrying immediately...`);
+                    return generateImage(question, visionAnalysis, attempt + 1, useBackup);
+                }
+            }
+
+            // 2. Switch to backup model on Limit (if key rotation failed/exhausted), Timeout, OR if attempt >= 2
+            if (!useBackup && (isLimitError || isTimeout || attempt >= 2)) {
+                console.log(`   🔀 Проблема с Primary (${error.message}). Переключаюсь на резерв (2.5 Flash)...`);
+                return generateImage(question, visionAnalysis, 1, true);
+            }
+
             console.log(`   ⏳ Повтор через ${5 * attempt}с...`);
             await new Promise(r => setTimeout(r, 5000 * attempt));
-            return generateImage(question, visionAnalysis, attempt + 1);
+            return generateImage(question, visionAnalysis, attempt + 1, useBackup);
         }
         console.error(`   ❌ Все попытки (${CONFIG.maxRetries}) исчерпаны. Пропускаем.`);
         return null;
@@ -490,11 +670,20 @@ async function processAllQuestions() {
                 try {
                     const data = JSON.parse(await fs.readFile(fullPath, 'utf8'));
                     data.forEach(q => {
-                        if (q.external_id && (q.image_url || q.schema_url)) {
+                        let id = q.external_id || q.id;
+
+                        // Generative UUID if missing
+                        if (!id && q.question_number) {
+                            const testId = file.replace('-enriched.json', '');
+                            id = uuidv5(`${testId}_q-${q.question_number}`, NAMESPACE);
+                            q.id = id;
+                        }
+
+                        if (id && (q.image_url || q.schema_url)) {
                             // ✅ ДЕДУПЛИКАЦИЯ: сохраняем только первое вхождение
-                            if (!questionsMap.has(q.external_id)) {
-                                questionsMap.set(q.external_id, {
-                                    id: q.external_id,
+                            if (!questionsMap.has(id)) {
+                                questionsMap.set(id, {
+                                    id: id,
                                     question: q.question,
                                     originalUrl: q.image_url || q.schema_url,
                                     sourceFile: file,
@@ -531,10 +720,24 @@ async function processAllQuestions() {
             const questionsArray = Array.isArray(inputData) ? inputData : [inputData];
 
             questionsArray.forEach(q => {
-                if (q.external_id || q.id) {
-                    // Normalize ID
-                    const id = q.external_id || q.id;
+                let id = q.external_id || q.id;
 
+                // Generative UUID if missing (Match validator-server logic)
+                if (!id && q.question_number) {
+                    const filename = path.basename(inputFileArg);
+                    // Try to extract testId from filename or object
+                    let testId = q.testId;
+                    if (!testId) {
+                        // topic-02_test-002-enriched.json -> topic-02_test-002
+                        testId = filename.replace('-enriched.json', '').replace('.json', '');
+                    }
+                    id = uuidv5(`${testId}_q-${q.question_number}`, NAMESPACE);
+                    // Save generated ID to object so it is used
+                    q.id = id;
+                }
+
+                if (id) {
+                    // Normalize ID
                     questionsMap.set(id, {
                         id: id,
                         question: q.question,
@@ -543,7 +746,10 @@ async function processAllQuestions() {
                         sourceFile: inputFileArg,
                         testId: q.testId || 'single-gen',
                         // Valid for both format types
-                        generation_prompt: q.generation_prompt
+                        generation_prompt: q.generation_prompt,
+                        // CRITICAL FIX: Pass user overrides
+                        custom_prompt: q.custom_prompt,
+                        user_instruction: q.user_instruction
                     });
                 }
             });
@@ -635,8 +841,26 @@ async function processAllQuestions() {
         await fs.mkdir(testOriginalsDir, { recursive: true });
 
         const timestamp = Date.now();
-        const outputPath = path.join(testOutputDir, `${question.id}_${timestamp}.png`);
+        // outputPath will be defined after generation to include model suffix
         const originalPath = path.join(testOriginalsDir, `${question.id}_original.jpg`);
+
+        // SKIP IF EXISTS CHECK
+        try {
+            const existingFiles = await fs.readdir(testOutputDir);
+            const alreadyExists = existingFiles.some(f => f.startsWith(`${question.id}_`) && f.endsWith('.png'));
+
+            // CRITICAL: If we have manual overrides (Magic/Director), DON'T skip!
+            const isManualOverride = question.user_instruction || question.custom_prompt;
+
+            if (alreadyExists && !isManualOverride) {
+                console.log(`${progress} ⏭️ SKIP: Image already exists for ${question.id}`);
+                continue;
+            } else if (alreadyExists && isManualOverride) {
+                console.log(`${progress} ♻️  Manual Override triggered: Re-generating despite existing image.`);
+            }
+        } catch (e) {
+            // Directory might not exist yet, which is fine
+        }
 
         try {
             // Шаг 1: Vision анализ + скачивание оригинала
@@ -662,9 +886,13 @@ async function processAllQuestions() {
                 const generationResult = await generateImage(question, visionResult.analysis);
 
                 if (generationResult && generationResult.buffer) {
+                    // Create path with model suffix
+                    const modelSuffix = generationResult.model || 'pro';
+                    const outputPath = path.join(testOutputDir, `${question.id}_${timestamp}_${modelSuffix}.png`);
+
                     await fs.writeFile(outputPath, generationResult.buffer);
                     // Also save the prompt!
-                    const promptPath = path.join(testOutputDir, `${question.id}_${timestamp}.prompt.txt`);
+                    const promptPath = path.join(testOutputDir, `${question.id}_${timestamp}_${modelSuffix}.prompt.txt`);
                     await fs.writeFile(promptPath, generationResult.prompt);
 
                     const genSizeMB = (generationResult.buffer.length / 1024 / 1024).toFixed(2);
@@ -674,15 +902,10 @@ async function processAllQuestions() {
                     const itemCost = visionCost + imagenCost;
 
                     totalCost += itemCost;
-                    console.log(`${progress} ✅ Сохранено: ${genSizeMB} MB | Cost: $${itemCost.toFixed(4)} (Vision: $${visionCost.toFixed(4)} + Img: $${imagenCost})`);
-                } else {
-                    console.log(`${progress} ❌ Генерация не удалась после всех попыток`);
-                }
+                    const modelName = generationResult.model === 'flash' ? '⚡ FLASH 2.5' : '💎 PRO 3.0';
+                    console.log(`${progress} ✅ Сохранено [${modelName}]: ${genSizeMB} MB | Cost: $${itemCost.toFixed(4)} (Vision: $${visionCost.toFixed(4)} + Img: $${imagenCost})`);
 
-                console.log(`${progress} 💰 Общая стоимость темы: ~$${totalCost.toFixed(2)}`);
-
-                if (generationResult && generationResult.buffer) {
-                    // Добавляем в очередь на проверку
+                    // Queue logic...
                     reviewQueue.push({
                         id: question.id,
                         generatedPath: outputPath,
@@ -690,7 +913,11 @@ async function processAllQuestions() {
                         question: question.question,
                         timestamp: Date.now()
                     });
+                } else {
+                    console.log(`${progress} ❌ Генерация не удалась после всех попыток`);
                 }
+
+                console.log(`${progress} 💰 Общая стоимость темы: ~$${totalCost.toFixed(2)}`);
             }
 
             // Обновляем checkpoint

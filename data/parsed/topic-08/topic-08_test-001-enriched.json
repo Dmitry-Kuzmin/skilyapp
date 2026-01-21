@@ -5,16 +5,16 @@
     "category": "B",
     "question": {
       "es": "Para recordar las pautas básicas de actuación en un accidente se utiliza la regla PAS. ¿Qué significan estas siglas?",
-      "en": null,
-      "ru": null
+      "en": "To remember the basic guidelines for acting in an accident, the PAS rule is used. What do these acronyms mean?",
+      "ru": "Для запоминания основных правил действий при аварии используется правило PAS. Что означают эти буквы?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Prevenir, atender, servir.",
-          "en": null,
-          "ru": null
+          "en": "Prevent, attend, serve.",
+          "ru": "Предупредить, обслужить, служить."
         },
         "is_correct": false
       },
@@ -22,8 +22,8 @@
         "id": "b",
         "text": {
           "es": "Proteger, alertar y socorrer.",
-          "en": null,
-          "ru": null
+          "en": "Protect, alert and succor.",
+          "ru": "Обезопасить, оповестить и помочь."
         },
         "is_correct": true
       },
@@ -31,16 +31,16 @@
         "id": "c",
         "text": {
           "es": "Precaución, atención y seguridad.",
-          "en": null,
-          "ru": null
+          "en": "Caution, attention and security.",
+          "ru": "Осторожность, внимание и безопасность."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El protocolo PAS establece el orden jerárquico y obligatorio de actuación ante un accidente de circulación. Proteger: incluye la autoprotección del auxiliante (uso de chaleco y señalización) y la protección del lugar para evitar nuevos siniestros. Alertar: comunicación inmediata con el servicio de emergencias 112 aportando datos precisos. Socorrer: prestar auxilio básico a los heridos según los conocimientos del conductor, evitando maniobras de riesgo como retirar el casco a un motorista.",
+      "en": "The PAS protocol establishes the mandatory hierarchical order of action in the event of a traffic accident. Protect: includes self-protection (wearing a high-visibility vest and signaling) and securing the site to prevent further accidents. Alert: immediate communication with the 112 emergency services providing accurate data. Succor: providing basic aid to the injured according to the driver's knowledge, avoiding risky maneuvers such as removing a motorcyclist's helmet.",
+      "ru": "🎓 При обнаружении ДТП ты обязан действовать по строгому алгоритму PAS. Сначала — Proteger (Обезопасить): надень светоотражающий жилет перед выходом из легкового автомобиля и обозначь место аварии знаками, чтобы не допустить новых столкновений. Второе — Alertar (Оповестить): немедленно вызови службу спасения по номеру 112. Третье — Socorrer (Помочь): окажи посильную помощь пострадавшим, не совершая опасных действий (например, не снимай шлем с мотоциклиста). Помни, что в Испании неоказание помощи является уголовным преступлением. 💡 ПАС — как ПАСпорт к спасению: Огради, Позвони, Помоги."
     },
     "image_url": "https://teorica.practicavial.com/question/d34f86f3-12ff-462c-80c4-e9416336e368-1658856138-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d34f86f3-12ff-462c-80c4-e9416336e368-s-1.jpg",
@@ -58,16 +58,16 @@
     "category": "B",
     "question": {
       "es": "Como norma general, se recomienda no quitar el casco a un motorista accidentado porque...",
-      "en": null,
-      "ru": null
+      "en": "As a general rule, it is recommended not to remove the helmet from an injured motorcyclist because...",
+      "ru": "Как общее правило, рекомендуется не снимать шлем с пострадавшего мотоциклиста, потому что..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "puede quedarse frío.",
-          "en": null,
-          "ru": null
+          "en": "he may get cold.",
+          "ru": "он может замерзнуть."
         },
         "is_correct": false
       },
@@ -75,8 +75,8 @@
         "id": "b",
         "text": {
           "es": "podrían agravarse posibles lesiones.",
-          "en": null,
-          "ru": null
+          "en": "possible injuries could be worsened.",
+          "ru": "могут усугубиться возможные травмы."
         },
         "is_correct": true
       },
@@ -84,16 +84,16 @@
         "id": "c",
         "text": {
           "es": "está más incómodo sin el casco.",
-          "en": null,
-          "ru": null
+          "en": "he is more uncomfortable without the helmet.",
+          "ru": "ему будет неудобнее без шлема."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Como norma general, no se debe retirar el casco a un motorista accidentado para evitar el agravamiento de posibles lesiones, especialmente las de la columna vertebral o cervicales. Solo debe ser retirado por personal especializado o si es estrictamente necesario para realizar maniobras de reanimación (boca a boca, asfixia) por alguien que conozca la técnica adecuada. Se debe inmovilizar el cuello y nunca trasladar al herido en un vehículo particular.",
+      "en": "As a general rule, the helmet should not be removed from an injured motorcyclist to prevent worsening potential injuries, particularly spinal or cervical ones. It should only be removed by specialized personnel or if strictly necessary for resuscitation maneuvers (mouth-to-mouth, choking) by someone trained in the proper technique. The neck must be immobilized, and the victim should never be transported in a private vehicle.",
+      "ru": "🎓 При оказании помощи мотоциклисту после ДТП запрещено снимать с него шлем, чтобы не усугубить возможные травмы позвоночника и шейного отдела. Снятие шлема без специальных навыков может привести к необратимым последствиям. Это допускается только в крайних случаях (например, при остановке дыхания или удушье) и только если вы владеете правильной техникой снятия. Помни: шея должна быть обездвижена, а перевозить пострадавшего на легковом автомобиле категорически запрещено — только специализированная скорая помощь. 💡 Шлем — это временный корсет. Пока врачи не приехали, «гипс» с головы не снимаем!"
     },
     "image_url": "https://teorica.practicavial.com/question/f7e3935e-1887-454a-ad81-07cb063e7a69-1658858005-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/f7e3935e-1887-454a-ad81-07cb063e7a69-s-1.jpg",
@@ -111,16 +111,16 @@
     "category": "B",
     "question": {
       "es": "Para auxiliar a un herido en accidente de circulación. ¿Qué debe hacer?",
-      "en": null,
-      "ru": null
+      "en": "To help an injured person in a traffic accident. What should you do?",
+      "ru": "Что вы должны сделать для оказания помощи пострадавшему в дорожно-транспортном происшествии?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Pedir ayuda y controlar su respiración.",
-          "en": null,
-          "ru": null
+          "en": "Ask for help and monitor their breathing.",
+          "ru": "Вызвать помощь и контролировать дыхание пострадавшего."
         },
         "is_correct": true
       },
@@ -128,8 +128,8 @@
         "id": "b",
         "text": {
           "es": "Pedir ayuda cuando sea necesaria y sentar al herido.",
-          "en": null,
-          "ru": null
+          "en": "Ask for help when necessary and sit the injured person up.",
+          "ru": "Вызвать помощь, когда это потребуется, и усадить пострадавшего."
         },
         "is_correct": false
       },
@@ -137,16 +137,16 @@
         "id": "c",
         "text": {
           "es": "Pedir ayuda y dar al herido una bebida para animarle.",
-          "en": null,
-          "ru": null
+          "en": "Ask for help and give the injured person a drink to cheer them up.",
+          "ru": "Вызвать помощь и дать пострадавшему напиток, чтобы подбодрить его."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Ante un accidente de circulación, se debe seguir el protocolo PAS (Proteger, Avisar y Socorrer). Tras asegurar la zona y notificar a los servicios de emergencia (112), la labor de socorro inicial consiste en la comprobación de las constantes vitales, especialmente la respiración. Está estrictamente prohibido mover al herido, salvo riesgo inminente, o suministrarle alimentos, bebidas o medicamentos.",
+      "en": "In the event of a traffic accident, the PAS protocol (Protect, Alert, and Succor) must be followed. After securing the area and notifying emergency services (112), initial aid consists of checking vital signs, particularly breathing. It is strictly forbidden to move the injured person, except in cases of imminent danger, or to provide them with food, drinks, or medication.",
+      "ru": "🎓 При оказании помощи пострадавшему в ДТП необходимо строго соблюдать протокол PAS: Proteger (Защитить), Avisar (Оповестить), Socorrer (Помочь). Сначала обеспечь безопасность места аварии, затем вызови экстренные службы по номеру 112. Помощь пострадавшему заключается в контроле жизненно важных функций, прежде всего дыхания. Категорически запрещено перемещать раненых (из-за риска повреждения позвоночника), усаживать их или давать пить, есть и принимать медикаменты. 🇷🇺 В РФ правила оказания первой помощи аналогичны: приоритет — вызов медиков и сохранение неподвижности пострадавшего до их приезда. 💡 ПАС: Посмотри (безопасно ли?), Алло (звони 112), Спасай (проверь дыхание)."
     },
     "image_url": "https://teorica.practicavial.com/question/503e2f6b-1522-4fdc-aaf1-fbc26aa7a09b-1658858109-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/503e2f6b-1522-4fdc-aaf1-fbc26aa7a09b-s-1.jpg",
@@ -164,16 +164,16 @@
     "category": "B",
     "question": {
       "es": "En caso de estar implicado en un accidente, ¿debe detenerse para ayudar a restablecer la seguridad de la circulación?",
-      "en": null,
-      "ru": null
+      "en": "In the event of being involved in an accident, should you stop to help restore traffic safety?",
+      "ru": "В случае участия в ДТП, должны ли вы остановиться, чтобы помочь восстановить безопасность движения?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, esta tarea corresponde a la policía de tráfico.",
-          "en": null,
-          "ru": null
+          "en": "No, this task corresponds to the traffic police.",
+          "ru": "Нет, эта задача возложена на дорожную полицию."
         },
         "is_correct": false
       },
@@ -181,8 +181,8 @@
         "id": "b",
         "text": {
           "es": "Sí, en la medida de los posible.",
-          "en": null,
-          "ru": null
+          "en": "Yes, as far as possible.",
+          "ru": "Да, по мере возможности."
         },
         "is_correct": true
       },
@@ -190,16 +190,16 @@
         "id": "c",
         "text": {
           "es": "Solo si hay fallecidos o heridos graves.",
-          "en": null,
-          "ru": null
+          "en": "Only if there are fatalities or serious injuries.",
+          "ru": "Только если есть погибшие или тяжело раненые."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Todo usuario de la vía implicado en un accidente de circulación, o que tenga conocimiento del mismo, está obligado a detenerse para restablecer, en la medida de lo posible, la seguridad de la circulación, auxiliar a las víctimas si las hubiera y facilitar su identidad. Esta obligación solo cesa cuando la ayuda ya esté organizada por los servicios de emergencia o la autoridad y la presencia del usuario no sea necesaria. El incumplimiento de este deber puede constituir un delito de omisión de socorro según el Código Penal.",
+      "en": "Any road user involved in a traffic accident, or who has knowledge of one, is required to stop to restore traffic safety as much as possible, assist victims if any, and provide their identity. This obligation only ends when assistance is already organized by emergency services or the authorities and the user's presence is no longer necessary. Failure to comply with this duty may constitute a 'failure to render aid' offense under the Penal Code.",
+      "ru": "🎓 Если ты стал участником ДТП, твоя первая обязанность — остановиться. Ты должен сделать всё возможное, чтобы восстановить безопасность на дороге: обозначить место аварии или убрать препятствия, если это не мешает расследованию. Это касается не только случаев с пострадавшими, но и любых столкновений. Ты обязан оставаться на месте и предоставить свои данные другим участникам, пока не убедишься, что помощь уже организована профессионалами (полицией или медиками) и твоё присутствие больше не требуется. Игнорирование этого правила в Испании классифицируется как серьезное преступление — неоказание помощи (omisión de socorro).\n\n🇷🇺 В Испании обязанность остановиться и помочь в восстановлении безопасности движения прописана более жестко, вплоть до уголовной ответственности за неоказание помощи, даже если ты просто свидетель, а помощь еще не прибыла.\n\n💡 Видишь беду — не проезжай мимо, пока полиция не скажет «адиос»!"
     },
     "image_url": "https://teorica.practicavial.com/question/ca8bdd27-a64c-4bf3-a927-737f8ce8174f-1658856039-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/ca8bdd27-a64c-4bf3-a927-737f8ce8174f-s-1.jpg",
@@ -217,16 +217,16 @@
     "category": "B",
     "question": {
       "es": "Cuando se produce un accidente de tráfico, una actuación rápida y eficaz supone...",
-      "en": null,
-      "ru": null
+      "en": "When a traffic accident occurs, a quick and efficient action means...",
+      "ru": "В случае дорожно-транспортного происшествия быстрые и эффективные действия означают..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "trasladar a los heridos rápidamente a un centro sanitario.",
-          "en": null,
-          "ru": null
+          "en": "transporting the injured quickly to a medical center.",
+          "ru": "быструю транспортировку пострадавших в медицинское учреждение."
         },
         "is_correct": false
       },
@@ -234,8 +234,8 @@
         "id": "b",
         "text": {
           "es": "minimizar los daños al máximo.",
-          "en": null,
-          "ru": null
+          "en": "minimizing damages to the maximum.",
+          "ru": "максимальное минимизирование ущерба."
         },
         "is_correct": true
       },
@@ -243,16 +243,16 @@
         "id": "c",
         "text": {
           "es": "poner en práctica nuestros conocimientos sobre primeros auxilios.",
-          "en": null,
-          "ru": null
+          "en": "putting our knowledge of first aid into practice.",
+          "ru": "применение на практике наших знаний о первой помощи."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "De acuerdo con la normativa de seguridad vial, una actuación rápida y eficaz tras un siniestro busca minimizar los daños al máximo. El orden de actuación debe seguir el protocolo PAS: Proteger el lugar y a uno mismo, Avisar a los servicios de emergencia (112) y Socorrer a las víctimas. Una intervención organizada previene el agravamiento de las lesiones y evita accidentes secundarios en la zona afectada.",
+      "en": "According to road safety regulations, a prompt and efficient response following an accident aims to minimize damages to the maximum extent. The sequence of actions must follow the PAS protocol: Protect the scene and yourself, Alert emergency services (112), and Succor the victims. Organized intervention prevents the worsening of injuries and avoids secondary accidents in the affected area.",
+      "ru": "🎓 В случае ДТП твоя главная цель как водителя легкового автомобиля — максимально минимизировать последствия и ущерб. Для этого необходимо соблюдать четкий порядок действий, известный как протокол PAS: сначала обеспечить собственную безопасность и оградить место аварии (Proteger), затем вызвать экстренные службы по номеру 112 (Avisar) и только после этого приступать к оказанию помощи пострадавшим (Socorrer). Быстрая и организованная реакция позволяет избежать новых столкновений на проезжей части и не допустить ухудшения состояния раненых. Самостоятельная транспортировка пострадавших в больницу запрещена, так как это может привести к необратимым травмам. 🇷🇺 В Испании алгоритм PAS является строго обязательным и юридически приоритетным: ты не имеешь права начинать помощь, не обезопасив место происшествия. 💡 Помни PAS: Сначала Спрячься (обезопась), потом Свисти (звони), потом Спасай."
     },
     "image_url": "https://teorica.practicavial.com/question/cb5375e7-d507-448a-8cb8-fab3818e28be-1658856124-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/cb5375e7-d507-448a-8cb8-fab3818e28be-s-1.jpg",
@@ -270,16 +270,16 @@
     "category": "B",
     "question": {
       "es": "¿Cómo debe inmovilizar los vehículos accidentados?",
-      "en": null,
-      "ru": null
+      "en": "How should vehicles involved in an accident be immobilized?",
+      "ru": "Как следует обездвижить транспортные средства, попавшие в ДТП?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Quitando el contacto de la batería.",
-          "en": null,
-          "ru": null
+          "en": "By disconnecting the battery contact.",
+          "ru": "Отсоединив контакты аккумулятора."
         },
         "is_correct": false
       },
@@ -287,8 +287,8 @@
         "id": "b",
         "text": {
           "es": "Con el freno de mano y cortando el contacto.",
-          "en": null,
-          "ru": null
+          "en": "With the handbrake and turning off the ignition.",
+          "ru": "С помощью стояночного тормоза и выключения зажигания."
         },
         "is_correct": true
       },
@@ -296,16 +296,16 @@
         "id": "c",
         "text": {
           "es": "Con unos calzos o cualquier elemento que sirva como tal.",
-          "en": null,
-          "ru": null
+          "en": "With chocks or any element that serves as such.",
+          "ru": "С помощью противооткатных упоров или любых заменяющих их предметов."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "De acuerdo con el protocolo de actuación en accidentes (PAS), la inmovilización de los vehículos es fundamental para evitar riesgos añadidos. Se debe accionar el freno de estacionamiento para evitar desplazamientos y cortar el contacto para minimizar el riesgo de incendio provocado por chispas eléctricas o el funcionamiento de la bomba de combustible.",
+      "en": "According to the accident response protocol (PAS), immobilizing vehicles is essential to prevent additional risks. The parking brake must be engaged to prevent movement, and the ignition must be turned off to minimize the risk of fire caused by electrical sparks or the continued operation of the fuel pump.",
+      "ru": "🎓 При аварии твоя первая задача — обезопасить место происшествия. Чтобы Легковой автомобиль (Turismo) не покатился и не загорелся, его нужно надежно зафиксировать. Для этого обязательно затяни стояночный тормоз и выключи зажигание. Это ключевой этап протокола PAS (Защитить, Оповестить, Помочь). Выключение зажигания обесточивает бензонасос и снижает риск возгорания от искры, что критически важно при утечке топлива. 💡 Ручник затяни, ключ поверни — пожар и откат предотврати!"
     },
     "image_url": "https://teorica.practicavial.com/question/3efa1683-8608-4700-8c29-5ca28ff2d930-1658857952-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/3efa1683-8608-4700-8c29-5ca28ff2d930-s-1.jpg",
@@ -322,17 +322,17 @@
     "question_number": 7,
     "category": "B",
     "question": {
-      "es": "Si un conductor presencia un accidente de tráfico en el que no está implicado, ¿debe detenerse para ayudar o intentar auxiliar a las víctimas?",
-      "en": null,
-      "ru": null
+      "es": "¿Si un conductor presencia un accidente de tráfico en el que no está implicado, debe detenerse para ayudar o intentar auxiliar a las víctimas?",
+      "en": "If a driver witnesses a traffic accident in which they are not involved, must they stop to help or attempt to assist the victims?",
+      "ru": "Если водитель стал свидетелем дорожно-транспортного происшествия, в котором он не участвует, должен ли он остановиться, чтобы помочь или попытаться оказать помощь пострадавшим?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Solo si tenemos conocimientos de primeros auxilios.",
-          "en": null,
-          "ru": null
+          "en": "Only if we have knowledge of first aid.",
+          "ru": "Только если у нас есть знания в области оказания первой помощи."
         },
         "is_correct": false
       },
@@ -340,8 +340,8 @@
         "id": "b",
         "text": {
           "es": "No, si no está implicado no tiene ninguna responsabilidad.",
-          "en": null,
-          "ru": null
+          "en": "No, if they are not involved they have no responsibility.",
+          "ru": "Нет, если он не является участником, он не несет никакой ответственности."
         },
         "is_correct": false
       },
@@ -349,16 +349,16 @@
         "id": "c",
         "text": {
           "es": "Sí, salvo en los casos que manifiestamente no sea necesaria su colaboración.",
-          "en": null,
-          "ru": null
+          "en": "Yes, except in cases where their collaboration is clearly not necessary.",
+          "ru": "Да, за исключением случаев, когда их помощь явно не требуется."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece la obligación de todo usuario de la vía de auxiliar o solicitar auxilio ante un accidente, independientemente de su implicación. Esta obligación solo se extingue cuando la ayuda ya esté organizada por profesionales o terceras personas, resultando la intervención del conductor innecesaria. El incumplimiento de este deber puede tipificarse como un delito de omisión del deber de socorro según el Código Penal.",
+      "en": "The General Traffic Regulations mandate that any road user who witnesses an accident must provide assistance or call for help, regardless of their involvement. This duty is only waived if professional emergency services are already present or if the assistance is already being effectively managed by others, making further help unnecessary. Failure to assist is considered a criminal offense of omission of the duty to rescue.",
+      "ru": "🎓 Как водитель легкового автомобиля, ты обязан остановиться и помочь, даже если не являешься участником ДТП. Это не просто доброе дело, а юридическая обязанность каждого участника дорожного движения. Ты можешь проехать мимо только в двух случаях: если полиция или медики уже на месте, либо если помощь уже организована другими людьми и твоё участие явно не требуется. Помни, что неоказание помощи (omisión de socorro) в Испании — это серьезное уголовное преступление. 🇷🇺 В РФ также существует обязанность оказания помощи и уголовная ответственность за оставление в опасности, однако в испанских правилах четко прописано, что можно не останавливаться, если помощь уже явно организована другими. 💡 Видишь беду — тормози, если ты не пятый лишний в очереди спасателей."
     },
     "image_url": "https://teorica.practicavial.com/question/32921a2e-2822-44b7-a44c-4dbfcef51e9d-1658856075-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/32921a2e-2822-44b7-a44c-4dbfcef51e9d-s-1.jpg",
@@ -376,16 +376,16 @@
     "category": "B",
     "question": {
       "es": "Cuando sea necesario mover a un herido en accidente, ¿qué se debe hacer?",
-      "en": null,
-      "ru": null
+      "en": "When it is necessary to move an injured person in an accident, what should be done?",
+      "ru": "Если возникла необходимость переместить пострадавшего при аварии, что следует сделать?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Mantener el eje cabeza-cuello-tronco completamente recto.",
-          "en": null,
-          "ru": null
+          "en": "Keep the head-neck-trunk axis completely straight.",
+          "ru": "Сохранять положение оси «голова-шея-туловище» строго прямой."
         },
         "is_correct": true
       },
@@ -393,8 +393,8 @@
         "id": "b",
         "text": {
           "es": "Administrarle lo más rápido posible un calmante.",
-          "en": null,
-          "ru": null
+          "en": "Administer a painkiller as quickly as possible.",
+          "ru": "Как можно быстрее дать ему обезболивающее."
         },
         "is_correct": false
       },
@@ -402,16 +402,16 @@
         "id": "c",
         "text": {
           "es": "Hacer que se mueva para comprobar si tiene alguna herida.",
-          "en": null,
-          "ru": null
+          "en": "Make them move to check for any injuries.",
+          "ru": "Заставить его пошевелиться, чтобы проверить наличие травм."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Como norma general, no se debe mover a los heridos de un accidente de tráfico para evitar agravar posibles lesiones, especialmente las de columna vertebral. Si el movimiento es estrictamente necesario por riesgo inminente (incendio, atropello), se debe realizar manteniendo el eje cabeza-cuello-tronco alineado y bloqueado, como si fuera un bloque único. Está prohibido administrar medicamentos, alimentos o bebidas.",
+      "en": "As a general rule, casualties of a traffic accident should not be moved to avoid worsening potential injuries, particularly spinal ones. If moving them is strictly necessary due to imminent danger (fire, risk of being run over), it must be done by keeping the head-neck-trunk axis aligned and locked, as if the body were a single rigid block. Administering medication, food, or drinks is strictly prohibited.",
+      "ru": "🎓 Как водитель легкового автомобиля, ты должен помнить: трогать пострадавшего можно только в исключительных случаях, когда оставаться на месте опаснее, чем двигаться (например, при угрозе взрыва или пожара). В такой ситуации перемещать человека нужно как «единый монолит», строго соблюдая прямую линию между головой, шеей и туловищем. Любое смещение или изгиб в этой оси может привести к необратимому повреждению спинного мозга. Категорически запрещено давать любые лекарства, воду или заставлять человека двигаться самостоятельно. 💡 Представь, что пострадавший — это хрупкая фарфоровая статуя, приклеенная к прямой стальной балке. Гнуть нельзя, только перемещать всю конструкцию целиком."
     },
     "image_url": "https://teorica.practicavial.com/question/33bbcf6c-a309-4201-ad2b-3700d77e8770-1658858216-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/33bbcf6c-a309-4201-ad2b-3700d77e8770-s-1.jpg",
@@ -429,16 +429,16 @@
     "category": "B",
     "question": {
       "es": "Al auxiliar a una víctima de un accidente de tráfico, ¿debe darle alimentos o bebidas?",
-      "en": null,
-      "ru": null
+      "en": "When assisting a traffic accident victim, should you give them food or drinks?",
+      "ru": "При оказании помощи пострадавшему в ДТП, следует ли давать ему еду или напитки?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       },
@@ -446,8 +446,8 @@
         "id": "b",
         "text": {
           "es": "Sí, si lo piden.",
-          "en": null,
-          "ru": null
+          "en": "Yes, if they ask.",
+          "ru": "Да, если они попросят."
         },
         "is_correct": false
       },
@@ -455,16 +455,16 @@
         "id": "c",
         "text": {
           "es": "Alimentos no, pero bebidas sí.",
-          "en": null,
-          "ru": null
+          "en": "Food no, but drinks yes.",
+          "ru": "Еду нет, но напитки да."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Como norma general, no se debe administrar ni alimentos, ni bebidas, ni medicamentos a los heridos en un accidente de tráfico. Esta prohibición responde a tres motivos principales: el riesgo de aspiración pulmonar si el herido vomita o pierde la consciencia, la posibilidad de agravar lesiones internas en el aparato digestivo y la necesidad de mantener el estómago vacío ante una eventual intervención quirúrgica urgente que requiera anestesia.",
+      "en": "As a general rule, food, drinks, or medications must not be administered to traffic accident victims. This prohibition is based on three main reasons: the risk of pulmonary aspiration if the victim vomits or loses consciousness, the possibility of worsening internal injuries in the digestive system, and the requirement to keep the stomach empty for a potential emergency surgical intervention requiring anesthesia.",
+      "ru": "🎓 При оказании помощи пострадавшему в ДТП запрещено давать еду, напитки или любые медикаменты. Это жизненно важное правило: во-первых, при потере сознания или рвоте жидкость и пища могут попасть в легкие (аспирация); во-вторых, при наличии внутренних травм органов пищеварения любое вмешательство опасно; в-третьих, если пострадавшему потребуется экстренная операция под наркозом, его желудок должен быть пустым, иначе хирурги не смогут начать работу немедленно. 💡 Ни капли, ни крошки, пока не приедет неотложка."
     },
     "image_url": "https://teorica.practicavial.com/question/236af91e-a930-4328-8121-5a11e935ea1f-1658858127-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/236af91e-a930-4328-8121-5a11e935ea1f-s-1.jpg",
@@ -481,17 +481,17 @@
     "question_number": 10,
     "category": "B",
     "question": {
-      "es": "Si presencia un accidente de circulación, ¿tiene obligación de avisar a la Autoridad o a sus agentes si solo hay heridos leves y la seguridad de la circulación está restablecida?",
-      "en": null,
-      "ru": null
+      "es": "¿Si presencia un accidente de circulación, tiene obligación de avisar a la Autoridad o a sus agentes si solo hay heridos leves y la seguridad de la circulación está restablecida?",
+      "en": "If you witness a traffic accident, are you obliged to notify the Authority or its agents if there are only minor injuries and traffic safety has been restored?",
+      "ru": "Если вы стали свидетелем ДТП, обязаны ли вы сообщить об этом властям или их агентам, если есть только легкораненые и безопасность движения восстановлена?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, salvo que alguna de las personas implicadas en el accidente lo solicite.",
-          "en": null,
-          "ru": null
+          "en": "No, unless one of the persons involved in the accident requests it.",
+          "ru": "Нет, за исключением случаев, когда об этом просит кто-либо из участников ДТП."
         },
         "is_correct": true
       },
@@ -499,8 +499,8 @@
         "id": "b",
         "text": {
           "es": "Sí, siempre.",
-          "en": null,
-          "ru": null
+          "en": "Yes, always.",
+          "ru": "Да, всегда."
         },
         "is_correct": false
       },
@@ -508,16 +508,16 @@
         "id": "c",
         "text": {
           "es": "No, en ningún caso.",
-          "en": null,
-          "ru": null
+          "en": "No, in no case.",
+          "ru": "Нет, ни в коем случае."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, los usuarios que presencien un accidente están obligados a auxiliar o solicitar auxilio. No obstante, si solo hay heridos leves, la seguridad de la circulación ha sido restablecida y ninguno de los implicados solicita la presencia de la Autoridad, no existe obligación legal de avisar a los agentes. La comunicación de identidad y datos es obligatoria si los implicados lo requieren.",
+      "en": "According to the General Traffic Regulations, road users who witness an accident are obliged to help or request help. However, if there are only minor injuries, traffic safety has been restored and none of those involved request the presence of the Authority, there is no legal obligation to notify the agents. Communication of identity and data is mandatory if those involved request it.",
+      "ru": "🎓 Если ты стал свидетелем ДТП, твоя главная обязанность — помочь или вызвать помощь. Однако, если в аварии есть только легкораненые, а проезжая часть уже свободна и безопасна для других, вызывать полицию не обязательно. Исключение одно: если кто-то из участников аварии прямо просит тебя вызвать патруль или сообщить о происшествии властям. В этом случае ты обязан это сделать. Также помни, что любой участник или свидетель обязан сообщить свои данные (ФИО, номер легкового автомобиля, данные страховки) другим участникам по их требованию. 🇷🇺 В РФ при наличии пострадавших даже с легкими травмами вызов сотрудников полиции на место ДТП является обязательным. 💡 Нет просьбы — нет полиции, если все целы и дорога свободна."
     },
     "image_url": "https://teorica.practicavial.com/question/acc2f2a8-f57c-4bf3-83ad-f477e825f776-1658858122-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/acc2f2a8-f57c-4bf3-83ad-f477e825f776-s-1.jpg",
@@ -535,16 +535,16 @@
     "category": "B",
     "question": {
       "es": "En circunstancias especialmente graves, ¿se puede trasladar a enfermos en un turismo?",
-      "en": null,
-      "ru": null
+      "en": "In especially serious circumstances, can sick people be transported in a passenger car?",
+      "ru": "Можно ли в особо тяжелых случаях перевозить больных на легковом автомобиле?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, siempre que no haya otro medio.",
-          "en": null,
-          "ru": null
+          "en": "Yes, as long as there is no other means.",
+          "ru": "Да, при условии, что нет другого способа."
         },
         "is_correct": true
       },
@@ -552,8 +552,8 @@
         "id": "b",
         "text": {
           "es": "Sí, pero nunca una distancia mayor de 50 Km.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but never a distance greater than 50 km.",
+          "ru": "Да, но на расстояние не более 50 км."
         },
         "is_correct": false
       },
@@ -561,16 +561,16 @@
         "id": "c",
         "text": {
           "es": "No, en ningún caso.",
-          "en": null,
-          "ru": null
+          "en": "No, under no circumstances.",
+          "ru": "Нет, ни в коем случае."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Como norma general, el traslado de heridos o enfermos debe realizarse en vehículos especialmente acondicionados. No obstante, en situaciones de extrema gravedad y ante la inexistencia de servicios especializados, se permite el traslado en un vehículo particular. El conductor debe advertir su presencia utilizando el claxon de forma intermitente y, si es posible, agitando un pañuelo por la ventanilla, respetando siempre las normas de circulación y sin eximirse de la responsabilidad en caso de accidente.",
+      "en": "As a general rule, the transport of injured or sick persons must be carried out in specially equipped vehicles. However, in situations of extreme gravity and in the absence of specialized services, transport in a private vehicle is permitted. The driver must signal their presence by using the horn intermittently and, if possible, waving a handkerchief from the window, while always respecting traffic regulations and without being exempt from liability in the event of an accident.",
+      "ru": "🎓 По закону перевозка раненых должна осуществляться только на машинах скорой помощи. Однако в критических ситуациях, когда нет иного способа спасти жизнь, разрешено использовать легковой автомобиль. В этом случае ты обязан обозначить экстренность ситуации: ехать с включенной аварийкой, прерывисто подавать звуковой сигнал и, если возможно, выставить в окно белый платок. Помни: твоя задача — не просто скорость, а сохранение жизни. Если есть выбор, лучше использовать фургон, чтобы пострадавший мог лежать горизонтально, сохраняя ось «голова-шея-туловище» прямой. 🇷🇺 В РФ водитель также обязан доставить пострадавшего в ближайшее лечебное учреждение на своем ТС, если вызвать скорую помощь на место невозможно. 💡 Нет кареты — машем платком и жмем на гудок!"
     },
     "image_url": "https://teorica.practicavial.com/question/691339d6-95f6-4d51-b75c-b6994555332e-1658858227-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/691339d6-95f6-4d51-b75c-b6994555332e-s-1.jpg",
@@ -587,17 +587,17 @@
     "question_number": 12,
     "category": "B",
     "question": {
-      "es": "Si presencia un accidente en el que no está implicado, pero de forma manifiesta, es necesaria su colaboración, ¿debe detenerse?",
-      "en": null,
-      "ru": null
+      "es": "¿Si presencia un accidente en el que no está implicado, pero de forma manifiesta, es necesaria su colaboración, debe detenerse?",
+      "en": "If you witness an accident in which you are not involved, but your collaboration is clearly necessary, must you stop?",
+      "ru": "Если вы стали свидетелем аварии, в которой не участвуете, но ваша помощь явно необходима, обязаны ли вы остановиться?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Solo si se produce fuera de poblado y no hay cerca ningún poste SOS.",
-          "en": null,
-          "ru": null
+          "en": "Only if it occurs outside a built-up area and there is no SOS post nearby.",
+          "ru": "Только если это произошло вне населенного пункта и поблизости нет поста SOS."
         },
         "is_correct": false
       },
@@ -605,8 +605,8 @@
         "id": "b",
         "text": {
           "es": "Sí, debe detenerse y colaborar siempre.",
-          "en": null,
-          "ru": null
+          "en": "Yes, you must always stop and collaborate.",
+          "ru": "Да, вы обязаны остановиться и всегда оказывать содействие."
         },
         "is_correct": true
       },
@@ -614,16 +614,16 @@
         "id": "c",
         "text": {
           "es": "No, debe continuar la marcha.",
-          "en": null,
-          "ru": null
+          "en": "No, you must continue driving.",
+          "ru": "Нет, вы должны продолжать движение."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, los usuarios de la vía que presencien un accidente de circulación están obligados a auxiliar o solicitar auxilio para atender a las víctimas, si las hubiera, y colaborar para evitar mayores peligros. Esta obligación solo cesa cuando la ayuda ya esté organizada por servicios especializados o la autoridad ya esté presente en el lugar. El incumplimiento de este deber puede ser constitutivo de un delito de omisión del deber de socorro tipificado en el Código Penal.",
+      "en": "According to the General Traffic Regulations, road users who witness a traffic accident are required to provide assistance or request help for victims and cooperate to prevent further hazards. This obligation only ceases when assistance is already organized by specialized services or the authorities are already present at the scene. Failure to comply with this duty may constitute a criminal offense of failure to render aid as defined in the Penal Code.",
+      "ru": "🎓 Любой участник дорожного движения, ставший свидетелем ДТП или узнавший о нем, обязан оказать помощь или вызвать экстренные службы. Ты обязан остановиться и содействовать, если твоя помощь явно требуется. Это обязательство снимается только в двух случаях: если полиция уже прибыла на место или если помощь уже организована достаточным количеством людей и твое участие объективно не нужно. Помни, что даже если пострадавших нет, ты обязан вызвать полицию, если об этом просит любой из участников аварии. 🇷🇺 В Испании неоказание помощи свидетелем — это серьезное уголовное преступление (omisión de socorro), за которое грозит реальный срок, даже если ты просто проехал мимо. 💡 Видишь беду — не будь в стороне, иначе «omisión» прилетит по спине!"
     },
     "image_url": "https://teorica.practicavial.com/question/d9af85cf-6d63-41b6-a547-8b91af62228b-1658856049-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d9af85cf-6d63-41b6-a547-8b91af62228b-s-1.jpg",
@@ -641,16 +641,16 @@
     "category": "B",
     "question": {
       "es": "En la medida de lo posible, todo usuario de la vía implicado en un accidente de circulación deberá...",
-      "en": null,
-      "ru": null
+      "en": "As far as possible, every road user involved in a traffic accident must...",
+      "ru": "В меру своих возможностей, каждый участник дорожного движения, вовлеченный в ДТП, должен..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "prestar a los heridos el auxilio que resulte más adecuado, según las circunstancias.",
-          "en": null,
-          "ru": null
+          "en": "render to the injured the most appropriate aid, depending on the circumstances.",
+          "ru": "оказать раненым наиболее подходящую помощь в зависимости от обстоятельств."
         },
         "is_correct": true
       },
@@ -658,8 +658,8 @@
         "id": "b",
         "text": {
           "es": "cambiar de sitio los objetos que ayuden a determinar la responsabilidad.",
-          "en": null,
-          "ru": null
+          "en": "change the location of objects that help determine responsibility.",
+          "ru": "переместить предметы, которые помогают определить ответственность."
         },
         "is_correct": false
       },
@@ -667,16 +667,16 @@
         "id": "c",
         "text": {
           "es": "ocultar los datos de su vehículo a otras personas implicadas en el accidente.",
-          "en": null,
-          "ru": null
+          "en": "hide their vehicle data from other people involved in the accident.",
+          "ru": "скрыть данные своего транспортного средства от других лиц, вовлеченных в аварию."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece que los implicados en un accidente deben auxiliar a las víctimas de forma adecuada, evitar modificar el estado de las cosas si hay heridos graves o muertos para no entorpecer la investigación, y facilitar su identidad y datos del vehículo a los demás afectados.",
+      "en": "The General Traffic Regulations state that those involved in an accident must provide appropriate assistance to victims, avoid modifying the scene if there are serious injuries or fatalities to avoid hindering the investigation, and provide their identity and vehicle details to other affected parties.",
+      "ru": "🎓 Как водитель легкового автомобиля, при ДТП ты обязан действовать по четкому алгоритму: сначала обеспечить безопасность, затем вызвать помощь и только потом оказывать ее пострадавшим в меру своих сил. Если в аварии есть погибшие или тяжелораненые, категорически запрещено изменять положение транспортных средств или предметов, чтобы не мешать работе полиции. Также ты обязан предоставить свои данные и данные страховки другим участникам происшествия по их требованию. 🇷🇺 В Испании, как и в РФ, неоказание помощи пострадавшему при ДТП является уголовным преступлением. 💡 Запомни алгоритм PAS: Proteger (Защити место), Avisar (Оповести службы), Socorrer (Помоги раненым)."
     },
     "image_url": "https://teorica.practicavial.com/question/63ad63e9-e6ff-4241-b8bd-9a3a41b44c69-1658856064-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/63ad63e9-e6ff-4241-b8bd-9a3a41b44c69-s-1.jpg",
@@ -694,16 +694,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué personas incurren en el delito de omisión de socorro?",
-      "en": null,
-      "ru": null
+      "en": "Which persons commit the crime of failure to render aid?",
+      "ru": "Какие лица совершают преступление, связанное с неоказанием помощи (оставлением в опасности)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Las que piden auxilio cuando no pueden prestarlo.",
-          "en": null,
-          "ru": null
+          "en": "Those who request help when they cannot provide it.",
+          "ru": "Те, кто просит о помощи, когда не могут оказать её сами."
         },
         "is_correct": false
       },
@@ -711,8 +711,8 @@
         "id": "b",
         "text": {
           "es": "Las que no se detienen ante un accidente en el que la ayuda no está organizada.",
-          "en": null,
-          "ru": null
+          "en": "Those who do not stop at an accident where help is not organized.",
+          "ru": "Те, кто не останавливается при виде ДТП, если помощь еще не организована."
         },
         "is_correct": true
       },
@@ -720,16 +720,16 @@
         "id": "c",
         "text": {
           "es": "Las que no ayudan a las víctimas por correr riesgo propio.",
-          "en": null,
-          "ru": null
+          "en": "Those who do not help victims due to personal risk.",
+          "ru": "Те, кто не помогает пострадавшим из-за наличия собственного риска."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Código Penal y el Reglamento General de Circulación establecen la obligatoriedad de socorrer a las víctimas de un accidente. Incurre en delito de omisión de socorro aquel usuario de la vía que, presenciando un accidente o estando implicado en él, no se detenga para prestar auxilio cuando la ayuda no esté aún organizada por los servicios de emergencia o autoridad. La obligación cesa únicamente si la policía ya está presente o si existen personas suficientes para atender a las víctimas y la intervención propia no es necesaria. No existe obligación de intervenir físicamente si ello supone un riesgo propio, pero persiste el deber de solicitar auxilio.",
+      "en": "The Penal Code and the General Traffic Regulations establish the obligation to assist accident victims. A road user commits the crime of failure to render aid if, witnessing or being involved in an accident, they do not stop to provide assistance when help has not yet been organized by emergency services or authorities. The obligation only ceases if the police are already on site or if there are enough people present to assist the victims and one's own intervention is clearly not required. There is no obligation to physically intervene if it entails personal risk, but the duty to call for help remains.",
+      "ru": "🎓 Оказание помощи при ДТП — это юридическая обязанность каждого участника дорожного движения. Если ты стал свидетелем аварии или участвовал в ней, ты обязан остановиться и помочь, если профессиональная помощь (полиция, скорая) еще не прибыла или не организована другими людьми. Преступление «оставление в опасности» (omisión de socorro) наступает тогда, когда водитель просто проезжает мимо, видя, что пострадавшим нужна помощь. Однако, если оказание помощи угрожает твоей собственной жизни, ты не обязан подвергать себя смертельной опасности, но обязан немедленно вызвать спасателей по номеру 112. Если полиция уже на месте и помощь организована, останавливаться не нужно. 🇷🇺 В Испании неоказание помощи является серьезным уголовным преступлением, даже если ты не был виновником аварии. 💡 Видишь беду — тормози, если ты первый. Если полиция уже там — проезжай, не мешай."
     },
     "image_url": "https://teorica.practicavial.com/question/52e3f1aa-a3e8-498a-b503-95c7a111fd8d-1658857905-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/52e3f1aa-a3e8-498a-b503-95c7a111fd8d-s-1.jpg",
@@ -747,16 +747,16 @@
     "category": "B",
     "question": {
       "es": "Su vehículo se incendia y no tiene extintor. ¿Cómo debe apagarlo?",
-      "en": null,
-      "ru": null
+      "en": "Your vehicle catches fire and you do not have a fire extinguisher. How should you put it out?",
+      "ru": "Ваш легковой автомобиль загорелся, а огнетушителя нет. Как следует тушить пожар?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Con tierra.",
-          "en": null,
-          "ru": null
+          "en": "With earth.",
+          "ru": "Землей."
         },
         "is_correct": true
       },
@@ -764,8 +764,8 @@
         "id": "b",
         "text": {
           "es": "Con aire.",
-          "en": null,
-          "ru": null
+          "en": "With air.",
+          "ru": "Воздухом."
         },
         "is_correct": false
       },
@@ -773,16 +773,16 @@
         "id": "c",
         "text": {
           "es": "Con agua.",
-          "en": null,
-          "ru": null
+          "en": "With water.",
+          "ru": "Водой."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "En caso de incendio en un vehículo, si no se dispone de extintor, se debe intentar sofocar las llamas utilizando tierra, arena o mantas para privar al fuego de oxígeno. El uso de agua está terminantemente prohibido debido al riesgo de propagación de combustibles líquidos (que flotan en el agua) y posibles reacciones con componentes eléctricos.",
+      "en": "In the event of a vehicle fire, if a fire extinguisher is not available, the flames should be smothered using earth, sand, or blankets to deprive the fire of oxygen. Water must never be used as it can spread liquid fuel fires (which float on water) and cause short circuits in electrical systems.",
+      "ru": "🎓 Если твой легковой автомобиль загорелся, а огнетушителя под рукой нет, главная задача — перекрыть доступ кислорода к пламени. Для этого используй землю, песок или плотное покрывало. Категорически запрещено использовать воду: топливо легче воды, оно всплывет и продолжит гореть, растекаясь по проезжей части и увеличивая площадь пожара. Кроме того, вода может вызвать короткое замыкание электропроводки. 💡 Земля — тушит, вода — разносит!"
     },
     "image_url": "https://teorica.practicavial.com/question/23d3cac2-4c3c-4bc1-be42-cd596bb8ddb3-1658857964-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/23d3cac2-4c3c-4bc1-be42-cd596bb8ddb3-s-1.jpg",
@@ -800,16 +800,16 @@
     "category": "B",
     "question": {
       "es": "¿Quién debe realizar las actuaciones de soporte vital básico a las víctimas de un accidente?",
-      "en": null,
-      "ru": null
+      "en": "Who should perform basic life support actions for accident victims?",
+      "ru": "Кто должен проводить мероприятия по базовой жизненной поддержке пострадавших в аварии?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "El personal especializado, siempre.",
-          "en": null,
-          "ru": null
+          "en": "Specialized personnel, always.",
+          "ru": "Только специализированный персонал."
         },
         "is_correct": false
       },
@@ -817,8 +817,8 @@
         "id": "b",
         "text": {
           "es": "Estas actuaciones siempre deben realizarse en un hospital.",
-          "en": null,
-          "ru": null
+          "en": "These actions must always be performed in a hospital.",
+          "ru": "Эти действия всегда должны выполняться в больнице."
         },
         "is_correct": false
       },
@@ -826,16 +826,16 @@
         "id": "c",
         "text": {
           "es": "El personal especializado, salvo que la persona que le auxilie esté totalmente seguro de conocerlas y poder realizarlas.",
-          "en": null,
-          "ru": null
+          "en": "Specialized personnel, unless the person assisting is totally sure they know them and can perform them.",
+          "ru": "Специализированный персонал, за исключением случаев, когда оказывающий помощь человек полностью уверен, что знает их и может выполнить."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Las actuaciones de soporte vital básico deben ser realizadas prioritariamente por personal sanitario cualificado. No obstante, cualquier persona que auxilie a las víctimas puede llevarlas a cabo siempre que posea los conocimientos técnicos necesarios y tenga la seguridad absoluta de poder ejecutarlas correctamente sin agravar las lesiones. En caso de duda, la actuación debe limitarse a proteger la zona, alertar a los servicios de emergencia (112) y proporcionar apoyo moral a los heridos.",
+      "en": "Basic life support procedures should be performed by qualified medical personnel. However, a bystander providing assistance is permitted to perform these actions only if they are fully confident in their knowledge of the techniques and their ability to execute them safely. If the rescuer is not certain, they should refrain from medical intervention, contact emergency services (112), and focus on securing the scene and providing emotional support to the victims.",
+      "ru": "🎓 Твоя главная задача при ДТП — не навредить. Базовую реанимацию (искусственное дыхание, массаж сердца) должен проводить квалифицированный медицинский персонал. Ты можешь вмешаться только в одном случае: если на 100% уверен в своих знаниях и навыках. Если есть хоть малейшее сомнение — не трогай пострадавшего в плане медицины. Твоя роль как водителя легкового автомобиля (Turismo) — вызвать 112, обезопасить место аварии и просто быть рядом, подбадривая человека словами и поддержкой. 💡 Не уверен — не качай! Лучше просто держи за руку и жди профи."
     },
     "image_url": "https://teorica.practicavial.com/question/f6e6d87d-c899-4b01-9e25-b7aef3cc6654-1658858131-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/f6e6d87d-c899-4b01-9e25-b7aef3cc6654-s-1.jpg",
@@ -853,16 +853,16 @@
     "category": "B",
     "question": {
       "es": "En algunos casos hay que poner a los heridos en posición de defensa, ¿para qué?",
-      "en": null,
-      "ru": null
+      "en": "In some cases, the injured must be placed in the defense position, why?",
+      "ru": "В некоторых случаях пострадавших необходимо перевести в положение защиты (боковое положение), для чего это делается?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Para que estén conscientes.",
-          "en": null,
-          "ru": null
+          "en": "To keep them conscious.",
+          "ru": "Чтобы они оставались в сознании."
         },
         "is_correct": false
       },
@@ -870,8 +870,8 @@
         "id": "b",
         "text": {
           "es": "Para que no se asfixien.",
-          "en": null,
-          "ru": null
+          "en": "To prevent suffocation.",
+          "ru": "Чтобы они не задохнулись."
         },
         "is_correct": true
       },
@@ -879,16 +879,16 @@
         "id": "c",
         "text": {
           "es": "Para que circule mejor la sangre.",
-          "en": null,
-          "ru": null
+          "en": "To improve blood circulation.",
+          "ru": "Чтобы лучше циркулировала кровь."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La posición de defensa o posición lateral de seguridad se debe aplicar a los heridos que se encuentran inconscientes pero mantienen la respiración. El objetivo es evitar la obstrucción de las vías respiratorias por la caída de la lengua hacia atrás o por la aspiración de vómitos, garantizando así que la víctima no se asfixie.",
+      "en": "The defense position, or lateral safety position, must be applied to victims who are unconscious but still breathing. The objective is to prevent airway obstruction caused by the tongue falling back or the aspiration of vomit, thereby ensuring the victim does not suffocate.",
+      "ru": "🎓 Позиция защиты (устойчивое боковое положение) применяется для пострадавших, которые находятся без сознания, но продолжают дышать. Это необходимо для обеспечения проходимости дыхательных путей: в таком положении корень языка не западает, а рвотные массы выходят наружу, не попадая в легкие. Как водителю легкового автомобиля, тебе важно помнить: если пострадавший без сознания, но дышит — его нужно аккуратно повернуть на бок.\n\n🇷🇺 В РФ данная манипуляция называется «устойчивое боковое положение» и является базовым элементом первой помощи.\n\n💡 На бочок — и молчок. Кладем на бок, чтобы дыхание было свободным, а рвота не стала фатальной."
     },
     "image_url": "https://teorica.practicavial.com/question/17f10584-8da9-4044-a930-a86469ca1db9-1658858175-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/17f10584-8da9-4044-a930-a86469ca1db9-s-1.jpg",
@@ -906,16 +906,16 @@
     "category": "B",
     "question": {
       "es": "Si un herido tiene una hemorragia en el brazo, ¿qué debe hacer?",
-      "en": null,
-      "ru": null
+      "en": "If an injured person has a hemorrhage in the arm, what should you do?",
+      "ru": "Если у пострадавшего кровотечение из руки, что необходимо сделать?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Darle pomada en la herida.",
-          "en": null,
-          "ru": null
+          "en": "Apply ointment to the wound.",
+          "ru": "Нанести мазь на рану."
         },
         "is_correct": false
       },
@@ -923,8 +923,8 @@
         "id": "b",
         "text": {
           "es": "Taponar la herida y levantarle el brazo.",
-          "en": null,
-          "ru": null
+          "en": "Plug the wound and raise the arm.",
+          "ru": "Зажать рану и поднять руку."
         },
         "is_correct": true
       },
@@ -932,16 +932,16 @@
         "id": "c",
         "text": {
           "es": "Hacer un torniquete, como norma general.",
-          "en": null,
-          "ru": null
+          "en": "Apply a tourniquet as a general rule.",
+          "ru": "Наложить жгут в качестве общего правила."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Ante una hemorragia externa en una extremidad, el protocolo de actuación establece la presión directa sobre la herida con apósitos limpios. Si la sangre no cesa, se procederá a la elevación del miembro afectado por encima del nivel del corazón para reducir la presión hidrostática. El uso del torniquete queda restringido a situaciones excepcionales de riesgo vital donde las medidas previas resulten ineficaces.",
+      "en": "In case of external limb hemorrhage, the protocol mandates direct pressure on the wound with clean dressings. If bleeding persists, the affected limb must be elevated to reduce hydrostatic pressure. The use of a tourniquet is restricted to exceptional life-threatening situations where previous measures have proven ineffective.",
+      "ru": "🎓 При оказании первой помощи при кровотечении из конечности необходимо выполнить прямое давление на рану с помощью чистой ткани или марли. Если кровотечение продолжается, следует поднять руку пострадавшего выше уровня сердца, не прекращая давления на рану. Это снижает приток крови к месту повреждения. Наложение жгута является исключительной мерой и применяется только в качестве самого последнего средства, когда другие способы не помогли и существует реальная угроза смерти от потери крови. 🇷🇺 В Испании жгут рассматривается строго как «последний ресурс», в то время как в РФ его применение при артериальных кровотечениях часто описывается как первичная процедура. 💡 Дави и поднимай, жгут на финал оставляй."
     },
     "image_url": "https://teorica.practicavial.com/question/334f162d-5f6f-4c11-9755-c02e1eaffed9-1658858195-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/334f162d-5f6f-4c11-9755-c02e1eaffed9-s-1.jpg",
@@ -958,17 +958,17 @@
     "question_number": 19,
     "category": "B",
     "question": {
-      "es": "La reanimación de un accidentado, ¿cuánto tiempo debe durar?",
-      "en": null,
-      "ru": null
+      "es": "¿Cuánto tiempo debe durar la reanimación de un accidentado?",
+      "en": "How long should the resuscitation of an accident victim last?",
+      "ru": "Сколько времени должна продолжаться реанимация пострадавшего в ДТП?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "5 minutos como máximo.",
-          "en": null,
-          "ru": null
+          "en": "5 minutes maximum.",
+          "ru": "Максимум 5 минут."
         },
         "is_correct": false
       },
@@ -976,8 +976,8 @@
         "id": "b",
         "text": {
           "es": "Si después de 2 minutos no ha recuperado es mejor dejarlo.",
-          "en": null,
-          "ru": null
+          "en": "If after 2 minutes they have not recovered, it is better to stop.",
+          "ru": "Если через 2 минуты человек не пришел в себя, лучше прекратить."
         },
         "is_correct": false
       },
@@ -985,16 +985,16 @@
         "id": "c",
         "text": {
           "es": "Hasta que se recupere o llegue la ayuda médica.",
-          "en": null,
-          "ru": null
+          "en": "Until they recover or medical help arrives.",
+          "ru": "До тех пор, пока он не придет в себя или не прибудет медицинская помощь."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Antes de iniciar la ventilación artificial, es imperativo verificar que las vías respiratorias no estén obstruidas. La reanimación cardiopulmonar debe mantenerse de forma ininterrumpida hasta que el herido recupere la respiración espontánea, el reanimador sea relevado por personal sanitario cualificado o se encuentre físicamente exhausto. No existen límites temporales arbitrarios en los protocolos de auxilio.",
+      "en": "Before starting artificial ventilation, it is mandatory to ensure that the airways are not obstructed. Cardiopulmonary resuscitation must be performed continuously until the victim regains spontaneous breathing, the rescuer is relieved by qualified medical personnel, or the rescuer becomes physically exhausted. There are no arbitrary time limits in first aid protocols.",
+      "ru": "🎓 Перед началом реанимации обязательно убедись, что дыхательные пути свободны. Если ты начал сердечно-легочную реанимацию, ты обязан продолжать её до тех пор, пока пострадавший не начнет дышать самостоятельно, либо пока тебя не сменит другой человек или квалифицированный медицинский персонал. Также реанимация прекращается, если ты физически полностью истощен. Никаких лимитов в 2 или 5 минут не существует. 💡 Качай, пока не оживёт или врач не придет."
     },
     "image_url": "https://teorica.practicavial.com/question/2046c139-0898-4e30-941a-b01aae700d4f-1658858184-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/2046c139-0898-4e30-941a-b01aae700d4f-s-1.jpg",
@@ -1012,16 +1012,16 @@
     "category": "B",
     "question": {
       "es": "Si presencia un accidente de tráfico y va a ayudar mientras llegan los servicios de emergencia, ¿debe mover a los heridos?",
-      "en": null,
-      "ru": null
+      "en": "If you witness a traffic accident and are going to help while emergency services arrive, should you move the injured?",
+      "ru": "Если вы стали свидетелем ДТП и собираетесь оказать помощь до прибытия экстренных служб, должны ли вы перемещать пострадавших?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, en ningún caso.",
-          "en": null,
-          "ru": null
+          "en": "No, under no circumstances.",
+          "ru": "Нет, ни в коем случае."
         },
         "is_correct": false
       },
@@ -1029,8 +1029,8 @@
         "id": "b",
         "text": {
           "es": "Sí, cuando no puedan salir por su propio pie del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "Yes, when they cannot get out of the vehicle on their own.",
+          "ru": "Да, если они не могут самостоятельно покинуть легковой автомобиль."
         },
         "is_correct": false
       },
@@ -1038,16 +1038,16 @@
         "id": "c",
         "text": {
           "es": "No, salvo que sea imprescindible por su seguridad.",
-          "en": null,
-          "ru": null
+          "en": "No, unless it is essential for their safety.",
+          "ru": "Нет, за исключением случаев, когда это крайне необходимо для их безопасности."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Como norma general, no se debe mover a los heridos para evitar agravamientos de posibles lesiones, especialmente en la columna vertebral. Solo se permite el movimiento en situaciones de riesgo vital inminente, como incendio del vehículo, peligro de caída por un desnivel o necesidad de realizar maniobras de reanimación que no puedan efectuarse en la posición actual.",
+      "en": "As a general rule, injured persons should not be moved to avoid worsening potential injuries, particularly to the spine. Movement is only permitted in situations of imminent life-threatening risk, such as a vehicle fire, danger of falling off a cliff, or the need to perform resuscitation maneuvers that cannot be carried out in the current position.",
+      "ru": "🎓 По общему правилу, пострадавших в ДТП перемещать запрещено. Любое неосторожное движение может привести к необратимым повреждениям позвоночника и спинного мозга. Исключение составляют только ситуации прямой и немедленной угрозы жизни: если легковой автомобиль загорелся, может сорваться в обрыв или если человеку требуется немедленная сердечно-легочная реанимация, которую невозможно провести в текущем положении. Во всех остальных случаях необходимо дождаться квалифицированной медицинской помощи. 💡 Правило «Статуи»: не трогай пострадавшего, пока не приедут врачи, если только вокруг не начался настоящий «боевик» с пожаром или обрывом."
     },
     "image_url": "https://teorica.practicavial.com/question/512a49cb-474b-4d37-ab08-06b313418d3c-1658858011-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/512a49cb-474b-4d37-ab08-06b313418d3c-s-1.jpg",
@@ -1065,16 +1065,16 @@
     "category": "B",
     "question": {
       "es": "Si tiene que auxiliar a las víctimas de un accidente de tráfico lo primero que tiene que tener en cuenta es...",
-      "en": null,
-      "ru": null
+      "en": "If you have to help the victims of a traffic accident, the first thing you must take into account is...",
+      "ru": "Если вам необходимо оказать помощь пострадавшим в дорожно-транспортном происшествии, первое, что вы должны учитывать, это..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "la autoprotección.",
-          "en": null,
-          "ru": null
+          "en": "self-protection.",
+          "ru": "собственная безопасность (самозащита)."
         },
         "is_correct": true
       },
@@ -1082,8 +1082,8 @@
         "id": "b",
         "text": {
           "es": "la protección del lugar del accidente.",
-          "en": null,
-          "ru": null
+          "en": "protection of the accident site.",
+          "ru": "защита места происшествия."
         },
         "is_correct": false
       },
@@ -1091,16 +1091,16 @@
         "id": "c",
         "text": {
           "es": "la protección de las víctimas.",
-          "en": null,
-          "ru": null
+          "en": "protection of the victims.",
+          "ru": "защита пострадавших."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "De acuerdo con el protocolo PAS (Proteger, Avisar, Socorrer), la prioridad absoluta es la autoprotección del auxiliante. Antes de intervenir, el conductor debe asegurar su propia integridad física (uso del chaleco reflectante, estacionamiento seguro fuera de la calzada) para evitar convertirse en una nueva víctima y agravar la situación. Una vez garantizada la seguridad propia, se procede a proteger el lugar y finalmente a socorrer a los heridos.",
+      "en": "According to the PAS protocol (Protect, Warn, Succour), the absolute priority is the self-protection of the rescuer. Before intervening, the driver must ensure their own physical integrity (using a reflective vest, safe parking off the roadway) to avoid becoming another victim and worsening the situation. Once personal safety is guaranteed, the next steps are protecting the site and then helping the victims.",
+      "ru": "🎓 Твоя главная задача при ДТП — не стать следующей жертвой. В Испании действует строгий протокол PAS: Proteger (Защитить), Avisar (Оповестить), Socorrer (Помочь). Самый первый подпункт этапа «Защитить» — это самозащита (autoprotección). Сначала ты надеваешь светоотражающий жилет, правильно паркуешь свой легковой автомобиль (желательно за пределами проезжей части) и только потом выходишь на дорогу или обочину. Если спасатель пострадает, помогать будет некому. 💡 Принцип самолета: сначала надень маску на себя, потом на соседа. Сначала жилет и безопасность, потом спасение мира."
     },
     "image_url": "https://teorica.practicavial.com/question/dc7311ea-7ccc-43b7-bc3f-ca953bcde978-1658857940-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/dc7311ea-7ccc-43b7-bc3f-ca953bcde978-s-1.jpg",
@@ -1118,16 +1118,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué es la hora dorada?",
-      "en": null,
-      "ru": null
+      "en": "What is the golden hour?",
+      "ru": "Что такое «золотой час»?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Es la hora inmediata posterior a sufrir un accidente.",
-          "en": null,
-          "ru": null
+          "en": "It is the hour immediately following an accident.",
+          "ru": "Это первый час сразу после ДТП."
         },
         "is_correct": true
       },
@@ -1135,8 +1135,8 @@
         "id": "b",
         "text": {
           "es": "Lo que tarda la ambulancia en llegar al lugar del accidente.",
-          "en": null,
-          "ru": null
+          "en": "The time it takes for the ambulance to arrive at the accident scene.",
+          "ru": "Время прибытия скорой помощи на место ДТП."
         },
         "is_correct": false
       },
@@ -1144,16 +1144,16 @@
         "id": "c",
         "text": {
           "es": "Es lo que se tarda en llegar al hospital después de sufrir un accidente.",
-          "en": null,
-          "ru": null
+          "en": "It is the time it takes to get to the hospital after an accident.",
+          "ru": "Время доставки пострадавшего в больницу после ДТП."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "En el ámbito de la seguridad vial y la medicina de emergencias, se denomina 'hora dorada' al lapso de 60 minutos inmediatamente posteriores al accidente. Se considera crítico porque es el periodo en el que se produce el mayor porcentaje de fallecimientos (aproximadamente el 75%), generalmente debidos a hemorragias u obstrucción de las vías respiratorias. Una asistencia rápida y adecuada durante este tiempo es determinante para la supervivencia.",
+      "en": "In the context of road safety and emergency medicine, the 'golden hour' refers to the 60-minute period immediately following an accident. It is considered critical because it is the timeframe in which the highest percentage of fatalities occurs (approximately 75%), typically due to hemorrhages or airway obstruction. Rapid and appropriate medical assistance during this time is decisive for survival.",
+      "ru": "🎓 «Золотой час» — это первые 60 минут сразу после аварии. Согласно медицинской статистике, именно в этот промежуток времени происходит до 75% смертей пострадавших, чаще всего из-за потери крови или перекрытия дыхательных путей. Если пострадавший получит квалифицированную помощь в течение этого часа, вероятность его выживания многократно возрастает.\n\n💡 Первый час решает всё: быстрая помощь — шанс на жизнь!"
     },
     "image_url": "https://teorica.practicavial.com/question/9fa248c3-52bb-42d8-9add-250b49d046a7-1658856081-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/9fa248c3-52bb-42d8-9add-250b49d046a7-s-1.jpg",
@@ -1171,16 +1171,16 @@
     "category": "B",
     "question": {
       "es": "Si se encuentra con un motorista accidentado, ¿debe quitarle el casco de protección?",
-      "en": null,
-      "ru": null
+      "en": "If you encounter an injured motorcyclist, should you remove their protective helmet?",
+      "ru": "Если вы обнаружили пострадавшего мотоциклиста, нужно ли снимать с него защитный шлем?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       },
@@ -1188,8 +1188,8 @@
         "id": "b",
         "text": {
           "es": "Solo si el motorista está consciente.",
-          "en": null,
-          "ru": null
+          "en": "Only if the motorcyclist is conscious.",
+          "ru": "Только если мотоциклист находится в сознании."
         },
         "is_correct": false
       },
@@ -1197,16 +1197,16 @@
         "id": "c",
         "text": {
           "es": "Sí, lo antes posible para facilitar la respiración.",
-          "en": null,
-          "ru": null
+          "en": "Yes, as soon as possible to facilitate breathing.",
+          "ru": "Да, как можно скорее, чтобы облегчить дыхание."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Como norma general, no se debe quitar el casco a los accidentados de motocicleta. La manipulación incorrecta del cuello durante la extracción puede provocar o agravar lesiones en la columna vertebral y la médula espinal, con riesgo de parálisis irreversible. Solo se justifica su retirada si es estrictamente necesario para realizar la reanimación cardiopulmonar (si no respira) y siempre que se conozca la técnica específica de auxilio.",
+      "en": "As a general rule, the helmet should not be removed from motorcycle accident victims. Incorrect manipulation of the neck during removal can cause or aggravate injuries to the spinal column and spinal cord, with a risk of irreversible paralysis. Removal is only justified if strictly necessary to perform cardiopulmonary resuscitation (if the person is not breathing) and provided the specific rescue technique is known.",
+      "ru": "🎓 Золотое правило первой помощи при ДТП с мотоциклистами: **никогда не снимайте шлем**, если пострадавший дышит. Шейный отдел позвоночника крайне уязвим, и любое смещение головы при попытке стянуть шлем может привести к повреждению спинного мозга и мгновенному параличу. Снятие допускается только в критической ситуации (остановка дыхания) для проведения реанимации, и только если вы точно знаете, как это делать правильно.\n\n💡 Шлем на месте — шея цела. Снимешь зря — быть беде."
     },
     "image_url": "https://teorica.practicavial.com/question/57ec3b39-856d-4bef-8af9-ebccd49b5d99-1745482009-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/57ec3b39-856d-4bef-8af9-ebccd49b5d99-s-1.jpg",
@@ -1224,16 +1224,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué es lo primero que hay que hacer con un herido hasta que llegue la ayuda sanitaria?",
-      "en": null,
-      "ru": null
+      "en": "What is the first thing to do with an injured person until medical help arrives?",
+      "ru": "Что нужно сделать с пострадавшим в первую очередь до прибытия медицинской помощи?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Comprobar si tiene hemorragia.",
-          "en": null,
-          "ru": null
+          "en": "Check if they have a hemorrhage.",
+          "ru": "Проверить наличие кровотечения."
         },
         "is_correct": false
       },
@@ -1241,8 +1241,8 @@
         "id": "b",
         "text": {
           "es": "Limpiar las heridas con agua.",
-          "en": null,
-          "ru": null
+          "en": "Clean the wounds with water.",
+          "ru": "Промыть раны водой."
         },
         "is_correct": false
       },
@@ -1250,16 +1250,16 @@
         "id": "c",
         "text": {
           "es": "Comprobar y mantener su respiración",
-          "en": null,
-          "ru": null
+          "en": "Check and maintain their breathing",
+          "ru": "Проверить и поддерживать дыхание"
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "En la asistencia a heridos, se debe seguir el orden de prioridad de las funciones vitales (valoración primaria): consciencia, respiración y circulación. El objetivo inmediato es asegurar la supervivencia. Por tanto, comprobar y mantener la respiración es prioritario frente a otras actuaciones como curar heridas o buscar hemorragias no masivas, que pertenecen a la valoración secundaria.",
+      "en": "When assisting the injured, the priority order of vital functions (primary assessment) must be followed: consciousness, respiration, and circulation. The immediate goal is to ensure survival. Therefore, checking and maintaining breathing is a priority over other actions such as treating wounds or checking for non-massive hemorrhages, which belong to the secondary assessment.",
+      "ru": "🎓 При оказании первой помощи действует строгий алгоритм первичного осмотра, цель которого — спасти жизнь. Жизненно важные функции проверяются в порядке приоритета: 1. Сознание, 2. Дыхание, 3. Кровообращение. Без дыхания человек погибнет за считанные минуты, поэтому проверка и восстановление дыхания всегда важнее, чем обработка ран или поиск кровотечений.\n\n💡 Дыхание — это жизнь. Сначала воздух, потом кровь!"
     },
     "image_url": "https://teorica.practicavial.com/question/ccd07ad4-deeb-4a11-b7f0-0f4abff14aa1-1658858159-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/ccd07ad4-deeb-4a11-b7f0-0f4abff14aa1-s-1.jpg",
@@ -1277,16 +1277,16 @@
     "category": "B",
     "question": {
       "es": "¿Cómo se conocen las unidades existentes en muchos hospitales para atender a las víctimas con lesiones, físicas o emocionales, derivadas de un siniestro vial?",
-      "en": null,
-      "ru": null
+      "en": "What are the units in many hospitals called that provide care for victims with physical or emotional injuries resulting from a road accident?",
+      "ru": "Как называются существующие во многих госпиталях отделения для оказания помощи пострадавшим с физическими или эмоциональными травмами в результате ДТП?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Unidad de Urgencias Traumatológicas.",
-          "en": null,
-          "ru": null
+          "en": "Traumatology Emergency Unit.",
+          "ru": "Отделение экстренной травматологии."
         },
         "is_correct": false
       },
@@ -1294,8 +1294,8 @@
         "id": "b",
         "text": {
           "es": "Unidad de Accidentes de Tráfico.",
-          "en": null,
-          "ru": null
+          "en": "Traffic Accident Unit.",
+          "ru": "Отделение по ДТП (Unidad de Accidentes de Tráfico)."
         },
         "is_correct": true
       },
@@ -1303,16 +1303,16 @@
         "id": "c",
         "text": {
           "es": "Unidad de Medicina Familiar.",
-          "en": null,
-          "ru": null
+          "en": "Family Medicine Unit.",
+          "ru": "Отделение семейной медицины."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Muchos centros hospitalarios cuentan con una Unidad de Accidentes de Tráfico especializada en la asistencia integral a las víctimas de siniestros viales. Estas unidades ofrecen un tratamiento multidisciplinar que abarca tanto las lesiones físicas como las secuelas psicológicas, además de gestionar los trámites con las entidades aseguradoras de forma directa.",
+      "en": "Many hospital centers have a Traffic Accident Unit specialized in providing comprehensive assistance to road accident victims. These units offer multidisciplinary treatment covering both physical injuries and psychological consequences, while also managing procedures directly with insurance companies.",
+      "ru": "🎓 В Испании во многих госпиталях существуют специализированные «Отделения по ДТП» (Unidad de Accidentes de Tráfico). Они созданы для оказания комплексной медицинской помощи пострадавшим, включая лечение физических травм и психологическую поддержку. Важной особенностью является то, что эти подразделения напрямую взаимодействуют со страховыми компаниями, упрощая процесс получения помощи для водителя легкового автомобиля и его пассажиров. 🇷🇺 В РФ специализированных «отделений по ДТП» как отдельного административного звена в больницах нет; помощь оказывается в общих профильных отделениях. 💡 В госпиталь после ДТП спеши — в Unidad de Accidentes de Tráfico помогут от души!"
     },
     "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
     "schema_url": null,
@@ -1320,7 +1320,9 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "external_id": "262a394c-2399-4193-bd0d-f36ae7b0c113",
+    "id": "262a394c-2399-4193-bd0d-f36ae7b0c113"
   },
   {
     "topic_number": 8,
@@ -1328,16 +1330,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuál es la actuación correcta para ayudar en un accidente?",
-      "en": null,
-      "ru": null
+      "en": "What is the correct action to help in an accident?",
+      "ru": "Какое действие является правильным для оказания помощи при ДТП?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Proteger la zona para evitar nuevos accidentes.",
-          "en": null,
-          "ru": null
+          "en": "Protect the zone to avoid new accidents.",
+          "ru": "Оградить зону происшествия, чтобы избежать новых аварий."
         },
         "is_correct": true
       },
@@ -1345,8 +1347,8 @@
         "id": "b",
         "text": {
           "es": "Trasladar en mi vehículo a los heridos más graves al hospital más cercano.",
-          "en": null,
-          "ru": null
+          "en": "Transport the most seriously injured to the nearest hospital in my vehicle.",
+          "ru": "Отвезти наиболее тяжело пострадавших в ближайшую больницу на своем автомобиле."
         },
         "is_correct": false
       },
@@ -1354,16 +1356,16 @@
         "id": "c",
         "text": {
           "es": "No hacer nada hasta que lleguen los agentes de la Autoridad.",
-          "en": null,
-          "ru": null
+          "en": "Do nothing until the Authority agents arrive.",
+          "ru": "Ничего не делать до прибытия сотрудников правоохранительных органов."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La actuación en caso de siniestro se rige por la regla P.A.S. (Proteger, Avisar, Socorrer). El primer paso obligatorio es proteger la zona para evitar que se produzcan nuevos accidentes (señalización, inmovilización segura). El traslado de heridos en un vehículo particular está prohibido como norma general, ya que una manipulación incorrecta puede agravar lesiones medulares o cervicales. La omisión de socorro es un delito.",
+      "en": "Action in the event of an accident is governed by the P.A.S. rule (Protect, Alert, Succor). The first mandatory step is to protect the area to prevent new accidents (signaling, safe immobilization). Transporting the injured in a private vehicle is generally prohibited, as incorrect handling can aggravate spinal or cervical injuries. Failure to render aid is a crime.",
+      "ru": "🎓 Золотой стандарт действий при аварии — протокол **PAS** (Proteger, Avisar, Socorrer). Первым шагом ты обязан **Защитить** место ДТП (включить аварийку, выставить знак, надеть жилет), чтобы в вас не врезались другие машины. Перевозить раненых на своем автомобиле (Turismo) запрещено: без спецсредств тряска может превратить травму позвоночника в паралич. Ждать полицию сложа руки тоже нельзя — это уголовная статья «Оставление в опасности».\n\n💡 Правило ПАС: **П**ервым делом — **А**варию **С**делай заметной (Защити)!"
     },
     "image_url": "https://teorica.practicavial.com/question/c1f5b88c-ba7a-413b-8d91-f3238e35d81d-1658857973-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/c1f5b88c-ba7a-413b-8d91-f3238e35d81d-s-1.jpg",
@@ -1381,16 +1383,16 @@
     "category": "B",
     "question": {
       "es": "A un herido en accidente, ¿debe darle algún medicamento?",
-      "en": null,
-      "ru": null
+      "en": "Should you give any medication to a person injured in an accident?",
+      "ru": "Нужно ли давать какие-либо лекарства пострадавшему в аварии?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, porque así sufre menos y se tranquiliza.",
-          "en": null,
-          "ru": null
+          "en": "Yes, so they suffer less and calm down.",
+          "ru": "Да, чтобы он меньше страдал и успокоился."
         },
         "is_correct": false
       },
@@ -1398,8 +1400,8 @@
         "id": "b",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       },
@@ -1407,16 +1409,16 @@
         "id": "c",
         "text": {
           "es": "Cuando el herido me lo pida yo se lo daré.",
-          "en": null,
-          "ru": null
+          "en": "When the injured person asks for it, I will give it to them.",
+          "ru": "Я дам их, когда пострадавший меня об этом попросит."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Como norma general, no se debe suministrar ningún tipo de medicamento, bebida o alimento a los heridos en un accidente de tráfico. Esta prohibición se fundamenta en el riesgo de reacciones alérgicas, la posible interferencia con intervenciones quirúrgicas de urgencia que requieren ayuno, y el desconocimiento de lesiones internas en el aparato digestivo. La administración de fármacos es competencia exclusiva del personal sanitario.",
+      "en": "As a general rule, no medication, drink, or food should be administered to victims of a traffic accident. This prohibition is based on the risk of allergic reactions, potential interference with emergency surgical procedures that require fasting, and the possibility of internal injuries to the digestive system. Administering medication is the exclusive responsibility of medical personnel.",
+      "ru": "🎓 Как водителю легкового автомобиля (Turismo), тебе важно помнить: пострадавшим в ДТП категорически запрещено давать любые медикаменты, воду или соки. У человека может возникнуть непредсказуемая аллергическая реакция. Кроме того, если пострадавшему потребуется экстренная операция, его желудок должен быть абсолютно пустым для безопасного введения наркоза. Также при наличии внутренних травм органов пищеварения любое питье или таблетки могут резко ухудшить состояние. 💡 Таблетку не давай — врачей дожидай!"
     },
     "image_url": "https://teorica.practicavial.com/question/731f7376-5732-4aae-9351-5b016cfa4a63-1658858150-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/731f7376-5732-4aae-9351-5b016cfa4a63-s-1.jpg",
@@ -1434,16 +1436,16 @@
     "category": "B",
     "question": {
       "es": "Un conductor que, pese a poder hacerlo sin riesgo, no se detiene a ayudar a una víctima grave de accidente que se encuentra desamparada, ¿podría estar cometiendo un delito?",
-      "en": null,
-      "ru": null
+      "en": "Could a driver who, despite being able to do so without risk, fails to stop to assist a serious accident victim who is helpless, be committing a crime?",
+      "ru": "Может ли водитель, который, несмотря на возможность сделать это без риска, не останавливается для оказания помощи тяжело пострадавшему в ДТП, находящемуся в беспомощном состоянии, совершить преступление?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, aunque el conductor no esté implicado en el accidente.",
-          "en": null,
-          "ru": null
+          "en": "Yes, even if the driver is not involved in the accident.",
+          "ru": "Да, даже если водитель не причастен к ДТП."
         },
         "is_correct": true
       },
@@ -1451,8 +1453,8 @@
         "id": "b",
         "text": {
           "es": "No; ayudar a las víctimas es un gesto de solidaridad, pero no es un deber.",
-          "en": null,
-          "ru": null
+          "en": "No; helping victims is a gesture of solidarity, but not a duty.",
+          "ru": "Нет; помощь пострадавшим — это жест солидарности, но не обязанность."
         },
         "is_correct": false
       },
@@ -1460,16 +1462,16 @@
         "id": "c",
         "text": {
           "es": "Sí, pero solo si el conductor está implicado en el accidente.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but only if the driver is involved in the accident.",
+          "ru": "Да, но только если водитель причастен к ДТП."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Código Penal (artículo 195), incurre en un delito de omisión de socorro quien no socorriere a una persona que se halle desamparada y en peligro manifiesto y grave, cuando pudiere hacerlo sin riesgo propio ni de terceros. Esta obligación legal recae sobre cualquier usuario de la vía que presencie el accidente o tenga conocimiento del mismo, independientemente de si estuvo implicado en el suceso o no. La obligación solo cesa si la ayuda ya está organizada o la autoridad se encuentra presente.",
+      "en": "Under the Penal Code, the crime of 'omisión de socorro' (failure to assist) is committed by anyone who fails to help a person who is helpless and in manifest and serious danger, provided it can be done without risk to oneself or third parties. This legal obligation applies to any road user who witnesses the accident or becomes aware of it, regardless of whether they were involved in the incident. The duty to act is only waived if assistance is already organized or authorities are present at the scene.",
+      "ru": "🎓 Согласно Уголовному кодексу Испании, неоказание помощи (omisión de socorro) квалифицируется как преступление. Любой водитель, ставший свидетелем ДТП, ОБЯЗАН остановиться и помочь пострадавшим, если они находятся в опасности и беспомощны, при условии, что это можно сделать без риска для себя и других. Это требование распространяется на всех, а не только на участников аварии. Исключение составляют случаи, когда на месте уже работают экстренные службы или помощь явно организована.\n\n🇷🇺 В РФ уголовная ответственность за оставление в опасности (ст. 125 УК РФ) обычно применяется к виновникам или лицам, обязанным заботиться о пострадавшем, тогда как в Испании под уголовную статью попадает любой проехавший мимо свидетель.\n\n💡 Видишь беду и риска нет? Тормози — или тюрьма ждет!"
     },
     "image_url": "https://teorica.practicavial.com/question/df6a62a3-14df-454a-9528-2a41d5ed3547-1658856108-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/df6a62a3-14df-454a-9528-2a41d5ed3547-s-1.jpg",
@@ -1487,16 +1489,16 @@
     "category": "B",
     "question": {
       "es": "Ante un motorista accidentado con una hemorragia por la nariz, la actuación correcta es...",
-      "en": null,
-      "ru": null
+      "en": "Faced with an injured motorcyclist with a nosebleed, the correct action is...",
+      "ru": "При оказании помощи пострадавшему мотоциклисту с кровотечением из носа правильным действием будет..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "no realizarle nunca taponamientos.",
-          "en": null,
-          "ru": null
+          "en": "never perform tamponades (plugging).",
+          "ru": "никогда не делать тампонаду (не затыкать нос)."
         },
         "is_correct": true
       },
@@ -1504,8 +1506,8 @@
         "id": "b",
         "text": {
           "es": "retirarle el casco para realizarle un taponamiento.",
-          "en": null,
-          "ru": null
+          "en": "remove the helmet to perform a tamponade.",
+          "ru": "снять шлем, чтобы сделать тампонаду."
         },
         "is_correct": false
       },
@@ -1513,16 +1515,16 @@
         "id": "c",
         "text": {
           "es": "colocarle boca arriba para que deje de sangrar.",
-          "en": null,
-          "ru": null
+          "en": "place them face up so the bleeding stops.",
+          "ru": "положить его на спину, чтобы остановить кровотечение."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "En el contexto de primeros auxilios en accidentes de tráfico, si un herido presenta una hemorragia por la nariz (epistaxis), la norma establece no realizar nunca taponamientos con algodón o gasas. Taponar la salida de sangre podría provocar infecciones graves o aumentar la presión intracraneal si existiera una fractura en la base del cráneo. La hemorragia debe cesar por sí sola o ser tratada por profesionales; además, no se debe retirar el casco salvo que sea imprescindible para la reanimación cardiopulmonar.",
+      "en": "In the context of first aid in traffic accidents, if an injured person presents with a nosebleed (epistaxis), the rule establishes never to perform tamponades (plugging) with cotton or gauze. Plugging the blood flow could cause serious infections or increase intracranial pressure if there is a fracture at the base of the skull. The bleeding must stop on its own or be treated by professionals; furthermore, the helmet should not be removed unless absolutely essential for cardiopulmonary resuscitation.",
+      "ru": "🎓 Если у пострадавшего в ДТП (особенно мотоциклиста) идет кровь из носа, ни в коем случае не пытайся остановить её с помощью тампонов, ваты или ткани. При сильном ударе головой это может быть признаком перелома основания черепа, и блокировка выхода крови приведет к опасному повышению внутричерепного давления или инфекции. Кровь должна выходить наружу свободно. Также запрещено снимать шлем только ради осмотра носа или класть пострадавшего на спину (риск захлебнуться).\n\n💡 Авария и кровь из носа? Никаких тампонов и вопросов!"
     },
     "image_url": "https://teorica.practicavial.com/question/ef092d7f-89cf-4ac8-9c36-72a81f4c63e1-1658858200-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/ef092d7f-89cf-4ac8-9c36-72a81f4c63e1-s-1.jpg",
@@ -1540,16 +1542,16 @@
     "category": "B",
     "question": {
       "es": "Si un conductor presencia un accidente de tráfico, ¿está obligado a prestar auxilio a los accidentados?",
-      "en": null,
-      "ru": null
+      "en": "If a driver witnesses a traffic accident, is he or she obliged to provide assistance to the victims?",
+      "ru": "Если водитель стал свидетелем дорожно-транспортного происшествия, обязан ли он оказать помощь пострадавшим?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Solo si alguien solicita su colaboración.",
-          "en": null,
-          "ru": null
+          "en": "Only if someone requests their collaboration.",
+          "ru": "Только если кто-то попросит о сотрудничестве."
         },
         "is_correct": false
       },
@@ -1557,8 +1559,8 @@
         "id": "b",
         "text": {
           "es": "Sí, como norma general.",
-          "en": null,
-          "ru": null
+          "en": "Yes, as a general rule.",
+          "ru": "Да, как общее правило."
         },
         "is_correct": true
       },
@@ -1566,16 +1568,16 @@
         "id": "c",
         "text": {
           "es": "No, excepto si está implicado en el accidente.",
-          "en": null,
-          "ru": null
+          "en": "No, unless they are involved in the accident.",
+          "ru": "Нет, за исключением случаев, когда он является участником аварии."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, todo usuario de la vía que esté implicado en un accidente de tráfico, lo presencie o tenga conocimiento de él, está obligado a auxiliar o solicitar auxilio para atender a las víctimas que pueda haber. Esta obligación solo cesa cuando la ayuda ya esté organizada por los servicios de emergencia o la autoridad, y la presencia del usuario no sea claramente necesaria. El incumplimiento de este deber puede constituir un delito de omisión del deber de socorro tipificado en el Código Penal.",
+      "en": "According to the General Traffic Regulations, every road user involved in, witnessing, or having knowledge of a traffic accident is obliged to provide aid or request assistance for any victims. This obligation only ceases when assistance is already organized by emergency services or authorities, and the user's presence is clearly not necessary. Failure to comply with this duty can constitute a crime of omission of the duty to assist as defined in the Penal Code.",
+      "ru": "🎓 Любой участник дорожного движения, будь то водитель легкового автомобиля или свидетель, обязан оказать помощь пострадавшим в ДТП. Ты должен остановиться, обезопасить место происшествия и вызвать службу спасения. Эта обязанность снимается только тогда, когда на месте уже работает полиция или помощь уже организована другими людьми и твое присутствие явно не требуется. Игнорирование этой обязанности квалифицируется как уголовное преступление — неоказание помощи. 💡 Видишь беду — не проезжай, делом или звонком пострадавшим помогай!"
     },
     "image_url": "https://teorica.practicavial.com/question/fa929a27-755f-4df5-83ae-17b598689c88-1658856044-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/fa929a27-755f-4df5-83ae-17b598689c88-s-1.jpg",

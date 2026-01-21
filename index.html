@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <!-- КРИТИЧНО: Viewport для Telegram Mini App - предотвращает схлопывание шторки -->
   <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <!-- Theme color для браузерных панелей - темная тема (zinc-950) -->
   <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
@@ -320,9 +320,8 @@
       }
     }
 
-    /* Скрываем скелетон когда React загрузился */
-    #root:not(:empty)+.app-skeleton,
-    #root.react-loaded+.app-skeleton {
+    /* Скрываем скелетон только явно через JS (StartupCurtain) */
+    .app-skeleton.fade-out {
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.5s ease-out;
@@ -418,6 +417,7 @@
 
   <!-- Monetag Native Banner (Interstitial) SDK (для веб-версии - Rewarded Video) -->
   <!-- Zone ID: 10323437 (Skillful tag) - используется как Rewarded Video -->
+  <!-- 
   <script>
     // ОПТИМИЗАЦИЯ: Monetag загружается с задержкой после LCP
     setTimeout(function () {
@@ -427,11 +427,66 @@
         s.dataset.sdk = 'show_10323437';
       })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
     }, 2000);
-  </script>
+  </script> 
+  -->
 
   <!-- КРИТИЧНО: Загружаем Telegram SDK только если мы действительно в Telegram или на localhost (для мока) -->
   <script>
     (function () {
+      // MOCK MONETAG & AD SYSTEMS ON LOCALHOST (ROBUST VERSION)
+      // Это предотвращает загрузку внешних скриптов (vignette.min.js), которые ломают IndexedDB и WebSocket
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('[Dev] 🛡️ Mocking Ad Systems to prevent crashes (Protocol v3)');
+
+        // Mock Monetag Functions
+        window.show_10323437 = function () { console.log('[Dev] Mock Monetag Interstitial shown'); return Promise.resolve(true); };
+        window.show_10323643 = function () { console.log('[Dev] Mock Monetag Rewarded shown'); return Promise.resolve(true); };
+
+        // 1. Monkey Patch document.createElement
+        const originalCreateElement = document.createElement;
+        document.createElement = function (tagName) {
+          const element = originalCreateElement.call(document, tagName);
+          if (tagName.toLowerCase() === 'script') {
+            Object.defineProperty(element, 'src', {
+              set: function (url) {
+                if (url && (typeof url === 'string') && (url.includes('monetag') || url.includes('groleegni') || url.includes('gizokraijaw') || url.includes('vignette'))) {
+                  console.warn('[Dev] 🛡️ Blocked Ad Script (createElement):', url);
+                  return; // Block assignment
+                }
+                this.setAttribute('src', url);
+              },
+              get: function () { return this.getAttribute('src'); }
+            });
+          }
+          return element;
+        };
+
+        // 2. Monkey Patch appendChild and insertBefore
+        const isAdScript = (node) => {
+          if (node && node.tagName === 'SCRIPT') {
+            const src = node.src || node.getAttribute('src');
+            if (src && (src.includes('monetag') || src.includes('groleegni') || src.includes('gizokraijaw') || src.includes('vignette'))) {
+              console.warn('[Dev] 🛡️ Blocked Ad Script (DOM Injection):', src);
+              if (node.parentNode) node.remove(); // Remove if already attached
+              return true;
+            }
+          }
+          return false;
+        };
+
+        const originalAppendChild = Node.prototype.appendChild;
+        Node.prototype.appendChild = function (child) {
+          if (isAdScript(child)) return child;
+          return originalAppendChild.call(this, child);
+        };
+
+        const originalInsertBefore = Node.prototype.insertBefore;
+        Node.prototype.insertBefore = function (newNode, referenceNode) {
+          if (isAdScript(newNode)) return newNode;
+          return originalInsertBefore.call(this, newNode, referenceNode);
+        };
+      }
+
       const isTelegram = window.location.hash.includes('tgWebAppData') ||
         window.location.search.includes('tgWebAppPlatform') ||
         window.location.hostname === 'localhost' ||

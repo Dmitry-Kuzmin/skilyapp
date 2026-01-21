@@ -1,0 +1,1472 @@
+[
+  {
+    "topic_number": 1,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿Qué es un cuadriciclo ligero?",
+      "en": "What is a light quadricycle?",
+      "ru": "Что такое легкий квадрицикл?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Un automóvil de cuatro ruedas cuya masa en vacio es inferior o igual a 400 kg.",
+          "en": "A four-wheeled car whose unladen mass is less than or equal to 400 kg.",
+          "ru": "Четырехколесный автомобиль, масса которого без нагрузки не превышает 400 кг."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Un vehículo de motor de cuatro ruedas con cilindrada no superior a 50 centímetros cúbicos.",
+          "en": "A four-wheeled motor vehicle with a cylinder capacity not exceeding 50 cubic centimeters.",
+          "ru": "Четырехколесное транспортное средство с двигателем, объем цилиндра которого не превышает 50 кубических сантиметров."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Un vehículo de cuatro ruedas cuya masa en vacio es inferior a 350 kg, con velocidad no superior a 45 km/h y un motor de cilindrada inferior o igual a 50 centímetros cúbicos.",
+          "en": "A four-wheeled vehicle whose unladen mass is less than 350 kg, with a speed not exceeding 45 km/h and an engine with a cylinder capacity of less than or equal to 50 cubic centimeters.",
+          "ru": "Четырехколесное транспортное средство, масса которого без нагрузки менее 350 кг, с максимальной скоростью не более 45 км/ч и двигателем с объемом цилиндра не более 50 кубических сантиметров."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Un cuadriciclo ligero es un vehículo de cuatro ruedas cuya masa en vacío es inferior a 350 kg, con una velocidad máxima de 45 km/h y un motor de cilindrada igual o inferior a 50 centímetros cúbicos. Está clasificado como un tipo específico de vehículo y está sujeto a regulaciones específicas.",
+      "en": "A light quadricycle is a four-wheeled vehicle with an unladen mass of less than 350 kg, a maximum speed of 45 km/h, and an engine with a cylinder capacity equal to or less than 50 cubic centimeters. It is classified as a specific type of vehicle and is subject to specific regulations.",
+      "ru": "Легкий квадрицикл — это четырехколесное транспортное средство, масса которого без нагрузки составляет менее 350 кг, с максимальной скоростью 45 км/ч и двигателем с объемом цилиндра не более 50 кубических сантиметров. Он классифицируется как особый тип транспортного средства и подпадает под действие специальных правил."
+    },
+    "image_url": "https://teorica.practicavial.com/question/be96fba7-e364-443f-a92e-3eae5faba9e2-1649181180-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/be96fba7-e364-443f-a92e-3eae5faba9e2-s-1.jpg",
+    "source": "practicavial",
+    "id": "be96fba7-e364-443f-a92e-3eae5faba9e2",
+    "external_id": "be96fba7-e364-443f-a92e-3eae5faba9e2"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "En esta carretera convencional, ¿cuál es la velocidad máxima permitida para turismos, como norma general?",
+      "en": "On this conventional road, what is the maximum speed allowed for passenger cars, as a general rule?",
+      "ru": "Какова максимально разрешенная скорость для легковых автомобилей на этой обычной дороге?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "100 km/h.",
+          "en": "100 km/h.",
+          "ru": "100 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "80 km/h.",
+          "en": "80 km/h.",
+          "ru": "80 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "90 km/h.",
+          "en": "90 km/h.",
+          "ru": "90 км/ч."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "En una carretera convencional, la velocidad máxima permitida para un turismo, como norma general, es de 90 km/h. Esta velocidad está estipulada en el Reglamento General de Circulación y debe ser respetada para garantizar la seguridad vial.",
+      "en": "On a conventional road, the maximum speed allowed for a passenger car, as a general rule, is 90 km/h. This speed is stipulated in the General Traffic Regulations and must be respected to ensure road safety.",
+      "ru": "🎓 На обычной дороге (carretera convencional) максимальная разрешенная скорость для легкового автомобиля (Turismo) составляет 90 км/ч. Это общее правило, установленное регламентом дорожного движения Испании. Соблюдение этого скоростного режима необходимо для обеспечения безопасности."
+    },
+    "image_url": "https://teorica.practicavial.com/question/b185c0c6-692a-4e5c-a342-debe66ee3e97-1653064213-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b185c0c6-692a-4e5c-a342-debe66ee3e97-s-1.jpg",
+    "source": "practicavial",
+    "id": "b185c0c6-692a-4e5c-a342-debe66ee3e97",
+    "external_id": "b185c0c6-692a-4e5c-a342-debe66ee3e97"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "En un vehículo de movilidad personal, ¿puede sustituirse alguna luz por un catadióptrico?",
+      "en": "On a personal mobility vehicle, can any light be replaced by a reflector?",
+      "ru": "На средстве индивидуальной мобильности (СИМ) можно ли заменить какой-либо фонарь на световозвращатель?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, la delantera.",
+          "en": "Yes, the front one.",
+          "ru": "Да, передний."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, la trasera.",
+          "en": "Yes, the rear one.",
+          "ru": "Да, задний."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, ninguna.",
+          "en": "No, none.",
+          "ru": "Нет, никакую."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según la normativa vigente, en un vehículo de movilidad personal (VMP) no se permite sustituir ninguna luz por un catadióptrico. Los VMP deben estar equipados con los sistemas de iluminación y señalización óptica reglamentarios para garantizar su visibilidad y seguridad en la vía pública. La sustitución de una luz por un catadióptrico comprometería la visibilidad del VMP, especialmente en condiciones de baja luminosidad.",
+      "en": "According to current regulations, on a personal mobility vehicle (VMP), it is not allowed to replace any light with a reflector. VMPs must be equipped with the mandatory lighting and optical signaling systems to ensure their visibility and safety on public roads. Replacing a light with a reflector would compromise the visibility of the VMP, especially in low light conditions.",
+      "ru": "🎓 Согласно действующим нормам, на средствах индивидуальной мобильности (СИМ) замена любого фонаря на световозвращатель не допускается. СИМ должны быть оборудованы обязательными системами освещения и оптической сигнализации для обеспечения их видимости и безопасности на дорогах общего пользования. Замена фонаря на световозвращатель поставит под угрозу видимость СИМ, особенно в условиях низкой освещенности."
+    },
+    "image_url": "https://teorica.practicavial.com/question/94e6ca16-d671-4242-b2fe-6505984cb304-1734361265-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/94e6ca16-d671-4242-b2fe-6505984cb304-s-1.jpg?t=1768425513",
+    "source": "practicavial",
+    "id": "94e6ca16-d671-4242-b2fe-6505984cb304",
+    "external_id": "94e6ca16-d671-4242-b2fe-6505984cb304"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "A un turismo, ¿le está permitido circular por el arcén de una autopista?",
+      "en": "Is a passenger car allowed to drive on the shoulder of a highway?",
+      "ru": "Разрешено ли легковому автомобилю двигаться по обочине автомагистрали?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": "No, under no circumstances.",
+          "ru": "Нет, ни в коем случае."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, salvo cuando por razones de emergencia circule a velocidad anormalmente reducida y pueda ser un obstáculo.",
+          "en": "No, except when, due to emergency reasons, it is moving at an abnormally reduced speed and may be an obstacle.",
+          "ru": "Нет, за исключением случаев, когда по причине аварийной ситуации он движется с ненормально низкой скоростью и может создавать препятствие."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, si va a abandonar la vía por un carril de deceleración.",
+          "en": "Yes, if it is going to leave the road via a deceleration lane.",
+          "ru": "Да, если он собирается покинуть дорогу по полосе торможения."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, un turismo no puede circular por el arcén de una autopista. Sin embargo, se permite en situaciones de emergencia, cuando el vehículo circula a una velocidad anormalmente reducida y puede ser un obstáculo para la circulación. En tal caso, debe circular por el arcén hasta que pueda abandonar la autopista por la primera salida disponible.",
+      "en": "According to the General Traffic Regulations, a passenger car may not drive on the shoulder of a highway. However, it is permitted in emergency situations, when the vehicle is moving at an abnormally reduced speed and may be an obstacle to traffic. In such a case, it must drive on the shoulder until it can leave the highway at the first available exit.",
+      "ru": "Легковому автомобилю запрещено движение по обочине автомагистрали. Исключение составляют аварийные ситуации, когда автомобиль движется с аномально низкой скоростью и может создавать помехи для движения. В этом случае необходимо двигаться по обочине до тех пор, пока не появится возможность покинуть автомагистраль на ближайшем съезде."
+    },
+    "image_url": "https://teorica.practicavial.com/question/5eff7f53-456e-4013-bf09-e74dcd18c98b-1652207354-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5eff7f53-456e-4013-bf09-e74dcd18c98b-s-1.jpg",
+    "source": "practicavial",
+    "id": "5eff7f53-456e-4013-bf09-e74dcd18c98b",
+    "external_id": "5eff7f53-456e-4013-bf09-e74dcd18c98b"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "¿Qué vehículos pueden circular por un carril de sentido contrario al habitual, como norma general?",
+      "en": "Which vehicles can circulate in a lane in the opposite direction to the usual one, as a general rule?",
+      "ru": "Какие транспортные средства могут двигаться по полосе, предназначенной для движения в направлении, противоположном обычному, как правило?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Turismos y motocicletas.",
+          "en": "Passenger cars and motorcycles.",
+          "ru": "Легковые автомобили и мотоциклы."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Turismos, con o sin remolque, y motocicletas.",
+          "en": "Passenger cars, with or without a trailer, and motorcycles.",
+          "ru": "Легковые автомобили, с прицепом или без, и мотоциклы."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cualquier vehículo.",
+          "en": "Any vehicle.",
+          "ru": "Любое транспортное средство."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Como norma general, en un carril de sentido contrario al habitual, solo pueden circular turismos y motocicletas. Estos vehículos deben circular con la luz de cruce encendida tanto de día como de noche y a una velocidad entre 60 y 80 km/h.",
+      "en": "As a general rule, only passenger cars and motorcycles can circulate in a lane in the opposite direction to the usual one. These vehicles must circulate with the low beam headlights on both day and night and at a speed between 60 and 80 km/h.",
+      "ru": "Как правило, по полосе, предназначенной для движения в направлении, противоположном обычному, могут двигаться только легковые автомобили и мотоциклы. Эти транспортные средства должны двигаться с включенным ближним светом фар как днем, так и ночью, со скоростью от 60 до 80 км/ч."
+    },
+    "image_url": "https://teorica.practicavial.com/question/7599116f-a1e5-44df-a5cf-ed564f633b85-1652202964-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7599116f-a1e5-44df-a5cf-ed564f633b85-s-1.jpg",
+    "source": "practicavial",
+    "id": "7599116f-a1e5-44df-a5cf-ed564f633b85",
+    "external_id": "7599116f-a1e5-44df-a5cf-ed564f633b85"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "En un estrechamiento sin señales de prioridad se encuentran un turismo que arrastra un remolque y un autobús, sin que se sepa cual entró primero, ¿qué vehículo tiene preferencia?",
+      "en": "In a narrow section of road without priority signs, a passenger car towing a trailer and a bus meet, and it is not known which entered first. Which vehicle has priority?",
+      "ru": "На сужении дороги без знаков приоритета встретились легковой автомобиль с прицепом и автобус, и неизвестно, кто въехал первым. У кого приоритет?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El autobús.",
+          "en": "The bus.",
+          "ru": "Автобус."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El turismo que arrastra el remolque.",
+          "en": "The passenger car towing the trailer.",
+          "ru": "Легковой автомобиль с прицепом."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El que tenga que dar marcha atrás más distancia.",
+          "en": "The one that has to reverse a greater distance.",
+          "ru": "Тот, кому нужно проехать задним ходом большее расстояние."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "En un estrechamiento sin señalización, la prioridad se determina según el orden establecido. En este caso, un turismo con remolque ligero tiene preferencia sobre un autobús.",
+      "en": "In a narrowing without signs, priority is determined according to the established order. In this case, a passenger car with a light trailer has priority over a bus.",
+      "ru": "🎓 На сужении дороги без знаков приоритета очередность проезда определяется по следующим правилам. Приоритет имеют: 1) Специальные транспортные средства, превышающие нормальные габариты и массу. 2) Транспортные средства, представляющие собой группу (за исключением пункта 4). 3) Транспортные средства, буксирующие животных. 4) Легковой автомобиль с прицепом (до 750 кг) и автодома. 5) Автобусы. Таким образом, легковой автомобиль с прицепом имеет приоритет перед автобусом."
+    },
+    "image_url": "https://teorica.practicavial.com/question/3d077938-f4a9-4d91-9f5d-b6b67d409471-1657732522-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3d077938-f4a9-4d91-9f5d-b6b67d409471-s-1.jpg",
+    "source": "practicavial",
+    "id": "3d077938-f4a9-4d91-9f5d-b6b67d409471",
+    "external_id": "3d077938-f4a9-4d91-9f5d-b6b67d409471"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "Fuera de poblado, al acercarse a un vehículo inmovilizado en la calzada, ¿qué precauciones se deben tomar?",
+      "en": "Outside a built-up area, when approaching a vehicle immobilized on the road, what precautions should be taken?",
+      "ru": "Приближаясь к неподвижному транспортному средству на проезжей части вне населенного пункта, какие меры предосторожности следует предпринять?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Mantener la velocidad y estar atento al cumplimiento de la señalización vertical.",
+          "en": "Maintain speed and be attentive to compliance with vertical signs.",
+          "ru": "Поддерживать скорость и быть внимательным к соблюдению вертикальной дорожной разметки."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Ninguna si no vienen vehículos en sentido contrario.",
+          "en": "None if there are no vehicles coming in the opposite direction.",
+          "ru": "Никаких, если нет встречных транспортных средств."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Moderar la velocidad y si fuera preciso, detener el vehículo.",
+          "en": "Reduce speed and, if necessary, stop the vehicle.",
+          "ru": "Снизить скорость и, при необходимости, остановить транспортное средство."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según la normativa de la DGT, al acercarse a un vehículo inmovilizado en la calzada fuera de poblado, es imperativo moderar la velocidad. Esta precaución permite al conductor reaccionar adecuadamente ante cualquier imprevisto, como la presencia de personas alrededor del vehículo o la necesidad de evitar una colisión. En caso de ser necesario, la detención del vehículo es una medida de seguridad esencial para prevenir accidentes.",
+      "en": "According to DGT regulations, when approaching a vehicle immobilized on the road outside a built-up area, it is imperative to reduce speed. This precaution allows the driver to react appropriately to any unforeseen event, such as the presence of people around the vehicle or the need to avoid a collision. If necessary, stopping the vehicle is an essential safety measure to prevent accidents.",
+      "ru": "🎓 Согласно ПДД Испании, при приближении к неподвижному транспортному средству на проезжей части вне населенного пункта, обязательно снижайте скорость. Эта мера предосторожности позволяет водителю адекватно реагировать на любые непредвиденные обстоятельства, такие как присутствие людей вокруг транспортного средства или необходимость избежать столкновения. В случае необходимости остановка транспортного средства является важной мерой безопасности для предотвращения несчастных случаев."
+    },
+    "image_url": "https://teorica.practicavial.com/question/3c673409-79dd-4511-8754-587d03ba5ba6-1658136962-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3c673409-79dd-4511-8754-587d03ba5ba6-s-1.jpg",
+    "source": "practicavial",
+    "id": "3c673409-79dd-4511-8754-587d03ba5ba6",
+    "external_id": "3c673409-79dd-4511-8754-587d03ba5ba6"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "Si un conductor circula a velocidad inadecuada, ¿lo hace siempre por encima de la velocidad máxima permitida o por debajo de la velocidad mínima establecida?",
+      "en": "If a driver is traveling at an inappropriate speed, is it always above the maximum speed limit or below the minimum speed limit?",
+      "ru": "Если водитель движется с неподходящей скоростью, это всегда выше максимальной разрешенной скорости или ниже установленной минимальной скорости?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, la velocidad inadecuada siempre es inferior a la velocidad mínima establecida.",
+          "en": "Yes, an inappropriate speed is always below the minimum speed limit.",
+          "ru": "Да, неподходящая скорость всегда ниже минимально установленной скорости."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, la velocidad inadecuada siempre es superior a la velocidad máxima establecida.",
+          "en": "Yes, an inappropriate speed is always above the maximum speed limit.",
+          "ru": "Да, неподходящая скорость всегда выше максимально установленной скорости."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, la velocidad puede ser inadecuada aunque esté dentro de los límites establecidos.",
+          "en": "No, the speed may be inappropriate even if it is within the established limits.",
+          "ru": "Нет, скорость может быть неподходящей, даже если она находится в установленных пределах."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "La velocidad inadecuada se define como aquella que no se ajusta a las circunstancias concurrentes del momento, como el estado de la vía, las condiciones meteorológicas, el estado del vehículo o la propia condición del conductor. Por lo tanto, un conductor puede circular dentro de los límites de velocidad establecidos y, aun así, estar circulando a una velocidad inadecuada.",
+      "en": "Inappropriate speed is defined as that which does not adjust to the concurrent circumstances of the moment, such as the state of the road, weather conditions, the state of the vehicle, or the driver's own condition. Therefore, a driver can drive within the established speed limits and still be driving at an inappropriate speed.",
+      "ru": "🎓 Неподходящая скорость – это та, которая не соответствует текущим обстоятельствам: состоянию дороги, погодным условиям, состоянию транспортного средства или состоянию самого водителя. Таким образом, водитель может двигаться в пределах установленных ограничений скорости, но при этом двигаться с неподходящей скоростью."
+    },
+    "image_url": "https://teorica.practicavial.com/question/cecc231f-270f-4451-82e0-cf06f9c07edf-1658136606-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cecc231f-270f-4451-82e0-cf06f9c07edf-s-1.jpg",
+    "source": "practicavial",
+    "id": "cecc231f-270f-4451-82e0-cf06f9c07edf",
+    "external_id": "cecc231f-270f-4451-82e0-cf06f9c07edf"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, ¿cuál es la parte de la carretera destinada a la circulación de turismos?",
+      "en": "As a general rule, what part of the road is intended for the circulation of passenger cars?",
+      "ru": "Как правило, какая часть дороги предназначена для движения легковых автомобилей?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La calzada.",
+          "en": "The roadway.",
+          "ru": "Проезжая часть."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La mediana.",
+          "en": "The median.",
+          "ru": "Разделительная полоса."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Los carriles y arcenes.",
+          "en": "The lanes and shoulders.",
+          "ru": "Полосы движения и обочины."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "La calzada es la parte de la carretera destinada a la circulación de vehículos. No se consideran calzada el arcén, ni la mediana.",
+      "en": "The roadway is the part of the road intended for the circulation of vehicles. The shoulder and the median are not considered roadways.",
+      "ru": "🎓 Проезжая часть — это часть дороги, предназначенная для движения транспортных средств. Обочина и разделительная полоса не являются частью проезжей части."
+    },
+    "image_url": "https://teorica.practicavial.com/question/9783d30f-c0e3-44e4-ba86-52956d4571dd-1650386828-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9783d30f-c0e3-44e4-ba86-52956d4571dd-s-1.jpg",
+    "source": "practicavial",
+    "id": "9783d30f-c0e3-44e4-ba86-52956d4571dd",
+    "external_id": "9783d30f-c0e3-44e4-ba86-52956d4571dd"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "En esta carretera convencional con arcén transitable, ¿por dónde debe circular un ciclomotor?",
+      "en": "On this conventional road with a passable shoulder, where should a moped circulate?",
+      "ru": "По какой части этой обычной дороги с пригодной для движения обочиной должен двигаться мопед?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por el centro de la calzada o por el arcén de la derecha.",
+          "en": "In the center of the road or on the right shoulder.",
+          "ru": "По центру проезжей части или по правой обочине."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Por la calzada, lo más cerca posible del borde derecho.",
+          "en": "On the road, as close as possible to the right edge.",
+          "ru": "По проезжей части, как можно ближе к правому краю."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Por el arcén de la derecha.",
+          "en": "On the right shoulder.",
+          "ru": "По правой обочине."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según la normativa, los ciclomotores deben circular por el arcén derecho si es transitable y suficiente. Esta obligación se aplica para mejorar la seguridad vial, permitiendo que estos vehículos más lentos no obstaculicen el tráfico general en la calzada.",
+      "en": "According to regulations, mopeds must circulate on the right shoulder if it is passable and sufficient. This obligation is applied to improve road safety, allowing these slower vehicles not to obstruct general traffic on the road.",
+      "ru": "🎓 Согласно ПДД Испании, мопеды должны двигаться по правой обочине, если она пригодна для движения и достаточна по ширине. Это делается для повышения безопасности, чтобы более медленные транспортные средства не мешали основному потоку на проезжей части. Также по обочине могут двигаться велосипедисты, транспортные средства для инвалидов, транспортные средства, буксируемые животными, и специальные транспортные средства РММ до 3500 кг."
+    },
+    "image_url": "https://teorica.practicavial.com/question/2fd120b8-a1a1-48c6-a7c7-33dc8c70fdb4-1652204406-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2fd120b8-a1a1-48c6-a7c7-33dc8c70fdb4-s-1.jpg",
+    "source": "practicavial",
+    "id": "2fd120b8-a1a1-48c6-a7c7-33dc8c70fdb4",
+    "external_id": "2fd120b8-a1a1-48c6-a7c7-33dc8c70fdb4"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "Por obras en la calzada se ha abierto un carril en sentido contrario al normal. ¿Puede circular por él un turismo con remolque?",
+      "en": "A lane has been opened in the opposite direction to normal due to roadworks. Can a passenger car with a trailer use it?",
+      "ru": "Из-за дорожных работ на проезжей части открыта полоса, предназначенная для движения в направлении, противоположном обычному. Разрешено ли движение по ней легковому автомобилю с прицепом?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, pero solo si el remolque es ligero.",
+          "en": "Yes, but only if the trailer is light.",
+          "ru": "Да, но только если прицеп легкий."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, sólo pueden hacerlo turismos y motocicletas.",
+          "en": "No, only passenger cars and motorcycles can do so.",
+          "ru": "Нет, это разрешено только легковым автомобилям и мотоциклам."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, cuando no lo prohíban otras señales.",
+          "en": "Yes, when other signs do not prohibit it.",
+          "ru": "Да, если это не запрещено другими знаками."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según la normativa, un turismo con remolque puede circular por un carril habilitado en sentido contrario al habitual por obras, siempre y cuando no exista una señalización específica que lo prohíba. Es fundamental atender a las señales de tráfico temporales que regulan la circulación en la zona de obras.",
+      "en": "According to the regulations, a passenger car with a trailer can travel in a lane enabled in the opposite direction to the usual one due to road works, as long as there is no specific signage prohibiting it. It is essential to pay attention to the temporary traffic signs that regulate traffic in the construction area.",
+      "ru": "Согласно правилам, легковой автомобиль с прицепом может двигаться по полосе, открытой в направлении, противоположном обычному из-за дорожных работ, если нет специальных знаков, запрещающих это. Важно обращать внимание на временные дорожные знаки, регулирующие движение в зоне проведения работ. На таком участке дороги максимальная скорость движения составляет 80 км/ч, минимальная – 60 км/ч."
+    },
+    "image_url": "https://teorica.practicavial.com/question/4dfa3bbc-5987-48ab-862c-d03cdc3cf9bc-1652204191-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4dfa3bbc-5987-48ab-862c-d03cdc3cf9bc-s-1.jpg",
+    "source": "practicavial",
+    "id": "4dfa3bbc-5987-48ab-862c-d03cdc3cf9bc",
+    "external_id": "4dfa3bbc-5987-48ab-862c-d03cdc3cf9bc"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "Un camión de menos de 3.500 kg de MMA, ¿a qué velocidad máxima puede circular por autovía?",
+      "en": "What is the maximum speed at which a truck with an MMA of less than 3,500 kg can travel on a highway?",
+      "ru": "С какой максимальной скоростью может двигаться по автомагистрали грузовик с РММ менее 3500 кг?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A 90 km/h.",
+          "en": "A 90 km/h.",
+          "ru": "90 км/ч."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A 120 km/h.",
+          "en": "A 120 km/h.",
+          "ru": "120 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A 100 km/h.",
+          "en": "A 100 km/h.",
+          "ru": "100 км/ч."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según la normativa de la DGT, un camión con una MMA inferior a 3.500 kg tiene una velocidad máxima permitida de 90 km/h en autopista o autovía. Esta velocidad está establecida para garantizar la seguridad vial y la correcta circulación de vehículos de este tipo en vías de alta velocidad.",
+      "en": "According to DGT regulations, a truck with an MMA of less than 3,500 kg has a maximum permitted speed of 90 km/h on a highway or motorway. This speed is established to guarantee road safety and the correct circulation of vehicles of this type on high-speed roads.",
+      "ru": "Согласно правилам дорожного движения Испании, грузовые автомобили с разрешенной максимальной массой (РММ) менее 3500 кг имеют ограничение скорости на автомагистралях и скоростных дорогах — 90 км/ч. Это ограничение введено для обеспечения безопасности и оптимального движения таких транспортных средств на дорогах с высокой скоростью."
+    },
+    "image_url": "https://teorica.practicavial.com/question/277b5ebc-7703-4d23-b77e-e66abfa04d77-1653062293-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/277b5ebc-7703-4d23-b77e-e66abfa04d77-s-1.jpg",
+    "source": "practicavial",
+    "id": "277b5ebc-7703-4d23-b77e-e66abfa04d77",
+    "external_id": "277b5ebc-7703-4d23-b77e-e66abfa04d77"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "En el túnel de la imagen, si no pretende adelantar, ¿qué distancia de seguridad debe mantener con el vehículo de delante?",
+      "en": "In the tunnel shown in the image, if you do not intend to overtake, what safety distance must you maintain with the vehicle in front?",
+      "ru": "В туннеле, изображенном на картинке, если вы не собираетесь совершать обгон, какую безопасную дистанцию вы должны соблюдать с транспортным средством впереди?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "100 metros, como mínimo.",
+          "en": "100 meters, at least.",
+          "ru": "Не менее 100 метров."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La que permita una visibilidad suficiente.",
+          "en": "That which allows sufficient visibility.",
+          "ru": "Дистанцию, обеспечивающую достаточную видимость."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "200 metros, como mínimo.",
+          "en": "200 meters, at least.",
+          "ru": "Не менее 200 метров."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "En un túnel, si no tiene intención de adelantar, debe mantener una distancia de seguridad de al menos 100 metros con el vehículo que le precede. Esta distancia es obligatoria para vehículos con una MMA de hasta 3.500 kg. No mantener esta distancia se considera una infracción grave.",
+      "en": "In a tunnel, if you do not intend to overtake, you must maintain a safety distance of at least 100 meters from the vehicle in front of you. This distance is mandatory for vehicles with a MMA of up to 3,500 kg. Failure to maintain this distance is considered a serious infraction.",
+      "ru": "В туннеле, если ты не собираешься совершать обгон, обязан держать дистанцию не менее 100 метров до впереди идущего транспортного средства. Это обязательное расстояние для легковых автомобилей и фургонов с разрешенной максимальной массой до 3500 кг. Несоблюдение этой дистанции считается серьезным нарушением."
+    },
+    "image_url": "https://teorica.practicavial.com/question/495b3242-0f14-433e-836d-1db9601a074b-1652271674-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/495b3242-0f14-433e-836d-1db9601a074b-s-1.jpg",
+    "source": "practicavial",
+    "id": "495b3242-0f14-433e-836d-1db9601a074b",
+    "external_id": "495b3242-0f14-433e-836d-1db9601a074b"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "En vías divididas en tres calzadas, la central podrá estar destinada a la circulación en...",
+      "en": "On roads divided into three roadways, the central one may be intended for traffic in...",
+      "ru": "На дорогах, разделенных на три проезжие части, центральная может быть предназначена для движения в..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "los dos sentidos o en sentido único, según disponga la señalización.",
+          "en": "both directions or one way, as indicated by signage.",
+          "ru": "двух направлениях или в одном направлении, в зависимости от указаний знаков."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "sentido único, en cualquier caso.",
+          "en": "one way, in any case.",
+          "ru": "одном направлении, в любом случае."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "los dos sentidos, siempre.",
+          "en": "both directions, always.",
+          "ru": "двух направлениях, всегда."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "En una vía dividida en tres calzadas, la calzada central puede estar destinada a la circulación en ambos sentidos o en un único sentido, dependiendo de lo que indique la señalización correspondiente. Las calzadas laterales, por su parte, están destinadas a la circulación en un único sentido.",
+      "en": "On a road divided into three roadways, the central roadway may be intended for traffic in both directions or in one direction only, depending on what the corresponding signage indicates. The side roadways, on the other hand, are intended for traffic in one direction only.",
+      "ru": "🎓 На дороге, разделенной на три проезжие части, центральная проезжая часть может быть предназначена для движения в обоих направлениях или только в одном направлении, в зависимости от того, что указывают соответствующие дорожные знаки. Боковые проезжие части, в свою очередь, предназначены для движения только в одном направлении."
+    },
+    "image_url": "https://teorica.practicavial.com/question/46d7f60c-94a2-4345-b38f-c9ecbcb27466-1650649124-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/46d7f60c-94a2-4345-b38f-c9ecbcb27466-s-1.jpg",
+    "source": "practicavial",
+    "id": "46d7f60c-94a2-4345-b38f-c9ecbcb27466",
+    "external_id": "46d7f60c-94a2-4345-b38f-c9ecbcb27466"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "¿Con qué distintivo medio ambiental puede circular un conductor por el carril VAO?",
+      "en": "With which environmental badge can a driver circulate in the VAO lane?",
+      "ru": "С каким экологическим знаком водитель может двигаться по полосе VAO?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "ECO, en todo caso.",
+          "en": "ECO, in any case.",
+          "ru": "ECO, в любом случае."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "0 emisiones.",
+          "en": "0 emissions.",
+          "ru": "0 выбросов."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Señal V-26.",
+          "en": "V-26 sign.",
+          "ru": "Знак V-26."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "El carril VAO está habilitado para vehículos con alta ocupación (VAO), vehículos de transporte público, vehículos de emergencia, taxis y vehículos con distintivo ambiental \"0 emisiones\". Los vehículos ECO, B y C solo podrán acceder al carril VAO cuando se autorice su acceso mediante los paneles de mensaje variable.",
+      "en": "The VAO lane is enabled for high-occupancy vehicles (VAO), public transport vehicles, emergency vehicles, taxis and vehicles with the environmental badge \"0 emissions\". ECO, B and C vehicles may only access the VAO lane when their access is authorized by the variable message panels.",
+      "ru": "🎓 По полосе VAO могут двигаться легковые автомобили с высокой заполняемостью, общественный транспорт, экстренные службы, такси и транспортные средства с экологическим знаком «0 выбросов». Автомобили ECO, B и C могут выезжать на полосу VAO только тогда, когда их доступ разрешен информационными табло. Легковые автомобили без прицепа, грузопассажирские автомобили и мотоциклы также могут использовать полосу VAO, если соблюдается минимальное количество пассажиров, указанное на информационном табло."
+    },
+    "image_url": "https://teorica.practicavial.com/question/c853c972-11ad-4008-ab34-234002ea3fc0-1663758380-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c853c972-11ad-4008-ab34-234002ea3fc0-s-1.jpg",
+    "source": "practicavial",
+    "id": "c853c972-11ad-4008-ab34-234002ea3fc0",
+    "external_id": "c853c972-11ad-4008-ab34-234002ea3fc0"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "En una curva de visibilidad reducida, ¿por dónde debe circular?",
+      "en": "In a curve with reduced visibility, where should you drive?",
+      "ru": "Где следует двигаться на повороте с ограниченной видимостью?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por el carril de la derecha, pero lo más cerca del eje de la vía.",
+          "en": "In the right lane, but as close as possible to the center line of the road.",
+          "ru": "По правой полосе, но как можно ближе к оси дороги."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Dejando completamente libre la mitad de la calzada que corresponda al sentido contrario.",
+          "en": "Leaving completely free the half of the road that corresponds to the opposite direction.",
+          "ru": "Полностью освободив половину проезжей части, соответствующую встречному направлению."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Ocupando el sentido contrario, para ser visible con mayor facilidad.",
+          "en": "Occupying the opposite direction, to be visible more easily.",
+          "ru": "Занимая встречное направление, чтобы быть более заметным."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "En una curva de visibilidad reducida, la norma general indica que se debe circular por la derecha, dejando completamente libre la mitad de la calzada que corresponda al sentido contrario. Esta medida de seguridad permite evitar colisiones frontales con otros vehículos que puedan circular en sentido contrario.",
+      "en": "In a curve with reduced visibility, the general rule indicates that you must drive on the right, leaving completely free the half of the road that corresponds to the opposite direction. This safety measure helps prevent head-on collisions with other vehicles that may be traveling in the opposite direction.",
+      "ru": "🎓 На повороте с ограниченной видимостью необходимо двигаться по правой стороне, полностью освобождая половину проезжей части, предназначенную для встречного движения. Это делается для предотвращения лобовых столкновений с другими транспортными средствами."
+    },
+    "image_url": "https://teorica.practicavial.com/question/adc028d3-a3ec-4d25-ab22-ea8448ba80f5-1650386974-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/adc028d3-a3ec-4d25-ab22-ea8448ba80f5-s-1.jpg",
+    "source": "practicavial",
+    "id": "adc028d3-a3ec-4d25-ab22-ea8448ba80f5",
+    "external_id": "adc028d3-a3ec-4d25-ab22-ea8448ba80f5"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "En esta intersección, ¿debe ceder el paso al grupo de ciclistas?",
+      "en": "At this intersection, should you give way to the group of cyclists?",
+      "ru": "На этом перекрестке вы должны уступить дорогу группе велосипедистов?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, pero solo al primer ciclista.",
+          "en": "Yes, but only to the first cyclist.",
+          "ru": "Да, но только первому велосипедисту."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, porque los ciclistas no tienen prioridad.",
+          "en": "No, because cyclists do not have priority.",
+          "ru": "Нет, потому что у велосипедистов нет приоритета."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, a todo el grupo.",
+          "en": "Yes, to the whole group.",
+          "ru": "Да, всей группе."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según la normativa de la DGT, cuando un grupo de ciclistas circula en conjunto y el primero de ellos ya ha entrado en la intersección, se considera a todo el grupo como una única unidad. Por lo tanto, usted debe ceder el paso a todo el grupo de ciclistas.",
+      "en": "According to DGT regulations, when a group of cyclists is riding together and the first of them has already entered the intersection, the entire group is considered a single unit. Therefore, you must give way to the entire group of cyclists.",
+      "ru": "🎓 Согласно ПДД Испании, если группа велосипедистов движется вместе, и первый велосипедист уже въехал на перекресток, вся группа считается одним транспортным средством. Поэтому ты обязан уступить дорогу всей группе велосипедистов."
+    },
+    "image_url": "https://teorica.practicavial.com/question/7358835c-b6fe-497c-bb82-f26276e4df63-1657731628-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7358835c-b6fe-497c-bb82-f26276e4df63-s-1.jpg",
+    "source": "practicavial",
+    "id": "7358835c-b6fe-497c-bb82-f26276e4df63",
+    "external_id": "7358835c-b6fe-497c-bb82-f26276e4df63"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "Un turismo con remolque, ¿puede circular por un carril para VAO?",
+      "en": "Can a passenger car with a trailer travel in a VAO lane?",
+      "ru": "Разрешено ли легковому автомобилю с прицепом двигаться по полосе VAO?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": "Yes.",
+          "ru": "Да."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, cuando la MMA del conjunto no supera 3.500 kg.",
+          "en": "Yes, when the MMA of the combination does not exceed 3,500 kg.",
+          "ru": "Да, когда РММ состава не превышает 3500 кг."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "El carril VAO está destinado a vehículos con alta ocupación (VAO), autobuses, vehículos prioritarios, taxis, vehículos de mantenimiento de carreteras y vehículos con etiqueta ambiental ECO, C o B, siempre que cumplan con los requisitos establecidos. Los turismos con remolque no están permitidos en el carril VAO.",
+      "en": "The VAO lane is intended for high-occupancy vehicles (VAO), buses, priority vehicles, taxis, road maintenance vehicles and vehicles with ECO, C or B environmental label, provided they meet the established requirements. Passenger cars with trailers are not allowed in the VAO lane.",
+      "ru": "Полоса VAO предназначена для транспортных средств с высокой заполняемостью (VAO), автобусов, приоритетных транспортных средств, такси, транспортных средств для обслуживания дорог и транспортных средств с экологической маркировкой ECO, C или B, при условии, что они соответствуют установленным требованиям. Легковым автомобилям с прицепом движение по полосе VAO запрещено."
+    },
+    "image_url": "https://teorica.practicavial.com/question/9827dc08-511d-4096-a2f0-2a564b0e160d-1652199642-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9827dc08-511d-4096-a2f0-2a564b0e160d-s-1.jpg",
+    "source": "practicavial",
+    "id": "9827dc08-511d-4096-a2f0-2a564b0e160d",
+    "external_id": "9827dc08-511d-4096-a2f0-2a564b0e160d"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "En esta intersección, en la que los dos vehículos tienen de frente una señal de ceda el paso, ¿quién pasará primero?",
+      "en": "At this intersection, where both vehicles have a yield sign in front of them, who will pass first?",
+      "ru": "На этом перекрестке, где перед обоими транспортными средствами установлен знак «Уступи дорогу», кто проедет первым?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El conductor del vehículo rojo porque tiene preferencia de paso.",
+          "en": "The driver of the red vehicle because they have the right of way.",
+          "ru": "Водитель красного легкового автомобиля, потому что у него преимущество проезда."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El conductor del autobús porque tiene mayor dificultad de maniobra.",
+          "en": "The driver of the bus because it has greater difficulty maneuvering.",
+          "ru": "Водитель автобуса, потому что ему сложнее маневрировать."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El conductor del autobús porque se aplica la regla general de prioridad de paso.",
+          "en": "The driver of the bus because the general rule of right-of-way applies.",
+          "ru": "Водитель автобуса, потому что применяется общее правило приоритета проезда."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "En una intersección señalizada con ceda el paso para ambos vehículos, la prioridad de paso se determina aplicando la norma general. Esta norma establece que, en ausencia de señales que indiquen lo contrario, tiene preferencia el vehículo que se aproxima por la derecha. Por lo tanto, el vehículo rojo tiene preferencia sobre el autobús.",
+      "en": "At an intersection marked with a yield sign for both vehicles, the right-of-way is determined by applying the general rule. This rule states that, in the absence of signs indicating otherwise, the vehicle approaching from the right has priority. Therefore, the red vehicle has priority over the bus.",
+      "ru": "🎓 На перекрестке, где для обоих транспортных средств установлены знаки «Уступи дорогу», очередность проезда определяется общим правилом. Это правило гласит, что при отсутствии знаков, указывающих иное, преимущество имеет транспортное средство, приближающееся справа. Следовательно, легковой автомобиль красного цвета имеет приоритет перед автобусом."
+    },
+    "image_url": "https://teorica.practicavial.com/question/774a32ca-87a2-4ffa-9971-73ae7988f790-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/774a32ca-87a2-4ffa-9971-73ae7988f790-s-1.jpg",
+    "source": "practicavial",
+    "id": "774a32ca-87a2-4ffa-9971-73ae7988f790",
+    "external_id": "774a32ca-87a2-4ffa-9971-73ae7988f790"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "Los camiones de MMA que no excedan de 3.500 kg, ¿pueden utilizar un carril abierto a la circulación en sentido contrario al normal?",
+      "en": "Can trucks with an MMA not exceeding 3,500 kg use a lane open to traffic in the opposite direction to normal?",
+      "ru": "Могут ли грузовики с РММ не более 3500 кг использовать полосу, открытую для движения в направлении, противоположном обычному?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, nunca.",
+          "en": "No, never.",
+          "ru": "Нет, никогда."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, siempre que circulen con la luz de cruce encendida.",
+          "en": "Yes, provided they drive with their dipped headlights on.",
+          "ru": "Да, при условии, что они едут с включенным ближним светом."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, cuando el carril se ha abierto por obras en la calzada.",
+          "en": "Yes, when the lane has been opened due to roadworks.",
+          "ru": "Да, когда полоса была открыта из-за дорожных работ на проезжей части."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según la normativa, un carril abierto en sentido contrario al habitual por obras permite la circulación de cualquier vehículo, salvo que se indique lo contrario. La velocidad máxima permitida en este carril es de 80 km/h, con una velocidad mínima de 60 km/h. Es obligatorio circular con el alumbrado de cruce tanto de día como de noche.",
+      "en": "According to regulations, a lane opened in the opposite direction to the usual one due to roadworks allows the circulation of any vehicle, unless otherwise indicated. The maximum speed allowed in this lane is 80 km/h, with a minimum speed of 60 km/h. It is mandatory to drive with dipped headlights both day and night.",
+      "ru": "По правилам, полоса, открытая в противоположном обычному направлении из-за дорожных работ, разрешает движение любому транспортному средству, если нет иных указаний. Максимальная разрешенная скорость на этой полосе составляет 80 км/ч, минимальная скорость — 60 км/ч. Обязательно двигаться с включенным ближним светом фар как днем, так и ночью."
+    },
+    "image_url": "https://teorica.practicavial.com/question/11777ccd-43e1-4075-a7dc-c2a46b427b3e-1652204133-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/11777ccd-43e1-4075-a7dc-c2a46b427b3e-s-1.jpg",
+    "source": "practicavial",
+    "id": "11777ccd-43e1-4075-a7dc-c2a46b427b3e",
+    "external_id": "11777ccd-43e1-4075-a7dc-c2a46b427b3e"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "En las intersecciones señalizadas, ¿cuál es la norma general que prevalece?",
+      "en": "In signposted intersections, what is the general rule that prevails?",
+      "ru": "На регулируемых перекрестках какое общее правило имеет преимущество?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Abstenerse del cumplimiento de la señalización.",
+          "en": "Refrain from complying with the signage.",
+          "ru": "Воздержаться от соблюдения знаков."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cumplir lo que la señal indica.",
+          "en": "Comply with what the sign indicates.",
+          "ru": "Соблюдать то, что указывает знак."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Ceder el paso siempre a la derecha.",
+          "en": "Always give way to the right.",
+          "ru": "Всегда уступать дорогу справа."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "En una intersección señalizada, la norma general es obedecer las señales de tráfico, ya sean verticales (señales) u horizontales (marcas viales). Estas señales están diseñadas para regular el tráfico y garantizar la seguridad de todos los usuarios de la vía. Ignorar estas señales puede resultar en situaciones peligrosas y sanciones legales.",
+      "en": "At a signposted intersection, the general rule is to obey traffic signs, whether vertical (signs) or horizontal (road markings). These signs are designed to regulate traffic and ensure the safety of all road users. Ignoring these signs can result in dangerous situations and legal penalties.",
+      "ru": "🎓 На регулируемом перекрестке общее правило — подчиняться дорожным знакам, будь то вертикальные знаки или горизонтальная разметка. Эти знаки предназначены для регулирования движения и обеспечения безопасности всех участников дорожного движения. Игнорирование этих знаков может привести к опасным ситуациям и юридическим последствиям."
+    },
+    "image_url": "https://teorica.practicavial.com/question/23506898-a525-42cc-ab16-dbdc2d84c0e3-1657729991-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/23506898-a525-42cc-ab16-dbdc2d84c0e3-s-1.jpg",
+    "source": "practicavial",
+    "id": "23506898-a525-42cc-ab16-dbdc2d84c0e3",
+    "external_id": "23506898-a525-42cc-ab16-dbdc2d84c0e3"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "A partir de la señal de la fotografía, ¿qué distancia de seguridad es obligatorio mantener, como mínimo, con una motocicleta?",
+      "en": "Based on the sign in the photograph, what minimum safety distance is mandatory to maintain with a motorcycle?",
+      "ru": "Исходя из знака на фотографии, какую минимальную безопасную дистанцию необходимо соблюдать по отношению к мотоциклу?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La que permita al vehículo que circula detrás adelantar con seguridad.",
+          "en": "The one that allows the vehicle behind to overtake safely.",
+          "ru": "Дистанцию, которая позволит транспортному средству, движущемуся сзади, безопасно совершить обгон."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "50 metros.",
+          "en": "50 meters.",
+          "ru": "50 метров."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "La que, en caso de que esta frene bruscamente, permita detenerse sin colisionar con ella.",
+          "en": "The one that, in the event of a sudden braking, allows you to stop without colliding with it.",
+          "ru": "Дистанцию, которая в случае резкого торможения позволит остановиться, не столкнувшись с ним."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "La distancia de seguridad debe ser tal que permita detener el vehículo sin colisionar con el vehículo de delante en caso de frenada brusca. Esta distancia varía en función de la velocidad, las condiciones de la vía y las condiciones del vehículo.",
+      "en": "The safety distance must be such that it allows the vehicle to stop without colliding with the vehicle in front in the event of sudden braking. This distance varies depending on the speed, road conditions and vehicle conditions.",
+      "ru": "Безопасная дистанция должна быть такой, чтобы позволить остановить транспортное средство без столкновения с впереди идущим транспортным средством в случае резкого торможения. Эта дистанция варьируется в зависимости от скорости, условий дороги и состояния транспортного средства. На знаке указано ограничение максимальной скорости 60 км/ч и запрет на обгон."
+    },
+    "image_url": "https://teorica.practicavial.com/question/0a86c7ab-c90a-4a7c-8454-ddd7d58f7225-1652271470-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0a86c7ab-c90a-4a7c-8454-ddd7d58f7225-s-1.jpg",
+    "source": "practicavial",
+    "id": "0a86c7ab-c90a-4a7c-8454-ddd7d58f7225",
+    "external_id": "0a86c7ab-c90a-4a7c-8454-ddd7d58f7225"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "¿A qué velocidad como mínimo debe circular con un turismo en esta autovía?",
+      "en": "What is the minimum speed at which a passenger car must travel on this highway?",
+      "ru": "С какой минимальной скоростью должен двигаться легковой автомобиль на этой автомагистрали?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A 60 km/h.",
+          "en": "At 60 km/h.",
+          "ru": "60 км/ч."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A una velocidad inferior a un tercio con respecto de la genérica de la vía.",
+          "en": "At a speed less than one third of the generic speed of the road.",
+          "ru": "Со скоростью, не превышающей трети от общей скорости дороги."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A 80 km/h.",
+          "en": "At 80 km/h.",
+          "ru": "80 км/ч."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "En una autovía, la velocidad mínima a la que debe circular un turismo es de 60 km/h. No cumplir con esta velocidad mínima puede ser sancionable.",
+      "en": "On a highway, the minimum speed at which a passenger car must travel is 60 km/h. Failure to comply with this minimum speed may be penalized.",
+      "ru": "🎓 На автомагистрали минимальная скорость, с которой должен двигаться легковой автомобиль, составляет 60 км/ч. Несоблюдение этого минимального значения может повлечь за собой штраф. Максимальная скорость для легкового автомобиля на автомагистрали — 120 км/ч."
+    },
+    "image_url": "https://teorica.practicavial.com/question/6ad0eb57-34fc-4a0e-a728-5b73767c1c93-1653064259-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6ad0eb57-34fc-4a0e-a728-5b73767c1c93-s-1.jpg",
+    "source": "practicavial",
+    "id": "6ad0eb57-34fc-4a0e-a728-5b73767c1c93",
+    "external_id": "6ad0eb57-34fc-4a0e-a728-5b73767c1c93"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "En esta vía, ¿qué distancia es obligatorio dejar con el vehículo que circula delante, al que no se pretende adelantar?",
+      "en": "On this road, what distance is it mandatory to leave with the vehicle in front, which you do not intend to overtake?",
+      "ru": "На этой дороге, какую дистанцию обязательно нужно оставлять до движущегося впереди транспортного средства, которое вы не собираетесь обгонять?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La distancia de seguridad solamente.",
+          "en": "The safety distance only.",
+          "ru": "Только безопасную дистанцию."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La distancia de seguridad y la que permita a los demás adelantar.",
+          "en": "The safety distance and the one that allows others to overtake.",
+          "ru": "Безопасную дистанцию и дистанцию, позволяющую другим совершить обгон."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "50 metros.",
+          "en": "50 meters.",
+          "ru": "50 метров."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "La distancia de seguridad es aquella que permite al conductor detener el vehículo de forma segura en caso de frenado brusco del vehículo que circula delante. Además de la distancia de seguridad, es obligatorio dejar una distancia adicional que permita a otros vehículos adelantar con seguridad.",
+      "en": "The safety distance is the one that allows the driver to stop the vehicle safely in the event of sudden braking by the vehicle in front. In addition to the safety distance, it is mandatory to leave an additional distance that allows other vehicles to overtake safely.",
+      "ru": "🎓 Безопасная дистанция — это расстояние, которое позволяет водителю безопасно остановить свой легковой автомобиль в случае резкого торможения впереди идущего транспортного средства. Помимо безопасной дистанции, необходимо оставлять дополнительную дистанцию, чтобы другие транспортные средства могли безопасно совершить обгон."
+    },
+    "image_url": "https://teorica.practicavial.com/question/84d1d51f-2e45-483c-9830-c91f31c569c8-1652207566-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/84d1d51f-2e45-483c-9830-c91f31c569c8-s-1.jpg",
+    "source": "practicavial",
+    "id": "84d1d51f-2e45-483c-9830-c91f31c569c8",
+    "external_id": "84d1d51f-2e45-483c-9830-c91f31c569c8"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "Está prohibido conducir...",
+      "en": "It is forbidden to drive...",
+      "ru": "Запрещено управлять транспортным средством..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "utilizando cascos o auriculares conectados a aparatos receptores o reproductores de sonido.",
+          "en": "using helmets or headphones connected to sound receiving or reproducing devices.",
+          "ru": "используя шлемы или наушники, подключенные к принимающим или воспроизводящим звук устройствам."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "más de una hora seguida sin descansar.",
+          "en": "for more than one hour without resting.",
+          "ru": "более одного часа подряд без отдыха."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "más de una hora seguida sin descansar, pero sólo en vía urbana.",
+          "en": "for more than one hour without resting, but only on urban roads.",
+          "ru": "более одного часа подряд без отдыха, но только на городских дорогах."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según la normativa de la DGT, está prohibido conducir utilizando cascos o auriculares conectados a aparatos receptores o reproductores de sonido. El objetivo de esta prohibición es evitar distracciones y asegurar que el conductor pueda oír el entorno del tráfico, como sirenas, bocinas y otros vehículos.",
+      "en": "According to DGT regulations, it is prohibited to drive using helmets or headphones connected to sound receiving or reproducing devices. The purpose of this prohibition is to avoid distractions and ensure that the driver can hear the traffic environment, such as sirens, horns, and other vehicles.",
+      "ru": "Согласно правилам дорожного движения Испании, запрещено управлять легковым автомобилем, используя шлемы или наушники, подключенные к устройствам, принимающим или воспроизводящим звук. Это необходимо, чтобы ничто не отвлекало водителя и он мог слышать звуки дорожного движения: сирены, клаксоны и другие автомобили."
+    },
+    "image_url": "https://teorica.practicavial.com/question/b12ab2f5-d97b-44de-8fa2-1db829ed9658-1649351771-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b12ab2f5-d97b-44de-8fa2-1db829ed9658-s-1.jpg",
+    "source": "practicavial",
+    "id": "b12ab2f5-d97b-44de-8fa2-1db829ed9658",
+    "external_id": "b12ab2f5-d97b-44de-8fa2-1db829ed9658"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "En una carretera convencional con tres carriles para cada uno de los sentidos y separación física de los mismos, ¿a qué velocidad máxima le está permitido circular a un turismo para adelantar?",
+      "en": "On a conventional road with three lanes for each direction and physical separation between them, what is the maximum speed allowed for a passenger car to overtake?",
+      "ru": "На обычной дороге с тремя полосами движения в каждом направлении и физическим разделением между ними, с какой максимальной скоростью разрешено двигаться легковому автомобилю для совершения обгона?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "90 km/h.",
+          "en": "90 km/h.",
+          "ru": "90 км/ч."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "140 km/h.",
+          "en": "140 km/h.",
+          "ru": "140 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "120 km/h.",
+          "en": "120 km/h.",
+          "ru": "120 км/ч."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "En una carretera convencional, la velocidad máxima permitida para un turismo es de 90 km/h. Esta velocidad no se incrementa por el hecho de estar adelantando.",
+      "en": "On a conventional road, the maximum speed allowed for a passenger car is 90 km/h. This speed is not increased by the fact of overtaking.",
+      "ru": "🎓 На обычной дороге максимальная разрешенная скорость для легкового автомобиля составляет 90 км/ч. Эта скорость не увеличивается из-за совершения обгона или опережения. Согласно ПДД Испании, на обычных дорогах скорость для легковых автомобилей — 90 км/ч."
+    },
+    "image_url": "https://teorica.practicavial.com/question/22271939-5e72-4f2c-bc86-21c4fb522f1e-1653063979-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/22271939-5e72-4f2c-bc86-21c4fb522f1e-s-1.jpg",
+    "source": "practicavial",
+    "id": "22271939-5e72-4f2c-bc86-21c4fb522f1e",
+    "external_id": "22271939-5e72-4f2c-bc86-21c4fb522f1e"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "En esta vía, la velocidad mínima permitida a los turismos es de...",
+      "en": "On this road, the minimum speed allowed for passenger cars is...",
+      "ru": "На этой дороге минимальная разрешенная скорость для легковых автомобилей составляет..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "75 Km/h.",
+          "en": "75 Km/h.",
+          "ru": "75 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "90 Km/h.",
+          "en": "90 Km/h.",
+          "ru": "90 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "60 Km/h.",
+          "en": "60 Km/h.",
+          "ru": "60 км/ч."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "La velocidad mínima permitida en autopistas y autovías para un turismo es de 60 km/h. No se puede circular por debajo de esta velocidad, salvo en situaciones excepcionales debidamente justificadas.",
+      "en": "The minimum speed allowed on motorways and dual carriageways for a passenger car is 60 km/h. It is not allowed to drive below this speed, except in exceptional and duly justified situations.",
+      "ru": "🎓 Минимальная разрешенная скорость на автомагистралях и скоростных дорогах для легкового автомобиля составляет 60 км/ч. Двигаться ниже этой скорости нельзя, за исключением особых, обоснованных ситуаций."
+    },
+    "image_url": "https://teorica.practicavial.com/question/45989579-77c1-4013-b2a2-4575e6432244-1653062313-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/45989579-77c1-4013-b2a2-4575e6432244-s-1.jpg",
+    "source": "practicavial",
+    "id": "45989579-77c1-4013-b2a2-4575e6432244",
+    "external_id": "45989579-77c1-4013-b2a2-4575e6432244"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, en vías de tres calzadas se utilizarán las de los laterales...",
+      "en": "As a general rule, on roads with three carriageways, the side carriageways will be used...",
+      "ru": "Как правило, на дорогах с тремя проезжими частями боковые проезжие части используются..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "en sentido único, si bien se podrá habilitar algún carril para el sentido contrario.",
+          "en": "in one direction, although some lanes may be enabled for the opposite direction.",
+          "ru": "в одном направлении, хотя некоторые полосы могут быть предназначены для движения в противоположном направлении."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "en ambos sentidos.",
+          "en": "in both directions.",
+          "ru": "в обоих направлениях."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "en sentido único, siempre que el tráfico sea fluido.",
+          "en": "in one direction, provided that the traffic is fluid.",
+          "ru": "в одном направлении, при условии, что движение транспорта является плавным."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "En una vía dividida en tres calzadas, la calzada central podrá estar destinada a la circulación en uno o dos sentidos, y las calzadas laterales, para la circulación en un solo sentido, salvo que la autoridad responsable del tráfico lo indique de otra forma. Por lo tanto, como norma general, en vías de tres calzadas se utilizarán las de los laterales en sentido único, si bien se podrá habilitar algún carril para el sentido contrario.",
+      "en": "On a road divided into three carriageways, the central carriageway may be intended for traffic in one or two directions, and the side carriageways for traffic in one direction only, unless the authority responsible for traffic indicates otherwise. Therefore, as a general rule, on roads with three carriageways, the side carriageways will be used in one direction, although some lanes may be enabled for the opposite direction.",
+      "ru": "На дороге, разделенной на три проезжие части, центральная проезжая часть может быть предназначена для движения в одном или двух направлениях, а боковые проезжие части — только для движения в одном направлении, если только орган, ответственный за дорожное движение, не укажет иное. Таким образом, как правило, на дорогах с тремя проезжими частями боковые проезжие части используются для движения в одном направлении, хотя некоторые полосы могут быть предназначены для движения в противоположном направлении."
+    },
+    "image_url": "https://teorica.practicavial.com/question/aefed80d-a128-4b92-8127-bb2ac2dc0d50-1650648971-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/aefed80d-a128-4b92-8127-bb2ac2dc0d50-s-1.jpg",
+    "source": "practicavial",
+    "id": "aefed80d-a128-4b92-8127-bb2ac2dc0d50",
+    "external_id": "aefed80d-a128-4b92-8127-bb2ac2dc0d50"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "En calzadas con doble sentido de circulación, y dos carriles, sin delimitar por marcas viales. ¿Por dónde se debe de circular?",
+      "en": "On roads with two-way traffic and two lanes, not delimited by road markings, where should you drive?",
+      "ru": "По какой полосе следует двигаться на проезжей части с двусторонним движением, имеющей две полосы и не размеченной дорожной разметкой?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por el carril derecho.",
+          "en": "In the right lane.",
+          "ru": "По правой полосе."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Por el centro de la calzada.",
+          "en": "In the center of the road.",
+          "ru": "По центру проезжей части."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Por cualquiera de los dos carriles si no vienen vehículos en sentido contrario.",
+          "en": "In either of the two lanes if there are no vehicles coming in the opposite direction.",
+          "ru": "По любой из двух полос, если нет встречных транспортных средств."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "En una calzada de doble sentido con dos carriles y sin marcas viales que los delimiten, se debe circular por la derecha, lo más cerca posible del borde de la calzada, dejando completamente libre la mitad correspondiente al sentido contrario.",
+      "en": "On a two-way road with two lanes and without road markings delimiting them, you must drive on the right, as close as possible to the edge of the road, leaving the half corresponding to the opposite direction completely free.",
+      "ru": "На проезжей части с двусторонним движением, имеющей две полосы, но не размеченной, ты обязан двигаться по правой полосе, как можно ближе к краю проезжей части, оставляя встречную полосу полностью свободной."
+    },
+    "image_url": "https://teorica.practicavial.com/question/8abb04f3-efbe-42cb-8247-3760c7bf23af-1650387086-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8abb04f3-efbe-42cb-8247-3760c7bf23af-s-1.jpg",
+    "source": "practicavial",
+    "id": "8abb04f3-efbe-42cb-8247-3760c7bf23af",
+    "external_id": "8abb04f3-efbe-42cb-8247-3760c7bf23af"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "En un paso a nivel, ¿qué debe hacer si la barrera está en movimiento para levantarse?",
+      "en": "At a level crossing, what should you do if the barrier is moving to rise?",
+      "ru": "На железнодорожном переезде, что вы должны делать, если шлагбаум поднимается?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Pasar cuando el vehículo entre por debajo de la barrera aunque esta siga en movimiento.",
+          "en": "Pass when the vehicle enters under the barrier even if it is still moving.",
+          "ru": "Проезжать, когда транспортное средство въезжает под шлагбаум, даже если он все еще движется."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Detenerse hasta que la barrera esté completamente subida y permita el paso.",
+          "en": "Stop until the barrier is completely raised and allows passage.",
+          "ru": "Остановиться, пока шлагбаум полностью не поднимется и не разрешит проезд."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Pasar cuando lo hagan otros vehículos, aunque esté la barrera en movimiento.",
+          "en": "Pass when other vehicles do so, even if the barrier is moving.",
+          "ru": "Проезжать, когда это делают другие транспортные средства, даже если шлагбаум движется."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Ningún usuario de la vía deberá penetrar en un paso a nivel cuyas barreras o semibarreras estén atravesadas en la vía o en movimiento para levantarse o colocarse atravesadas, o cuando sus semáforos impidan el paso con sus indicaciones de detención. El cruce de la vía férrea debe realizarse sin demora y después de haberse cerciorado de que, por las circunstancias de la circulación o por otras causas, no existe riesgo de quedar inmovilizado dentro del paso.",
+      "en": "No road user should enter a level crossing where barriers or half-barriers are across the road or moving to rise or be placed across it, or when its traffic lights prevent passage with their stop indications. The railway crossing must be made without delay and after making sure that, due to traffic circumstances or other causes, there is no risk of being immobilized within the crossing.",
+      "ru": "🎓 На железнодорожном переезде нельзя начинать движение, если шлагбаум опущен, поднимается или опускается, или если светофор показывает запрещающий сигнал. Пересекать железнодорожный переезд нужно без промедления, убедившись, что из-за условий движения или других причин нет риска застрять на переезде."
+    },
+    "image_url": "https://teorica.practicavial.com/question/46a28d24-7f61-43f9-b97e-42e2bcdd00ad-1657731444-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/46a28d24-7f61-43f9-b97e-42e2bcdd00ad-s-1.jpg",
+    "source": "practicavial",
+    "id": "46a28d24-7f61-43f9-b97e-42e2bcdd00ad",
+    "external_id": "46a28d24-7f61-43f9-b97e-42e2bcdd00ad"
+  }
+]

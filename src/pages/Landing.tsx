@@ -1,5 +1,8 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { StartupCurtain } from "@/components/StartupCurtain";
+import { PageLoader } from "@/components/PageLoader";
+
 // ОПТИМИЗАЦИЯ: AuthModal lazy loaded - содержит UserContext и Supabase
 const AuthModalNew = lazy(() => import("@/components/AuthModalNew").then(m => ({ default: m.AuthModalNew })));
 import { AiStudioLanding } from "@/components/landing/AiStudioLanding";
@@ -229,15 +232,10 @@ const Landing = () => {
 
   // КРИТИЧНО: Если идет проверка - показываем лоадер, чтобы избежать мерцания лендинга
   // Пользователь не должен видеть лендинг, который потом резко исчезнет
+  // UPD: Используем PageLoader, который так же поднимает шторку (StartupCurtain) и показывает красивый спиннер
+  // Это предотвращает "зависание" на HTML скелетоне
   if (isCheckingTelegram) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-zinc-950">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
-          <div className="text-sm font-medium text-zinc-400">Загрузка...</div>
-        </div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   // Выбираем лендинг в зависимости от страны
@@ -245,6 +243,7 @@ const Landing = () => {
 
   return (
     <>
+      <StartupCurtain />
       {partnerInfo && (
         <Suspense fallback={null}>
           <PartnerInviteBanner />

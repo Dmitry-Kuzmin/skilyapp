@@ -249,43 +249,43 @@
     "question_number": 6,
     "category": "B",
     "question": {
-      "es": "Hasta el 1 de enero del 2026, en caso de no disponer del dispositivo luminoso V-16, el conductor de un turismo averiado colocará un solo triangulo de preseñalización de peligro...",
-      "en": "Until January 1, 2026, if the V-16 luminous device is not available, the driver of a broken-down passenger car must place a single danger warning triangle...",
-      "ru": "До 1 января 2026 года, при отсутствии светового сигнала V-16, водитель сломавшегося легкового автомобиля должен выставить только один знак аварийной остановки (треугольник)..."
+      "es": "En caso de avería, si dispone del dispositivo luminoso V-16, ¿es necesario colocar los triángulos de preseñalización de peligro?",
+      "en": "In the event of a breakdown, if you have the V-16 luminous device, is it necessary to place the hazard warning triangles?",
+      "ru": "В случае поломки, если у вас есть световой сигнал V-16, обязательно ли выставлять знаки аварийной остановки (треугольники)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
-          "es": "en calzadas de dos sentidos.",
-          "en": "on two-way roadways.",
-          "ru": "на проезжих частях с двусторонним движением."
+          "es": "Sí, es obligatorio usar ambos dispositivos conjuntamente.",
+          "en": "Yes, it is mandatory to use both devices together.",
+          "ru": "Да, обязательно использовать оба устройства вместе."
         },
         "is_correct": false
       },
       {
         "id": "b",
         "text": {
-          "es": "en calzadas de sentido único o de más de tres carriles",
-          "en": "on one-way roadways or those with more than three lanes",
-          "ru": "на проезжих частях с односторонним движением или имеющих более трех полос"
+          "es": "No, el dispositivo V-16 sustituye la obligación de colocar los triángulos.",
+          "en": "No, the V-16 device replaces the obligation to place triangles.",
+          "ru": "Нет, сигнал V-16 полностью заменяет обязанность выставлять треугольники."
         },
         "is_correct": true
       },
       {
         "id": "c",
         "text": {
-          "es": "en todo tipo de calzadas.",
-          "en": "on all types of roadways.",
-          "ru": "на всех типах проезжих частей."
+          "es": "Solo si la visibilidad es reducida.",
+          "en": "Only if visibility is reduced.",
+          "ru": "Только в условиях плохой видимости."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": "Según el Reglamento General de Circulación, mientras no sea obligatorio el uso exclusivo de la señal V-16, se deben emplear los triángulos de preseñalización. La norma general exige colocar dos triángulos (uno delante y otro detrás) en vías de doble sentido. Sin embargo, la excepción establece que en calzadas de sentido único o de más de tres carriles, bastará la colocación de un solo triángulo en la parte posterior, situado a un mínimo de 50 metros y visible desde 100 metros.",
-      "en": "According to the General Traffic Regulations, as long as the exclusive use of the V-16 signal is not mandatory, warning triangles must be used. The general rule requires placing two triangles (one in front and one behind) on two-way roads. However, the exception states that on one-way roadways or those with more than three lanes, it is sufficient to place a single triangle at the rear, located at a minimum of 50 meters and visible from 100 meters.",
-      "ru": "🎓 Если у тебя нет мигалки V-16, ты обязан использовать знаки аварийной остановки. На обычных дорогах с двусторонним движением нужно ставить ДВА треугольника (спереди и сзади), чтобы предупредить оба потока. Однако, если это calzada (проезжая часть) с односторонним движением или дорога очень широкая (более трех полос), встречного потока либо нет, либо он далеко. В этом случае достаточно выставить ТОЛЬКО ОДИН треугольник сзади на расстоянии минимум 50 метров.\n🇷🇺 В РФ всегда выставляется один знак (30 м вне города). В Испании на обычных загородных дорогах обязательно ДВА знака (спереди и сзади), и расстояние больше — минимум 50 метров.\n💡 Одностороннее движение — Один треугольник. Двустороннее — Два."
+      "es": "Actualmente, la señal luminosa V-16 puede utilizarse en sustitución de los triángulos de preseñalización de peligro. Su principal ventaja es la seguridad: permite señalizar el vehículo averiado colocando el dispositivo en el techo sin necesidad de bajar del coche ni caminar por la calzada. A partir del 1 de enero de 2026, la V-16 será obligatoria y deberá estar conectada (geolocalizada), siendo el único medio permitido para señalizar.",
+      "en": "Currently, the V-16 luminous signal can be used to replace hazard warning triangles. Its main advantage is safety: it allows the broken-down vehicle to be signaled by placing the device on the roof without having to get out of the car or walk on the roadway. From January 1, 2026, the V-16 will be mandatory and must be connected (geolocated), being the only permitted means of signaling.",
+      "ru": "🎓 **V-16 — это современная замена треугольникам.**\nГлавное преимущество V-16 — безопасность: магнитный маячок ставится на крышу (рукой через окно), **не выходя из машины**. Это исключает риск того, что вас собьют на дороге, пока вы идете ставить знак.\n\nСогласно правилам:\n1. Вы **можете** использовать V-16 вместо треугольников уже сейчас.\n2. С 1 января 2026 года треугольники вообще отменят, и V-16 станет единственным обязательным средством (причем версия с геолокацией).\n\n💡 Есть V-16? Сиди в машине, включи мигалку на крышу и жди помощь. Треугольники доставать не нужно."
     },
     "image_url": "https://teorica.practicavial.com/question/81892841-12ee-44d5-b3f5-64dca2971df1-1657900374-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/81892841-12ee-44d5-b3f5-64dca2971df1-s-1.jpg",

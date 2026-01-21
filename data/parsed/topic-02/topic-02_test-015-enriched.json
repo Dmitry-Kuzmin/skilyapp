@@ -1,0 +1,202 @@
+[
+  {
+    "topic_number": 2,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿En caso de no disponer del dispositivo luminoso V-16 y hasta el 1 de enero del 2026, está permitido colocar los triángulos de preseñalización de peligro a menos de 50 metros del vehículo averiado?",
+      "en": "If the V-16 luminous device is not available and until January 1, 2026, is it permitted to place the hazard warning triangles less than 50 meters from the disabled vehicle?",
+      "ru": "Если световое устройство V-16 отсутствует, разрешено ли до 1 января 2026 года устанавливать знаки аварийной остановки (треугольники) на расстоянии менее 50 метров от неисправного транспортного средства?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, deben estar al menos a 100 metros.",
+          "en": "No, they must be at least 100 meters away.",
+          "ru": "Нет, они должны находиться на расстоянии не менее 100 метров."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, a esa distancia ya son visibles.",
+          "en": "Yes, they are already visible at that distance.",
+          "ru": "Да, на таком расстоянии они уже видны."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Vehículos, los triángulos de preseñalización de peligro deben colocarse a una distancia mínima de 50 metros del vehículo, de forma que sean visibles desde al menos 100 metros por los conductores que se aproximen. En calzadas de doble sentido y dos o tres carriles, se colocará uno por delante y otro por detrás. En autopistas, autovías o calzadas de sentido único, solo es necesario el trasero. El dispositivo V-16 sustituirá definitivamente a los triángulos el 1 de enero de 2026.",
+      "en": "According to the General Vehicle Regulations, hazard warning triangles must be placed at a minimum distance of 50 meters from the vehicle, ensuring they are visible from at least 100 meters by approaching drivers. On two-way roads with two or three lanes, one must be placed in front and one behind. On motorways, dual carriageways, or one-way roads, only the rear one is required. The V-16 device will permanently replace triangles on January 1, 2026.",
+      "ru": "🎓 При вынужденной остановке на дороге ты обязан обозначить свой легковой автомобиль (Turismo). Если у тебя нет маячка V-16, нужно выставить знаки аварийной остановки. Минимальное расстояние — 50 метров от ТС, чтобы их было видно другим водителям за 100 метров. На дорогах с двусторонним движением (до 3 полос) ставь два знака: спереди и сзади. На Autopista/Autovía или дорогах с односторонним движением достаточно одного знака сзади. Помни: выходить из машины на обочину (Arcén) можно только в светоотражающем жилете. 🇷🇺 В РФ в населенных пунктах знак ставится за 15 метров, вне — за 30 метров. В Испании стандарт строже: минимум 50 метров в любом случае на междугородних трассах. 💡 Пятьдесят метров — знак стоит, за сто метров — его узрит!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/810477e8-72c4-4e98-8c3e-474e9419b7c7-1657900521-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/810477e8-72c4-4e98-8c3e-474e9419b7c7-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "810477e8-72c4-4e98-8c3e-474e9419b7c7",
+    "id": "810477e8-72c4-4e98-8c3e-474e9419b7c7",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 2,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "¿Para adelantar a la bicicleta, debe encender el intermitente?",
+      "en": "To overtake the bicycle, should you turn on the turn signal?",
+      "ru": "Должны ли вы включить указатель поворота для опережения велосипедиста?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque no es obligatorio.",
+          "en": "No, because it is not mandatory.",
+          "ru": "Нет, так как это не обязательно."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, porque para adelantar es necesario cambiar de carril.",
+          "en": "Yes, because to overtake it is necessary to change lanes.",
+          "ru": "Да, так как для опережения необходимо сменить полосу движения."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No es necesario, porque la marca vial me permite adelantar.",
+          "en": "It is not necessary because the road marking allows me to overtake.",
+          "ru": "Это не обязательно, так как дорожная разметка разрешает маневр."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "De acuerdo con el Reglamento General de Circulación, todo conductor que se proponga realizar un desplazamiento lateral para adelantar debe advertirlo con suficiente antelación mediante la señalización óptica reglamentaria. Al adelantar a ciclos o ciclomotores, es obligatorio mantener una separación lateral mínima de 1,5 metros, lo que conlleva un desplazamiento que debe ser señalizado.",
+      "en": "According to the General Traffic Regulations, any driver intending to perform a lateral displacement to overtake must signal it sufficiently in advance using the mandatory optical signals. When overtaking cycles or mopeds, it is mandatory to maintain a minimum lateral safety distance of 1.5 meters, which involves a displacement that must be signaled.",
+      "ru": "🎓 Любой маневр, требующий бокового перемещения (даже в пределах одной полосы движения), должен быть заранее обозначен указателем поворота. При опережении велосипедиста правила обязывают тебя соблюдать безопасный боковой интервал не менее 1,5 метров. Поскольку для этого тебе придется сместить легковой автомобиль влево, включение поворотника является обязательным условием безопасности. 🇷🇺 В Испании при опережении велосипедиста разрешается пересекать даже сплошную линию разметки, если это безопасно, но сигнал поворота обязателен в любом случае. 💡 Руль влево забирает — поворотник зажигает!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/3ea9e1aa-4205-44ea-8bce-b1f27f83fbb3-1657804216-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3ea9e1aa-4205-44ea-8bce-b1f27f83fbb3-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "3ea9e1aa-4205-44ea-8bce-b1f27f83fbb3",
+    "id": "3ea9e1aa-4205-44ea-8bce-b1f27f83fbb3",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 2,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "El vehículo amarillo está detenido porque quiere cambiar de sentido. ¿Es correcto teniendo en cuenta las circunstancias observadas?",
+      "en": "The yellow vehicle is stopped because it wants to perform a U-turn. Is this correct considering the observed circumstances?",
+      "ru": "Желтый легковой автомобиль остановился для выполнения разворота. Правильно ли это, учитывая текущую ситуацию?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, porque la línea longitudinal que separa ambos sentidos es discontinua.",
+          "en": "Yes, because the longitudinal line separating both directions is broken.",
+          "ru": "Да, так как продольная разметка, разделяющая потоки, является прерывистой."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, porque impide circular al resto de vehículos.",
+          "en": "No, because it prevents other vehicles from circulating.",
+          "ru": "Нет, так как он препятствует движению остальных транспортных средств."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, porque el vehículo que circula en sentido contrario debe facilitarle la maniobra.",
+          "en": "Yes, because the vehicle traveling in the opposite direction must facilitate the maneuver.",
+          "ru": "Да, так как транспортное средство, движущееся во встречном направлении, обязано содействовать маневру."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, el conductor que pretenda efectuar un cambio de sentido debe elegir un lugar adecuado para realizar la maniobra, de forma que se intercepte la vía el menor tiempo posible. Si mientras espera para realizarlo impide la marcha de los vehículos que circulan detrás, deberá salirse de la calzada por su lado derecho y situarse en el arcén hasta que las condiciones de la circulación le permitan realizar la maniobra.",
+      "en": "According to the General Traffic Regulations, a driver intending to perform a U-turn must choose a suitable location to minimize road interception time. If, while waiting to perform the maneuver, the driver obstructs the flow of vehicles following behind, they must leave the roadway on the right side and wait on the shoulder (arcén) until traffic conditions allow the maneuver to be completed safely.",
+      "ru": "🎓 При выполнении разворота на дороге с двусторонним движением ты обязан выбрать такой момент и место, чтобы не создавать помех. Если из-за твоего ожидания за тобой скапливаются другие машины, ты не имеешь права блокировать проезжую часть. В этом случае ты обязан съехать на правую обочину и дождаться там момента, когда дорога будет свободна в обоих направлениях, чтобы выполнить разворот одним маневром. 🇷🇺 В Испании правила более строги к заторам при развороте: если в РФ можно стоять в полосе и ждать, то здесь ты обязан освободить дорогу, съехав на обочину, если мешаешь тем, кто едет сзади. 💡 Мешаешь хвосту — прижмись к обочине!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/e0fbfb3e-dbc4-4a04-81bb-08e90b1a5b43-1657895556-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e0fbfb3e-dbc4-4a04-81bb-08e90b1a5b43-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "e0fbfb3e-dbc4-4a04-81bb-08e90b1a5b43",
+    "id": "e0fbfb3e-dbc4-4a04-81bb-08e90b1a5b43",
+    "enriched_from_cache": true
+  },
+  {
+    "topic_number": 2,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "En una autopista, ¿dónde está permitido inmovilizar el vehículo para descansar?",
+      "en": "On a highway, where is it allowed to stop the vehicle to rest?",
+      "ru": "Где на автомагистрали разрешено остановить транспортное средство для отдыха?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sólo en las áreas de servicio o de descanso.",
+          "en": "Only in service or rest areas.",
+          "ru": "Только в зонах обслуживания или отдыха."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Únicamente en las vías de servicio.",
+          "en": "Only on service roads.",
+          "ru": "Только на дорогах сервиса."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Fuera de la calzada y de la parte transitable del arcén.",
+          "en": "Outside the roadway and the passable part of the shoulder.",
+          "ru": "За пределами проезжей части и проезжей части обочины."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, está prohibido parar y estacionar en autopistas y autovías, salvo en áreas de servicio o descanso debidamente señalizadas. Estas áreas están diseñadas para que los conductores puedan descansar de forma segura y sin interrumpir el tráfico.",
+      "en": "According to the General Traffic Regulations, stopping and parking on highways and motorways is prohibited, except in duly signposted service or rest areas. These areas are designed to allow drivers to rest safely and without interrupting traffic.",
+      "ru": "На автомагистралях и скоростных дорогах остановка и стоянка запрещены. Исключение составляют специально обозначенные зоны сервиса или отдыха. Эти зоны предназначены для того, чтобы водители могли безопасно отдохнуть, не создавая помех движению."
+    },
+    "image_url": "https://teorica.practicavial.com/question/79153829-a8df-4d3b-9774-2ee9169b77fb-1657904595-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/79153829-a8df-4d3b-9774-2ee9169b77fb-s-1.jpg",
+    "source": "practicavial",
+    "external_id": "79153829-a8df-4d3b-9774-2ee9169b77fb",
+    "id": "79153829-a8df-4d3b-9774-2ee9169b77fb",
+    "enriched_from_cache": true
+  }
+]

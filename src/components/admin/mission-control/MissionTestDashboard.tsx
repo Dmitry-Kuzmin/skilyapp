@@ -32,20 +32,33 @@ export const MissionTestDashboard = ({ testId, serverOnline, stats, onStartRevie
         const checkStatus = async () => {
             if (!serverOnline) return;
             try {
-                const res = await fetch('http://localhost:3030/api/enrich/status');
+                // Poll correct endpoint based on task
+                const endpoint = activeTaskType === 'generate'
+                    ? 'http://localhost:3030/api/generate/status'
+                    : 'http://localhost:3030/api/enrich/status';
+
+                const res = await fetch(endpoint);
                 const data = await res.json();
 
                 if (data.isRunning) {
                     if (!localProcessing) setLocalProcessing(true);
-                    if (activeTaskType !== 'enrich') setActiveTaskType('enrich');
+
+                    // Auto-detect task type if we just refreshed page
+                    if (!activeTaskType) {
+                        setActiveTaskType(endpoint.includes('generate') ? 'generate' : 'enrich');
+                    }
+
                     setProcessLog(typeof data.latestLog === 'string' ? data.latestLog : JSON.stringify(data.latestLog));
                 } else {
                     // If we were processing but now stopped
-                    if (activeTaskType === 'enrich') {
+                    if ((activeTaskType === 'generate' && endpoint.includes('generate')) ||
+                        (activeTaskType === 'enrich' && endpoint.includes('enrich'))) {
+
                         setLocalProcessing(false);
                         setActiveTaskType(null);
                         setProcessLog(typeof data.latestLog === 'string' ? data.latestLog : JSON.stringify(data.latestLog)); // Final message
-                        toast.info("Enrichment Process Finished");
+
+                        toast.info("Process Finished");
                         // Optionally reload
                         // window.location.reload(); 
                     }
@@ -60,7 +73,7 @@ export const MissionTestDashboard = ({ testId, serverOnline, stats, onStartRevie
         return () => clearInterval(interval);
     }, [serverOnline, activeTaskType, localProcessing]);
 
-    // BATCH GENERATE
+    // BATCH GENERATE (with AUTO-SYNC)
     const handleBatchGenerate = async () => {
         if (!serverOnline) {
             toast.error("Validator Server Offline. Run 'npm run validator'");
@@ -70,30 +83,46 @@ export const MissionTestDashboard = ({ testId, serverOnline, stats, onStartRevie
         setIsProcessing(true);
         setLocalProcessing(true);
         setActiveTaskType('generate');
+
+        // АРХИТЕКТУРА: Auto-sync duplicates BEFORE generating to avoid waste
+        addLog(`🔄 Pre-flight sync: checking for duplicate images...`, 'info');
+        toast.info("Syncing existing images first...", { duration: 2000 });
+
+        try {
+            const syncRes = await fetch(`http://localhost:3030/api/test/${testId}/sync-images`, { method: 'POST' });
+            if (syncRes.ok) {
+                const syncData = await syncRes.json();
+                addLog(`✅ Synced ${syncData.copied} images from other tests`, 'success');
+                if (syncData.copied > 0) {
+                    toast.success(`Found ${syncData.copied} existing images!`);
+                }
+            }
+        } catch (e) {
+            addLog(`⚠️ Sync failed, continuing with generation: ${e}`, 'warn');
+        }
+
         addLog(`Starting batch generation for ${testId}...`, 'info');
 
         try {
             toast.info("Mission Start: Batch Generation Init...");
-            await fetch('http://localhost:3030/api/generate/batch', {
+
+            // Extract category from testId (e.g. topic-02 from topic-02_test-006)
+            const category = testId.split('_')[0];
+
+            await fetch('http://localhost:3030/api/generate/test', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     testId,
+                    category,
                     forceRegenerate: false
                 })
             });
 
-            addLog("Batch command sent to server. Check terminal for progress.", 'success');
+            addLog("Batch command sent to server.", 'success');
             toast.success("Batch Generation Started (Server-Side)");
 
-            // Poll for completion? or just let user check manually?
-            // For now, simple timeout to re-enable button
-            setTimeout(() => {
-                setLocalProcessing(false);
-                setIsProcessing(false);
-                setActiveTaskType(null);
-            }, 5000);
-
+            // Polling will take over
         } catch (e) {
             console.error(e);
             addLog(`Batch start failed: ${e}`, 'error');
@@ -145,7 +174,11 @@ export const MissionTestDashboard = ({ testId, serverOnline, stats, onStartRevie
         addLog(`Deploying test ${testId} to Production...`, 'warn');
 
         try {
-            const res = await fetch(`http://localhost:3030/api/deploy-test/${testId}`, { method: 'POST' });
+            const res = await fetch(`http://localhost:3030/api/db/deploy-test`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ testId })
+            });
             const data = await res.json();
 
             if (res.ok) {
@@ -185,6 +218,17 @@ export const MissionTestDashboard = ({ testId, serverOnline, stats, onStartRevie
         setIsProcessing(false);
         setActiveTaskType(null);
         addLog("Process interrupted by user.", 'warn');
+    };
+
+    const handleStopEnrichment = async () => {
+        try {
+            await fetch('http://localhost:3030/api/enrich/stop', { method: 'POST' });
+            toast.info("Stop signal sent.");
+            setLocalProcessing(false);
+            setActiveTaskType(null);
+        } catch (e) {
+            console.error(e);
+        }
     };
 
     // UI Metrics
@@ -309,7 +353,11 @@ export const MissionTestDashboard = ({ testId, serverOnline, stats, onStartRevie
                                 </div>
                                 <div>
                                     <h4 className="text-base font-bold text-white group-hover:text-indigo-400 transition-colors">Image Synthesis</h4>
-                                    <p className="text-sm text-zinc-400">Gen-2.0 Neural Engine</p>
+                                    <p className="text-sm text-zinc-400">
+                                        {activeTaskType === 'generate' && processLog ? (
+                                            <span className="text-indigo-400 font-mono animate-pulse">{processLog}</span>
+                                        ) : "Gen-2.0 Neural Engine"}
+                                    </p>
                                 </div>
                             </div>
 
@@ -365,18 +413,27 @@ export const MissionTestDashboard = ({ testId, serverOnline, stats, onStartRevie
                             </div>
 
                             <div className="flex items-center gap-3 w-full md:w-auto">
+                                {activeTaskType === 'enrich' && (
+                                    <Button
+                                        onClick={handleStopEnrichment}
+                                        variant="destructive"
+                                        className="h-10 px-4 font-bold shadow-[0_0_15px_rgba(239,68,68,0.3)] animate-pulse"
+                                    >
+                                        <AlertCircle className="w-4 h-4 mr-2" /> STOP
+                                    </Button>
+                                )}
                                 <Button
                                     onClick={handleBatchEnrich}
-                                    disabled={false}
+                                    disabled={activeTaskType === 'enrich'}
                                     className={cn(
                                         "h-10 px-6 font-bold transition-all hover:scale-105 active:scale-95",
-                                        !isEnriched
+                                        !isEnriched && activeTaskType !== 'enrich'
                                             ? "bg-amber-500 hover:bg-amber-400 text-black shadow-[0_0_20px_rgba(245,158,11,0.2)]"
                                             : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700"
                                     )}
                                 >
                                     <FileText className="w-4 h-4 mr-2" />
-                                    {!isEnriched ? "START ENRICHMENT" : "RE-ENRICH DATA"}
+                                    {activeTaskType === 'enrich' ? "PROCESSING..." : !isEnriched ? "START ENRICHMENT" : "RE-ENRICH DATA"}
                                 </Button>
                             </div>
                         </div>

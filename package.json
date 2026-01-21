@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "dev:all": "concurrently \"npm run dev\" \"npm run validator\" --names \"APP,API\" --prefix-colors \"cyan,magenta\"",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run validator\" --names \"APP,API\" --prefix-colors \"cyan,magenta\"",
+    "dev:frontend": "vite",
     "dev:tunnel": "./scripts/start-dev-with-tunnel.sh",
     "prebuild": "node scripts/update-version.js",
     "build": "tsc && vite build",
@@ -48,6 +48,7 @@
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^5.0.1",
+    "@google-cloud/vertexai": "^1.10.0",
     "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^3.3.4",
     "@paddle/paddle-js": "^1.6.1",
@@ -115,6 +116,8 @@
     "dotenv": "^16.4.5",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^11.3.19",
+    "fuse.js": "^7.1.0",
+    "google-auth-library": "^10.5.0",
     "idb": "^8.0.3",
     "idb-keyval": "^6.2.2",
     "input-otp": "^1.4.2",

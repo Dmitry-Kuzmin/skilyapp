@@ -26,6 +26,8 @@ import { Dashboard } from "@/components/dashboard-new/Dashboard";
 const PaywallModal = lazy(() => import("@/components/monetization/PaywallModal").then(m => ({ default: m.PaywallModal })));
 const WelcomeOverlay = lazy(() => import("@/components/dashboard-new/WelcomeOverlay").then(m => ({ default: m.WelcomeOverlay })));
 
+import { StartupCurtain } from "@/components/StartupCurtain";
+
 // Внутренний компонент для авторизованных пользователей
 // ОПТИМИЗАЦИЯ: Мемоизирован для предотвращения лишних ре-рендеров
 const DashboardContent = memo(function DashboardContent() {
@@ -223,14 +225,7 @@ const DashboardContent = memo(function DashboardContent() {
     : (dashboardData?.stats.accuracy || 0);
   const averageScore = readinessPercent || accuracy;
 
-  console.log('[Index] 🔍 Render state:', {
-    loading,
-    hasDashboardData: !!dashboardData,
-    showWelcome,
-    profileId,
-    accuracy,
-    averageScore
-  });
+
 
   // Правильная логика: hasClaimedToday = !can_claim (если can_claim false, значит уже получено)
   const hasClaimedToday = dashboardData?.daily_bonus ? !dashboardData.daily_bonus.can_claim : false;
@@ -351,7 +346,12 @@ const Index = memo(function Index() {
     return <PageLoader />;
   }
 
-  return <DashboardContent />;
+  return (
+    <>
+      <StartupCurtain />
+      <DashboardContent />
+    </>
+  );
 });
 
 export default Index;

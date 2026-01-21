@@ -249,17 +249,17 @@
     "question_number": 6,
     "category": "B",
     "question": {
-      "es": "Un turismo con remolque, ¿tiene permitido circular por un carril adicional?",
-      "en": null,
-      "ru": null
+      "es": "¿Un turismo con remolque tiene permitido circular por un carril adicional?",
+      "en": "Is a passenger car with a trailer allowed to drive in an additional lane?",
+      "ru": "Разрешено ли легковому автомобилю с прицепом движение по дополнительной полосе (carril adicional)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       },
@@ -267,8 +267,8 @@
         "id": "b",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       },
@@ -276,20 +276,22 @@
         "id": "c",
         "text": {
           "es": "Solo si el remolque es ligero.",
-          "en": null,
-          "ru": null
+          "en": "Only if the trailer is light.",
+          "ru": "Только если прицеп является легким."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El carril adicional circunstancial se habilita para mejorar la fluidez del tráfico en vías con un solo carril por sentido, utilizando los arcenes. A diferencia de otros carriles especiales como el VAO, su uso está permitido a todos los vehículos autorizados a circular por la vía, incluidos los turismos con remolque, salvo señalización expresa en contra. Es obligatorio el uso de la luz de posición y cruce tanto de día como de noche para todos los usuarios de la vía afectada, y la velocidad debe mantenerse entre un máximo de 80 km/h y un mínimo de 60 km/h, o inferior si así lo indica la señalización.",
+      "en": "An additional circumstantial lane is established to improve traffic flow on roads with one lane per direction by utilizing the shoulders (arcenes). Unlike other special lanes such as VAO, its use is permitted for all vehicles authorized to travel on that road, including passenger cars with trailers, unless specifically prohibited. The use of position and low-beam lights is mandatory for all users of the affected road both day and night, and speed must be maintained between a maximum of 80 km/h and a minimum of 60 km/h, or lower if indicated by signage.",
+      "ru": "🎓 Дополнительная полоса (carril adicional) создается для разгрузки трафика на дорогах с одной полосой в каждом направлении за счет использования обочины (arcén). В отличие от полос VAO, сюда пускают абсолютно всех, кому разрешено движение по этой дороге: и легковой автомобиль, и грузопассажирский автомобиль, и твой легковой автомобиль с любым прицепом. Главное помнить правила: на всем участке дороги нужно включить ближний свет фар (даже днем), соблюдать скорость строго от 60 до 80 км/ч и ни в коем случае не пересекать линию конусов. 🇷🇺 В Испании при организации такой полосы обочина (arcén) временно становится полноценной частью проезжей части, тогда как в РФ движение по обочине запрещено. 💡 Дополнительная полоса — как гостеприимный дом: пускают всех (даже с прицепом), но свет и скорость (60-80) для всех обязательны!"
     },
     "image_url": "https://teorica.practicavial.com/question/52dc3d46-3a7a-4226-be43-ad326168887e-1652200379-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/52dc3d46-3a7a-4226-be43-ad326168887e-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "52dc3d46-3a7a-4226-be43-ad326168887e",
+    "external_id": "52dc3d46-3a7a-4226-be43-ad326168887e"
   },
   {
     "topic_number": 1,

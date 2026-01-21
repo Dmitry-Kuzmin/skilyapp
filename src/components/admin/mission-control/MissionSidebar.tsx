@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Search, FileText, CheckCircle2, ChevronRight, Folder, ChevronDown, AlertTriangle, Loader2 } from "lucide-react";
+import { Search, FileText, CheckCircle2, ChevronRight, Folder, ChevronDown, AlertTriangle, Loader2, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
     CommandDialog,
@@ -19,16 +19,38 @@ interface MissionSidebarProps {
     onSelectQuestion: (id: string) => void;
     selectedTestId: string | null;
     selectedQuestionId: string | null;
+    selectedCountry: 'spain' | 'russia';
     serverOnline: boolean;
     questions?: any[];
-    generatingQuestionId?: string | null; // New Prop
+    generatingQuestionId?: string | null;
+    isSearchOpen: boolean;
+    onSearchOpenChange: (open: boolean) => void;
 }
 
-export function MissionSidebar({ onSelectTest, onSelectQuestion, selectedTestId, selectedQuestionId, serverOnline, questions = [], generatingQuestionId }: MissionSidebarProps) {
+export function MissionSidebar({
+    onSelectTest,
+    onSelectQuestion,
+    selectedTestId,
+    selectedQuestionId,
+    selectedCountry,
+    serverOnline,
+    questions = [],
+    generatingQuestionId,
+    isSearchOpen,
+    onSearchOpenChange
+}: MissionSidebarProps) {
     const [structure, setStructure] = useState<any>({});
     const [loading, setLoading] = useState(false);
-    const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
-    const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+    // АРХИТЕКТУРА: Restore expanded state from localStorage
+    const [expandedCategories, setExpandedCategories] = useState<string[]>(() => {
+        try {
+            const saved = localStorage.getItem('mission-control-expanded-categories');
+            return saved ? JSON.parse(saved) : [];
+        } catch {
+            return [];
+        }
+    });
 
     // Search State
     const [searchQuery, setSearchQuery] = useState("");
@@ -41,39 +63,44 @@ export function MissionSidebar({ onSelectTest, onSelectQuestion, selectedTestId,
                 return;
             }
             try {
-                const res = await fetch(`http://localhost:3030/api/search?q=${encodeURIComponent(searchQuery)}`);
+                const res = await fetch(`http://localhost:3030/api/search?q=${encodeURIComponent(searchQuery)}&country=${selectedCountry}`);
                 if (res.ok) {
                     setSearchResults(await res.json());
                 }
             } catch (e) { console.error(e); }
         }, 300);
         return () => clearTimeout(timer);
-    }, [searchQuery]);
+    }, [searchQuery, selectedCountry]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
                 e.preventDefault();
-                setIsSearchOpen(prev => !prev);
+                onSearchOpenChange(!isSearchOpen);
             }
         };
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
-    }, []);
+    }, [isSearchOpen, onSearchOpenChange]);
 
     useEffect(() => {
         if (serverOnline) loadData();
-    }, [serverOnline]);
+    }, [serverOnline, selectedCountry]);
 
     const loadData = async () => {
         setLoading(true);
         try {
-            const res = await fetch('http://localhost:3030/api/files/tree');
+            const res = await fetch(`http://localhost:3030/api/files/tree?country=${selectedCountry}`);
             if (res.ok) {
                 const data = await res.json();
                 setStructure(data);
-                if (data['topic-01']) {
-                    setExpandedCategories(['topic-01']);
+
+                // АРХИТЕКТУРА: Only auto-expand if no saved state exists
+                const keys = Object.keys(data);
+                if (keys.length > 0 && expandedCategories.length === 0) {
+                    const firstKey = keys[0];
+                    setExpandedCategories([firstKey]);
+                    localStorage.setItem('mission-control-expanded-categories', JSON.stringify([firstKey]));
                 }
             }
         } catch (e) {
@@ -84,29 +111,16 @@ export function MissionSidebar({ onSelectTest, onSelectQuestion, selectedTestId,
     };
 
     const toggleCategory = (cat: string) => {
-        setExpandedCategories(prev =>
-            prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
-        );
+        setExpandedCategories(prev => {
+            const updated = prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat];
+            // АРХИТЕКТУРА: Persist to localStorage
+            localStorage.setItem('mission-control-expanded-categories', JSON.stringify(updated));
+            return updated;
+        });
     };
 
     return (
-        <div className="flex flex-col h-full bg-zinc-950 border-r border-zinc-900">
-
-            {/* Search Trigger */}
-            <div className="p-3 border-b border-zinc-800/50 bg-zinc-900/20">
-                <button
-                    onClick={() => setIsSearchOpen(true)}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200 transition-all group shadow-sm"
-                >
-                    <div className="flex items-center gap-2">
-                        <Search className="w-3.5 h-3.5 opacity-50" />
-                        <span className="text-xs font-medium">Search all questions...</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <span className="text-[10px] text-zinc-600 bg-zinc-800/50 px-1.5 py-0.5 rounded border border-zinc-800">⌘K</span>
-                    </div>
-                </button>
-            </div>
+        <div className="flex flex-col h-full bg-[#050505] border-r border-white/5">
 
             {/* Active Test & Questions List */}
             <div className="flex-1 flex flex-col min-h-0">
@@ -135,7 +149,8 @@ export function MissionSidebar({ onSelectTest, onSelectQuestion, selectedTestId,
                         <ScrollArea className="flex-1">
                             <div className="p-2 space-y-0.5">
                                 {questions.map((q, idx) => {
-                                    const fullId = `${selectedTestId}_${q.external_id}`;
+                                    const extId = q.external_id || q.id;
+                                    const fullId = extId.startsWith(selectedTestId) ? extId : `${selectedTestId}_${extId}`;
                                     const isSelected = selectedQuestionId === fullId;
                                     const isPending = !q.is_published;
                                     const hasImageCandidate = !q.is_published && q.is_generated;
@@ -143,7 +158,7 @@ export function MissionSidebar({ onSelectTest, onSelectQuestion, selectedTestId,
                                     return (
                                         <button
                                             key={q.id}
-                                            onClick={() => onSelectQuestion(`${selectedTestId}_${q.external_id}`)}
+                                            onClick={() => onSelectQuestion(fullId)}
                                             className={cn(
                                                 "flex items-start w-full p-2 rounded-lg transition-all text-left border border-transparent group relative overflow-hidden",
                                                 isSelected
@@ -245,7 +260,7 @@ export function MissionSidebar({ onSelectTest, onSelectQuestion, selectedTestId,
             </div>
 
             {/* COMMAND PALETTE (Global Search) */}
-            <CommandDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} shouldFilter={false}>
+            <CommandDialog open={isSearchOpen} onOpenChange={onSearchOpenChange} shouldFilter={false}>
                 <CommandInput
                     placeholder="Search API (Try Spanish for max results)..."
                     value={searchQuery}
@@ -261,45 +276,55 @@ export function MissionSidebar({ onSelectTest, onSelectQuestion, selectedTestId,
                                     key={`${res.testId}-${res.id}`}
                                     onSelect={() => {
                                         onSelectTest(res.testId);
-                                        // Wait a tick for state to propagate if needed, but React handles this
+                                        // Wait a tick for state to propagate if needed
                                         setTimeout(() => onSelectQuestion(`${res.testId}_${res.id}`), 100);
-                                        setIsSearchOpen(false);
+                                        onSearchOpenChange(false);
                                     }}
-                                    className="cursor-pointer flex flex-col items-start gap-1 py-2 aria-selected:bg-zinc-800"
+                                    className="group cursor-pointer flex items-start gap-3 p-2 rounded-xl border border-transparent transition-all mb-1 data-[selected=true]:bg-zinc-800 data-[selected=true]:border-zinc-700/50 hover:bg-zinc-900/50"
                                     value={`${res.testId}-${res.id}`}
                                 >
-                                    <div className="flex items-center gap-2 w-full mb-0.5">
-                                        <Badge variant="outline" className="text-[9px] px-1 h-4 border-zinc-700 text-zinc-400 font-mono tracking-tighter">
-                                            {res.testId}
-                                        </Badge>
-                                        <span className="text-[10px] bg-zinc-800 text-zinc-500 px-1 rounded font-mono">#{res.id.substring(0, 8)}</span>
+                                    {/* Image Thumbnail */}
+                                    <div className="flex-shrink-0 w-20 h-14 bg-zinc-950 rounded-lg overflow-hidden border border-white/5 relative group-data-[selected=true]:border-white/20 transition-colors">
+                                        <img
+                                            src={`http://localhost:3030${res.imageUrl}`}
+                                            alt="Preview"
+                                            className="w-full h-full object-cover opacity-60 group-aria-selected:opacity-100 transition-opacity duration-500"
+                                            onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }}
+                                        />
+                                        <div className="hidden absolute inset-0 flex items-center justify-center bg-zinc-900">
+                                            <ImageIcon className="w-5 h-5 text-zinc-700" />
+                                        </div>
+                                    </div>
 
-                                        {/* Duplicate Indicator */}
-                                        {res.locationCount > 1 && (
-                                            <Badge variant="secondary" className="text-[9px] px-1 h-4 bg-amber-500/10 text-amber-500 border border-amber-500/20 ml-auto">
-                                                Found in {res.locationCount} tests
-                                            </Badge>
+                                    {/* Content */}
+                                    <div className="flex-1 min-w-0 flex flex-col gap-1.5 py-0.5">
+                                        <div className="flex items-center gap-2 justify-between w-full">
+                                            <div className="flex items-center gap-2">
+                                                <Badge variant="outline" className="text-[9px] px-1.5 h-5 bg-blue-500/10 text-blue-400 border-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.1)] font-mono tracking-wide">
+                                                    {res.testId.replace('topic-', 'T-').replace('_test-', ' / ')}
+                                                </Badge>
+                                                <span className="text-[9px] text-zinc-600 font-mono">#{res.id.substring(0, 6)}</span>
+                                            </div>
+
+                                            {res.locationCount > 1 && (
+                                                <Badge variant="secondary" className="text-[9px] px-1.5 h-4 bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                                                    +{res.locationCount - 1} copies
+                                                </Badge>
+                                            )}
+                                        </div>
+
+                                        <p className="text-[13px] font-medium text-zinc-300 line-clamp-2 leading-snug group-aria-selected:text-white transition-colors">
+                                            {res.question_ru || "..."}
+                                        </p>
+
+                                        {res.question_es && (
+                                            <p className="text-[11px] text-zinc-500 line-clamp-1 italic">
+                                                {res.question_es}
+                                            </p>
                                         )}
                                     </div>
-                                    <p className="text-sm text-zinc-100 line-clamp-1 leading-tight">
-                                        {res.question_ru || "..."}
-                                    </p>
-                                    {res.question_es && (
-                                        <p className="text-xs text-zinc-500 line-clamp-1">
-                                            {res.question_es}
-                                        </p>
-                                    )}
-                                    {/* Duplicates Detail */}
-                                    {res.locationCount > 1 && res.locations && (
-                                        <div className="flex flex-wrap gap-1 mt-1 opacity-50">
-                                            {res.locations.filter((Loc: string) => Loc !== res.testId).slice(0, 3).map((loc: string) => (
-                                                <span key={loc} className="text-[9px] text-zinc-600 bg-zinc-900 px-1 rounded">
-                                                    {loc}
-                                                </span>
-                                            ))}
-                                            {res.locations.length > 4 && <span className="text-[9px] text-zinc-600">+{res.locations.length - 4} more</span>}
-                                        </div>
-                                    )}
+
+                                    <ChevronRight className="w-4 h-4 text-zinc-700 group-aria-selected:text-zinc-500 self-center transition-colors" />
                                 </CommandItem>
                             ))}
                         </CommandGroup>

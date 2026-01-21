@@ -8,7 +8,9 @@ import {
     Languages,
     Check,
     Cloud,
-    Loader2
+    Loader2,
+    FileJson,
+    Database
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -17,33 +19,42 @@ import { MarkdownText } from "./MarkdownText";
 interface MissionEditorProps {
     questionId: string;
     testId?: string | null;
+    country?: 'spain' | 'russia';
+    serverOnline?: boolean;
 }
 
 type Lang = 'ru' | 'es' | 'en';
 
-export function MissionEditor({ questionId, testId }: MissionEditorProps) {
+export function MissionEditor({ questionId, testId, country = 'spain', serverOnline }: MissionEditorProps) {
     const [isEditingExplanation, setIsEditingExplanation] = useState(false);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [data, setData] = useState<any>(null);
-    const [lang, setLang] = useState<Lang>('ru');
+    const [lang, setLang] = useState<Lang>(country === 'russia' ? 'ru' : 'ru'); // Default to ru anyway
 
     useEffect(() => {
         if (questionId) loadQuestionData();
-    }, [questionId]);
+    }, [questionId, country]);
 
     const loadQuestionData = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:3030/api/question/${questionId}/full`);
+            const res = await fetch(`http://localhost:3030/api/db/question/${questionId}?country=${country}`);
             if (!res.ok) throw new Error(`Server returned ${res.status}`);
-            const { question } = await res.json();
+            const { question, source, table, sourceFile } = await res.json();
+
+            console.log('[MissionEditor] Loaded:', { question, source, table, sourceFile });
 
             if (question) {
-                const correctAnswer = question.answers?.find((a: any) => a.is_correct);
-                const wrongAnswers = question.answers?.filter((a: any) => !a.is_correct) || [];
+                const correctAnswer = question.answers?.find((a: any) => a.is_correct) ||
+                    question.answer_options?.find((a: any) => a.is_correct);
+
+                const wrongAnswers = question.answers?.filter((a: any) => !a.is_correct) ||
+                    question.answer_options?.filter((a: any) => !a.is_correct) || [];
 
                 setData({
+                    _source: source || (table ? 'db' : 'unknown'),
+                    _sourceFile: sourceFile,
                     id: question.external_id || question.id,
                     question_ru: question.question?.ru || "",
                     answer_correct_ru: correctAnswer?.text?.ru || "",
@@ -94,6 +105,7 @@ export function MissionEditor({ questionId, testId }: MissionEditorProps) {
                 body: JSON.stringify({
                     id: data.id,
                     testId,
+                    country,
                     question_ru: data.question_ru,
                     question_es: data.question_es,
                     question_en: data.question_en,
@@ -135,6 +147,35 @@ export function MissionEditor({ questionId, testId }: MissionEditorProps) {
                     <Languages size={14} />
                     <span className="uppercase tracking-wider">Translation Mode</span>
                 </div>
+
+                {/* Source Indicator */}
+                {/* Source Indicator */}
+                <button
+                    onClick={() => {
+                        if (data._sourceFile) {
+                            fetch('http://localhost:3030/api/open-file', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    path: data._sourceFile,
+                                    id: data.id
+                                })
+                            });
+                            toast.success("Opening file in editor...");
+                        }
+                    }}
+                    className={cn(
+                        "px-3 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider border transition-all duration-300 flex items-center gap-1.5",
+                        data._source === 'db'
+                            ? "bg-slate-900/50 border-cyan-500/30 text-cyan-400 cursor-default shadow-[0_0_10px_rgba(34,211,238,0.1)]"
+                            : "bg-amber-950/20 border-amber-500/30 text-amber-500 hover:text-amber-300 hover:bg-amber-900/40 hover:border-amber-400/60 hover:shadow-[0_0_15px_rgba(245,158,11,0.3)] cursor-pointer group"
+                    )}
+                    title={data._sourceFile || "Supabase DB"}
+                    disabled={!data._sourceFile}
+                >
+                    {data._source === 'db' ? <Database size={12} className="opacity-70" /> : <FileJson size={12} className="group-hover:text-amber-300 transition-colors" />}
+                    {data._source === 'db' ? 'Supabase DB' : 'JSON File'}
+                </button>
 
                 {/* Language Pills */}
                 <div className="flex bg-black/40 p-1 rounded-lg border border-white/10 gap-1">

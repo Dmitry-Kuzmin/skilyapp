@@ -5,16 +5,16 @@
     "category": "B",
     "question": {
       "es": "El conductor de una motocicleta, que lleva una persona en el asiento trasero...",
-      "en": null,
-      "ru": null
+      "en": "The driver of a motorcycle, carrying a person in the rear seat...",
+      "ru": "Водитель мотоцикла, перевозящий пассажира на заднем сиденье..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "debe utilizar el casco protector y aconsejar al acompañante que lo utilice.",
-          "en": null,
-          "ru": null
+          "en": "must use a protective helmet and advise the passenger to use it.",
+          "ru": "должен использовать защитный шлем и советовать пассажиру использовать его."
         },
         "is_correct": false
       },
@@ -22,8 +22,8 @@
         "id": "b",
         "text": {
           "es": "debe utilizar el casco protector y será responsable de que lo utilice el acompañante.",
-          "en": null,
-          "ru": null
+          "en": "must use a protective helmet and will be responsible for the passenger using it.",
+          "ru": "должен использовать защитный шлем и несет ответственность за то, чтобы его использовал пассажир."
         },
         "is_correct": true
       },
@@ -31,16 +31,16 @@
         "id": "c",
         "text": {
           "es": "debe utilizar el casco protector y será responsable de que lo utilice el acompañante, pero sólo en vías interurbanas.",
-          "en": null,
-          "ru": null
+          "en": "must use a protective helmet and will be responsible for the passenger using it, but only on interurban roads.",
+          "ru": "должен использовать защитный шлем и несет ответственность за то, чтобы его использовал пассажир, но только на междугородних дорогах."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El conductor de una motocicleta es el responsable administrativo de que el pasajero utilice el casco de protección debidamente homologado y abrochado. Esta obligación es aplicable en todo tipo de vías, tanto urbanas como interurbanas. El incumplimiento de esta norma faculta a los agentes de la autoridad para proceder a la inmovilización del vehículo.",
+      "en": "The driver of a motorcycle is legally responsible for ensuring that the passenger wears a properly approved and fastened protective helmet. This obligation applies to all types of roads, both urban and interurban. Failure to comply with this regulation allows traffic authorities to proceed with the immobilization of the vehicle.",
+      "ru": "🎓 Водитель мотоцикла обязан не только сам быть в застегнутом шлеме, но и несет полную юридическую ответственность за своего пассажира. Шлем должен быть сертифицированным (омологированным) и правильно застегнутым. Это правило действует на всех типах дорог — и в городе, и на трассе. Если пассажир будет без шлема, ответственность ложится на водителя, а полиция имеет право обездвижить транспортное средство до устранения нарушения. Данное требование распространяется также на мопеды, квадрициклы и трехколесные транспортные средства. 💡 Пассажир без шлема — виноват водитель!"
     },
     "image_url": "https://teorica.practicavial.com/question/9a0eeede-894a-4975-b245-82d2beffb487-1658256091-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/9a0eeede-894a-4975-b245-82d2beffb487-s-1.jpg",
@@ -103,16 +103,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuándo se podrán abrir las puertas para salir del vehículo?",
-      "en": null,
-      "ru": null
+      "en": "When can the doors be opened to exit the vehicle?",
+      "ru": "Когда можно открывать двери для выхода из транспортного средства?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Cuando se encuentre inmovilizado y tras comprobar que no hay peligro.",
-          "en": null,
-          "ru": null
+          "en": "When it is immobilized and after checking that there is no danger.",
+          "ru": "Когда он полностью остановлен и после проверки отсутствия опасности."
         },
         "is_correct": true
       },
@@ -120,8 +120,8 @@
         "id": "b",
         "text": {
           "es": "Siempre que esté inmovilizado aunque entorpezca el paso a otros usuarios.",
-          "en": null,
-          "ru": null
+          "en": "Whenever it is immobilized even if it obstructs the passage of other users.",
+          "ru": "Всегда, когда он остановлен, даже если это мешает движению других участников."
         },
         "is_correct": false
       },
@@ -129,16 +129,16 @@
         "id": "c",
         "text": {
           "es": "Cuando se encuentre inmovilizado o circule a menos de 10 km/h.",
-          "en": null,
-          "ru": null
+          "en": "When it is immobilized or traveling at less than 10 km/h.",
+          "ru": "Когда он остановлен или движется со скоростью менее 10 км/ч."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación prohíbe mantener las puertas abiertas, abrirlas o apearse del vehículo sin haberse cerciorado previamente de que ello no implica peligro o entorpecimiento para otros usuarios. Esta acción solo es legal una vez que el vehículo esté completamente inmovilizado. Como norma general, la entrada y salida se realizará por el lado más cercano al borde de la vía (el lado derecho si se estaciona a la derecha).",
+      "en": "The General Traffic Regulations prohibit keeping doors open, opening them, or exiting the vehicle without first ensuring that it does not pose a danger or hindrance to other road users. This action is only legal once the vehicle is completely immobilized. As a general rule, entry and exit must be performed from the side closest to the edge of the road (the right side if parked on the right).",
+      "ru": "🎓 Согласно ПДД Испании, категорически запрещено открывать двери или выходить из транспортного средства до его полной остановки. Как водитель легкового автомобиля, ты обязан сначала полностью прекратить движение и только после этого, убедившись через зеркала заднего вида в отсутствии опасности для других участников (особенно велосипедистов и СИМ), открывать дверь. Основное правило: вход и выход осуществляются со стороны, ближайшей к краю проезжей части. Если легковой автомобиль припаркован у правого края, пассажиры обязаны выходить справа (на тротуар или обочину), а водитель может выйти слева, только если это не создаст помех.\n💡 Сначала стой, потом смотри, лишь убедившись — выходи!"
     },
     "image_url": "https://teorica.practicavial.com/question/cae0b527-037b-4d98-8729-b639d5161b19-1658316084-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/cae0b527-037b-4d98-8729-b639d5161b19-s-1.jpg",
@@ -152,16 +152,16 @@
     "category": "B",
     "question": {
       "es": "La carga transportada en una motocicleta de anchura inferior a 1 metro, ¿puede sobresalir por la parte delantera o trasera?",
-      "en": null,
-      "ru": null
+      "en": "Can the load carried on a motorcycle less than 1 meter wide protrude from the front or rear?",
+      "ru": "Может ли груз, перевозимый на мотоцикле шириной менее 1 метра, выступать спереди или сзади?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Por la parte delantera, no; por la trasera sí, hasta 0,25 metros.",
-          "en": null,
-          "ru": null
+          "en": "At the front, no; at the rear, yes, up to 0.25 meters.",
+          "ru": "Спереди — нет; сзади — да, до 0,25 метра."
         },
         "is_correct": true
       },
@@ -169,25 +169,25 @@
         "id": "b",
         "text": {
           "es": "Sí, hasta 0,50 metros tanto por la parte delantera como por la trasera.",
-          "en": null,
-          "ru": null
+          "en": "Yes, up to 0.50 meters both at the front and at the rear.",
+          "ru": "Да, до 0,50 метра как спереди, так и сзади."
         },
         "is_correct": false
       },
       {
         "id": "c",
         "text": {
-          "es": "Sí, pero solo por la parte trasera hasta 0,50metros.",
-          "en": null,
-          "ru": null
+          "es": "Sí, pero solo por la parte trasera hasta 0,50 metros.",
+          "en": "Yes, but only at the rear up to 0.50 meters.",
+          "ru": "Да, но только сзади до 0,50 метра."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, en los vehículos de anchura inferior a 1 metro (motocicletas, ciclomotores y bicicletas), la carga no puede sobresalir por la parte delantera. Por la parte trasera, se permite un máximo de 0,25 metros. Lateralmente, la carga puede sobresalir hasta 0,50 metros desde el eje longitudinal del vehículo.",
+      "en": "According to the General Traffic Regulations, for vehicles less than 1 meter wide (motorcycles, mopeds, and bicycles), the load must not protrude from the front. At the rear, a maximum protrusion of 0.25 meters is permitted. Laterally, the load may protrude up to 0.50 meters from the vehicle's longitudinal axis.",
+      "ru": "🎓 Для транспортных средств шириной менее 1 метра (мотоциклы, мопеды, велосипеды) установлены строгие лимиты размещения груза. Спереди груз не может выступать за габариты ТС ни на сантиметр. Сзади допускается выступ не более 0,25 метра. По бокам груз может выступать до 0,50 метра, но отсчет идет от центральной продольной оси ТС, а не от его края. 🇷🇺 В Испании нормы строже, чем в РФ: спереди выступ запрещен полностью, а сзади лимит в два раза меньше (25 см против 50 см в РФ). 💡 Спереди — пусто, сзади — двадцать пять, чтоб равновесие не потерять!"
     },
     "image_url": "https://teorica.practicavial.com/question/22c7d067-8277-4f21-9c6d-fd0bb933ce6f-1658315045-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/22c7d067-8277-4f21-9c6d-fd0bb933ce6f-s-1.jpg",
@@ -201,16 +201,16 @@
     "category": "B",
     "question": {
       "es": "Si los ocupantes de los asientos traseros de un vehículo son menores de edad y de estatura igual o inferior a 135 cm de altura, ¿qué dispositivos de seguridad deben utilizar?",
-      "en": null,
-      "ru": null
+      "en": "If the occupants of the rear seats of a vehicle are minors and of height equal to or less than 135 cm, what safety devices should they use?",
+      "ru": "Если пассажиры на задних сиденьях легкового автомобиля — несовершеннолетние ростом 135 см или ниже, какие удерживающие устройства они должны использовать?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Un dispositivo de retención infantil adaptado a su talla y peso.",
-          "en": null,
-          "ru": null
+          "en": "A child restraint device adapted to their size and weight.",
+          "ru": "Детское удерживающее устройство, адаптированное к их росту и весу."
         },
         "is_correct": true
       },
@@ -218,8 +218,8 @@
         "id": "b",
         "text": {
           "es": "El cinturón de seguridad que viene instalado en el vehículo",
-          "en": null,
-          "ru": null
+          "en": "The seat belt that comes installed in the vehicle",
+          "ru": "Ремень безопасности, установленный в автомобиле"
         },
         "is_correct": false
       },
@@ -227,16 +227,16 @@
         "id": "c",
         "text": {
           "es": "Obligatoriamente un sistema de retención infantil soldado a la carrocería del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "Mandatory child restraint system welded to the vehicle body.",
+          "ru": "Обязательная детская удерживающая система, приваренная к кузову автомобиля."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según la normativa, los menores de edad con una estatura igual o inferior a 135 cm que viajen en los asientos traseros de un vehículo deben utilizar obligatoriamente un sistema de retención infantil homologado y adaptado a su talla y peso. Este dispositivo debe garantizar la seguridad del menor en caso de accidente o frenazo brusco.",
+      "en": "According to regulations, minors with a height equal to or less than 135 cm traveling in the rear seats of a vehicle must use an approved child restraint system adapted to their size and weight. This device must guarantee the safety of the minor in the event of an accident or sudden braking.",
+      "ru": "По правилам дорожного движения Испании, дети ростом до 135 см, находящиеся на задних сиденьях легкового автомобиля, обязаны использовать детское удерживающее устройство, соответствующее их росту и весу. Это устройство должно обеспечивать безопасность ребенка в случае аварии или резкого торможения. Исключением являются автомобили с более чем 9 местами: там дети старше 3 лет и ростом до 135 см могут использовать штатный ремень безопасности, адаптированный к их росту и весу."
     },
     "image_url": "https://teorica.practicavial.com/question/74b5b09d-dc82-49f8-9ebd-1eef77fc2786-1658253644-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/74b5b09d-dc82-49f8-9ebd-1eef77fc2786-s-1.jpg",
@@ -250,16 +250,16 @@
     "category": "B",
     "question": {
       "es": "¿Puede viajar en el asiento delantero un menor de 1 año si todas las plazas traseras están ocupadas por niños con sistemas de retención infantil?",
-      "en": null,
-      "ru": null
+      "en": "Can a child under 1 year old travel in the front seat if all rear seats are occupied by children with child restraint systems?",
+      "ru": "Может ли ребенок младше 1 года ехать на переднем сиденье, если все задние места заняты детьми в детских удерживающих устройствах?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, porque no debe viajar en el asiento delantero.",
-          "en": null,
-          "ru": null
+          "en": "No, because they must not travel in the front seat.",
+          "ru": "Нет, так как он не должен ехать на переднем сиденье."
         },
         "is_correct": false
       },
@@ -267,8 +267,8 @@
         "id": "b",
         "text": {
           "es": "Sí, con un sistema de retención infantil adaptado a su talla y peso.",
-          "en": null,
-          "ru": null
+          "en": "Yes, with a child restraint system adapted to their size and weight.",
+          "ru": "Да, с использованием детского удерживающего устройства, соответствующего его росту и весу."
         },
         "is_correct": true
       },
@@ -276,16 +276,16 @@
         "id": "c",
         "text": {
           "es": "Sí, pero con el cinturón de seguridad.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but with the seat belt.",
+          "ru": "Да, но пристегнутый ремнем безопасности."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Como norma general, los menores de edad con una estatura igual o inferior a 135 centímetros deben situarse en los asientos traseros. No obstante, el Reglamento General de Circulación establece excepciones que permiten su ubicación en el asiento delantero, siempre utilizando un sistema de retención infantil (SRI) homologado y adaptado a su talla y peso. Una de estas excepciones ocurre cuando todas las plazas traseras ya están ocupadas por otros menores que también utilizan sistemas de retención infantil.",
+      "en": "As a general rule, minors with a height of 135 centimeters or less must occupy the rear seats. However, the General Traffic Regulations establish exceptions that allow them to be placed in the front seat, provided they use an approved child restraint system (CRS) adapted to their size and weight. One of these exceptions applies when all rear seats are already occupied by other minors who are also using child restraint systems.",
+      "ru": "🎓 В Испании дети ростом до 135 см обязаны ездить на заднем сиденье. Однако существует три исключения, когда ребенка можно посадить впереди в легковом автомобиле: если в машине нет задних сидений (двухместное авто), если на задних сиденьях физически невозможно установить детское кресло, или если все задние места уже заняты другими детьми в детских креслах. В данной ситуации, так как задний ряд полностью занят, ты имеешь право посадить младенца на переднее сиденье, но только в специальном детском удерживающем устройстве, подходящем по росту и весу. Важно: если кресло устанавливается против хода движения на переднем сиденье, подушка безопасности пассажира должна быть обязательно отключена.\n\n🇷🇺 В РФ детей до 12 лет на переднем сиденье можно перевозить только в детских удерживающих устройствах, независимо от занятости задних мест. В Испании же переднее сиденье для детей ниже 135 см — это строго исключительная мера.\n\n💡 Места сзади не хватило — спереди кресло закрепи смело!"
     },
     "image_url": "https://teorica.practicavial.com/question/0267ef0d-73e3-4e89-adad-3bfd3989d4e3-1658253620-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/0267ef0d-73e3-4e89-adad-3bfd3989d4e3-s-1.jpg",
@@ -299,16 +299,16 @@
     "category": "B",
     "question": {
       "es": "Un turismo no tiene un sistema de sujeción apropiado para un niño de 8 años que tiene una estatura superior a 135 cm, ¿dónde debe sentarse normalmente?",
-      "en": null,
-      "ru": null
+      "en": "A passenger car does not have an appropriate restraint system for an 8-year-old child who is over 135 cm tall, where should they normally sit?",
+      "ru": "В легковом автомобиле нет подходящей системы фиксации для 8-летнего ребенка ростом более 135 см, где он должен обычно сидеть?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "En el asiento delantero, con el cinturón de seguridad abrochado.",
-          "en": null,
-          "ru": null
+          "en": "In the front seat, with the seat belt fastened.",
+          "ru": "На переднем сиденье, с пристегнутым ремнем безопасности."
         },
         "is_correct": false
       },
@@ -316,8 +316,8 @@
         "id": "b",
         "text": {
           "es": "Es indiferente porque tiene más de dos años.",
-          "en": null,
-          "ru": null
+          "en": "It does not matter because the child is over two years old.",
+          "ru": "Это не имеет значения, так как ребенку больше двух лет."
         },
         "is_correct": false
       },
@@ -325,20 +325,22 @@
         "id": "c",
         "text": {
           "es": "En el asiento trasero con el cinturón de seguridad abrochado.",
-          "en": null,
-          "ru": null
+          "en": "In the back seat with the seat belt fastened.",
+          "ru": "На заднем сиденье с пристегнутым ремнем безопасности."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, los menores de edad que midan 135 centímetros o más pueden utilizar indistintamente los asientos delanteros o traseros utilizando el cinturón de seguridad para adultos. No obstante, por seguridad, se recomienda que sigan utilizando el asiento trasero. Los menores de estatura inferior a 135 cm deben situarse obligatoriamente en los asientos traseros con un sistema de retención infantil homologado, salvo excepciones muy específicas.",
+      "en": "According to the General Circulation Regulations, minors who are 135 centimeters or taller may use either the front or rear seats using the adult seat belt. However, for safety reasons, it is recommended that they continue to use the rear seat. Minors under 135 cm must sit in the rear seats using an approved child restraint system, except in very specific circumstances.",
+      "ru": "🎓 В Испании ключевым фактором для перевозки детей является рост. Если рост ребенка составляет 135 см и более, он имеет право использовать штатный ремень безопасности легкового автомобиля вместо детского кресла. Хотя закон разрешает детям такого роста садиться впереди, наиболее безопасным и общепринятым местом для несовершеннолетних остается заднее сиденье. Если же рост ребенка меньше 135 см, он обязан находиться только сзади и только в специальном удерживающем устройстве. 🇷🇺 В РФ правила позволяют пристегивать детей от 7 до 11 лет на заднем сиденье только ремнем, тогда как в Испании главным критерием является именно достижение роста 135 см. 💡 Рост сто тридцать пять пробил — ремень взрослый разрешил!"
     },
     "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
     "schema_url": "https://teorica.practicavial.com/question/73ab1de4-c811-48af-bf11-ec2cb10ad9a7-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "84cd4c7d-7734-4037-be23-878a1d2f0cf2",
+    "external_id": "84cd4c7d-7734-4037-be23-878a1d2f0cf2"
   },
   {
     "topic_number": 5,
@@ -346,25 +348,25 @@
     "category": "B",
     "question": {
       "es": "¿De qué manera se debe acondicionar siempre la carga transportada en la baca de un turismo?",
-      "en": null,
-      "ru": null
+      "en": "How should the load transported on the roof rack of a passenger car always be conditioned?",
+      "ru": "Каким образом всегда должен быть размещен груз, перевозимый на багажнике на крыше легкового автомобиля?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "De tal forma que no comprometa la estabilidad del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "In such a way that it does not compromise the stability of the vehicle.",
+          "ru": "Таким образом, чтобы это не ставило под угрозу устойчивость транспортного средства."
         },
         "is_correct": true
       },
       {
         "id": "b",
         "text": {
-          "es": "Cubriéndola totalmente con una lona o u plástico.",
-          "en": null,
-          "ru": null
+          "es": "Cubriéndola totalmente con una lona o un plástico.",
+          "en": "Covering it completely with a tarp or plastic.",
+          "ru": "Полностью накрыв его брезентом или пластиком."
         },
         "is_correct": false
       },
@@ -372,16 +374,16 @@
         "id": "c",
         "text": {
           "es": "Ocultando parcialmente los dispositivos de señalización luminosa.",
-          "en": null,
-          "ru": null
+          "en": "Partially obscuring the light signaling devices.",
+          "ru": "Частично закрывая устройства световой сигнализации."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, la carga transportada en un vehículo debe estar dispuesta y, si fuera necesario, sujeta de tal forma que no pueda comprometer la estabilidad del vehículo, arrastrar, caer o desplazarse de manera peligrosa. Asimismo, la carga no debe ocultar los dispositivos de alumbrado o de señalización luminosa, las placas o distintivos obligatorios y las advertencias manuales de los conductores.",
+      "en": "According to the General Circulation Regulations, the load carried in a vehicle must be arranged and, if necessary, secured in such a way that it cannot compromise the stability of the vehicle, drag, fall, or move dangerously. Furthermore, the load must not obscure the lighting or light signaling devices, mandatory plates or markings, and the manual signals of the drivers.",
+      "ru": "🎓 При перевозке вещей на крыше легкового автомобиля (Turismo) крайне важно обеспечить их надежное крепление. Груз должен быть размещен так, чтобы он не смещался, не выпадал и не волочился по дороге. Главное требование — сохранение устойчивости: тяжелые предметы на крыше смещают центр тяжести вверх, что увеличивает риск опрокидывания при резких маневрах. Категорически запрещено закрывать грузом фары, фонари, указатели поворота или номерные знаки. Помни, что перевозка груза на крыше также увеличивает расход топлива и чувствительность к боковому ветру. 💡 Груз закрепи и не спеши — устойчивость авто не наруши!"
     },
     "image_url": "https://teorica.practicavial.com/question/7c6e9371-cc1d-44c7-9743-f423599bfb80-1658313370-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/7c6e9371-cc1d-44c7-9743-f423599bfb80-s-1.jpg",
@@ -394,17 +396,17 @@
     "question_number": 9,
     "category": "B",
     "question": {
-      "es": "Un menor de edad, ¿puede viajar de pasajero en una motocicleta?",
-      "en": null,
-      "ru": null
+      "es": "¿Puede un menor de edad viajar como pasajero en una motocicleta?",
+      "en": "Can a minor travel as a passenger on a motorcycle?",
+      "ru": "Может ли несовершеннолетний ехать в качестве пассажира на мотоцикле?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, siempre que el conductor sea mayor de edad.",
-          "en": null,
-          "ru": null
+          "en": "Yes, as long as the driver is of legal age.",
+          "ru": "Да, при условии, что водитель совершеннолетний."
         },
         "is_correct": false
       },
@@ -412,8 +414,8 @@
         "id": "b",
         "text": {
           "es": "No, está prohibido.",
-          "en": null,
-          "ru": null
+          "en": "No, it is prohibited.",
+          "ru": "Нет, это запрещено."
         },
         "is_correct": false
       },
@@ -421,16 +423,16 @@
         "id": "c",
         "text": {
           "es": "Solo si es mayor de 12 años o, excepcionalmente, de 7 años.",
-          "en": null,
-          "ru": null
+          "en": "Only if they are over 12 years old or, exceptionally, 7 years old.",
+          "ru": "Только если он старше 12 лет или, в порядке исключения, старше 7 лет."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, con carácter general, el pasajero de una motocicleta debe ser mayor de 12 años. Excepcionalmente, los mayores de 7 años pueden circular como pasajeros siempre que el conductor sea su padre, madre, tutor o persona mayor de edad autorizada por ellos. El pasajero debe utilizar casco homologado, ir sentado a horcajadas y con los pies apoyados en los reposapiés laterales, siempre detrás del conductor.",
+      "en": "According to the General Traffic Regulations, as a general rule, a motorcycle passenger must be over 12 years old. Exceptionally, children over 7 years old may travel as passengers provided the driver is their father, mother, guardian, or an authorized adult. The passenger must wear an approved helmet, sit astride, and have their feet on the side footrests, always positioned behind the driver.",
+      "ru": "🎓 По общему правилу пассажиру мотоцикла должно быть не менее 12 лет. Однако существует исключение: если водителем является отец, мать, опекун или уполномоченное ими совершеннолетнее лицо, допускается перевозка детей с 7 лет. Ребенок обязан быть в застегнутом шлеме, сидеть позади водителя «верхом» и обязательно доставать ногами до боковых подножек. Перевозить детей между водителем и рулем категорически запрещено. 🇷🇺 В РФ перевозка детей до 12 лет на заднем сиденье мотоцикла запрещена, исключений для поездок с родителями с 7 лет нет. 💡 С родителями — с семи, с чужими — с двенадцати!"
     },
     "image_url": "https://teorica.practicavial.com/question/3cc3c615-0045-412f-9ffd-ac3ff995833d-1658255946-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/3cc3c615-0045-412f-9ffd-ac3ff995833d-s-1.jpg",
@@ -444,16 +446,16 @@
     "category": "B",
     "question": {
       "es": "En un turismo, ¿quiénes están obligados a llevar puesto el cinturón de seguridad?",
-      "en": null,
-      "ru": null
+      "en": "In a passenger car, who is required to wear a seat belt?",
+      "ru": "В легковом автомобиле кто обязан быть пристегнут ремнем безопасности?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Solo los ocupantes de los asientos delanteros.",
-          "en": null,
-          "ru": null
+          "en": "Only the occupants of the front seats.",
+          "ru": "Только пассажиры на передних сиденьях."
         },
         "is_correct": false
       },
@@ -461,8 +463,8 @@
         "id": "b",
         "text": {
           "es": "Solo los ocupantes de los asientos traseros.",
-          "en": null,
-          "ru": null
+          "en": "Only the occupants of the rear seats.",
+          "ru": "Только пассажиры на задних сиденьях."
         },
         "is_correct": false
       },
@@ -470,16 +472,16 @@
         "id": "c",
         "text": {
           "es": "Todos los ocupantes del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "All occupants of the vehicle.",
+          "ru": "Все находящиеся в транспортном средстве."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece la obligatoriedad del uso del cinturón de seguridad para el conductor y todos los ocupantes de un turismo en todo tipo de vías (urbanas e interurbanas). Las mujeres embarazadas no están exentas de esta obligación, salvo que presenten un certificado médico de exención por razones médicas. Los menores con estatura igual o inferior a 135 cm deben utilizar sistemas de retención infantil homologados.",
+      "en": "The General Traffic Regulations establish the mandatory use of seat belts for the driver and all occupants of a passenger car on all types of roads (urban and interurban). Pregnant women are not exempt from this obligation unless they present a medical certificate of exemption for medical reasons. Minors with a height of 135 cm or less must use approved child restraint systems.",
+      "ru": "🎓 В легковом автомобиле (Turismo) пристегиваться обязаны абсолютно все: и водитель, и каждый пассажир, независимо от того, сидят они на передних или на задних сиденьях. Это требование распространяется на все типы дорог. Беременные женщины также обязаны использовать ремень безопасности, если только у них нет специального медицинского сертификата об освобождении. Если ты перевозишь ребенка в детском кресле, установленном против хода движения на переднем сиденье, ты обязан деактивировать подушку безопасности пассажира. 💡 Все, кто в креслах сидят — пристегнуться спешат!"
     },
     "image_url": "https://teorica.practicavial.com/question/f01f8939-ba65-4305-9884-28f18c6c6ce8-1658252962-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/f01f8939-ba65-4305-9884-28f18c6c6ce8-s-1.jpg",
@@ -493,16 +495,16 @@
     "category": "B",
     "question": {
       "es": "En los vehículos de anchura inferior a un metro, la carga no debe sobresalir por la parte posterior más de...",
-      "en": null,
-      "ru": null
+      "en": "In vehicles with a width of less than one meter, the load must not protrude from the rear by more than...",
+      "ru": "На транспортных средствах шириной менее одного метра груз не должен выступать сзади более чем на..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "0,40 metros.",
-          "en": null,
-          "ru": null
+          "en": "0.40 meters.",
+          "ru": "0,40 метра."
         },
         "is_correct": false
       },
@@ -510,8 +512,8 @@
         "id": "b",
         "text": {
           "es": "0,25 metros.",
-          "en": null,
-          "ru": null
+          "en": "0.25 meters.",
+          "ru": "0,25 метра."
         },
         "is_correct": true
       },
@@ -519,16 +521,16 @@
         "id": "c",
         "text": {
           "es": "0,50 metros.",
-          "en": null,
-          "ru": null
+          "en": "0.50 meters.",
+          "ru": "0,50 метра."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "En los vehículos de anchura inferior a un metro, como motocicletas, ciclomotores y bicicletas, la carga puede sobresalir hasta 0,50 metros por cada lado del eje longitudinal del vehículo. Por la parte posterior, el límite máximo permitido es de 0,25 metros. No se permite que la carga sobresalga por la parte delantera en este tipo de vehículos.",
+      "en": "In vehicles less than one meter wide, such as motorcycles, mopeds, and bicycles, the load may protrude up to 0.50 meters on each side of the vehicle's longitudinal axis. At the rear, the maximum permitted limit is 0.25 meters. The load is not allowed to protrude from the front in this type of vehicle.",
+      "ru": "🎓 Для транспортных средств шириной менее 1 метра (мотоциклы, мопеды, велосипеды) установлены строгие лимиты: груз может выступать в стороны на 0,50 м от продольной оси ТС, а сзади — не более чем на 0,25 м. Спереди выступание груза категорически запрещено. 🇷🇺 В РФ правила допускают выступ груза до 0,5 м по длине или ширине за габариты ТС. В Испании нормы для задней части жестче — всего 25 см. 💡 По бокам — полметра, сзади — четверть метра, спереди — ни миллиметра!"
     },
     "image_url": "https://teorica.practicavial.com/question/959c51d7-e985-4276-a201-68d7ca17d291-1658315013-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/959c51d7-e985-4276-a201-68d7ca17d291-s-1.jpg",
@@ -542,16 +544,16 @@
     "category": "B",
     "question": {
       "es": "Los distribuidores de mercancías, cuando realicen sus operaciones de carga y descarga en recorridos cortos, ¿están exentos de utilizar el cinturón de seguridad?",
-      "en": null,
-      "ru": null
+      "en": "Are goods distributors exempt from using seat belts when performing loading and unloading operations on short routes?",
+      "ru": "Освобождаются ли от использования ремней безопасности водители, перевозящие товары, при выполнении операций по погрузке и разгрузке на коротких маршрутах?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, en todo tipo de vías.",
-          "en": null,
-          "ru": null
+          "en": "Yes, on all types of roads.",
+          "ru": "Да, на всех типах дорог."
         },
         "is_correct": false
       },
@@ -559,8 +561,8 @@
         "id": "b",
         "text": {
           "es": "Sí, en poblado.",
-          "en": null,
-          "ru": null
+          "en": "Yes, in built-up areas.",
+          "ru": "Да, в населенном пункте."
         },
         "is_correct": true
       },
@@ -568,16 +570,16 @@
         "id": "c",
         "text": {
           "es": "No, en ningún caso.",
-          "en": null,
-          "ru": null
+          "en": "No, in any case.",
+          "ru": "Нет, ни в коем случае."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece que los distribuidores de mercancías están exentos de utilizar el cinturón de seguridad únicamente cuando realicen operaciones de carga y descarga en lugares situados a corta distancia unos de otros, y exclusivamente dentro de poblado. Fuera de poblado, el uso del cinturón es obligatorio en todo momento.",
+      "en": "The General Traffic Regulations state that goods distributors are exempt from using seat belts only when performing loading and unloading operations at locations situated a short distance from each other, and exclusively within built-up areas. Outside built-up areas, the use of seat belts is mandatory at all times.",
+      "ru": "🎓 В Испании водители, выполняющие погрузку и разгрузку товаров на коротких дистанциях, могут не пристегиваться ремнем безопасности, но это исключение действует исключительно в пределах населенного пункта. Как только такой автомобиль выезжает на автомагистраль или скоростную дорогу, ремень становится обязательным. Тебе, как водителю легкового автомобиля, полезно знать, что в городе также могут не пристегиваться таксисты на службе, водители оперативных служб и инструкторы по вождению. 🇷🇺 В РФ исключений для курьеров и таксистов в населенных пунктах нет: правила требуют использования ремней безопасности всеми участниками движения. 💡 В городе курьер свободен, на трассе — ремень застегнут!"
     },
     "image_url": "https://teorica.practicavial.com/question/c084acf8-643f-4d2d-ba59-7a0ef4358ad5-1658254662-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/c084acf8-643f-4d2d-ba59-7a0ef4358ad5-s-1.jpg",
@@ -591,16 +593,16 @@
     "category": "B",
     "question": {
       "es": "Como norma general, los ocupantes de un vehículo deben entrar al mismo por...",
-      "en": null,
-      "ru": null
+      "en": "As a general rule, the occupants of a vehicle must enter it from...",
+      "ru": "Как правило, пассажиры и водитель должны садиться в легковой автомобиль..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "cualquier lado, siempre que no se entorpezca a otros usuarios.",
-          "en": null,
-          "ru": null
+          "en": "any side, as long as it does not hinder other users.",
+          "ru": "с любой стороны, при условии, что это не мешает другим участникам движения."
         },
         "is_correct": false
       },
@@ -608,8 +610,8 @@
         "id": "b",
         "text": {
           "es": "el lado más alejado del borde de la vía y con el vehículo parado.",
-          "en": null,
-          "ru": null
+          "en": "the side furthest from the edge of the road and with the vehicle stopped.",
+          "ru": "со стороны, наиболее удаленной от края дороги, и при остановленном транспортном средстве."
         },
         "is_correct": false
       },
@@ -617,16 +619,16 @@
         "id": "c",
         "text": {
           "es": "el lado más próximo al borde de la vía y con el vehículo inmovilizado.",
-          "en": null,
-          "ru": null
+          "en": "the side closest to the edge of the road and with the vehicle immobilized.",
+          "ru": "со стороны, ближайшей к краю проезжей части, и при полностью неподвижном транспортном средстве."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, la entrada y salida de los ocupantes debe realizarse por el lado más cercano al borde de la vía (acera o arcén). El vehículo debe estar totalmente inmovilizado antes de abrir las puertas. El conductor debe verificar previamente la seguridad de la maniobra observando los retrovisores y el entorno para no poner en peligro a otros usuarios.",
+      "en": "According to the General Traffic Regulations, occupants must enter and exit the vehicle from the side closest to the edge of the road (sidewalk or shoulder). The vehicle must be completely immobilized before opening the doors. The driver must verify the safety of the maneuver beforehand by checking mirrors and the surroundings to avoid endangering other road users.",
+      "ru": "🎓 В качестве общего правила, посадка и высадка из легкового автомобиля должны осуществляться со стороны, ближайшей к краю проезжей части или обочине. Это необходимо для безопасности, чтобы не оказаться на пути потока. Двери можно открывать только после того, как транспортное средство стало полностью неподвижным. Водитель обязан убедиться в безопасности маневра, проверив зеркала. Пассажирам следует всегда использовать сторону тротуара. 🇷🇺 В РФ правила также предписывают посадку со стороны тротуара, но допускают сторону проезжей части, если это безопасно. В Испании акцент на сторону, ближайшую к краю, является основным правилом. 💡 Выходишь там, где край — сохранишь и жизнь, и дверь!"
     },
     "image_url": "https://teorica.practicavial.com/question/23717043-ad82-4298-851c-f2d6a2102038-1658316262-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/23717043-ad82-4298-851c-f2d6a2102038-s-1.jpg",
@@ -640,16 +642,16 @@
     "category": "B",
     "question": {
       "es": "Un ciclomotor de cuatro ruedas tiene cinturones de seguridad. ¿Es obligatorio ponerse el casco?",
-      "en": null,
-      "ru": null
+      "en": "A four-wheeled moped has seat belts. Is it mandatory to wear a helmet?",
+      "ru": "Четырехколесный мопед оборудован ремнями безопасности. Обязательно ли надевать шлем?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, pero solamente fuera de poblado.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but only outside of built-up areas.",
+          "ru": "Да, но только вне населенного пункта."
         },
         "is_correct": false
       },
@@ -657,8 +659,8 @@
         "id": "b",
         "text": {
           "es": "Sí, cuando el vehículo no tiene capota.",
-          "en": null,
-          "ru": null
+          "en": "Yes, when the vehicle does not have a top.",
+          "ru": "Да, если у транспортного средства нет крыши."
         },
         "is_correct": false
       },
@@ -666,16 +668,16 @@
         "id": "c",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, los conductores y pasajeros de motocicletas, triciclos y cuadriciclos están exentos de utilizar el casco de protección cuando cuenten con estructuras de autoprotección y cinturones de seguridad, y así conste en su tarjeta de inspección técnica (ITV). En estos casos, el uso del cinturón de seguridad es obligatorio.",
+      "en": "According to the General Traffic Regulations, drivers and passengers of motorcycles, tricycles, and quadricycles are exempt from wearing a protective helmet if the vehicle is equipped with self-protection structures and seat belts, as stated in the technical inspection card (ITV). In such cases, the use of the seat belt is mandatory.",
+      "ru": "🎓 Если четырехколесный мопед, трицикл или мотоцикл оборудован заводской структурой самозащиты (каркасом) и ремнями безопасности, что официально зафиксировано в документах техосмотра (ITV), использование шлема перестает быть обязательным. В такой ситуации водитель и пассажиры обязаны использовать только ремни безопасности. Это правило часто применимо к легким квадрициклам, которые внешне напоминают микроавтомобили. 🇷🇺 В отличие от Испании, в РФ требования к шлемам для квадрициклов с автомобильными органами управления и закрытым кузовом могут трактоваться иначе, но в Испании наличие сертифицированного каркаса и ремня — это прямая замена шлему. 💡 Есть ремень и есть каркас — шлем не нужен в этот раз!"
     },
     "image_url": "https://teorica.practicavial.com/question/8ab7e8fb-2fa9-4aa4-a6b6-722ddcbde0c1-1658312163-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/8ab7e8fb-2fa9-4aa4-a6b6-722ddcbde0c1-s-1.jpg",
@@ -689,16 +691,16 @@
     "category": "B",
     "question": {
       "es": "La carga que sobresalga de la proyección en planta del vehículo, ¿debe ir protegida?",
-      "en": null,
-      "ru": null
+      "en": "Should a load that protrudes from the vehicle's footprint be protected?",
+      "ru": "Должен ли быть защищен груз, выступающий за габариты (проекцию) транспортного средства?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, en la parte saliente para reducir los efectos de un roce o choque posibles.",
-          "en": null,
-          "ru": null
+          "en": "Yes, on the protruding part to reduce the effects of a possible graze or collision.",
+          "ru": "Да, в выступающей части, чтобы уменьшить последствия возможного касания или столкновения."
         },
         "is_correct": true
       },
@@ -706,8 +708,8 @@
         "id": "b",
         "text": {
           "es": "Únicamente cuando se circule entre la puesta y la salida del sol.",
-          "en": null,
-          "ru": null
+          "en": "Only when driving between sunset and sunrise.",
+          "ru": "Только при движении между закатом и восходом солнца."
         },
         "is_correct": false
       },
@@ -715,16 +717,16 @@
         "id": "c",
         "text": {
           "es": "No, no es necesario si va debidamente señalizada.",
-          "en": null,
-          "ru": null
+          "en": "No, it is not necessary if it is properly marked.",
+          "ru": "Нет, это не обязательно, если он должным образом обозначен."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La carga que sobresalga de la proyección en planta del vehículo deberá ir protegida en la parte saliente para reducir los efectos de un roce o choque posibles, según lo dispuesto en el Reglamento General de Circulación. Esta medida de seguridad pasiva busca minimizar las lesiones o daños materiales en caso de contacto accidental con otros usuarios o elementos de la vía. Además de esta protección, se debe cumplir con la señalización obligatoria mediante el panel V-20.",
+      "en": "Any load protruding from the vehicle's footprint must be protected at the protruding part to reduce the potential effects of a graze or collision. This requirement, established in the General Traffic Regulations, serves as a passive safety measure to minimize injuries or property damage in the event of accidental contact with other road users or objects. In addition to this protection, the load must be marked with the mandatory V-20 panel.",
+      "ru": "🎓 Если груз выступает за габариты твоего легкового автомобиля, его выступающая часть должна быть обязательно защищена. Это требование ПДД Испании направлено на то, чтобы при случайном контакте или столкновении максимально смягчить удар и уменьшить возможный ущерб для других участников движения. Помимо физической защиты краев, такой груз должен быть обозначен специальной панелью V-20. Помни: груз не должен закрывать обзор, световые приборы или номерные знаки, а перевозка вещей с открытым багажником или через окна запрещена. 🇷🇺 В РФ правила требуют обозначать груз знаком «Крупногабаритный груз», если он выступает более чем на 1 метр спереди или сзади, однако испанские нормы более строго акцентируют внимание именно на физической защите выступающих частей для безопасности. 💡 Груз торчит — прикрой края, безопасность — цель твоя!"
     },
     "image_url": "https://teorica.practicavial.com/question/cf02d642-7236-4b74-9eb1-4cdf63c18883-1658315144-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/cf02d642-7236-4b74-9eb1-4cdf63c18883-s-1.jpg",
@@ -738,16 +740,16 @@
     "category": "B",
     "question": {
       "es": "Transportar un niño situado entre el manillar y el conductor en una motocicleta, ¿está permitido?",
-      "en": null,
-      "ru": null
+      "en": "Is it permitted to transport a child located between the handlebar and the driver on a motorcycle?",
+      "ru": "Разрешено ли перевозить ребенка на мотоцикле, расположив его между рулем и водителем?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       },
@@ -755,8 +757,8 @@
         "id": "b",
         "text": {
           "es": "Sí, con el correspondiente casco adecuado a su talla.",
-          "en": null,
-          "ru": null
+          "en": "Yes, with a helmet of their size.",
+          "ru": "Да, при наличии шлема соответствующего размера."
         },
         "is_correct": false
       },
@@ -764,16 +766,16 @@
         "id": "c",
         "text": {
           "es": "Sí, pero sólo cuando el conductor sea el padre, la madre o una persona autorizada.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but only if the driver is a parent, mother, or authorized person.",
+          "ru": "Да, но только если водителем является отец, мать или уполномоченное лицо."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, el pasajero de una motocicleta debe viajar siempre en el asiento detrás del conductor, a horcajadas y con los pies apoyados en los reposapiés laterales. Está expresamente prohibido situar a un pasajero entre el manillar y el conductor. Como norma general, el pasajero debe ser mayor de 12 años, o excepcionalmente mayor de 7 años si el conductor es el padre, madre, tutor o persona autorizada.",
+      "en": "According to the General Traffic Regulations, motorcycle passengers must always travel in the seat behind the driver, sitting astride with their feet on the side footrests. It is strictly prohibited to place a passenger between the handlebar and the driver. Generally, passengers must be at least 12 years old, or exceptionally 7 years old if the driver is a parent, guardian, or authorized person.",
+      "ru": "🎓 Перевозка любого пассажира, включая детей, между рулем и водителем на мотоцикле категорически запрещена. Пассажир обязан располагаться только на заднем сиденье, сидеть верхом и обязательно опираться ногами на боковые подножки. По общему правилу пассажиру должно быть не менее 12 лет. В виде исключения допускается перевозка детей от 7 лет, если водителем является родитель, опекун или уполномоченное ими лицо. 🇷🇺 В РФ правила также запрещают перевозку детей до 12 лет на заднем сиденье мотоцикла, а посадка перед водителем не предусмотрена требованиями безопасности. 💡 Ребенок сзади — это закон, между рулем — под запретом он!"
     },
     "image_url": "https://teorica.practicavial.com/question/c3a5b938-c9fd-4aba-9e83-7bc249d87721-1658255972-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/c3a5b938-c9fd-4aba-9e83-7bc249d87721-s-1.jpg",
@@ -787,16 +789,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuál de las siguientes afirmaciones acerca del cinturón de seguridad es correcta?",
-      "en": null,
-      "ru": null
+      "en": "Which of the following statements regarding the seat belt is correct?",
+      "ru": "Какое из следующих утверждений относительно ремня безопасности является верным?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "En los asientos traseros no hace falta llevar cinturón.",
-          "en": null,
-          "ru": null
+          "en": "It is not necessary to wear a seat belt in the rear seats.",
+          "ru": "На задних сиденьях ремень безопасности пристегивать не обязательно."
         },
         "is_correct": false
       },
@@ -804,8 +806,8 @@
         "id": "b",
         "text": {
           "es": "Si el vehículo dispone de airbag no es aconsejable utilizarlo",
-          "en": null,
-          "ru": null
+          "en": "If the vehicle has an airbag, it is not advisable to use it",
+          "ru": "Если в легковом автомобиле есть подушка безопасности, использовать ремень не рекомендуется."
         },
         "is_correct": false
       },
@@ -813,16 +815,16 @@
         "id": "c",
         "text": {
           "es": "En caso de enfermedad grave debidamente justificada, puede no utilizarse.",
-          "en": null,
-          "ru": null
+          "en": "In case of a duly justified serious illness, it may not be used.",
+          "ru": "В случае должным образом обоснованного серьезного заболевания его можно не использовать."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece la obligatoriedad del uso del cinturón de seguridad para conductores y pasajeros en todo tipo de vías. No obstante, existen exenciones específicas. Una de ellas, aplicable tanto en vías urbanas como interurbanas, es poseer un certificado de exención por razones médicas graves o discapacidad, expedido por un facultativo colegiado. El airbag es un sistema complementario y nunca sustituye al cinturón.",
+      "en": "The General Traffic Regulations establish the mandatory use of seat belts for drivers and passengers on all types of roads. However, there are specific exemptions. One of them, applicable on both urban and interurban roads, is possessing a certificate of exemption for serious medical reasons or disability, issued by a registered physician. The airbag is a complementary system and never replaces the seat belt.",
+      "ru": "🎓 Использование ремня безопасности обязательно для водителя и всех пассажиров легкового автомобиля на любых дорогах. Однако существуют исключения. Везде (и в городе, и на трассе) можно не пристегиваться при движении задним ходом или при наличии официального медицинского сертификата по состоянию здоровья. Только в черте города освобождаются от ремня таксисты на службе, инструкторы по вождению, водители оперативных служб и курьеры, совершающие частые остановки. Подушка безопасности не заменяет ремень, а работает с ним в паре. Беременные женщины обязаны пристегиваться в общем порядке, если нет специальной медицинской справки.\n\n🇷🇺 В Испании список исключений внутри города шире: таксисты на службе, инструкторы и курьеры могут не пристегиваться, тогда как в РФ такие поблажки для таксистов и инструкторов давно отменены.\n\n💡 Ремень и подушка — верные друзья, один без другого — риск и беда!"
     },
     "image_url": "https://teorica.practicavial.com/question/e40a0287-4218-4269-8613-b40d831626c3-1658254719-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/e40a0287-4218-4269-8613-b40d831626c3-s-1.jpg",
@@ -836,16 +838,16 @@
     "category": "B",
     "question": {
       "es": "Las señales y placas de la parte trasera del camión, ¿qué indican?",
-      "en": null,
-      "ru": null
+      "en": "What do the signs and plates on the rear of the truck indicate?",
+      "ru": "Что обозначают знаки и таблички на задней части грузовика?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Que transporta productos alimenticios",
-          "en": null,
-          "ru": null
+          "en": "That it transports food products",
+          "ru": "Что он перевозит продукты питания"
         },
         "is_correct": false
       },
@@ -853,8 +855,8 @@
         "id": "b",
         "text": {
           "es": "Que transporta mercancías peligrosas y mide más de 12 metros.",
-          "en": null,
-          "ru": null
+          "en": "That it transports dangerous goods and measures more than 12 meters.",
+          "ru": "Что он перевозит опасные грузы и его длина превышает 12 метров."
         },
         "is_correct": true
       },
@@ -862,16 +864,16 @@
         "id": "c",
         "text": {
           "es": "Que su peso y dimensiones son mayores de los normales",
-          "en": null,
-          "ru": null
+          "en": "That its weight and dimensions are larger than normal",
+          "ru": "Что его вес и габариты превышают установленные нормы"
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal V-6 (placas amarillas con borde rojo) indica que el vehículo o conjunto de vehículos tiene una longitud superior a 12 metros. La señal V-11 (panel naranja con reborde negro) indica que el vehículo transporta mercancías peligrosas, identificando la naturaleza del peligro y la sustancia mediante códigos numéricos conforme al acuerdo ADR.",
+      "en": "The V-6 signal (yellow plates with a red border) indicates that the vehicle or vehicle combination exceeds 12 meters in length. The V-11 signal (orange panel with a black border) indicates that the vehicle is transporting dangerous goods, identifying the hazard and the substance via numerical codes according to ADR regulations.",
+      "ru": "🎓 На задней части грузовика установлены два типа обязательных обозначений. Желтые пластины с красной каймой — это сигнал V-6, который сообщает, что длина транспортного средства или автопоезда превышает 12 метров. Оранжевая табличка — это сигнал V-11, указывающий на перевозку опасных грузов. Цифры на ней помогают экстренным службам понять, какое именно вещество внутри и чем оно опасно. Тебе как водителю легкового автомобиля важно это знать, чтобы соблюдать повышенную дистанцию и быть предельно осторожным при обгоне такого длинного и потенциально опасного соседа. 🇷🇺 В Испании для обозначения длины более 12 метров используются именно желтые пластины с красной каймой, в то время как в РФ знак «Длинномерное транспортное средство» имеет схожую расцветку, но часто содержит графическое изображение грузовика. 💡 Оранжевый щит и желтый кант — обгон такого профиля будет гигант!"
     },
     "image_url": "https://teorica.practicavial.com/question/0f5b4877-5f1c-4ecc-b595-820f0dae168f-1658316411-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/0f5b4877-5f1c-4ecc-b595-820f0dae168f-s-1.jpg",
@@ -885,16 +887,16 @@
     "category": "B",
     "question": {
       "es": "Relativo a la disposición de la carga en un vehículo, ¿cómo es obligatorio transportar siempre las materias que produzcan polvo o puedan caer?",
-      "en": null,
-      "ru": null
+      "en": "Regarding the arrangement of cargo in a vehicle, how is it mandatory to always transport materials that produce dust or may fall?",
+      "ru": "Что касается размещения груза в транспортном средстве, как обязательно всегда перевозить материалы, которые образуют пыль или могут выпасть?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "En vehículos totalmente cerrados.",
-          "en": null,
-          "ru": null
+          "en": "In completely closed vehicles.",
+          "ru": "В полностью закрытых транспортных средствах."
         },
         "is_correct": false
       },
@@ -902,8 +904,8 @@
         "id": "b",
         "text": {
           "es": "En pequeños contenedores.",
-          "en": null,
-          "ru": null
+          "en": "In small containers.",
+          "ru": "В небольших контейнерах."
         },
         "is_correct": false
       },
@@ -911,16 +913,16 @@
         "id": "c",
         "text": {
           "es": "Cubriéndolas total y eficazmente.",
-          "en": null,
-          "ru": null
+          "en": "Covering them totally and effectively.",
+          "ru": "Полностью и эффективно закрывая их."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, la carga transportada en un vehículo no debe arrastrar, caer, desplazarse de manera peligrosa ni producir polvo, ruidos u otras molestias. En el caso específico de materias que produzcan polvo o puedan caer, es obligatorio cubrirlas total y eficazmente. No se exige el uso de un vehículo cerrado, siempre que el sistema de protección empleado impida la caída o dispersión de la materia sobre la vía.",
+      "en": "According to the General Traffic Regulations, the cargo transported in a vehicle must not drag, fall, move dangerously, or produce dust, noise, or other nuisances. In the specific case of materials that produce dust or may fall, it is mandatory to cover them totally and effectively. The use of a closed vehicle is not required, provided that the protection system used prevents the material from falling or dispersing onto the road.",
+      "ru": "🎓 Любой груз должен быть размещен так, чтобы он не смещался, не выпадал и не создавал пыли. Если ты перевозишь на своем легковом автомобиле или прицепе что-то сыпучее, закон обязывает полностью и эффективно накрывать это тентом. Груз не должен закрывать фары, номерные знаки или мешать обзору водителя. Также запрещено перевозить предметы, которые могут волочиться по проезжей части. 🇷🇺 В Испании дорожная полиция крайне строго следит за тем, чтобы сыпучие материалы были плотно укрыты, исключая любое загрязнение дороги. 💡 Пыль летит, песок бежит — тентом груз должен быть прикрыт!"
     },
     "image_url": "https://teorica.practicavial.com/question/678cfeb7-b1ed-4955-b8c0-8b0cbb4a6078-1658313468-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/678cfeb7-b1ed-4955-b8c0-8b0cbb4a6078-s-1.jpg",
@@ -933,17 +935,17 @@
     "question_number": 20,
     "category": "B",
     "question": {
-      "es": "El conductor de una motocicleta que cuenta con estructura de autoprotección y cinturón de seguridad, ¿está obligado a utilizar el casco?",
-      "en": null,
-      "ru": null
+      "es": "¿El conductor de una motocicleta que cuenta con estructura de autoprotección y cinturón de seguridad, está obligado a utilizar el casco?",
+      "en": "Is the driver of a motorcycle equipped with a self-protection structure and a seat belt required to wear a helmet?",
+      "ru": "Обязан ли водитель мотоцикла, имеющего защитный каркас и ремни безопасности, использовать шлем?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, aunque está obligado a utilizar el cinturón de seguridad.",
-          "en": null,
-          "ru": null
+          "en": "No, although they are required to use the seat belt.",
+          "ru": "Нет, хотя он обязан использовать ремень безопасности."
         },
         "is_correct": true
       },
@@ -951,8 +953,8 @@
         "id": "b",
         "text": {
           "es": "Sí, como en cualquier motocicleta.",
-          "en": null,
-          "ru": null
+          "en": "Yes, as on any motorcycle.",
+          "ru": "Да, как и на любом другом мотоцикле."
         },
         "is_correct": false
       },
@@ -960,16 +962,16 @@
         "id": "c",
         "text": {
           "es": "Solo cuando circule fuera de poblado, en cuyo caso debe utilizar casco y cinturón de seguridad.",
-          "en": null,
-          "ru": null
+          "en": "Only when driving outside built-up areas, in which case both helmet and seat belt must be used.",
+          "ru": "Только при движении вне населенного пункта, в этом случае необходимо использовать и шлем, и ремень безопасности."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, los conductores y pasajeros de motocicletas, triciclos y cuadriciclos que cuenten con estructuras de autoprotección y cinturones de seguridad, y así conste en su tarjeta de inspección técnica (ITV), quedan exentos de la obligación de utilizar el casco de protección, debiendo utilizar obligatoriamente el referido cinturón de seguridad.",
+      "en": "According to the General Traffic Regulations, drivers and passengers of motorcycles, tricycles, and quadricycles equipped with self-protection structures and seat belts, as stated in their technical inspection card (ITV), are exempt from the requirement to wear a protective helmet, provided they wear the mandatory seat belt.",
+      "ru": "🎓 Если конструкция мотоцикла предусматривает заводской защитный каркас и ремни безопасности, что официально подтверждено в технической документации транспортного средства, водитель и пассажиры освобождаются от обязанности надевать шлем. Однако в этом случае использование ремня безопасности становится строго обязательным. Данное правило распространяется также на трехколесные и четырехколесные транспортные средства с аналогичным оснащением. 🇷🇺 В РФ водитель и пассажиры любого мотоцикла обязаны быть в застегнутом мотошлеме, независимо от наличия ремней или крыши. 💡 Есть ремень и крыша — шлем не нужен, но пристегнуться обязан!"
     },
     "image_url": "https://teorica.practicavial.com/question/a616a39f-5651-4abe-9422-bb5ad64cb943-1658256243-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/a616a39f-5651-4abe-9422-bb5ad64cb943-s-1.jpg",
@@ -983,16 +985,16 @@
     "category": "B",
     "question": {
       "es": "Todo conductor que abandone su puesto para descargar mercancía del vehículo, deberá dejar siempre...",
-      "en": null,
-      "ru": null
+      "en": "Any driver who leaves their position to unload goods from the vehicle must always leave...",
+      "ru": "Любой водитель, покидающий свое место для разгрузки груза из транспортного средства, должен всегда оставлять..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "el motor arrancado y las luces de emergencia encendidas.",
-          "en": null,
-          "ru": null
+          "en": "the engine running and the emergency lights on.",
+          "ru": "двигатель заведенным и включенную аварийную световую сигнализацию."
         },
         "is_correct": false
       },
@@ -1000,8 +1002,8 @@
         "id": "b",
         "text": {
           "es": "el motor parado y el vehículo debidamente calzado.",
-          "en": null,
-          "ru": null
+          "en": "the engine stopped and the vehicle properly chocked.",
+          "ru": "двигатель выключенным и транспортное средство надежно зафиксированным противооткатными упорами."
         },
         "is_correct": false
       },
@@ -1009,16 +1011,16 @@
         "id": "c",
         "text": {
           "es": "el motor parado y el sistema de arranque desconectado.",
-          "en": null,
-          "ru": null
+          "en": "the engine stopped and the ignition system disconnected.",
+          "ru": "двигатель выключенным и систему зажигания отключенной."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece que, al abandonar el puesto de conducción para realizar operaciones de carga y descarga, el conductor debe apagar el motor y desconectar el sistema de arranque. Asimismo, debe adoptar las precauciones necesarias para evitar el uso no autorizado del vehículo y asegurar su inmovilización mediante el freno de estacionamiento.",
+      "en": "The General Traffic Regulations state that when leaving the driving position to perform loading and unloading operations, the driver must turn off the engine and disconnect the ignition system. Additionally, they must take necessary precautions to prevent unauthorized use of the vehicle and ensure it is immobilized using the parking brake.",
+      "ru": "🎓 Если ты покидаешь легковой автомобиль (Turismo) или фургон (Vehículo mixto) для разгрузки, ты обязан полностью заглушить двигатель и отключить систему зажигания. Это базовое требование безопасности, чтобы исключить случайный запуск или угон. Сама разгрузка должна проходить быстро, без лишнего шума и, по возможности, со стороны, ближайшей к краю проезжей части (Calzada) или обочине (Arcén). Использовать противооткатные упоры (башмаки) обязательно только для тяжелых транспортных средств (свыше 3500 кг) или автобусов на уклонах, для обычного авто достаточно ручника и выключенного зажигания. 🇷🇺 В Испании закон прямо обязывает именно «отключать систему пуска», что подразумевает извлечение ключа или полное выключение электроники при покидании места водителя. 💡 Вышел груз передать — ключ не забудь забрать!"
     },
     "image_url": "https://teorica.practicavial.com/question/259304ca-0fa5-4fe1-b2c7-d441e5a93822-1658313125-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/259304ca-0fa5-4fe1-b2c7-d441e5a93822-s-1.jpg",
@@ -1032,16 +1034,16 @@
     "category": "B",
     "question": {
       "es": "A la entrada y salida del colegio, para evitar riesgos, ¿qué precauciones deberá tomar cuando los niños desciendan del vehículo, además de la previa vigilancia del entorno?",
-      "en": null,
-      "ru": null
+      "en": "At the entrance and exit of the school, to avoid risks, what precautions should be taken when children get out of the vehicle, in addition to prior surveillance of the surroundings?",
+      "ru": "При посадке и высадке у школы, во избежание рисков, какие меры предосторожности следует соблюдать, когда дети выходят из легкового автомобиля, помимо предварительного наблюдения за обстановкой?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No deberán abrir las puertas ni apearse antes de la completa inmovilización del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "They must not open the doors or get out before the vehicle has come to a complete stop.",
+          "ru": "Нельзя открывать двери или выходить до полной остановки легкового автомобиля."
         },
         "is_correct": true
       },
@@ -1049,8 +1051,8 @@
         "id": "b",
         "text": {
           "es": "Para mayor seguridad lo harán siempre por la puerta del conductor.",
-          "en": null,
-          "ru": null
+          "en": "For greater safety, they will always do so through the driver's door.",
+          "ru": "Для большей безопасности они всегда должны выходить через дверь водителя."
         },
         "is_correct": false
       },
@@ -1058,16 +1060,16 @@
         "id": "c",
         "text": {
           "es": "Deberán bajar del vehículo por la puerta más alejada del borde de la vía.",
-          "en": null,
-          "ru": null
+          "en": "They must get out of the vehicle through the door furthest from the edge of the road.",
+          "ru": "Они должны выходить из легкового автомобиля через дверь, наиболее удаленную от края проезжей части."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación prohíbe abrir las puertas o descender del vehículo antes de su completa inmovilización. Asimismo, se debe verificar previamente que la acción no supone un riesgo para otros usuarios. Como norma general, la entrada y salida de pasajeros debe realizarse por el lado más cercano al borde de la vía, habitualmente la acera.",
+      "en": "The General Traffic Regulations prohibit opening doors or alighting from a vehicle before it has come to a complete standstill. It is mandatory to ensure that such actions do not endanger or obstruct other road users. Generally, passengers must enter and exit the vehicle from the side closest to the edge of the road, typically the sidewalk side.",
+      "ru": "🎓 Перед высадкой детей ты, как водитель легкового автомобиля, обязан убедиться в безопасности маневра. Главное правило: двери нельзя открывать, а пассажирам запрещено начинать выход до того момента, пока легковой автомобиль полностью не остановится. По закону высадка должна производиться со стороны, ближайшей к краю проезжей части, то есть на тротуар или обочину. Прежде чем открыть дверь, обязательно проверь зеркала и убедись, что это не создаст помех другим участникам движения. 💡 Машина замерла — дверь отворилась, безопасность детей подтвердилась!"
     },
     "image_url": "https://teorica.practicavial.com/question/63bd39c3-c492-4583-88d9-97d21db76f0c-1658316298-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/63bd39c3-c492-4583-88d9-97d21db76f0c-s-1.jpg",
@@ -1081,16 +1083,16 @@
     "category": "B",
     "question": {
       "es": "Para ahorrar carburante, ¿dónde se debe poner el equipaje?",
-      "en": null,
-      "ru": null
+      "en": "To save fuel, where should luggage be placed?",
+      "ru": "Для экономии топлива, где следует размещать багаж?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "En el maletero.",
-          "en": null,
-          "ru": null
+          "en": "In the trunk.",
+          "ru": "В багажнике."
         },
         "is_correct": true
       },
@@ -1098,8 +1100,8 @@
         "id": "b",
         "text": {
           "es": "En el maletero o en la baca, es igual.",
-          "en": null,
-          "ru": null
+          "en": "In the trunk or on the roof rack, it's the same.",
+          "ru": "В багажнике или на багажнике на крыше, это не имеет значения."
         },
         "is_correct": false
       },
@@ -1107,16 +1109,16 @@
         "id": "c",
         "text": {
           "es": "En la baca.",
-          "en": null,
-          "ru": null
+          "en": "On the roof rack.",
+          "ru": "На багажнике на крыше."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Para reducir el consumo de combustible, el equipaje debe colocarse preferiblemente en el maletero. La utilización de la baca (portaequipajes exterior) aumenta significativamente la resistencia aerodinámica del vehículo, lo que incrementa el consumo de carburante en aproximadamente 1 litro por cada 100 km. El maletero es el lugar más seguro y eficiente, ya que no ofrece resistencia al aire y mantiene el centro de gravedad del vehículo en una posición óptima.",
+      "en": "To minimize fuel consumption, luggage should be placed in the trunk. Using a roof rack significantly increases the vehicle's aerodynamic drag, which can increase fuel consumption by approximately 1 liter per 100 km. The trunk is the safest and most efficient location for cargo as it does not create air resistance and keeps the vehicle's center of gravity lower.",
+      "ru": "🎓 Чтобы твой легковой автомобиль расходовал меньше топлива, багаж всегда старайся размещать внутри багажника. Любой груз на крыше (на внешнем багажнике) резко увеличивает сопротивление воздуха. Это приводит к тому, что расход топлива вырастает примерно на 1 литр на каждые 100 км пути. Даже использование закрытого аэродинамического бокса на крыше все равно увеличивает потребление из-за веса и сопротивления. Размещение вещей внутри основного багажника — это самый безопасный и экономичный вариант, так как это не нарушает аэродинамику. 💡 Багаж на крыше — ветер в лицо, лишний литр — в никуда!"
     },
     "image_url": "https://teorica.practicavial.com/question/a83c26ea-05fc-4bfe-8fc5-d02aeb29bec2-1658313344-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/a83c26ea-05fc-4bfe-8fc5-d02aeb29bec2-s-1.jpg",
@@ -1130,16 +1132,16 @@
     "category": "B",
     "question": {
       "es": "En un vehículo es obligatorio colocar y sujetar la carga de forma que...",
-      "en": null,
-      "ru": null
+      "en": "In a vehicle, it is mandatory to position and secure the load in such a way that...",
+      "ru": "В транспортном средстве необходимо размещать и закреплять груз таким образом, чтобы он..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "no pueda arrastrar, caer o desplazarse de manera peligrosa.",
-          "en": null,
-          "ru": null
+          "en": "cannot drag, fall, or move in a dangerous manner.",
+          "ru": "не мог волочиться, падать или опасно смещаться."
         },
         "is_correct": true
       },
@@ -1147,8 +1149,8 @@
         "id": "b",
         "text": {
           "es": "oculte las advertencias manuales que realice el conductor.",
-          "en": null,
-          "ru": null
+          "en": "hides the manual signals made by the driver.",
+          "ru": "закрывал сигналы, подаваемые водителем рукой."
         },
         "is_correct": false
       },
@@ -1156,16 +1158,16 @@
         "id": "c",
         "text": {
           "es": "produzca ruido, para advertir del peligro a otros usuarios.",
-          "en": null,
-          "ru": null
+          "en": "produces noise, to warn other users of the danger.",
+          "ru": "производил шум для предупреждения других участников движения об опасности."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, la carga transportada en un vehículo, así como los accesorios que se utilicen para su acondicionamiento o protección, deben estar dispuestos y, si fuera necesario, sujetos de tal forma que no puedan arrastrar, caer total o parcialmente o desplazarse de manera peligrosa. No debe comprometer la estabilidad del vehículo, producir ruido, polvo u otras molestias, ni ocultar los dispositivos de alumbrado, señalización luminosa, placas de matrícula o las advertencias manuales del conductor. Asimismo, no se permite que la carga sobresalga por las ventanas ni circular con las puertas del maletero abiertas.",
+      "en": "According to the General Traffic Regulations, the load carried in a vehicle, as well as the accessories used for its conditioning or protection, must be arranged and, if necessary, secured in such a way that they cannot drag, fall totally or partially, or move in a dangerous manner. It must not compromise the stability of the vehicle, produce noise, dust, or other nuisances, nor hide the lighting devices, light signaling, license plates, or manual warnings of the driver. Furthermore, the load is not allowed to protrude through the windows, nor is it permitted to drive with the trunk doors open.",
+      "ru": "🎓 При перевозке груза на легковом автомобиле (Turismo) ты обязан разместить и закрепить его так, чтобы он не мог волочиться по дороге, падать или опасно смещаться. Груз не должен нарушать устойчивость транспортного средства, создавать лишний шум, пыль или иные неудобства. Категорически запрещено закрывать грузом внешние световые приборы, номерные знаки или ограничивать видимость сигналов, подаваемых рукой. Помни: нельзя перевозить груз, который выступает из окон или требует движения с открытым багажником. Внутри салона размещай только легкие и компактные вещи, чтобы в случае ДТП они не травмировали людей, а тяжелые предметы на крыше всегда увеличивают расход топлива и риск опрокидывания.\n\n💡 Груз не свистит и не летает — водитель бед не знает!"
     },
     "image_url": "https://teorica.practicavial.com/question/40e04a1b-56ac-41c6-bdbc-c61c77b5a15e-1658313415-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/40e04a1b-56ac-41c6-bdbc-c61c77b5a15e-s-1.jpg",
@@ -1179,16 +1181,16 @@
     "category": "B",
     "question": {
       "es": "Un vehículo con esta señal indica que...",
-      "en": null,
-      "ru": null
+      "en": "A vehicle with this sign indicates that...",
+      "ru": "Транспортное средство с таким знаком указывает на то, что..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "es lento y no puede superar los 40 Km/h.",
-          "en": null,
-          "ru": null
+          "en": "is slow and cannot exceed 40 km/h.",
+          "ru": "это тихоходное ТС, которое не может превышать скорость 40 км/ч."
         },
         "is_correct": true
       },
@@ -1196,8 +1198,8 @@
         "id": "b",
         "text": {
           "es": "transporta mercancías peligrosas.",
-          "en": null,
-          "ru": null
+          "en": "carries dangerous goods.",
+          "ru": "оно перевозит опасные грузы."
         },
         "is_correct": false
       },
@@ -1205,16 +1207,16 @@
         "id": "c",
         "text": {
           "es": "es especial y está realizando trabajos en la vía.",
-          "en": null,
-          "ru": null
+          "en": "is special and is performing works on the road.",
+          "ru": "это специальное ТС, выполняющее работы на дороге."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal V-5 (Vehículo Lento) identifica a los vehículos de motor o conjuntos de vehículos que, por construcción, no pueden sobrepasar la velocidad de 40 km/h. Esta señal debe estar situada en la parte posterior del vehículo, en un lugar visible. Su función es advertir al resto de los usuarios de la vía sobre la limitación técnica de velocidad del vehículo que la porta, facilitando la anticipación en las maniobras de adelantamiento.",
+      "en": "The V-5 sign (Slow Vehicle) identifies motor vehicles or vehicle combinations that, by design, cannot exceed a speed of 40 km/h. This sign must be located at the rear of the vehicle in a visible position. Its purpose is to warn other road users about the technical speed limitation of the vehicle carrying it, allowing for better anticipation during overtaking maneuvers.",
+      "ru": "🎓 Знак V-5 указывает на тихоходное транспортное средство. Его обязаны устанавливать сзади на те ТС или автопоезда, которые по своей конструкции не могут ехать быстрее 40 км/ч. Тебе, как водителю легкового автомобиля, этот знак служит сигналом о том, что впереди идущий транспорт движется значительно медленнее потока, что требует осторожности при приближении и планировании опережения.\n\n🇷🇺 В Испании порог скорости для такого знака — 40 км/ч, в то время как в РФ аналогичный знак «Тихоходное ТС» устанавливается на транспорт, не способный разогнаться быстрее 30 км/ч.\n\n💡 Видишь срезанный макушкой треугольник — впереди «черепаха», лимит сорок!"
     },
     "image_url": "https://teorica.practicavial.com/question/7b221fb6-d30a-4941-8109-da312be637e9-1658316598-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/7b221fb6-d30a-4941-8109-da312be637e9-s-1.jpg",
@@ -1228,16 +1230,16 @@
     "category": "B",
     "question": {
       "es": "En los vehículos de uso compartido o “carsharing”, los menores de estatura igual o inferior a 135 centímetros, ¿están obligados a utilizar sistemas de retención infantil?",
-      "en": null,
-      "ru": null
+      "en": "In carsharing vehicles, are minors with a height of 135 centimeters or less required to use child restraint systems?",
+      "ru": "Обязаны ли дети ростом 135 сантиметров и ниже использовать детские удерживающие устройства в автомобилях каршеринга?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       },
@@ -1245,8 +1247,8 @@
         "id": "b",
         "text": {
           "es": "Sólo si el vehículo tiene.",
-          "en": null,
-          "ru": null
+          "en": "Only if the vehicle has them.",
+          "ru": "Только если они есть в автомобиле."
         },
         "is_correct": false
       },
@@ -1254,16 +1256,16 @@
         "id": "c",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Los vehículos de uso compartido (carsharing) se rigen por las mismas normas de seguridad que los vehículos particulares. Según el Reglamento General de Circulación, los menores de edad con una estatura igual o inferior a 135 centímetros deben utilizar sistemas de retención infantil homologados y adaptados a su talla y peso. Estos menores deben ocupar obligatoriamente los asientos traseros, pudiendo situarse en el asiento delantero de forma excepcional únicamente cuando el vehículo sea biplaza, cuando las plazas traseras estén ya ocupadas por otros menores con sus sistemas de retención o cuando no sea posible instalar dichos dispositivos en los asientos traseros.",
+      "en": "Carsharing vehicles are subject to the same safety regulations as private vehicles. According to the General Traffic Regulations, minors with a height of 135 centimeters or less must use approved child restraint systems adapted to their size and weight. These minors must occupy the rear seats, and may only sit in the front seat exceptionally when the vehicle is a two-seater, when the rear seats are already occupied by other minors with their restraint systems, or when it is not possible to install such devices in the rear seats.",
+      "ru": "🎓 В легковом автомобиле (Turismo) системы каршеринга использование детских удерживающих устройств обязательно для всех детей ростом 135 см и ниже. В отличие от такси в черте города, каршеринг приравнивается к личному транспорту, поэтому водитель обязан сам позаботиться о наличии кресла или бустера. Дети такого роста должны располагаться на заднем сиденье. Поездка на переднем сиденье разрешена только в трех случаях: если автомобиль двухместный, если сзади все места уже заняты другими детьми в креслах или если конструкция сидений не позволяет закрепить устройство. 🇷🇺 В Испании обязательное использование спецсредств строго привязано к росту (до 135 см), в то время как в РФ правила допускают использование штатных ремней на заднем сиденье для детей с 7 до 11 лет. 💡 Рост ниже ста тридцати пяти — кресло в каршеринг принеси!"
     },
     "image_url": "https://teorica.practicavial.com/question/16e521a0-36ab-40a2-aef5-157a3d0a905a-1658253499-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/16e521a0-36ab-40a2-aef5-157a3d0a905a-s-1.jpg",
@@ -1277,16 +1279,16 @@
     "category": "B",
     "question": {
       "es": "El conductor, al circular marcha atrás para estacionar, ¿debe llevar puesto el cinturón de seguridad?",
-      "en": null,
-      "ru": null
+      "en": "Must the driver wear a seat belt when reversing to park?",
+      "ru": "Должен ли водитель быть пристегнут ремнем безопасности при движении задним ходом для парковки?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Solo podrá quitárselo si es taxista o repartidor.",
-          "en": null,
-          "ru": null
+          "en": "They can only take it off if they are a taxi driver or a delivery person.",
+          "ru": "Он может снять его только в том случае, если он таксист или курьер."
         },
         "is_correct": false
       },
@@ -1294,8 +1296,8 @@
         "id": "b",
         "text": {
           "es": "Sí, debe llevarlo abrochado hasta que el vehículo esté inmovilizado.",
-          "en": null,
-          "ru": null
+          "en": "Yes, they must keep it fastened until the vehicle is immobilized.",
+          "ru": "Да, он должен быть пристегнут до полной остановки транспортного средства."
         },
         "is_correct": false
       },
@@ -1303,16 +1305,16 @@
         "id": "c",
         "text": {
           "es": "No, no es obligatorio.",
-          "en": null,
-          "ru": null
+          "en": "No, it is not mandatory.",
+          "ru": "Нет, это не обязательно."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El artículo 119 del Reglamento General de Circulación establece que los conductores, al efectuar la maniobra de marcha atrás o la de estacionamiento, están exentos de la obligación de utilizar el cinturón de seguridad. Esta exención es aplicable tanto en vías urbanas como fuera de poblado.",
+      "en": "Article 119 of the General Circulation Regulations states that drivers are exempt from the mandatory use of seat belts when performing reversing or parking maneuvers. This exemption applies to both urban and interurban roads.",
+      "ru": "🎓 В Испании при движении задним ходом или во время парковки водителю разрешено не пристегиваться ремнем безопасности. Это правило действует на любых типах дорог, включая автомагистрали и скоростные дороги. Считается, что отсутствие ремня облегчает водителю разворот корпуса для лучшего обзора при маневрировании. Также важно знать, что в населенном пункте от ремня освобождаются таксисты на службе, курьеры при частых остановках и инструкторы автошкол, но при выезде за город они обязаны пристегнуться. 🇷🇺 В РФ исключений для движения задним ходом не предусмотрено: водитель легкового автомобиля обязан быть пристегнут всегда, когда транспортное средство находится в движении. 💡 Сдаешь назад — ремень не душит, паркуйся смело, закон не нарушишь!"
     },
     "image_url": "https://teorica.practicavial.com/question/74342f1d-efe8-47e5-ad45-f81b0fbd82b1-1658254692-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/74342f1d-efe8-47e5-ad45-f81b0fbd82b1-s-1.jpg",
@@ -1325,17 +1327,17 @@
     "question_number": 28,
     "category": "B",
     "question": {
-      "es": "Los vehículos destinados a obras y servicios, ¿cómo advertirán de su presencia cuando estén realizando obras de reparación en la calzada?",
-      "en": null,
-      "ru": null
+      "es": "¿Cómo advertirán su presencia los vehículos destinados a obras y servicios cuando realicen trabajos en la calzada?",
+      "en": "How should vehicles intended for works and services signal their presence when performing repair works on the road?",
+      "ru": "Как транспортные средства, предназначенные для дорожных работ и услуг, должны предупреждать о своем присутствии при проведении ремонтных работ на проезжей части?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Mediante un dispositivo luminoso con una luz rotativa de color azul o rojo.",
-          "en": null,
-          "ru": null
+          "en": "By means of a luminous device with a rotating blue or red light.",
+          "ru": "С помощью светового устройства с вращающимся синим или красным светом."
         },
         "is_correct": false
       },
@@ -1343,8 +1345,8 @@
         "id": "b",
         "text": {
           "es": "Mediante un dispositivo luminoso con una o varias luces de color amarillo auto.",
-          "en": null,
-          "ru": null
+          "en": "By means of a luminous device with one or more amber (yellow auto) lights.",
+          "ru": "С помощью светового устройства с одним или несколькими огнями желто-оранжевого цвета."
         },
         "is_correct": true
       },
@@ -1352,16 +1354,16 @@
         "id": "c",
         "text": {
           "es": "Mediante un dispositivo luminoso con una o varias luces de color azul.",
-          "en": null,
-          "ru": null
+          "en": "By means of a luminous device with one or more blue lights.",
+          "ru": "С помощью светового устройства с одним или несколькими огнями синего цвета."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Vehículos, los vehículos que realizan obras o servicios en la vía deben señalizar su presencia mediante la señal V-2. Esta consiste en uno o varios dispositivos luminosos de color amarillo auto, visibles en todas las direcciones. Debe utilizarse tanto de día como de noche cuando el vehículo esté trabajando, parado, estacionado o circulando a una velocidad que no supere los 40 km/h. En caso de avería de este dispositivo, se deberán utilizar las luces de posición, cruce y la señal de emergencia.",
+      "en": "According to the General Vehicle Regulations, vehicles carrying out works or services on the road must signal their presence using the V-2 signal. This consists of one or more amber (yellow auto) luminous devices, visible from all directions. It must be used both day and night when the vehicle is working, stopped, parked, or traveling at a speed not exceeding 40 km/h. In the event of a failure of this device, the position lights, low beam, and emergency signal must be used.",
+      "ru": "🎓 Когда дорожные службы работают на проезжей части, они обязаны обозначать себя сигналом V-2 — это проблесковые маячки желто-оранжевого цвета. Этот свет должен быть включен и днем, и ночью, если машина работает, стоит или движется медленнее 40 км/ч. Тебе как водителю легкового автомобиля важно помнить: если у спецмашины сломался маячок, она обязана включить габариты, ближний свет и «аварийку». Также этот сигнал может использовать любое ТС, ставшее препятствием из-за поломки.\n\n💡 Желтый маяк на дороге горит — спецтехника правду тебе говорит: «Я здесь работаю, тише иди, препятствие ждет тебя впереди!»"
     },
     "image_url": "https://teorica.practicavial.com/question/41192007-b923-4a75-ad9e-588686275701-1658316490-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/41192007-b923-4a75-ad9e-588686275701-s-1.jpg",
@@ -1375,16 +1377,16 @@
     "category": "B",
     "question": {
       "es": "La luz rotativa de color amarillo auto que llevan los vehículos especiales, ¿les concede prioridad frente a los demás vehículos?",
-      "en": null,
-      "ru": null
+      "en": "Does the auto yellow rotating light carried by special vehicles grant them priority over other vehicles?",
+      "ru": "Дает ли желтый проблесковый маячок на специальных транспортных средствах приоритет перед другими транспортными средствами?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, solo señaliza su situación en la vía.",
-          "en": null,
-          "ru": null
+          "en": "No, it only signals its position on the road.",
+          "ru": "Нет, он только обозначает их положение на проезжей части."
         },
         "is_correct": true
       },
@@ -1392,8 +1394,8 @@
         "id": "b",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": false
       },
@@ -1401,16 +1403,16 @@
         "id": "c",
         "text": {
           "es": "Solo cuando circulen con ella encendida.",
-          "en": null,
-          "ru": null
+          "en": "Only when they are driving with it turned on.",
+          "ru": "Только когда они движутся с включенным маячком."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal luminosa V-2 (amarillo auto) indica la posición de un vehículo que realiza trabajos en la vía, se encuentra en situación de parada o estacionamiento, o circula a una velocidad no superior a 40 km/h. Su uso es obligatorio tanto de día como de noche para vehículos especiales y transportes especiales. Según el Reglamento General de Circulación, esta señal no concede prioridad de paso; su función es advertir de la presencia de un obstáculo o peligro. En caso de avería de la señal V-2, el vehículo debe circular con las luces de posición, cruce y emergencia.",
+      "en": "The V-2 light signal (auto yellow) indicates the position of a vehicle performing roadwork, stopped or parked, or traveling at a speed not exceeding 40 km/h. Its use is mandatory both day and night for special vehicles and special transports. According to the General Traffic Regulations, this signal does not grant right-of-way priority; its function is to warn of the presence of an obstacle or hazard. If the V-2 signal fails, the vehicle must travel with position lights, low beam, and emergency lights.",
+      "ru": "🎓 Желтый проблесковый маячок (сигнал V-2) указывает на то, что транспортное средство выполняет работы, остановилось на проезжей части или движется со скоростью менее 40 км/ч. Этот сигнал обязателен для специальных транспортных средств и при перевозке спецгрузов как днем, так и ночью. Однако он НЕ дает приоритета в движении. Если маячок неисправен, водитель обязан включить ближний свет и аварийную сигнализацию. Тебе, как водителю легкового автомобиля, важно понимать: это предупреждение о препятствии, а не команда уступить дорогу. 🇷🇺 В РФ желтый маячок также служит для предупреждения и не дает преимущества в движении. 💡 Желтый мигает — об опасности вещает, но дорогу уступать не заставляет!"
     },
     "image_url": "https://teorica.practicavial.com/question/77048c1d-167a-4373-950e-777fa609a9a6-1658316559-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/77048c1d-167a-4373-950e-777fa609a9a6-s-1.jpg",
@@ -1424,16 +1426,16 @@
     "category": "B",
     "question": {
       "es": "El conductor de un turismo, ¿debe llevar abrochado el cinturón de seguridad cuando realiza un recorrido corto?",
-      "en": null,
-      "ru": null
+      "en": "Does the driver of a passenger car have to wear a seatbelt when making a short trip?",
+      "ru": "Должен ли водитель легкового автомобиля пристегивать ремень безопасности при совершении короткой поездки?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, cuando circule por una vía urbana.",
-          "en": null,
-          "ru": null
+          "en": "No, when driving on an urban road.",
+          "ru": "Нет, при движении по городской дороге."
         },
         "is_correct": false
       },
@@ -1441,8 +1443,8 @@
         "id": "b",
         "text": {
           "es": "Solo si conduce un taxi, tanto en vías urbanas como interurbanas.",
-          "en": null,
-          "ru": null
+          "en": "Only if driving a taxi, both on urban and interurban roads.",
+          "ru": "Только если он управляет такси, как на городских, так и на междугородних дорогах."
         },
         "is_correct": false
       },
@@ -1450,16 +1452,16 @@
         "id": "c",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
-        "is_correct": false
+        "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece la obligatoriedad del uso del cinturón de seguridad para el conductor y los ocupantes de un turismo en todo tipo de vías, tanto urbanas como interurbanas, con independencia de la longitud del recorrido. Las exenciones son taxativas y no incluyen la brevedad del trayecto. El incumplimiento de esta norma supone una infracción grave.",
+      "en": "The General Traffic Regulations establish the mandatory use of seatbelts for the driver and occupants of a passenger car on all types of roads, both urban and interurban, regardless of the length of the journey. Exemptions are strictly defined and do not include short distances. Failure to comply with this regulation constitutes a serious offense.",
+      "ru": "🎓 Использование ремня безопасности обязательно для водителя и всех пассажиров легкового автомобиля на любых дорогах: и в городе, и на скоростных трассах. Расстояние не имеет значения — даже если ты едешь в соседний магазин, ремень должен быть застегнут. Помни, что в Испании беременные женщины также обязаны пристегиваться (если нет спецсправки), а исключения для водителей такси действуют только при движении в пределах города, но не на междугородних трассах. Тебе как водителю категории B нужно пристегиваться всегда и везде.\n💡 Короткий путь или длинный — ремень спасает жизнь и деньги!"
     },
     "image_url": "https://teorica.practicavial.com/question/b4949ddb-2bd7-451e-84ee-24ce5c7d07b2-1658253214-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/b4949ddb-2bd7-451e-84ee-24ce5c7d07b2-s-1.jpg",

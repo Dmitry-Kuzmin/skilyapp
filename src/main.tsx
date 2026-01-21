@@ -261,9 +261,14 @@ window.addEventListener('unhandledrejection', (event) => {
   const reason = event.reason;
   const reasonStr = reason instanceof Error ? reason.message : String(reason);
 
-  // КРИТИЧНО: Игнорируем ошибки Monetag "Failed to verify" - это нормально для Interstitial
-  if (reasonStr?.includes('Failed to verify') || reasonStr?.includes('verify')) {
-    console.warn('[Unhandled Rejection] Monetag verification error (ignored):', reasonStr);
+  // КРИТИЧНО: Игнорируем ошибки Monetag "Failed to verify" и "IDB connection closing"
+  if (
+    reasonStr?.includes('Failed to verify') ||
+    reasonStr?.includes('verify') ||
+    reasonStr?.includes('closing') ||
+    reasonStr?.includes('InvalidStateError')
+  ) {
+    console.warn('[Unhandled Rejection] Ignored known noise error:', reasonStr);
     event.preventDefault(); // Предотвращаем вывод в консоль как ошибку
     return;
   }
@@ -371,19 +376,11 @@ try {
 
   // КРИТИЧНО: Удаляем skeleton из DOM после монтирования React
   // Это гарантирует что он не мешает взаимодействию и не перекрывает контент
-  setTimeout(() => {
-    const skeleton = document.querySelector('.app-skeleton');
-    if (skeleton) {
-      skeleton.remove();
-      console.log('[Main] Skeleton removed from DOM');
-    }
-
-    // SSG: Отправляем событие для prerender плагина
-    // Это сигнализирует, что React приложение полностью отрендерилось
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new Event('render-event'));
-    }
-  }, 100); // Небольшая задержка чтобы React успел отрендерить первый кадр
+  // SSG: Отправляем событие для prerender плагина
+  // Это сигнализирует, что React приложение полностью отрендерилось
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('render-event'));
+  }
 } catch (error) {
   console.error('[CRITICAL] Failed to render React app:', error);
   rootElement.innerHTML = `

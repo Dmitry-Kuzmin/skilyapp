@@ -5,16 +5,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuál es la principal causa de los accidentes por alcance?",
-      "en": null,
-      "ru": null
+      "en": "What is the main cause of rear-end collisions?",
+      "ru": "Какова основная причина столкновений при наезде сзади?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Las velocidades anormalmente reducidas.",
-          "en": null,
-          "ru": null
+          "en": "Abnormally low speeds.",
+          "ru": "Аномально низкая скорость движения."
         },
         "is_correct": false
       },
@@ -22,8 +22,8 @@
         "id": "b",
         "text": {
           "es": "Las velocidades superiores a 100 km por hora.",
-          "en": null,
-          "ru": null
+          "en": "Speeds exceeding 100 km per hour.",
+          "ru": "Скорость движения выше 100 км/ч."
         },
         "is_correct": false
       },
@@ -31,16 +31,16 @@
         "id": "c",
         "text": {
           "es": "No guardar la distancia de seguridad con el vehículo que circula delante.",
-          "en": null,
-          "ru": null
+          "en": "Not maintaining a safe distance from the vehicle in front.",
+          "ru": "Несоблюдение безопасной дистанции до движущегося впереди транспортного средства."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La causa principal de las colisiones por alcance es el incumplimiento de la distancia de seguridad. El Reglamento General de Circulación establece que todo conductor debe mantener una separación que le permita detenerse en caso de frenado brusco sin colisionar con el vehículo precedente. Se recomienda una separación de al menos 2 segundos en zona urbana y 3 segundos en vías interurbanas. En caso de congestión, si se es el último vehículo de la fila, se debe mantener una distancia de 2 a 3 metros con el anterior para prevenir alcances en cadena. Si un vehículo circula demasiado cerca por detrás, se debe aumentar la distancia con el vehículo delantero.",
+      "en": "The primary cause of rear-end collisions is the failure to maintain a safe following distance. Traffic regulations require drivers to keep enough space to stop safely if the vehicle ahead brakes suddenly. Recommended intervals are 2 seconds in urban areas and 3 seconds on interurban roads. During traffic congestion, the last vehicle in a queue should maintain a 2 to 3-meter gap from the car in front to mitigate the risk of being pushed into it if struck from behind. If a vehicle is tailgating you, you should increase the distance to the vehicle ahead.",
+      "ru": "🎓 Основная причина столкновений типа «удар сзади» — несоблюдение безопасной дистанции до движущегося впереди ТС. Как водитель легкового автомобиля (Turismo), ты обязан держать интервал, позволяющий экстренно затормозить без столкновения. В городе держи минимум 2 секунды до лидера, вне населенных пунктов — 3 секунды. Если ты замыкаешь пробку, оставь перед собой 2–3 метра: это защитит от цепной реакции, если кто-то врежется в тебя сзади. Если сзади кто-то «прилип» к твоему багажнику, увеличь дистанцию до передней машины. 🇷🇺 В Испании ПДД четко регламентируют дистанцию в секундах и метрах в пробке, в то время как в РФ формулировка более общая. 💡 Видишь чужой бампер слишком близко — считай «раз-и-два», чтобы не стать частью «паровозика»."
     },
     "image_url": "https://teorica.practicavial.com/question/3424ee9c-da50-400d-9826-ffacc3d2b26c-1658858757-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/3424ee9c-da50-400d-9826-ffacc3d2b26c-s-1.jpg",
@@ -48,7 +48,9 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "3424ee9c-da50-400d-9826-ffacc3d2b26c",
+    "external_id": "3424ee9c-da50-400d-9826-ffacc3d2b26c"
   },
   {
     "topic_number": 10,
@@ -56,16 +58,16 @@
     "category": "B",
     "question": {
       "es": "Una de las técnicas de visión en la conducción preventiva consiste en...",
-      "en": null,
-      "ru": null
+      "en": "One of the vision techniques in preventive driving consists of...",
+      "ru": "Одной из техник обзора при превентивном (защитном) вождении является..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "mirar a lo lejos, a los lados y por los retrovisores.",
-          "en": null,
-          "ru": null
+          "en": "looking far ahead, to the sides, and through the rearview mirrors.",
+          "ru": "смотреть вдаль, по сторонам и в зеркала заднего вида."
         },
         "is_correct": true
       },
@@ -73,8 +75,8 @@
         "id": "b",
         "text": {
           "es": "acostumbrarse a los deslumbramientos.",
-          "en": null,
-          "ru": null
+          "en": "getting used to glare.",
+          "ru": "привыкание к ослеплению."
         },
         "is_correct": false
       },
@@ -82,16 +84,16 @@
         "id": "c",
         "text": {
           "es": "instalar espejos panorámicos.",
-          "en": null,
-          "ru": null
+          "en": "installing panoramic mirrors.",
+          "ru": "установка панорамных зеркал."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La conducción preventiva se basa en los principios de visión, anticipación y gestión del espacio. La técnica de visión exige un barrido constante del entorno: visión lejana para detectar riesgos con antelación, visión lateral para controlar el entorno inmediato y el uso frecuente de los retrovisores para mantener el control de la parte posterior del vehículo, independientemente de si se va a realizar una maniobra o no. Además, es necesario realizar comprobaciones del ángulo muerto mediante giros breves de la cabeza.",
+      "en": "Preventive driving is based on the principles of vision, anticipation, and space management. Vision techniques require constant environmental scanning: long-range vision to detect risks early, lateral vision to monitor the immediate surroundings, and frequent use of rearview mirrors to maintain control of the rear of the vehicle, regardless of whether a maneuver is planned. Additionally, blind spot checks must be performed by briefly turning the head.",
+      "ru": "🎓 Превентивное вождение — это твоя страховка от чужих ошибок. Чтобы успеть среагировать, водитель легкового автомобиля должен смотреть не на капот, а далеко вперед: чем выше скорость, тем дальше должен быть сфокусирован взгляд для своевременного обнаружения опасностей. Необходимо постоянно сканировать пространство по бокам и приучить себя проверять зеркала заднего вида каждые 5–15 секунд, даже если ты не планируешь маневр. Для полной безопасности следует проверять «слепые зоны» коротким поворотом головы.\n\n💡 Правило «360»: крути головой как сова, чтобы знать всё про всех вокруг."
     },
     "image_url": "https://teorica.practicavial.com/question/b53f2f4b-4ae9-405c-b904-5cbd43a8ddf0-1658858702-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/b53f2f4b-4ae9-405c-b904-5cbd43a8ddf0-s-1.jpg",
@@ -99,24 +101,26 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "b53f2f4b-4ae9-405c-b904-5cbd43a8ddf0",
+    "external_id": "b53f2f4b-4ae9-405c-b904-5cbd43a8ddf0"
   },
   {
     "topic_number": 10,
     "question_number": 3,
     "category": "B",
     "question": {
-      "es": "Es recomendable aumentar la distancia de seguridad...",
-      "en": null,
-      "ru": null
+      "es": "¿Es recomendable aumentar la distancia de seguridad?",
+      "en": "Is it recommended to increase the safety distance?",
+      "ru": "Рекомендуется ли увеличивать дистанцию безопасности?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "cuando el vehículo de detrás se acerca demasiado.",
-          "en": null,
-          "ru": null
+          "en": "when the vehicle behind gets too close.",
+          "ru": "когда транспортное средство сзади приближается слишком близко."
         },
         "is_correct": true
       },
@@ -124,8 +128,8 @@
         "id": "b",
         "text": {
           "es": "al circular de día.",
-          "en": null,
-          "ru": null
+          "en": "when driving during the day.",
+          "ru": "при движении в светлое время суток."
         },
         "is_correct": false
       },
@@ -133,16 +137,16 @@
         "id": "c",
         "text": {
           "es": "cuando el conductor se encuentre en perfecto estado.",
-          "en": null,
-          "ru": null
+          "en": "when the driver is in perfect condition.",
+          "ru": "когда водитель находится в идеальном состоянии."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "En el marco de la conducción preventiva, si el vehículo que circula detrás no mantiene una separación adecuada, el conductor debe aumentar la distancia de seguridad con el vehículo que le precede. Esta medida permite disponer de un margen de frenado más amplio y progresivo, minimizando el riesgo de colisión por alcance al compensar la falta de espacio del vehículo posterior.",
+      "en": "Under defensive driving guidelines, if the following vehicle is tailgating, the driver should increase the safety distance from the vehicle in front. This strategy provides a larger buffer for gradual braking, reducing the risk of a rear-end collision by providing the rear driver with more reaction time to compensate for their lack of space.",
+      "ru": "🎓 Если сзади едущий водитель прижимается слишком близко к твоему легковому автомобилю, тебе следует увеличить дистанцию до транспортного средства, идущего впереди. Это необходимо для того, чтобы в случае опасности ты мог затормозить максимально плавно. Плавное торможение даст водителю сзади больше времени на реакцию и предотвратит удар в твой багажник. В нормальных условиях рекомендуется держать дистанцию в 2 секунды в населенном пункте и 3 секунды на скоростных дорогах. 💡 Видишь «хвост» в зеркале — дай больше места впереди. Пусть он тормозит об твой запас времени, а не об твой бампер."
     },
     "image_url": "https://teorica.practicavial.com/question/108c2d1c-9551-43b8-a883-16cb52617e0a-1658858751-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/108c2d1c-9551-43b8-a883-16cb52617e0a-s-1.jpg",
@@ -150,6 +154,8 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "108c2d1c-9551-43b8-a883-16cb52617e0a",
+    "external_id": "108c2d1c-9551-43b8-a883-16cb52617e0a"
   }
 ]

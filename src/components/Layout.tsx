@@ -28,6 +28,8 @@ import { EdgeSwipeBack } from "./navigation/EdgeSwipeBack";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSmartHeader } from "@/hooks/useSmartHeader";
+import { liftStartupCurtain } from "@/utils/startup";
+
 
 interface LayoutProps {
   children: ReactNode;
@@ -136,6 +138,13 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
 
   // Управление сессиями (только 1 активная сессия одновременно)
   useSessionManager();
+
+
+  // Ensure the startup curtain is lifted when the layout mounts
+  // This handles cases where pages load too fast for the Suspense fallback to trigger
+  useEffect(() => {
+    liftStartupCurtain();
+  }, []);
 
   // Отслеживаем фактическую платформу Telegram (ios/android vs desktop)
   useEffect(() => {

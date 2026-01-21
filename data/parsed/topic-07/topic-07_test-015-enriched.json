@@ -5,16 +5,16 @@
     "category": "B",
     "question": {
       "es": "Durmiendo un poco, ¿se consigue eliminar más rápidamente el alcohol?",
-      "en": null,
-      "ru": null
+      "en": "Does sleeping a little help eliminate alcohol more quickly?",
+      "ru": "Можно ли ускорить выведение алкоголя из организма, если немного поспать?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, si se duerme un par de horas.",
-          "en": null,
-          "ru": null
+          "en": "Yes, if you sleep a couple of hours.",
+          "ru": "Да, если поспать пару часов."
         },
         "is_correct": false
       },
@@ -22,8 +22,8 @@
         "id": "b",
         "text": {
           "es": "Sí, cuando se duerme bien.",
-          "en": null,
-          "ru": null
+          "en": "Yes, when you sleep well.",
+          "ru": "Да, если хорошо выспаться."
         },
         "is_correct": false
       },
@@ -31,16 +31,16 @@
         "id": "c",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El metabolismo y la eliminación del alcohol son procesos fisiológicos que ocurren a una velocidad constante, principalmente en el hígado. No existen trucos ni remedios (como dormir, beber café, hacer ejercicio o ducharse) que aceleren este proceso. El único factor que reduce la tasa de alcoholemia es el paso del tiempo.",
+      "en": "Alcohol metabolism and elimination are physiological processes that occur at a constant rate, primarily in the liver. There are no tricks or remedies (such as sleeping, drinking coffee, exercising, or showering) that accelerate this process. The only factor that reduces blood alcohol concentration is the passage of time.",
+      "ru": "🎓 Выведение алкоголя — это биохимический процесс, который протекает в печени с фиксированной скоростью. Никакие внешние действия, включая сон, физические упражнения, холодный душ или употребление кофе, не могут заставить организм перерабатывать алкоголь быстрее. Сон может лишь замаскировать симптомы усталости, но концентрация алкоголя в крови будет снижаться исключительно с течением времени.\n\n💡 Спи не спи — промилле не уйдут, только часы тебя спасут."
     },
     "image_url": "https://teorica.practicavial.com/question/6ae65826-18e7-4c6d-a4d3-c2fba4c02984-1658772966-i.jpg",
     "source": "practicavial",
@@ -57,16 +57,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuál es la función del freno de mano?",
-      "en": null,
-      "ru": null
+      "en": "What is the function of the handbrake?",
+      "ru": "Какова функция стояночного тормоза (ручника)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Reducir la velocidad del vehículo en ciudad.",
-          "en": null,
-          "ru": null
+          "en": "To reduce the vehicle's speed in the city.",
+          "ru": "Снижать скорость транспортного средства в городе."
         },
         "is_correct": false
       },
@@ -74,8 +74,8 @@
         "id": "b",
         "text": {
           "es": "Inmovilizar el vehículo al estacionar.",
-          "en": null,
-          "ru": null
+          "en": "To immobilize the vehicle when parking.",
+          "ru": "Удерживать транспортное средство неподвижным при парковке."
         },
         "is_correct": true
       },
@@ -83,16 +83,16 @@
         "id": "c",
         "text": {
           "es": "Reducir la velocidad del vehículo cuando circule por una vía con una pendiente prolongada.",
-          "en": null,
-          "ru": null
+          "en": "To reduce the vehicle's speed when driving on a road with a long slope.",
+          "ru": "Снижать скорость транспортного средства при движении по дороге с затяжным уклоном."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El sistema de frenado se divide principalmente en freno de servicio (pedal) y freno de estacionamiento (mano). La función técnica y legal del freno de mano es asegurar que el vehículo permanezca inmóvil mecánicamente una vez que se ha detenido, permitiendo al conductor ausentarse. No está diseñado para disminuir la velocidad durante la marcha; para ello se utiliza el freno de servicio.",
+      "en": "The braking system is primarily divided into the service brake (pedal) and the parking brake (handbrake). The technical and legal function of the handbrake is to ensure that the vehicle remains mechanically stationary once it has stopped, allowing the driver to leave the vehicle. It is not designed to reduce speed while driving; the service brake is used for that purpose.",
+      "ru": "🎓 Стояночный тормоз (ручник) имеет одну главную задачу: механически заблокировать колеса, чтобы удерживать транспортное средство в неподвижном состоянии после остановки. Это гарантирует, что автомобиль не покатится, даже если водитель выйдет из него. Для снижения скорости в городе или на спусках используется только рабочий тормоз (педаль) или торможение двигателем.\n\n💡 Ручник поднят — автомобиль стоит, ручник опущен — автомобиль спешит."
     },
     "image_url": "https://teorica.practicavial.com/question/6e201916-b02e-4ce3-8419-c074d8728dc2-1658837224-i.jpg",
     "source": "practicavial",
@@ -109,16 +109,16 @@
     "category": "B",
     "question": {
       "es": "Para conducir con hielo en la calzada de una forma preventiva debe...",
-      "en": null,
-      "ru": null
+      "en": "To drive preventively with ice on the roadway, you must...",
+      "ru": "Для безопасного вождения при наличии льда на проезжей части необходимо..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "disminuir la velocidad y utilizar marchas largas.",
-          "en": null,
-          "ru": null
+          "en": "reduce speed and use high gears.",
+          "ru": "снизить скорость и использовать высокие передачи."
         },
         "is_correct": true
       },
@@ -126,8 +126,8 @@
         "id": "b",
         "text": {
           "es": "disminuir la velocidad y utilizar marchas cortas.",
-          "en": null,
-          "ru": null
+          "en": "reduce speed and use low gears.",
+          "ru": "снизить скорость и использовать низкие передачи."
         },
         "is_correct": false
       },
@@ -135,16 +135,16 @@
         "id": "c",
         "text": {
           "es": "tener especial cuidado durante el día.",
-          "en": null,
-          "ru": null
+          "en": "take special care during the day.",
+          "ru": "быть особенно осторожным в дневное время."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Con hielo en la calzada, la adherencia disminuye drásticamente. La conducción preventiva exige moderar la velocidad y utilizar marchas largas (las más altas posibles). Esto se debe a que las marchas largas transmiten menos par motor (fuerza) a las ruedas motrices, reduciendo el riesgo de que patinen o pierdan tracción al acelerar. Las marchas cortas, por el contrario, envían demasiada fuerza brusca a las ruedas, provocando derrapes en superficies deslizantes.",
+      "en": "With ice on the roadway, grip decreases drastically. Preventive driving requires moderating speed and using high gears (the highest possible). This is because high gears transmit less torque to the drive wheels, reducing the risk of spinning or losing traction when accelerating. Low gears, conversely, send too much abrupt force to the wheels, causing skids on slippery surfaces.",
+      "ru": "🎓 При движении по льду сцепление шин с проезжей частью (Calzada) критически низкое. Чтобы избежать потери управления, необходимо снизить скорость. Ключевой момент — использование **высоких передач** (marchas largas). На высокой передаче на колеса передается меньше крутящего момента, что позволяет разгоняться и поддерживать движение плавно, без пробуксовки. Низкие передачи (marchas cortas) слишком «резкие»: малейшее нажатие на газ на льду приведет к срыву колес в скольжение.\n\n🇷🇺 В РФ часто делают упор на торможение двигателем (низкие передачи) в гололед. В Испании базовым правилом для движения по льду (если это не крутой спуск) считается использование высоких передач, чтобы избежать пробуксовки ведущих колес.\n\n💡 Лёд блестит — скользить велит: скорость сбавь, передачу повыше ставь!"
     },
     "image_url": "https://teorica.practicavial.com/question/55c07d11-2d9d-4dc6-8362-e91f2734ab51-1663579714-i.jpg",
     "source": "practicavial",
@@ -160,17 +160,17 @@
     "question_number": 4,
     "category": "B",
     "question": {
-      "es": "Según las ultimas cifras de siniestralidad, ¿cuándo se produce un mayor número de accidentes de tráfico con víctimas mortales?",
-      "en": null,
-      "ru": null
+      "es": "Según las últimas cifras de siniestralidad, ¿cuándo se produce un mayor número de accidentes de tráfico con víctimas mortales?",
+      "en": "According to the latest accident figures, when does the greatest number of traffic accidents with fatalities occur?",
+      "ru": "Согласно последним статистическим данным, когда происходит наибольшее количество ДТП со смертельным исходом?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Los lunes y los martes.",
-          "en": null,
-          "ru": null
+          "en": "Mondays and Tuesdays.",
+          "ru": "По понедельникам и вторникам."
         },
         "is_correct": false
       },
@@ -178,8 +178,8 @@
         "id": "b",
         "text": {
           "es": "Los jueves.",
-          "en": null,
-          "ru": null
+          "en": "Thursdays.",
+          "ru": "По четвергам."
         },
         "is_correct": false
       },
@@ -187,16 +187,16 @@
         "id": "c",
         "text": {
           "es": "Los fines de semana.",
-          "en": null,
-          "ru": null
+          "en": "Weekends.",
+          "ru": "В выходные дни."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Las estadísticas de la Dirección General de Tráfico indican que la siniestralidad no se distribuye uniformemente en el tiempo. Los periodos con mayor número de accidentes con víctimas mortales coinciden con los días festivos, las vacaciones y, significativamente, los fines de semana y las horas nocturnas. Este incremento se asocia a desplazamientos de ocio, mayor intensidad de tráfico en salidas/entradas de ciudades y factores de riesgo como el alcohol o la fatiga.",
+      "en": "Statistics from the Directorate-General for Traffic indicate that accident rates are not evenly distributed over time. The periods with the highest number of accidents involving fatalities coincide with public holidays, vacations, and significantly, weekends and night hours. This increase is associated with leisure travel, higher traffic intensity at city exits/entrances, and risk factors such as alcohol or fatigue.",
+      "ru": "🎓 Статистика показывает, что аварии распределены по времени неравномерно. Наибольшее количество ДТП с гибелью людей происходит в выходные и праздничные дни, а также в ночное время. Это связано с увеличением количества поездок на отдых, ростом плотности потока на выездах из городов и повышением риска вождения в нетрезвом виде или в состоянии усталости.\n\n💡 В выходные отдыхай, но за рулем не зевай — это пик аварийности."
     },
     "image_url": "https://teorica.practicavial.com/question/2ad2c99d-0084-4823-b751-dc956e01e63a-1658502427-i.jpg",
     "source": "practicavial",
@@ -213,16 +213,16 @@
     "category": "B",
     "question": {
       "es": "Al adelantar a un ciclista que lleva a un pasajero, es importante...",
-      "en": null,
-      "ru": null
+      "en": "When overtaking a cyclist carrying a passenger, it is important to...",
+      "ru": "При обгоне велосипедиста, перевозящего пассажира, важно..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "dejar una separación lateral suficiente, ya que se pueden desestabilizar con facilidad.",
-          "en": null,
-          "ru": null
+          "en": "leave sufficient lateral separation, as they can easily become destabilized.",
+          "ru": "оставить достаточный боковой интервал, так как они могут легко потерять равновесие."
         },
         "is_correct": true
       },
@@ -230,8 +230,8 @@
         "id": "b",
         "text": {
           "es": "mantener la velocidad y estar atento al cumplimiento de la señalización vertical.",
-          "en": null,
-          "ru": null
+          "en": "maintain speed and be attentive to compliance with vertical signage.",
+          "ru": "сохранять скорость и следить за соблюдением требований вертикальных знаков."
         },
         "is_correct": false
       },
@@ -239,16 +239,16 @@
         "id": "c",
         "text": {
           "es": "al estar cerca de ellos hacer señales acústicas para indicar nuestra presencia.",
-          "en": null,
-          "ru": null
+          "en": "use acoustic signals when close to them to indicate our presence.",
+          "ru": "находясь рядом с ними, подать звуковой сигнал, чтобы обозначить свое присутствие."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Los ciclos son vehículos vulnerables cuyo equilibrio se ve comprometido al transportar un pasajero debido al cambio en el centro de gravedad y el aumento de masa. Esto hace que su trayectoria sea oscilante e impredecible. Por normativa, al realizar un adelantamiento, es obligatorio dejar una separación lateral suficiente (mínimo 1,5 metros fuera de poblado) para evitar que la turbulencia de aire generada por el vehículo motorizado los desestabilice y provoque una caída. El uso de señales acústicas a corta distancia está contraindicado, ya que puede asustar al ciclista.",
+      "en": "Cycles are vulnerable vehicles whose balance is compromised when carrying a passenger due to the shift in the center of gravity and increased mass. This makes their trajectory oscillating and unpredictable. According to regulations, when overtaking, it is mandatory to leave sufficient lateral separation (minimum 1.5 meters outside built-up areas) to prevent air turbulence generated by the motor vehicle from destabilizing them and causing a fall. Using acoustic signals at close range is contraindicated, as it may startle the cyclist.",
+      "ru": "🎓 Велосипед удерживает равновесие только в движении. Когда на нем сидит пассажир, центр тяжести смещается, а вес увеличивается, что делает транспортное средство крайне неустойчивым. При обгоне ваш автомобиль создает воздушную волну, которая может легко опрокинуть шаткий велосипед. Поэтому критически важно оставлять увеличенный боковой интервал, чтобы не сбить их потоком воздуха. Подача звукового сигнала вблизи запрещена, так как испуг велосипедиста почти гарантированно приведет к аварии.\n\n🇷🇺 В РФ ПДД требуют соблюдать просто «безопасный боковой интервал». В Испании вне населенных пунктов это требование имеет четкую цифру — минимум 1,5 метра.\n\n💡 Пассажир смещает вес — держи дистанцию, не лезь!"
     },
     "image_url": "https://teorica.practicavial.com/question/c059b43d-d761-4815-b356-c561125dde8f-1658508153-i.jpg",
     "source": "practicavial",
@@ -265,16 +265,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué es el tiempo de reacción?",
-      "en": null,
-      "ru": null
+      "en": "What is reaction time?",
+      "ru": "Что такое время реакции?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "El tiempo que pasa desde que se arranca el vehículo hasta que se empieza a circular.",
-          "en": null,
-          "ru": null
+          "en": "The time that passes from when the vehicle is started until it begins to circulate.",
+          "ru": "Время, которое проходит с момента запуска двигателя до начала движения."
         },
         "is_correct": false
       },
@@ -282,8 +282,8 @@
         "id": "b",
         "text": {
           "es": "El tiempo que pasa desde que se ve un peligro hasta que se toma una decisión.",
-          "en": null,
-          "ru": null
+          "en": "The time that passes from when a danger is seen until a decision is made.",
+          "ru": "Время, которое проходит с момента обнаружения опасности до принятия решения."
         },
         "is_correct": true
       },
@@ -291,16 +291,16 @@
         "id": "c",
         "text": {
           "es": "El tiempo que pasa desde que se empieza una maniobra hasta que se termina.",
-          "en": null,
-          "ru": null
+          "en": "The time that passes from when a maneuver is started until it is finished.",
+          "ru": "Время, которое проходит с момента начала маневра до его завершения."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El tiempo de reacción es el lapso que transcurre desde que el conductor percibe un estímulo (peligro) hasta que responde al mismo (por ejemplo, pisando el freno). En condiciones normales, oscila entre 0,5 y 1 segundo (media de 0,75 s). Depende del estado psicofísico del conductor, no del vehículo ni de la vía.",
+      "en": "Reaction time is the period that elapses from the moment the driver perceives a stimulus (danger) until they respond to it (for example, by stepping on the brake). Under normal conditions, it ranges between 0.5 and 1 second (average of 0.75 s). It depends on the driver's psychophysical state, not on the vehicle or the road.",
+      "ru": "🎓 Время реакции — это секунды, которые проходят между тем, как глаза увидели опасность, и тем, как нога нажала на тормоз. В среднем у водителя это занимает около 0,75 секунды (от 0,5 до 1 с). В этот короткий промежуток автомобиль продолжает ехать с прежней скоростью, так как тормозная система еще не сработала. Это время зависит только от состояния водителя (усталость, алкоголь, возраст), а не от машины.\n\n💡 Увидел — Осознал — Нажал. Пауза до нажатия — это и есть время реакции!"
     },
     "image_url": "https://teorica.practicavial.com/question/623caf91-d95d-4b5b-8ab3-6872d0815b0c-1658750448-i.jpg",
     "source": "practicavial",
@@ -317,16 +317,16 @@
     "category": "B",
     "question": {
       "es": "¿Por dónde debe pasar la cinta torácica del cinturón de seguridad?",
-      "en": null,
-      "ru": null
+      "en": "Where should the thoracic strap of the seat belt pass?",
+      "ru": "Где должна проходить грудная лямка ремня безопасности?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sobre la clavícula y por el centro del pecho.",
-          "en": null,
-          "ru": null
+          "en": "Over the clavicle and across the center of the chest.",
+          "ru": "По ключице и через центр груди."
         },
         "is_correct": true
       },
@@ -334,8 +334,8 @@
         "id": "b",
         "text": {
           "es": "Por la pelvis.",
-          "en": null,
-          "ru": null
+          "en": "Across the pelvis.",
+          "ru": "По тазу."
         },
         "is_correct": false
       },
@@ -343,16 +343,16 @@
         "id": "c",
         "text": {
           "es": "Por el hombro.",
-          "en": null,
-          "ru": null
+          "en": "Across the shoulder.",
+          "ru": "По плечу."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La colocación correcta del cinturón de seguridad es vital para su eficacia. La cinta torácica (diagonal) debe pasar sobre la clavícula, a medio camino entre el hombro y el cuello, y descender por el centro del pecho. No debe situarse sobre el cuello (riesgo de corte o estrangulamiento) ni caerse por el hombro. La cinta abdominal debe apoyarse sobre las crestas ilíacas de la pelvis, nunca sobre el abdomen blando.",
+      "en": "Correct seat belt placement is vital for its effectiveness. The thoracic (diagonal) strap must pass over the clavicle, midway between the shoulder and the neck, and descend across the center of the chest. It should not be placed over the neck (risk of cutting or strangulation) nor slip off the shoulder. The abdominal strap must rest on the iliac crests of the pelvis, never over the soft abdomen.",
+      "ru": "🎓 Ремень безопасности состоит из двух частей, и каждая должна лежать на жестких частях скелета. Грудная (диагональная) лямка должна проходить строго по середине ключицы и пересекать центр грудной клетки. Она не должна касаться шеи (опасно при рывке) или сползать с плеча (не удержит тело). Нижняя часть ремня должна лежать на костях таза, а не на мягком животе.\n\n💡 Верх — по ключице, низ — по тазу, и жизнь в безопасности сразу!"
     },
     "image_url": "https://teorica.practicavial.com/question/e689b616-8872-441f-a44b-e54ddce2b90e-1658842672-i.jpg",
     "source": "practicavial",
@@ -369,25 +369,25 @@
     "category": "B",
     "question": {
       "es": "Además del airbag frontal, ¿existen otros tipos de airbag?",
-      "en": null,
-      "ru": null
+      "en": "Besides the frontal airbag, are there other types of airbags?",
+      "ru": "Кроме фронтальной подушки безопасности, существуют ли другие типы подушек?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
-          "es": "Si, airbag frontal y de espalda.",
-          "en": null,
-          "ru": null
+          "es": "Sí, airbag frontal y de espalda.",
+          "en": "Yes, frontal and back airbag.",
+          "ru": "Да, фронтальная и для спины."
         },
         "is_correct": false
       },
       {
         "id": "b",
         "text": {
-          "es": "Si, airbag frontal y de rodilla.",
-          "en": null,
-          "ru": null
+          "es": "Sí, airbag frontal y de rodilla.",
+          "en": "Yes, frontal and knee airbag.",
+          "ru": "Да, фронтальная и коленная подушка безопасности."
         },
         "is_correct": true
       },
@@ -395,16 +395,16 @@
         "id": "c",
         "text": {
           "es": "No, no existe ninguno más.",
-          "en": null,
-          "ru": null
+          "en": "No, there are no others.",
+          "ru": "Нет, больше никаких не существует."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Los vehículos modernos incorporan diversos sistemas de seguridad pasiva adicionales al airbag frontal. Entre ellos se encuentran los airbags laterales (protección de tórax y cadera), los de cortina (protección de cabeza), los de techo y los de rodilla. El airbag de rodilla se sitúa habitualmente bajo la columna de dirección para evitar impactos de las piernas contra el salpicadero.",
+      "en": "Modern vehicles incorporate various passive safety systems in addition to the frontal airbag. These include side airbags (chest and hip protection), curtain airbags (head protection), roof airbags, and knee airbags. The knee airbag is usually located under the steering column to prevent leg impacts against the dashboard.",
+      "ru": "🎓 Современные автомобили оснащаются целым комплексом систем пассивной безопасности. Помимо привычных фронтальных подушек, существуют боковые подушки (в спинках сидений), шторки безопасности (для защиты головы) и коленные подушки. Коленная подушка обычно располагается под рулевой колонкой и защищает ноги водителя от удара о жесткие элементы салона.\n\n💡 Подушки — это не только \"лицо в руль\". Есть защита сбоку, сверху и даже для коленей!"
     },
     "image_url": "https://teorica.practicavial.com/question/0c7f4383-e25b-4cf1-857a-76f3795be66c-1731575368-i.jpg",
     "source": "practicavial",
@@ -421,16 +421,16 @@
     "category": "B",
     "question": {
       "es": "En caso de accidente de circulación, ¿quiénes están obligados a someterse a las pruebas que se establezcan para la detección de alcoholemia?",
-      "en": null,
-      "ru": null
+      "en": "In the event of a traffic accident, who is required to undergo the established alcohol detection tests?",
+      "ru": "В случае дорожно-транспортного происшествия, кто обязан пройти установленные тесты на обнаружение алкоголя?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Únicamente los conductores de vehículos a motor.",
-          "en": null,
-          "ru": null
+          "en": "Only drivers of motor vehicles.",
+          "ru": "Только водители механических транспортных средств."
         },
         "is_correct": false
       },
@@ -438,8 +438,8 @@
         "id": "b",
         "text": {
           "es": "Sólo los conductores de vehículos y bicicletas.",
-          "en": null,
-          "ru": null
+          "en": "Only drivers of vehicles and bicycles.",
+          "ru": "Только водители транспортных средств и велосипедов."
         },
         "is_correct": false
       },
@@ -447,16 +447,16 @@
         "id": "c",
         "text": {
           "es": "Todo usuario de la vía que esté implicado directamente como posible responsable.",
-          "en": null,
-          "ru": null
+          "en": "Every road user who is directly implicated as possibly responsible.",
+          "ru": "Любой участник дорожного движения, непосредственно причастный как возможный виновник."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, la obligación de someterse a las pruebas de detección alcohólica se extiende a todos los usuarios de la vía (incluidos peatones) que estén implicados directamente como posibles responsables en un accidente de circulación. No se limita exclusivamente a los conductores.",
+      "en": "According to the General Traffic Regulations, the obligation to undergo alcohol detection tests extends to all road users (including pedestrians) who are directly involved as possible responsible parties in a traffic accident. It is not limited exclusively to drivers.",
+      "ru": "🎓 Согласно испанскому регламенту, проверку на алкоголь обязаны проходить не только водители. Это требование распространяется на любого участника дорожного движения (включая пешеходов и велосипедистов), если он непосредственно причастен к ДТП как возможный виновник.\n\n🇷🇺 В РФ процедура освидетельствования на месте (алкотестер) применяется в первую очередь к водителям. В Испании же, если пешеход спровоцировал аварию, он юридически обязан пройти тест наравне с водителем.\n\n💡 Причастен к ДТП как виновник? Готовься к тесту, даже если ты пешеход или всадник!"
     },
     "image_url": "https://teorica.practicavial.com/question/34efd72a-9755-48b7-85fa-77f24ee44ba1-1658829862-i.jpg",
     "source": "practicavial",
@@ -473,16 +473,16 @@
     "category": "B",
     "question": {
       "es": "Los costes de los accidentes de tráfico recaen...",
-      "en": null,
-      "ru": null
+      "en": "The costs of traffic accidents fall...",
+      "ru": "Расходы, связанные с ДТП, ложатся..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "únicamente en las víctimas de los mismos.",
-          "en": null,
-          "ru": null
+          "en": "solely on the victims themselves.",
+          "ru": "исключительно на самих пострадавших."
         },
         "is_correct": false
       },
@@ -490,8 +490,8 @@
         "id": "b",
         "text": {
           "es": "en todos los ciudadanos, directa o indirectamente.",
-          "en": null,
-          "ru": null
+          "en": "on all citizens, directly or indirectly.",
+          "ru": "на всех граждан, прямо или косвенно."
         },
         "is_correct": true
       },
@@ -499,16 +499,16 @@
         "id": "c",
         "text": {
           "es": "solamente en las compañías de seguros.",
-          "en": null,
-          "ru": null
+          "en": "only on insurance companies.",
+          "ru": "только на страховые компании."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Los accidentes de tráfico generan costes humanos, materiales, administrativos y sanitarios. Estos costes son asumidos por la sociedad en su conjunto, ya sea directamente (a través de impuestos para servicios de emergencia, sanidad pública, mantenimiento de vías) o indirectamente (pérdida de capacidad productiva, aumento de primas de seguros). Por tanto, la carga económica recae sobre todos los ciudadanos.",
+      "en": "Traffic accidents generate human, material, administrative, and healthcare costs. These costs are borne by society as a whole, either directly (through taxes for emergency services, public healthcare, road maintenance) or indirectly (loss of productive capacity, increase in insurance premiums). Therefore, the economic burden falls on all citizens.",
+      "ru": "🎓 ДТП — это не только личная трагедия участников, но и огромная экономическая нагрузка на всё общество. Расходы делятся на человеческие, материальные, административные и медицинские. Работа полиции, скорой помощи, пожарных и ремонт дорожной инфраструктуры оплачиваются из государственного бюджета, то есть из налогов всех граждан. Кроме того, высокая аварийность ведет к удорожанию страховых полисов для всех водителей и потере трудоспособного населения. Поэтому финансовое бремя несут все граждане, прямо или косвенно.\n\n💡 Авария одна — платит вся страна."
     },
     "image_url": "https://teorica.practicavial.com/question/b2a0faac-baf2-40d3-9701-e504db3302d6-1658497184-i.jpg",
     "source": "practicavial",
@@ -525,16 +525,16 @@
     "category": "B",
     "question": {
       "es": "La influencia del riesgo asociado a la carretera, ¿cómo se puede disminuir?",
-      "en": null,
-      "ru": null
+      "en": "How can the influence of risk associated with the road be reduced?",
+      "ru": "Как можно снизить влияние риска, связанного с дорогой?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Circulando de noche porque hay menos tráfico.",
-          "en": null,
-          "ru": null
+          "en": "By driving at night because there is less traffic.",
+          "ru": "Двигаясь ночью, так как трафик меньше."
         },
         "is_correct": false
       },
@@ -542,8 +542,8 @@
         "id": "b",
         "text": {
           "es": "Circulando a 50 km/h en todas las vías.",
-          "en": null,
-          "ru": null
+          "en": "By driving at 50 km/h on all roads.",
+          "ru": "Двигаясь со скоростью 50 км/ч на всех дорогах."
         },
         "is_correct": false
       },
@@ -551,16 +551,16 @@
         "id": "c",
         "text": {
           "es": "Adecuando la velocidad y aumentando la distancia de seguridad.",
-          "en": null,
-          "ru": null
+          "en": "By adapting speed and increasing the safety distance.",
+          "ru": "Адаптируя скорость и увеличивая безопасную дистанцию."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Aunque el conductor no puede modificar directamente el factor vía (estado del pavimento, trazado o condiciones ambientales), sí puede mitigar los riesgos asociados adaptando su comportamiento. La estrategia correcta consiste en adecuar la velocidad a las condiciones específicas de la vía y aumentar la distancia de seguridad para garantizar un mayor tiempo y espacio de reacción. Circular de noche incrementa el riesgo por la falta de visibilidad, y mantener una velocidad fija de 50 km/h es peligroso e inadecuado en vías rápidas como autopistas.",
+      "en": "Although the driver cannot directly modify the road factor (pavement condition, layout, or environmental conditions), they can mitigate associated risks by adapting their behavior. The correct strategy involves adapting speed to the specific conditions of the road and increasing the safety distance to ensure greater reaction time and space. Driving at night increases risk due to lack of visibility, and maintaining a fixed speed of 50 km/h is dangerous and inadequate on fast roads such as highways.",
+      "ru": "🎓 Ты не можешь изменить физическое состояние дороги (ямы, скользкий асфальт, крутые повороты), но ты полностью контролируешь свой автомобиль. Единственный способ снизить риск, который исходит от «фактора дороги» — это адаптировать свою скорость под текущие условия и увеличить безопасную дистанцию. Это создаст необходимый запас времени и пространства для реакции в случае опасности. Езда ночью только повышает риски из-за плохой видимости, а движение со скоростью 50 км/ч на скоростной автомагистрали само по себе создает аварийную ситуацию.\n\n💡 Дорога хуже — скорость ниже, дистанция больше!"
     },
     "image_url": "https://teorica.practicavial.com/question/8e409518-f01f-46dc-96dd-7c2d3ac4dc95-1658501658-i.jpg",
     "source": "practicavial",
@@ -577,16 +577,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuál es una de las causas que originan los accidentes de tráfico en los conductores jóvenes?",
-      "en": null,
-      "ru": null
+      "en": "What is one of the causes of traffic accidents among young drivers?",
+      "ru": "Какова одна из причин возникновения ДТП с участием молодых водителей?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "La falta de reflejos.",
-          "en": null,
-          "ru": null
+          "en": "Lack of reflexes.",
+          "ru": "Недостаток рефлексов."
         },
         "is_correct": false
       },
@@ -594,8 +594,8 @@
         "id": "b",
         "text": {
           "es": "No respetar las normas de circulación.",
-          "en": null,
-          "ru": null
+          "en": "Not respecting traffic regulations.",
+          "ru": "Несоблюдение правил дорожного движения."
         },
         "is_correct": true
       },
@@ -603,16 +603,16 @@
         "id": "c",
         "text": {
           "es": "La mayor percepción del riesgo.",
-          "en": null,
-          "ru": null
+          "en": "Greater perception of risk.",
+          "ru": "Повышенное восприятие риска."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Estadísticamente, los conductores jóvenes poseen buenas capacidades físicas y reflejos. Sin embargo, la siniestralidad en este grupo se asocia a factores actitudinales: una menor percepción del riesgo (subestiman el peligro), exceso de confianza en su control del vehículo y el incumplimiento de las normas de circulación.",
+      "en": "Statistically, young drivers possess good physical capabilities and reflexes. However, the accident rate in this group is associated with attitudinal factors: a lower perception of risk (underestimating danger), overconfidence in their vehicle control, and non-compliance with traffic regulations.",
+      "ru": "🎓 Молодые водители физически находятся на пике формы, поэтому с реакцией и зрением у них всё в порядке. Основные причины аварий в этой группе — психологические: переоценка своих возможностей, низкое восприятие риска (они не видят опасности там, где она есть) и сознательное несоблюдение правил дорожного движения. Часто это связано с излишней самоуверенностью и ложным чувством полного контроля над автомобилем.\n\n💡 Отличные рефлексы не спасают, если правила не соблюдают."
     },
     "image_url": "https://teorica.practicavial.com/question/4068af8a-8a8c-4789-87ab-2c9e27d6f742-1658503939-i.jpg",
     "source": "practicavial",
@@ -629,16 +629,16 @@
     "category": "B",
     "question": {
       "es": "El estrés, la ansiedad o la depresión, ¿pueden distraer al conductor?",
-      "en": null,
-      "ru": null
+      "en": "Can stress, anxiety, or depression distract the driver?",
+      "ru": "Могут ли стресс, тревога или депрессия отвлечь водителя?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, en ningún caso.",
-          "en": null,
-          "ru": null
+          "en": "No, in no case.",
+          "ru": "Нет, ни в коем случае."
         },
         "is_correct": false
       },
@@ -646,8 +646,8 @@
         "id": "b",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       },
@@ -655,16 +655,16 @@
         "id": "c",
         "text": {
           "es": "Sí, aunque depende de las condiciones de la vía.",
-          "en": null,
-          "ru": null
+          "en": "Yes, although it depends on the road conditions.",
+          "ru": "Да, хотя это зависит от дорожных условий."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El estrés, la ansiedad y la depresión son factores de riesgo que alteran las capacidades psicofísicas necesarias para la conducción segura. Estos estados provocan una disminución significativa de la atención y la concentración, desviando el foco del conductor hacia pensamientos internos y preocupaciones, lo que constituye una grave fuente de distracción independientemente del entorno vial.",
+      "en": "Stress, anxiety, and depression are risk factors that alter the psychophysical capabilities necessary for safe driving. These states cause a significant decrease in attention and concentration, diverting the driver's focus towards internal thoughts and worries, which constitutes a serious source of distraction regardless of the road environment.",
+      "ru": "🎓 Психологическое состояние водителя — это фундамент безопасности. Стресс, тревога или депрессия действуют как мощные внутренние отвлекающие факторы. Когда голова занята переживаниями, внимание рассеивается, а реакция замедляется. Это опасно в любой ситуации, независимо от того, едете вы по пустой дороге или в плотном потоке.\n\n💡 Если мысли далеко — до аварии легко."
     },
     "image_url": "https://teorica.practicavial.com/question/5ac58505-24db-47f7-b5f2-6c8adac01432-1658764626-i.jpg",
     "source": "practicavial",
@@ -681,16 +681,16 @@
     "category": "B",
     "question": {
       "es": "La velocidad excesiva...",
-      "en": null,
-      "ru": null
+      "en": "Excessive speed...",
+      "ru": "Чрезмерная скорость..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "no es un factor desencadenante de accidentes.",
-          "en": null,
-          "ru": null
+          "en": "is not a triggering factor for accidents.",
+          "ru": "не является фактором, провоцирующим ДТП."
         },
         "is_correct": false
       },
@@ -698,8 +698,8 @@
         "id": "b",
         "text": {
           "es": "no aumenta la probabilidad de que se produzca un accidente, pero si agrava sus consecuencias.",
-          "en": null,
-          "ru": null
+          "en": "does not increase the probability of an accident occurring, but does aggravate its consequences.",
+          "ru": "не увеличивает вероятность возникновения ДТП, но усугубляет его последствия."
         },
         "is_correct": false
       },
@@ -707,16 +707,16 @@
         "id": "c",
         "text": {
           "es": "aumenta la probabilidad de que se produzca un accidente y de que sea mortal.",
-          "en": null,
-          "ru": null
+          "en": "increases the probability of an accident occurring and of it being fatal.",
+          "ru": "увеличивает вероятность возникновения ДТП и смертельного исхода."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La velocidad excesiva o inadecuada es uno de los principales factores de riesgo en la conducción. Tiene una doble incidencia negativa: aumenta la probabilidad de sufrir un accidente debido a la reducción del tiempo de reacción y la mayor distancia de detención, y simultáneamente incrementa la gravedad de las lesiones y la probabilidad de muerte debido a la mayor energía cinética en el impacto.",
+      "en": "Excessive or inappropriate speed is one of the main risk factors in driving. It has a twofold negative impact: it increases the probability of an accident occurring due to reduced reaction time and increased stopping distance, and simultaneously increases the severity of injuries and the likelihood of fatality due to the higher kinetic energy at impact.",
+      "ru": "🎓 Чрезмерная скорость напрямую влияет на безопасность движения в двух направлениях. Во-первых, она сокращает время на принятие решения и увеличивает тормозной путь, из-за чего избежать столкновения становится сложнее — то есть растет вероятность самой аварии. Во-вторых, сила удара растет вместе со скоростью, что делает последствия ДТП гораздо тяжелее и повышает риск смертельного исхода.\n\n💡 Выше скорость — меньше шансов: растет и риск удара, и его сила."
     },
     "image_url": "https://teorica.practicavial.com/question/7756bcca-47b7-477d-8039-2e55edff4cd3-1658748117-i.jpg",
     "source": "practicavial",
@@ -733,16 +733,16 @@
     "category": "B",
     "question": {
       "es": "La mayoría de los atropellos a niños se produce...",
-      "en": null,
-      "ru": null
+      "en": "Most accidents involving children being run over occur...",
+      "ru": "Большинство наездов на детей происходит..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "al término de la jornada escolar.",
-          "en": null,
-          "ru": null
+          "en": "at the end of the school day.",
+          "ru": "в конце учебного дня."
         },
         "is_correct": true
       },
@@ -750,8 +750,8 @@
         "id": "b",
         "text": {
           "es": "al inicio de la jornada escolar.",
-          "en": null,
-          "ru": null
+          "en": "at the start of the school day.",
+          "ru": "в начале учебного дня."
         },
         "is_correct": false
       },
@@ -759,16 +759,16 @@
         "id": "c",
         "text": {
           "es": "durante los fines de semana.",
-          "en": null,
-          "ru": null
+          "en": "during weekends.",
+          "ru": "в выходные дни."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según los estudios de siniestralidad vial, los atropellos a niños ocurren con mayor frecuencia al finalizar la jornada escolar. Factores como el cansancio, la distracción o la excitación por salir del colegio provocan una disminución en la atención de los menores hacia el tráfico. Además, en ese horario suele haber una mayor congestión de vehículos y peatones en las zonas escolares, lo que incrementa la probabilidad de accidentes.",
+      "en": "According to road accident studies, accidents involving children being run over occur most frequently at the end of the school day. Factors such as fatigue, distraction, or excitement about leaving school cause a decrease in minors' attention to traffic. Additionally, at this time, there is usually greater congestion of vehicles and pedestrians in school zones, which increases the probability of accidents.",
+      "ru": "🎓 Статистика ДТП показывает, что дети чаще всего попадают под колеса именно в конце учебного дня. Психология проста: после уроков внимание ребенка рассеяно, накапливается усталость, но при этом возникает эйфория от свободы («Ура, домой!»). Дети могут внезапно выбежать на проезжую часть, не глядя по сторонам. Утром они обычно более сонны и пассивны, а также чаще сопровождаются родителями.\n\n💡 Уроки кончились — внимание отключилось. Жди подвоха после звонка!"
     },
     "image_url": "https://teorica.practicavial.com/question/377db7e1-7344-41c9-8c75-c69acb11b76e-1658512173-i.jpg",
     "source": "practicavial",
@@ -785,16 +785,16 @@
     "category": "B",
     "question": {
       "es": "Para un uso adecuado del alumbrado, ¿Qué debe revisar?",
-      "en": null,
-      "ru": null
+      "en": "To ensure proper use of the lighting system, what must you check?",
+      "ru": "Что необходимо проверять для надлежащего использования световых приборов?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sólo la regulación, pero con una cierta frecuencia.",
-          "en": null,
-          "ru": null
+          "en": "Only the adjustment, but with a certain frequency.",
+          "ru": "Только регулировку, но с определенной периодичностью."
         },
         "is_correct": false
       },
@@ -802,8 +802,8 @@
         "id": "b",
         "text": {
           "es": "La regulación, el funcionamiento y el estado del sistema.",
-          "en": null,
-          "ru": null
+          "en": "The adjustment, operation, and condition of the system.",
+          "ru": "Регулировку, работоспособность и состояние системы."
         },
         "is_correct": true
       },
@@ -811,16 +811,16 @@
         "id": "c",
         "text": {
           "es": "Nada, porque el alumbrado lo tienen que revisar en un taller.",
-          "en": null,
-          "ru": null
+          "en": "Nothing, because lighting must be checked at a workshop.",
+          "ru": "Ничего, так как освещение должны проверять в мастерской."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El conductor es responsable del mantenimiento preventivo del vehículo para garantizar la seguridad activa. En cuanto al alumbrado, es imperativo revisar tres aspectos: la regulación de los haces de luz (para evitar deslumbramientos y asegurar una correcta iluminación de la vía), el funcionamiento (que todas las fuentes de luz operen correctamente) y el estado físico de los elementos (limpieza de las ópticas y ausencia de roturas).",
+      "en": "The driver is responsible for the preventive maintenance of the vehicle to ensure active safety. Regarding lighting, it is imperative to check three aspects: the adjustment of the light beams (to avoid dazzling others and ensure proper road illumination), the operation (that all light sources work correctly), and the physical condition of the elements (cleanliness of the lenses and absence of breakage).",
+      "ru": "🎓 Для безопасного вождения недостаточно просто включить фары. Ты обязан регулярно проверять три параметра: **регулировку** (чтобы луч света падал на дорогу, а не в глаза встречным водителям), **работоспособность** (все лампы должны гореть) и **состояние** (стекла фар должны быть чистыми и без трещин). Даже исправная лампа за грязным стеклом теряет эффективность, а сбитый угол наклона опасен.\n\n💡 Свет горит, настроен, чист — ты примерный автомобилист!"
     },
     "image_url": "https://teorica.practicavial.com/question/381a6a01-11ef-4ee8-bba9-e1626f03902d-1658839773-i.jpg",
     "source": "practicavial",
@@ -837,16 +837,16 @@
     "category": "B",
     "question": {
       "es": "Cuando llueve o hay viento, ¿por qué hay que tener más precaución con los ciclistas?",
-      "en": null,
-      "ru": null
+      "en": "When it rains or is windy, why must you be more cautious with cyclists?",
+      "ru": "Почему во время дождя или ветра нужно быть особенно осторожным с велосипедистами?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Porque la bicicleta es más inestable y puede cambiar su trayectoria de repente.",
-          "en": null,
-          "ru": null
+          "en": "Because the bicycle is more unstable and can change its trajectory suddenly.",
+          "ru": "Потому что велосипед менее устойчив и может внезапно изменить траекторию."
         },
         "is_correct": true
       },
@@ -854,8 +854,8 @@
         "id": "b",
         "text": {
           "es": "Porque con lluvia o viento tiene preferencia de paso sobre los demás vehículos.",
-          "en": null,
-          "ru": null
+          "en": "Because with rain or wind they have right of way over other vehicles.",
+          "ru": "Потому что во время дождя или ветра они имеют преимущество перед другими транспортными средствами."
         },
         "is_correct": false
       },
@@ -863,16 +863,16 @@
         "id": "c",
         "text": {
           "es": "Porque por seguridad, con lluvia y viento tienen prohibido circular por el arcén.",
-          "en": null,
-          "ru": null
+          "en": "Because for safety, with rain and wind they are prohibited from circulating on the shoulder.",
+          "ru": "Потому что в целях безопасности во время дождя и ветра им запрещено двигаться по обочине."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Las bicicletas son vehículos de dos ruedas con un equilibrio frágil. Factores meteorológicos adversos como el viento (especialmente ráfagas laterales) o la lluvia (pavimento deslizante) afectan drásticamente su estabilidad física. Esto puede provocar que el ciclista realice movimientos oscilantes o desplazamientos laterales imprevistos para mantener el equilibrio, invadiendo repentinamente la calzada. Por ello, es imperativo aumentar la separación lateral al interactuar con ellos.",
+      "en": "Bicycles are two-wheeled vehicles with fragile balance. Adverse weather factors such as wind (especially lateral gusts) or rain (slippery pavement) drastically affect their physical stability. This can cause the cyclist to make oscillating movements or unforeseen lateral displacements to maintain balance, suddenly invading the lane. Therefore, it is imperative to increase lateral separation when interacting with them.",
+      "ru": "🎓 Велосипеды, в отличие от **turismo** (легковых автомобилей), не обладают устойчивостью четырех колес. При сильном ветре или на скользкой от дождя дороге их может внезапно «болтать» из стороны в сторону. Велосипедист может неожиданно вильнуть на **calzada** (проезжую часть), просто пытаясь сохранить равновесие. Именно из-за этой физической нестабильности и риска внезапного изменения траектории вы обязаны быть предельно внимательны и увеличивать боковой интервал при их опережении.\n\n💡 Ветер воет, дождь льет — велосипед сейчас вильнет! Дистанцию держи, беду предупреди."
     },
     "image_url": "https://teorica.practicavial.com/question/9237142e-447f-4bed-ab78-e82b6e6faada-1658507936-i.jpg",
     "source": "practicavial",
@@ -889,16 +889,16 @@
     "category": "B",
     "question": {
       "es": "Con carácter general, ¿cuál es la tasa máxima de alcohol permitida para un conductor mayor de edad cuyo permiso de conducción tenga una antigüedad superior a dos años?",
-      "en": null,
-      "ru": null
+      "en": "Generally, what is the maximum permitted alcohol level for an adult driver whose driving license is more than two years old?",
+      "ru": "Каков максимально допустимый уровень алкоголя в крови для совершеннолетнего водителя со стажем вождения более двух лет (в общем случае)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "0,25 gramos de alcohol por litro de sangre.",
-          "en": null,
-          "ru": null
+          "en": "0.25 grams of alcohol per liter of blood.",
+          "ru": "0,25 грамма алкоголя на литр крови."
         },
         "is_correct": false
       },
@@ -906,8 +906,8 @@
         "id": "b",
         "text": {
           "es": "0,5 gramos de alcohol por litro de sangre.",
-          "en": null,
-          "ru": null
+          "en": "0.5 grams of alcohol per liter of blood.",
+          "ru": "0,5 грамма алкоголя на литр крови."
         },
         "is_correct": true
       },
@@ -915,16 +915,16 @@
         "id": "c",
         "text": {
           "es": "0,3 gramos de alcohol por litro de sangre.",
-          "en": null,
-          "ru": null
+          "en": "0.3 grams of alcohol per liter of blood.",
+          "ru": "0,3 грамма алкоголя на литр крови."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, para los conductores de vehículos en general con una antigüedad del permiso superior a dos años, la tasa máxima permitida es de 0,5 gramos por litro en sangre (o 0,25 miligramos por litro en aire espirado). La tasa de 0,3 g/l en sangre está reservada para conductores noveles (menos de 2 años de antigüedad) y conductores profesionales.",
+      "en": "According to General Traffic Regulations, for general vehicle drivers with a license held for more than two years, the maximum permitted level is 0.5 grams per liter of blood (or 0.25 milligrams per liter of expired air). The level of 0.3 g/l in blood is reserved for novice drivers (less than 2 years of experience) and professional drivers.",
+      "ru": "🎓 В Испании лимиты алкоголя зависят от стажа водителя и метода тестирования (кровь или выдыхаемый воздух). Для водителей со стажем более 2 лет (общий режим) допустимый максимум в крови составляет 0,5 грамма на литр. Если бы замер проводился в выдыхаемом воздухе, лимит был бы 0,25 мг/л. Более строгий лимит 0,3 г/л применяется только к новичкам и профессиональным водителям.\n\n🇷🇺 В РФ порог административной ответственности составляет 0,3 г/л крови (или 0,16 мг/л в воздухе) для всех. В Испании опытным водителям разрешено больше (0,5 г/л), а новичкам — столько же, сколько в РФ (0,3 г/л).\n\n💡 Запомни правило «Умножай на два»: цифра в крови всегда ровно в 2 раза больше цифры в воздухе. Воздух 0,25 ➡️ Кровь 0,5. Опытный водитель — это «0,5»."
     },
     "image_url": "https://teorica.practicavial.com/question/0b5375d9-c1a5-44dd-acad-b8e5663f0775-1658772426-i.jpg",
     "source": "practicavial",
@@ -941,16 +941,16 @@
     "category": "B",
     "question": {
       "es": "La distancia de reacción...",
-      "en": null,
-      "ru": null
+      "en": "Reaction distance...",
+      "ru": "Дистанция реакции (путь, пройденный за время реакции)..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "es siempre la misma para todos los conductores.",
-          "en": null,
-          "ru": null
+          "en": "is always the same for all drivers.",
+          "ru": "всегда одинакова для всех водителей."
         },
         "is_correct": false
       },
@@ -958,8 +958,8 @@
         "id": "b",
         "text": {
           "es": "depende únicamente del estado psicofísico del conductor.",
-          "en": null,
-          "ru": null
+          "en": "depends solely on the psychophysical state of the driver.",
+          "ru": "зависит исключительно от психофизического состояния водителя."
         },
         "is_correct": false
       },
@@ -967,16 +967,16 @@
         "id": "c",
         "text": {
           "es": "depende, entre otros factores, de la velocidad a la que se circule.",
-          "en": null,
-          "ru": null
+          "en": "depends, among other factors, on the speed at which the vehicle is traveling.",
+          "ru": "зависит, среди прочих факторов, от скорости движения."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La distancia de reacción es el espacio recorrido por el vehículo desde que el conductor percibe un estímulo hasta que responde al mismo (pisa el freno). Esta distancia depende fundamentalmente de dos variables: el tiempo de reacción del conductor (estado psicofísico) y la velocidad del vehículo. A mayor velocidad, mayor será la distancia recorrida durante ese mismo tiempo de reacción. Por tanto, no depende únicamente del conductor.",
+      "en": "Reaction distance is the distance traveled by the vehicle from the moment the driver perceives a stimulus until they respond to it (apply the brake). This distance fundamentally depends on two variables: the driver's reaction time (psychophysical state) and the vehicle's speed. The higher the speed, the greater the distance covered during that same reaction time. Therefore, it does not depend solely on the driver.",
+      "ru": "🎓 Дистанция реакции — это метры, которые автомобиль проезжает «на автомате», пока твой мозг осознает опасность, а нога переносится на педаль тормоза. Она напрямую зависит от формулы: **Путь = Скорость × Время**. Даже если твоя реакция идеальна, при высокой скорости за ту же секунду машина пролетит гораздо большее расстояние, чем при низкой. Поэтому правильный ответ включает скорость как ключевой фактор.\n\n💡 Чем выше скорость — тем длиннее «слепой» полёт до нажатия на тормоз!"
     },
     "image_url": "https://teorica.practicavial.com/question/e85fe2b8-9308-4ea3-97d3-5ff8bc63c797-1658751345-i.jpg",
     "source": "practicavial",
@@ -993,16 +993,16 @@
     "category": "B",
     "question": {
       "es": "En caso de lluvia, ¿es aconsejable aumentar la distancia de seguridad con el vehículo que circula delante?",
-      "en": null,
-      "ru": null
+      "en": "In case of rain, is it advisable to increase the safety distance from the vehicle traveling in front?",
+      "ru": "В случае дождя рекомендуется ли увеличить безопасную дистанцию до движущегося впереди транспортного средства?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, porque la distancia de frenado aumenta.",
-          "en": null,
-          "ru": null
+          "en": "Yes, because the braking distance increases.",
+          "ru": "Да, потому что тормозной путь увеличивается."
         },
         "is_correct": true
       },
@@ -1010,8 +1010,8 @@
         "id": "b",
         "text": {
           "es": "No, porque la distancia de frenado disminuye.",
-          "en": null,
-          "ru": null
+          "en": "No, because the braking distance decreases.",
+          "ru": "Нет, потому что тормозной путь уменьшается."
         },
         "is_correct": false
       },
@@ -1019,16 +1019,16 @@
         "id": "c",
         "text": {
           "es": "Solo en vías rápidas, pero no en vías urbanas ni en carreteras convencionales.",
-          "en": null,
-          "ru": null
+          "en": "Only on fast roads, but not on urban roads or conventional roads.",
+          "ru": "Только на скоростных дорогах, но не на городских или обычных дорогах."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Cuando la calzada está mojada, la adherencia de los neumáticos disminuye significativamente. Como consecuencia física directa, la distancia de frenado aumenta (puede llegar a ser el doble que en seco). Por normativa de seguridad vial, el conductor debe adaptar su velocidad y aumentar la distancia de seguridad con el vehículo precedente para garantizar que pueda detenerse sin colisionar en caso de frenado brusco.",
+      "en": "When the road surface is wet, tire grip decreases significantly. As a direct physical consequence, the braking distance increases (it can be up to twice as long as on dry roads). According to road safety regulations, the driver must adapt their speed and increase the safety distance from the vehicle in front to ensure they can stop without colliding in the event of sudden braking.",
+      "ru": "🎓 На мокром покрытии сцепление шин с дорогой значительно снижается. Из-за этого тормозной путь легкового автомобиля увеличивается (часто говорят, что он становится в два раза длиннее по сравнению с сухим асфальтом). Чтобы избежать столкновения при резком торможении едущего впереди транспортного средства, вы обязаны увеличить дистанцию безопасности. Это правило действует везде: и в городе, и на автомагистрали.\n\n💡 В дождь дистанцию удвой — будешь цел само собой!"
     },
     "image_url": "https://teorica.practicavial.com/question/d15efef6-4ea6-45d2-8dcf-8a34900d80e4-1658853427-i.jpg",
     "source": "practicavial",
@@ -1045,16 +1045,16 @@
     "category": "B",
     "question": {
       "es": "¿Es aconsejable conducir llevando puesto un abrigo voluminoso?",
-      "en": null,
-      "ru": null
+      "en": "Is it advisable to drive wearing a bulky coat?",
+      "ru": "Рекомендуется ли управлять автомобилем в объемной верхней одежде?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, porque el cuerpo queda más protegido en caso de accidente.",
-          "en": null,
-          "ru": null
+          "en": "Yes, because the body is more protected in the event of an accident.",
+          "ru": "Да, так как тело лучше защищено в случае ДТП."
         },
         "is_correct": false
       },
@@ -1062,8 +1062,8 @@
         "id": "b",
         "text": {
           "es": "Solo en invierno, para evitar un uso excesivo de la calefacción.",
-          "en": null,
-          "ru": null
+          "en": "Only in winter, to avoid excessive use of heating.",
+          "ru": "Только зимой, чтобы избежать чрезмерного использования отопления."
         },
         "is_correct": false
       },
@@ -1071,16 +1071,16 @@
         "id": "c",
         "text": {
           "es": "No, porque reduce la eficacia del cinturón de seguridad.",
-          "en": null,
-          "ru": null
+          "en": "No, because it reduces the effectiveness of the seat belt.",
+          "ru": "Нет, так как это снижает эффективность ремня безопасности."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "No es aconsejable. El uso de ropa voluminosa impide el correcto ajuste del cinturón de seguridad al cuerpo, creando una holgura que reduce la eficacia del sistema de retención en caso de impacto o frenado brusco. Además, prendas muy gruesas pueden limitar la libertad de movimientos necesaria para manejar el volante y los mandos del vehículo con seguridad, lo cual contraviene las obligaciones del conductor (Art. 18 del Reglamento General de Circulación).",
+      "en": "It is not advisable. Wearing bulky clothing prevents the seat belt from fitting correctly against the body, creating slack that reduces the effectiveness of the restraint system in the event of an impact or sudden braking. Furthermore, very thick garments can limit the freedom of movement necessary to operate the steering wheel and vehicle controls safely, which contravenes the driver's obligations (Art. 18 of the General Traffic Regulations).",
+      "ru": "🎓 Объемная одежда (пуховики, шубы) создает опасную прослойку между телом и ремнем безопасности. При резком торможении или ударе эта «подушка» сжимается, и тело успевает набрать скорость, прежде чем ремень его остановит. Это приводит к жесткому рывку и повышает риск травм. Кроме того, толстая одежда сковывает движения рук, мешая быстро вращать руль в экстренной ситуации.\n\n💡 Толстая куртка — ремень без толку! Сними верхнюю одежду, чтобы ремень прилегал к телу плотно."
     },
     "image_url": "https://teorica.practicavial.com/question/c5612cd9-2576-47f1-9426-4e29873c3018-1658845357-i.jpg",
     "source": "practicavial",
@@ -1097,16 +1097,16 @@
     "category": "B",
     "question": {
       "es": "Si circula a una velocidad excesiva y tiene un accidente, la probabilidad de que sea mortal es...",
-      "en": null,
-      "ru": null
+      "en": "If you are driving at excessive speed and have an accident, the probability of it being fatal is...",
+      "ru": "Если вы движетесь с чрезмерной скоростью и попадаете в ДТП, вероятность смертельного исхода..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "menor, pero sólo en autopistas y autovías.",
-          "en": null,
-          "ru": null
+          "en": "lower, but only on motorways and dual carriageways.",
+          "ru": "ниже, но только на автомагистралях и скоростных дорогах."
         },
         "is_correct": false
       },
@@ -1114,8 +1114,8 @@
         "id": "b",
         "text": {
           "es": "igual que si circula a una velocidad adecuada.",
-          "en": null,
-          "ru": null
+          "en": "the same as if driving at an adequate speed.",
+          "ru": "такая же, как при движении с адекватной скоростью."
         },
         "is_correct": false
       },
@@ -1123,16 +1123,16 @@
         "id": "c",
         "text": {
           "es": "mayor que si circula a una velocidad adecuada.",
-          "en": null,
-          "ru": null
+          "en": "higher than if driving at an adequate speed.",
+          "ru": "выше, чем при движении с адекватной скоростью."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La velocidad es un factor determinante en la gravedad de un accidente. La energía cinética que acumula un vehículo es proporcional al cuadrado de su velocidad. Por consiguiente, al aumentar la velocidad, la violencia del impacto se multiplica, haciendo que la probabilidad de sufrir lesiones mortales sea considerablemente mayor en comparación con una velocidad adecuada.",
+      "en": "Speed is a determining factor in the severity of an accident. The kinetic energy accumulated by a vehicle is proportional to the square of its speed. Consequently, as speed increases, the violence of the impact multiplies, making the probability of suffering fatal injuries considerably higher compared to driving at an adequate speed.",
+      "ru": "🎓 Физика движения неумолима: сила удара растет пропорционально квадрату скорости. Это значит, что при увеличении скорости в два раза, разрушительная энергия удара возрастает в четыре раза. При чрезмерной скорости системы безопасности автомобиля (ремни, подушки) могут не справиться с перегрузкой, поэтому вероятность гибели водителя и пассажиров всегда выше, чем при движении с адекватной скоростью.\n\n💡 Скорость превышаешь — смерть приближаешь."
     },
     "image_url": "https://teorica.practicavial.com/question/cf6d4502-af43-4471-9dee-9ca4606d279e-1658748107-i.jpg",
     "source": "practicavial",
@@ -1149,16 +1149,16 @@
     "category": "B",
     "question": {
       "es": "¿Puede conducir si ha tomado algún medicamento?",
-      "en": null,
-      "ru": null
+      "en": "Can you drive if you have taken any medication?",
+      "ru": "Можно ли управлять транспортным средством, если вы приняли какое-либо лекарство?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, debido a los efectos secundarios que pueda generar.",
-          "en": null,
-          "ru": null
+          "en": "No, due to the side effects it may generate.",
+          "ru": "Нет, из-за возможных побочных эффектов."
         },
         "is_correct": false
       },
@@ -1166,8 +1166,8 @@
         "id": "b",
         "text": {
           "es": "Sí, salvo que altere el estado físico o mental y, por tanto, la capacidad para conducir.",
-          "en": null,
-          "ru": null
+          "en": "Yes, unless it alters your physical or mental state and, therefore, your ability to drive.",
+          "ru": "Да, за исключением случаев, когда оно изменяет физическое или психическое состояние и, следовательно, способность к вождению."
         },
         "is_correct": true
       },
@@ -1175,16 +1175,16 @@
         "id": "c",
         "text": {
           "es": "Sólo si ha sido prescrito por un médico.",
-          "en": null,
-          "ru": null
+          "en": "Only if it has been prescribed by a doctor.",
+          "ru": "Только если оно было назначено врачом."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento no prohíbe genéricamente la conducción tras el consumo de medicamentos. La normativa establece que la prohibición se aplica únicamente cuando dichos fármacos alteren el estado físico o mental del conductor, disminuyendo su capacidad para conducir con seguridad. La responsabilidad recae en verificar si el medicamento afecta a la conducción, independientemente de si requiere receta médica o no.",
+      "en": "The Regulation does not generically prohibit driving after consuming medication. The rules state that the prohibition applies only when such drugs alter the driver's physical or mental state, diminishing their ability to drive safely. The responsibility lies in verifying whether the medication affects driving, regardless of whether it requires a prescription or not.",
+      "ru": "🎓 Прием лекарств сам по себе не является автоматическим запретом на вождение. ПДД Испании разрешают садиться за руль, если препарат не оказывает негативного влияния на ваши психофизические способности (не вызывает сонливость, головокружение, снижение реакции). Ключевой фактор — безопасность, а не наличие рецепта от врача. Всегда проверяйте инструкцию к препарату на наличие пиктограммы с автомобилем.\n\n💡 Лекарство — не запрет, если побочек нет!"
     },
     "image_url": "https://teorica.practicavial.com/question/01f228aa-bb12-43e3-a937-ed33b5a86246-1658765973-i.jpg",
     "source": "practicavial",
@@ -1201,16 +1201,16 @@
     "category": "B",
     "question": {
       "es": "Si conduce, y se encuentra en tratamiento médico con medicamentos, debe saber...",
-      "en": null,
-      "ru": null
+      "en": "If you are driving and undergoing medical treatment with medication, you should know...",
+      "ru": "Если вы управляете автомобилем и проходите курс медикаментозного лечения, вы должны знать..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "que los medicamentos recetados por el médico, no influyen en la capacidad para conducir.",
-          "en": null,
-          "ru": null
+          "en": "that medicines prescribed by a doctor do not influence driving ability.",
+          "ru": "что лекарства, прописанные врачом, не влияют на способность управлять автомобилем."
         },
         "is_correct": false
       },
@@ -1218,8 +1218,8 @@
         "id": "b",
         "text": {
           "es": "que hay medicamentos que influyen negativamente en la atención y el tiempo de reacción.",
-          "en": null,
-          "ru": null
+          "en": "that there are medicines that negatively influence attention and reaction time.",
+          "ru": "что существуют лекарства, которые негативно влияют на внимание и время реакции."
         },
         "is_correct": true
       },
@@ -1227,16 +1227,16 @@
         "id": "c",
         "text": {
           "es": "que está totalmente prohibido conducir si se toma algún medicamento.",
-          "en": null,
-          "ru": null
+          "en": "that it is totally prohibited to drive if taking any medication.",
+          "ru": "что управление автомобилем полностью запрещено при приеме любых лекарств."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El consumo de ciertos medicamentos puede alterar las capacidades psicofísicas necesarias para una conducción segura. Efectos secundarios como la somnolencia, la visión borrosa o la disminución de la atención aumentan el tiempo de reacción del conductor. El hecho de que un medicamento sea recetado por un médico no exime de estos riesgos, por lo que es imperativo consultar el prospecto o al facultativo.",
+      "en": "The consumption of certain medications can alter the psychophysical capabilities required for safe driving. Side effects such as drowsiness, blurred vision, or decreased attention increase the driver's reaction time. The fact that a medication is prescribed by a doctor does not exempt it from these risks, so it is imperative to consult the leaflet or a medical professional.",
+      "ru": "🎓 Даже если лекарство выписал врач, это не гарантирует безопасность за рулем. Многие препараты (от аллергии, простуды, обезболивающие) могут вызывать сонливость, головокружение и снижать концентрацию. Это напрямую увеличивает время реакции и риск ДТП. Водитель обязан самостоятельно изучить инструкцию (раздел о влиянии на управление механизмами) перед поездкой.\n\n💡 Выпил таблетку — проверь этикетку: если клонит в сон, из машины вон!"
     },
     "image_url": "https://teorica.practicavial.com/question/8ea32709-fae0-4ec7-b726-0a66956f9ca1-1658761227-i.jpg",
     "source": "practicavial",
@@ -1253,16 +1253,16 @@
     "category": "B",
     "question": {
       "es": "Cuando nieva, ¿es recomendable circular sobre las marcas de otros vehículos?",
-      "en": null,
-      "ru": null
+      "en": "When it snows, is it advisable to drive in the tracks left by other vehicles?",
+      "ru": "Рекомендуется ли во время снегопада двигаться по следам других транспортных средств?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, porque perjudicará la adherencia.",
-          "en": null,
-          "ru": null
+          "en": "No, because it will reduce adherence.",
+          "ru": "Нет, так как это ухудшит сцепление."
         },
         "is_correct": false
       },
@@ -1270,8 +1270,8 @@
         "id": "b",
         "text": {
           "es": "Es indiferente, puesto que no influye en la adherencia.",
-          "en": null,
-          "ru": null
+          "en": "It is indifferent, since it does not influence adherence.",
+          "ru": "Это не имеет значения, так как не влияет на сцепление."
         },
         "is_correct": false
       },
@@ -1279,16 +1279,16 @@
         "id": "c",
         "text": {
           "es": "Sí, puesto que facilitará la adherencia.",
-          "en": null,
-          "ru": null
+          "en": "Yes, since it will facilitate adherence.",
+          "ru": "Да, так как это улучшит сцепление."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Con nieve en la calzada, la adherencia de los neumáticos se reduce considerablemente. Se recomienda circular sobre las huellas o marcas dejadas por otros vehículos porque el paso de los neumáticos anteriores desplaza la nieve fresca, permitiendo un mejor contacto con el pavimento y aumentando así la adherencia.",
+      "en": "With snow on the roadway, tire adherence is significantly reduced. It is recommended to drive in the tracks or marks left by other vehicles because the passage of previous tires displaces fresh snow, allowing for better contact with the pavement and thus increasing adherence.",
+      "ru": "🎓 При движении по заснеженной проезжей части сцепление шин критически снижается. Рекомендуется ехать строго по следам (колее), оставленным другими транспортными средствами. Предыдущие автомобили своими колесами уже раздвинули рыхлый снег, поэтому в колее выше шанс зацепиться за твердое покрытие, что обеспечивает лучшую управляемость по сравнению с ездой по снежной целине.\n\n🇷🇺 В РФ водители часто опасаются ледяной колеи, которая может выбросить машину с дороги. Однако логика экзамена DGT строится на том, что в свежих следах снег уже убран, и контакт с дорогой там надежнее.\n\n💡 Видишь след — держись его, там асфальт, а не снег!"
     },
     "image_url": "https://teorica.practicavial.com/question/9afe0818-7fe8-4a23-9257-10cacc7beb80-1658857257-i.jpg",
     "source": "practicavial",
@@ -1305,16 +1305,16 @@
     "category": "B",
     "question": {
       "es": "Si observa que cuando circula en línea recta el vehículo se desvía hacia un lado, puede ser debido a...",
-      "en": null,
-      "ru": null
+      "en": "If you observe that the vehicle drifts to one side when driving in a straight line, it may be due to...",
+      "ru": "Если вы заметили, что при движении по прямой автомобиль уводит в сторону, это может быть вызвано..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "A no mantener girado el volante al máximo durante las maniobras.",
-          "en": null,
-          "ru": null
+          "en": "Not keeping the steering wheel turned to the maximum during maneuvers.",
+          "ru": "Тем, что рулевое колесо не удерживается в крайнем положении при маневрах."
         },
         "is_correct": false
       },
@@ -1322,8 +1322,8 @@
         "id": "b",
         "text": {
           "es": "Un bajo nivel del líquido de frenos.",
-          "en": null,
-          "ru": null
+          "en": "A low level of brake fluid.",
+          "ru": "Низким уровнем тормозной жидкости."
         },
         "is_correct": false
       },
@@ -1331,16 +1331,16 @@
         "id": "c",
         "text": {
           "es": "Una presión distinta en los neumáticos de un mismo eje.",
-          "en": null,
-          "ru": null
+          "en": "Different pressure in the tires on the same axle.",
+          "ru": "Разным давлением в шинах одной оси."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La estabilidad direccional del vehículo depende del equilibrio en el contacto con la calzada. Si existe una presión distinta en los neumáticos de un mismo eje, el neumático con menor presión presentará una mayor resistencia a la rodadura debido a su mayor deformación. Esto genera una fuerza asimétrica que provoca que el vehículo se desvíe hacia el lado del neumático menos inflado.",
+      "en": "Directional stability depends on balanced contact with the road surface. If there is different pressure in the tires on the same axle, the tire with lower pressure will exhibit greater rolling resistance due to increased deformation. This creates an asymmetric force causing the vehicle to drift towards the side of the under-inflated tire.",
+      "ru": "🎓 Если на ровной дороге руль тянет в сторону, первым делом проверяй давление в шинах. Когда в колесах одной оси разное давление, возникает дисбаланс: спущенное колесо имеет большее пятно контакта и сопротивление качению. Оно работает как «якорь», заставляя автомобиль отклоняться в свою сторону. Также причиной может быть неравномерный износ протектора или сбитый сход-развал.\n\n💡 Спустило колесо — машину повело!"
     },
     "image_url": "https://teorica.practicavial.com/question/c5ddd31f-0350-4195-80b6-457c618fb636-1658834713-i.jpg",
     "source": "practicavial",
@@ -1357,16 +1357,16 @@
     "category": "B",
     "question": {
       "es": "En los ciclistas, el uso del casco...",
-      "en": null,
-      "ru": null
+      "en": "For cyclists, the use of a helmet...",
+      "ru": "Для велосипедистов использование шлема..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "reduce considerablemente la probabilidad de sufrir lesiones en la cabeza.",
-          "en": null,
-          "ru": null
+          "en": "considerably reduces the probability of suffering head injuries.",
+          "ru": "значительно снижает вероятность получения травм головы."
         },
         "is_correct": true
       },
@@ -1374,8 +1374,8 @@
         "id": "b",
         "text": {
           "es": "reduce totalmente la probabilidad de sufrir lesiones en la cabeza.",
-          "en": null,
-          "ru": null
+          "en": "totally reduces the probability of suffering head injuries.",
+          "ru": "полностью исключает вероятность получения травм головы."
         },
         "is_correct": false
       },
@@ -1383,16 +1383,16 @@
         "id": "c",
         "text": {
           "es": "no tiene influencia en las lesiones que puedan sufrir.",
-          "en": null,
-          "ru": null
+          "en": "has no influence on the injuries they may suffer.",
+          "ru": "не влияет на травмы, которые они могут получить."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El casco es un elemento de seguridad pasiva vital. Aunque no evita que se produzca el accidente, su diseño permite absorber parte de la energía del impacto, protegiendo el cráneo y el cerebro. Estadísticamente, no elimina el riesgo al 100% (por lo que es incorrecto decir que lo reduce 'totalmente'), pero sí disminuye de forma considerable la gravedad de las lesiones craneoencefálicas y el riesgo de muerte.",
+      "en": "The helmet is a vital passive safety element. Although it does not prevent an accident from occurring, its design allows it to absorb part of the impact energy, protecting the skull and brain. Statistically, it does not eliminate risk 100% (so it is incorrect to say it reduces it 'totally'), but it does considerably decrease the severity of craniocerebral injuries and the risk of death.",
+      "ru": "🎓 Шлем относится к пассивной безопасности: он не предотвращает аварию, но спасает жизнь, когда ДТП уже случилось. Важно различать нюансы: шлем не может дать 100% гарантии безопасности (поэтому вариант «полностью исключает» неверен), но он **значительно снижает** тяжесть черепно-мозговых травм, поглощая энергию удара. Это доказанный факт, на котором основаны требования безопасности.\n\n💡 Шлем не панацея, но голова с ним целее. Снижает риск значительно, но не полностью!"
     },
     "image_url": "https://teorica.practicavial.com/question/2bf531ad-e880-412a-abc5-3113c24c73f7-1658509027-i.jpg",
     "source": "practicavial",
@@ -1409,16 +1409,16 @@
     "category": "B",
     "question": {
       "es": "Un conductor que circula en un día que hace mucho calor debe...",
-      "en": null,
-      "ru": null
+      "en": "A driver driving on a very hot day must...",
+      "ru": "Водитель, управляющий автомобилем в очень жаркий день, должен..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "hacer más descansos, ya que la fatiga aparece más fácilmente.",
-          "en": null,
-          "ru": null
+          "en": "take more breaks, as fatigue appears more easily.",
+          "ru": "делать больше остановок для отдыха, так как усталость наступает быстрее."
         },
         "is_correct": true
       },
@@ -1426,8 +1426,8 @@
         "id": "b",
         "text": {
           "es": "hacer menos descansos para llegar cuanto antes al destino.",
-          "en": null,
-          "ru": null
+          "en": "take fewer breaks to arrive at the destination as soon as possible.",
+          "ru": "делать меньше остановок, чтобы добраться до пункта назначения как можно скорее."
         },
         "is_correct": false
       },
@@ -1435,16 +1435,16 @@
         "id": "c",
         "text": {
           "es": "realizar los mismos descanso que si la temperatura es normal.",
-          "en": null,
-          "ru": null
+          "en": "take the same breaks as if the temperature were normal.",
+          "ru": "делать столько же остановок, сколько и при нормальной температуре."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El exceso de calor en el interior del vehículo (especialmente por encima de 24°C) acelera la aparición de la fatiga y la somnolencia, afectando negativamente al tiempo de reacción y a la percepción del entorno. Por ello, la normativa y las recomendaciones de seguridad vial establecen que, bajo condiciones de altas temperaturas, el conductor debe incrementar la frecuencia de las pausas respecto a la pauta estándar (cada 2 horas o 200 km) para hidratarse y airear el habitáculo.",
+      "en": "Excessive heat inside the vehicle (especially above 24°C) accelerates the onset of fatigue and drowsiness, negatively affecting reaction time and perception of the environment. Therefore, regulations and road safety recommendations state that, under high-temperature conditions, the driver must increase the frequency of breaks compared to the standard guideline (every 2 hours or 200 km) to hydrate and air out the cabin.",
+      "ru": "🎓 Высокая температура в салоне действует на водителя как алкоголь: исследования показывают, что при +35°C водитель совершает столько же ошибок, сколько при уровне алкоголя 0,5 г/л. Жара провоцирует быстрое обезвоживание и сонливость, поэтому стандартное правило «отдых каждые 2 часа» здесь недостаточно. В таких условиях необходимо останавливаться чаще, чтобы проветриться, размяться и попить воды.\n\n💡 Жара растет — внимание падает: чаще отдых, меньше риск!"
     },
     "image_url": "https://teorica.practicavial.com/question/854ebc5d-5ddf-4233-90b0-6ba6b023c80c-1658766833-i.jpg",
     "source": "practicavial",
@@ -1461,16 +1461,16 @@
     "category": "B",
     "question": {
       "es": "Para reducir el riesgo de accidente, un conductor que está tomando medicamentos debe...",
-      "en": null,
-      "ru": null
+      "en": "To reduce the risk of an accident, a driver who is taking medication must...",
+      "ru": "Чтобы снизить риск ДТП, водитель, принимающий лекарства, должен..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "conocer sus posibles efectos secundarios y seguir las instrucciones del médico.",
-          "en": null,
-          "ru": null
+          "en": "know their possible side effects and follow the doctor's instructions.",
+          "ru": "знать их возможные побочные эффекты и следовать инструкциям врача."
         },
         "is_correct": true
       },
@@ -1478,8 +1478,8 @@
         "id": "b",
         "text": {
           "es": "evitar la conducción de vehículos mientras dure el tratamiento.",
-          "en": null,
-          "ru": null
+          "en": "avoid driving vehicles while the treatment lasts.",
+          "ru": "избегать управления транспортными средствами в течение всего периода лечения."
         },
         "is_correct": false
       },
@@ -1487,16 +1487,16 @@
         "id": "c",
         "text": {
           "es": "tomar café para combatir sus posibles efectos secundarios.",
-          "en": null,
-          "ru": null
+          "en": "drink coffee to combat their possible side effects.",
+          "ru": "пить кофе, чтобы бороться с их возможными побочными эффектами."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece que el conductor debe estar en condiciones psicofísicas adecuadas. No todos los medicamentos son incompatibles con la conducción, por lo que la medida correcta no es la abstención total automática, sino la información. El conductor tiene la responsabilidad de consultar el prospecto o al médico para conocer los efectos adversos (como somnolencia o alteración de reflejos) y actuar en consecuencia.",
+      "en": "The General Traffic Regulations state that the driver must be in suitable psychophysical condition. Not all medications are incompatible with driving, so the correct measure is not automatic total abstinence, but rather being informed. The driver has the responsibility to consult the leaflet or a doctor to know the adverse effects (such as drowsiness or altered reflexes) and act accordingly.",
+      "ru": "🎓 Прием медикаментов не означает автоматический запрет на управление автомобилем, так как не все лекарства влияют на реакцию. Ваша главная обязанность — точно знать, как именно препарат действует на организм. Для этого необходимо изучить инструкцию и следовать рекомендациям врача. Пытаться взбодриться кофе бесполезно и опасно, а отказываться от руля нужно только если лекарство действительно несовместимо с вождением.\n\n💡 Выпил таблетку — спроси врача или прочти инструкцию: не знаешь эффект — за руль не садись!"
     },
     "image_url": "https://teorica.practicavial.com/question/49b1a8cb-b9ab-4a31-a911-46f8fcdb8438-1658766185-i.jpg",
     "source": "practicavial",
@@ -1513,16 +1513,16 @@
     "category": "B",
     "question": {
       "es": "El accidente más frecuente por el uso del teléfono móvil, mientras se conduce, es...",
-      "en": null,
-      "ru": null
+      "en": "The most frequent accident due to the use of a mobile phone while driving is...",
+      "ru": "Самым частым видом ДТП из-за использования мобильного телефона за рулем является..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "el alcance.",
-          "en": null,
-          "ru": null
+          "en": "a rear-end collision.",
+          "ru": "попутное столкновение (наезд сзади)."
         },
         "is_correct": false
       },
@@ -1530,8 +1530,8 @@
         "id": "b",
         "text": {
           "es": "la salida de la vía.",
-          "en": null,
-          "ru": null
+          "en": "running off the road.",
+          "ru": "съезд с дороги."
         },
         "is_correct": true
       },
@@ -1539,16 +1539,16 @@
         "id": "c",
         "text": {
           "es": "el choque frontolateral.",
-          "en": null,
-          "ru": null
+          "en": "a front-lateral collision.",
+          "ru": "фронтально-боковое столкновение."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El uso del teléfono móvil provoca una distracción visual y cognitiva que lleva a la pérdida de control sobre la trayectoria del vehículo. Según las estadísticas de la DGT, esta falta de atención al trazado de la calzada resulta mayoritariamente en la salida de la vía.",
+      "en": "Using a mobile phone causes visual and cognitive distraction leading to a loss of control over the vehicle's trajectory. According to DGT statistics, this lack of attention to the roadway path most frequently results in running off the road.",
+      "ru": "🎓 Использование телефона за рулем вызывает сильное отвлечение внимания (визуальное и когнитивное). Водитель перестает следить за траекторией движения, и автомобиль незаметно смещается в сторону. Согласно статистике DGT, именно съезд с дороги (salida de la vía) является самым распространенным последствием таких действий.\n\n💡 Глаза в экран — машина в кювет."
     },
     "image_url": "https://teorica.practicavial.com/question/ec1b8c50-df12-41ec-af6f-dd7f173e9d9e-1658768847-i.jpg",
     "source": "practicavial",

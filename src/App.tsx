@@ -1,18 +1,18 @@
 // Force Reload Trigger: 2025-12-29 23:59:00
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { BrowserRouter, useLocation, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { TelegramProvider } from "@/contexts/TelegramContext";
+import { AdCleanup } from "@/components/AdCleanup";
 import { useBackgroundTasks } from "@/hooks/useBackgroundTasks";
 import { useOfflineAnalytics } from "@/utils/offlineAnalytics";
 import { useSession } from "@/hooks/useSession";
 import { validateEnv } from "@/utils/envValidation";
 import { isTelegramMiniApp } from "@/lib/telegram";
+import { StartupCurtain } from "@/components/StartupCurtain";
 
 // ОПТИМИЗАЦИЯ: Toaster, Sonner, TooltipProvider перемещены в AppProviders
 // Они тянут Radix UI (@radix-ui/react-toast, @radix-ui/react-tooltip), поэтому не должны грузиться на лендинге
-import { PageLoader } from "@/components/PageLoader";
 import { Motion } from "@/components/optimized/Motion";
-import { LightFallback } from "@/components/LightFallback";
 import { ScrollToTop } from "@/components/ScrollToTop";
 // ОПТИМИЗАЦИЯ: ReferralRedirect и PartnerRedirect используют UserContext - делаем lazy
 // Они используются только в AppRoutes, который уже lazy, но для чистоты делаем их lazy здесь тоже
@@ -30,7 +30,6 @@ const DeepLinkHandler = lazy(() => import("@/components/DeepLinkHandler").then(m
 // КРИТИЧНО: OAuthCallbackHandler НЕ lazy - должен загружаться сразу для обработки OAuth токенов
 // Иначе при ошибках lazy loading OAuth callback не обработается
 import { Toaster, toast } from "@/components/ui/sonner";
-import { OAuthCallbackHandler } from "@/components/OAuthCallbackHandler";
 const CosmeticsPreviewProvider = lazy(() => import("@/contexts/CosmeticsPreviewContext").then(m => ({ default: m.CosmeticsPreviewProvider })));
 const HallOfFameModal = lazy(() => import("@/components/HallOfFameModal").then(m => ({ default: m.HallOfFameModal })));
 const DuelPassLeaderboardModal = lazy(() => import("@/components/leaderboard/DuelPassLeaderboardModal").then(m => ({ default: m.DuelPassLeaderboardModal })));
@@ -147,15 +146,9 @@ const AdminLayout = lazy(() =>
 const AdminDashboard = lazy(() =>
   import("./pages/admin/AdminDashboard").then((module) => ({ default: module.AdminDashboard }))
 );
-const AdminSync = lazy(() =>
-  import("./pages/admin/AdminSync").then((module) => ({ default: module.AdminSync }))
-);
-const AdminImport = lazy(() =>
-  import("./pages/admin/AdminImport").then((module) => ({ default: module.AdminImport }))
-);
-const AdminTestCovers = lazy(() =>
-  import("./pages/admin/AdminTestCovers").then((module) => ({ default: module.AdminTestCovers }))
-);
+
+
+
 const AdminSeasonsManagement = lazy(() =>
   import("./pages/admin/AdminSeasonsManagement").then((module) => ({ default: module.AdminSeasonsManagement }))
 );
@@ -167,6 +160,9 @@ const AdminPartners = lazy(() =>
 );
 const AdminMarketingMaterials = lazy(() =>
   import("./pages/admin/AdminMarketingMaterials").then((module) => ({ default: module.AdminMarketingMaterials }))
+);
+const AdminRewardReports = lazy(() =>
+  import("./pages/admin/AdminRewardReports").then((module) => ({ default: module.AdminRewardReports }))
 );
 const PartnerDashboard = lazy(() => import("./pages/PartnerDashboard"));
 const ModernPartnerDashboard = lazy(() => import("./pages/ModernPartnerDashboard"));
@@ -185,7 +181,7 @@ const TestResults = lazy(() => import("./pages/TestResults"));
 const SequentialTests = lazy(() => import("./pages/SequentialTests"));
 const RoadSigns = lazy(() => import("./pages/RoadSigns"));
 const Dictionary = lazy(() => import("./pages/Dictionary"));
-const DataImport = lazy(() => import("./pages/DataImport"));
+
 const DailyBonus = lazy(() => import("./pages/DailyBonus"));
 const DGTTestsSimple = lazy(() => import("./pages/DGTTestsSimple"));
 const ChallengeBank = lazy(() => import("./pages/ChallengeBank"));
@@ -559,6 +555,7 @@ const App = () => {
 
   return (
     <TelegramProvider>
+      <AdCleanup />
       <Toaster />
       <Motion>
         <OfflineBanner />
@@ -573,10 +570,16 @@ const App = () => {
             <Routes>
               <Route path="/" element={<LandingRedirect />} />
               {/* OAuth callback - обрабатывает сессию сам, не требует AppProviders */}
-              <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="/auth/callback" element={
+                <>
+                  <StartupCurtain />
+                  <AuthCallback />
+                </>
+              } />
               {/* Paddle purchase - обрабатывает редирект от Paddle, не требует AppProviders */}
               <Route path="/purchase" element={
-                <Suspense fallback={<LightFallback />}>
+                <Suspense fallback={null}>
+                  <StartupCurtain />
                   <Purchase />
                 </Suspense>
               } />
@@ -584,9 +587,9 @@ const App = () => {
               {/* ОПТИМИЗАЦИЯ: AppProviders lazy - НЕ попадает в initial bundle для лендинга */}
               {/* Это критично для производительности - Supabase/Query грузятся только для /app/* */}
               <Route path="/*" element={
-                <Suspense fallback={<LightFallback />}>
+                <Suspense fallback={null}>
                   <AppProviders>
-                    <Suspense fallback={<LightFallback />}>
+                    <Suspense fallback={null}>
                       <CosmeticsPreviewProvider>
                         <Suspense fallback={null}>
                           <DeepLinkHandler />

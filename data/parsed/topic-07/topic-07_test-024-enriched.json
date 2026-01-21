@@ -5,16 +5,16 @@
     "category": "B",
     "question": {
       "es": "En general, un conductor fatigado...",
-      "en": null,
-      "ru": null
+      "en": "In general, a fatigued driver...",
+      "ru": "Как правило, утомленный водитель..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "tiene los músculos más relajados.",
-          "en": null,
-          "ru": null
+          "en": "has more relaxed muscles.",
+          "ru": "имеет более расслабленные мышцы."
         },
         "is_correct": false
       },
@@ -22,8 +22,8 @@
         "id": "b",
         "text": {
           "es": "tarda más tiempo en reaccionar.",
-          "en": null,
-          "ru": null
+          "en": "takes longer to react.",
+          "ru": "тратит больше времени на реакцию."
         },
         "is_correct": true
       },
@@ -31,16 +31,16 @@
         "id": "c",
         "text": {
           "es": "favorece los movimientos rápidos y precisos.",
-          "en": null,
-          "ru": null
+          "en": "favors quick and precise movements.",
+          "ru": "совершает более быстрые и точные движения."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La fatiga disminuye la capacidad de alerta del conductor, lo que se traduce en un incremento del tiempo de reacción. Al tardar más en procesar la información recibida, la distancia recorrida antes de iniciar cualquier maniobra aumenta, comprometiendo la seguridad vial.",
+      "en": "Fatigue diminishes the driver's alertness, resulting in an increased reaction time. As it takes longer to process incoming information, the distance traveled before initiating any maneuver increases, thereby compromising road safety.",
+      "ru": "🎓 Утомление значительно снижает концентрацию внимания и скорость обработки информации. Для водителя легкового автомобиля это означает, что время реакции увеличивается: между осознанием опасности и началом физического действия (например, нажатием на тормоз) проходит больше времени. В результате дистанция реакции растет, а движения становятся менее точными и скоординированными. 💡 Усталость — это невидимый «тормоз» в твоей голове: чем меньше сил, тем дольше реакция."
     },
     "image_url": "https://teorica.practicavial.com/question/59066308-8753-4a78-903a-1c3af09fb0fc-1658753630-i.jpg",
     "source": "practicavial",
@@ -57,16 +57,16 @@
     "category": "B",
     "question": {
       "es": "La edad avanzada, ¿puede ser un factor que favorezca la distracción al volante?",
-      "en": null,
-      "ru": null
+      "en": "Can advanced age be a factor that favors distraction while driving?",
+      "ru": "Может ли пожилой возраст быть фактором, способствующим отвлечению внимания за рулем?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       },
@@ -74,8 +74,8 @@
         "id": "b",
         "text": {
           "es": "Sí, siempre.",
-          "en": null,
-          "ru": null
+          "en": "Yes, always.",
+          "ru": "Да, всегда."
         },
         "is_correct": false
       },
@@ -83,16 +83,16 @@
         "id": "c",
         "text": {
           "es": "Sí, si no se toman las debidas precauciones.",
-          "en": null,
-          "ru": null
+          "en": "Yes, if proper precautions are not taken.",
+          "ru": "Да, если не принимать соответствующие меры предосторожности."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El envejecimiento conlleva un deterioro progresivo de las capacidades psicofísicas, como la atención dividida y la velocidad de procesamiento de información. No obstante, la edad por sí sola no determina la distracción de forma absoluta, sino que aumenta el riesgo si el conductor no adapta su conducción a sus capacidades actuales o no toma medidas preventivas.",
+      "en": "Advanced age involves a gradual decline in psychophysical abilities, such as divided attention and information processing speed. However, age itself is not an absolute determinant of distraction; rather, it increases the risk if the driver fails to adapt their driving to their current abilities or take preventive measures.",
+      "ru": "🎓 С возрастом у водителя легкового автомобиля могут снижаться скорость реакции и способность быстро переключать внимание между дорожными объектами. Это не означает, что пожилой человек обязательно будет отвлекаться, но риск возрастает. Чтобы минимизировать этот фактор, необходимо учитывать свои физические возможности, избегать сложных маршрутов в часы пик и делать более частые остановки для отдыха. 🇷🇺 В Испании и РФ пожилые водители проходят медицинское освидетельствование чаще, чтобы подтвердить способность безопасно управлять легковым автомобилем. 💡 Опыт — это золото, но реакция — это время. Чем старше водитель, тем больше пауз на отдых."
     },
     "image_url": "https://teorica.practicavial.com/question/6f2a87ff-d87b-456a-8a9b-b55a372fb529-1658768396-i.jpg",
     "source": "practicavial",
@@ -109,16 +109,16 @@
     "category": "B",
     "question": {
       "es": "Si su permiso para conducir de la clase B tiene un año de antigüedad, ¿cuál es la tasa máxima permitida de alcohol?",
-      "en": null,
-      "ru": null
+      "en": "If your class B driving license is one year old, what is the maximum permitted alcohol level?",
+      "ru": "Если вашему водительскому удостоверению категории B исполнился один год, каков максимально допустимый уровень алкоголя?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "0,15 miligramos por litro de aire espirado.",
-          "en": null,
-          "ru": null
+          "en": "0.15 milligrams per liter of exhaled air.",
+          "ru": "0,15 миллиграмма на литр выдыхаемого воздуха."
         },
         "is_correct": true
       },
@@ -126,8 +126,8 @@
         "id": "b",
         "text": {
           "es": "0,25 miligramos por litro de aire espirado.",
-          "en": null,
-          "ru": null
+          "en": "0.25 milligrams per liter of exhaled air.",
+          "ru": "0,25 миллиграмма на литр выдыхаемого воздуха."
         },
         "is_correct": false
       },
@@ -135,16 +135,16 @@
         "id": "c",
         "text": {
           "es": "0,30 miligramos por litro de aire espirado.",
-          "en": null,
-          "ru": null
+          "en": "0.30 milligrams per liter of exhaled air.",
+          "ru": "0,30 миллиграмма на литр выдыхаемого воздуха."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "De acuerdo con el Reglamento General de Circulación, los conductores durante los dos años siguientes a la obtención de su primer permiso de conducción están sujetos a una tasa de alcohol reducida. El límite máximo permitido es de 0,15 miligramos de alcohol por litro de aire espirado. Una vez transcurridos estos dos primeros años de antigüedad del permiso, la tasa máxima permitida para un conductor de turismo pasará a ser la general de 0,25 mg/l en aire espirado.",
+      "en": "According to the General Traffic Regulations, drivers are subject to a reduced alcohol limit during the first two years after obtaining their first driving license. The maximum permitted level is 0.15 milligrams of alcohol per liter of exhaled air. Once these first two years of license seniority have passed, the maximum permitted rate for a passenger car driver will become the general limit of 0.25 mg/l in exhaled air.",
+      "ru": "🎓 В Испании в течение первых 2 лет после получения первого водительского удостоверения ты считаешься начинающим водителем и обязан соблюдать пониженную норму алкоголя: 0,15 мг/л в выдыхаемом воздухе. После двух лет стажа норма увеличится до стандартных 0,25 мг/л. Тебе как водителю легкового автомобиля важно знать, что этот же строгий лимит (0,15) всегда обязаны соблюдать водители грузовиков с РММ более 3500 кг и автобусов. 🇷🇺 В РФ лимит составляет 0,16 мг/л для всех, в Испании же для новичков он строже — 0,15 мг/л. 💡 Новичок и профи — в одной лодке: 0,15 и ни каплей больше!"
     },
     "image_url": "https://teorica.practicavial.com/question/34d64167-3fb2-4f7f-b704-9f9dd5c2cf7b-1658772570-i.jpg",
     "source": "practicavial",
@@ -161,16 +161,16 @@
     "category": "B",
     "question": {
       "es": "Respecto a los sistemas de seguridad pasiva, ¿qué relación existe entre el airbag y el cinturón de seguridad?",
-      "en": null,
-      "ru": null
+      "en": "Regarding passive safety systems, what is the relationship between the airbag and the seatbelt?",
+      "ru": "Какая связь существует между подушкой безопасности и ремнем безопасности в рамках систем пассивной безопасности?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Son sistemas incompatibles; con el cinturón puesto se debe desconectar el airbag.",
-          "en": null,
-          "ru": null
+          "en": "They are incompatible systems; with the seatbelt on, the airbag must be disconnected.",
+          "ru": "Это несовместимые системы; при пристегнутом ремне подушка безопасности должна быть отключена."
         },
         "is_correct": false
       },
@@ -178,8 +178,8 @@
         "id": "b",
         "text": {
           "es": "Son sistemas complementarios, no se puede sustituir uno por otro.",
-          "en": null,
-          "ru": null
+          "en": "They are complementary systems; one cannot be substituted for the other.",
+          "ru": "Это взаимодополняющие системы, их нельзя заменять друг другом."
         },
         "is_correct": true
       },
@@ -187,16 +187,16 @@
         "id": "c",
         "text": {
           "es": "El airbag es un sistema de seguridad que sustituye al cinturón.",
-          "en": null,
-          "ru": null
+          "en": "The airbag is a safety system that replaces the seatbelt.",
+          "ru": "Подушка безопасности — это система безопасности, заменяющая ремень."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El airbag y el cinturón de seguridad son sistemas de seguridad pasiva complementarios. Su eficacia máxima se alcanza cuando actúan conjuntamente. El airbag está diseñado para amortiguar el movimiento del cuerpo tras la retención inicial del cinturón, evitando el contacto con el volante o el salpicadero. El uso del airbag sin cinturón es peligroso debido a la fuerza del despliegue.",
+      "en": "The airbag and seatbelt are complementary passive safety systems. Their maximum effectiveness is achieved when they operate together. The airbag is designed to cushion the body's movement after the initial restraint provided by the seatbelt, preventing contact with the steering wheel or dashboard. Using an airbag without a seatbelt is dangerous due to the force of deployment.",
+      "ru": "🎓 Ремень безопасности и подушка безопасности — это команда, работающая в связке. Подушка никогда не заменяет ремень, она является лишь дополнением к нему. Основная задача ремня — удержать водителя легкового автомобиля в кресле, а задача подушки — мягко принять голову и грудь, предотвращая удар о руль или переднюю панель. Если не пристегнуться, тело по инерции вылетит навстречу раскрывающейся подушке, которая выстреливает со скоростью около 300 км/ч, что может привести к фатальным травмам. 💡 Ремень — это фундамент, подушка — это крыша. Без фундамента крыша просто придавит."
     },
     "image_url": "https://teorica.practicavial.com/question/4de053bc-9205-4681-b5c5-30e0212bd61b-1658850263-i.jpg",
     "source": "practicavial",
@@ -213,16 +213,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué alteraciones produce el alcohol en el comportamiento del conductor?",
-      "en": null,
-      "ru": null
+      "en": "What alterations does alcohol produce in the driver's behavior?",
+      "ru": "Какие изменения вызывает алкоголь в поведении водителя?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Exceso de seguridad en sí mismo.",
-          "en": null,
-          "ru": null
+          "en": "Excessive self-confidence.",
+          "ru": "Излишняя самоуверенность."
         },
         "is_correct": true
       },
@@ -230,8 +230,8 @@
         "id": "b",
         "text": {
           "es": "Aumenta el campo visual.",
-          "en": null,
-          "ru": null
+          "en": "It increases the visual field.",
+          "ru": "Увеличение поля зрения."
         },
         "is_correct": false
       },
@@ -239,16 +239,16 @@
         "id": "c",
         "text": {
           "es": "Aumenta los niveles de atención.",
-          "en": null,
-          "ru": null
+          "en": "It increases attention levels.",
+          "ru": "Повышение уровня внимания."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El consumo de alcohol afecta negativamente a las capacidades psicofísicas del conductor. Uno de los efectos más peligrosos es la falsa sensación de seguridad y la sobrevaloración de las propias capacidades, lo que conlleva a asumir mayores riesgos, subestimar el peligro y aumentar la siniestralidad. Otros efectos incluyen la reducción del campo visual (efecto túnel) y el aumento del tiempo de reacción.",
+      "en": "Alcohol consumption negatively affects the driver's psychophysical abilities. One of the most dangerous effects is a false sense of security and overestimation of one's own abilities, leading to taking greater risks, underestimating danger, and increasing the accident rate. Other effects include a reduction in the visual field (tunnel effect) and an increase in reaction time.",
+      "ru": "🎓 Употребление алкоголя вызывает ложное чувство безопасности. Водитель легкового автомобиля начинает переоценивать свои возможности и недооценивать реальную опасность, что ведет к рискованным маневрам и игнорированию ПДД. На самом деле алкоголь сужает поле зрения (эффект туннеля), замедляет реакцию и рассеивает внимание, даже если водителю кажется, что он полностью контролирует ситуацию. 💡 Пьяному море по колено: чем больше градусов, тем выше ложная уверенность в себе и ниже реальный контроль."
     },
     "image_url": "https://teorica.practicavial.com/question/d1c006e6-53d8-41f6-81d0-db74d82206d9-1658771344-i.jpg",
     "source": "practicavial",
@@ -265,16 +265,16 @@
     "category": "B",
     "question": {
       "es": "Un vehículo tiene \"servofreno\". ¿Qué ocurre cuando se apaga el motor?",
-      "en": null,
-      "ru": null
+      "en": "A vehicle has a \"brake booster\". What happens when the engine is turned off?",
+      "ru": "Транспортное средство оборудовано усилителем тормозов (servofreno). Что произойдет, если выключить двигатель?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Que las ruedas se bloquean.",
-          "en": null,
-          "ru": null
+          "en": "The wheels lock up.",
+          "ru": "Колеса заблокируются."
         },
         "is_correct": false
       },
@@ -282,8 +282,8 @@
         "id": "b",
         "text": {
           "es": "Que el freno de pie no funciona bien y tengo que pisar el pedal con más fuerza.",
-          "en": null,
-          "ru": null
+          "en": "The foot brake does not work well and I have to press the pedal harder.",
+          "ru": "Ножной тормоз будет работать неэффективно, и придется нажимать на педаль с гораздо большей силой."
         },
         "is_correct": true
       },
@@ -291,16 +291,16 @@
         "id": "c",
         "text": {
           "es": "Que el freno de mano no funciona bien y tengo que tirar de la palanca con más fuerza.",
-          "en": null,
-          "ru": null
+          "en": "The handbrake does not work well and I have to pull the lever harder.",
+          "ru": "Стояночный тормоз будет работать плохо, и придется тянуть рычаг с большей силой."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El servofreno es un mecanismo que reduce el esfuerzo necesario para accionar el freno de servicio. Su funcionamiento depende directamente del vacío generado por el motor en marcha. Al apagarse el motor, la asistencia neumática desaparece, lo que provoca que el pedal se endurezca significativamente, requiriendo una presión física mucho mayor por parte del conductor para lograr la detención del vehículo.",
+      "en": "The brake booster is a mechanism that reduces the effort required to operate the service brake. Its operation depends directly on the vacuum generated by the running engine. When the engine is turned off, the pneumatic assistance disappears, causing the pedal to harden significantly, requiring much greater physical pressure from the driver to stop the vehicle.",
+      "ru": "🎓 Вакуумный усилитель тормозов (servofreno) работает только при заведенном двигателе, так как он использует разрежение, создаваемое во впускном коллекторе. Если двигатель глохнет или выключается, вспомогательная сила исчезает. Тормоза при этом не отказывают полностью, но педаль становится очень жесткой («дубовой»). Чтобы остановить легковой автомобиль (Turismo) в такой ситуации, тебе придется давить на педаль тормоза всем весом тела. 💡 Без мотора тормоз — как камень: дави сильнее, чтобы замер."
     },
     "image_url": "https://teorica.practicavial.com/question/a2260403-962b-42bf-a419-1fd0acb2e0ad-1658837714-i.jpg",
     "source": "practicavial",
@@ -317,16 +317,16 @@
     "category": "B",
     "question": {
       "es": "El consumo de drogas, ¿afecta a la capacidad de reacción?",
-      "en": null,
-      "ru": null
+      "en": "Does drug consumption affect reaction capacity?",
+      "ru": "Влияет ли употребление наркотиков на способность к реакции?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, disminuyéndola.",
-          "en": null,
-          "ru": null
+          "en": "Yes, decreasing it.",
+          "ru": "Да, снижая её."
         },
         "is_correct": true
       },
@@ -334,8 +334,8 @@
         "id": "b",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       },
@@ -343,16 +343,16 @@
         "id": "c",
         "text": {
           "es": "Sí, aumentándola.",
-          "en": null,
-          "ru": null
+          "en": "Yes, increasing it.",
+          "ru": "Да, увеличивая её."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El consumo de sustancias estupefacientes o psicotrópicas altera gravemente las capacidades psicofísicas del conductor. Específicamente, las drogas reducen la capacidad de reacción, lo que se traduce en un incremento del tiempo de reacción ante un imprevisto. Además, provocan distorsiones en la percepción del entorno, pérdida de concentración y falsas sensaciones de seguridad.",
+      "en": "The consumption of drugs or psychotropic substances severely impairs the driver's psychophysical abilities. Specifically, drugs decrease reaction capacity, which results in an increase in reaction time when facing unexpected events. Furthermore, they cause distortions in environmental perception, loss of concentration, and a false sense of security.",
+      "ru": "🎓 Употребление любых психоактивных веществ за рулем легкового автомобиля категорически запрещено. Наркотики напрямую воздействуют на центральную нервную систему, снижая твою способность быстро и адекватно реагировать на дорожную ситуацию. Важно не путать понятия: твоя способность (capacity) реагировать падает, а время реакции (количество секунд, необходимых для принятия решения) — растет. При управлении Turismo это приводит к тому, что ты замечаешь опасность слишком поздно и не успеваешь затормозить. 💡 Реакция вниз — время вверх: чем хуже соображаешь, тем дольше тормозишь."
     },
     "image_url": "https://teorica.practicavial.com/question/beddb71b-96f7-43e1-bf25-49fff18a0988-1658774309-i.jpg",
     "source": "practicavial",
@@ -369,16 +369,16 @@
     "category": "B",
     "question": {
       "es": "En los accidentes de tráfico influyen de forma significativa...",
-      "en": null,
-      "ru": null
+      "en": "In traffic accidents, a significant influence is exerted by...",
+      "ru": "На возникновение дорожно-транспортных происшествий существенно влияют..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "el conductor y la vía pero no el vehículo.",
-          "en": null,
-          "ru": null
+          "en": "the driver and the road but not the vehicle.",
+          "ru": "водитель и проезжая часть, но не транспортное средство."
         },
         "is_correct": false
       },
@@ -386,8 +386,8 @@
         "id": "b",
         "text": {
           "es": "el conductor, la vía y el vehículo.",
-          "en": null,
-          "ru": null
+          "en": "the driver, the road and the vehicle.",
+          "ru": "водитель, проезжая часть и транспортное средство."
         },
         "is_correct": true
       },
@@ -395,16 +395,16 @@
         "id": "c",
         "text": {
           "es": "la vía y el vehículo fundamentalmente, y en menor medida el conductor.",
-          "en": null,
-          "ru": null
+          "en": "the road and the vehicle primarily, and to a lesser extent the driver.",
+          "ru": "в основном проезжая часть и транспортное средство, и в меньшей степени водитель."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La seguridad vial se fundamenta en la interacción de tres factores: el factor humano (conductor), el factor vía y entorno, y el factor vehículo. Cualquier deficiencia en uno de estos tres elementos puede derivar en un accidente de tráfico. El factor humano es el responsable de la mayoría de los siniestros, pero los tres son determinantes.",
+      "en": "Road safety is based on the interaction of three factors: the human factor (driver), the road and environment factor, and the vehicle factor. Any deficiency in one of these three elements can lead to a traffic accident. While the human factor is responsible for the majority of incidents, all three are decisive.",
+      "ru": "🎓 Безопасность движения базируется на взаимодействии трёх факторов: водителя (человеческий фактор), проезжей части с окружающей средой и самого транспортного средства. Хотя ошибки человека становятся причиной аварий в 70-90% случаев, техническое состояние легкового автомобиля и качество дороги также являются критически важными элементами безопасности. 💡 Запомни «Триаду безопасности»: Водитель, Дорога, Машина. Если хоть одно звено даст сбой — случится ДТП."
     },
     "image_url": "https://teorica.practicavial.com/question/8abebb35-8848-47f3-8fb0-43c7514625d1-1658498029-i.jpg",
     "source": "practicavial",
@@ -421,16 +421,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué debe comprobar en un mantenimiento preventivo?",
-      "en": null,
-      "ru": null
+      "en": "What should you check during preventive maintenance?",
+      "ru": "Что необходимо проверять при профилактическом обслуживании?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "La profundidad de la banda de rodadura, únicamente.",
-          "en": null,
-          "ru": null
+          "en": "The tread depth, only.",
+          "ru": "Только глубину рисунка протектора."
         },
         "is_correct": false
       },
@@ -438,8 +438,8 @@
         "id": "b",
         "text": {
           "es": "El estado de los neumáticos, frenos y alumbrado.",
-          "en": null,
-          "ru": null
+          "en": "The condition of the tires, brakes, and lighting.",
+          "ru": "Состояние шин, тормозов и осветительных приборов."
         },
         "is_correct": true
       },
@@ -447,16 +447,16 @@
         "id": "c",
         "text": {
           "es": "Solo el nivel de aceite y del líquido de frenos.",
-          "en": null,
-          "ru": null
+          "en": "Only the oil and brake fluid levels.",
+          "ru": "Только уровень масла и тормозной жидкости."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El mantenimiento preventivo consiste en la revisión periódica de los elementos clave para la seguridad y el funcionamiento del vehículo. Se debe verificar el estado de los neumáticos (presión y desgaste), la eficacia de los frenos y el correcto funcionamiento del sistema de alumbrado. Una revisión parcial es insuficiente para garantizar la seguridad vial y evitar averías mecánicas.",
+      "en": "Preventive maintenance involves periodic checks of key components for vehicle safety and operation. It is necessary to verify the condition of the tires (pressure and wear), the effectiveness of the brakes, and the correct functioning of the lighting system. A partial inspection is insufficient to ensure road safety and prevent mechanical breakdowns.",
+      "ru": "🎓 Профилактическое обслуживание — это твой щит от внезапных поломок. Как водитель легкового автомобиля, ты должен регулярно проверять состояние шин (не только глубину протектора, но и давление), исправность тормозной системы и работу всех осветительных приборов. Ограничиваться чем-то одним нельзя: безопасность зависит от слаженной работы всех узлов. 💡 Свети, тормози, за шинами бди — и не будет беды на пути!"
     },
     "image_url": "https://teorica.practicavial.com/question/0cb3fb89-e0fc-4f0f-a9a9-0ea9b2a9683c-1658859003-i.jpg",
     "source": "practicavial",
@@ -473,16 +473,16 @@
     "category": "B",
     "question": {
       "es": "Buscar una emisora de radio o manipular el reproductor de música, ¿pueden distraer al conductor?",
-      "en": null,
-      "ru": null
+      "en": "Can searching for a radio station or operating the music player distract the driver?",
+      "ru": "Может ли поиск радиостанции или управление музыкальным проигрывателем отвлекать водителя легкового автомобиля?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Solo si las emisoras de radio no están guardadas en memoria.",
-          "en": null,
-          "ru": null
+          "en": "Only if the radio stations are not stored in the memory.",
+          "ru": "Только если радиостанции не сохранены в памяти."
         },
         "is_correct": false
       },
@@ -490,8 +490,8 @@
         "id": "b",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       },
@@ -499,16 +499,16 @@
         "id": "c",
         "text": {
           "es": "Sí, aumentando el riesgo de accidente.",
-          "en": null,
-          "ru": null
+          "en": "Yes, increasing the risk of an accident.",
+          "ru": "Да, увеличивая риск дорожно-транспортного происшествия."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación estipula que el conductor debe mantener en todo momento la atención permanente a la conducción. La manipulación de aparatos de radio o reproductores de música durante la marcha distrae la atención del conductor, lo que reduce su capacidad de reacción y aumenta significativamente el riesgo de colisión.",
+      "en": "The General Traffic Regulations mandate that drivers must maintain constant attention while driving. Operating audio equipment or music players while the vehicle is in motion constitutes a significant physical and cognitive distraction. This behavior diverts focus from the road, increases reaction time, and elevates the probability of an accident.",
+      "ru": "🎓 Управление аудиосистемой во время движения — одна из самых частых причин отвлечения внимания. Когда ты ищешь станцию, ты совершаешь сразу три ошибки: убираешь руку с руля, отводишь взгляд от дороги и переключаешь мысли на выбор музыки. Для водителя легкового автомобиля это критично, так как даже пара секунд на скорости 100 км/ч — это десятки метров, пройденных вслепую. ПДД требуют, чтобы водитель всегда сохранял полную концентрацию на управлении. 💡 Сначала настрой звук, а потом жми на газ!"
     },
     "image_url": "https://teorica.practicavial.com/question/028d74af-283c-4281-811c-ae159860ae06-1658768245-i.jpg",
     "source": "practicavial",
@@ -525,16 +525,16 @@
     "category": "B",
     "question": {
       "es": "Circulando con la calzada nevada las pendientes se deben subir...",
-      "en": null,
-      "ru": null
+      "en": "When driving on a snow-covered road, uphill slopes should be climbed...",
+      "ru": "При движении по заснеженной проезжей части подъемы следует преодолевать..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "rápidamente, porque si el vehículo se detiene será difícil reanudar la marcha.",
-          "en": null,
-          "ru": null
+          "en": "quickly, because if the vehicle stops it will be difficult to resume motion.",
+          "ru": "быстро, так как если легковой автомобиль остановится, будет трудно возобновить движение."
         },
         "is_correct": false
       },
@@ -542,8 +542,8 @@
         "id": "b",
         "text": {
           "es": "con la relación de marchas más corta posible.",
-          "en": null,
-          "ru": null
+          "en": "with the shortest gear ratio possible.",
+          "ru": "на максимально низкой передаче."
         },
         "is_correct": false
       },
@@ -551,16 +551,16 @@
         "id": "c",
         "text": {
           "es": "lentamente y a velocidad sostenida.",
-          "en": null,
-          "ru": null
+          "en": "slowly and at a sustained speed.",
+          "ru": "медленно и с постоянной скоростью."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Para circular con seguridad sobre nieve en pendientes ascendentes, es imperativo mantener una velocidad constante y moderada. Se recomienda el uso de marchas lo más largas posible para evitar el exceso de par motor en las ruedas motrices, lo que previene el patinamiento y garantiza la tracción necesaria para completar el ascenso sin interrupciones.",
+      "en": "To ensure safety when driving on snow-covered uphill slopes, it is essential to maintain a constant and moderate speed. Using the highest gear possible is recommended to minimize engine torque at the drive wheels, preventing wheel spin and ensuring the necessary traction to complete the climb without interruption.",
+      "ru": "🎓 При движении на подъеме по заснеженной проезжей части необходимо избегать резких ускорений. Тебе, как водителю легкового автомобиля, следует двигаться медленно и с постоянной скоростью. Для предотвращения пробуксовки колес на подъеме рекомендуется использовать наиболее высокую из возможных передач, так как низкая передача дает слишком большое усилие на колеса, заставляя их вращаться вхолостую и закапываться в снег. 💡 На подъеме в снег — передачу выше, газ тише."
     },
     "image_url": "https://teorica.practicavial.com/question/3b069f0c-869e-4a5b-bbe3-707f1bf248e1-1658857249-i.jpg",
     "source": "practicavial",
@@ -576,17 +576,17 @@
     "question_number": 12,
     "category": "B",
     "question": {
-      "es": "El reposacabezas, ¿cómo debe colocarse?",
-      "en": null,
-      "ru": null
+      "es": "¿Cómo debe colocarse el reposacabezas?",
+      "en": "How should the headrest be positioned?",
+      "ru": "Как должен быть отрегулирован подголовник?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
-          "es": "A la altura de cuello.",
-          "en": null,
-          "ru": null
+          "es": "A la altura del cuello.",
+          "en": "At neck height.",
+          "ru": "На уровне шеи."
         },
         "is_correct": false
       },
@@ -594,8 +594,8 @@
         "id": "b",
         "text": {
           "es": "Lo más alto posible para que no moleste.",
-          "en": null,
-          "ru": null
+          "en": "As high as possible so it does not interfere.",
+          "ru": "Как можно выше, чтобы он не мешал."
         },
         "is_correct": false
       },
@@ -603,16 +603,16 @@
         "id": "c",
         "text": {
           "es": "A la altura de la cabeza.",
-          "en": null,
-          "ru": null
+          "en": "At head height.",
+          "ru": "На уровне головы."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El reposacabezas es un elemento de seguridad pasiva cuya función es prevenir el latigazo cervical en caso de colisión. Su ajuste correcto requiere que el borde superior del dispositivo esté a la misma altura que la parte superior de la cabeza del ocupante. Asimismo, la separación entre la cabeza y el reposacabezas debe ser mínima, no debiendo superar los 4 centímetros.",
+      "en": "The headrest is a passive safety component designed to prevent whiplash injuries during a collision. Correct adjustment requires the top edge of the headrest to be level with the top of the occupant's head. Additionally, the horizontal gap between the head and the headrest should be kept to a minimum, ideally not exceeding 4 centimeters.",
+      "ru": "🎓 Подголовник — это важнейший элемент пассивной безопасности, предназначенный для предотвращения «хлыстовой травмы» шейных позвонков при ударе сзади. Для эффективной защиты верхний край подголовника должен находиться на одном уровне с макушкой головы. Также важно, чтобы расстояние между затылком и устройством было минимальным (не более 4 см). Если подголовник будет слишком низко, при ударе он сработает как точка опоры, через которую голова запрокинется назад, что приведет к перелому позвоночника. 💡 Подголовник — это не подушка для сна, а щит для макушки."
     },
     "image_url": "https://teorica.practicavial.com/question/cbd7fdd1-da5f-4dbb-8ccf-fea439962ae0-1658850959-i.jpg",
     "source": "practicavial",
@@ -629,16 +629,16 @@
     "category": "B",
     "question": {
       "es": "El inflado correcto de los neumáticos es...",
-      "en": null,
-      "ru": null
+      "en": "The correct tire inflation pressure is...",
+      "ru": "Правильное давление в шинах — это..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "el recomendado por el fabricante en cada caso.",
-          "en": null,
-          "ru": null
+          "en": "the one recommended by the manufacturer in each case.",
+          "ru": "рекомендованное производителем для каждого конкретного случая."
         },
         "is_correct": true
       },
@@ -646,8 +646,8 @@
         "id": "b",
         "text": {
           "es": "el superior al recomendado en un 10%.",
-          "en": null,
-          "ru": null
+          "en": "10% higher than recommended.",
+          "ru": "на 10% выше рекомендованного."
         },
         "is_correct": false
       },
@@ -655,16 +655,16 @@
         "id": "c",
         "text": {
           "es": "el adecuado a los amortiguadores que lleve el coche.",
-          "en": null,
-          "ru": null
+          "en": "the one suitable for the shock absorbers the car has.",
+          "ru": "соответствующее амортизаторам, установленным на автомобиле."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La presión de inflado de los neumáticos debe ajustarse estrictamente a las especificaciones técnicas proporcionadas por el fabricante del vehículo. Estas recomendaciones varían en función de la carga del vehículo y la velocidad de circulación. Es imperativo verificar la presión con los neumáticos en frío para obtener una lectura precisa. Una presión incorrecta compromete la seguridad vial, afectando la estabilidad, la distancia de frenado y la integridad estructural del neumático.",
+      "en": "Tire inflation pressure must strictly adhere to the technical specifications provided by the vehicle manufacturer. These recommendations vary based on vehicle load and driving speed. It is imperative to check the pressure when the tires are cold to obtain an accurate reading. Incorrect pressure compromises road safety, affecting stability, braking distance, and the structural integrity of the tire.",
+      "ru": "🎓 Правильное давление в шинах легкового автомобиля (Turismo) — это строго то значение, которое установил завод-изготовитель. Оно не является универсальным и меняется в зависимости от условий: например, при полной загрузке или длительных поездках по автомагистрали (Autopista) давление должно быть выше (согласно спецификации). Проверять его нужно минимум раз в месяц и обязательно перед длинной поездкой, причем только на «холодных» шинах. Недокачанные или перекачанные колеса ухудшают сцепление с дорогой, увеличивают расход топлива и риск разрыва покрышки. 💡 Инструкция — закон, манометр — лучший друг."
     },
     "image_url": "https://teorica.practicavial.com/question/9e3de6e4-a0b9-44cf-ad32-3088fdf43669-1658833358-i.jpg",
     "source": "practicavial",
@@ -681,16 +681,16 @@
     "category": "B",
     "question": {
       "es": "En general, un conductor que sufre un trastorno depresivo...",
-      "en": null,
-      "ru": null
+      "en": "In general, a driver suffering from a depressive disorder...",
+      "ru": "В целом, водитель, страдающий депрессивным расстройством..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "sufre menos distracciones.",
-          "en": null,
-          "ru": null
+          "en": "suffers fewer distractions.",
+          "ru": "меньше отвлекается."
         },
         "is_correct": false
       },
@@ -698,8 +698,8 @@
         "id": "b",
         "text": {
           "es": "comete menos errores a la hora de tomar decisiones.",
-          "en": null,
-          "ru": null
+          "en": "makes fewer errors when making decisions.",
+          "ru": "совершает меньше ошибок при принятии решений."
         },
         "is_correct": false
       },
@@ -707,16 +707,16 @@
         "id": "c",
         "text": {
           "es": "es más inseguro al volante.",
-          "en": null,
-          "ru": null
+          "en": "is more insecure at the wheel.",
+          "ru": "чувствует себя более неуверенно за рулем."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El trastorno depresivo afecta negativamente a las capacidades psicofísicas necesarias para la conducción. Se manifiesta mediante la falta de concentración, fatiga, irritabilidad y una mayor propensión a las distracciones. Como consecuencia, el conductor experimenta una mayor inseguridad, lentitud en la toma de decisiones y una percepción alterada del riesgo, lo que incrementa la probabilidad de accidentes.",
+      "en": "Depressive disorder negatively impacts the psychophysical abilities required for driving. It manifests through a lack of concentration, fatigue, irritability, and an increased susceptibility to distractions. Consequently, the driver experiences greater insecurity, slower decision-making, and an altered perception of risk, which increases the likelihood of accidents.",
+      "ru": "🎓 Депрессивное расстройство серьезно подрывает психофизические способности водителя легкового автомобиля. Основные симптомы — апатия, замедленное мышление и нарушение концентрации — приводят к тому, что водитель теряет уверенность в своих действиях. Увеличивается время реакции, а риск совершения ошибок при маневрировании возрастает из-за постоянного отвлечения на внутренние переживания и снижения бдительности. 💡 Депрессия — это «невидимый тормоз» для мозга: когда мысли заняты другим, безопасность на дороге стремится к нулю."
     },
     "image_url": "https://teorica.practicavial.com/question/49b09b05-ab56-4d43-99d4-bf65e2e27df3-1658765228-i.jpg",
     "source": "practicavial",
@@ -733,16 +733,16 @@
     "category": "B",
     "question": {
       "es": "¿Existen enfermedades cuyo tratamiento, o la falta del mismo, puede ser un factor de riesgo para la conducción?",
-      "en": null,
-      "ru": null
+      "en": "Are there diseases whose treatment, or lack thereof, can be a risk factor for driving?",
+      "ru": "Существуют ли заболевания, лечение которых (или его отсутствие) может стать фактором риска при управлении легковым автомобилем?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, el estado del conductor no afecta a la seguridad vial.",
-          "en": null,
-          "ru": null
+          "en": "No, the driver's condition does not affect road safety.",
+          "ru": "Нет, состояние водителя не влияет на безопасность дорожного движения."
         },
         "is_correct": false
       },
@@ -750,8 +750,8 @@
         "id": "b",
         "text": {
           "es": "Sí, como la depresión o la epilepsia.",
-          "en": null,
-          "ru": null
+          "en": "Yes, such as depression or epilepsy.",
+          "ru": "Да, такие как депрессия или эпилепсия."
         },
         "is_correct": true
       },
@@ -759,16 +759,16 @@
         "id": "c",
         "text": {
           "es": "Sí, pero solo si se trata de enfermedades crónicas.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but only if they are chronic diseases.",
+          "ru": "Да, но только если речь идет о хронических заболеваниях."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Ciertas patologías y sus tratamientos farmacológicos pueden alterar gravemente las capacidades psicofísicas necesarias para la conducción. La depresión puede provocar falta de concentración y aumento del tiempo de reacción, mientras que enfermedades como la epilepsia conllevan el riesgo de pérdida súbita de control del vehículo. El Reglamento General de Conductores exige que el titular de un permiso mantenga las aptitudes psicofísicas requeridas para garantizar la seguridad vial.",
+      "en": "Certain medical conditions and their pharmacological treatments can severely impair the psychophysical abilities required for safe driving. Depression can lead to a lack of concentration and increased reaction times, while conditions such as epilepsy carry the risk of sudden loss of vehicle control. The General Driver Regulations require permit holders to maintain the necessary psychophysical aptitudes to ensure road safety.",
+      "ru": "🎓 Твое состояние за рулем — это фундамент безопасности. Депрессия значительно снижает концентрацию и замедляет реакцию, а эпилепсия может привести к внезапной потере контроля над легковым автомобилем. Важно помнить, что риск несет не только сама болезнь, но и побочные эффекты лекарств: сонливость, головокружение или нарушение зрения. Любое состояние, мешающее адекватно оценивать дорожную обстановку, является фактором риска, независимо от того, хроническое оно или временное.\n\n💡 Если пьешь таблетки — читай этикетку, если болит голова — не жми на педаль."
     },
     "image_url": "https://teorica.practicavial.com/question/916a73d2-ffcb-463f-befb-a9c9dee2aaa6-1658765253-i.jpg",
     "source": "practicavial",
@@ -785,16 +785,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuándo se producen más accidentes de ciclistas, en verano o en invierno?",
-      "en": null,
-      "ru": null
+      "en": "When do more cyclist accidents occur, in summer or winter?",
+      "ru": "Когда происходит больше аварий с участием велосипедистов: летом или зимой?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Es indiferente.",
-          "en": null,
-          "ru": null
+          "en": "It makes no difference.",
+          "ru": "Это не имеет значения."
         },
         "is_correct": false
       },
@@ -802,8 +802,8 @@
         "id": "b",
         "text": {
           "es": "En invierno, debido a las condiciones meteorológicas adversas.",
-          "en": null,
-          "ru": null
+          "en": "In winter, due to adverse weather conditions.",
+          "ru": "Зимой, из-за неблагоприятных погодных условий."
         },
         "is_correct": false
       },
@@ -811,16 +811,16 @@
         "id": "c",
         "text": {
           "es": "En verano, puesto que con la llegada del buen tiempo hay más ciclistas en las carreteras.",
-          "en": null,
-          "ru": null
+          "en": "In summer, since with the arrival of good weather there are more cyclists on the roads.",
+          "ru": "Летом, так как с наступлением хорошей погоды на дорогах появляется больше велосипедистов."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Estadísticamente, la mayor siniestralidad de ciclistas se registra durante los meses de verano. Este fenómeno responde al incremento masivo de la presencia de estos usuarios vulnerables en la vía pública, motivado por las condiciones meteorológicas favorables y el aumento de las actividades de ocio. La exposición al riesgo aumenta proporcionalmente al flujo de tráfico de bicicletas.",
+      "en": "Statistically, the highest cyclist accident rate is recorded during the summer months. This phenomenon is due to the massive increase in the presence of these vulnerable road users on public roads, driven by favorable weather conditions and increased leisure activities. Risk exposure increases proportionally with the flow of bicycle traffic.",
+      "ru": "🎓 Статистика дорожно-транспортных происшествий в Испании подтверждает, что большинство аварий с участием велосипедистов происходит именно в летние месяцы. Это объясняется резким увеличением числа таких участников движения на дорогах: благоприятные погодные условия и период отпусков способствуют массовым выездам. Как водителю легкового автомобиля, тебе важно помнить, что летом плотность движения двухколесного транспорта на загородных дорогах и в зонах отдыха возрастает в разы, что требует повышенной концентрации внимания. 💡 Солнце греет — велик едет. Больше спиц — больше риск."
     },
     "image_url": "https://teorica.practicavial.com/question/cfa9d01f-14a2-4326-adb4-cadb4f291d37-1658508706-i.jpg",
     "source": "practicavial",
@@ -837,16 +837,16 @@
     "category": "B",
     "question": {
       "es": "Al circular con un turismo, ¿qué debe hacer para reducir la probabilidad de verse involucrado en un accidente con un vehículo de dos ruedas?",
-      "en": null,
-      "ru": null
+      "en": "When driving a passenger car, what should you do to reduce the likelihood of being involved in an accident with a two-wheeled vehicle?",
+      "ru": "При движении на легковом автомобиле, что следует делать, чтобы снизить вероятность попадания в ДТП с двухколесным транспортным средством?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No respetar la distancia lateral de seguridad.",
-          "en": null,
-          "ru": null
+          "en": "Not respecting the lateral safety distance.",
+          "ru": "Не соблюдать безопасную боковую дистанцию."
         },
         "is_correct": false
       },
@@ -854,8 +854,8 @@
         "id": "b",
         "text": {
           "es": "No respetar la distancia frontal de seguridad.",
-          "en": null,
-          "ru": null
+          "en": "Not respecting the frontal safety distance.",
+          "ru": "Не соблюдать безопасную дистанцию до впереди идущего транспорта."
         },
         "is_correct": false
       },
@@ -863,16 +863,16 @@
         "id": "c",
         "text": {
           "es": "Circular en paralelo el menor tiempo posible.",
-          "en": null,
-          "ru": null
+          "en": "Drive in parallel for the shortest time possible.",
+          "ru": "Находиться в параллельном движении как можно меньше времени."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Para minimizar el riesgo de colisión con vehículos de dos ruedas, se debe evitar la circulación prolongada en paralelo. Esta medida reduce la exposición a los ángulos muertos del turismo y mitiga el efecto de las turbulencias o desplazamientos laterales imprevistos del vehículo de dos ruedas, garantizando la seguridad en maniobras de cambio de carril.",
+      "en": "To minimize the risk of collision with two-wheeled vehicles, prolonged parallel driving must be avoided. This measure reduces exposure to the passenger car's blind spots and mitigates the effects of turbulence or unforeseen lateral movements of the two-wheeled vehicle, ensuring safety during lane-change maneuvers.",
+      "ru": "🎓 При управлении легковым автомобилем крайне важно минимизировать время нахождения в параллельном движении с мотоциклами или мопедами. Двухколесные транспортные средства легко попадают в «слепые зоны» твоего автомобиля, где они становятся невидимыми для зеркал. Кроме того, воздушные потоки от легкового автомобиля могут дестабилизировать легкий мотоцикл. Быстрое опережение или сохранение дистанции вместо долгого движения бок о бок значительно снижает риск бокового столкновения при маневрировании.\n\n💡 Мотоциклист в «мёртвой зоне» — как ниндзя: ты его не видишь, а он там есть. Не задерживайся рядом, проезжай мимо!"
     },
     "image_url": "https://teorica.practicavial.com/question/3a696f90-8ade-49bd-953d-acf11c46c4d6-1658507729-i.jpg",
     "source": "practicavial",
@@ -889,16 +889,16 @@
     "category": "B",
     "question": {
       "es": "Si circula con el aire acondicionado encendido y hace demasiado frío, el tiempo de reacción...",
-      "en": null,
-      "ru": null
+      "en": "If you drive with the air conditioning on and it is too cold, the reaction time...",
+      "ru": "Если вы едете в легковом автомобиле с включенным кондиционером и в салоне слишком холодно, время реакции..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "aumenta.",
-          "en": null,
-          "ru": null
+          "en": "increases.",
+          "ru": "увеличивается."
         },
         "is_correct": true
       },
@@ -906,8 +906,8 @@
         "id": "b",
         "text": {
           "es": "disminuye.",
-          "en": null,
-          "ru": null
+          "en": "decreases.",
+          "ru": "уменьшается."
         },
         "is_correct": false
       },
@@ -915,16 +915,16 @@
         "id": "c",
         "text": {
           "es": "no se ve afectado.",
-          "en": null,
-          "ru": null
+          "en": "is not affected.",
+          "ru": "не меняется."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Las temperaturas extremas en el habitáculo, tanto el calor excesivo como el frío intenso, afectan negativamente a las capacidades psicofísicas del conductor. El frío excesivo provoca incomodidad física y entumecimiento, lo que conlleva una disminución de la capacidad de concentración y, por consiguiente, un aumento del tiempo de reacción ante cualquier imprevisto en la vía. Se recomienda mantener una temperatura estable entre 20 y 23 grados centígrados para garantizar la seguridad vial.",
+      "en": "Extreme temperatures within the vehicle cabin, including both excessive heat and intense cold, negatively impact the driver's psychophysical state. Intense cold causes physical discomfort and muscular stiffness, leading to diminished concentration levels. Consequently, the driver's reaction time increases when facing unexpected events on the road. Maintaining a stable cabin temperature between 20°C and 23°C is recommended to ensure road safety.",
+      "ru": "🎓 Любой температурный дискомфорт в салоне легкового автомобиля — будь то жара или сильный холод — напрямую влияет на твое состояние. Когда тебе слишком холодно, организм отвлекается на попытки согреться, мышцы могут терять эластичность, а внимание рассеивается. В результате ты дольше обрабатываешь информацию и медленнее принимаешь решение. Помни: время реакции всегда увеличивается (ты становишься «медленнее»), если условия вождения становятся некомфортными. Оптимальная температура для безопасного вождения — от 20 до 23 градусов. 💡 Когда телу не до дороги, мозг «подтормаживает» вместе с ним. Плохо водителю — растет время реакции!"
     },
     "image_url": "https://teorica.practicavial.com/question/fb92dd42-8cbf-4ae2-8cf4-84f6517ef941-1658767056-i.jpg",
     "source": "practicavial",
@@ -941,16 +941,16 @@
     "category": "B",
     "question": {
       "es": "El casco, ¿se puede incluir entre los elementos de seguridad?",
-      "en": null,
-      "ru": null
+      "en": "Can the helmet be included among the safety elements?",
+      "ru": "Можно ли считать шлем элементом безопасности?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       },
@@ -958,8 +958,8 @@
         "id": "b",
         "text": {
           "es": "Sí, de seguridad pasiva.",
-          "en": null,
-          "ru": null
+          "en": "Yes, passive safety.",
+          "ru": "Да, элементом пассивной безопасности."
         },
         "is_correct": true
       },
@@ -967,16 +967,16 @@
         "id": "c",
         "text": {
           "es": "Sí, únicamente de la seguridad activa.",
-          "en": null,
-          "ru": null
+          "en": "Yes, only active safety.",
+          "ru": "Да, только элементом активной безопасности."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El casco se clasifica como un elemento de seguridad pasiva. Su función principal no es evitar que el accidente ocurra (misión de la seguridad activa), sino minimizar la gravedad de las lesiones craneales una vez que el impacto o la caída ya se han producido.",
+      "en": "The helmet is classified as a passive safety element. Its primary function is not to prevent the accident from occurring (the mission of active safety), but to minimize the severity of head injuries once the impact or fall has already taken place.",
+      "ru": "🎓 Шлем относится к элементам пассивной безопасности. Его задача — не предотвратить столкновение (как это делают тормоза или фары), а максимально защитить голову и снизить тяжесть травм в тот момент, когда авария уже произошла. Тебе как водителю легкового автомобиля важно помнить, что шлем для мотоциклиста выполняет ту же функцию, что и ремень безопасности или подушка безопасности для тебя. 💡 Активная безопасность — это \"А\" (Анти-авария), Пассивная — это \"П\" (После удара). Шлем работает ПОСЛЕ того, как всё уже случилось."
     },
     "image_url": "https://teorica.practicavial.com/question/80f74216-250b-4821-b04a-d3da2f04366c-1658851228-i.jpg",
     "source": "practicavial",
@@ -993,16 +993,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuál es la tasa máxima de alcohol permitida para el conductor mayor de edad de una bicicleta?",
-      "en": null,
-      "ru": null
+      "en": "What is the maximum alcohol limit allowed for an adult bicycle driver?",
+      "ru": "Какова максимально допустимая норма алкоголя для совершеннолетнего водителя велосипеда?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "0,15 miligramos por litro de aire espirado.",
-          "en": null,
-          "ru": null
+          "en": "0.15 milligrams per liter of exhaled air.",
+          "ru": "0,15 миллиграмма на литр выдыхаемого воздуха."
         },
         "is_correct": false
       },
@@ -1010,8 +1010,8 @@
         "id": "b",
         "text": {
           "es": "0,25 miligramos por litro de aire espirado.",
-          "en": null,
-          "ru": null
+          "en": "0.25 milligrams per liter of exhaled air.",
+          "ru": "0,25 миллиграмма на литр выдыхаемого воздуха."
         },
         "is_correct": true
       },
@@ -1019,16 +1019,16 @@
         "id": "c",
         "text": {
           "es": "Los conductores de bicicletas no están obligados a someterse a las pruebas de alcoholemia.",
-          "en": null,
-          "ru": null
+          "en": "Bicycle drivers are not required to undergo breathalyzer tests.",
+          "ru": "Водители велосипедов не обязаны проходить проверку на алкоголь."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, los conductores de bicicletas tienen la consideración de conductores de vehículos y, por tanto, están sujetos a los límites de alcoholemia generales. Para conductores mayores de edad, la tasa máxima permitida es de 0,25 mg/l en aire espirado o 0,5 g/l en sangre. Asimismo, existe la obligación legal de someterse a las pruebas de detección alcohólica cuando un agente de la autoridad lo requiera tras una infracción o accidente.",
+      "en": "According to the General Traffic Regulations, bicycle riders are considered vehicle drivers and are subject to the general blood alcohol concentration limits. For adult drivers, the maximum permitted rate is 0.25 mg/l in exhaled air or 0.5 g/l in blood. Furthermore, they are legally required to undergo alcohol testing if requested by a traffic officer following an offense or an accident.",
+      "ru": "🎓 Водитель велосипеда в Испании считается полноценным водителем транспортного средства. Для совершеннолетних велосипедистов установлена общая норма алкоголя: 0,25 мг/л в выдыхаемом воздухе. Это точно такой же лимит, как и для опытного водителя легкового автомобиля. Важно помнить, что велосипедисты обязаны проходить тест на алкоголь по требованию полиции, особенно если они стали участниками ДТП или нарушили правила движения. 🇷🇺 В отличие от РФ, где для велосипедистов установлена упрощенная ответственность, в Испании нормы содержания алкоголя в организме контролируются так же строго, как у автомобилистов. 💡 Сел на два колеса — стал водителем. Лимит 0.25: не превращай велосипед в пьяную повозку!"
     },
     "image_url": "https://teorica.practicavial.com/question/358b17e2-993c-4eed-83e2-5bf32fd71848-1658772649-i.jpg",
     "source": "practicavial",
@@ -1045,16 +1045,16 @@
     "category": "B",
     "question": {
       "es": "Las lámparas de xenón...",
-      "en": null,
-      "ru": null
+      "en": "Xenon lamps...",
+      "ru": "Ксеноновые лампы..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "aumentan la fatiga ocular del conductor.",
-          "en": null,
-          "ru": null
+          "en": "increase driver eye fatigue.",
+          "ru": "увеличивают зрительную усталость водителя."
         },
         "is_correct": false
       },
@@ -1062,8 +1062,8 @@
         "id": "b",
         "text": {
           "es": "mejoran la iluminación de la vía y reducen la fatiga ocular del conductor.",
-          "en": null,
-          "ru": null
+          "en": "improve road lighting and reduce driver eye fatigue.",
+          "ru": "улучшают освещение дороги и снижают зрительную усталость водителя."
         },
         "is_correct": true
       },
@@ -1071,16 +1071,16 @@
         "id": "c",
         "text": {
           "es": "iluminan peor la vía, pero reducen la fatiga ocular del conductor.",
-          "en": null,
-          "ru": null
+          "en": "illuminate the road worse, but reduce driver eye fatigue.",
+          "ru": "освещают дорогу хуже, но снижают зрительную усталость водителя."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Las lámparas de descarga de gas (xenón) emiten una luz más blanca y potente que las halógenas convencionales, asemejándose a la luz natural. Esta mejora en la calidad lumínica facilita la identificación de obstáculos y señales, disminuyendo el esfuerzo visual necesario y, por consiguiente, la fatiga del conductor durante la conducción nocturna.",
+      "en": "Xenon gas-discharge lamps provide a more intense and whiter light compared to standard halogen bulbs, closely mimicking natural daylight. This improved illumination quality enhances the visibility of road hazards and traffic signs, thereby reducing visual strain and driver fatigue during night-time driving.",
+      "ru": "🎓 Ксеноновые лампы обеспечивают световой поток, который по своему спектру максимально приближен к естественному дневному свету. Для тебя как водителя легкового автомобиля это означает, что контрастность объектов на дороге значительно повышается, а глазам не приходится постоянно перенапрягаться, чтобы распознать детали в темноте. Качественное освещение не только увеличивает дистанцию видимости, но и напрямую снижает твою утомляемость за рулем. 💡 Ксенон — как дневной свет в ночи: видишь дальше, устаешь меньше."
     },
     "image_url": "https://teorica.practicavial.com/question/b32786b5-33b4-441b-be41-d1826ab96fe1-1658839662-i.jpg",
     "source": "practicavial",
@@ -1096,17 +1096,17 @@
     "question_number": 22,
     "category": "B",
     "question": {
-      "es": "Los costes de policía y bomberos, de gestión de seguros y servicios, ¿cómo se llaman?",
-      "en": null,
-      "ru": null
+      "es": "¿Cómo se denominan los costes de policía, bomberos, gestión de seguros y servicios derivados de un accidente?",
+      "en": "What are the costs of police, fire services, insurance management, and services resulting from an accident called?",
+      "ru": "Как называются расходы на полицию, пожарных, управление страхованием и службы, возникающие в результате аварии?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Costes humanos.",
-          "en": null,
-          "ru": null
+          "en": "Human costs.",
+          "ru": "Человеческие потери."
         },
         "is_correct": false
       },
@@ -1114,8 +1114,8 @@
         "id": "b",
         "text": {
           "es": "Costes sanitarios.",
-          "en": null,
-          "ru": null
+          "en": "Sanitary costs.",
+          "ru": "Санитарные расходы."
         },
         "is_correct": false
       },
@@ -1123,16 +1123,16 @@
         "id": "c",
         "text": {
           "es": "Costes administrativos.",
-          "en": null,
-          "ru": null
+          "en": "Administrative costs.",
+          "ru": "Административные расходы."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Los costes de los accidentes de tráfico se clasifican en cuatro grupos: humanos (pérdida de vidas y capacidad física), sanitarios (asistencia médica y rehabilitación), materiales (daños al vehículo, carga y vía) y administrativos (intervención de policía, bomberos, gestión de seguros y procesos legales).",
+      "en": "Traffic accident costs are classified into four groups: human costs (loss of life and physical capacity), medical costs (medical assistance and rehabilitation), material costs (damage to the vehicle, cargo, and road), and administrative costs (intervention of police, firefighters, insurance management, and legal processes).",
+      "ru": "🎓 Все последствия ДТП делятся на четыре категории. Человеческие потери — это гибель и травмы людей. Санитарные расходы — это медицина и реабилитация. Материальный ущерб — это поврежденный Легковой автомобиль, груз или элементы дороги. А выезд полиции, работа пожарных, услуги юристов и оформление страховки — это административные расходы. Тебе как водителю важно помнить, что за каждой аварией стоит огромная работа государственных служб. 💡 Полиция и бумаги — это бюрократия, а значит «административка»."
     },
     "image_url": "https://teorica.practicavial.com/question/7ffa56e3-6127-4c6a-bd4b-e8bef9c951e1-1658497723-i.jpg",
     "source": "practicavial",
@@ -1149,16 +1149,16 @@
     "category": "B",
     "question": {
       "es": "En general, un conductor bajo los efectos del alcohol...",
-      "en": null,
-      "ru": null
+      "en": "In general, a driver under the influence of alcohol...",
+      "ru": "В целом, водитель под воздействием алкоголя..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "es menos sensible a los deslumbramientos.",
-          "en": null,
-          "ru": null
+          "en": "is less sensitive to glare.",
+          "ru": "менее чувствителен к ослеплению."
         },
         "is_correct": false
       },
@@ -1166,8 +1166,8 @@
         "id": "b",
         "text": {
           "es": "es más sensible a los deslumbramientos.",
-          "en": null,
-          "ru": null
+          "en": "is more sensitive to glare.",
+          "ru": "более чувствителен к ослеплению."
         },
         "is_correct": true
       },
@@ -1175,16 +1175,16 @@
         "id": "c",
         "text": {
           "es": "percibe mejor las distancias y las velocidades.",
-          "en": null,
-          "ru": null
+          "en": "perceives distances and speeds better.",
+          "ru": "лучше воспринимает расстояния и скорости."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El consumo de alcohol altera las capacidades psicofísicas del conductor, afectando específicamente a la visión. La respuesta de la pupila se ralentiza, lo que incrementa la sensibilidad al deslumbramiento y prolonga el tiempo de recuperación visual. Asimismo, se produce una distorsión en la percepción de distancias y velocidades.",
+      "en": "Alcohol consumption impairs the driver's psychophysical abilities, specifically affecting vision. The pupillary response slows down, which increases sensitivity to glare and prolongs visual recovery time. Additionally, it causes a distortion in the perception of distances and speeds.",
+      "ru": "🎓 Алкоголь замедляет реакцию зрачка на свет. Для водителя легкового автомобиля это означает, что при встречном разъезде фары ослепляют сильнее, а время восстановления зрения значительно увеличивается. Также алкоголь вызывает ложное чувство безопасности и серьезно искажает восприятие скорости и дистанции. 💡 Пьяному и море по колено, и встречка — как прожектор в глаз."
     },
     "image_url": "https://teorica.practicavial.com/question/5b2e5e00-ac5f-4a96-8372-883ab5e062bb-1658771380-i.jpg",
     "source": "practicavial",
@@ -1201,16 +1201,16 @@
     "category": "B",
     "question": {
       "es": "Detiene su vehículo en una calzada con nieve. ¿Cuál es la mejor manera de volver a iniciar la marcha?",
-      "en": null,
-      "ru": null
+      "en": "You stop your vehicle on a snowy road. What is the best way to start moving again?",
+      "ru": "Вы остановили свой легковой автомобиль на проезжей части, покрытой снегом. Каким наилучшим способом следует возобновить движение?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Poniendo la 1º velocidad y acelerando a fondo.",
-          "en": null,
-          "ru": null
+          "en": "By shifting into 1st gear and accelerating fully.",
+          "ru": "Включив 1-ю передачу и нажав педаль газа до упора."
         },
         "is_correct": false
       },
@@ -1218,8 +1218,8 @@
         "id": "b",
         "text": {
           "es": "Poniendo la 2º velocidad y acelerando suavemente.",
-          "en": null,
-          "ru": null
+          "en": "By shifting into 2nd gear and accelerating gently.",
+          "ru": "Включив 2-ю передачу и плавно ускоряясь."
         },
         "is_correct": true
       },
@@ -1227,16 +1227,16 @@
         "id": "c",
         "text": {
           "es": "Poniendo la 4º velocidad y acelerando a fondo.",
-          "en": null,
-          "ru": null
+          "en": "By shifting into 4th gear and accelerating fully.",
+          "ru": "Включив 4-ю передачу и нажав педаль газа до упора."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Para iniciar la marcha sobre una superficie con baja adherencia, como la nieve, se debe evitar el patinamiento de las ruedas motrices. El uso de la segunda relación de marchas reduce el par motor aplicado a las ruedas, facilitando la tracción. La aceleración debe ser progresiva y suave para mantener el control direccional y evitar el deslizamiento del vehículo.",
+      "en": "When starting on a low-friction surface such as snow, it is essential to prevent wheel spin. Engaging second gear reduces the torque delivered to the drive wheels, which improves traction. Smooth and gradual acceleration is required to maintain vehicle stability and prevent the tires from losing grip or digging into the snow.",
+      "ru": "🎓 При трогании на заснеженной проезжей части главная задача — избежать пробуксовки ведущих колес. На первой передаче крутящий момент слишком велик, что заставляет колеса мгновенно срываться в буксование и буквально «закапываться» в снег. Включение второй передачи позволяет передать на колеса меньшее, более дозированное усилие, обеспечивая лучший зацеп. Педаль газа нужно нажимать максимально плавно, чтобы легковой автомобиль начал движение «внатяг». 💡 Снег под колесом — как тонкий лед: не дави резко, а то провалишься. Вторая передача — твой «плавный старт»."
     },
     "image_url": "https://teorica.practicavial.com/question/ea8a48f1-fe1c-4c00-a19d-565c4c6c6b87-1663579595-i.jpg",
     "source": "practicavial",
@@ -1253,16 +1253,16 @@
     "category": "B",
     "question": {
       "es": "¿En qué carreteras hay más accidentes con resultados mortales?",
-      "en": null,
-      "ru": null
+      "en": "On which roads do the most fatal accidents occur?",
+      "ru": "На каких дорогах происходит больше всего аварий со смертельным исходом?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "En vía urbana.",
-          "en": null,
-          "ru": null
+          "en": "On urban roads.",
+          "ru": "На городских дорогах (vía urbana)."
         },
         "is_correct": false
       },
@@ -1270,8 +1270,8 @@
         "id": "b",
         "text": {
           "es": "En vía interurbana.",
-          "en": null,
-          "ru": null
+          "en": "On interurban roads.",
+          "ru": "На междугородних дорогах (vía interurbana)."
         },
         "is_correct": true
       },
@@ -1279,16 +1279,16 @@
         "id": "c",
         "text": {
           "es": "En autopista o autovía.",
-          "en": null,
-          "ru": null
+          "en": "On motorways or dual carriageways.",
+          "ru": "На автомагистралях или скоростных дорогах."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Estadísticamente, las vías interurbanas, y específicamente las carreteras convencionales, registran el mayor índice de mortalidad. Aunque en las vías urbanas se produce un mayor número de accidentes totales, estos suelen ser de menor gravedad debido a las limitaciones de velocidad. Las autopistas y autovías presentan menores tasas de mortalidad que las carreteras convencionales gracias a la separación de sentidos de circulación y la ausencia de intersecciones al mismo nivel.",
+      "en": "Statistically, interurban roads, and specifically conventional roads, record the highest mortality rate. Although a higher total number of accidents occur on urban roads, they tend to be less severe due to speed limits. Motorways and dual carriageways have lower mortality rates than conventional roads thanks to the separation of traffic directions and the absence of same-level intersections.",
+      "ru": "🎓 Статистически самое большое количество погибших фиксируется на загородных дорогах (vía interurbana), особенно на обычных шоссе с одной полосой в каждом направлении. Хотя в городе (vía urbana) происходит больше столкновений в абсолютных цифрах, они редко бывают смертельными из-за низкой скорости. Автомагистраль (autopista) и скоростная дорога (autovía) — самые безопасные типы дорог, так как там нет встречного разъезда и перекрестков. 💡 Город мнет бамперы, трасса забирает жизни."
     },
     "image_url": "https://teorica.practicavial.com/question/b065d3dc-bb16-4b32-bbe1-1c5288ee6b10-1658502342-i.jpg",
     "source": "practicavial",
@@ -1305,16 +1305,16 @@
     "category": "B",
     "question": {
       "es": "Una buena técnica para tomar una curva es...",
-      "en": null,
-      "ru": null
+      "en": "A good technique for taking a curve is...",
+      "ru": "Хорошей техникой для прохождения поворота является..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "mantener pisado el embrague desde la mitad de la curva hasta salir de ella.",
-          "en": null,
-          "ru": null
+          "en": "keep the clutch depressed from the middle of the curve until exiting it.",
+          "ru": "удерживать педаль сцепления нажатой с середины поворота до выхода из него."
         },
         "is_correct": false
       },
@@ -1322,8 +1322,8 @@
         "id": "b",
         "text": {
           "es": "frenar antes de entrar en la curva y acelerar suavemente a la salida de la misma.",
-          "en": null,
-          "ru": null
+          "en": "brake before entering the curve and accelerate gently at the exit of it.",
+          "ru": "тормозить перед входом в поворот и плавно ускоряться на выходе из него."
         },
         "is_correct": true
       },
@@ -1331,16 +1331,16 @@
         "id": "c",
         "text": {
           "es": "frenar a la mitad de la curva aproximadamente.",
-          "en": null,
-          "ru": null
+          "en": "brake approximately in the middle of the curve.",
+          "ru": "тормозить примерно в середине поворота."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Para garantizar la estabilidad del vehículo, la frenada debe realizarse siempre en línea recta antes de iniciar el giro. Esto evita la transferencia de masas brusca y la pérdida de adherencia. Una vez superado el vértice de la curva y con las ruedas empezando a enderezarse, se debe acelerar de forma progresiva para estabilizar el vehículo y mejorar la tracción a la salida.",
+      "en": "To ensure vehicle stability, braking must always be performed in a straight line before starting the turn. This avoids sudden weight transfer and loss of grip. Once the apex of the curve is passed and the wheels begin to straighten, progressive acceleration should be applied to stabilize the vehicle and improve traction at the exit.",
+      "ru": "🎓 Безопасное прохождение поворота на легковом автомобиле требует правильного управления инерцией. Тормозить нужно заранее, пока колеса стоят прямо перед входом в поворот. Это позволяет избежать потери сцепления из-за резкого смещения центра тяжести. В самой дуге поворота следует поддерживать ровную скорость без резких движений. На выходе, когда начинаешь выравнивать руль, плавно прибавляй газ — это стабилизирует машину и улучшит тягу. Торможение внутри поворота или выжатое сцепление лишают тебя контроля над ТС и могут привести к заносу.\n\n💡 Тормози «до», катись «в», газуй «из»."
     },
     "image_url": "https://teorica.practicavial.com/question/1fac5e03-615d-45ab-aa52-d02df97dc5c3-1658852620-i.jpg",
     "source": "practicavial",
@@ -1357,16 +1357,16 @@
     "category": "B",
     "question": {
       "es": "Entre los momentos de peligro en el uso del teléfono móvil se encuentran...",
-      "en": null,
-      "ru": null
+      "en": "Among the dangerous moments when using a mobile phone are...",
+      "ru": "К опасным моментам при использовании мобильного телефона относятся..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "no utilizar el teléfono móvil.",
-          "en": null,
-          "ru": null
+          "en": "not using the mobile phone.",
+          "ru": "неиспользование мобильного телефона."
         },
         "is_correct": false
       },
@@ -1374,8 +1374,8 @@
         "id": "b",
         "text": {
           "es": "colgar y guardar el móvil.",
-          "en": null,
-          "ru": null
+          "en": "hanging up and putting the phone away.",
+          "ru": "завершение разговора и убирание телефона."
         },
         "is_correct": true
       },
@@ -1383,40 +1383,42 @@
         "id": "c",
         "text": {
           "es": "recibir una llamada y detenerse en un lugar seguro para hablar.",
-          "en": null,
-          "ru": null
+          "en": "receiving a call and stopping in a safe place to talk.",
+          "ru": "получение вызова и остановка в безопасном месте для разговора."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El uso del teléfono móvil durante la conducción aumenta significativamente el riesgo de accidente. Los periodos de mayor distracción y riesgo se identifican en tres fases críticas: la recepción de la llamada (reacción de búsqueda del dispositivo), la marcación de números y el momento de finalizar la comunicación (colgar) junto con la acción de guardar el terminal. En esta última fase, el conductor suele relajar su atención sobre la vía antes de retomar plenamente el control del vehículo.",
+      "en": "Using a mobile phone while driving significantly increases the risk of an accident. The periods of greatest distraction and risk are identified in three critical phases: receiving the call (the reaction to locate the device), dialing numbers, and the moment of ending the communication (hanging up) along with the action of putting the device away. In this final phase, the driver often relaxes their attention on the road before fully regaining control of the vehicle.",
+      "ru": "🎓 Использование мобильного телефона за рулем легкового автомобиля увеличивает риск аварии в четыре раза. Самые опасные фазы — это не только сам разговор, но и моменты «входа» и «выхода» из процесса. Когда ты заканчиваешь разговор, вешаешь трубку и пытаешься убрать телефон, твое внимание рассеивается, а одна рука остается занятой. В этот короткий промежуток времени ты проезжаешь значительное расстояние, не контролируя дорожную обстановку в полной мере. Помни, что даже использование системы hands-free не снимает риск когнитивного отвлечения.\n\n💡 Телефон в руке — как граната без чеки: опасно и когда берешь, и когда пытаешься избавиться."
     },
     "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
     "source": "practicavial",
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "b87ba694-cf95-409b-b90f-a1bcfeb30f16",
+    "external_id": "b87ba694-cf95-409b-b90f-a1bcfeb30f16"
   },
   {
     "topic_number": 7,
     "question_number": 28,
     "category": "B",
     "question": {
-      "es": "El estrés, ¿qué efectos puede tener sobre el conductor?",
-      "en": null,
-      "ru": null
+      "es": "¿Qué efectos puede tener el estrés sobre el conductor?",
+      "en": "What effects can stress have on the driver?",
+      "ru": "Какое влияние стресс может оказывать на водителя?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Disminución de la fatiga y el sueño.",
-          "en": null,
-          "ru": null
+          "en": "Decrease in fatigue and sleepiness.",
+          "ru": "Снижение усталости и сонливости."
         },
         "is_correct": false
       },
@@ -1424,8 +1426,8 @@
         "id": "b",
         "text": {
           "es": "Comportamientos excesivamente prudentes.",
-          "en": null,
-          "ru": null
+          "en": "Excessively cautious behaviors.",
+          "ru": "Чрезмерно осторожное поведение."
         },
         "is_correct": false
       },
@@ -1433,16 +1435,16 @@
         "id": "c",
         "text": {
           "es": "La toma de decisiones al volante puede ser más lenta.",
-          "en": null,
-          "ru": null
+          "en": "Decision-making behind the wheel may be slower.",
+          "ru": "Процесс принятия решений за рулем может замедлиться."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El estrés es un factor de riesgo que altera las capacidades psicofísicas del conductor. Entre sus efectos negativos se encuentran el aumento del tiempo de reacción, la aparición prematura de la fatiga, una mayor propensión a la agresividad o impulsividad, y una notable dificultad para procesar información compleja, lo que ralentiza significativamente la toma de decisiones. No reduce la fatiga ni fomenta la prudencia; al contrario, incrementa las distracciones y el riesgo de accidente.",
+      "en": "Stress is a risk factor that alters the driver's psychophysical abilities. Its negative effects include increased reaction time, premature onset of fatigue, a greater tendency toward aggression or impulsivity, and significant difficulty in processing complex information, which significantly slows down decision-making. It does not reduce fatigue or encourage caution; on the contrary, it increases distractions and the risk of an accident.",
+      "ru": "🎓 Стресс является значимым фактором риска, который искажает восприятие реальности и снижает психофизические способности водителя. В состоянии стресса водителю легкового автомобиля требуется больше времени на обработку дорожной информации, что делает процесс принятия решений более медленным и менее точным. Это состояние также может привести к росту агрессии, импульсивности и более быстрому появлению усталости. Стресс никогда не делает вождение более безопасным; он лишь увеличивает вероятность совершения критической ошибки. 💡 Стресс в пути — к ошибкам везти. Когда нервы на пределе, мозг «тормозит» раньше, чем педаль."
     },
     "image_url": "https://teorica.practicavial.com/question/1bc507e1-f1bc-4e81-8f71-0974fd58b057-1658764526-i.jpg",
     "source": "practicavial",
@@ -1459,16 +1461,16 @@
     "category": "B",
     "question": {
       "es": "La fatiga, ¿influye en los efectos que produce el alcohol?",
-      "en": null,
-      "ru": null
+      "en": "Does fatigue influence the effects produced by alcohol?",
+      "ru": "Влияет ли усталость на эффекты, вызываемые алкоголем?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, los aminora.",
-          "en": null,
-          "ru": null
+          "en": "Yes, it reduces them.",
+          "ru": "Да, она их уменьшает."
         },
         "is_correct": false
       },
@@ -1476,8 +1478,8 @@
         "id": "b",
         "text": {
           "es": "Sí, los agrava.",
-          "en": null,
-          "ru": null
+          "en": "Yes, it aggravates them.",
+          "ru": "Да, она их усугубляет."
         },
         "is_correct": true
       },
@@ -1485,16 +1487,16 @@
         "id": "c",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La fatiga potencia los efectos negativos del alcohol en el organismo. Ambos factores actúan de forma conjunta disminuyendo la capacidad de reacción, la atención y la percepción del riesgo, lo que eleva exponencialmente la probabilidad de sufrir un siniestro vial.",
+      "en": "Fatigue enhances the negative effects of alcohol on the body. Both factors act together to decrease reaction capacity, attention, and risk perception, which exponentially increases the probability of a road accident.",
+      "ru": "🎓 Усталость и алкоголь действуют синергически, то есть усиливают друг друга. Когда водитель легкового автомобиля утомлен, его нервная система уже работает не в полную силу, а алкоголь еще больше замедляет передачу нервных импульсов. В результате время реакции увеличивается критически, а способность оценивать опасность практически исчезает. Даже минимальная доза спиртного на фоне усталости может привести к тяжелым последствиям. 💡 Усталость + алкоголь = двойной капкан для водителя."
     },
     "image_url": "https://teorica.practicavial.com/question/5e0be8e3-5081-4326-a29d-f42b8bca6f2b-1658773460-i.jpg",
     "source": "practicavial",
@@ -1511,16 +1513,16 @@
     "category": "B",
     "question": {
       "es": "Entre otros efectos, el consumo de alcohol...",
-      "en": null,
-      "ru": null
+      "en": "Among other effects, alcohol consumption...",
+      "ru": "Помимо прочих последствий, употребление алкоголя..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "mejora la atención si se toma en pequeñas cantidades.",
-          "en": null,
-          "ru": null
+          "en": "improves attention if taken in small amounts.",
+          "ru": "улучшает внимание, если употреблять в малых количествах."
         },
         "is_correct": false
       },
@@ -1528,8 +1530,8 @@
         "id": "b",
         "text": {
           "es": "ayuda a mantener la atención al volante.",
-          "en": null,
-          "ru": null
+          "en": "helps maintain attention at the wheel.",
+          "ru": "помогает сохранять внимание за рулем."
         },
         "is_correct": false
       },
@@ -1537,16 +1539,16 @@
         "id": "c",
         "text": {
           "es": "aumenta las distracciones al volante.",
-          "en": null,
-          "ru": null
+          "en": "increases distractions at the wheel.",
+          "ru": "увеличивает количество отвлекающих факторов за рулем."
         },
-        "is_correct": false
+        "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El consumo de alcohol, incluso en dosis bajas, produce una depresión del sistema nervioso central que afecta directamente a las capacidades psicofísicas necesarias para la conducción. Entre sus efectos negativos destaca el aumento de las distracciones, la reducción de la capacidad de concentración, el incremento del tiempo de reacción y la alteración de la percepción del entorno y del riesgo.",
+      "en": "Alcohol consumption, even in low doses, depresses the central nervous system, directly affecting the psychophysical abilities required for driving. Its negative effects include increased driver distraction, reduced concentration, longer reaction times, and impaired perception of the environment and risk levels.",
+      "ru": "🎓 Употребление алкоголя за рулем легкового автомобиля (Turismo) угнетает центральную нервную систему, что ведет к потере концентрации и резкому росту отвлекающих факторов. Даже при минимальных дозах увеличивается время реакции, сужается поле зрения и искажается восприятие скорости. Водитель начинает совершать ошибки в оценке дорожной ситуации, которые в трезвом состоянии недопустимы. 🇷🇺 В Испании для водителей категории B лимит составляет 0,5 г/л в крови (0,25 мг/л в воздухе), тогда как в РФ порог значительно строже — 0,16 мг/л в выдыхаемом воздухе. 💡 Алкоголь за рулем — это кредит под бешеные проценты: берешь ложную уверенность, а отдаешь жизнь."
     },
     "image_url": "https://teorica.practicavial.com/question/36d8a5cb-69fe-4d3f-a525-f39adf93645b-1658771556-i.jpg",
     "source": "practicavial",

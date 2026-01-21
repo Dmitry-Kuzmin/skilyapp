@@ -5,16 +5,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué vehículos están exentos de pasar la Inspección Técnica de Vehículos (ITV) de manera obligatoria en España?",
-      "en": null,
-      "ru": null
+      "en": "Which vehicles are exempt from mandatory Technical Vehicle Inspection (ITV) in Spain?",
+      "ru": "Какие транспортные средства освобождены от обязательного прохождения техосмотра (ITV) в Испании?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Todos los vehículos eléctricos.",
-          "en": null,
-          "ru": null
+          "en": "All electric vehicles.",
+          "ru": "Все электромобили."
         },
         "is_correct": false
       },
@@ -22,8 +22,8 @@
         "id": "b",
         "text": {
           "es": "Vehículos matriculados antes del 1 de enero de 1950.",
-          "en": null,
-          "ru": null
+          "en": "Vehicles registered before January 1, 1950.",
+          "ru": "Транспортные средства, зарегистрированные до 1 января 1950 года."
         },
         "is_correct": true
       },
@@ -31,20 +31,22 @@
         "id": "c",
         "text": {
           "es": "Vehículos de más de 30 años sin clasificar como históricos.",
-          "en": null,
-          "ru": null
+          "en": "Vehicles over 30 years old not classified as historical.",
+          "ru": "Транспортные средства старше 30 лет, не классифицированные как исторические."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Real Decreto 920/2017 y la reforma de 2023, la ITV es obligatoria para todos los vehículos de motor, remolques y semirremolques. No obstante, quedan exentos de la obligatoriedad los vehículos matriculados por primera vez antes del 1 de enero de 1950. El resto de vehículos, incluidos los eléctricos y los vehículos de más de 30 años que no cumplan con el requisito de la fecha de matriculación, deben someterse a inspecciones periódicas. En caso de resultado desfavorable, el vehículo solo puede circular para ir al taller; si es negativo, solo puede ser trasladado por una grúa.",
+      "en": "According to Royal Decree 920/2017 and the 2023 reform, ITV is mandatory for all motor vehicles, trailers, and semi-trailers. However, vehicles registered for the first time before January 1, 1950, are exempt from mandatory inspections. All other vehicles, including electric ones and those over 30 years old that do not meet the registration date requirement, must undergo periodic inspections. In the event of an unfavorable result, the vehicle may only be driven to a workshop; if the result is negative, it must be moved by a tow truck.",
+      "ru": "🎓 В Испании прохождение техосмотра (ITV) является обязательным для всех моторных транспортных средств, прицепов и полуприцепов. Однако с 2023 года легковые автомобили (Turismo), впервые зарегистрированные до 1 января 1950 года, полностью освобождены от обязательного ITV. Электромобили и обычные машины старше 30 лет обязаны проходить техосмотр на общих основаниях. Если при проверке выявлены серьезные неисправности (результат «desfavorable»), ты можешь доехать до сервиса сам, но если результат «negativo» (опасно для движения) — машину заберет только эвакуатор. При успешном прохождении наклейка ITV всегда размещается в верхнем правом углу лобового стекла.\n\n🇷🇺 В Испании ITV остается строго обязательным для личных легковых автомобилей (Turismo) в зависимости от их возраста, в то время как в РФ обязательный техосмотр для личного автотранспорта физлиц в большинстве случаев отменен.\n\n💡 Если тачке семьдесят пять — можно в сервис не катить!"
     },
     "image_url": "https://teorica.practicavial.com/question/c6818eac-d0bb-451b-9f21-c28a9e0c47ba-1734419169-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/c6818eac-d0bb-451b-9f21-c28a9e0c47ba-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "c6818eac-d0bb-451b-9f21-c28a9e0c47ba",
+    "external_id": "c6818eac-d0bb-451b-9f21-c28a9e0c47ba"
   },
   {
     "topic_number": 6,
@@ -52,16 +54,16 @@
     "category": "B",
     "question": {
       "es": "Para circular con un turismo, ¿qué documentos se necesitan en todo caso, además del permiso de conducción?",
-      "en": null,
-      "ru": null
+      "en": "To drive a passenger car, what documents are required in all cases, in addition to the driving license?",
+      "ru": "Какие документы в любом случае необходимо иметь при себе для управления легковым автомобилем, помимо водительского удостоверения?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "El Permiso de Circulación y la Tarjeta de Inspección Técnica.",
-          "en": null,
-          "ru": null
+          "en": "The Registration Certificate and the Technical Inspection Card.",
+          "ru": "Разрешение на движение (Permiso de Circulación) и Техническая карта (Tarjeta de Inspección Técnica)."
         },
         "is_correct": true
       },
@@ -69,8 +71,8 @@
         "id": "b",
         "text": {
           "es": "El Permiso de Circulación solamente.",
-          "en": null,
-          "ru": null
+          "en": "The Registration Certificate only.",
+          "ru": "Только Разрешение на движение (Permiso de Circulación)."
         },
         "is_correct": false
       },
@@ -78,20 +80,22 @@
         "id": "c",
         "text": {
           "es": "El Impuesto de Vehículos de Tracción Mecánica (Impuesto Municipal de Circulación) del año en curso.",
-          "en": null,
-          "ru": null
+          "en": "The Mechanical Traction Vehicle Tax (Municipal Circulation Tax) for the current year.",
+          "ru": "Квитанция об уплате транспортного налога за текущий год."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "De acuerdo con el Reglamento General de Vehículos, para que un turismo pueda circular por las vías públicas, es imperativo que el conductor porte el Permiso de Circulación y la Tarjeta de Inspección Técnica (o certificado de características). El Permiso de Circulación acredita la matriculación y autoriza la aptitud del vehículo para circular, mientras que la Tarjeta de Inspección Técnica certifica que el vehículo cumple con las condiciones técnicas exigidas. No es obligatorio portar el recibo del seguro ni el justificante del pago del impuesto de circulación, dado que los agentes de la autoridad pueden verificar dicha información a través del Fichero Informativo de Vehículos Asegurados (FIVA) y otros registros telemáticos.",
+      "en": "According to the General Vehicle Regulations, to operate a passenger car on public roads, the driver must carry the Registration Certificate (Permiso de Circulación) and the Technical Inspection Card (Tarjeta de Inspección Técnica). The Registration Certificate proves the vehicle's registration and authorizes its use on the road, while the Technical Inspection Card certifies that the vehicle meets the required technical standards. It is not mandatory to carry the physical insurance receipt or the municipal tax payment proof, as law enforcement officers can verify this information through electronic databases.",
+      "ru": "🎓 Для управления легковым автомобилем тебе всегда нужны три основных документа: водительское удостоверение, Разрешение на движение (Permiso de Circulación) и Техническая карта (Tarjeta de Inspección Técnica). Разрешение на движение — это «паспорт» машины, разрешающий ей выезд на дороги, а Техническая карта подтверждает её исправность и содержит данные о техосмотрах (ITV). Хотя страховка обязательна, возить с собой бумажную квитанцию об оплате или полис в Испании больше не требуется — полиция проверяет это через общую базу данных. Муниципальный налог также не входит в список обязательных для предъявления документов. 🇷🇺 В Испании Техническая карта и Разрешение на движение — это два разных документа, которые должны быть с собой в оригинале, в отличие от РФ, где ПТС обычно хранится дома, а с собой возится только СТС. 💡 Три бумаги в бардачок: права, учёт и техлисток!"
     },
     "image_url": "https://teorica.practicavial.com/question/bd9de34f-6a1d-42ab-9c13-e14305577cec-1658325992-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/bd9de34f-6a1d-42ab-9c13-e14305577cec-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "bd9de34f-6a1d-42ab-9c13-e14305577cec",
+    "external_id": "bd9de34f-6a1d-42ab-9c13-e14305577cec"
   },
   {
     "topic_number": 6,
@@ -99,16 +103,16 @@
     "category": "B",
     "question": {
       "es": "Al conductor de una motocicleta, ¿le está permitido utilizar el teléfono móvil mientras conduce manteniéndolo ajustado entre la cabeza y el casco?",
-      "en": null,
-      "ru": null
+      "en": "Is a motorcycle driver allowed to use a mobile phone while driving by keeping it tucked between their head and the helmet?",
+      "ru": "Разрешено ли водителю мотоцикла пользоваться мобильным телефоном во время движения, удерживая его между головой и шлемом?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No; es una infracción grave que supone la pérdida de 3 puntos.",
-          "en": null,
-          "ru": null
+          "en": "No; it is a serious infringement that involves the loss of 3 points.",
+          "ru": "Нет; это серьезное нарушение, которое влечет за собой потерю 3 баллов."
         },
         "is_correct": true
       },
@@ -116,8 +120,8 @@
         "id": "b",
         "text": {
           "es": "Sí, mientras no utilice las manos para sujetar el teléfono.",
-          "en": null,
-          "ru": null
+          "en": "Yes, as long as the hands are not used to hold the phone.",
+          "ru": "Да, если для удержания телефона не используются руки."
         },
         "is_correct": false
       },
@@ -125,37 +129,39 @@
         "id": "c",
         "text": {
           "es": "No, es un delito contra la seguridad vial contemplado en el Código Penal.",
-          "en": null,
-          "ru": null
+          "en": "No, it is a crime against road safety provided for in the Penal Code.",
+          "ru": "Нет, это преступление против безопасности дорожного движения, предусмотренное Уголовным кодексом."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según la Ley sobre Tráfico, Circulación de Vehículos a Motor y Seguridad Vial, se prohíbe la utilización durante la conducción de dispositivos de telefonía móvil y cualquier otro medio o sistema de comunicación, excepto cuando el desarrollo de la comunicación tenga lugar sin emplear las manos ni usar cascos, auriculares o instrumentos similares. Específicamente, mantener el dispositivo ajustado entre el casco y la cabeza del usuario se tipifica como una infracción grave, sancionada con la pérdida de 3 puntos del permiso de conducir.",
+      "en": "According to the Law on Traffic, Motor Vehicle Circulation, and Road Safety, the use of mobile phones and any other communication systems while driving is prohibited, except when the communication is hands-free and does not involve the use of helmets, headphones, or similar instruments. Specifically, holding a mobile device between the helmet and the user's head is classified as a serious infringement, resulting in a penalty of 3 points on the driving license.",
+      "ru": "🎓 В Испании водителю мотоцикла категорически запрещено пользоваться телефоном, зажимая его между головой и шлемом. Даже если руки свободны, такое использование устройства считается серьезным нарушением. Согласно ПДД Испании, за это предусмотрен штраф и вычет 3 баллов из водительского удостоверения. Разрешены только сертифицированные системы связи, интегрированные в шлем, которые не требуют использования рук и не используют наушники, вставляемые в уши. 💡 Телефон под шлем не пихай — три пункта сразу потеряй!"
     },
     "image_url": "https://teorica.practicavial.com/question/19161bf3-f905-43c7-bf18-de9ab32cc077-1734420437-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/19161bf3-f905-43c7-bf18-de9ab32cc077-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "19161bf3-f905-43c7-bf18-de9ab32cc077",
+    "external_id": "19161bf3-f905-43c7-bf18-de9ab32cc077"
   },
   {
     "topic_number": 6,
     "question_number": 4,
     "category": "B",
     "question": {
-      "es": "Las motocicletas que se pueden conducir con el permiso de la clase A1, ¿están obligadas a llevar placa de matrícula?",
-      "en": null,
-      "ru": null
+      "es": "¿Las motocicletas que se pueden conducir con el permiso de la clase A1 están obligadas a llevar placa de matrícula?",
+      "en": "Are motorcycles that can be driven with a class A1 license required to carry a license plate?",
+      "ru": "Обязаны ли мотоциклы, которыми можно управлять с правами категории A1, иметь регистрационный номер (номерной знак)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       },
@@ -163,8 +169,8 @@
         "id": "b",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       },
@@ -172,20 +178,22 @@
         "id": "c",
         "text": {
           "es": "Sólo si llevan sidecar.",
-          "en": null,
-          "ru": null
+          "en": "Only if they have a sidecar.",
+          "ru": "Только если они с боковым прицепом (коляской)."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "De acuerdo con el Reglamento General de Vehículos, todos los vehículos de motor, así como los ciclomotores, deben estar matriculados para circular por las vías públicas. Las motocicletas, independientemente de su cilindrada o de si se conducen con el permiso A1, se consideran vehículos de motor y deben portar obligatoriamente una placa de matrícula en la parte posterior, colocada en posición vertical o casi vertical.",
+      "en": "According to the General Vehicle Regulations, all motor vehicles, as well as mopeds, must be registered to circulate on public roads. Motorcycles, regardless of their displacement or whether they are driven with an A1 license, are considered motor vehicles and must mandatorily carry a registration plate at the rear, placed in a vertical or near-vertical position.",
+      "ru": "🎓 Все механические транспортные средства, включая мотоциклы категории A1, обязаны быть зарегистрированы и иметь номерной знак для движения по дорогам общего пользования. Помимо мотоциклов, регистрация обязательна для мопедов (ciclomotores) и прицепов с РММ (MMA) более 750 кг. Номерной знак на мотоцикле должен быть всегда закреплен сзади, быть чистым и хорошо читаемым. 🇷🇺 В Испании регистрационные знаки обязательны даже для мопедов (желтые номера), тогда как в РФ мопеды не подлежат постановке на учет в органах полиции. 💡 Есть мотор и колеса — готовь номер для досмотра!"
     },
     "image_url": "https://teorica.practicavial.com/question/7d12468e-74bf-4d1b-be6b-540ebcdbc162-1658326148-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/7d12468e-74bf-4d1b-be6b-540ebcdbc162-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "7d12468e-74bf-4d1b-be6b-540ebcdbc162",
+    "external_id": "7d12468e-74bf-4d1b-be6b-540ebcdbc162"
   },
   {
     "topic_number": 6,
@@ -193,25 +201,25 @@
     "category": "B",
     "question": {
       "es": "El permiso de circulación es obligatorio para los remolques y semirremolques...",
-      "en": null,
-      "ru": null
+      "en": "The registration certificate (permiso de circulación) is mandatory for trailers and semi-trailers...",
+      "ru": "Разрешение на движение (Permiso de circulación) является обязательным для прицепов и полуприцепов..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
-          "es": "que tengan una MMA. no superior a 750 kg.",
-          "en": null,
-          "ru": null
+          "es": "que tengan una MMA no superior a 750 kg.",
+          "en": "those with an MMA not exceeding 750 kg.",
+          "ru": "имеющих РММ не более 750 кг."
         },
         "is_correct": false
       },
       {
         "id": "b",
         "text": {
-          "es": "que tengan una MMA. superior a 750 kg.",
-          "en": null,
-          "ru": null
+          "es": "que tengan una MMA superior a 750 kg.",
+          "en": "those with an MMA exceeding 750 kg.",
+          "ru": "имеющих РММ более 750 кг."
         },
         "is_correct": true
       },
@@ -219,20 +227,22 @@
         "id": "c",
         "text": {
           "es": "cualquiera que sea su MMA.",
-          "en": null,
-          "ru": null
+          "en": "regardless of their MMA.",
+          "ru": "независимо от их РММ."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Los remolques y semirremolques cuya Masa Máxima Autorizada (MMA) sea superior a 750 kg están obligados a obtener el permiso de circulación. Estos vehículos, considerados no ligeros, deben estar matriculados de forma independiente, portar una placa de matrícula roja propia y disponer de un seguro de responsabilidad civil obligatorio independiente del vehículo tractor. Los remolques ligeros (MMA hasta 750 kg) están exentos de esta obligación.",
+      "en": "Registration certificates (Permiso de circulación) are mandatory for trailers and semi-trailers with a Maximum Authorized Mass (MMA) exceeding 750 kg. These non-light trailers must be registered independently, display their own red registration plate, and have their own mandatory civil liability insurance. Light trailers with an MMA of 750 kg or less are exempt from this requirement and operate under the towing vehicle's registration.",
+      "ru": "🎓 В Испании прицепы делятся на легкие (РММ до 750 кг включительно) и тяжелые (РММ более 750 кг). Если ты планируешь водить легковой автомобиль (Turismo) с легким прицепом, отдельное разрешение на движение (Permiso de circulación) получать не нужно — он использует документы тягача. Но как только РММ прицепа становится больше 750 кг, он обязан иметь собственный техпаспорт, отдельный страховой полис и даже собственный красный номерной знак в дополнение к номеру тягача. Также важно: при наличии любого несельскохозяйственного прицепа наличие огнетушителя в транспортном средстве становится обязательным. 🇷🇺 В РФ регистрации подлежат все прицепы без исключения, тогда как в Испании легкие прицепы (до 750 кг) не требуют отдельного техпаспорта. 💡 До семисот пятидесяти — прицеп «тень» автомобиля, свыше — самостоятельный участник движения!"
     },
     "image_url": "https://teorica.practicavial.com/question/b2feb50c-a600-456b-afbe-85d03a7cea7d-1658326080-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/b2feb50c-a600-456b-afbe-85d03a7cea7d-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "b2feb50c-a600-456b-afbe-85d03a7cea7d",
+    "external_id": "b2feb50c-a600-456b-afbe-85d03a7cea7d"
   },
   {
     "topic_number": 6,
@@ -240,16 +250,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuántos puntos se pueden perder en un día?",
-      "en": null,
-      "ru": null
+      "en": "How many points can be lost in a single day?",
+      "ru": "Сколько баллов можно потерять за один день?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Un máximo de 10 puntos.",
-          "en": null,
-          "ru": null
+          "en": "A maximum of 10 points.",
+          "ru": "Максимум 10 баллов."
         },
         "is_correct": false
       },
@@ -257,8 +267,8 @@
         "id": "b",
         "text": {
           "es": "Un máximo de 8 puntos, salvo que las infracciones cometidas sean muy graves.",
-          "en": null,
-          "ru": null
+          "en": "A maximum of 8 points, unless the infractions committed are very serious.",
+          "ru": "Максимум 8 баллов, за исключением случаев совершения очень серьезных нарушений."
         },
         "is_correct": true
       },
@@ -266,20 +276,22 @@
         "id": "c",
         "text": {
           "es": "No existe límite.",
-          "en": null,
-          "ru": null
+          "en": "There is no limit.",
+          "ru": "Лимита не существует."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Como norma general, un conductor no puede perder más de 8 puntos en un solo día por acumulación de infracciones. No obstante, este límite no se aplica cuando se cometen infracciones calificadas como muy graves. En tales casos, el conductor perderá el número total de puntos correspondientes a cada una de las infracciones cometidas, pudiendo perder incluso la totalidad de su saldo en una sola jornada.",
+      "en": "As a general rule, a driver cannot lose more than 8 points in a single day due to the accumulation of infractions. However, this limit is waived if the infractions committed are classified as very serious. In such cases, the driver will lose the total number of points associated with each specific infraction, potentially losing their entire point balance in a single day.",
+      "ru": "🎓 В Испании для водителей легковых автомобилей действует лимит: нельзя потерять более 8 баллов за один день при совершении нескольких обычных нарушений. Однако, если ты совершаешь «очень серьезные» нарушения (muy graves), этот лимит аннулируется. К таким нарушениям относятся вождение под воздействием наркотиков, участие в гонках на дорогах общего пользования или безрассудное вождение — за каждое из них списывают по 6 баллов, и в сумме за день может уйти весь остаток. 🇷🇺 В РФ балльная система штрафов в данный момент не используется, наказания ограничиваются штрафами или лишением права управления. 💡 Восемь баллов — дневной предел, если «очень тяжких» дел не наделал!"
     },
     "image_url": "https://teorica.practicavial.com/question/e9316e4b-7e4e-460b-9013-2ec607b242fb-1734430851-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/e9316e4b-7e4e-460b-9013-2ec607b242fb-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "e9316e4b-7e4e-460b-9013-2ec607b242fb",
+    "external_id": "e9316e4b-7e4e-460b-9013-2ec607b242fb"
   },
   {
     "topic_number": 6,
@@ -287,16 +299,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuáles son los daños que cubre el seguro obligatorio al causante de un accidente?",
-      "en": null,
-      "ru": null
+      "en": "What damages are covered by the mandatory insurance for the person responsible for an accident?",
+      "ru": "Какой ущерб покрывает обязательная страховка виновнику аварии?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Los daños del vehículo del causante.",
-          "en": null,
-          "ru": null
+          "en": "The damages to the vehicle of the person responsible.",
+          "ru": "Ущерб, нанесенный легковому автомобилю виновника."
         },
         "is_correct": false
       },
@@ -304,8 +316,8 @@
         "id": "b",
         "text": {
           "es": "Los daños del otro vehículo.",
-          "en": null,
-          "ru": null
+          "en": "The damages to the other vehicle.",
+          "ru": "Ущерб, нанесенный другому транспортному средству."
         },
         "is_correct": true
       },
@@ -313,20 +325,22 @@
         "id": "c",
         "text": {
           "es": "Los daños de los dos vehículos.",
-          "en": null,
-          "ru": null
+          "en": "The damages to both vehicles.",
+          "ru": "Ущерб, нанесенный обоим транспортным средствам."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Seguro de Responsabilidad Civil de suscripción obligatoria cubre los daños, tanto personales como materiales, ocasionados a terceros con motivo de la circulación. Quedan excluidos de esta cobertura los daños materiales en el vehículo causante, los bienes transportados en él y los daños personales sufridos por el conductor responsable del accidente. No obstante, los pasajeros del vehículo responsable sí están cubiertos por el seguro obligatorio.",
+      "en": "The mandatory Civil Liability Insurance covers both personal and material damages caused to third parties during traffic. This coverage excludes material damage to the vehicle at fault, the goods transported in it, and personal injuries suffered by the driver responsible for the accident. However, passengers in the vehicle at fault are covered by the mandatory insurance.",
+      "ru": "🎓 Обязательное страхование гражданской ответственности покрывает материальный ущерб и вред здоровью, причиненный третьим лицам. Если ты признан виновником ДТП, твоя страховка оплатит ремонт чужого легкового автомобиля и лечение пострадавших. Твои собственные травмы как водителя и ремонт твоего автомобиля этой базовой страховкой НЕ покрываются. Важный нюанс: пассажиры в твоей машине имеют право на компенсацию, так как они считаются третьими лицами. 🇷🇺 В Испании логика работы страховки полностью совпадает с российским ОСАГО: полис страхует твою ответственность перед другими, а не твой автомобиль. 💡 Виноват в аварии — платишь за свои, а страховка лечит и чинит чужих!"
     },
     "image_url": "https://teorica.practicavial.com/question/538f858a-75cc-4f07-bed0-979eb0e5f104-1658328366-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/538f858a-75cc-4f07-bed0-979eb0e5f104-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "538f858a-75cc-4f07-bed0-979eb0e5f104",
+    "external_id": "538f858a-75cc-4f07-bed0-979eb0e5f104"
   },
   {
     "topic_number": 6,
@@ -334,16 +348,16 @@
     "category": "B",
     "question": {
       "es": "El seguro obligatorio, ¿cubre los daños en la persona del conductor del vehículo asegurado?",
-      "en": null,
-      "ru": null
+      "en": "Does mandatory insurance cover personal injuries to the driver of the insured vehicle?",
+      "ru": "Покрывает ли обязательная страховка телесные повреждения водителя застрахованного транспортного средства?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, en todo caso.",
-          "en": null,
-          "ru": null
+          "en": "Yes, in any case.",
+          "ru": "Да, в любом случае."
         },
         "is_correct": false
       },
@@ -351,8 +365,8 @@
         "id": "b",
         "text": {
           "es": "Sí, salvo cuando el conductor es el tomador del seguro.",
-          "en": null,
-          "ru": null
+          "en": "Yes, except when the driver is the policyholder.",
+          "ru": "Да, за исключением случаев, когда водитель является страхователем."
         },
         "is_correct": false
       },
@@ -360,20 +374,22 @@
         "id": "c",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Seguro de Responsabilidad Civil de suscripción obligatoria cubre los daños a terceros, tanto personales como materiales. En el caso del vehículo responsable del siniestro, la póliza obligatoria cubre a los ocupantes (pasajeros), pero excluye expresamente los daños personales sufridos por el conductor del propio vehículo asegurado, así como los daños materiales de dicho vehículo.",
+      "en": "Mandatory Civil Liability insurance covers damages to third parties, including both personal injury and property damage. Regarding the vehicle at fault, the mandatory policy covers the passengers, but specifically excludes personal injuries sustained by the driver of the insured vehicle, as well as material damage to the vehicle itself.",
+      "ru": "🎓 Обязательное страхование гражданской ответственности создано для защиты третьих лиц. Если ты виноват в ДТП, твоя страховка оплатит ремонт чужого легкового автомобиля и лечение пострадавших в нем людей. Более того, она покроет лечение твоих пассажиров. Однако сам водитель-виновник и его собственный легковой автомобиль этой страховкой не защищены. Чтобы застраховать свое здоровье, водителю нужно оформлять дополнительный полис. 🇷🇺 В Испании, как и в РФ, базовая страховка ответственности не покрывает травмы самого водителя-виновника, только третьих лиц и пассажиров. 💡 Виноват в аварии? Страховка платит всем, кроме тебя!"
     },
     "image_url": "https://teorica.practicavial.com/question/e5238546-190e-412b-9b33-6cc13482630e-1658328414-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/e5238546-190e-412b-9b33-6cc13482630e-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "e5238546-190e-412b-9b33-6cc13482630e",
+    "external_id": "e5238546-190e-412b-9b33-6cc13482630e"
   },
   {
     "topic_number": 6,
@@ -381,25 +397,25 @@
     "category": "B",
     "question": {
       "es": "El permiso de la clase B, ¿autoriza a conducir un cuadriciclo ligero?",
-      "en": null,
-      "ru": null
+      "en": "Does a Class B license authorize you to drive a light quadricycle?",
+      "ru": "Разрешает ли водительское удостоверение категории B управление легким квадрициклом?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       },
       {
         "id": "b",
         "text": {
-          "es": "No",
-          "en": null,
-          "ru": null
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       },
@@ -407,37 +423,39 @@
         "id": "c",
         "text": {
           "es": "Sí, cuando no se dedica al transporte de mercancías.",
-          "en": null,
-          "ru": null
+          "en": "Yes, when it is not used for the transport of goods.",
+          "ru": "Да, если он не используется для перевозки грузов."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El permiso de conducción de la clase B autoriza la conducción de ciclomotores de dos, tres y cuatro ruedas (cuadriciclos ligeros) y vehículos para personas de movilidad reducida. Esta capacidad es inherente al permiso B desde el momento de su obtención, sin requerir antigüedad previa.",
+      "en": "The Class B driving license authorizes the driving of two, three, and four-wheeled mopeds (light quadricycles) and vehicles for persons with reduced mobility. This authorization is inherent to the Class B license from the moment it is issued and does not require any prior experience.",
+      "ru": "🎓 С водительским удостоверением категории B ты имеешь право управлять не только легковым автомобилем (Turismo), но и мопедами с двумя, тремя или четырьмя колесами. Четырехколесный мопед официально называется легким квадрициклом. Это право предоставляется тебе автоматически в день получения прав, и для этого не требуется ждать трехлетнего стажа, как в случае с легкими мотоциклами. 🇷🇺 В Испании категория B дает безусловное право на управление легкими квадрициклами, в то время как в РФ для этого может потребоваться категория M или подкатегория B1. 💡 Категория B в кармане — легкий квадрицикл в твоем распоряжении!"
     },
     "image_url": "https://teorica.practicavial.com/question/dcf7a8e6-23d9-45cb-b5ed-341e1105f3c8-1658321999-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/dcf7a8e6-23d9-45cb-b5ed-341e1105f3c8-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "dcf7a8e6-23d9-45cb-b5ed-341e1105f3c8",
+    "external_id": "dcf7a8e6-23d9-45cb-b5ed-341e1105f3c8"
   },
   {
     "topic_number": 6,
     "question_number": 10,
     "category": "B",
     "question": {
-      "es": "El titular de un permiso de conducción de clase B con una antigüedad mayor a 3 años, ¿puede conducir una motocicleta de 125 cc?",
-      "en": null,
-      "ru": null
+      "es": "¿Puede el titular de un permiso de conducción de clase B con una antigüedad mayor a 3 años conducir una motocicleta de 125 cc?",
+      "en": "Can a holder of a class B driving license with more than 3 years of experience drive a 125 cc motorcycle?",
+      "ru": "Может ли владелец водительского удостоверения категории B со стажем более 3 лет управлять мотоциклом с объемом двигателя 125 куб. см?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, pero solo por el territorio nacional.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but only within the national territory.",
+          "ru": "Да, но только по национальной территории."
         },
         "is_correct": true
       },
@@ -445,8 +463,8 @@
         "id": "b",
         "text": {
           "es": "No, es necesario obtener el permiso de la clase A.",
-          "en": null,
-          "ru": null
+          "en": "No, it is necessary to obtain a class A license.",
+          "ru": "Нет, необходимо получить удостоверение категории A."
         },
         "is_correct": false
       },
@@ -454,20 +472,22 @@
         "id": "c",
         "text": {
           "es": "No, es necesario obtener el permiso de la clase A1.",
-          "en": null,
-          "ru": null
+          "en": "No, it is necessary to obtain a class A1 license.",
+          "ru": "Нет, необходимо получить удостоверение категории A1."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Conductores, los titulares de un permiso de clase B con una antigüedad superior a tres años están autorizados a conducir dentro del territorio nacional las motocicletas cuya conducción autoriza el permiso de la clase A1 (cilindrada máxima de 125 cc, potencia máxima de 11 kW y una relación potencia/peso máxima de 0,1 kW/kg). Esta convalidación no es válida para conducir fuera de España.",
+      "en": "According to the General Driver Regulations, holders of a class B license for more than three years are authorized to drive within the national territory motorcycles that a class A1 license allows (maximum displacement of 125 cc, maximum power of 11 kW, and a maximum power-to-weight ratio of 0.1 kW/kg). This equivalence is not valid for driving outside of Spain.",
+      "ru": "🎓 В Испании действует правило: если твоему водительскому удостоверению категории B (Легковой автомобиль) исполнилось 3 года, ты автоматически получаешь право управлять мотоциклами категории A1. Это мотоциклы с объемом двигателя до 125 куб. см и мощностью до 11 кВт. Однако это право — внутренняя норма Испании, и оно действует исключительно на территории страны. Если ты выедешь на таком мотоцикле в другую страну, это будет считаться ездой без прав. 🇷🇺 В РФ категория B не дает права управления мотоциклами категории A1 независимо от стажа. 💡 Три года стажа на авто — и 125 кубов в Испании твои, но за границу на них ни ногой!"
     },
     "image_url": "https://teorica.practicavial.com/question/1e29a53c-2255-40a8-845f-bab8f8ea91ec-1658321808-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/1e29a53c-2255-40a8-845f-bab8f8ea91ec-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "1e29a53c-2255-40a8-845f-bab8f8ea91ec",
+    "external_id": "1e29a53c-2255-40a8-845f-bab8f8ea91ec"
   },
   {
     "topic_number": 6,
@@ -475,16 +495,16 @@
     "category": "B",
     "question": {
       "es": "Una persona que obtiene el permiso de la clase B a los 18 años, ¿debe renovarlo posteriormente?",
-      "en": null,
-      "ru": null
+      "en": "Does a person who obtains a class B license at age 18 have to renew it later?",
+      "ru": "Должен ли человек, получивший водительское удостоверение категории B в 18 лет, продлевать его в дальнейшем?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, porque este permiso no pierde nunca su validez.",
-          "en": null,
-          "ru": null
+          "en": "No, because this license never loses its validity.",
+          "ru": "Нет, так как это удостоверение никогда не теряет своей силы."
         },
         "is_correct": false
       },
@@ -492,8 +512,8 @@
         "id": "b",
         "text": {
           "es": "Sí, a los diez años de su expedición, como norma general.",
-          "en": null,
-          "ru": null
+          "en": "Yes, ten years after its issuance, as a general rule.",
+          "ru": "Да, через десять лет после его выдачи, согласно общему правилу."
         },
         "is_correct": true
       },
@@ -501,20 +521,22 @@
         "id": "c",
         "text": {
           "es": "No, salvo que obtenga cualquier otro permiso o licencia de conducción.",
-          "en": null,
-          "ru": null
+          "en": "No, unless they obtain any other driving permit or license.",
+          "ru": "Нет, за исключением случаев получения любого другого водительского удостоверения или лицензии."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El permiso de conducción de la clase B tiene un periodo de vigencia de diez años hasta que el titular cumpla los 65 años de edad. A partir de esa edad, la vigencia se reduce a cinco años para garantizar la seguridad vial. No obstante, estos plazos pueden ser reducidos por la Jefatura Provincial de Tráfico si, en el momento de la prórroga, se comprueba que el titular padece una enfermedad o deficiencia que pueda agravarse. Para la renovación es indispensable obtener un informe de aptitud psicofísica favorable.",
+      "en": "A class B driving license is valid for ten years until the holder reaches the age of 65. From that age onwards, the validity is reduced to five years to ensure road safety. However, these periods may be shortened by the Provincial Traffic Headquarters if, at the time of renewal, it is found that the holder suffers from a disease or deficiency that could worsen. For renewal, it is essential to obtain a favorable psychophysical aptitude report.",
+      "ru": "🎓 Твое водительское удостоверение на легковой автомобиль (категория B) имеет ограниченный срок действия. По общему правилу, его необходимо продлевать каждые 10 лет. Этот цикл сохраняется, пока тебе не исполнится 65 лет. После достижения 65-летнего возраста срок действия сокращается до 5 лет, так как контроль за здоровьем водителя должен стать более частым. Помни, что если у водителя обнаружены определенные заболевания, врачи в медицинском центре могут ограничить срок действия прав еще сильнее. Вождение с просроченным удостоверением категорически запрещено. 🇷🇺 В Испании после 65 лет срок действия прав сокращается до 5 лет, в то время как в РФ стандартный срок в 10 лет обычно сохраняется для водителей-любителей независимо от возраста, если медкомиссия не установит иное. 💡 Права на десять лет даны, пока мы молоды, сильны!"
     },
     "image_url": "https://teorica.practicavial.com/question/d013f243-7bbc-44bb-b59e-fe5be16279b8-1658322155-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d013f243-7bbc-44bb-b59e-fe5be16279b8-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "d013f243-7bbc-44bb-b59e-fe5be16279b8",
+    "external_id": "d013f243-7bbc-44bb-b59e-fe5be16279b8"
   },
   {
     "topic_number": 6,
@@ -522,16 +544,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué tiene que hacer si ha caducado la vigencia de su permiso y quiere seguir conduciendo?",
-      "en": null,
-      "ru": null
+      "en": "What do you have to do if your license has expired and you want to continue driving?",
+      "ru": "Что вы должны сделать, если срок действия вашего водительского удостоверения истек, а вы хотите продолжать вождение?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Solicitar la prórroga aportando la documentación necesaria.",
-          "en": null,
-          "ru": null
+          "en": "Request an extension by providing the necessary documentation.",
+          "ru": "Запросить продление, предоставив необходимые документы."
         },
         "is_correct": true
       },
@@ -539,8 +561,8 @@
         "id": "b",
         "text": {
           "es": "Volver a examinarse de las pruebas prácticas.",
-          "en": null,
-          "ru": null
+          "en": "Take the practical driving tests again.",
+          "ru": "Снова сдать практические экзамены."
         },
         "is_correct": false
       },
@@ -548,20 +570,22 @@
         "id": "c",
         "text": {
           "es": "Presentarse a un nuevo examen teórico.",
-          "en": null,
-          "ru": null
+          "en": "Sit for a new theoretical exam.",
+          "ru": "Сдать новый теоретический экзамен."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Para prorrogar la vigencia del permiso de conducción una vez caducado, el titular debe solicitar su renovación. No es necesario realizar nuevas pruebas de aptitud (teóricas o prácticas), independientemente del tiempo transcurrido desde la caducidad. El proceso requiere la presentación de un informe de aptitud psicofísica emitido por un centro de reconocimiento de conductores autorizado y el abono de las tasas correspondientes. Conducir con el permiso caducado constituye una infracción.",
+      "en": "To extend the validity of a driving license after it has expired, the holder must apply for a renewal. It is not necessary to retake any theoretical or practical exams, regardless of how long the license has been expired. The process involves submitting a psychophysical aptitude report from an authorized driver recognition center and paying the required fees. Driving with an expired license is prohibited.",
+      "ru": "🎓 Если срок действия твоего водительского удостоверения истек, тебе не нужно заново сдавать экзамены (ни теорию, ни практику), сколько бы времени ни прошло с момента окончания срока. Чтобы продолжить водить Легковой автомобиль (Turismo), достаточно пройти медицинский осмотр в авторизованном центре для получения отчета о психофизической пригодности и подать заявление на продление. Помни: как только срок вышел, садиться за руль нельзя — это серьезное нарушение. В Испании права категории B продлеваются каждые 10 лет до достижения водителем 65 лет, а после — каждые 5 лет. 💡 Срок истек — за руль не садись, справку неси и права обнови!"
     },
     "image_url": "https://teorica.practicavial.com/question/0ea49862-9d92-4a68-b565-8cbf46cf19af-1658322235-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/0ea49862-9d92-4a68-b565-8cbf46cf19af-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "0ea49862-9d92-4a68-b565-8cbf46cf19af",
+    "external_id": "0ea49862-9d92-4a68-b565-8cbf46cf19af"
   },
   {
     "topic_number": 6,
@@ -569,16 +593,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué ocurre si un conductor circula sin llevar puesto el casco en una motocicleta?",
-      "en": null,
-      "ru": null
+      "en": "What happens if a motorcycle driver rides without wearing a helmet?",
+      "ru": "Что произойдет, если водитель мотоцикла управляет транспортным средством без шлема?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No hay sanción si circula en ciudad.",
-          "en": null,
-          "ru": null
+          "en": "There is no penalty if driving in the city.",
+          "ru": "Штрафа нет, если движение происходит в городе."
         },
         "is_correct": false
       },
@@ -586,8 +610,8 @@
         "id": "b",
         "text": {
           "es": "Multa de 200€ sin pérdida de puntos.",
-          "en": null,
-          "ru": null
+          "en": "Fine of 200€ without loss of points.",
+          "ru": "Штраф 200 евро без потери баллов."
         },
         "is_correct": false
       },
@@ -595,20 +619,22 @@
         "id": "c",
         "text": {
           "es": "Multa de 200€ y pérdida de 4 puntos.",
-          "en": null,
-          "ru": null
+          "en": "Fine of 200€ and loss of 4 points.",
+          "ru": "Штраф 200 евро и потеря 4 баллов."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece que el uso del casco es obligatorio para conductores y pasajeros de motocicletas en todo tipo de vías. El incumplimiento de esta norma se tipifica como una infracción grave. Según la Ley sobre Tráfico, Circulación de Vehículos a Motor y Seguridad Vial, la sanción económica es de 200 euros y conlleva la detracción de 4 puntos del permiso de conducir.",
+      "en": "The General Traffic Regulations mandate the use of a protective helmet for both drivers and passengers of motorcycles on all types of roads. Failure to comply is classified as a serious offense. According to the Law on Traffic, Motor Vehicle Circulation, and Road Safety, the penalty consists of a 200€ fine and the deduction of 4 points from the driving license.",
+      "ru": "🎓 В Испании использование защитного шлема обязательно для водителя и пассажира мотоцикла на любых дорогах — как в городе, так и на трассе. Езда без шлема классифицируется как серьезное правонарушение. За это нарушение предусмотрен денежный штраф в размере 200 евро и списание 4 баллов из твоего водительского удостоверения. Важно помнить, что водитель несет ответственность за то, чтобы пассажир также был в шлеме.\n\n🇷🇺 В РФ за езду без шлема предусмотрен только денежный штраф, балльная система наказаний не применяется.\n\n💡 Шлем на полку — минус четыре в зачетку!"
     },
     "image_url": "https://teorica.practicavial.com/question/8fb7876c-f60f-45bb-a4fa-b8bf718996bd-1734419389-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/8fb7876c-f60f-45bb-a4fa-b8bf718996bd-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "8fb7876c-f60f-45bb-a4fa-b8bf718996bd",
+    "external_id": "8fb7876c-f60f-45bb-a4fa-b8bf718996bd"
   },
   {
     "topic_number": 6,
@@ -616,16 +642,16 @@
     "category": "B",
     "question": {
       "es": "Realizar por las vías públicas carreras y competiciones no autorizadas, ¿puede acarrear la pérdida de puntos del permiso de conducción?",
-      "en": null,
-      "ru": null
+      "en": "Can participating in unauthorized races and competitions on public roads lead to the loss of driving license points?",
+      "ru": "Может ли участие в несанкционированных гонках и соревнованиях на дорогах общего пользования привести к потере баллов водительского удостоверения?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, además están prohibidas.",
-          "en": null,
-          "ru": null
+          "en": "Yes, and they are also prohibited.",
+          "ru": "Да, к тому же они запрещены."
         },
         "is_correct": true
       },
@@ -633,8 +659,8 @@
         "id": "b",
         "text": {
           "es": "No, solamente tendrían una sanción económica.",
-          "en": null,
-          "ru": null
+          "en": "No, they would only involve a financial penalty.",
+          "ru": "Нет, предусмотрен только денежный штраф."
         },
         "is_correct": false
       },
@@ -642,37 +668,39 @@
         "id": "c",
         "text": {
           "es": "No, puesto que se trata de competiciones deportivas.",
-          "en": null,
-          "ru": null
+          "en": "No, since they are sporting competitions.",
+          "ru": "Нет, так как это спортивные соревнования."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La participación en carreras o competiciones no autorizadas en las vías públicas está estrictamente prohibida y se tipifica como una infracción muy grave. Según la normativa vigente, esta conducta conlleva la pérdida de 6 puntos del permiso de conducción, además de la correspondiente sanción económica. En casos donde se ponga en peligro la vida o integridad de las personas, puede derivar en responsabilidades penales por conducción temeraria.",
+      "en": "Participating in unauthorized races or competitions on public roads is strictly prohibited and classified as a very serious offense. According to current regulations, this conduct results in the loss of 6 points from the driving license, in addition to the corresponding financial fine. In cases where the life or integrity of individuals is endangered, it may lead to criminal liability for reckless driving.",
+      "ru": "🎓 Участие в несанкционированных гонках или соревнованиях на дорогах общего пользования категорически запрещено. Это классифицируется как очень грубое нарушение. За такие действия водитель легкового автомобиля лишается сразу 6 баллов. Помни, что начинающий водитель получает изначально всего 8 баллов, поэтому одна такая «гонка» может привести к почти полной аннуляции прав. Помимо потери баллов, накладывается крупный денежный штраф, а при создании реальной опасности для окружающих наступает уголовная ответственность за безрассудное вождение.\n🇷🇺 В Испании действует жесткая балльная система: за участие в гонках списывают 6 баллов, что в РФ не имеет прямого аналога в виде накопительных штрафных очков, но может привести к лишению прав.\n💡 Хочешь гонку — езжай на трек, на дороге баллы береги и не дебоширь! Шесть баллов долой — и пойдешь домой пешком."
     },
     "image_url": "https://teorica.practicavial.com/question/66263d93-07a4-41e8-bcb9-d9d846620714-1658328834-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/66263d93-07a4-41e8-bcb9-d9d846620714-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "66263d93-07a4-41e8-bcb9-d9d846620714",
+    "external_id": "66263d93-07a4-41e8-bcb9-d9d846620714"
   },
   {
     "topic_number": 6,
     "question_number": 15,
     "category": "B",
     "question": {
-      "es": "Como norma general, ¿qué plazo de vigencia tiene el permiso de la clase B?",
-      "en": null,
-      "ru": null
+      "es": "¿Como norma general, qué plazo de vigencia tiene el permiso de la clase B?",
+      "en": "As a general rule, what is the validity period of a class B license?",
+      "ru": "Каков общий срок действия водительского удостоверения категории B (Легковой автомобиль)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "5 años, hasta que el titular cumpla los 45 años de edad.",
-          "en": null,
-          "ru": null
+          "en": "5 years, until the holder reaches 45 years of age.",
+          "ru": "5 лет, пока владельцу не исполнится 45 лет."
         },
         "is_correct": false
       },
@@ -680,8 +708,8 @@
         "id": "b",
         "text": {
           "es": "10 años, hasta que el titular cumpla los 65 años de edad.",
-          "en": null,
-          "ru": null
+          "en": "10 years, until the holder reaches 65 years of age.",
+          "ru": "10 лет, пока владельцу не исполнится 65 лет."
         },
         "is_correct": true
       },
@@ -689,20 +717,22 @@
         "id": "c",
         "text": {
           "es": "10 años, hasta que el titular cumpla los 70 años de edad.",
-          "en": null,
-          "ru": null
+          "en": "10 years, until the holder reaches 70 years of age.",
+          "ru": "10 лет, пока владельцу не исполнится 70 лет."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Conductores estipula que el permiso de conducción de la clase B tiene una vigencia de 10 años hasta que el titular cumpla los 65 años. Una vez alcanzada dicha edad, el período de renovación se reduce a 5 años para garantizar un control más frecuente de las aptitudes psicofísicas. La vigencia está supeditada a que el titular mantenga los requisitos necesarios para su otorgamiento.",
+      "en": "The General Driver Regulations stipulate that a class B driving license is valid for 10 years until the holder reaches 65 years of age. Once this age is reached, the renewal period is reduced to 5 years to ensure more frequent monitoring of psychophysical aptitudes. Validity is subject to the holder maintaining the requirements necessary for its issuance.",
+      "ru": "🎓 Твое водительское удостоверение на Легковой автомобиль (Turismo) действительно в течение 10 лет. Это правило работает до тех пор, пока тебе не исполнится 65 лет. Как только ты перешагнешь этот возрастной рубеж, обновлять права придется чаще — каждые 5 лет. Это необходимо для регулярного контроля здоровья водителей. Важно помнить: если срок действия прав закончился, садиться за руль нельзя. В случае остановки полиция изымет просроченное удостоверение для его последующего обновления. 🇷🇺 В отличие от РФ, где права выдаются на 10 лет вне зависимости от возраста, в Испании после 65 лет срок действия сокращается до 5 лет. 💡 До шестидесяти пяти — по десять лет в пути, а как возраст придет — каждые пять лет в медпункт заходи!"
     },
     "image_url": "https://teorica.practicavial.com/question/f274a12c-764d-4324-8ae2-7239989c7d7f-1658322211-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/f274a12c-764d-4324-8ae2-7239989c7d7f-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "f274a12c-764d-4324-8ae2-7239989c7d7f",
+    "external_id": "f274a12c-764d-4324-8ae2-7239989c7d7f"
   },
   {
     "topic_number": 6,
@@ -710,16 +740,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué documentos relativos al vehículo debe llevar consigo un conductor de una motocicleta?",
-      "en": null,
-      "ru": null
+      "en": "What documents relating to the vehicle must a motorcycle driver carry?",
+      "ru": "Какие документы на транспортное средство должен иметь при себе водитель мотоцикла?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "La tarjeta de inspección técnica y el permiso de circulación.",
-          "en": null,
-          "ru": null
+          "en": "The technical inspection card and the circulation permit.",
+          "ru": "Диагностическую карту (tarjeta de inspección técnica) и разрешение на движение (permiso de circulación)."
         },
         "is_correct": true
       },
@@ -727,8 +757,8 @@
         "id": "b",
         "text": {
           "es": "La tarjeta de inspección técnica, solamente.",
-          "en": null,
-          "ru": null
+          "en": "Only the technical inspection card.",
+          "ru": "Только диагностическую карту."
         },
         "is_correct": false
       },
@@ -736,20 +766,22 @@
         "id": "c",
         "text": {
           "es": "El permiso de circulación, solamente.",
-          "en": null,
-          "ru": null
+          "en": "Only the circulation permit.",
+          "ru": "Только разрешение на движение."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "De acuerdo con el Reglamento General de Vehículos, todo vehículo de motor y ciclomotor debe disponer de la tarjeta de inspección técnica (ITV) y el permiso de circulación en vigor. El permiso de circulación autoriza la circulación del vehículo tras verificar que cumple los requisitos legales, mientras que la tarjeta de inspección técnica acredita que el vehículo reúne las condiciones técnicas necesarias para circular con seguridad. El recibo del seguro no es obligatorio llevarlo físicamente, aunque sí recomendable, ya que los agentes pueden verificar su vigencia telemáticamente a través del FIVA.",
+      "en": "According to the General Vehicle Regulations, every motor vehicle and moped must carry a valid technical inspection card (ITV) and a circulation permit. The circulation permit authorizes the vehicle to be driven on public roads after verifying it meets legal requirements, while the technical inspection card certifies that the vehicle meets the technical safety standards. Carrying a physical insurance receipt is not mandatory, though recommended, as authorities can verify insurance status electronically via the FIVA database.",
+      "ru": "🎓 Любое моторное транспортное средство, включая мотоциклы и легковые автомобили (Turismo), обязано иметь два основных документа: разрешение на движение (Permiso de circulación) и диагностическую карту (Tarjeta de inspección técnica / ITV). Разрешение на движение подтверждает, что транспортное средство зарегистрировано и допущено к эксплуатации, а диагностическая карта гарантирует его техническую исправность. Что касается страховки, то физически возить с собой квитанцию об оплате в Испании не обязательно — полиция проверяет наличие полиса через электронную базу данных в режиме реального времени, однако иметь её при себе всё же рекомендуется для ускорения формальностей.\n\n🇷🇺 В Испании, в отличие от РФ, страховой полис не входит в перечень документов, которые водитель обязан физически предъявить инспектору, а роль СТС выполняет Permiso de circulación.\n\n💡 Техпаспорт и допуск в путь — документы всегда при себе держи, не забудь!"
     },
     "image_url": "https://teorica.practicavial.com/question/c2cc590a-3326-429c-a6a0-3575f00f58e4-1658325497-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/c2cc590a-3326-429c-a6a0-3575f00f58e4-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "c2cc590a-3326-429c-a6a0-3575f00f58e4",
+    "external_id": "c2cc590a-3326-429c-a6a0-3575f00f58e4"
   },
   {
     "topic_number": 6,
@@ -757,16 +789,16 @@
     "category": "B",
     "question": {
       "es": "Conducir de forma temeraria...",
-      "en": null,
-      "ru": null
+      "en": "Reckless driving...",
+      "ru": "Управление транспортным средством в агрессивной (опасной) манере..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "es recomendable en algunas situaciones de emergencia.",
-          "en": null,
-          "ru": null
+          "en": "is recommended in some emergency situations.",
+          "ru": "рекомендуется в некоторых чрезвычайных ситуациях."
         },
         "is_correct": false
       },
@@ -774,8 +806,8 @@
         "id": "b",
         "text": {
           "es": "es una infracción muy grave que conlleva pérdida de puntos.",
-          "en": null,
-          "ru": null
+          "en": "is a very serious offense that involves loss of points.",
+          "ru": "является очень грубым нарушением, которое влечет за собой потерю баллов."
         },
         "is_correct": true
       },
@@ -783,37 +815,39 @@
         "id": "c",
         "text": {
           "es": "es una infracción muy grave aunque no conlleva pérdida de puntos.",
-          "en": null,
-          "ru": null
+          "en": "is a very serious offense although it does not involve loss of points.",
+          "ru": "является очень грубым нарушением, хотя и не влечет за собой потерю баллов."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La conducción temeraria está tipificada como una infracción muy grave en la Ley sobre Tráfico, Circulación de Vehículos a Motor y Seguridad Vial. Esta conducta, que manifiesta un desprecio por la seguridad de los demás, conlleva una sanción económica de 500 euros y la detracción de 6 puntos del permiso de conducir.",
+      "en": "Reckless driving is classified as a very serious offense under the Law on Traffic, Motor Vehicle Circulation, and Road Safety. This behavior, which shows a disregard for the safety of others, carries a fine of 500 euros and the deduction of 6 points from the driving license.",
+      "ru": "🎓 Опасное вождение (conducir de forma temeraria) в Испании классифицируется как очень грубое нарушение. За него предусмотрен штраф в размере 500 евро и вычет 6 баллов из твоего водительского удостоверения. К таким действиям относится езда, создающая явную угрозу жизни и безопасности окружающих, включая участие в незаконных гонках или движение во встречном направлении. Для водителя легкового автомобиля (Turismo) это один из самых быстрых способов лишиться прав. 🇷🇺 В отличие от РФ, где за «опасное вождение» предусмотрен только штраф, в Испании это нарушение напрямую привязано к потере значительного количества баллов (половина от стандартного лимита новичка). 💡 Едешь лихо — баллы тают быстро!"
     },
     "image_url": "https://teorica.practicavial.com/question/9c27dabf-35be-4f75-9a86-d902050aec64-1734420003-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/9c27dabf-35be-4f75-9a86-d902050aec64-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "9c27dabf-35be-4f75-9a86-d902050aec64",
+    "external_id": "9c27dabf-35be-4f75-9a86-d902050aec64"
   },
   {
     "topic_number": 6,
     "question_number": 18,
     "category": "B",
     "question": {
-      "es": "Como norma general, ¿cuántos puntos de su saldo, como máximo, podrá perder un conductor por acumulación de infracciones en un solo día?",
-      "en": null,
-      "ru": null
+      "es": "¿Como norma general, cuántos puntos de su saldo, como máximo, podrá perder un conductor por acumulación de infracciones en un solo día?",
+      "en": "As a general rule, what is the maximum number of points a driver can lose from their balance due to the accumulation of offenses in a single day?",
+      "ru": "Как правило, какое максимальное количество баллов может потерять водитель в результате накопления штрафов за один день?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "8 puntos.",
-          "en": null,
-          "ru": null
+          "en": "8 points.",
+          "ru": "8 баллов."
         },
         "is_correct": true
       },
@@ -821,8 +855,8 @@
         "id": "b",
         "text": {
           "es": "No hay límite, el número total de puntos que correspondan a las infracciones cometidas.",
-          "en": null,
-          "ru": null
+          "en": "There is no limit; the total number of points corresponding to the offenses committed.",
+          "ru": "Лимита нет, вычитается общее количество баллов за все совершенные нарушения."
         },
         "is_correct": false
       },
@@ -830,20 +864,22 @@
         "id": "c",
         "text": {
           "es": "10 puntos.",
-          "en": null,
-          "ru": null
+          "en": "10 points.",
+          "ru": "10 баллов."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Como norma general, un conductor no puede perder más de 8 puntos en un solo día por acumulación de infracciones. No obstante, esta limitación no se aplica cuando se cometen infracciones muy graves, en cuyo caso se perderán los puntos que correspondan a cada una de ellas de forma íntegra. Las infracciones muy graves incluyen conducir bajo los efectos de estupefacientes, participar en carreras no autorizadas o la conducción temeraria.",
+      "en": "As a general rule, a driver cannot lose more than 8 points in a single day due to the accumulation of traffic offenses. However, this limit does not apply if very serious offenses are committed; in such cases, the driver will lose all points corresponding to each of those offenses. Very serious offenses include driving under the influence of drugs, participating in unauthorized races, or reckless driving.",
+      "ru": "🎓 В Испании действует балльная система. По общему правилу, если ты совершил несколько нарушений за один день, с твоего баланса не могут списать более 8 баллов. Однако это ограничение исчезает, если ты совершаешь «очень серьезные» нарушения (muy graves). К ним относятся: вождение под наркотиками, участие в гонках на дорогах общего пользования или безрассудное вождение. В этих случаях спишут все баллы за каждое нарушение без всяких лимитов. Помни, что как водитель легкового автомобиля (Turismo), ты начинаешь с 8 баллов, если ты новичок, и можешь дойти до 15 при безаварийной езде. 🇷🇺 В РФ балльная система накопления штрафов для последующего лишения прав в данный момент не функционирует так, как в Испании; наказания носят фиксированный характер (штраф или лишение). 💡 За день больше восьми не снимут, если только «очень тяжким» не припугнут!"
     },
     "image_url": "https://teorica.practicavial.com/question/a4ed962a-231a-408f-a330-fd659991df92-1658328751-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/a4ed962a-231a-408f-a330-fd659991df92-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "a4ed962a-231a-408f-a330-fd659991df92",
+    "external_id": "a4ed962a-231a-408f-a330-fd659991df92"
   },
   {
     "topic_number": 6,
@@ -851,16 +887,16 @@
     "category": "B",
     "question": {
       "es": "¿Puede perder puntos de su saldo si pone en peligro a un grupo de ciclistas durante un adelantamiento?",
-      "en": null,
-      "ru": null
+      "en": "Can you lose points from your balance if you endanger a group of cyclists during an overtaking maneuver?",
+      "ru": "Можете ли вы лишиться баллов, если создадите опасность для группы велосипедистов во время обгона или опережения?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, es una infracción que supone la pérdida de 6 puntos.",
-          "en": null,
-          "ru": null
+          "en": "Yes, it is an infringement that involves the loss of 6 points.",
+          "ru": "Да, это нарушение, которое влечет за собой потерю 6 баллов."
         },
         "is_correct": true
       },
@@ -868,8 +904,8 @@
         "id": "b",
         "text": {
           "es": "No, es una infracción que no supone la pérdida de puntos.",
-          "en": null,
-          "ru": null
+          "en": "No, it is an infringement that does not involve the loss of points.",
+          "ru": "Нет, это нарушение, которое не влечет за собой потерю баллов."
         },
         "is_correct": false
       },
@@ -877,20 +913,22 @@
         "id": "c",
         "text": {
           "es": "No, porque es un delito contra la seguridad vial no una infracción administrativa.",
-          "en": null,
-          "ru": null
+          "en": "No, because it is a crime against road safety, not an administrative offense.",
+          "ru": "Нет, потому что это преступление против безопасности дорожного движения, а не административное правонарушение."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Adelantar poniendo en peligro o entorpeciendo a ciclistas, o sin dejar la separación mínima de 1,5 metros, se tipifica como una infracción muy grave. Según el Anexo II de la Ley de Seguridad Vial, esta acción conlleva la detracción de 6 puntos del permiso de conducción.",
+      "en": "Overtaking while endangering or hindering cyclists, or failing to maintain the minimum lateral distance of 1.5 meters, is classified as a very serious infringement. According to Annex II of the Road Safety Act, this specific action results in the loss of 6 points from the driving license.",
+      "ru": "🎓 При выполнении маневра обгона или опережения велосипедистов водитель легкового автомобиля обязан соблюдать боковой интервал не менее 1,5 метров. Если маневр создает опасность или помехи для движения велосипедистов, это считается очень грубым нарушением. В Испании за такое действие со счета водителя списывается 6 баллов. 🇷🇺 В РФ за несоблюдение правил бокового интервала предусмотрен денежный штраф, однако балльная система учета нарушений отсутствует. 💡 Полтора метра отступи — шесть баллов сохрани!"
     },
     "image_url": "https://teorica.practicavial.com/question/f0309b9a-1bc2-4636-abe3-123c7ffb2328-1658328865-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/f0309b9a-1bc2-4636-abe3-123c7ffb2328-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "f0309b9a-1bc2-4636-abe3-123c7ffb2328",
+    "external_id": "f0309b9a-1bc2-4636-abe3-123c7ffb2328"
   },
   {
     "topic_number": 6,
@@ -898,16 +936,16 @@
     "category": "B",
     "question": {
       "es": "Las motocicletas con más de cinco años de antigüedad deben pasar la inspección técnica periódica (ITV)...",
-      "en": null,
-      "ru": null
+      "en": "Motorcycles more than five years old must pass the periodic technical inspection (ITV)...",
+      "ru": "Мотоциклы старше пяти лет должны проходить периодический технический осмотр (ITV)..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "cada año.",
-          "en": null,
-          "ru": null
+          "en": "every year.",
+          "ru": "каждый год."
         },
         "is_correct": false
       },
@@ -915,29 +953,31 @@
         "id": "b",
         "text": {
           "es": "cada dos años.",
-          "en": null,
-          "ru": null
+          "en": "every two years.",
+          "ru": "каждые два года."
         },
-        "is_correct": false
+        "is_correct": true
       },
       {
         "id": "c",
         "text": {
           "es": "cada cinco años.",
-          "en": null,
-          "ru": null
+          "en": "every five years.",
+          "ru": "каждые пять лет."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Las motocicletas están exentas de pasar la Inspección Técnica de Vehículos (ITV) hasta que cumplen los cuatro años de antigüedad desde su primera matriculación. A partir de ese momento, la periodicidad de las inspecciones es bienal (cada dos años) de forma permanente, independientemente de la antigüedad que alcance el vehículo.",
+      "en": "Motorcycles are exempt from the Technical Vehicle Inspection (ITV) until they are four years old from their first registration. From that point onwards, the frequency of inspections is biennial (every two years) permanently, regardless of the age the vehicle reaches.",
+      "ru": "🎓 Мотоциклы освобождены от прохождения техосмотра (ITV) в первые 4 года с момента их первой регистрации. Как только мотоциклу исполняется 4 года, он обязан проходить осмотр каждые два года. В отличие от легкового автомобиля (Turismo), который после 10 лет эксплуатации обязан посещать станцию техобслуживания ежегодно, для мотоциклов график остается неизменным — раз в два года, независимо от их возраста. 🇷🇺 В Испании мотоцикл никогда не переходит на ежегодный техосмотр, в отличие от правил в РФ, где для транспортных средств старше 10 лет предусмотрена ежегодная проверка. 💡 Мотоцикл — вечный «двоечник»: после четырех лет всегда раз в два года!"
     },
     "image_url": "https://teorica.practicavial.com/question/3dee49a5-bfa4-4546-967d-f6014e3ce668-1658326523-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/3dee49a5-bfa4-4546-967d-f6014e3ce668-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "3dee49a5-bfa4-4546-967d-f6014e3ce668",
+    "external_id": "3dee49a5-bfa4-4546-967d-f6014e3ce668"
   },
   {
     "topic_number": 6,
@@ -945,25 +985,25 @@
     "category": "B",
     "question": {
       "es": "El distintivo de la ITV, ¿dónde debe ir colocado?",
-      "en": null,
-      "ru": null
+      "en": "Where should the ITV sticker be placed?",
+      "ru": "Где должна быть размещена наклейка о прохождении техосмотра (ITV)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "En el ángulo superior derecho interno.",
-          "en": null,
-          "ru": null
+          "en": "In the upper right internal corner.",
+          "ru": "В верхнем правом углу с внутренней стороны."
         },
-        "is_correct": false
+        "is_correct": true
       },
       {
         "id": "b",
         "text": {
           "es": "En el ángulo superior izquierdo interno.",
-          "en": null,
-          "ru": null
+          "en": "In the upper left internal corner.",
+          "ru": "В верхнем левом углу с внутренней стороны."
         },
         "is_correct": false
       },
@@ -971,19 +1011,21 @@
         "id": "c",
         "text": {
           "es": "Indistintamente.",
-          "en": null,
-          "ru": null
+          "en": "Indifferently.",
+          "ru": "В любом месте."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Vehículos, el distintivo V-19 (ITV) debe colocarse obligatoriamente en el ángulo superior derecho del parabrisas por su cara interior. Esta ubicación permite su visibilidad para los agentes de la autoridad sin interferir en el campo de visión del conductor. En vehículos que carezcan de parabrisas, el distintivo se colocará en un sitio donde sea bien visible.",
+      "en": "According to the General Vehicle Regulations, the V-19 (ITV) badge must be placed in the upper right corner of the windshield on its inner surface. This location ensures visibility for law enforcement officers without obstructing the driver's field of vision. In vehicles without a windshield, the badge must be placed in a clearly visible location.",
+      "ru": "🎓 На легковом автомобиле (Turismo) наклейка о прохождении техосмотра (ITV) должна быть размещена строго в верхнем правом углу лобового стекла с внутренней стороны. Это позволяет дорожной полиции быстро идентифицировать наличие техосмотра, не ограничивая при этом обзор водителю. Если у транспортного средства конструктивно отсутствует лобовое стекло, наклейка размещается на любом другом видном месте. 🇷🇺 В отличие от РФ, где бумажные талоны техосмотра на стекле давно отменены, в Испании наличие физической наклейки на лобовом стекле является обязательным требованием. Штраф за её отсутствие выписывают даже в том случае, если техосмотр фактически пройден и числится в базе. 💡 Справа сверху клей наклейку — береги свою копейку!"
     },
     "image_url": "https://teorica.practicavial.com/question/ae5ebf19-510e-449d-af27-6f5568c4c07c-1658327978-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/ae5ebf19-510e-449d-af27-6f5568c4c07c-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "ae5ebf19-510e-449d-af27-6f5568c4c07c",
+    "external_id": "ae5ebf19-510e-449d-af27-6f5568c4c07c"
   }
 ]

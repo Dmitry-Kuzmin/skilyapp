@@ -46,42 +46,14 @@ const adminNavItems = [
     icon: Edit,
     path: "/admin/editor",
   },
-  {
-    id: "sync",
-    label: "Синхронизация",
-    icon: Database,
-    path: "/admin/sync",
-  },
-  {
-    id: "import",
-    label: "Импорт данных",
-    icon: Upload,
-    path: "/admin/import",
-  },
-  {
-    id: "pdf-upload",
-    label: "Загрузка PDF",
-    icon: FileUp,
-    path: "/admin/pdf-upload",
-  },
-  {
-    id: "help-feedback",
-    label: "Отзывы",
-    icon: MessageSquare,
-    path: "/admin/help-feedback",
-  },
+
   {
     id: "reward-reports",
     label: "Отчеты о наградах",
     icon: AlertTriangle,
     path: "/admin/reward-reports",
   },
-  {
-    id: "test-covers",
-    label: "Обложки тестов",
-    icon: ImageIcon,
-    path: "/admin/test-covers",
-  },
+
   {
     id: "seasons",
     label: "Сезоны и призы",
@@ -118,18 +90,8 @@ const adminNavItems = [
     icon: Rocket,
     path: "/admin/mission-control",
   },
-  {
-    id: "validator",
-    label: "Генератор (Legacy)",
-    icon: ImageIcon,
-    path: "/validator-ui.html", // Direct external link behavior handling needed or redirect
-  },
-  {
-    id: "feature-flags",
-    label: "Настройки заморозок",
-    icon: ToggleLeft,
-    path: "/admin/feature-flags",
-  },
+
+
 ];
 
 export function AdminLayout() {
@@ -145,6 +107,9 @@ export function AdminLayout() {
 
   useEffect(() => {
     checkAdminAccess();
+  }, []);
+
+  useEffect(() => {
     if (isAdmin) {
       fetchPendingReports();
       fetchPendingFeedback();
@@ -159,9 +124,11 @@ export function AdminLayout() {
   }, [isAdmin]);
 
   const checkAdminAccess = async () => {
+    console.log("[AdminLayout] 🔐 checkAdminAccess started");
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
+      console.log("[AdminLayout] ❌ No user found, redirecting");
       toast({
         title: "Доступ запрещён",
         description: "Необходима авторизация",
@@ -171,6 +138,8 @@ export function AdminLayout() {
       return;
     }
 
+    console.log("[AdminLayout] 👤 User found:", user.email);
+
     // Get user profile
     const { data: profile } = await supabase
       .from("profiles")
@@ -179,26 +148,46 @@ export function AdminLayout() {
       .single();
 
     if (profile) {
+      console.log("[AdminLayout] ✅ Profile found:", profile.username);
       setUserName(profile.first_name || profile.username || "Администратор");
     }
 
-    const { data, error } = await supabase.rpc('has_role', {
-      _user_id: user.id,
-      _role: 'admin'
-    });
+    console.log("[AdminLayout] 🔍 Checking admin role...");
 
-    if (error || !data) {
+    try {
+      // 5-second timeout for the RPC call
+      const rpcPromise = supabase.rpc('has_role', {
+        _user_id: user.id,
+        _role: 'admin'
+      });
+
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 5000));
+
+      const { data, error } = await Promise.race([rpcPromise, timeoutPromise]) as any;
+
+      if (error || !data) {
+        console.error("[AdminLayout] ❌ Admin check failed:", error || "No role data");
+        toast({
+          title: "Доступ запрещён",
+          description: "Требуются права администратора",
+          variant: "destructive"
+        });
+        navigate('/');
+        return;
+      }
+
+      console.log("[AdminLayout] 👑 Admin access granted");
+      setIsAdmin(true);
+    } catch (e: any) {
+      console.error("[AdminLayout] ❌ Admin check error/timeout:", e.message);
       toast({
-        title: "Доступ запрещён",
-        description: "Требуются права администратора",
+        title: "Ошибка проверки",
+        description: "Сервер Supabase не отвечает. Попробуйте обновить страницу.",
         variant: "destructive"
       });
-      navigate('/');
-      return;
+    } finally {
+      setAuthLoading(false);
     }
-
-    setIsAdmin(true);
-    setAuthLoading(false);
   };
 
   const fetchPendingReports = async () => {
@@ -271,82 +260,86 @@ export function AdminLayout() {
     <Layout hideNavigation={true}>
       <div className="min-h-screen bg-zinc-950 flex flex-col">
         {/* Toggle Bar / Header */}
-        <div className="h-12 border-b border-zinc-900 bg-zinc-950 flex items-center px-4 justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-zinc-500 hover:text-white"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            >
-              <ToggleLeft className={cn("h-5 w-5 transition-transform", !isSidebarOpen && "rotate-180")} />
-            </Button>
-            <h1 className="text-sm font-semibold text-zinc-400">Admin Console</h1>
+        {!location.pathname.includes("/admin/mission-control") && (
+          <div className="h-12 border-b border-zinc-900 bg-zinc-950 flex items-center px-4 justify-between">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-zinc-500 hover:text-white"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              >
+                <ToggleLeft className={cn("h-5 w-5 transition-transform", !isSidebarOpen && "rotate-180")} />
+              </Button>
+              <h1 className="text-sm font-semibold text-zinc-400">Admin Console</h1>
+            </div>
+            <div className="text-xs text-zinc-600">
+              User: <span className="text-zinc-400">{userName}</span>
+            </div>
           </div>
-          <div className="text-xs text-zinc-600">
-            User: <span className="text-zinc-400">{userName}</span>
-          </div>
-        </div>
+        )}
 
         <div className="flex-1 flex overflow-hidden">
           {/* Sidebar Navigation */}
-          <motion.aside
-            initial={false}
-            animate={{ width: isSidebarOpen ? 260 : 0, opacity: isSidebarOpen ? 1 : 0 }}
-            className="flex-shrink-0 border-r border-zinc-900 bg-zinc-950/50 overflow-hidden"
-          >
-            <div className="w-64 p-4">
-              <ScrollArea className="h-[calc(100vh-8rem)]">
-                <nav className="space-y-1">
-                  {adminNavItems.map((item, index) => {
-                    const Icon = item.icon;
-                    const isActive =
-                      location.pathname === item.path ||
-                      (item.path === "/admin" && location.pathname === "/admin") ||
-                      (item.path !== "/admin" && location.pathname.startsWith(item.path));
+          {!location.pathname.includes("/admin/mission-control") && (
+            <motion.aside
+              initial={false}
+              animate={{ width: isSidebarOpen ? 260 : 0, opacity: isSidebarOpen ? 1 : 0 }}
+              className="flex-shrink-0 border-r border-zinc-900 bg-zinc-950/50 overflow-hidden"
+            >
+              <div className="w-64 p-4">
+                <ScrollArea className="h-[calc(100vh-8rem)]">
+                  <nav className="space-y-1">
+                    {adminNavItems.map((item, index) => {
+                      const Icon = item.icon;
+                      const isActive =
+                        location.pathname === item.path ||
+                        (item.path === "/admin" && location.pathname === "/admin") ||
+                        (item.path !== "/admin" && location.pathname.startsWith(item.path));
 
-                    const showBadge =
-                      (item.id === "reports" && pendingReports > 0) ||
-                      (item.id === "help-feedback" && pendingFeedback > 0) ||
-                      (item.id === "reward-reports" && pendingRewardReports > 0);
+                      const showBadge =
+                        (item.id === "reports" && pendingReports > 0) ||
+                        (item.id === "help-feedback" && pendingFeedback > 0) ||
+                        (item.id === "reward-reports" && pendingRewardReports > 0);
 
-                    const badgeCount = item.id === "reports" ? pendingReports :
-                      item.id === "help-feedback" ? pendingFeedback :
-                        item.id === "reward-reports" ? pendingRewardReports : 0;
+                      const badgeCount = item.id === "reports" ? pendingReports :
+                        item.id === "help-feedback" ? pendingFeedback :
+                          item.id === "reward-reports" ? pendingRewardReports : 0;
 
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => {
-                          if (item.path.includes('.html')) {
-                            window.location.href = item.path;
-                          } else {
-                            navigate(item.path);
-                          }
-                        }}
-                        className={cn(
-                          "w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-left transition-all duration-200 text-sm",
-                          isActive
-                            ? "bg-zinc-800 text-white font-medium"
-                            : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900"
-                        )}
-                      >
-                        <div className="flex items-center gap-3">
-                          <Icon className="h-4 w-4" />
-                          <span>{item.label}</span>
-                        </div>
-                        {showBadge && (
-                          <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0">
-                            {badgeCount}
-                          </Badge>
-                        )}
-                      </button>
-                    );
-                  })}
-                </nav>
-              </ScrollArea>
-            </div>
-          </motion.aside>
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            if (item.path.includes('.html')) {
+                              window.location.href = item.path;
+                            } else {
+                              navigate(item.path);
+                            }
+                          }}
+                          className={cn(
+                            "w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-left transition-all duration-200 text-sm",
+                            isActive
+                              ? "bg-zinc-800 text-white font-medium"
+                              : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900"
+                          )}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Icon className="h-4 w-4" />
+                            <span>{item.label}</span>
+                          </div>
+                          {showBadge && (
+                            <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0">
+                              {badgeCount}
+                            </Badge>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </nav>
+                </ScrollArea>
+              </div>
+            </motion.aside>
+          )}
 
           {/* Main Content - Full Width */}
           <main className="flex-1 min-w-0 bg-[#09090b] relative">
@@ -357,3 +350,4 @@ export function AdminLayout() {
     </Layout>
   );
 }
+

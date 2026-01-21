@@ -69,7 +69,7 @@ export function useAnalytics(
         // 1. Сессии тестов
         supabase
           .from('game_sessions')
-          .select('score, total_questions, created_at, game_type, metadata') // Запрашиваем metadata для фильтрации
+          .select('score, total_questions, created_at, game_type') // metadata column missing in DB
           .eq('user_id', profileId)
           .or('game_type.eq.test_exam,game_type.eq.test_practice')
           .order('created_at', { ascending: false })

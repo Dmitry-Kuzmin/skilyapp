@@ -1,0 +1,1537 @@
+[
+  {
+    "topic_number": 0,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "Una cuadrícula de marcas blancas y rojas prohíbe…",
+      "en": "A grid of white and red marks prohibits…",
+      "ru": "Клетчатая разметка из белых и красных квадратов запрещает…"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solamente el estacionamiento.",
+          "en": "Only parking.",
+          "ru": "Только стоянку."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solamente la parada.",
+          "en": "Only stopping.",
+          "ru": "Только остановку."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "La parada, el estacionamiento o la utilización con otros fines.",
+          "en": "Stopping, parking or use for other purposes.",
+          "ru": "Остановку, стоянку или использование в других целях."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, una cuadrícula de marcas blancas y rojas indica el lugar donde empieza una zona de frenado de emergencia. Queda prohibido parar, estacionar o utilizar esta zona para cualquier otro fin que no sea la frenada de emergencia por fallo técnico en los sistemas de frenado del vehículo.",
+      "en": "According to the General Traffic Regulations, a grid of white and red marks indicates the start of an emergency braking zone. It is strictly prohibited to stop, park, or use this area for any purpose other than emergency braking due to a technical failure in the vehicle's braking systems.",
+      "ru": "🎓 Эта разметка в виде бело-красных «шахмат» обозначает начало полосы аварийного торможения. Она создана исключительно для спасения жизней в случае отказа тормозов, что часто встречается на затяжных спусках. На этой территории категорически запрещено совершать остановку, стоянку или использовать её для любых иных целей, кроме экстренного торможения. Занимая это место без критической необходимости, ты лишаешь водителя неуправляемого транспортного средства единственного шанса на безопасную остановку.\n\n🇷🇺 В РФ зона аварийной остановки обозначается соответствующим дорожным знаком, однако специфическая клетчатая разметка на асфальте в российских правилах не предусмотрена.\n\n💡 Видишь «шахматы» на дороге — это зона для тех, у кого «сгорели» тормоза. Не будь пешкой на пути у летящей фуры!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/e23ec410-5c7c-48b4-b522-0f8174ae0866-1659027700-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e23ec410-5c7c-48b4-b522-0f8174ae0866-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "e23ec410-5c7c-48b4-b522-0f8174ae0866",
+    "external_id": "e23ec410-5c7c-48b4-b522-0f8174ae0866"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "En este tramo de carretera, ¿está permitido hacer un cambio de sentido?",
+      "en": "On this stretch of road, is a U-turn permitted?",
+      "ru": "На данном участке дороги разрешено ли выполнение разворота?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": "Yes.",
+          "ru": "Да."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": "No.",
+          "ru": "Нет."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si hay un carril acondicionado para ello.",
+          "en": "Only if there is a designated lane for it.",
+          "ru": "Только при наличии специально обустроенной для этого полосы."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "El cambio de sentido está permitido siempre que no exista una señal que lo prohíba expresamente y la marca vial longitudinal sea discontinua. Debe realizarse de un solo giro, sin utilizar la marcha atrás y sin poner en peligro a otros usuarios. Si la maniobra impide la marcha de los vehículos que circulan detrás, el conductor debe desplazarse al arcén derecho hasta que las condiciones permitan realizarla con seguridad.",
+      "en": "A U-turn is permitted provided there is no sign expressly prohibiting it and the longitudinal road marking is a broken line. The maneuver must be completed in a single turn without using reverse gear and without endangering other road users. If the maneuver obstructs vehicles following behind, the driver must pull over to the right shoulder until conditions allow for a safe turn.",
+      "ru": "🎓 На данном участке дороги разрешено выполнение разворота, так как осевая разметка является прерывистой и отсутствуют запрещающие знаки. Для выполнения этого маневра на легковом автомобиле (Turismo) необходимо соблюсти три условия: разворот должен быть выполнен одним плавным движением без использования заднего хода, он не должен создавать опасности для других участников, и вы не должны мешать тем, кто едет сзади. Если ширина проезжей части (calzada) не позволяет развернуться сразу или вы создаете помеху попутным машинам, вы обязаны съехать на правую обочину (arcén) и дождаться безопасного момента. 🇷🇺 В Испании при развороте на узкой дороге правилами прямо предписано использовать правую обочину для ожидания или начала маневра, если вы мешаете попутному транспорту. 💡 Разворот — это танец в один такт: без заднего хода и не наступая на ноги соседям по потоку."
+    },
+    "image_url": "https://teorica.practicavial.com/question/a59ed904-3524-4cf4-b0c1-cff9f73717f5-1657895932-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a59ed904-3524-4cf4-b0c1-cff9f73717f5-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "a59ed904-3524-4cf4-b0c1-cff9f73717f5",
+    "external_id": "a59ed904-3524-4cf4-b0c1-cff9f73717f5"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Esta señal, ¿qué indica?",
+      "en": "What does this sign indicate?",
+      "ru": "Что означает этот дорожный знак?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Una estación de carga eléctrica que no dispone de surtidor de GLP.",
+          "en": "An electric charging station that does not have an LPG dispenser.",
+          "ru": "Станция зарядки электромобилей, на которой нет колонки для СУГ (GLP)."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El camión en el que se transporta un cargamento de GLP para su descarga en una estación de servicio de carburantes.",
+          "en": "The truck in which a cargo of LPG is transported for unloading at a fuel service station.",
+          "ru": "Грузовой автомобиль, перевозящий груз СУГ (GLP) для разгрузки на заправочной станции."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Una estación de servicio de carburantes con surtidor de GLP y estación de recarga eléctrica.",
+          "en": "A fuel service station with an LPG dispenser and an electric charging station.",
+          "ru": "Заправочная станция с колонкой для СУГ (GLP) и пунктом зарядки электромобилей."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Esta señal de servicio informa de la existencia de una estación de servicio de carburantes que dispone de surtidor de gas licuado de petróleo (GLP) o autogás y estación de recarga eléctrica. Los pictogramas combinados indican la disponibilidad de ambos servicios en la misma ubicación conforme al Reglamento General de Circulación.",
+      "en": "This service sign indicates the existence of a fuel service station equipped with a liquefied petroleum gas (LPG) dispenser and an electric vehicle charging station. The combined pictograms specify the availability of both alternative energy sources at the facility.",
+      "ru": "🎓 Этот знак относится к категории сервисных и сообщает, что на заправочной станции твой легковой автомобиль можно заправить не только традиционным топливом, но и сжиженным газом (GLP), а также подзарядить, если это электромобиль. Аббревиатура GLP расшифровывается как Gas Licuado de Petróleo, а символ EV (Electric Vehicle) со штекером обозначает точку зарядки. 💡 Видишь буквы — читай опции: GLP — это газ, EV — это ток. Вместе они — станция будущего!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/4125fcda-1b50-4ae3-ad07-d8d7098a4042-1759749430-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4125fcda-1b50-4ae3-ad07-d8d7098a4042-s-1.jpg?t=1768470868",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "4125fcda-1b50-4ae3-ad07-d8d7098a4042",
+    "external_id": "4125fcda-1b50-4ae3-ad07-d8d7098a4042"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Es recomendable que los guantes que se utilicen para conducir una motocicleta…",
+      "en": "It is recommended that the gloves used to ride a motorcycle…",
+      "ru": "Рекомендуется, чтобы перчатки, используемые для управления мотоциклом..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sean muy gruesos.",
+          "en": "Be very thick.",
+          "ru": "Были очень толстыми."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Permitan un agarre firme.",
+          "en": "Allow a firm grip.",
+          "ru": "Обеспечивали надежный захват."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sean reflectantes.",
+          "en": "Be reflective.",
+          "ru": "Были световозвращающими."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Los guantes forman parte del equipamiento de seguridad pasiva del motorista. Su función principal es proteger las manos contra la abrasión en caso de caída y contra condiciones climáticas adversas. Deben estar fabricados con materiales resistentes pero lo suficientemente flexibles para no comprometer la movilidad. Es fundamental que permitan un agarre firme y preciso de los mandos (acelerador, freno y embrague), por lo que no deben ser excesivamente gruesos para no restar sensibilidad al conductor.",
+      "en": "Gloves are an essential part of a motorcyclist's passive safety equipment. Their primary function is to protect the hands from abrasion in the event of a fall and from adverse weather conditions. They must be made of resistant yet flexible materials to avoid compromising mobility. It is essential that they allow a firm and precise grip on the controls (throttle, brake, and clutch); therefore, they should not be excessively thick to avoid reducing the rider's tactile sensitivity.",
+      "ru": "🎓 Перчатки — это важнейший элемент пассивной безопасности. Они защищают руки от «асфальтовой болезни» (травм при трении) и холода. Перчатки должны быть прочными, но гибкими. Слишком толстые перчатки мешают чувствовать рукоятки и рычаги, поэтому главное требование — они должны обеспечивать надежный захват и позволять тебе точно дозировать усилие на тормозе и газе. 🇷🇺 В отличие от Испании, где на экзаменах и в рекомендациях DGT делается упор на полную экипировку, в РФ ПДД строго требуют от мотоциклиста только наличие застегнутого мотошлема. 💡 Перчатка — это вторая кожа: должна защищать, но не мешать чувствовать руль."
+    },
+    "image_url": "https://teorica.practicavial.com/question/a7fe3671-d6b8-4fe2-a133-cbbeeccf95b5-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a7fe3671-d6b8-4fe2-a133-cbbeeccf95b5-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "a7fe3671-d6b8-4fe2-a133-cbbeeccf95b5",
+    "external_id": "a7fe3671-d6b8-4fe2-a133-cbbeeccf95b5"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "¿Cuáles son algunos de los principales sistemas ADAS que pueden encontrarse en los vehículos modernos para mejorar la seguridad vial?",
+      "en": "What are some of the main ADAS systems found in modern vehicles to improve road safety?",
+      "ru": "Какие из основных систем ADAS (продвинутых систем помощи водителю) встречаются в современных автомобилях для повышения безопасности?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sistema de navegación GPS, radio por satélite y control de volumen automático.",
+          "en": "GPS navigation system, satellite radio, and automatic volume control.",
+          "ru": "Система GPS-навигации, спутниковое радио и автоматическая регулировка громкости."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Frenado automático de emergencia, alerta de cambio involuntario de carril y control de crucero adaptativo.",
+          "en": "Automatic emergency braking, involuntary lane departure warning, and adaptive cruise control.",
+          "ru": "Автономное экстренное торможение, предупреждение о непроизвольном выезде из полосы движения и адаптивный круиз-контроль."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Bluetooth para llamadas manos libres, ajuste eléctrico de asientos y control climático automático.",
+          "en": "Bluetooth for hands-free calling, electric seat adjustment, and automatic climate control.",
+          "ru": "Bluetooth для громкой связи, электрорегулировка сидений и климат-контроль."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Los Sistemas Avanzados de Asistencia a la Conducción (ADAS) son dispositivos electrónicos integrados en el vehículo que actúan sobre los sistemas de mando (freno, dirección, motor) o emiten alertas para reducir la probabilidad de accidentes. Según la normativa de la DGT, sistemas como el frenado de emergencia autónomo (AEB), el mantenimiento de carril (LKA) y el control de crucero adaptativo son fundamentales para la seguridad activa. Otros elementos como el GPS o el confort no se consideran ADAS de seguridad vial.",
+      "en": "Advanced Driver Assistance Systems (ADAS) are electronic technologies integrated into the vehicle that intervene in control systems (brakes, steering, engine) or issue alerts to reduce the likelihood of accidents. According to DGT regulations, systems such as Autonomous Emergency Braking (AEB), Lane Keeping Assist (LKA), and Adaptive Cruise Control are essential for active safety. Other features like GPS or comfort settings are not classified as road safety ADAS.",
+      "ru": "🎓 Системы ADAS — это твои электронные телохранители в легковом автомобиле (Turismo). К ним относятся только те функции, которые напрямую влияют на безопасность: автономное экстренное торможение (AEB), которое остановит машину перед препятствием; предупреждение о выезде из полосы движения (LDW), которое следит за разметкой; и адаптивный круиз-контроль, держащий дистанцию. В Испании на практическом экзамене DGT разрешено использовать многие из этих систем, но помни: они лишь помогают, а управляет ТС и несет ответственность всегда водитель. Мультимедиа и комфорт (радио, климат-контроль) к ADAS не относятся. 🇷🇺 В Испании использование камер заднего вида и систем помощи при старте на подъеме официально разрешено на экзамене в ГИБДД (DGT), что является важным отличием от более строгих регламентов в некоторых других странах. 💡 ADAS — это «Активная Дистанционная Авто-Страховка»: всё, что само тормозит, рулит или пищит при опасности."
+    },
+    "image_url": "https://teorica.practicavial.com/question/c21b1465-cb8b-4059-b6ea-b3d9b442f675-1734422531-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c21b1465-cb8b-4059-b6ea-b3d9b442f675-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "c21b1465-cb8b-4059-b6ea-b3d9b442f675",
+    "external_id": "c21b1465-cb8b-4059-b6ea-b3d9b442f675"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "Las circunstancias que aumentan la probabilidad de que ocurra un accidente se denomina…",
+      "en": "The circumstances that increase the probability of an accident occurring are called…",
+      "ru": "Обстоятельства, которые увеличивают вероятность возникновения дорожно-транспортного происшествия, называются…"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Marcadores de riesgo.",
+          "en": "Risk markers.",
+          "ru": "Маркеры риска."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Factores de accidentalidad directa.",
+          "en": "Direct accident factors.",
+          "ru": "Факторы прямой аварийности."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Factores de riesgo.",
+          "en": "Risk factors.",
+          "ru": "Факторы риска."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Se definen como factores de riesgo aquellas circunstancias o variables que incrementan la probabilidad de que se produzca un siniestro vial. Los principales factores se dividen en tres grupos: factor humano (velocidad, alcohol, distracciones, fatiga), factor vehículo (mantenimiento deficiente) y factor vía y su entorno (climatología adversa). La mayoría de los accidentes son evitables si se actúa sobre el factor humano, que es el responsable de la gran mayoría de los incidentes.",
+      "en": "Risk factors are defined as circumstances or variables that increase the probability of a road traffic accident. The main factors are divided into three groups: human factor (speed, alcohol, distractions, fatigue), vehicle factor (poor maintenance), and road and environment factor (adverse weather). Most accidents are preventable by addressing the human factor, which is responsible for the vast majority of incidents.",
+      "ru": "🎓 Факторы риска — это те условия или действия, которые делают аварию более вероятной. Помни, что почти 100% ДТП можно избежать, если исключить эти факторы. Основные из них относятся к «человеческому фактору»: это превышение скорости, употребление алкоголя, отвлечение внимания (телефон), усталость и сонливость. Твоя задача как водителя, управляющего легковым автомобилем, — контролировать себя и состояние своего ТС, так как именно ошибки человека становятся причиной большинства трагедий на дороге.\n💡 Фактор риска — это «шанс» на беду. Чем меньше факторов, тем целее легковой автомобиль."
+    },
+    "image_url": "https://teorica.practicavial.com/question/529b620c-8bc0-4479-b2e2-b8a99c7dfaa4-1659019253-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/529b620c-8bc0-4479-b2e2-b8a99c7dfaa4-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "529b620c-8bc0-4479-b2e2-b8a99c7dfaa4",
+    "external_id": "529b620c-8bc0-4479-b2e2-b8a99c7dfaa4"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "¿Cuántos puntos perderá un conductor sancionado por circular sin hacer uso del cinturón de seguridad, cuando exista obligación de llevarlo?",
+      "en": "How many points will a driver lose for driving without using a seatbelt when it is mandatory?",
+      "ru": "Сколько пунктов потеряет водитель, наказанный за езду без ремня безопасности, когда его использование обязательно?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "3 puntos.",
+          "en": "3 points.",
+          "ru": "3 пункта."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "4 puntos.",
+          "en": "4 points.",
+          "ru": "4 пункта."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Ninguno, sólo conlleva sanción económica.",
+          "en": "None, it only involves a financial penalty.",
+          "ru": "Нисколько, это влечет только денежный штраф."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "De acuerdo con la normativa vigente de la DGT, no hacer uso del cinturón de seguridad, sistemas de retención infantil o casco se considera una infracción grave. Tras la última reforma de la Ley de Seguridad Vial, la sanción conlleva la pérdida de 4 puntos y una multa de 200 euros.",
+      "en": "According to current DGT regulations, failure to use seatbelts, child restraint systems, or helmets is considered a serious offense. Following the latest reform of the Road Safety Law, the penalty involves the loss of 4 points and a 200-euro fine.",
+      "ru": "🎓 В Испании за управление легковым автомобилем (Turismo) без использования ремня безопасности, а также за перевозку детей без детских удерживающих устройств, водитель наказывается штрафом в 200 евро и потерей 4 пунктов. Это же правило касается и отсутствия защитного шлема. Наказание было ужесточено с 3 до 4 пунктов для повышения безопасности на дорогах.\n\n🇷🇺 В РФ за непристегнутый ремень предусмотрен административный штраф, но система вычета баллов (пунктов) из водительского удостоверения в настоящее время не применяется.\n\n💡 Ремень — твой «четвертый» лучший друг: не пристегнулся — минус 4 пункта!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/62dccec5-f8e7-43b2-8f40-2cda1e6ee313-1734420215-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/62dccec5-f8e7-43b2-8f40-2cda1e6ee313-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "62dccec5-f8e7-43b2-8f40-2cda1e6ee313",
+    "external_id": "62dccec5-f8e7-43b2-8f40-2cda1e6ee313"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "Esta señal situada sobre un carril en un puesto de peaje indica que sólo se puede pagar...",
+      "en": "This sign located over a lane at a toll plaza indicates that payment can only be made...",
+      "ru": "Этот знак, расположенный над полосой на пункте оплаты, указывает на то, что оплата может быть произведена только..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "con tarjeta de crédito.",
+          "en": "with a credit card.",
+          "ru": "банковской картой."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "en metálico.",
+          "en": "in cash.",
+          "ru": "наличными."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "mediante el sistema de peaje dinámico o telepeaje.",
+          "en": "through the dynamic toll or telepeaje system.",
+          "ru": "с помощью системы динамической оплаты или телеплатежа (telepeaje)."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "La señal R-418, de forma circular y fondo azul, es una señal de obligación que indica la vía exclusiva para vehículos dotados de equipo de telepeaje operativo. El pago debe realizarse obligatoriamente mediante el sistema de peaje dinámico o telepeaje. No se permite el pago en metálico ni con tarjeta en los carriles así señalizados.",
+      "en": "Sign R-418 is a mandatory circular sign indicating a lane reserved exclusively for vehicles equipped with an operational electronic toll system (telepeaje). Payment must be made through the dynamic toll system. Cash and credit card payments are not accepted in lanes marked with this circular sign.",
+      "ru": "🎓 Круглый синий знак с белой буквой «T» является предписывающим. Он обозначает полосу, предназначенную исключительно для проезда легковых автомобилей и других ТС, оборудованных работающей системой бесконтактной оплаты (telepeaje). На такой полосе невозможно расплатиться наличными или банковской картой — проезд разрешен только при наличии специального бортового устройства. Если бы знак был квадратным, он бы лишь давал возможность такой оплаты, но круглый знак делает использование системы обязательным. 💡 Круг — это «Кольцо» обязательств: только спецприбор, забудь про карту и нал!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/689afa23-cbc0-48d4-8ea0-94ed7997665e-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/689afa23-cbc0-48d4-8ea0-94ed7997665e-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "689afa23-cbc0-48d4-8ea0-94ed7997665e",
+    "external_id": "689afa23-cbc0-48d4-8ea0-94ed7997665e"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Una persona que obtiene el permiso de la clase B a los 18 años, ¿debe renovarlo posteriormente?",
+      "en": "Must a person who obtains a class B license at age 18 renew it later?",
+      "ru": "Должен ли человек, получивший водительское удостоверение категории B в 18 лет, продлевать его в дальнейшем?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque este permiso no pierde nunca su validez.",
+          "en": "No, because this license never loses its validity.",
+          "ru": "Нет, так как это удостоверение никогда не теряет своей силы."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, a los diez años de su expedición, como norma general.",
+          "en": "Yes, ten years after its issuance, as a general rule.",
+          "ru": "Да, через десять лет после выдачи, как общее правило."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, salvo que obtenga cualquier otro permiso o licencia de conducción.",
+          "en": "No, unless they obtain any other driving permit or license.",
+          "ru": "Нет, за исключением случаев получения любого другого водительского удостоверения или лицензии."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "El permiso de conducción de la clase B tiene un período de vigencia de 10 años hasta que el titular cumpla los 65 años. A partir de esa edad, la renovación debe realizarse cada 5 años. La vigencia está condicionada a que el titular mantenga las aptitudes psicofísicas necesarias, verificadas mediante un informe de aptitud emitido por un centro de reconocimiento de conductores autorizado. Conducir con el permiso caducado está prohibido.",
+      "en": "Class B driving licenses have a validity period of 10 years until the holder reaches the age of 65. From age 65 onwards, the renewal must be carried out every 5 years. Validity is subject to the holder maintaining the required psychophysical aptitudes, verified through an aptitude report issued by an authorized driver recognition center. Driving with an expired license is prohibited.",
+      "ru": "🎓 Твое водительское удостоверение на категорию B (Легковой автомобиль) имеет ограниченный срок действия. По общему правилу, его необходимо продлевать каждые 10 лет. Этот цикл сохраняется до тех пор, пока тебе не исполнится 65 лет. После достижения 65-летнего возраста медосмотр и продление прав становятся обязательными каждые 5 лет. Для продления тебе нужно пройти проверку в авторизованном центре и получить медицинское заключение о психофизической пригодности. Важно: если срок действия прав истек, вождение запрещено — при остановке полиция изымет документ до момента его официального продления.\n\n💡 Десять лет — как юбилей, права обновил и в путь скорей! А после шестидесяти пяти — каждые пять лет к врачу загляни."
+    },
+    "image_url": "https://teorica.practicavial.com/question/d013f243-7bbc-44bb-b59e-fe5be16279b8-1658322155-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d013f243-7bbc-44bb-b59e-fe5be16279b8-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "d013f243-7bbc-44bb-b59e-fe5be16279b8",
+    "external_id": "d013f243-7bbc-44bb-b59e-fe5be16279b8"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "Este vehículo tiene las luces blancas encendidas. ¿Qué indican?",
+      "en": "This vehicle has its white lights on. What do they indicate?",
+      "ru": "У этого легкового автомобиля включены белые огни. Что они означают?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que va a girar a la izquierda.",
+          "en": "That it is going to turn left.",
+          "ru": "Что он собирается повернуть налево."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Que tiene puesta la marcha atrás.",
+          "en": "That it has engaged reverse gear.",
+          "ru": "Что включена задняя передача."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que va a empezar a circular.",
+          "en": "That it is going to start moving.",
+          "ru": "Что он собирается начать движение."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Vehículos, la luz de marcha atrás es de color blanco y tiene por finalidad iluminar la vía por detrás del vehículo y advertir a los demás usuarios que el vehículo va a circular o está circulando hacia atrás. Es obligatoria para todos los automóviles, excepto motocicletas, y opcional para remolques y semirremolques. Se activa automáticamente al engranar la marcha atrás con el contacto puesto.",
+      "en": "According to the General Vehicle Regulations, the reverse light is white and its purpose is to illuminate the road behind the vehicle and warn other users that the vehicle is moving or about to move backwards. It is mandatory for all motor vehicles, except motorcycles, and optional for trailers and semi-trailers. It activates automatically when reverse gear is engaged with the ignition on.",
+      "ru": "🎓 Белые огни в задней части легкового автомобиля — это сигнал заднего хода. Они выполняют две функции: освещают путь сзади и предупреждают других участников движения о том, что транспортное средство намерено двигаться или уже движется назад. Эти огни включаются автоматически при включении задней передачи. Для всех автомобилей, кроме мотоциклов, установка хотя бы одного такого фонаря является обязательной. 💡 Белый свет сзади — берегись, сдает назад!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/b3101c1f-5540-4f4b-a419-750f520936b0-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b3101c1f-5540-4f4b-a419-750f520936b0-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "b3101c1f-5540-4f4b-a419-750f520936b0",
+    "external_id": "b3101c1f-5540-4f4b-a419-750f520936b0"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "Entre otros, ¿Qué sistemas ADAS están permitidos en las pruebas de control de aptitudes y comportamientos para la obtención del permiso de conducción?",
+      "en": "Among others, which ADAS systems are permitted during the skills and behavior control tests for obtaining a driving license?",
+      "ru": "Какие из систем ADAS, помимо прочих, разрешены при проведении практического экзамена на получение водительского удостоверения?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Asistente de estacionamiento",
+          "en": "Parking assistant",
+          "ru": "Ассистент парковки"
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "TSR o Reconocimiento de señales de tráfico",
+          "en": "TSR or Traffic sign recognition",
+          "ru": "TSR или Система распознавания дорожных знаков"
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "AEB o Frenado de emergencia urbano e interurbano- y •Hill Holder o Sistema de salida en pendiente",
+          "en": "AEB or Urban and interurban emergency braking- and •Hill Holder or Hill start assist system",
+          "ru": "AEB (Автономное экстренное торможение в городе и на трассе) и Hill Holder (Система помощи при трогании на подъеме)"
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según la normativa vigente de la DGT para las pruebas de aptitud, se permite el uso de sistemas ADAS que no sustituyan la actuación del conductor en el control del vehículo. Los sistemas autorizados incluyen: Start-Stop, Hill Holder, cámaras de visión trasera y 360º, frenado de emergencia (AEB/EBD), limitador de velocidad (SLI) y el registrador de datos (EDR). La activación de estos sistemas no supondrá penalización en la calificación del examen.",
+      "en": "According to current DGT regulations for driving tests, the use of ADAS systems that do not replace the driver's control of the vehicle is permitted. Authorized systems include: Start-Stop, Hill Holder, rear-view and 360º cameras, emergency braking (AEB/EBD), speed limiter (SLI), and the event data recorder (EDR). The activation of these systems will not result in a penalty during the exam evaluation.",
+      "ru": "🎓 При сдаче экзамена на легковой автомобиль (Turismo) в Испании официально разрешено использовать ряд систем ADAS. В этот список входят: система Start-Stop, Hill Holder (помощь при трогании на подъеме), камеры заднего вида и кругового обзора, система экстренного торможения (AEB), ограничитель скорости и регистратор данных (EDR). Эти системы считаются инструментами безопасности, и их работа во время теста не считается ошибкой и не влияет на оценку. Важно понимать, что системы, которые полностью берут на себя управление (например, автопарковщик), по-прежнему запрещены. 💡 Помощники ADAS на экзамене — это твои легальные союзники: Hill Holder не даст откатиться назад, а AEB подстрахует в экстренной ситуации!"
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d6b39dcc-03e4-4429-a3dd-8729dff6b9d2-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 0,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "Cuando vea esta marca vial, debe saber que...",
+      "en": "When you see this road marking, you should know that...",
+      "ru": "Увидев такую дорожную разметку, вы должны знать, что..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "los peatones no tienen prioridad.",
+          "en": "pedestrians do not have priority.",
+          "ru": "пешеходы не имеют приоритета."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "el paso para peatones está sobreelevado.",
+          "en": "the pedestrian crossing is elevated.",
+          "ru": "пешеходный переход является приподнятым."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "es un paso para peatones regulado por semáforos.",
+          "en": "it is a pedestrian crossing regulated by traffic lights.",
+          "ru": "это пешеходный переход, регулируемый светофорами."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "La marca vial consistente en una serie de triángulos blancos situados sobre la rampa de acceso a un paso para peatones indica que dicho paso se encuentra sobreelevado respecto a la rasante de la calzada. Esta señalización tiene como objetivo advertir al conductor de la presencia de un resalto o reductor de velocidad, obligando a moderar la velocidad para garantizar la seguridad de los peatones, quienes mantienen la prioridad de paso en todo momento.",
+      "en": "The road marking consisting of a series of white triangles located on the access ramp of a pedestrian crossing indicates that the crossing is elevated above the road level. This marking serves to warn the driver of a speed hump or speed reducer, requiring them to slow down to ensure the safety of pedestrians, who maintain the right of way at all times.",
+      "ru": "🎓 Наличие белых треугольников, нанесенных на наклонную поверхность перед пешеходным переходом, означает, что переход является приподнятым над уровнем проезжей части. Такая разметка служит для предупреждения водителя о необходимости снизить скорость перед искусственной неровностью. Помни, что на таком переходе пешеходы всегда имеют приоритет, а сама конструкция работает как физический ограничитель скорости для твоего легкового автомобиля. 🇷🇺 В РФ приподнятые пешеходные переходы обычно обозначаются разметкой в виде шахматного поля, в то время как в Испании используются именно треугольники на въездной рампе. 💡 Видишь «зубы» на асфальте — значит, дорога «кусается» и подпрыгнет, притормози!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/9b3410e6-1c5a-45f2-972f-fc7407d0637a-1759767033-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9b3410e6-1c5a-45f2-972f-fc7407d0637a-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "9b3410e6-1c5a-45f2-972f-fc7407d0637a",
+    "external_id": "9b3410e6-1c5a-45f2-972f-fc7407d0637a"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "¿El permiso de conducción de la clase A1, autoriza conducir motocicletas con sidecar?",
+      "en": "Does the class A1 driving license authorize driving motorcycles with a sidecar?",
+      "ru": "Разрешает ли водительское удостоверение категории A1 управление мотоциклами с боковым прицепом?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, motocicletas de cualquier cilindrada.",
+          "en": "Yes, motorcycles of any displacement.",
+          "ru": "Да, мотоциклами с любым рабочим объемом двигателя."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, motocicletas con una cilindrada de 125 centímetros cúbicos como máximo y una potencia no superior a 11 kilovatios.",
+          "en": "Yes, motorcycles with a maximum displacement of 125 cubic centimeters and a power not exceeding 11 kilowatts.",
+          "ru": "Да, мотоциклами с рабочим объемом двигателя не более 125 кубических сантиметров и мощностью не более 11 киловатт."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": "No, in no case.",
+          "ru": "Нет, ни в коем случае."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "El permiso de la clase A1 autoriza a conducir motocicletas, con o sin sidecar, con una cilindrada máxima de 125 cm³, una potencia máxima de 11 kW y una relación potencia/peso máxima de 0,1 kW/kg. Asimismo, permite la conducción de triciclos de motor cuya potencia no exceda de 15 kW y todos los vehículos que autoriza el permiso AM (ciclomotores de 2, 3 y 4 ruedas).",
+      "en": "The class A1 license authorizes driving motorcycles, with or without a sidecar, with a maximum displacement of 125 cc, a maximum power of 11 kW, and a maximum power-to-weight ratio of 0.1 kW/kg. It also permits driving motor tricycles with a power not exceeding 15 kW and all vehicles covered by the AM license (2, 3, and 4-wheeled mopeds).",
+      "ru": "🎓 Категория A1 разрешает управление мотоциклами как с боковым прицепом, так и без него, при условии, что рабочий объем двигателя не превышает 125 куб. см, а мощность составляет не более 11 кВт. Дополнительно это право распространяется на трициклы мощностью до 15 кВт и все транспортные средства, доступные для категории AM (мопеды и легкие квадрициклы). Важно помнить про соотношение мощности к весу — максимум 0,1 кВт/кг. Для водителей легкового автомобиля (категория B) в Испании это право открывается автоматически после 3 лет стажа, но только для езды внутри страны.\n\n🇷🇺 В РФ категория A1 также ограничена 125 куб. см и 11 кВт.\n\n💡 А1 — это \"Акула на минималках\": 125 кубиков, 11 киловатт и коляска для компании."
+    },
+    "image_url": "https://teorica.practicavial.com/question/b29b5a28-2608-4dd2-802f-088964341be9-1658321614-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b29b5a28-2608-4dd2-802f-088964341be9-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "b29b5a28-2608-4dd2-802f-088964341be9",
+    "external_id": "b29b5a28-2608-4dd2-802f-088964341be9"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "¿En esta vía, si su vehículo puede superar los 80 km/h, por qué carril debe circular?",
+      "en": "On this road, if your vehicle can exceed 80 km/h, which lane should you drive in?",
+      "ru": "На этой дороге, если ваш легковой автомобиль может развивать скорость более 80 км/ч, по какой полосе движения вы должны ехать?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por el carril en el que haya menos vehículos.",
+          "en": "In the lane with the fewest vehicles.",
+          "ru": "По полосе, на которой меньше всего транспортных средств."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Por el carril central, aunque si las circunstancias lo permiten, debe circular por el carril derecho.",
+          "en": "In the center lane, although if circumstances permit, you must drive in the right lane.",
+          "ru": "По центральной полосе, хотя, если обстоятельства позволяют, вы должны двигаться по правой полосе."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Por el carril central, ya que el carril derecho está reservado para los vehículos que no puedan superar dicha velocidad.",
+          "en": "In the center lane, as the right lane is reserved for vehicles that cannot exceed that speed.",
+          "ru": "По центральной полосе, так как правая полоса зарезервирована для транспортных средств, которые не могут превысить указанную скорость."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, en calzadas fuera de poblado con más de un carril para el mismo sentido, se circulará normalmente por el situado más a su derecha. Los carriles adicionales condicionados por señales de velocidad mínima obligatoria (S-50) solo deben utilizarse cuando las circunstancias del tráfico lo aconsejen (por ejemplo, para realizar un adelantamiento), siempre que se circule a una velocidad igual o superior a la indicada. El hecho de poder superar dicha velocidad no exime de la obligación de circular por el carril derecho cuando esté libre.",
+      "en": "According to the General Traffic Regulations, on roads outside built-up areas with more than one lane for the same direction, you must normally drive in the lane furthest to the right. Additional lanes conditioned by mandatory minimum speed signs (S-50) should only be used when traffic conditions warrant it (e.g., for overtaking), provided you maintain a speed equal to or higher than indicated. Being able to exceed that speed does not waive the obligation to drive in the right lane when it is clear.",
+      "ru": "🎓 Вне населенного пункта на дорогах с несколькими полосами в одном направлении ПДД Испании обязывают тебя всегда двигаться по правой полосе. Дополнительные полосы, на которых установлена минимально допустимая скорость, предназначены для разгрузки потока и опережения. Если твой легковой автомобиль способен ехать быстрее указанного лимита, ты имеешь право использовать центральную полосу, но только если правая занята. Как только правая полоса освобождается, ты обязан вернуться в неё, независимо от того, насколько мощный у тебя двигатель. 🇷🇺 В РФ действует аналогичное требование (пункт 9.4 ПДД), однако в Испании за необоснованное нахождение в левых рядах при свободном правом («синдром левой полосы») штрафуют гораздо активнее. 💡 Будь как скромный гость: зашел на центральную полосу, сделал дело (опередил) и вернулся к себе «домой» на правую."
+    },
+    "image_url": "https://teorica.practicavial.com/question/89e8b5ba-6b5c-45fc-a995-1e43338d8b1c-1658168570-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/89e8b5ba-6b5c-45fc-a995-1e43338d8b1c-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "89e8b5ba-6b5c-45fc-a995-1e43338d8b1c",
+    "external_id": "89e8b5ba-6b5c-45fc-a995-1e43338d8b1c"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "Este conjunto de vehículos con remolque de 750 kg de MMA, ¿a qué velocidad puede circular como máximo en una autovía?",
+      "en": "At what maximum speed can this vehicle combination with a trailer of 750 kg MMA travel on a dual carriageway (autovía)?",
+      "ru": "С какой максимальной скоростью может двигаться этот состав транспортных средств с прицепом РММ (MMA) 750 кг по скоростной дороге (autovía)?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A 100 km/h.",
+          "en": "At 100 km/h.",
+          "ru": "100 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A 120 km/h.",
+          "en": "At 120 km/h.",
+          "ru": "120 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A 90 km/h.",
+          "en": "At 90 km/h.",
+          "ru": "90 км/ч."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Circulación, los conjuntos de vehículos, independientemente de si el remolque es ligero (hasta 750 kg de MMA) o no, tienen establecida una velocidad máxima de 90 km/h en autopistas y autovías.",
+      "en": "According to the General Circulation Regulations, vehicle combinations, regardless of whether the trailer is light (up to 750 kg MMA) or non-light, have a maximum speed limit of 90 km/h on motorways and dual carriageways.",
+      "ru": "🎓 Согласно ПДД Испании, любой состав транспортных средств (Turismo с прицепом), независимо от того, является ли прицеп легким (до 750 кг MMA) или тяжелым, имеет ограничение скорости 90 км/ч на Autopista/Autovía. Даже если одиночный легковой автомобиль может развивать 120 км/ч, наличие любого прицепа снижает этот лимит. 💡 Прицеп — это «якорь»: на скоростной трассе он всегда «срезает» твой максимум до 90."
+    },
+    "image_url": "https://teorica.practicavial.com/question/0be5272d-9628-4c60-9916-5fb8aea45436-1653063914-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0be5272d-9628-4c60-9916-5fb8aea45436-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "0be5272d-9628-4c60-9916-5fb8aea45436",
+    "external_id": "0be5272d-9628-4c60-9916-5fb8aea45436"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "¿Qué significa esta señal situada a la entrada de una calle?",
+      "en": "What does this sign at the entrance of a street mean?",
+      "ru": "Что означает этот знак, установленный на въезде на улицу?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Entrada prohibida a todos los vehículos excepto motocicletas.",
+          "en": "Entry prohibited to all vehicles except motorcycles.",
+          "ru": "Въезд запрещен всем транспортным средствам, кроме мотоциклов."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Zona de bajas emisiones.",
+          "en": "Low emission zone.",
+          "ru": "Зона с низким уровнем выбросов."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Entrada prohibida a todos los vehículos a motor.",
+          "en": "Entry prohibited to all motor vehicles.",
+          "ru": "Въезд запрещен всем механическим транспортным средствам."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Esta señal (R-120) indica la prohibición de acceso a vehículos en función de su distintivo ambiental u otros criterios ambientales establecidos. Delimita una Zona de Bajas Emisiones (ZBE). Las condiciones específicas de restricción se detallan en un panel complementario o en el cartel donde se incluya la señal. El acceso con un vehículo no autorizado conlleva una sanción económica de 200 euros.",
+      "en": "This sign (R-120) indicates a prohibition of entry for vehicles based on their environmental badge or other established environmental criteria. It marks a Low Emission Zone (ZBE). Specific restriction conditions are detailed on a supplementary panel or on the poster where the sign is included. Access with an unauthorized vehicle results in a fine of 200 euros.",
+      "ru": "🎓 Этот знак обозначает зону с низким уровнем выбросов (ZBE). Он запрещает въезд легковым автомобилям, чьи выбросы превышают установленные нормы. Обычно проезд разрешен только ТС с экологическими наклейками «0», «ECO» или «C», о чем сообщает дополнительная табличка под знаком. Тебе как водителю легкового автомобиля важно помнить: отсутствие нужной наклейки при въезде в такую зону карается штрафом в 200 евро. 🇷🇺 В Испании допуск в экологические зоны регулируется буквенными наклейками (0, ECO, C, B), а не цифрами экологического класса в документах. 💡 Знак ZBE — это «Зона Бережного Естествознания»: без нужной наклейки въезд превращается в дорогой штраф!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/eb6d4f2b-79f5-4258-999c-d52f59943643-1734432628-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/eb6d4f2b-79f5-4258-999c-d52f59943643-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "eb6d4f2b-79f5-4258-999c-d52f59943643",
+    "external_id": "eb6d4f2b-79f5-4258-999c-d52f59943643"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "Esta señal significa que...",
+      "en": "This sign means that...",
+      "ru": "Этот знак означает, что..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "se tiene preferencia respecto a los vehículos que circulan en sentido contrario.",
+          "en": "you have priority over vehicles traveling in the opposite direction.",
+          "ru": "вы имеете преимущество перед транспортными средствами, движущимися во встречном направлении."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "únicamente se puede seguir de frente.",
+          "en": "you can only continue straight ahead.",
+          "ru": "разрешено движение только прямо."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "circula por una calzada de sentido único.",
+          "en": "you are driving on a one-way road.",
+          "ru": "вы движетесь по проезжей части с односторонним движением."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "La señal R-400c pertenece a la categoría de señales de obligación. Indica que el único sentido permitido para los conductores de cualquier vehículo es el que marca la flecha, en este caso, de frente. Esta señal no debe confundirse con la señal informativa de calzada de sentido único (S-11), la cual es cuadrada y no prohíbe la circulación en sentido contrario por sí misma, sino que informa de la configuración de la vía.",
+      "en": "The R-400c sign belongs to the category of mandatory signs. It indicates that the only permitted direction for drivers of any vehicle is the one shown by the arrow, in this case, straight ahead. This sign should not be confused with the one-way road information sign (S-11), which is square and does not prohibit oncoming traffic by itself, but rather informs about the road configuration.",
+      "ru": "🎓 Круглый синий знак R-400c является предписывающим. Он обязывает водителя легкового автомобиля двигаться строго в направлении, указанном стрелкой — только прямо. Этот знак запрещает любые повороты и разворот на данном участке или перекрестке. Важно не путать его с квадратным информационным знаком: наш знак не гарантирует, что дорога односторонняя. Встречный транспорт может присутствовать, но тебе разрешено ехать только прямо по своей полосе движения.\n\n💡 Круг — это строгий приказ, а квадрат — просто информация. Видишь стрелку в синем круге? Руль держи ровно, ни шагу в сторону!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/f1cdb8c4-2414-42e9-ba18-fd9e1189135f-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f1cdb8c4-2414-42e9-ba18-fd9e1189135f-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "f1cdb8c4-2414-42e9-ba18-fd9e1189135f",
+    "external_id": "f1cdb8c4-2414-42e9-ba18-fd9e1189135f"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "¿Qué indica la señal?",
+      "en": "What does this sign indicate?",
+      "ru": "Что означает этот дорожный знак?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que debo obedecer las normas de circulación de carretera.",
+          "en": "That I must obey the traffic rules for interurban roads.",
+          "ru": "Что я должен соблюдать правила движения для загородных дорог."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Que debo obedecer las normas de circulación de las vías urbanas.",
+          "en": "That I must obey the traffic rules for urban roads.",
+          "ru": "Что я должен соблюдать правила движения для городских дорог."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que la velocidad máxima permitida es de 60 kilómetros por hora.",
+          "en": "That the maximum speed allowed is 60 kilometers per hour.",
+          "ru": "Что максимально разрешенная скорость составляет 60 километров в час."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "La señal S-500 indica el inicio de un poblado. A partir de este punto, rigen las normas de circulación aplicables a las vías urbanas, lo que implica cumplir con los límites de velocidad urbanos y la restricción del uso de señales acústicas, salvo para evitar un accidente.",
+      "en": "Sign S-500 indicates the beginning of a built-up area. From this point, urban traffic regulations apply, requiring compliance with urban speed limits and restrictions on the use of audible warning devices, except to prevent an accident.",
+      "ru": "🎓 Этот знак обозначает въезд в населенный пункт. С этого момента водитель легкового автомобиля обязан соблюдать правила движения, действующие на городских дорогах: это касается лимитов скорости, правил парковки и запрета на подачу звуковых сигналов без экстренной необходимости. 🇷🇺 В отличие от РФ, где знак начала населенного пункта на белом фоне имеет тонкую черную рамку, в Испании такой знак выделен жирной красной окантовкой. 💡 Красная рамка — городская огранка: сбавь газ, здесь живут люди."
+    },
+    "image_url": "https://teorica.practicavial.com/question/dc452b04-db66-45d4-8993-261750c9478e-1734458369-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/dc452b04-db66-45d4-8993-261750c9478e-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "dc452b04-db66-45d4-8993-261750c9478e",
+    "external_id": "dc452b04-db66-45d4-8993-261750c9478e"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "En esta situación, ¿qué marcas viales debe seguir?",
+      "en": "In this situation, which road markings should you follow?",
+      "ru": "В данной ситуации какой разметке вы должны следовать?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Las de color blanco.",
+          "en": "The white ones.",
+          "ru": "Линиям белого цвета."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Las de color amarillo, ya que se trata de una zona de obras.",
+          "en": "The yellow ones, as it is a construction zone.",
+          "ru": "Линиям желтого цвета, так как это зона дорожных работ."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Ninguna, ya que el trazado viene marcado por las señales de balizamiento, y las marcas nos son obligatorias.",
+          "en": "None, as the path is marked by signaling devices, and markings are not mandatory.",
+          "ru": "Никакой, так как траектория обозначена сигнальными устройствами, а разметка не обязательна."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "En zonas de obras, las marcas viales de color amarillo prevalecen sobre las marcas blancas permanentes. Según el Reglamento General de Circulación, la señalización de obras tiene el mismo significado que la señalización normal, pero el color amarillo advierte de su carácter temporal y prioritario para guiar el tráfico de forma segura a través del tramo afectado. La obligatoriedad de estas marcas se mantiene constante, independientemente de la presencia activa de operarios en la calzada.",
+      "en": "In roadwork zones, yellow road markings take precedence over permanent white markings. According to the General Traffic Regulations, construction signaling carries the same regulatory weight as standard signaling, but the yellow color indicates its temporary and priority nature for guiding traffic through the affected section. Compliance with these markings is mandatory at all times, regardless of whether workers are currently present on the road.",
+      "ru": "🎓 В зонах дорожных работ временная разметка всегда имеет приоритет над постоянной. Если на проезжей части нанесены линии желтого цвета, ты обязан следовать именно им, даже если они противоречат старым белым линиям. Желтая разметка определяет безопасную временную траекторию движения по калсаде. Это правило действует круглосуточно: даже если в данный момент на объекте нет рабочих, временные знаки и разметка остаются обязательными. Помни, что персонал дорожных служб в таких зонах имеет право регулировать движение, и их указания обязательны для водителя легкового автомобиля так же, как приказы полиции. 🇷🇺 В Испании временная разметка желтая, в то время как в РФ она оранжевая, но принцип их приоритета над белой разметкой идентичен. 💡 Желтый — цвет главного: на время ремонта забудь про белые полосы!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/5bb13699-28b2-494e-b677-233635ce202d-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5bb13699-28b2-494e-b677-233635ce202d-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "5bb13699-28b2-494e-b677-233635ce202d",
+    "external_id": "5bb13699-28b2-494e-b677-233635ce202d"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "¿Qué le indica la señal?",
+      "en": "What does this sign indicate?",
+      "ru": "Что означает этот дорожный знак?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Control de velocidad mediante medios aéreos.",
+          "en": "Speed control by aerial means.",
+          "ru": "Контроль скорости с помощью воздушных средств."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Zona de coexistencia.",
+          "en": "Coexistence zone.",
+          "ru": "Жилая зона (зона совместного сосуществования)."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Zona dirigida a equipos de salvamento aéreo.",
+          "en": "Zone for aerial rescue teams.",
+          "ru": "Зона для работы авиационных спасательных команд."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "La señal S-991G indica la posible existencia en el tramo de controles de velocidad mediante medios aéreos, tales como helicóptero o dron. En caso de que dichos controles tengan como objeto un tipo de vehículo en concreto, la señal podrá incluir únicamente el pictograma correspondiente a dicho vehículo.",
+      "en": "Sign S-991G indicates the possible existence of speed controls using aerial means, such as helicopters or drones, along the road section. If these controls are targeted at a specific type of vehicle, the sign may only feature the pictogram for that vehicle.",
+      "ru": "🎓 Этот знак информирует о том, что на данном участке дороги контроль соблюдения скоростного режима осуществляется с воздуха. Для фиксации нарушений дорожная полиция использует вертолёты или дроны. Если контроль направлен на конкретный вид транспорта, на знаке будет изображен только его силуэт, но в стандартном исполнении это касается всех, включая легковой автомобиль. 💡 Видишь вертолёт и дрон — жди контроля за скоростью с небес."
+    },
+    "image_url": "https://teorica.practicavial.com/question/b743281f-286f-4e70-afcd-72ec6bd373b4-1761289297-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b743281f-286f-4e70-afcd-72ec6bd373b4-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "b743281f-286f-4e70-afcd-72ec6bd373b4",
+    "external_id": "b743281f-286f-4e70-afcd-72ec6bd373b4"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "Los vehículos especiales que circulan por una vía de uso público deben utilizar la luz rotativa amarillo auto cuando circulen a una velocidad…",
+      "en": "Special vehicles traveling on a public road must use the yellow-auto rotating light when traveling at a speed...",
+      "ru": "Специальные транспортные средства, движущиеся по дорогам общего пользования, должны использовать желтый проблесковый маячок при движении со скоростью…"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No superior a 40 km/h, solamente de noche.",
+          "en": "Not exceeding 40 km/h, only at night.",
+          "ru": "Не более 40 км/ч, только в ночное время."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No superior a 40 km/h.",
+          "en": "Not exceeding 40 km/h.",
+          "ru": "Не более 40 км/ч."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Superior a 40 km/h.",
+          "en": "Exceeding 40 km/h.",
+          "ru": "Более 40 км/ч."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Según el Reglamento General de Vehículos, la señal V-2 (luz rotativa amarillo auto) indica la posición de un vehículo que desempeña un servicio, realiza un trabajo en la vía o circula a una velocidad lenta. Los vehículos especiales deben llevarla encendida siempre que circulen por vías públicas a una velocidad no superior a 40 km/h, tanto de día como de noche. En caso de avería de esta señal, se deberá circular con la luz de cruce y las luces de emergencia para advertir de la presencia del vehículo como obstáculo.",
+      "en": "According to the General Vehicle Regulations, the V-2 signal (yellow-auto rotating light) indicates the position of a vehicle performing a service, working on the road, or traveling at a slow speed. Special vehicles must have it turned on whenever they travel on public roads at a speed not exceeding 40 km/h, both day and night. In the event of a failure of this signal, the vehicle must travel with low-beam headlights and hazard warning lights to warn of its presence as an obstacle.",
+      "ru": "🎓 Специальные транспортные средства обязаны включать желтый проблесковый маячок (сигнал V-2) при движении по дорогам общего пользования, если их скорость не превышает 40 км/ч. Этот сигнал предупреждает тебя, как водителя легкового автомобиля, о том, что впереди находится «подвижное препятствие». Маячок должен быть включен в любое время суток: и днем, и ночью. Если маячок сломался, водитель спецтехники обязан включить ближний свет фар и аварийную сигнализацию. 🇷🇺 В Испании использование маячка жестко регламентировано скоростным порогом в 40 км/ч, что помогает заранее идентифицировать медленный транспорт на скоростных участках. 💡 Медленнее сорока — зажигай «люстру», чтобы не стать сюрпризом."
+    },
+    "image_url": "https://teorica.practicavial.com/question/ef102201-79ad-4196-822a-0b961a4e79df-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ef102201-79ad-4196-822a-0b961a4e79df-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "ef102201-79ad-4196-822a-0b961a4e79df",
+    "external_id": "ef102201-79ad-4196-822a-0b961a4e79df"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "¿Qué indica esta señal?",
+      "en": "What does this sign indicate?",
+      "ru": "Что означает этот дорожный знак?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Avanza moto y bici.",
+          "en": "Advance zone for motorcycles and bicycles.",
+          "ru": "Зона ожидания для мотоциклов и велосипедов."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Paso para ciclistas y motocicletas.",
+          "en": "Crossing for cyclists and motorcycles.",
+          "ru": "Переезд для велосипедистов и мотоциклистов."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Vía reservada para ciclos y motocicletas con espacio de circulación diferenciado entre ellos.",
+          "en": "Reserved lane for cycles and motorcycles with differentiated circulation space between them.",
+          "ru": "Дорога, зарезервированная для велосипедов и мотоциклов с раздельным пространством для движения."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Señal S-49. Indica la existencia de una zona de espera previa a la línea de detención de una intersección regulada por semáforos, reservada a los vehículos indicados en la señal (motocicletas, vehículos de tres ruedas asimilados a motocicletas, ciclomotores y ciclos). Permite que estos vehículos se posicionen por delante del resto del tráfico para iniciar la marcha con mayor seguridad y fluidez al cambiar la fase del semáforo.",
+      "en": "Sign S-49. Indicates the existence of a waiting area before the stop line at a signalized intersection, reserved for the vehicles indicated on the sign (motorcycles, three-wheeled vehicles assimilated to motorcycles, mopeds, and cycles). It allows these vehicles to position themselves ahead of the rest of the traffic to start moving with greater safety and fluidity when the traffic light changes.",
+      "ru": "🎓 Знак S-49 обозначает специальную зону ожидания перед стоп-линией на перекрестке со светофором. Это пространство зарезервировано исключительно для мотоциклов, мопедов и велосипедов. Когда ты на своем легковом автомобиле (Turismo) останавливаешься на красный свет, ты обязан оставить эту зону свободной. Это позволяет двухколесному транспорту выехать вперед и начать движение первым, как только загорится зеленый, что значительно повышает безопасность и разгружает перекресток. 🇷🇺 В РФ подобная разметка (байк-бокс) и специальный знак для нее в федеральных ПДД на данный момент отсутствуют. 💡 Двухколесный авангард: пропусти «малышей» вперед, чтобы они не путались под колесами на старте."
+    },
+    "image_url": "https://teorica.practicavial.com/question/91631028-3b73-4a5b-93ec-43be4f9ef4b1-1761305222-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/91631028-3b73-4a5b-93ec-43be4f9ef4b1-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "91631028-3b73-4a5b-93ec-43be4f9ef4b1",
+    "external_id": "91631028-3b73-4a5b-93ec-43be4f9ef4b1"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "¿El mal estado de la vía, influye en la aparición de la fatiga?",
+      "en": "Does the poor condition of the road influence the onset of fatigue?",
+      "ru": "Влияет ли плохое состояние дороги на появление усталости?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": "No, in no case.",
+          "ru": "Нет, ни в коем случае."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, porque exige una mayor atención en la conducción.",
+          "en": "Yes, because it requires greater attention while driving.",
+          "ru": "Да, так как это требует повышенного внимания при вождении."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, aunque sólo cuando se circula por la noche.",
+          "en": "Yes, although only when driving at night.",
+          "ru": "Да, хотя только при движении в ночное время."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "El estado de la infraestructura vial es un factor externo que incide directamente en la carga psicofísica del conductor. Una calzada en mal estado, con baches o falta de adherencia, obliga al conductor a procesar una mayor cantidad de información y a realizar maniobras correctivas constantes. Este incremento en la demanda de atención acelera el proceso de fatiga, disminuyendo la capacidad de respuesta y aumentando el tiempo de reacción.",
+      "en": "The condition of the road infrastructure is an external factor that directly affects the driver's psychophysical load. A road surface in poor condition, with potholes or lack of grip, forces the driver to process a greater amount of information and to perform constant corrective maneuvers. This increased demand for attention accelerates the fatigue process, decreasing responsiveness and increasing reaction time.",
+      "ru": "🎓 Плохое состояние проезжей части напрямую ускоряет появление усталости. Когда ты управляешь легковым автомобилем (Turismo) по разбитому покрытию, твой мозг вынужден обрабатывать гораздо больше информации: нужно постоянно оценивать глубину выбоин, корректировать траекторию и следить за сцеплением колес. Повышенная концентрация внимания и физическое напряжение из-за вибраций истощают ресурсы организма значительно быстрее. К другим факторам, провоцирующим усталость, относятся интенсивный трафик, незнакомые маршруты, плохая погода и длительное вождение без отдыха. 💡 Плохая дорога — это вор твоего внимания: чем больше сил тратишь на борьбу с ямами, тем быстрее «садится батарейка»."
+    },
+    "image_url": "https://teorica.practicavial.com/question/d49ab435-365c-4b7e-98e3-d83b81fd537e-1658993129-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d49ab435-365c-4b7e-98e3-d83b81fd537e-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "d49ab435-365c-4b7e-98e3-d83b81fd537e",
+    "external_id": "d49ab435-365c-4b7e-98e3-d83b81fd537e"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "Esta señal indica peligro ante la proximidad…",
+      "en": "This sign indicates danger due to the proximity of…",
+      "ru": "Этот знак предупреждает об опасности в связи с приближением к…"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "de un puente móvil.",
+          "en": "a movable bridge.",
+          "ru": "разводному мосту."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "de un muelle.",
+          "en": "a pier or quay.",
+          "ru": "набережной или причалу."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "de un resalto o badén en el pavimento.",
+          "en": "a bump or dip in the pavement.",
+          "ru": "неровности на проезжей части (бугру или выбоине)."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "La señal P-5 advierte de la proximidad de un puente que puede ser levantado o girado, lo que interrumpe temporalmente la circulación por la vía. Ante esta señal, el conductor debe extremar la precaución y estar preparado para detener el vehículo si el paso está cerrado.",
+      "en": "The P-5 sign warns of the proximity of a bridge that can be raised or rotated, temporarily interrupting traffic flow. Drivers must exercise caution and be prepared to stop the vehicle if the bridge is in operation.",
+      "ru": "🎓 Знак P-5 предупреждает о приближении к разводному мосту, который может быть поднят или повернут для пропуска судов. Это означает, что движение легкового автомобиля может быть временно прервано. При виде этого знака необходимо снизить скорость и быть готовым к остановке перед шлагбаумом или запрещающим сигналом светофора. 🇷🇺 В РФ этот знак имеет идентичное значение и название «Разводной мост». 💡 Видишь «крышку», которая открывается над водой — значит, мост «встает на дыбы», чтобы пропустить корабли."
+    },
+    "image_url": "https://teorica.practicavial.com/question/fd9f440a-75a2-4d2a-af87-1136161f12c9-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/fd9f440a-75a2-4d2a-af87-1136161f12c9-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "fd9f440a-75a2-4d2a-af87-1136161f12c9",
+    "external_id": "fd9f440a-75a2-4d2a-af87-1136161f12c9"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "Si va a girar a la derecha y lo señaliza con el indicador luminoso correspondiente, ¿hasta cuándo debe mantenerlo encendido?",
+      "en": "If you are going to turn right and signal it with the corresponding light indicator, how long should you keep it on?",
+      "ru": "Если вы собираетесь повернуть направо и сигнализируете об этом соответствующим световым указателем, до какого момента вы должны держать его включенным?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Hasta que finalice la maniobra.",
+          "en": "Until the maneuver is completed.",
+          "ru": "До завершения маневра."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El menor tiempo posible.",
+          "en": "For the shortest time possible.",
+          "ru": "Как можно меньше времени."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Hasta que tenga la seguridad de que el que me sigue ha visto la indicación.",
+          "en": "Until you are sure that the person following you has seen the signal.",
+          "ru": "Пока не будете уверены, что едущий сзади увидел сигнал."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "El Reglamento General de Circulación establece que las advertencias ópticas deben mantenerse hasta que termine la ejecución de la maniobra. La señalización debe cesar inmediatamente después de completar el cambio de dirección para evitar confusiones a otros usuarios de la vía.",
+      "en": "The General Traffic Regulations state that optical warnings must be maintained until the execution of the maneuver is completed. The signaling must cease immediately after completing the change of direction to avoid confusing other road users.",
+      "ru": "🎓 При совершении поворота направо ты обязан держать указатель поворота включенным на протяжении всего процесса. Сигнал выключается только тогда, когда твой легковой автомобиль (Turismo) полностью закончил маневр и занял положение на новой проезжей части (calzada). Это необходимо, чтобы не вводить в заблуждение других участников движения: если выключишь раньше — могут подумать, что ты передумал поворачивать; если позже — решат, что ты планируешь еще один поворот или остановку. 💡 Включил заранее — выключил в конце. Не будь «мигалкой», будь предсказуемым!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/0ed71f8e-e2fb-44b8-b204-5a71e1d6a904-1658931800-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0ed71f8e-e2fb-44b8-b204-5a71e1d6a904-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "0ed71f8e-e2fb-44b8-b204-5a71e1d6a904",
+    "external_id": "0ed71f8e-e2fb-44b8-b204-5a71e1d6a904"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "¿A qué vehículos prohíbe el adelantamiento esta señal?",
+      "en": "To which vehicles does this sign prohibit overtaking?",
+      "ru": "Каким транспортным средствам этот знак запрещает обгон?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A los camiones de más de 3.500 kg de MMA.",
+          "en": "To trucks with more than 3,500 kg of MMA.",
+          "ru": "Грузовым автомобилям с разрешенной максимальной массой (РММ) более 3500 кг."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A todos los vehículos de motor, incluidos camiones.",
+          "en": "To all motor vehicles, including trucks.",
+          "ru": "Всем механическим транспортным средствам, включая грузовики."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A todos los camiones de menos de 3.500 kg de MMA.",
+          "en": "To all trucks with less than 3,500 kg of MMA.",
+          "ru": "Всем грузовым автомобилям с РММ менее 3500 кг."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "La señal R-306 indica la prohibición a los camiones cuya masa máxima autorizada exceda de 3.500 kilogramos de adelantar a los vehículos a motor que circulen por la calzada, salvo que se trate de motocicletas de dos ruedas y siempre que no se invada la zona reservada al sentido contrario. La prohibición se aplica desde el lugar en que esté situada la señal hasta la siguiente señal de 'Fin de prohibición de adelantamiento para camiones' o 'Fin de prohibiciones'.",
+      "en": "Sign R-306 indicates a prohibition for trucks with a maximum authorized mass (MMA) exceeding 3,500 kilograms from overtaking motor vehicles on the road, unless they are two-wheeled motorcycles and provided they do not invade the lane reserved for oncoming traffic. The prohibition applies from the location of the sign until the next 'End of overtaking prohibition for trucks' or 'End of all prohibitions' sign.",
+      "ru": "🎓 Знак R-306 запрещает обгон только грузовым автомобилям, разрешенная максимальная масса (РММ) которых превышает 3500 кг. Им запрещено обгонять любые механические транспортные средства на проезжей части. Тебе, как водителю легкового автомобиля (Turismo), этот знак ничего не запрещает. Ограничение действует от места установки знака до знака отмены ограничений. 💡 Красный грузовик на знаке — это «тяжеловес». Если ты на легковушке, он тебе не начальник!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/a58685e5-28ed-440d-8be3-5f04f27a6725-1658159470-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a58685e5-28ed-440d-8be3-5f04f27a6725-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "a58685e5-28ed-440d-8be3-5f04f27a6725",
+    "external_id": "a58685e5-28ed-440d-8be3-5f04f27a6725"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "El alcohol y los medicamentos, ¿pueden influir en la conducción?",
+      "en": "Can alcohol and medications influence driving?",
+      "ru": "Могут ли алкоголь и медикаменты влиять на вождение?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Aumentando el tiempo de reacción.",
+          "en": "Increasing reaction time.",
+          "ru": "Увеличивая время реакции."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Disminuyendo la distancia de frenado.",
+          "en": "Decreasing the braking distance.",
+          "ru": "Уменьшая тормозной путь."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Aumentando la capacidad de reacción.",
+          "en": "Increasing reaction capacity.",
+          "ru": "Увеличивая способность к реакции."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "El consumo de alcohol y ciertos medicamentos altera el estado psicofísico del conductor. Estas sustancias ralentizan el sistema nervioso central, lo que resulta en un incremento del tiempo de reacción (el intervalo entre la percepción de un estímulo y la ejecución de la acción). Es fundamental distinguir que, mientras el tiempo de reacción aumenta (se tarda más en actuar), la capacidad de reacción y la atención disminuyen drásticamente.",
+      "en": "The consumption of alcohol and certain medications alters the driver's psychophysical state. These substances slow down the central nervous system, resulting in an increase in reaction time (the interval between perceiving a stimulus and executing an action). It is essential to distinguish that while reaction time increases (it takes longer to act), reaction capacity and alertness decrease drastically.",
+      "ru": "🎓 Время реакции — это секунды, которые проходят с момента, когда ты увидел препятствие, до того, как нажал на педаль. В нормальном состоянии у водителя легкового автомобиля это занимает около 0,75 секунды. Алкоголь и медикаменты замедляют работу мозга, поэтому время реакции увеличивается — ты дольше «соображаешь». Не путай: время (секунды) растет, а твоя способность (качество) быстро и четко действовать — падает. Чем дольше ты принимаешь решение, тем больше метров проедет транспортное средство до начала торможения. 💡 Чем больше выпил, тем дольше «зависаешь». Время растет — реакция тормозит!"
+    },
+    "image_url": "https://teorica.practicavial.com/question/c7322e75-81d8-4d8e-907b-204bb2eb61fa-1659340440-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c7322e75-81d8-4d8e-907b-204bb2eb61fa-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "c7322e75-81d8-4d8e-907b-204bb2eb61fa",
+    "external_id": "c7322e75-81d8-4d8e-907b-204bb2eb61fa"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "¿Qué indica la señal vertical?",
+      "en": "What does the vertical sign indicate?",
+      "ru": "Что означает этот дорожный знак?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La velocidad máxima permitida por obras.",
+          "en": "Maximum speed allowed due to roadworks.",
+          "ru": "Максимально разрешенная скорость в зоне дорожных работ."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La obligación de circular a 100 km/h.",
+          "en": "The obligation to drive at 100 km/h.",
+          "ru": "Обязанность двигаться со скоростью 100 км/ч."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que a 100 metros empiezan las obras.",
+          "en": "That roadworks start in 100 meters.",
+          "ru": "Что через 100 метров начинаются дорожные работы."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Las señales de reglamentación con fondo amarillo tienen el mismo significado que las señales ordinarias, indicando que se encuentran en un tramo de vía en obras. La señal R-301 prohíbe circular a una velocidad superior a la indicada en kilómetros por hora. El cumplimiento de esta señalización es obligatorio durante todo el periodo de vigencia de las obras, independientemente de la presencia activa de operarios o maquinaria en el momento del tránsito.",
+      "en": "Regulatory signs with a yellow background have the same meaning as standard signs, indicating that they are located in a section of the road under construction. Sign R-301 prohibits driving at a speed higher than the indicated kilometers per hour. Compliance with these signs is mandatory throughout the entire duration of the roadworks, regardless of whether workers or machinery are actively present at the time of passage.",
+      "ru": "🎓 Любой дорожный знак на желтом фоне имеет то же значение, что и обычный, но предупреждает, что ты въезжаешь в зону дорожных работ. В данном случае это ограничение максимальной скорости: твой легковой автомобиль (Turismo) не должен превышать 100 км/ч. Помни, что требования знаков на желтом фоне обязательны к исполнению в любое время суток, даже если на участке сейчас нет рабочих или строительная техника не двигается. 💡 Желтый фон — дорожный ремонт в разгаре, даже если рабочих не видно в кювете."
+    },
+    "image_url": "https://teorica.practicavial.com/question/2f56fc64-1341-4569-8d1e-08c6f95a0469-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2f56fc64-1341-4569-8d1e-08c6f95a0469-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "2f56fc64-1341-4569-8d1e-08c6f95a0469",
+    "external_id": "2f56fc64-1341-4569-8d1e-08c6f95a0469"
+  },
+  {
+    "topic_number": 0,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "El casco debe cambiarse cuando…",
+      "en": "The helmet must be changed when…",
+      "ru": "Шлем необходимо заменить, когда…"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sufra algún golpe ya que puede haberse dañado.",
+          "en": "It suffers an impact as it may have been damaged.",
+          "ru": "Он получил удар, так как мог быть поврежден."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cambie de motocicleta.",
+          "en": "You change motorcycles.",
+          "ru": "Вы меняете мотоцикл."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Los colores hayan pasado de moda.",
+          "en": "The colors have gone out of fashion.",
+          "ru": "Цвета вышли из моды."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "La integridad estructural del casco es vital para la seguridad pasiva. Tras un impacto, el material de absorción de energía puede sufrir microfisuras o deformaciones permanentes no visibles externamente. Por ello, cualquier golpe anula su capacidad de protección futura. Es fundamental que el casco esté homologado y se recomienda el modelo integral por proteger tanto la cabeza como la cara.",
+      "en": "The structural integrity of the helmet is essential for passive safety. Following an impact, the energy-absorbing material may sustain micro-cracks or permanent deformations that are not visible from the outside. Consequently, any blow compromises its future protective capacity. It is mandatory for helmets to be homologated, and full-face models are highly recommended as they protect both the head and the face.",
+      "ru": "🎓 Шлем — это элемент пассивной безопасности, который рассчитан только на один удар. Его необходимо заменить после любого падения или столкновения, даже если внешняя оболочка кажется целой. Внутренний поглощающий слой деформируется при ударе, теряя свои защитные свойства навсегда. Для максимальной защиты рекомендуется использовать закрытые шлемы (интегралы) и выбирать яркие цвета для лучшей видимости на дороге. Помни, что шлем обязательно должен быть сертифицирован (омологирован). 💡 Шлем как одноразовый стаканчик: один раз применил силу — и он больше не держит форму."
+    },
+    "image_url": "https://teorica.practicavial.com/question/2fd967c6-026a-405d-9df1-1f98d69c5bf4-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2fd967c6-026a-405d-9df1-1f98d69c5bf4-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "2fd967c6-026a-405d-9df1-1f98d69c5bf4",
+    "external_id": "2fd967c6-026a-405d-9df1-1f98d69c5bf4"
+  }
+]

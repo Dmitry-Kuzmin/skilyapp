@@ -1,11 +1,9 @@
-/**
- * PageSkeleton - Красивый скелетон для lazy-loaded страниц
- * Используется в Suspense fallback для плавных переходов
- */
+import { StartupCurtain } from "@/components/StartupCurtain";
 
 export function PageSkeleton() {
   return (
     <div className="min-h-screen bg-zinc-950">
+      <StartupCurtain />
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
         {/* Header skeleton */}
         <div className="space-y-3">
@@ -31,4 +29,3 @@ export function PageSkeleton() {
     </div>
   );
 }
-

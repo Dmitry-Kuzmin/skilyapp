@@ -29,7 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { MotionDiv as motion, AnimatePresence } from "@/components/optimized/Motion";
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 
 interface AdminReport {
   id: string;
@@ -75,7 +75,7 @@ export function AdminRewardReports() {
 
   const checkAdminAccess = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       toast.error("Доступ запрещен", {
         description: "Необходима авторизация",
@@ -151,7 +151,7 @@ export function AdminRewardReports() {
     try {
       setUpdatingStatus(reportId);
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       const updateData: any = {
         status,
         resolved_by: user?.id || null,

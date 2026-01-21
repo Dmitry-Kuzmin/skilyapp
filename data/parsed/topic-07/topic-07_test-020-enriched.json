@@ -4,17 +4,17 @@
     "question_number": 1,
     "category": "B",
     "question": {
-      "es": "Uno de los efectos que el alcohol produce en el conductor...",
-      "en": null,
-      "ru": null
+      "es": "Uno de los efectos que el alcohol produce en el conductor es...",
+      "en": "One of the effects that alcohol produces in the driver is...",
+      "ru": "Одним из эффектов, который алкоголь оказывает на водителя, является..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "la ampliación del campo visual.",
-          "en": null,
-          "ru": null
+          "en": "the widening of the visual field.",
+          "ru": "расширение поля зрения."
         },
         "is_correct": false
       },
@@ -22,8 +22,8 @@
         "id": "b",
         "text": {
           "es": "la disminución de la distancia de frenado.",
-          "en": null,
-          "ru": null
+          "en": "the decrease in braking distance.",
+          "ru": "уменьшение тормозного пути."
         },
         "is_correct": false
       },
@@ -31,16 +31,16 @@
         "id": "c",
         "text": {
           "es": "la menor percepción del riesgo.",
-          "en": null,
-          "ru": null
+          "en": "the lower perception of risk.",
+          "ru": "снижение восприятия риска."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El consumo de bebidas alcohólicas provoca una alteración de las capacidades psicofísicas del conductor. Uno de los efectos más peligrosos es la infravaloración del riesgo, lo que genera una falsa sensación de seguridad y una mayor disposición a asumir conductas de riesgo. Otros efectos incluyen el aumento del tiempo de reacción y la reducción del campo visual (efecto túnel).",
+      "en": "Alcohol consumption impairs the driver's psychophysical abilities. A critical effect is the underestimation of risk, which creates a false sense of security and a higher tendency to engage in risky behavior. Other effects include increased reaction time and the narrowing of the visual field (tunnel vision).",
+      "ru": "🎓 Алкоголь — коварный враг. Он не просто замедляет тебя, он обманывает твой мозг. Главная опасность заключается в том, что водитель начинает недооценивать риски и переоценивать свои возможности. Тебе кажется, что ситуация под контролем, хотя на самом деле поле зрения сужается (возникает «эффект туннеля»), а время реакции увеличивается. Важно помнить: тормозной путь из-за заторможенной реакции всегда становится длиннее, а не короче. \n\n🇷🇺 В Испании, в отличие от РФ, установлены минимальные разрешенные нормы содержания алкоголя (0,5 г/л в крови для обычных водителей), однако любое количество алкоголя влияет на безопасность.\n\n💡 Алкоголь шепчет: «Ты профи, жми газ!», а реальность кричит: «Глаза в туннеле, тормоз в отказе!»."
     },
     "image_url": "https://teorica.practicavial.com/question/e5360ea5-5900-46ef-b496-c069102140d3-1658771030-i.jpg",
     "source": "practicavial",
@@ -56,17 +56,17 @@
     "question_number": 2,
     "category": "B",
     "question": {
-      "es": "Cuando nieva, ¿es recomendable usar gafas de sol?",
-      "en": null,
-      "ru": null
+      "es": "¿Cuando nieva, es recomendable usar gafas de sol?",
+      "en": "When it snows, is it advisable to wear sunglasses?",
+      "ru": "Рекомендуется ли использовать солнцезащитные очки во время снегопада?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, y además son obligatorias.",
-          "en": null,
-          "ru": null
+          "en": "Yes, and they are also mandatory.",
+          "ru": "Да, и более того, они обязательны."
         },
         "is_correct": false
       },
@@ -74,8 +74,8 @@
         "id": "b",
         "text": {
           "es": "No, puesto que perjudicaría a la visión.",
-          "en": null,
-          "ru": null
+          "en": "No, as it would impair vision.",
+          "ru": "Нет, так как это ухудшит обзор."
         },
         "is_correct": false
       },
@@ -83,16 +83,16 @@
         "id": "c",
         "text": {
           "es": "Sí, si sale el sol y se refleja fuertemente en la nieve pueden ser muy útiles.",
-          "en": null,
-          "ru": null
+          "en": "Yes, if the sun comes out and reflects strongly off the snow, they can be very useful.",
+          "ru": "Да, если выглянет солнце и будет сильно отражаться от снега, они могут быть очень полезны."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El uso de gafas de sol en presencia de nieve es una medida preventiva recomendada para evitar el deslumbramiento provocado por la alta reflexión de la luz solar sobre la superficie blanca. Aunque no es obligatorio por normativa, su uso reduce la fatiga visual y mejora la percepción del relieve en la calzada, incrementando la seguridad activa durante la conducción.",
+      "en": "Using sunglasses in snowy conditions is a recommended preventive measure to avoid glare caused by the high reflection of sunlight off the white surface. Although not legally mandatory, their use reduces visual fatigue and improves the perception of road contours, increasing active safety while driving.",
+      "ru": "🎓 При движении по заснеженной местности, если выглядывает солнце, снег начинает работать как огромное зеркало, отражая большую часть света. Это создает эффект ослепления и приводит к быстрой утомляемости глаз водителя легкового автомобиля (Turismo). Использование солнцезащитных очков в такой ситуации — это вопрос безопасности, а не моды. Они помогают четче видеть рельеф проезжей части и вовремя замечать опасности. Помни: это рекомендация для твоего комфорта, а не юридическое требование. 💡 Снег слепит — очки спасают, глаза не устали — беды не знали."
     },
     "image_url": "https://teorica.practicavial.com/question/d87b35d4-b098-4de1-bf12-503f379b5c96-1658857211-i.jpg",
     "source": "practicavial",
@@ -109,16 +109,16 @@
     "category": "B",
     "question": {
       "es": "El alcohol, la fatiga y la velocidad excesiva, ¿de qué factor de riesgo forman parte?",
-      "en": null,
-      "ru": null
+      "en": "Alcohol, fatigue, and excessive speed are part of which risk factor?",
+      "ru": "Алкоголь, усталость и чрезмерная скорость — к какому фактору риска они относятся?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Del factor vía y entorno.",
-          "en": null,
-          "ru": null
+          "en": "The road and environment factor.",
+          "ru": "К дорожному фактору и окружающей среде."
         },
         "is_correct": false
       },
@@ -126,8 +126,8 @@
         "id": "b",
         "text": {
           "es": "Del factor humano.",
-          "en": null,
-          "ru": null
+          "en": "The human factor.",
+          "ru": "К человеческому фактору."
         },
         "is_correct": true
       },
@@ -135,16 +135,16 @@
         "id": "c",
         "text": {
           "es": "Del factor vehículo.",
-          "en": null,
-          "ru": null
+          "en": "The vehicle factor.",
+          "ru": "К фактору транспортного средства."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Los factores de riesgo en la conducción se dividen en tres categorías: humano, vehículo y vía/entorno. El consumo de alcohol, la fatiga, el sueño y la velocidad excesiva o inadecuada son elementos vinculados directamente con el comportamiento y las capacidades psicofísicas del conductor. Por ello, se integran en el factor humano, que es el desencadenante de la gran mayoría de los accidentes de tráfico (entre el 70% y el 90%).",
+      "en": "Risk factors in driving are classified into three categories: human, vehicle, and road/environment. Alcohol consumption, fatigue, drowsiness, and excessive or inappropriate speed are elements directly linked to the driver's behavior and psychophysical capabilities. Therefore, they are part of the human factor, which is the cause of the vast majority of traffic accidents (between 70% and 90%).",
+      "ru": "🎓 В системе безопасности дорожного движения выделяют три основных фактора риска: человеческий фактор, фактор транспортного средства и дорожный фактор. Состояние опьянения, переутомление, а также осознанный выбор небезопасной скорости движения напрямую зависят от действий и физического состояния водителя. Статистика подтверждает, что именно человеческий фактор становится причиной 70-90% всех аварий, в то время как техническая неисправность легкового автомобиля или плохое состояние дороги встречаются значительно реже. 💡 Если проблему можно решить отдыхом, трезвостью или самоконтролем — это человеческий фактор."
     },
     "image_url": "https://teorica.practicavial.com/question/1bd7610a-0c36-4a4d-9f98-d09b73158503-1658501611-i.jpg",
     "source": "practicavial",
@@ -161,16 +161,16 @@
     "category": "B",
     "question": {
       "es": "Al circular a mayor velocidad...",
-      "en": null,
-      "ru": null
+      "en": "When driving at a higher speed...",
+      "ru": "При движении на более высокой скорости..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "se perciben mejor las señales de tráfico.",
-          "en": null,
-          "ru": null
+          "en": "traffic signs are perceived better.",
+          "ru": "дорожные знаки воспринимаются лучше."
         },
         "is_correct": false
       },
@@ -178,8 +178,8 @@
         "id": "b",
         "text": {
           "es": "se perciben peor las señales de tráfico.",
-          "en": null,
-          "ru": null
+          "en": "traffic signs are perceived worse.",
+          "ru": "дорожные знаки воспринимаются хуже."
         },
         "is_correct": true
       },
@@ -187,16 +187,16 @@
         "id": "c",
         "text": {
           "es": "se puede ver y analizar mejor lo que ocurre alrededor.",
-          "en": null,
-          "ru": null
+          "en": "one can see and analyze better what is happening around.",
+          "ru": "можно лучше видеть и анализировать происходящее вокруг."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El aumento de la velocidad reduce el campo de visión periférica (efecto túnel) y disminuye el tiempo disponible para procesar la información del entorno. Esto provoca que la percepción de las señales de tráfico y otros elementos de la vía sea deficiente, aumentando el riesgo de omitir información relevante para la seguridad vial.",
+      "en": "Increasing speed reduces the peripheral field of vision (tunnel effect) and decreases the time available to process environmental information. This leads to a poorer perception of traffic signs and other road elements, increasing the risk of missing relevant information for road safety.",
+      "ru": "🎓 Чем выше твоя скорость на легковом автомобиле, тем меньше времени у мозга на обработку внешней информации. Возникает так называемый «эффект туннеля»: поле зрения сужается, и ты перестаешь замечать то, что происходит по бокам от проезжей части. Дорожные знаки пролетают мимо слишком быстро, и водитель физически не успевает их правильно считать и осознать.\n\n💡 Скорость растет — мир в точку превращается! Чем быстрее жмешь, тем меньше видишь."
     },
     "image_url": "https://teorica.practicavial.com/question/a9bd7334-b223-486d-aeff-9bd5e6516d71-1658748246-i.jpg",
     "source": "practicavial",
@@ -213,16 +213,16 @@
     "category": "B",
     "question": {
       "es": "Los accidentes de tráfico generan costes...",
-      "en": null,
-      "ru": null
+      "en": "Traffic accidents generate costs...",
+      "ru": "Дорожно-транспортные происшествия влекут за собой расходы..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "materiales, sanitarios, administrativos y humanos.",
-          "en": null,
-          "ru": null
+          "en": "material, healthcare, administrative, and human.",
+          "ru": "материальные, медицинские, административные и человеческие."
         },
         "is_correct": true
       },
@@ -230,8 +230,8 @@
         "id": "b",
         "text": {
           "es": "materiales y sanitarios solamente.",
-          "en": null,
-          "ru": null
+          "en": "material and healthcare only.",
+          "ru": "только материальные и медицинские."
         },
         "is_correct": false
       },
@@ -239,16 +239,16 @@
         "id": "c",
         "text": {
           "es": "administrativos, materiales y sanitarios, pero no humanos.",
-          "en": null,
-          "ru": null
+          "en": "administrative, material, and healthcare, but not human.",
+          "ru": "административные, материальные и медицинские, но не человеческие."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Los costes de los accidentes de tráfico se dividen en cuatro categorías: materiales (daños a vehículos, carga y vía), sanitarios (primeros auxilios, tratamiento y rehabilitación), administrativos (servicios de policía, bomberos y gestión de seguros) y humanos (pérdida de vidas, años de vida potencial perdidos y sufrimiento emocional).",
+      "en": "Traffic accident costs are divided into four categories: material (damage to vehicles, cargo, and infrastructure), healthcare (first aid, treatment, and rehabilitation), administrative (police, fire services, and insurance management), and human (loss of life, lost potential years of life, and emotional suffering).",
+      "ru": "🎓 Дорожно-транспортные происшествия ложатся тяжелым бременем на всё общество. Эти затраты включают четыре категории: материальные (повреждение легкового автомобиля (Turismo) и дорожной инфраструктуры), медицинские (госпитализация и реабилитация), административные (работа полиции, судов и страховых компаний) и человеческие (потеря жизней, трудоспособности и моральные страдания). Ошибочно полагать, что человеческие потери не подлежат оценке — они являются самой значимой частью ущерба. 💡 Правило четырех «С»: Сломали (материалы), Спасли (медицина), Списали (админы) и Скорбим (люди)."
     },
     "image_url": "https://teorica.practicavial.com/question/02eeef07-cce8-4266-87e5-4fe6fc659661-1658497036-i.jpg",
     "source": "practicavial",
@@ -265,16 +265,16 @@
     "category": "B",
     "question": {
       "es": "Se denomina distancia de reacción:",
-      "en": null,
-      "ru": null
+      "en": "Reaction distance is defined as:",
+      "ru": "Расстоянием реакции называется:"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "La distancia recorrida desde que se ve un peligro hasta que se actúa sobre los mandos del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "The distance traveled from the moment a hazard is seen until the vehicle's controls are acted upon.",
+          "ru": "Расстояние, пройденное с момента обнаружения опасности до начала воздействия на органы управления транспортным средством."
         },
         "is_correct": true
       },
@@ -282,8 +282,8 @@
         "id": "b",
         "text": {
           "es": "La distancia que debe dejarse entre dos vehículos cuando van circulando uno detrás del otro.",
-          "en": null,
-          "ru": null
+          "en": "The distance that must be maintained between two vehicles when driving one behind the other.",
+          "ru": "Расстояние, которое необходимо соблюдать между двумя транспортными средствами при движении друг за другом."
         },
         "is_correct": false
       },
@@ -291,16 +291,16 @@
         "id": "c",
         "text": {
           "es": "La distancia recorrida desde que se comienza a frenar hasta que se detiene el vehículo.",
-          "en": null,
-          "ru": null
+          "en": "The distance traveled from the moment braking begins until the vehicle comes to a complete stop.",
+          "ru": "Расстояние, пройденное с момента начала торможения до полной остановки транспортного средства."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La distancia de reacción es el espacio que recorre el vehículo durante el tiempo de reacción del conductor. Se inicia cuando el conductor percibe un estímulo o peligro y finaliza en el instante en que comienza a accionar los mandos, como el pedal del freno. Esta distancia depende exclusivamente del estado del conductor (fatiga, alcohol, edad) y de la velocidad, pero no del estado de la calzada o del vehículo.",
+      "en": "Reaction distance is the distance covered by the vehicle during the driver's reaction time. It starts when the driver perceives a hazard and ends at the moment they begin to operate the vehicle's controls, such as the brake pedal. This distance depends solely on the driver's condition (fatigue, alcohol, age) and speed, but not on the road surface or vehicle condition.",
+      "ru": "🎓 Расстояние реакции — это путь, который проходит легковой автомобиль за то время, пока ты осознаешь опасность и принимаешь решение. Отсчет начинается в момент, когда ты замечаешь препятствие (например, пешехода на переходе), и заканчивается, когда твоя нога только касается педали тормоза. В среднем это время составляет 0,75 секунды. Помни: чем выше скорость, тем больше метров пролетит машина, пока ты просто соображаешь, что делать. 💡 Реакция — это время «соображалки», а не тормозов."
     },
     "image_url": "https://teorica.practicavial.com/question/2a399548-b4df-4573-84d9-0fdaab4102a4-1658751318-i.jpg",
     "source": "practicavial",
@@ -316,17 +316,17 @@
     "question_number": 7,
     "category": "B",
     "question": {
-      "es": "Para evitar los atropellos, ¿qué deben hacer los conductores?",
-      "en": null,
-      "ru": null
+      "es": "¿Qué deben hacer los conductores para evitar los atropellos?",
+      "en": "What should drivers do to avoid running over pedestrians?",
+      "ru": "Что должны делать водители, чтобы избежать наезда на пешеходов?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
-          "es": "Indicar a los peatones  cuando deben cruzar.",
-          "en": null,
-          "ru": null
+          "es": "Indicar a los peatones cuando deben cruzar.",
+          "en": "Signal to pedestrians when they should cross.",
+          "ru": "Подавать знаки пешеходам, когда им следует переходить дорогу."
         },
         "is_correct": false
       },
@@ -334,8 +334,8 @@
         "id": "b",
         "text": {
           "es": "Respetar la prioridad de paso de los peatones.",
-          "en": null,
-          "ru": null
+          "en": "Respect the priority of pedestrians.",
+          "ru": "Соблюдать приоритет движения пешеходов."
         },
         "is_correct": true
       },
@@ -343,16 +343,16 @@
         "id": "c",
         "text": {
           "es": "Usar el claxon cuando se acercan a un paso para peatones.",
-          "en": null,
-          "ru": null
+          "en": "Use the horn when approaching a pedestrian crossing.",
+          "ru": "Использовать звуковой сигнал при приближении к пешеходному переходу."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Los conductores deben respetar estrictamente la prioridad de paso de los peatones en los lugares señalizados para tal fin. Está prohibido hacer señales a los peatones para que crucen, ya que esto puede inducir a error y provocar un accidente con otros vehículos que circulen por carriles adyacentes. El uso del claxon está restringido exclusivamente a la prevención de accidentes inminentes y no debe usarse de forma sistemática ante un paso de peatones.",
+      "en": "Drivers must strictly respect the right of way of pedestrians at designated crossings. It is prohibited to signal pedestrians to cross, as this can lead to confusion and cause accidents with other vehicles traveling in adjacent lanes. The use of the horn is restricted exclusively to preventing imminent accidents and must not be used routinely when approaching a pedestrian crossing.",
+      "ru": "🎓 Как водитель легкового автомобиля (Turismo), ты обязан всегда уступать дорогу пешеходам на нерегулируемых переходах. Никогда не делай пешеходам знаков рукой «проходи» — это крайне опасно. Пешеход может довериться твоему жесту и перестать следить за другими полосами движения (Carril), что приведет к наезду другого ТС. Звуковой сигнал в населенных пунктах разрешен только для предотвращения ДТП, пугать им людей перед переходом запрещено. 🇷🇺 В Испании, как и в РФ, запрещено жестами приглашать пешеходов к переходу, так как это вводит их в заблуждение относительно безопасности на других полосах. 💡 Видишь «зебру» — ногу на тормоз, а руки при себе. Не будь дирижером, будь внимательным водителем."
     },
     "image_url": "https://teorica.practicavial.com/question/96ffc950-10cb-4058-8c17-e51b63c575fa-1658511220-i.jpg",
     "source": "practicavial",
@@ -369,16 +369,16 @@
     "category": "B",
     "question": {
       "es": "La distancia de frenado de un vehículo cargado es...",
-      "en": null,
-      "ru": null
+      "en": "The braking distance of a loaded vehicle is...",
+      "ru": "Тормозной путь груженого транспортного средства..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "menor que cuando circula sin carga.",
-          "en": null,
-          "ru": null
+          "en": "shorter than when driving without a load.",
+          "ru": "меньше, чем при движении без груза."
         },
         "is_correct": false
       },
@@ -386,8 +386,8 @@
         "id": "b",
         "text": {
           "es": "igual que cuando circula sin carga.",
-          "en": null,
-          "ru": null
+          "en": "the same as when driving without a load.",
+          "ru": "такой же, как при движении без груза."
         },
         "is_correct": false
       },
@@ -395,16 +395,16 @@
         "id": "c",
         "text": {
           "es": "mayor que cuando circula sin carga.",
-          "en": null,
-          "ru": null
+          "en": "greater than when driving without a load.",
+          "ru": "больше, чем при движении без груза."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La distancia de frenado aumenta proporcionalmente a la masa del vehículo. Al incrementar la carga, aumenta la energía cinética, lo que exige un mayor esfuerzo del sistema de frenado para disipar dicha energía, resultando en un aumento de la distancia recorrida desde que se accionan los frenos hasta la detención total.",
+      "en": "Braking distance increases in proportion to the vehicle's mass. As the load increases, kinetic energy also increases, requiring more effort from the braking system to dissipate that energy, resulting in an increase in the distance traveled from the moment the brakes are applied until the vehicle comes to a complete stop.",
+      "ru": "🎓 Когда легковой автомобиль загружен, его масса увеличивается, что напрямую ведет к росту кинетической энергии. Тормозной системе требуется больше времени и усилий, чтобы полностью остановить потяжелевшую машину, поэтому тормозной путь увеличивается. Тебе как водителю важно помнить: чем ближе вес машины к разрешенной максимальной массе (РММ), тем больше должна быть дистанция безопасности до впереди идущего транспорта. 💡 Больше груза — длиннее тормоза! Тяжелый шкаф на колесиках остановить сложнее, чем пустую тумбочку."
     },
     "image_url": "https://teorica.practicavial.com/question/6e3f727a-9293-4ab5-a0e5-874be24d540d-1658752161-i.jpg",
     "source": "practicavial",
@@ -421,16 +421,16 @@
     "category": "B",
     "question": {
       "es": "¿Es conveniente colocar el soporte para un navegador GPS cerca del lugar en el que se encuentra instalado un airbag?",
-      "en": null,
-      "ru": null
+      "en": "Is it advisable to place a GPS navigator mount near the location where an airbag is installed?",
+      "ru": "Целесообразно ли устанавливать крепление для GPS-навигатора рядом с местом установки подушки безопасности?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, si puede obstaculizar su despliegue.",
-          "en": null,
-          "ru": null
+          "en": "No, if it can obstruct its deployment.",
+          "ru": "Нет, если это может помешать её раскрытию."
         },
         "is_correct": true
       },
@@ -438,8 +438,8 @@
         "id": "b",
         "text": {
           "es": "Sí, si así el conductor ve mejor la pantalla.",
-          "en": null,
-          "ru": null
+          "en": "Yes, if the driver can see the screen better this way.",
+          "ru": "Да, если так водителю лучше видно экран."
         },
         "is_correct": false
       },
@@ -447,16 +447,16 @@
         "id": "c",
         "text": {
           "es": "Sólo si el navegador GPS está apagado.",
-          "en": null,
-          "ru": null
+          "en": "Only if the GPS navigator is turned off.",
+          "ru": "Только если GPS-навигатор выключен."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La instalación de accesorios en el interior del vehículo no debe interferir con los sistemas de seguridad activa o pasiva. El airbag es un elemento de seguridad pasiva que se despliega a gran velocidad en caso de colisión. Colocar un soporte o dispositivo en su trayectoria de inflado puede impedir su correcto funcionamiento o, en el peor de los casos, convertir el dispositivo en un proyectil peligroso para los ocupantes.",
+      "en": "The installation of accessories inside the vehicle must not interfere with active or passive safety systems. The airbag is a passive safety element that deploys at high speed in the event of a collision. Placing a mount or device in its inflation path can prevent its proper functioning or, in the worst case, turn the device into a dangerous projectile for the occupants.",
+      "ru": "🎓 При установке любых аксессуаров в легковом автомобиле крайне важно следить за тем, чтобы они не мешали работе систем безопасности. Подушка безопасности — это элемент пассивной безопасности, который при столкновении раскрывается за доли секунды с огромной силой. Если на пути её раскрытия окажется крепление навигатора или сам гаджет, подушка либо не сработает эффективно, либо «выстрелит» этим предметом прямо в водителя или пассажира. Безопасность всегда важнее удобства обзора. 💡 Подушка — это спасательный круг, не превращай навигатор в пулю для него."
     },
     "image_url": "https://teorica.practicavial.com/question/e846c6eb-5d59-4f62-be54-f40754de2c82-1658769442-i.jpg",
     "source": "practicavial",
@@ -473,16 +473,16 @@
     "category": "B",
     "question": {
       "es": "¿Se considera el entorno de la vía un factor de riesgo?",
-      "en": null,
-      "ru": null
+      "en": "Is the road environment considered a risk factor?",
+      "ru": "Считается ли окружающая среда (окружение дороги) фактором риска?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       },
@@ -490,8 +490,8 @@
         "id": "b",
         "text": {
           "es": "Sí, pero sólo en carreteras convencionales.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but only on conventional roads.",
+          "ru": "Да, но только на обычных дорогах."
         },
         "is_correct": false
       },
@@ -499,16 +499,16 @@
         "id": "c",
         "text": {
           "es": "No, únicamente es un factor de riesgo la vía.",
-          "en": null,
-          "ru": null
+          "en": "No, only the road itself is a risk factor.",
+          "ru": "Нет, фактором риска является исключительно сама дорога."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El entorno de la vía, que comprende las condiciones meteorológicas, la visibilidad y la densidad del tráfico, constituye un factor de riesgo externo fundamental. La seguridad vial se basa en la interacción del factor humano, el vehículo y la vía junto con su entorno. El conductor debe adaptar permanentemente su conducción a las circunstancias ambientales para mitigar los riesgos asociados.",
+      "en": "The road environment, which includes weather conditions, visibility, and traffic density, constitutes a fundamental external risk factor. Road safety is based on the interaction of the human factor, the vehicle, and the road along with its surroundings. Drivers must permanently adapt their driving to environmental circumstances to mitigate associated risks.",
+      "ru": "🎓 Окружающая среда — это всё, что находится за пределами твоего легкового автомобиля и влияет на безопасность: туман, сильный дождь, ослепляющее солнце или интенсивность движения. В ПДД Испании безопасность строится на триаде: водитель, транспортное средство и дорога с её окружением. Даже если покрытие идеальное, плохая видимость или сильный ветер делают окружение дороги критическим фактором риска, который ты обязан учитывать.\n\n💡 Дорога — это сцена, а окружение — это декорации: если они меняются, меняй и стиль игры."
     },
     "image_url": "https://teorica.practicavial.com/question/a660e7d4-1498-4c52-afe2-dd2e593d8bbb-1658498240-i.jpg",
     "source": "practicavial",
@@ -525,16 +525,16 @@
     "category": "B",
     "question": {
       "es": "El conductor que consume cocaína...",
-      "en": null,
-      "ru": null
+      "en": "A driver who consumes cocaine...",
+      "ru": "Водитель, употребляющий кокаин..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "es más agresivo y menos competitivo.",
-          "en": null,
-          "ru": null
+          "en": "is more aggressive and less competitive.",
+          "ru": "становится более агрессивным и менее склонным к соперничеству."
         },
         "is_correct": false
       },
@@ -542,8 +542,8 @@
         "id": "b",
         "text": {
           "es": "es más tranquilo y menos competitivo.",
-          "en": null,
-          "ru": null
+          "en": "is calmer and less competitive.",
+          "ru": "становится более спокойным и менее склонным к соперничеству."
         },
         "is_correct": false
       },
@@ -551,16 +551,16 @@
         "id": "c",
         "text": {
           "es": "puede volverse más competitivo y agresivo.",
-          "en": null,
-          "ru": null
+          "en": "can become more competitive and aggressive.",
+          "ru": "может стать более склонным к соперничеству и агрессивным."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El consumo de cocaína produce un estado de excitación y euforia que lleva al conductor a sobrevalorar sus capacidades. Esto se traduce en una conducta competitiva y agresiva hacia los demás usuarios de la vía, además de una disminución drástica de la percepción del riesgo y un aumento de la impulsividad.",
+      "en": "Cocaine consumption produces a state of excitement and euphoria that leads the driver to overestimate their abilities. This results in competitive and aggressive behavior towards other road users, as well as a drastic decrease in risk perception and an increase in impulsivity.",
+      "ru": "🎓 Употребление кокаина вызывает состояние возбуждения и эйфории, из-за чего водитель легкового автомобиля начинает сильно переоценивать свои навыки. Это приводит к агрессивному поведению на дороге и желанию соревноваться с другими. У такого водителя притупляется чувство опасности, он становится импульсивным и склонным к неоправданному риску. 💡 Кокаин делает из водителя «самоуверенного агрессора»: страх исчезает, а желание доказать всем свое превосходство растет."
     },
     "image_url": "https://teorica.practicavial.com/question/25e9faa8-c2c6-4a82-80f6-a5491f5e14b1-1658774720-i.jpg",
     "source": "practicavial",
@@ -577,16 +577,16 @@
     "category": "B",
     "question": {
       "es": "¿Es peligroso no abrocharse el cinturón de seguridad?",
-      "en": null,
-      "ru": null
+      "en": "Is it dangerous not to fasten the seat belt?",
+      "ru": "Опасно ли не пристегиваться ремнем безопасности?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sólo es peligroso no abrocharse el cinturón en los asientos delanteros.",
-          "en": null,
-          "ru": null
+          "en": "It is only dangerous not to fasten the seat belt in the front seats.",
+          "ru": "Опасно не пристегиваться ремнем безопасности только на передних сиденьях."
         },
         "is_correct": false
       },
@@ -594,8 +594,8 @@
         "id": "b",
         "text": {
           "es": "En tráfico urbano no, debido a las bajas velocidades a las que se circula.",
-          "en": null,
-          "ru": null
+          "en": "Not in urban traffic, due to the low speeds at which one travels.",
+          "ru": "В городском потоке нет, из-за низких скоростей движения."
         },
         "is_correct": false
       },
@@ -603,16 +603,16 @@
         "id": "c",
         "text": {
           "es": "Sí, porque incluso en un choque a baja velocidad no siempre es posible mantenerse sujeto al asiento.",
-          "en": null,
-          "ru": null
+          "en": "Yes, because even in a low-speed crash it is not always possible to stay held to the seat.",
+          "ru": "Да, потому что даже при столкновении на низкой скорости не всегда возможно удержаться в кресле."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El uso del cinturón de seguridad es obligatorio para todos los ocupantes del vehículo en todo tipo de vías. La eficacia de este sistema de seguridad pasiva es fundamental, ya que en caso de colisión o frenado brusco, las fuerzas de inercia proyectan los cuerpos hacia adelante. Incluso a velocidades reducidas, la fuerza generada supera la capacidad física de cualquier persona para mantenerse sujeta al asiento por sus propios medios, aumentando el riesgo de impacto contra el habitáculo o eyección del vehículo.",
+      "en": "The use of seat belts is mandatory for all vehicle occupants on all types of roads. The effectiveness of this passive safety system is critical because, in the event of a collision or sudden braking, inertial forces project bodies forward. Even at low speeds, the force generated exceeds any person's physical capacity to remain held to the seat by their own means, increasing the risk of impact against the interior or ejection from the vehicle.",
+      "ru": "🎓 Ремень безопасности обязателен для всех: и для тебя как водителя легкового автомобиля (Turismo), и для всех твоих пассажиров на любых сиденьях. Это касается и города, и скоростных дорог. Даже на скорости 20–30 км/ч при ударе тело человека по инерции продолжает двигаться вперед с огромной силой. Удержаться руками или зацепиться за кресло физически невозможно — нагрузки в десятки раз превышают силу мышц. Ремень — это единственный способ не превратиться в «летающий объект» внутри салона при ДТП. 💡 Ремень — это не «удавка», а твоя страховка. Пристегнулся сам — пристегни «балласт» сзади, иначе при ударе пассажир прилетит прямо в твое кресло."
     },
     "image_url": "https://teorica.practicavial.com/question/a8b645ff-5d98-45fd-a270-cfa5109fbdf7-1658840279-i.jpg",
     "source": "practicavial",
@@ -629,16 +629,16 @@
     "category": "B",
     "question": {
       "es": "Cuando las ruedas llevan poco aire...",
-      "en": null,
-      "ru": null
+      "en": "When the tires have low air pressure...",
+      "ru": "Если в шинах недостаточное давление воздуха..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "se desgastan más por el centro.",
-          "en": null,
-          "ru": null
+          "en": "they wear out more in the center.",
+          "ru": "они больше изнашиваются в центральной части."
         },
         "is_correct": false
       },
@@ -646,8 +646,8 @@
         "id": "b",
         "text": {
           "es": "se desgastan más por los lados.",
-          "en": null,
-          "ru": null
+          "en": "they wear out more on the sides.",
+          "ru": "они больше изнашиваются по бокам."
         },
         "is_correct": true
       },
@@ -655,16 +655,16 @@
         "id": "c",
         "text": {
           "es": "se desgastan igual por los lados que por el centro.",
-          "en": null,
-          "ru": null
+          "en": "they wear out equally on the sides and in the center.",
+          "ru": "они изнашиваются равномерно по бокам и в центре."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Una presión de inflado inferior a la recomendada por el fabricante provoca que la banda de rodadura se deforme, concentrando el apoyo y la fricción en los hombros del neumático. Esto genera un desgaste irregular y prematuro en los laterales, aumenta la resistencia a la rodadura incrementando el consumo de combustible y eleva el riesgo de sobrecalentamiento y reventón.",
+      "en": "Tire pressure below the manufacturer's recommended level causes the tread to collapse inward, shifting the contact pressure to the outer edges or shoulders. This leads to uneven and accelerated wear on the sides of the tire, increases rolling resistance and fuel consumption, and compromises vehicle stability and braking efficiency.",
+      "ru": "🎓 Когда в шинах недостаточное давление, протектор легкового автомобиля (Turismo) прогибается внутрь, и основная нагрузка ложится на края. Это приводит к ускоренному износу боковых частей шины. Кроме того, езда на «недокачанных» колесах увеличивает расход топлива и риск аквапланирования, так как пятно контакта с дорогой становится неправильным. Давление необходимо проверять только на «холодных» шинах. 💡 Мало воздуха — «жуем» бока, много воздуха — «лысеет» центр."
     },
     "image_url": "https://teorica.practicavial.com/question/7a1cdc80-140b-4904-83b8-8422c435c0ad-1658834859-i.jpg",
     "source": "practicavial",
@@ -681,16 +681,16 @@
     "category": "B",
     "question": {
       "es": "Para que el apoyacabezas esté regulado correctamente, la distancia respecto a la cabeza debe ser...",
-      "en": null,
-      "ru": null
+      "en": "To ensure the headrest is correctly adjusted, the distance from the head must be...",
+      "ru": "Для правильной регулировки подголовника расстояние до головы должно быть..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "superior a 4 cm.",
-          "en": null,
-          "ru": null
+          "en": "more than 4 cm.",
+          "ru": "более 4 см."
         },
         "is_correct": false
       },
@@ -698,8 +698,8 @@
         "id": "b",
         "text": {
           "es": "la mínima posible y nunca superior a 4 cm.",
-          "en": null,
-          "ru": null
+          "en": "the minimum possible and never more than 4 cm.",
+          "ru": "минимально возможным и не более 4 см."
         },
         "is_correct": true
       },
@@ -707,16 +707,16 @@
         "id": "c",
         "text": {
           "es": "la que resulte más cómoda para el conductor.",
-          "en": null,
-          "ru": null
+          "en": "whatever is most comfortable for the driver.",
+          "ru": "таким, которое наиболее удобно для водителя."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El apoyacabezas es un elemento de seguridad pasiva fundamental para prevenir el latigazo cervical. Su eficacia depende de una regulación precisa: la parte superior del dispositivo debe estar a la misma altura que la parte superior de la cabeza. En el plano horizontal, la separación entre la cabeza y el apoyacabezas debe ser la mínima posible, estableciéndose un límite técnico máximo de 4 centímetros para garantizar la retención inmediata en caso de colisión.",
+      "en": "The headrest is a critical passive safety component designed to prevent whiplash injuries. Its effectiveness depends on precise adjustment: the top of the headrest should be level with the top of the head. Horizontally, the gap between the head and the headrest must be kept to the minimum possible, with a technical maximum limit of 4 centimeters to ensure immediate support during a collision.",
+      "ru": "🎓 Подголовник — это элемент пассивной безопасности, который защищает шейные позвонки от «хлыстовой травмы» при ударе сзади. Чтобы он сработал, его нужно настроить под свой рост: верхний край должен быть на уровне макушки, а расстояние до затылка должно быть минимальным. Если зазор превысит 4 сантиметра, голова успеет набрать опасную инерцию до контакта с опорой, что приведет к травме. 💡 Представь, что подголовник — это твоя тень: он должен быть максимально близко, но не мешать крутить головой. 4 сантиметра — это примерно ширина двух сложенных пальцев."
     },
     "image_url": "https://teorica.practicavial.com/question/3c549a47-8d34-41d3-ab03-b6680b163f92-1658850852-i.jpg",
     "source": "practicavial",
@@ -733,16 +733,16 @@
     "category": "B",
     "question": {
       "es": "Una carrocería de gran resistencia, ¿puede sustituir a otros sistemas de seguridad pasiva?",
-      "en": null,
-      "ru": null
+      "en": "Can a high-resistance bodywork replace other passive safety systems?",
+      "ru": "Может ли кузов высокой прочности заменить другие системы пассивной безопасности?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, por ejemplo al airbag.",
-          "en": null,
-          "ru": null
+          "en": "Yes, for example the airbag.",
+          "ru": "Да, например, подушку безопасности."
         },
         "is_correct": false
       },
@@ -750,8 +750,8 @@
         "id": "b",
         "text": {
           "es": "Sí, en los vehículos todo-terreno.",
-          "en": null,
-          "ru": null
+          "en": "Yes, in off-road vehicles.",
+          "ru": "Да, во внедорожниках."
         },
         "is_correct": false
       },
@@ -759,16 +759,16 @@
         "id": "c",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La seguridad pasiva constituye un sistema integral de protección. La carrocería de alta resistencia tiene como función principal evitar la deformación del habitáculo, pero no puede sustituir la función de otros elementos como el cinturón de seguridad, el airbag o los reposacabezas. Todos estos componentes son complementarios y necesarios para reducir al mínimo las consecuencias de un accidente.",
+      "en": "Passive safety is an integrated system of protection. A high-resistance bodywork is designed to prevent cabin deformation, but it cannot replace other components such as seat belts, airbags, or headrests. These elements are complementary; they work in unison to minimize the physical consequences of a collision for the occupants.",
+      "ru": "🎓 Пассивная безопасность — это комплексная система, где каждый элемент дополняет другой. Кузов высокой прочности спроектирован так, чтобы салон легкового автомобиля не смялся при ударе, сохраняя жизненное пространство. Однако он не заменяет ремни безопасности, подушки или подголовники. Эти устройства работают вместе: кузов поглощает энергию и держит форму, а остальные системы защищают человека внутри этой формы. 💡 Безопасность — это не сольный артист, а целый оркестр: без скрипки (ремня) или труб (подушек) симфония защиты провалится."
     },
     "image_url": "https://teorica.practicavial.com/question/0ac73125-3368-4922-a552-eb2f8d630377-1658840142-i.jpg",
     "source": "practicavial",
@@ -785,16 +785,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué sistemas de seguridad pueden perder eficacia si no se lleva abrochado el cinturón de seguridad?",
-      "en": null,
-      "ru": null
+      "en": "Which safety systems can lose effectiveness if the seat belt is not fastened?",
+      "ru": "Какие системы безопасности могут потерять эффективность, если не пристегнут ремень безопасности?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "La suspensión y los amortiguadores.",
-          "en": null,
-          "ru": null
+          "en": "The suspension and shock absorbers.",
+          "ru": "Подвеска и амортизаторы."
         },
         "is_correct": false
       },
@@ -802,8 +802,8 @@
         "id": "b",
         "text": {
           "es": "Los airbag y los reposacabezas.",
-          "en": null,
-          "ru": null
+          "en": "The airbags and headrests.",
+          "ru": "Подушки безопасности и подголовники."
         },
         "is_correct": true
       },
@@ -811,16 +811,16 @@
         "id": "c",
         "text": {
           "es": "Los frenos y el ABS.",
-          "en": null,
-          "ru": null
+          "en": "The brakes and ABS.",
+          "ru": "Тормоза и ABS."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El cinturón de seguridad constituye el eje central de la seguridad pasiva. Los elementos complementarios, como el airbag y los reposacabezas, han sido diseñados para actuar de forma coordinada con la retención del cinturón. La ausencia de este último invalida la eficacia de la bolsa de aire, pudiendo provocar lesiones por el impacto contra la misma durante su inflado, y anula la función preventiva del reposacabezas ante el latigazo cervical al no mantenerse el cuerpo alineado con el asiento.",
+      "en": "The seat belt is the primary component of the passive safety system. Supplemental restraint systems, such as airbags and headrests, are designed to function in synchronization with the seat belt. Without the belt's restraint, the occupant may strike the airbag during its deployment phase, causing severe injury, and the headrest will fail to prevent whiplash as the body will not remain properly aligned with the seat back.",
+      "ru": "🎓 Ремень безопасности является основным элементом пассивной безопасности. Дополнительные системы, такие как подушки безопасности и подголовники, рассчитаны на совместную работу с ним. Без фиксации ремнём тело водителя легкового автомобиля при столкновении смещается слишком быстро: подушка безопасности может нанести удар вместо защиты, а подголовник не предотвратит травму шеи, так как голова не будет находиться в правильном положении относительно него. Системы вроде ABS или подвески относятся к активной безопасности и работают независимо от ремня.\n\n💡 Ремень — это фундамент дома, а подушка — крыша. Без фундамента крыша просто придавит тебя."
     },
     "image_url": "https://teorica.practicavial.com/question/eb62ab13-c782-4dd5-bb09-7b1e2e5703f5-1658850220-i.jpg",
     "source": "practicavial",
@@ -837,16 +837,16 @@
     "category": "B",
     "question": {
       "es": "Es importante mantener limpio el cristal de los faros ya que la suciedad...",
-      "en": null,
-      "ru": null
+      "en": "It is important to keep the headlight glass clean because dirt...",
+      "ru": "Важно содержать стекла фар в чистоте, так как грязь..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Modifica la dirección de los rayos luminosos provocando deslumbramientos.",
-          "en": null,
-          "ru": null
+          "en": "Modifies the direction of light rays, causing glare.",
+          "ru": "Изменяет направление световых лучей, вызывая ослепление."
         },
         "is_correct": true
       },
@@ -854,8 +854,8 @@
         "id": "b",
         "text": {
           "es": "Provoca la corrosión del cristal disminuyendo la estanqueidad.",
-          "en": null,
-          "ru": null
+          "en": "Causes corrosion of the glass, reducing tightness.",
+          "ru": "Вызывает коррозию стекла, снижая герметичность."
         },
         "is_correct": false
       },
@@ -863,16 +863,16 @@
         "id": "c",
         "text": {
           "es": "Elimina la superficie rugosa que forman los prismas de la superficie exterior.",
-          "en": null,
-          "ru": null
+          "en": "Eliminates the rough surface formed by the prisms on the outer surface.",
+          "ru": "Удаляет шероховатую поверхность, образованную призмами на внешней стороне."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La acumulación de suciedad en la superficie de los faros altera la refracción de la luz. Este fenómeno físico dispersa los rayos luminosos de forma incontrolada, lo que reduce la eficacia del haz proyectado y genera deslumbramientos peligrosos para los conductores que circulan en sentido contrario. Mantener la transparencia del cristal es una medida de seguridad activa fundamental.",
+      "en": "Dirt accumulation on the headlight surface alters light refraction. This physical phenomenon scatters light rays uncontrollably, reducing the efficiency of the projected beam and creating dangerous glare for oncoming drivers. Maintaining glass transparency is a fundamental active safety measure.",
+      "ru": "🎓 Чистота фар — это не вопрос эстетики, а твоя безопасность. Грязь на стекле работает как линза-рассеиватель: она преломляет свет под неправильными углами. В итоге вместо четкого пучка на дорогу ты получаешь световое облако, которое бьёт в глаза встречным водителям, ослепляя их, а тебе самому при этом дорогу видно гораздо хуже. 💡 Грязная фара — как очки в мазуте: сам не видишь и других бесишь."
     },
     "image_url": "https://teorica.practicavial.com/question/3792f7cb-4417-4222-a073-68b3408a288b-1658853166-i.jpg",
     "source": "practicavial",
@@ -889,16 +889,16 @@
     "category": "B",
     "question": {
       "es": "Es recomendable revisar la dirección del vehículo cuando...",
-      "en": null,
-      "ru": null
+      "en": "It is recommended to check the vehicle's steering when...",
+      "ru": "Рекомендуется проверить рулевое управление автомобиля, когда..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "el vehículo no se desvía al soltar el volante.",
-          "en": null,
-          "ru": null
+          "en": "the vehicle does not deviate when the steering wheel is released.",
+          "ru": "автомобиль не отклоняется от курса при отпускании руля."
         },
         "is_correct": false
       },
@@ -906,8 +906,8 @@
         "id": "b",
         "text": {
           "es": "se vuelve demasiado dura o demasiado floja.",
-          "en": null,
-          "ru": null
+          "en": "it becomes too stiff or too loose.",
+          "ru": "оно становится слишком тугим или слишком свободным."
         },
         "is_correct": true
       },
@@ -915,16 +915,16 @@
         "id": "c",
         "text": {
           "es": "los neumáticos se desgastan de forma regular.",
-          "en": null,
-          "ru": null
+          "en": "the tires wear out regularly.",
+          "ru": "шины изнашиваются равномерно."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El sistema de dirección es un elemento crítico de la seguridad activa. Debe ser revisado inmediatamente si se detectan anomalías en su funcionamiento, tales como una dureza excesiva (que puede indicar falta de líquido de asistencia o fallos en la bomba) o una holgura excesiva (flojedad), que sugiere desgaste en las rótulas o varillajes. Un desgaste regular de neumáticos y el mantenimiento de la trayectoria son indicadores de un sistema en buen estado.",
+      "en": "The steering system is a critical component of active safety. It must be inspected immediately if anomalies are detected, such as excessive stiffness (which may indicate a lack of power steering fluid or pump failure) or excessive play (looseness), suggesting wear in the ball joints or linkages. Regular tire wear and maintaining a straight path are indicators of a system in good condition.",
+      "ru": "🎓 Рулевое управление — это основа активной безопасности. Как водителю легкового автомобиля, тебе важно чувствовать четкую обратную связь. Если руль стал «дубовым» (требует больших усилий) или, наоборот, появился люфт (свободный ход, «болтанка»), это признаки неисправности усилителя, утечки жидкости или износа деталей. Исправная система не требует вмешательства, если машина четко держит прямую, а шины стираются равномерно.\n\n💡 Руль — как пульс: если он зашкаливает или пропадает, пора к «доктору» в сервис."
     },
     "image_url": "https://teorica.practicavial.com/question/4c603ba5-5b4d-490e-9566-a49d969dcf5f-1658839582-i.jpg",
     "source": "practicavial",
@@ -940,17 +940,17 @@
     "question_number": 19,
     "category": "B",
     "question": {
-      "es": "Conducir por una vía en mal estado, ¿puede favorecer la fatiga?",
-      "en": null,
-      "ru": null
+      "es": "¿Conducir por una vía en mal estado puede favorecer la fatiga?",
+      "en": "Can driving on a road in poor condition contribute to fatigue?",
+      "ru": "Может ли вождение по дороге в плохом состоянии способствовать утомлению?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       },
@@ -958,8 +958,8 @@
         "id": "b",
         "text": {
           "es": "Sólo si conduce de noche.",
-          "en": null,
-          "ru": null
+          "en": "Only if driving at night.",
+          "ru": "Только при вождении ночью."
         },
         "is_correct": false
       },
@@ -967,16 +967,16 @@
         "id": "c",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El estado de la vía influye directamente en el estado psicofísico del conductor. Una calzada con baches o pavimento irregular exige una mayor concentración y un esfuerzo físico constante para mantener el control del vehículo, lo que acelera la aparición de la fatiga y reduce la seguridad vial.",
+      "en": "The condition of the road directly affects the driver's psychophysical state. A roadway with potholes or irregular pavement requires greater concentration and constant physical effort to maintain vehicle control, which accelerates the onset of fatigue and reduces road safety.",
+      "ru": "🎓 Когда ты ведешь легковой автомобиль по дороге с выбоинами или поврежденным покрытием, твоя концентрация и физическое напряжение возрастают. Тебе приходится постоянно контролировать траекторию и реагировать на неровности, что значительно быстрее истощает ресурсы организма. Усталость в таких условиях наступает раньше, чем на качественном покрытии, независимо от освещения или времени суток. 💡 Плохая дорога — как шумный сосед: выматывает незаметно, но очень быстро."
     },
     "image_url": "https://teorica.practicavial.com/question/23daf4bf-4a28-4486-90ea-75e18d3d1c50-1658754553-i.jpg",
     "source": "practicavial",
@@ -993,16 +993,16 @@
     "category": "B",
     "question": {
       "es": "La fatiga hace que...",
-      "en": null,
-      "ru": null
+      "en": "Fatigue causes...",
+      "ru": "Утомление приводит к тому, что..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "se asuman menos riesgos al volante.",
-          "en": null,
-          "ru": null
+          "en": "fewer risks are assumed behind the wheel.",
+          "ru": "водитель принимает на себя меньше рисков за рулем."
         },
         "is_correct": false
       },
@@ -1010,8 +1010,8 @@
         "id": "b",
         "text": {
           "es": "se conduzca de manera mucho más pasiva.",
-          "en": null,
-          "ru": null
+          "en": "driving becomes much more passive.",
+          "ru": "вождение становится гораздо более пассивным."
         },
         "is_correct": true
       },
@@ -1019,16 +1019,16 @@
         "id": "c",
         "text": {
           "es": "disminuyan las conductas hostiles o agresiva.",
-          "en": null,
-          "ru": null
+          "en": "hostile or aggressive behaviors decrease.",
+          "ru": "снижается враждебное или агрессивное поведение."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La fatiga produce una disminución de la capacidad de atención y un aumento del tiempo de reacción. Esto deriva en una conducción pasiva, donde el conductor deja de procesar activamente la información del entorno, reduciendo la frecuencia de mirada a los retrovisores y la anticipación ante peligros. No disminuye la asunción de riesgos; al contrario, la falta de percepción puede incrementarlos de forma involuntaria.",
+      "en": "Fatigue causes a reduction in attention span and an increase in reaction time. This leads to passive driving, characterized by a lack of active environmental scanning, reduced mirror checks, and delayed anticipation of hazards. It does not decrease risk-taking; rather, impaired perception may lead to higher involuntary risk.",
+      "ru": "🎓 Когда наваливается усталость, ты перестаешь быть активным участником движения и превращаешься в «пассажира» за рулем своего легкового автомобиля. Это состояние называется пассивным вождением: ты реже проверяешь зеркала, перестаешь прогнозировать ситуацию и просто катишься по инерции. Реакция замедляется, а внимание сужается до пятна перед капотом. Ошибочно полагать, что усталый водитель осторожнее — из-за потери концентрации он совершает больше ошибок, которые ведут к неосознанному риску. 🇷🇺 В испанских тестах термин «пассивное вождение» (conducción pasiva) является ключевым признаком утомления, подчеркивающим выключение водителя из процесса управления. 💡 Усталость превращает водителя в зомби: глаза открыты, но мозг уже спит."
     },
     "image_url": "https://teorica.practicavial.com/question/dbd99f2b-99ab-4fba-ad17-6bcc14f11743-1658753532-i.jpg",
     "source": "practicavial",
@@ -1045,16 +1045,16 @@
     "category": "B",
     "question": {
       "es": "El calor y la mala ventilación del habitáculo...",
-      "en": null,
-      "ru": null
+      "en": "Heat and poor ventilation in the passenger compartment...",
+      "ru": "Жара и плохая вентиляция в салоне..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "no influyen en las condiciones del conductor.",
-          "en": null,
-          "ru": null
+          "en": "do not influence the driver's condition.",
+          "ru": "не влияют на состояние водителя."
         },
         "is_correct": false
       },
@@ -1062,8 +1062,8 @@
         "id": "b",
         "text": {
           "es": "disminuyen el riesgo de cansancio en el conductor.",
-          "en": null,
-          "ru": null
+          "en": "decrease the risk of fatigue in the driver.",
+          "ru": "снижают риск утомления водителя."
         },
         "is_correct": false
       },
@@ -1071,16 +1071,16 @@
         "id": "c",
         "text": {
           "es": "favorecen la aparición de cansancio en el conductor.",
-          "en": null,
-          "ru": null
+          "en": "promote the onset of fatigue in the driver.",
+          "ru": "способствуют появлению усталости у водителя."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Las temperaturas elevadas y la falta de renovación del aire en el habitáculo de un turismo afectan negativamente a las capacidades del conductor. El calor excesivo provoca somnolencia, fatiga y un aumento del tiempo de reacción, lo que incrementa el riesgo de accidentes. Se recomienda mantener una temperatura constante entre 20 y 23 grados Celsius para garantizar la seguridad vial.",
+      "en": "High temperatures and lack of air renewal in the passenger compartment of a vehicle negatively affect the driver's capabilities. Excessive heat causes drowsiness, fatigue, and an increase in reaction time, which raises the risk of accidents. It is recommended to maintain a constant temperature between 20 and 23 degrees Celsius to ensure road safety.",
+      "ru": "🎓 Высокая температура и отсутствие притока свежего воздуха в салоне легкового автомобиля быстро истощают ресурсы организма. Жара действует на водителя подобно небольшому количеству алкоголя: внимание рассеивается, а время реакции на опасность увеличивается. Для сохранения бодрости и концентрации крайне важно поддерживать в салоне температуру в пределах 20–23°C и регулярно проветривать салон. 💡 Жаркий салон — сонный барон. Держи градус в норме, чтобы быть в форме!"
     },
     "image_url": "https://teorica.practicavial.com/question/29d41601-21a5-4db6-a651-3b1fd45451d4-1658766794-i.jpg",
     "source": "practicavial",
@@ -1097,16 +1097,16 @@
     "category": "B",
     "question": {
       "es": "Las carreteras convencionales son, en general...",
-      "en": null,
-      "ru": null
+      "en": "Conventional roads are, in general...",
+      "ru": "Обычные дороги (carreteras convencionales) являются, в целом..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "igual de seguras que las autopistas y las autovías.",
-          "en": null,
-          "ru": null
+          "en": "equally as safe as motorways and dual carriageways.",
+          "ru": "такими же безопасными, как Autopista и Autovía."
         },
         "is_correct": false
       },
@@ -1114,8 +1114,8 @@
         "id": "b",
         "text": {
           "es": "más inseguras que las autopistas y las autovías.",
-          "en": null,
-          "ru": null
+          "en": "more unsafe than motorways and dual carriageways.",
+          "ru": "более опасными, чем Autopista и Autovía."
         },
         "is_correct": true
       },
@@ -1123,16 +1123,16 @@
         "id": "c",
         "text": {
           "es": "más seguras que las autopistas y las autovías.",
-          "en": null,
-          "ru": null
+          "en": "safer than motorways and dual carriageways.",
+          "ru": "более безопасными, чем Autopista и Autovía."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Las carreteras convencionales presentan un mayor índice de siniestralidad en comparación con las autopistas y autovías. Los factores determinantes son la existencia de intersecciones al mismo nivel, la posibilidad de realizar adelantamientos con invasión del sentido contrario y la ausencia de una separación física entre los sentidos de circulación. Las autopistas y autovías, al disponer de calzadas separadas y control de accesos, reducen significativamente el riesgo de colisiones frontales y laterales.",
+      "en": "Conventional roads have a higher accident rate compared to motorways (autopistas) and dual carriageways (autovías). Key risk factors include at-grade intersections, the requirement to use the oncoming lane for overtaking (adelantamiento), and the lack of physical separation between opposing traffic flows. Motorways and dual carriageways feature separate carriageways and controlled access points, which significantly mitigate the risk of head-on and intersection-related collisions.",
+      "ru": "🎓 Обычные дороги (carreteras convencionales) считаются наиболее опасными по сравнению с Autopista и Autovía. Основные факторы риска — это перекрестки на одном уровне, отсутствие физического разделения встречных потоков и необходимость выезда на встречную полосу для совершения обгона (Adelantamiento). На скоростных дорогах (Autopista/Autovía) потоки разделены барьером, а пересечения всегда разнесены по уровням, что исключает самые опасные типы аварий. Тебе как водителю Turismo нужно быть предельно внимательным именно на загородных трассах с одной полосой в каждом направлении. 💡 Обычная дорога — это риск встречки, Autopista — комфорт и барьеры."
     },
     "image_url": "https://teorica.practicavial.com/question/165a824e-fe6b-4770-80d4-fa285e7b717c-1658502317-i.jpg",
     "source": "practicavial",
@@ -1149,16 +1149,16 @@
     "category": "B",
     "question": {
       "es": "¿Pueden realizarle una prueba para detectar el consumo de drogas en un control de tráfico?",
-      "en": null,
-      "ru": null
+      "en": "Can you be tested for drug consumption at a traffic control?",
+      "ru": "Могут ли у вас проверить наличие наркотиков в организме во время дорожного контроля?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, en las mismas condiciones que en las pruebas de detección de la alcoholemia.",
-          "en": null,
-          "ru": null
+          "en": "Yes, under the same conditions as alcohol detection tests.",
+          "ru": "Да, на тех же условиях, что и при проверке на алкоголь."
         },
         "is_correct": true
       },
@@ -1166,8 +1166,8 @@
         "id": "b",
         "text": {
           "es": "No, si no muestra signos de haber consumido drogas.",
-          "en": null,
-          "ru": null
+          "en": "No, if you do not show signs of having consumed drugs.",
+          "ru": "Нет, если у вас нет признаков употребления наркотиков."
         },
         "is_correct": false
       },
@@ -1175,16 +1175,16 @@
         "id": "c",
         "text": {
           "es": "No, porque no existen pruebas para detectar el consumo de drogas.",
-          "en": null,
-          "ru": null
+          "en": "No, because there are no tests to detect drug consumption.",
+          "ru": "Нет, потому что тестов для обнаружения наркотиков не существует."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, todos los conductores de vehículos y bicicletas están obligados a someterse a las pruebas de detección de drogas cuando sean requeridos por los agentes. Las circunstancias son idénticas a las del control de alcoholemia: controles preventivos, haber cometido una infracción o estar implicado en un accidente de circulación. La negativa a realizar la prueba puede ser constitutiva de delito.",
+      "en": "According to the General Traffic Regulations, all drivers of vehicles and bicycles are required to undergo drug detection tests when requested by officers. The circumstances are identical to those of alcohol testing: preventive checks, having committed an offense, or being involved in a traffic accident. Refusal to undergo the test may constitute a criminal offense.",
+      "ru": "🎓 Водители легковых автомобилей и других транспортных средств обязаны проходить тест на наркотики по требованию агентов дорожной полиции. Условия проверки точно такие же, как при контроле алкоголя: профилактический рейд (даже без признаков опьянения), совершение любого нарушения ПДД или участие в ДТП. Ты обязан сдать тест, так как отказ является серьезным правонарушением и влечет за собой уголовную ответственность. 🇷🇺 В отличие от РФ, где для выявления наркотического опьянения обязательно направление в медицинское учреждение, в Испании полиция проводит первичный экспресс-анализ слюны прямо на месте остановки. 💡 Видишь патруль — будь готов к проверке. В Испании профилактика касается каждого, а не только подозрительных."
     },
     "image_url": "https://teorica.practicavial.com/question/e4f619cf-3449-4b76-b6e4-30d85fc06c5b-1658829956-i.jpg",
     "source": "practicavial",
@@ -1201,16 +1201,16 @@
     "category": "B",
     "question": {
       "es": "Entre otros, ¿qué síntoma es indicio de fatiga?",
-      "en": null,
-      "ru": null
+      "en": "Among others, what symptom is a sign of fatigue?",
+      "ru": "Среди прочих, какой симптом является признаком усталости?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Movimientos constantes en el asiento.",
-          "en": null,
-          "ru": null
+          "en": "Constant movements in the seat.",
+          "ru": "Постоянные движения в кресле."
         },
         "is_correct": true
       },
@@ -1218,8 +1218,8 @@
         "id": "b",
         "text": {
           "es": "Disminución del tiempo de reacción.",
-          "en": null,
-          "ru": null
+          "en": "Decrease in reaction time.",
+          "ru": "Уменьшение времени реакции."
         },
         "is_correct": false
       },
@@ -1227,16 +1227,16 @@
         "id": "c",
         "text": {
           "es": "Sensación unas veces de frío y otras de calor.",
-          "en": null,
-          "ru": null
+          "en": "Feeling cold at times and hot at others.",
+          "ru": "Ощущение то холода, то жара."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La fatiga produce una serie de efectos psicofísicos en el conductor. Entre los síntomas físicos se encuentran los movimientos constantes y cambios de postura en el asiento, el parpadeo excesivo, la pesadez de párpados y la rigidez muscular. Es importante destacar que la fatiga aumenta el tiempo de reacción (se tarda más en reaccionar), por lo que una disminución del mismo es incorrecta.",
+      "en": "Fatigue produces several psychophysical effects on the driver. Physical symptoms include constant movements and changes of posture in the seat, excessive blinking, heavy eyelids, and muscle stiffness. It is important to note that fatigue increases reaction time (it takes longer to react); therefore, a decrease in reaction time is incorrect.",
+      "ru": "🎓 Когда ты за рулем легкового автомобиля, усталость проявляется не только в сонливости, но и в физическом беспокойстве. Постоянная смена позы и ерзанье в кресле — это типичный признак того, что организм утомлен и пытается искусственно поддерживать бодрость за счет движений. Важно не путать: усталость всегда УВЕЛИЧИВАЕТ время реакции (ты соображаешь дольше и реагируешь медленнее), поэтому вариант с уменьшением времени технически неверен. Также к признакам относятся частое моргание и потеря концентрации. 💡 Начал ерзать — пора на паузу. Попа — лучший датчик усталости!"
     },
     "image_url": "https://teorica.practicavial.com/question/5b322274-44f6-47c1-8866-e3ab9ca8fa78-1658753714-i.jpg",
     "source": "practicavial",
@@ -1253,16 +1253,16 @@
     "category": "B",
     "question": {
       "es": "La mayoría de los accidentes de tráfico se deben...",
-      "en": null,
-      "ru": null
+      "en": "Most traffic accidents are caused by...",
+      "ru": "Большинство дорожно-транспортных происшествий происходит из-за..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "al factor humano.",
-          "en": null,
-          "ru": null
+          "en": "the human factor.",
+          "ru": "человеческого фактора."
         },
         "is_correct": true
       },
@@ -1270,8 +1270,8 @@
         "id": "b",
         "text": {
           "es": "al estado de la vía.",
-          "en": null,
-          "ru": null
+          "en": "the condition of the road.",
+          "ru": "состояния проезжей части."
         },
         "is_correct": false
       },
@@ -1279,16 +1279,16 @@
         "id": "c",
         "text": {
           "es": "al estado del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "the condition of the vehicle.",
+          "ru": "состояния транспортного средства."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según los informes de seguridad vial de la DGT, el factor humano es el responsable de la mayoría de los siniestros, interviniendo en una proporción de entre el 70% y el 90% de los casos. Las distracciones, la velocidad inadecuada, el cansancio y el consumo de alcohol o drogas son los factores determinantes. El estado de la infraestructura vial y los fallos mecánicos del vehículo representan un porcentaje significativamente inferior en la causalidad de accidentes.",
+      "en": "According to road safety reports, the human factor is responsible for the majority of accidents, being a factor in 70% to 90% of cases. Distractions, inappropriate speed, fatigue, and the consumption of alcohol or drugs are the primary determining factors. The condition of the road infrastructure and mechanical failures of the vehicle account for a significantly lower percentage of accident causality.",
+      "ru": "🎓 Статистика безопасности дорожного движения подтверждает, что человеческий фактор является причиной подавляющего большинства аварий (от 70% до 90%). Основные причины — это отвлечение внимания (телефон), несоблюдение скоростного режима, усталость или употребление запрещенных веществ. Хотя состояние проезжей части или технические неисправности легкового автомобиля также влияют на безопасность, их роль в статистике значительно меньше по сравнению с ошибками водителя. 💡 Машина сама в кювет не уедет — всё в руках того, кто за рулём."
     },
     "image_url": "https://teorica.practicavial.com/question/bd71464a-92b9-4b72-baba-d822b7fa7da9-1658498155-i.jpg",
     "source": "practicavial",
@@ -1305,16 +1305,16 @@
     "category": "B",
     "question": {
       "es": "¿A qué altura debe quedar la parte central del reposacabezas?",
-      "en": null,
-      "ru": null
+      "en": "At what height should the central part of the headrest be positioned?",
+      "ru": "На какой высоте должна находиться центральная часть подголовника?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "A la altura del cuello.",
-          "en": null,
-          "ru": null
+          "en": "At neck level.",
+          "ru": "На уровне шеи."
         },
         "is_correct": false
       },
@@ -1322,8 +1322,8 @@
         "id": "b",
         "text": {
           "es": "A la altura de los ojos.",
-          "en": null,
-          "ru": null
+          "en": "At eye level.",
+          "ru": "На уровне глаз."
         },
         "is_correct": true
       },
@@ -1331,16 +1331,16 @@
         "id": "c",
         "text": {
           "es": "Es indiferente la altura del reposacabezas.",
-          "en": null,
-          "ru": null
+          "en": "The height of the headrest is indifferent.",
+          "ru": "Высота подголовника не имеет значения."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Para garantizar la eficacia del reposacabezas como elemento de seguridad pasiva, su parte central debe estar alineada con la altura de los ojos del ocupante. Una regulación incorrecta, como situarlo a la altura del cuello, puede provocar lesiones cervicales graves en caso de colisión trasera (latigazo cervical). Además, la parte superior del reposacabezas debe coincidir con la parte superior de la cabeza.",
+      "en": "To ensure the effectiveness of the headrest as a passive safety feature, its central part must be aligned with the occupant's eye level. Incorrect adjustment, such as placing it at neck level, can lead to serious cervical injuries in the event of a rear-end collision (whiplash). Additionally, the top of the headrest should be level with the top of the head.",
+      "ru": "🎓 Подголовник — это ключевой элемент пассивной безопасности, защищающий от «хлыстовой травмы» при ударе сзади. Правильная настройка критически важна для водителя легкового автомобиля: центральная часть подголовника должна находиться на уровне твоих глаз, а верхний край — вровень с макушкой. Также следи, чтобы расстояние между затылком и подушкой было минимальным (не более 4 см). Если опустить его на уровень шеи, при аварии голова просто перекинется через него, что приведет к перелому позвоночника. 💡 Глаза в центр — шея цела."
     },
     "image_url": "https://teorica.practicavial.com/question/bd4b8694-704d-4e71-b0cc-54f21cd65525-1658851146-i.jpg",
     "source": "practicavial",
@@ -1356,17 +1356,17 @@
     "question_number": 27,
     "category": "B",
     "question": {
-      "es": "La cantidad de alcohol en sangre, ¿cuándo empieza a bajar?",
-      "en": null,
-      "ru": null
+      "es": "¿Cuándo empieza a bajar la cantidad de alcohol en sangre?",
+      "en": "When does the blood alcohol level start to decrease?",
+      "ru": "Когда уровень алкоголя в крови начинает снижаться?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Nada más dejar de beber.",
-          "en": null,
-          "ru": null
+          "en": "As soon as you stop drinking.",
+          "ru": "Сразу после того, как вы перестали пить."
         },
         "is_correct": false
       },
@@ -1374,8 +1374,8 @@
         "id": "b",
         "text": {
           "es": "Quince minutos después de dejar de beber.",
-          "en": null,
-          "ru": null
+          "en": "Fifteen minutes after you stop drinking.",
+          "ru": "Через пятнадцать минут после того, как вы перестали пить."
         },
         "is_correct": false
       },
@@ -1383,16 +1383,16 @@
         "id": "c",
         "text": {
           "es": "Una hora después de dejar de beber.",
-          "en": null,
-          "ru": null
+          "en": "One hour after you stop drinking.",
+          "ru": "Через час после того, как вы перестали пить."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La tasa de alcoholemia alcanza su punto máximo entre 30 y 90 minutos después de la última ingesta. A partir de este momento, se inicia la fase de eliminación, por lo que el nivel de alcohol en sangre comienza a disminuir aproximadamente una hora después de haber finalizado el consumo.",
+      "en": "Blood alcohol concentration reaches its peak between 30 and 90 minutes after the last drink. The elimination phase begins after this peak, meaning the level starts to drop approximately one hour after the person has stopped drinking.",
+      "ru": "🎓 После того как водитель Turismo выпил последний бокал, уровень алкоголя в крови не падает сразу. Напротив, он продолжает расти, достигая пика через 30–90 минут. Только после этого момента организм начинает медленно перерабатывать и выводить спиртное. Для экзамена DGT запомни: процесс снижения концентрации запускается примерно через час после того, как ты перестал пить. 💡 Час ждём — потом \"падаем\". Алкоголь как гость: сначала заходит, долго раздевается и только через час начинает собираться домой."
     },
     "image_url": "https://teorica.practicavial.com/question/2d69c66d-c04a-497f-a2f3-3b5d7481063a-1658773008-i.jpg",
     "source": "practicavial",
@@ -1409,16 +1409,16 @@
     "category": "B",
     "question": {
       "es": "Circular por una vía con el pavimento en mal estado, ¿puede favorecer la aparición de la fatiga?",
-      "en": null,
-      "ru": null
+      "en": "Can driving on a road with pavement in poor condition favor the onset of fatigue?",
+      "ru": "Может ли движение по дороге с плохим состоянием дорожного покрытия способствовать появлению усталости?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, porque la conducción es más incómoda.",
-          "en": null,
-          "ru": null
+          "en": "Yes, because driving is more uncomfortable.",
+          "ru": "Да, так как вождение становится более некомфортным."
         },
         "is_correct": true
       },
@@ -1426,8 +1426,8 @@
         "id": "b",
         "text": {
           "es": "No, porque la conducción es más entretenida.",
-          "en": null,
-          "ru": null
+          "en": "No, because driving is more entertaining.",
+          "ru": "Нет, так как вождение становится более увлекательным."
         },
         "is_correct": false
       },
@@ -1435,16 +1435,16 @@
         "id": "c",
         "text": {
           "es": "Solo si el conductor es novel o poco experimentado.",
-          "en": null,
-          "ru": null
+          "en": "Only if the driver is a novice or inexperienced.",
+          "ru": "Только если водитель является новичком или малоопытным."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El estado de la vía es un factor externo que influye directamente en la fatiga del conductor. Un pavimento en mal estado, con baches o irregularidades, obliga al conductor a mantener una mayor concentración y a realizar un esfuerzo físico superior para controlar la trayectoria del vehículo, lo que acelera el cansancio.",
+      "en": "The condition of the road is an external factor that directly influences driver fatigue. Pavement in poor condition, with potholes or irregularities, forces the driver to maintain greater concentration and exert more physical effort to control the vehicle's path, which accelerates exhaustion.",
+      "ru": "🎓 Движение по дороге с выбоинами, трещинами или неровностями значительно увеличивает нагрузку на водителя легкового автомобиля. Тебе приходится постоянно концентрировать внимание, чтобы объезжать препятствия, и прилагать больше физических усилий для удержания руля и контроля траектории. Этот дискомфорт и постоянное напряжение приводят к тому, что психофизическая усталость наступает гораздо быстрее, чем при езде по ровному покрытию. 💡 Плохая дорога — быстрая тревога и сил не на много."
     },
     "image_url": "https://teorica.practicavial.com/question/6b4105c8-35c3-45c1-8433-c87c0defa693-1658757895-i.jpg",
     "source": "practicavial",
@@ -1461,16 +1461,16 @@
     "category": "B",
     "question": {
       "es": "La mayoría de los accidentes son...",
-      "en": null,
-      "ru": null
+      "en": "Most accidents are...",
+      "ru": "Большинство аварий являются..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "inevitables, aunque se prevengan los factores de riesgo.",
-          "en": null,
-          "ru": null
+          "en": "unavoidable, even if risk factors are prevented.",
+          "ru": "неизбежными, даже если предотвращены факторы риска."
         },
         "is_correct": false
       },
@@ -1478,25 +1478,25 @@
         "id": "b",
         "text": {
           "es": "evitables, si se previenen los factores de riesgo.",
-          "en": null,
-          "ru": null
+          "en": "preventable, if risk factors are prevented.",
+          "ru": "избегаемыми, если предотвращены факторы риска."
         },
-        "is_correct": false
+        "is_correct": true
       },
       {
         "id": "c",
         "text": {
           "es": "inevitables, porque siempre está presente el factor humano.",
-          "en": null,
-          "ru": null
+          "en": "unavoidable, because the human factor is always present.",
+          "ru": "неизбежными, потому что всегда присутствует человеческий фактор."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La seguridad vial se fundamenta en la premisa de que los siniestros de tráfico no son sucesos fortuitos o azarosos. La mayoría de los accidentes de tráfico son evitables mediante la identificación y prevención de los factores de riesgo (humano, vía y entorno, y vehículo). El factor humano es el responsable de entre el 70% y el 90% de los accidentes.",
+      "en": "Road safety is based on the principle that traffic accidents are not random events. Most traffic accidents are preventable through the identification and mitigation of risk factors (human, road and environment, and vehicle). The human factor accounts for 70% to 90% of all accidents.",
+      "ru": "🎓 В ПДД Испании ДТП рассматриваются не как случайность или «злой рок», а как следствие конкретных причин. Большинство аварий можно предотвратить, если заранее исключить факторы риска. Основные факторы — это водитель (человеческий фактор), состояние дороги и транспортного средства. Статистика DGT показывает, что человеческий фактор является причиной 70–90% происшествий. Если водитель легкового автомобиля (Turismo) соблюдает дистанцию, скоростной режим и не отвлекается, большинство опасных ситуаций просто не возникнет. 💡 Авария — это не «не повезло», а «где-то недосмотрел»."
     },
     "image_url": "https://teorica.practicavial.com/question/49d06843-282f-4805-aa20-3c7909e80186-1658498467-i.jpg",
     "source": "practicavial",
@@ -1513,16 +1513,16 @@
     "category": "B",
     "question": {
       "es": "Mientras se realiza un estacionamiento, ¿es fácil que el dispositivo del airbag se dispare?",
-      "en": null,
-      "ru": null
+      "en": "While parking, is it easy for the airbag device to go off?",
+      "ru": "Легко ли может сработать подушка безопасности во время выполнения парковки?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Este tipo de cuestiones dependerá de la marca del automóvil.",
-          "en": null,
-          "ru": null
+          "en": "This type of issue will depend on the car brand.",
+          "ru": "Подобные вопросы зависят от марки легкового автомобиля."
         },
         "is_correct": false
       },
@@ -1530,25 +1530,25 @@
         "id": "b",
         "text": {
           "es": "No, puesto que los sistemas de airbag actuales son muy precisos a la hora de determinar cuándo deben hincharse.",
-          "en": null,
-          "ru": null
+          "en": "No, since current airbag systems are very precise when determining when they should inflate.",
+          "ru": "Нет, так как современные системы подушек безопасности очень точно определяют момент, когда они должны надуться."
         },
-        "is_correct": false
+        "is_correct": true
       },
       {
         "id": "c",
         "text": {
           "es": "Sí, un airbag puede ponerse en funcionamiento en cualquier momento.",
-          "en": null,
-          "ru": null
+          "en": "Yes, an airbag can be activated at any time.",
+          "ru": "Да, подушка безопасности может сработать в любой момент."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Los sistemas de seguridad pasiva, específicamente el airbag, están diseñados para activarse únicamente ante deceleraciones bruscas o impactos que superen un umbral de fuerza determinado. Durante las maniobras de estacionamiento, las velocidades son reducidas y las fuerzas de impacto potenciales son insuficientes para activar los sensores del sistema. La tecnología actual garantiza una alta precisión para evitar despliegues accidentales en situaciones de baja energía.",
+      "en": "Passive safety systems, specifically the airbag, are designed to activate only in the event of sudden decelerations or impacts that exceed a specific force threshold. During parking maneuvers, speeds are low and potential impact forces are insufficient to trigger the system's sensors. Current technology ensures high precision to prevent accidental deployments in low-energy situations.",
+      "ru": "🎓 Подушка безопасности — это элемент пассивной безопасности, который срабатывает только при достижении определенного порога силы удара или резкого замедления. При парковке твой легковой автомобиль движется на минимальной скорости. Современные датчики настроены крайне точно: они отличают легкий толчок о бордюр или мелкое касание при маневрировании от реального столкновения. Поэтому случайное срабатывание при обычной парковке практически исключено. 💡 Подушка — не неженка, она просыпается только от настоящего «бум», а не от парковочного «ой»."
     },
     "image_url": "https://teorica.practicavial.com/question/f4b05cbe-fe8e-492e-916a-47ed58b8edc3-1658845846-i.jpg",
     "source": "practicavial",

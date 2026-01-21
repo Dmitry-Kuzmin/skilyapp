@@ -17,14 +17,35 @@ import { fileURLToPath } from 'url';
 dotenv.config({ path: '.env.local' });
 dotenv.config();
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const PRIMARY_KEY = process.env.GEMINI_API_KEY;
+const BACKUP_KEY = 'AIzaSyAQ8ph7DB8P8D-EpJ5Vij6bzqndDRtYR1c';
 
-if (!GEMINI_API_KEY) {
+if (!PRIMARY_KEY) {
     console.error("❌ Ошибка: GEMINI_API_KEY не установлен.");
     process.exit(1);
 }
 
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+// API Key Rotation System
+const API_KEYS = [PRIMARY_KEY, BACKUP_KEY].filter(Boolean);
+let currentKeyIndex = 0;
+let genAI;
+
+function initializeAI() {
+    const key = API_KEYS[currentKeyIndex];
+    console.log(`🔑 [System] Initializing Gemini AI with Key #${currentKeyIndex + 1} (${key.slice(0, 10)}...)`);
+    genAI = new GoogleGenerativeAI(key);
+}
+
+function rotateApiKey() {
+    if (API_KEYS.length <= 1) return false;
+    currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
+    console.log(`🔄 [System] Rotating to API Key #${currentKeyIndex + 1}...`);
+    initializeAI();
+    return true;
+}
+
+// Initial Sync
+initializeAI();
 
 // JSON Schema для гарантированной структуры ответа
 const responseSchema = {
@@ -96,14 +117,34 @@ async function generateWithFallback(parts) {
 
     for (const modelName of MODELS_PRIORITY) {
         try {
-            // console.log(`   👉 Trying model: ${modelName}...`); 
+            console.log(`   👉 Trying model: ${modelName}...`);
             const model = genAI.getGenerativeModel({ model: modelName, generationConfig });
             const result = await model.generateContent(parts);
+            console.log(`   ✅ Success with: ${modelName}`);
             return result;
         } catch (error) {
+            // Check for Quota/Limit errors
+            const isLimitError = error.message.includes('429') || error.message.includes('Quota') || error.message.includes('503');
+
+            if (isLimitError) {
+                if (rotateApiKey()) {
+                    try {
+                        console.log(`   🔄 API Key rotated. Retrying same model (${modelName}) immediately...`);
+                        const model = genAI.getGenerativeModel({ model: modelName, generationConfig });
+                        const result = await model.generateContent(parts);
+                        console.log(`   ✅ Success with: ${modelName} (New Key)`);
+                        return result;
+                    } catch (retryError) {
+                        console.warn(`   ⚠️ Retry with new key also failed: ${retryError.message.substring(0, 50)}...`);
+                        lastError = retryError;
+                        // Continue to next model loop (which will now use the new key)
+                    }
+                }
+            }
+
             // 404/400/500 errors -> try next model
             lastError = error;
-            // console.warn(`   ⚠️ Model ${modelName} failed: ${error.message.split(' ')[0]}... Trying next.`);
+            console.warn(`   ⚠️ Model ${modelName} failed: ${error.message.split(' ')[0]}... Trying next.`);
             continue;
         }
     }
@@ -289,10 +330,24 @@ VMP → СИМ (Средства индивидуальной мобильнос
 
             let responseText = result.response.text();
 
-            // С JSON Schema не нужно чистить markdown блоки, но на всякий случай
-            responseText = responseText.trim().replace(/^```json\s*/gm, '').replace(/^```\s*/gm, '').replace(/\s*```$/gm, '');
+            // АРХИТЕКТУРА: Robust JSON extraction
+            // Gemini sometimes adds explanatory text after JSON
+            responseText = responseText.trim();
 
-            const data = JSON.parse(responseText);
+            // Remove markdown code blocks
+            responseText = responseText.replace(/^```json\s*/gm, '').replace(/^```\s*/gm, '').replace(/\s*```$/gm, '');
+
+            // Extract ONLY the valid JSON object
+            // Find first { and last } to extract the complete JSON object
+            const firstBrace = responseText.indexOf('{');
+            const lastBrace = responseText.lastIndexOf('}');
+
+            if (firstBrace === -1 || lastBrace === -1 || firstBrace >= lastBrace) {
+                throw new Error('No valid JSON object found in AI response');
+            }
+
+            const jsonString = responseText.substring(firstBrace, lastBrace + 1);
+            const data = JSON.parse(jsonString);
 
             const errors = await validateData(data);
             if (errors.length > 0) throw new Error(`Validation failed: ${errors.join(', ')}`);

@@ -304,29 +304,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "Cualquiera de las indicadas.",
-          "en": "Any of the indicated ones.",
-          "ru": "Любое из указанных."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
+          "ru": "Только направления A и B.",
           "es": "Las direcciones A y B, solamente.",
-          "en": "Directions A and B only.",
-          "ru": "Только направления A и B."
+          "en": "Directions A and B only."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
+          "ru": "Любое из указанных.",
+          "es": "Cualquiera de las indicadas.",
+          "en": "Any of the indicated ones."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "Любое, кроме направления C.",
           "es": "Cualquiera, excepto la dirección C.",
-          "en": "Any, except direction C.",
-          "ru": "Любое, кроме направления C."
+          "en": "Any, except direction C."
         },
         "is_correct": false
       }
@@ -334,7 +334,7 @@
     "explanation": {
       "es": "La señal vertical R-303 prohíbe explícitamente el giro a la izquierda. Según el Reglamento General de Circulación, la prohibición de girar a la izquierda incluye siempre la prohibición del cambio de sentido. Por lo tanto, tanto la trayectoria hacia la izquierda (C) como el cambio de sentido (D) están prohibidos. El conductor solo está autorizado a continuar de frente (B) o girar a la derecha (A).",
       "en": "The vertical sign R-303 explicitly prohibits turning left. According to General Traffic Regulations, prohibiting a left turn always includes the prohibition of a U-turn. Therefore, both turning left (C) and making a U-turn (D) are prohibited. The driver is only authorized to proceed straight (B) or turn right (A).",
-      "ru": "1️⃣ 🎓 \nТы подъезжаешь к перекрестку и видишь знак R-303 «Поворот налево запрещен» (круг с красной каймой и перечеркнутой стрелкой влево). Для водителя любого ТС, включая легковой автомобиль (turismo), это означает двойной запрет: нельзя поворачивать налево и **нельзя делать разворот** (cambio de sentido). Следовательно, разрешено движение только в оставшихся направлениях: **прямо** или **направо**.\n\n2️⃣ 🇷🇺 \nЭто критически важный момент! В РФ знак 3.18.2 «Поворот налево запрещен» **разрешает** разворот. В Испании знак R-303 **запрещает** и поворот, и разворот. Действовать по привычке из РФ здесь нельзя — это грубая ошибка.\n\n3️⃣ 💡 \nЗапомни принцип «Запрет меньшего убивает большее»:\n• Если запрещен поворот налево (малый маневр), то запрещен и разворот (большой маневр).\n• А вот наоборот это не работает: знак «Разворот запрещен» всё еще позволяет повернуть налево.\n\nВидим запрет налево 🚫⬅️ — значит, вся левая сторона закрыта."
+      "ru": "🎓 Ты подъезжаешь к перекрестку и видишь знак R-303 «Поворот налево запрещен» (круг с красной каймой и перечеркнутой стрелкой влево). Для водителя любого ТС, включая легковой автомобиль (turismo), это означает двойной запрет: нельзя поворачивать налево и **нельзя делать разворот** (cambio de sentido). Следовательно, разрешено движение только в оставшихся направлениях: **прямо** или **направо**.\n\n🇷🇺 Это критически важный момент! В РФ знак 3.18.2 «Поворот налево запрещен» **разрешает** разворот. В Испании знак R-303 **запрещает** и поворот, и разворот. Действовать по привычке из РФ здесь нельзя — это грубая ошибка.\n\n3️⃣ 💡 \nЗапомни принцип «Запрет меньшего убивает большее»:\n• Если запрещен поворот налево (малый маневр), то запрещен и разворот (большой маневр).\n• А вот наоборот это не работает: знак «Разворот запрещен» всё еще позволяет повернуть налево.\n\nВидим запрет налево 🚫⬅️ — значит, вся левая сторона закрыта."
     },
     "image_url": "https://teorica.practicavial.com/question/6bb76366-d5ed-41b6-a453-3f54f49c2c76-1658159256-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/6bb76366-d5ed-41b6-a453-3f54f49c2c76-s-1.jpg",
@@ -892,29 +892,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
+          "ru": "Количество светящихся маячков, которые нужно оставить до впереди идущего транспортного средства.",
           "es": "El número de balizas luminosas que se debe dejar con el vehículo de delante.",
-          "en": "The number of luminous beacons that must be left between you and the vehicle in front.",
-          "ru": "Количество светящихся маячков, которые нужно оставить до впереди идущего транспортного средства."
+          "en": "The number of luminous beacons that must be left between you and the vehicle in front."
         },
         "is_correct": true
       },
       {
-        "id": "b",
+        "id": "opt_1",
         "text": {
+          "ru": "Обязанность включить противотуманные фары и аварийную сигнализацию в случае тумана.",
           "es": "La obligación de encender la luz antiniebla y la de emergencia en caso de niebla.",
-          "en": "The obligation to switch on fog lights and hazard lights in case of fog.",
-          "ru": "Обязанность включить противотуманные фары и аварийную сигнализацию в случае тумана."
+          "en": "The obligation to switch on fog lights and hazard lights in case of fog."
         },
         "is_correct": false
       },
       {
-        "id": "c",
+        "id": "opt_2",
         "text": {
+          "ru": "Количество маячков, освещающих полосу движения при проведении дорожных работ.",
           "es": "El número de balizas que iluminan el carril cuando la vía está en obras.",
-          "en": "The number of beacons illuminating the lane when the road is under construction.",
-          "ru": "Количество маячков, освещающих полосу движения при проведении дорожных работ."
+          "en": "The number of beacons illuminating the lane when the road is under construction."
         },
         "is_correct": false
       }
@@ -922,7 +922,7 @@
     "explanation": {
       "es": "La señal S-992e indica la distancia mínima entre vehículos mediante balizas luminosas. Se encuentra en tramos donde es frecuente la pérdida de visibilidad debido a la niebla. La señal instruye al conductor sobre el número de balizas luminosas (marcas viales iluminadas en el borde de la calzada) que debe mantener de separación con el vehículo que le precede para garantizar la seguridad y evitar alcances.",
       "en": "Sign S-992e indicates the minimum distance between vehicles using luminous beacons. It is located in sections where loss of visibility due to fog is frequent. The sign instructs the driver on the number of luminous beacons (illuminated road markings on the edge of the roadway) that must be kept as separation from the vehicle ahead to ensure safety and avoid rear-end collisions.",
-      "ru": "🎓 \nЭтот знак (S-992e) применяется на участках, где часто возникает туман (надпись «NIEBLA»). Он указывает безопасную дистанцию не в метрах, а в количестве светящихся маячков (balizas luminosas), установленных вдоль края проезжей части.\n\nЕсли на знаке между силуэтами автомобилей изображены два желтых прямоугольника, значит, водитель **легкового автомобиля** должен держать такую дистанцию до машины спереди, чтобы в этот промежуток помещалось ровно два светящихся маячка на дороге. Это самый надежный способ избежать столкновения, когда из-за плохой видимости невозможно точно оценить расстояние в метрах.\n\n🇷🇺 \nВ РФ знак 3.16 «Ограничение минимальной дистанции» всегда требует соблюдать дистанцию в метрах (например, 70 м). В Испании на сложных участках используют более наглядный метод: ориентир на элементы дорожной инфраструктуры. Если попытаешься угадывать метры в тумане по российской привычке — рискуешь ошибиться, поэтому здесь нужно считать именно светящиеся точки.\n\n💡 \nВидишь слово **NIEBLA** (Туман) и желтые точки между машинами?\nПравило простое: **Сколько точек на знаке — столько лампочек на дороге** оставь до машины спереди.\nНе считай метры, считай огоньки!"
+      "ru": "🎓 Этот знак (S-992e) применяется на участках, где часто возникает туман (надпись «NIEBLA»). Он указывает безопасную дистанцию не в метрах, а в количестве светящихся маячков (balizas luminosas), установленных вдоль края проезжей части.\n\nЕсли на знаке между силуэтами автомобилей изображены два желтых прямоугольника, значит, водитель **легкового автомобиля** должен держать такую дистанцию до машины спереди, чтобы в этот промежуток помещалось ровно два светящихся маячка на дороге. Это самый надежный способ избежать столкновения, когда из-за плохой видимости невозможно точно оценить расстояние в метрах.\n\n🇷🇺 В РФ знак 3.16 «Ограничение минимальной дистанции» всегда требует соблюдать дистанцию в метрах (например, 70 м). В Испании на сложных участках используют более наглядный метод: ориентир на элементы дорожной инфраструктуры. Если попытаешься угадывать метры в тумане по российской привычке — рискуешь ошибиться, поэтому здесь нужно считать именно светящиеся точки.\n\n💡 Видишь слово **NIEBLA** (Туман) и желтые точки между машинами?\nПравило простое: **Сколько точек на знаке — столько лампочек на дороге** оставь до машины спереди.\nНе считай метры, считай огоньки!\n\n**1. Что это физически?**\n\nВ зонах с частым туманом дорожники рисуют на полосе движения специальные галочки (шевроны), похожие на наконечники стрел или перевернутые буквы «V».\n\nИногда вместо краски используют встроенные в асфальт светодиодные лампочки («кошачьи глаза»), которые светятся в темноте. Вот их и называют «световыми метками».\n\n**2. Зачем они нужны? **(Игра «Посчитай метки»)\n\nВ тумане глаз обманывает нас — мы не понимаем, далеко машина впереди или близко. Эти метки работают как линейка на полу.\n\nЗнак на твоей картинке (S-992e) дает инструкцию:\n\n«Чтобы не врезаться, между твоей машиной и машиной впереди должно быть видно минимум ДВЕ такие метки».\n\nКак это работает на практике:\n\nТы едешь в тумане.\n\nВидишь на асфальте светящиеся (или нарисованные) галочки: ^ ... ^ ... ^.\n\nВидишь машину впереди.\n\nСчитаешь: сколько галочек помещается в пустом пространстве между твоим бампером и её бампером?\n\nВидно оду метку (🚗 ... ^ ... 🚙) -> ОПАСНО! Ты слишком близко.\n\nВидно две метки (🚗 ... ^ ... ^ ... 🚙) -> БЕЗОПАСНО. Дистанция достаточная, чтобы успеть затормозить.\n\n**Простыми словами:** «Световые метки» в этом вопросе — это ориентиры на полу, которые помогают тебе отмерить безопасную дистанцию, когда из-за тумана глазомер не работает."
     },
     "image_url": "https://teorica.practicavial.com/question/c4449a59-1699-42d1-bcff-a46de4838349-1761289392-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/c4449a59-1699-42d1-bcff-a46de4838349-s-1.jpg",
@@ -1465,6 +1465,8 @@
     },
     "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
     "schema_url": "https://teorica.practicavial.com/question/cee681f4-7d67-418c-84ef-85ba666f6149-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "external_id": "cee681f4-7d67-418c-84ef-85ba666f6149",
+    "id": "cee681f4-7d67-418c-84ef-85ba666f6149"
   }
 ]

@@ -5,16 +5,16 @@
     "category": "B",
     "question": {
       "es": "Los vehículos especiales que circulan por una vía de uso público deben utilizar la luz rotativa amarillo auto cuando circulen a una velocidad...",
-      "en": null,
-      "ru": null
+      "en": "Special vehicles traveling on a public road must use the yellow-auto rotating light when traveling at a speed...",
+      "ru": "Специальные транспортные средства, движущиеся по дорогам общего пользования, должны использовать желтый проблесковый маячок, когда они движутся со скоростью..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "superior a 40 km/h.",
-          "en": null,
-          "ru": null
+          "en": "exceeding 40 km/h.",
+          "ru": "превышающей 40 км/ч."
         },
         "is_correct": false
       },
@@ -22,8 +22,8 @@
         "id": "b",
         "text": {
           "es": "no superior a 40 km/h.",
-          "en": null,
-          "ru": null
+          "en": "not exceeding 40 km/h.",
+          "ru": "не превышающей 40 км/ч."
         },
         "is_correct": true
       },
@@ -31,16 +31,16 @@
         "id": "c",
         "text": {
           "es": "no superior a 40 km/h, solamente de noche.",
-          "en": null,
-          "ru": null
+          "en": "not exceeding 40 km/h, only at night.",
+          "ru": "не превышающей 40 км/ч, только в ночное время."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Vehículos, la señal V-2 (luz rotativa amarillo auto) debe ser utilizada por vehículos especiales, de transporte especial y de acompañamiento, así como por vehículos que realicen servicios o obras en la vía. Su uso es obligatorio tanto de día como de noche cuando el vehículo circule a una velocidad que no supere los 40 km/h. En caso de avería de dicha señal, se deberá circular con el alumbrado de posición, cruce y la señal de emergencia activados.",
+      "en": "According to the General Vehicle Regulations, the V-2 signal (yellow-auto rotating light) must be used by special vehicles, special transport, and escort vehicles, as well as vehicles performing services or works on the road. Its use is mandatory both day and night when the vehicle is traveling at a speed not exceeding 40 km/h. In the event of a failure of this signal, the vehicle must travel with position lights, low beam headlights, and emergency flashers activated.",
+      "ru": "🎓 Специальные транспортные средства обязаны использовать желтый проблесковый маячок (сигнал V-2) при движении по дорогам общего пользования, если их скорость не превышает 40 км/ч. Это правило действует круглосуточно: и днем, и ночью. Маячок служит для предупреждения остальных водителей о том, что транспортное средство может представлять собой препятствие на дороге. Если маячок сломался, водитель такого ТС обязан включить ближний свет фар и аварийную сигнализацию. Тебе, как водителю легкового автомобиля (Turismo), этот сигнал помогает заранее идентифицировать тихоходную технику. 💡 Видишь желтый огонек — сбавь газ, дружок! Если едет сорок — маячок нам дорог."
     },
     "image_url": "https://teorica.practicavial.com/question/de92558e-8703-4b0d-b1a6-44c45d577b95-1658316885-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/de92558e-8703-4b0d-b1a6-44c45d577b95-s-1.jpg",
@@ -54,16 +54,16 @@
     "category": "B",
     "question": {
       "es": "Si conduce un cuadriciclo equipado con cinturones de seguridad, ¿quiénes deben utilizarlos y en que tipo de vías?",
-      "en": null,
-      "ru": null
+      "en": "If you are driving a quadricycle equipped with seat belts, who must use them and on what type of roads?",
+      "ru": "Если вы управляете квадрициклом, оборудованным ремнями безопасности, кто должен их использовать и на каких типах дорог?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Tanto el conductor como el pasajero, en todo tipo de vías.",
-          "en": null,
-          "ru": null
+          "en": "Both the driver and the passenger, on all types of roads.",
+          "ru": "И водитель, и пассажир, на всех типах дорог."
         },
         "is_correct": true
       },
@@ -71,8 +71,8 @@
         "id": "b",
         "text": {
           "es": "Solo el conductor tanto en vías urbanas como en interurbanas.",
-          "en": null,
-          "ru": null
+          "en": "Only the driver, both on urban and interurban roads.",
+          "ru": "Только водитель как на городских, так и на загородных дорогах."
         },
         "is_correct": false
       },
@@ -80,16 +80,16 @@
         "id": "c",
         "text": {
           "es": "Tanto el conductor como el pasajero, solo en vías interurbanas.",
-          "en": null,
-          "ru": null
+          "en": "Both the driver and the passenger, only on interurban roads.",
+          "ru": "И водитель, и пассажир, только на загородных дорогах."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece que los conductores y pasajeros de cuadriciclos, triciclos y motocicletas que cuenten con estructuras de autoprotección y cinturones de seguridad (según su tarjeta ITV) están obligados a utilizar dichos cinturones en todo tipo de vías. El uso del cinturón en estos vehículos exime de la obligatoriedad de utilizar el casco de protección.",
+      "en": "The General Traffic Regulations state that drivers and passengers of quadricycles, tricycles, and motorcycles equipped with self-protection structures and seat belts (as recorded in the technical inspection card) are required to use these seat belts on all types of roads. Using the seat belt in these vehicles exempts the occupants from the mandatory use of a protective helmet.",
+      "ru": "🎓 Если квадрицикл оборудован защитным каркасом и ремнями безопасности, и это официально зафиксировано в технической документации, то использование ремней обязательно для водителя и пассажира на любых дорогах. В этом случае закон разрешает не надевать защитный шлем, так как каркас и ремни обеспечивают необходимый уровень безопасности. 🇷🇺 В Испании наличие официально задокументированного защитного каркаса и ремней на таком транспорте освобождает от обязанности носить шлем, что является важным юридическим нюансом. 💡 Ремень есть — пристегнись, шлем сними и улыбнись!"
     },
     "image_url": "https://teorica.practicavial.com/question/de663ebd-cad6-4fc7-a9b1-d28ec2d7ee1b-1658312081-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/de663ebd-cad6-4fc7-a9b1-d28ec2d7ee1b-s-1.jpg",
@@ -103,16 +103,16 @@
     "category": "B",
     "question": {
       "es": "En caso de avería de la señal luminosa V-2, los transportes especiales o en régimen de transporte especial...",
-      "en": null,
-      "ru": null
+      "en": "In the event of a failure of the V-2 light signal, special transports or those under a special transport regime...",
+      "ru": "В случае неисправности светового сигнала V-2 (оранжевого маячка), транспортные средства, осуществляющие специальные перевозки..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "tienen prohibida la circulación.",
-          "en": null,
-          "ru": null
+          "en": "are prohibited from circulating.",
+          "ru": "движение им запрещено."
         },
         "is_correct": false
       },
@@ -120,8 +120,8 @@
         "id": "b",
         "text": {
           "es": "circularán por el carril derecho a una velocidad inferior a 40 km/h.",
-          "en": null,
-          "ru": null
+          "en": "will circulate in the right lane at a speed below 40 km/h.",
+          "ru": "будут двигаться по правой полосе со скоростью менее 40 км/ч."
         },
         "is_correct": false
       },
@@ -129,16 +129,16 @@
         "id": "c",
         "text": {
           "es": "circularán con la luz de cruce y la señal de emergencia encendidas.",
-          "en": null,
-          "ru": null
+          "en": "will circulate with the low beam lights and the emergency signal turned on.",
+          "ru": "будут двигаться с включенным ближним светом фар и аварийной сигнализацией."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Vehículos establece que la señal V-2 indica la posición de un vehículo que constituye un obstáculo en la vía, ya sea por su servicio o por su carga. Si esta señal se avería durante la marcha, para mantener la seguridad y advertir al resto de usuarios, el conductor debe activar obligatoriamente el alumbrado de cruce y la señal de emergencia (luces de posición y todos los indicadores de dirección simultáneamente).",
+      "en": "The General Vehicle Regulations state that the V-2 signal indicates the position of a vehicle that constitutes an obstacle on the road, either due to its service or its load. If this signal fails while driving, to maintain safety and warn other road users, the driver must mandatorily activate the low beam lights and the emergency signal (position lights and all direction indicators simultaneously).",
+      "ru": "🎓 Сигнал V-2 (оранжевый маячок) служит для предупреждения о том, что транспортное средство является препятствием на дороге из-за своих габаритов или специфики работы. Если этот маячок выходит из строя, водитель спецтранспорта обязан обозначить себя иным способом: включить ближний свет фар и аварийную световую сигнализацию. Тебе как водителю Turismo важно понимать, что такая комбинация огней на крупногабаритной технике — это не просто поломка, а сигнал о том, что перед тобой спецтранспорт с неисправным маячком.\n\n🇷🇺 В РФ правила использования желтых и оранжевых маячков не требуют столь специфической комбинации (ближний + аварийка) именно как регламентированную замену неисправному прибору.\n\n💡 Маячок погас — беда, жми мигалки и свет всегда!"
     },
     "image_url": "https://teorica.practicavial.com/question/4d4718eb-5f84-4fa8-a86f-9507b98e506c-1658316535-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/4d4718eb-5f84-4fa8-a86f-9507b98e506c-s-1.jpg",
@@ -151,17 +151,17 @@
     "question_number": 4,
     "category": "B",
     "question": {
-      "es": "Los conductores de ciclomotores, ¿están obligados a llevar casco de protección cuando circulen por una vía urbana?",
-      "en": null,
-      "ru": null
+      "es": "¿Están obligados los conductores de ciclomotores a llevar casco de protección al circular por una vía urbana?",
+      "en": "Are moped drivers required to wear a protective helmet when driving on an urban road?",
+      "ru": "Обязаны ли водители мопедов использовать защитный шлем при движении по городским дорогам?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, los conductores de ciclomotores no están obligados a llevar casco.",
-          "en": null,
-          "ru": null
+          "en": "No, moped drivers are not required to wear a helmet.",
+          "ru": "Нет, водители мопедов не обязаны носить шлем."
         },
         "is_correct": false
       },
@@ -169,8 +169,8 @@
         "id": "b",
         "text": {
           "es": "Sí, es obligatorio.",
-          "en": null,
-          "ru": null
+          "en": "Yes, it is mandatory.",
+          "ru": "Да, это обязательно."
         },
         "is_correct": true
       },
@@ -178,16 +178,16 @@
         "id": "c",
         "text": {
           "es": "Los conductores sí están obligados, pero los pasajeros no lo están.",
-          "en": null,
-          "ru": null
+          "en": "Drivers are required, but passengers are not.",
+          "ru": "Водители обязаны, а пассажиры — нет."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, los conductores y pasajeros de ciclomotores, motocicletas con o sin sidecar, quads y vehículos de tres ruedas están obligados a utilizar cascos de protección homologados o certificados según la legislación vigente, tanto en vías urbanas como interurbanas. El casco debe estar correctamente abrochado. El conductor es el responsable de que los pasajeros lo lleven puesto. El incumplimiento puede conllevar la inmovilización del vehículo por parte de los agentes de la autoridad. Existen exenciones únicamente por razones médicas graves debidamente acreditadas mediante certificado.",
+      "en": "According to the General Traffic Regulations, drivers and passengers of mopeds, motorcycles with or without sidecars, quads, and three-wheeled vehicles are required to wear protective helmets that are approved or certified under current legislation, on both urban and interurban roads. The helmet must be properly fastened. The driver is responsible for ensuring that passengers wear their helmets. Failure to comply may result in the immobilization of the vehicle by the authorities. Exemptions exist only for serious medical reasons supported by a certificate.",
+      "ru": "🎓 Водители и пассажиры мопедов, мотоциклов, квадрициклов и трехколесных транспортных средств обязаны всегда использовать сертифицированный и застегнутый шлем. Это требование не зависит от типа дороги: оно одинаково строго соблюдается как на скоростных трассах, так и на городских улицах. Как водитель, ты отвечаешь не только за себя, но и за безопасность своего пассажира — если он без шлема, ответственность ложится на тебя. Полиция имеет право иммобилизовать (задержать) транспортное средство до устранения нарушения, если кто-то едет без защиты. Исключение составляют только лица с тяжелыми медицинскими противопоказаниями при наличии официального сертификата. 💡 Сел на мопед — шлем надень, чтоб не платить штраф целый день!"
     },
     "image_url": "https://teorica.practicavial.com/question/6b79803a-bb52-4117-8f5d-81a4d8b3dee2-1658312291-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/6b79803a-bb52-4117-8f5d-81a4d8b3dee2-s-1.jpg",
@@ -201,16 +201,16 @@
     "category": "B",
     "question": {
       "es": "Si circula entre la puesta y la salida del sol, ¿cómo debe señalizar una carga indivisible que sobresale por la parte delantera y la trasera de su vehículo?",
-      "en": null,
-      "ru": null
+      "en": "If you are driving between sunset and sunrise, how should you signal an indivisible load that protrudes from the front and rear of your vehicle?",
+      "ru": "Если вы движетесь в период между заходом и восходом солнца, как необходимо обозначить неделимый груз, выступающий за передние и задние габариты вашего транспортного средства?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Con una luz roja en ambos extremos de la carga.",
-          "en": null,
-          "ru": null
+          "en": "With a red light at both ends of the load.",
+          "ru": "Красным фонарем с обоих концов груза."
         },
         "is_correct": false
       },
@@ -218,25 +218,25 @@
         "id": "b",
         "text": {
           "es": "Con una luz roja en la parte trasera de la carga y una luz blanca en la delantera.",
-          "en": null,
-          "ru": null
+          "en": "With a red light at the rear of the load and a white light at the front.",
+          "ru": "Красным фонарем сзади и белым фонарем спереди."
         },
         "is_correct": true
       },
       {
         "id": "c",
         "text": {
-          "es": "Con una luz blanca en la parte trasera de la carga y una luz roja en la delantera.",
-          "en": null,
-          "ru": null
+          "es": "Con una luz blanca en la parte trasera de la carga y una roja en la delantera.",
+          "en": "With a white light at the rear of the load and a red light at the front.",
+          "ru": "Белым фонарем сзади и красным фонарем спереди."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, cuando la carga sobresalga del vehículo en condiciones de baja visibilidad o entre la puesta y la salida del sol, deberá señalizarse obligatoriamente. En la parte delantera se empleará una luz blanca y en la parte trasera una luz roja, además del panel V-20 correspondiente en la parte posterior. Esta medida garantiza la correcta percepción de las dimensiones y el sentido de la marcha del vehículo por el resto de usuarios.",
+      "en": "According to the General Traffic Regulations, when a load protrudes from the vehicle under low visibility conditions or between sunset and sunrise, it must be signaled. A white light must be used at the front and a red light at the rear, in addition to the corresponding V-20 panel at the back. This measure ensures that other road users correctly perceive the vehicle's dimensions and direction of travel.",
+      "ru": "🎓 Если груз выступает за габариты транспортного средства, в темное время суток он должен быть обозначен световыми сигналами: спереди — белым фонарем, сзади — красным. Это соответствует стандартной цветовой схеме автомобиля: белый свет спереди и красный сзади, чтобы другие водители верно определяли направление твоего движения. На легковом автомобиле в Испании груз может выступать только сзади, но общие требования к цветам огней для выступающих частей едины для всех ТС. Сзади также обязательно использование панелей V-20. 🇷🇺 В РФ требования к обозначению груза в темноте такие же: белый фонарь или световозвращатель спереди, красный — сзади. 💡 Спереди белый, сзади красный — так габарит будет ясный!"
     },
     "image_url": "https://teorica.practicavial.com/question/4c5a674e-dd08-433f-8f0c-7ddbdaf02913-1658315366-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/4c5a674e-dd08-433f-8f0c-7ddbdaf02913-s-1.jpg",
@@ -250,16 +250,16 @@
     "category": "B",
     "question": {
       "es": "¿A qué vehículos identifica el distintivo de la imagen?",
-      "en": null,
-      "ru": null
+      "en": "Which vehicles are identified by the badge shown?",
+      "ru": "Какие транспортные средства обозначает данный опознавательный знак?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "A los vehículos de uso compartido.",
-          "en": null,
-          "ru": null
+          "en": "Shared-use vehicles.",
+          "ru": "Транспортные средства совместного использования (каршеринг)."
         },
         "is_correct": true
       },
@@ -267,8 +267,8 @@
         "id": "b",
         "text": {
           "es": "A los vehículos destinados al transporte público de viajeros.",
-          "en": null,
-          "ru": null
+          "en": "Vehicles intended for public passenger transport.",
+          "ru": "Транспортные средства, предназначенные для общественных перевозок пассажиров."
         },
         "is_correct": false
       },
@@ -276,16 +276,16 @@
         "id": "c",
         "text": {
           "es": "A los vehículos que no emiten gases contaminantes.",
-          "en": null,
-          "ru": null
+          "en": "Vehicles that do not emit polluting gases.",
+          "ru": "Транспортные средства с нулевым уровнем выбросов."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal V-26 identifica a los vehículos de uso compartido (carsharing). Según el Reglamento General de Vehículos, este distintivo identifica a los vehículos destinados al alquiler sin conductor dedicados a su uso concatenado e intensivo por un número indeterminado de usuarios dentro de una zona de servicio delimitada. Se colocará preferentemente en el ángulo superior izquierdo del parabrisas delantero.",
+      "en": "The V-26 sign identifies shared-use vehicles (carsharing). According to the General Vehicle Regulations, this badge identifies vehicles intended for driverless rental dedicated to sequential and intensive use by an indeterminate number of users within a defined service area. It is preferably placed in the upper left corner of the front windshield.",
+      "ru": "🎓 Опознавательный знак V-26 обозначает транспортные средства совместного использования, известные как каршеринг. Это легковой автомобиль, предназначенный для краткосрочной аренды без водителя неограниченным кругом лиц через мобильные приложения. В Испании наличие такого знака на лобовом стекле позволяет водителю пользоваться определенными преимуществами, например, выезжать на полосу VAO, даже если в машине находится только один водитель, если это разрешено правилами конкретного муниципалитета. Тебе как водителю категории B важно знать этот знак, чтобы понимать статус соседа по потоку.\n\n💡 Видишь человечков вокруг авто — это каршеринг, а не личный транспорт!"
     },
     "image_url": "https://teorica.practicavial.com/question/47a6589b-d2b6-4e30-8a55-3ca13f23a636-1658306450-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/47a6589b-d2b6-4e30-8a55-3ca13f23a636-s-1.jpg",
@@ -299,16 +299,16 @@
     "category": "B",
     "question": {
       "es": "Entre la puesta y la salida del sol, ¿está permitido conducir una motocicleta que arrastra un remolque?",
-      "en": null,
-      "ru": null
+      "en": "Between sunset and sunrise, is it permitted to drive a motorcycle pulling a trailer?",
+      "ru": "Разрешено ли управлять мотоциклом с прицепом в период между закатом и восходом солнца?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       },
@@ -316,8 +316,8 @@
         "id": "b",
         "text": {
           "es": "Sí, como a cualquier otra hora del día.",
-          "en": null,
-          "ru": null
+          "en": "Yes, as at any other time of the day.",
+          "ru": "Да, так же, как и в любое другое время суток."
         },
         "is_correct": false
       },
@@ -325,16 +325,16 @@
         "id": "c",
         "text": {
           "es": "Sí, si se hace a una velocidad un 10 por ciento por debajo de la genérica de la vía.",
-          "en": null,
-          "ru": null
+          "en": "Yes, if done at a speed 10 percent below the generic speed of the road.",
+          "ru": "Да, если скорость движения на 10 процентов ниже установленной для данной дороги."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, las motocicletas, vehículos de tres ruedas, ciclomotores y ciclos pueden arrastrar un remolque o semirremolque siempre que se cumplan las siguientes condiciones: que la masa del remolque no supere el 50 por ciento de la masa en vacío del vehículo tractor, que no se transporten personas en el remolque y que, en vías fuera de poblado, la velocidad se reduzca en un 10 por ciento respecto a la genérica. Asimismo, queda expresamente prohibida la circulación de estos conjuntos de vehículos durante la noche (entre la puesta y la salida del sol) o bajo condiciones meteorológicas o ambientales que disminuyan la visibilidad.",
+      "en": "According to the General Traffic Regulations, motorcycles, three-wheeled vehicles, mopeds, and cycles may pull a trailer or semi-trailer provided that the following conditions are met: the mass of the trailer does not exceed 50 percent of the towing vehicle's empty mass, no people are transported in the trailer, and on roads outside built-up areas, the speed is reduced by 10 percent relative to the generic limit. Furthermore, the circulation of these vehicle combinations is expressly prohibited at night (between sunset and sunrise) or under meteorological or environmental conditions that reduce visibility.",
+      "ru": "🎓 В Испании мотоциклам, трехколесным ТС и мопедам разрешено буксировать прицеп только при строгом соблюдении ряда условий. Одно из важнейших правил для безопасности: движение с прицепом категорически запрещено в темное время суток (между закатом и восходом солнца) или в условиях недостаточной видимости. Кроме того, запомни дополнительные требования: масса прицепа не должна превышать 50% от массы пустого транспортного средства, перевозка людей в прицепе запрещена, а разрешенная скорость вне населенных пунктов для такого состава снижается на 10%.\n\n🇷🇺 В РФ мотоциклам разрешено буксировать прицеп в любое время суток при условии наличия исправных световых приборов, тогда как в Испании ночью это абсолютно запрещено.\n\n💡 С прицепом на байке — только при солнечном лайке! Солнце зашло — время прицепа ушло."
     },
     "image_url": "https://teorica.practicavial.com/question/fa889584-ba9d-4c04-8c00-99d33f6bad60-1658316023-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/fa889584-ba9d-4c04-8c00-99d33f6bad60-s-1.jpg",
@@ -348,16 +348,16 @@
     "category": "B",
     "question": {
       "es": "¿Puede el conductor de una bicicleta transportar un pasajero?",
-      "en": null,
-      "ru": null
+      "en": "Can a bicycle driver carry a passenger?",
+      "ru": "Может ли водитель велосипеда перевозить пассажира?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, está prohibido.",
-          "en": null,
-          "ru": null
+          "en": "No, it is prohibited.",
+          "ru": "Нет, это запрещено."
         },
         "is_correct": false
       },
@@ -365,8 +365,8 @@
         "id": "b",
         "text": {
           "es": "Sí, sentado entre el conductor y el manillar.",
-          "en": null,
-          "ru": null
+          "en": "Yes, sitting between the driver and the handlebars.",
+          "ru": "Да, сидя между водителем и рулем."
         },
         "is_correct": false
       },
@@ -374,16 +374,16 @@
         "id": "c",
         "text": {
           "es": "Sí, a un menor de hasta siete años siempre que lo haga en un asiento adicional homologado.",
-          "en": null,
-          "ru": null
+          "en": "Yes, a minor up to seven years old as long as it is in an approved additional seat.",
+          "ru": "Да, ребенка в возрасте до семи лет, при условии использования дополнительного сертифицированного сиденья."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación estipula que los conductores de bicicletas, siempre que sean mayores de edad, pueden transportar a un menor de hasta siete años. Es requisito indispensable que el menor ocupe un asiento adicional homologado. Se prohíbe expresamente llevar al niño en cualquier otra posición, como entre el conductor y el manillar.",
+      "en": "The General Traffic Regulations stipulate that bicycle drivers, provided they are of legal age, may carry a minor up to seven years old. It is an essential requirement that the minor occupies an approved additional seat. It is expressly forbidden to carry the child in any other position, such as between the driver and the handlebars.",
+      "ru": "🎓 Водителю велосипеда разрешено перевозить пассажира только при соблюдении трех условий: водитель должен быть совершеннолетним, пассажир должен быть ребенком до 7 лет, и перевозка должна осуществляться в специальном сертифицированном (омологированном) сиденье. Любые другие способы перевозки, например, на раме или между водителем и рулем, строго запрещены. Для сравнения: на мотоциклах и мопедах общая возрастная планка для пассажира — 12 лет, а на велосипеде — только до 7.\n\n🇷🇺 В РФ правила также требуют наличия специально оборудованного места для ребенка до 7 лет, но испанские нормы жестко фиксируют необходимость совершеннолетия самого велосипедиста.\n\n💡 Семь лет — предел для велокресла, дальше только сам педали крути!"
     },
     "image_url": "https://teorica.practicavial.com/question/270d8c31-afd1-42f7-acae-f48ef519cf6a-1658256004-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/270d8c31-afd1-42f7-acae-f48ef519cf6a-s-1.jpg",
@@ -397,16 +397,16 @@
     "category": "B",
     "question": {
       "es": "El conductor, ¿está obligado a cuidar que el resto de pasajeros mantengan una posición adecuada en el vehículo?",
-      "en": null,
-      "ru": null
+      "en": "Is the driver obliged to ensure that the rest of the passengers maintain an appropriate position in the vehicle?",
+      "ru": "Обязан ли водитель следить за тем, чтобы остальные пассажиры сохраняли надлежащее положение в легковом автомобиле?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       },
@@ -414,8 +414,8 @@
         "id": "b",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       },
@@ -423,16 +423,16 @@
         "id": "c",
         "text": {
           "es": "Solo si el vehículo es de transporte colectivo de personas.",
-          "en": null,
-          "ru": null
+          "en": "Only if the vehicle is for collective transport of people.",
+          "ru": "Только если это транспортное средство для коллективной перевозки людей."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El conductor de un vehículo está obligado a mantener su propia libertad de movimientos, el campo necesario de visión y la atención permanente a la conducción, que garanticen su propia seguridad, la del resto de ocupantes del vehículo y la de los demás usuarios de la vía. A estos efectos, deberá cuidar especialmente de mantener la posición adecuada y que la mantengan el resto de los pasajeros, y la adecuada colocación de los objetos o animales transportados para que no haya interferencias entre el conductor y cualquiera de ellos.",
+      "en": "The driver of a vehicle is obliged to maintain their own freedom of movement, the necessary field of vision, and permanent attention to driving, ensuring their own safety, that of the other occupants, and that of other road users. To this end, they must take special care to maintain an appropriate position and ensure that the rest of the passengers do so, as well as the proper placement of objects or animals transported so that there is no interference between the driver and any of them.",
+      "ru": "🎓 Как водитель легкового автомобиля, ты несешь полную ответственность за безопасность всех, кто находится в салоне. Ты обязан следить за тем, чтобы пассажиры сохраняли правильное положение во время движения. Это необходимо для того, чтобы никто не ограничивал твою свободу движений, не перекрывал обзор и не отвлекал от управления. Если кто-то из пассажиров решит прилечь на сиденье или сесть в позу, мешающую обзору через зеркала, это считается нарушением. Контроль за размещением людей, животных и грузов — это твоя прямая обязанность, так как любое их смещение может создать помеху при вождении. 🇷🇺 В ПДД РФ водитель также обязан обеспечивать безопасность перевозки, но в Испании требование к «надлежащей позе» (posición adecuada) выделено как отдельный важный аспект для предотвращения помех водителю. 💡 Пассажир сидит красиво и прямо — водителю едется легко и ясно!"
     },
     "image_url": "https://teorica.practicavial.com/question/86262bd9-d37e-48c5-9daa-ade4fcb83084-1658252703-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/86262bd9-d37e-48c5-9daa-ade4fcb83084-s-1.jpg",
@@ -446,16 +446,16 @@
     "category": "B",
     "question": {
       "es": "Circulando en un turismo, ¿se puede prescindir en algún momento del cinturón de seguridad?",
-      "en": null,
-      "ru": null
+      "en": "When driving a passenger car, can the seat belt be dispensed with at any time?",
+      "ru": "При движении на легковом автомобиле, можно ли в какой-то момент обойтись без ремня безопасности?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "El conductor no, pero sí los pasajeros que viajen en los asientos traseros.",
-          "en": null,
-          "ru": null
+          "en": "Not the driver, but passengers traveling in the rear seats can.",
+          "ru": "Водитель — нет, но пассажиры на задних сиденьях могут."
         },
         "is_correct": false
       },
@@ -463,8 +463,8 @@
         "id": "b",
         "text": {
           "es": "No, excepto el conductor y cuando esté realizando la maniobra de marcha atrás o de estacionamiento.",
-          "en": null,
-          "ru": null
+          "en": "No, except for the driver when performing a reversing or parking maneuver.",
+          "ru": "Нет, за исключением водителя при выполнении маневра задним ходом или парковки."
         },
         "is_correct": true
       },
@@ -472,16 +472,16 @@
         "id": "c",
         "text": {
           "es": "Sí, circulando por vías urbanas.",
-          "en": null,
-          "ru": null
+          "en": "Yes, when driving on urban roads.",
+          "ru": "Да, при движении по городским дорогам."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece la obligatoriedad del uso del cinturón de seguridad para todos los ocupantes de un turismo. La única excepción general para el conductor, válida tanto en vías urbanas como interurbanas, es durante la realización de las maniobras de marcha atrás o de estacionamiento. Existen exenciones adicionales exclusivamente en poblado para profesionales (taxis, repartidores, servicios de urgencia e instructores), pero no se aplican a conductores particulares en condiciones normales de circulación.",
+      "en": "The General Circulation Regulations mandate the use of seat belts for all occupants of a passenger car. The only general exemption for the driver, applicable on both urban and interurban roads, is while performing reversing or parking maneuvers. Additional exemptions exist exclusively within urban areas for specific professionals (taxi drivers, delivery personnel, emergency services, and driving instructors), but these do not apply to private drivers under normal traffic conditions.",
+      "ru": "🎓 В легковом автомобиле ремень обязателен для всех. Единственный случай, когда тебе как водителю разрешено отстегнуться — это движение задним ходом или парковка. Это исключение действует везде: и в городе, и на трассе. Существуют и другие категории (таксисты на службе, курьеры при частых остановках, инструкторы), которым можно не пристегиваться, но это разрешено им только в населенных пунктах. Для обычного водителя при движении вперед ремень обязателен всегда, даже при наличии медицинских справок (если в них не указано иное).\n\n🇷🇺 В РФ исключение для движения задним ходом отсутствует: водитель и пассажиры обязаны быть пристегнутыми при любом движении транспортного средства.\n\n💡 Сдаешь назад — ремень долой, в остальных случаях — он твой герой!"
     },
     "image_url": "https://teorica.practicavial.com/question/d9248fb9-0b42-4402-82e4-afaa4e9acfbb-1658254633-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d9248fb9-0b42-4402-82e4-afaa4e9acfbb-s-1.jpg",
@@ -495,16 +495,16 @@
     "category": "B",
     "question": {
       "es": "Los ciclistas están exentos de llevar casco cuando circulen...",
-      "en": null,
-      "ru": null
+      "en": "Cyclists are exempt from wearing a helmet when riding...",
+      "ru": "Велосипедисты освобождаются от обязанности носить шлем при движении..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "por vías interurbanas.",
-          "en": null,
-          "ru": null
+          "en": "on interurban roads.",
+          "ru": "по дорогам вне населенных пунктов."
         },
         "is_correct": false
       },
@@ -512,8 +512,8 @@
         "id": "b",
         "text": {
           "es": "por pendientes descendentes.",
-          "en": null,
-          "ru": null
+          "en": "on downhill slopes.",
+          "ru": "на спусках."
         },
         "is_correct": false
       },
@@ -521,16 +521,16 @@
         "id": "c",
         "text": {
           "es": "en condiciones extremas de calor.",
-          "en": null,
-          "ru": null
+          "en": "in extreme heat conditions.",
+          "ru": "в условиях экстремальной жары."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece la obligatoriedad del casco para ciclistas en vías interurbanas. Las exenciones permitidas incluyen razones médicas justificadas, rampas ascendentes prolongadas y condiciones de calor extremo. Los menores de 16 años deben utilizarlo en todo tipo de vías sin excepción.",
+      "en": "The General Traffic Regulations mandate the use of helmets for cyclists on interurban roads. Exemptions are granted for documented medical reasons, during long uphill climbs, or in extreme heat conditions. Cyclists under the age of 16 are required to wear a helmet on all roads without exception.",
+      "ru": "🎓 Как водителю легкового автомобиля (Turismo), тебе важно знать, что велосипедисты вне населенных пунктов обязаны быть в шлемах. Однако закон разрешает им снимать шлем в трех случаях: при затяжном подъеме в гору, по медицинским показаниям (при наличии справки) или в условиях экстремальной жары. Помни, что дети до 16 лет обязаны быть в шлеме всегда, независимо от типа дороги или погоды. Ответственность за то, чтобы пассажиры надели шлем, всегда несет водитель велосипеда. 🇷🇺 В РФ велосипедисты не обязаны носить шлем по закону, тогда как в Испании это обязательное требование безопасности вне города. 💡 В гору прёшь или жара — шлем снимать пришла пора!"
     },
     "image_url": "https://teorica.practicavial.com/question/f1107fd2-1246-4a99-b372-7644fa42f8fd-1658256178-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/f1107fd2-1246-4a99-b372-7644fa42f8fd-s-1.jpg",
@@ -544,16 +544,16 @@
     "category": "B",
     "question": {
       "es": "La señal V-24, ¿en qué vehículos se debe colocar?",
-      "en": null,
-      "ru": null
+      "en": "On which vehicles should the V-24 sign be placed?",
+      "ru": "На какие транспортные средства должна устанавливаться табличка V-24?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "En las grúas de plataforma solamente.",
-          "en": null,
-          "ru": null
+          "en": "Only on platform cranes.",
+          "ru": "Только на эвакуаторы с платформой."
         },
         "is_correct": false
       },
@@ -561,8 +561,8 @@
         "id": "b",
         "text": {
           "es": "En las grúas de arrastre únicamente.",
-          "en": null,
-          "ru": null
+          "en": "Only on tow trucks.",
+          "ru": "Только на буксировочные эвакуаторы."
         },
         "is_correct": false
       },
@@ -570,16 +570,16 @@
         "id": "c",
         "text": {
           "es": "En los vehículos de servicio de auxilio en vías públicas.",
-          "en": null,
-          "ru": null
+          "en": "In public road rescue service vehicles.",
+          "ru": "На транспортные средства службы экстренной помощи на дорогах."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal V-24 debe colocarse en los vehículos de servicio de auxilio en vías públicas. Esta señal, de material plástico o metálico, incluye la palabra \"auxilio\" y la figura de una grúa. Debe colocarse en la parte delantera o trasera del vehículo y puede ir acompañada de una señal acústica tritonales discontinua.",
+      "en": "The V-24 sign must be placed on public road rescue service vehicles. This sign, made of plastic or metal, includes the word \"auxilio\" (rescue) and the figure of a crane. It must be placed on the front or rear of the vehicle and may be accompanied by a discontinuous tritone acoustic signal.",
+      "ru": "Табличка V-24 должна быть размещена на транспортных средствах службы экстренной помощи на дорогах. Эта табличка, изготовленная из пластика или металла, содержит слово «auxilio» (помощь) и изображение эвакуатора. Она должна быть размещена спереди или сзади транспортного средства и может сопровождаться прерывистым трехтональным звуковым сигналом."
     },
     "image_url": "https://teorica.practicavial.com/question/990783c3-fc20-471e-ae52-ce055bb5d651-1761115620-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/990783c3-fc20-471e-ae52-ce055bb5d651-s-1.jpg",
@@ -593,16 +593,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué indica el panel de franjas rojas y blancas que lleva este vehículo?",
-      "en": null,
-      "ru": null
+      "en": "What does the red and white striped panel on this vehicle indicate?",
+      "ru": "Что обозначает панель с красными и белыми полосами, установленная на этом транспортном средстве?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Que transporta una carga que sobresale por detrás.",
-          "en": null,
-          "ru": null
+          "en": "That it carries a load that protrudes from the rear.",
+          "ru": "Что транспортное средство перевозит груз, выступающий сзади."
         },
         "is_correct": true
       },
@@ -610,8 +610,8 @@
         "id": "b",
         "text": {
           "es": "Que tiene limitada la velocidad máxima a la que puede circular.",
-          "en": null,
-          "ru": null
+          "en": "That it has a limited maximum speed at which it can travel.",
+          "ru": "Что максимальная скорость движения ограничена."
         },
         "is_correct": false
       },
@@ -619,16 +619,16 @@
         "id": "c",
         "text": {
           "es": "Que transporta mercancías peligrosas.",
-          "en": null,
-          "ru": null
+          "en": "That it transports dangerous goods.",
+          "ru": "Что оно перевозит опасные грузы."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El panel V-20 es obligatorio para señalizar que la carga sobresale longitudinalmente por la parte posterior del vehículo. En un turismo, la carga solo puede sobresalir por detrás: un 10% de la longitud del vehículo si es divisible y un 15% si es indivisible. Si la carga sobresale por el ancho total de la parte posterior, se deben colocar dos paneles en los extremos formando una 'V' invertida.",
+      "en": "The V-20 panel is mandatory to indicate that the load protrudes longitudinally from the rear of the vehicle. In a passenger car (Turismo), the load may only protrude from the rear: 10% of the vehicle's length if divisible and 15% if indivisible. If the load protrudes across the total width of the rear, two panels must be placed at the ends forming an inverted 'V'.",
+      "ru": "🎓 Панель V-20 обязательна, когда груз выступает за задний габарит твоего легкового автомобиля (Turismo). На легковых авто груз может выступать только сзади: на 10% от длины машины, если груз делимый, и на 15%, если он неделимый. Если груз занимает всю ширину задней части, нужно установить две такие панели по краям так, чтобы их полосы образовывали перевернутую букву V. В темное время суток или при плохой видимости к панели обязательно нужно добавить красный фонарь. 🇷🇺 В Испании правила установки двух панелей для широкого груза регламентированы строже, чем в РФ. 💡 Видишь полоски — груз сзади, держи дистанцию!"
     },
     "image_url": "https://teorica.practicavial.com/question/74115a55-8c3e-43ae-867d-65dd4d707efe-1658316816-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/74115a55-8c3e-43ae-867d-65dd4d707efe-s-1.jpg",
@@ -642,16 +642,16 @@
     "category": "B",
     "question": {
       "es": "¿Le está permitido circular con una carga si esta sobresale por las ventanillas laterales de su vehículo, como una escalera?",
-      "en": null,
-      "ru": null
+      "en": "Are you allowed to drive with a load that protrudes from the side windows of your vehicle, such as a ladder?",
+      "ru": "Разрешено ли вам движение, если груз (например, лестница) выступает за боковые габариты вашего легкового автомобиля через окна?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, señalizando debidamente la carga.",
-          "en": null,
-          "ru": null
+          "en": "Yes, provided the load is properly signaled.",
+          "ru": "Да, при условии надлежащей сигнализации груза."
         },
         "is_correct": false
       },
@@ -659,8 +659,8 @@
         "id": "b",
         "text": {
           "es": "Solo si la carga no sobresale mas de 40 cm.",
-          "en": null,
-          "ru": null
+          "en": "Only if the load does not protrude more than 40 cm.",
+          "ru": "Только если груз выступает не более чем на 40 см."
         },
         "is_correct": false
       },
@@ -668,16 +668,16 @@
         "id": "c",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "En los vehículos no destinados exclusivamente al transporte de mercancías, como es el caso de un turismo, la carga únicamente podrá sobresalir por la parte posterior del vehículo. Está estrictamente prohibido que la carga sobresalga por los laterales o por la parte delantera en este tipo de vehículos.",
+      "en": "In vehicles not exclusively intended for the transport of goods, such as a passenger car, the load may only protrude from the rear of the vehicle. It is strictly prohibited for the load to protrude from the sides or the front in this type of vehicle.",
+      "ru": "🎓 В легковых автомобилях (Turismo) и грузопассажирских автомобилях (Vehículo mixto) перевозка груза разрешена только при условии, что он не выступает за боковые габариты и вперед. Груз может выступать исключительно сзади: на 10% от длины автомобиля для делимых грузов и на 15% для неделимых, при этом он должен быть обозначен сигнальной панелью V-20. 🇷🇺 В отличие от ПДД РФ, где допускается выступ груза по бокам до 0.4 метра от края габаритного огня, в Испании для легковых машин любой боковой выступ запрещен. 💡 В легковом авто груз только сзади растёт, а бока и перед — закон не даёт!"
     },
     "image_url": "https://teorica.practicavial.com/question/9159b83f-d3b4-4690-8a19-3301f58106a6-1658313531-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/9159b83f-d3b4-4690-8a19-3301f58106a6-s-1.jpg",
@@ -691,16 +691,16 @@
     "category": "B",
     "question": {
       "es": "No está obligado a utilizar el casco de protección, cuando conduzca una motocicleta...",
-      "en": null,
-      "ru": null
+      "en": "You are not obliged to wear a protective helmet when driving a motorcycle...",
+      "ru": "Вы не обязаны использовать защитный шлем при управлении мотоциклом, если он..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "con estructura de autoprotección y utilice el cinturón de seguridad.",
-          "en": null,
-          "ru": null
+          "en": "has a self-protection structure and you use the seat belt.",
+          "ru": "имеет конструкцию самозащиты и вы используете ремень безопасности."
         },
         "is_correct": true
       },
@@ -708,8 +708,8 @@
         "id": "b",
         "text": {
           "es": "destinada a la distribución de mercancías y realice recorridos cortos.",
-          "en": null,
-          "ru": null
+          "en": "is intended for the distribution of goods and performs short trips.",
+          "ru": "предназначен для перевозки грузов и совершает короткие поездки."
         },
         "is_correct": false
       },
@@ -717,16 +717,16 @@
         "id": "c",
         "text": {
           "es": "con sidecar y circule por vías urbanas.",
-          "en": null,
-          "ru": null
+          "en": "has a sidecar and travels on urban roads.",
+          "ru": "с боковым прицепом и движется по городским дорогам."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, los conductores y pasajeros de motocicletas, motociclos con sidecar, triciclos y cuatriciclos están obligados a utilizar cascos de protección homologados. No obstante, quedan exentos de esta obligación cuando el vehículo cuente con una estructura de autoprotección, esté dotado de cinturones de seguridad y así conste en su tarjeta de inspección técnica (ITV), siempre que se haga uso de dichos cinturones.",
+      "en": "According to the General Traffic Regulations, drivers and passengers of motorcycles, motorcycles with sidecars, tricycles, and quadricycles must wear approved protective helmets. However, they are exempt from this requirement if the vehicle is equipped with a self-protection structure and seat belts, provided these features are recorded in the vehicle's technical inspection card (ITV) and the seat belts are properly fastened.",
+      "ru": "🎓 В Испании водители и пассажиры мотоциклов, трициклов и квадрициклов обязаны использовать защитный шлем. Однако существует исключение: если транспортное средство оборудовано заводской конструкцией самозащиты и ремнями безопасности, что подтверждено документами техосмотра (ITV), шлем можно не надевать. Обязательным условием является использование пристегнутого ремня безопасности. Помни, что ответственность за то, чтобы пассажир был в шлеме (если он требуется), всегда несет водитель. 🇷🇺 В РФ использование шлема обязательно для всех типов мотоциклов, требования о наличии крыши как замене шлема в ПДД РФ отсутствуют. 💡 Есть крыша и ремень — шлем тебе не замен!"
     },
     "image_url": "https://teorica.practicavial.com/question/b23c6a53-f673-4952-a68e-cbb72bf192a5-1658312950-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/b23c6a53-f673-4952-a68e-cbb72bf192a5-s-1.jpg",
@@ -740,16 +740,16 @@
     "category": "B",
     "question": {
       "es": "El peso de un turismo y de su carga es superior a la masa máxima autorizada que figura en la ficha técnica del vehículo, ¿está permitido circular en estas condiciones?",
-      "en": null,
-      "ru": null
+      "en": "The weight of a passenger car and its load is greater than the maximum authorized mass shown in the vehicle's technical data sheet, is it permitted to drive under these conditions?",
+      "ru": "Вес легкового автомобиля и его груза превышает разрешенную максимальную массу (РММ), указанную в техническом паспорте транспортного средства. Разрешено ли движение в таких условиях?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Solo si no se transportan personas, aparte del conductor.",
-          "en": null,
-          "ru": null
+          "en": "Only if no people are transported, apart from the driver.",
+          "ru": "Только если не перевозятся люди, кроме водителя."
         },
         "is_correct": false
       },
@@ -757,8 +757,8 @@
         "id": "b",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       },
@@ -766,16 +766,16 @@
         "id": "c",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Vehículos, queda prohibida la circulación de vehículos cuya masa en carga sea superior a su Masa Máxima Autorizada (MMA). El exceso de peso compromete la seguridad vial, afectando negativamente a la distancia de frenado, la estabilidad y la resistencia estructural del vehículo. Es responsabilidad del conductor verificar que la suma del peso del vehículo, la carga y los ocupantes no exceda los límites técnicos establecidos.",
+      "en": "According to the General Vehicle Regulations, it is prohibited to drive vehicles whose laden mass exceeds their Maximum Authorized Mass (MAM/MMA). Overloading compromises road safety, negatively affecting braking distance, stability, and the vehicle's structural integrity. It is the driver's responsibility to verify that the sum of the vehicle's weight, the load, and the occupants does not exceed the established technical limits.",
+      "ru": "🎓 Разрешенная максимальная масса (РММ) — это жесткий технический лимит, установленный производителем, который категорически запрещено превышать. В этот показатель уже включен вес самого легкового автомобиля, заправленного бака, водителя, всех пассажиров и груза. Превышение РММ критически влияет на безопасность: тормоза могут не справиться с нагрузкой, увеличивая тормозной путь, а подвеска и шины могут выйти из строя прямо на ходу. Тебе как водителю важно помнить: если общая масса превышает цифру в документах, выезжать на дорогу нельзя. 🇷🇺 В РФ, как и в Испании, эксплуатация транспортного средства с превышением допустимой максимальной массы запрещена и наказывается штрафом. 💡 Коль РММ ты превышаешь — жизнь и тачку подставляешь!"
     },
     "image_url": "https://teorica.practicavial.com/question/3f7a5794-a8da-490f-ad82-8a08c771ea33-1658252674-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/3f7a5794-a8da-490f-ad82-8a08c771ea33-s-1.jpg",
@@ -789,16 +789,16 @@
     "category": "B",
     "question": {
       "es": "En los vehículos no destinados exclusivamente al transporte de mercancías, ¿puede sobresalir una carga indivisible por la parte posterior?",
-      "en": null,
-      "ru": null
+      "en": "In vehicles not exclusively intended for the transport of goods, can an indivisible load protrude from the rear?",
+      "ru": "В транспортных средствах, не предназначенных исключительно для перевозки грузов, может ли неделимый груз выступать сзади?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       },
@@ -806,8 +806,8 @@
         "id": "b",
         "text": {
           "es": "Sí, hasta un 10 por ciento de la longitud del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "Yes, up to 10 percent of the vehicle's length.",
+          "ru": "Да, до 10 процентов от длины транспортного средства."
         },
         "is_correct": false
       },
@@ -815,16 +815,16 @@
         "id": "c",
         "text": {
           "es": "Sí, hasta un 15 por ciento de la longitud del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "Yes, up to 15 percent of the vehicle's length.",
+          "ru": "Да, до 15 процентов от длины транспортного средства."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, en los vehículos no destinados exclusivamente al transporte de mercancías (como turismos, vehículos mixtos o autocaravanas), la carga solo podrá sobresalir por la parte posterior. Si la carga es indivisible, el límite máximo permitido es del 15 por ciento de la longitud del vehículo. Si la carga fuera divisible, el límite sería del 10 por ciento.",
+      "en": "According to the General Traffic Regulations, in vehicles not exclusively intended for goods transport (such as passenger cars, mixed vehicles, or motorhomes), cargo may only protrude from the rear. If the load is indivisible, the maximum allowed protrusion is 15 percent of the vehicle's length. If the load were divisible, the limit would be 10 percent.",
+      "ru": "🎓 В легковом автомобиле (Turismo) или грузопассажирском автомобиле (Vehículo mixto) груз может выступать исключительно сзади. Если груз неделимый (его нельзя разобрать или сложить без повреждения, например, велосипед или доска для серфинга), он может выступать максимум на 15% от длины кузова. Если же груз делимый, лимит составляет 10%. Спереди или по бокам в таких ТС груз выступать не может. 🇷🇺 В Испании лимит строго привязан к проценту от длины машины (10-15%), в то время как в РФ правила оперируют фиксированными метрами (1 метр без знака, до 2 метров со знаком). 💡 Цельный груз — пятнадцать процентов, делимый — десять, и только сзади!"
     },
     "image_url": "https://teorica.practicavial.com/question/54e6dac2-113b-4f11-8567-256646e433ce-1658313888-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/54e6dac2-113b-4f11-8567-256646e433ce-s-1.jpg",
@@ -838,16 +838,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuál es la edad mínima para viajar como acompañante en una motocicleta conducida por alguien distinto a los padres o el tutor del menor, o por una persona mayor de edad autorizada?",
-      "en": null,
-      "ru": null
+      "en": "What is the minimum age to travel as a passenger on a motorcycle driven by someone other than the parents, the minor's guardian, or an authorized adult?",
+      "ru": "Каков минимальный возраст для поездки в качестве пассажира на мотоцикле, если водителем является не родитель, не опекун и не уполномоченное ими совершеннолетнее лицо?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "14 años.",
-          "en": null,
-          "ru": null
+          "en": "14 years old.",
+          "ru": "14 лет."
         },
         "is_correct": false
       },
@@ -855,8 +855,8 @@
         "id": "b",
         "text": {
           "es": "7 años.",
-          "en": null,
-          "ru": null
+          "en": "7 years old.",
+          "ru": "7 лет."
         },
         "is_correct": false
       },
@@ -864,16 +864,16 @@
         "id": "c",
         "text": {
           "es": "12 años.",
-          "en": null,
-          "ru": null
+          "en": "12 years old.",
+          "ru": "12 лет."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Como norma general, para viajar como pasajero en motocicletas o ciclomotores, el pasajero debe tener 12 años o más. Excepcionalmente, se permite a partir de los 7 años siempre que el conductor sea el padre, la madre, el tutor o una persona mayor de edad autorizada por ellos. El pasajero debe utilizar el asiento detrás del conductor, viajar a horcajadas y con los pies apoyados en los reposapiés laterales.",
+      "en": "As a general rule, to travel as a passenger on motorcycles or mopeds, the passenger must be 12 years of age or older. Exceptionally, it is permitted from the age of 7 provided the driver is the father, mother, guardian, or an authorized adult. The passenger must use the seat behind the driver, sit astride, and have their feet resting on the side footrests.",
+      "ru": "🎓 По общему правилу ПДД Испании, перевозить пассажиров на мотоцикле или мопеде разрешено только с 12 лет. Снижение возраста до 7 лет является исключением и допускается только в том случае, если за рулем находится отец, мать, законный опекун или взрослый человек, имеющий от них разрешение. Пассажир обязан сидеть на заднем сиденье верхом (лицом вперед), а его ноги должны обязательно доставать до боковых подножек. Перевозка ребенка в пространстве между рулем и водителем категорически запрещена. 🇷🇺 В РФ правила строже: перевозить детей до 12 лет на заднем сиденье мотоцикла запрещено в любом случае, даже если водитель — родитель. 💡 С чужим дядей — в двенадцать лет, с мамой — в семь, и шлем надень!"
     },
     "image_url": "https://teorica.practicavial.com/question/84c8e4e2-5da2-42a4-a54e-a63bf6cef651-1658256038-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/84c8e4e2-5da2-42a4-a54e-a63bf6cef651-s-1.jpg",
@@ -886,43 +886,43 @@
     "question_number": 19,
     "category": "B",
     "question": {
-      "es": "Cargar un vehículo con más carga de la autorizada...",
-      "en": null,
-      "ru": null
+      "es": "¿Cómo influye cargar un vehículo con más carga de la autorizada?",
+      "en": "How does loading a vehicle with more weight than authorized influence it?",
+      "ru": "Как влияет загрузка легкового автомобиля сверх разрешенной максимальной массы (MMA)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
-          "es": "no influye para nada en la seguridad vial.",
-          "en": null,
-          "ru": null
+          "es": "No influye para nada en la seguridad vial.",
+          "en": "It has no influence on road safety.",
+          "ru": "Это никак не влияет на безопасность дорожного движения."
         },
         "is_correct": false
       },
       {
         "id": "b",
         "text": {
-          "es": "influye, especialmente, en la aceleración, frenado y estabilidad del vehículo.",
-          "en": null,
-          "ru": null
+          "es": "Influye, especialmente, en la aceleración, frenado y estabilidad del vehículo.",
+          "en": "It influences, especially, the acceleration, braking, and stability of the vehicle.",
+          "ru": "Это влияет, прежде всего, на разгон, торможение и устойчивость автомобиля."
         },
         "is_correct": true
       },
       {
         "id": "c",
         "text": {
-          "es": "solo afecta a los neumáticos, por lo que se deberá incrementar su presión.",
-          "en": null,
-          "ru": null
+          "es": "Solo afecta a los neumáticos, por lo que se deberá incrementar su presión.",
+          "en": "It only affects the tires, so their pressure should be increased.",
+          "ru": "Это влияет только на шины, поэтому следует увеличить в них давление."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El exceso de carga por encima de la Masa Máxima Autorizada (MMA) compromete gravemente la seguridad activa del vehículo. El aumento de la masa implica una mayor inercia, lo que incrementa significativamente la distancia de frenado y reduce la capacidad de aceleración. Además, afecta negativamente a la estabilidad al elevar o desplazar el centro de gravedad, aumentando el riesgo de vuelco o pérdida de control. También provoca un desgaste prematuro y posible fallo de neumáticos, frenos y sistemas de suspensión.",
+      "en": "Exceeding the Maximum Authorized Mass (MAM) seriously compromises the vehicle's active safety. The increased mass results in higher inertia, which significantly extends the braking distance and reduces acceleration performance. Furthermore, it negatively impacts stability by raising or shifting the center of gravity, increasing the risk of rollover or loss of control. It also causes premature wear and potential failure of tires, brakes, and suspension systems.",
+      "ru": "🎓 Перегруз легкового автомобиля сверх его разрешенной максимальной массы (MMA) — это прямой путь к аварии. Лишний вес увеличивает тормозной путь, так как тормозам требуется гораздо больше усилий, чтобы остановить тяжелую машину. Динамика разгона падает, что делает обгоны опасными. Устойчивость автомобиля резко ухудшается, особенно если тяжелый груз закреплен на крыше — это смещает центр тяжести и может привести к опрокидыванию. Внутри салона перевози только легкие вещи, так как тяжелые предметы при резком торможении превращаются в опасные снаряды. 💡 Больше веса — выше риск: тормоз длиннее, а устойчивость ниже!"
     },
     "image_url": "https://teorica.practicavial.com/question/6ff54091-2660-44da-b13f-38a7ea8cd3da-1658313440-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/6ff54091-2660-44da-b13f-38a7ea8cd3da-s-1.jpg",
@@ -936,16 +936,16 @@
     "category": "B",
     "question": {
       "es": "¿Está permitido que la carga de un turismo sobresalga por los laterales?",
-      "en": null,
-      "ru": null
+      "en": "Is the load of a passenger car allowed to protrude from the sides?",
+      "ru": "Разрешено ли, чтобы груз легкового автомобиля выступал за его боковые габариты?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, siempre que vaya debidamente señalizada.",
-          "en": null,
-          "ru": null
+          "en": "Yes, as long as it is properly signaled.",
+          "ru": "Да, при условии, что он должным образом обозначен."
         },
         "is_correct": false
       },
@@ -953,8 +953,8 @@
         "id": "b",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       },
@@ -962,16 +962,16 @@
         "id": "c",
         "text": {
           "es": "Solo si no compromete la estabilidad del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "Only if it does not compromise the vehicle's stability.",
+          "ru": "Только если это не ставит под угрозу устойчивость транспортного средства."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "En los vehículos no destinados exclusivamente al transporte de mercancías, como los turismos, la carga solo puede sobresalir por la parte posterior. Está prohibido que la carga sobresalga por los laterales o por la parte delantera del vehículo. En la parte trasera, podrá sobresalir un 10% si la carga es divisible y un 15% si es indivisible, siempre que se señalice con el panel V-20.",
+      "en": "In vehicles not exclusively intended for freight transport, such as passenger cars (turismos), the load may only protrude from the rear. Protrusion from the sides or the front is prohibited. At the rear, the limit is 10% for divisible loads and 15% for indivisible loads, and it must be marked with the V-20 signal panel.",
+      "ru": "🎓 В легковых автомобилях (Turismo), грузопассажирских автомобилях и автодомах груз может выступать только сзади. Выступание груза за боковые габариты или вперед по ходу движения категорически запрещено. Сзади груз может выступать на 10% от длины кузова, если он делимый, и на 15%, если неделимый. Любой выступающий сзади груз должен быть обозначен панелью V-20. 🇷🇺 В РФ груз может выступать за боковой габарит до 0.4 м от края габаритного огня, а в Испании для легковых автомобилей (Turismo) это запрещено. 💡 Сбоку вылез — штраф прилетел! Только сзади груз вози, V-20 прикрепи."
     },
     "image_url": "https://teorica.practicavial.com/question/f2136c89-774c-4422-91a9-03eedd3b1218-1658313614-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/f2136c89-774c-4422-91a9-03eedd3b1218-s-1.jpg",
@@ -984,17 +984,17 @@
     "question_number": 21,
     "category": "B",
     "question": {
-      "es": "Si circulan por vías de uso publico sin superar la velocidad, los vehículos especiales utilizarán la señal luminosa cuando...",
-      "en": null,
-      "ru": null
+      "es": "Si circulan por vías de uso público sin superar la velocidad, los vehículos especiales utilizarán la señal luminosa cuando...",
+      "en": "If they circulate on public roads without exceeding the speed, special vehicles will use the light signal when...",
+      "ru": "Если специальные транспортные средства движутся по дорогам общего пользования, не превышая установленную скорость, они должны использовать световую сигнализацию..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "circulen tanto de día como de noche.",
-          "en": null,
-          "ru": null
+          "en": "circulating both day and night.",
+          "ru": "как днем, так и ночью."
         },
         "is_correct": true
       },
@@ -1002,8 +1002,8 @@
         "id": "b",
         "text": {
           "es": "circulen entre la puesta y la salida del sol, únicamente.",
-          "en": null,
-          "ru": null
+          "en": "circulating between sunset and sunrise, only.",
+          "ru": "только в период между закатом и восходом солнца."
         },
         "is_correct": false
       },
@@ -1011,16 +1011,16 @@
         "id": "c",
         "text": {
           "es": "trabajen en operaciones de limpieza o conservación de la vía únicamente.",
-          "en": null,
-          "ru": null
+          "en": "working in cleaning or road maintenance operations only.",
+          "ru": "только при выполнении работ по очистке или содержанию дорог."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Vehículos, la señal luminosa V-2 debe ser utilizada por vehículos especiales, de transporte especial o vehículos que realicen obras o servicios en la vía, tanto de día como de noche, siempre que circulen por vías de uso público. Su función es señalizar su posición cuando circulan a una velocidad que no supere los 40 km/h o cuando se encuentran realizando trabajos en la vía. En caso de avería de dicha señal, se deben encender las luces de posición, de cruce y la señal de emergencia.",
+      "en": "According to the General Vehicle Regulations, the V-2 light signal must be used by special vehicles, special transport vehicles, or vehicles performing works or services on the road, both day and night, whenever they circulate on public roads. Its purpose is to indicate their position when traveling at a speed not exceeding 40 km/h or when performing work on the road. In the event of a failure of this signal, the position lights, low beam headlights, and hazard warning lights must be switched on.",
+      "ru": "🎓 Специальные транспортные средства, а также техника, выполняющая дорожные работы или услуги, обязаны включать оранжевый проблесковый маячок (сигнал V-2) при движении по дорогам общего пользования в любое время суток — и днем, и ночью. Это необходимо для предупреждения других водителей о потенциальном препятствии, особенно если скорость такого ТС не превышает 40 км/ч. Если маячок вышел из строя, водитель спецтехники обязан включить ближний свет, габаритные огни и аварийную сигнализацию.\n\n🇷🇺 В РФ правила использования желтых или оранжевых маячков схожи: они должны быть включены при выполнении работ по строительству, ремонту или содержанию дорог, а также при движении крупногабаритных ТС, независимо от времени суток.\n\n💡 Видишь трактор на пути — маячок должен гореть и в зной, и в ночи!"
     },
     "image_url": "https://teorica.practicavial.com/question/eda6e468-0ca0-4085-a319-051730c2a271-1658316429-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/eda6e468-0ca0-4085-a319-051730c2a271-s-1.jpg",
@@ -1034,16 +1034,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué significa esta señal colocada en el lateral de una furgoneta?",
-      "en": null,
-      "ru": null
+      "en": "What does this sign placed on the side of a van mean?",
+      "ru": "Что означает этот знак, размещенный на боковой стороне фургона?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Advertencia de peligro de ángulos muertos para advertir a vehículos pesados.",
-          "en": null,
-          "ru": null
+          "en": "Warning of blind spot danger to warn heavy vehicles.",
+          "ru": "Предупреждение об опасности слепых зон для информирования тяжелых транспортных средств."
         },
         "is_correct": false
       },
@@ -1051,8 +1051,8 @@
         "id": "b",
         "text": {
           "es": "Advertencia de peligro de ángulos muertos para advertir a usuarios vulnerables.",
-          "en": null,
-          "ru": null
+          "en": "Warning of blind spot danger to warn vulnerable users.",
+          "ru": "Предупреждение об опасности слепых зон для информирования уязвимых участников дорожного движения."
         },
         "is_correct": true
       },
@@ -1060,16 +1060,16 @@
         "id": "c",
         "text": {
           "es": "Precaución con las motocicletas estacionadas en la acera.",
-          "en": null,
-          "ru": null
+          "en": "Caution with motorcycles parked on the sidewalk.",
+          "ru": "Предостережение о мотоциклах, припаркованных на тротуаре."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Esta señalización tiene como objetivo advertir a los usuarios vulnerables (peatones, ciclistas, motoristas y usuarios de VMP) sobre el peligro que supone situarse en las zonas no visibles (ángulos muertos) de vehículos de transporte de mercancías (N1, N2, N3), viajeros (M2, M3) y de residuos en el ámbito urbano. Su colocación es de carácter voluntario según la instrucción de la DGT para mejorar la seguridad vial y reducir la siniestralidad.",
+      "en": "This signage is intended to warn vulnerable road users (pedestrians, cyclists, motorcyclists, and personal mobility vehicle users) about the risks of positioning themselves in the non-visible areas (blind spots) of goods transport vehicles (N1, N2, N3), passenger transport vehicles (M2, M3), and urban waste collection vehicles. Its use is voluntary according to DGT regulations to improve road safety and reduce accidents.",
+      "ru": "🎓 Эта маркировка предупреждает уязвимых участников движения (пешеходов, велосипедистов, мотоциклистов и водителей СИМ) об опасности нахождения в слепых зонах. Водитель крупного ТС физически не видит объекты в этих секторах. Размещение знака является добровольным для грузопассажирских автомобилей (furgoneta), автобусов и мусоровозов. Тебе, как водителю легкового автомобиля (turismo), важно помнить, что в этих зонах ты становишься невидимым для водителя фургона. 🇷🇺 В РФ подобные наклейки для предупреждения пешеходов и велосипедистов о слепых зонах официально не регламентированы. 💡 Видишь знак «слепая зона» — уезжай из этой зоны!"
     },
     "image_url": "https://teorica.practicavial.com/question/ecbf4996-7279-40e9-83cd-dadf2631d1c7-1761114032-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/ecbf4996-7279-40e9-83cd-dadf2631d1c7-s-1.jpg?t=1768426582",
@@ -1083,16 +1083,16 @@
     "category": "B",
     "question": {
       "es": "En las motocicletas, el equipaje transportado debe colocarse de forma que...",
-      "en": null,
-      "ru": null
+      "en": "On motorcycles, the luggage carried must be placed in such a way that...",
+      "ru": "На мотоциклах перевозимый багаж должен быть размещен таким образом, чтобы..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "no sobresalga por la parte trasera.",
-          "en": null,
-          "ru": null
+          "en": "it does not protrude from the rear.",
+          "ru": "он не выступал за заднюю часть."
         },
         "is_correct": false
       },
@@ -1100,8 +1100,8 @@
         "id": "b",
         "text": {
           "es": "no sobresalga por los laterales del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "it does not protrude from the sides of the vehicle.",
+          "ru": "он не выступал по бокам транспортного средства."
         },
         "is_correct": false
       },
@@ -1109,16 +1109,16 @@
         "id": "c",
         "text": {
           "es": "no comprometa la estabilidad del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "it does not compromise the stability of the vehicle.",
+          "ru": "он не нарушал устойчивость транспортного средства."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, la carga en vehículos de anchura inferior a un metro (motocicletas, ciclomotores y bicicletas) debe estar dispuesta de manera que no comprometa la estabilidad ni la maniobrabilidad del vehículo. Aunque la normativa permite que la carga sobresalga hasta 0,50 metros por cada lado del eje longitudinal y 0,25 metros por la parte trasera, la prioridad es mantener el centro de gravedad y la seguridad dinámica.",
+      "en": "According to the General Circulation Regulations, cargo on vehicles less than one meter wide (motorcycles, mopeds, and bicycles) must be arranged so that it does not compromise the stability or maneuverability of the vehicle. Although regulations allow cargo to protrude up to 0.50 meters on each side of the longitudinal axis and 0.25 meters from the rear, the priority is to maintain the center of gravity and dynamic safety.",
+      "ru": "🎓 На мотоциклах и других транспортных средствах шириной менее одного метра груз должен быть размещен и закреплен так, чтобы не нарушать устойчивость и маневренность. По закону допускается, чтобы груз выступал на 50 см в каждую сторону от продольной оси (итоговая ширина до 1 метра) и на 25 см сзади. Однако главным условием остается безопасность: груз не должен смещать центр тяжести или мешать управлению. Спереди выступ груза запрещен.\n\n🇷🇺 В Испании четко регламентирован выступ груза сзади (25 см), в то время как в РФ правила ограничивают выступ груза за габариты более чем на 0,5 м по длине или ширине.\n\n💡 Груз закрепи и не спеши — равновесие сохрани!"
     },
     "image_url": "https://teorica.practicavial.com/question/a3caed1c-9433-4ce4-89ee-631f5ba91517-1658313283-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/a3caed1c-9433-4ce4-89ee-631f5ba91517-s-1.jpg",
@@ -1132,16 +1132,16 @@
     "category": "B",
     "question": {
       "es": "Un vehículo lleva más carga que la Masa Máxima Autorizada (MMA). ¿Está permitido circular así?",
-      "en": null,
-      "ru": null
+      "en": "A vehicle carries more load than the Maximum Authorized Mass (MMA). Is it allowed to drive like this?",
+      "ru": "Транспортное средство перевозит груз, превышающий разрешенную максимальную массу (РММ). Разрешено ли движение в таком случае?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, cuando es un vehículo de transporte de mercancías.",
-          "en": null,
-          "ru": null
+          "en": "Yes, when it is a goods transport vehicle.",
+          "ru": "Да, если это транспортное средство для перевозки грузов."
         },
         "is_correct": false
       },
@@ -1149,8 +1149,8 @@
         "id": "b",
         "text": {
           "es": "No, porque es peligroso.",
-          "en": null,
-          "ru": null
+          "en": "No, because it is dangerous.",
+          "ru": "Нет, так как это опасно."
         },
         "is_correct": true
       },
@@ -1158,16 +1158,16 @@
         "id": "c",
         "text": {
           "es": "Sí, pero solamente cuando transporta equipaje y personas dentro de poblado.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but only when transporting luggage and people in built-up areas.",
+          "ru": "Да, но только при перевозке багажа и людей в населенном пункте."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Está prohibido circular con un vehículo cuya masa, cargado, sea superior a su Masa Máxima Autorizada (MMA). El exceso de carga compromete la seguridad vial, afectando negativamente a la distancia de frenado, la estabilidad y la resistencia estructural del vehículo. Esta prohibición es absoluta y se aplica a todas las categorías de vehículos y tipos de vías.",
+      "en": "It is prohibited to drive a vehicle whose laden mass exceeds its Maximum Authorized Mass (MMA). Overloading compromises road safety by negatively affecting braking distance, stability, and the vehicle's structural integrity. This prohibition is absolute and applies to all vehicle categories and road types.",
+      "ru": "🎓 Разрешенная максимальная масса (РММ) — это жесткий лимит, установленный производителем для обеспечения безопасности. Тебе, как водителю легкового автомобиля (Turismo), важно помнить: превышение этого веса категорически запрещено. Перегруз делает машину неуправляемой, значительно удлиняет тормозной путь и создает риск взрыва шин. Правило едино для всех: и для тех, кто везет кирпичи на фургоне, и для тебя, если ты решил забить багажник до отказа. Никаких исключений для города или коротких поездок не существует. 💡 Больше нормы нагрузил — тормоза и жизнь сгубил!"
     },
     "image_url": "https://teorica.practicavial.com/question/37bbbb16-9012-44c3-9e29-88c2dd71d0e6-1658252637-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/37bbbb16-9012-44c3-9e29-88c2dd71d0e6-s-1.jpg",
@@ -1181,16 +1181,16 @@
     "category": "B",
     "question": {
       "es": "Un vehículo de tres ruedas, ¿puede arrastrar un remolque?",
-      "en": null,
-      "ru": null
+      "en": "Can a three-wheeled vehicle tow a trailer?",
+      "ru": "Может ли трехколесное транспортное средство буксировать прицеп?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, nunca.",
-          "en": null,
-          "ru": null
+          "en": "No, never.",
+          "ru": "Нет, никогда."
         },
         "is_correct": false
       },
@@ -1198,8 +1198,8 @@
         "id": "b",
         "text": {
           "es": "Sólo remolques cuya masa máxima autorizada no supere los 50 kilos.",
-          "en": null,
-          "ru": null
+          "en": "Only trailers whose maximum authorized mass does not exceed 50 kilograms.",
+          "ru": "Только прицепы, разрешенная максимальная масса которых не превышает 50 кг."
         },
         "is_correct": false
       },
@@ -1207,16 +1207,16 @@
         "id": "c",
         "text": {
           "es": "Sí, cumpliendo determinadas condiciones.",
-          "en": null,
-          "ru": null
+          "en": "Yes, fulfilling certain conditions.",
+          "ru": "Да, при соблюдении определенных условий."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, los vehículos de tres ruedas, motocicletas, ciclomotores y ciclos pueden arrastrar un remolque o semirremolque siempre que se cumplan las siguientes condiciones: 1) Que el remolque no supere el 50% de la masa en vacío del vehículo tractor. 2) Que la circulación se realice de día y en condiciones que no disminuyan la visibilidad. 3) Que la velocidad fuera de poblado se reduzca en un 10% respecto a la velocidad genérica. 4) Que en ningún caso se transporten personas en el remolque.",
+      "en": "According to the General Traffic Regulations, three-wheeled vehicles, motorcycles, mopeds, and cycles may tow a trailer or semi-trailer provided the following conditions are met: 1) The trailer must not exceed 50% of the towing vehicle's empty mass. 2) Operation must take place during daylight hours and under conditions that do not reduce visibility. 3) The speed outside built-up areas must be reduced by 10% compared to the generic speed limit. 4) Under no circumstances may people be transported in the trailer.",
+      "ru": "🎓 Трехколесные транспортные средства, мотоциклы и мопеды имеют право буксировать прицеп при соблюдении четырех обязательных условий. Во-первых, масса прицепа не должна превышать 50% от массы пустого тягача. Во-вторых, движение разрешено исключительно в светлое время суток и при хорошей видимости (ночью нельзя). В-третьих, установленный лимит скорости вне населенного пункта для тебя снижается на 10%. В-четвертых, перевозка людей в прицепе строго запрещена. 🇷🇺 В Испании правила буксировки для мототехники значительно строже, чем в РФ, особенно в части запрета на движение в темное время суток и обязательного снижения скорости. 💡 Днем кати, людей не вези, массу прицепа на два раздели!"
     },
     "image_url": "https://teorica.practicavial.com/question/5df2322e-83f4-4fcc-8f14-b05328f8bffb-1658315949-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/5df2322e-83f4-4fcc-8f14-b05328f8bffb-s-1.jpg",
@@ -1229,17 +1229,17 @@
     "question_number": 26,
     "category": "B",
     "question": {
-      "es": "Cuando la carga sobresale de un vehículo, ¿es obligatorio señalizarla con el panel de la imagen?",
-      "en": null,
-      "ru": null
+      "es": "¿Es obligatorio señalizar con el panel V-20 la carga que sobresale de un vehículo?",
+      "en": "Is it mandatory to signal a load protruding from a vehicle with the V-20 panel?",
+      "ru": "Обязательно ли обозначать груз, выступающий за габариты транспортного средства, панелью V-20?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, excepto para los vehículos destinados al transporte de mercancías.",
-          "en": null,
-          "ru": null
+          "en": "No, except for vehicles intended for the transport of goods.",
+          "ru": "Нет, за исключением транспортных средств, предназначенных для перевозки грузов."
         },
         "is_correct": false
       },
@@ -1247,8 +1247,8 @@
         "id": "b",
         "text": {
           "es": "Solo es obligatorio si la carga sobresale por la parte trasera.",
-          "en": null,
-          "ru": null
+          "en": "It is only mandatory if the load protrudes from the rear.",
+          "ru": "Это обязательно, только если груз выступает сзади."
         },
         "is_correct": true
       },
@@ -1256,16 +1256,16 @@
         "id": "c",
         "text": {
           "es": "Sí, para todo tipo de vehículos, pero solo cuando la carga sea indivisible.",
-          "en": null,
-          "ru": null
+          "en": "Yes, for all types of vehicles, but only when the load is indivisible.",
+          "ru": "Да, для всех типов транспортных средств, но только если груз является неделимым."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, toda carga que sobresalga por la parte posterior de los vehículos deberá ser señalizada mediante el panel V-20. En los vehículos no destinados exclusivamente al transporte de mercancías, como los turismos, la carga solo puede sobresalir por la parte posterior (un 10% si es divisible y un 15% si es indivisible), por lo que no se requiere señalización delantera. Si la carga ocupa todo el ancho de la parte posterior del vehículo, se colocarán dos paneles V-20 en los extremos, de tal forma que sus franjas formen una 'V' invertida.",
+      "en": "According to the General Traffic Regulations, any load protruding from the rear of a vehicle must be signaled using the V-20 panel. In vehicles not exclusively intended for freight transport, such as passenger cars (Turismos), the load may only protrude from the rear (10% of the vehicle's length if divisible, and 15% if indivisible); therefore, front signaling is not required. If the load covers the full width of the rear of the vehicle, two V-20 panels must be placed at the edges so that their stripes form an inverted 'V' shape.",
+      "ru": "🎓 В Испании любой груз, выступающий сзади за габариты твоего легкового автомобиля (Turismo), обязательно должен быть обозначен квадратной панелью V-20 с красно-белыми диагональными полосами. На легковых автомобилях правилами разрешено выступление груза только сзади: до 10% от длины кузова для делимых грузов и до 15% для неделимых. Спереди на легковом авто груз выступать не может, поэтому там сигнал не требуется. Если груз по ширине занимает всю заднюю часть машины, необходимо установить две панели V-20 по краям, расположив их так, чтобы красные полосы образовывали перевернутую букву V.\n\n🇷🇺 В РФ груз обозначается щитком «Крупногабаритный груз», только если он выступает более чем на 1 метр сзади, тогда как в Испании панель V-20 обязательна при любом выступе за задний габарит.\n\n💡 Сзади торчит — панель V-20 кричит!"
     },
     "image_url": "https://teorica.practicavial.com/question/5bca03bb-9fd2-4437-b332-861d8311491f-1658315204-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/5bca03bb-9fd2-4437-b332-861d8311491f-s-1.jpg",
@@ -1279,16 +1279,16 @@
     "category": "B",
     "question": {
       "es": "Los asientos de un vehículo mixto tienen cinturones de seguridad, ¿está obligado el conductor a utilizarlo?",
-      "en": null,
-      "ru": null
+      "en": "The seats of a mixed-use vehicle have seat belts, is the driver obliged to use them?",
+      "ru": "Сиденья грузопассажирского автомобиля оборудованы ремнями безопасности. Обязан ли водитель ими пользоваться?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, en vías fuera de poblado.",
-          "en": null,
-          "ru": null
+          "en": "No, on roads outside built-up areas.",
+          "ru": "Нет, на дорогах вне населенных пунктов."
         },
         "is_correct": false
       },
@@ -1296,8 +1296,8 @@
         "id": "b",
         "text": {
           "es": "No, en ningún tipo de vía.",
-          "en": null,
-          "ru": null
+          "en": "No, on any type of road.",
+          "ru": "Нет, ни на одном типе дорог."
         },
         "is_correct": false
       },
@@ -1305,16 +1305,16 @@
         "id": "c",
         "text": {
           "es": "Sí, en todas las vías.",
-          "en": null,
-          "ru": null
+          "en": "Yes, on all roads.",
+          "ru": "Да, на всех дорогах."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, el uso del cinturón de seguridad es obligatorio para el conductor y los pasajeros en todos los vehículos que lo tengan instalado, circulando tanto en vías urbanas como interurbanas. Las exenciones son limitadas y específicas, pero no dependen del tipo de vía para un vehículo mixto en condiciones normales de circulación.",
+      "en": "According to the General Traffic Regulations, the use of seat belts is mandatory for the driver and passengers in all vehicles equipped with them, when driving on both urban and interurban roads. Exemptions are limited and specific, but they do not depend on the type of road for a mixed-use vehicle under normal driving conditions.",
+      "ru": "🎓 Согласно ПДД Испании, использование ремней безопасности обязательно для водителя и всех пассажиров во всех транспортных средствах, где они установлены. Это требование распространяется на все типы дорог, включая городские улицы, скоростные дороги и автомагистрали. Для водителя, управляющего грузопассажирским автомобилем, правила безопасности идентичны правилам для легкового автомобиля. Помни, что даже беременные женщины обязаны пристегиваться, если у них нет официального медицинского освобождения.\n\n💡 Сел в машину — пристегнись, на любой дороге сохранись!"
     },
     "image_url": "https://teorica.practicavial.com/question/db233882-a90a-4c4c-954d-bfeeb10b54f1-1658252928-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/db233882-a90a-4c4c-954d-bfeeb10b54f1-s-1.jpg",
@@ -1328,16 +1328,16 @@
     "category": "B",
     "question": {
       "es": "Si un cuadriciclo ligero tiene instalados cinturones de seguridad, ¿es obligatorio ponerse el casco?",
-      "en": null,
-      "ru": null
+      "en": "If a light quadricycle has seat belts installed, is it mandatory to wear a helmet?",
+      "ru": "Если легкий квадрицикл оборудован ремнями безопасности, обязательно ли надевать шлем?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       },
@@ -1345,8 +1345,8 @@
         "id": "b",
         "text": {
           "es": "Sí, pero únicamente fuera de poblado.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but only outside built-up areas.",
+          "ru": "Да, но только вне населенных пунктов."
         },
         "is_correct": false
       },
@@ -1354,16 +1354,16 @@
         "id": "c",
         "text": {
           "es": "Sí, pero únicamente en vías urbanas.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but only on urban roads.",
+          "ru": "Да, но только на городских дорогах."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, los conductores y pasajeros de cuadriciclos ligeros están exentos de utilizar el casco de protección siempre que el vehículo cuente con una estructura de autoprotección y cinturones de seguridad, y así conste en su tarjeta de inspección técnica (ITV). En este caso, el uso del cinturón de seguridad es obligatorio.",
+      "en": "According to the General Circulation Regulations, drivers and passengers of light quadricycles are exempt from wearing a protective helmet provided the vehicle is equipped with a self-protection structure and seat belts, as specified in its technical inspection card (ITV). In such cases, the use of the seat belt is mandatory.",
+      "ru": "🎓 Если легкий квадрицикл оснащен заводской структурой самозащиты и ремнями безопасности, и это подтверждено документами техосмотра (ITV), то надевать шлем не нужно. В такой ситуации обязательным становится использование ремня безопасности. Это исключение действует для транспортных средств, чья конструкция официально признана безопасной для поездок без шлема. 🇷🇺 В Испании наличие ремней и защитного каркаса в документах — решающий фактор для отмены шлема, в то время как в РФ требования к шлемам на подобных ТС часто зависят от типа управления и сертификации. 💡 Есть каркас и ремешок — шлем не давит на висок!"
     },
     "image_url": "https://teorica.practicavial.com/question/9c3caa47-0c38-46d0-b1ba-962888a07b22-1658256316-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/9c3caa47-0c38-46d0-b1ba-962888a07b22-s-1.jpg",
@@ -1377,16 +1377,16 @@
     "category": "B",
     "question": {
       "es": "Una motocicleta, ¿puede arrastrar un remolque o semirremolque?",
-      "en": null,
-      "ru": null
+      "en": "Can a motorcycle tow a trailer or semi-trailer?",
+      "ru": "Может ли мотоцикл буксировать прицеп или полуприцеп?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, si no supera el 50% de la masa en vacío del vehículo tractor.",
-          "en": null,
-          "ru": null
+          "en": "Yes, if it does not exceed 50% of the empty mass of the towing vehicle.",
+          "ru": "Да, если его масса не превышает 50% массы пустого транспортного средства."
         },
         "is_correct": true
       },
@@ -1394,8 +1394,8 @@
         "id": "b",
         "text": {
           "es": "No, está prohibido.",
-          "en": null,
-          "ru": null
+          "en": "No, it is prohibited.",
+          "ru": "Нет, это запрещено."
         },
         "is_correct": false
       },
@@ -1403,16 +1403,16 @@
         "id": "c",
         "text": {
           "es": "Sí, y además puede llevar personas en el mismo.",
-          "en": null,
-          "ru": null
+          "en": "Yes, and it can also carry people in it.",
+          "ru": "Да, и кроме того, в нем можно перевозить людей."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Vehículos, las motocicletas, vehículos de tres ruedas, ciclomotores y ciclos pueden arrastrar un remolque o semirremolque bajo condiciones estrictas: la masa del remolque no debe exceder el 50% de la masa en vacío del vehículo tractor. Se prohíbe la circulación en condiciones de visibilidad reducida o nocturna. La velocidad máxima permitida fuera de poblado se reduce en un 10% respecto a la genérica. Está terminantemente prohibido el transporte de personas en el remolque.",
+      "en": "According to the General Vehicle Regulations, motorcycles, three-wheeled vehicles, mopeds, and cycles may tow a trailer or semi-trailer provided specific requirements are met: the trailer's mass must not exceed 50% of the towing vehicle's empty mass. Operation is prohibited at night or under conditions of reduced visibility. Generic speed limits outside built-up areas are reduced by 10% for these combinations. Transporting passengers within the trailer is strictly forbidden.",
+      "ru": "🎓 В Испании мотоциклам разрешено буксировать прицеп при соблюдении четырех условий: масса прицепа не должна превышать 50% от массы пустого мотоцикла; движение разрешено только в светлое время суток при хорошей видимости (ночью и в туман запрещено); максимальная скорость вне населенных пунктов снижается на 10% от установленной; перевозка людей в прицепе категорически запрещена. 🇷🇺 В РФ правила не ограничивают движение мотоцикла с прицепом только светлым временем суток и не требуют снижения скорости на 10%. 💡 Прицеп для байка — только днем, весит вполовину, людей не берем!"
     },
     "image_url": "https://teorica.practicavial.com/question/d49eec93-cabb-4512-917e-ca307cb1995d-1658316058-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d49eec93-cabb-4512-917e-ca307cb1995d-s-1.jpg",
@@ -1425,17 +1425,17 @@
     "question_number": 30,
     "category": "B",
     "question": {
-      "es": "Se debe desactivar el airbag frontal cuando en el asiento correspondiente al copiloto...",
-      "en": null,
-      "ru": null
+      "es": "¿Se debe desactivar el airbag frontal cuando en el asiento correspondiente al copiloto...?",
+      "en": "Should the front airbag be deactivated when, in the passenger seat...?",
+      "ru": "Следует ли отключать фронтальную подушку безопасности, если на переднем пассажирском сиденье...?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "se instale un dispositivo de retención infantil orientado hacia delante.",
-          "en": null,
-          "ru": null
+          "en": "a forward-facing child restraint system is installed.",
+          "ru": "установлено детское удерживающее устройство лицом вперед."
         },
         "is_correct": false
       },
@@ -1443,8 +1443,8 @@
         "id": "b",
         "text": {
           "es": "viaje una mujer embarazada.",
-          "en": null,
-          "ru": null
+          "en": "a pregnant woman is traveling.",
+          "ru": "находится беременная женщина."
         },
         "is_correct": false
       },
@@ -1452,16 +1452,16 @@
         "id": "c",
         "text": {
           "es": "se instale un dispositivo de retención infantil orientado hacia atrás.",
-          "en": null,
-          "ru": null
+          "en": "a rear-facing child restraint system is installed.",
+          "ru": "установлено детское удерживающее устройство спиной по ходу движения."
         },
-        "is_correct": false
+        "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "De acuerdo con la normativa de seguridad vial, es obligatorio desactivar el airbag frontal del acompañante únicamente cuando se instale un dispositivo de retención infantil orientado en sentido contrario a la marcha. El despliegue del airbag contra la parte posterior de la silla infantil en esta posición puede generar fuerzas de impacto fatales para el menor. En el caso de mujeres embarazadas o sillas orientadas hacia adelante, el airbag debe permanecer activado para cumplir su función de protección.",
+      "en": "According to road safety regulations, the front passenger airbag must be deactivated only when a rear-facing child restraint system is installed. The deployment of the airbag against the back of the child seat in this position can generate fatal impact forces for the child. For pregnant women or forward-facing child seats, the airbag must remain activated to fulfill its protective function.",
+      "ru": "🎓 Если ты устанавливаешь детское удерживающее устройство на переднее сиденье легкового автомобиля спиной по ходу движения, ты обязан отключить фронтальную подушку безопасности. При аварии подушка выстреливает с огромной скоростью и ударяет в спинку детского кресла, что может привести к смертельным травмам. Если кресло стоит лицом вперед или на сиденье находится беременная женщина, подушку отключать нельзя — она должна защищать пассажира. 🇷🇺 В России действуют аналогичные требования: обязательное отключение подушки при установке кресла против хода движения на переднем сиденье. 💡 Спиной к дороге — подушку под замок!"
     },
     "image_url": "https://teorica.practicavial.com/question/dad7323b-04f2-48a1-9bf6-7eccb0d8ee6f-1658253411-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/dad7323b-04f2-48a1-9bf6-7eccb0d8ee6f-s-1.jpg",

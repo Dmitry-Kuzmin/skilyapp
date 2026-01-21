@@ -48,7 +48,9 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "9adf2e6e-fb0b-48c5-ba6c-3654530505e0",
+    "external_id": "9adf2e6e-fb0b-48c5-ba6c-3654530505e0"
   },
   {
     "topic_number": 10,
@@ -99,7 +101,9 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "084fff7c-3292-47a9-a5e9-e59d23c33e7b",
+    "external_id": "084fff7c-3292-47a9-a5e9-e59d23c33e7b"
   },
   {
     "topic_number": 10,
@@ -150,6 +154,8 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "fb025197-f619-4adf-8da7-467597a16eba",
+    "external_id": "fb025197-f619-4adf-8da7-467597a16eba"
   }
 ]

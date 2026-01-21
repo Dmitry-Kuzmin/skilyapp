@@ -34,15 +34,6 @@ const AdminLayout = lazy(() =>
 const AdminDashboard = lazy(() =>
   import("../pages/admin/AdminDashboard").then((module) => ({ default: module.AdminDashboard }))
 );
-const AdminSync = lazy(() =>
-  import("../pages/admin/AdminSync").then((module) => ({ default: module.AdminSync }))
-);
-const AdminImport = lazy(() =>
-  import("../pages/admin/AdminImport").then((module) => ({ default: module.AdminImport }))
-);
-const AdminTestCovers = lazy(() =>
-  import("../pages/admin/AdminTestCovers").then((module) => ({ default: module.AdminTestCovers }))
-);
 const AdminSeasonsManagement = lazy(() =>
   import("../pages/admin/AdminSeasonsManagement").then((module) => ({ default: module.AdminSeasonsManagement }))
 );
@@ -58,9 +49,7 @@ const AdminMarketingMaterials = lazy(() =>
 const AdminPDDRussia = lazy(() =>
   import("../pages/admin/AdminPDDRussia").then((module) => ({ default: module.AdminPDDRussia }))
 );
-const AdminFeatureFlags = lazy(() =>
-  import("../components/admin/AdminFeatureFlags").then((module) => ({ default: module.AdminFeatureFlags }))
-);
+
 const AdminMissionControl = lazy(() =>
   import("../pages/admin/AdminMissionControl").then((module) => ({ default: module.AdminMissionControl }))
 );
@@ -69,6 +58,9 @@ const ModernPartnerDashboard = lazy(() => import("../pages/ModernPartnerDashboar
 const PartnerLinkRedirect = lazy(() => import("../pages/PartnerLinkRedirect"));
 const AdminEditor = lazy(() => import("../pages/AdminEditor"));
 const AdminQuestionReports = lazy(() => import("../pages/AdminQuestionReports"));
+const AdminRewardReports = lazy(() =>
+  import("../pages/admin/AdminRewardReports").then((module) => ({ default: module.AdminRewardReports }))
+);
 const RaceGame = lazy(() => import("../pages/games/RaceGame"));
 const GuessTheSign = lazy(() => import("../pages/games/GuessTheSign"));
 const MatchingGame = lazy(() => import("../pages/games/MatchingGame"));
@@ -86,7 +78,7 @@ const TestResults = lazy(() => import("../pages/TestResults"));
 const TopicsMode = lazy(() => import("../pages/TopicsMode"));
 const RoadSigns = lazy(() => import("../pages/RoadSigns"));
 const Dictionary = lazy(() => import("../pages/Dictionary"));
-const DataImport = lazy(() => import("../pages/DataImport"));
+
 const DailyBonus = lazy(() => import("../pages/DailyBonus"));
 const DGTTestsSimple = lazy(() => import("../pages/DGTTestsSimple"));
 // Terms, Privacy, SubscriptionTerms, RefundPolicy moved to Legal.tsx or redirects
@@ -281,14 +273,15 @@ export function AppRoutes() {
             <AdminDashboard />
           </Suspense>
         } />
-        <Route path="feature-flags" element={
-          <Suspense fallback={<PageSkeleton />}>
-            <AdminFeatureFlags />
-          </Suspense>
-        } />
+
         <Route path="reports" element={
           <Suspense fallback={<PageSkeleton />}>
             <AdminQuestionReports />
+          </Suspense>
+        } />
+        <Route path="reward-reports" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <AdminRewardReports />
           </Suspense>
         } />
         <Route path="editor" element={
@@ -296,21 +289,7 @@ export function AppRoutes() {
             <AdminEditor />
           </Suspense>
         } />
-        <Route path="sync" element={
-          <Suspense fallback={<PageSkeleton />}>
-            <AdminSync />
-          </Suspense>
-        } />
-        <Route path="import" element={
-          <Suspense fallback={<PageSkeleton />}>
-            <AdminImport />
-          </Suspense>
-        } />
-        <Route path="test-covers" element={
-          <Suspense fallback={<PageSkeleton />}>
-            <AdminTestCovers />
-          </Suspense>
-        } />
+
         <Route path="seasons" element={
           <Suspense fallback={<PageSkeleton />}>
             <AdminSeasonsManagement />
@@ -352,11 +331,7 @@ export function AppRoutes() {
           <Dictionary />
         </Suspense>
       } />
-      <Route path="/data-import" element={
-        <Suspense fallback={<PageSkeleton />}>
-          <DataImport />
-        </Suspense>
-      } />
+
       <Route path="/daily-bonus" element={
         <Suspense fallback={<PageSkeleton />}>
           <DailyBonus />

@@ -83,7 +83,7 @@ const tasks = sourceTests.filter(f => !enrichedFiles.has(f));
         console.log(`${progress} Processing: ${file}`);
 
         try {
-            await runScript('./scripts/enrich-batch-v2.js', [file]);
+            await runScript('./scripts/enrich-batch.js', [file]);
             console.log(`${progress} ✅ Success: ${file}\n`);
         } catch (error) {
             console.error(`${progress} ❌ Failed: ${file}`);

@@ -1,5 +1,8 @@
+import { StartupCurtain } from "@/components/StartupCurtain";
+
 export const PageLoader = () => (
   <div className="fixed inset-0 z-[9999] bg-[#0f172a] flex flex-col items-center justify-center animate-in fade-in duration-500">
+    <StartupCurtain />
     <div className="relative flex flex-col items-center gap-6">
       {/* Ambient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-indigo-600/10 rounded-full blur-[80px] pointer-events-none animate-pulse"></div>

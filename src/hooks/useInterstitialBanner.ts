@@ -48,6 +48,15 @@ function showInterstitialBanner(isPremium: boolean): void {
     return;
   }
 
+  // Не показываем на localhost (чтобы не мешать разработке и не ломать IndexedDB)
+  if (
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ) {
+    console.log('[Interstitial] Skipping - localhost development environment');
+    return;
+  }
+
   // Не показываем в Telegram Mini App
   if (isTelegramMiniApp()) {
     console.log('[Interstitial] Skipping - running in Telegram Mini App');
@@ -72,7 +81,7 @@ function showInterstitialBanner(isPremium: boolean): void {
     const script = document.createElement('script');
     script.dataset.zone = INTERSTITIAL_ZONE_ID;
     script.src = INTERSTITIAL_SCRIPT_URL;
-    
+
     // Добавляем в DOM (Monetag сам обработает показ)
     const target = [document.documentElement, document.body].filter(Boolean).pop();
     if (target) {

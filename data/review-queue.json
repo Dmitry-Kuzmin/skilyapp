@@ -1,222 +1,178 @@
 [
   {
-    "id": "acd3ec1e-490f-4909-895a-735577e5b259",
-    "generatedPath": "data/generated-images/topic-02_test-001/acd3ec1e-490f-4909-895a-735577e5b259_1768682294385.png",
-    "originalPath": "data/originals/topic-02_test-001/acd3ec1e-490f-4909-895a-735577e5b259_original.jpg",
+    "id": "dcc47577-a223-4fed-a0c7-b38d0b49b97e",
+    "generatedPath": "data/generated-images/topic-07_test-002/dcc47577-a223-4fed-a0c7-b38d0b49b97e_1768955695345_pro.png",
+    "originalPath": "data/originals/topic-07_test-002/dcc47577-a223-4fed-a0c7-b38d0b49b97e_original.jpg",
     "question": {
-      "es": "¿Está permitido adelantar en una glorieta?",
-      "en": "Is overtaking permitted in a roundabout?",
-      "ru": "Разрешен ли обгон (опережение) на перекрестке с круговым движением?"
+      "es": "¿Fumar mientras se conduce, puede producir distracciones?",
+      "en": "Can smoking while driving cause distractions?",
+      "ru": "Может ли курение во время вождения стать причиной отвлечения внимания?"
     },
-    "timestamp": 1768682340057
+    "timestamp": 1768955737618
   },
   {
-    "id": "4f2f6c75-cd37-450c-b812-1f06d1adeabe",
-    "generatedPath": "data/generated-images/topic-02_test-001/4f2f6c75-cd37-450c-b812-1f06d1adeabe_1768682355060.png",
-    "originalPath": "data/originals/topic-02_test-001/4f2f6c75-cd37-450c-b812-1f06d1adeabe_original.jpg",
+    "id": "83a245f2-dd93-4b67-9306-f31801837c54",
+    "generatedPath": "data/generated-images/topic-07_test-002/83a245f2-dd93-4b67-9306-f31801837c54_1768955752624_pro.png",
+    "originalPath": "data/originals/topic-07_test-002/83a245f2-dd93-4b67-9306-f31801837c54_original.jpg",
     "question": {
-      "es": "¿En qué momento deberá finalizar la señalización óptica este vehículo?",
-      "en": "At what moment must this vehicle stop the optical signaling?",
-      "ru": "В какой момент этот автомобиль должен прекратить подачу светового сигнала?"
+      "es": "En caso de sufrir un reventón circulando por una vía a velocidad elevada, ¿es aconsejable pisar el pedal de freno con brusquedad?",
+      "en": "In the event of a tire blowout while driving at high speed, is it advisable to step on the brake pedal abruptly?",
+      "ru": "В случае разрыва шины при движении на высокой скорости, рекомендуется ли резко нажимать на педаль тормоза?"
     },
-    "timestamp": 1768682411739
+    "timestamp": 1768955796985
   },
   {
-    "id": "8c80a077-0d3b-4fe7-a91b-39980489b8a8",
-    "generatedPath": "data/generated-images/topic-02_test-001/8c80a077-0d3b-4fe7-a91b-39980489b8a8_1768682426745.png",
-    "originalPath": "data/originals/topic-02_test-001/8c80a077-0d3b-4fe7-a91b-39980489b8a8_original.jpg",
+    "id": "499890d7-34c5-4f96-bdc9-b143e413e3be",
+    "generatedPath": "data/generated-images/topic-07_test-002/499890d7-34c5-4f96-bdc9-b143e413e3be_1768955811988_pro.png",
+    "originalPath": "data/originals/topic-07_test-002/499890d7-34c5-4f96-bdc9-b143e413e3be_original.jpg",
     "question": {
-      "es": "¿Está permitido advertir con el brazo que va a efectuar una maniobra?",
-      "en": "Is it permitted to signal with your arm that you are going to carry out a maneuver?",
-      "ru": "Разрешено ли подавать сигнал рукой о намерении выполнить маневр?"
+      "es": "¿En un paso de peatones, hay que hacer señales a los peatones para que crucen la calzada?",
+      "en": "At a pedestrian crossing, should you signal pedestrians to cross the roadway?",
+      "ru": "На пешеходном переходе нужно ли подавать сигналы пешеходам, чтобы они переходили проезжую часть?"
     },
-    "timestamp": 1768682468725
+    "timestamp": 1768955858516
   },
   {
-    "id": "fb9abd10-f089-489c-970b-1f3dcb27b401",
-    "generatedPath": "data/generated-images/topic-02_test-001/fb9abd10-f089-489c-970b-1f3dcb27b401_1768682483728.png",
-    "originalPath": "data/originals/topic-02_test-001/fb9abd10-f089-489c-970b-1f3dcb27b401_original.jpg",
+    "id": "bee744ae-7f0b-49db-ad64-759090423284",
+    "generatedPath": "data/generated-images/topic-07_test-002/bee744ae-7f0b-49db-ad64-759090423284_1768955873524_pro.png",
+    "originalPath": "data/originals/topic-07_test-002/bee744ae-7f0b-49db-ad64-759090423284_original.jpg",
     "question": {
-      "es": "Estaciona su vehículo, dotado de caja de cambios manual, en pendiente descendente (en bajada). ¿Qué velocidad debe dejar puesta?",
-      "en": "You park your vehicle, equipped with a manual gearbox, on a downward slope (downhill). Which gear should you leave engaged?",
-      "ru": "Вы паркуете свой легковой автомобиль с механической коробкой передач на спуске (под уклон). Какую передачу необходимо оставить включенной?"
+      "es": "¿Es conveniente cambiar los neumáticos del vehículo?",
+      "en": "Is it advisable to change the vehicle's tires?",
+      "ru": "Когда целесообразно менять шины легкового автомобиля?"
     },
-    "timestamp": 1768682525796
+    "timestamp": 1768955916673
   },
   {
-    "id": "a6d1f698-1edc-4c44-b0e6-76257e4f6b31",
-    "generatedPath": "data/generated-images/topic-02_test-001/a6d1f698-1edc-4c44-b0e6-76257e4f6b31_1768682540800.png",
-    "originalPath": "data/originals/topic-02_test-001/a6d1f698-1edc-4c44-b0e6-76257e4f6b31_original.jpg",
+    "id": "2c5860a9-53b7-4fa3-93bc-50dfd7fa275a",
+    "generatedPath": "data/generated-images/topic-07_test-002/2c5860a9-53b7-4fa3-93bc-50dfd7fa275a_1768955931685_pro.png",
+    "originalPath": "data/originals/topic-07_test-002/2c5860a9-53b7-4fa3-93bc-50dfd7fa275a_original.jpg",
     "question": {
-      "es": "¿Es obligatorio advertir las maniobras?",
-      "en": "Is it mandatory to warn of maneuvers?",
-      "ru": "Обязательно ли предупреждать о маневрах?"
+      "es": "¿Cuál es la tasa máxima de alcohol permitida para conducir un turismo, como norma general?",
+      "en": "What is the maximum permitted blood alcohol level for driving a passenger car, as a general rule?",
+      "ru": "Каков максимально допустимый уровень алкоголя в крови для управления легковым автомобилем по общему правилу?"
     },
-    "timestamp": 1768682587607
+    "timestamp": 1768955971416
   },
   {
-    "id": "49cb0b40-c1f0-4c91-aed7-9815d114ebef",
-    "generatedPath": "data/generated-images/topic-02_test-001/49cb0b40-c1f0-4c91-aed7-9815d114ebef_1768682602617.png",
-    "originalPath": "data/originals/topic-02_test-001/49cb0b40-c1f0-4c91-aed7-9815d114ebef_original.jpg",
+    "id": "ed0f63bb-ce82-4d68-ba73-df7221348cfc",
+    "generatedPath": "data/generated-images/topic-07_test-002/ed0f63bb-ce82-4d68-ba73-df7221348cfc_1768955986420_pro.png",
+    "originalPath": "data/originals/topic-07_test-002/ed0f63bb-ce82-4d68-ba73-df7221348cfc_original.jpg",
     "question": {
-      "es": "En esta vía urbana, para advertir al conductor del vehículo blanco su intención de adelantarle, ¿puede usar las señales acústicas?",
-      "en": "On this urban road, to warn the driver of the white vehicle of your intention to overtake, may you use acoustic signals?",
-      "ru": "На этой городской дороге, чтобы предупредить водителя белого автомобиля о намерении его обогнать, можно ли использовать звуковые сигналы?"
+      "es": "La velocidad, ¿influye en la distancia de reacción?",
+      "en": "Does speed influence the reaction distance?",
+      "ru": "Влияет ли скорость на дистанцию реакции?"
     },
-    "timestamp": 1768682648022
+    "timestamp": 1768956025421
   },
   {
-    "id": "418eb8ae-26d4-4a4f-9714-be667c294b77",
-    "generatedPath": "data/generated-images/topic-02_test-001/418eb8ae-26d4-4a4f-9714-be667c294b77_1768682663028.png",
-    "originalPath": "data/originals/topic-02_test-001/418eb8ae-26d4-4a4f-9714-be667c294b77_original.jpg",
+    "id": "11c1e3ff-20d4-48c8-ac1f-09561b264f62",
+    "generatedPath": "data/generated-images/topic-07_test-002/11c1e3ff-20d4-48c8-ac1f-09561b264f62_1768956040425_pro.png",
+    "originalPath": "data/originals/topic-07_test-002/11c1e3ff-20d4-48c8-ac1f-09561b264f62_original.jpg",
     "question": {
-      "es": "¿Qué es una detención?",
-      "en": "What is a 'detención' (stoppage)?",
-      "ru": "Что такое 'detención' (прекращение движения)?"
+      "es": "Generalmente, ¿con qué mano se acciona el embrague en una motocicleta?",
+      "en": "Generally, which hand is used to operate the clutch on a motorcycle?",
+      "ru": "Как правило, какой рукой выжимается сцепление на мотоцикле?"
     },
-    "timestamp": 1768682702664
+    "timestamp": 1768956084534
   },
   {
-    "id": "66b7a134-6158-4d2f-b8b8-2b36a6b3e187",
-    "generatedPath": "data/generated-images/topic-02_test-001/66b7a134-6158-4d2f-b8b8-2b36a6b3e187_1768682717677.png",
-    "originalPath": "data/originals/topic-02_test-001/66b7a134-6158-4d2f-b8b8-2b36a6b3e187_original.jpg",
+    "id": "d8bffe0d-c19b-4f58-bb33-86c4648a8cd1",
+    "generatedPath": "data/generated-images/topic-07_test-002/d8bffe0d-c19b-4f58-bb33-86c4648a8cd1_1768956699979_pro.png",
+    "originalPath": "data/originals/topic-07_test-002/d8bffe0d-c19b-4f58-bb33-86c4648a8cd1_original.jpg",
     "question": {
-      "es": "Al circular marcha atrás se debe tener en cuenta que...",
-      "en": "When reversing, one must take into account that...",
-      "ru": "При движении задним ходом следует учитывать, что..."
+      "es": "Si sopla un fuerte viento lateral de la izquierda, los conductores de turismos deberán...",
+      "en": "If a strong side wind blows from the left, drivers of passenger cars must...",
+      "ru": "Если дует сильный боковой ветер слева, водители легковых автомобилей должны..."
     },
-    "timestamp": 1768682768873
+    "timestamp": 1768956738810
   },
   {
-    "id": "6bae3628-7633-41c8-817f-e43e249f4278",
-    "generatedPath": "data/generated-images/topic-02_test-001/6bae3628-7633-41c8-817f-e43e249f4278_1768682783878.png",
-    "originalPath": "data/originals/topic-02_test-001/6bae3628-7633-41c8-817f-e43e249f4278_original.jpg",
+    "id": "6edf45e0-fcd4-4144-8a14-701669f53c23",
+    "generatedPath": "data/generated-images/topic-07_test-002/6edf45e0-fcd4-4144-8a14-701669f53c23_1768956753813_pro.png",
+    "originalPath": "data/originals/topic-07_test-002/6edf45e0-fcd4-4144-8a14-701669f53c23_original.jpg",
     "question": {
-      "es": "¿Puede adelantar una motocicleta a otra en esta curva de visibilidad reducida?",
-      "en": "Can a motorcycle overtake another motorcycle in this curve with reduced visibility?",
-      "ru": "Может ли один мотоцикл обогнать другой в этом повороте с ограниченной видимостью?"
+      "es": "¿Dónde sufren los peatones más accidentes?",
+      "en": "Where do pedestrians suffer the most accidents?",
+      "ru": "Где пешеходы чаще всего попадают в ДТП?"
     },
-    "timestamp": 1768682825019
+    "timestamp": 1768956805285
   },
   {
-    "id": "c23a60a1-6163-4a72-b3c3-b4dee04ad320",
-    "generatedPath": "data/generated-images/topic-02_test-001/c23a60a1-6163-4a72-b3c3-b4dee04ad320_1768682840025.png",
-    "originalPath": "data/originals/topic-02_test-001/c23a60a1-6163-4a72-b3c3-b4dee04ad320_original.jpg",
+    "id": "4cf89f3a-8b1c-472a-bea7-ce493f2eb62a",
+    "generatedPath": "data/generated-images/topic-07_test-002/4cf89f3a-8b1c-472a-bea7-ce493f2eb62a_1768956820286_pro.png",
+    "originalPath": "data/originals/topic-07_test-002/4cf89f3a-8b1c-472a-bea7-ce493f2eb62a_original.jpg",
     "question": {
-      "es": "Debido a la estrechez de la calzada, el cambio de sentido no puede realizarse de un solo giro, ¿qué está obligado a hacer el conductor?",
-      "en": "Due to the narrowness of the roadway, the U-turn cannot be made in a single turn. What is the driver obliged to do?",
-      "ru": "Из-за узости проезжей части разворот невозможно выполнить за один прием. Что обязан сделать водитель?"
+      "es": "Los agentes de tráfico inmovilizan un vehículo cuando su conductor tiene una tasa de alcohol mayor de la permitida. ¿Cuándo se dejará sin efecto dicha inmovilización?",
+      "en": "Traffic agents immobilize a vehicle when its driver has an alcohol level higher than permitted. When will this immobilization be lifted?",
+      "ru": "Сотрудники дорожной полиции задерживают транспортное средство, если уровень алкоголя у водителя превышает допустимую норму. Когда задержание (иммобилизация) будет прекращено?"
     },
-    "timestamp": 1768682881087
+    "timestamp": 1768956863913
   },
   {
-    "id": "6ae5bc60-4410-4ed9-859e-30580353e5e3",
-    "generatedPath": "data/generated-images/topic-02_test-001/6ae5bc60-4410-4ed9-859e-30580353e5e3_1768683496454.png",
-    "originalPath": "data/originals/topic-02_test-001/6ae5bc60-4410-4ed9-859e-30580353e5e3_original.jpg",
+    "id": "80bc8c2b-c017-40ed-8604-bdb9c1810041",
+    "generatedPath": "data/generated-images/topic-07_test-002/80bc8c2b-c017-40ed-8604-bdb9c1810041_1768956878915_pro.png",
+    "originalPath": "data/originals/topic-07_test-002/80bc8c2b-c017-40ed-8604-bdb9c1810041_original.jpg",
     "question": {
-      "es": "En esta calzada de sentido único y tres carriles, ¿está bien situado el vehículo para realizar un cambio de dirección a la izquierda?",
-      "en": "On this one-way roadway with three lanes, is the vehicle positioned correctly to make a left turn?",
-      "ru": "На этой проезжей части с односторонним движением и тремя полосами, правильно ли расположен автомобиль для выполнения поворота налево?"
+      "es": "¿Cuándo está bien colocado en el asiento para conducir?",
+      "en": "When are you correctly positioned in the driver's seat?",
+      "ru": "Когда вы правильно располагаетесь в кресле для вождения?"
     },
-    "timestamp": 1768683539790
+    "timestamp": 1768956920761
   },
   {
-    "id": "5eaced59-9117-4193-9ae4-286a8d93718b",
-    "generatedPath": "data/generated-images/topic-02_test-001/5eaced59-9117-4193-9ae4-286a8d93718b_1768683554796.png",
-    "originalPath": "data/originals/topic-02_test-001/5eaced59-9117-4193-9ae4-286a8d93718b_original.jpg",
+    "id": "6055c677-9dcb-44d7-ba21-50d21b2a5fd9",
+    "generatedPath": "data/generated-images/topic-07_test-002/6055c677-9dcb-44d7-ba21-50d21b2a5fd9_1768956935766_pro.png",
+    "originalPath": "data/originals/topic-07_test-002/6055c677-9dcb-44d7-ba21-50d21b2a5fd9_original.jpg",
     "question": {
-      "es": "Si el conductor del vehículo blanco da muestras inequívocas de querer regresar al carril derecho sin finalizar el adelantamiento, el conductor del vehículo verde está obligado a...",
-      "en": "If the driver of the white vehicle gives unequivocal signs of wanting to return to the right lane without completing the overtaking, the driver of the green vehicle is obliged to...",
-      "ru": "Если водитель белого автомобиля подает недвусмысленные сигналы о желании вернуться на правую полосу, не завершая обгон, водитель зеленого автомобиля обязан..."
+      "es": "Si un conductor está tomando medicamentos por un tratamiento médico debe saber que...",
+      "en": "If a driver is taking medication as part of a medical treatment, they should know that...",
+      "ru": "Если водитель принимает лекарства в рамках медицинского лечения, он должен знать, что..."
     },
-    "timestamp": 1768683608730
+    "timestamp": 1768956979142
   },
   {
-    "id": "7382d467-1d6e-47e8-9019-cb9a71a6897e",
-    "generatedPath": "data/generated-images/topic-02_test-001/7382d467-1d6e-47e8-9019-cb9a71a6897e_1768683623771.png",
-    "originalPath": "data/originals/topic-02_test-001/7382d467-1d6e-47e8-9019-cb9a71a6897e_original.jpg",
+    "id": "5e1bcf33-78f4-4699-a9d1-d407d1e45f99",
+    "generatedPath": "data/generated-images/topic-07_test-002/5e1bcf33-78f4-4699-a9d1-d407d1e45f99_1768956994148_pro.png",
+    "originalPath": "data/originals/topic-07_test-002/5e1bcf33-78f4-4699-a9d1-d407d1e45f99_original.jpg",
     "question": {
-      "es": "Además de la señalización luminosa correspondiente, la marcha hacia atrás está permitido señalizarla con el brazo...",
-      "en": "In addition to the corresponding light signals, is it permitted to signal reversing with the arm...",
-      "ru": "Помимо соответствующей световой сигнализации, разрешается ли подавать сигнал о движении задним ходом рукой..."
+      "es": "El consumo de drogas de abuso o ilegales, ¿afecta a la seguridad vial?",
+      "en": "Does the consumption of drugs of abuse or illegal drugs affect road safety?",
+      "ru": "Влияет ли употребление наркотических средств или нелегальных препаратов на безопасность дорожного движения?"
     },
-    "timestamp": 1768683667186
+    "timestamp": 1768957042291
   },
   {
-    "id": "fc70d70d-7ead-4ef4-822c-ece54806317e",
-    "generatedPath": "data/generated-images/topic-02_test-001/fc70d70d-7ead-4ef4-822c-ece54806317e_1768683682189.png",
-    "originalPath": "data/originals/topic-02_test-001/fc70d70d-7ead-4ef4-822c-ece54806317e_original.jpg",
+    "id": "3b51e3be-04ff-467f-9732-75c49271ba8f",
+    "generatedPath": "data/generated-images/topic-07_test-002/3b51e3be-04ff-467f-9732-75c49271ba8f_1768957057297_pro.png",
+    "originalPath": "data/originals/topic-07_test-002/3b51e3be-04ff-467f-9732-75c49271ba8f_original.jpg",
     "question": {
-      "es": "En vías con tráfico denso, ¿se puede hacer uso del claxon?",
-      "en": "On roads with dense traffic, may you use the horn?",
-      "ru": "Разрешено ли использовать звуковой сигнал на дорогах с плотным движением?"
+      "es": "¿En caso de lluvia intensa, es recomendable aumentar la distancia de seguridad y reducir la velocidad?",
+      "en": "In case of heavy rain, is it advisable to increase the safety distance and reduce speed?",
+      "ru": "В случае сильного дождя рекомендуется ли увеличивать дистанцию безопасности и снижать скорость?"
     },
-    "timestamp": 1768683724441
+    "timestamp": 1768957114032
   },
   {
-    "id": "1e900e16-ae5b-4803-a7e3-a3207dda34ac",
-    "generatedPath": "data/generated-images/topic-02_test-001/1e900e16-ae5b-4803-a7e3-a3207dda34ac_1768683739443.png",
-    "originalPath": "data/originals/topic-02_test-001/1e900e16-ae5b-4803-a7e3-a3207dda34ac_original.jpg",
+    "id": "babd1372-b65c-426b-bb9e-303adbe90c2b",
+    "generatedPath": "data/generated-images/topic-07_test-002/babd1372-b65c-426b-bb9e-303adbe90c2b_1768957129038_pro.png",
+    "originalPath": "data/originals/topic-07_test-002/babd1372-b65c-426b-bb9e-303adbe90c2b_original.jpg",
     "question": {
-      "es": "En las circunstancias que se dan en la imagen, el vehículo verde, ¿puede adelantar al vehículo blanco?",
-      "en": "Under the circumstances shown, can the green vehicle overtake the white vehicle?",
-      "ru": "В данных обстоятельствах может ли зеленый автомобиль обогнать белый?"
+      "es": "¿Por qué es necesario y obligatorio ponerse el cinturón de seguridad?",
+      "en": "Why is it necessary and mandatory to wear a seatbelt?",
+      "ru": "Почему необходимо и обязательно пристегиваться ремнем безопасности?"
     },
-    "timestamp": 1768683787657
+    "timestamp": 1768957179553
   },
   {
-    "id": "807a6f56-e60b-4c55-bb8f-45cd03077b67",
-    "generatedPath": "data/generated-images/topic-02_test-001/807a6f56-e60b-4c55-bb8f-45cd03077b67_1768683802661.png",
-    "originalPath": "data/originals/topic-02_test-001/807a6f56-e60b-4c55-bb8f-45cd03077b67_original.jpg",
+    "id": "55f34ea7-e299-4f23-b810-81ab40cb6735",
+    "generatedPath": "data/generated-images/dgt_test-057/55f34ea7-e299-4f23-b810-81ab40cb6735_1768957795032_pro.png",
+    "originalPath": "data/originals/dgt_test-057/55f34ea7-e299-4f23-b810-81ab40cb6735_original.jpg",
     "question": {
-      "es": "En una autopista un conductor circula por el carril izquierdo porque acaba de adelantar, ¿debe regresar inmediatamente al carril derecho?",
-      "en": "On a motorway, a driver is driving in the left lane because they have just finished overtaking. Must they return immediately to the right lane?",
-      "ru": "На автомагистрали водитель движется по левой полосе, так как только что закончил обгон. Должен ли он немедленно вернуться на правую полосу?"
+      "es": "Montar neumáticos con un código de velocidad distinto al que recomienda el fabricante, ¿está permitido?",
+      "en": "Is it allowed to mount tires with a speed code different from the one recommended by the manufacturer?",
+      "ru": "Разрешено ли устанавливать на легковой автомобиль (Turismo) шины с индексом скорости, отличным от рекомендованного производителем?"
     },
-    "timestamp": 1768683851247
-  },
-  {
-    "id": "dd40eef1-19ed-44c6-bd99-1aa65c220c12",
-    "generatedPath": "data/generated-images/topic-02_test-001/dd40eef1-19ed-44c6-bd99-1aa65c220c12_1768683866251.png",
-    "originalPath": "data/originals/topic-02_test-001/dd40eef1-19ed-44c6-bd99-1aa65c220c12_original.jpg",
-    "question": {
-      "es": "¿Qué debe hacer al ver que el autobús pretende incorporase a la circulación?",
-      "en": "What should you do when you see that a bus intends to merge into traffic?",
-      "ru": "Что вы должны сделать, увидев, что автобус намеревается выехать на проезжую часть?"
-    },
-    "timestamp": 1768683910819
-  },
-  {
-    "id": "f22f02a7-b119-4a44-8a0a-20539e74c982",
-    "generatedPath": "data/generated-images/topic-02_test-001/f22f02a7-b119-4a44-8a0a-20539e74c982_1768683925821.png",
-    "originalPath": "data/originals/topic-02_test-001/f22f02a7-b119-4a44-8a0a-20539e74c982_original.jpg",
-    "question": {
-      "es": "¿Está permitido parar y estacionar en un paso inferior?",
-      "en": "Is stopping and parking permitted in an underpass?",
-      "ru": "Разрешено ли выполнять остановку и стоянку в подземном проезде?"
-    },
-    "timestamp": 1768683969672
-  },
-  {
-    "id": "3829aaa5-c1b7-4fd8-8e63-d3b6b3675f76",
-    "generatedPath": "data/generated-images/topic-02_test-001/3829aaa5-c1b7-4fd8-8e63-d3b6b3675f76_1768683984676.png",
-    "originalPath": "data/originals/topic-02_test-001/3829aaa5-c1b7-4fd8-8e63-d3b6b3675f76_original.jpg",
-    "question": {
-      "es": "En esta autopista está permitido realizar un cambio de sentido...",
-      "en": "Is it permitted to make a U-turn on this motorway...",
-      "ru": "Разрешено ли выполнять разворот на этой автомагистрали..."
-    },
-    "timestamp": 1768684040729
-  },
-  {
-    "id": "096ec1b4-119b-4a6e-a4ca-a7691a2bb593",
-    "generatedPath": "data/generated-images/topic-02_test-001/096ec1b4-119b-4a6e-a4ca-a7691a2bb593_1768684055732.png",
-    "originalPath": "data/originals/topic-02_test-001/096ec1b4-119b-4a6e-a4ca-a7691a2bb593_original.jpg",
-    "question": {
-      "es": "En un carril de aceleración, ¿dónde debe detenerse de tener que ceder el paso?",
-      "en": "In an acceleration lane, where must you stop if you have to yield?",
-      "ru": "Где следует остановиться на полосе разгона, если необходимо уступить дорогу?"
-    },
-    "timestamp": 1768684104013
+    "timestamp": 1768957849005
   }
 ]

@@ -1382,37 +1382,37 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "Aumentar la velocidad para impedir el adelantamiento.",
-          "en": "Increase speed to prevent the overtaking.",
-          "ru": "Увеличить скорость, чтобы помешать обгону."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "Mantener la velocidad, el problema solo afecta al vehículo que adelanta.",
-          "en": "Maintain speed, the problem only affects the overtaking vehicle.",
-          "ru": "Сохранять скорость, так как проблема касается только обгоняющего транспортного средства."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
+          "ru": "Снизить скорость, чтобы облегчить обгон.",
           "es": "Disminuir la velocidad para facilitar el adelantamiento.",
-          "en": "Decrease speed to facilitate the overtaking.",
-          "ru": "Снизить скорость, чтобы облегчить обгон."
+          "en": "Decrease speed to facilitate the overtaking."
         },
         "is_correct": true
+      },
+      {
+        "id": "opt_1",
+        "text": {
+          "ru": "Увеличить скорость, чтобы помешать обгону.",
+          "es": "Aumentar la velocidad para impedir el adelantamiento.",
+          "en": "Increase speed to prevent the overtaking."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "Сохранять скорость, так как проблема касается только обгоняющего транспортного средства.",
+          "es": "Mantener la velocidad, el problema solo afecta al vehículo que adelanta.",
+          "en": "Maintain speed, the problem only affects the overtaking vehicle."
+        },
+        "is_correct": false
       }
     ],
     "explanation": {
       "es": "Según el Reglamento General de Circulación, el conductor del vehículo que va a ser adelantado tiene obligaciones específicas. Aunque la norma general es ceñirse al borde derecho y mantener la velocidad, existe una excepción crítica: si una vez iniciada la maniobra de adelantamiento se produce una situación de peligro (para su propio vehículo, para el que adelanta o para los que circulan en sentido contrario), el conductor adelantado está obligado a disminuir la velocidad. El objetivo es facilitar que el otro vehículo pueda finalizar el adelantamiento cuanto antes o desistir y volver a su carril para evitar un accidente.",
       "en": "According to the General Traffic Regulations, the driver of the vehicle being overtaken has specific obligations. Although the general rule is to keep to the right edge and maintain speed, there is a critical exception: if, once the overtaking maneuver has begun, a dangerous situation arises (for their own vehicle, the overtaking vehicle, or oncoming traffic), the overtaken driver is obligated to decrease speed. The goal is to facilitate the other vehicle in either completing the overtaking as soon as possible or aborting the maneuver and returning to their lane to avoid an accident.",
-      "ru": "🎓 \nОбычно, когда вас обгоняют, ваша задача — просто ехать по своей полосе, прижавшись к правому краю **calzada** (проезжей части), и не менять скорость. Однако, если возникает опасность (например, обгоняющий не рассчитал расстояние до встречного авто), ПДД Испании обязывают вас действовать активно. Вы **должны снизить скорость**, чтобы помочь обгоняющему либо быстрее завершить маневр, либо безопасно вернуться назад в свою полосу. Ваша пассивность в такой момент может стоить жизни всем участникам.\n\n🇷🇺 \nВ РФ (п. 11.3 ПДД) водителю обгоняемого ТС запрещено препятствовать обгону повышением скорости или иными действиями. Однако испанские правила идут дальше: они прямо **обязывают** вас снизить скорость и помочь «лихачу» избежать ДТП, если возникла критическая ситуация. В РФ это относится к понятию «безопасное вождение», а здесь — это жесткое требование закона.\n\n💡 ЗАПОМИНАЛКА\nВидите опасность при обгоне? Не будьте гордым — притормозите. Лучше пропустить дурака, чем встретиться с ним в сводке новостей."
+      "ru": "🎓 Обычно, когда вас обгоняют, ваша задача — просто ехать по своей полосе, прижавшись к правому краю **calzada** (проезжей части), и не менять скорость. Однако, если возникает опасность (например, обгоняющий не рассчитал расстояние до встречного авто), ПДД Испании обязывают вас действовать активно. Вы **должны снизить скорость**, чтобы помочь обгоняющему либо быстрее завершить маневр, либо безопасно вернуться назад в свою полосу. Ваша пассивность в такой момент может стоить жизни всем участникам.\n\n🇷🇺 В РФ (п. 11.3 ПДД) водителю обгоняемого ТС запрещено препятствовать обгону повышением скорости или иными действиями. Однако испанские правила идут дальше: они прямо **обязывают** вас снизить скорость и помочь «лихачу» избежать ДТП, если возникла критическая ситуация. В РФ это относится к понятию «безопасное вождение», а здесь — это жесткое требование закона.\n\n💡 ЗАПОМИНАЛКА\nВидите опасность при обгоне? Не будьте гордым — притормозите. Лучше пропустить дурака, чем встретиться с ним в сводке новостей."
     },
     "image_url": "https://teorica.practicavial.com/question/e1a16bc7-70cb-4ec9-b180-821cc124007d-1657822677-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/e1a16bc7-70cb-4ec9-b180-821cc124007d-s-1.jpg",

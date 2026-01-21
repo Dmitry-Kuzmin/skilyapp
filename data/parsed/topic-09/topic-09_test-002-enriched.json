@@ -5,16 +5,16 @@
     "category": "B",
     "question": {
       "es": "Hay nieve y sólo tiene cadenas para dos ruedas. ¿Dónde debe ponerlas?",
-      "en": null,
-      "ru": null
+      "en": "There is snow and you only have chains for two wheels. Where should you put them?",
+      "ru": "Выпал снег, и у вас есть цепи только для двух колес. Куда их следует установить?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "En las ruedas traseras siempre.",
-          "en": null,
-          "ru": null
+          "en": "Always on the rear wheels.",
+          "ru": "Всегда на задние колеса."
         },
         "is_correct": false
       },
@@ -22,8 +22,8 @@
         "id": "b",
         "text": {
           "es": "En las ruedas delanteras siempre.",
-          "en": null,
-          "ru": null
+          "en": "Always on the front wheels.",
+          "ru": "Всегда на передние колеса."
         },
         "is_correct": false
       },
@@ -31,16 +31,16 @@
         "id": "c",
         "text": {
           "es": "En las ruedas motrices siempre.",
-          "en": null,
-          "ru": null
+          "en": "Always on the drive wheels.",
+          "ru": "Всегда на ведущие колеса."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Vehículos establece que, en condiciones de nieve que hagan obligatorio el uso de cadenas u otros dispositivos antideslizantes autorizados, estos deberán colocarse, al menos, en las ruedas motrices del vehículo. El objetivo es garantizar la tracción necesaria para el avance. Se permite como alternativa el uso de neumáticos con clavos o neumáticos con la inscripción M+S.",
+      "en": "The General Vehicle Regulations state that in snowy conditions where the use of chains or other authorized anti-skid devices is mandatory, they must be fitted at least on the drive wheels of the vehicle. The objective is to ensure the necessary traction for movement. The use of studded tires or tires with the M+S marking is permitted as a legal alternative.",
+      "ru": "🎓 Согласно ПДД Испании, цепи или другие сертифицированные устройства (например, текстильные чехлы) должны быть установлены как минимум на ведущие колеса легкового автомобиля. Это обеспечивает необходимую тягу для движения по заснеженной проезжей части. Помни: на льду тормозной путь увеличивается в 10 раз, а управляемость резко падает. Если твой автомобиль обут в зимнюю резину (маркировка M+S) или шипованные шины, цепи можно не использовать. Тебе как водителю категории B важно знать, какая ось у твоей машины ведущая, чтобы в экстренной ситуации закрепить цепи именно там. \n💡 Где крутится от движка, там и цепь нужна!"
     },
     "image_url": "https://teorica.practicavial.com/question/3d0e75fb-c6e6-4b74-80c3-07edf09046e7-1663579806-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/3d0e75fb-c6e6-4b74-80c3-07edf09046e7-s-1.jpg?t=1768428872",
@@ -48,7 +48,9 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "3d0e75fb-c6e6-4b74-80c3-07edf09046e7",
+    "external_id": "3d0e75fb-c6e6-4b74-80c3-07edf09046e7"
   },
   {
     "topic_number": 9,
@@ -56,16 +58,16 @@
     "category": "B",
     "question": {
       "es": "Si conduces una motocicleta, ¿es obligatorio llevar como equipamiento un chaleco reflectante de alta visibilidad?",
-      "en": null,
-      "ru": null
+      "en": "If you are riding a motorcycle, is it mandatory to carry a high-visibility reflective vest as equipment?",
+      "ru": "Если вы управляете мотоциклом, обязаны ли вы иметь в комплектации световозвращающий жилет?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": false
       },
@@ -73,8 +75,8 @@
         "id": "b",
         "text": {
           "es": "Solo cuando se circula por vías fuera de poblado.",
-          "en": null,
-          "ru": null
+          "en": "Only when driving on roads outside built-up areas.",
+          "ru": "Только при движении по дорогам вне населенных пунктов."
         },
         "is_correct": false
       },
@@ -82,16 +84,16 @@
         "id": "c",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Vehículos, el chaleco reflectante de alta visibilidad es obligatorio únicamente para turismos, vehículos mixtos, vehículos destinados al transporte de mercancías y conjuntos de vehículos. Las motocicletas están exentas de esta obligatoriedad como equipamiento de dotación del vehículo. No obstante, su uso es recomendable por seguridad vial.",
+      "en": "According to the General Vehicle Regulations, a high-visibility reflective vest is mandatory only for passenger cars, mixed vehicles, goods transport vehicles, and vehicle combinations. Motorcycles are not legally required to carry it as part of their mandatory equipment. However, its use is recommended for road safety.",
+      "ru": "🎓 Согласно ПДД Испании, наличие световозвращающего жилета обязательно только для легковых автомобилей (Turismo), грузопассажирских автомобилей (Vehículo mixto), грузовиков и автопоездов. Водители мотоциклов не обязаны возить его с собой или иметь в комплектации транспортного средства. Хотя это не требование закона, использование жилета крайне рекомендуется для твоей безопасности, особенно при остановке на обочине (arcén) в темное время суток. 🇷🇺 В РФ водители мотоциклов также не обязаны иметь при себе жилет как предмет комплектации, но обязаны надевать его при вынужденной остановке вне населенных пунктов в темное время суток. В Испании же для мотоциклистов это остается делом добровольным даже при остановке. 💡 Мотоциклист — птица вольная: жилет на плечи не давит, потому что закон его не просит!"
     },
     "image_url": "https://teorica.practicavial.com/question/f87961fe-f8f7-46c7-b8bf-aee10e70386b-1658858440-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/f87961fe-f8f7-46c7-b8bf-aee10e70386b-s-1.jpg",
@@ -99,7 +101,9 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "f87961fe-f8f7-46c7-b8bf-aee10e70386b",
+    "external_id": "f87961fe-f8f7-46c7-b8bf-aee10e70386b"
   },
   {
     "topic_number": 9,
@@ -107,16 +111,16 @@
     "category": "B",
     "question": {
       "es": "Si arrastra con su turismo un remolque ligero, ¿está obligado a llevar entre sus accesorios un equipo homologado de extinción de incendios en condiciones de uso?",
-      "en": null,
-      "ru": null
+      "en": "If you are towing a light trailer with your passenger car, are you required to carry approved fire extinguishing equipment in working condition among your accessories?",
+      "ru": "Если вы буксируете легкий прицеп на своем легковом автомобиле, обязаны ли вы иметь среди аксессуаров сертифицированное и исправное оборудование для пожаротушения?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": false
       },
@@ -124,8 +128,8 @@
         "id": "b",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       },
@@ -133,16 +137,16 @@
         "id": "c",
         "text": {
           "es": "Solo cuando circule por vías interurbanas.",
-          "en": null,
-          "ru": null
+          "en": "Only when driving on interurban roads.",
+          "ru": "Только при движении по междугородним дорогам."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "De acuerdo con el Reglamento General de Vehículos, los conjuntos de vehículos formados por un turismo y un remolque (ya sea ligero o no ligero) tienen la obligación de llevar un equipo homologado de extinción de incendios. Esta exigencia es aplicable a todos los remolques de uso no agrícola.",
+      "en": "According to the General Vehicle Regulations, vehicle combinations consisting of a passenger car and a trailer (whether light or heavy) are required to carry approved fire extinguishing equipment. This requirement applies to all non-agricultural trailers.",
+      "ru": "🎓 Согласно ПДД Испании, при буксировке любого несельскохозяйственного прицепа (включая легкие прицепы с РММ до 750 кг) легковой автомобиль обязан быть укомплектован сертифицированным и исправным огнетушителем. Если ты едешь на легковом автомобиле без прицепа, наличие огнетушителя носит рекомендательный характер, но в составе автопоезда это становится обязательным требованием безопасности. 🇷🇺 В РФ наличие огнетушителя обязательно для любого легкового автомобиля, в то время как в Испании это требование возникает только при наличии прицепа. 💡 Появился прицеп — доставай огнетушитель! Без прицепа — по желанию, с прицепом — по закону."
     },
     "image_url": "https://teorica.practicavial.com/question/6b3756b9-2c00-4a08-95fb-b4068c726694-1658858562-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/6b3756b9-2c00-4a08-95fb-b4068c726694-s-1.jpg",
@@ -150,7 +154,9 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "6b3756b9-2c00-4a08-95fb-b4068c726694",
+    "external_id": "6b3756b9-2c00-4a08-95fb-b4068c726694"
   },
   {
     "topic_number": 9,
@@ -158,16 +164,16 @@
     "category": "B",
     "question": {
       "es": "Un camión de más de 3.500 kilogramos de masa máxima autorizada destinado al servicio público debe llevar siempre...",
-      "en": null,
-      "ru": null
+      "en": "A truck with a maximum authorized mass of more than 3,500 kilograms intended for public service must always carry...",
+      "ru": "Грузовой автомобиль с разрешенной максимальной массой (РММ) более 3500 кг, предназначенный для оказания общественных услуг, должен всегда иметь при себе..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "un extintor de incendios.",
-          "en": null,
-          "ru": null
+          "en": "a fire extinguisher.",
+          "ru": "огнетушитель."
         },
         "is_correct": true
       },
@@ -175,8 +181,8 @@
         "id": "b",
         "text": {
           "es": "un extintor de incendios y al menos un calzo adecuado para el vehículo.",
-          "en": null,
-          "ru": null
+          "en": "a fire extinguisher and at least one suitable wheel chock for the vehicle.",
+          "ru": "огнетушитель и как минимум один подходящий противооткатный упор."
         },
         "is_correct": false
       },
@@ -184,16 +190,16 @@
         "id": "c",
         "text": {
           "es": "un calzo adecuado para el vehículo.",
-          "en": null,
-          "ru": null
+          "en": "a suitable wheel chock for the vehicle.",
+          "ru": "подходящий противооткатный упор."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Vehículos, los vehículos de motor destinados al transporte de mercancías con una MMA superior a 3.500 kg, así como los autobuses, vehículos mixtos y conjuntos de vehículos, tienen la obligación de llevar un equipo de extinción de incendios homologado y en condiciones de uso. Los turismos están exentos de esta obligación a menos que arrastren un remolque.",
+      "en": "According to the General Vehicle Regulations, motor vehicles intended for the transport of goods with an MMA exceeding 3,500 kg, as well as buses, mixed vehicles, and vehicle combinations, are required to carry approved fire extinguishing equipment in working order. Passenger cars (Turismos) are exempt from this requirement unless they are towing a trailer.",
+      "ru": "🎓 В Испании огнетушитель обязателен только для определенных категорий: автобусов, грузопассажирских автомобилей (Vehículo mixto), грузовиков с РММ более 3500 кг и любых составов транспортных средств (например, легковой автомобиль с прицепом). Тебе, как водителю обычного легкового автомобиля (Turismo) без прицепа, иметь огнетушитель по закону не обязательно, хотя это и рекомендуется для безопасности. 🇷🇺 В Испании для легковых авто огнетушитель — это лишь рекомендация, в то время как в РФ он должен быть в каждой машине. 💡 Везешь груз, людей или прицеп — огнетушитель в комплект!"
     },
     "image_url": "https://teorica.practicavial.com/question/d73a325f-1088-434a-8369-840958f80e04-1658858551-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d73a325f-1088-434a-8369-840958f80e04-s-1.jpg",
@@ -201,7 +207,9 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "d73a325f-1088-434a-8369-840958f80e04",
+    "external_id": "d73a325f-1088-434a-8369-840958f80e04"
   },
   {
     "topic_number": 9,
@@ -209,16 +217,16 @@
     "category": "B",
     "question": {
       "es": "Un turismo debe llevar las herramientas indispensables para...",
-      "en": null,
-      "ru": null
+      "en": "A passenger car must carry the essential tools for...",
+      "ru": "Легковой автомобиль должен иметь при себе инструменты, необходимые для..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "efectuar pequeñas reparaciones.",
-          "en": null,
-          "ru": null
+          "en": "making small repairs.",
+          "ru": "выполнения мелкого ремонта."
         },
         "is_correct": false
       },
@@ -226,8 +234,8 @@
         "id": "b",
         "text": {
           "es": "el cambio de la rueda de repuesto.",
-          "en": null,
-          "ru": null
+          "en": "changing the spare wheel.",
+          "ru": "замены запасного колеса."
         },
         "is_correct": true
       },
@@ -235,16 +243,16 @@
         "id": "c",
         "text": {
           "es": "el cambio de manguitos, correas y bujías.",
-          "en": null,
-          "ru": null
+          "en": "changing hoses, belts, and spark plugs.",
+          "ru": "замены патрубков, ремней и свечей зажигания."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Vehículos, los turismos deben estar dotados de una rueda de repuesto (completa o de uso temporal) y las herramientas necesarias para el cambio de la misma, o bien un sistema alternativo que garantice la movilidad del vehículo. No existe obligación legal de portar herramientas para reparaciones mecánicas de componentes internos.",
+      "en": "According to the General Vehicle Regulations, passenger cars must be equipped with a spare wheel (standard or temporary use) and the necessary tools for its replacement, or an alternative system that guarantees vehicle mobility. There is no legal obligation to carry tools for mechanical repairs of internal components.",
+      "ru": "🎓 Легковой автомобиль обязан иметь на борту запасное колесо (полноразмерное или для временного использования) и инструменты, необходимые для его замены. Допускается замена колеса на сертифицированный ремкомплект, если он предусмотрен конструкцией. Эта обязанность также касается грузопассажирских автомобилей и фургонов с РММ до 3500 кг. Возить с собой запчасти для двигателя или инструменты для сложного ремонта ПДД Испании не требуют. 🇷🇺 В отличие от РФ, где наличие запаски и домкрата не является обязательным условием для эксплуатации по ПДД, в Испании отсутствие инструментов для замены колеса при наличии самой запаски считается нарушением. 💡 В Испании ты водитель, а не механик: твоя задача — сменить колесо, а не перебирать мотор на обочине."
     },
     "image_url": "https://teorica.practicavial.com/question/c9cc41d6-859e-41a0-925c-15d7d55d057b-1658858424-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/c9cc41d6-859e-41a0-925c-15d7d55d057b-s-1.jpg",
@@ -252,7 +260,9 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "c9cc41d6-859e-41a0-925c-15d7d55d057b",
+    "external_id": "c9cc41d6-859e-41a0-925c-15d7d55d057b"
   },
   {
     "topic_number": 9,
@@ -260,16 +270,16 @@
     "category": "B",
     "question": {
       "es": "En un vehículo mixto adaptable, ¿es obligatorio llevar un chaleco reflectante?",
-      "en": null,
-      "ru": null
+      "en": "In a mixed vehicle, is it mandatory to carry a reflective vest?",
+      "ru": "Обязательно ли иметь световозвращающий жилет в грузопассажирском автомобиле (Vehículo mixto)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, en el maletero del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "Yes, in the trunk of the vehicle.",
+          "ru": "Да, в багажнике автомобиля."
         },
         "is_correct": false
       },
@@ -277,8 +287,8 @@
         "id": "b",
         "text": {
           "es": "No, pero es recomendable.",
-          "en": null,
-          "ru": null
+          "en": "No, but it is recommended.",
+          "ru": "Нет, но это рекомендуется."
         },
         "is_correct": false
       },
@@ -286,16 +296,16 @@
         "id": "c",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Vehículos establece la obligatoriedad de llevar al menos un chaleco reflectante de alta visibilidad en turismos, vehículos mixtos adaptables, vehículos destinados al transporte de mercancías y conjuntos de vehículos. El chaleco debe estar homologado y situado en un lugar del habitáculo que permita al conductor ponérselo antes de abandonar el vehículo al ocupar la calzada o el arcén en vías interurbanas.",
+      "en": "The General Vehicle Regulations mandate carrying at least one high-visibility reflective vest in passenger cars (turismos), mixed vehicles, goods transport vehicles, and vehicle combinations. The vest must be certified and located within the passenger compartment so that the driver can put it on before exiting the vehicle when occupying the roadway (calzada) or shoulder (arcén) on interurban roads.",
+      "ru": "🎓 Согласно ПДД Испании, наличие одного световозвращающего жилета обязательно для легковых автомобилей (Turismo), грузопассажирских автомобилей (Vehículo mixto), а также грузовиков и автопоездов. Жилет должен быть сертифицированным (желтого, оранжевого или красного цвета). Важнейшее требование: он должен находиться внутри салона в доступном месте, чтобы ты мог надеть его еще до того, как выйдешь из машины на проезжую часть или обочину вне населенного пункта. Хранение только в багажнике считается нарушением, так как при выходе ты окажешься без защиты. 🇷🇺 В Испании жилет должен быть именно в салоне, а не в багажнике, и его необходимо надеть до выхода из авто на междугородней трассе. 💡 Жилет — как нижнее белье: надеваем внутри, а не снаружи!"
     },
     "image_url": "https://teorica.practicavial.com/question/d5fee220-f8bb-4831-9460-474960deedf5-1658858502-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d5fee220-f8bb-4831-9460-474960deedf5-s-1.jpg",
@@ -303,7 +313,9 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "d5fee220-f8bb-4831-9460-474960deedf5",
+    "external_id": "d5fee220-f8bb-4831-9460-474960deedf5"
   },
   {
     "topic_number": 9,
@@ -311,16 +323,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuál es la misión principal del líquido refrigerante?",
-      "en": null,
-      "ru": null
+      "en": "What is the main purpose of the coolant?",
+      "ru": "Какова основная задача охлаждающей жидкости?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Que el vehículo tenga calefacción.",
-          "en": null,
-          "ru": null
+          "en": "To provide heating for the vehicle.",
+          "ru": "Обеспечение работы отопления в легковом автомобиле."
         },
         "is_correct": false
       },
@@ -328,8 +340,8 @@
         "id": "b",
         "text": {
           "es": "Que el vehículo tenga aire acondicionado.",
-          "en": null,
-          "ru": null
+          "en": "To provide air conditioning for the vehicle.",
+          "ru": "Обеспечение работы кондиционера в легковом автомобиле."
         },
         "is_correct": false
       },
@@ -337,16 +349,16 @@
         "id": "c",
         "text": {
           "es": "Enfriar el motor del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "To cool the vehicle's engine.",
+          "ru": "Охлаждение двигателя транспортного средства."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La misión principal del sistema de refrigeración es evacuar el calor excesivo generado por la combustión en el motor, manteniendo una temperatura de funcionamiento óptima. El líquido circula por el bloque motor y el radiador. Es imperativo verificar el nivel en el vaso de expansión entre las marcas de mínimo y máximo, siempre con el motor en frío para evitar proyecciones de líquido o vapor a alta presión. En climas fríos, el líquido debe contener propiedades anticongelantes para evitar la congelación y rotura del circuito.",
+      "en": "The primary function of the cooling system is to dissipate the excess heat generated by internal combustion to maintain an optimal operating temperature. The fluid circulates through the engine block and the radiator. It is mandatory to check the level in the expansion tank, ensuring it stays between the minimum and maximum marks. This check or refill must always be performed when the engine is cold to prevent burns from high-pressure steam or liquid. In cold climates, the coolant must contain antifreeze properties to prevent system damage due to freezing.",
+      "ru": "🎓 Основная задача системы охлаждения — отводить лишнее тепло от двигателя, чтобы он не перегрелся и не вышел из строя. Жидкость циркулирует по системе, забирая жар у блока цилиндров и отдавая его в радиаторе. Тебе как водителю важно следить за уровнем жидкости в расширительном бачке: он должен находиться строго между отметками «min» и «max». Запомни: проверять уровень или доливать жидкость можно только на холодном двигателе, иначе под давлением может вырваться горячий пар и обжечь тебя. Зимой обязательно используй жидкость с антифризом, чтобы она не превратилась в лед и не повредила систему.\n💡 Антифриз — это «холодильник» для мотора летом и защита от льда зимой. Главное — не открывай крышку, пока движок «кипит», иначе получишь очень болезненный сеанс паровой сауны!"
     },
     "image_url": "https://teorica.practicavial.com/question/2cc08002-cf3a-46a5-bb3a-a62ecc62e4a9-1658858395-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/2cc08002-cf3a-46a5-bb3a-a62ecc62e4a9-s-1.jpg",
@@ -354,7 +366,9 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "2cc08002-cf3a-46a5-bb3a-a62ecc62e4a9",
+    "external_id": "2cc08002-cf3a-46a5-bb3a-a62ecc62e4a9"
   },
   {
     "topic_number": 9,
@@ -362,16 +376,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué se debe hacer con el aceite usado del vehículo?",
-      "en": null,
-      "ru": null
+      "en": "What should be done with the used vehicle oil?",
+      "ru": "Что необходимо сделать с отработанным маслом легкового автомобиля?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Entregarlo en un contenedor de recuperación de aceite.",
-          "en": null,
-          "ru": null
+          "en": "Hand it over to an oil recovery container.",
+          "ru": "Сдать его в специальный контейнер для утилизации масла."
         },
         "is_correct": true
       },
@@ -379,8 +393,8 @@
         "id": "b",
         "text": {
           "es": "Tirarlo en tierra.",
-          "en": null,
-          "ru": null
+          "en": "Throw it on the ground.",
+          "ru": "Вылить его на землю."
         },
         "is_correct": false
       },
@@ -388,16 +402,16 @@
         "id": "c",
         "text": {
           "es": "Tirarlo en una alcantarilla o desagüe.",
-          "en": null,
-          "ru": null
+          "en": "Throw it into a sewer or drain.",
+          "ru": "Вылить его в канализацию или водосток."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El aceite usado de un vehículo es un residuo altamente contaminante y peligroso para el medio ambiente. Según la normativa vigente de gestión de residuos, está estrictamente prohibido verterlo en el suelo, alcantarillado o cauces de agua. El titular del vehículo o el taller encargado del mantenimiento debe depositar obligatoriamente el aceite usado en centros de recogida autorizados o puntos limpios para su posterior tratamiento y reciclaje. El incumplimiento de esta norma conlleva sanciones administrativas graves.",
+      "en": "Used vehicle oil is classified as a hazardous and highly polluting waste product. According to environmental regulations, it is strictly forbidden to dispose of it on the ground, in sewers, or in water drainage systems. It must be delivered to authorized collection centers or recycling points for proper processing. Proper disposal ensures environmental protection and compliance with waste management laws.",
+      "ru": "🎓 Отработанное моторное масло — это крайне токсичный отход, который наносит непоправимый вред экологии. Его категорически запрещено выливать в почву, канализацию или водостоки. По правилам, ты обязан сдавать старое масло в специальные пункты приема или оставлять в сертифицированных мастерских для дальнейшей переработки. Помни, что свежее масло заливается через специальную маслозаливную горловину на двигателе, а не через отверстие для щупа. Периодичность замены масла всегда указана производителем в сервисной книжке твоего легкового автомобиля. 💡 Масло — не вода, в землю нельзя! Сдал в утиль — природу сохранил."
     },
     "image_url": "https://teorica.practicavial.com/question/768ee5b9-7899-4ccc-8453-e15cd7327e33-1658858382-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/768ee5b9-7899-4ccc-8453-e15cd7327e33-s-1.jpg",
@@ -405,7 +419,9 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "768ee5b9-7899-4ccc-8453-e15cd7327e33",
+    "external_id": "768ee5b9-7899-4ccc-8453-e15cd7327e33"
   },
   {
     "topic_number": 9,
@@ -413,16 +429,16 @@
     "category": "B",
     "question": {
       "es": "Si su turismo arrastra un remolque, ¿está obligado a llevar rueda de repuesto del remolque?",
-      "en": null,
-      "ru": null
+      "en": "If your passenger car is towing a trailer, are you required to carry a spare wheel for the trailer?",
+      "ru": "Если ваш легковой автомобиль буксирует прицеп, обязаны ли вы иметь запасное колесо для прицепа?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": false
       },
@@ -430,8 +446,8 @@
         "id": "b",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       },
@@ -439,16 +455,16 @@
         "id": "c",
         "text": {
           "es": "Solo si el remolque no es ligero.",
-          "en": null,
-          "ru": null
+          "en": "Only if the trailer is not light.",
+          "ru": "Только если прицеп не является легким."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Vehículos establece la obligatoriedad de llevar una rueda de repuesto o sistema alternativo únicamente para el vehículo tractor (turismo). No existe ninguna norma que obligue a portar una rueda de repuesto específica para el remolque, independientemente de si su Masa Máxima Autorizada (MMA) es superior o inferior a 750 kg. No obstante, al circular con un remolque no agrícola, es obligatorio llevar un equipo de extinción de incendios.",
+      "en": "The General Vehicle Regulations establish the obligation to carry a spare wheel or an alternative system only for the towing vehicle (passenger car). There is no regulation that mandates carrying a specific spare wheel for the trailer, regardless of whether its Maximum Authorized Mass (MAM) is above or below 750 kg. However, when driving with a non-agricultural trailer, it is mandatory to carry fire extinguishing equipment.",
+      "ru": "🎓 Согласно ПДД Испании, легковой автомобиль обязан быть укомплектован запасным колесом или альтернативной системой ремонта только для самого тягача. Обязательного требования иметь запасное колесо для прицепа не существует, независимо от его разрешенной максимальной массы (РММ). Однако помни: при буксировке любого несельскохозяйственного прицепа ты обязан иметь в автомобиле огнетушитель. Также учитывай, что для легких прицепов (до 750 кг РММ) достаточно техпаспорта и номера тягача, а тяжелым прицепам (более 750 кг РММ) нужны свои документы, отдельная страховка и два номера: белый от машины и специальный красный номер прицепа. 💡 Машине «запаска» — закон, прицепу — твой личный резон. Тяжелому прицепу — красный номер, а колесо — по желанию."
     },
     "image_url": "https://teorica.practicavial.com/question/59248fea-fe5b-4b2d-8086-4f13ee20f217-1658858547-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/59248fea-fe5b-4b2d-8086-4f13ee20f217-s-1.jpg",
@@ -456,7 +472,9 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "59248fea-fe5b-4b2d-8086-4f13ee20f217",
+    "external_id": "59248fea-fe5b-4b2d-8086-4f13ee20f217"
   },
   {
     "topic_number": 9,
@@ -464,16 +482,16 @@
     "category": "B",
     "question": {
       "es": "Durante el día, un conductor que ocupe la calzada, ¿está obligado a ponerse el chaleco reflectante?",
-      "en": null,
-      "ru": null
+      "en": "During the day, is a driver who occupies the roadway obliged to wear a reflective vest?",
+      "ru": "Обязан ли водитель, находящийся на проезжей части в светлое время суток, надевать светоотражающий жилет?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, en vías interurbanas.",
-          "en": null,
-          "ru": null
+          "en": "Yes, on interurban roads.",
+          "ru": "Да, на междугородних дорогах."
         },
         "is_correct": true
       },
@@ -481,8 +499,8 @@
         "id": "b",
         "text": {
           "es": "No, cuando la visibilidad es buena.",
-          "en": null,
-          "ru": null
+          "en": "No, when visibility is good.",
+          "ru": "Нет, если видимость хорошая."
         },
         "is_correct": false
       },
@@ -490,16 +508,16 @@
         "id": "c",
         "text": {
           "es": "Sí, en toda clase de vías.",
-          "en": null,
-          "ru": null
+          "en": "Yes, on all types of roads.",
+          "ru": "Да, на всех типах дорог."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El conductor de un turismo, vehículo mixto o de transporte de mercancías está obligado a utilizar el chaleco reflectante de alta visibilidad cuando salga del vehículo y ocupe la calzada o el arcén de las vías interurbanas. Esta obligación rige tanto de día como de noche. El chaleco debe estar homologado y ser visible a una distancia mínima de 150 metros. Es imperativo que se guarde en el habitáculo del vehículo para que el conductor pueda ponérselo antes de descender del mismo.",
+      "en": "Drivers of a passenger car (Turismo), mixed-use vehicle (Vehículo mixto), or goods vehicle are required to wear a certified high-visibility reflective vest when exiting the vehicle and occupying the roadway (calzada) or the shoulder (arcén) on interurban roads. This obligation applies both day and night. The vest must be visible from at least 150 meters. It must be stored in the passenger compartment so the driver can put it on before exiting the vehicle.",
+      "ru": "🎓 На дорогах вне населенных пунктов (vías interurbanas) ты обязан надеть светоотражающий жилет, если выходишь из машины на проезжую часть (calzada) или обочину (arcén). Это правило действует круглосуточно: и днем, и ночью, даже при идеальной видимости. Жилет должен быть сертифицированным и храниться в салоне, чтобы ты мог надеть его ДО того, как покинешь легковой автомобиль (Turismo). В багажнике его держать нельзя. Это также обязательно для грузопассажирских автомобилей (Vehículo mixto) и грузовиков. 🇷🇺 В Испании жилет обязателен даже днем на загородных трассах, тогда как в РФ это требование действует только в темное время суток или в условиях плохой видимости. 💡 Жилет — как парашют: если он тебе понадобился, а его нет на плечах — пиши пропало. Храни в бардачке, а не под запаской!"
     },
     "image_url": "https://teorica.practicavial.com/question/b3a70a73-7d31-4ef2-9682-9c208076c610-1658858594-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/b3a70a73-7d31-4ef2-9682-9c208076c610-s-1.jpg",
@@ -507,7 +525,9 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "b3a70a73-7d31-4ef2-9682-9c208076c610",
+    "external_id": "b3a70a73-7d31-4ef2-9682-9c208076c610"
   },
   {
     "topic_number": 9,
@@ -515,16 +535,16 @@
     "category": "B",
     "question": {
       "es": "¿Es aconsejable realizar largos desplazamientos utilizando una rueda de repuesto de uso temporal?",
-      "en": null,
-      "ru": null
+      "en": "Is it advisable to make long journeys using a temporary-use spare tire?",
+      "ru": "Целесообразно ли совершать длительные поездки, используя временное запасное колесо («докатку»)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, siempre que se lleve con una presión superior a la de las demás ruedas.",
-          "en": null,
-          "ru": null
+          "en": "Yes, as long as it is kept at a higher pressure than the other tires.",
+          "ru": "Да, при условии, что давление в нем выше, чем в остальных колесах."
         },
         "is_correct": false
       },
@@ -532,8 +552,8 @@
         "id": "b",
         "text": {
           "es": "No, debido a las limitaciones en velocidad y kilometraje que presentan.",
-          "en": null,
-          "ru": null
+          "en": "No, due to the speed and mileage limitations they have.",
+          "ru": "Нет, из-за ограничений по скорости и пробегу, которые они имеют."
         },
         "is_correct": true
       },
@@ -541,16 +561,16 @@
         "id": "c",
         "text": {
           "es": "Sólo si se circula por autopistas y en condiciones climatológicas favorables.",
-          "en": null,
-          "ru": null
+          "en": "Only if driving on highways and in favorable weather conditions.",
+          "ru": "Только при движении по автомагистралям и в благоприятных погодных условиях."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Las ruedas de repuesto de uso temporal están diseñadas exclusivamente para permitir el desplazamiento hasta un taller o lugar de reparación. Presentan limitaciones técnicas estrictas: una velocidad máxima de 80 km/h y una distancia de uso recomendada de entre 50 y 200 kilómetros. Por seguridad, deben mantenerse siempre a la presión más alta recomendada por el fabricante para garantizar su operatividad inmediata.",
+      "en": "Temporary-use spare tires are designed solely to allow travel to a workshop or repair location. They have strict technical limitations: a maximum speed of 80 km/h and a recommended usage distance of between 50 and 200 kilometers. For safety reasons, they must always be kept at the highest pressure recommended by the manufacturer to ensure immediate operational readiness.",
+      "ru": "🎓 Временное запасное колесо предназначено исключительно для того, чтобы доехать до ближайшей мастерской. Согласно ПДД Испании, такое колесо имеет жесткие эксплуатационные ограничения: максимальная скорость движения не должна превышать 80 км/ч, а рекомендуемая дистанция пробега составляет от 50 до 200 километров. Для обеспечения безопасности при хранении в багажнике легкового автомобиля (Turismo) в нем всегда следует поддерживать максимально допустимое производителем давление, чтобы оно было готово к работе в любой момент.\n\n💡 «Докатка» — это не полноценное колесо, а «хромая нога»: на ней не гуляют, на ней ковыляют до врача."
     },
     "image_url": "https://teorica.practicavial.com/question/7acaffd8-6070-4fe4-9671-805dc124efa9-1658858475-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/7acaffd8-6070-4fe4-9671-805dc124efa9-s-1.jpg",
@@ -558,7 +578,9 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "7acaffd8-6070-4fe4-9671-805dc124efa9",
+    "external_id": "7acaffd8-6070-4fe4-9671-805dc124efa9"
   },
   {
     "topic_number": 9,
@@ -566,16 +588,16 @@
     "category": "B",
     "question": {
       "es": "¿En cuál de los siguientes casos el conductor de un turismo debe utilizar el chaleco reflectante de alta visibilidad al salir de su vehículo?",
-      "en": null,
-      "ru": null
+      "en": "In which of the following cases must the driver of a passenger car (turismo) use a high-visibility reflective vest when leaving the vehicle?",
+      "ru": "В каком из следующих случаев водитель легкового автомобиля (Turismo) обязан использовать светоотражающий жилет при выходе из транспортного средства?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Cuando ocupe la calzada de una vía interurbana.",
-          "en": null,
-          "ru": null
+          "en": "When occupying the calzada of an interurban road.",
+          "ru": "Когда он занимает проезжую часть (calzada) на загородной дороге (vía interurbana)."
         },
         "is_correct": true
       },
@@ -583,8 +605,8 @@
         "id": "b",
         "text": {
           "es": "Cuando ocupe el arcén de una vía urbana.",
-          "en": null,
-          "ru": null
+          "en": "When occupying the arcén of an urban road.",
+          "ru": "Когда он занимает обочину (arcén) на городской дороге (vía urbana)."
         },
         "is_correct": false
       },
@@ -592,16 +614,16 @@
         "id": "c",
         "text": {
           "es": "Cuando ocupe la calzada en cualquier tipo de vía.",
-          "en": null,
-          "ru": null
+          "en": "When occupying the calzada on any type of road.",
+          "ru": "Когда он занимает проезжую часть (calzada) на любом типе дорог."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece la obligatoriedad del uso del chaleco reflectante de alta visibilidad para conductores de turismos, vehículos mixtos y de transporte de mercancías al salir del vehículo y ocupar la calzada o el arcén de una vía interurbana. El dispositivo debe estar homologado (colores amarillo, naranja o rojo) y ser visible a 150 metros. Debe guardarse en el habitáculo del vehículo para permitir su colocación antes de descender al exterior. Su uso en vías urbanas no es obligatorio.",
+      "en": "The General Circulation Regulations mandate the use of a high-visibility reflective vest for drivers of turismos, mixed-use vehicles, and goods transport vehicles when exiting the vehicle and occupying the calzada or arcén of an interurban road. The vest must be certified (yellow, orange, or red colors) and visible from 150 meters. It must be stored within the vehicle's cabin to ensure it can be put on before exiting. Its use on urban roads is not mandatory.",
+      "ru": "🎓 Ты, как водитель легкового автомобиля (Turismo), обязан надевать светоотражающий жилет только на загородных трассах (vía interurbana), если выходишь из машины на проезжую часть (calzada) или обочину (arcén). Это же правило касается грузопассажирских автомобилей (vehículo mixto) и всех грузовиков. Жилет должен быть сертифицированным (желтый, оранжевый или красный) и храниться строго в салоне, чтобы ты мог надеть его ПЕРЕД выходом из авто. В багажнике возить нельзя, так как ты окажешься на дороге без него. В городе (vía urbana) это требование не является обязательным. 💡 Жилет — как зонтик: должен быть под рукой в салоне, а не в багажнике под вещами. Выходишь на трассу — «светись», в городе — «стесняться» не обязательно."
     },
     "image_url": "https://teorica.practicavial.com/question/fd0ed3dc-d25b-4db1-9a16-fd9f440f9b13-1658858580-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/fd0ed3dc-d25b-4db1-9a16-fd9f440f9b13-s-1.jpg",
@@ -609,7 +631,9 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "fd0ed3dc-d25b-4db1-9a16-fd9f440f9b13",
+    "external_id": "fd0ed3dc-d25b-4db1-9a16-fd9f440f9b13"
   },
   {
     "topic_number": 9,
@@ -617,25 +641,25 @@
     "category": "B",
     "question": {
       "es": "Al prestar ayuda en un accidente, ¿debe ponerse el chaleco reflectante?",
-      "en": null,
-      "ru": null
+      "en": "When providing assistance in an accident, should you wear the reflective vest?",
+      "ru": "При оказании помощи при ДТП должны ли вы надеть световозвращающий жилет?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, antes de salir del vehículo.",
-          "en": null,
-          "ru": null
+          "en": "Yes, before leaving the vehicle.",
+          "ru": "Да, перед тем как выйти из транспортного средства."
         },
-        "is_correct": false
+        "is_correct": true
       },
       {
         "id": "b",
         "text": {
           "es": "Sólo si el accidente ocurre en zona urbana.",
-          "en": null,
-          "ru": null
+          "en": "Only if the accident occurs in an urban area.",
+          "ru": "Только если ДТП произошло в населенном пункте."
         },
         "is_correct": false
       },
@@ -643,16 +667,16 @@
         "id": "c",
         "text": {
           "es": "No, ya que es una situación de emergencia.",
-          "en": null,
-          "ru": null
+          "en": "No, as it is an emergency situation.",
+          "ru": "Нет, так как это чрезвычайная ситуация."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece la obligatoriedad del uso del chaleco reflectante de alta visibilidad para los conductores de turismos, vehículos mixtos y de transporte de mercancías al salir del vehículo y ocupar la calzada o el arcén de las vías interurbanas. El dispositivo debe estar homologado y situado en el interior del habitáculo, permitiendo su colocación antes de abandonar el vehículo para garantizar la visibilidad del conductor desde una distancia de 150 metros.",
+      "en": "The General Traffic Regulations mandate the use of a high-visibility reflective vest for drivers of passenger cars (Turismo), mixed vehicles (Vehículo mixto), and goods transport vehicles when exiting the vehicle and occupying the carriageway (calzada) or shoulder (arcén) of interurban roads. The device must be approved and located inside the passenger compartment, allowing it to be put on before leaving the vehicle to ensure the driver is visible from a distance of 150 meters.",
+      "ru": "🎓 Водители легковых автомобилей (Turismo) и грузопассажирских автомобилей (Vehículo mixto) обязаны надевать световозвращающий жилет при выходе из машины на проезжую часть (calzada) или обочину (arcén) загородных трасс. Жилет должен находиться в салоне в доступном месте, чтобы его можно было надеть до того, как ты покинешь автомобиль. Это требование безопасности действует всегда, в том числе при оказании помощи при ДТП. Жилет должен быть сертифицированным (желтого, оранжевого или красного цвета) и сохранять свои отражающие свойства. 🇷🇺 В Испании на загородных трассах жилет обязателен при любом выходе на дорогу или обочину, тогда как в РФ он требуется только в темное время суток или в условиях плохой видимости. 💡 Жилет в салоне — жизнь в сохранности, жилет в багажнике — штраф на бумажнике."
     },
     "image_url": "https://teorica.practicavial.com/question/a14bbe67-c28c-4eaa-b91f-5c3d8d2d2207-1658858589-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/a14bbe67-c28c-4eaa-b91f-5c3d8d2d2207-s-1.jpg",
@@ -660,6 +684,8 @@
     "tags": [
       "practicavial",
       "topic"
-    ]
+    ],
+    "id": "a14bbe67-c28c-4eaa-b91f-5c3d8d2d2207",
+    "external_id": "a14bbe67-c28c-4eaa-b91f-5c3d8d2d2207"
   }
 ]

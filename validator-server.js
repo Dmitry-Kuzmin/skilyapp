@@ -19,6 +19,8 @@ import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import { processImageForUpload } from './scripts/utils/image-processor.js';
 import { v5 as uuidv5 } from 'uuid';
+import chokidar from 'chokidar';
+import Fuse from 'fuse.js';
 
 const NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341'; // Deterministic Namespace
 
@@ -92,42 +94,63 @@ app.use(express.static('.'));
 
 // EXPLICIT: Serve generated images under /generated-images URL
 // EXPLICIT: Serve generated images with fallback logic for IDs
-app.get('/generated-images/:testId/:filename', (req, res, next) => {
+// EXPLICIT: Serve generated images with fallback logic for IDs - ASYNC OPTIMIZED
+// Helper for serving images with resize and fallback support
+async function serveImageWithFallback(req, res, next) {
     const { testId, filename } = req.params;
+    const { width } = req.query;
+    const testDir = path.join(process.cwd(), 'data', 'generated-images', testId);
+    let targetPath = path.join(testDir, filename);
+    let fileFound = false;
 
-    // 1. Try exact match (e.g. topic-02_test-002_560d...png)
-    const exactPath = path.join(process.cwd(), 'data', 'generated-images', testId, filename);
-
-    // Check if exact file exists
-    if (fsSync.existsSync(exactPath)) {
-        return res.sendFile(exactPath);
+    try {
+        await fs.access(targetPath);
+        fileFound = true;
+    } catch {
+        // Smart Fallback: Search for file starting with UUID in directory
+        try {
+            await fs.access(testDir);
+            const files = await fs.readdir(testDir);
+            const cleanId = filename.includes('.') ? filename.split('.')[0] : filename;
+            const match = files.find(f => f.startsWith(cleanId) && f.endsWith('.png'));
+            if (match) {
+                targetPath = path.join(testDir, match);
+                fileFound = true;
+            }
+        } catch (e) { }
     }
 
-    // 2. Try bare UUID match (if filename is composite)
-    // filename might be "topic-02_test-002_560d....png"
-    // We want to try "560d....png"
+    if (!fileFound) {
+        if (req.path.startsWith('/candidates/')) return res.status(404).send('Not Found');
+        return next();
+    }
 
-    // Improved regex to strip the prefix safely
-    // Looking for pattern: prefix_UUID.png -> UUID.png
-    // We assume the UUID part is the LAST segment separated by underscore before .png
-    // But wait, UUIDs don't have underscores usually.
-    // Let's rely on the strategy: if exact fail, try just the last part.
+    // Serve with resize if requested
+    try {
+        if (width) {
+            const size = parseInt(width);
+            if (!isNaN(size) && size > 0 && size <= 2000) {
+                const sharp = (await import('sharp')).default;
+                const buffer = await sharp(targetPath)
+                    .resize(size)
+                    .png({ quality: 80 })
+                    .toBuffer();
 
-    const parts = filename.split('_');
-    if (parts.length >= 2) {
-        const potentialUuidWithExt = parts[parts.length - 1]; // "560d....png"
-
-        // Sanity check: is it a valid-ish file name?
-        if (potentialUuidWithExt.endsWith('.png')) {
-            const fallbackPath = path.join(process.cwd(), 'data', 'generated-images', testId, potentialUuidWithExt);
-            if (fsSync.existsSync(fallbackPath)) {
-                return res.sendFile(fallbackPath);
+                res.setHeader('Content-Type', 'image/png');
+                res.setHeader('Cache-Control', 'public, max-age=31536000');
+                return res.send(buffer);
             }
         }
+        res.sendFile(targetPath);
+    } catch (e) {
+        console.error('[Image Serve Error]', e);
+        res.sendFile(targetPath, (err) => { if (err && !res.headersSent) next(); });
     }
+}
 
-    next(); // forward to standard static handler or 404
-});
+app.get('/generated-images/:testId/:filename', serveImageWithFallback);
+app.get('/candidates/:testId/:filename', serveImageWithFallback);
+
 
 app.use('/generated-images', express.static('data/generated-images'));
 
@@ -248,6 +271,42 @@ async function buildSearchIndex() {
 
 // Start building on launch
 buildSearchIndex();
+
+// АРХИТЕКТУРА: File Watcher for Auto-Rebuild
+let rebuildDebounceTimer = null;
+const watcher = chokidar.watch(CONFIG.parsedDir, {
+    ignored: /(^|[\/\\])\../, // ignore dotfiles
+    persistent: true,
+    ignoreInitial: true,
+    awaitWriteFinish: {
+        stabilityThreshold: 2000,
+        pollInterval: 100
+    }
+});
+
+watcher.on('add', (filePath) => {
+    if (filePath.endsWith('.json') && filePath.includes('test-')) {
+        console.log(`📂 New test file detected: ${path.basename(filePath)}`);
+        debouncedRebuild();
+    }
+});
+
+watcher.on('change', (filePath) => {
+    if (filePath.endsWith('.json') && filePath.includes('test-')) {
+        console.log(`📝 Test file changed: ${path.basename(filePath)}`);
+        debouncedRebuild();
+    }
+});
+
+function debouncedRebuild() {
+    clearTimeout(rebuildDebounceTimer);
+    rebuildDebounceTimer = setTimeout(() => {
+        console.log('🔄 Auto-rebuilding search index...');
+        buildSearchIndex();
+    }, 3000); // Wait 3 seconds of inactivity before rebuilding
+}
+
+console.log('👁️  File watcher active on:', CONFIG.parsedDir);
 
 // API Search Endpoint
 // API Search Endpoint
@@ -1360,9 +1419,20 @@ app.get('/api/test/:testId/questions', async (req, res) => {
 
                 if (dbData) {
                     const dbMap = new Set(dbData.map(r => r.id)); // Just existence in DB is enough to be "Published"
+                    console.log(`[DB Check] Found ${dbMap.size} questions in DB for test ${testId}`);
+
                     questionsList.forEach(q => {
-                        if (dbMap.has(q.external_id)) q.is_published = true;
+                        // Check exact match
+                        if (dbMap.has(q.external_id)) {
+                            q.is_published = true;
+                        }
+                        // Check without prefix (if somehow stored differently)
+                        else if (q.external_id && q.external_id.includes('_') && dbMap.has(q.external_id.split('_').pop())) {
+                            q.is_published = true;
+                        }
                     });
+                } else {
+                    console.log(`[DB Check] No data found in questions_new for IDs: ${validIds.slice(0, 3)}...`);
                 }
             } catch (e) {
                 console.error("DB check error (non-critical)", e.message);
@@ -1439,6 +1509,10 @@ app.post('/api/test/:testId/sync-images', async (req, res) => {
     console.log(`[Sync] Starting sync for ${testId}...`);
 
     try {
+        // АРХИТЕКТУРА: Skip rebuild search index here to avoid timeout (it is built on start)
+        // console.log(`[Sync] 🔄 Rebuilding search index for accurate matching...`);
+        // await buildSearchIndex();
+
         // 1. Load questions for the target test to get UUIDs
         let questions = [];
         // Try getting enriched first
@@ -1447,16 +1521,14 @@ app.post('/api/test/:testId/sync-images', async (req, res) => {
             const data = await fs.readFile(enrichedPath, 'utf8');
             questions = JSON.parse(data);
         } catch (e) {
-            // Fallback: try raw json if enriched fails, though external_id might be missing there.
-            console.log("[Sync] Enriched file not found, trying raw...");
+            // Fallback: try raw json
+            console.log("[Sync] Enriched file not found/invalid, trying raw...");
             try {
                 const rawPath = path.join(process.cwd(), 'data', 'parsed', testId.split('_')[0], `${testId}.json`);
                 const rawData = await fs.readFile(rawPath, 'utf8');
-                const rawQuestions = JSON.parse(rawData);
-                // If raw, we might only have 'id'? We need consistent UUIDs. 
-                // Assuming raw might have ids that match.
-                questions = rawQuestions;
+                questions = JSON.parse(rawData);
             } catch (err) {
+                console.error("[Sync] Failed to load questions:", err.message);
                 return res.status(404).json({ error: "No question data found." });
             }
         }
@@ -1514,29 +1586,31 @@ app.post('/api/test/:testId/sync-images', async (req, res) => {
                 // 1. Try EXACT ID Match (Legacy)
                 let targetIdToSearch = missingUuid;
 
-                // 2. Try TEXT CONTENT Match (Smart Deduplication)
+                // 2. Try TEXT CONTENT Match (Smart Deduplication with Fuzzy Matching)
                 // Find the question data for the missing UUID
                 const missingQ = questions.find(q => (q.external_id || q.id) === missingUuid);
 
                 if (missingQ) {
-                    const missingTextNorm = normalizeText(missingQ.question?.es || missingQ.question?.ru);
+                    const missingText = missingQ.question?.es || missingQ.question?.ru || '';
 
-                    // Search in GLOBAL INDEX for any question with same text
-                    const duplicate = GLOBAL_SEARCH_INDEX.find(item => {
-                        // Skip self
-                        if (item.id === missingUuid) return false;
-                        // Check fuzzy text match (using normalized text from index)
-                        // Note: item.searchText includes all languages. 
-                        // Let's rely on item.question_es matching if available.
-                        const itemTextNorm = normalizeText(item.question_es || item.question_ru);
-                        return itemTextNorm === missingTextNorm && itemTextNorm.length > 10;
-                    });
+                    if (missingText.length > 10) {
+                        // АРХИТЕКТУРА: Use Fuse.js for fuzzy matching
+                        const fuse = new Fuse(GLOBAL_SEARCH_INDEX, {
+                            keys: ['question_es', 'question_ru'],
+                            threshold: 0.2, // 0.0 = exact, 1.0 = anything
+                            ignoreLocation: true,
+                            minMatchCharLength: 10
+                        });
 
-                    if (duplicate) {
-                        // If we found a duplicate question (e.g. ID_555) for our missing one (ID_111)
-                        // We should look for ID_555's image in this directory!
-                        targetIdToSearch = duplicate.id;
-                        // console.log(`[Sync] Found duplicate text match: ${missingUuid} -> ${duplicate.id}`);
+                        const fuzzyResults = fuse.search(missingText);
+
+                        // Find first result that is NOT the same question
+                        const duplicate = fuzzyResults.find(result => result.item.id !== missingUuid);
+
+                        if (duplicate) {
+                            targetIdToSearch = duplicate.item.id;
+                            console.log(`[Sync] 🎯 Fuzzy match: "${missingText.substring(0, 50)}..." -> ${duplicate.item.id} (score: ${duplicate.score.toFixed(3)})`);
+                        }
                     }
                 }
 
@@ -2672,6 +2746,99 @@ app.get('/api/debug/check-missing/:topic/:test', async (req, res) => {
 
     } catch (e) {
         console.error('[Debug] Error:', e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// ==========================================
+// IMAGE GALLERY API (for manual selection)
+// ==========================================
+
+// Get all images grouped by topic
+app.get('/api/gallery/images', async (req, res) => {
+    try {
+        const imagesRoot = path.join(process.cwd(), 'data', 'generated-images');
+        const testDirs = await fs.readdir(imagesRoot);
+
+        const gallery = {};
+
+        for (const dir of testDirs) {
+            if (dir.startsWith('.')) continue;
+
+            const topicMatch = dir.match(/^(topic-\d+|essential_test|dgt_test|rejected-pool)/);
+            if (!topicMatch) continue;
+
+            const topic = topicMatch[1];
+            if (!gallery[topic]) {
+                gallery[topic] = { tests: {} };
+            }
+
+            const testDir = path.join(imagesRoot, dir);
+            const stats = await fs.stat(testDir);
+            if (!stats.isDirectory()) continue;
+
+            const files = await fs.readdir(testDir);
+            const images = [];
+
+            for (const file of files) {
+                if (!file.endsWith('.png')) continue;
+
+                // Extract UUID from filename (before timestamp if present)
+                const uuidMatch = file.match(/^([a-f0-9-]{36})/);
+                if (!uuidMatch) continue;
+
+                const uuid = uuidMatch[1];
+                const filePath = path.join(testDir, file);
+                const fileStats = await fs.stat(filePath);
+
+                images.push({
+                    uuid,
+                    filename: file,
+                    testId: dir,
+                    url: `/generated-images/${dir}/${file}`,
+                    size: fileStats.size,
+                    modified: fileStats.mtime
+                });
+            }
+
+            if (images.length > 0) {
+                gallery[topic].tests[dir] = images;
+            }
+        }
+
+        res.json(gallery);
+    } catch (e) {
+        console.error('[Gallery] Error:', e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Copy selected image to target question
+app.post('/api/gallery/copy-image', async (req, res) => {
+    try {
+        const { sourceTestId, sourceFilename, targetTestId, targetUuid } = req.body;
+
+        if (!sourceTestId || !sourceFilename || !targetTestId || !targetUuid) {
+            return res.status(400).json({ error: 'Missing required parameters' });
+        }
+
+        const sourceFile = path.join(process.cwd(), 'data', 'generated-images', sourceTestId, sourceFilename);
+        const targetDir = path.join(process.cwd(), 'data', 'generated-images', targetTestId);
+        await fs.mkdir(targetDir, { recursive: true });
+
+        const targetFile = path.join(targetDir, `${targetUuid}.png`);
+
+        await fs.copyFile(sourceFile, targetFile);
+
+        console.log(`[Gallery] Copied ${sourceTestId}/${sourceFilename} -> ${targetTestId}/${targetUuid}.png`);
+
+        res.json({
+            success: true,
+            message: 'Image copied successfully',
+            targetPath: `/generated-images/${targetTestId}/${targetUuid}.png`
+        });
+    } catch (e) {
+        console.error('[Gallery] Copy error:', e);
         res.status(500).json({ error: e.message });
     }
 });

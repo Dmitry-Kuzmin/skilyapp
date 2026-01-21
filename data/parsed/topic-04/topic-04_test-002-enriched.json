@@ -4,17 +4,17 @@
     "question_number": 1,
     "category": "B",
     "question": {
-      "es": "Desde el anochecer hasta el amanecer, ¿qué luces son obligatorias?",
-      "en": null,
-      "ru": null
+      "es": "¿Qué luces son obligatorias desde el anochecer hasta el amanecer?",
+      "en": "Which lights are mandatory from dusk to dawn?",
+      "ru": "Какие световые приборы обязательны к использованию в период от заката до рассвета?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "La luz de posición con las de corto o largo alcance, dependiendo de las circunstancias.",
-          "en": null,
-          "ru": null
+          "en": "Position lights with low or high beam, depending on the circumstances.",
+          "ru": "Габаритные огни совместно с ближним или дальним светом фар, в зависимости от обстоятельств."
         },
         "is_correct": true
       },
@@ -22,8 +22,8 @@
         "id": "b",
         "text": {
           "es": "La luz de posición solamente.",
-          "en": null,
-          "ru": null
+          "en": "Position lights only.",
+          "ru": "Только габаритные огни."
         },
         "is_correct": false
       },
@@ -31,16 +31,16 @@
         "id": "c",
         "text": {
           "es": "La luz de posición y el alumbrado antiniebla.",
-          "en": null,
-          "ru": null
+          "en": "Position lights and fog lights.",
+          "ru": "Габаритные огни и противотуманные фары."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Entre el ocaso y la salida del sol, todo vehículo que circule por una vía pública debe llevar encendido el alumbrado de posición y el de corto o largo alcance. El uso de la luz de corto alcance (cruce) es obligatorio en vías urbanas y en vías interurbanas suficientemente iluminadas. La luz de largo alcance (carretera) se utilizará en vías interurbanas insuficientemente iluminadas, siempre que no exista riesgo de deslumbramiento a otros usuarios. Asimismo, el alumbrado de cruce es obligatorio en túneles, carriles reversibles o adicionales, y ante condiciones meteorológicas adversas.",
+      "en": "Between sunset and sunrise, any vehicle circulating on public roads must use position lights combined with either low beam or high beam headlights. Low beam (dipped) headlights are mandatory on urban roads and sufficiently lit interurban roads. High beam (main) headlights must be used on poorly lit interurban roads, provided there is no risk of dazzling other road users. Additionally, low beam lights are mandatory in tunnels, reversible or additional lanes, and during adverse weather conditions.",
+      "ru": "🎓 В период от заката до рассвета на любом движущемся транспортном средстве должны быть включены габаритные огни совместно с ближним или дальним светом фар. Если ты едешь на Легковом автомобиле по городу или по освещенной загородной трассе, использование ближнего света обязательно. Дальний свет применяется только на неосвещенных загородных дорогах при условии, что ты не ослепляешь других водителей. Также помни: ближний свет фар обязателен в любое время суток в тоннелях, при плохой видимости (дождь, снег), а также при движении по реверсивным или дополнительным полосам движения. 🇷🇺 В Испании использование только габаритных огней при движении запрещено — они всегда работают в паре с основным светом. Также ближний свет в тоннелях обязателен всегда, даже если там светло как днем. 💡 Помню как дважды два: габариты одни не светят никогда!"
     },
     "image_url": "https://teorica.practicavial.com/question/c1765d33-ad44-4f03-83ab-d10336e9b1f9-1658245572-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/c1765d33-ad44-4f03-83ab-d10336e9b1f9-s-1.jpg",
@@ -54,16 +54,16 @@
     "category": "B",
     "question": {
       "es": "Durante el día, ¿qué alumbrado llevará encendido una motocicleta?",
-      "en": null,
-      "ru": null
+      "en": "During the day, what lighting must a motorcycle have switched on?",
+      "ru": "Какое освещение должно быть включено на мотоцикле в светлое время суток?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "El de corto alcance o cruce.",
-          "en": null,
-          "ru": null
+          "en": "Low beam or dipped headlights.",
+          "ru": "Ближний свет фар."
         },
         "is_correct": true
       },
@@ -71,8 +71,8 @@
         "id": "b",
         "text": {
           "es": "El de posición o el de corto alcance.",
-          "en": null,
-          "ru": null
+          "en": "Sidelights or low beam headlights.",
+          "ru": "Габаритные огни или ближний свет фар."
         },
         "is_correct": false
       },
@@ -80,16 +80,16 @@
         "id": "c",
         "text": {
           "es": "Ninguno.",
-          "en": null,
-          "ru": null
+          "en": "None.",
+          "ru": "Никакое."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, las motocicletas que circulen por cualquier vía pública deben llevar encendido, tanto de día como de noche, el alumbrado de corto alcance o cruce. El objetivo es aumentar su visibilidad ante los demás usuarios de la vía. El uso de luces de posición únicamente es insuficiente para cumplir con esta obligación legal.",
+      "en": "According to the General Traffic Regulations, motorcycles traveling on any public road must have their low beam (dipped) headlights switched on at all times, both day and night. This measure is designed to improve the visibility of the vehicle to other road users. Using only position lights does not comply with the mandatory requirement for motorcycles in motion.",
+      "ru": "🎓 В Испании мотоциклы обязаны двигаться с включенным ближним светом фар постоянно: и днем, и ночью, на любых типах дорог. Это критически важно для безопасности, так как делает двухколесный транспорт заметнее для тебя, когда ты управляешь легковым автомобилем. Одних только габаритных огней недостаточно. Также помни, что ближний свет обязателен для всех ТС в туннелях, при плохой видимости и при движении по реверсивным или дополнительным полосам.\n\n💡 Мотоцикл в пути — ближний свет жги!"
     },
     "image_url": "https://teorica.practicavial.com/question/b822c549-cd31-4faa-bf9c-b8a795a536b0-1658246207-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/b822c549-cd31-4faa-bf9c-b8a795a536b0-s-1.jpg",
@@ -103,16 +103,16 @@
     "category": "B",
     "question": {
       "es": "En las travesías, ¿está permitido circular con la luz de largo alcance?",
-      "en": null,
-      "ru": null
+      "en": "In crossings (travesías), is it allowed to drive with high-beam lights?",
+      "ru": "На участках дорог, проходящих через населенные пункты (travesía), разрешено ли движение с дальним светом фар?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       },
@@ -120,8 +120,8 @@
         "id": "b",
         "text": {
           "es": "Sí, cuando la vía esté insuficientemente iluminada.",
-          "en": null,
-          "ru": null
+          "en": "Yes, when the road is insufficiently lit.",
+          "ru": "Да, если дорога недостаточно освещена."
         },
         "is_correct": false
       },
@@ -129,16 +129,16 @@
         "id": "c",
         "text": {
           "es": "Sí, siempre que no se deslumbre a ningún usuario.",
-          "en": null,
-          "ru": null
+          "en": "Yes, as long as no user is dazzled.",
+          "ru": "Да, при условии, что это не ослепляет других участников движения."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación prohíbe estrictamente el uso de la luz de largo alcance o carretera en vías urbanas y travesías. En estas vías, los conductores deben utilizar la luz de corto alcance o cruce, independientemente del nivel de iluminación de la calzada.",
+      "en": "The General Traffic Regulations strictly prohibit the use of high-beam lights on urban roads and crossings (travesías). On these roads, drivers must use low-beam lights, regardless of the road's lighting level.",
+      "ru": "🎓 В Испании на участках дорог, проходящих через населенные пункты (travesía), использование дальнего света фар категорически запрещено. Несмотря на то, что такие участки являются продолжением загородных трасс, в плане освещения они приравниваются к городским улицам. Тебе на легковом автомобиле (Turismo) разрешено использовать только ближний свет фар, даже если дорога освещена недостаточно. Дальний свет предназначен исключительно для загородных дорог (vías interurbanas) при условии, что ты движешься со скоростью более 40 км/ч и нет риска ослепления других водителей. 🇷🇺 В отличие от РФ, где в населенных пунктах разрешено использовать дальний свет на неосвещенных участках при отсутствии встречных машин, в Испании на траверсиях и в городе дальний свет запрещен всегда. 💡 В город въехал, знак узрел — дальний свет включить не смел!"
     },
     "image_url": "https://teorica.practicavial.com/question/bad2114e-f309-4583-a549-e824297560b6-1658246802-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/bad2114e-f309-4583-a549-e824297560b6-s-1.jpg",
@@ -152,16 +152,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuándo es obligatorio utilizar la luz de emergencia?",
-      "en": null,
-      "ru": null
+      "en": "When is it mandatory to use hazard lights?",
+      "ru": "В каком случае обязательно использовать аварийную световую сигнализацию?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Cuando se reduzca la velocidad en carretera.",
-          "en": null,
-          "ru": null
+          "en": "When reducing speed on the road.",
+          "ru": "При снижении скорости на дороге."
         },
         "is_correct": false
       },
@@ -169,8 +169,8 @@
         "id": "b",
         "text": {
           "es": "Cuando se estacione el vehículo en doble fila.",
-          "en": null,
-          "ru": null
+          "en": "When parking the vehicle in a double row.",
+          "ru": "При парковке легкового автомобиля вторым рядом."
         },
         "is_correct": false
       },
@@ -178,16 +178,16 @@
         "id": "c",
         "text": {
           "es": "Cuando se inmovilice el vehículo por emergencia dentro de la vía.",
-          "en": null,
-          "ru": null
+          "en": "When the vehicle is immobilized due to an emergency within the road.",
+          "ru": "При вынужденной остановке транспортного средства на дороге из-за чрезвычайной ситуации."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La utilización de la señal de emergencia es obligatoria para los automóviles cuando el vehículo quede inmovilizado en la calzada o el arcén por avería, accidente o caída de la carga. Asimismo, deberá emplearse cuando el vehículo no pueda alcanzar la velocidad mínima exigida y exista peligro de alcance por otros vehículos, o en caso de transporte de personas heridas en vehículos particulares. Para las motocicletas, su uso es opcional.",
+      "en": "The use of hazard warning lights is mandatory for motor vehicles when the vehicle is immobilized on the roadway or shoulder due to breakdown, accident, or fallen cargo. It must also be used if the vehicle cannot reach the minimum required speed and there is a risk of a rear-end collision, or when performing emergency transport of injured persons in private vehicles. For motorcycles, its use is optional.",
+      "ru": "🎓 Ты обязан включить аварийную световую сигнализацию, если твой легковой автомобиль вынужденно остановился на проезжей части или обочине из-за поломки, ДТП или падения груза. Также «аварийка» обязательна, если ты не можешь поддерживать минимальную скорость и есть риск, что в тебя врежутся сзади, или если ты экстренно везешь пострадавшего в госпиталь. Для мотоциклов эта опция остается на усмотрение водителя.\n\n🇷🇺 В Испании использование аварийки при экстренной перевозке больного на легковом автомобиле является обязательным условием для обозначения себя на дороге, наряду с подачей прерывистых звуковых сигналов.\n\n💡 Встал в беде — мигай везде!"
     },
     "image_url": "https://teorica.practicavial.com/question/e7d72979-fb3c-417a-b2d6-b4cb99b9bf2a-1658249152-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/e7d72979-fb3c-417a-b2d6-b4cb99b9bf2a-s-1.jpg",
@@ -200,17 +200,17 @@
     "question_number": 5,
     "category": "B",
     "question": {
-      "es": "El alumbrado que lleva encendido el conductor de este vehículo en un tramo recto de noche y sin condiciones atmosféricas adversas, ¿es el correcto?",
-      "en": null,
-      "ru": null
+      "es": "¿Es correcto el alumbrado que lleva encendido el conductor de este vehículo en un tramo recto de noche y sin condiciones atmosféricas adversas?",
+      "en": "Is the lighting used by the driver of this vehicle on a straight stretch at night and without adverse atmospheric conditions correct?",
+      "ru": "Правильно ли водитель этого легкового автомобиля использует световые приборы ночью на прямом участке дороги при отсутствии неблагоприятных погодных условий?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": false
       },
@@ -218,8 +218,8 @@
         "id": "b",
         "text": {
           "es": "No, debe apagar las luces antiniebla.",
-          "en": null,
-          "ru": null
+          "en": "No, the fog lights must be turned off.",
+          "ru": "Нет, он должен выключить противотуманные фары."
         },
         "is_correct": true
       },
@@ -227,16 +227,16 @@
         "id": "c",
         "text": {
           "es": "Solo si la anchura de la calzada es inferior a 6,50 metros.",
-          "en": null,
-          "ru": null
+          "en": "Only if the width of the road is less than 6.50 meters.",
+          "ru": "Только если ширина проезжей части менее 6,50 метров."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El uso de la luz antiniebla delantera está restringido a condiciones meteorológicas o ambientales que disminuyan sensiblemente la visibilidad (niebla, lluvia intensa, nevada, nubes de humo o polvo) o en tramos de vías estrechas (calzada de 6,50 metros de anchura o inferior) con muchas curvas señalizadas. Al ser un tramo recto y sin condiciones adversas, su uso está prohibido para evitar deslumbramientos.",
+      "en": "The use of front fog lights is restricted to meteorological or environmental conditions that significantly reduce visibility (fog, heavy rain, snowfall, clouds of smoke or dust) or on narrow road sections (roadway width of 6.50 meters or less) with numerous marked curves. Since this is a straight section without adverse conditions, their use is prohibited to prevent glare.",
+      "ru": "🎓 В Испании использование передних противотуманных фар строго регламентировано. Ты имеешь право включать их только в двух случаях: при значительном ухудшении видимости (туман, сильный дождь, снегопад, облака дыма или пыли) или на узких извилистых дорогах (ширина проезжей части 6,5 метров и менее), обозначенных знаками «Опасные повороты». Поскольку в данной ситуации дорога прямая, а погода ясная, противотуманные фары должны быть выключены, чтобы не ослеплять других участников движения. 🇷🇺 В отличие от РФ, где противотуманные фары можно использовать ночью на неосвещенных участках совместно с ближним или дальним светом вне зависимости от погоды, в Испании их включение без тумана или узких серпантинов запрещено. 💡 Нет тумана и прямая дорога — выключай противотуманки строго!"
     },
     "image_url": "https://teorica.practicavial.com/question/bdfc27cb-e08a-4680-9666-0d173322c040-1658247581-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/bdfc27cb-e08a-4680-9666-0d173322c040-s-1.jpg",
@@ -250,16 +250,16 @@
     "category": "B",
     "question": {
       "es": "Durante el día, con niebla densa o lluvia intensa, ¿se puede circular con la luz de largo alcance encendida?",
-      "en": null,
-      "ru": null
+      "en": "During the day, in dense fog or heavy rain, is it permitted to drive with high-beam lights on?",
+      "ru": "Можно ли в светлое время суток при густом тумане или сильном дожде двигаться с включенным дальним светом фар?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, solo puede encenderse la luz de corto alcance.",
-          "en": null,
-          "ru": null
+          "en": "No, only low-beam lights may be turned on.",
+          "ru": "Нет, можно включать только ближний свет."
         },
         "is_correct": false
       },
@@ -267,8 +267,8 @@
         "id": "b",
         "text": {
           "es": "Sólo si la calzada tiene una anchura inferior a 6,50 metros.",
-          "en": null,
-          "ru": null
+          "en": "Only if the road is less than 6.50 meters wide.",
+          "ru": "Только если проезжая часть имеет ширину менее 6,50 метров."
         },
         "is_correct": false
       },
@@ -276,16 +276,16 @@
         "id": "c",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación permite el uso de la luz de largo alcance en condiciones de visibilidad sensiblemente reducida, como niebla densa o lluvia intensa, siempre que no se deslumbre a otros usuarios. Es obligatorio el uso de las luces de posición y cruce, siendo el largo alcance una opción legal, aunque no recomendada técnicamente por el riesgo de autorreflexión y deslumbramiento del propio conductor.",
+      "en": "The General Traffic Regulations allow the use of high-beam lights in conditions of significantly reduced visibility, such as dense fog or heavy rain, provided that other road users are not dazzled. While position and low-beam lights are mandatory, high beams are a legal option, although technically not recommended due to the risk of self-dazzle caused by light reflecting off the fog or rain.",
+      "ru": "🎓 При движении в условиях недостаточной видимости, таких как густой туман или сильный дождь, на легковом автомобиле обязательно использование габаритных огней и ближнего света. ПДД Испании также разрешают включать дальний свет, если это не ослепляет других участников движения. Важно понимать: закон разрешает, но практика предостерегает. Дальний свет в таких условиях часто создает эффект самоослепления, так как лучи отражаются от частиц влаги в воздухе, создавая «белую стену» перед водителем. 💡 Дальний в туман — себе же изъян!"
     },
     "image_url": "https://teorica.practicavial.com/question/edba7589-af7f-4a0a-b8c7-f966f8e6f94d-1658247309-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/edba7589-af7f-4a0a-b8c7-f966f8e6f94d-s-1.jpg",
@@ -299,16 +299,16 @@
     "category": "B",
     "question": {
       "es": "Se considera que una vía está insuficientemente iluminada cuando...",
-      "en": null,
-      "ru": null
+      "en": "A road is considered to be insufficiently illuminated when...",
+      "ru": "Дорога считается недостаточно освещенной, когда..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "la vía no permita ver con claridad.",
-          "en": null,
-          "ru": null
+          "en": "the road does not allow for clear vision.",
+          "ru": "дорога не позволяет четко видеть."
         },
         "is_correct": false
       },
@@ -316,8 +316,8 @@
         "id": "b",
         "text": {
           "es": "con vista normal no se puede leer una placa de matrícula a 10 metros o distinguir un vehículo pintado de oscuro a 50 metros.",
-          "en": null,
-          "ru": null
+          "en": "with normal vision, a license plate cannot be read at 10 meters or a dark-colored vehicle cannot be distinguished at 50 meters.",
+          "ru": "при нормальном зрении невозможно прочитать номерной знак с 10 метров или различить темный автомобиль с 50 метров."
         },
         "is_correct": true
       },
@@ -325,16 +325,16 @@
         "id": "c",
         "text": {
           "es": "no pueda distinguir la placa de matrícula de otro vehículo a 50 metros.",
-          "en": null,
-          "ru": null
+          "en": "the license plate of another vehicle cannot be distinguished at 50 meters.",
+          "ru": "невозможно различить номерной знак другого автомобиля с 50 метров."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, una vía se considera insuficientemente iluminada cuando, con visión normal, no es posible leer la placa de matrícula a 10 metros de distancia o distinguir un vehículo pintado de color oscuro a una distancia de 50 metros. Esta condición técnica determina la obligatoriedad del uso del alumbrado de carretera fuera de poblado.",
+      "en": "According to the General Traffic Regulations, a road is considered insufficiently illuminated when, with normal vision, it is not possible to read a license plate at a distance of 10 meters or distinguish a dark-colored vehicle at a distance of 50 meters. This technical condition determines the mandatory use of high-beam lighting outside built-up areas.",
+      "ru": "🎓 В Испании понятие «недостаточное освещение» имеет строгие цифровые параметры. Дорога считается таковой, если при нормальном зрении ты не можешь прочитать номерной знак с 10 метров или не видишь темный легковой автомобиль с расстояния 50 метров. Это критически важно, так как на таких дорогах вне населенных пунктов ты обязан использовать дальний свет, если нет риска ослепить других водителей. 🇷🇺 В отличие от РФ, где «недостаточная видимость» привязана к 300 метрам и метеоусловиям, испанские правила вводят конкретные критерии 10 и 50 метров для оценки освещенности полотна. 💡 Десять — для знака, пятьдесят — для мрака!"
     },
     "image_url": "https://teorica.practicavial.com/question/d21ed5cd-0d40-47bf-9c9b-2a08f0d86730-1658244786-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d21ed5cd-0d40-47bf-9c9b-2a08f0d86730-s-1.jpg",
@@ -348,16 +348,16 @@
     "category": "B",
     "question": {
       "es": "¿Está permitido circular entre la puesta y la salida del sol utilizando solamente el alumbrado de posición del vehículo?",
-      "en": null,
-      "ru": null
+      "en": "Is it permitted to drive between sunset and sunrise using only the vehicle's position lights?",
+      "ru": "Разрешено ли движение между закатом и рассветом, используя только габаритные огни транспортного средства?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, debe utilizarse además el alumbrado de cruce o el de carretera.",
-          "en": null,
-          "ru": null
+          "en": "No, low beam or high beam headlights must also be used.",
+          "ru": "Нет, необходимо также использовать ближний или дальний свет фар."
         },
         "is_correct": true
       },
@@ -365,8 +365,8 @@
         "id": "b",
         "text": {
           "es": "Solo cuando se circula por vías urbanas suficientemente iluminadas.",
-          "en": null,
-          "ru": null
+          "en": "Only when driving on sufficiently lit urban roads.",
+          "ru": "Только при движении по достаточно освещенным городским дорогам."
         },
         "is_correct": false
       },
@@ -374,16 +374,16 @@
         "id": "c",
         "text": {
           "es": "Sí, en cualquier tipo de vía suficientemente iluminada.",
-          "en": null,
-          "ru": null
+          "en": "Yes, on any type of sufficiently lit road.",
+          "ru": "Да, на любом типе достаточно освещенных дорог."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece que entre la puesta y la salida del sol, en túneles o cuando la visibilidad sea reducida, todo vehículo en circulación debe llevar encendido el alumbrado de posición junto con el de corto alcance (cruce) o largo alcance (carretera). La luz de posición tiene como única función indicar la presencia y anchura del vehículo, pero no es suficiente para iluminar la vía durante la conducción. Su uso de forma aislada queda limitado exclusivamente a situaciones de inmovilización del vehículo.",
+      "en": "The General Traffic Regulations state that between sunset and sunrise, in tunnels, or when visibility is reduced, every vehicle in motion must have its position lights switched on along with either low beam or high beam headlights. Position lights are only intended to indicate the presence and width of the vehicle and do not provide sufficient illumination for driving. Using position lights alone is strictly limited to situations where the vehicle is stationary.",
+      "ru": "🎓 Между закатом и рассветом, а также в туннелях или при плохой видимости, запрещено двигаться, используя только габаритные огни. Они лишь обозначают твой легковой автомобиль (Turismo) на дороге, но не освещают путь. При движении ты обязан всегда включать их вместе с ближним или дальним светом фар. Использовать только габаритные огни отдельно можно исключительно во время остановки или стоянки на проезжей части (Calzada) или обочине (Arcén) в темное время суток на недостаточно освещенных участках дорог. 💡 Габариты — чтобы стоять, фары — чтобы ехать!"
     },
     "image_url": "https://teorica.practicavial.com/question/6fdb92e4-86b7-4c59-9dbd-8008298c67e2-1658245095-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/6fdb92e4-86b7-4c59-9dbd-8008298c67e2-s-1.jpg",
@@ -397,16 +397,16 @@
     "category": "B",
     "question": {
       "es": "Circula de noche con el alumbrado interior encendido. ¿Es peligroso?",
-      "en": null,
-      "ru": null
+      "en": "Driving at night with the interior light on. Is it dangerous?",
+      "ru": "Вы едете ночью с включенным освещением салона. Это опасно?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, porque evita deslumbramiento.",
-          "en": null,
-          "ru": null
+          "en": "No, because it prevents glare.",
+          "ru": "Нет, так как это предотвращает ослепление."
         },
         "is_correct": false
       },
@@ -414,8 +414,8 @@
         "id": "b",
         "text": {
           "es": "No, porque descansa la vista.",
-          "en": null,
-          "ru": null
+          "en": "No, because it rests the eyes.",
+          "ru": "Нет, так как это дает глазам отдых."
         },
         "is_correct": false
       },
@@ -423,16 +423,16 @@
         "id": "c",
         "text": {
           "es": "Sí, porque veo peor.",
-          "en": null,
-          "ru": null
+          "en": "Yes, because I see worse.",
+          "ru": "Да, потому что я вижу хуже."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El uso del alumbrado interior durante la conducción nocturna reduce la capacidad visual del conductor hacia el exterior. La diferencia de luminancia entre el habitáculo y la vía provoca una contracción de las pupilas (miosis) y genera reflejos no deseados en el parabrisas. En los vehículos de servicio público de viajeros y de alquiler con conductor, el alumbrado interior es obligatorio, siempre que no deslumbre ni moleste a los demás usuarios.",
+      "en": "Using interior lighting while driving at night reduces the driver's external visibility. The luminance contrast between the cabin and the road causes pupillary constriction (miosis) and creates unwanted reflections on the windshield. In public service passenger vehicles and chauffeur-driven rental vehicles, interior lighting is mandatory, provided it does not dazzle or disturb other road users.",
+      "ru": "🎓 Включение света в салоне при движении ночью крайне опасно для водителя легкового автомобиля. Яркий свет внутри вызывает сужение зрачков, из-за чего глаза теряют способность различать объекты на темной дороге. Кроме того, на лобовом стекле возникают блики и отражения внутренних деталей салона, которые перекрывают обзор. Для такси и общественного транспорта внутреннее освещение является обязательным, но оно должно быть устроено так, чтобы не слепить водителя и других участников движения.\n\n💡 В салоне свет — снаружи тьма, не делай так ты никогда!"
     },
     "image_url": "https://teorica.practicavial.com/question/14f7bfc8-6c77-4e99-9b9f-2f4367b6eebc-1658249486-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/14f7bfc8-6c77-4e99-9b9f-2f4367b6eebc-s-1.jpg",
@@ -446,16 +446,16 @@
     "category": "B",
     "question": {
       "es": "¿Está permitido utilizar el alumbrado de largo alcance en una vía urbana?",
-      "en": null,
-      "ru": null
+      "en": "Is it permitted to use high-beam lighting on an urban road?",
+      "ru": "Разрешено ли использовать дальний свет фар на городской дороге?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, cuando la vía está insuficientemente iluminada.",
-          "en": null,
-          "ru": null
+          "en": "Yes, when the road is insufficiently lit.",
+          "ru": "Да, если дорога недостаточно освещена."
         },
         "is_correct": false
       },
@@ -463,8 +463,8 @@
         "id": "b",
         "text": {
           "es": "Sí, cuando circule a más de 40 km/h y no se moleste a los demás usuarios.",
-          "en": null,
-          "ru": null
+          "en": "Yes, when traveling at more than 40 km/h and other users are not disturbed.",
+          "ru": "Да, при движении со скоростью более 40 км/ч, если это не мешает другим участникам движения."
         },
         "is_correct": false
       },
@@ -472,16 +472,16 @@
         "id": "c",
         "text": {
           "es": "No, está prohibido.",
-          "en": null,
-          "ru": null
+          "en": "No, it is prohibited.",
+          "ru": "Нет, это запрещено."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El uso del alumbrado de largo alcance o carretera está estrictamente prohibido en vías urbanas, independientemente de la iluminación de la vía o la velocidad de circulación. Según el Reglamento General de Circulación, este alumbrado se reserva exclusivamente para vías interurbanas insuficientemente iluminadas, siempre que se circule a una velocidad superior a 40 km/h y no exista riesgo de deslumbramiento a otros usuarios. En poblado, el conductor debe utilizar siempre el alumbrado de corto alcance o cruce.",
+      "en": "The use of high-beam (long-range) headlights is strictly prohibited on urban roads, regardless of the street lighting conditions or the vehicle's speed. According to the General Traffic Regulations, high beams are reserved exclusively for insufficiently lit interurban roads when traveling at speeds exceeding 40 km/h, provided there is no risk of dazzling other road users. Within built-up areas, drivers must always use dipped-beam (short-range) headlights.",
+      "ru": "🎓 В пределах населенного пункта использование дальнего света фар категорически запрещено. Это правило абсолютно: неважно, освещена улица или погружена в полную темноту, и с какой скоростью ты едешь. Дальний свет предназначен только для загородных трасс (vías interurbanas) при соблюдении трех условий одновременно: дорога недостаточно освещена, твоя скорость выше 40 км/ч и нет риска ослепить других водителей. В городе твой Turismo всегда должен ехать только с ближним светом фар.\n\n🇷🇺 В Испании запрет на дальний свет в городе тотальный, тогда как в РФ ПДД разрешают дальний свет на неосвещенных участках дорог в черте города.\n\n💡 В городе светят фонари и дома — дальний свет под запретом всегда!"
     },
     "image_url": "https://teorica.practicavial.com/question/99735e24-1796-46a8-9361-d826c6e2d2d7-1658246776-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/99735e24-1796-46a8-9361-d826c6e2d2d7-s-1.jpg",
@@ -495,16 +495,16 @@
     "category": "B",
     "question": {
       "es": "La luz antiniebla trasera deberá utilizarse siempre que...",
-      "en": null,
-      "ru": null
+      "en": "The rear fog light must be used whenever...",
+      "ru": "Задний противотуманный фонарь должен обязательно использоваться, когда..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "circule por un túnel.",
-          "en": null,
-          "ru": null
+          "en": "driving through a tunnel.",
+          "ru": "вы движетесь в тоннеле."
         },
         "is_correct": false
       },
@@ -512,8 +512,8 @@
         "id": "b",
         "text": {
           "es": "circule por un puerto de montaña.",
-          "en": null,
-          "ru": null
+          "en": "driving through a mountain pass.",
+          "ru": "вы движетесь по горному перевалу."
         },
         "is_correct": false
       },
@@ -521,16 +521,16 @@
         "id": "c",
         "text": {
           "es": "circule con fuerte nevada.",
-          "en": null,
-          "ru": null
+          "en": "driving in heavy snow.",
+          "ru": "вы движетесь в условиях сильного снегопада."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El uso de la luz antiniebla trasera es obligatorio únicamente cuando las condiciones meteorológicas o ambientales sean especialmente desfavorables, tales como niebla espesa, lluvia muy intensa, fuerte nevada o nubes densas de humo o polvo. Su finalidad es señalizar la presencia del vehículo, pero debido a su alta intensidad, su uso está prohibido en condiciones de visibilidad que no sean extremas para evitar el deslumbramiento de los conductores que circulan detrás.",
+      "en": "The use of the rear fog light is mandatory only when meteorological or environmental conditions are especially unfavorable, such as thick fog, very intense rain, heavy snow, or dense clouds of smoke or dust. Its purpose is to signal the vehicle's presence, but due to its high intensity, its use is prohibited in conditions that are not extreme to avoid dazzling the drivers behind.",
+      "ru": "🎓 Задний противотуманный фонарь светит в несколько раз ярче стоп-сигналов, поэтому его разрешено включать только в самых суровых условиях, чтобы не слепить водителей сзади. Для легкового автомобиля (Turismo) использование заднего фонаря обязательно только при экстремальном ухудшении видимости: густой туман, очень сильный дождь, сильный снегопад или плотные облака дыма и пыли. При обычном дожде или тумане его включать запрещено. 🇷🇺 В Испании правила строго разделяют «интенсивный» дождь (когда задние ПТФ запрещены) и «очень интенсивный» дождь (когда они обязательны), тогда как в РФ правила более гибко трактуют условия недостаточной видимости. 💡 Задний туман слепит глаза — включай, когда не видно ни зги!"
     },
     "image_url": "https://teorica.practicavial.com/question/03ee71ea-28ad-469a-b40b-d99a8e2a0921-1658247860-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/03ee71ea-28ad-469a-b40b-d99a8e2a0921-s-1.jpg",
@@ -544,16 +544,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué vehículos deben llevar encendidas las luces de gálibo cuando sea obligatorio su uso?",
-      "en": null,
-      "ru": null
+      "en": "Which vehicles must have end-outline marker lamps turned on when their use is mandatory?",
+      "ru": "Какие транспортные средства обязаны включать контурные огни, когда их использование обязательно?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Los que transporten mercancías peligrosas.",
-          "en": null,
-          "ru": null
+          "en": "Those carrying dangerous goods.",
+          "ru": "Те, которые перевозят опасные грузы."
         },
         "is_correct": false
       },
@@ -561,8 +561,8 @@
         "id": "b",
         "text": {
           "es": "Los de asistencia en carretera.",
-          "en": null,
-          "ru": null
+          "en": "Road assistance vehicles.",
+          "ru": "Транспортные средства дорожной помощи."
         },
         "is_correct": false
       },
@@ -570,16 +570,16 @@
         "id": "c",
         "text": {
           "es": "Los que tengan una anchura superior a 2,10 metros.",
-          "en": null,
-          "ru": null
+          "en": "Those with a width exceeding 2.10 meters.",
+          "ru": "Те, ширина которых превышает 2,10 метра."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Vehículos, la luz de gálibo es obligatoria para los vehículos con una anchura superior a 2,10 metros. Su función es señalizar la anchura total del vehículo en condiciones de baja visibilidad, de noche o en túneles. Para vehículos con una anchura entre 1,80 y 2,10 metros, su instalación es opcional, mientras que para aquellos con una anchura inferior a 1,80 metros, su uso está prohibido. Consta de dos luces blancas en la parte delantera y dos luces rojas en la parte trasera, situadas en los puntos más altos y exteriores.",
+      "en": "According to the General Vehicle Regulations, end-outline marker lamps are mandatory for vehicles with a width exceeding 2.10 meters. Their function is to indicate the overall width of the vehicle in low visibility conditions, at night, or in tunnels. For vehicles with a width between 1.80 and 2.10 meters, their installation is optional, whereas for those with a width of less than 1.80 meters, their use is prohibited. They consist of two white lights at the front and two red lights at the rear, positioned at the highest and outermost points.",
+      "ru": "🎓 Контурные огни (luz de gálibo) обязательны для транспортных средств, ширина которых превышает 2,10 метра. Они помогают другим водителям издалека оценить габариты крупного транспорта в темноте, в тоннелях или при плохой видимости. Если ширина твоего легкового автомобиля (Turismo) составляет от 1,80 до 2,10 метра, ты можешь установить их по желанию, но это не обязательно. Для машин уже 1,80 метра их использование запрещено. Спереди они всегда белые, а сзади — красные. 💡 Больше чем два и десять — огни должны висеть!"
     },
     "image_url": "https://teorica.practicavial.com/question/12751e05-736a-455a-977f-73a7742aa109-1658245341-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/12751e05-736a-455a-977f-73a7742aa109-s-1.jpg",
@@ -592,17 +592,17 @@
     "question_number": 13,
     "category": "B",
     "question": {
-      "es": "En una travesía insuficientemente iluminada, ¿es obligatorio llevar encendido el alumbrado de corto alcance?",
-      "en": null,
-      "ru": null
+      "es": "¿En una travesía insuficientemente iluminada, es obligatorio llevar encendido el alumbrado de corto alcance?",
+      "en": "On an insufficiently lit through-town road (travesía), is it mandatory to have the low beam lights on?",
+      "ru": "Обязательно ли включать ближний свет фар при движении по недостаточно освещенному участку дороги, проходящему через населенный пункт (travesía)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Solo si hay peatones en las proximidades de la calzada.",
-          "en": null,
-          "ru": null
+          "en": "Only if there are pedestrians near the road.",
+          "ru": "Только если вблизи проезжей части находятся пешеходы."
         },
         "is_correct": false
       },
@@ -610,8 +610,8 @@
         "id": "b",
         "text": {
           "es": "No, debe usarse el alumbrado de largo alcance.",
-          "en": null,
-          "ru": null
+          "en": "No, high beam lights must be used.",
+          "ru": "Нет, необходимо использовать дальний свет фар."
         },
         "is_correct": false
       },
@@ -619,16 +619,16 @@
         "id": "c",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Al circular por una travesía, que se define como el tramo de una carretera que discurre por poblado, rigen las normas de vías urbanas. En poblado está estrictamente prohibido el uso del alumbrado de largo alcance (carretera). Por tanto, en condiciones de iluminación insuficiente durante la noche, es obligatorio el uso del alumbrado de corto alcance (cruce) junto con el de posición para garantizar la visibilidad sin deslumbrar a otros usuarios.",
+      "en": "When driving on a 'travesía' (a road section passing through a built-up area), urban road regulations apply. In built-up areas, the use of high-beam lights is strictly prohibited. Therefore, at night or under insufficient lighting conditions, the use of low-beam lights (dipped headlights) in conjunction with position lights is mandatory to ensure visibility without dazzling other road users.",
+      "ru": "🎓 Травесия — это участок шоссе, проходящий через населенный пункт, поэтому здесь действуют городские правила. В населенных пунктах использование дальнего света фар категорически запрещено, даже если освещения недостаточно. В темное время суток на таких участках ты, как водитель легкового автомобиля (Turismo), обязан включить ближний свет фар совместно с габаритными огнями. Это позволяет видеть дорогу и при этом не ослеплять пешеходов и других водителей.\n\n🇷🇺 В Испании запрет на дальний свет в черте города (включая травесии) является абсолютным, в то время как в РФ правила допускают использование дальнего света на неосвещенных участках дорог в населенных пунктах, если это не создает помех.\n\n💡 В городе дальний не включай, ближним путь свой освещай!"
     },
     "image_url": "https://teorica.practicavial.com/question/406261b4-5f86-47fa-abf0-1f0e1ab9261c-1658246039-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/406261b4-5f86-47fa-abf0-1f0e1ab9261c-s-1.jpg",
@@ -642,16 +642,16 @@
     "category": "B",
     "question": {
       "es": "Si una nube de humo disminuye sensiblemente la visibilidad, ¿debe utilizarse algún tipo de alumbrado?",
-      "en": null,
-      "ru": null
+      "en": "If a smoke cloud significantly reduces visibility, should any type of lighting be used?",
+      "ru": "Если облако дыма значительно снижает видимость, следует ли использовать какое-либо освещение?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, la luz antiniebla delantera o la luz de corto o largo alcance.",
-          "en": null,
-          "ru": null
+          "en": "Yes, the front fog light or the low or high beam.",
+          "ru": "Да, передние противотуманные фары, либо ближний или дальний свет."
         },
         "is_correct": true
       },
@@ -659,8 +659,8 @@
         "id": "b",
         "text": {
           "es": "No, excepto entre la puesta y la salida del sol.",
-          "en": null,
-          "ru": null
+          "en": "No, except between sunset and sunrise.",
+          "ru": "Нет, за исключением времени между закатом и восходом солнца."
         },
         "is_correct": false
       },
@@ -668,16 +668,16 @@
         "id": "c",
         "text": {
           "es": "Solo cuando se acerquen vehículos en sentido contrario.",
-          "en": null,
-          "ru": null
+          "en": "Only when vehicles approach in the opposite direction.",
+          "ru": "Только при приближении транспортных средств со встречного направления."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, ante condiciones ambientales que disminuyan sensiblemente la visibilidad, como nubes de humo o polvo, es obligatorio el uso del alumbrado de posición y el de corto alcance. Adicionalmente, se permite el uso de la luz antiniebla delantera (si el vehículo dispone de ella) o la de largo alcance, aunque esta última no es aconsejable por el riesgo de deslumbramiento por reflexión. La luz antiniebla trasera solo es obligatoria en condiciones especialmente desfavorables, como humo denso.",
+      "en": "According to the General Traffic Regulations, in environmental conditions that significantly reduce visibility, such as smoke or dust clouds, the use of position lights and low beam (dipped) lights is mandatory. Additionally, the front fog light (if equipped) or high beam lights may be used, although the latter is not recommended due to potential glare from reflection. The rear fog light is only mandatory in especially unfavorable conditions, such as dense smoke.",
+      "ru": "🎓 При значительном снижении видимости из-за облака дыма или пыли ты обязан обозначить свой легковой автомобиль (Turismo). В таких условиях обязательно использование габаритных огней и ближнего света. В дополнение к ним разрешается включать передние противотуманные фары или дальний свет. Важно учитывать, что дальний свет может ослепить тебя самого из-за отражения от частиц дыма. Задние противотуманные фонари включаются только в случае, если дым становится очень плотным. 💡 Видимость упала — свет включай, про «туманки» не забывай!"
     },
     "image_url": "https://teorica.practicavial.com/question/2762313d-29fe-436a-96b3-b5ce759c1bda-1658247558-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/2762313d-29fe-436a-96b3-b5ce759c1bda-s-1.jpg",
@@ -691,16 +691,16 @@
     "category": "B",
     "question": {
       "es": "Un turismo que circula entre la puesta y la salida del sol, ¿debe llevar iluminadas las placas de matrícula?",
-      "en": null,
-      "ru": null
+      "en": "A passenger car driving between sunset and sunrise, must it have its license plates illuminated?",
+      "ru": "Должен ли легковой автомобиль, движущийся между закатом и восходом солнца, иметь освещение номерных знаков?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sólo la placa delantera.",
-          "en": null,
-          "ru": null
+          "en": "Only the front plate.",
+          "ru": "Только передний номер."
         },
         "is_correct": false
       },
@@ -708,8 +708,8 @@
         "id": "b",
         "text": {
           "es": "Sí, tanto la placa delantera como la trasera.",
-          "en": null,
-          "ru": null
+          "en": "Yes, both the front and rear plates.",
+          "ru": "Да, как передний, так и задний номер."
         },
         "is_correct": false
       },
@@ -717,16 +717,16 @@
         "id": "c",
         "text": {
           "es": "Sólo la placa trasera.",
-          "en": null,
-          "ru": null
+          "en": "Only the rear plate.",
+          "ru": "Только задний номер."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "De acuerdo con el Reglamento General de Vehículos, todo vehículo que circule entre la puesta y la salida del sol debe llevar iluminada la placa de matrícula posterior. Esta iluminación debe ser suficiente para permitir la lectura de la matrícula a una distancia de 20 metros cuando el vehículo está parado. No existe obligación de iluminar la placa de matrícula delantera.",
+      "en": "According to the General Vehicle Regulations, every vehicle circulating between sunset and sunrise must have the rear license plate illuminated. This lighting must be sufficient to allow the license plate to be read from a distance of 20 meters when the vehicle is stationary. There is no obligation to illuminate the front license plate.",
+      "ru": "🎓 При движении в темное время суток на твоем легковом автомобиле должна быть освещена только задняя регистрационная табличка. Подсветка заднего номера включается автоматически при активации габаритных огней и должна обеспечивать его читаемость с расстояния 20 метров в ясную погоду. Передний номер подсвечивать не требуется. 🇷🇺 В РФ требования аналогичны: обязательной является только подсветка заднего государственного регистрационного знака. 💡 Спереди — фары для обзора, сзади — свет для номера!"
     },
     "image_url": "https://teorica.practicavial.com/question/b1b04161-581a-41e3-872e-d73abfb4d653-1658249521-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/b1b04161-581a-41e3-872e-d73abfb4d653-s-1.jpg",
@@ -739,17 +739,17 @@
     "question_number": 16,
     "category": "B",
     "question": {
-      "es": "Los ciclistas, ¿están obligados a encender el alumbrado cuando circulen de noche?",
-      "en": null,
-      "ru": null
+      "es": "¿Están obligados los ciclistas a encender el alumbrado cuando circulen de noche?",
+      "en": "Are cyclists required to turn on their lights when riding at night?",
+      "ru": "Обязаны ли велосипедисты включать освещение при движении в темное время суток?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       },
@@ -757,8 +757,8 @@
         "id": "b",
         "text": {
           "es": "No, si llevan puestas prendas reflectantes.",
-          "en": null,
-          "ru": null
+          "en": "No, if they are wearing reflective clothing.",
+          "ru": "Нет, если на них надета светоотражающая одежда."
         },
         "is_correct": false
       },
@@ -766,16 +766,16 @@
         "id": "c",
         "text": {
           "es": "Solo cuando circulen por vías interurbanas.",
-          "en": null,
-          "ru": null
+          "en": "Only when riding on interurban roads.",
+          "ru": "Только при движении по загородным дорогам."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, las bicicletas deben disponer obligatoriamente de luz de posición delantera (blanca), luz de posición trasera (roja) y un catadióptrico trasero no triangular (rojo) para circular de noche, por tramos de vías señalizados con la señal de túnel o cuando existan condiciones meteorológicas que disminuyan la visibilidad. En vías interurbanas, el conductor de la bicicleta debe llevar colocada, además, una prenda reflectante cuando sea obligatorio el uso del alumbrado.",
+      "en": "According to the General Circulation Regulations, bicycles must be equipped with a white front position light, a red rear position light, and a red non-triangular rear reflector when riding at night, through tunnels, or in conditions of reduced visibility. On interurban roads, the cyclist must also wear a reflective garment whenever the use of lighting is mandatory.",
+      "ru": "🎓 Велосипедисты обязаны использовать освещение при движении ночью, в тоннелях или в условиях недостаточной видимости. Обязательное оборудование включает один передний фонарь белого цвета, один задний фонарь красного цвета и один задний красный световозвращатель нетреугольной формы. При движении по загородным дорогам велосипедист также обязан надеть светоотражающий элемент одежды. Тебе как водителю легкового автомобиля важно помнить: наличие жилета не заменяет фонари, они должны работать одновременно. 🇷🇺 В Испании на загородных трассах наличие светоотражающей одежды для велосипедиста является строгим требованием закона, а не рекомендацией. 💡 Фонарь горит, жилет блестит — водитель вовремя притормозит!"
     },
     "image_url": "https://teorica.practicavial.com/question/c2cec183-ab0e-4988-af24-224cf4997beb-1658244958-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/c2cec183-ab0e-4988-af24-224cf4997beb-s-1.jpg",
@@ -789,16 +789,16 @@
     "category": "B",
     "question": {
       "es": "No está permitido utilizar la luz de largo alcance...",
-      "en": null,
-      "ru": null
+      "en": "It is not allowed to use high beam lights...",
+      "ru": "Не разрешается использовать дальний свет фар..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "en túneles y tramos de vía afectados por señal de túnel.",
-          "en": null,
-          "ru": null
+          "en": "in tunnels and road sections affected by a tunnel sign.",
+          "ru": "в тоннелях и на участках дорог, обозначенных знаком тоннеля."
         },
         "is_correct": false
       },
@@ -806,8 +806,8 @@
         "id": "b",
         "text": {
           "es": "si el vehículo está parado o estacionado.",
-          "en": null,
-          "ru": null
+          "en": "if the vehicle is stopped or parked.",
+          "ru": "если транспортное средство стоит или припарковано."
         },
         "is_correct": true
       },
@@ -815,16 +815,16 @@
         "id": "c",
         "text": {
           "es": "para avisar a otros usuarios de un posible peligro.",
-          "en": null,
-          "ru": null
+          "en": "to warn other users of a possible danger.",
+          "ru": "для предупреждения других участников о возможной опасности."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación prohíbe el uso de la luz de largo alcance cuando el vehículo se encuentra parado o estacionado. Su uso está destinado exclusivamente a la circulación por vías interurbanas insuficientemente iluminadas a una velocidad superior a 40 km/h. Asimismo, queda prohibido su uso en vías urbanas y en situaciones donde pueda deslumbrar a otros usuarios.",
+      "en": "Traffic regulations prohibit the use of high beam lights when the vehicle is stopped or parked. Their primary function is to illuminate the road while driving on insufficiently lit interurban roads at speeds exceeding 40 km/h. High beams are also prohibited in urban areas and whenever they might cause glare to other road users.",
+      "ru": "🎓 Легковой автомобиль (Turismo) обязан использовать дальний свет только при движении со скоростью более 40 км/ч в темное время суток на недостаточно освещенных дорогах вне населенных пунктов. Если ты остановился или припарковал машину, использование дальнего света запрещено — в этой ситуации он не выполняет своей функции и ослепляет окружающих. Также помни, что дальний свет категорически запрещен в населенных пунктах. 💡 Стоишь на месте — дальний гаси, слепить соседей не спеши!"
     },
     "image_url": "https://teorica.practicavial.com/question/ec38af4a-3dac-4991-a3a9-4829ce6161e9-1658246615-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/ec38af4a-3dac-4991-a3a9-4829ce6161e9-s-1.jpg",
@@ -838,16 +838,16 @@
     "category": "B",
     "question": {
       "es": "Al estacionar un vehículo en una vía urbana suficientemente iluminada, ¿qué alumbrado dejará encendido?",
-      "en": null,
-      "ru": null
+      "en": "When parking a vehicle on a sufficiently lit urban road, what lighting will you leave on?",
+      "ru": "При парковке легкового автомобиля на достаточно освещенной городской улице, какие световые приборы следует оставить включенными?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "El alumbrado de posición o el de estacionamiento, si se trata de una travesía.",
-          "en": null,
-          "ru": null
+          "en": "Position lights or parking lights, if it is a through-road (travesía).",
+          "ru": "Габаритные огни или стояночные огни, если это участок дороги, проходящий через населенный пункт (travesía)."
         },
         "is_correct": false
       },
@@ -855,8 +855,8 @@
         "id": "b",
         "text": {
           "es": "El alumbrado de posición.",
-          "en": null,
-          "ru": null
+          "en": "Position lights.",
+          "ru": "Габаритные огни."
         },
         "is_correct": false
       },
@@ -864,16 +864,16 @@
         "id": "c",
         "text": {
           "es": "Ninguno.",
-          "en": null,
-          "ru": null
+          "en": "None.",
+          "ru": "Никакие."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "De acuerdo con el Reglamento General de Circulación, no es obligatorio dejar encendido ningún alumbrado cuando el vehículo se encuentre estacionado en una vía urbana suficientemente iluminada. La obligación de mantener encendido el alumbrado de posición o, en su caso, el de estacionamiento, se aplica únicamente en travesías o vías urbanas insuficientemente iluminadas, o al estacionar en el arcén de una vía interurbana.",
+      "en": "According to the General Traffic Regulations, it is not mandatory to leave any lights on when a vehicle is parked on a sufficiently lit urban road. The requirement to use position lights or parking lights applies only to urban roads or through-roads (travesías) that are insufficiently lit, or when parking on the shoulder of an interurban road.",
+      "ru": "🎓 При парковке (estacionamiento) легкового автомобиля на достаточно освещенной городской улице тебе не нужно оставлять включенными никакие световые приборы. Обязанность использовать габаритные огни возникает только на неосвещенных или недостаточно освещенных участках проезжей части или обочины, а также на обочинах загородных дорог. Если уличное освещение позволяет другим водителям вовремя заметить твой легковой автомобиль, все приборы освещения можно полностью выключить для экономии заряда аккумулятора.\n\n💡 Видишь фонари — габариты не жги!"
     },
     "image_url": "https://teorica.practicavial.com/question/4f8fedfe-30ac-4b26-9220-e0d162ef95c8-1658244993-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/4f8fedfe-30ac-4b26-9220-e0d162ef95c8-s-1.jpg",
@@ -886,17 +886,17 @@
     "question_number": 19,
     "category": "B",
     "question": {
-      "es": "Es obligatorio utilizar las luces de carretera al circular a más de 40 kilómetros por hora por una vía...",
-      "en": null,
-      "ru": null
+      "es": "¿Es obligatorio utilizar las luces de carretera al circular a más de 40 kilómetros por hora por una vía...?",
+      "en": "Is it mandatory to use high-beam headlights when driving at more than 40 kilometers per hour on a road...?",
+      "ru": "Обязательно ли использовать дальний свет фар при движении со скоростью более 40 км/ч по дороге...?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "insuficientemente iluminada, dentro o fuera de poblado.",
-          "en": null,
-          "ru": null
+          "en": "insufficiently illuminated, inside or outside of town.",
+          "ru": "недостаточно освещенной, в населенном пункте или вне его."
         },
         "is_correct": false
       },
@@ -904,8 +904,8 @@
         "id": "b",
         "text": {
           "es": "insuficientemente iluminada fuera de poblado.",
-          "en": null,
-          "ru": null
+          "en": "insufficiently illuminated outside of town.",
+          "ru": "недостаточно освещенной вне населенного пункта."
         },
         "is_correct": true
       },
@@ -913,16 +913,16 @@
         "id": "c",
         "text": {
           "es": "suficientemente iluminada fuera de poblado.",
-          "en": null,
-          "ru": null
+          "en": "sufficiently illuminated outside of town.",
+          "ru": "достаточно освещенной вне населенного пункта."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El uso del alumbrado de largo alcance o carretera es obligatorio para todo vehículo que circule a más de 40 km/h, entre el ocaso y la salida del sol, por vías interurbanas insuficientemente iluminadas. Se prohíbe estrictamente su uso en vías urbanas, incluso si están mal iluminadas. En caso de circular a 40 km/h o menos, su uso es opcional, pudiendo utilizarse el corto alcance. Si existe riesgo de deslumbramiento a otros usuarios, se debe cambiar a la luz de corto alcance.",
+      "en": "The use of high-beam or main-beam headlamps is mandatory for any vehicle traveling at more than 40 km/h between sunset and sunrise on insufficiently illuminated interurban roads. Its use is strictly prohibited on urban roads, even if they are poorly lit. When driving at 40 km/h or less, its use is optional, and low-beam headlamps may be used instead. If there is a risk of dazzling other road users, you must switch to low-beam headlamps.",
+      "ru": "🎓 Использование дальнего света фар становится обязательным для легкового автомобиля при одновременном соблюдении условий: ты находишься вне населенного пункта, наступило темное время суток, дорога освещена недостаточно и твоя скорость превышает 40 км/ч. Дорога считается недостаточно освещенной, если с 10 метров не читается номерной знак или с 50 метров не виден автомобиль темного цвета. В черте города использовать дальний свет категорически запрещено. Если твоя скорость 40 км/ч или ниже, использование дальнего света на трассе становится твоим правом, а не обязанностью. 🇷🇺 В Испании включение дальнего света при скорости выше 40 км/ч на темной трассе — это жесткая обязанность, а не просто рекомендация. 💡 Выше сорока на темной трассе — дальний свет гасить не властен!"
     },
     "image_url": "https://teorica.practicavial.com/question/704eb647-e0e1-456c-98c2-d205644208cf-1658246880-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/704eb647-e0e1-456c-98c2-d205644208cf-s-1.jpg",
@@ -936,16 +936,16 @@
     "category": "B",
     "question": {
       "es": "Si circula por una vía interurbana insuficientemente iluminada a una velocidad inferior a 40 km/h, ¿qué luces deberá llevar encendidas?",
-      "en": null,
-      "ru": null
+      "en": "If you are driving on an insufficiently lit interurban road at a speed below 40 km/h, what lights must you have on?",
+      "ru": "Если вы движетесь по недостаточно освещенной загородной дороге со скоростью менее 40 км/ч, какие световые приборы должны быть включены?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Las luces de corto alcance, al menos.",
-          "en": null,
-          "ru": null
+          "en": "Low-beam lights, at least.",
+          "ru": "Ближний свет, как минимум."
         },
         "is_correct": true
       },
@@ -953,8 +953,8 @@
         "id": "b",
         "text": {
           "es": "Las luces de largo alcance.",
-          "en": null,
-          "ru": null
+          "en": "High-beam lights.",
+          "ru": "Дальний свет."
         },
         "is_correct": false
       },
@@ -962,16 +962,16 @@
         "id": "c",
         "text": {
           "es": "Las luces de posición solamente.",
-          "en": null,
-          "ru": null
+          "en": "Position lights only.",
+          "ru": "Только габаритные огни."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, en vías interurbanas insuficientemente iluminadas, el uso del alumbrado de largo alcance es obligatorio para vehículos que circulen a más de 40 km/h, siempre que no exista riesgo de deslumbramiento. Si la velocidad es igual o inferior a 40 km/h, el conductor puede optar por utilizar la luz de corto alcance o la de largo alcance. Por lo tanto, como mínimo, se deben llevar encendidas las luces de corto alcance.",
+      "en": "According to the General Traffic Regulations, on insufficiently lit interurban roads, the use of high-beam lights is mandatory for vehicles traveling at speeds exceeding 40 km/h, provided there is no risk of dazzling other users. If the speed is 40 km/h or less, the driver may choose between low-beam or high-beam lights. Consequently, at least the low-beam lights must be switched on.",
+      "ru": "🎓 При движении вне населенного пункта по недостаточно освещенной дороге использование дальнего света обязательно, только если скорость превышает 40 км/ч. Если твой Легковой автомобиль едет со скоростью 40 км/ч или медленнее, дальний свет становится необязательным — ты имеешь право переключиться на ближний свет. Таким образом, в данной ситуации необходимо включить как минимум ближний свет. 🇷🇺 В Испании использование дальнего света на неосвещенных трассах при скорости выше 40 км/ч является строгой обязанностью, а не выбором водителя. 💡 Едешь быстро — дальний свет, едешь тихо — нужды нет!"
     },
     "image_url": "https://teorica.practicavial.com/question/55037c3b-6eeb-40fb-9dd5-d4b6c73d2786-1658246855-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/55037c3b-6eeb-40fb-9dd5-d4b6c73d2786-s-1.jpg",
@@ -985,16 +985,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuándo podrá utilizarse la luz antiniebla delantera?",
-      "en": null,
-      "ru": null
+      "en": "When can front fog lights be used?",
+      "ru": "Когда можно использовать передние противотуманные фары?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Siempre que se circula de noche.",
-          "en": null,
-          "ru": null
+          "en": "Always when driving at night.",
+          "ru": "Всегда при движении в темное время суток."
         },
         "is_correct": false
       },
@@ -1002,8 +1002,8 @@
         "id": "b",
         "text": {
           "es": "Cuando existan condiciones ambientales que disminuyan sensiblemente la visibilidad.",
-          "en": null,
-          "ru": null
+          "en": "When there are environmental conditions that significantly decrease visibility.",
+          "ru": "При наличии метеорологических условий, которые значительно снижают видимость."
         },
         "is_correct": true
       },
@@ -1011,16 +1011,16 @@
         "id": "c",
         "text": {
           "es": "Entre la puesta y la salida del sol en travesías insuficientemente iluminadas.",
-          "en": null,
-          "ru": null
+          "en": "Between sunset and sunrise on insufficiently lit crossings.",
+          "ru": "В период между закатом и восходом солнца на участках дорог в населенных пунктах с недостаточным освещением."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El uso de la luz antiniebla delantera es opcional según el Reglamento General de Circulación. Se permite su activación cuando existan condiciones meteorológicas o ambientales que disminuyan sensiblemente la visibilidad, tales como niebla, lluvia intensa, nevada o nubes de humo o polvo. Puede utilizarse sola o simultáneamente con las luces de posición y las de corto o largo alcance.",
+      "en": "Front fog lights are optional equipment. Their use is permitted during adverse weather or environmental conditions that significantly reduce visibility, such as fog, heavy rain, snow, or clouds of smoke or dust. They can be operated independently or in combination with position lights, low-beam, or high-beam headlights.",
+      "ru": "🎓 Легковой автомобиль (Turismo) не обязан иметь передние противотуманные фары, это опция. Ты имеешь право включить их при любом заметном ухудшении видимости: тумане, сильном дожде, снегопаде или в облаках дыма и пыли. Передние фары помогают тебе лучше видеть дорогу в непогоду, в то время как задний противотуманный фонарь включается только при очень плохой видимости. 💡 Видишь туман или ливень стеной — смело включай свет перед собой!"
     },
     "image_url": "https://teorica.practicavial.com/question/3fd24fe1-fd0e-436f-af21-da138a078d91-1658247433-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/3fd24fe1-fd0e-436f-af21-da138a078d91-s-1.jpg",
@@ -1034,16 +1034,16 @@
     "category": "B",
     "question": {
       "es": "Las motocicleta sin sidecar, ¿cuántas luces de corto alcance deben llevar instaladas?",
-      "en": null,
-      "ru": null
+      "en": "How many low-beam lights must a motorcycle without a sidecar have installed?",
+      "ru": "Сколько фар ближнего света должно быть установлено на мотоцикле без коляски?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Una o dos delante.",
-          "en": null,
-          "ru": null
+          "en": "One or two in front.",
+          "ru": "Одна или две спереди."
         },
         "is_correct": true
       },
@@ -1051,8 +1051,8 @@
         "id": "b",
         "text": {
           "es": "Sólo una delante.",
-          "en": null,
-          "ru": null
+          "en": "Only one in front.",
+          "ru": "Только одна спереди."
         },
         "is_correct": false
       },
@@ -1060,16 +1060,16 @@
         "id": "c",
         "text": {
           "es": "Dos, obligatoriamente, una delante y otra detrás.",
-          "en": null,
-          "ru": null
+          "en": "Two, mandatory, one in front and one behind.",
+          "ru": "Две, в обязательном порядке: одна спереди и одна сзади."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Vehículos, las motocicletas de dos ruedas (sin sidecar) deben estar dotadas de una o dos luces de corto alcance o de cruce en la parte delantera. El color de la luz debe ser blanco y su uso es obligatorio tanto de día como de noche para mejorar la visibilidad del vehículo.",
+      "en": "According to the General Vehicle Regulations, two-wheeled motorcycles (without a sidecar) must be equipped with either one or two low-beam (dipped-beam) headlamps on the front. The light must be white, and its use is mandatory during both day and night to enhance the vehicle's visibility.",
+      "ru": "🎓 Согласно ПДД Испании, мотоциклы без коляски должны иметь одну или две фары ближнего света спереди. Это же правило распространяется на мопеды и трициклы. Важно помнить, что в Испании мотоциклисты обязаны держать ближний свет включенным постоянно — и днем, и ночью. В то время как твой легковой автомобиль (Turismo) всегда имеет две фары, конструкция мотоцикла допускает наличие всего одного осветительного прибора по центру. 🇷🇺 В РФ требования аналогичны: на мотоцикле должна быть как минимум одна фара ближнего света. 💡 Один или два огня впереди — мотоцикл виден в пути!"
     },
     "image_url": "https://teorica.practicavial.com/question/cb921456-6c19-4e4a-aba6-7fd9ef18326d-1658245403-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/cb921456-6c19-4e4a-aba6-7fd9ef18326d-s-1.jpg",
@@ -1082,17 +1082,17 @@
     "question_number": 23,
     "category": "B",
     "question": {
-      "es": "En una vía interurbana insuficientemente iluminada, un vehículo circula a menos de 40 km/h, ¿puede circular utilizando sólo la luz de corto alcance?",
-      "en": null,
-      "ru": null
+      "es": "¿En una vía interurbana insuficientemente iluminada, un vehículo circula a menos de 40 km/h, puede circular utilizando sólo la luz de corto alcance?",
+      "en": "On an insufficiently lit interurban road, a vehicle travels at less than 40 km/h, can it drive using only the short-range light?",
+      "ru": "На недостаточно освещенной загородной дороге легковой автомобиль движется со скоростью менее 40 км/ч. Можно ли использовать только ближний свет фар?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, aunque puede encender la de largo alcance si no molesta a otros usuarios.",
-          "en": null,
-          "ru": null
+          "en": "Yes, although the long-range light may be turned on if it does not bother other users.",
+          "ru": "Да, хотя можно включить и дальний свет, если это не ослепляет других участников движения."
         },
         "is_correct": true
       },
@@ -1100,8 +1100,8 @@
         "id": "b",
         "text": {
           "es": "No, es obligatorio que circule con la luz de largo alcance.",
-          "en": null,
-          "ru": null
+          "en": "No, it is mandatory to drive with the long-range light.",
+          "ru": "Нет, использование дальнего света в таких условиях обязательно."
         },
         "is_correct": false
       },
@@ -1109,16 +1109,16 @@
         "id": "c",
         "text": {
           "es": "Solo cuando circule por una travesía.",
-          "en": null,
-          "ru": null
+          "en": "Only when driving through a traverse.",
+          "ru": "Только при движении по участку дороги, проходящему через населенный пункт (travesía)."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, el uso de la luz de largo alcance es obligatorio en vías interurbanas insuficientemente iluminadas cuando se circula a más de 40 km/h. Si la velocidad es igual o inferior a 40 km/h, el conductor puede optar por utilizar la luz de corto alcance o la de largo alcance, siempre que no exista riesgo de deslumbramiento a otros usuarios de la vía.",
+      "en": "According to the General Traffic Regulations, the use of long-range (high beam) lighting is mandatory on insufficiently lit interurban roads when traveling at more than 40 km/h. If the speed is 40 km/h or less, the driver may choose to use either short-range (low beam) or long-range lighting, provided there is no risk of dazzling other road users.",
+      "ru": "🎓 На загородных дорогах в темное время суток при недостаточном освещении использование дальнего света становится обязательным только в том случае, если твой легковой автомобиль движется со скоростью выше 40 км/ч. Если же ты едешь медленнее (40 км/ч и менее), правила позволяют тебе выбирать: остаться на ближнем свете или включить дальний. Главное условие при включении дальнего света — не ослеплять других водителей. 🇷🇺 В Испании дальний свет — это обязанность на скорости выше 40 км/ч, тогда как в РФ это всегда выбор водителя в зависимости от видимости и дорожных условий. 💡 Быстро мчишь — дальний включай, тихо едешь — ближним сверкай!"
     },
     "image_url": "https://teorica.practicavial.com/question/a349e853-aea6-4896-9862-23930b79f3dc-1658246682-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/a349e853-aea6-4896-9862-23930b79f3dc-s-1.jpg",
@@ -1132,16 +1132,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué alumbrado debe utilizar un turismo que circule entre la puesta y la salida del sol por una travesía suficientemente iluminada?",
-      "en": null,
-      "ru": null
+      "en": "What lighting must a passenger car use when driving between sunset and sunrise on a sufficiently lit through-road?",
+      "ru": "Какое освещение должен использовать легковой автомобиль при движении между закатом и рассветом по достаточно освещенному участку дороги, проходящему через населенный пункт (travesía)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "El alumbrado de posición y el de corto o largo alcance.",
-          "en": null,
-          "ru": null
+          "en": "Position lights and either low or high beam.",
+          "ru": "Габаритные огни и ближний или дальний свет."
         },
         "is_correct": false
       },
@@ -1149,8 +1149,8 @@
         "id": "b",
         "text": {
           "es": "Ninguno.",
-          "en": null,
-          "ru": null
+          "en": "None.",
+          "ru": "Никакого."
         },
         "is_correct": false
       },
@@ -1158,16 +1158,16 @@
         "id": "c",
         "text": {
           "es": "El alumbrado de posición y el de corto alcance.",
-          "en": null,
-          "ru": null
+          "en": "Position lights and low beam.",
+          "ru": "Габаритные огни и ближний свет."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, todo vehículo que circule entre la puesta y la salida del sol por vías urbanas o travesías suficientemente iluminadas debe llevar encendido el alumbrado de posición y el de corto alcance o cruce. El uso del alumbrado de largo alcance está prohibido en estas vías para evitar deslumbramientos a otros usuarios.",
+      "en": "According to the General Traffic Regulations, any vehicle driving between sunset and sunrise on urban roads or sufficiently lit through-roads must use position lights and low-beam (dipped) headlights. High-beam headlights are prohibited on these roads to prevent dazzling other road users.",
+      "ru": "🎓 При движении в темное время суток по населенному пункту или по travesía (участок трассы в черте поселения), если дорога достаточно освещена, ты обязан включить габаритные огни и ближний свет фар. Дальний свет в этих условиях запрещен, чтобы не ослеплять других водителей. Ближний свет также обязателен в туннелях, при движении по реверсивным полосам движения, а также в условиях плохой видимости. Если на твоем легковом автомобиле нет дневных ходовых огней (DRL), рекомендуется всегда держать ближний свет включенным. 💡 В городе светло — включай ближний, дальний свет здесь лишний!"
     },
     "image_url": "https://teorica.practicavial.com/question/8a6ad0da-2038-4b46-a560-52c0c5996db5-1658246286-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/8a6ad0da-2038-4b46-a560-52c0c5996db5-s-1.jpg",
@@ -1181,16 +1181,16 @@
     "category": "B",
     "question": {
       "es": "¿Puede deslumbrar con la luz de largo alcance a los vehículos que circulan delante por su mismo carril?",
-      "en": null,
-      "ru": null
+      "en": "Can you dazzle vehicles driving ahead in the same lane with high-beam headlights?",
+      "ru": "Можно ли ослепить дальним светом фар водителей транспортных средств, движущихся впереди по той же полосе движения (Carril)?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, sólo se deslumbra a los que se encuentre de frente.",
-          "en": null,
-          "ru": null
+          "en": "No, you only dazzle those coming from the opposite direction.",
+          "ru": "Нет, ослепить можно только тех, кто едет навстречу."
         },
         "is_correct": false
       },
@@ -1198,8 +1198,8 @@
         "id": "b",
         "text": {
           "es": "Sí, por el reflejo de la calzada.",
-          "en": null,
-          "ru": null
+          "en": "Yes, due to the reflection from the road surface.",
+          "ru": "Да, из-за отражения от проезжей части (Calzada)."
         },
         "is_correct": false
       },
@@ -1207,16 +1207,16 @@
         "id": "c",
         "text": {
           "es": "Sí, a través de los espejos retrovisores, por lo que debe cambiar a la luz de corto alcance.",
-          "en": null,
-          "ru": null
+          "en": "Yes, through the rearview mirrors, so you must switch to low-beam headlights.",
+          "ru": "Да, через зеркала заднего вида, поэтому необходимо переключиться на ближний свет."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación prohíbe el uso de la luz de largo alcance siempre que exista riesgo de deslumbramiento a otros usuarios. Esto incluye a los conductores que circulan delante, quienes pueden ser deslumbrados por el reflejo de la luz en sus espejos retrovisores (interior y exteriores). Es obligatorio cambiar a luz de corto alcance para garantizar la seguridad vial. En caso de ser deslumbrado, el conductor debe reducir la velocidad, incluso hasta detenerse, sin abandonar su carril.",
+      "en": "Traffic regulations prohibit the use of high-beam headlights whenever there is a risk of dazzling other road users. This includes drivers traveling ahead, who can be dazzled by the reflection of the light in their rearview mirrors (both interior and exterior). Switching to low-beam headlights is mandatory to ensure road safety. If dazzled, a driver must reduce their speed, potentially to a complete stop, without leaving their lane.",
+      "ru": "🎓 При движении в темное время суток ты обязан переключиться с дальнего света на ближний, если есть риск ослепить любого участника движения. Это касается не только встречных машин, но и тех, кто едет впереди тебя по той же полосе движения (Carril): свет твоих фар отражается в их зеркалах заднего вида и бьет им в глаза. Если же ослепили тебя, не меняй полосу и не крути руль — плавно снижай скорость вплоть до остановки, пока зрение не восстановится. При обгоне переключайся на ближний в тот момент, когда ваши легковые автомобили (Turismo) поравняются. 💡 Видишь впереди огни — ближний свет переключи!"
     },
     "image_url": "https://teorica.practicavial.com/question/76664cc4-743c-424e-83cf-e1353a52920f-1658248695-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/76664cc4-743c-424e-83cf-e1353a52920f-s-1.jpg",
@@ -1230,16 +1230,16 @@
     "category": "B",
     "question": {
       "es": "En caso de niebla espesa, ¿qué luces debe utilizar el conductor de un turismo?",
-      "en": null,
-      "ru": null
+      "en": "In case of thick fog, which lights must the driver of a passenger car use?",
+      "ru": "В случае густого тумана, какие световые приборы должен использовать водитель легкового автомобиля?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Las luces antiniebla, las de posición y las de corto alcance.",
-          "en": null,
-          "ru": null
+          "en": "Fog lights, position lights, and low beam lights.",
+          "ru": "Противотуманные фары, габаритные огни и ближний свет фар."
         },
         "is_correct": true
       },
@@ -1247,8 +1247,8 @@
         "id": "b",
         "text": {
           "es": "Las luces antiniebla delanteras y las de emergencia.",
-          "en": null,
-          "ru": null
+          "en": "Front fog lights and emergency lights.",
+          "ru": "Передние противотуманные фары и аварийную световую сигнализацию."
         },
         "is_correct": false
       },
@@ -1256,16 +1256,16 @@
         "id": "c",
         "text": {
           "es": "Las luces antiniebla, las de posición y las de emergencia.",
-          "en": null,
-          "ru": null
+          "en": "Fog lights, position lights, and emergency lights.",
+          "ru": "Противотуманные фары, габаритные огни и аварийную световую сигнализацию."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "En condiciones de niebla espesa, es obligatorio el uso de la luz antiniebla trasera para todos los turismos para garantizar la visibilidad del vehículo desde atrás. Asimismo, se deben encender las luces de posición y las de corto alcance (cruce). La luz antiniebla delantera, si el vehículo dispone de ella, es de uso opcional pero recomendable. El uso de la luz de largo alcance no es aconsejable debido al fenómeno de reflexión en las gotas de agua, lo que produce deslumbramiento al propio conductor.",
+      "en": "In thick fog conditions, the use of the rear fog light is mandatory for all passenger cars to ensure the vehicle's visibility from behind. Additionally, position lights and low beam (dipped) lights must be switched on. If the vehicle is equipped with front fog lights, their use is optional but recommended. The use of high beam lights is not advisable due to the reflection off water droplets, which causes glare for the driver.",
+      "ru": "🎓 При густом тумане на легковом автомобиле ты обязан включить задний противотуманный фонарь, габаритные огни и ближний свет фар. Передние противотуманные фары можно включить по желанию, если они установлены. Задний противотуманный фонарь в Испании обязателен только при экстремально плохой видимости (густой туман, очень сильный ливень, сильный снегопад), чтобы тебя видели другие водители. Использовать дальний свет не рекомендуется: он создаст эффект «белой стены», отражаясь от капель тумана, и ослепит тебя самого. 💡 Туман густой — включай фонарь задний, чтоб не приехал в тебя крайний!"
     },
     "image_url": "https://teorica.practicavial.com/question/a92cebdf-fb3b-49f9-8880-29ea9f5acad9-1658247937-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/a92cebdf-fb3b-49f9-8880-29ea9f5acad9-s-1.jpg",
@@ -1279,16 +1279,16 @@
     "category": "B",
     "question": {
       "es": "En un tramo de vía con muchas curvas señalizado con la señal de \"curvas peligrosas\", podrá utilizar la luz antiniebla delantera siempre que...",
-      "en": null,
-      "ru": null
+      "en": "On a section of road with many curves marked with the \"dangerous curves\" sign, you may use the front fog lights provided that...",
+      "ru": "На участке дороги с множеством поворотов, обозначенном знаком «Опасные повороты», вы можете использовать передние противотуманные фары, если..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "el vehículo esté pintado de oscuro y la calzada sea de doble sentido.",
-          "en": null,
-          "ru": null
+          "en": "the vehicle is painted a dark color and the carriageway is two-way.",
+          "ru": "легковой автомобиль окрашен в темный цвет и проезжая часть является дорогой с двусторонним движением."
         },
         "is_correct": false
       },
@@ -1296,8 +1296,8 @@
         "id": "b",
         "text": {
           "es": "la calzada sea de sentido único.",
-          "en": null,
-          "ru": null
+          "en": "the carriageway is one-way.",
+          "ru": "проезжая часть является дорогой с односторонним движением."
         },
         "is_correct": false
       },
@@ -1305,16 +1305,16 @@
         "id": "c",
         "text": {
           "es": "la calzada tenga una anchura igual o inferior a 6,50 metros.",
-          "en": null,
-          "ru": null
+          "en": "the carriageway has a width equal to or less than 6.50 meters.",
+          "ru": "проезжая часть имеет ширину 6,50 метров или менее."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación autoriza el uso de la luz antiniebla delantera en tramos de vías estrechas (calzadas de 6,50 metros de anchura o inferior) que estén señalizados con señales de curvas peligrosas sucesivas. Esta autorización es válida incluso cuando no existan condiciones meteorológicas que disminuyan sensiblemente la visibilidad, con el fin de mejorar la iluminación de los márgenes de la calzada.",
+      "en": "The General Traffic Regulations allow the use of front fog lights on narrow road sections (carriageways 6.50 meters wide or less) marked with dangerous curve signs. This is permitted even in the absence of adverse weather conditions to improve the illumination of the road edges during cornering.",
+      "ru": "🎓 В Испании разрешено включать передние противотуманные фары ночью при отсутствии тумана или дождя, если ты движешься по узкой проезжей части (шириной 6,50 метров или менее), обозначенной знаками «Опасные повороты». Это правило создано для того, чтобы водитель легкового автомобиля мог лучше видеть границы полосы движения в сложных условиях маневрирования. 🇷🇺 В РФ использование противотуманных фар в темное время суток разрешено только совместно с ближним или дальним светом фар, и это право не привязано к конкретной ширине дороги. 💡 Шесть с половиной метров в пути — можно с туманками в кривую войти!"
     },
     "image_url": "https://teorica.practicavial.com/question/4c5f0412-c614-4069-8b97-5f2983d8f108-1658247623-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/4c5f0412-c614-4069-8b97-5f2983d8f108-s-1.jpg",
@@ -1328,16 +1328,16 @@
     "category": "B",
     "question": {
       "es": "Si circula de noche con la luz de carretera encendida y ve peatones en el arcén, ¿está obligado a cambiar la luz de largo alcance por la de corto alcance?",
-      "en": null,
-      "ru": null
+      "en": "If you drive at night with high beams on and see pedestrians on the shoulder, are you obliged to switch to low beams?",
+      "ru": "Если вы едете ночью с включенным дальним светом и видите пешеходов на обочине, обязаны ли вы переключиться на ближний свет?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí, para no deslumbrar a los peatones.",
-          "en": null,
-          "ru": null
+          "en": "Yes, to avoid dazzling pedestrians.",
+          "ru": "Да, чтобы не ослеплять пешеходов."
         },
         "is_correct": true
       },
@@ -1345,8 +1345,8 @@
         "id": "b",
         "text": {
           "es": "No, debe seguir circulando con la luz de carretera encendida.",
-          "en": null,
-          "ru": null
+          "en": "No, you must continue driving with high beams on.",
+          "ru": "Нет, необходимо продолжать движение с включенным дальним светом."
         },
         "is_correct": false
       },
@@ -1354,16 +1354,16 @@
         "id": "c",
         "text": {
           "es": "Solamente si circula por un tramo de vía recto.",
-          "en": null,
-          "ru": null
+          "en": "Only if driving on a straight section of the road.",
+          "ru": "Только если вы движетесь по прямому участку дороги."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece la obligatoriedad de sustituir la luz de carretera por la de corto alcance tan pronto como se aprecie la posibilidad de deslumbrar a cualquier usuario de la vía, incluidos los peatones que circulen por el arcén. El deslumbramiento puede comprometer la seguridad vial al reducir la visibilidad de otros usuarios y provocar reacciones imprevistas.",
+      "en": "The General Traffic Regulations require switching from high beam to low beam as soon as there is a risk of dazzling any road user, including pedestrians walking on the shoulder (arcén). Dazzling can compromise road safety by reducing the visibility of other users and potentially causing unpredictable reactions.",
+      "ru": "🎓 В тёмное время суток на загородных дорогах ты обязан переключиться с дальнего света на ближний, если есть риск ослепить любого участника дорожного движения. Это правило распространяется не только на водителей встречных машин, но и на пешеходов, идущих по обочине (arcén). Ослеплённый человек может потерять ориентацию в пространстве и случайно выйти на проезжую часть (calzada). Дальний свет разрешён только на скорости более 40 км/ч на недостаточно освещённых дорогах вне города, но безопасность окружающих всегда в приоритете. 🇷🇺 В РФ правила идентичны: ослепление пешеходов дальним светом недопустимо. 💡 Видишь пешехода на пути — ближний свет скорей включи!"
     },
     "image_url": "https://teorica.practicavial.com/question/d86870e6-9263-4b48-aabd-06cd5f58e302-1658248613-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d86870e6-9263-4b48-aabd-06cd5f58e302-s-1.jpg",
@@ -1377,16 +1377,16 @@
     "category": "B",
     "question": {
       "es": "De día es obligatorio encender el alumbrado que corresponda...",
-      "en": null,
-      "ru": null
+      "en": "During the day, it is mandatory to turn on the corresponding lighting...",
+      "ru": "В светлое время суток обязательно включать соответствующее освещение..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "cuando se circule por pasos inferiores o tramos de vía afectados por la señal túnel.",
-          "en": null,
-          "ru": null
+          "en": "when driving through underpasses or road sections affected by the tunnel sign.",
+          "ru": "при движении по подземным переходам (тоннелям) или участкам дорог, обозначенным знаком «Тоннель»."
         },
         "is_correct": true
       },
@@ -1394,8 +1394,8 @@
         "id": "b",
         "text": {
           "es": "sólo cuando existan condiciones que disminuyan la visibilidad.",
-          "en": null,
-          "ru": null
+          "en": "only when there are conditions that reduce visibility.",
+          "ru": "только при наличии условий, снижающих видимость."
         },
         "is_correct": false
       },
@@ -1403,16 +1403,16 @@
         "id": "c",
         "text": {
           "es": "cuando se circule por carriles para VAO.",
-          "en": null,
-          "ru": null
+          "en": "when driving in VAO lanes.",
+          "ru": "при движении по полосам VAO."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece la obligatoriedad de utilizar el alumbrado de corto alcance o cruce durante el día al circular por túneles, pasos inferiores o tramos de vía afectados por la señal de túnel. Esta obligación se extiende a la circulación por carriles reversibles, adicionales y habilitados en sentido contrario al habitual, así como para las motocicletas en cualquier tipo de vía pública.",
+      "en": "The General Traffic Regulations mandate the use of low-beam headlights during the day when driving through tunnels, underpasses, or road sections marked with a tunnel sign. This requirement also applies to driving in reversible lanes, additional lanes, or lanes opened in the opposite direction to the usual flow, and it is mandatory for motorcycles on all public roads.",
+      "ru": "🎓 В светлое время суток на легковом автомобиле (Turismo) ты обязан включить ближний свет при проезде через тоннели, подземные переезды и участки дорог со знаком «Тоннель». Также свет обязателен на реверсивных полосах, дополнительных полосах и полосах, открытых для встречного движения. Мотоциклисты обязаны включать свет всегда. Если на авто нет ДХО, рекомендуется включать ближний свет на любых дорогах для безопасности. 🇷🇺 В РФ ближний свет или ДХО обязательны всегда, в Испании же для легковых авто днем это строго обязательно только в тоннелях и на спецполосах. 💡 Въехал в тоннель — включи свет, даже если там светло!"
     },
     "image_url": "https://teorica.practicavial.com/question/0256c92d-bbab-4045-85ba-456b34d4be18-1658245839-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/0256c92d-bbab-4045-85ba-456b34d4be18-s-1.jpg",
@@ -1426,16 +1426,16 @@
     "category": "B",
     "question": {
       "es": "Cuando hay niebla y un turismo no tiene luz especial de niebla, ¿qué luces debe encender?",
-      "en": null,
-      "ru": null
+      "en": "When there is fog and a passenger car does not have special fog lights, what lights must it turn on?",
+      "ru": "Какие световые приборы должен включить легковой автомобиль в тумане, если у него нет специальных противотуманных фар?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Las luces largas solamente.",
-          "en": null,
-          "ru": null
+          "en": "High beam lights only.",
+          "ru": "Только дальний свет."
         },
         "is_correct": false
       },
@@ -1443,8 +1443,8 @@
         "id": "b",
         "text": {
           "es": "Luces de posición solamente.",
-          "en": null,
-          "ru": null
+          "en": "Position lights only.",
+          "ru": "Только габаритные огни."
         },
         "is_correct": false
       },
@@ -1452,16 +1452,16 @@
         "id": "c",
         "text": {
           "es": "Luces cortas y las de posición.",
-          "en": null,
-          "ru": null
+          "en": "Low beam and position lights.",
+          "ru": "Ближний свет и габаритные огни."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "En condiciones meteorológicas que disminuyan sensiblemente la visibilidad, como la niebla, es obligatorio que los vehículos circulen con las luces de posición y las de corto alcance (cruce). El uso de la luz de largo alcance está permitido pero no se recomienda por el deslumbramiento que produce el reflejo en la niebla. La luz antiniebla delantera es opcional, mientras que la trasera solo debe emplearse en condiciones especialmente desfavorables como niebla espesa.",
+      "en": "In weather conditions that significantly reduce visibility, such as fog, vehicles must operate with position lights and low beam (dipped) lights. The use of high beam lights is permitted but not recommended due to the glare caused by reflection off the fog. Front fog lights are optional, while the rear fog light is only mandatory in especially unfavorable conditions such as thick fog.",
+      "ru": "🎓 В условиях тумана, сильного дождя или снегопада на легковом автомобиле обязательно должны быть включены габаритные огни и ближний свет. Если твой легковой автомобиль не оборудован передними противотуманными фарами, ближний свет становится основным и обязательным средством освещения. Использование дальнего света формально разрешено, но крайне не рекомендуется: капли воды в тумане отражают мощный луч обратно, ослепляя водителя и создавая эффект белой стены. Задний противотуманный фонарь разрешено включать только при густом тумане. 🇷🇺 В Испании задний противотуманный фонарь используется строго при густом тумане, в то время как в РФ правила допускают его использование при любой недостаточной видимости. 💡 Видишь туман — ближний включай, дальним светом себя не слепи!"
     },
     "image_url": "https://teorica.practicavial.com/question/97c54ae7-d6e2-4327-b6ce-5d6f982265ff-1658247165-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/97c54ae7-d6e2-4327-b6ce-5d6f982265ff-s-1.jpg",

@@ -17,7 +17,7 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete, isLo
   const [isLaunched, setIsLaunched] = useState(false);
 
   const handleStart = () => {
-    if (isIgniting || isLoading) return;
+    if (isIgniting) return;
 
     setIsIgniting(true);
 
@@ -137,7 +137,7 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete, isLo
 
           <button
             onClick={handleStart}
-            disabled={isLoading}
+            disabled={false}
             className="group relative w-52 h-52 flex items-center justify-center cursor-pointer focus:outline-none"
           >
             {/* OUTER STATIC RING - No rotation */}

@@ -47,6 +47,15 @@ function showVignetteBanner(isPremium: boolean): void {
     return;
   }
 
+  // Не показываем на localhost (чтобы не мешать разработке и не ломать IndexedDB)
+  if (
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ) {
+    console.log('[Vignette] Skipping - localhost development environment');
+    return;
+  }
+
   // Не показываем в Telegram Mini App
   if (isTelegramMiniApp()) {
     console.log('[Vignette] Skipping - running in Telegram Mini App');
@@ -71,7 +80,7 @@ function showVignetteBanner(isPremium: boolean): void {
     const script = document.createElement('script');
     script.dataset.zone = VIGNETTE_ZONE_ID;
     script.src = VIGNETTE_SCRIPT_URL;
-    
+
     // Добавляем в DOM (Monetag сам обработает показ)
     const target = [document.documentElement, document.body].filter(Boolean).pop();
     if (target) {

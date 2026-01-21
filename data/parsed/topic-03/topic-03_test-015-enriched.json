@@ -5,16 +5,16 @@
     "category": "B",
     "question": {
       "es": "En esta intersección no hay señal de ceda el paso. ¿Qué indica la marca transversal discontinua?",
-      "en": null,
-      "ru": null
+      "en": "At this intersection there is no yield sign. What does the dashed transverse marking indicate?",
+      "ru": "На этом перекрестке нет знака «Уступи дорогу». Что означает поперечная прерывистая разметка?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Obliga a ceder el paso a los vehículos que entran por la izquierda.",
-          "en": null,
-          "ru": null
+          "en": "It obliges to yield to vehicles entering from the left.",
+          "ru": "Обязывает уступить дорогу транспортным средствам, приближающимся слева."
         },
         "is_correct": false
       },
@@ -22,8 +22,8 @@
         "id": "b",
         "text": {
           "es": "Obliga a ceder el paso a todos los vehículos.",
-          "en": null,
-          "ru": null
+          "en": "It obliges to yield to all vehicles.",
+          "ru": "Обязывает уступить дорогу всем транспортным средствам."
         },
         "is_correct": false
       },
@@ -31,39 +31,39 @@
         "id": "c",
         "text": {
           "es": "El lugar donde se debe ceder el paso a los vehículos que entran por la derecha.",
-          "en": null,
-          "ru": null
+          "en": "The place where you must yield to vehicles entering from the right.",
+          "ru": "Место, где необходимо уступить дорогу транспортным средствам, приближающимся справа."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La marca transversal discontinua indica el lugar donde el conductor debe detenerse, en caso de ser necesario, para cumplir con una obligación de ceder el paso. Esta marca se utiliza en combinación con una señal de ceda el paso, un semáforo con flecha verde o, en ausencia de señales, para cumplir con la norma general de prioridad de paso a los vehículos que se aproximen por la derecha. No impone la obligación por sí misma, sino que delimita el punto de detención.",
+      "en": "The dashed transverse line indicates the position where a driver must stop, if necessary, to comply with a yield requirement. This marking is used in conjunction with a yield sign, a traffic light with a green arrow, or, in the absence of signs, to comply with the general rule of priority for vehicles approaching from the right. It does not create the obligation itself but defines the stopping point to fulfill the established priority.",
+      "ru": "🎓 Поперечная прерывистая разметка указывает место, где водитель легкового автомобиля должен остановиться, чтобы уступить дорогу. Это правило применяется в трех случаях: при наличии знака «Уступи дорогу», при включенной дополнительной зеленой секции светофора или при отсутствии знаков, когда действует приоритет «помехи справа». Поскольку на данном перекрестке знаков нет, ты обязан пропустить транспорт, приближающийся справа, а разметка показывает крайнюю точку, за которую нельзя выезжать при остановке. Если справа никого нет, останавливаться перед этой линией не требуется.\n\n🇷🇺 В РФ разметка 1.13 выполняет ту же функцию — указывает место остановки, если водитель обязан уступить дорогу.\n\n💡 Пунктир на пути — притормози и вправо погляди!"
     },
     "image_url": "https://teorica.practicavial.com/question/a7bdc2b3-4ec1-402b-8a78-4bf02f4e568d-1658239580-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/a7bdc2b3-4ec1-402b-8a78-4bf02f4e568d-s-1.jpg",
     "source": "practicavial",
-    "external_id": "a7bdc2b3-4ec1-402b-8a78-4bf02f4e568d",
-    "id": "a7bdc2b3-4ec1-402b-8a78-4bf02f4e568d"
+    "id": "a7bdc2b3-4ec1-402b-8a78-4bf02f4e568d",
+    "external_id": "a7bdc2b3-4ec1-402b-8a78-4bf02f4e568d"
   },
   {
     "topic_number": 3,
     "question_number": 2,
     "category": "B",
     "question": {
-      "es": "¿Cuándo finaliza la prohibición de circular a velocidad superior a la indicada?",
-      "en": null,
-      "ru": null
+      "es": "¿Cuándo finaliza la prohibición de circular a velocidad superior a la indicada si la señal de velocidad máxima está en el mismo poste que una de advertencia de peligro?",
+      "en": "When does the prohibition to drive at a speed higher than indicated end if the maximum speed sign is on the same post as a danger warning sign?",
+      "ru": "Когда заканчивается действие знака ограничения максимальной скорости, если он установлен на одной опоре с предупреждающим знаком?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Al llegar a la intersección.",
-          "en": null,
-          "ru": null
+          "en": "Upon reaching the intersection.",
+          "ru": "При подъезде к перекрестку."
         },
         "is_correct": false
       },
@@ -71,8 +71,8 @@
         "id": "b",
         "text": {
           "es": "Al rebasar la vertical de la próxima señal de \"fin de restricciones\".",
-          "en": null,
-          "ru": null
+          "en": "Upon passing the vertical of the next \"end of restrictions\" sign.",
+          "ru": "После проезда знака «Конец всех ограничений»."
         },
         "is_correct": false
       },
@@ -80,22 +80,22 @@
         "id": "c",
         "text": {
           "es": "Al rebasar la intersección.",
-          "en": null,
-          "ru": null
+          "en": "After passing the intersection.",
+          "ru": "После проезда перекрестка."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, cuando una señal de limitación de velocidad (R-301) se encuentra en el mismo poste que una señal de advertencia de peligro, la prohibición finaliza en el momento en que termina el peligro indicado. Si la señal de peligro advierte de una intersección, la limitación de velocidad deja de tener vigencia una vez rebasada dicha intersección.",
+      "en": "According to the General Traffic Regulations, when a speed limit sign (R-301) is placed on the same post as a danger warning sign, the speed restriction ends exactly where the indicated danger ends. If the warning sign refers to an intersection, the speed limit is no longer applicable once the vehicle has passed through the intersection.",
+      "ru": "🎓 Если знак ограничения максимальной скорости установлен на одной опоре с предупреждающим знаком (например, «Пересечение с второстепенной дорогой» или «Светофорное регулирование»), то действие ограничения привязано к зоне этой опасности. Как только твой легковой автомобиль проедет перекресток или опасный участок, лимит скорости перестает действовать автоматически. Тебе не нужно ждать знака «Конец ограничений» — сам факт проезда опасности снимает запрет.\n\n🇷🇺 В РФ любой перекресток отменяет действие знака ограничения скорости. В Испании перекресток отменяет ограничение только в том случае, если знак скорости установлен на одной опоре с предупреждающим знаком.\n\n💡 Знак опасности плюс скорость — проехал зону, прибавь бодрость!"
     },
     "image_url": "https://teorica.practicavial.com/question/76d3bf83-0eaa-44c6-87a3-c873d4d908f8-1658158976-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/76d3bf83-0eaa-44c6-87a3-c873d4d908f8-s-1.jpg",
     "source": "practicavial",
-    "external_id": "76d3bf83-0eaa-44c6-87a3-c873d4d908f8",
-    "id": "76d3bf83-0eaa-44c6-87a3-c873d4d908f8"
+    "id": "76d3bf83-0eaa-44c6-87a3-c873d4d908f8",
+    "external_id": "76d3bf83-0eaa-44c6-87a3-c873d4d908f8"
   },
   {
     "topic_number": 3,
@@ -103,16 +103,16 @@
     "category": "B",
     "question": {
       "es": "Este conjunto de marcas blancas pintadas en la calzada...",
-      "en": null,
-      "ru": null
+      "en": "This set of white marks painted on the roadway...",
+      "ru": "Эта совокупность белых линий, нанесенных на проезжую часть..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "indica un paso para peatones.",
-          "en": null,
-          "ru": null
+          "en": "indicates a pedestrian crossing.",
+          "ru": "обозначает пешеходный переход."
         },
         "is_correct": true
       },
@@ -120,8 +120,8 @@
         "id": "b",
         "text": {
           "es": "obliga al vehículo a detenerse siempre.",
-          "en": null,
-          "ru": null
+          "en": "always obliges the vehicle to stop.",
+          "ru": "всегда обязывает транспортное средство остановиться."
         },
         "is_correct": false
       },
@@ -129,22 +129,22 @@
         "id": "c",
         "text": {
           "es": "indica que ningún conductor puede entrar con su vehículo o animal en esta zona.",
-          "en": null,
-          "ru": null
+          "en": "indicates that no driver can enter this area with their vehicle or animal.",
+          "ru": "указывает на то, что ни один водитель не может въезжать в эту зону на транспортном средстве или с животным."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Una serie de líneas blancas transversales de gran anchura dispuestas en bandas paralelas al eje de la calzada indica un paso para peatones. Los conductores de vehículos o animales deben ceder el paso a los peatones que circulen por él o que tengan intención de hacerlo. No existe obligación de detención si no hay peatones presentes.",
+      "en": "A series of wide white transverse lines arranged in bands parallel to the axis of the roadway indicates a pedestrian crossing. Drivers of vehicles or animals must yield the right of way to pedestrians who are using it or intend to do so. There is no obligation to stop if no pedestrians are present.",
+      "ru": "🎓 Серия широких белых полос, нанесенных параллельно оси проезжей части, обозначает пешеходный переход. Как водитель легкового автомобиля, ты обязан уступить дорогу пешеходам, которые уже находятся на переходе или явно намереваются на него вступить. На нерегулируемых переходах пешеход имеет абсолютный приоритет. Остановка перед разметкой не является строго обязательной, если на переходе и рядом с ним никого нет. 🇷🇺 В Испании правила подчеркивают обязанность уступить дорогу даже тем, кто только собирается начать переход, что требует от водителя более раннего снижения скорости. 💡 Видишь «зебру» впереди — ногу с газа убери!"
     },
     "image_url": "https://teorica.practicavial.com/question/1b9b3006-a49b-49f6-b5e5-204578c105c0-1658239635-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/1b9b3006-a49b-49f6-b5e5-204578c105c0-s-1.jpg",
     "source": "practicavial",
-    "external_id": "1b9b3006-a49b-49f6-b5e5-204578c105c0",
-    "id": "1b9b3006-a49b-49f6-b5e5-204578c105c0"
+    "id": "1b9b3006-a49b-49f6-b5e5-204578c105c0",
+    "external_id": "1b9b3006-a49b-49f6-b5e5-204578c105c0"
   },
   {
     "topic_number": 3,
@@ -152,16 +152,16 @@
     "category": "B",
     "question": {
       "es": "Las señales azules, ¿qué indican?",
-      "en": null,
-      "ru": null
+      "en": "What do the blue signs indicate?",
+      "ru": "Что означают синие знаки?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Que la autopista se termina.",
-          "en": null,
-          "ru": null
+          "en": "That the highway ends.",
+          "ru": "Что автомагистраль заканчивается."
         },
         "is_correct": false
       },
@@ -169,8 +169,8 @@
         "id": "b",
         "text": {
           "es": "Que la autopista es de peaje.",
-          "en": null,
-          "ru": null
+          "en": "That the highway is a toll road.",
+          "ru": "Что автомагистраль является платной."
         },
         "is_correct": false
       },
@@ -178,22 +178,22 @@
         "id": "c",
         "text": {
           "es": "Los carriles para ir a otras carreteras o poblaciones.",
-          "en": null,
-          "ru": null
+          "en": "The lanes to go to other roads or towns.",
+          "ru": "Полосы движения для следования к другим дорогам или населенным пунктам."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Las señales de orientación con fondo azul indican que la vía por la que se circula es una autopista o autovía. Cuando estas señales se sitúan sobre la calzada (carteles), cada flecha indica el carril o carriles que conducen hacia los destinos, carreteras o poblaciones señalizados. El color azul es exclusivo para identificar itinerarios en vías de alta capacidad.",
+      "en": "Orientation signs with a blue background indicate that the road is an autopista or autovía. When these signs are placed above the roadway (portals), each arrow indicates the specific lane or lanes leading to the destinations, roads, or towns shown. The blue color is specifically used to identify routes on high-capacity roads.",
+      "ru": "🎓 В Испании синий фон знаков ориентирования сообщает, что ты едешь по Autopista или Autovía. Когда такие знаки размещены над проезжей частью, они указывают направления по конкретным полосам движения. Каждая стрелка соответствует своему ряду: следуя по нему, ты попадешь в указанный населенный пункт или на нужную автодорогу. Это позволяет водителю Turismo заранее занять правильный carril для маневра. 🇷🇺 В Испании синий цвет зарезервирован для скоростных дорог, в то время как в РФ синий фон используется для обычных внегородских трасс, а для магистралей — зеленый. 💡 Синий фон — летишь как сон: это скоростная дорога!"
     },
     "image_url": "https://teorica.practicavial.com/question/17c54651-2ceb-412a-b4c2-d5f123e9734f-1658169054-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/17c54651-2ceb-412a-b4c2-d5f123e9734f-s-1.jpg?t=1768426271",
     "source": "practicavial",
-    "external_id": "17c54651-2ceb-412a-b4c2-d5f123e9734f",
-    "id": "17c54651-2ceb-412a-b4c2-d5f123e9734f"
+    "id": "17c54651-2ceb-412a-b4c2-d5f123e9734f",
+    "external_id": "17c54651-2ceb-412a-b4c2-d5f123e9734f"
   },
   {
     "topic_number": 3,
@@ -201,16 +201,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué indica esta señal?",
-      "en": null,
-      "ru": null
+      "en": "What does this sign indicate?",
+      "ru": "Что означает этот дорожный знак?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Bajada peligrosa por fuerte pendiente.",
-          "en": null,
-          "ru": null
+          "en": "Dangerous descent due to a steep slope.",
+          "ru": "Опасный спуск с крутым уклоном."
         },
         "is_correct": true
       },
@@ -218,8 +218,8 @@
         "id": "b",
         "text": {
           "es": "Una zona en la que son frecuentes los desprendimientos de rocas.",
-          "en": null,
-          "ru": null
+          "en": "An area where rockfalls are frequent.",
+          "ru": "Участок дороги, на котором возможны обвалы или осыпи камней."
         },
         "is_correct": false
       },
@@ -227,22 +227,22 @@
         "id": "c",
         "text": {
           "es": "Subida peligrosa por fuerte pendiente.",
-          "en": null,
-          "ru": null
+          "en": "Dangerous ascent due to a steep slope.",
+          "ru": "Опасный подъем с крутым уклоном."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal de advertencia de peligro P-16a indica la proximidad de un tramo de vía con una fuerte pendiente descendente. La cifra porcentual inscrita en la señal detalla el grado de inclinación de la pendiente. Es obligatorio adecuar la velocidad y utilizar el freno motor para evitar el sobrecalentamiento del sistema de frenado.",
+      "en": "The danger warning sign P-16a indicates the proximity of a section of the road with a steep downward slope. The numerical percentage displayed on the sign specifies the degree of the gradient. Drivers must adjust their speed and utilize engine braking to prevent brake system overheating.",
+      "ru": "🎓 Этот знак предупреждает о приближении к опасному спуску. Числовое значение указывает крутизну уклона в процентах. Как водителю легкового автомобиля, тебе необходимо заранее снизить скорость и использовать торможение двигателем, переключившись на пониженную передачу. Это предотвратит перегрев тормозных механизмов на затяжном участке. 🇷🇺 На таких участках дорог в Испании и РФ действует схожее правило: при затрудненном разъезде дорогу обязан уступить тот, кто движется на спуск. 💡 Читаем знак как книгу: слева направо. Линия уходит вниз — значит спуск!"
     },
     "image_url": "https://teorica.practicavial.com/question/d9cda09b-0676-47c7-a492-b6eac44a0026-1759305700-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d9cda09b-0676-47c7-a492-b6eac44a0026-s-1.jpg",
     "source": "practicavial",
-    "external_id": "d9cda09b-0676-47c7-a492-b6eac44a0026",
-    "id": "d9cda09b-0676-47c7-a492-b6eac44a0026"
+    "id": "d9cda09b-0676-47c7-a492-b6eac44a0026",
+    "external_id": "d9cda09b-0676-47c7-a492-b6eac44a0026"
   },
   {
     "topic_number": 3,
@@ -250,16 +250,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué le indica la señal en esta vía de sentido único?",
-      "en": null,
-      "ru": null
+      "en": "What does the sign indicate on this one-way street?",
+      "ru": "Что означает этот знак на дороге с односторонним движением?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Que está prohibida la parada y el estacionamiento en el lado derecho de la calzada.",
-          "en": null,
-          "ru": null
+          "en": "That stopping and parking are prohibited on the right side of the road.",
+          "ru": "Запрещена остановка и стоянка на правой стороне проезжей части."
         },
         "is_correct": true
       },
@@ -267,8 +267,8 @@
         "id": "b",
         "text": {
           "es": "Que está prohibida la parada en el lado derecho de la calzada.",
-          "en": null,
-          "ru": null
+          "en": "That stopping is prohibited on the right side of the road.",
+          "ru": "Запрещена остановка на правой стороне проезжей части."
         },
         "is_correct": false
       },
@@ -276,22 +276,22 @@
         "id": "c",
         "text": {
           "es": "Que está prohibida la parada y el estacionamiento en ambos lados de la calzada.",
-          "en": null,
-          "ru": null
+          "en": "That stopping and parking are prohibited on both sides of the road.",
+          "ru": "Запрещена остановка и стоянка на обеих сторонах проезжей части."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal R-308 (aspa roja sobre fondo azul) prohíbe tanto la parada como el estacionamiento. Según el Reglamento General de Circulación, las señales de prohibición de parada y estacionamiento prohíben estas maniobras únicamente en el lado de la calzada en el que esté situada la señal. En una vía de sentido único, la prohibición se limita exclusivamente al margen donde se encuentra la señal, permitiéndose en el lado opuesto si no existe señalización que lo impida. La prohibición comienza en la vertical de la señal y finaliza en la intersección más próxima.",
+      "en": "Sign R-308 (red cross on a blue background) indicates that both stopping and parking are prohibited. According to traffic regulations, prohibition signs for stopping and parking apply only to the side of the road where the sign is placed. On a one-way street, if the sign is located on the right side, the restriction applies only to that side. The prohibition remains in effect from the vertical position of the sign until the next intersection, unless otherwise indicated.",
+      "ru": "🎓 Знак с красным косым крестом на синем фоне означает полный запрет: здесь запрещена и остановка, и стоянка. Для твоего легкового автомобиля это значит, что нельзя даже притормозить на секунду для высадки пассажира. Запрет действует только на ту сторону проезжей части, на которой установлен знак. На дорогах с односторонним движением, если знак стоит справа, левая сторона остается свободной для маневров, если там нет других ограничивающих знаков или разметки. Ограничение вступает в силу непосредственно от места установки знака и действует до ближайшего по ходу движения перекрестка. 💡 Крест на синем — стоять не смею!"
     },
     "image_url": "https://teorica.practicavial.com/question/f0344e0f-2608-44f7-9ac2-15a983fbf31d-1658159546-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/f0344e0f-2608-44f7-9ac2-15a983fbf31d-s-1.jpg",
     "source": "practicavial",
-    "external_id": "f0344e0f-2608-44f7-9ac2-15a983fbf31d",
-    "id": "f0344e0f-2608-44f7-9ac2-15a983fbf31d"
+    "id": "f0344e0f-2608-44f7-9ac2-15a983fbf31d",
+    "external_id": "f0344e0f-2608-44f7-9ac2-15a983fbf31d"
   },
   {
     "topic_number": 3,
@@ -299,16 +299,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué indica este Agente?",
-      "en": null,
-      "ru": null
+      "en": "What does this Officer indicate?",
+      "ru": "Что означает этот сигнал регулировщика?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Detención para todos los usuarios que se acerquen de frente al agente.",
-          "en": null,
-          "ru": null
+          "en": "Stopping for all users approaching the officer from the front.",
+          "ru": "Остановка для всех участников дорожного движения, приближающихся к регулировщику спереди."
         },
         "is_correct": false
       },
@@ -316,8 +316,8 @@
         "id": "b",
         "text": {
           "es": "Detención para los vehículos que se acerquen de frente al agente.",
-          "en": null,
-          "ru": null
+          "en": "Stopping for vehicles approaching the officer from the front.",
+          "ru": "Остановка для транспортных средств, приближающихся к регулировщику спереди."
         },
         "is_correct": false
       },
@@ -325,22 +325,22 @@
         "id": "c",
         "text": {
           "es": "Detención para todos los usuarios que se acerquen al agente.",
-          "en": null,
-          "ru": null
+          "en": "Stopping for all users approaching the officer.",
+          "ru": "Остановка для всех участников дорожного движения, приближающихся к регулировщику."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El brazo levantado verticalmente por un agente de la autoridad obliga a detenerse a todos los usuarios de la vía que se acerquen al agente, independientemente del sentido desde el que lo hagan. La detención debe realizarse ante la línea de detención más cercana o, en su defecto, inmediatamente antes del agente. En una intersección, la detención debe efectuarse antes de entrar en ella. No obliga a detenerse a los conductores que ya hayan entrado en la intersección o que no puedan hacerlo en condiciones de seguridad suficiente.",
+      "en": "A vertically raised arm by a traffic officer mandates a stop for all road users approaching the officer from any direction. The stop must be performed at the nearest stop line or, in its absence, immediately before the officer. At an intersection, the stop must be made before entering. It does not require a stop for drivers who have already entered the intersection or those who cannot stop safely.",
+      "ru": "🎓 Поднятая вертикально вверх рука регулировщика — это приказ остановиться для всех участников дорожного движения, включая пешеходов, которые приближаются к нему с любого направления. Если ты управляешь легковым автомобилем и уже въехал на перекресток в момент подачи сигнала, ты обязан завершить маневр. Также разрешено продолжить движение, если ты не можешь остановиться безопасно, не прибегая к экстренному торможению. Остановиться следует перед ближайшей стоп-линией или перед входом на перекресток. 🇷🇺 В Испании этот сигнал акцентирует внимание на всех пользователях (usuarios), что явно включает пешеходов, даже если они просто собираются пересечь дорогу рядом с агентом. 💡 Рука вверх — как стена, всем стоять пришла пора!"
     },
     "image_url": "https://teorica.practicavial.com/question/1117610c-3898-46d3-928e-86adc56cb1c3-1658146148-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/1117610c-3898-46d3-928e-86adc56cb1c3-s-1.jpg",
     "source": "practicavial",
-    "external_id": "1117610c-3898-46d3-928e-86adc56cb1c3",
-    "id": "1117610c-3898-46d3-928e-86adc56cb1c3"
+    "id": "1117610c-3898-46d3-928e-86adc56cb1c3",
+    "external_id": "1117610c-3898-46d3-928e-86adc56cb1c3"
   },
   {
     "topic_number": 3,
@@ -348,16 +348,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué indica esta señal?",
-      "en": null,
-      "ru": null
+      "en": "What does this sign indicate?",
+      "ru": "Что означает данный дорожный знак?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Avanza moto y bici.",
-          "en": null,
-          "ru": null
+          "en": "Advance zone for motorcycles and bicycles.",
+          "ru": "Зона ожидания для мотоциклов и велосипедов."
         },
         "is_correct": true
       },
@@ -365,8 +365,8 @@
         "id": "b",
         "text": {
           "es": "Paso para ciclistas y motocicletas.",
-          "en": null,
-          "ru": null
+          "en": "Crossing for cyclists and motorcycles.",
+          "ru": "Переход для велосипедистов и мотоциклистов."
         },
         "is_correct": false
       },
@@ -374,22 +374,22 @@
         "id": "c",
         "text": {
           "es": "Vía reservada para ciclos y motocicletas con espacio de circulación diferenciado entre ellos.",
-          "en": null,
-          "ru": null
+          "en": "Road reserved for cycles and motorcycles with differentiated circulation space between them.",
+          "ru": "Дорога, зарезервированная для велосипедов и мотоциклов с разделением пространства между ними."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal S-49 indica la existencia de una zona de espera previa a la línea de detención de una intersección regulada por semáforos. Esta zona está reservada exclusivamente a los vehículos indicados en la señal: motocicletas, vehículos de tres ruedas asimilados, ciclomotores y ciclos. Su objetivo es permitir que estos usuarios se sitúen por delante del resto del tráfico al reanudar la marcha, mejorando su seguridad y visibilidad.",
+      "en": "Sign S-49 indicates the existence of a waiting area located before the stop line at a signalized intersection. This area is reserved exclusively for the vehicles shown on the sign: motorcycles, three-wheeled vehicles, mopeds, and cycles. Its purpose is to allow these users to position themselves ahead of the rest of the traffic when moving off, improving their safety and visibility.",
+      "ru": "🎓 Данный знак обозначает специальную зону ожидания перед стоп-линией на перекрестке со светофором. Она предназначена исключительно для мотоциклов, мопедов и велосипедов. Это позволяет двухколесному транспорту безопасно выехать вперед основного потока машин и начать движение первым, когда загорится зеленый свет. Тебе, как водителю легкового автомобиля (Turismo), заезжать в эту зону при остановке на красный свет запрещено — ты обязан остановиться перед первой стоп-линией. 🇷🇺 В ПДД РФ подобные выделенные зоны ожидания («байк-боксы») и специальные знаки для них официально не закреплены. 💡 Мото и велик впереди стоят — им первым ехать знак велят!"
     },
     "image_url": "https://teorica.practicavial.com/question/91631028-3b73-4a5b-93ec-43be4f9ef4b1-1761305222-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/91631028-3b73-4a5b-93ec-43be4f9ef4b1-s-1.jpg",
     "source": "practicavial",
-    "external_id": "91631028-3b73-4a5b-93ec-43be4f9ef4b1",
-    "id": "91631028-3b73-4a5b-93ec-43be4f9ef4b1"
+    "id": "91631028-3b73-4a5b-93ec-43be4f9ef4b1",
+    "external_id": "91631028-3b73-4a5b-93ec-43be4f9ef4b1"
   },
   {
     "topic_number": 3,
@@ -397,16 +397,16 @@
     "category": "B",
     "question": {
       "es": "¿A qué obliga esta señal?",
-      "en": null,
-      "ru": null
+      "en": "What does this sign require?",
+      "ru": "К чему обязывает этот знак?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "A ceder el paso a todos los vehículos que circulen por vía a la que se aproxíme.",
-          "en": null,
-          "ru": null
+          "en": "To yield the right of way to all vehicles traveling on the road you are approaching.",
+          "ru": "Уступить дорогу всем транспортным средствам, движущимся по проезжей части, к которой вы приближаетесь."
         },
         "is_correct": true
       },
@@ -414,8 +414,8 @@
         "id": "b",
         "text": {
           "es": "A detenerse, siempre.",
-          "en": null,
-          "ru": null
+          "en": "To stop, always.",
+          "ru": "Остановиться в обязательном порядке."
         },
         "is_correct": false
       },
@@ -423,22 +423,22 @@
         "id": "c",
         "text": {
           "es": "A ceder el paso, solamente, a los vehículos que se acerquen por la derecha.",
-          "en": null,
-          "ru": null
+          "en": "To yield the right of way only to vehicles approaching from the right.",
+          "ru": "Уступить дорогу только тем транспортным средствам, которые приближаются справа."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal R-1 (Ceda el paso) impone la obligación de ceder la preferencia de paso en la próxima intersección a los vehículos que circulen por la vía transversal o por el carril al que el conductor pretenda incorporarse. A diferencia de la señal R-2 (STOP), la detención no es obligatoria si las condiciones de tráfico y visibilidad permiten realizar la maniobra sin obligar a otros usuarios a modificar su trayectoria o velocidad.",
+      "en": "Sign R-1 (Yield) establishes the obligation to give way at the next intersection to vehicles traveling on the crossroad or the lane the driver intends to join. Unlike the R-2 (STOP) sign, stopping is not mandatory if traffic and visibility conditions allow the maneuver to be completed without forcing other road users to change their path or speed.",
+      "ru": "🎓 Знак «Уступите дорогу» обязывает тебя уступить путь всем транспортным средствам, движущимся по проезжей части, к которой ты приближаешься, или по полосе движения, на которую планируешь выехать. В отличие от знака STOP, полная остановка не требуется, если ты не создаешь помех. Если твой маневр заставит другой легковой автомобиль изменить скорость или направление — ты нарушил правило. 💡 Видишь «треугольник» — не спеши, всех пропусти и лишь потом рули!"
     },
     "image_url": "https://teorica.practicavial.com/question/445608a2-ec1e-411c-ae35-11ae689cc4e9-0000000000-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/445608a2-ec1e-411c-ae35-11ae689cc4e9-s-1.jpg",
     "source": "practicavial",
-    "external_id": "445608a2-ec1e-411c-ae35-11ae689cc4e9",
-    "id": "445608a2-ec1e-411c-ae35-11ae689cc4e9"
+    "id": "445608a2-ec1e-411c-ae35-11ae689cc4e9",
+    "external_id": "445608a2-ec1e-411c-ae35-11ae689cc4e9"
   },
   {
     "topic_number": 3,
@@ -446,16 +446,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué indica esta señal?",
-      "en": null,
-      "ru": null
+      "en": "What does this sign indicate?",
+      "ru": "Что означает этот знак?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "La situación de un paso para peatones compartido con un paso para ciclistas.",
-          "en": null,
-          "ru": null
+          "en": "The location of a pedestrian crossing shared with a bicycle crossing.",
+          "ru": "Место расположения пешеходного перехода, совмещенного с переходом для велосипедистов."
         },
         "is_correct": true
       },
@@ -463,8 +463,8 @@
         "id": "b",
         "text": {
           "es": "La situación de una vía reservada para ciclos y peatones con espacio de circulación diferenciado entre ellos.",
-          "en": null,
-          "ru": null
+          "en": "The location of a path reserved for cycles and pedestrians with differentiated circulation space between them.",
+          "ru": "Место расположения дорожки, зарезервированной для велосипедов и пешеходов с разделением пространства между ними."
         },
         "is_correct": false
       },
@@ -472,22 +472,22 @@
         "id": "c",
         "text": {
           "es": "La situación de una senda ciclopeatonal.",
-          "en": null,
-          "ru": null
+          "en": "The location of a cycle-pedestrian path.",
+          "ru": "Место расположения велопешеходной дорожки."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal S-46 indica la situación de un paso para peatones adosado o compartido con un paso para ciclistas. Esta señal de información advierte a los conductores sobre la presencia de ambos tipos de usuarios que pueden cruzar la calzada en ese punto específico, obligando a extremar la precaución.",
+      "en": "The S-46 sign indicates the location of a pedestrian crossing that is adjacent to or shared with a bicycle crossing. This informative sign warns drivers of the potential presence of both pedestrians and cyclists crossing the roadway at that specific point, requiring increased caution.",
+      "ru": "🎓 Этот знак указывает на место, где пешеходный переход совмещен с переходом для велосипедистов или расположен вплотную к нему. Для водителя легкового автомобиля это сигнал о том, что на проезжей части могут одновременно находиться и люди, и велосипеды. Необходимо проявлять повышенную осторожность, так как велосипедисты могут пересекать дорогу быстрее пешеходов. 🇷🇺 В РФ пересечение с велосипедной дорожкой обозначается отдельным предупреждающим знаком, а здесь информация о пешеходах и велосипедистах объединена в одном месте. 💡 Пешеход и велик в одном флаконе — будь внимателен в этой зоне!"
     },
     "image_url": "https://teorica.practicavial.com/question/ee57a9dc-4c55-41ce-9cc6-b82835cac3fc-1761303574-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/ee57a9dc-4c55-41ce-9cc6-b82835cac3fc-s-1.jpg",
     "source": "practicavial",
-    "external_id": "ee57a9dc-4c55-41ce-9cc6-b82835cac3fc",
-    "id": "ee57a9dc-4c55-41ce-9cc6-b82835cac3fc"
+    "id": "ee57a9dc-4c55-41ce-9cc6-b82835cac3fc",
+    "external_id": "ee57a9dc-4c55-41ce-9cc6-b82835cac3fc"
   },
   {
     "topic_number": 3,
@@ -495,16 +495,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué indica esta señal?",
-      "en": null,
-      "ru": null
+      "en": "What does this sign indicate?",
+      "ru": "Что означает этот дорожный знак?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "La situación de un apartadero.",
-          "en": null,
-          "ru": null
+          "en": "The location of a turnout.",
+          "ru": "Местоположение площадки для остановки (apartadero)."
         },
         "is_correct": true
       },
@@ -512,8 +512,8 @@
         "id": "b",
         "text": {
           "es": "Una zona de frenado de emergencia.",
-          "en": null,
-          "ru": null
+          "en": "An emergency braking zone.",
+          "ru": "Зону аварийного торможения."
         },
         "is_correct": false
       },
@@ -521,22 +521,22 @@
         "id": "c",
         "text": {
           "es": "Una parada de autobuses.",
-          "en": null,
-          "ru": null
+          "en": "A bus stop.",
+          "ru": "Остановку автобусов."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal S-34 indica la situación de un apartadero. Es un lugar acondicionado en la calzada para que los vehículos puedan apartarse con el fin de dejar libre el paso a otros. Es común encontrar esta señalización en túneles o tramos de vía estrechos donde la fluidez del tráfico es prioritaria.",
+      "en": "Sign S-34 indicates the location of a turnout (apartadero). It is a designated area on the road where vehicles can pull over to allow others to pass. This signage is commonly found in tunnels or narrow road sections where maintaining traffic flow is essential.",
+      "ru": "🎓 Этот информационный знак S-34 указывает на наличие площадки для остановки (apartadero). Это специальное расширение дороги, предназначенное для того, чтобы легковой автомобиль мог съехать с основной полосы движения и пропустить другие транспортные средства, не создавая помех. Это особенно важно в тоннелях или на узких участках дорог, где отсутствует обочина. Если на таком знаке добавлена надпись SOS, это означает, что площадка также оборудована телефоном экстренной связи. 🇷🇺 В ПДД РФ подобные места обозначаются как площадки для аварийной остановки или места отдыха, но в Испании это именно техническая зона для пропуска транспорта. 💡 Видишь синий знак с «карманом» — это место, где можно прижаться к краю и дать дорогу остальным!"
     },
     "image_url": "https://teorica.practicavial.com/question/a89ebee4-e32c-471a-b913-fd770abf386c-1761301723-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/a89ebee4-e32c-471a-b913-fd770abf386c-s-1.jpg",
     "source": "practicavial",
-    "external_id": "a89ebee4-e32c-471a-b913-fd770abf386c",
-    "id": "a89ebee4-e32c-471a-b913-fd770abf386c"
+    "id": "a89ebee4-e32c-471a-b913-fd770abf386c",
+    "external_id": "a89ebee4-e32c-471a-b913-fd770abf386c"
   },
   {
     "topic_number": 3,
@@ -544,16 +544,16 @@
     "category": "B",
     "question": {
       "es": "¿Cuándo termina la prohibición de adelantar?",
-      "en": null,
-      "ru": null
+      "en": "When does the prohibition of overtaking end?",
+      "ru": "Когда заканчивается действие запрета на обгон?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Cuando rebase la vertical de la señal de fin de la prohibición de adelantamiento o fin de prohibiciones.",
-          "en": null,
-          "ru": null
+          "en": "When passing the vertical position of the end of overtaking prohibition sign or the end of all prohibitions sign.",
+          "ru": "Когда вы проедете створ знака «Конец запрещения обгона» или «Конец всех ограничений»."
         },
         "is_correct": true
       },
@@ -561,8 +561,8 @@
         "id": "b",
         "text": {
           "es": "Cuando rebase la vertical de la próxima señal de fin de restricciones.",
-          "en": null,
-          "ru": null
+          "en": "When passing the vertical position of the next end of restrictions sign.",
+          "ru": "Когда вы проедете створ следующего знака окончания ограничений."
         },
         "is_correct": false
       },
@@ -570,22 +570,22 @@
         "id": "c",
         "text": {
           "es": "Cuando llegue al estrechamiento.",
-          "en": null,
-          "ru": null
+          "en": "When reaching the narrowing.",
+          "ru": "Когда вы доедете до сужения дороги."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La prohibición de adelantamiento establecida por la señal R-305 finaliza al rebasar la vertical de la señal R-502 (Fin de prohibición de adelantamiento) o R-500 (Fin de prohibiciones). En el caso de que la señal de prohibición esté situada en el mismo poste que una señal de advertencia de peligro, la prohibición finaliza cuando termine el peligro indicado.",
+      "en": "The overtaking prohibition established by sign R-305 ends when passing the vertical sign R-502 (End of overtaking prohibition) or R-500 (End of all prohibitions). If the prohibition sign is placed on the same post as a danger warning sign, the prohibition ends at the point where the indicated danger terminates.",
+      "ru": "🎓 В Испании запрет на обгон действует до знака «Конец запрещения обгона» или «Конец всех ограничений». Важный нюанс: если знак запрета установлен на одной опоре с предупреждающим знаком, то зона действия запрета заканчивается вместе с опасным участком. 🇷🇺 В отличие от РФ, в Испании обычный перекресток НЕ отменяет действие запрещающих знаков. 💡 Видишь знак отмены — обгоняй без перемены!"
     },
     "image_url": "https://teorica.practicavial.com/question/cb249fab-5cf4-4398-8195-37350f7fdd6c-1658159358-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/cb249fab-5cf4-4398-8195-37350f7fdd6c-s-1.jpg",
     "source": "practicavial",
-    "external_id": "cb249fab-5cf4-4398-8195-37350f7fdd6c",
-    "id": "cb249fab-5cf4-4398-8195-37350f7fdd6c"
+    "id": "cb249fab-5cf4-4398-8195-37350f7fdd6c",
+    "external_id": "cb249fab-5cf4-4398-8195-37350f7fdd6c"
   },
   {
     "topic_number": 3,
@@ -593,16 +593,16 @@
     "category": "B",
     "question": {
       "es": "La señal indica la situación de...",
-      "en": null,
-      "ru": null
+      "en": "The sign indicates the location of...",
+      "ru": "Знак указывает на местонахождение..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "un paso a nivel sin barreras de una vía férrea.",
-          "en": null,
-          "ru": null
+          "en": "a level crossing without barriers with a single railway track.",
+          "ru": "железнодорожного переезда без шлагбаума с одним путем."
         },
         "is_correct": false
       },
@@ -610,8 +610,8 @@
         "id": "b",
         "text": {
           "es": "un paso a nivel sin barreras de más de una vía férrea.",
-          "en": null,
-          "ru": null
+          "en": "a level crossing without barriers with more than one railway track.",
+          "ru": "железнодорожного переезда без шлагбаума с двумя и более путями."
         },
         "is_correct": true
       },
@@ -619,22 +619,22 @@
         "id": "c",
         "text": {
           "es": "un paso a nivel, con o sin barreras.",
-          "en": null,
-          "ru": null
+          "en": "a level crossing, with or without barriers.",
+          "ru": "железнодорожного переезда, со шлагбаумом или без него."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal P-11a indica el lugar exacto (situación) de un paso a nivel sin barreras que cuenta con más de una vía férrea. Se diferencia de la señal P-11 (un solo aspa) en que esta última se utiliza para pasos de una sola vía. Esta señalización obliga a extremar la precaución ante la posibilidad de que circulen trenes en ambos sentidos de forma simultánea.",
+      "en": "Sign P-11a marks the immediate location of a level crossing without barriers that has more than one track. It differs from sign P-11 (a single cross), which is used for single-track crossings. This sign warns drivers of the increased risk, as multiple tracks allow for trains to pass in both directions at the same time.",
+      "ru": "🎓 Этот знак устанавливается непосредственно в месте пересечения дороги с железнодорожными путями, если там нет шлагбаума. Наличие дополнительного «уголка» под основным Андреевским крестом прямо говорит водителю легкового автомобиля о том, что путей два или более. Это крайне важная информация: если один поезд проехал, нельзя сразу начинать движение, так как по второму пути может скрыто приближаться другой состав. 🇷🇺 В РФ знак 1.3.2 «Многопутная железная дорога» выглядит так же и несет ту же функцию. 💡 Один крест — один путь, двойной крест — путей не счесть!"
     },
     "image_url": "https://teorica.practicavial.com/question/d2566f11-d899-4602-b1ad-e30a89ad80fa-1658148765-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d2566f11-d899-4602-b1ad-e30a89ad80fa-s-1.jpg",
     "source": "practicavial",
-    "external_id": "d2566f11-d899-4602-b1ad-e30a89ad80fa",
-    "id": "d2566f11-d899-4602-b1ad-e30a89ad80fa"
+    "id": "d2566f11-d899-4602-b1ad-e30a89ad80fa",
+    "external_id": "d2566f11-d899-4602-b1ad-e30a89ad80fa"
   },
   {
     "topic_number": 3,
@@ -642,16 +642,16 @@
     "category": "B",
     "question": {
       "es": "¿Esta señal indica que se debe seguir una dirección y sentido obligatorios?",
-      "en": null,
-      "ru": null
+      "en": "Does this sign indicate that a mandatory direction and sense must be followed?",
+      "ru": "Указывает ли этот знак на обязательное направление и сторону движения?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": true
       },
@@ -659,8 +659,8 @@
         "id": "b",
         "text": {
           "es": "No, esta señal no es de obligación.",
-          "en": null,
-          "ru": null
+          "en": "No, this is not an obligation sign.",
+          "ru": "Нет, этот знак не является предписывающим."
         },
         "is_correct": false
       },
@@ -668,22 +668,22 @@
         "id": "c",
         "text": {
           "es": "No, indica la salida más próxima.",
-          "en": null,
-          "ru": null
+          "en": "No, it indicates the nearest exit.",
+          "ru": "Нет, он указывает на ближайший съезд."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Las señales de reglamentación de forma circular y fondo azul indican una obligación. La señal R-400c impone la obligatoriedad de seguir la dirección y sentido que marca la flecha, en este caso de frente, prohibiendo a los conductores de cualquier vehículo girar a la derecha, a la izquierda o realizar un cambio de sentido en la intersección.",
+      "en": "Circular blue signs are mandatory signs. Sign R-400c indicates a mandatory direction and sense. Drivers must follow the direction shown by the arrow (straight ahead) and are prohibited from turning left, right, or making a U-turn at the intersection where the sign is placed.",
+      "ru": "🎓 Синий круглый знак с белой стрелкой является предписывающим. Он устанавливает обязанность двигаться исключительно в указанном направлении. Если стрелка направлена вверх, ты как водитель легкового автомобиля обязан проехать перекресток только прямо. Любые маневры, такие как поворот направо, налево или разворот, в зоне действия этого знака запрещены. 🇷🇺 В Испании действие этого знака обычно ограничивается ближайшим пересечением проезжих частей, перед которым он установлен. 💡 Синий круг — это приказ: куда стрелка глядит, туда и путь открыт!"
     },
     "image_url": "https://teorica.practicavial.com/question/3a3c59f0-5f70-4074-9a18-4eb171cd7ef2-1658160083-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/3a3c59f0-5f70-4074-9a18-4eb171cd7ef2-s-1.jpg",
     "source": "practicavial",
-    "external_id": "3a3c59f0-5f70-4074-9a18-4eb171cd7ef2",
-    "id": "3a3c59f0-5f70-4074-9a18-4eb171cd7ef2"
+    "id": "3a3c59f0-5f70-4074-9a18-4eb171cd7ef2",
+    "external_id": "3a3c59f0-5f70-4074-9a18-4eb171cd7ef2"
   },
   {
     "topic_number": 3,
@@ -691,25 +691,25 @@
     "category": "B",
     "question": {
       "es": "¿Está permitido estacionar el día 16 a las ocho de la mañana en el lado de la calzada en que esté situada esta señal?",
-      "en": null,
-      "ru": null
+      "en": "Is it allowed to park on the 16th at 8:00 AM on the side of the road where this sign is located?",
+      "ru": "Разрешено ли парковаться 16-го числа в восемь утра на той стороне проезжей части, где установлен этот знак?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No.",
-          "en": null,
-          "ru": null
+          "en": "No.",
+          "ru": "Нет."
         },
         "is_correct": true
       },
       {
         "id": "b",
         "text": {
-          "es": "Sí, porque la señal sólo prohíbe la parada...",
-          "en": null,
-          "ru": null
+          "es": "Sí, porque la señal sólo prohíbe la parada.",
+          "en": "Yes, because the sign only prohibits stopping.",
+          "ru": "Да, так как знак запрещает только остановку."
         },
         "is_correct": false
       },
@@ -717,22 +717,22 @@
         "id": "c",
         "text": {
           "es": "Sí, porque sólo prohíbe estacionar hasta el día 15.",
-          "en": null,
-          "ru": null
+          "en": "Yes, because it only prohibits parking until the 15th.",
+          "ru": "Да, так как он запрещает парковку только до 15-го числа."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal R-308a prohíbe el estacionamiento, en el lado de la calzada en que esté situada, desde las 09:00 horas del día 1 hasta las 09:00 horas del día 16. Por lo tanto, a las 08:00 del día 16 la prohibición sigue vigente.",
+      "en": "Sign R-308a prohibits parking on the side of the road where it is placed, from 09:00 on the 1st day until 09:00 on the 16th day. Therefore, at 08:00 on the 16th, the prohibition is still active.",
+      "ru": "🎓 Знак, запрещающий стоянку с 1 по 15 число, действует по особому графику: он вступает в силу в 09:00 первого дня и прекращает действие ровно в 09:00 шестнадцатого числа. Если ты хочешь оставить легковой автомобиль в 08:00 утра 16-го числа, то запрет всё еще в силе, так как «пересменка» правил произойдет только через час. 🇷🇺 В отличие от РФ, где время перестановки при знаках четных/нечетных дней наступает в 21:00, в Испании для знаков с периодами чисел (1-15 или 16-31) критической точкой является именно 09:00 утра. 💡 В девять утра закон меняется, до девяти — старый сохраняется!"
     },
     "image_url": "https://teorica.practicavial.com/question/38194bf4-dc28-48c2-8004-fac51fd86df5-1658159940-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/38194bf4-dc28-48c2-8004-fac51fd86df5-s-1.jpg?t=1768426271",
     "source": "practicavial",
-    "external_id": "38194bf4-dc28-48c2-8004-fac51fd86df5",
-    "id": "38194bf4-dc28-48c2-8004-fac51fd86df5"
+    "id": "38194bf4-dc28-48c2-8004-fac51fd86df5",
+    "external_id": "38194bf4-dc28-48c2-8004-fac51fd86df5"
   },
   {
     "topic_number": 3,
@@ -740,16 +740,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué indica esta señal?",
-      "en": null,
-      "ru": null
+      "en": "What does this sign indicate?",
+      "ru": "Что означает этот дорожный знак?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Control de separación mínima en carretera multicarril.",
-          "en": null,
-          "ru": null
+          "en": "Minimum separation control on a multi-lane road.",
+          "ru": "Контроль минимальной дистанции на многополосной дороге."
         },
         "is_correct": true
       },
@@ -757,8 +757,8 @@
         "id": "b",
         "text": {
           "es": "Control de velocidad y de separación mínima.",
-          "en": null,
-          "ru": null
+          "en": "Speed and minimum separation control.",
+          "ru": "Контроль скорости и минимальной дистанции."
         },
         "is_correct": false
       },
@@ -766,22 +766,22 @@
         "id": "c",
         "text": {
           "es": "Vigilancia mediante medios aéreos.",
-          "en": null,
-          "ru": null
+          "en": "Surveillance by aerial means.",
+          "ru": "Наблюдение с помощью средств воздушного контроля."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal S-991E indica la ubicación de un control de separación mínima entre vehículos en un tramo de carretera convencional o multicarril. Informa sobre la presencia de sistemas automáticos que verifican el cumplimiento de la distancia de seguridad obligatoria establecida.",
+      "en": "Sign S-991E indicates the location of a minimum separation control between vehicles on a section of a conventional or multi-lane road. It informs about the presence of automated systems that verify compliance with the mandatory safety distance.",
+      "ru": "🎓 Этот знак предупреждает о том, что на данном участке дороги ведется автоматический контроль соблюдения минимальной дистанции между транспортными средствами. Если ты управляешь легковым автомобилем, тебе необходимо строго соблюдать безопасный разрыв до впереди идущего авто (например, 70 метров, если это указано внутри знака), так как специальные датчики фиксируют нарушения в автоматическом режиме. 🇷🇺 В Испании, в отличие от РФ, существуют специализированные знаки для фотовидеофиксации конкретных типов нарушений: дистанции, проезда на красный свет или несоблюдения знака STOP. 💡 Видишь волны и метры в кругу — держи дистанцию, не будь в плену!"
     },
     "image_url": "https://teorica.practicavial.com/question/d056a17b-766b-4109-9d32-7df5ccc603db-1761289242-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d056a17b-766b-4109-9d32-7df5ccc603db-s-1.jpg",
     "source": "practicavial",
-    "external_id": "d056a17b-766b-4109-9d32-7df5ccc603db",
-    "id": "d056a17b-766b-4109-9d32-7df5ccc603db"
+    "id": "d056a17b-766b-4109-9d32-7df5ccc603db",
+    "external_id": "d056a17b-766b-4109-9d32-7df5ccc603db"
   },
   {
     "topic_number": 3,
@@ -789,16 +789,16 @@
     "category": "B",
     "question": {
       "es": "Esta señal permite...",
-      "en": null,
-      "ru": null
+      "en": "This sign allows...",
+      "ru": "Этот знак позволяет..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "realizar un cambio de dirección.",
-          "en": null,
-          "ru": null
+          "en": "to perform a change of direction.",
+          "ru": "выполнить изменение направления."
         },
         "is_correct": false
       },
@@ -806,8 +806,8 @@
         "id": "b",
         "text": {
           "es": "realizar tanto un cambio de dirección como de sentido.",
-          "en": null,
-          "ru": null
+          "en": "to perform both a change of direction and a change of sense (U-turn).",
+          "ru": "выполнить как изменение направления, так и разворот (изменение смысла движения)."
         },
         "is_correct": true
       },
@@ -815,22 +815,22 @@
         "id": "c",
         "text": {
           "es": "realizar un cambio de sentido.",
-          "en": null,
-          "ru": null
+          "en": "to perform a change of sense (U-turn).",
+          "ru": "выполнить разворот (изменение смысла движения)."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal R-402 indica la obligación de seguir el sentido giratorio indicado por las flechas en una glorieta. Reglamentariamente, al circular siguiendo la trayectoria circular obligatoria, el conductor puede optar por tomar cualquier salida de la vía (cambio de dirección) o completar el giro para volver por la misma vía por la que entró (cambio de sentido).",
+      "en": "Sign R-402 indicates the mandatory direction and sense of the circular movement that vehicles must follow. By following this mandatory path, the driver is legally permitted to exit at any of the available junctions (change of direction) or to complete the full circle to return in the opposite direction (change of sense/U-turn).",
+      "ru": "🎓 Знак R-402 обязывает водителя следовать в направлении, указанном стрелками на перекрестке с круговым движением (Glorieta). Двигаясь по кольцу, ты соблюдаешь предписанную траекторию, что дает тебе право выбрать любой съезд (изменение направления) или проехать круг полностью, чтобы вернуться на ту же дорогу, с которой ты приехал (разворот). Главное — всегда двигаться против часовой стрелки вокруг центрального островка.\n\n💡 Видишь синий круг с кольцом — в любой съезд въезжай с умом!"
     },
     "image_url": "https://teorica.practicavial.com/question/8b94c525-8380-48b8-855b-b0d1a10a0057-1658161261-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/8b94c525-8380-48b8-855b-b0d1a10a0057-s-1.jpg",
     "source": "practicavial",
-    "external_id": "8b94c525-8380-48b8-855b-b0d1a10a0057",
-    "id": "8b94c525-8380-48b8-855b-b0d1a10a0057"
+    "id": "8b94c525-8380-48b8-855b-b0d1a10a0057",
+    "external_id": "8b94c525-8380-48b8-855b-b0d1a10a0057"
   },
   {
     "topic_number": 3,
@@ -838,16 +838,16 @@
     "category": "B",
     "question": {
       "es": "Ante esta situación con un semáforo en amarillo intermitente, ¿qué debe hacer?",
-      "en": null,
-      "ru": null
+      "en": "In this situation with a flashing yellow traffic light, what should you do?",
+      "ru": "Как вы должны поступить в данной ситуации при мигающем желтом сигнале светофора?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Detenerme para dejar pasar al peatón y luego reanudar la marcha.",
-          "en": null,
-          "ru": null
+          "en": "Stop to let the pedestrian pass and then resume driving.",
+          "ru": "Остановиться, чтобы пропустить пешехода, а затем возобновить движение."
         },
         "is_correct": true
       },
@@ -855,8 +855,8 @@
         "id": "b",
         "text": {
           "es": "Detenerme y esperar a que el semáforo cambie a verde.",
-          "en": null,
-          "ru": null
+          "en": "Stop and wait for the traffic light to turn green.",
+          "ru": "Остановиться и ждать, пока светофор переключится на зеленый."
         },
         "is_correct": false
       },
@@ -864,22 +864,22 @@
         "id": "c",
         "text": {
           "es": "Detenerme como si de un semáforo rojo se tratara.",
-          "en": null,
-          "ru": null
+          "en": "Stop as if it were a red traffic light.",
+          "ru": "Остановиться так, как если бы это был красный сигнал светофора."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Una luz amarilla intermitente o dos luces amarillas alternativamente intermitentes obligan a los conductores a extremar la precaución y, en su caso, ceder el paso. Esta señalización no exime del cumplimiento de otras señales que obliguen a detenerse. Ante la presencia de peatones cruzando o con intención de hacerlo, es obligatorio detenerse para cederles el paso antes de continuar la marcha.",
+      "en": "A flashing yellow light or two alternating flashing yellow lights require drivers to exercise extreme caution and yield the right of way. This signal does not exempt drivers from complying with other traffic signs that require a full stop. When pedestrians are present at a crossing, the driver must stop and allow them to pass before proceeding.",
+      "ru": "🎓 Мигающий желтый сигнал (один или два попеременно) разрешает движение, но требует от водителя легкового автомобиля максимальной осторожности. Ты обязан уступить дорогу пешеходам и другим транспортным средствам. Если на переходе есть люди, необходимо остановиться и пропустить их. Этот сигнал не отменяет действие других знаков: если установлен знак STOP, ты обязан остановиться перед ним в любом случае. 💡 Желтый мигает — бдительность не спит, пешеход идет — машина стоит!"
     },
     "image_url": "https://teorica.practicavial.com/question/0dfe7401-c298-44fb-99d4-d4fc143b8a95-1658147279-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/0dfe7401-c298-44fb-99d4-d4fc143b8a95-s-1.jpg",
     "source": "practicavial",
-    "external_id": "0dfe7401-c298-44fb-99d4-d4fc143b8a95",
-    "id": "0dfe7401-c298-44fb-99d4-d4fc143b8a95"
+    "id": "0dfe7401-c298-44fb-99d4-d4fc143b8a95",
+    "external_id": "0dfe7401-c298-44fb-99d4-d4fc143b8a95"
   },
   {
     "topic_number": 3,
@@ -887,16 +887,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué indica esta señal?",
-      "en": null,
-      "ru": null
+      "en": "What does this sign indicate?",
+      "ru": "Что означает этот дорожный знак?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Fin de vía reservada para ciclos.",
-          "en": null,
-          "ru": null
+          "en": "End of the road reserved for cycles.",
+          "ru": "Конец дорожки, зарезервированной для велосипедов."
         },
         "is_correct": true
       },
@@ -904,8 +904,8 @@
         "id": "b",
         "text": {
           "es": "Prohibida la entrada de ciclos.",
-          "en": null,
-          "ru": null
+          "en": "Entry prohibited for cycles.",
+          "ru": "Въезд велосипедам запрещен."
         },
         "is_correct": false
       },
@@ -913,22 +913,22 @@
         "id": "c",
         "text": {
           "es": "Que a partir de la señal, solo pueden circular por esa vía ciclos.",
-          "en": null,
-          "ru": null
+          "en": "That from the sign onwards, only cycles may circulate on that road.",
+          "ru": "Что начиная от знака, по этой дороге могут двигаться только велосипеды."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal S-36 indica el final de una vía específicamente destinada a la circulación de ciclos. A partir de este punto, finaliza la exclusividad de uso para estos vehículos y la prohibición de acceso al resto de usuarios que existía en el tramo anterior.",
+      "en": "Signal S-36 indicates the end of a path or road specifically reserved for the circulation of cycles. Beyond this point, the exclusive use for cycles and the restriction for other road users no longer apply.",
+      "ru": "🎓 Этот знак (S-36) сообщает об окончании дорожки, предназначенной исключительно для движения велосипедов. Если до этого знака другим транспортным средствам, включая твой легковой автомобиль, въезд был запрещен, то после него режим специальной выделенной полосы или дорожки прекращается. 🇷🇺 В РФ знак 5.12.2 имеет идентичное значение и внешний вид, обозначая конец велосипедной дорожки. 💡 Синий квадрат, черта пополам — велосипедный рай закончился там!"
     },
     "image_url": "https://teorica.practicavial.com/question/f5170647-54c3-4fca-ac5f-129340b372de-1761302272-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/f5170647-54c3-4fca-ac5f-129340b372de-s-1.jpg",
     "source": "practicavial",
-    "external_id": "f5170647-54c3-4fca-ac5f-129340b372de",
-    "id": "f5170647-54c3-4fca-ac5f-129340b372de"
+    "id": "f5170647-54c3-4fca-ac5f-129340b372de",
+    "external_id": "f5170647-54c3-4fca-ac5f-129340b372de"
   },
   {
     "topic_number": 3,
@@ -936,16 +936,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué indica esta señal?",
-      "en": null,
-      "ru": null
+      "en": "What does this sign indicate?",
+      "ru": "Что означает этот дорожный знак?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Control de velocidad y control de STOP en carretera convencional.",
-          "en": null,
-          "ru": null
+          "en": "Speed control and STOP control on a conventional road.",
+          "ru": "Контроль скорости и контроль остановки перед знаком STOP на обычной дороге."
         },
         "is_correct": false
       },
@@ -953,8 +953,8 @@
         "id": "b",
         "text": {
           "es": "La existencia de un dispositivo de control de paso con STOP.",
-          "en": null,
-          "ru": null
+          "en": "The existence of a passage control device with STOP.",
+          "ru": "Наличие устройства контроля проезда перед знаком STOP."
         },
         "is_correct": true
       },
@@ -962,22 +962,22 @@
         "id": "c",
         "text": {
           "es": "Vigilancia mediante medios aéreos.",
-          "en": null,
-          "ru": null
+          "en": "Surveillance by aerial means.",
+          "ru": "Наблюдение с помощью средств авиации."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal S-991D indica la proximidad de un sistema de control automatizado mediante cámaras u otros dispositivos técnicos que supervisan el cumplimiento de la detención obligatoria impuesta por una señal de STOP. Este dispositivo puede registrar la falta de detención total del vehículo para la posterior tramitación de la sanción correspondiente.",
+      "en": "Sign S-991D indicates the proximity of an automated control system using cameras or other technical devices that monitor compliance with the mandatory stop required by a STOP sign. This device can record the failure of a vehicle to come to a complete halt for the subsequent processing of the corresponding penalty.",
+      "ru": "🎓 Данный знак информирует о том, что впереди установлен автоматический контроль (камеры), который фиксирует выполнение требования знака STOP. Для тебя, как водителя легкового автомобиля (Turismo), это означает, что ты обязан совершить полную остановку (колеса должны перестать вращаться), даже если на перекрестке нет других машин. Простого снижения скорости недостаточно — камера зафиксирует это как нарушение.\n\n💡 Видишь STOP и волны рядом — тормози до полной правды!"
     },
     "image_url": "https://teorica.practicavial.com/question/d31b5c32-fda3-4089-abd4-95664f45a96c-1761289151-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d31b5c32-fda3-4089-abd4-95664f45a96c-s-1.jpg",
     "source": "practicavial",
-    "external_id": "d31b5c32-fda3-4089-abd4-95664f45a96c",
-    "id": "d31b5c32-fda3-4089-abd4-95664f45a96c"
+    "id": "d31b5c32-fda3-4089-abd4-95664f45a96c",
+    "external_id": "d31b5c32-fda3-4089-abd4-95664f45a96c"
   },
   {
     "topic_number": 3,
@@ -985,16 +985,16 @@
     "category": "B",
     "question": {
       "es": "Un turismo circula por una vía preferente y por la derecha se le aproxima un tranvía, ¿quién tiene preferencia de paso?",
-      "en": null,
-      "ru": null
+      "en": "A passenger car is driving on a priority road and a tram approaches from the right, who has the right of way?",
+      "ru": "Легковой автомобиль движется по главной дороге, а справа к нему приближается трамвай. Кто имеет преимущество в движении?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "El tranvía, porque se aproxima por la derecha del turismo.",
-          "en": null,
-          "ru": null
+          "en": "The tram, because it approaches from the car's right.",
+          "ru": "Трамвай, так как он приближается к легковому автомобилю справа."
         },
         "is_correct": false
       },
@@ -1002,8 +1002,8 @@
         "id": "b",
         "text": {
           "es": "El tranvía, porque circula sobre raíles.",
-          "en": null,
-          "ru": null
+          "en": "The tram, because it runs on rails.",
+          "ru": "Трамвай, так как он движется по рельсам."
         },
         "is_correct": false
       },
@@ -1011,22 +1011,22 @@
         "id": "c",
         "text": {
           "es": "El turismo, porque circula por una vía preferente.",
-          "en": null,
-          "ru": null
+          "en": "The passenger car, because it is driving on a priority road.",
+          "ru": "Легковой автомобиль, так как он движется по главной дороге."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, los vehículos que circulan por una vía señalizada con la señal R-3 (Calzada con prioridad) tienen preferencia de paso en las intersecciones sobre los vehículos que acceden desde otra vía. Esta prioridad prevalece incluso sobre los vehículos que circulan sobre raíles, ya que la señalización vertical de prioridad modifica la norma general de paso.",
+      "en": "According to the General Traffic Regulations, vehicles traveling on a road marked with sign R-3 (Priority road) have the right of way at intersections over vehicles entering from another road. This priority prevails even over vehicles traveling on rails, as vertical priority signage overrides the general right-of-way rules.",
+      "ru": "🎓 Когда ты управляешь легковым автомобилем и движешься по дороге, обозначенной знаком «Главная дорога» (R-3), ты обладаешь приоритетом перед любым транспортом, выезжающим с примыкающих путей. Это важное исключение: хотя обычно трамваи имеют преимущество, установленные знаки приоритета меняют порядок проезда. В данной ситуации трамвай обязан уступить тебе дорогу, так как он находится на второстепенном направлении. 🇷🇺 В РФ правила идентичны: знаки приоритета имеют верховенство над общим правилом преимущества трамвая на нерегулируемых перекрестках. 💡 Если видишь ромб желтой масти — ты на главной, ты у власти!"
     },
     "image_url": "https://teorica.practicavial.com/question/71175714-0b6c-4317-84a5-1ce63c9485e5-1658157445-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/71175714-0b6c-4317-84a5-1ce63c9485e5-s-1.jpg",
     "source": "practicavial",
-    "external_id": "71175714-0b6c-4317-84a5-1ce63c9485e5",
-    "id": "71175714-0b6c-4317-84a5-1ce63c9485e5"
+    "id": "71175714-0b6c-4317-84a5-1ce63c9485e5",
+    "external_id": "71175714-0b6c-4317-84a5-1ce63c9485e5"
   },
   {
     "topic_number": 3,
@@ -1034,16 +1034,16 @@
     "category": "B",
     "question": {
       "es": "¿Qué se debe hacer a la vista de esta señal?",
-      "en": null,
-      "ru": null
+      "en": "What must be done when seeing this sign?",
+      "ru": "Что необходимо сделать при виде данного знака?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Seguir obligatoriamente el sentido y dirección que indica.",
-          "en": null,
-          "ru": null
+          "en": "Mandatory follow the sense and direction indicated.",
+          "ru": "Обязательно следовать в направлении и по пути, указанном знаком."
         },
         "is_correct": true
       },
@@ -1051,8 +1051,8 @@
         "id": "b",
         "text": {
           "es": "Seguir el sentido y dirección que indica o continuar de frente.",
-          "en": null,
-          "ru": null
+          "en": "Follow the sense and direction indicated or continue straight.",
+          "ru": "Следовать в указанном направлении или продолжить движение прямо."
         },
         "is_correct": false
       },
@@ -1060,22 +1060,22 @@
         "id": "c",
         "text": {
           "es": "Únicamente continuar de frente.",
-          "en": null,
-          "ru": null
+          "en": "Only continue straight.",
+          "ru": "Продолжить движение только прямо."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal R-400 d es una señal de obligación. Indica el sentido y dirección que los vehículos deben seguir obligatoriamente, prohibiendo cualquier otra trayectoria. El cumplimiento de esta señal es imperativo para todos los conductores a partir del lugar donde se halla instalada.",
+      "en": "Sign R-400 d is a mandatory sign. It indicates the specific direction and sense that all vehicles must follow, prohibiting any other trajectory. Compliance with this sign is mandatory for all drivers starting from the location where it is installed.",
+      "ru": "🎓 Предписывающий знак в форме синего круга с белой стрелкой устанавливает обязательное направление движения. Ты обязан следовать исключительно по траектории, указанной стрелкой. Любые другие маневры, включая движение прямо или поворот в противоположную сторону, запрещены. Для водителя легкового автомобиля это прямой приказ, несоблюдение которого считается серьезным нарушением ПДД. Помни, что действие знака начинается непосредственно в месте его установки.\n💡 Синий круг — приказ простой: рули по стрелке, а не стой!"
     },
     "image_url": "https://teorica.practicavial.com/question/9174194e-e4e0-4501-9e5d-e76b5fadc279-1658160170-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/9174194e-e4e0-4501-9e5d-e76b5fadc279-s-1.jpg",
     "source": "practicavial",
-    "external_id": "9174194e-e4e0-4501-9e5d-e76b5fadc279",
-    "id": "9174194e-e4e0-4501-9e5d-e76b5fadc279"
+    "id": "9174194e-e4e0-4501-9e5d-e76b5fadc279",
+    "external_id": "9174194e-e4e0-4501-9e5d-e76b5fadc279"
   },
   {
     "topic_number": 3,
@@ -1083,16 +1083,16 @@
     "category": "B",
     "question": {
       "es": "¿Está permitido circular con un turismo por una vía en cuyo acceso está situada esta señal?",
-      "en": null,
-      "ru": null
+      "en": "Is a passenger car allowed to drive on a road where this sign is located at the entrance?",
+      "ru": "Разрешено ли движение на легковом автомобиле по дороге, на въезде на которую установлен этот знак?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, porque es una vía reservada para la circulación de ciclomotores.",
-          "en": null,
-          "ru": null
+          "en": "No, because it is a road reserved for the circulation of mopeds.",
+          "ru": "Нет, так как эта дорога зарезервирована для движения мопедов."
         },
         "is_correct": true
       },
@@ -1100,8 +1100,8 @@
         "id": "b",
         "text": {
           "es": "Sí, porque es una vía permitida para todos los vehículos, excepto los ciclomotores.",
-          "en": null,
-          "ru": null
+          "en": "Yes, because it is a road permitted for all vehicles, except mopeds.",
+          "ru": "Да, так как эта дорога разрешена для всех транспортных средств, кроме мопедов."
         },
         "is_correct": false
       },
@@ -1109,39 +1109,39 @@
         "id": "c",
         "text": {
           "es": "No, porque es una vía reservada para todos los vehículos de dos ruedas.",
-          "en": null,
-          "ru": null
+          "en": "No, because it is a road reserved for all two-wheeled vehicles.",
+          "ru": "Нет, так как эта дорога зарезервирована для всех двухколесных транспортных средств."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal R-407 b indica una vía reservada para ciclomotores. Según el Reglamento General de Circulación, esta señal obliga a los conductores de ciclomotores a circular por la vía a cuya entrada esté situada y prohíbe a los demás usuarios de la vía utilizarla. Por lo tanto, el acceso a un turismo está prohibido.",
+      "en": "Sign R-407 b indicates a path reserved for mopeds. According to the General Traffic Regulations, this sign mandates moped drivers to use the path where it is placed and prohibits all other road users from using it. Consequently, a passenger car is not allowed to enter.",
+      "ru": "🎓 Дорожный знак в виде синего круга с силуэтом мопеда является предписывающим. Он обязывает водителей мопедов двигаться по данной дороге и одновременно запрещает доступ всем остальным участникам движения. Поскольку легковой автомобиль не является мопедом, въезд ему категорически запрещен. 🇷🇺 В отличие от ПДД РФ, где нет отдельного предписывающего знака исключительно для мопедов, в Испании этот знак создает строго выделенную зону. 💡 Видишь мопед в синем кружке — легковым проезд закрыт на замке!"
     },
     "image_url": "https://teorica.practicavial.com/question/953b3431-830a-45e1-b946-b9d56c342c6b-1761118750-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/953b3431-830a-45e1-b946-b9d56c342c6b-s-1.jpg",
     "source": "practicavial",
-    "external_id": "953b3431-830a-45e1-b946-b9d56c342c6b",
-    "id": "953b3431-830a-45e1-b946-b9d56c342c6b"
+    "id": "953b3431-830a-45e1-b946-b9d56c342c6b",
+    "external_id": "953b3431-830a-45e1-b946-b9d56c342c6b"
   },
   {
     "topic_number": 3,
     "question_number": 24,
     "category": "B",
     "question": {
-      "es": "Esta señal indica...",
-      "en": null,
-      "ru": null
+      "es": "¿Qué indica esta señal?",
+      "en": "What does this sign indicate?",
+      "ru": "Что означает этот дорожный знак?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Que puedo circular, pero los peatones tienen preferencia.",
-          "en": null,
-          "ru": null
+          "en": "That I can drive, but pedestrians have priority.",
+          "ru": "Что движение разрешено, но пешеходы имеют преимущество."
         },
         "is_correct": false
       },
@@ -1149,8 +1149,8 @@
         "id": "b",
         "text": {
           "es": "Que sólo pueden circular los vehículos de carga y descarga.",
-          "en": null,
-          "ru": null
+          "en": "That only loading and unloading vehicles can drive.",
+          "ru": "Что разрешено движение только транспортным средствам для погрузки и разгрузки."
         },
         "is_correct": false
       },
@@ -1158,39 +1158,39 @@
         "id": "c",
         "text": {
           "es": "Que está prohibido circular.",
-          "en": null,
-          "ru": null
+          "en": "That driving is prohibited.",
+          "ru": "Что движение запрещено."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal R-100 indica circulación prohibida. Prohíbe la circulación de toda clase de vehículos en ambos sentidos. Ningún vehículo, incluido el turismo, puede entrar ni salir de la vía a partir de la vertical de la señal.",
+      "en": "Sign R-100 indicates prohibited circulation. It prohibits the movement of all types of vehicles in both directions. No vehicle, including passenger cars, is allowed to enter or exit the road beyond the sign's location.",
+      "ru": "🎓 Знак R-100 означает «Движение запрещено». Он устанавливает полный запрет на движение любых транспортных средств в обоих направлениях. Это значит, что тебе на легковом автомобиле (Turismo) запрещено как въезжать на данный участок дороги, так и выезжать с него. Дорога становится полностью закрытой для трафика с момента установки знака. 🇷🇺 В отличие от ПДД РФ, где у этого знака есть список исключений (для тех, кто живет/работает в зоне или для инвалидов), в испанских тестах без специальных табличек он трактуется как абсолютный запрет для всех. 💡 Пусто в красном кружке — не катись по дорожке!"
     },
     "image_url": "https://teorica.practicavial.com/question/9d63b588-93af-4d0d-8af9-f25f69f9d3ea-1658157760-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/9d63b588-93af-4d0d-8af9-f25f69f9d3ea-s-1.jpg",
     "source": "practicavial",
-    "external_id": "9d63b588-93af-4d0d-8af9-f25f69f9d3ea",
-    "id": "9d63b588-93af-4d0d-8af9-f25f69f9d3ea"
+    "id": "9d63b588-93af-4d0d-8af9-f25f69f9d3ea",
+    "external_id": "9d63b588-93af-4d0d-8af9-f25f69f9d3ea"
   },
   {
     "topic_number": 3,
     "question_number": 25,
     "category": "B",
     "question": {
-      "es": "Los conos de la fotografía...",
-      "en": null,
-      "ru": null
+      "es": "Los conos...",
+      "en": "The cones...",
+      "ru": "Конусы..."
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "sirven sólo para señalizar un nuevo carril.",
-          "en": null,
-          "ru": null
+          "en": "only serve to signal a new lane.",
+          "ru": "служат только для обозначения новой полосы движения."
         },
         "is_correct": false
       },
@@ -1198,8 +1198,8 @@
         "id": "b",
         "text": {
           "es": "tienen prioridad sobre el resto de señales.",
-          "en": null,
-          "ru": null
+          "en": "have priority over all other signals.",
+          "ru": "имеют приоритет над всеми остальными знаками и сигналами."
         },
         "is_correct": false
       },
@@ -1207,22 +1207,22 @@
         "id": "c",
         "text": {
           "es": "tienen prioridad sobre el resto de señales, salvo las de los agentes de la autoridad.",
-          "en": null,
-          "ru": null
+          "en": "have priority over other signals, except those from traffic officers.",
+          "ru": "имеют приоритет над остальными знаками и сигналами, кроме сигналов регулировщиков."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "El Reglamento General de Circulación establece un orden de prevalencia jerárquico entre las señales. Las señales circunstanciales y de balizamiento, categoría a la que pertenecen los conos, se sitúan en el segundo nivel de prioridad. Por ello, prevalecen sobre los semáforos, las señales verticales y las marcas viales. Solo las órdenes y señales de los agentes de la autoridad tienen una jerarquía superior a las señales circunstanciales.",
+      "en": "The General Traffic Regulations establish a hierarchical order of precedence for traffic signals. Circumstantial and beaconing signals, such as cones, are positioned at the second level of priority. Therefore, they prevail over traffic lights, vertical signs, and road markings. Only the orders and signals of traffic officers hold a higher hierarchy than circumstantial signals.",
+      "ru": "🎓 В Испании существует строгая иерархия дорожных сигналов. Конусы относятся к сигнальным средствам и занимают второе место по значимости. Они имеют приоритет над светофорами, вертикальными знаками и дорожной разметкой. Выше конусов по силе стоят только распоряжения регулировщиков. Если конусы обозначают временную полосу движения, водитель легкового автомобиля обязан следовать этой траектории, даже если она противоречит постоянной разметке или сигналам светофора. 🇷🇺 В Испании конусы и временные ограждения стоят в иерархии выше светофоров, тогда как в РФ светофор обычно главнее временных дорожных знаков. 💡 Регулировщик — первый в ряду, конус — второй, запомни это на ходу!"
     },
     "image_url": "https://teorica.practicavial.com/question/a8f97820-e8f4-462e-bf14-535e815a79e0-1658166667-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/a8f97820-e8f4-462e-bf14-535e815a79e0-s-1.jpg",
     "source": "practicavial",
-    "external_id": "a8f97820-e8f4-462e-bf14-535e815a79e0",
-    "id": "a8f97820-e8f4-462e-bf14-535e815a79e0"
+    "id": "a8f97820-e8f4-462e-bf14-535e815a79e0",
+    "external_id": "a8f97820-e8f4-462e-bf14-535e815a79e0"
   },
   {
     "topic_number": 3,
@@ -1230,16 +1230,16 @@
     "category": "B",
     "question": {
       "es": "La policía y el personal de obras ¿están obligados a llevar una prenda o chaleco reflectante?",
-      "en": null,
-      "ru": null
+      "en": "Are the police and roadwork personnel required to wear a reflective garment or vest?",
+      "ru": "Обязаны ли сотрудники полиции и дорожные рабочие носить световозвращающую одежду или жилет?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Sólo de día.",
-          "en": null,
-          "ru": null
+          "en": "Only during the day.",
+          "ru": "Только днем."
         },
         "is_correct": false
       },
@@ -1247,8 +1247,8 @@
         "id": "b",
         "text": {
           "es": "Sí, tanto de día como de noche.",
-          "en": null,
-          "ru": null
+          "en": "Yes, both day and night.",
+          "ru": "Да, как днем, так и ночью."
         },
         "is_correct": true
       },
@@ -1256,22 +1256,22 @@
         "id": "c",
         "text": {
           "es": "Solo en vías interurbanas.",
-          "en": null,
-          "ru": null
+          "en": "Only on interurban roads.",
+          "ru": "Только на междугородних дорогах."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "De acuerdo con el Reglamento General de Circulación, tanto los agentes de la autoridad que regulen el tráfico como el personal de obras en la vía deben utilizar prendas de colores llamativos y elementos retrorreflectantes de forma permanente. Esta obligación es independiente de las condiciones lumínicas, con el fin de que sean visibles para los conductores a una distancia mínima de 150 metros, garantizando así la seguridad vial tanto de día como de noche.",
+      "en": "In accordance with the General Traffic Regulations, both law enforcement officers regulating traffic and roadwork personnel must permanently wear high-visibility clothing and retroreflective elements. This obligation applies regardless of lighting conditions, ensuring they are visible to drivers from a minimum distance of 150 meters, thus guaranteeing road safety both day and night.",
+      "ru": "🎓 Все лица, работающие на проезжей части или регулирующие движение (полиция, дорожные рабочие, военная полиция, школьные патрули и сотрудники гражданской обороны), обязаны носить одежду ярких цветов со световозвращающими элементами. Это требование действует круглосуточно — и днем, и ночью. Главная цель — обеспечить видимость человека для водителя легкового автомобиля на расстоянии не менее 150 метров. 🇷🇺 В Испании требование к минимальной дистанции видимости персонала (150 метров) закреплено законодательно, что требует от водителя повышенного внимания при приближении к таким зонам. 💡 Видишь жилет за версту — сбавляй скорость понемногу!"
     },
     "image_url": "https://teorica.practicavial.com/question/b07d77c4-2cb3-4005-8998-2ba3d01ea85d-1658146753-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/b07d77c4-2cb3-4005-8998-2ba3d01ea85d-s-1.jpg?t=1768426271",
     "source": "practicavial",
-    "external_id": "b07d77c4-2cb3-4005-8998-2ba3d01ea85d",
-    "id": "b07d77c4-2cb3-4005-8998-2ba3d01ea85d"
+    "id": "b07d77c4-2cb3-4005-8998-2ba3d01ea85d",
+    "external_id": "b07d77c4-2cb3-4005-8998-2ba3d01ea85d"
   },
   {
     "topic_number": 3,
@@ -1279,16 +1279,16 @@
     "category": "B",
     "question": {
       "es": "Si circula por el carril de la izquierda, ¿qué debe hacer en función de la señalización?",
-      "en": null,
-      "ru": null
+      "en": "If you are driving in the left lane, what should you do based on the signaling?",
+      "ru": "Если вы движетесь по левой полосе, что вы должны сделать в соответствии с сигналами?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "Continuar por el carril que circula, pero disminuyendo la velocidad.",
-          "en": null,
-          "ru": null
+          "en": "Continue in the current lane, but reducing speed.",
+          "ru": "Продолжить движение по текущей полосе, но снизив скорость."
         },
         "is_correct": false
       },
@@ -1296,8 +1296,8 @@
         "id": "b",
         "text": {
           "es": "Detenerse lo antes posible.",
-          "en": null,
-          "ru": null
+          "en": "Stop as soon as possible.",
+          "ru": "Остановиться как можно скорее."
         },
         "is_correct": false
       },
@@ -1305,22 +1305,22 @@
         "id": "c",
         "text": {
           "es": "Cambiar de carril lo antes posible hacia el que indica la flecha.",
-          "en": null,
-          "ru": null
+          "en": "Change lanes as soon as possible towards the direction indicated by the arrow.",
+          "ru": "Как можно скорее перестроиться на полосу движения, на которую указывает стрелка."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Los semáforos de carril o cuadrados regulan el sentido de la circulación en los carriles sobre los que están situados. Una flecha blanca o amarilla, fija o intermitente, orientada oblicuamente hacia abajo, indica la necesidad de incorporarse en condiciones de seguridad al carril hacia el que apunta, debido a que el carril por el que se circula va a quedar cerrado en un corto espacio.",
+      "en": "Lane-control signals regulate the direction of traffic in the specific lanes they are positioned over. A white or yellow diagonal arrow, whether steady or flashing, pointing downwards indicates the requirement to safely merge into the lane it points to, as the current lane will be closed shortly.",
+      "ru": "🎓 Реверсивные (полосные) светофоры определяют возможность движения по конкретным полосам. Если над твоей полосой движения загорелась наклонная белая или желтая стрелка, это означает, что данная полоса скоро будет закрыта. Ты, как водитель легкового автомобиля, обязан при первой возможности безопасно перестроиться на соседнюю полосу движения в том направлении, куда указывает стрелка. Помни, что эти сигналы не отменяют приоритет других дорожных знаков. 🇷🇺 В РФ наклонная стрелка в реверсивных светофорах имеет аналогичное значение, предписывая немедленное освобождение полосы. 💡 Видишь стрелку под углом — уходи в другой затон!"
     },
     "image_url": "https://teorica.practicavial.com/question/d784dc2a-706b-4815-959d-43a7ef14f81b-1658147842-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d784dc2a-706b-4815-959d-43a7ef14f81b-s-1.jpg",
     "source": "practicavial",
-    "external_id": "d784dc2a-706b-4815-959d-43a7ef14f81b",
-    "id": "d784dc2a-706b-4815-959d-43a7ef14f81b"
+    "id": "d784dc2a-706b-4815-959d-43a7ef14f81b",
+    "external_id": "d784dc2a-706b-4815-959d-43a7ef14f81b"
   },
   {
     "topic_number": 3,
@@ -1328,16 +1328,16 @@
     "category": "B",
     "question": {
       "es": "Circula con su turismo, ¿puede entrar a partir de la señal?",
-      "en": null,
-      "ru": null
+      "en": "You are driving your passenger car, can you enter past the sign?",
+      "ru": "Вы управляете легковым автомобилем, можете ли вы въехать под этот знак?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, es un camino reservado para animales de montura.",
-          "en": null,
-          "ru": null
+          "en": "No, it is a path reserved for saddle animals.",
+          "ru": "Нет, это дорожка, зарезервированная для верховых животных."
         },
         "is_correct": true
       },
@@ -1345,8 +1345,8 @@
         "id": "b",
         "text": {
           "es": "Sí.",
-          "en": null,
-          "ru": null
+          "en": "Yes.",
+          "ru": "Да."
         },
         "is_correct": false
       },
@@ -1354,22 +1354,22 @@
         "id": "c",
         "text": {
           "es": "No, pero podrían entrar ciclos y ciclomotores.",
-          "en": null,
-          "ru": null
+          "en": "No, but cycles and mopeds could enter.",
+          "ru": "Нет, но туда могут въезжать велосипеды и мопеды."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal R-409 indica una vía reservada exclusivamente para animales de montura. Su presencia obliga a los jinetes a utilizar dicho camino y prohíbe el acceso al resto de usuarios de la vía, incluidos turismos, ciclos y ciclomotores.",
+      "en": "Sign R-409 indicates a path reserved exclusively for riders on horseback. It mandates that riders use this path and prohibits all other road users from entering, including passenger cars, cycles, and mopeds.",
+      "ru": "🎓 Знак R-409 обозначает дорожку, зарезервированную исключительно для всадников. Для водителя легкового автомобиля въезд на такую дорогу категорически запрещен. Это правило исключительности: дорожка закрыта абсолютно для всех остальных участников движения, включая пешеходов, велосипедистов и водителей мопедов. 🇷🇺 В РФ знак 4.8 «Дорожка для всадников» действует аналогично, разрешая движение только лицам верхом. 💡 Синий круг, всадник в нем — для машин проезда нет!"
     },
     "image_url": "https://teorica.practicavial.com/question/2544d6fd-e6f6-48ba-bdb2-e36125f87a49-1658161629-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/2544d6fd-e6f6-48ba-bdb2-e36125f87a49-s-1.jpg",
     "source": "practicavial",
-    "external_id": "2544d6fd-e6f6-48ba-bdb2-e36125f87a49",
-    "id": "2544d6fd-e6f6-48ba-bdb2-e36125f87a49"
+    "id": "2544d6fd-e6f6-48ba-bdb2-e36125f87a49",
+    "external_id": "2544d6fd-e6f6-48ba-bdb2-e36125f87a49"
   },
   {
     "topic_number": 3,
@@ -1377,16 +1377,16 @@
     "category": "B",
     "question": {
       "es": "¿Está permitido utilizar el carril sobre el que está la señal de velocidad mínima?",
-      "en": null,
-      "ru": null
+      "en": "Is it permitted to use the lane over which a minimum speed sign is placed?",
+      "ru": "Разрешено ли использовать полосу движения, над которой установлен знак минимальной скорости?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, siempre hay que circular por la derecha.",
-          "en": null,
-          "ru": null
+          "en": "No, you must always drive on the right.",
+          "ru": "Нет, всегда нужно двигаться по правой стороне."
         },
         "is_correct": false
       },
@@ -1394,8 +1394,8 @@
         "id": "b",
         "text": {
           "es": "Sí, cuando la velocidad sea inferior a la indicada.",
-          "en": null,
-          "ru": null
+          "en": "Yes, when the speed is lower than indicated.",
+          "ru": "Да, когда скорость ниже указанной."
         },
         "is_correct": false
       },
@@ -1403,22 +1403,22 @@
         "id": "c",
         "text": {
           "es": "Sí, cuando la velocidad sea igual o superior a la indicada.",
-          "en": null,
-          "ru": null
+          "en": "Yes, when the speed is equal to or higher than indicated.",
+          "ru": "Да, когда скорость равна или выше указанной."
         },
         "is_correct": true
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "La señal R-411 (velocidad mínima obligatoria) obliga a los conductores a circular, al menos, a la velocidad indicada por la cifra. Cuando esta señal aparece situada sobre un carril determinado en una señal de información de carriles, el uso de dicho carril está condicionado a que el vehículo circule a una velocidad igual o superior a la señalizada. Se debe recordar que, a pesar de cumplir con la velocidad mínima, prevalece la norma general de circular por el carril derecho siempre que sea posible, utilizando los carriles adicionales para facilitar la fluidez del tráfico.",
+      "en": "Sign R-411 (mandatory minimum speed) requires drivers to travel at least at the speed indicated by the figure. When this sign is placed over a specific lane within a lane information sign, the use of that lane is restricted to vehicles traveling at a speed equal to or higher than the one shown. It should be noted that, even if the minimum speed is met, the general rule of driving in the right-hand lane whenever possible remains in effect, using additional lanes to improve traffic flow.",
+      "ru": "🎓 Знак «Обязательная минимальная скорость» (белое число в синем круге) запрещает движение со скоростью меньше указанной. Если этот знак установлен над конкретной полосой движения, ты имеешь право занять её только в том случае, если твой легковой автомобиль (Turismo) движется со скоростью, равной или превышающей указанную цифру. Однако помни: даже если ты едешь быстро, ПДД Испании обязывают тебя всегда двигаться по возможности в крайней правой полосе, используя остальные полосы только для опережения. Если твоя скорость упадет ниже лимита, ты обязан немедленно покинуть эту полосу и перестроиться правее. 🇷🇺 В РФ знак 4.6 «Ограничение минимальной скорости» имеет точно такое же значение, обязывая водителя ехать не медленнее указанного лимита. 💡 Синий круг — не тормози, ниже цифры не вези!"
     },
     "image_url": "https://teorica.practicavial.com/question/ac36a5e6-3ed7-4820-9e82-76b792b41572-1658161867-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/ac36a5e6-3ed7-4820-9e82-76b792b41572-s-1.jpg",
     "source": "practicavial",
-    "external_id": "ac36a5e6-3ed7-4820-9e82-76b792b41572",
-    "id": "ac36a5e6-3ed7-4820-9e82-76b792b41572"
+    "id": "ac36a5e6-3ed7-4820-9e82-76b792b41572",
+    "external_id": "ac36a5e6-3ed7-4820-9e82-76b792b41572"
   },
   {
     "topic_number": 3,
@@ -1426,16 +1426,16 @@
     "category": "B",
     "question": {
       "es": "¿Debe el conductor del turismo de color blanco respetar la señal de stop cuando llegue al cruce?",
-      "en": null,
-      "ru": null
+      "en": "Must the driver of the white car respect the STOP sign when reaching the intersection?",
+      "ru": "Должен ли водитель белого легкового автомобиля соблюдать требование знака STOP при подъезде к перекрестку?"
     },
     "answers": [
       {
         "id": "a",
         "text": {
           "es": "No, porque la señal horizontal sólo es para los que giren a la izquierda.",
-          "en": null,
-          "ru": null
+          "en": "No, because the horizontal marking is only for those turning left.",
+          "ru": "Нет, так как горизонтальная разметка предназначена только для тех, кто поворачивает налево."
         },
         "is_correct": true
       },
@@ -1443,8 +1443,8 @@
         "id": "b",
         "text": {
           "es": "Sí, debe respetar las marcas viales existentes.",
-          "en": null,
-          "ru": null
+          "en": "Yes, they must respect the existing road markings.",
+          "ru": "Да, он должен соблюдать существующую дорожную разметку."
         },
         "is_correct": false
       },
@@ -1452,21 +1452,21 @@
         "id": "c",
         "text": {
           "es": "Sí, pero sólo si sigue de frente.",
-          "en": null,
-          "ru": null
+          "en": "Yes, but only if they continue straight ahead.",
+          "ru": "Да, но только если он продолжает движение прямо."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": null,
-      "en": null,
-      "ru": null
+      "es": "Según el Reglamento General de Circulación, las marcas viales situadas en un carril delimitado por líneas longitudinales afectan exclusivamente a los conductores que circulan por dicho carril. Si la marca de STOP está inscrita dentro de un carril destinado únicamente al giro a la izquierda, los conductores que circulen por carriles contiguos destinados a seguir de frente no están obligados a cumplir dicha señalización horizontal.",
+      "en": "According to the General Traffic Regulations, road markings located within a lane delimited by longitudinal lines apply exclusively to drivers traveling in that specific lane. If a STOP marking is placed within a lane reserved for turning left, drivers in adjacent lanes intended for going straight are not required to comply with that horizontal signal.",
+      "ru": "🎓 В Испании дорожная разметка, нанесенная внутри полосы движения, ограничена линиями этой полосы и обязательна только для тех, кто по ней движется. Если на полосе для поворота налево нанесен STOP, он касается только поворачивающих. Водитель легкового автомобиля в правой полосе, предназначенной для движения прямо, не должен останавливаться, так как в его полосе таких указаний нет. 🇷🇺 В РФ разметка «STOP» на асфальте обычно дублирует знак 2.5, который действует на всё пересечение проезжих частей. В Испании разметка внутри полосы имеет строго локальное действие. 💡 Свою полосу блюди, на чужой STOP не гляди!"
     },
     "image_url": "https://teorica.practicavial.com/question/4d775b7c-9297-4513-917f-457a44e806c5-1658239916-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/4d775b7c-9297-4513-917f-457a44e806c5-s-1.jpg",
     "source": "practicavial",
-    "external_id": "4d775b7c-9297-4513-917f-457a44e806c5",
-    "id": "4d775b7c-9297-4513-917f-457a44e806c5"
+    "id": "4d775b7c-9297-4513-917f-457a44e806c5",
+    "external_id": "4d775b7c-9297-4513-917f-457a44e806c5"
   }
 ]

@@ -13,13 +13,15 @@ import {
     Check,
     UploadCloud,
     Plus,
-    Archive
+    Archive,
+    Folder
 } from "lucide-react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { useActivityLog } from "@/contexts/ActivityLogContext";
 import { cn } from "@/lib/utils";
 import { useDropzone } from "react-dropzone";
+import { ImageGalleryModal } from "./ImageGalleryModal";
 
 interface MissionImageControlProps {
     questionId: string;
@@ -60,6 +62,7 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
         const [userInstruction, setUserInstruction] = useState("");
         const [showRawPrompt, setShowRawPrompt] = useState(false);
         const [isPromptOpen, setIsPromptOpen] = useState(false);
+        const [isGalleryOpen, setIsGalleryOpen] = useState(false);
         const [loading, setLoading] = useState(false);
         const [uploading, setUploading] = useState(false);
         const [questionData, setQuestionData] = useState<any>(null);
@@ -344,7 +347,7 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
 
                         // Progress heartbeat & Quota info
                         if (attempts % 10 === 0) {
-                            addLog(`Still working... (${attempts * 2}s). Note: Daily Quota resets ~09:00 Madrid.`, 'loading');
+                            addLog(`Still working... (${attempts * 2}s)...`, 'loading');
                         }
 
                         const parts = questionId.split('_');
@@ -472,6 +475,14 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                     </div>
 
                     <div
+                        onClick={() => setIsGalleryOpen(true)}
+                        className="min-w-[70px] h-[70px] rounded-lg border-2 border-dashed border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-500/10 transition-colors shrink-0"
+                    >
+                        <Folder className="w-6 h-6 text-blue-500/70" />
+                        <span className="text-[9px] text-blue-500/70 mt-1">Gallery</span>
+                    </div>
+
+                    <div
                         onClick={() => setIsPromptOpen(true)}
                         className="min-w-[70px] h-[70px] rounded-lg border-2 border-dashed border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 hover:bg-purple-500/10 transition-colors shrink-0"
                     >
@@ -586,6 +597,17 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                         </div>
                     </div>
                 )}
+
+                {/* Image Gallery Modal */}
+                <ImageGalleryModal
+                    open={isGalleryOpen}
+                    onOpenChange={setIsGalleryOpen}
+                    questionId={questionId}
+                    onImageSelected={() => {
+                        fetchData();
+                        addLog("Image copied from gallery", 'success');
+                    }}
+                />
             </div>
         );
     }

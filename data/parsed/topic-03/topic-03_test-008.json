@@ -44,7 +44,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/2d7218eb-7169-43f7-95e5-8615d76c7e45-1658169143-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/2d7218eb-7169-43f7-95e5-8615d76c7e45-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "b4aa09c7-859c-448d-904e-df4df4117e12",
+    "external_id": "b4aa09c7-859c-448d-904e-df4df4117e12"
   },
   {
     "topic_number": 3,
@@ -91,7 +93,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/8cbe59c2-f206-488a-a3ec-a0739d3ab450-0000000000-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/8cbe59c2-f206-488a-a3ec-a0739d3ab450-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "00ce879e-e9b9-4d37-9a02-092a3aef1586",
+    "external_id": "00ce879e-e9b9-4d37-9a02-092a3aef1586"
   },
   {
     "topic_number": 3,
@@ -138,7 +142,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/9137e33e-4efe-4382-a2e1-04bcf30781a0-1658166731-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/9137e33e-4efe-4382-a2e1-04bcf30781a0-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "7c7ab405-3af1-4d64-9df9-aea584e5d69f",
+    "external_id": "7c7ab405-3af1-4d64-9df9-aea584e5d69f"
   },
   {
     "topic_number": 3,
@@ -185,7 +191,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/06e05a63-a9d9-4e24-9add-a966d1107b96-1658166884-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/06e05a63-a9d9-4e24-9add-a966d1107b96-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "c8706111-d930-4e55-bcfc-5ba5e989c3d0",
+    "external_id": "c8706111-d930-4e55-bcfc-5ba5e989c3d0"
   },
   {
     "topic_number": 3,
@@ -232,7 +240,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/eb441c6f-b581-4d41-bbd6-741f7078eb46-1658238853-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/eb441c6f-b581-4d41-bbd6-741f7078eb46-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "cf138179-e8e1-4688-b8dd-b5e03666f766",
+    "external_id": "cf138179-e8e1-4688-b8dd-b5e03666f766"
   },
   {
     "topic_number": 3,
@@ -279,7 +289,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/de5bc004-ba32-4e1a-aab7-585f33d17a51-1658169078-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/de5bc004-ba32-4e1a-aab7-585f33d17a51-s-1.jpg?t=1768426185",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "e0da20bd-2c94-47d1-98ae-4dd37f6d562d",
+    "external_id": "e0da20bd-2c94-47d1-98ae-4dd37f6d562d"
   },
   {
     "topic_number": 3,
@@ -326,7 +338,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/f662afe7-0a70-4eaf-b862-7525496e2378-1658147907-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/f662afe7-0a70-4eaf-b862-7525496e2378-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "e41076c9-90f4-4839-a592-271ec9910968",
+    "external_id": "e41076c9-90f4-4839-a592-271ec9910968"
   },
   {
     "topic_number": 3,
@@ -373,7 +387,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/22cc6d91-2320-4e57-83d1-07254fbb3c8f-0000000000-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/22cc6d91-2320-4e57-83d1-07254fbb3c8f-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "ee3ac075-ee2c-4756-920e-24d626b21874",
+    "external_id": "ee3ac075-ee2c-4756-920e-24d626b21874"
   },
   {
     "topic_number": 3,
@@ -420,7 +436,9 @@
     },
     "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
     "schema_url": null,
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "362414e8-3cae-4f1b-a239-fe7f23716feb",
+    "external_id": "362414e8-3cae-4f1b-a239-fe7f23716feb"
   },
   {
     "topic_number": 3,
@@ -467,7 +485,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/787743ab-6f24-4c14-b9a4-7d74bab041e4-1658164415-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/787743ab-6f24-4c14-b9a4-7d74bab041e4-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "69e1946a-e10f-4753-87a5-7fa7ba6ef86a",
+    "external_id": "69e1946a-e10f-4753-87a5-7fa7ba6ef86a"
   },
   {
     "topic_number": 3,
@@ -514,7 +534,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/76316da2-5e03-40c8-badc-394f4a5efdb8-1658166901-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/76316da2-5e03-40c8-badc-394f4a5efdb8-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "5f01e32c-eb17-47b3-a2a7-1c17c12414d3",
+    "external_id": "5f01e32c-eb17-47b3-a2a7-1c17c12414d3"
   },
   {
     "topic_number": 3,
@@ -561,7 +583,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/1fa12343-13d8-4b5c-9c5f-052262b44a30-1658158108-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/1fa12343-13d8-4b5c-9c5f-052262b44a30-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "18f4d5ea-a6be-4cdc-9045-0c4a30f36c12",
+    "external_id": "18f4d5ea-a6be-4cdc-9045-0c4a30f36c12"
   },
   {
     "topic_number": 3,
@@ -608,7 +632,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/4f7d03ff-7cfc-4562-b779-5308325c6fee-1658147395-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/4f7d03ff-7cfc-4562-b779-5308325c6fee-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "78382bc4-4bd7-4f29-8f92-3d4ef22036d8",
+    "external_id": "78382bc4-4bd7-4f29-8f92-3d4ef22036d8"
   },
   {
     "topic_number": 3,
@@ -655,7 +681,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/4347cb9f-4dcd-46b1-9272-ad700d245551-1658147158-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/4347cb9f-4dcd-46b1-9272-ad700d245551-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "b4f27c5e-aa4d-4cbd-b1ba-39e04403a808",
+    "external_id": "b4f27c5e-aa4d-4cbd-b1ba-39e04403a808"
   },
   {
     "topic_number": 3,
@@ -702,7 +730,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/111ebded-70be-41ba-b1e4-f1762f925cf1-1761288379-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/111ebded-70be-41ba-b1e4-f1762f925cf1-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "3582918f-59de-46ca-906f-2f81ee238cc5",
+    "external_id": "3582918f-59de-46ca-906f-2f81ee238cc5"
   },
   {
     "topic_number": 3,
@@ -749,7 +779,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/2c36769b-79e0-4328-afa8-698db3461e85-1658148316-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/2c36769b-79e0-4328-afa8-698db3461e85-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "e8610497-24c0-460b-86c0-941c74bcf327",
+    "external_id": "e8610497-24c0-460b-86c0-941c74bcf327"
   },
   {
     "topic_number": 3,
@@ -796,7 +828,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/7d1a6920-abf4-4b1c-82d8-937dbfd3f239-1658238985-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/7d1a6920-abf4-4b1c-82d8-937dbfd3f239-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "04af88b0-4995-41f2-9dcc-d84953b731e4",
+    "external_id": "04af88b0-4995-41f2-9dcc-d84953b731e4"
   },
   {
     "topic_number": 3,
@@ -843,7 +877,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/67741262-a951-4782-98f8-44db09b003bd-1658239286-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/67741262-a951-4782-98f8-44db09b003bd-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "b0761585-a0ac-4f2a-aabd-fe640c942a8a",
+    "external_id": "b0761585-a0ac-4f2a-aabd-fe640c942a8a"
   },
   {
     "topic_number": 3,
@@ -890,7 +926,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/e4dedbc7-3f4b-4a35-81d5-5dfcf5d3ea1b-1658240293-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/e4dedbc7-3f4b-4a35-81d5-5dfcf5d3ea1b-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "fe5e7a4d-43ea-4ba1-a435-9c5f475ba2ec",
+    "external_id": "fe5e7a4d-43ea-4ba1-a435-9c5f475ba2ec"
   },
   {
     "topic_number": 3,
@@ -937,7 +975,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/b4455aac-02d1-425c-ae99-dbeaf31b3754-1658239666-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/b4455aac-02d1-425c-ae99-dbeaf31b3754-s-1.jpg?t=1768426185",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "47559d31-bdbf-420f-ac77-1a4363a7d3e3",
+    "external_id": "47559d31-bdbf-420f-ac77-1a4363a7d3e3"
   },
   {
     "topic_number": 3,
@@ -984,7 +1024,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/a5ad7c77-67e8-4871-99e8-54385e27a62d-0000000000-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/a5ad7c77-67e8-4871-99e8-54385e27a62d-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "fd8cd610-ace9-4239-9288-f687a92a8f40",
+    "external_id": "fd8cd610-ace9-4239-9288-f687a92a8f40"
   },
   {
     "topic_number": 3,
@@ -1031,7 +1073,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/f03f3aa2-afef-4102-86ca-0f6c6f8b4d2f-1761302639-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/f03f3aa2-afef-4102-86ca-0f6c6f8b4d2f-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "e13eb2a4-46ec-459d-b276-81eab393e374",
+    "external_id": "e13eb2a4-46ec-459d-b276-81eab393e374"
   },
   {
     "topic_number": 3,
@@ -1078,7 +1122,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/39554309-54ff-4020-8b8f-603ddcec2529-1658239373-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/39554309-54ff-4020-8b8f-603ddcec2529-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "268b58b4-8d3d-423e-acf8-cf54f365fe34",
+    "external_id": "268b58b4-8d3d-423e-acf8-cf54f365fe34"
   },
   {
     "topic_number": 3,
@@ -1125,7 +1171,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/1371fd13-8b6a-4968-9e93-0ff25e603840-1658169471-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/1371fd13-8b6a-4968-9e93-0ff25e603840-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "6a74fb15-547e-4eb5-92ef-3b09b6dd75ce",
+    "external_id": "6a74fb15-547e-4eb5-92ef-3b09b6dd75ce"
   },
   {
     "topic_number": 3,
@@ -1172,7 +1220,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/c1382571-10ad-4e50-aade-485cc097094f-1759744177-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/c1382571-10ad-4e50-aade-485cc097094f-s-1.jpg?t=1768426185",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "a7084704-c2e0-49f1-a64f-02cc8775ab33",
+    "external_id": "a7084704-c2e0-49f1-a64f-02cc8775ab33"
   },
   {
     "topic_number": 3,
@@ -1219,7 +1269,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/203e2f1b-b822-4a71-b674-922535557fd7-1761286826-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/203e2f1b-b822-4a71-b674-922535557fd7-s-1.jpg?t=1768426185",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "bb789e1f-db1e-456d-b738-7fed67162d20",
+    "external_id": "bb789e1f-db1e-456d-b738-7fed67162d20"
   },
   {
     "topic_number": 3,
@@ -1266,7 +1318,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/d6993d45-7871-470b-919d-46f4c014fbff-1658157394-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d6993d45-7871-470b-919d-46f4c014fbff-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "9a7bfb3b-46f5-4fcd-8e43-a142e43c02c0",
+    "external_id": "9a7bfb3b-46f5-4fcd-8e43-a142e43c02c0"
   },
   {
     "topic_number": 3,
@@ -1313,7 +1367,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/aebed347-a065-45a5-aa10-9478d25a369e-1658146920-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/aebed347-a065-45a5-aa10-9478d25a369e-s-1.jpg?t=1768426185",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "b0df0bd0-f511-4e9b-bb39-68e8ae4c7209",
+    "external_id": "b0df0bd0-f511-4e9b-bb39-68e8ae4c7209"
   },
   {
     "topic_number": 3,
@@ -1360,7 +1416,9 @@
     },
     "image_url": "https://teorica.practicavial.com/question/3e5c61bf-5c55-4242-975c-bf58ec2a24bd-1658160244-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/3e5c61bf-5c55-4242-975c-bf58ec2a24bd-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "d94a7c2d-f03e-4594-9a62-18ce459e3865",
+    "external_id": "d94a7c2d-f03e-4594-9a62-18ce459e3865"
   },
   {
     "topic_number": 3,
@@ -1407,6 +1465,8 @@
     },
     "image_url": "https://teorica.practicavial.com/question/d82e43d4-2cc1-49fd-bfcb-ff2820cd5d21-1658168151-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d82e43d4-2cc1-49fd-bfcb-ff2820cd5d21-s-1.jpg",
-    "source": "practicavial"
+    "source": "practicavial",
+    "id": "e832226e-261a-4967-a132-3a9645aae12b",
+    "external_id": "e832226e-261a-4967-a132-3a9645aae12b"
   }
 ]
