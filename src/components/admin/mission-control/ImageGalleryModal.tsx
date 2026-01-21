@@ -22,6 +22,7 @@ interface GalleryImage {
     url: string;
     size: number;
     modified: string;
+    text?: string;
 }
 
 interface Gallery {
@@ -70,6 +71,7 @@ const TestGrid = ({
                                 ? "border-indigo-500 ring-2 ring-indigo-500/50"
                                 : "border-zinc-800 hover:border-zinc-600"
                         )}
+                        title={img.text ? img.text.substring(0, 100) : img.uuid}
                     >
                         <img
                             src={`http://localhost:3030${img.url.replace('/candidates/', '/generated-images/')}?width=400`}
@@ -204,7 +206,8 @@ export function ImageGalleryModal({ open, onOpenChange, questionId, onImageSelec
         const query = searchQuery.toLowerCase();
         return images.filter(img =>
             img.uuid.toLowerCase().includes(query) ||
-            img.testId.toLowerCase().includes(query)
+            img.testId.toLowerCase().includes(query) ||
+            (img.text && img.text.toLowerCase().includes(query))
         );
     };
 

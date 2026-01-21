@@ -2755,10 +2755,24 @@ app.get('/api/debug/check-missing/:topic/:test', async (req, res) => {
 // ==========================================
 
 // Get all images grouped by topic
+// Cache for questions map
+let _questionsMapCache = null;
+async function getCachedQuestionsMap() {
+    if (!_questionsMapCache) {
+        console.log('🔄 Loading questions map for gallery...');
+        _questionsMapCache = await loadQuestionData();
+    }
+    return _questionsMapCache;
+}
+
+// Get all images grouped by topic
 app.get('/api/gallery/images', async (req, res) => {
     try {
         const imagesRoot = path.join(process.cwd(), 'data', 'generated-images');
         const testDirs = await fs.readdir(imagesRoot);
+
+        // Preload questions for search
+        const questionsMap = await getCachedQuestionsMap();
 
         const gallery = {};
 
@@ -2791,13 +2805,20 @@ app.get('/api/gallery/images', async (req, res) => {
                 const filePath = path.join(testDir, file);
                 const fileStats = await fs.stat(filePath);
 
+                const question = questionsMap.get(uuid);
+                const text = question ?
+                    (question.question_es || '') + ' ' + (question.question_ru || '') :
+                    '';
+
                 images.push({
                     uuid,
                     filename: file,
                     testId: dir,
                     url: `/generated-images/${dir}/${file}`,
                     size: fileStats.size,
-                    modified: fileStats.mtime
+                    modified: fileStats.mtime,
+                    // Add text for search
+                    text: normalizeText(text)
                 });
             }
 
