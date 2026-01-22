@@ -49,6 +49,7 @@ export const useTestAudio = (
     const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
     const isPlayingRef = useRef(false);
+    const lastRequestTimeRef = useRef<number>(0);
 
     // Get system voice for fallback
     const getSystemVoice = useCallback(() => {
@@ -152,13 +153,20 @@ export const useTestAudio = (
 
         const playWithWebAudio = async () => {
             // Circuit breaker: if API failed previously, use fallback immediately
-            // This avoids async delays which cause browsers to block speechSynthesis
             if (apiFailedRef.current) {
                 console.log('[TTS] Circuit breaker active: using fallback immediately');
                 playFallback(currentQuestionText);
                 hasSpokenRef.current = currentQuestionText;
                 return;
             }
+
+            // Rate limiting: prevent rapid-fire requests (e.g., user skipping fast)
+            const now = Date.now();
+            if (lastRequestTimeRef.current && (now - lastRequestTimeRef.current < 1000)) {
+                console.log('[TTS] Rate limited (skipping fetch)');
+                return;
+            }
+            lastRequestTimeRef.current = now;
 
             const cacheKey = `${language}:${currentQuestionText}`;
             isPlayingRef.current = true;

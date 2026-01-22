@@ -25,7 +25,7 @@
       "destination": "/index.html"
     },
     {
-      "source": "/((?!api|assets|favicon|manifest|sw\\.js|workbox-.*\\.js).*)",
+      "source": "/((?!api|assets|favicon|manifest|robot\\.txt|sitemap\\.xml|sw\\.js|workbox-.*\\.js|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.gif|.*\\.ico|.*\\.svg|.*\\.webp|.*\\.mp3|.*\\.wav|.*\\.json).*)",
       "destination": "/index.html"
     }
   ],
