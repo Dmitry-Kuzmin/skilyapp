@@ -56,6 +56,7 @@ interface UseDuelGameProps {
   finishDuel: (callerHasFinished?: boolean) => Promise<void>;
   // Callbacks
   onWrongAnswer?: () => void; // Callback для screen shake при неправильном ответе
+  onCorrectAnswer?: () => void; // Callback для визуальных эффектов при правильном ответе
 }
 
 export function useDuelGame({
@@ -94,6 +95,7 @@ export function useDuelGame({
   moveToNextQuestion,
   finishDuel,
   onWrongAnswer,
+  onCorrectAnswer,
 }: UseDuelGameProps) {
   // КРИТИЧНО: Отслеживаем загрузку игроков для предотвращения race condition
   const playersLoadedRef = useRef(false);
@@ -414,7 +416,6 @@ export function useDuelGame({
         logWarn('[useDuelGame] ⚠️ Continuing without server response');
       }
 
-      // ============================================================================
       // CRITICAL: USE SERVER SCORE AND COMBO - CLIENT NEVER CALCULATES
       // ============================================================================
       if (data && data.new_score !== undefined) {
@@ -427,20 +428,38 @@ export function useDuelGame({
         log('[useDuelGame] Combo updated from server:', {
           oldCombo: combo,
           newCombo: serverCombo,
-          isCorrect,
-          expectedBehavior: isCorrect ? `Combo should be ${combo + 1}` : 'Combo should be 0'
+          serverIsCorrect: data.is_correct,
+          expectedBehavior: data.is_correct ? `Combo should be ${combo + 1}` : 'Combo should be 0'
+        });
+
+        // 🔍 DEBUG: Проверяем что именно вернул сервер
+        console.log('🔍 [useDuelGame] Server response FULL:', {
+          data,
+          is_correct_field: data.is_correct,
+          is_correct_type: typeof data.is_correct,
+          is_correct_value: data.is_correct === true,
+          new_score: data.new_score,
+          combo: serverCombo,
+          points_awarded: data.points_awarded
         });
 
         log('[useDuelGame] Server response:', {
-          isCorrect,
+          serverIsCorrect: data.is_correct,
           serverCombo,
           points: data.points_awarded
         });
 
-        // Play sounds based on server response
-        if (isCorrect) {
+        // Play sounds based on SERVER response (not client assumption)
+        const serverIsCorrect = data.is_correct === true;
+        console.log('🎯 [useDuelGame] Triggering effects for:', serverIsCorrect ? 'CORRECT ✅' : 'WRONG ❌');
+
+        if (serverIsCorrect) {
           sounds.correctAnswer();
           haptics.correctAnswer();
+          if (onCorrectAnswer) {
+            console.log('🟢 Calling onCorrectAnswer callback');
+            onCorrectAnswer();
+          }
           if (serverCombo > 1) {
             sounds.combo(serverCombo);
             haptics.combo();
@@ -453,6 +472,7 @@ export function useDuelGame({
           haptics.wrongAnswer();
           // 🎯 Screen shake при неправильном ответе
           if (onWrongAnswer) {
+            console.log('🔴 Calling onWrongAnswer callback');
             onWrongAnswer();
           }
           // Combo should be 0 after wrong answer
@@ -529,6 +549,8 @@ export function useDuelGame({
     syncPlayers,
     moveToNextQuestion,
     finishDuel,
+    onCorrectAnswer,
+    onWrongAnswer,
   ]);
 
   return {

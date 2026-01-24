@@ -14,6 +14,7 @@ import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { DuelEffectsOverlay } from './DuelEffectsOverlay';
 import { BoostFeedback } from './BoostFeedback';
 import { NotificationToast } from '@/components/NotificationToast';
 import { DuelWaitingReplay } from './DuelWaitingReplay';
@@ -640,11 +641,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       } else {
         // 🆕 CRITICAL FIX: Используем переданный параметр вместо state из closure
         // Это решает проблему, когда hasFinishedMyQuestions ещё false из-за асинхронности React
-        const hasActuallyFinished = callerHasFinished ?? hasFinishedMyQuestions;
         if (hasActuallyFinished) {
           log('[DuelBattleFullscreen] ⏳ Opponent still playing - showing waiting screen');
           setIsWaitingForOpponent(true);
-          toast.info('⏳ Ждём соперника...', { duration: 3000 });
+          // NEW HELPER: Get first name safely
+          const getFirstName = (fullName: string) => fullName.split(' ')[0];
+          toast.info(`⏳ Ждём соперника (${getFirstName(opponentName)})...`, { duration: 3000 });
         } else {
           log('[DuelBattleFullscreen] ⚠️ finish_duel returned not finished, but I still have questions. Ignoring.');
         }
@@ -658,6 +660,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       // setHasFinishedMyQuestions(false); // ← REMOVED
     }
   }, [duelId, profileId, hasFinishedMyQuestions, setIsWaitingForOpponent, transitionToResults]);
+
+
+  // 🎯 Visual Effects State
+  const [feedbackEffect, setFeedbackEffect] = useState<'correct' | 'wrong' | null>(null);
 
   // ОПТИМИЗАЦИЯ: Используем хук для логики игры
   const { hydrateQuestions, syncPlayers, syncQuestions, handleAnswer } = useDuelGame({
@@ -698,7 +704,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     // 🎯 Callback для screen shake при неправильном ответе
     onWrongAnswer: () => {
       setScreenShake(true);
-      setTimeout(() => setScreenShake(false), 500);
+      setFeedbackEffect('wrong');
+      setTimeout(() => {
+        setScreenShake(false);
+        setFeedbackEffect(null);
+      }, 500);
+    },
+    // 🎯 Callback для эффекта при правильном ответе
+    onCorrectAnswer: () => {
+      setFeedbackEffect('correct');
+      setTimeout(() => setFeedbackEffect(null), 800);
     },
   });
 
@@ -800,6 +815,24 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     syncBoostInventory();
     syncBetInfo();
   }, [duelId, profileId, syncBetInfo, syncBoostInventory, syncPlayers, syncQuestions]);
+
+  // ⚡️ ПРЕДЗАГРУЗКА ИЗОБРАЖЕНИЙ: Загружаем картинку следующего вопроса заранее
+  useEffect(() => {
+    // Получаем следующий вопрос
+    if (!questions || questions.length === 0) return;
+
+    const nextQuestion = questions[currentIndex + 1];
+
+    if (nextQuestion && nextQuestion.question_snapshot?.image_url) {
+      const url = getImageUrl(nextQuestion.question_snapshot.image_url);
+      if (url) {
+        // Создаем невидимый Image объект, браузер сам закеширует его
+        const img = new Image();
+        img.src = url;
+        if (isDev) console.log('[DuelBattleFullscreen] 🖼️ Preloading next image:', url);
+      }
+    }
+  }, [currentIndex, questions]);
 
   // ОПТИМИЗАЦИЯ: Heartbeat используется только как fallback при отсутствии Realtime
   // Realtime подписка отслеживает активность в реальном времени через useDuelRealtime
@@ -2589,7 +2622,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           paddingBottom: isTelegramMobile || isTelegramDesktop ? '4px' : '8px'
         }}
       >
-        <div className="max-w-4xl mx-auto px-2">
+        <div className={`${isInTelegramMiniApp ? 'px-3 md:px-4' : 'px-3 md:px-4'} max-w-7xl mx-auto w-full`}>
           <QuestionProgressBar
             currentIndex={currentIndex}
             totalQuestions={questions.length}
@@ -2621,7 +2654,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       {/* Main Content */}
       {/* 🆕 CRITICAL FIX: Естественный поток - элементы идут друг за другом */}
       <div
-        className={`flex flex-col justify-start flex-1 ${isInTelegramMiniApp ? 'px-3 md:px-4 pb-6' : 'p-3 md:p-4 pb-6'} max-w-4xl mx-auto`}
+        className={`flex flex-col justify-start flex-1 ${isInTelegramMiniApp ? 'px-3 md:px-4 pb-6' : 'p-3 md:p-4 pb-6'} max-w-7xl mx-auto w-full`}
         style={{
           gap: isInTelegramMiniApp ? '8px' : isTelegramMobile ? '4px' : '8px'
         }}
@@ -2632,12 +2665,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           className={`relative z-20 ${isInTelegramMiniApp
             ? 'flex flex-col gap-2' // Компактная вертикальная компоновка с фиксированным gap
             : isTelegramMobile
-              ? 'flex flex-col gap-1' // Нормальный gap для обычных мобильных браузеров
+              ? 'flex flex-col gap-1' // Нормальный gap для обычных мобиционных браузеров
               : 'flex items-center justify-between gap-3 flex-wrap'
             }`}
         >
           {/* Scores - Enhanced - Центрированы в мобильной версии Telegram */}
-          <div className="relative">
+          {/* 🎯 Visual Feedback Overlay (Portal to body) */}
+          <DuelEffectsOverlay effect={feedbackEffect} />
+
+          {/* Scores & Boosts - Same Row */}
+          <div className={cn(
+            "relative flex overflow-hidden transition-transform duration-100",
+            screenShake && "animate-shake",
+            isTelegramMobile ? "flex-col gap-2" : "items-center justify-between gap-3"
+          )}>
             <DuelScoreBoard
               myScore={myScore}
               opponentScore={opponentScore}
@@ -2658,36 +2699,34 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               opponentLastSeen={opponentLastSeen}
               combo={combo}
             />
-          </div>
 
-          {/* Right Side - Boosts & Combo */}
-          <div className={`flex items-center gap-1.5 flex-wrap ${isTelegramMobile ? 'w-full justify-center mt-1' : ''}`}>
-            {/* Boosts - Premium Compact Design - Всегда видимы */}
-            {(() => {
-              const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-              // КРИТИЧНО: Версионирование логов для проверки обновления кода
-              console.log('[DuelBattleFullscreen] 🎮 Rendering DuelBoostsPanel [v2]:', {
-                boostsCount: boosts.length,
-                boosts: boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })),
-                isTelegram,
-                platform: isTelegram ? window.Telegram.WebApp.platform : 'browser',
-                isTelegramMobile,
-                usedBoosts,
-                isAnswered,
-                timestamp: new Date().toISOString(),
-                codeVersion: '2025-12-15-v2', // Версия кода для проверки обновления
-              });
-              return (
-                <DuelBoostsPanel
-                  boosts={boosts}
-                  usedBoosts={usedBoosts}
-                  isAnswered={isAnswered}
-                  translatePopoverOpen={translatePopoverOpen}
-                  onBoostUse={handleBoostUse}
-                  onTranslatePopoverChange={setTranslatePopoverOpen}
-                />
-              );
-            })()}
+            {/* Boosts - Premium Compact Design */}
+            <div className={`flex items-center gap-1.5 ${isTelegramMobile ? 'w-full justify-center' : ''}`}>
+              {(() => {
+                const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
+                console.log('[DuelBattleFullscreen] 🎮 Rendering DuelBoostsPanel [v2]:', {
+                  boostsCount: boosts.length,
+                  boosts: boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })),
+                  isTelegram,
+                  platform: isTelegram ? window.Telegram.WebApp.platform : 'browser',
+                  isTelegramMobile,
+                  usedBoosts,
+                  isAnswered,
+                  timestamp: new Date().toISOString(),
+                  codeVersion: '2025-12-15-v2',
+                });
+                return (
+                  <DuelBoostsPanel
+                    boosts={boosts}
+                    usedBoosts={usedBoosts}
+                    isAnswered={isAnswered}
+                    translatePopoverOpen={translatePopoverOpen}
+                    onBoostUse={handleBoostUse}
+                    onTranslatePopoverChange={setTranslatePopoverOpen}
+                  />
+                );
+              })()}
+            </div>
           </div>
         </div>
 
@@ -2951,5 +2990,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         />
       </Suspense>
     </div>
+    </div >
   );
 }

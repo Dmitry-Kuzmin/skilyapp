@@ -90,6 +90,16 @@ export const DuelScoreBoard = memo(({
   opponentLastSeen = null,
   combo = 0,
 }: DuelScoreBoardProps) => {
+
+  // Функция для получения только имени
+  const getFirstName = (fullName: string | null) => {
+    if (!fullName) return '';
+    return fullName.split(' ')[0];
+  };
+
+  const myDisplayName = getFirstName(myName);
+  const opponentDisplayName = getFirstName(opponentName);
+
   return (
     <div className={cn(
       "flex items-center gap-2 md:gap-3 min-w-0 flex-wrap",
@@ -142,7 +152,7 @@ export const DuelScoreBoard = memo(({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 mb-0.5">
-            <p className="text-xs font-medium text-muted-foreground truncate max-w-[100px] md:max-w-none" title={myName}>{myName}</p>
+            <p className="text-xs font-medium text-muted-foreground truncate max-w-[100px] md:max-w-none" title={myName}>{myDisplayName}</p>
             {myInsuranceActive && (
               <Shield className="w-3 h-3 text-green-600 dark:text-green-400 shrink-0" title={`Страховка: ${myCoverageDisplay}%`} />
             )}
@@ -177,7 +187,7 @@ export const DuelScoreBoard = memo(({
               title={opponentName}
               key={`opponent-name-${opponentName}`}
             >
-              {opponentName || 'Соперник'}
+              {opponentDisplayName || 'Соперник'}
             </p>
           </div>
           <motion.div

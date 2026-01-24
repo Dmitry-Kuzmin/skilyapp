@@ -2914,6 +2914,7 @@ Deno.serve(async (req) => {
 
           return new Response(JSON.stringify({
             success: true,
+            is_correct: existingAnswer.is_correct, // 🔥 CRITICAL: Return actual answer result
             new_score: player.score,
             combo: currentCombo,
             points_awarded: existingAnswer.points_awarded,
@@ -3043,6 +3044,7 @@ Deno.serve(async (req) => {
 
         return new Response(JSON.stringify({
           success: true,
+          is_correct: isCorrect, // 🔥 CRITICAL: Client needs this to show correct/wrong effects!
           new_score: newScore,
           combo: finalCombo,
           points_awarded: points,
