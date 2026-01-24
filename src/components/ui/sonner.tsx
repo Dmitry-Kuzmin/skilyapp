@@ -28,15 +28,16 @@ const Toaster = ({ ...props }: ToasterProps) => {
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    style = {{
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    pointerEvents: 'none', // КРИТИЧНО: пропускаем клики сквозь контейнер
-    zIndex: 2147483647, // Максимальный Z-Index
-  }}
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none', // КРИТИЧНО: пропускаем клики сквозь контейнер
+        zIndex: 2147483647, // Максимальный Z-Index
+      }}
     >
       <style>{`
         @keyframes toast-progress {
@@ -98,7 +99,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         {...props}
       />
     </div >,
-  document.body
+    document.body
   );
 };
 
