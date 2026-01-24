@@ -123,7 +123,7 @@ export function ExitDuelModal({
       )}
 
       {/* Header Icon */}
-      <div className={cn("flex justify-center", isMobile ? "pt-4 pb-6" : "pt-6 pb-6")}>
+      <div className={cn("flex justify-center", isMobile ? "pt-4 pb-4" : "pt-2 pb-6")}>
         <motion.div
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -140,73 +140,79 @@ export function ExitDuelModal({
               rotate: { duration: 3, repeat: Infinity, ease: "easeInOut" }
             }}
           >
-            <HeartCrack className="w-16 h-16 text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]" />
+            <HeartCrack className="w-20 h-20 text-red-500 drop-shadow-[0_0_25px_rgba(239,68,68,0.6)]" />
           </motion.div>
+
+          {/* Enhanced Glow */}
           <motion.div
-            className="absolute inset-0 rounded-full bg-red-500/20 blur-xl"
-            animate={{ opacity: [0.5, 0.8, 0.5], scale: [1, 1.1, 1] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute inset-0 -z-10 rounded-full bg-red-500/20 blur-2xl"
+            animate={{ opacity: [0.3, 0.6, 0.3], scale: [1.2, 1.4, 1.2] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           />
         </motion.div>
       </div>
 
-      {/* Title */}
-      <div className="text-center px-6 pb-2">
-        <h2 className="text-xl font-bold text-white mb-2 select-none">
+      {/* Title & Description */}
+      <div className="text-center px-6 pb-6 space-y-2">
+        <h2 className="text-2xl font-bold text-white tracking-tight">
           Покинуть битву?
         </h2>
-        <p className="text-sm text-zinc-400 leading-relaxed">
-          Это действие необратимо. Вам будет засчитано техническое поражение.
+        <p className="text-sm text-zinc-400 leading-relaxed max-w-[280px] mx-auto">
+          Это действие нельзя отменить. Вам будет засчитано <span className="text-red-400 font-medium">техническое поражение</span>.
         </p>
       </div>
 
       {/* Impact Cards */}
-      <div className="px-6 py-6">
+      <div className="px-6 pb-8">
         <div className={cn(
           "grid gap-3",
           betAmount > 0 ? "grid-cols-3" : "grid-cols-2"
         )}>
-          {/* Победа врагу */}
-          <div className="flex flex-col items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl select-none">
-            <Trophy className="w-5 h-5 text-red-500" />
-            <span className="text-xs font-semibold text-zinc-300 text-center leading-tight">
-              Победа врагу
-            </span>
-          </div>
-
-          {/* Потеря монет */}
-          {betAmount > 0 && (
-            <div className="flex flex-col items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl select-none">
-              <Coins className="w-5 h-5 text-red-500" />
-              <span className="text-xs font-semibold text-zinc-300 text-center leading-tight">
-                -{betAmount} монет
-              </span>
+          {/* Card Item Component */}
+          {[{
+            icon: Trophy,
+            label: "Победа врагу",
+            value: null
+          },
+          betAmount > 0 && {
+            icon: Coins,
+            label: "Монеты",
+            value: `-${betAmount}`
+          },
+          {
+            icon: TrendingDown,
+            label: "Рейтинг",
+            value: "Потеря"
+          }].filter(Boolean).map((item, i) => (
+            <div key={i} className="group flex flex-col items-center justify-center gap-2 p-3 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+              <div className="p-2 rounded-full bg-zinc-900 group-hover:bg-red-500/20 transition-colors">
+                <item.icon className="w-4 h-4 text-zinc-400 group-hover:text-red-400 transition-colors" />
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">{item.label}</span>
+                {item.value && (
+                  <span className="text-xs font-bold text-red-400">{item.value}</span>
+                )}
+              </div>
             </div>
-          )}
-
-          {/* Потеря рейтинга */}
-          <div className="flex flex-col items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl select-none">
-            <TrendingDown className="w-5 h-5 text-red-500" />
-            <span className="text-xs font-semibold text-zinc-300 text-center leading-tight">
-              Потеря рейтинга
-            </span>
-          </div>
+          ))}
         </div>
       </div>
 
       {/* Actions */}
-      <div className={cn("px-6 space-y-3", isMobile ? "pb-6 pt-2" : "pb-0")}>
+      <div className={cn("px-6 space-y-3", isMobile ? "pb-6" : "pb-2")}>
         <Button
           onClick={handleStay}
           disabled={isSurrendering}
           className={cn(
-            "w-full h-12",
-            "bg-white text-black",
-            "font-semibold",
-            "hover:bg-white/90",
+            "w-full h-14 text-base",
+            "bg-gradient-to-r from-blue-600 to-indigo-600",
+            "text-white font-bold rounded-2xl",
+            "hover:from-blue-500 hover:to-indigo-500",
+            "hover:shadow-lg hover:shadow-blue-500/20",
             "active:scale-[0.98]",
             "transition-all duration-200",
-            "shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"
+            "border-0"
           )}
         >
           Остаться в бою
@@ -215,28 +221,20 @@ export function ExitDuelModal({
         <Button
           onClick={handleSurrender}
           disabled={isSurrendering}
-          variant="outline"
+          variant="ghost"
           className={cn(
-            "w-full h-12 relative overflow-hidden",
-            "bg-transparent",
-            "border-2 border-red-500/50",
-            "text-red-500",
-            "font-semibold",
-            "hover:bg-red-500/10",
-            "hover:border-red-500",
-            "active:scale-[0.98]",
+            "w-full h-12 text-sm",
+            "text-zinc-500 hover:text-red-400",
+            "bg-transparent hover:bg-red-500/10",
+            "font-medium rounded-xl",
             "transition-all duration-200"
           )}
         >
-          <span className="relative z-10 flex items-center justify-center gap-2">
-            {isSurrendering ? (
-              <>
-                <span className="w-4 h-4 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" />
-                Выход...
-              </>
-            ) : (
-              <span>Сдаться (Поражение)</span>
+          <span className="flex items-center gap-2">
+            {isSurrendering && (
+              <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
             )}
+            Принять поражение
           </span>
         </Button>
       </div>
@@ -249,11 +247,11 @@ export function ExitDuelModal({
         <SheetContent
           side="bottom"
           className={cn(
-            "rounded-t-[30px] border-t border-white/10",
-            "bg-zinc-950/90 backdrop-blur-md",
+            "rounded-t-[32px] border-t-0",
+            "bg-[#0A0A0B]", // Solid dark background for mobile performance
             "p-0 pb-safe",
             "max-h-[85vh]",
-            "overflow-hidden"
+            "overflow-hidden ring-1 ring-white/10"
           )}
           hideCloseButton
         >
@@ -265,8 +263,20 @@ export function ExitDuelModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-zinc-950 border-white/10 p-6 rounded-3xl">
-        {Content}
+      <DialogContent className={cn(
+        "max-w-[380px] p-0 border-0",
+        "bg-[#0A0A0B]/90 backdrop-blur-3xl",
+        "shadow-2xl shadow-black/50",
+        "rounded-[32px]",
+        "ring-1 ring-white/10",
+        "overflow-hidden"
+      )}>
+        {/* Decorative Gradients */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-red-500/10 blur-[60px] pointer-events-none" />
+
+        <div className="relative">
+          {Content}
+        </div>
       </DialogContent>
     </Dialog>
   );
