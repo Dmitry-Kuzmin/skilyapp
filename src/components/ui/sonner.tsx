@@ -69,19 +69,15 @@ const Toaster = ({ ...props }: ToasterProps) => {
         className="toaster group"
         position={shouldCenter ? "top-center" : "top-right"}
         richColors
-        expand={true}
         closeButton={true}
-        visibleToasts={5} // Показываем историю из 5 уведомлений (максимум)
-        gap={12} // Расстояние между карточками
-        offset={isMobile ? 16 : 24} // Отступ от края экрана
-        // Важно: z-index должен быть МАКСИМАЛЬНЫМ
+        visibleToasts={5}
+        gap={8} // Чуть уменьшаем отступ для плотности
+        offset={isMobile ? 16 : 24}
         containerAriaLabel="Уведомления"
         toastOptions={{
           duration: 4000,
           classNames: {
             toast:
-              // Стандартные стили Shadcn UI (используют CSS переменные темы)
-              // Добавляем toast-progress класс для индикатора
               "group toast toast-progress group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg pointer-events-auto font-medium",
             description: "group-[.toast]:text-muted-foreground",
             actionButton:
@@ -89,16 +85,15 @@ const Toaster = ({ ...props }: ToasterProps) => {
             cancelButton:
               "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
             closeButton:
-              "group-[.toast]:text-muted-foreground group-[.toast]:hover:text-foreground transition-colors",
+              "group-[.toast]:absolute group-[.toast]:right-2 group-[.toast]:top-2 group-[.toast]:rounded-full group-[.toast]:p-1 group-[.toast]:text-muted-foreground group-[.toast]:opacity-60 group-[.toast]:hover:opacity-100 group-[.toast]:hover:bg-accent group-[.toast]:transition-all pointer-events-auto",
           },
         }}
-        // Используем CSS переменную для отступа сверху, которая учитывает safe area
         style={{
           marginTop,
         }}
         {...props}
       />
-    </div >,
+    </div>,
     document.body
   );
 };
