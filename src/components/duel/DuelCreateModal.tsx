@@ -91,7 +91,7 @@ export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCr
         setCreatedDuelCode(data.duel.code);
         setCreatedDuelId(data.duel.id);
         setStep('success');
-        navigator.clipboard.writeText(data.duel.code);
+        // Автоматическое копирование убрано - копирование теперь только по клику пользователя (строки 497-502)
       }
     } catch (error: any) {
       toast.error(extractErrorFromResponse(error) || 'Ошибка');
@@ -494,11 +494,17 @@ export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCr
                 </div>
 
                 <div
-                  onClick={() => {
-                    navigator.clipboard.writeText(createdDuelCode);
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                    toast.success('Скопировано');
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(createdDuelCode);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                      toast.success('Скопировано');
+                    } catch (error) {
+                      // Fallback для devices где clipboard API заблокирован
+                      console.log('Clipboard API blocked:', error);
+                      toast.error('Не удалось скопировать. Скопируйте код вручную: ' + createdDuelCode);
+                    }
                   }}
                   className="group relative p-12 rounded-[3.5rem] bg-secondary/10 border-4 border-secondary border-dashed cursor-pointer hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all flex items-center justify-center"
                 >

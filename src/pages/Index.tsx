@@ -231,7 +231,7 @@ const DashboardContent = memo(function DashboardContent() {
   const hasClaimedToday = dashboardData?.daily_bonus ? !dashboardData.daily_bonus.can_claim : false;
 
   // Determine effective error state
-  const hasError = error || (!loading && !dashboardData);
+  const hasError = !!error;
 
   return (
     <>

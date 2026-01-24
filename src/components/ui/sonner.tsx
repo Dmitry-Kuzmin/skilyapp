@@ -28,22 +28,15 @@ const Toaster = ({ ...props }: ToasterProps) => {
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none', // КРИТИЧНО: пропускаем клики сквозь контейнер
-        zIndex: 2147483647, // Максимальный Z-Index
-        display: 'flex',
-        flexDirection: 'column',
-        // Если центрируем - то center, иначе justify-end чтобы прижать к правому краю (но sonner сам умеет в право)
-        // Но так как мы обернули в div, лучше дать sonner самому позиционироваться внутри или управлять этим здесь.
-        // Sonner использует fixed positioning внутри себя. Дадим ему работать, но в нашем контейнере.
-        // ВАЖНО: Если мы дадим Sonner работать внутри fixed контейнера, его fixed координаты будут относительно окна (viewport).
-      }}
+    style = {{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    pointerEvents: 'none', // КРИТИЧНО: пропускаем клики сквозь контейнер
+    zIndex: 2147483647, // Максимальный Z-Index
+  }}
     >
       <style>{`
         @keyframes toast-progress {
@@ -104,8 +97,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
         }}
         {...props}
       />
-    </div>,
-    document.body
+    </div >,
+  document.body
   );
 };
 

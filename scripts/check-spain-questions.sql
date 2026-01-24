@@ -1,26 +1,28 @@
--- Проверка испанских вопросов в базе
--- Выполни в Supabase SQL Editor
+-- 📊 СТАТИСТИКА ВОПРОСОВ ПО ИСПАНИИ
+-- Скопируй этот код в Supabase SQL Editor и нажми Run
 
--- 1. Сколько всего испанских вопросов?
-SELECT COUNT(*) as total_questions
-FROM questions_new
-WHERE country = 'es';
-
--- 2. Разбивка по темам
+-- 1. Общее количество вопросов для Испании
 SELECT 
-    metadata->>'topic_number' as topic,
-    COUNT(*) as questions_count
-FROM questions_new
-WHERE country = 'es'
-GROUP BY metadata->>'topic_number'
-ORDER BY (metadata->>'topic_number')::int;
+  count(*) as "Всего вопросов (Испания)", 
+  count(*) filter (where topic_id is null) as "Без темы"
+FROM questions_new 
+WHERE country = 'spain';
 
--- 3. Есть ли поле topic_id?
+-- 2. Детальная разбивка по темам (название темы + кол-во)
 SELECT 
-    id,
-    metadata->>'topic_number' as topic_number,
-    metadata->>'question_number' as question_number,
-    question_es
-FROM questions_new
-WHERE country = 'es'
+  t.name as "Тема", 
+  count(q.id) as "Кол-во вопросов"
+FROM questions_new q
+LEFT JOIN topics t ON q.topic_id = t.id
+WHERE q.country = 'spain'
+GROUP BY t.name
+ORDER BY count(q.id) DESC;
+
+-- 3. Пример вопросов (первые 5)
+SELECT 
+  id, 
+  substring(question->>'ru' from 1 for 50) as "Вопрос (RU)",
+  topic_id
+FROM questions_new 
+WHERE country = 'spain' 
 LIMIT 5;

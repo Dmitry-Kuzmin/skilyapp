@@ -34,7 +34,7 @@ export function useDuelHeartbeat({
     // Первый heartbeat сразу
     const sendHeartbeat = async () => {
       if (!duelId || !profileId || isActiveRef.current) return;
-      
+
       isActiveRef.current = true;
       try {
         const { error } = await supabase.functions.invoke('duel-manager', {

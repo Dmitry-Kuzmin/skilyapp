@@ -1010,37 +1010,37 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "puede rebasar la velocidad máxima fijada para las autopistas y autovías en 20 km/h.",
-          "en": "can exceed the maximum speed set for motorways and dual carriageways by 20 km/h.",
-          "ru": "может превысить максимальную скорость, установленную для Autopista и Autovía, на 20 км/ч."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "debe mantener una velocidad moderada, sin importar el tiempo que emplee en el adelantamiento.",
-          "en": "must maintain a moderate speed, regardless of the time taken for the overtaking.",
-          "ru": "должен поддерживать умеренную скорость, независимо от времени, затраченного на обгон."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
+          "ru": "должен вести свое транспортное средство со скоростью, заметно превышающей скорость обгоняемого ТС.",
           "es": "debe llevar su vehículo a una velocidad notoriamente superior a la del vehículo que pretende adelantar.",
-          "en": "must drive their vehicle at a speed noticeably higher than that of the vehicle they intend to overtake.",
-          "ru": "должен вести свое транспортное средство со скоростью, заметно превышающей скорость обгоняемого ТС."
+          "en": "must drive their vehicle at a speed noticeably higher than that of the vehicle they intend to overtake."
         },
         "is_correct": true
+      },
+      {
+        "id": "opt_1",
+        "text": {
+          "ru": "может превысить максимальную скорость, установленную для Autopista и Autovía, на 20 км/ч.",
+          "es": "puede rebasar la velocidad máxima fijada para las autopistas y autovías en 20 km/h.",
+          "en": "can exceed the maximum speed set for motorways and dual carriageways by 20 km/h."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "должен поддерживать умеренную скорость, независимо от времени, затраченного на обгон.",
+          "es": "debe mantener una velocidad moderada, sin importar el tiempo que emplee en el adelantamiento.",
+          "en": "must maintain a moderate speed, regardless of the time taken for the overtaking."
+        },
+        "is_correct": false
       }
     ],
     "explanation": {
       "es": "Según el Reglamento General de Circulación, durante la ejecución del adelantamiento, el conductor deberá llevar su vehículo a una velocidad notoriamente superior a la del que pretende adelantar. Esto es necesario para realizar la maniobra con seguridad y reintegrarse al carril lo antes posible. Es importante destacar que en autopistas y autovías nunca está permitido superar la velocidad máxima genérica para adelantar.",
       "en": "According to the General Traffic Regulations, during the execution of an overtaking maneuver, the driver must drive their vehicle at a speed noticeably higher than that of the vehicle they intend to overtake. This is necessary to perform the maneuver safely and return to the lane as soon as possible. It is important to note that on motorways (autopistas) and dual carriageways (autovías), exceeding the generic maximum speed limit to overtake is never permitted.",
-      "ru": "🎓 \n\nГлавное требование безопасности при любом обгоне (Adelantamiento) — минимизировать время нахождения на встречной полосе или в параллельном ряду. ПДД Испании четко указывают: ваша скорость должна быть **«заметно выше» (notoriamente superior)** скорости того, кого вы обгоняете. Если вы едете с той же скоростью или лишь чуть быстрее, маневр затянется, создавая опасность.\n\nВажно помнить про лимиты: вариант про превышение на 20 км/ч — это ловушка. На **Autopista** и **Autovía** превышать лимит (обычно 120 км/ч) для обгона **запрещено** категорически. Раньше на обычных дорогах допускалось превышение на 20 км/ч, но это правило было отменено в 2022 году.\n\n🇷🇺 \n\nВ РФ часто учат обгонять «с запасом», но многие привыкли к «нештрафуемому порогу +20 км/ч». В Испании такого понятия нет. Если на спидометре ограничение 120, а попутная машина едет 119 км/ч, вы технически не можете её обогнать, не нарушив правила, так как для «заметного превышения» вам придется выйти за лимит. В Испании за превышение даже на 1 км/ч предусмотрен штраф.\n\n💡 **Запоминалка**\n\nОбгоняешь — не тяни, газ уверенно жми! (Но в пределах лимита)."
+      "ru": "🎓 Главное требование безопасности при любом обгоне (Adelantamiento) — минимизировать время нахождения на встречной полосе или в параллельном ряду. ПДД Испании четко указывают: ваша скорость должна быть **«заметно выше» (notoriamente superior)** скорости того, кого вы обгоняете. Если вы едете с той же скоростью или лишь чуть быстрее, маневр затянется, создавая опасность.\n\nВажно помнить про лимиты: вариант про превышение на 20 км/ч — это ловушка. На **Autopista** и **Autovía** превышать лимит (обычно 120 км/ч) для обгона **запрещено** категорически. Раньше на обычных дорогах допускалось превышение на 20 км/ч, но это правило было отменено в 2022 году.\n\n🇷🇺 В РФ часто учат обгонять «с запасом», но многие привыкли к «нештрафуемому порогу +20 км/ч». В Испании такого понятия нет. Если на спидометре ограничение 120, а попутная машина едет 119 км/ч, вы технически не можете её обогнать, не нарушив правила, так как для «заметного превышения» вам придется выйти за лимит. В Испании за превышение даже на 1 км/ч предусмотрен штраф.\n\n💡 **Запоминалка**\n\nОбгоняешь — не тяни, газ уверенно жми! (Но в пределах лимита)."
     },
     "image_url": "https://teorica.practicavial.com/question/91285373-ab3d-40c5-9024-cad750bb77c3-1657809681-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/91285373-ab3d-40c5-9024-cad750bb77c3-s-1.jpg",

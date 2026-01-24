@@ -12,10 +12,18 @@ interface NotificationToastProps {
 export function NotificationToast({ title, message, icon, onClose }: NotificationToastProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: -20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -20, scale: 0.95 }}
-      className="relative max-w-sm w-full"
+      initial={{ opacity: 0, x: 400, scale: 0.95 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      exit={{ opacity: 0, x: 400, scale: 0.95 }}
+      drag="x"
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.2}
+      onDragEnd={(_, info) => {
+        if (info.offset.x > 100) {
+          onClose();
+        }
+      }}
+      className="relative max-w-sm w-full cursor-grab active:cursor-grabbing"
     >
       <div className="bg-card border-2 border-primary/30 rounded-2xl shadow-2xl shadow-primary/20 p-4 backdrop-blur-xl">
         <div className="flex items-start gap-3">
@@ -32,10 +40,13 @@ export function NotificationToast({ title, message, icon, onClose }: Notificatio
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="h-8 w-8 flex-shrink-0 rounded-full"
+            className="h-7 w-7 flex-shrink-0 rounded-full hover:bg-destructive/20 hover:text-destructive transition-colors opacity-70 hover:opacity-100"
           >
-            <X className="h-4 w-4" />
+            <X className="h-3.5 w-3.5" />
           </Button>
+        </div>
+        <div className="absolute bottom-2 right-2 text-[10px] text-muted-foreground/50">
+          Свайп →
         </div>
       </div>
     </motion.div>
@@ -54,21 +65,18 @@ interface NotificationToastContainerProps {
 
 export function NotificationToastContainer({ notifications, onClose }: NotificationToastContainerProps) {
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2 pointer-events-none">
+    <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none max-w-sm">
       <AnimatePresence>
-        {notifications.map((notification, index) => (
-          <motion.div
+        {notifications.map((notification) => (
+          <div
             key={notification.id}
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: index * 80 }}
-            exit={{ opacity: 0, x: 100 }}
             className="pointer-events-auto"
           >
             <NotificationToast
               {...notification}
               onClose={() => onClose(notification.id)}
             />
-          </motion.div>
+          </div>
         ))}
       </AnimatePresence>
     </div>

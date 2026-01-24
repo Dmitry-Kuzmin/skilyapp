@@ -423,14 +423,16 @@ ${explanationText ? `
 ${answersContext}
 
 ${isEmergencyV16 ? `
-## 🚨 CRITICAL VISUAL MODIFICATION: V16 BEACON PROTOCOL
-**You must MODIFY the scene described above to comply with 2026 Regulations.**
-Even if the original image (or description) shows Warning Triangles or nothing on the roof, you **MUST CHANGE IT**:
-
-1.  **ADD A V16 BEACON**: Draw a bright **ORANGE FLASHING LIGHT** (small dome shape) on the highest point of the **stopped/damaged vehicle's ROOF**.
-2.  **GLOW EFFECT**: The beacon must be emitting a visible orange light/glow.
-3.  **REMOVE TRIANGLES**: Do NOT include any red warning triangles on the road.
-4.  **HAZARD LIGHTS**: Ensure the vehicle's amber hazard blinkers are ON.
+## 🚨 CONDITIONAL MODIFICATION: V16 BEACON PROTOCOL
+**CONTEXT CHECK:**
+- **IF** the scene depicts a **STOPPED, BROKEN DOWN, or ACCIDENT** vehicle:
+  1.  **MANDATORY**: Draw a **V16 ORANGE FLASHING BEACON** (small dome light) on the roof.
+  2.  **ACTION**: The vehicle must be STATIONARY with HAZARD LIGHTS ON.
+  3.  **NO TRIANGLES**: Do NOT place red warning triangles on the road.
+- **IF** the vehicle is **MOVING** or in normal traffic flow:
+  - **DO NOT** add the V16 Beacon.
+  - **DO NOT** add triangles.
+  - Ignore "avería" keywords if they refer to a theoretical question rather than the visual scene.
 ` : ''}
 
 ## MISSION:
@@ -470,13 +472,11 @@ The question context indicates the traffic light is OFF (apagado) or BLINKING.
 ` : ''}
 
 ${isEmergencyV16 ? `
-## 🚨 SPECIAL RULES: EMERGENCY / BREAKDOWN (V16 STANDARD)
-The scenario involves a stopped or broken down vehicle.
-**MANDATORY 2026 DGT RULES**:
-1. **NO WARNING TRIANGLES**: Do NOT place red triangles on the road. They are obsolete.
-2. **MUST USE V16 BEACON**: The stopped vehicle MUST have a small **ORANGE FLASHING LIGHT** (V16 Beacon) on top of the roof.
-3. **HAZARD LIGHTS**: The vehicle should have orange hazard lights (blinkers) active.
-4. **POSITION**: If on "Arcén" (Shoulder), ensure it is fully outside the white line using the shoulder.
+## 🚨 RULESET: EMERGENCY / BREAKDOWN
+**APPLY ONLY IF VEHICLE IS STOPPED:**
+1. **NO WARNING TRIANGLES**: Obsolete. Do not draw.
+2. **V16 BEACON**: Required ONLY for stopped/damaged vehicles on the roof.
+3. **MOVING VEHICLES**: Do NOT show V16 beacon.
 ` : ''}
 
 ## CRITICAL CONSTRAINTS:

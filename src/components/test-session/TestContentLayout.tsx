@@ -29,11 +29,11 @@ export const TestContentLayout = ({
                 ? "max-w-3xl px-4"
                 // EXAM MODE: Wide layout like practice but centered (no sidebar)
                 : isExamMode
-                    ? "max-w-full xl:max-w-[1440px] 2xl:max-w-[1600px] px-2 sm:px-4 lg:px-8"
+                    ? "max-w-full xl:max-w-[1600px] 2xl:max-w-[1920px] px-2 sm:px-4 lg:px-8"
                     // Grid Layout for Practice Mode on Desktop (with Sidebar)
                     // We only move sidebar to the side on XL (1280px+) to ensure enough room for question content
                     : !isTelegramApp && isPracticeLikeMode
-                        ? "flex flex-col xl:grid xl:grid-cols-[1fr_400px] 2xl:grid-cols-[1fr_440px] xl:items-start xl:gap-6 2xl:gap-8 max-w-full xl:max-w-[1440px] 2xl:max-w-[1600px] px-2 sm:px-4 lg:px-8"
+                        ? "flex flex-col xl:grid xl:grid-cols-[1fr_400px] 2xl:grid-cols-[1fr_440px] xl:items-start xl:gap-8 2xl:gap-12 max-w-full xl:max-w-[1600px] 2xl:max-w-[2000px] px-2 sm:px-4 lg:px-8 2xl:px-12"
                         // Default Container
                         : "container px-2 sm:px-4"
         )}>

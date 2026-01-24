@@ -114,6 +114,7 @@ async function fetchRandomQuestions(
   const c = country ? country.toLowerCase().trim() : 'spain';
   if (c === 'russia' || c === 'ru') countryCode = 'ru';
   else if (c === 'spain' || c === 'es') countryCode = 'es';
+  else countryCode = c; // Если пришло что-то другое, пробуем как есть (например 'uk')
   query = query.eq('country', countryCode);
 
   if (categories && categories.length > 0) {
@@ -2352,23 +2353,6 @@ Deno.serve(async (req) => {
           console.error('[start_duel_now] ❌ No questions found');
           return new Response(JSON.stringify({ error: 'Failed to find questions' }), { status: 500, headers: corsHeaders });
         }
-
-        const duelQuestions = selectedQuestions.map((q: any, idx: number) => ({
-          duel_id: duel.id,
-          question_id: q.id,
-          position: idx + 1,
-          question_snapshot: {
-            question_ru: q.question_ru,
-            question_es: q.question_es,
-            question_en: q.question_en,
-            image_url: q.image_url,
-            answer_options: q.answer_options || [],
-            difficulty: q.difficulty,
-          },
-          correct_option_ids: (q.answer_options || [])
-            .filter((opt: any) => opt.is_correct)
-            .map((opt: any) => opt.id),
-        }));
 
         const duelQuestions = selectedQuestions.map((q, idx) => ({
           duel_id: duel.id,

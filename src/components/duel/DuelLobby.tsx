@@ -200,8 +200,8 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
         setCopied(false);
       }, 2000);
     } catch (error) {
-      console.error('[DuelLobby] Error copying code:', error);
-      toast.error('Не удалось скопировать код');
+      console.log('Clipboard API blocked:', error);
+      toast.error('Не удалось скопировать. Код: ' + duelCode);
     }
   };
 

@@ -142,6 +142,13 @@ export function useDashboardData() {
   const profileId = userContext?.profileId ?? null;
   const queryClient = useSafeQueryClient();
 
+  // 🔍 DEBUG: Логируем состояние на входе
+  console.log('[useDashboardData] Hook called:', {
+    hasUserContext: !!userContext,
+    profileId,
+    hasQueryClient: !!queryClient
+  });
+
   const {
     data,
     isLoading: loading,
@@ -150,7 +157,7 @@ export function useDashboardData() {
   } = useSafeQuery<DashboardData | null>({
     queryKey: [DASHBOARD_QUERY_KEY, profileId],
     queryFn: async () => {
-      // console.log('[useDashboardData] 🏃 queryFn started for:', profileId);
+      console.log('[useDashboardData] 🏃 queryFn started for:', profileId);
       if (!profileId) {
         console.warn('[useDashboardData] ⚠️ No profileId, returning null');
         return null;

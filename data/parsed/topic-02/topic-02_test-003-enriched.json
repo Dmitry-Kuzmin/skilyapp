@@ -10,37 +10,37 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "En el lado derecho o izquierdo, si se realiza fuera de la calzada y del arcén.",
-          "en": "On the right or left side, if done outside the roadway and shoulder.",
-          "ru": "На правой или левой стороне, если это делается за пределами проезжей части и обочины."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "Fuera de la calzada, en el lado derecho, dejando libre la parte transitable del arcén.",
-          "en": "Outside the roadway, on the right side, leaving the passable part of the shoulder free.",
-          "ru": "За пределами проезжей части, на правой стороне, оставляя свободной проезжую часть обочины."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
+          "ru": "Только в специально отведенных для этого зонах.",
           "es": "Sólo en las zonas habilitadas para ello.",
-          "en": "Only in areas designated for it.",
-          "ru": "Только в специально отведенных для этого зонах."
+          "en": "Only in areas designated for it."
         },
         "is_correct": true
+      },
+      {
+        "id": "opt_1",
+        "text": {
+          "ru": "На правой или левой стороне, если это делается за пределами проезжей части и обочины.",
+          "es": "En el lado derecho o izquierdo, si se realiza fuera de la calzada y del arcén.",
+          "en": "On the right or left side, if done outside the roadway and shoulder."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "За пределами проезжей части, на правой стороне, оставляя свободной проезжую часть обочины.",
+          "es": "Fuera de la calzada, en el lado derecho, dejando libre la parte transitable del arcén.",
+          "en": "Outside the roadway, on the right side, leaving the passable part of the shoulder free."
+        },
+        "is_correct": false
       }
     ],
     "explanation": {
       "es": "Según el Reglamento General de Circulación, en las autopistas y autovías está prohibido parar y estacionar, salvo en los lugares habilitados al efecto (áreas de servicio o zonas de descanso). Esta prohibición es absoluta para la calzada y el arcén, y también se extiende a las zonas fuera de ellos que no estén señalizadas específicamente para estacionamiento. La norma busca garantizar la seguridad y la fluidez del tráfico en vías de alta velocidad.",
       "en": "According to the General Traffic Regulations, stopping and parking on motorways (autopistas) and dual carriageways (autovías) is prohibited, except in places designated for this purpose (service areas or rest areas). This prohibition is absolute for the roadway (calzada) and the shoulder (arcén), and also extends to areas outside them that are not specifically signposted for parking. The rule aims to ensure safety and traffic flow on high-speed roads.",
-      "ru": "🎓 : На дорогах типа Autopista (автомагистраль) и Autovía (скоростная дорога) стоянка и остановка категорически запрещены везде: на проезжей части (calzada), на обочине (arcén) и даже на грунте за их пределами. Из-за высоких скоростей любой стоящий автомобиль создает смертельную опасность. Законно припарковаться можно **только** в специально обозначенных местах: на заправках, в зонах отдыха или на сервисных станциях.\n\n🇷🇺 : В РФ на автомагистралях (знак 5.1) действует аналогичный запрет — стоянка только на спецплощадках (знак 6.4 или 7.11). Однако в Испании статус Autovía встречается очень часто, и водители могут спутать её с обычной загородной дорогой, где в РФ разрешено съехать на обочину. Запомните: в Испании на скоростных дорогах обочина предназначена исключительно для аварийных ситуаций. Просто так остановиться «размять ноги» там нельзя — это грубое нарушение.\n\n💡 Запоминалка: Автомагистраль — это как скоростной тоннель метро. Выходить из поезда (парковаться) можно только на станциях (зонах отдыха). Остановка в перегоне — ЧП."
+      "ru": "🎓 На дорогах типа Autopista (автомагистраль) и Autovía (скоростная дорога) стоянка и остановка категорически запрещены везде: на проезжей части (calzada), на обочине (arcén) и даже на грунте за их пределами. Из-за высоких скоростей любой стоящий автомобиль создает смертельную опасность. Законно припарковаться можно **только** в специально обозначенных местах: на заправках, в зонах отдыха или на сервисных станциях.\n\n🇷🇺 В РФ на автомагистралях (знак 5.1) действует аналогичный запрет — стоянка только на спецплощадках (знак 6.4 или 7.11). Однако в Испании статус Autovía встречается очень часто, и водители могут спутать её с обычной загородной дорогой, где в РФ разрешено съехать на обочину. Запомните: в Испании на скоростных дорогах обочина предназначена исключительно для аварийных ситуаций. Просто так остановиться «размять ноги» там нельзя — это грубое нарушение.\n\n💡 Запоминалка: Автомагистраль — это как скоростной тоннель метро. Выходить из поезда (парковаться) можно только на станциях (зонах отдыха). Остановка в перегоне — ЧП."
     },
     "image_url": "https://teorica.practicavial.com/question/ba8122e3-cc85-41cb-80c7-d1ea87b20139-1657904507-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/ba8122e3-cc85-41cb-80c7-d1ea87b20139-s-1.jpg",

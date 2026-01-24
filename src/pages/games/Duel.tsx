@@ -677,7 +677,7 @@ export default function Duel() {
             };
             console.log('[Duel] Invoke parameters:', invokeParams);
 
-            const { data, error } = await supabase.functions.invoke('duel-manager', {
+            const { data, error } = await supabase.functions.invoke('duel-matchmaking', {
                 body: invokeParams,
             });
 
@@ -809,7 +809,7 @@ export default function Duel() {
         setIsCreating(true);
 
         try {
-            const { data, error } = await supabase.functions.invoke('duel-manager', {
+            const { data, error } = await supabase.functions.invoke('duel-matchmaking', {
                 body: {
                     action: 'create_duel',
                     profile_id: profileId,
@@ -839,6 +839,7 @@ export default function Duel() {
                 toast.success('Дуэль создана! Код скопирован в буфер обмена 🎮');
                 setTimeout(() => setCopied(false), 3000);
             } catch (error) {
+                console.log('Clipboard API blocked:', error);
                 toast.success('Дуэль создана! 🎮');
             }
 
@@ -912,7 +913,7 @@ export default function Duel() {
                 profile_id: profileId ? `${profileId.substring(0, 8)}...` : 'MISSING'
             });
 
-            const { data, error } = await supabase.functions.invoke('duel-manager', {
+            const { data, error } = await supabase.functions.invoke('duel-matchmaking', {
                 body: requestBody,
             });
 
@@ -1036,7 +1037,8 @@ export default function Duel() {
             toast.success('Код скопирован!');
             setTimeout(() => setCopied(false), 2000);
         } catch (error) {
-            toast.error('Не удалось скопировать код');
+            console.log('Clipboard API blocked:', error);
+            toast.error('Не удалось скопировать код. Код: ' + createdCode);
         }
     };
 
@@ -1051,7 +1053,7 @@ export default function Duel() {
         if (!duelId || !profileId) return;
 
         try {
-            const { data, error } = await supabase.functions.invoke('duel-manager', {
+            const { data, error } = await supabase.functions.invoke('duel-matchmaking', {
                 body: {
                     action: 'cancel_duel',
                     duel_id: duelId,
@@ -1109,7 +1111,7 @@ export default function Duel() {
             checkCount++;
 
             try {
-                const { data, error } = await supabase.functions.invoke('duel-manager', {
+                const { data, error } = await supabase.functions.invoke('duel-matchmaking', {
                     body: {
                         action: 'check_status',
                         duel_id: duelId,
