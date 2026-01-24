@@ -170,7 +170,7 @@ const cardContent = (
 );
 
 // Если cryptolocker активен - оборачиваем весь контент в один EncryptionFlashlight
-/* 
+// Если cryptolocker активен - оборачиваем весь контент в один EncryptionFlashlight
 if (cryptolockerActive && !isAnswered) {
   const radius = typeof window !== 'undefined' && window.innerWidth < 768 ? 140 : 180;
   return (
@@ -181,7 +181,6 @@ if (cryptolockerActive && !isAnswered) {
     </Suspense>
   );
 }
-*/
 
 return cardContent;
 });
