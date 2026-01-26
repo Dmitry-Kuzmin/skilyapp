@@ -85,7 +85,7 @@ const CONFIG = {
 
 const VISION_ANALYSIS_PROMPT = `ROLE: Traffic Safety Expert (Spanish DGT).
 TASK: Analyze image components for precise 3D recreation.
-CONSTRAINT: DO NOT reveal correct answer.
+CONSTRAINT: DESCRIBE SIGNS VISUALLY ONLY. DO NOT USE CODES (e.g. say "Red circle with 50", NOT "R-301").
 
 OUTPUT FORMAT: Structured breakdown.
 
@@ -97,7 +97,10 @@ OUTPUT FORMAT: Structured breakdown.
    - Type (Autopista, Conventional, Urban).
    - Lane count & Surface.
    - TEMPORARY: Cones? Yellow markings?
-4. SIGNS: List all visible DGT codes (R-301, P-4, etc) AND provide a VISUAL DESCRIPTION for each (e.g., "Red circle with number 60", "Blue rectangle with white P symbol"). Verify consistency with road.
+4. SIGNS: VISUAL DESCRIPTION ONLY. 
+   - BAD: "P-18 present"
+   - GOOD: "Yellow triangular warning sign with construction worker symbol".
+   - NO TEXT CODES in description.
 5. MARKINGS:
    - Center: Continuous or Dashed? White or Yellow?
    - Arrows/Crosswalks.
@@ -111,21 +114,26 @@ OUTPUT FORMAT: Structured breakdown.
 ACCURACY IS PARAMOUNT. FLAG LOGICAL ERRORS.`;
 
 const STYLE_MASTER_PROMPT = `
-STYLE: High-end Photorealistic Automotive Photography. 8k resolution, Cinematic lighting.
+STYLE: High-End Photorealistic Automotive Simulation. 8k resolution, Unbiased Rendering (Octane/Redshift style), Global Illumination.
+CAMERA: Cinematic, Dynamic, Professional. (Use Low-Angle for heroic urban shots, High-Angle/Drone for clear rural overviews, Over-Shoulder for interior). Avoid flat, boring angles.
 LOCATION: {{DYNAMIC_LOCATION_PLACEHOLDER}}
-
 
 ### 🛑 VISUAL CONSTITUTION & CRITICAL DGT RULES
 
-**RULE 1: NO TEXT HALLUCINATIONS**
-* **FORBIDDEN:** Never write catalog codes (e.g., "S-34", "R-3") on signs.
-* **VISUAL ONLY:** Render the *graphical symbol* of the sign, NEVER the catalog code.
+**RULE 1: NO TEXT HALLUCINATIONS (STRICT)**
+* **FORBIDDEN:** Never write catalog codes (e.g., "S-34", "R-407a", "P-18") on signs OR on small plates below them.
+* **NO SUPPLEMENTARY PLATES:** Do NOT draw small rectangular plates (White or Yellow) below the sign with text. The pole must be BARE.
+* **CONSTRUCTION SIGNS (Obras)**: Draw ONLY the **Yellow Triangle with Worker Symbol**. ABOLISH the yellow square plate with "Obras" or "P-18".
+* **VISUAL ONLY:** Render the *graphical symbol* only. The sign pole must be clean.
 * **PURE GEOMETRY:** Signs must be geometrically perfect (Perfect Circles, Triangles, Rectangles).
 
-**RULE 2: RENDER STYLE**
-* Perspective: Isometric Top-Down (45°). 
-* RENDER: Photorealistic, 8K, Ray-traced.
-* NO black voids.
+**RULE 2: HYPER-REALISTIC MATERIALS**
+* **ASPHALT:** Texture must be visible—grainy, slight wear, tire skid marks, oil spots, and variances in roughness. NOT flat grey.
+* **ROAD MARKINGS:** "Thermoplastic" painted look—slightly raised texture, matte white, showing minor wear/cracking from traffic.
+* **TRAFFIC SIGNS:** 
+    - **Face:** Retro-reflective vinyl texture (subtle honeycomb pattern if close).
+    - **Structure:** Galvanized steel grey poles (matte metal), visible bolted clamps/brackets on the back if visible.
+* **VEHICLES:** European-spec models. Real automotive paint with clear coat reflections. 
 
 **RULE 3: DGT 2026 UPDATE - EMERGENCY SIGNALS**
 * **NO TRIANGLES:** Do NOT generate "Warning Triangles" (Triángulos de preseñalización) on the road.
@@ -135,7 +143,7 @@ LOCATION: {{DYNAMIC_LOCATION_PLACEHOLDER}}
 {{DYNAMIC_BRANDING_PLACEHOLDER}}
 
 ## NEGATIVE PROMPT:
-Cluttered scene, cartoon, low poly, ugly text, huge sci-fi buildings, flying cars, watermarks, signature, blurry, distorted, accident, crash, dead body, injury, blood, collision, smashed car, dented car, broken glass, violence, tragedy, gore, road warning triangle, red triangle on road.
+Cluttered scene, cartoon, low poly, ugly text, huge sci-fi buildings, flying cars, watermarks, signature, blurry, distorted, accident, crash, dead body, injury, blood, collision, smashed car, dented car, broken glass, violence, tragedy, gore, road warning triangle, red triangle on road, text labels, R-407a, P-18, Obras, sign code, white plate below sign, yellow plate below sign, sign caption, text on pole, American yellow center lines, floating cars.
 
 ## INFRASTRUCTURE & LOGIC (DGT STANDARDS):
 1. **MARKINGS**: WHITE lines only (No yellow US lines).
@@ -223,46 +231,55 @@ async function analyzeOriginalImage(imageUrl) {
 // ==========================================
 // RANDOMIZATION ASSETS (Skily Branding)
 // ==========================================
+// ==========================================
+// RANDOMIZATION ASSETS (Skily Branding & Atmosphere)
+// ==========================================
 const SPAIN_REGIONS = [
-    { name: "Bilbao/Basque", desc: "Green mountains, soft overcast light", weather: "Cloudy/Mist" },
-    { name: "Galicia", desc: "Lush forests, wet stone roads, hydrangeas", weather: "Rainy/Foggy/Soft" },
-    { name: "Valencia/Coast", desc: "Palm trees, modern white architecture", weather: "Sunny bright blue sky" },
-    { name: "Barcelona/Urban", desc: "Gothic/Modernist mix, busy avenues", weather: "Warm golden light" },
-    { name: "Madrid/Central", desc: "Dry high plains, wide horizons, warm tones", weather: "Dry clear sky" },
-    { name: "Andalusia", desc: "White villages, olive groves, intense sun", weather: "Hard contrasts, bright sun" },
-    { name: "Canary Islands", desc: "Volcanic rock, tropical palms, haze", weather: "Hazy warm sun" },
-    { name: "Pyrenees", desc: "Dramatic limestone peaks, waterfalls", weather: "Dramatic Post-Rain" }
+    { name: "Asturias (Green North)", desc: "Deep green valleys, limestone peaks, wet reflective asphalt", weather: "Dramatic Stormy/Clearing" },
+    { name: "Galicia (Mystic)", desc: "Mist-covered eucalyptus forests, stone walls, soft diffuse light", weather: "Foggy/Cinematic Mist" },
+    { name: "Basque Coast (Dramatic)", desc: "Cliffs dropping into ocean, winding roads, intense green grass", weather: "Overcast with bright spots" },
+    { name: "Cantabria (Elements)", desc: "Rough sea, jagged rocks, wet road reflecting the sky", weather: "Moody Blue/Grey" },
+    { name: "Pyrenees (Alpine)", desc: "High mountain pass, snow patches, crisp cold air", weather: "Crystal Clear Blue Sky" },
+    { name: "Madrid (Modern Urban)", desc: "Wide avenues, golden hour sun, glass skyscrapers", weather: "Sunset/Golden Hour" }
 ];
 
 const SKILY_VARIANTS = [
     {
-        id: 'A',
-        tags: ['urban', 'city', 'street', 'intersection', 'town'],
-        text: `OPTIONAL BACKGROUND: A small six-wheeled **Skily Delivery Robot** (White/Cyan) visible on the sidewalk (do not obstruct traffic).`
+        id: 'MUPI',
+        tags: ['urban', 'city', 'bus', 'parada', 'avenue', 'calle'],
+        text: `**THE COOL ELEMENT:** A modern glass bus shelter (MUPI) on the sidewalk. Inside, a high-res OLED screen displays a witty Skily ad.
+        **Ad Visual:** A split screen showing a sweating stressed driver vs. a chill Skily driver.
+        **Text on Ad:** "Tu carnet. Modo Fácil." (Your license. Easy Mode).
+        **Interaction:** The Skily car drives past in the lane.`
     },
     {
-        id: 'B',
-        tags: ['urban', 'city', 'bus', 'stop', 'avenue'],
-        text: `OPTIONAL BACKGROUND: A modern bus stop or billboard displaying a "Skily" advertisement.`
+        id: 'ROBOT',
+        tags: ['sidewalk', 'crosswalk', 'urban', 'pedestrian'],
+        text: `**MODERN GADGET:** A friendly, six-wheeled autonomous delivery robot (White/Cyan with Skily logo) navigating the sidewalk safely. It adds a futuristic touch.`
     },
     {
-        id: 'C',
-        tags: ['parking', 'station', 'rest'],
-        text: `OPTIONAL BACKGROUND: A "Skily" EV Charging Station visible in the parking area.`
+        id: 'DRONE',
+        tags: ['mountain', 'coast', 'scenic', 'highway', 'road'],
+        text: `**MODERN GADGET:** A small professional camera drone hovering high in the sky (subtle), filming the Skily car driving through this epic landscape.`
+    },
+    {
+        id: 'EV_STATION',
+        tags: ['parking', 'station', 'rest', 'gas', 'service'],
+        text: `**MODERN GADGET:** A futuristic "Skily Energy" EV Charging Station with glowing cyan LED rings, visible in the background.`
     }
 ];
 
 
 function getSkilyBranding(text, isSafetyCritical = false) {
     // 1. Creative Scenario (Location & Weather)
+    // Now biased heavily towards Northern Spain beauty
     const locationString = getCreativeScenario(text);
 
     // 🔴 SAFETY CRITICAL OVERRIDE:
-    // If scene is dangerous (Accident, V16, Emergency), DISABLE branding to avoid "Skily caused the accident" look.
     if (isSafetyCritical) {
         return {
             location: locationString,
-            branding: `## BRANDING DISABLED (SAFETY CRITICAL):
+            branding: `## BRANDING DISARMED (SAFETY CRITICAL):
 **NEUTRALITY RULE**: This is an emergency/accident scenario.
 1. DO NOT place any logos or branded vehicles.
 2. All vehicles must be generic and neutral.
@@ -271,28 +288,33 @@ function getSkilyBranding(text, isSafetyCritical = false) {
         };
     }
 
-    // 2. Branding Elements (Context-Strict & Subtle)
+    // 2. Branding Elements (Adequate Quantity & Cool Gadgets)
     let brandingText = "";
 
     // Check for matching context
     const candidates = SKILY_VARIANTS.filter(v => v.tags.some(t => text.includes(t)));
 
+    // Fallback if no specific tag match (e.g. rural road) -> Drone or Robot valid? Drone yes.
+    if (candidates.length === 0) {
+        candidates.push(SKILY_VARIANTS.find(v => v.id === 'DRONE'));
+    }
+
     const SAFETY_PROTOCOL = `
 **BRAND SAFETY (CRITICAL):**
 * Skily vehicles (marked with livery) must NEVER be involved in accidents, collisions, or illegal maneuvers.
-* Skily vehicles must always be PARKED legally or DRIVING safely.
-* If the scene requires an accident, use neutral unbranded cars. Skily car must be strictly safe or not present.`;
+* Skily vehicles must always be PARKED legally or DRIVING safely.`;
 
-    if (candidates.length > 0 && Math.random() < 0.3) { // Reduced probability to 30%
+    // Increased probability to 70% as requested ("adequate quantity")
+    if (candidates.length > 0 && Math.random() < 0.7) {
         const selected = candidates[Math.floor(Math.random() * candidates.length)];
-        brandingText = `## SKILY BRANDING (SUBTLE TOUCH):
+        brandingText = `## SKILY BRANDING (MODERN & COOL):
 ${selected.text}
 Also: One of the cars (preferable the main car) should have the Skily Livery (White/Blue/Cyan).
 ${SAFETY_PROTOCOL}`;
     } else {
-        // Default: Just the car logo, minimal intrusion
+        // Default: Just the car logo
         brandingText = `## SKILY BRANDING (MINIMAL):
-One of the vehicles (the main car) should use the Skily Livery (White/Blue with Cyan accents). NO other branding objects.
+One of the vehicles (the main car) should use the Skily Livery (White/Blue with Cyan accents).
 ${SAFETY_PROTOCOL}`;
     }
 
@@ -504,7 +526,11 @@ Generate precise, LOGICALLY CORRECT educational traffic scenario that perfectly 
 - Text labels floating in air
         - Distorted wheels or cars floating above ground
 - Dark or night scenes (unless specified)
-- Rain/Snow (unless specified)`;
+- Rain/Snow (unless specified)
+- **GLOWING ARROWS ON ROAD**: Do NOT draw holographic, neon, or glowing navigation arrows on the road surface.
+- **SCI-FI EFFECTS**: No futuristic HUD overlays, no glowing circles under cars, no laser projections.
+- **GAMY FY ELEMENTS**: No "Need for Speed" style checkpoints or markers on the asphalt.
+- Keep the road surface clean asphalt, only STANDARD WHITE DGT PAINT markings allowed.`;
     }
 
     // ==========================================
