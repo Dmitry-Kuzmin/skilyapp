@@ -291,69 +291,17 @@ export function AuthModalNew({ open, onClose, initialStep = 'email' }: AuthModal
 
   const handleGoogleLogin = async () => {
     try {
-      // 1. Получаем URL для авторизации (без редиректа)
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      // КРИТИЧНО: Используем стандартный редирект для максимальной совместимости на мобильных
+      // Попапы часто блокируются или открываются некорректно во встроенных браузерах (Instagram, Telegram)
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
-          skipBrowserRedirect: true,
+          skipBrowserRedirect: false, // Включаем автоматический редирект
         }
       });
 
       if (error) throw error;
-      if (!data?.url) throw new Error('No auth URL returned');
-
-      // 2. Открываем попап
-      const width = 500;
-      const height = 600;
-      const left = window.screen.width / 2 - width / 2;
-      const top = window.screen.height / 2 - height / 2;
-
-      const popup = window.open(
-        data.url,
-        'google-auth',
-        `width=${width},height=${height},top=${top},left=${left},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
-      );
-
-      if (!popup) {
-        toast.error('Пожалуйста, разрешите всплывающие окна');
-        return;
-      }
-
-      // 3. Слушаем сообщение об успехе
-      const handleMessage = (event: MessageEvent) => {
-        if (event.origin !== window.location.origin) return;
-
-        if (event.data?.type === 'OAUTH_SUCCESS') {
-          console.log('[AuthModal] Google login success via popup');
-
-          // Удаляем слушатель
-          window.removeEventListener('message', handleMessage);
-
-          // Показываем успех и редиректим
-          setShowSuccessAnimation(true);
-          toast.success(t('auth.success.loggedIn'));
-          if (webApp?.HapticFeedback) {
-            webApp.HapticFeedback.notificationOccurred('success');
-          }
-
-          setTimeout(() => {
-            onClose();
-            navigate('/dashboard', { replace: true });
-          }, 1200);
-        }
-      };
-
-      window.addEventListener('message', handleMessage);
-
-      // Очистка слушателя если попап закрыли вручную (простой поллинг)
-      const checkPopup = setInterval(() => {
-        if (popup.closed) {
-          clearInterval(checkPopup);
-          window.removeEventListener('message', handleMessage);
-        }
-      }, 1000);
-
     } catch (err: any) {
       console.error('Google login error:', err);
       toast.error('Google login failed');

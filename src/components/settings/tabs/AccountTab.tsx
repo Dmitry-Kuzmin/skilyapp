@@ -146,47 +146,15 @@ export const AccountTab: React.FC = () => {
     const handleConnectGoogle = async () => {
         triggerHaptic('medium');
         try {
-            // 1. Получаем URL
-            const { data, error } = await supabase.auth.signInWithOAuth({
+            // КРИТИЧНО: Используем стандартный редирект для максимальной совместимости на мобильных
+            const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                     redirectTo: `${window.location.origin}/auth/callback`,
-                    skipBrowserRedirect: true,
+                    skipBrowserRedirect: false,
                 }
             });
             if (error) throw error;
-            if (!data?.url) throw new Error('No auth URL returned');
-
-            // 2. Открываем попап
-            const width = 500;
-            const height = 600;
-            const left = window.screen.width / 2 - width / 2;
-            const top = window.screen.height / 2 - height / 2;
-
-            const popup = window.open(
-                data.url,
-                'google-connect',
-                `width=${width},height=${height},top=${top},left=${left},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
-            );
-
-            if (!popup) {
-                toast.error('Разрешите всплывающие окна');
-                return;
-            }
-
-            // 3. Слушаем результат
-            const handleMessage = (event: MessageEvent) => {
-                if (event.origin !== window.location.origin) return;
-
-                if (event.data?.type === 'OAUTH_SUCCESS') {
-                    window.removeEventListener('message', handleMessage);
-                    toast.success('Google успешно подключен');
-                    refreshProfile();
-                    // Возможно, нужно обновить сессию или перезагрузить данные
-                }
-            };
-            window.addEventListener('message', handleMessage);
-
         } catch (error) {
             console.error('Google connect error:', error);
             toast.error('Ошибка подключения Google');
