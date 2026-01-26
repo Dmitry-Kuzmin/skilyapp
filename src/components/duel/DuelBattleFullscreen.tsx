@@ -2990,6 +2990,5 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         />
       </Suspense>
     </div>
-    </div >
   );
 }
