@@ -32,13 +32,13 @@ export function AuthCallback() {
     // Проверяем сессию ПЕРЕД тем, как редиректить на главную
     if (!hasTokens) {
       console.log('[AuthCallback] No tokens in hash, checking if session already exists...');
-      
+
       // Проверяем сессию - возможно Supabase уже обработал токены
       supabase.auth.getSession().then(({ data: { session }, error: sessionError }) => {
         if (sessionError) {
           console.error('[AuthCallback] Error getting session:', sessionError);
         }
-        
+
         if (session?.user) {
           console.log('[AuthCallback] ✅ Session found (Supabase already processed tokens):', session.user.email);
           // Сессия есть - редиректим на dashboard
@@ -51,7 +51,7 @@ export function AuthCallback() {
           setTimeout(() => navigate('/', { replace: true }), 2000);
         }
       });
-      
+
       return;
     }
 
@@ -70,7 +70,7 @@ export function AuthCallback() {
       });
 
       hasRedirectedRef.current = true;
-      
+
       // Очищаем таймаут если он еще не сработал
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -78,6 +78,25 @@ export function AuthCallback() {
       }
 
       setStatus('success');
+
+      // POPUP MODE: Если окно открыто как попап, отправляем сообщение родителю
+      if (window.opener) {
+        console.log('[AuthCallback] Popup detected, sending message to opener...');
+        try {
+          window.opener.postMessage({
+            type: 'OAUTH_SUCCESS',
+            session: session
+          }, window.location.origin);
+
+          setTimeout(() => {
+            window.close();
+          }, 100);
+          return;
+        } catch (err) {
+          console.error('[AuthCallback] Failed to communicate with opener:', err);
+          // Fallback to normal redirect if communication fails
+        }
+      }
 
       // Небольшая задержка для UI feedback, затем редирект
       setTimeout(() => {

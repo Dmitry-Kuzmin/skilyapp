@@ -432,16 +432,7 @@ export function useDuelGame({
           expectedBehavior: data.is_correct ? `Combo should be ${combo + 1}` : 'Combo should be 0'
         });
 
-        // 🔍 DEBUG: Проверяем что именно вернул сервер
-        console.log('🔍 [useDuelGame] Server response FULL:', {
-          data,
-          is_correct_field: data.is_correct,
-          is_correct_type: typeof data.is_correct,
-          is_correct_value: data.is_correct === true,
-          new_score: data.new_score,
-          combo: serverCombo,
-          points_awarded: data.points_awarded
-        });
+
 
         log('[useDuelGame] Server response:', {
           serverIsCorrect: data.is_correct,
@@ -451,13 +442,13 @@ export function useDuelGame({
 
         // Play sounds based on SERVER response (not client assumption)
         const serverIsCorrect = data.is_correct === true;
-        console.log('🎯 [useDuelGame] Triggering effects for:', serverIsCorrect ? 'CORRECT ✅' : 'WRONG ❌');
+
 
         if (serverIsCorrect) {
           sounds.correctAnswer();
           haptics.correctAnswer();
           if (onCorrectAnswer) {
-            console.log('🟢 Calling onCorrectAnswer callback');
+
             onCorrectAnswer();
           }
           if (serverCombo > 1) {
@@ -472,7 +463,7 @@ export function useDuelGame({
           haptics.wrongAnswer();
           // 🎯 Screen shake при неправильном ответе
           if (onWrongAnswer) {
-            console.log('🔴 Calling onWrongAnswer callback');
+
             onWrongAnswer();
           }
           // Combo should be 0 after wrong answer

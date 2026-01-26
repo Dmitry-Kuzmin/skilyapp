@@ -64,72 +64,11 @@ export function ResponsiveModal({
   fullscreen = false,
   dismissible,
 }: ResponsiveModalProps) {
+  // Основной пропс для управления открытием
   const isMobile = useIsMobile();
-  const [keyboardHeight, setKeyboardHeight] = React.useState(0);
-
-  // iOS Keyboard handling с Visual Viewport API + CSS-переменная
-  React.useEffect(() => {
-    if (!isMobile || typeof window === 'undefined' || !open) return;
-
-    const handleViewportChange = () => {
-      // Visual Viewport API - правильный способ для iOS
-      if ('visualViewport' in window && window.visualViewport) {
-        const viewport = window.visualViewport;
-        const windowHeight = window.innerHeight;
-        const viewportHeight = viewport.height;
-
-        // Клавиатура открыта если viewport меньше window
-        const keyboardVisible = viewportHeight < windowHeight;
-
-        if (keyboardVisible) {
-          // Высота клавиатуры = разница между window и viewport
-          const kbHeight = windowHeight - viewportHeight;
-          setKeyboardHeight(kbHeight);
-
-          // Записываем в CSS-переменную для использования в стилях
-          document.documentElement.style.setProperty(
-            '--visual-viewport-height',
-            `${viewportHeight}px`
-          );
-        } else {
-          setKeyboardHeight(0);
-          // Сбрасываем в default (96vh)
-          document.documentElement.style.setProperty(
-            '--visual-viewport-height',
-            '96vh'
-          );
-        }
-      }
-    };
-
-    // Подписка на изменения viewport
-    if ('visualViewport' in window && window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleViewportChange);
-      window.visualViewport.addEventListener('scroll', handleViewportChange);
-      // Сразу проверяем при mount
-      handleViewportChange();
-    }
-
-    // Fallback для старых браузеров
-    window.addEventListener('resize', handleViewportChange);
-
-    return () => {
-      if ('visualViewport' in window && window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', handleViewportChange);
-        window.visualViewport.removeEventListener('scroll', handleViewportChange);
-      }
-      window.removeEventListener('resize', handleViewportChange);
-      setKeyboardHeight(0);
-      // Очищаем CSS-переменную
-      document.documentElement.style.removeProperty('--visual-viewport-height');
-    };
-  }, [isMobile, open]);
 
   // На мобильных используем Vaul Drawer с нативной физикой
   if (isMobile) {
-    // Динамическая высота: используем CSS-переменную ИЛИ calc
-    const isKeyboardOpen = keyboardHeight > 0;
-
     return (
       <Drawer
         open={open}
@@ -141,27 +80,15 @@ export function ResponsiveModal({
         setActiveSnapPoint={onSnapPointChange}
         fadeFromIndex={fadeFromIndex}
         modal={true}
-        shouldScaleBackground={false}
-        repositionInputs={false} // 🔥 КРИТИЧНО: Отключаем авто-скролл Vaul
+        shouldScaleBackground={true} // Возвращаем scale эффект для нативности
+        repositionInputs={true} // Включаем авто-скролл к инпутам
       >
         <DrawerContent
           className={cn(
-            "flex flex-col fixed bottom-0 left-0 right-0 z-[100001] outline-none transition-all duration-200",
-            // 🔥 КРИТИЧНО: НЕТ rounded-t когда клавиатура открыта
-            isKeyboardOpen ? "" : "rounded-t-[32px]",
+            "flex flex-col fixed bottom-0 left-0 right-0 z-[100001] outline-none transition-transform duration-200 rounded-t-[32px]",
+            "max-h-[96vh] h-auto", // Автоматическая высота с ограничением
             className
           )}
-          style={{
-            // Используем CSS-переменную с fallback
-            height: 'var(--visual-viewport-height, 96vh)',
-            maxHeight: '96%', // Ограничиваем максимальную высоту 
-            // Плавный переход при изменении высоты
-            transition: isKeyboardOpen
-              ? 'height 0.2s ease-out, border-radius 0.2s ease-out'
-              : 'height 0.15s ease-in, border-radius 0.15s ease-in',
-            // Предотвращаем overflow за пределы экрана
-            overflow: 'hidden',
-          }}
           hideHandle={hideHandle}
           onInteractOutside={(e) => {
             if (preventClose) {
@@ -169,37 +96,21 @@ export function ResponsiveModal({
             }
           }}
         >
-          {/* Глобальный стиль для скрытия элементов на низких экранах */}
-          <style>{`
-            @media (max-height: 650px) {
-              .hide-on-keyboard {
-                display: none !important;
-                opacity: 0 !important;
-                height: 0 !important;
-                margin: 0 !important;
-                pointer-events: none !important;
-              }
-            }
-          `}</style>
-
-          <div className={cn(
-            "flex-1 flex flex-col w-full bg-background/95 backdrop-blur-xl overflow-hidden",
-            isKeyboardOpen ? "" : "rounded-t-[32px]"
-          )}>
+          <div className="flex-1 flex flex-col w-full bg-background/95 backdrop-blur-xl overflow-hidden rounded-t-[32px]">
             {/* Полоска-ручка */}
             {!hideHandle && (
               <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-700/50 mt-3 mb-2" />
             )}
 
-            {/* Кастомный header */}
+            {/* Header */}
             {headerContent && (
-              <div className="shrink-0 hide-on-keyboard transition-all duration-300">
+              <div className="shrink-0">
                 {headerContent}
               </div>
             )}
 
             {title && (
-              <DrawerHeader className="text-left shrink-0 border-b border-white/10 pb-3 px-8 hide-on-keyboard transition-all duration-300">
+              <DrawerHeader className="text-left shrink-0 border-b border-white/10 pb-3 px-8">
                 <DrawerTitle className="text-foreground">{title}</DrawerTitle>
                 {description && (
                   <DrawerDescription className="text-muted-foreground">
@@ -209,26 +120,20 @@ export function ResponsiveModal({
               </DrawerHeader>
             )}
 
-            {/* Scrollable content - 🔥 КРИТИЧНО: justify-start для скролла */}
+            {/* Scrollable content */}
             <div
               className={cn(
                 "flex-1 overflow-y-auto min-h-0 overscroll-contain outline-none w-full px-4",
                 contentClassName
               )}
-              id="drawer-scroll-container"
-              data-scrollable
               data-vaul-no-drag
               style={{
                 WebkitOverflowScrolling: 'touch',
                 scrollbarWidth: 'none',
               }}
             >
-              <div className="flex flex-col min-h-full justify-start pt-2">
+              <div className="flex flex-col min-h-full justify-start pt-2 pb-10">
                 {children}
-
-                {/* Spacer для iOS - чтобы контент можно было прокрутить ВЫШЕ клавиатуры */}
-                {/* 🔥 Важно: 40vh дает огромный запас хода скролла */}
-                <div className="h-[40vh] w-full flex-shrink-0" aria-hidden="true" />
               </div>
             </div>
           </div>
