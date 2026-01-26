@@ -54,6 +54,7 @@ import { AuthCallback } from "./pages/AuthCallback";
 // Purchase - страница для обработки Paddle checkout
 // Должна быть доступна без AppProviders, так как Paddle редиректит туда до оплаты
 const Purchase = lazy(() => import("./pages/Purchase").then(m => ({ default: m.default })));
+const Login = lazy(() => import("./pages/Login"));
 
 // Обработка ошибок для lazy loading Index (dashboard)
 const IndexErrorFallback = () => {
@@ -581,6 +582,13 @@ const App = () => {
                 <Suspense fallback={null}>
                   <StartupCurtain />
                   <Purchase />
+                </Suspense>
+              } />
+              {/* Login page for mobile - standalone */}
+              <Route path="/login" element={
+                <Suspense fallback={null}>
+                  <StartupCurtain />
+                  <Login />
                 </Suspense>
               } />
               {/* Все остальные роуты - внутри AppProviders (с Supabase/Query) */}

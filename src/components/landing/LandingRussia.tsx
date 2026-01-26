@@ -497,6 +497,12 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
 
 
   const handleStartEngine = () => {
+    if (window.innerWidth < 768) {
+      playEngineSound();
+      setTimeout(() => navigate('/login'), 300); // Небольшая задержка для звука
+      return;
+    }
+
     if (isStarting) return; // избегаем двойного триггера во время анимации
     setIsStarting(true);
     playEngineSound();
@@ -574,7 +580,13 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           />
 
           <button
-            onClick={handleEnter}
+            onClick={() => {
+              if (window.innerWidth < 768) {
+                navigate('/login');
+              } else {
+                handleEnter();
+              }
+            }}
             className="px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-white text-slate-900 text-xs md:text-sm font-bold hover:bg-white/90 transition-all duration-300 hover:scale-105 relative whitespace-nowrap shadow-lg shadow-white/20"
           >
             {referrerInfo ? (
