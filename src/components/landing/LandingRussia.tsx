@@ -650,7 +650,13 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
 
               {/* CTA Button */}
               <button
-                onClick={handleEnter}
+                onClick={() => {
+                  if (isTouchDevice) {
+                    navigate('/login');
+                  } else {
+                    handleEnter();
+                  }
+                }}
                 className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-600 hover:from-amber-500 hover:via-yellow-500 hover:to-amber-500 text-white font-black text-sm md:text-base shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2 group relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -712,7 +718,13 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
 
               {/* CTA Button */}
               <button
-                onClick={handleEnter}
+                onClick={() => {
+                  if (isTouchDevice) {
+                    navigate('/login');
+                  } else {
+                    handleEnter();
+                  }
+                }}
                 className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 hover:from-indigo-500 hover:via-violet-500 hover:to-indigo-500 text-white font-black text-sm md:text-base shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2 group relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -1154,7 +1166,13 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               ))}
             </ul>
             <button
-              onClick={handleEnter}
+              onClick={() => {
+                if (isTouchDevice) {
+                  navigate('/login');
+                } else {
+                  handleEnter();
+                }
+              }}
               className="w-full py-3 rounded-xl border border-slate-700 font-bold text-slate-300 hover:bg-slate-800 transition-colors relative"
             >
               {russianPricing.plans.cadet.cta}
@@ -1183,7 +1201,13 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               ))}
             </ul>
             <button
-              onClick={handleEnter}
+              onClick={() => {
+                if (isTouchDevice) {
+                  navigate('/login');
+                } else {
+                  handleEnter();
+                }
+              }}
               className="w-full py-3 rounded-xl bg-indigo-600 font-bold text-white hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/20 relative"
             >
               {russianPricing.plans.monthly.cta}
@@ -1212,7 +1236,13 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               ))}
             </ul>
             <button
-              onClick={handleEnter}
+              onClick={() => {
+                if (isTouchDevice) {
+                  navigate('/login');
+                } else {
+                  handleEnter();
+                }
+              }}
               className="w-full py-3 rounded-xl bg-purple-600 font-bold text-white hover:bg-purple-500 transition-colors shadow-lg shadow-purple-500/20 relative"
             >
               {russianPricing.plans.yearly.cta}
