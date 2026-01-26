@@ -129,11 +129,7 @@ export function AdminLayout() {
 
     if (!user) {
       console.log("[AdminLayout] ❌ No user found, redirecting");
-      toast({
-        title: "Доступ запрещён",
-        description: "Необходима авторизация",
-        variant: "destructive"
-      });
+      toast.error("Необходима авторизация");
       navigate('/');
       return;
     }
@@ -167,11 +163,7 @@ export function AdminLayout() {
 
       if (error || !data) {
         console.error("[AdminLayout] ❌ Admin check failed:", error || "No role data");
-        toast({
-          title: "Доступ запрещён",
-          description: "Требуются права администратора",
-          variant: "destructive"
-        });
+        toast.error("Требуются права администратора");
         navigate('/');
         return;
       }
@@ -180,11 +172,7 @@ export function AdminLayout() {
       setIsAdmin(true);
     } catch (e: any) {
       console.error("[AdminLayout] ❌ Admin check error/timeout:", e.message);
-      toast({
-        title: "Ошибка проверки",
-        description: "Сервер Supabase не отвечает. Попробуйте обновить страницу.",
-        variant: "destructive"
-      });
+      toast.error("Сервер Supabase не отвечает. Попробуйте обновить страницу.");
     } finally {
       setAuthLoading(false);
     }
