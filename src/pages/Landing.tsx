@@ -150,7 +150,7 @@ const Landing = () => {
         clearTimeout(timeoutId);
       }
     };
-  }, [navigate, webApp, location.pathname]); // Добавили location.pathname для отслеживания изменений пути
+  }, [navigate, webApp]); // CRITICAL: Removed location.pathname to prevent infinite loop
 
   useEffect(() => {
     // КРИТИЧНО: Landing НЕ проверяет авторизацию - это делает Index
