@@ -170,7 +170,12 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                             isDarkTheme ? "bg-slate-800 border-slate-600" : "bg-slate-200 border-white"
                         )}>
                             {userData.photoUrl ? (
-                                <img src={userData.photoUrl} alt="Pilot" className="w-full h-full object-cover grayscale-[0.2] group-hover/photo:grayscale-0 transition-all duration-500" />
+                                <img
+                                    src={userData.photoUrl}
+                                    alt="Pilot"
+                                    className="w-full h-full object-cover grayscale-[0.2] group-hover/photo:grayscale-0 transition-all duration-500"
+                                    referrerPolicy="no-referrer"
+                                />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-slate-800">
                                     <span className="text-4xl filter grayscale">🙂</span>
