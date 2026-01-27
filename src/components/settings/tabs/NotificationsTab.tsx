@@ -140,15 +140,21 @@ export const NotificationsTab: React.FC = () => {
         }
     };
 
+    // Определяем iOS, так как там PWA установка обязательна для пушей
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+
+    // Блокируем свитч ТОЛЬКО если это iOS и не PWA. Для остальных (Deskop/Android) разрешаем.
+    const isSwitchDisabled = isLoading || (isIOS && !pwaInstalled);
+
     return (
         <div className="space-y-6">
             {/* Web Push (iOS/Android PWA) */}
             {pushSupported && (
                 <div>
-                    <SectionTitle title="Web Push (iOS/Android)" />
+                    <SectionTitle title="Web Push (iOS/Android/Desktop)" />
 
-                    {/* Статус PWA */}
-                    {!pwaInstalled && (
+                    {/* Статус PWA - показываем предупреждение ТОЛЬКО на iOS, если не установлено */}
+                    {!pwaInstalled && isIOS && (
                         <div className="mb-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-500/20">
                             <div className="flex items-start gap-2">
                                 <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
@@ -169,15 +175,15 @@ export const NotificationsTab: React.FC = () => {
                             description={
                                 pushEnabled
                                     ? "Активно • Вы получаете уведомления"
-                                    : pwaInstalled
-                                        ? "Включите для получения уведомлений"
-                                        : "Требуется установка PWA"
+                                    : (isIOS && !pwaInstalled)
+                                        ? "Требуется установка PWA (iOS)"
+                                        : "Включите для получения уведомлений"
                             }
                         >
                             <CyberSwitch
                                 checked={pushEnabled}
                                 onCheckedChange={handlePushToggle}
-                                disabled={isLoading || !pwaInstalled}
+                                disabled={isSwitchDisabled}
                             />
                         </SettingRow>
 
